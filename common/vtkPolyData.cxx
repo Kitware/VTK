@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkQuad.h"
 #include "vtkPolygon.h"
 #include "vtkEmptyCell.h"
-//#include "vtkPolyDataWriter.h"
+#include "vtkUnstructuredExtent.h"
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
@@ -89,8 +89,8 @@ vtkPolyData::vtkPolyData ()
   this->Cells = NULL;
   this->Links = NULL;
 
-  this->UpdatePiece = 0;
-  this->UpdateNumberOfPieces = 1;
+  this->Extent = vtkUnstructuredExtent::New();
+  this->UpdateExtent = vtkUnstructuredExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -161,6 +161,10 @@ vtkPolyData::~vtkPolyData()
   this->TriangleStrip->Delete();
   this->EmptyCell->Delete();
   
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = NULL;
+  this->Extent->Delete();
+  this->Extent = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -1305,49 +1309,67 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
 
 //============================= streaming stuff ==============================
 
+
+//----------------------------------------------------------------------------
+void vtkPolyData::ClipUpdateExtentWithWholeExtent()
+{
+  // This check has nothing to do with whole extent, 
+  // but is here by convenience.
+  if (this->UpdateExtent->GetPiece() != this->Extent->GetPiece() ||
+      this->UpdateExtent->GetNumberOfPieces() != this->Extent->GetNumberOfPieces() ||
+      this->UpdateExtent->GetExtentType() != this->Extent->GetExtentType())
+    {
+    this->ReleaseData();
+    }
+  
+  // We might as well set the Extent here.
+  // To Be worked out later.
+  this->Extent->Copy(this->UpdateExtent);
+}
+
+
 //----------------------------------------------------------------------------
 void vtkPolyData::SetUpdateExtent(int piece, int numPieces)
 {
-  if (this->UpdatePiece == piece && this->UpdateNumberOfPieces == numPieces)
-    {
-    return;
-    }
-  // This is a hack to avoid releasing data in one of my MPI examples.
-  // What I need, is an append which splits up data for me.
-  // Like streaming, but through ports (data parallelism).
-  if (this->Source == NULL)
-    {
-    return;
-    }
-  
-  this->ReleaseData();
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
+  this->UpdateExtent->SetExtent(piece, numPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyData::GetUpdateExtent(int &piece, int &numPieces)
 {
-  piece = this->UpdatePiece;
-  numPieces = this->UpdateNumberOfPieces;
+  piece = this->UpdateExtent->GetPiece();
+  numPieces = this->UpdateExtent->GetNumberOfPieces();
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyData::CopyUpdateExtent(vtkDataObject *data)
+int vtkPolyData::GetUpdatePiece()
 {
-  int piece, numPieces;
-  vtkPolyData *polyData = (vtkPolyData*)(data);
+  return this->UpdateExtent->GetPiece();
+}
 
-  // this should be a safe typecast.
-  if (data->GetDataObjectType() != VTK_POLY_DATA)
+//----------------------------------------------------------------------------
+int vtkPolyData::GetUpdateNumberOfPieces()
+{
+  return this->UpdateExtent->GetNumberOfPieces();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyData::CopyGenericUpdateExtent(vtkExtent *arg)
+{
+  if (strcmp(arg->GetClassName(), "vtkUnstructuredExtent") != 0)
     {
-    vtkErrorMacro("CopyUpdateExtent: Expecting PolyData");
+    vtkErrorMacro("vtkPolyData cannot copy " << arg->GetClassName());
     return;
     }
-
-  polyData->GetUpdateExtent(piece, numPieces);
-  this->SetUpdateExtent(piece, numPieces);
+  
+  this->UpdateExtent->Copy((vtkUnstructuredExtent *)(arg));
 }
+
+void vtkPolyData::CopyUpdateExtent(vtkDataObject *obj)
+{
+  this->CopyGenericUpdateExtent(obj->GetGenericUpdateExtent());
+}
+
 
 //----------------------------------------------------------------------------
 void vtkPolyData::CopyInformation(vtkDataObject *data)
@@ -1360,18 +1382,19 @@ void vtkPolyData::CopyInformation(vtkDataObject *data)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkPolyData::GetEstimatedUpdateExtentMemorySize()
+unsigned long vtkPolyData::GetEstimatedUpdateMemorySize()
 {
   unsigned long size;
   
-  if (this->UpdateNumberOfPieces <= 0)
+  if (this->UpdateExtent->GetNumberOfPieces() <= 0)
     {
     // should not happen (trying to make this robust)
     return this->EstimatedWholeMemorySize;
     }
   
   size = this->EstimatedWholeMemorySize;
-  size = size * this->UpdatePiece / this->UpdateNumberOfPieces;
+  size = size * this->UpdateExtent->GetPiece() 
+    / this->UpdateExtent->GetNumberOfPieces();
   
   if (size < 1)
     {
@@ -1392,8 +1415,8 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
   os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
   
-  os << indent << "UpdateExtent: " << this->UpdatePiece << " of "
-     << this->UpdateNumberOfPieces << endl;
+  os << indent << "UpdateExtent: \n";
+  this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
 }
 
 

@@ -1025,7 +1025,7 @@ void vtkStructuredGrid::GetWholeExtent(int &xMin, int &xMax,
 
 
 //----------------------------------------------------------------------------
-unsigned long vtkStructuredGrid::GetEstimatedUpdateExtentMemorySize()
+unsigned long vtkStructuredGrid::GetEstimatedUpdateMemorySize()
 {
   int idx;
   unsigned long wholeSize, updateSize;

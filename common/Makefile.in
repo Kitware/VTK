@@ -31,6 +31,7 @@ vtkAttributeData \
 vtkCell \
 vtkDataArray \
 vtkDataSet \
+vtkExtent \
 vtkImplicitFunction \
 vtkLocator \
 vtkPointSet \
@@ -103,6 +104,7 @@ vtkShortArray \
 vtkSource \
 vtkStack \
 vtkStructuredData \
+vtkStructuredExtent \
 vtkStructuredGrid \
 vtkStructuredPoints \
 vtkTCoords \
@@ -118,6 +120,7 @@ vtkUnsignedCharArray \
 vtkUnsignedIntArray \
 vtkUnsignedLongArray \
 vtkUnsignedShortArray \
+vtkUnstructuredExtent \
 vtkUnstructuredGrid \
 vtkVectors \
 vtkVertex \

@@ -151,6 +151,7 @@ void vtkDataObject::InternalUpdate()
   
   // Clip has to be before the Update check because:  If the update extent
   // after clipping is larger than current extent, then data is released ...
+  // We might need another method here, but for now, this works.
   this->ClipUpdateExtentWithWholeExtent();
   if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
     {

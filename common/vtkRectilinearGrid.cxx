@@ -1108,7 +1108,7 @@ void vtkRectilinearGrid::GetWholeExtent(int &xMin, int &xMax,
 
 
 //----------------------------------------------------------------------------
-unsigned long vtkRectilinearGrid::GetEstimatedUpdateExtentMemorySize()
+unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
 {
   int idx;
   unsigned long wholeSize, updateSize;

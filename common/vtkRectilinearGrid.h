@@ -224,7 +224,7 @@ public:
 
   // Description:
   // Return the amount of memory for the update piece.
-  unsigned long GetEstimatedUpdateExtentMemorySize();
+  unsigned long GetEstimatedUpdateMemorySize();
   
 protected:
   // for the GetCell method

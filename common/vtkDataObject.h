@@ -62,6 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFieldData.h"
 
 class vtkSource;
+class vtkExtent;
 
 class VTK_EXPORT vtkDataObject : public vtkObject
 {
@@ -161,7 +162,7 @@ public:
   // must decide what a piece is.
   virtual void SetUpdateExtent(int piece, int numPieces)
     { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
-
+  
   // Description:
   // Set/Get memory limit.  Make this smaller to stream.
   // Setting value does not alter MTime.
@@ -180,9 +181,9 @@ public:
   // Description:
   // Convience method: Uses the EstimatedWholeMemorySize to compute
   // the estimated memory size of the update extent.
-  virtual unsigned long GetEstimatedUpdateExtentMemorySize()
+  virtual unsigned long GetEstimatedUpdateMemorySize()
     { vtkErrorMacro(
-      "Subclass did not implement 'GetEstimatedUpdateExtentMemorySize'");
+      "Subclass did not implement 'GetEstimatedUpdateMemorySize'");
     return 0;}
   
   // Description:
@@ -206,6 +207,17 @@ public:
   // This method should be pure virtual (in the future).
   virtual void CopyUpdateExtent(vtkDataObject *data); 
 
+  // Description:
+  // Warning: This is still in develoment.  DataSetToDataSetFilters use
+  // CopyUpdateExtent to pass the update extents up the pipeline.
+  // In order to pass a generic update extent through a port we are going 
+  // to need these methods (which should eventually replace the 
+  // CopyUpdateExtent method).
+  virtual vtkExtent *GetGenericUpdateExtent()
+    {vtkErrorMacro("Subclass did not implent GetGenericUpdateExtent"); return NULL;}
+  virtual void CopyGenericUpdateExtent(vtkExtent *ext)
+    {vtkErrorMacro("Subclass did not implent CopyGenericUpdateExtent");}  
+  
   // Description:
   // Implement in the concrete data types.
   // Copies "Information" (ie WholeDimensions) from another dataset 
@@ -242,13 +254,14 @@ protected:
 
   unsigned long MemoryLimit;
   unsigned long EstimatedWholeMemorySize;
-
   unsigned long PipelineMTime;
   vtkTimeStamp UpdateTime;
   
-  // part of the "Information".  
-  // How many upstream filters are local to the process
+  // Part of the "Information".  
+  // How many upstream filters are local to the process.
+  // This will have to change to a float for Kens definition of locality.
   int Locality;
 };
 
 #endif
+

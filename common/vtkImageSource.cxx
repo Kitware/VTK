@@ -68,25 +68,31 @@ vtkImageData *vtkImageSource::GetOutput()
 
 //----------------------------------------------------------------------------
 // vtkImageData has a legacy API.  The execute method does not allocate the 
-// scalars.  Intercept cache update lets the subclass override the extent
+// scalars.  ModifyOutputUpdateExtent lets the subclass override the extent
 // allocated here.
 void vtkImageSource::StreamExecuteStart()
 {
   vtkImageData *output = this->GetOutput();
 
+  // ----------------------------------------------
+  // For legacy compatability
+  this->LegacyHack = 1;
   this->InterceptCacheUpdate();
+  if (this->LegacyHack)
+    {
+    vtkWarningMacro("Change your method InterceptCacheUpdate to the name ModifyOutputUpdateExtent.");
+    output->SetExtent(output->GetUpdateExtent());
+    output->AllocateScalars();
+    return;
+    }
+  // ----------------------------------------------
+  
+
+  this->ModifyOutputUpdateExtent();
   // If we have multiple Outputs, they need to be allocate
   // in a subclass.  We cannot be sure all outputs are images.
   output->SetExtent(output->GetUpdateExtent());
   output->AllocateScalars();
-}
-
-//----------------------------------------------------------------------------
-// This method can be used to intercept a generate call made to a cache.
-// It allows a source to generate a larger region than was originally 
-// specified.  The default method does not alter the specified region extent.
-void vtkImageSource::InterceptCacheUpdate()
-{
 }
 
 //----------------------------------------------------------------------------

@@ -55,6 +55,8 @@ class vtkLine;
 class vtkPixel;
 class vtkVoxel;
 class vtkImageToStructuredPoints;
+class vtkExtent;
+class vtkStructuredExtent;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -206,6 +208,15 @@ public:
   void GetAxisUpdateExtent(int axis, int &min, int &max);
 
   // Description:
+  // Warning: This is still in develoment.  DataSetToDataSetFilters use
+  // CopyUpdateExtent to pass the update extents up the pipeline.
+  // In order to pass a generic update extent through a port we are going 
+  // to need these methods (which should eventually replace the 
+  // CopyUpdateExtent method).
+  vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
+  void CopyGenericUpdateExtent(vtkExtent *ext);
+  
+  // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
@@ -298,12 +309,25 @@ public:
 
   // Description:
   // Return the amount of memory for the update piece.
-  unsigned long GetEstimatedUpdateExtentMemorySize();
+  unsigned long GetEstimatedUpdateMemorySize();
   
   // Description:
-  // Legacy.  Replaced with GetEstimatedUpdateExtentMemorySize.
-  long GetUpdateExtentMemorySize() 
-    {return GetEstimatedUpdateExtentMemorySize();}
+  // Legacy.  Replaced with GetEstimatedUpdateMemorySize.
+  inline long GetUpdateExtentMemorySize() 
+    {
+      vtkWarningMacro("Change GetUpdateExtentMemorySize to GetEstimatedUpdateMemorySize");
+      return GetEstimatedUpdateMemorySize();
+    }
+
+  // Description:
+  // Legacy.  With no cache, this method is no longer needed.
+  inline vtkImageData *UpdateAndReturnData() 
+    {
+      vtkWarningMacro("UpdateAndReturnData will no longer be supported.  Just Update, and use the data.");
+      this->Update();
+      return this;
+    }
+  
   
 protected:
   vtkImageToStructuredPoints *ImageToStructuredPoints;
@@ -315,7 +339,8 @@ protected:
   vtkVoxel *Voxel;
   
   // What will be generated on the next call to Update.
-  int UpdateExtent[6];
+  vtkStructuredExtent *UpdateExtent;
+
   int WholeExtent[6];
   // The extent of what is currently in the structured grid.
   int Extent[6];
