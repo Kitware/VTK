@@ -61,6 +61,7 @@ vtkXGLRenderWindow::vtkXGLRenderWindow()
   this->WindowRaster = NULL;
   this->GetRas = NULL;
   this->SetRas = NULL;
+  this->OwnWindow = 0;
   if ( this->WindowName )
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - XGL")+1];
@@ -95,7 +96,10 @@ vtkXGLRenderWindow::~vtkXGLRenderWindow()
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }
-  XSync(this->DisplayId,0);
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
 }
 
 // Description:

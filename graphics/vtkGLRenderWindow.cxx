@@ -132,6 +132,7 @@ vtkGLRenderWindow::vtkGLRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
+  this->OwnWindow = 0;
 
   if ( this->WindowName ) 
     delete [] this->WindowName;
@@ -155,9 +156,12 @@ vtkGLRenderWindow::~vtkGLRenderWindow()
   if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
+    GLXunlink(this->DisplayId,this->WindowId);
     }
-  GLXunlink(this->DisplayId,this->WindowId);
-  XSync(this->DisplayId,0);
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
 }
 
 

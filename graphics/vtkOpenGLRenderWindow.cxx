@@ -148,6 +148,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
+  this->OwnWindow = 0;
 
   if ( this->WindowName ) 
     delete [] this->WindowName;
@@ -176,7 +177,10 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
       }
-    XSync(this->DisplayId,0);
+    if (this->DisplayId)
+      {
+      XSync(this->DisplayId,0);
+      }
     }
 }
 
