@@ -48,7 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataSetWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkImageSource.h"
 #include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter

@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkFilter.h"
 #include "vtkStructuredPoints.h"
-#include "vtkImageSource.h"
 #include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter 
