@@ -109,9 +109,7 @@ void vtkThreshold::Execute()
   
   vtkDebugMacro(<< "Executing threshold filter");
 
-  outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
-  outCD = output->GetCellData();
   outCD->CopyAllocate(cd);
 
   if ( !(pointScalars || cellScalars) )
