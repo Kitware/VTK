@@ -12,6 +12,7 @@ vtkPolyData PolyData
     PolyData GlobalWarningDisplayOff
 vtkPolyData PreviousPolyData
 vtkPolyData TempPolyData
+vtkIdList CellTypes
 set deciReduction 0.0
 set deciPreserve 1
 set view Left
@@ -47,13 +48,13 @@ menu .mbar.edit.menu
 
 menu .mbar.view.menu
     .mbar.view.menu add checkbutton -label "Object Surface" -variable Surface\
-	-command UpdateSurface
+	    -command UpdateGUI
     .mbar.view.menu add checkbutton -label "Feature Edges" -variable FEdges\
-	-command UpdateFEdges
+	    -command UpdateGUI
     .mbar.view.menu add checkbutton -label "Boundary Edges" -variable BEdges\
-	-command UpdateFEdges
+	    -command UpdateGUI
     .mbar.view.menu add checkbutton -label "Non-manifold Edges" -variable NMEdges\
-	-command UpdateFEdges
+	    -command UpdateGUI
     .mbar.view.menu add separator
     .mbar.view.menu add radiobutton -label Front -variable view -value Front\
             -command {UpdateView 1 0 0 0 1 0}
@@ -107,9 +108,6 @@ proc OpenFile {} {
     }
     set filename [tk_getOpenFile -filetypes $types]
     if { $filename != "" } {
-        Renderer RemoveActor bannerActor
-        Renderer RemoveActor actor
-        Renderer RemoveActor FEdgesActor
         if { [info commands reader] != "" } {reader Delete}
         if { [string match *.g $filename] } {
             vtkBYUReader reader
@@ -126,37 +124,11 @@ proc OpenFile {} {
         }
 
         reader Update
-
-        PreviousPolyData CopyStructure [reader GetOutput]
-        [PreviousPolyData GetPointData] PassData [[reader GetOutput] GetPointData]
-        PolyData CopyStructure [reader GetOutput]
-        [PolyData GetPointData] PassData [[reader GetOutput] GetPointData]
-
-        UpdateMenus
+        UpdateUndo "reader"
+	UpdateGUI
 
         Renderer ResetCamera
         $RenWin Render
-
-	UpdateStatistics
-    }
-}
-
-# Procedure updates the menus, actors, etc. after a read occurs
-proc UpdateMenus {} {
-
-    if { [PolyData GetNumberOfCells] <= 0 } {
-	Renderer AddActor bannerActor
-	.mbar.edit.menu entryconfigure 1 -state disabled
-	.mbar.edit.menu entryconfigure 2 -state disabled
-	.mbar.edit.menu entryconfigure 3 -state disabled
-	.mbar.file.menu entryconfigure 1 -state disabled
-    } else {
-	Renderer AddActor actor
-	UpdateFEdges
-	.mbar.edit.menu entryconfigure 1 -state normal
-	.mbar.edit.menu entryconfigure 2 -state normal
-	.mbar.edit.menu entryconfigure 3 -state normal
-	.mbar.file.menu entryconfigure 2 -state normal
     }
 }
 
@@ -194,14 +166,19 @@ proc SaveFile {} {
 
 # Enable the undo procedure after filter execution
 proc UpdateUndo {filter} {
+
     PreviousPolyData CopyStructure PolyData
     [PreviousPolyData GetPointData] PassData [PolyData GetPointData]
+
     PolyData CopyStructure [$filter GetOutput]
     [PolyData GetPointData] PassData [[$filter GetOutput] GetPointData]
+    PolyData Modified
 }
 
 # Undo last edit
 proc Undo {} {
+    global RenWin
+
     TempPolyData CopyStructure PolyData
     [TempPolyData GetPointData] PassData [PolyData GetPointData]
 
@@ -212,7 +189,8 @@ proc Undo {} {
     PreviousPolyData CopyStructure TempPolyData
     [PreviousPolyData GetPointData] PassData [TempPolyData GetPointData]
 
-    UpdateStatistics
+    UpdateGUI
+    $RenWin Render
 }
 
 # Create pipeline
@@ -244,43 +222,53 @@ vtkActor FEdgesActor
 Renderer AddActor bannerActor
 [Renderer GetActiveCamera] Zoom 1.25
 
-# Procedure manages surface display
-proc UpdateSurface {} {
-    global Surface RenWin
 
-    if { ! $Surface } {
-	Renderer RemoveActor actor
-    } else {
-        Renderer AddActor actor
-    }
-    $RenWin Render
-}
-
-# Procedure manages feature edge on/off
-proc UpdateFEdges {} {
-    global FEdges BEdges NMEdges RenWin
-
-    if { ! $FEdges && ! $BEdges && ! $NMEdges } {
-	Renderer RemoveActor FEdgesActor
-    } else {
-        set actors [Renderer GetActors]
-        if { [$actors GetNumberOfItems] < 2 } {Renderer AddActor FEdgesActor}
-	FeatureEdges SetBoundaryEdges $BEdges
-	FeatureEdges SetFeatureEdges $FEdges
-	FeatureEdges SetNonManifoldEdges $NMEdges
-    }
-    $RenWin Render
-}
-
-# Procedure updates data statistics
+# Procedure updates data statistics and GUI menus
 #
-proc UpdateStatistics {} {
+proc UpdateGUI {} {
+    global Surface RenWin
+    global FEdges BEdges NMEdges RenWin
 
     set NumberOfNodes [PolyData GetNumberOfPoints]
     set NumberOfElements [PolyData GetNumberOfCells]
+    PolyData GetCellTypes CellTypes
 
-    set s [format "Vertices:%d    Polygons:%d" \
-	$NumberOfNodes $NumberOfElements]
+    Renderer RemoveActor bannerActor
+    Renderer RemoveActor actor
+    Renderer RemoveActor FEdgesActor
+
+    # Check to see whether to add surface model
+    if { [PolyData GetNumberOfCells] <= 0 } {
+	Renderer AddActor bannerActor
+	.mbar.edit.menu entryconfigure 1 -state disabled
+	.mbar.edit.menu entryconfigure 2 -state disabled
+	.mbar.edit.menu entryconfigure 3 -state disabled
+	.mbar.file.menu entryconfigure 1 -state disabled
+        set s "(None)"
+
+    } else {
+	if { $Surface } {Renderer AddActor actor}
+
+	if { $FEdges || $BEdges || $NMEdges } {
+	    Renderer AddActor FEdgesActor
+	    FeatureEdges SetBoundaryEdges $BEdges
+	    FeatureEdges SetFeatureEdges $FEdges
+	    FeatureEdges SetNonManifoldEdges $NMEdges
+	}
+
+	.mbar.edit.menu entryconfigure 1 -state normal
+        if { [CellTypes GetNumberOfIds] != 1 || [CellTypes GetId 0] != 5 } {
+	    .mbar.edit.menu entryconfigure 2 -state disabled
+            set s [format "Vertices:%d    Cells:%d" \
+                   $NumberOfNodes $NumberOfElements]
+	} else {
+            .mbar.edit.menu entryconfigure 2 -state normal
+            set s [format "Vertices:%d    Triangles:%d" \
+                   $NumberOfNodes $NumberOfElements]
+	}
+	.mbar.edit.menu entryconfigure 3 -state normal
+	.mbar.file.menu entryconfigure 2 -state normal
+    }
 
     .status configure -text $s
 }
@@ -339,9 +327,9 @@ proc ApplyDecimation {} {
     deci Update
 
     UpdateUndo "deci"
+    UpdateGUI
 
     $RenWin Render
-    UpdateStatistics
     CloseDecimate
 }  
 
@@ -398,9 +386,9 @@ proc ApplyClean {} {
     cleaner Update
 
     UpdateUndo "cleaner"
+    UpdateGUI
 
     $RenWin Render
-    UpdateStatistics
     CloseClean
 }
 ########################## The triangulate GUI
@@ -438,8 +426,8 @@ proc ApplyTri {} {
     tri Update
 
     UpdateUndo "tri"
+    UpdateGUI
 
     $RenWin Render
-    UpdateStatistics
     CloseTri
 }
