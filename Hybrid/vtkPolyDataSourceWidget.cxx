@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkProp3D.h"
 
 
-vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.1");
+vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.2");
 
 vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
 {
@@ -58,4 +58,9 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     }
     
   this->PlaceWidget(bounds);
+}
+
+void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

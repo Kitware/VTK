@@ -45,6 +45,7 @@ class VTK_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
  public:
   vtkTypeRevisionMacro(vtkPolyDataSourceWidget, vtk3DWidget);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Overrides vtk3DWidget PlaceWidget() so that it doesn't complain if

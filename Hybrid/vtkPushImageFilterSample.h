@@ -30,6 +30,7 @@ class VTK_HYBRID_EXPORT vtkPushImageFilterSample : public vtkImageTwoInputFilter
 public:
   static vtkPushImageFilterSample *New();
   vtkTypeRevisionMacro(vtkPushImageFilterSample,vtkImageTwoInputFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkPushImageFilterSample();

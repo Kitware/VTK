@@ -39,7 +39,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageFilterSample, "1.2");
+vtkCxxRevisionMacro(vtkPushImageFilterSample, "1.3");
 vtkStandardNewMacro(vtkPushImageFilterSample);
 
 vtkPushImageFilterSample::vtkPushImageFilterSample()
@@ -201,4 +201,9 @@ void vtkPushImageFilterSample::ThreadedExecute(vtkImageData **inData,
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
+}
+
+void vtkPushImageFilterSample::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
