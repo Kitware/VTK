@@ -76,13 +76,21 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
-  if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
+  if (this->WindowId && this->OwnWindow)
+    {
+    this->Clean();
+    ReleaseDC(this->WindowId, this->DeviceContext);
+    // can't set WindowId=NULL, needed for DestroyWindow
+    this->DeviceContext = NULL;
+    
+    DestroyWindow(this->WindowId);
+    }
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
 {
   vtkRenderer *ren;
-  
+
   /* finish OpenGL rendering */
   if (this->ContextId) 
     {
@@ -396,21 +404,25 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
       {
         /* initialize OpenGL rendering */
         this->DeviceContext = GetDC(hWnd);
-        this->SetupPixelFormat(this->DeviceContext,
+	this->SetupPixelFormat(this->DeviceContext,
 			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
 			       PFD_STEREO |PFD_DOUBLEBUFFER, 
 			       this->GetDebug());
-        this->SetupPalette(this->DeviceContext);
+	this->SetupPalette(this->DeviceContext);
 	this->ContextId = wglCreateContext(this->DeviceContext);
-        wglMakeCurrent(this->DeviceContext, this->ContextId);
-        this->OpenGLInit();
+	wglMakeCurrent(this->DeviceContext, this->ContextId);
+	this->OpenGLInit();
         return 0;
       }
     case WM_DESTROY:
-        this->Clean();
+      this->Clean();
+      if (this->DeviceContext)
+	{
         ReleaseDC(this->WindowId, this->DeviceContext);
-		this->WindowId = NULL;
-        return 0;
+	this->DeviceContext = NULL;
+	this->WindowId = NULL;
+	}
+      return 0;
     case WM_SIZE:
         /* track window size changes */
         if (this->ContextId) 
