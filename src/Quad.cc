@@ -74,8 +74,6 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float  params[2];
   float  fcol[2], rcol[3], scol[3];
   float derivs[8];
-  vtkLine *aLine;
-  int edge;
 
   subId = 0;
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;

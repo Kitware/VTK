@@ -126,13 +126,13 @@ void vtkPointLoad::SetModelBounds(float *bounds)
 //
 void vtkPointLoad::Execute()
 {
-  int ptId, i, j, k;
+  int i, j, k;
   vtkFloatTensors *newTensors;
   vtkTensor tensor;
   vtkFloatScalars *newScalars;
   int numPts;
   vtkMath math;
-  float P, pi, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
+  float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   float sx, sy, sz, seff;
 

@@ -49,11 +49,10 @@ vtkRendererSource::vtkRendererSource()
 
 void vtkRendererSource::Execute()
 {
-  int i, numPts, numOutPts;
+  int numOutPts;
   vtkPixmap *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels;
-  vtkRenderer *input = (vtkRenderer *)this->Input;
 
   vtkDebugMacro(<<"Converting points");
   this->Initialize();
