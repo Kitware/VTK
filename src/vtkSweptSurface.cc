@@ -90,7 +90,7 @@ void vtkSweptSurface::Execute()
   int inDim[3];
   int numSteps, stepNum;
   int numTransforms, transNum;
-  vtkActor a;
+  vtkActor a; //use the actor to do position/orientation stuff
   vtkTransform *transform1, *transform2, t;
   float time;
   float position[3], position1[3], position2[3];
@@ -146,8 +146,8 @@ void vtkSweptSurface::Execute()
 
   for (transNum=0; transNum < (numTransforms-1); transNum++)
     {
-    vtkDebugMacro(<<"Injecting between transforms "<< transNum+1 <<" and "
-                  << transNum+2);
+    vtkDebugMacro(<<"Injecting between transforms "<< transNum <<" and "
+                  << transNum+1);
     transform1 = transform2;
     transform2 = this->Transforms->GetNextItem();
     transform2->GetInverse(t.GetMatrix());
@@ -162,7 +162,7 @@ void vtkSweptSurface::Execute()
     for (stepNum=0; stepNum < numSteps; stepNum++)
       {
       // linearly interpolate position and orientation
-      time = stepNum / numSteps;
+      time = (float) stepNum / numSteps;
 
       for (i=0; i<3; i++)
         {
@@ -203,12 +203,17 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   int i, j, k, ii;
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
-  float x[3], loc[3], newScalar, scalar;
+  float x[4], loc[3], newScalar, scalar;
   static vtkVoxel voxel;
   static vtkIdList idList(8);
   static vtkFloatScalars voxelScalars(8);
   int kOffset, jOffset, dim[3], idx;
-  float xTrans[3], weights[8];
+  float xTrans[4], weights[8];
+  static vtkTransform t;
+
+  t.SetMatrix(m); //we need to do this to pre-multiply
+  t.Transpose();
+  x[3] = 1.0; //homogeneous coordinates
 
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
@@ -223,7 +228,8 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
         x[0] = this->Origin[0] + i * this->AspectRatio[0];
 
         // transform into local space
-        m.PointMultiply(x,xTrans);
+        t.PointMultiply(x,xTrans);
+        if ( xTrans[3] != 0.0 ) for (ii=0; ii<3; ii++) xTrans[ii] /= xTrans[3];
 
         // determine which voxel point falls in.
         for (ii=0; ii<3; ii++)
@@ -267,7 +273,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
 
 unsigned long int vtkSweptSurface::GetMTime()
 {
-  unsigned long int mtime=this->MTime;
+  unsigned long mtime=vtkStructuredPointsToStructuredPointsFilter::GetMTime();
   unsigned long int transMtime;
   vtkTransform *t;
 
