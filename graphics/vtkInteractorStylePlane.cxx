@@ -190,6 +190,13 @@ void vtkInteractorStylePlane::OnMouseMove(int vtkNotUsed(ctrl),
     this->CurrentRenderer->ResetCameraClippingRange();
     this->CurrentRenderer->GetRenderWindow()->Render();
     }
+  if (this->Button == 1 && this->State == VTK_INTERACTOR_STYLE_PLANE_CORNER)
+    {
+    this->DiamondCorner(x - this->LastPos[0], y - this->LastPos[1]);
+    this->CurrentRenderer->ResetCameraClippingRange();
+    this->CurrentRenderer->GetRenderWindow()->Render();
+    }
+
 
   this->LastPos[0] = x;
   this->LastPos[1] = y;
@@ -198,6 +205,123 @@ void vtkInteractorStylePlane::OnMouseMove(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::ResizeCorner(int dx, int dy)
 {
+  float target[4], display[3];
+  float point0[3], point1[3], point2[3], point3[3];
+
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  this->CurrentRenderer->SetWorldPoint(this->ActiveCorner[0],
+				       this->ActiveCorner[1],
+				       this->ActiveCorner[2], 1.0);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+
+  display[0] += dx;
+  display[1] += dy;
+
+  this->CurrentRenderer->SetDisplayPoint(display);
+  this->CurrentRenderer->DisplayToWorld();
+  this->CurrentRenderer->GetWorldPoint(target);
+  target[0] /= target[3];
+  target[1] /= target[3];
+  target[2] /= target[3];
+
+  // We have the new corner point, now what do we do with it?
+  this->PlaneSource->GetOrigin(point0);
+  this->PlaneSource->GetPoint1(point1);
+  this->PlaneSource->GetPoint2(point2);
+  point3[0] = point1[0] + point2[0] - point0[0];
+  point3[1] = point1[1] + point2[1] - point0[1];
+  point3[2] = point1[2] + point2[2] - point0[2];
+
+  if (this->ActiveCornerId == 3)
+    {
+    this->ComputeParameters(point0, point1, point2, point3, target);
+    this->SetActiveCorner(point3);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 0)
+    {
+    this->ComputeParameters(point3, point1, point2, point0, target);
+    this->SetActiveCorner(point0);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 1)
+    {
+    this->ComputeParameters(point2, point0, point3, point1, target);
+    this->SetActiveCorner(point1);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 2)
+    {
+    this->ComputeParameters(point1, point0, point3, point2, target);
+    this->SetActiveCorner(point2);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+
+  this->SphereActor->SetPosition(this->ActiveCorner);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInteractorStylePlane::ComputeParameters(float *p0, float *p1, 
+						float *p2, float *p3,
+						float *target3)
+{
+  double k1, k2;
+  double v1[3], v2[3], vt[3];
+  double m0[2], m1[2];
+  double mi0[2], mi1[2];
+  double *M[2], *MI[2];
+  double c[2];
+  int i;
+
+  for (i = 0; i < 3; ++i)
+    {
+    v1[i] = p1[i] - p0[i];
+    v2[i] = p2[i] - p0[i];
+    vt[i] = target3[i] - p0[i];
+    }
+  M[0] = m0;
+  M[1] = m1;
+  MI[0] = mi0;
+  MI[1] = mi1;
+
+  m0[0] =         vtkMath::Dot(v1,v1);
+  m0[1] = m1[0] = vtkMath::Dot(v1,v2);
+  m1[1] =         vtkMath::Dot(v2,v2);
+  c[0] =          vtkMath::Dot(vt, v1);
+  c[1] =          vtkMath::Dot(vt, v2);
+
+  //vtkErrorMacro("v1: " << v1[0] << ", " << v1[1] << ", " << v1[2]);
+  //vtkErrorMacro("v2: " << v2[0] << ", " << v2[1] << ", " << v2[2]);
+  //vtkErrorMacro("vt: " << vt[0] << ", " << vt[1] << ", " << vt[2]);
+
+  vtkMath::InvertMatrix(M, MI, 2);
+
+  k1 = c[0] * mi0[0] + c[1] * mi1[0];
+  k2 = c[0] * mi0[1] + c[1] * mi1[1];
+  for (i = 0; i < 3; ++i)
+    {
+    p3[i] = p0[i] + k1 * v1[i] + k2 * v2[i];
+    p1[i] = p0[i] + k1 * v1[i];
+    p2[i] = p0[i] + k2 * v2[i];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInteractorStylePlane::DiamondCorner(int dx, int dy)
+{
   float newPoint[4], display[3];
   float origin[3], point1[3], point2[3];
 
@@ -205,11 +329,15 @@ void vtkInteractorStylePlane::ResizeCorner(int dx, int dy)
     {
     return;
     }
-  this->CurrentRenderer->SetWorldPoint(this->ActiveCorner);
+  this->CurrentRenderer->SetWorldPoint(this->ActiveCorner[0],
+				       this->ActiveCorner[1],
+				       this->ActiveCorner[2], 1.0);
   this->CurrentRenderer->WorldToDisplay();
   this->CurrentRenderer->GetDisplayPoint(display);
+  //vtkErrorMacro("d1 : " << display[0] << ", " << display[1] << "," << display[2]);
   display[0] += dx;
   display[1] += dy;
+  //vtkErrorMacro("d2 : " << display[0] << ", " << display[1] << "," << display[2]);
   this->CurrentRenderer->SetDisplayPoint(display);
   this->CurrentRenderer->DisplayToWorld();
   this->CurrentRenderer->GetWorldPoint(newPoint);
@@ -217,10 +345,18 @@ void vtkInteractorStylePlane::ResizeCorner(int dx, int dy)
   newPoint[1] /= newPoint[3];
   newPoint[2] /= newPoint[3];
 
+  this->SphereActor->SetPosition(newPoint);
+
+  //vtkErrorMacro("Point: " << this->ActiveCorner[0] 
+  //		<< ", " << this->ActiveCorner[1] 
+  //		<< ", " << this->ActiveCorner[2] << ", to new: "
+  //		<< newPoint[0] << ", " << newPoint[1] << ", " 
+  //		<< newPoint[2]); 
+
   // We have the new corner point, now what do we do with it?
   this->PlaneSource->GetOrigin(origin);
   this->PlaneSource->GetPoint1(point1);
-  this->PlaneSource->GetPoint1(point2);
+  this->PlaneSource->GetPoint2(point2);
 
   if (this->ActiveCornerId == 0)
     {
@@ -255,6 +391,14 @@ void vtkInteractorStylePlane::ResizeCorner(int dx, int dy)
     point2[1] = newPoint[1];
     point2[2] = newPoint[2];
     }
+
+  //vtkErrorMacro("Active CornerID: " << this->ActiveCornerId);
+  //vtkErrorMacro("origin: " << origin[0] << ", " << origin[1] << ", " 
+  //		<< origin[2]);
+  //vtkErrorMacro("pt1: " << point1[0] << ", " << point1[1] << ", " 
+  //		<< point1[2]);
+  //vtkErrorMacro("pt2: " << point2[0] << ", " << point2[1] << ", " 
+  //		<< point2[2]);
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -291,9 +435,8 @@ void vtkInteractorStylePlane::RotateXY(int dx, int dy)
   vu = cam->GetViewUp();	
   this->Transform->RotateWXYZ(360.0 * dx / size[0], vu[0], vu[1], vu[2]);
   // Elevation
-  cam->ComputeViewPlaneNormal();
-  vtkMath::Cross(cam->GetViewPlaneNormal(), cam->GetViewUp(), v2);
-  this->Transform->RotateWXYZ(360.0 * dy / size[1], v2[0], v2[1], v2[2]);
+  vtkMath::Cross(cam->GetDirectionOfProjection(), cam->GetViewUp(), v2);
+  this->Transform->RotateWXYZ(-360.0 * dy / size[1], v2[0], v2[1], v2[2]);
     
   this->PlaneSource->GetNormal(n1);
   n1[3] = 1.0;
@@ -313,6 +456,7 @@ void vtkInteractorStylePlane::TranslateXY(int dx, int dy)
     }
 
   this->PlaneSource->GetCenter(world);
+
   world[3] = 1.0;
   this->CurrentRenderer->SetWorldPoint(world);
   this->CurrentRenderer->WorldToDisplay();
@@ -322,9 +466,12 @@ void vtkInteractorStylePlane::TranslateXY(int dx, int dy)
   this->CurrentRenderer->SetDisplayPoint(display);
   this->CurrentRenderer->DisplayToWorld();
   this->CurrentRenderer->GetWorldPoint(world);
-  this->PlaneSource->SetCenter(world[0]/world[3], world[1]/world[3], world[2]/world[3]);
-  this->SphereActor->SetPosition(this->PlaneSource->GetCenter());
-  
+  world[0] /= world[3];
+  world[1] /= world[3];
+  world[2] /= world[3];
+  this->PlaneSource->SetCenter(world[0], world[1], world[2]);
+  this->SphereActor->SetPosition(world[0], world[1], world[2]);
+
   if ( this->CallbackMethod )
     {
     (*this->CallbackMethod)(this->CallbackMethodArg);
@@ -348,7 +495,6 @@ void vtkInteractorStylePlane::TranslateZ(int dx, int dy)
 
   // compute distance from camera position to parts
   cam = this->CurrentRenderer->GetActiveCamera();
-  cam->ComputeViewPlaneNormal();
   cam->GetViewPlaneNormal(v1);
   cam->GetPosition(d);
   center = this->PlaneSource->GetCenter();
@@ -579,18 +725,33 @@ void vtkInteractorStylePlane::OnLeftButtonUp(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::OnMiddleButtonDown(int ctrl, int shift, 
-						  int x, int y) 
+						 int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+
+  if (this->State == VTK_INTERACTOR_STYLE_PLANE_NONE)
+    { // deactivate the interactor.
+    this->Button = -2;
+    return;
+    }
+
+  this->Button = 1;
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::OnMiddleButtonUp(int ctrl, int shift, 
-						int x, int y) 
+					       int x, int y) 
 {
+  this->Button = -1;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::OnRightButtonDown(int ctrl, int shift, 
-						 int x, int y) 
+						int x, int y) 
 {
   this->UpdateInternalState(ctrl, shift, x, y);
 
@@ -610,7 +771,7 @@ void vtkInteractorStylePlane::OnRightButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::OnRightButtonUp(int ctrl, int shift, 
-					       int X, int Y) 
+					      int X, int Y) 
 {
   this->Button = -1;
 }
@@ -620,17 +781,17 @@ void vtkInteractorStylePlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkInteractorStyle::PrintSelf(os,indent);
 
-  float *center = this->SphereSource->GetCenter();
-  os << indent << "Sphere Center: " << center[0] << ", " << center[1] 
-     << ", " << center[2] << endl;
-  os << indent << "Sphere Radius: " << this->SphereSource->GetRadius() <<endl;
+  os << indent << "CallbackType: " << this->CallbackType << endl;
+  os << indent << "PlaneSource: (" << this->PlaneSource << ")\n";
+  os << indent << "PlaneActor: (" << this->PlaneActor << ")\n";
+
   if ( this->CallbackMethod )
     {
-    os << indent << "Change Method defined\n";
+    os << indent << "Callback Method defined\n";
     }
   else
     {
-    os << indent <<"No Change Method\n";
+    os << indent <<"No Callback Method\n";
     }
 }
 

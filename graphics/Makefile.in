@@ -164,6 +164,7 @@ vtkImplicitWindowFunction \
 vtkInteractorStyle \
 vtkInteractorStyleFlight \
 vtkInteractorStyleSphere \
+vtkInteractorStylePlane \
 vtkInteractorStyleTrackball \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \

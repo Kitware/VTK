@@ -153,7 +153,12 @@ protected:
   void TranslateZ(int dx, int dy);
   void RotateXY(int dx, int dy);
 
+  vtkSetVector3Macro(ActiveCorner, float);
   void ResizeCorner(int dx, int dy);
+  void ComputeParameters(float *p0, float *p1, float *p2, float *p3, 
+			 float *target3); 
+
+  void  DiamondCorner(int dx, int dy);
 
   void HandleIndicator(int x, int y);
 
