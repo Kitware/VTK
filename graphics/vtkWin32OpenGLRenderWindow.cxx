@@ -402,7 +402,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
         }
       else
         {
-        this->ApplicationInstance = AfxGetInstanceHandle();
+        this->ApplicationInstance = GetModuleHandle(NULL); /*AfxGetInstanceHandle();*/
         }
       }
 	  if (!this->WindowId)
