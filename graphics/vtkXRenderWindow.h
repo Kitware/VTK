@@ -66,7 +66,7 @@ public:
   
   // Description:
   // Xwindow get set functions
-  virtual void *GetGenericDisplayId() {return (void *)this->DisplayId;};
+  virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext();

@@ -183,6 +183,16 @@ int *vtkXRenderWindow::GetPosition(void)
 // Get this RenderWindow's X display id.
 Display *vtkXRenderWindow::GetDisplayId()
 {
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    this->OwnDisplay = 1;
+    }
   vtkDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
 
   return this->DisplayId;
