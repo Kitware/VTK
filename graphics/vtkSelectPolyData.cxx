@@ -599,3 +599,70 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
     }
 }
+
+
+void vtkSelectPolyData::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 4 &&
+      this->Output != o && this->UnselectedOutput != o &&
+      this->SelectionEdges != o &&
+      this->Output->GetNetReferenceCount() == 1 &&
+      this->UnselectedOutput->GetNetReferenceCount() == 1 &&
+      this->SelectionEdges->GetNetReferenceCount() == 1)
+    {
+    this->Output->SetSource(NULL);
+    this->UnselectedOutput->SetSource(NULL);
+    this->SelectionEdges->SetSource(NULL);
+    }
+  if (this->ReferenceCount == 3 &&
+      (this->Output == o || this->UnselectedOutput == o ||
+      this->SelectionEdges == o) &&
+      (this->Output->GetNetReferenceCount() +
+      this->UnselectedOutput->GetNetReferenceCount() +
+      this->SelectionEdges->GetNetReferenceCount()) == 4)
+    {
+    this->Output->SetSource(NULL);
+    this->UnselectedOutput->SetSource(NULL);
+    this->SelectionEdges->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+
+int vtkSelectPolyData::InRegisterLoop(vtkObject *o)
+{
+  int num = 0;
+  int cnum = 0;
+  
+  if (this->Output->GetSource() == this)
+    {
+    num++;
+    cnum += this->Output->GetNetReferenceCount();
+    }
+  if (this->UnselectedOutput->GetSource() == this)
+    {
+    num++;
+    cnum += this->UnselectedOutput->GetNetReferenceCount();
+    }
+  if (this->SelectionEdges->GetSource() == this)
+    {
+    num++;
+    cnum += this->SelectionEdges->GetNetReferenceCount();
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num &&
+      cnum == (num + 1) &&
+      (this->Output == o ||
+       this->UnselectedOutput == o ||
+       this->SelectionEdges == o))
+    {
+    return 1;
+    }
+  return 0;
+}

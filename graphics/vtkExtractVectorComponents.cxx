@@ -307,3 +307,69 @@ void vtkExtractVectorComponents::Execute()
   outVz->SetScalars(vz);
   vz->Delete();
 }
+
+void vtkExtractVectorComponents::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 4 &&
+      this->Output != o && this->VyComponent != o &&
+      this->VzComponent != o &&
+      this->Output->GetNetReferenceCount() == 1 &&
+      this->VyComponent->GetNetReferenceCount() == 1 &&
+      this->VzComponent->GetNetReferenceCount() == 1)
+    {
+    this->Output->SetSource(NULL);
+    this->VyComponent->SetSource(NULL);
+    this->VzComponent->SetSource(NULL);
+    }
+  if (this->ReferenceCount == 3 &&
+      (this->Output == o || this->VyComponent == o ||
+      this->VzComponent == o) &&
+      (this->Output->GetNetReferenceCount() +
+      this->VyComponent->GetNetReferenceCount() +
+      this->VzComponent->GetNetReferenceCount()) == 4)
+    {
+    this->Output->SetSource(NULL);
+    this->VyComponent->SetSource(NULL);
+    this->VzComponent->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+
+int vtkExtractVectorComponents::InRegisterLoop(vtkObject *o)
+{
+  int num = 0;
+  int cnum = 0;
+  
+  if (this->Output->GetSource() == this)
+    {
+    num++;
+    cnum += this->Output->GetNetReferenceCount();
+    }
+  if (this->VyComponent->GetSource() == this)
+    {
+    num++;
+    cnum += this->VyComponent->GetNetReferenceCount();
+    }
+  if (this->VzComponent->GetSource() == this)
+    {
+    num++;
+    cnum += this->VzComponent->GetNetReferenceCount();
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num &&
+      cnum == (num + 1) &&
+      (this->Output == o ||
+       this->VyComponent == o ||
+       this->VzComponent == o))
+    {
+    return 1;
+    }
+  return 0;
+}
