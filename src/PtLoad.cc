@@ -138,10 +138,10 @@ void vtkPointLoad::Execute()
     z = this->Origin[2] + k*this->AspectRatio[2];
     for (j=0; j<this->Dimensions[1]; j++)
       {
-      y = this->Origin[1] + k*this->AspectRatio[1];
+      y = this->Origin[1] + j*this->AspectRatio[1];
       for (i=0; i<this->Dimensions[0]; i++)
         {
-        x = this->Origin[0] + k*this->AspectRatio[0];
+        x = this->Origin[0] + i*this->AspectRatio[0];
         rho = sqrt((x-xP[0])*(x-xP[0]) + (y-xP[1])*(y-xP[1]) + 
                    (z-xP[2])*(z-xP[2]));
         if ( rho < 1.0e-10 )
