@@ -26,6 +26,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlWriter : public vlObject 
 {
 public:
+  vlWriter();
+  ~vlWriter() {};
   char *GetClassName() {return "vlWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 

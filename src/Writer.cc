@@ -16,6 +16,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Writer.hh"
 
 // Description:
+// Construct with no start and end write methods or arguments.
+vlWriter::vlWriter()
+{
+  this->StartWrite = NULL;
+  this->StartWriteArg = NULL;
+  this->EndWrite = NULL;
+  this->EndWriteArg = NULL;
+}
+
+// Description:
 // Specify a function to be called before data is written.
 // Function will be called with argument provided.
 void vlWriter::SetStartWrite(void (*f)(void *), void *arg)
