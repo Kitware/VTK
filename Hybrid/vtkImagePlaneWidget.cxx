@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.12");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.13");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -102,15 +102,15 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
 
   this->SetRepresentation();
 
-  this->Reslice = NULL;
-  this->ResliceAxes = NULL;  
-  this->TexturePlaneCoords = NULL;
-  this->TexturePlaneMapper = NULL;
-  this->TexturePlaneActor = NULL;
-  this->Texture = NULL;
-  this->LookupTable = NULL;
-  this->ColorMap = NULL;
-  this->DummyTransform = NULL;
+  this->LookupTable = vtkLookupTable::New();
+  this->ColorMap = vtkImageMapToColors::New();
+  this->Reslice = vtkImageReslice::New();
+  this->ResliceAxes = vtkMatrix4x4::New();
+  this->Texture = vtkTexture::New();
+  this->TexturePlaneCoords = vtkTextureMapToPlane::New();
+  this->TexturePlaneMapper = vtkDataSetMapper::New();
+  this->TexturePlaneActor = vtkActor::New();
+  this->DummyTransform = vtkTransform::New();
 }
 
 vtkImagePlaneWidget::~vtkImagePlaneWidget()
@@ -799,7 +799,6 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   float range[2];
   this->ImageData->GetScalarRange(range);
 
-  this->LookupTable = vtkLookupTable::New();
   this->LookupTable->SetTableRange(range[0],range[1]);
   this->LookupTable->SetNumberOfColors( 256);
   this->LookupTable->SetHueRange( 0, 0);
@@ -811,7 +810,6 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->OriginalWindow = range[1] - range[0];
   this->OriginalLevel = 0.5*(range[0] + range[1]);
 
-  this->Reslice = vtkImageReslice::New();
   this->Reslice->SetInput(this->ImageData);
   if ( this->ResliceInterpolate == -1 )
     {
@@ -819,21 +817,14 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
     }
   this->SetResliceInterpolate(this->ResliceInterpolate);
 
-  this->ColorMap = vtkImageMapToColors::New();
   this->ColorMap->SetLookupTable(this->LookupTable);
   this->ColorMap->SetInput(this->Reslice->GetOutput());
 
-  this->TexturePlaneCoords = vtkTextureMapToPlane::New();
   this->TexturePlaneCoords->SetInput(this->PlaneSource->GetOutput());
   this->TexturePlaneCoords->AutomaticPlaneGenerationOff();
 
-  this->TexturePlaneMapper = vtkDataSetMapper::New();
   this->TexturePlaneMapper->SetInput(this->TexturePlaneCoords->GetOutput());
 
-  this->ResliceAxes = vtkMatrix4x4::New();
-  this->DummyTransform = vtkTransform::New();
-
-  this->Texture = vtkTexture::New();
   this->Texture->SetQualityTo32Bit();
   this->Texture->MapColorScalarsThroughLookupTableOff();
   this->Texture->SetInput(this->ColorMap->GetOutput());
@@ -841,7 +832,6 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);
 
-  this->TexturePlaneActor = vtkActor::New();
   this->TexturePlaneActor->GetProperty()->SetAmbient( 0.5);
   this->TexturePlaneActor->SetMapper(this->TexturePlaneMapper);
   this->TexturePlaneActor->SetTexture(this->Texture);
@@ -1156,6 +1146,10 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
     return;
     }
   this->ImageData = this->Reslice->GetInput();
+  if (!this->ImageData)
+    {
+    return;
+    }
   this->ImageData->UpdateInformation();
   float origin[3];
   this->ImageData->GetOrigin(origin);
@@ -1207,6 +1201,10 @@ int vtkImagePlaneWidget::GetSliceIndex()
       return 0;
     }
   this->ImageData = this->Reslice->GetInput();
+  if (!this->ImageData)
+    {
+      return 0;
+    }
   this->ImageData->UpdateInformation();
   float origin[3];
   this->ImageData->GetOrigin(origin);
