@@ -68,9 +68,9 @@ public:
   void SetInput(vtkPolyData *in);
   vtkPolyData *GetInput();
   
+  // Description:
+  // Update that sets the update piece first.
   void Update();
-  float *GetBounds();
-  void GetBounds(float bounds[6]);
 
   // Description:
   // If you want only a part of the data, specify by seting the piece.
