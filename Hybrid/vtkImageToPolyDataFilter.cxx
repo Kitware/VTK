@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkAppendPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.18");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.19");
 
 vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
 {
@@ -773,7 +773,8 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
 {
   vtkCellArray *newPolys, *inPolys;
   int i, numPts;
-  vtkIdType *pts, npts;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
   
   // Copy the points via reference counting
   //

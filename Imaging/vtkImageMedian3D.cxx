@@ -18,7 +18,7 @@
 #include "vtkImageMedian3D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.27");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.28");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //----------------------------------------------------------------------------
@@ -132,42 +132,41 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
 
   // Case: value is below median 
-  if (val <= *(Median))
+  // If we got here, val < *(Median)
+
+  // move the median if necessary
+  if (DownNum > UpNum)
     {
-    // move the median if necessary
-    if (DownNum > UpNum)
-      {
-      // Move the median Down one 
-      --Median;
-      --DownNum;
-      ++UpNum;
-      --DownMax;
-      ++UpMax;
-      }
-    // find the position for val in the sorted array
-    max = (DownNum < DownMax) ? DownNum : DownMax;
-    ptr = Median;
-    idx = 0;
-    while (idx < max && val <= *ptr)
-      {
-      --ptr;
-      ++idx;
-      }
-    // place val and move all others up
-    while (idx < max)
-      {
-      temp = *ptr;
-      *ptr = val;
-      val = temp;
-      --ptr;
-      ++idx;
-      }
-    *ptr = val;
-    // Update counts
-    ++DownNum;
-    --UpMax;
-    return Median;
+    // Move the median Down one 
+    --Median;
+    --DownNum;
+    ++UpNum;
+    --DownMax;
+    ++UpMax;
     }
+  // find the position for val in the sorted array
+  max = (DownNum < DownMax) ? DownNum : DownMax;
+  ptr = Median;
+  idx = 0;
+  while (idx < max && val <= *ptr)
+    {
+    --ptr;
+    ++idx;
+    }
+  // place val and move all others up
+  while (idx < max)
+    {
+    temp = *ptr;
+    *ptr = val;
+    val = temp;
+    --ptr;
+    ++idx;
+    }
+  *ptr = val;
+  // Update counts
+  ++DownNum;
+  --UpMax;
+
   return Median;
 }
 

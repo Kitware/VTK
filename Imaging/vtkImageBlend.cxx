@@ -18,7 +18,7 @@
 #include "vtkImageBlend.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.24");
+vtkCxxRevisionMacro(vtkImageBlend, "1.25");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -231,7 +231,9 @@ static void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
                                  float opacity, int id)
 {
   int idxX, idxY, idxZ;
-  int minX, maxX, iter;
+  int minX = 0;
+  int maxX = 0;
+  int iter;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   int inC, outC;
