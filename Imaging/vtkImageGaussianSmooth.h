@@ -21,12 +21,12 @@
 #define __vtkImageGaussianSmooth_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageGaussianSmooth : public vtkThreadedImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageGaussianSmooth,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageGaussianSmooth,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -78,12 +78,15 @@ protected:
   double RadiusFactors[3];
   
   void ComputeKernel(double *kernel, int min, int max, double std);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
                    vtkImageData *outData, int outExt[6],
                    int *pcycle, int target, int *pcount, int total);
-  void ThreadedExecute(vtkImageData *inData, 
-                       vtkImageData *outData, int outExt[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
   
 private:
   vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);  // Not implemented.
