@@ -1,10 +1,16 @@
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 from VTK import *
 from Tkinter import *
 
 reader = vtkImageReader()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,255,0,255,1,93) 
-reader.SetFilePrefix("../../../vtkdata/fullHead/headsq")
+reader.SetFilePrefix(VTK_DATA + "/fullHead/headsq")
 reader.SetDataMask(0x7fff)
 
 mapper2 = vtkImageMapper()

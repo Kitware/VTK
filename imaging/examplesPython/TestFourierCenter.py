@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 from WindowLevelInterface import *
@@ -12,7 +18,7 @@ reader = vtkImageReader()
 reader.GetOutput().ReleaseDataFlagOff()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,255,0,255,1,93)
-reader.SetFilePrefix("../../../vtkdata/fullHead/headsq")
+reader.SetFilePrefix(VTK_DATA + "/fullHead/headsq")
 reader.SetDataMask(0x7fff)
 
 fft = vtkImageFFT()

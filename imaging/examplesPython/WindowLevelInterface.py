@@ -1,4 +1,10 @@
 # a simple user interface that manipulates window level.
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 # places in the Tkinter top window.  
 
 from Tkinter import *

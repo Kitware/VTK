@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 from WindowLevelInterface import *
@@ -20,7 +26,7 @@ IMAGE_MAG_Z = 1
 
 # pipeline stuff
 reader = vtkSLCReader()
-reader.SetFileName("../../../vtkdata/poship.slc")
+reader.SetFileName(VTK_DATA + "/poship.slc")
 
 # make the image a little biger
 magnify = vtkImageMagnify()

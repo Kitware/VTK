@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 from WindowLevelInterface import *
@@ -12,7 +18,7 @@ from WindowLevelInterface import *
 reader = vtkImageReader()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,255,0,255,22,22)
-reader.SetFilePrefix("../../../vtkdata/fullHead/headsq")
+reader.SetFilePrefix(VTK_DATA + "/fullHead/headsq")
 reader.SetDataMask(0x7fff)
 #reader.DebugOn()
 
@@ -31,7 +37,7 @@ gradient.SetInput(scale2.GetOutput())
 gradient.SetDimensionality(3)
 
 pnm = vtkPNMReader()
-pnm.SetFileName("../../../vtkdata/masonry.ppm")
+pnm.SetFileName(VTK_DATA + "/masonry.ppm")
 
 cast2 = vtkImageCast()
 cast2.SetInput(pnm.GetOutput())

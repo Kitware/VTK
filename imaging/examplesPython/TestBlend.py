@@ -1,13 +1,19 @@
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 from vtkpython import *
 from WindowLevelInterface import *
 
 # do alpha-blending of two images
 
 reader1 = vtkPNMReader()
-reader1.SetFileName("../../../vtkdata/masonry.ppm")
+reader1.SetFileName(VTK_DATA + "/masonry.ppm")
 
 reader2 = vtkPNMReader()
-reader2.SetFileName("../../../vtkdata/B.pgm")
+reader2.SetFileName(VTK_DATA + "/B.pgm")
 
 table = vtkLookupTable()
 table.SetTableRange(0,127)

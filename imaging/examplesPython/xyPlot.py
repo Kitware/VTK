@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 import signal
 from vtkpython import *
@@ -8,8 +14,8 @@ from vtkpython import *
 # create pipeline
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/combxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/combq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()

@@ -1,10 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 
 # This example demonstrates how to use some plotting objects.
 
-# get the interactor ui
 
 # Create a 1D axis
 axis = vtkAxisActor2D()

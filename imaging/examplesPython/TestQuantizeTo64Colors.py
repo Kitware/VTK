@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 from WindowLevelInterface import *
@@ -10,7 +16,7 @@ from WindowLevelInterface import *
 # Image pipeline
 reader = vtkPNMReader()
 reader.ReleaseDataFlagOff()
-reader.SetFileName("../../../vtkdata/earth.ppm")
+reader.SetFileName(VTK_DATA + "/earth.ppm")
 
 pad = vtkImageMirrorPad()
 pad.SetInput(reader.GetOutput())

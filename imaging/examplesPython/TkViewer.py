@@ -1,3 +1,9 @@
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 from VTK import *
 from Tkinter import *
 
@@ -6,7 +12,7 @@ from Tkinter import *
 
 reader = vtkPNMReader()
 reader.ReleaseDataFlagOff()
-reader.SetFileName("../../../vtkdata/earth.ppm")
+reader.SetFileName(VTK_DATA + "/earth.ppm")
 
 viewer = vtkImageViewer()
 viewer.SetInput(reader.GetOutput())

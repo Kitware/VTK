@@ -1,4 +1,10 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
+
 
 from vtkpython import *
 from WindowLevelInterface import *
@@ -6,7 +12,7 @@ from WindowLevelInterface import *
 # Image pipeline
 
 reader = vtkPNMReader()
-reader.SetFileName("../../../vtkdata/binary.pgm")
+reader.SetFileName(VTK_DATA + "/binary.pgm")
 
 cast = vtkImageCast()
 cast.SetInput(reader.GetOutput())
