@@ -8,7 +8,7 @@ vtkFiltering
 vtkCommon 
 )
 
-LINK_LIBRARIES( png zlib )
+LINK_LIBRARIES( png zlib jpeg )
 
 IF (VTK_USE_HYBRID)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso)
