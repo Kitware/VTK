@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.41");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.42");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -57,7 +57,6 @@ void vtkMaskPoints::Execute()
 
   if ( numPts < 1 )
     {
-    vtkErrorMacro(<<"No data to mask!");
     return;
     }
 
