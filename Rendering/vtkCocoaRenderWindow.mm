@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.10");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.11");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -77,6 +77,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->TextureResourceIds = vtkIdList::New();
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
+  this->Capabilities = 0;
 }
 
 vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
@@ -170,6 +171,98 @@ void vtkCocoaRenderWindow::Start(void)
 void vtkCocoaRenderWindow::MakeCurrent()
 {
     [(vtkCocoaWindow *)this->WindowId makeCurrentContext];
+}
+
+const char* vtkCocoaRenderWindow::ReportCapabilities()
+{
+  this->MakeCurrent();
+
+  const char* glVendor = (const char*) glGetString(GL_VENDOR);
+  const char* glRenderer = (const char*) glGetString(GL_RENDERER);
+  const char* glVersion = (const char*) glGetString(GL_VERSION);
+  const char* glExtensions = (const char*) glGetString(GL_EXTENSIONS);
+
+  ostrstream strm;
+  strm << "OpenGL vendor string:  " << glVendor
+       << "\nOpenGL renderer string:  " << glRenderer
+       << "\nOpenGL version string:  " << glVersion
+       << "\nOpenGL extensions:  " << glExtensions << endl;
+
+  // Obtain the OpenGL context in order to keep track of the current screen.
+  NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
+  int currentScreen = [context currentVirtualScreen];
+
+  // The NSOpenGLPixelFormat can only be queried for one particular
+  // attribute at a time. Just make repeated queries to get the
+  // pertinent settings.
+  NSOpenGLPixelFormat* pixelFormat = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] pixelFormat];
+  strm << "PixelFormat Descriptor:" << endl;
+  long pfd;
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAColorSize forVirtualScreen: currentScreen];
+  strm  << "  colorSize:  " << pfd << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAlphaSize forVirtualScreen: currentScreen];
+  strm  << "  alphaSize:  " << pfd << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStencilSize forVirtualScreen: currentScreen];
+  strm  << "  stencilSize:  " << pfd << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFADepthSize forVirtualScreen: currentScreen];
+  strm  << "  depthSize:  " << pfd << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccumSize forVirtualScreen: currentScreen];
+  strm  << "  accumSize:  " << pfd << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFADoubleBuffer forVirtualScreen: currentScreen];
+  strm  << "  double buffer:  " << (pfd == YES ? "Yes" : "No") << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStereo forVirtualScreen: currentScreen];
+  strm  << "  stereo:  " << (pfd == YES ? "Yes" : "No") << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
+  strm  << "  hardware acceleration::  " << (pfd == YES ? "Yes" : "No") << endl;
+
+  strm << ends;
+  delete[] this->Capabilities;
+  this->Capabilities = new char[strlen(strm.str()) + 1];
+  strcpy(this->Capabilities, strm.str());
+  return this->Capabilities;
+}
+
+int vtkCocoaRenderWindow::SupportsOpenGL()
+{
+  this->MakeCurrent();
+  if (!this->ContextId)
+    {
+      return 0;
+    }
+
+  NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
+  int currentScreen = [context currentVirtualScreen];
+
+  NSOpenGLPixelFormat* pixelFormat = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] pixelFormat];
+  long pfd;
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
+
+  return (pfd == YES ? 1 : 0);
+}
+
+int vtkCocoaRenderWindow::IsDirect()
+{
+  this->MakeCurrent();
+  if (!this->ContextId)
+    {
+      return 0;
+    }
+
+  NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
+  int currentScreen = [context currentVirtualScreen];
+
+  NSOpenGLPixelFormat* pixelFormat = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] pixelFormat];
+  long pfd;
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAFullScreen forVirtualScreen: currentScreen];
+
+  return (pfd == YES ? 1 : 0);
 }
 
 void vtkCocoaRenderWindow::SetSize(int x, int y)
@@ -453,10 +546,13 @@ int *vtkCocoaRenderWindow::GetSize(void)
 // Get the current size of the screen.
 int *vtkCocoaRenderWindow::GetScreenSize(void)
 {
-cout << "Inside vtkCocoaRenderWindow::GetScreenSize - MUST IMPLEMENT\n";
-  this->Size[0] = 0;
-  this->Size[1] = 0;
-  
+  NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
+  int currentScreen = [context currentVirtualScreen];
+
+  NSScreen* screen = [[NSScreen screens] objectAtIndex: currentScreen];
+  NSRect screenRect = [screen frame];
+  this->Size[0] = (int)screenRect.size.width;
+  this->Size[1] = (int)screenRect.size.height;
   return this->Size;
 }
 
@@ -542,13 +638,20 @@ void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
 // Set the preferred window size to full screen.
 void vtkCocoaRenderWindow::PrefFullScreen()
 {
-vtkWarningMacro(<< "Can't get full screen window.");
+  int *size;
+
+  size = this->GetScreenSize();
+  vtkWarningMacro(<< "Can't get full screen window of size "
+		  << size[0] << 'x' << size[1] << ".");
 }
 
 // Remap the window.
 void vtkCocoaRenderWindow::WindowRemap()
 {
-vtkWarningMacro(<< "Can't remap the window.");
+  vtkWarningMacro(<< "Can't remap the window.");
+  // Aquire the display and capture the screen.
+  // Create the full-screen window.
+  // Add the context.
 }
 
 void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)

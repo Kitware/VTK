@@ -158,6 +158,18 @@ public:
   virtual void MakeCurrent();
 
   // Description:
+  // Get report of capabilities for the render window
+  const char *ReportCapabilities();
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  int SupportsOpenGL();
+
+  // Description:      
+  // Is this render window using hardware acceleration? 0-false, 1-true   
+  int IsDirect();
+
+  // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
@@ -237,6 +249,8 @@ protected:
 
   int CursorHidden;
   int ForceMakeCurrent;
+
+  char *Capabilities;
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
