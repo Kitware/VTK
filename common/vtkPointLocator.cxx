@@ -205,7 +205,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
   //
   if ( dist2 > 0.0 )
     {
-    this->GetOverlappingBuckets (x, ijk, sqrt(dist2));
+    this->GetOverlappingBuckets (x, ijk, sqrt(dist2),0);
 
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -230,6 +230,428 @@ int vtkPointLocator::FindClosestPoint(float x[3])
     }//if not identical point
 
   return closest;
+}
+
+struct idsort
+{
+  int id;
+  float dist;
+};
+
+int idsortcompare(const void *arg1, const void *arg2)
+{
+  idsort *v1 = (idsort *)arg1;
+  idsort *v2 = (idsort *)arg2;
+  if (v1->dist < v2->dist) return -1;
+  if (v1->dist > v2->dist) return 1;
+  return 0;  
+}
+
+void vtkPointLocator::FindDistributedPoints(int N, float x,
+					    float y, float z,
+					    vtkIdList *result, int M)
+{
+  float p[3];
+  p[0] = x;
+  p[1] = y;
+  p[2] = z;
+  this->FindDistributedPoints(N,p,result, M);
+}
+
+int GetOctent(float *x,float *pt)
+{
+  float tmp[3];
+  int res = 0;
+  
+  tmp[0] = pt[0] - x[0];
+  tmp[1] = pt[1] - x[1];
+  tmp[2] = pt[2] - x[2];
+  
+  if (tmp[0] > 0.0) res += 1;
+  if (tmp[1] > 0.0) res += 2;
+  if (tmp[2] > 0.0) res += 4;
+
+  return res;
+}
+
+int GetMin(int *foo)
+{
+  int result = foo[0];
+  int i;
+  
+  for (i = 1; i < 8; i++)
+    {
+    if (foo[i] < result) result = foo[i];
+    }
+  return result;
+}
+
+float GetMax(float *foo)
+{
+  float result = foo[0];
+  int i;
+  
+  for (i = 1; i < 8; i++)
+    {
+    if (foo[i] > result) result = foo[i];
+    }
+  return result;
+}
+
+void vtkPointLocator::FindDistributedPoints(int N, float x[3],
+					    vtkIdList *result, int M)
+{
+  int i, j;
+  float minDist2, dist2;
+  float *pt;
+  int level;
+  int ptId, cno;
+  vtkIdList *ptIds;
+  int ijk[3], *nei;
+  int oct;
+  int pointsChecked = 0;
+  
+  // clear out the result
+  result->Reset();
+    
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  //
+  //  Make sure candidate point is in bounds.  If not, it is outside.
+  //
+  for (i=0; i<3; i++)
+    {
+    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
+      {
+      return;
+      }
+    }
+  //
+  //  Find bucket point is in.  
+  //
+  for (j=0; j<3; j++) 
+    {
+    ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+    }
+
+  // there are two steps, first a simple expanding wave of buckets until
+  // we have enough points. Then a refinement to make sure we have the
+  // N closest points.
+  level = 0;
+  float maxDistance[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  int currentCount[8] = {0,0,0,0,0,0,0,0};
+  int minCurrentCount = 0;
+  
+  idsort *res[8];
+  for (i = 0; i < 8; i++) 
+    {
+    res[i] = new idsort [N];
+    }
+  
+  this->GetBucketNeighbors (ijk, this->Divisions, level);
+  while (this->Buckets->GetNumberOfNeighbors() && 
+	 minCurrentCount < N &&
+	 pointsChecked < M)
+    {
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
+      {
+      nei = this->Buckets->GetPoint(i);
+      cno = nei[0] + nei[1]*this->Divisions[0] + 
+            nei[2]*this->Divisions[0]*this->Divisions[1];
+
+      if ( (ptIds = this->HashTable[cno]) != NULL )
+        {
+        for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+          {
+	  pointsChecked++;
+          ptId = ptIds->GetId(j);
+          pt = this->DataSet->GetPoint(ptId);
+          dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+	  oct = GetOctent(x,pt);
+	  if (currentCount[oct] < N)
+	    {
+	    res[oct][currentCount[oct]].dist = dist2;
+	    res[oct][currentCount[oct]].id = ptId;
+	    if (dist2 > maxDistance[oct])
+	      {
+	      maxDistance[oct] = dist2;
+	      }
+	    currentCount[oct] = currentCount[oct] + 1;
+	    // compute new minCurrentCount
+	    minCurrentCount = GetMin(currentCount);	    
+	    if (currentCount[oct] == N)
+	      {
+	      qsort(res[oct], currentCount[oct], sizeof(idsort),idsortcompare);
+	      }
+	    }
+	  else if (dist2 < maxDistance[oct])
+	    {
+	    res[oct][N-1].dist = dist2;
+	    res[oct][N-1].id = ptId;
+	    qsort(res[oct], N, sizeof(idsort), idsortcompare);
+	    maxDistance[oct] = res[oct][N-1].dist;
+	    }
+          }
+        }
+      }
+    level++;
+    this->GetBucketNeighbors (ijk, this->Divisions, level);
+    }
+
+  // do a sort
+  for (i = 0; i < 8; i++)
+    {
+    qsort(res[i], currentCount[i], sizeof(idsort), idsortcompare);
+    }
+  
+  // Now do the refinement
+  this->GetOverlappingBuckets (x, ijk, sqrt(GetMax(maxDistance)),level-1);
+  
+  for (i=0; pointsChecked < M && i<this->Buckets->GetNumberOfNeighbors(); i++) 
+    {
+    nei = this->Buckets->GetPoint(i);
+    cno = nei[0] + nei[1]*this->Divisions[0] + 
+      nei[2]*this->Divisions[0]*this->Divisions[1];
+    
+    if ( (ptIds = this->HashTable[cno]) != NULL )
+      {
+      for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+	{
+	pointsChecked++;
+	ptId = ptIds->GetId(j);
+	pt = this->DataSet->GetPoint(ptId);
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+	oct = GetOctent(x,pt);
+	if (dist2 < maxDistance[oct])
+	  {
+	  res[oct][N-1].dist = dist2;
+	  res[oct][N-1].id = ptId;
+	  qsort(res[oct], N, sizeof(idsort), idsortcompare);
+	  maxDistance[oct] = res[oct][N-1].dist;
+	  }
+	}
+      }
+    }
+    
+  // Fill in the IdList
+  for (j = 0; j < 8; j++)
+    {
+    for (i = 0; i < currentCount[j]; i++)
+      {
+      result->InsertNextId(res[j][i].id);
+      }
+    delete [] res[j];
+    }
+}
+
+void vtkPointLocator::FindClosestNPoints(int N, float x,
+					 float y, float z,
+					 vtkIdList *result)
+{
+  float p[3];
+  p[0] = x;
+  p[1] = y;
+  p[2] = z;
+  this->FindClosestNPoints(N,p,result);
+}
+
+void vtkPointLocator::FindClosestNPoints(int N, float x[3],vtkIdList *result)
+{
+  int i, j;
+  float minDist2, dist2;
+  float *pt;
+  int level;
+  int ptId, cno;
+  vtkIdList *ptIds;
+  int ijk[3], *nei;
+  
+  // clear out the result
+  result->Reset();
+    
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  //
+  //  Make sure candidate point is in bounds.  If not, it is outside.
+  //
+  for (i=0; i<3; i++)
+    {
+    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
+      {
+      return;
+      }
+    }
+  //
+  //  Find bucket point is in.  
+  //
+  for (j=0; j<3; j++) 
+    {
+    ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+    }
+
+  // there are two steps, first a simple expanding wave of buckets until
+  // we have enough points. Then a refinement to make sure we have the
+  // N closest points.
+  level = 0;
+  float maxDistance = 0.0;
+  int currentCount = 0;
+  idsort *res = new idsort [N];
+  
+  this->GetBucketNeighbors (ijk, this->Divisions, level);
+  while (this->Buckets->GetNumberOfNeighbors() && currentCount < N)
+    {
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
+      {
+      nei = this->Buckets->GetPoint(i);
+      cno = nei[0] + nei[1]*this->Divisions[0] + 
+            nei[2]*this->Divisions[0]*this->Divisions[1];
+
+      if ( (ptIds = this->HashTable[cno]) != NULL )
+        {
+        for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+          {
+          ptId = ptIds->GetId(j);
+          pt = this->DataSet->GetPoint(ptId);
+          dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+	  if (currentCount < N)
+	    {
+	    res[currentCount].dist = dist2;
+	    res[currentCount].id = ptId;
+	    if (dist2 > maxDistance)
+	      {
+	      maxDistance = dist2;
+	      }
+	    currentCount++;
+	    if (currentCount == N)
+	      {
+	      qsort(res, currentCount, sizeof(idsort), idsortcompare);
+	      }
+	    }
+	  else if (dist2 < maxDistance)
+	    {
+	    res[N-1].dist = dist2;
+	    res[N-1].id = ptId;
+	    qsort(res, N, sizeof(idsort), idsortcompare);
+	    maxDistance = res[N-1].dist;
+	    }
+          }
+        }
+      }
+    level++;
+    this->GetBucketNeighbors (ijk, this->Divisions, level);
+    }
+
+  // do a sort
+  qsort(res, currentCount, sizeof(idsort), idsortcompare);
+
+  // Now do the refinement
+  this->GetOverlappingBuckets (x, ijk, sqrt(maxDistance),level-1);
+  
+  for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
+    {
+    nei = this->Buckets->GetPoint(i);
+    cno = nei[0] + nei[1]*this->Divisions[0] + 
+      nei[2]*this->Divisions[0]*this->Divisions[1];
+    
+    if ( (ptIds = this->HashTable[cno]) != NULL )
+      {
+      for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+	{
+	ptId = ptIds->GetId(j);
+	pt = this->DataSet->GetPoint(ptId);
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+	if (dist2 < maxDistance)
+	  {
+	  res[N-1].dist = dist2;
+	  res[N-1].id = ptId;
+	  qsort(res, N, sizeof(idsort), idsortcompare);
+	  maxDistance = res[N-1].dist;
+	  }
+	}
+      }
+    }
+    
+  // Fill in the IdList
+  result->SetNumberOfIds(currentCount);
+  for (i = 0; i < currentCount; i++)
+    {
+    result->SetId(i,res[i].id);
+    }
+
+  delete [] res;
+}
+
+void vtkPointLocator::FindPointsWithinRadius(float R, float x,
+					     float y, float z,
+					     vtkIdList *result)
+{
+  float p[3];
+  p[0] = x;
+  p[1] = y;
+  p[2] = z;
+  this->FindPointsWithinRadius(R,p,result);
+}
+
+void vtkPointLocator::FindPointsWithinRadius(float R, float x[3],
+					     vtkIdList *result)
+{
+  int i, j;
+  float minDist2, dist2;
+  float *pt;
+  int level;
+  int ptId, cno;
+  vtkIdList *ptIds;
+  int ijk[3], *nei;
+  float R2 = R*R;
+  
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  //
+  //  Make sure candidate point is in bounds.  If not, it is outside.
+  //
+  for (i=0; i<3; i++)
+    {
+    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
+      {
+      return;
+      }
+    }
+  //
+  //  Find bucket point is in.  
+  //
+  for (j=0; j<3; j++) 
+    {
+    ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+    }
+
+  // get all buckets within a distance
+  this->GetOverlappingBuckets (x, ijk, R, 0);
+  // add the original bucket
+  this->Buckets->InsertNextPoint(ijk);
+
+  // clear out the result
+  result->Reset();
+  
+  for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
+    {
+    nei = this->Buckets->GetPoint(i);
+    cno = nei[0] + nei[1]*this->Divisions[0] + 
+      nei[2]*this->Divisions[0]*this->Divisions[1];
+    
+    if ( (ptIds = this->HashTable[cno]) != NULL )
+      {
+      for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+	{
+	ptId = ptIds->GetId(j);
+	pt = this->DataSet->GetPoint(ptId);
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+	if (dist2 <= R2)
+	  {
+	  result->InsertNextId(ptId);
+	  }
+	}
+      }
+    }
+
 }
 
 //
@@ -401,7 +823,9 @@ void vtkPointLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 
 //
 // Internal method to find those buckets that are within distance specified
-void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
+// only those buckets outside of level radiuses of ijk are returned
+void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], 
+					    float dist, int level)
 {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
 
@@ -432,7 +856,9 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
       {
       for ( k= minLevel[2]; k <= maxLevel[2]; k++ ) 
         {
-        if ( i != ijk[0] || j != ijk[1] || k != ijk[2] )
+        if ( i < (ijk[0]-level) || i > (ijk[0]+level) ||
+	     j < (ijk[1]-level) || j > (ijk[1]+level) ||
+	     k < (ijk[2]-level) || k > (ijk[2]+level))
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
           this->Buckets->InsertNextPoint(nei);
@@ -807,6 +1233,7 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
 
     return closest;
 }
+
 
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.

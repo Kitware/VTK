@@ -71,15 +71,15 @@ class vtkNeighborPoints;
 class VTK_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
-  // Description:
-  // Construct with automatic computation of divisions, averaging
-  // 25 points per bucket.
-  vtkPointLocator();
-
   ~vtkPointLocator();
   static vtkPointLocator *New() {return new vtkPointLocator;};
   const char *GetClassName() {return "vtkPointLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with automatic computation of divisions, averaging
+  // 25 points per bucket.
+  vtkPointLocator();
 
   // Description:
   // Set the number of divisions in x-y-z directions.
@@ -138,7 +138,7 @@ public:
     float xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->IsInsertedPoint (xyz);
-    }
+    };
   virtual int IsInsertedPoint(float x[3]);
 
   // Description:
@@ -154,6 +154,31 @@ public:
   // Given a position x, return the id of the point closest to it. This method
   // is used when performing incremental point insertion.
   virtual int FindClosestInsertedPoint(float x[3]);
+
+  // Description:
+  // Find the closest N points to a position. This returns the closest
+  // N points to a position. A faster method could be created that returned
+  // N close points to a position, but neccesarily the exact N closest.
+  // The returned points are sorted from closest to farthest.
+  virtual void FindClosestNPoints(int N, float x[3], vtkIdList *result);
+  virtual void FindClosestNPoints(int N, float x, float y, float z,
+				  vtkIdList *result);
+
+  // Description:
+  // Find the closest points to a position such that each octent of
+  // space around the position contains at least N points. Loosely 
+  // limit the search to a maximum number of points evalualted, M. 
+  virtual void FindDistributedPoints(int N, float x[3], 
+				     vtkIdList *result, int M);
+  virtual void FindDistributedPoints(int N, float x, float y, 
+				     float z, vtkIdList *result, int M);
+
+  // Description:
+  // Find all points within a specified radius R of position x.
+  // The result is not sorted in any specific manner.
+  virtual void FindPointsWithinRadius(float R, float x[3], vtkIdList *result);
+  virtual void FindPointsWithinRadius(float R, float x, float y, float z, 
+				      vtkIdList *result);
   
   // Description:
   // See vtkLocator interface documentation.
@@ -165,7 +190,7 @@ public:
 protected:
   // place points in appropriate buckets
   void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
-  void GetOverlappingBuckets(float x[3], int ijk[3], float dist);
+  void GetOverlappingBuckets(float x[3], int ijk[3], float dist, int level);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkPoints *pts, vtkCellArray *polys);
 
