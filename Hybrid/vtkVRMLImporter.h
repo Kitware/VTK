@@ -66,7 +66,6 @@
 #define __vtkVRMLImporter_h
 
 // Includes for the yacc/lex parser
-#include "vtkVRML.h"
 #include "vtkImporter.h"
 
 class vtkActor;
@@ -80,6 +79,7 @@ class vtkFloatArray;
 class vtkPolyDataMapper;
 class vtkPoints;
 class vtkIdTypeArray;
+class vtkVRMLImporterInternal;
 
 class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
 {
@@ -154,19 +154,7 @@ private:
 
   void DeleteObject(vtkObject*);
 
-//BTX
-
-#ifdef WIN32
-#pragma warning( disable : 4251 )
-#endif
-
-  VectorType<vtkObject*> Heap;
-
-#ifdef WIN32
-#pragma warning( default : 4251 )
-#endif
-
-//ETX
+  vtkVRMLImporterInternal* Internal;
 
 private:
   vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.

@@ -57,6 +57,23 @@
 #include "vtkSystemIncludes.h"
 #include "vtkVRML.h"
 
+class vtkVRMLImporterInternal {
+public:
+  vtkVRMLImporterInternal() : Heap(1) {}
+//BTX
+#ifdef WIN32
+#pragma warning( disable : 4251 )
+#endif
+
+  vtkVRMLVectorType<vtkObject*> Heap;
+
+#ifdef WIN32
+#pragma warning( default : 4251 )
+#endif
+
+//ETX  
+};
+
 // Heap to manage memory leaks
 vtkHeap *vtkVRMLAllocator::Heap=NULL;
 
@@ -206,19 +223,19 @@ public:
   };
         
   // Node types are stored in this data structure:
-  static VectorType<VrmlNodeType*>* typeList;
-  static VectorType<vtkVRMLUseStruct *>* useList;
-  static VectorType<FieldRec*>* currentField;
+  static vtkVRMLVectorType<VrmlNodeType*>* typeList;
+  static vtkVRMLVectorType<vtkVRMLUseStruct *>* useList;
+  static vtkVRMLVectorType<FieldRec*>* currentField;
 
 private:
-  void add(VectorType<NameTypeRec*> &,const char *,int);
-  int has(const VectorType<NameTypeRec*> &,const char *) const;
+  void add(vtkVRMLVectorType<NameTypeRec*> &,const char *,int);
+  int has(const vtkVRMLVectorType<NameTypeRec*> &,const char *) const;
 
   char *name;
 
-  VectorType<NameTypeRec*> eventIns;
-  VectorType<NameTypeRec*> eventOuts;
-  VectorType<NameTypeRec*> fields;
+  vtkVRMLVectorType<NameTypeRec*> eventIns;
+  vtkVRMLVectorType<NameTypeRec*> eventOuts;
+  vtkVRMLVectorType<NameTypeRec*> fields;
 };
 
 #endif
@@ -232,9 +249,9 @@ private:
 //
 // Static list of node types.
 //
-VectorType<VrmlNodeType*>* VrmlNodeType::typeList;
-VectorType<vtkVRMLUseStruct *>* VrmlNodeType::useList;
-VectorType<VrmlNodeType::FieldRec*>* VrmlNodeType::currentField;
+vtkVRMLVectorType<VrmlNodeType*>* VrmlNodeType::typeList;
+vtkVRMLVectorType<vtkVRMLUseStruct *>* VrmlNodeType::useList;
+vtkVRMLVectorType<VrmlNodeType::FieldRec*>* VrmlNodeType::currentField;
 
 VrmlNodeType::VrmlNodeType(const char *nm)
 {
@@ -356,7 +373,7 @@ VrmlNodeType::addExposedField(const char *nodeName, int type)
 };
 
 void
-VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *nodeName, int type)
+VrmlNodeType::add(vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeName, int type)
 {
   NameTypeRec *r = new NameTypeRec;
   r->name = vtkVRMLAllocator::StrDup(nodeName); //strdup(nodeName);
@@ -397,7 +414,7 @@ VrmlNodeType::hasExposedField(const char *nodeName) const
   return type;
 }
 int
-VrmlNodeType::has(const VectorType<NameTypeRec*> &recs, const char *nodeName) const
+VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeName) const
 {
   for (int i = 0;i < recs.Count(); i++) 
     {
@@ -481,7 +498,7 @@ using namespace std;
 // Currently-being-define proto.  Prototypes may be nested, so a stack
 // is needed:
 
-static VectorType<VrmlNodeType*> *CurrentProtoStack = NULL;
+static vtkVRMLVectorType<VrmlNodeType*> *CurrentProtoStack = NULL;
 
 
 // This is used when the parser knows what kind of token it expects
@@ -4233,30 +4250,30 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.53");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.54");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
 {
   vtkPoints* pts = vtkPoints::New();
-  this->Heap.Push(pts);
+  this->Internal->Heap.Push(pts);
   return pts;
 }
 
 vtkIdTypeArray* vtkVRMLImporter::IdTypeArrayNew()
 {
   vtkIdTypeArray* array = vtkIdTypeArray::New();
-  this->Heap.Push(array);
+  this->Internal->Heap.Push(array);
   return array;
 }
 
 void vtkVRMLImporter::DeleteObject(vtkObject* obj)
 {
-  for(int i=0; i<this->Heap.Count(); i++)
+  for(int i=0; i<this->Internal->Heap.Count(); i++)
     {
-    if (obj == this->Heap[i])
+    if (obj == this->Internal->Heap[i])
       {
-      this->Heap[i] = 0;
+      this->Internal->Heap[i] = 0;
       }
     }
   obj->Delete();
@@ -5342,8 +5359,9 @@ static void yy_flex_free( void *ptr )
 // End of Auto-generated Lexer Code
 
 
-vtkVRMLImporter::vtkVRMLImporter () : Heap(1)
+vtkVRMLImporter::vtkVRMLImporter ()
 {
+  this->Internal = new vtkVRMLImporterInternal;
   this->CurrentActor = NULL;
   this->CurrentLight = NULL;
   this->CurrentProperty = NULL;
@@ -5385,13 +5403,13 @@ int vtkVRMLImporter::ImportBegin ()
   memyyInput_j = 0;
 
   vtkVRMLAllocator::Initialize();
-  VrmlNodeType::typeList = new VectorType<VrmlNodeType*>;
+  VrmlNodeType::typeList = new vtkVRMLVectorType<VrmlNodeType*>;
   VrmlNodeType::typeList->Init();
 
-  VrmlNodeType::useList = new VectorType<vtkVRMLUseStruct *>;
+  VrmlNodeType::useList = new vtkVRMLVectorType<vtkVRMLUseStruct *>;
   VrmlNodeType::useList->Init();
 
-  VrmlNodeType::currentField = new VectorType<VrmlNodeType::FieldRec *>;
+  VrmlNodeType::currentField = new vtkVRMLVectorType<VrmlNodeType::FieldRec *>;
   VrmlNodeType::currentField->Init();
 
   if (!this->OpenImportFile())
@@ -5402,7 +5420,7 @@ int vtkVRMLImporter::ImportBegin ()
   // This is acrually where it all takes place, Since VRML is a SG
   // And is state based, I need to create actors, cameras, and lights
   // as I go. The ImportXXXXXX rotuines are not used.
-  CurrentProtoStack = new VectorType<VrmlNodeType*>;
+  CurrentProtoStack = new vtkVRMLVectorType<VrmlNodeType*>;
 
   // Lets redefine the YY_INPUT macro on Flex and get chars from memory
   theyyInput = memyyInput;
@@ -5517,14 +5535,15 @@ vtkVRMLImporter::~vtkVRMLImporter()
     {
     delete [] this->FileName;
     }
-  while(this->Heap.Count() > 0)
+  while(this->Internal->Heap.Count() > 0)
     {
-    vtkObject* obj = this->Heap.Pop();
+    vtkObject* obj = this->Internal->Heap.Pop();
     if (obj)
       {
       obj->Delete();
       }
     }
+  delete this->Internal;
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
