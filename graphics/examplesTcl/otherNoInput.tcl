@@ -8,14 +8,14 @@
 
 catch {load vtktcl}
 
-set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v StartTime: | grep -v 0x | grep -v Modified | grep -v 'Compute Time:'"
-set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v Time: | grep -v 0x | grep -v Modified"
+set rtSelector "cat vtkMessageLog.log | sed s/\(.\*\)// | grep -v ERROR:"
 set rtComparator "diff -b"
 
 proc rtOtherTest { fileid } {
 #actual test
-    vtkFileOutputWindow w
-    w SetInstance w
+    vtkFileOutputWindow win
+    win FlushOn
+    win SetInstance win
     puts $fileid "No Input test started"
 
     set all [lsort [info command vtk*]]
@@ -27,11 +27,20 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkTimeStamp"} {
 	    continue
 	}
+	if {$a == "vtkFileOutputWindow"} {
+	    continue
+	}
+	if {$a == "vtkOutputWindow"} {
+	    continue
+	}
+	if {$a == "vtkWin32OutputWindow"} {
+	    continue
+	}
 	if {$a == "vtkSynchronizedTemplates3D"} {
 	    continue
 	}
-	w DisplayText "$a-----------"
-	catch {$a b; puts $fileid "[b Update]"}
+	win DisplayText "$a-----------"
+	catch {$a b; b Update;}
 	catch {b Delete}
     }
 }
