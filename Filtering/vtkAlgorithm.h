@@ -260,6 +260,11 @@ protected:
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
 
+  //BTX
+  // Gives vtkDemandDrivenPipeline access to Progress
+  friend class vtkDemandDrivenPipeline;
+  //ETX
+
   // Progress/Update handling
   double Progress;
   char  *ProgressText;
