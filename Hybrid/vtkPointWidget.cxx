@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.3");
+vtkCxxRevisionMacro(vtkPointWidget, "1.4");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -239,11 +239,164 @@ void vtkPointWidget::Highlight(int highlight)
   if ( highlight )
     {
     this->Actor->SetProperty(this->SelectedProperty);
+    this->CursorPicker->GetPickPosition(this->LastPickPosition);
     }
   else
     {
     this->Actor->SetProperty(this->Property);
     }
+}
+
+void vtkPointWidget::OnLeftButtonDown()
+{
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, we can process this. Pick the cursor.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->CursorPicker->GetPath();
+  if ( path != NULL )
+    {
+    this->State = vtkPointWidget::Moving;
+    int idx = this->CursorPicker->GetCellId();
+    if ( idx >= 0 && idx < 3 )
+      {
+      this->ConstraintAxis = idx;
+      }
+    this->Highlight(1);
+    }
+  else
+    {
+    this->State = vtkPointWidget::Outside;
+    this->ConstraintAxis = -1;
+    this->Highlight(0);
+    return;
+    }
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPointWidget::OnLeftButtonUp()
+{
+  if ( this->State == vtkPointWidget::Outside ||
+       this->State == vtkPointWidget::Start )
+    {
+    return;
+    }
+
+  this->State = vtkPointWidget::Start;
+  this->Highlight(0);
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPointWidget::OnMiddleButtonDown()
+{
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, we can process this. Pick 
+  // if no handles picked, then pick the bounding box.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->CursorPicker->GetPath();
+  if ( path != NULL )
+    {
+    this->State = vtkPointWidget::Translating;
+    int idx = this->CursorPicker->GetCellId();
+    if ( idx >= 0 && idx < 3 )
+      {
+      this->ConstraintAxis = idx;
+      }
+    this->Highlight(1);
+    }
+  else
+    {
+    this->State = vtkPointWidget::Outside;
+    this->ConstraintAxis = -1;
+    return;
+    }
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPointWidget::OnMiddleButtonUp()
+{
+  if ( this->State == vtkPointWidget::Outside ||
+       this->State == vtkPointWidget::Start )
+    {
+    return;
+    }
+
+  this->State = vtkPointWidget::Start;
+  this->Highlight(0);
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPointWidget::OnRightButtonDown()
+{
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, we can process this. Pick the cursor.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->CursorPicker->GetPath();
+  if ( path != NULL )
+    {
+    this->State = vtkPointWidget::Scaling;
+    int idx = this->CursorPicker->GetCellId();
+    if ( idx >= 0 && idx < 3 )
+      {
+      this->ConstraintAxis = idx;
+      }
+    this->Highlight(1);
+    }
+  else
+    {
+    this->State = vtkPointWidget::Outside;
+    this->ConstraintAxis = -1;
+    return;
+    }
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPointWidget::OnRightButtonUp()
+{
+  if ( this->State == vtkPointWidget::Outside ||
+       this->State == vtkPointWidget::Start )
+    {
+    return;
+    }
+
+  this->State = vtkPointWidget::Start;
+  this->Highlight(0);
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
 }
 
 void vtkPointWidget::OnMouseMove()
@@ -271,9 +424,8 @@ void vtkPointWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  camera->GetFocalPoint(focalPoint);
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
   this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
@@ -296,161 +448,6 @@ void vtkPointWidget::OnMouseMove()
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnLeftButtonDown()
-{
-  // We're only here is we are enabled
-  this->State = vtkPointWidget::Moving;
-
-  int X = this->Interactor->GetEventPosition()[0];
-  int Y = this->Interactor->GetEventPosition()[1];
-
-  // Okay, we can process this. Pick the cursor.
-  vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
-  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->CursorPicker->GetPath();
-  if ( path != NULL )
-    {
-    int idx = this->CursorPicker->GetCellId();
-    if ( idx >= 0 && idx < 3 )
-      {
-      this->ConstraintAxis = idx;
-      }
-    this->Highlight(1);
-    }
-  else
-    {
-    this->ConstraintAxis = -1;
-    this->Highlight(0);
-    this->State = vtkPointWidget::Outside;
-    return;
-    }
-  
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnLeftButtonUp()
-{
-  if ( this->State == vtkPointWidget::Outside )
-    {
-    return;
-    }
-
-  this->State = vtkPointWidget::Start;
-  this->Highlight(0);
-
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnMiddleButtonDown()
-{
-  this->State = vtkPointWidget::Translating;
-
-  int X = this->Interactor->GetEventPosition()[0];
-  int Y = this->Interactor->GetEventPosition()[1];
-
-  // Okay, we can process this. Pick 
-  // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
-  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->CursorPicker->GetPath();
-  if ( path != NULL )
-    {
-    int idx = this->CursorPicker->GetCellId();
-    if ( idx >= 0 && idx < 3 )
-      {
-      this->ConstraintAxis = idx;
-      }
-    this->Highlight(1);
-    }
-  else
-    {
-    this->ConstraintAxis = -1;
-    this->Highlight(0);
-    this->State = vtkPointWidget::Outside;
-    return;
-    }
-  
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnMiddleButtonUp()
-{
-  if ( this->State == vtkPointWidget::Outside )
-    {
-    return;
-    }
-
-  this->State = vtkPointWidget::Start;
-  this->Highlight(0);
-  
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnRightButtonDown()
-{
-  this->State = vtkPointWidget::Scaling;
-
-  int X = this->Interactor->GetEventPosition()[0];
-  int Y = this->Interactor->GetEventPosition()[1];
-
-  // Okay, we can process this. Pick the cursor.
-  vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
-  this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->CursorPicker->GetPath();
-  if ( path != NULL )
-    {
-    int idx = this->CursorPicker->GetCellId();
-    if ( idx >= 0 && idx < 3 )
-      {
-      this->ConstraintAxis = idx;
-      }
-    this->Highlight(1);
-    }
-  else
-    {
-    this->ConstraintAxis = -1;
-    this->Highlight(0);
-    this->State = vtkPointWidget::Outside;
-    return;
-    }
-  
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
-}
-
-void vtkPointWidget::OnRightButtonUp()
-{
-  if ( this->State == vtkPointWidget::Outside )
-    {
-    return;
-    }
-
-  this->State = vtkPointWidget::Start;
-  this->Highlight(0);
-  
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 

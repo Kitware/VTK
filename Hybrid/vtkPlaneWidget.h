@@ -341,6 +341,9 @@ protected:
   
   void GeneratePlane();
   
+  // Keep track of last pick position
+  float LastPickPosition[3];
+  
 private:
   vtkPlaneWidget(const vtkPlaneWidget&);  //Not implemented
   void operator=(const vtkPlaneWidget&);  //Not implemented

@@ -36,7 +36,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.22");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.23");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -506,6 +506,7 @@ int vtkPlaneWidget::HighlightHandle(vtkProp *prop)
 
   if ( this->CurrentHandle )
     {
+    this->HandlePicker->GetPickPosition(this->LastPickPosition);
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
     for (int i=0; i<4; i++) //find handle
       {
@@ -523,6 +524,7 @@ void vtkPlaneWidget::HighlightNormal(int highlight)
 {
   if ( highlight )
     {
+    this->PlanePicker->GetPickPosition(this->LastPickPosition);
     this->LineActor->SetProperty(this->SelectedHandleProperty);
     this->ConeActor->SetProperty(this->SelectedHandleProperty);
     this->LineActor2->SetProperty(this->SelectedHandleProperty);
@@ -541,6 +543,7 @@ void vtkPlaneWidget::HighlightPlane(int highlight)
 {
   if ( highlight )
     {
+    this->PlanePicker->GetPickPosition(this->LastPickPosition);
     this->PlaneActor->SetProperty(this->SelectedPlaneProperty);
     }
   else
@@ -551,9 +554,6 @@ void vtkPlaneWidget::HighlightPlane(int highlight)
 
 void vtkPlaneWidget::OnLeftButtonDown()
 {
-  // We're only here is we are enabled
-  this->State = vtkPlaneWidget::Moving;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -565,6 +565,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
     {
+    this->State = vtkPlaneWidget::Moving;
     this->HighlightHandle(path->GetFirstNode()->GetProp());
     }
   else
@@ -577,18 +578,19 @@ void vtkPlaneWidget::OnLeftButtonDown()
       if ( prop == this->ConeActor || prop == this->LineActor ||
            prop == this->ConeActor2 || prop == this->LineActor2 )
         {
-        this->HighlightNormal(1);
         this->State = vtkPlaneWidget::Rotating;
+        this->HighlightNormal(1);
         }
       else
         {
+        this->State = vtkPlaneWidget::Moving;
         this->HighlightPlane(1);
         }
       }
     else
       {
-      this->HighlightHandle(NULL);
       this->State = vtkPlaneWidget::Outside;
+      this->HighlightHandle(NULL);
       return;
       }
     }
@@ -601,7 +603,8 @@ void vtkPlaneWidget::OnLeftButtonDown()
 
 void vtkPlaneWidget::OnLeftButtonUp()
 {
-  if ( this->State == vtkPlaneWidget::Outside )
+  if ( this->State == vtkPlaneWidget::Outside ||
+       this->State == vtkPlaneWidget::Start )
     {
     return;
     }
@@ -619,8 +622,6 @@ void vtkPlaneWidget::OnLeftButtonUp()
 
 void vtkPlaneWidget::OnMiddleButtonDown()
 {
-  this->State = vtkPlaneWidget::Pushing;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -630,21 +631,29 @@ void vtkPlaneWidget::OnMiddleButtonDown()
   this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
-  if ( path == NULL )
+  if ( path != NULL )
+    {
+    this->State = vtkPlaneWidget::Pushing;
+    this->HighlightPlane(1);
+    this->HighlightNormal(1);
+    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    }
+  else
     {
     this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
     path = this->PlanePicker->GetPath();
+    if ( path == NULL ) //nothing picked
+      {
+      this->State = vtkPlaneWidget::Outside;
+      return;
+      }
+    else
+      {
+      this->State = vtkPlaneWidget::Pushing;
+      this->HighlightNormal(1);
+      this->HighlightPlane(1);
+      }
     }
-  
-  if ( path == NULL ) //nothing picked
-    {
-    this->State = vtkPlaneWidget::Outside;
-    this->HighlightPlane(0);
-    return;
-    }
-
-  this->HighlightPlane(1);
-  this->HighlightNormal(1);
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -654,7 +663,8 @@ void vtkPlaneWidget::OnMiddleButtonDown()
 
 void vtkPlaneWidget::OnMiddleButtonUp()
 {
-  if ( this->State == vtkPlaneWidget::Outside )
+  if ( this->State == vtkPlaneWidget::Outside ||
+       this->State == vtkPlaneWidget::Start )
     {
     return;
     }
@@ -671,8 +681,6 @@ void vtkPlaneWidget::OnMiddleButtonUp()
 
 void vtkPlaneWidget::OnRightButtonDown()
 {
-  this->State = vtkPlaneWidget::Scaling;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -682,18 +690,24 @@ void vtkPlaneWidget::OnRightButtonDown()
   this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
-  if ( path == NULL )
+  if ( path != NULL )
+    {
+    this->State = vtkPlaneWidget::Scaling;
+    this->HighlightPlane(1);
+    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    }
+  else //see if we picked the plane or a normal
     {
     this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
     path = this->PlanePicker->GetPath();
     if ( path == NULL )
       {
       this->State = vtkPlaneWidget::Outside;
-      this->HighlightPlane(0);
       return;
       }
     else
       {
+      this->State = vtkPlaneWidget::Scaling;
       this->HighlightPlane(1);
       }
     }
@@ -706,7 +720,8 @@ void vtkPlaneWidget::OnRightButtonDown()
 
 void vtkPlaneWidget::OnRightButtonUp()
 {
-  if ( this->State == vtkPlaneWidget::Outside )
+  if ( this->State == vtkPlaneWidget::Outside ||
+       this->State == vtkPlaneWidget::Start )
     {
     return;
     }
@@ -745,11 +760,11 @@ void vtkPlaneWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  camera->GetFocalPoint(focalPoint);
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 

@@ -229,6 +229,9 @@ protected:
   vtkProperty *SelectedProperty;
   void CreateDefaultProperties();
   
+  // Keep track of last pick position
+  float LastPickPosition[3];
+  
 private:
   vtkPointWidget(const vtkPointWidget&);  //Not implemented
   void operator=(const vtkPointWidget&);  //Not implemented
