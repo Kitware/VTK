@@ -32,12 +32,11 @@
 #include "vtkGenericAdaptorCell.h"
 #include <assert.h>
 
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 #include "vtkInformation.h"
 #include "vtkExecutive.h" // for GetExecutive()
-#endif
+#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.2");
+vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.3");
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,InterpolatorPrototype,vtkGenericInterpolatedVelocityField);
@@ -47,9 +46,7 @@ const double vtkGenericStreamTracer::EPSILON = 1.0E-12;
 //-----------------------------------------------------------------------------
 vtkGenericStreamTracer::vtkGenericStreamTracer()
 {
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   this->SetNumberOfInputPorts(2);
-#endif
   
   this->Integrator = vtkRungeKutta2::New();
   this->IntegrationDirection = FORWARD;
@@ -98,65 +95,30 @@ vtkGenericStreamTracer::~vtkGenericStreamTracer()
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetSource(vtkDataSet *source)
 {
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   this->SetInputConnection(1, source->GetProducerPort());
-#else
-  this->vtkProcessObject::SetNthInput(1, source);
-#endif
 }
 
 //-----------------------------------------------------------------------------
 vtkDataSet *vtkGenericStreamTracer::GetSource()
 {
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   if (this->GetNumberOfInputConnections(1) < 1) // because the port is optional
     {
     return 0;
     }
   return static_cast<vtkDataSet *>(this->GetExecutive()->GetInputData(1, 0));
-#else
-  if (this->NumberOfInputs < 2)
-    {
-    return 0;
-    }
-  return static_cast<vtkDataSet *>(this->Inputs[1]);
-#endif
 }
 
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::AddInput(vtkGenericDataSet* input)
 {  
-  this->Modified();
-  
-#if !(VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4))
-  int idx;
-  // Always leave room for source (2nd input)
-  if (this->NumberOfInputs == 1)
-    {
-    this->SetNumberOfInputs(3);
-    this->SetNthInput(2, input);
-    return;
-    }
-
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] == NULL && 
-        idx != 1 /*Always leave room for source (2nd input) */)
-
-      {
-      this->Inputs[idx] = input;
-      return;
-      }
-    }
-#endif
-  this->SetNthInput(this->NumberOfInputs, input);
+  this->Superclass::AddInput(input);
 }
 
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+
 //----------------------------------------------------------------------------
 int vtkGenericStreamTracer
 ::FillInputPortInformation(int port, vtkInformation* info)
-{
+{ 
   if(!this->Superclass::FillInputPortInformation(port, info))
     {
     return 0;
@@ -166,9 +128,12 @@ int vtkGenericStreamTracer
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(),1);
     }
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+    }
   return 1;
 }
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -615,8 +580,21 @@ void vtkGenericStreamTracer::InitializeSeeds(
 }
 
 //-----------------------------------------------------------------------------
-void vtkGenericStreamTracer::Execute()
+int vtkGenericStreamTracer::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray* seeds = 0;
   vtkIdList* seedIds = 0;
   vtkIntArray* integrationDirections = 0;
@@ -626,16 +604,17 @@ void vtkGenericStreamTracer::Execute()
     {
     double lastPoint[3];
     vtkGenericInterpolatedVelocityField* func;
-    if (this->CheckInputs(func) != VTK_OK)
+    if (this->CheckInputs(func, inputVector) != VTK_OK)
       {
       vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
       func->Delete();
       seeds->Delete();
       integrationDirections->Delete();
       seedIds->Delete();
-      return;
+      return 1;
       }
-    this->Integrate(this->GetOutput(),
+    this->Integrate(input,
+                    output,
                     seeds, 
                     seedIds, 
                     integrationDirections, 
@@ -647,11 +626,14 @@ void vtkGenericStreamTracer::Execute()
 
   integrationDirections->Delete();
   seedIds->Delete();
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
 int vtkGenericStreamTracer::CheckInputs(
-  vtkGenericInterpolatedVelocityField*& func)
+  vtkGenericInterpolatedVelocityField*& func,
+  vtkInformationVector **inputVector
+  )
 {
   // Set the function set to be integrated
   if (!this->InterpolatorPrototype)
@@ -669,15 +651,20 @@ int vtkGenericStreamTracer::CheckInputs(
   // have the appropriate vectors and compute the maximum
   // cell size.
   int numInputs = 0;
-  for (int i = 0; i < this->NumberOfInputs; i++)
+  int numInputConnections = this->GetNumberOfInputConnections(0);
+  for (int i = 0; i < numInputConnections; i++)
     {
-    vtkGenericDataSet* inp = static_cast<vtkGenericDataSet*>(this->Inputs[i]);
-    
-#if !(VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4))
-    if (inp && i != 1 /* Do not add the source */)
+    vtkInformation *info = inputVector[0]->GetInformationObject(i);
+    vtkGenericDataSet* inp=0;
+  
+    if(info!=0)
       {
-#endif
-      int attrib;
+      inp = vtkGenericDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      }
+    if(inp!=0)
+      {
+    int attrib;
       int attributeFound;
       if(this->InputVectorsSelection!=0)
         {
@@ -713,9 +700,7 @@ int vtkGenericStreamTracer::CheckInputs(
         }
       func->AddDataSet(inp);
       numInputs++;
-#if !(VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4))
       }
-#endif
     }
   if ( numInputs == 0 )
     {
@@ -727,13 +712,14 @@ int vtkGenericStreamTracer::CheckInputs(
 
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::Integrate(
+  vtkGenericDataSet *input0,
   vtkPolyData* output,
   vtkDataArray* seedSource, 
   vtkIdList* seedIds,
   vtkIntArray* integrationDirections,
   double lastPoint[3],
   vtkGenericInterpolatedVelocityField* func)
-{
+{ 
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
 
@@ -799,7 +785,7 @@ void vtkGenericStreamTracer::Integrate(
   // than one, the attributes have to match.
   
   // prepare the output attributes
-  vtkGenericAttributeCollection *attributes=this->GetInput()->GetAttributes();
+  vtkGenericAttributeCollection *attributes=input0->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
   

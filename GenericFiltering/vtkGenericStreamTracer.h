@@ -63,7 +63,7 @@
 #ifndef __vtkGenericStreamTracer_h
 #define __vtkGenericStreamTracer_h
 
-#include "vtkGenericDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
@@ -74,11 +74,12 @@ class vtkIntArray;
 class vtkGenericInterpolatedVelocityField;
 class vtkDataSet;
 class vtkGenericAttribute;
+class vtkGenericDataSet;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericStreamTracer : public vtkGenericDataSetToPolyDataFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericStreamTracer,vtkGenericDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGenericStreamTracer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -306,7 +307,7 @@ protected:
   void AddInput(vtkDataObject *) 
     { vtkErrorMacro( << "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject."); };
   
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   // Compute the vorticity at point `pcoords' in cell `cell' for the
@@ -319,7 +320,8 @@ protected:
                           vtkGenericAttribute *attribute,
                           double vorticity[3]);
 
-  void Integrate(vtkPolyData* output,
+  void Integrate(vtkGenericDataSet *input0,
+                 vtkPolyData* output,
                  vtkDataArray* seedSource, 
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
@@ -329,7 +331,8 @@ protected:
                        double lastPoint[3], 
                        double delt,
                        vtkGenericInterpolatedVelocityField* func);
-  int CheckInputs(vtkGenericInterpolatedVelocityField*& func);
+  int CheckInputs(vtkGenericInterpolatedVelocityField*& func,
+    vtkInformationVector **inputVector);
   void GenerateNormals(vtkPolyData* output, double* firstNormal);
 
   int GenerateNormalsInIntegrate;
