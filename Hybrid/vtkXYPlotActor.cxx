@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.58");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.59");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -313,6 +313,11 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
 
   // Add the data set to the collection
   this->InputList->AddItem(ds);
+
+  // In case of multiple use of a XYPlotActor the NumberOfEntries could be set
+  // to n. Then when a call to SetEntryString(n+1, bla) was done the string was lost
+  // Need to update the number of entries for the legend actor
+  this->LegendActor->SetNumberOfEntries(this->LegendActor->GetNumberOfEntries()+1);
 
   this->Modified();
 }
@@ -774,7 +779,7 @@ const char *vtkXYPlotActor::GetXValuesAsString()
 //----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
 {
-  if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW ) 
+  if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
     {
     return "Plot Rows";
     }
@@ -958,8 +963,8 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
   double maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
-  range[0] = VTK_DOUBLE_MAX;
-  range[1] = -VTK_DOUBLE_MAX;
+  range[0] = VTK_DOUBLE_MAX, range[1] = VTK_DOUBLE_MIN;
+
   vtkCollectionSimpleIterator dsit;
   for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(dsit); 
         (ds = this->InputList->GetNextDataSet(dsit)); dsNum++)
@@ -1066,7 +1071,7 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
   int count;
   int component;
 
-  range[0]=VTK_DOUBLE_MAX, range[1]=(-VTK_DOUBLE_MAX);
+  range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
 
   vtkCollectionSimpleIterator dsit;
   for ( this->InputList->InitTraversal(dsit), count = 0; 
@@ -1489,8 +1494,6 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
           default:
             vtkErrorMacro(<< "Unknown X-Value option");
           }
-        
-
 
         if ( this->GetLogx() == 1 )
           {
@@ -1521,9 +1524,9 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
             clippingRequired = 1;
             }    
           numLinePts++;
-          xyz[0] = pos[0] + 
+          xyz[0] = pos[0] +
             (xyz[0]-xRange[0])/(xRange[1]-xRange[0])*(pos2[0]-pos[0]);
-          xyz[1] = pos[1] + 
+          xyz[1] = pos[1] +
             (xyz[1]-yRange[0])/(yRange[1]-yRange[0])*(pos2[1]-pos[1]);
           id = pts->InsertNextPoint(xyz);
           lines->InsertCellPoint(id);
@@ -2116,45 +2119,30 @@ void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::PrintAsCSV(ostream &os)
 {
-  // First thing we need the number of points:
-  vtkPolyData *pd = this->PlotData[0];
-  vtkPoints* points = pd->GetPoints();
-  vtkIdType numPts = points->GetNumberOfPoints ();
-  
-  for( int j = 0 ; j < this->NumberOfInputs; j++)
+  vtkDataArray *scalars;
+  vtkDataSet *ds;
+  vtkCollectionSimpleIterator dsit;
+  double s;
+  int dsNum,component;
+  for ( dsNum=0, this->InputList->InitTraversal(dsit); 
+    (ds = this->InputList->GetNextDataSet(dsit)); dsNum++ )
     {
-    //then the X and Y title:
-    if( j == 0 )
+    vtkIdType numPts = ds->GetNumberOfPoints();
+    scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[dsNum]);
+    component = this->SelectedInputScalarsComponent->GetValue(dsNum);
+    for ( vtkIdType ptId=0; ptId < numPts; ptId++ )
       {
-      os << this->SelectedInputScalars[j];
-      }
-    else
-      {
-      os << "," << this->SelectedInputScalars[j];
-      }
-    }
-  os << endl;
-
-  // For each point
-  for(int i=0; i<numPts; i++)
-    {
-    // Iterate over all polydata:
-    for( int j = 0 ; j< this->NumberOfInputs; j++)
-      {
-      // Go on to the next polydata
-      pd = this->PlotData[j];
-      points = pd->GetPoints();
-      double *pt = points->GetPoint(i);
-      if( j == 0 )
+      s = scalars->GetComponent(ptId, component);
+      if( ptId == 0 )
         {
-        // Special case we also need to put the X points
-        os << pt[0];
+        os << s;
         }
-      // Now put Y points
-      os << "," << pt[1];
+      else
+        {
+        os << "," << s;
+        }
       }
     os << endl;
     }
-
 }
 
