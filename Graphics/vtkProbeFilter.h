@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkProbeFilter_h
 
 #include "vtkDataSetToDataSetFilter.h"
+#include "vtkIdTypeArray.h"
 
 class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
@@ -79,6 +80,8 @@ public:
   vtkGetMacro(SpatialMatch, int);
   vtkBooleanMacro(SpatialMatch, int);
 
+  vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
+  
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
@@ -91,8 +94,7 @@ protected:
   void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
+  vtkIdTypeArray *ValidPoints;
 };
 
 #endif
-
-

@@ -60,11 +60,14 @@ vtkProbeFilter* vtkProbeFilter::New()
 vtkProbeFilter::vtkProbeFilter()
 {
   this->SpatialMatch = 0;
+  this->ValidPoints = vtkIdTypeArray::New();
 }
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::~vtkProbeFilter()
 {
+  this->ValidPoints->Delete();
+  this->ValidPoints = NULL;
 }
 
 
@@ -130,6 +133,7 @@ void vtkProbeFilter::Execute()
   output->CopyStructure( input );
 
   numPts = input->GetNumberOfPoints();
+  this->ValidPoints->Allocate(numPts);
 
   // Allocate storage for output PointData
   //
@@ -162,6 +166,7 @@ void vtkProbeFilter::Execute()
       {
       // Interpolate the point data
       outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
+      this->ValidPoints->InsertNextValue(ptId);
       }
     else
       {
@@ -208,7 +213,7 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
   // What ever happend to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
-  if (output->IsA("vtkUnstructuredPoints") || output->IsA("vtkPolyData"))
+  if (output->IsA("vtkUnstructuredGrid") || output->IsA("vtkPolyData"))
     {
     usePiece = 1;
     }
@@ -219,7 +224,7 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     {
     source->SetUpdateExtent(0, 1, 0);
     }
-  else
+  else if (this->SpatialMatch == 1)
     {
     if (usePiece)
       {
@@ -245,6 +250,16 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
   else
     {
     input->SetUpdateExtent(output->GetUpdateExtent()); 
+    }
+  
+  // Use the whole input in all processes, and use the requested update
+  // extent of the output to divide up the source.
+  if (this->SpatialMatch == 2)
+    {
+    input->SetUpdateExtent(0, 1, 0);
+    source->SetUpdateExtent(output->GetUpdatePiece(),
+			    output->GetUpdateNumberOfPieces(),
+			    output->GetUpdateGhostLevel());
     }
 }
 
