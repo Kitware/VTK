@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.2");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -270,16 +270,15 @@ void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId),
                                          double pcoords[3], 
                                          double x[3], double *weights)
 {
-  int i, j;
   double pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
-  for (i=0; i<15; i++)
+  for (int i=0; i<15; i++)
     {
     this->Points->GetPoint(i, pt);
-    for (j=0; j<3; j++)
+    for (int j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
       }

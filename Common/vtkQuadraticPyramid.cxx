@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.3");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 // Construct the wedge with 13 points + 1 extra point for internal
@@ -347,13 +347,14 @@ void vtkQuadraticPyramid::Contour(double value,
                                   vtkIdType cellId, 
                                   vtkCellData* outCd)
 {
+  int i;
   //subdivide into 6 linear pyramids
   this->Subdivide(inPd,inCd,cellId);
   
   //contour each linear pyramid separately
   vtkDataArray *localScalars = this->PointData->GetScalars();
   this->Scalars->SetNumberOfTuples(5);  //num of vertices
-  for (int i=0; i<6; i++) //for each pyramid
+  for (i=0; i<6; i++) //for each pyramid
     {
     for (int j=0; j<5; j++) //for each point of pyramid
       {
@@ -367,7 +368,7 @@ void vtkQuadraticPyramid::Contour(double value,
 
   //contour each linear tetra separately
   this->Scalars->SetNumberOfTuples(4);  //num of vertices
-  for (int i=6; i<10; i++) //for each tetra
+  for (i=6; i<10; i++) //for each tetra
     {
     for (int j=0; j<4; j++) //for each point of tetra
       {
@@ -459,10 +460,11 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
 int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
                                       vtkPoints *pts)
 {
+  int i;
   pts->Reset();
   ptIds->Reset();
 
-  for ( int i=0; i < 6; i++)
+  for (i=0; i < 6; i++)
     {
     for ( int j=0; j < 5; j++)
       {
@@ -471,7 +473,7 @@ int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
       }
     }
 
-  for ( int ii=0, i=6 ; i < 10; i++, ii++)
+  for (int ii=0, i=6 ; i < 10; i++, ii++)
     {
     for ( int j=0; j < 4; j++)
       {
@@ -560,13 +562,14 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
                                vtkCellData* inCd, vtkIdType cellId, 
                                vtkCellData* outCd, int insideOut)
 {
+  int i;
   // create six linear pyramid + 4 tetra
   this->Subdivide(inPd,inCd,cellId);
 
   //contour each linear pyramid separately
   vtkDataArray *localScalars = this->PointData->GetScalars();
   this->Scalars->SetNumberOfTuples(5);  //num of vertices
-  for (int i=0; i<6; i++) //for each subdivided pyramid
+  for (i=0; i<6; i++) //for each subdivided pyramid
     {
     for (int j=0; j<5; j++) //for each of the five vertices of the pyramid
       {
@@ -579,7 +582,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
     }
 
   this->Scalars->SetNumberOfTuples(4);  //num of vertices
-  for (int i=6; i<10; i++) //for each subdivided tetra
+  for (i=6; i<10; i++) //for each subdivided tetra
     {
     for (int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
