@@ -23,7 +23,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.78");
+vtkCxxRevisionMacro(vtkHexahedron, "1.79");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -64,8 +64,8 @@ vtkCell *vtkHexahedron::MakeObject()
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
-static const int VTK_HEXAHEDRON_MAX_ITERATION=10;
-static const float VTK_HEXADRON_CONVERGED=1.e-03;
+static const int VTK_HEX_MAX_ITERATION=10;
+static const float VTK_HEX_CONVERGED=1.e-03;
 
 int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
                                    int& subId, float pcoords[3], 
@@ -78,26 +78,19 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
   float  d, *pt;
   float derivs[24];
 
-  //
   //  set initial position for Newton's method
-  //
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
 
-  //
   //  enter iteration loop
-  ///
   for (iteration=converged=0;
-       !converged && (iteration < VTK_HEXAHEDRON_MAX_ITERATION);  iteration++) 
+       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++) 
     {
-    //
     //  calculate element interpolation functions and derivatives
-    //
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
-    //
+
     //  calculate newton functions
-    //
     for (i=0; i<3; i++) 
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
@@ -119,9 +112,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
       fcol[i] -= x[i];
       }
 
-    //
     //  compute determinants and generate improvements
-    //
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20) 
       {
@@ -132,15 +123,14 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
     pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
     pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
 
-    //
     //  check for convergence
-    //
-    if ( ((fabs(pcoords[0]-params[0])) < VTK_HEXADRON_CONVERGED) &&
-         ((fabs(pcoords[1]-params[1])) < VTK_HEXADRON_CONVERGED) &&
-         ((fabs(pcoords[2]-params[2])) < VTK_HEXADRON_CONVERGED) )
+    if ( ((fabs(pcoords[0]-params[0])) < VTK_HEX_CONVERGED) &&
+         ((fabs(pcoords[1]-params[1])) < VTK_HEX_CONVERGED) &&
+         ((fabs(pcoords[2]-params[2])) < VTK_HEX_CONVERGED) )
       {
       converged = 1;
       }
+
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
              (fabs(pcoords[1]) > VTK_DIVERGED) || 
@@ -148,9 +138,8 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
       {
       return -1;
       }
-    //
+
     //  if not converged, repeat
-    //
     else 
       {
       params[0] = pcoords[0];
@@ -158,10 +147,9 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
       params[2] = pcoords[2];
       }
     }
-  //
+
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
-  //
   if ( !converged )
     {
     return -1;
@@ -206,7 +194,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
     return 0;
     }
 }
-//
+
 // Compute iso-parametrix interpolation functions
 //
 void vtkHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
@@ -366,7 +354,7 @@ static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
 static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
                            {0,1,5,4}, {3,7,6,2},
                            {0,3,2,1}, {4,5,6,7} };
-//
+
 // Marching cubes case table
 //
 #include "vtkMarchingCubesCases.h"
@@ -481,6 +469,7 @@ int *vtkHexahedron::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
+
 vtkCell *vtkHexahedron::GetFace(int faceId)
 {
   int *verts, i;
@@ -570,7 +559,6 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 
   // Create five tetrahedron. Triangulation varies depending upon index. This
   // is necessary to insure compatible voxel triangulations.
-  //
   if ( (index % 2) )
     {
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 3;
@@ -649,7 +637,6 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   return 1;
 }
 
-//
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //

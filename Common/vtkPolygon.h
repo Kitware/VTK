@@ -19,7 +19,8 @@
 // .SECTION Description
 // vtkPolygon is a concrete implementation of vtkCell to represent a 2D 
 // n-sided polygon. The polygons cannot have any internal holes, and cannot
-// self-intersect.
+// self-intersect. Define the polygon with n-points ordered in the clockwise
+// direction; do not repeat the last point.
 
 #ifndef __vtkPolygon_h
 #define __vtkPolygon_h
@@ -68,7 +69,7 @@ public:
                    int dim, float *derivs);
 
   // Description:
-  // Polygon specific
+  // Polygon specific methods.
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
                             float n[3]);
   static void ComputeNormal(vtkPoints *p, float n[3]);

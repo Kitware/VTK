@@ -18,7 +18,11 @@
 // .NAME vtkTetra - a 3D cell that represents a tetrahedron
 // .SECTION Description
 // vtkTetra is a concrete implementation of vtkCell to represent a 3D
-// tetrahedron.
+// tetrahedron. vtkTetra uses the standard isoparametric shape functions
+// for a linear tetrahedron. The tetrahedron is defined by the four points
+// (0-3); where (0,1,2) is the base of the tetrahedron which, using the
+// right hand rule, forms a triangle whose normal points in the direction
+// of the fourth point.
 
 #ifndef __vtkTetra_h
 #define __vtkTetra_h

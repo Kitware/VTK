@@ -15,10 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHexahedron - a cell that represents a 3D rectangular hexahedron
+// .NAME vtkHexahedron - a cell that represents a linear 3D hexahedron
 // .SECTION Description
-// vtkHexahedron is a concrete implementation of vtkCell to represent a 3D
-// rectangular hexahedron (e.g., "brick" topology).
+// vtkHexahedron is a concrete implementation of vtkCell to represent a
+// linear, 3D rectangular hexahedron (e.g., "brick" topology). vtkHexahedron
+// uses the standard isoparametric shape functions for a linear
+// hexahedron. The hexahedron is defined by the eight points (0-7) where
+// (0,1,2,3) is the base of the hexahedron which, using the right hand rule,
+// forms a quadrilaterial whose normal points in the direction of the 
+// opposite face (4,5,6,7).
 
 #ifndef __vtkHexahedron_h
 #define __vtkHexahedron_h

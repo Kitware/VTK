@@ -74,10 +74,11 @@ public:
                    int dim, float *derivs);
 
   // Description:
-  // Clip this edge using scalar value provided. Like contouring, except
-  // that it cuts the edge to produce linear line segments.
+  // Clip this quadratic hexahedron using scalar value provided. Like 
+  // contouring, except that it cuts the hex to produce linear 
+  // tetrahedron.
   void Clip(float value, vtkDataArray *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *lines,
+            vtkPointLocator *locator, vtkCellArray *tetras,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
@@ -90,9 +91,15 @@ public:
 
   
   // Description:
-  // Quadratic edge specific methods. 
+  // Quadratic hexahedron specific methods. 
   static void InterpolationFunctions(float pcoords[3], float weights[3]);
   static void InterpolationDerivs(float pcoords[3], float derivs[3]);
+
+  // Description:
+  // Given parametric coordinates compute inverse Jacobian transformation
+  // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+  // function derivatives.
+  void JacobianInverse(float pcoords[3], double **inverse, float derivs[60]);
 
 protected:
   vtkQuadraticHexahedron();
@@ -101,7 +108,14 @@ protected:
   vtkQuadraticEdge *Edge;
   vtkQuadraticQuad *Face;
   vtkHexahedron    *Region;
+  vtkPointData     *PointData;
+  vtkCellData      *CellData;
+  vtkFloatArray    *Scalars;
   
+  void Subdivide(float *weights);
+  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,
+                             vtkIdType cellId, float *weights);
+
 private:
   vtkQuadraticHexahedron(const vtkQuadraticHexahedron&);  // Not implemented.
   void operator=(const vtkQuadraticHexahedron&);  // Not implemented.

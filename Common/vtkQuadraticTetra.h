@@ -74,9 +74,9 @@ public:
 
   // Description:
   // Clip this edge using scalar value provided. Like contouring, except
-  // that it cuts the edge to produce linear line segments.
+  // that it cuts the tetra to produce new tetras.
   void Clip(float value, vtkDataArray *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *lines,
+            vtkPointLocator *locator, vtkCellArray *tetras,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
@@ -89,13 +89,19 @@ public:
 
   
   // Description:
-  // Return the center of the quadratic triangle in parametric coordinates.
+  // Return the center of the quadratic tetra in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
-  // Quadratic edge specific methods. 
+  // Quadratic tetra specific methods. 
   static void InterpolationFunctions(float pcoords[3], float weights[3]);
   static void InterpolationDerivs(float pcoords[3], float derivs[3]);
+
+  // Description:
+  // Given parametric coordinates compute inverse Jacobian transformation
+  // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+  // function derivatives.
+  void JacobianInverse(float pcoords[3], double **inverse, float derivs[30]);
 
 protected:
   vtkQuadraticTetra();
@@ -104,6 +110,7 @@ protected:
   vtkQuadraticEdge *Edge;
   vtkQuadraticTriangle *Face;
   vtkTetra *Region;
+  vtkFloatArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticTetra(const vtkQuadraticTetra&);  // Not implemented.

@@ -72,8 +72,9 @@ public:
                    int dim, float *derivs);
 
   // Description:
-  // Clip this edge using scalar value provided. Like contouring, except
-  // that it cuts the edge to produce linear line segments.
+  // Clip this quadratic triangle using scalar value provided. Like 
+  // contouring, except that it cuts the triangle to produce linear 
+  // triangles.
   void Clip(float value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
@@ -92,7 +93,7 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
-  // Quadratic edge specific methods. 
+  // Quadratic triangle specific methods. 
   static void InterpolationFunctions(float pcoords[3], float weights[3]);
   static void InterpolationDerivs(float pcoords[3], float derivs[3]);
 
@@ -102,6 +103,7 @@ protected:
 
   vtkQuadraticEdge *Edge;
   vtkTriangle      *Face;
+  vtkFloatArray    *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticTriangle(const vtkQuadraticTriangle&);  // Not implemented.

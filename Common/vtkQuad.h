@@ -18,7 +18,9 @@
 // .NAME vtkQuad - a cell that represents a 2D quadrilateral
 // .SECTION Description
 // vtkQuad is a concrete implementation of vtkCell to represent a 2D 
-// quadrilateral.
+// quadrilateral. vtkQuad is defined by the four points (0,1,2,3) in
+// counterclockwise order. vtkQuad uses the standard isoparametric
+// interpolation functions for a linear quadrilateral.
 
 #ifndef __vtkQuad_h
 #define __vtkQuad_h

@@ -22,9 +22,10 @@
 #include "vtkLine.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.3");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -32,6 +33,8 @@ vtkQuadraticTriangle::vtkQuadraticTriangle()
 {
   this->Edge = vtkQuadraticEdge::New();
   this->Face = vtkTriangle::New();
+  this->Scalars = vtkFloatArray::New();
+  this->Scalars->SetNumberOfTuples(3);
 
   int i;
   this->Points->SetNumberOfPoints(6);
@@ -51,6 +54,7 @@ vtkQuadraticTriangle::~vtkQuadraticTriangle()
 {
   this->Edge->Delete();
   this->Face->Delete();
+  this->Scalars->Delete();
 }
 
 vtkCell *vtkQuadraticTriangle::MakeObject()
@@ -181,11 +185,7 @@ void vtkQuadraticTriangle::Contour(float value,
                                    vtkIdType cellId, 
                                    vtkCellData* outCd)
 {
-  int i;
-  vtkDataArray *triScalars=cellScalars->MakeObject();
-  triScalars->SetNumberOfTuples(3);
-
-  for ( i=0; i < 4; i++)
+  for ( int i=0; i < 4; i++)
     {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(linearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
@@ -198,23 +198,17 @@ void vtkQuadraticTriangle::Contour(float value,
       this->Face->PointIds->SetId(2,this->PointIds->GetId(linearTris[i][2]));
       }
 
-    triScalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
-    triScalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
-    triScalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
+    this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
+    this->Scalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
+    this->Scalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
 
-    this->Face->Contour(value, triScalars, locator, verts,
+    this->Face->Contour(value, this->Scalars, locator, verts,
                         lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
-  triScalars->Delete();
-
 }
 
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-
-// The following arguments were modified to avoid warnings:
-// float p1[3], float p2[3], float x[3], float pcoords[3], 
-
 int vtkQuadraticTriangle::IntersectWithLine(float* p1, 
                                             float* p2, 
                                             float tol, 
@@ -281,11 +275,7 @@ void vtkQuadraticTriangle::Clip(float value,
                                 vtkCellData* outCd,
                                 int insideOut)
 {
-  int i;
-  vtkDataArray *triScalars=cellScalars->MakeObject();
-  triScalars->SetNumberOfTuples(3);
-
-  for ( i=0; i < 4; i++)
+  for ( int i=0; i < 4; i++)
     {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(linearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
@@ -295,15 +285,13 @@ void vtkQuadraticTriangle::Clip(float value,
     this->Face->PointIds->SetId(1,this->PointIds->GetId(linearTris[i][1]));
     this->Face->PointIds->SetId(2,this->PointIds->GetId(linearTris[i][2]));
 
-    triScalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
-    triScalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
-    triScalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
+    this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
+    this->Scalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
+    this->Scalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
 
-    this->Face->Clip(value, triScalars, locator, polys, inPd, outPd, 
+    this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd, 
                      inCd, cellId, outCd, insideOut);
     }
-
-  triScalars->Delete();
 }
 
 int vtkQuadraticTriangle::GetParametricCenter(float pcoords[3])
