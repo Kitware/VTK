@@ -19,12 +19,12 @@
 #include "vtkCamera.h"
 #include "vtkCompositeManager.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDistributedStreamTracer.h"
 #include "vtkLineSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLOT3DReader.h"
-#include "vtkPStreamTracer.h"
 #include "vtkPVGeometryFilter.h"
 #include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
@@ -118,7 +118,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
   LineSourceWidget0->SetResolution(20);
 
-  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();; 
+  vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
   Stream0->SetInput(Plot3D0->GetOutput());
   Stream0->SelectInputVectors("Momentum");
   Stream0->SetSource(LineSourceWidget0->GetOutput());

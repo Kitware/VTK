@@ -19,18 +19,16 @@
 
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
-#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.6");
-vtkStandardNewMacro(vtkPStreamTracer);
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.7");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -48,6 +46,8 @@ vtkPStreamTracer::vtkPStreamTracer()
   this->Seeds = 0;
   this->SeedIds = 0;
   this->IntegrationDirections = 0;
+
+  this->GenerateNormalsInIntegrate = 0;
 }
 
 vtkPStreamTracer::~vtkPStreamTracer()
@@ -72,211 +72,194 @@ vtkPStreamTracer::~vtkPStreamTracer()
     }
 }
 
-void vtkPStreamTracer::ForwardTask(float seed[3], 
-                                   int direction, 
-                                   int isNewSeed,
-                                   int lastid,
-                                   int currentLine)
+
+// After the integration is over, we need to add one point
+// at the end of streamline pieces which were not the end
+// piece. This has to be done in order to close the gap between
+// pieces which appear due to jump from one process to another.
+// This method waits until a process sends its first points.
+void vtkPStreamTracer::ReceiveLastPoints()
 {
-  int myid = this->Controller->GetLocalProcessId();
-  int numProcs = this->Controller->GetNumberOfProcesses();
-  int nextid;
-  if (myid == numProcs-1)
+  int streamId;
+
+  while(1)
     {
-    nextid = 0;
+    this->Controller->Receive(&streamId, 
+                              1, 
+                              vtkMultiProcessController::ANY_SOURCE,
+                              733);
+    if (streamId < 0)
+      {
+      break;
+      }
+    this->ReceiveCellPoint(this->GetOutput(), streamId, -1);
+    }
+  // We were told that it is our turn to send first points.
+  if (streamId == -2)
+    {
+    this->SendFirstPoints();
+    }
+}
+
+// Once we are done sending, let's tell the next guy (unless
+// this is the last process) to send it's first points
+void vtkPStreamTracer::MoveToNextSend()
+{
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int myid = this->Controller->GetLocalProcessId();
+
+  int tag;
+  if (myid == numProcs - 1)
+    {
+    tag = -1;
+    for(int i=0; i<numProcs; i++)
+      {
+      if (i != myid)
+        {
+        this->Controller->Send(&tag, 1, i, 733);
+        }
+      }
     }
   else
     {
-    nextid = myid+1;
+    tag = -2;
+    this->Controller->Send(&tag, 1, myid+1, 733);
+    this->ReceiveLastPoints();
     }
 
-  this->Controller->Send(&isNewSeed, 1, nextid, 311);
-  this->Controller->Send(&lastid, 1, nextid, 322);
-  if (isNewSeed != 2)
-    {
-    this->Controller->Send(seed, 3, nextid, 333);
-    this->Controller->Send(&direction, 1, nextid, 344);
-    this->Controller->Send(&currentLine, 1, nextid, 355);
-    }
 }
 
-int vtkPStreamTracer::ReceiveAndProcessTask()
+// After the integration is over, we need to add one point
+// at the end of streamline pieces which were not the end
+// piece. This has to be done in order to close the gap between
+// pieces which appear due to jump from one process to another.
+// This method sends the first point of each streamline which
+// originated in another process to that process. This information
+// is stored in the "Streamline Origin" array.
+void vtkPStreamTracer::SendFirstPoints()
 {
-  int isNewSeed = 0;
-  int lastid = 0;
-  int currentLine = 0;
-  int direction=FORWARD;
-  float seed[3] = {0.0, 0.0, 0.0};
-  int myid = this->Controller->GetLocalProcessId();
-  int numProcs = this->Controller->GetNumberOfProcesses();
-
-  this->Controller->Receive(&isNewSeed, 
-                            1, 
-                            vtkMultiProcessController::ANY_SOURCE, 
-                            311);
-  this->Controller->Receive(&lastid, 
-                            1, 
-                            vtkMultiProcessController::ANY_SOURCE, 
-                            322);
-  if ( isNewSeed == 2 )
-    {
-    if ( (( myid == numProcs-1 && lastid == 0 ) ||
-          ( myid != numProcs-1 && lastid == myid + 1) ))
-      {
-      // All processes have been already told to stop. No need to tell
-      // the next one.
-      return 0;
-      }
-    this->ForwardTask(seed, direction, 2, lastid, 0);
-    return 0;
-    }
-  this->Controller->Receive(seed, 
-                            3, 
-                            vtkMultiProcessController::ANY_SOURCE, 
-                            333);
-  this->Controller->Receive(&direction, 
-                            1, 
-                            vtkMultiProcessController::ANY_SOURCE, 
-                            344);
-  this->Controller->Receive(&currentLine, 
-                            1, 
-                            vtkMultiProcessController::ANY_SOURCE, 
-                            355);
-  return this->ProcessTask(seed, direction, isNewSeed, lastid, currentLine);
-                   
-}
-
-int vtkPStreamTracer::ProcessTask(float seed[3], 
-                                  int direction, 
-                                  int isNewSeed,
-                                  int lastid,
-                                  int currentLine)
-{
-  int myid = this->Controller->GetLocalProcessId();
-
-  // This seed was visited by everybody and nobody had it.
-  // Must be out of domain.
-  // TEMP: TELL ALL PROCESSES TO STOP
-  if (isNewSeed == 0 && lastid == myid)
-    {
-    vtkIdType numLines = this->SeedIds->GetNumberOfIds();
-    currentLine++;
-    if ( currentLine < numLines )
-      {
-      this->ProcessTask(
-        this->Seeds->GetTuple(this->SeedIds->GetId(currentLine)), 
-        this->IntegrationDirections->GetValue(currentLine),
-        1,
-        myid,
-        currentLine);
-      return 1;
-      }
-    else
-      {
-      this->ForwardTask(seed, direction, 2, myid, currentLine);
-      return 0;
-      }
-    }
-
-  float velocity[3];
-  // We don't have it, let's forward it to the next guy
-  if (!this->Interpolator->FunctionValues(seed, velocity))
-    {
-    this->ForwardTask(seed, direction, 0, lastid, currentLine);
-    return 1;
-    }
-
-  float lastPoint[3];
-
-  vtkFloatArray* seeds = vtkFloatArray::New();
-  seeds->SetNumberOfComponents(3);
-  seeds->InsertNextTuple(seed);
-
-  vtkIdList* seedIds = vtkIdList::New();
-  seedIds->InsertNextId(0);
-
-  vtkIntArray* integrationDirections = vtkIntArray::New();
-  integrationDirections->InsertNextValue(direction);
-
-  vtkPolyData* tmpOutput = 0;
   vtkPolyData* output = this->GetOutput();
-  if ( output->GetNumberOfCells() > 0 )
+  vtkIntArray* strOrigin = vtkIntArray::SafeDownCast(
+    output->GetCellData()->GetArray("Streamline Origin"));
+  if (!strOrigin)
     {
-    tmpOutput = vtkPolyData::New();
-    this->Integrate(tmpOutput, 
-                    seeds, 
-                    seedIds, 
-                    integrationDirections, 
-                    lastPoint);
-    if ( tmpOutput->GetNumberOfCells() > 0 )
+    this->MoveToNextSend();
+    return;
+    }
+  int numLines = strOrigin->GetNumberOfTuples();
+  int streamId, sendToId;
+  int i;
+  for(i=0; i<numLines; i++)
+    {
+    sendToId = strOrigin->GetValue(2*i);
+    streamId = strOrigin->GetValue(2*i+1);
+    if (streamId != -1)
       {
-      vtkPolyData* outputcp = vtkPolyData::New();
-      outputcp->ShallowCopy(output);
-      vtkAppendPolyData* append = vtkAppendPolyData::New();
-      append->AddInput(outputcp);
-      append->AddInput(tmpOutput);
-      append->Update();
-      vtkPolyData* appoutput = append->GetOutput();
-      output->CopyStructure(appoutput);
-      output->GetPointData()->PassData(appoutput->GetPointData());
-      output->GetCellData()->PassData(appoutput->GetCellData());
-      append->Delete();
-      outputcp->Delete();
+      this->Controller->Send(&streamId, 1, sendToId, 733);
+      this->SendCellPoint(output, i, 0, sendToId);
       }
-    tmpOutput->Register(this);
-    tmpOutput->Delete();
     }
-  else
+  this->MoveToNextSend();
+
+}
+
+// Receive one point and add it to the given cell.
+void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
+                                        int streamId,
+                                        vtkIdType idx)
+{
+  vtkPolyData* input = vtkPolyData::New();
+
+  // Receive a polydata which contains one point.
+  this->Controller->Receive(input, vtkMultiProcessController::ANY_SOURCE, 765);
+
+  int numCells = tomod->GetNumberOfCells();
+  // Use the "Streamline Ids" array to locate the right cell.
+  vtkIntArray* streamIds = vtkIntArray::SafeDownCast(
+    tomod->GetCellData()->GetArray("Streamline Ids"));
+  if (!streamIds)
     {
-    this->Integrate(output, 
-                    seeds, 
-                    seedIds, 
-                    integrationDirections, 
-                    lastPoint);
-    tmpOutput = output;
-    tmpOutput->Register(this);
+    input->Delete();
+    return;
     }
-
-  int numPoints = tmpOutput->GetNumberOfPoints();
-  if (numPoints == 0)
+  vtkIdType cellId=-1;
+  for(vtkIdType cellIdx=0; cellIdx < numCells; cellIdx++)
     {
-    this->ForwardTask(lastPoint, direction, 2, myid, currentLine);
-    seeds->Delete(); 
-    seedIds->Delete();
-    integrationDirections->Delete();
-    tmpOutput->UnRegister(this);
-    return 0;
+    if (streamIds->GetValue(cellIdx) == streamId)
+      {
+      cellId = cellIdx;
+      break;
+      }
     }
 
-  tmpOutput->GetPoint(numPoints-1, lastPoint);
-  tmpOutput->UnRegister(this);
+  if ( cellId == -1 )
+    {
+    return;
+    }
 
-  vtkInitialValueProblemSolver* ivp = this->Integrator;
-  ivp->Register(this);
-  
-  vtkRungeKutta2* tmpSolver = vtkRungeKutta2::New();
-  this->SetIntegrator(tmpSolver);
-  tmpSolver->Delete();
-  seeds->SetTuple(0, lastPoint);
-  seedIds->SetId(0,0);
-  vtkPolyData* dummyOutput = vtkPolyData::New();
-  this->Integrate(dummyOutput, 
-                  seeds, 
-                  seedIds, 
-                  integrationDirections, 
-                  lastPoint);
-  dummyOutput->Delete();
-  this->SetIntegrator(ivp);
-  ivp->UnRegister(this);
-  
-  // New seed
-  this->ForwardTask(lastPoint, direction, 1, myid, currentLine);
-  
-  seeds->Delete(); 
-  seedIds->Delete();
-  integrationDirections->Delete();
+  // Find the point to be modified. We don't actually add a point,
+  // we just replace replace the attributes of one (usually the last)
+  // with the new attributes we received.
+  vtkIdType ptId;
+  vtkIdType npts;
+  vtkIdType* pts;
+  tomod->GetCellPoints(cellId, npts, pts);
+  if (idx == -1)
+    {
+    idx = npts-1;
+    }
+  ptId = pts[idx];
 
-  return 1;
+  // Replace attributes
+  vtkPointData* pd = input->GetPointData();
+  int numArrays = pd->GetNumberOfArrays();
+  int i;
+  vtkPointData* outputPD = tomod->GetPointData();
+  for(i=0; i<numArrays; i++)
+    {
+    vtkDataArray* da = pd->GetArray(i);
+    const char* name = da->GetName();
+    if (name)
+      {
+      vtkDataArray* outputDA = outputPD->GetArray(name);
+      outputDA->SetTuple(ptId, da->GetTuple(0));
+      }
+    }
+  
+  input->Delete();
+}
+
+// Send one point and all of it's attributes to another process
+void vtkPStreamTracer::SendCellPoint(vtkPolyData* togo,
+                                     vtkIdType cellId, 
+                                     vtkIdType idx, 
+                                     int sendToId)
+{
+  // We create a dummy dataset which will contain the point
+  // we want to send and it's attributes.
+  vtkPolyData* copy = vtkPolyData::New();
+  
+  vtkIdType ptId;
+  vtkIdType npts;
+  vtkIdType* pts;
+  togo->GetCellPoints(cellId, npts, pts);
+  ptId = pts[idx];
+    
+  vtkPoints* points = vtkPoints::New();
+  points->SetNumberOfPoints(1);
+  points->SetPoint(0, togo->GetPoint(ptId));
+  copy->SetPoints(points);
+  points->Delete();
+
+  vtkPointData* togoPD = togo->GetPointData();
+  vtkPointData* copyPD = copy->GetPointData();
+
+  copyPD->CopyAllocate(togoPD, 1);
+  copyPD->CopyData(togoPD, ptId, 0);
+
+  this->Controller->Send(copy, sendToId, 765);
+
+  copy->Delete();
 }
 
 void vtkPStreamTracer::ComputeInputUpdateExtents( vtkDataObject *output )
@@ -293,6 +276,7 @@ void vtkPStreamTracer::ComputeInputUpdateExtents( vtkDataObject *output )
         }
       else
         {
+        // This is the seed source, we need it all.
         this->Inputs[idx]->SetUpdateExtent(0, 1, 0);
         }
       }
@@ -319,6 +303,8 @@ void vtkPStreamTracer::Execute()
     return;
     }
 
+  vtkPolyData* output = this->GetOutput();
+
   vtkInterpolatedVelocityField* func;
   int maxCellSize = 0;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
@@ -336,23 +322,40 @@ void vtkPStreamTracer::Execute()
                         this->SeedIds, 
                         this->IntegrationDirections);
   
-  int myid = this->Controller->GetLocalProcessId();
-  if (this->Seeds)
+
+  this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
+  this->ParallelIntegrate();
+
+  // The parallel integration adds all streamlines to TmpOutputs
+  // container. We append them all together here.
+  vtkAppendPolyData* append = vtkAppendPolyData::New();
+  for (TmpOutputsType::iterator it = this->TmpOutputs.begin();
+       it != this->TmpOutputs.end(); it++)
     {
-    if (myid == 0)
+    vtkPolyData* inp = it->GetPointer();
+    if ( inp->GetNumberOfCells() > 0 )
       {
-      int currentLine = 0;
-      this->ProcessTask(
-        this->Seeds->GetTuple(this->SeedIds->GetId(currentLine)), 
-        this->IntegrationDirections->GetValue(currentLine),
-        1,
-        0,
-        currentLine);
+      append->AddInput(inp);
       }
-    while(1) 
-      {
-      if (!this->ReceiveAndProcessTask()) { break; }
-      }
+    }
+  append->Update();
+  vtkPolyData* appoutput = append->GetOutput();
+  output->CopyStructure(appoutput);
+  output->GetPointData()->PassData(appoutput->GetPointData());
+  output->GetCellData()->PassData(appoutput->GetCellData());
+  append->Delete();
+  this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
+
+  // Fill the gaps between streamlines.
+  this->GetOutput()->BuildCells();
+  int myid = this->Controller->GetLocalProcessId();
+  if (myid == 0)
+    {
+    this->SendFirstPoints();
+    }
+  else
+    {
+    this->ReceiveLastPoints();
     }
 
   if (this->Seeds) 

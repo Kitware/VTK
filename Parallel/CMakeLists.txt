@@ -20,6 +20,7 @@ vtkCompositeManager.cxx
 vtkCompositer.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
+vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
@@ -54,6 +55,10 @@ vtkTreeComposite.cxx
 vtkTreeCompositer.cxx
 )
 
+SET_SOURCE_FILES_PROPERTIES(
+vtkPStreamTracer
+ABSTRACT
+)
 
 IF (CMAKE_USE_PTHREADS)
    SET(VTK_HAS_THREADS 1)
