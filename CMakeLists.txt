@@ -554,6 +554,8 @@ IF(VTK_WRAP_TCL)
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
+  UTILITY_SOURCE(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit 
+                 Wrapping vtkWrapTclInit.c)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping)
   MARK_AS_ADVANCED(VTK_WRAP_TCL_EXE VTK_WRAP_HINTS)
 
