@@ -38,7 +38,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.25");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.26");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -224,6 +224,11 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     this->SetRepresentation();
 
+    if ( this->PlanePicker )
+      {
+      this->PlaneActor->PickableOn();
+      }
+
     this->InvokeEvent(vtkCommand::EnableEvent,0);
 
     }
@@ -248,18 +253,23 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     //turn off the texture plane
     this->CurrentRenderer->RemoveActor(this->TexturePlaneActor);
 
+    if ( this->PlanePicker )
+      {
+      this->PlaneActor->PickableOn();
+      }
+
     this->InvokeEvent(vtkCommand::DisableEvent,0);
     }
 
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                         unsigned long event,
-                                        void* clientdata, 
+                                        void* clientdata,
                                         void* vtkNotUsed(calldata))
 {
-  vtkImagePlaneWidget* self = 
+  vtkImagePlaneWidget* self =
     reinterpret_cast<vtkImagePlaneWidget *>( clientdata );
 
   //okay, let's do the right thing
@@ -813,6 +823,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->TexturePlaneActor->SetMapper(this->TexturePlaneMapper);
   this->TexturePlaneActor->GetProperty()->SetAmbient(0.5);
   this->TexturePlaneActor->SetTexture(this->Texture);
+  this->TexturePlaneActor->PickableOff();
 }
 
 void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
