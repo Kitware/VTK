@@ -50,8 +50,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkImplicitSum_h
 #define __vtkImplicitSum_h
 
-#include "vtkImplicitFunctionCollection.h"
-#include "vtkFloatArray.h"
+#include "vtkImplicitFunction.h"
+
+class vtkFloatArray;
+class vtkImplicitFunctionCollection;
 
 class VTK_FILTERING_EXPORT vtkImplicitSum : public vtkImplicitFunction
 {

@@ -46,7 +46,6 @@
 #ifndef __vtkKochanekSpline_h
 #define __vtkKochanekSpline_h
 
-#include <stdio.h>
 #include "vtkSpline.h"
 
 class VTK_FILTERING_EXPORT vtkKochanekSpline : public vtkSpline

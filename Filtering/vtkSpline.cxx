@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkSpline.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.18");
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkSpline, "1.19");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff

@@ -41,9 +41,9 @@
 #ifndef __vtkSpline_h
 #define __vtkSpline_h
 
-#include <stdio.h>
 #include "vtkObject.h"
-#include "vtkPiecewiseFunction.h"
+
+class vtkPiecewiseFunction;
 
 class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
 {

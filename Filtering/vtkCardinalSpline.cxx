@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkCardinalSpline.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.18");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.19");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 // Construct a Cardinal Spline.

@@ -85,8 +85,8 @@ protected:
   float Amplitude;
 
 private:
-  vtkPerlinNoise(const vtkPerlinNoise&); //purposely not implemented
-  void operator=(const vtkPerlinNoise&); //purposely not implemented
+  vtkPerlinNoise(const vtkPerlinNoise&); // Not implemented
+  void operator=(const vtkPerlinNoise&); // Not implemented
 };
 
 #endif

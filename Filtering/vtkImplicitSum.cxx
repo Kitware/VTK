@@ -15,11 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImplicitSum.h"
+
+#include "vtkFloatArray.h"
+#include "vtkImplicitFunctionCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitSum, "1.2");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImplicitSum, "1.3");
 vtkStandardNewMacro(vtkImplicitSum);
 
 // Constructor.

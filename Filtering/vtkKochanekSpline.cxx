@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkKochanekSpline.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.20");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.21");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 // Construct a KochanekSpline wth the following defaults:
