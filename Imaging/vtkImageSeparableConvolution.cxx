@@ -50,8 +50,8 @@ static void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )
   
   int center = (int) ( (kernelSize - 1 ) / 2.0 );
-
   int i, j, kStart, iStart, iEnd, count;
+  
   for ( i = 0; i < imageSize; ++i )
     {
     iStart = i - center;
@@ -119,10 +119,11 @@ void vtkImageSeparableConvolution::ExecuteInformation(vtkImageData *input, vtkIm
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
+
 void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
                                                             int outExt[6])
 {
-  int *extent;
+  int *wholeExtent;
 
   if ( ! this->GetInput())
     {
@@ -131,31 +132,29 @@ void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
     }
 
   // Assumes that the input update extent has been initialized to output ...
-  extent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, outExt, 6 * sizeof(int));
-  inExt[this->Iteration*2] = extent[this->Iteration*2];
-  inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
-  this->GetInput()->GetWholeExtent ( inExt );
+  wholeExtent = this->GetInput()->GetWholeExtent();
+  inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
+  inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
 }
 
 template <class T>
 static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
                                                   vtkImageData* inData,
-                                                  vtkImageData* outData )
+                                                  vtkImageData* outData,
+                                                  T vtkNotUsed ( dummy ) )
 {
-  T *inPtr0, *inPtr1, *inPtr2, *inPtrC;
-  float *outPtr0, *outPtr1, *outPtr2, *outPtrC;
+  T *inPtr0, *inPtr1, *inPtr2;
+  float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  int min0, max0, min1, max1, min2, max2, numberOfComponents;
-  int idx0, idx1, idx2, idxC;
+  int min0, max0, min1, max1, min2, max2;
+  int idx0, idx1, idx2;
   int outExt[6];
   int i;
   unsigned long count = 0;
   unsigned long target;
   
-  // outData->SetExtent(self->GetOutput()->GetWholeExtent());
-  // outData->AllocateScalars();
   self->GetOutput()->GetWholeExtent ( outExt );
 
 
@@ -164,7 +163,6 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
   self->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
-  numberOfComponents = inData->GetNumberOfScalarComponents();
   
   target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
@@ -197,10 +195,9 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
       }
     }
 
-  int imageSize = (max0 - min0 + 1);
+  int imageSize = max0 + 1;
   float* image = new float[imageSize];
   float* outImage = new float[imageSize];
-  float* kernelPtr = NULL;
   float* imagePtr = NULL;
 
   
@@ -218,41 +215,34 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
         self->UpdateProgress(count/(50.0*target));
         }
       count++;
-      inPtrC = inPtr1;
-      outPtrC = outPtr1;
-      for (idxC = 0; idxC < numberOfComponents; ++idxC)
+      inPtr0 = inPtr1;
+      imagePtr = image;
+      for (idx0 = min0; idx0 <= max0; ++idx0)
         {
-        // execute forward pass
-        inPtr0 = inPtrC;
+        *imagePtr = (float)(*inPtr0);
+        inPtr0 += inInc0;
+        ++imagePtr;
+        }
+
+      // Call the method that performs the convolution
+      if ( kernel )
+        {
+        ExecuteConvolve ( kernel, kernelSize, image, outImage, imageSize );
+        imagePtr = outImage;
+        }
+      else
+        {
+        // If we don't have a kernel, just copy to the output
         imagePtr = image;
-        for (idx0 = min0; idx0 <= max0; ++idx0)
-          {
-          *imagePtr = (float)(*inPtr0);
-          inPtr0 += inInc0;
-          ++imagePtr;
-          }
-        // Call the method that performs the convolution
-        if ( kernel )
-          {
-          ExecuteConvolve ( kernel, kernelSize, image, outImage, imageSize );
-          imagePtr = outImage;
-          }
-        else
-          {
-          // If we don't have a kernel, just copy to the output
-          imagePtr = image;
-          }
-  
-        // Copy to output
-        outPtr0 = outPtrC;
-        for (idx0 = min0; idx0 <= max0; ++idx0)
-          {
-          *outPtr0 = (*imagePtr);
-          outPtr0 += outInc0;
-          ++imagePtr;
-          }
-        inPtrC += 1;
-        outPtrC += 1;
+        }
+      
+      // Copy to output
+      outPtr0 = outPtr1;
+      for (idx0 = min0; idx0 <= max0; ++idx0)
+        {
+        *outPtr0 = (*imagePtr);
+        outPtr0 += inInc0;
+        ++imagePtr;
         }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
@@ -260,6 +250,7 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }
+  
   delete [] image;
   delete [] outImage;
   if ( kernel )
@@ -306,16 +297,26 @@ void vtkImageSeparableConvolution::IterativeExecuteData(vtkImageData *inData,
       }
     }
   
+  if (inData->GetNumberOfScalarComponents() != 1)
+    {
+    vtkErrorMacro(<< "ImageSeparableConvolution only works on 1 component input for the moment.");
+    return;
+    }
+  
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
     }
+
+  outData->SetExtent(this->GetOutput()->GetWholeExtent());
+  outData->AllocateScalars();
+
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro3(vtkImageSeparableConvolutionExecute<VTK_TT>, this, inData, outData );
+    vtkTemplateMacro4(vtkImageSeparableConvolutionExecute<VTK_TT>, this, inData, outData, 0 );
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
