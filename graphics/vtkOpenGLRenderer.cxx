@@ -179,6 +179,12 @@ void vtkOpenGLRenderer::DeviceRender(void)
   float  new_viewport[4];
   int    saved_erase;
 
+  // Do not remove this MakeCurrent! Due to Start / End methods on
+  // some objects which get executed during a pipeline update, 
+  // other windows might get rendered since the last time
+  // a MakeCurrent was called.
+  this->RenderWindow->MakeCurrent();
+
   scaleFactor = 1.0;
 
   // If there is a volume renderer, get its desired viewport size
