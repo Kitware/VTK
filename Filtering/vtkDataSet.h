@@ -44,7 +44,6 @@ class vtkCellData;
 class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
-class vtkImageAlgorithmToDataSetFriendship;
 class vtkPointData;
 class vtkSourceToDataSetFriendship;
 

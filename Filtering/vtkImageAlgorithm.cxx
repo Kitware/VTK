@@ -24,16 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.16");
-
-class vtkImageAlgorithmToDataSetFriendship
-{
-public:
-  static void GenerateGhostLevelArray(vtkDataSet* ds)
-    {
-    ds->GenerateGhostLevelArray();
-    }
-};
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.17");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
