@@ -22,8 +22,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlSource::vlSource()
 {
   this->StartMethod = NULL;
+  this->StartMethodArgDelete = NULL;
   this->StartMethodArg = NULL;
   this->EndMethod = NULL;
+  this->EndMethodArgDelete = NULL;
   this->EndMethodArg = NULL;
 }
 
@@ -46,6 +48,11 @@ void vlSource::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
+      {
+      (*this->StartMethodArgDelete)(this->StartMethodArg);
+      }
     this->StartMethod = f;
     this->StartMethodArg = arg;
     this->_Modified();
@@ -58,8 +65,36 @@ void vlSource::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
+      {
+      (*this->EndMethodArgDelete)(this->EndMethodArg);
+      }
     this->EndMethod = f;
     this->EndMethodArg = arg;
+    this->_Modified();
+    }
+}
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlSource::SetStartMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartMethodArgDelete)
+    {
+    this->StartMethodArgDelete = f;
+    this->_Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlSource::SetEndMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndMethodArgDelete)
+    {
+    this->EndMethodArgDelete = f;
     this->_Modified();
     }
 }
