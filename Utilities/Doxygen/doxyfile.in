@@ -44,8 +44,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering/Testing/Cxx" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Graphics" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/MFC" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/Qt" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO" \
