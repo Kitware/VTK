@@ -120,8 +120,8 @@ void vtkImageCacheFilter::SetCacheSize(int size)
     return;
     }
   
-  this->Data = new (vtkImageData*)[size];
-  this->Times = new (unsigned long)[size];
+  this->Data = new vtkImageData* [size];
+  this->Times = new unsigned long [size];
 
   for (idx = 0; idx < size; ++idx)
     {
