@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.58");
+vtkCxxRevisionMacro(vtkViewport, "1.59");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -637,6 +637,11 @@ void vtkViewport::GetTiledSize(int *usize, int *vsize)
 void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
                                         int *lowerLeftU, int *lowerLeftV)
 {
+  // if there is no window return
+  if (!this->GetVTKWindow())
+    {
+    return;
+    }
 
   double *vport;
 
