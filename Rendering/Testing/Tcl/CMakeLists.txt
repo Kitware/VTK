@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING)
       CamBlur
       cells 
       ImageActor
+      ImageActorStressed
       labeledContours
       labeledMesh
       multiLineText
