@@ -20,21 +20,25 @@
 #  pragma warning (push, 1)
 # endif
 # if defined(VTK_USE_ANSI_STDLIB)
-#  include <cerrno>
-#  include <climits>
-#  include <cstdio>
-#  include <cstdlib>
-#  include <xiosbase>
-#  define private public
-#  if defined(VTK_BUILD_SHARED_LIBS)
-    // Avoid dllimport of num_get::_Getifld
-#   undef _DLL
-#   include <xlocnum>
-#   define _DLL 1
+#  if defined(_MSC_VER)
+#   include <cerrno>
+#   include <climits>
+#   include <cstdio>
+#   include <cstdlib>
+#   include <xiosbase>
+#   define private public
+#   if defined(VTK_BUILD_SHARED_LIBS)
+     // Avoid dllimport of num_get::_Getifld
+#    undef _DLL
+#    include <xlocnum>
+#    define _DLL 1
+#   else
+#    include <xlocnum>
+#   endif
+#   undef private
 #  else
-#   include <xlocnum>
+#   error "The ANSI streams library does not support long long"
 #  endif
-#  undef private
 #  include <iostream>
    using std::istream;
    using std::ostream;
@@ -61,6 +65,7 @@
 
 # if defined(VTK_USE_ANSI_STDLIB)
 
+#  if defined(_MSC_VER)
 // Template to scan an input stream for a __int64 or unsigned __int64 value.
 template <class T>
 std::istream& vtkIOStreamScanTemplate(std::istream& is, T& value, char type)
@@ -141,6 +146,7 @@ std::ostream& vtkIOStreamPrintTemplate(std::ostream& os, T value, char type)
   os.setstate(state);
   return os;
 }
+#  endif
 
 # else // begin implementation for VTK_USE_ANSI_STDLIB not defined
 
