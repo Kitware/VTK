@@ -58,6 +58,8 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 
   float size[3];
 
+  OBB.ReferenceCountingOff ();
+
   //
   // Gather all the points into a single list
   //
