@@ -65,6 +65,7 @@ INSTALL_TARGETS(/bin vtk)
 SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
 
 INSTALL_FILES(/lib/vtk/tcl "" README)
+INSTALL_FILES(/lib/vtk/tcl .c vtktcl)
 
 IF (VTK_USE_HYBRID)
   SUBDIRS(vtkhybrid)
