@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.30");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.30.6.1");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -852,6 +852,15 @@ void vtkMPICommunicator::Request::Cancel()
 {
   int err = MPI_Cancel(&this->Req->Handle);
   
+  if ( err != MPI_SUCCESS )
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkGenericWarningMacro("MPI error occured: " << msg);
+    delete[] msg;
+    }
+
+  err = MPI_Request_free(&this->Req->Handle);
+
   if ( err != MPI_SUCCESS )
     {
     char *msg = vtkMPIController::ErrorString(err);

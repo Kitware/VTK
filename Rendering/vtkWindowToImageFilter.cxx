@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.24");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.24.2.1");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -110,6 +110,11 @@ void vtkWindowToImageFilter::ExecuteInformation()
 // are assumed to be the same as the file extent/order.
 void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
 {
+  if (!this->Input)
+    {
+    return;
+    }
+
   vtkImageData *out = this->GetOutput();
   out->SetExtent(out->GetWholeExtent());
   out->AllocateScalars();

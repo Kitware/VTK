@@ -24,10 +24,16 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.68");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.68.2.1");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
+// Construct with default NumberOfDivisions to 50, DivisionSpacing to 1
+// in all (x,y,z) directions. AutoAdjustNumberOfDivisions is set to ON.
+// ComputeNumberOfDivisions to OFF. UseFeatureEdges and UseFeaturePoints
+// are set to OFF by default
+// The default behavior is also to compute an optimal position in each
+// bin to produce the output triangles (this is also recommended)
 vtkQuadricClustering::vtkQuadricClustering()
 {
   this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = 0.0;
@@ -318,8 +324,12 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
 
   double total = polys->GetNumberOfCells();
   double curr = 0;
-  double step = total / 100;
-  double cstep = 0;
+  double step = total / 10;
+  if (step < 1000.0)
+    {
+    step = 1000.0;
+    }
+  double cstep = step;
 
   for ( polys->InitTraversal(); polys->GetNextCell(numPts, ptIds); )
     {
@@ -626,6 +636,15 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
   vtkIdType binId;
 
   numCells = verts->GetNumberOfCells();
+  double cstep = (double)numCells / 10.0;
+  if (cstep < 1000.0)
+    {
+    cstep = 1000.0;
+    }
+  double next = cstep;
+  double curr = 0;
+
+
   verts->InitTraversal();
   for (i = 0; i < numCells; ++i)
     {
@@ -638,9 +657,18 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
       this->AddVertex(binId, pt, geometryFlag);
       }
     ++this->InCellCount;
-    this->UpdateProgress(.2 + .2 * i / static_cast<double>(numCells));
+
+    if ( curr > next )
+      {
+      this->UpdateProgress(.2 + .2 * curr / (double)numCells);
+      next += cstep;
+      }
+    curr += 1;
     }
 }
+
+
+
 //----------------------------------------------------------------------------
 // The error function is the length (point to vert) squared.
 // We ignore constants across all terms.
@@ -780,11 +808,19 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::EndAppend()
 {
-  vtkIdType i, numBuckets, tenth;
+  vtkIdType i, numBuckets;
   int abortExecute=0;
   vtkPoints *outputPoints;
   double newPt[3];
   vtkPolyData *output = this->GetOutput();
+  numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * 
+                this->NumberOfDivisions[2];
+  double step = (double)numBuckets / 10.0;
+  if (step < 1000.0)
+    {
+    step = 1000.0;
+    }
+  double cstep = 0;
   
   // Check for mis use of the Append methods.
   if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
@@ -795,17 +831,16 @@ void vtkQuadricClustering::EndAppend()
 
   outputPoints = vtkPoints::New();
 
-  numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * 
-    this->NumberOfDivisions[2];
-  tenth = numBuckets/10 + 1;
   for (i = 0; !abortExecute && i < numBuckets; i++ )
     {
-    if ( ! (i % tenth) ) 
+    if (cstep > step)
       {
+      cstep = 0;
       vtkDebugMacro(<<"Finding point in bin #" << i);
       this->UpdateProgress (0.8+0.2*i/numBuckets);
       abortExecute = this->GetAbortExecute();
       }
+    ++cstep;
 
     if (this->QuadricArray[i].VertexId != -1)
       {
@@ -943,10 +978,18 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
     }
   vtkMath::Multiply3x3(tempMatrix, tempVector, tempVector);
 
-  // Make absolutely sure that the point lies in the vicinity of the bin. If
-  // not, then clamp the point to the center of the bin. Currently "vicinity"
-  // is defined as BinSize around the center of the bin. It may be desirable
-  // to increase this to a larger multiple of the bin size.
+  // Make absolutely sure that the point lies in the vicinity (enclosing 
+  // sphere) of the bin.  If not, then clamp the point to the enclosing sphere.
+  double deltaMag = vtkMath::Norm(tempVector);
+  double radius = sqrt(this->XBinSize*this->XBinSize + 
+    this->YBinSize*this->YBinSize +
+    this->ZBinSize*this->ZBinSize) / 2.0;
+  if (deltaMag > radius)
+    {
+    tempVector[0] *= radius / deltaMag;
+    tempVector[1] *= radius / deltaMag;
+    tempVector[2] *= radius / deltaMag;
+    }
 
   point[0] = cellCenter[0] + tempVector[0];
   point[1] = cellCenter[1] + tempVector[1];
