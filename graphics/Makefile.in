@@ -231,6 +231,7 @@ vtkSelectVisiblePoints \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
+vtkSimpleElevationFilter \
 vtkSmoothPolyDataFilter \
 vtkSpatialRepresentationFilter \
 vtkSphere \
