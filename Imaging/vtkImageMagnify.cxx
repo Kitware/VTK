@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMagnify.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.38");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.39");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -50,7 +50,10 @@ vtkStandardNewMacro(vtkImageMagnify);
 vtkImageMagnify::vtkImageMagnify()
 {
   this->Interpolate = 0;
-  this->SetMagnificationFactors(1, 1, 1);
+
+  this->MagnificationFactors[0] = 
+  this->MagnificationFactors[1] = 
+  this->MagnificationFactors[2] = 1;
 }
 
 

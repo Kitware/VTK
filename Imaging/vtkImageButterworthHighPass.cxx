@@ -44,13 +44,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageButterworthHighPass, "1.17");
+vtkCxxRevisionMacro(vtkImageButterworthHighPass, "1.18");
 vtkStandardNewMacro(vtkImageButterworthHighPass);
 
 //----------------------------------------------------------------------------
 vtkImageButterworthHighPass::vtkImageButterworthHighPass()
 {
-  this->SetCutOff(VTK_LARGE_FLOAT, VTK_LARGE_FLOAT, VTK_LARGE_FLOAT);
+  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_LARGE_FLOAT;
   this->Order = 1;
 }
 

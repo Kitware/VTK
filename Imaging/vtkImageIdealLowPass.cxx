@@ -45,13 +45,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageIdealLowPass, "1.15");
+vtkCxxRevisionMacro(vtkImageIdealLowPass, "1.16");
 vtkStandardNewMacro(vtkImageIdealLowPass);
 
 //----------------------------------------------------------------------------
 vtkImageIdealLowPass::vtkImageIdealLowPass()
 {
-  this->SetCutOff(VTK_LARGE_FLOAT, VTK_LARGE_FLOAT, VTK_LARGE_FLOAT);
+  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_LARGE_FLOAT;
 }
 
 
