@@ -50,10 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define MAX_LIGHTS 16
 
-static char *lights[MAX_LIGHTS] =
-{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-
 vtkSbrRenderWindow::vtkSbrRenderWindow()
 {
   this->Fd = -1;
@@ -202,34 +198,6 @@ void vtkSbrRenderWindow::Frame(void)
     {
     dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
     }
-}
-
-/*
- * get the visual type which matches the depth argument
- */
-static Visual * xlib_getvisual(Display *display,int screen,int depth)
-{
-    XVisualInfo templ;
-    XVisualInfo *visuals, *v;
-    Visual	*vis = NULL;
-    int		nvisuals;
-    int		i;
-
-	templ.screen = screen;
-	templ.depth = depth;
-
-	vis = DefaultVisual(display, screen);
-
-	visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
-			&templ, &nvisuals);
-
-	for (v = visuals, i = 0; i < nvisuals; v++, i++)
-		if (v->c_class == vis->c_class) {
-			vis = v->visual;
-			break;						
-		}
-
-	return(vis);
 }
 
 /*
@@ -529,14 +497,10 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
 				     char name[80])
 {
   Window win;
-  XEvent event;
   XVisualInfo *pVisInfo,visInfo;
   Colormap cmapID;
-  XColor c0, c1; 
   XSetWindowAttributes winattr;
-  char *window_name;
   Pixmap icon_pixmap;
-  int screen;
   unsigned int mask;
   int retVal;
   XSizeHints xsh;
@@ -673,10 +637,9 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
 // Initialize the rendering window.
 void vtkSbrRenderWindow::WindowInitialize (void)
 {
-  char *device, *driver, *str;
+  char *device, *driver;
   int planes, depth, mode;
   int create_xwindow();
-  int cmap_size;
   XSizeHints *size_hints;
   XClassHint *class_hint;
   XWMHints *wm_hints;
