@@ -68,8 +68,8 @@ public:
   float *GetVector(int i) {return this->V.GetPtr(3*i);};
   void GetVector(int i,float v[3]) {this->vtkVectors::GetVector(i,v);};
   void SetVector(int i, float v[3]);
-  void InsertVector(int i, float *v);
-  int InsertNextVector(float *v);
+  void InsertVector(int i, float v[3]);
+  int InsertNextVector(float v[3]);
 
   // miscellaneous
   float *GetPtr(const int id);
@@ -114,14 +114,14 @@ inline void vtkFloatVectors::SetVector(int i, float v[3])
   this->V[i+2]=v[2];
 }
 
-inline void vtkFloatVectors::InsertVector(int i, float *v) 
+inline void vtkFloatVectors::InsertVector(int i, float v[3]) 
 {
   this->V.InsertValue(3*i+2, v[2]);
   this->V[3*i] =  v[0];
   this->V[3*i+1] =  v[1];
 }
 
-inline int vtkFloatVectors::InsertNextVector(float *v) 
+inline int vtkFloatVectors::InsertNextVector(float v[3]) 
 {
   int id = this->V.GetMaxId() + 3;
   this->V.InsertValue(id,v[2]);

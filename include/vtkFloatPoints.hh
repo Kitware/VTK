@@ -68,8 +68,8 @@ public:
   float *GetPoint(int id) {return this->P.GetPtr(3*id);};
   void GetPoint(int id, float x[3]);
   void SetPoint(int id, float x[3]);
-  void InsertPoint(int id, float *x);
-  int InsertNextPoint(float *x);
+  void InsertPoint(int id, float x[3]);
+  int InsertNextPoint(float x[3]);
   void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
 
   // miscellaneous
@@ -120,14 +120,14 @@ inline void vtkFloatPoints::SetPoint(int id, float x[3])
   this->P[id+2]=x[2];
 }
 
-inline void vtkFloatPoints::InsertPoint(int id, float *x)
+inline void vtkFloatPoints::InsertPoint(int id, float x[3])
 {
   this->P.InsertValue(3*id+2, x[2]); // only do range checking once
   this->P[3*id] = x[0];
   this->P[3*id+1] =  x[1];
 }
 
-inline int vtkFloatPoints::InsertNextPoint(float *x)
+inline int vtkFloatPoints::InsertNextPoint(float x[3])
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,x[2]); // only do range checking once

@@ -68,8 +68,8 @@ public:
   float *GetNormal(int i) {return this->N.GetPtr(3*i);};
   void GetNormal(int i,float n[3]) {this->vtkNormals::GetNormal(i,n);};
   void SetNormal(int i, float n[3]);
-  void InsertNormal(int i, float *n);
-  int InsertNextNormal(float *n);
+  void InsertNormal(int i, float n[3]);
+  int InsertNextNormal(float n[3]);
 
   // miscellaneous
   float *GetPtr(const int id);
@@ -114,14 +114,14 @@ inline void vtkFloatNormals::SetNormal(int i, float n[3])
   this->N[i+2]=n[2];
 }
 
-inline void vtkFloatNormals::InsertNormal(int i, float *n) 
+inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 
 {
   this->N.InsertValue(3*i+2, n[2]);
   this->N[3*i] =  n[0];
   this->N[3*i+1] =  n[1];
 }
 
-inline int vtkFloatNormals::InsertNextNormal(float *n) 
+inline int vtkFloatNormals::InsertNextNormal(float n[3]) 
 {
   int id = this->N.GetMaxId() + 3;
   this->N.InsertValue(id,n[2]);
