@@ -399,6 +399,22 @@ vtkIdType vtkDoubleArray::InsertNextTuple(const double * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
+// Return the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents.
+float vtkDoubleArray::GetComponent(const vtkIdType i, const int j)
+{
+  return (float) this->GetValue(i*this->NumberOfComponents + j);
+}
+
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
+void vtkDoubleArray::SetComponent(const vtkIdType i, const int j, const float c)
+{
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<double>(c));
+}
+
 void vtkDoubleArray::InsertComponent(const vtkIdType i, const int j, 
                                      const float c)
 {

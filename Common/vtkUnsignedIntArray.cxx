@@ -403,6 +403,23 @@ vtkIdType vtkUnsignedIntArray::InsertNextTuple(const double * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
+// Return the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents.
+float vtkUnsignedIntArray::GetComponent(const vtkIdType i, const int j)
+{
+  return static_cast<float>(this->GetValue(i*this->NumberOfComponents + j));
+}
+
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
+void vtkUnsignedIntArray::SetComponent(const vtkIdType i, const int j, 
+                                       const float c)
+{
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<unsigned int>(c));
+}
+
 void vtkUnsignedIntArray::InsertComponent(const vtkIdType i, const int j, 
                                           const float c)
 {
