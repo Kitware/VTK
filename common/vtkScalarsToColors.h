@@ -75,7 +75,8 @@ public:
   // Sets/Gets the range of scalars which will be mapped.
   virtual float *GetRange() = 0;
   virtual void SetRange(float min, float max) = 0;
-  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+  void SetRange(float rng[2]) 
+    {this->SetRange(rng[0],rng[1]);}
   
   // Description:
   // Map one value through the lookup table and return a color defined
@@ -90,23 +91,22 @@ public:
   // Description:
   // Map one value through the lookup table and return the color as
   // an RGB array of floats between 0 and 1.
-  float *GetColor(float v) {
-    this->GetColor(v,this->RGB);
-    return this->RGB; }
+  float *GetColor(float v) 
+    {this->GetColor(v,this->RGB); return this->RGB;}
 
   // Description:
   // Map one value through the lookup table and return the alpha value
   // (the opacity) as a float between 0 and 1.
-  virtual float GetOpacity(float v) { return 1.0; };
+  virtual float GetOpacity(float vtkNotUsed(v)) 
+    {return 1.0;}
 
   // Description:
   // Map one value through the lookup table and return the luminance
   // 0.3*red + 0.59*green + 0.11*blue as a float between 0 and 1.
   // Returns the luminance value for the specified scalar value.
-  float GetLuminance(float x) {
-    float rgb[3];
-    this->GetColor(x,rgb);
-    return rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11; };
+  float GetLuminance(float x) 
+    {float rgb[3]; this->GetColor(x,rgb);
+    return rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11;}
 
   // Description:
   // Map a set of scalars through the lookup table in a single operation. 
@@ -116,10 +116,10 @@ public:
   // If not supplied, the output format defaults to RGBA.
   void MapScalarsThroughTable(vtkScalars *scalars, 
                               unsigned char *output,
-			      int outputFormat);
+                              int outputFormat);
   void MapScalarsThroughTable(vtkScalars *scalars, 
                               unsigned char *output) 
-    { this->MapScalarsThroughTable(scalars,output,VTK_RGBA); };
+    {this->MapScalarsThroughTable(scalars,output,VTK_RGBA);}
 
 
   // Description:
@@ -127,7 +127,7 @@ public:
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement, 
-				       int outputFormat) = 0;
+                                       int outputFormat) = 0;
 
 protected:
   vtkScalarsToColors() {};
