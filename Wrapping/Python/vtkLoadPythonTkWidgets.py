@@ -27,19 +27,29 @@ def vtkLoadPythonTkWidgets(interp):
     # add tcl paths, ensure that {} is handled properly
     for path in string.split(interp.getvar('auto_path')):
         prev = pathlist[-1]
-        if len(prev) > 0 and prev[0] == '{' and prev[-1] != '}':
-            pathlist[-1] = prev+' '+path
-        else:
-            pathlist.append(path)
+        try:            
+            # try block needed when one uses Gordon McMillan's Python
+            # Installer.
+            if len(prev) > 0 and prev[0] == '{' and prev[-1] != '}':
+                pathlist[-1] = prev+' '+path
+            else:
+                pathlist.append(path)
+        except AttributeError:
+            pass
     # a common place for these sorts of things  
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
 
     # attempt to load
     for path in pathlist:
-        if len(path) > 0 and path[0] == '{' and path[-1] == '}':
-            path = path[1:-1]
-        fullpath = os.path.join(path, filename)
+        try:
+            # try block needed when one uses Gordon McMillan's Python
+            # Installer.
+            if len(path) > 0 and path[0] == '{' and path[-1] == '}':
+                path = path[1:-1]
+            fullpath = os.path.join(path, filename)
+        except AttributeError:
+            pass
         if ' ' in fullpath:
             fullpath = '{'+fullpath+'}'
         if interp.eval('catch {load '+fullpath+' '+pkgname+'}') == '0':
