@@ -70,39 +70,83 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Generate lookup table from window and level.
-  // Table is built as a linear ramp, centered at Level and of width Window.
+  // Generate lookup table as a linear ramp between MinimumTableValue
+  // and MaximumTableValue.
   void Build();
 
   // Description:
-  // Set the Window for the lookup table. Window is the width of the
-  // lookup table ramp.
-  vtkSetClampMacro(Window,float,1.0,65536.0);
+  // Set the window for the lookup table.  The window is the difference
+  // between TableRange[0] and TableRange[1].
+  void SetWindow(float window) {
+    if (window < 1e-5) { window = 1e-5; }
+    this->Window = window;
+    this->SetTableRange(this->Level - this->Window/2.0,
+			this->Level + this->Window/2.0); };
   vtkGetMacro(Window,float);
 
   // Description:
-  // Set the Level for the lookup table. Level is the center of the ramp of
-  // the lookup table.
-  vtkSetMacro(Level,float);
+  // Set the Level for the lookup table.  The level is the average of
+  // TableRange[0] and TableRange[1].
+  void SetLevel(float level) {
+    this->Window = level;
+    this->SetTableRange(this->Level - this->Window/2.0,
+			this->Level + this->Window/2.0); };
   vtkGetMacro(Level,float);
 
   // Description:
-  // Set inverse video on or off.
-  vtkSetMacro(InverseVideo,int);
+  // Set inverse video on or off.  You can achieve the same effect by
+  // switching the MinimumTableValue and the MaximumTableValue.
+  void SetInverseVideo(int iv);
   vtkGetMacro(InverseVideo,int);
   vtkBooleanMacro(InverseVideo,int);
 
   // Description:
-  // Set the Minimum color. All lookup table entries below the start of the ramp
-  // will be set to this color.
-  vtkSetVector4Macro(MinimumColor,unsigned char);
-  vtkGetVectorMacro(MinimumColor,unsigned char,4);
+  // Set the minimum table value.  All lookup table entries below the
+  // start of the ramp will be set to this color.  After you change
+  // this value, you must re-build the lookup table.
+  vtkSetVector4Macro(MinimumTableValue,float);
+  vtkGetVector4Macro(MinimumTableValue,float);
 
   // Description:
-  // Set the Maximum color. All lookup table entries above the end of the ramp
-  // will be set to this color.
-  vtkSetVector4Macro(MaximumColor,unsigned char);
-  vtkGetVectorMacro(MaximumColor,unsigned char,4);
+  // Set the maximum table value. All lookup table entries above the
+  // end of the ramp will be set to this color.  After you change
+  // this value, you must re-build the lookup table.
+  vtkSetVector4Macro(MaximumTableValue,float);
+  vtkGetVector4Macro(MaximumTableValue,float);
+
+  // Description:
+  // For backwards compatibility: specify the color using integers
+  // in the range [0,255].  Deprecated: use SetMinimumTableValue()
+  // instead.
+  void SetMinimumColor(int r, int g, int b, int a) {
+    this->SetMinimumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
+  void SetMinimumColor(const unsigned char rgba[4]) {
+    this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
+  void GetMinimumColor(unsigned char rgba[4]) {
+    rgba[0] = int(this->MinimumColor[0]*255);
+    rgba[1] = int(this->MinimumColor[1]*255);
+    rgba[2] = int(this->MinimumColor[2]*255);
+    rgba[3] = int(this->MinimumColor[3]*255); };
+  unsigned char *GetMinimumColor() {
+    this->GetMinimumColor(this->MinimumColor); 
+    return this->MinimumColor; };
+
+  // Description:
+  // For backwards compatibility: specify the color using integers
+  // in the range [0,255].  Deprecated: use SetMaximumTableValue()
+  // instead.
+  void SetMaximumColor(int r, int g, int b, int a) {
+    this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
+  void SetMaximumColor(const unsigned char rgba[4]) {
+    this->SetMaximumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
+  void GetMaximumColor(unsigned char rgba[4]) {
+    rgba[0] = int(this->MaximumColor[0]*255);
+    rgba[1] = int(this->MaximumColor[1]*255);
+    rgba[2] = int(this->MaximumColor[2]*255);
+    rgba[3] = int(this->MaximumColor[3]*255); };
+  unsigned char *GetMaximumColor() {
+    this->GetMaximumColor(this->MaximumColor); 
+    return this->MaximumColor; };
 
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
@@ -112,8 +156,9 @@ protected:
 
   float Window;
   float Level;
-  int MapScalarToIndex (float scalar);
   int InverseVideo;
+  float MaximumTableValue[4];
+  float MinimumTableValue[4];
   unsigned char MinimumColor[4];
   unsigned char MaximumColor[4];
 };
