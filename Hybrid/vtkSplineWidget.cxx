@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.1");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.2");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -818,7 +818,6 @@ void vtkSplineWidget::Translate(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float* ctr;
   float newCtr[3];
   for (int i = 0; i< this->NumberOfHandles; i++)
     {
@@ -834,6 +833,8 @@ void vtkSplineWidget::Translate(double *p1, double *p2)
 
 void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 {
+  int i;
+
   // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
@@ -849,7 +850,7 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   center[1] += prevctr[1];
   center[2] += prevctr[2];
 
-  for (int i = 1; i<this->NumberOfHandles; i++)
+  for (i = 1; i<this->NumberOfHandles; i++)
     {
     ctr = this->HandleGeometry[i]->GetCenter();
     center[0] += ctr[0];
@@ -878,7 +879,7 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
   // Move the handle points
   float newCtr[3];
-  for (int i = 0; i< this->NumberOfHandles; i++)
+  for (i = 0; i< this->NumberOfHandles; i++)
     {
     ctr = this->HandleGeometry[i]->GetCenter();
     for (int j=0; j<3; j++)
