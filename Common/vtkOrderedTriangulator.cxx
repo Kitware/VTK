@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.71");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.72");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -371,9 +371,9 @@ void vtkOrderedTriangulator::Initialize()
   
   // Create the initial Delaunay triangulation which is a
   // bounding octahedron: 6 points & 4 tetra.
-  center[0] = (double) (bounds[0]+bounds[1])/2.0;
-  center[1] = (double) (bounds[2]+bounds[3])/2.0;
-  center[2] = (double) (bounds[4]+bounds[5])/2.0;
+  center[0] = (bounds[0]+bounds[1])/2.0;
+  center[1] = (bounds[2]+bounds[3])/2.0;
+  center[2] = (bounds[4]+bounds[5])/2.0;
   length = 2.0 * sqrt( (radius2 = (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                  (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                  (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) );
@@ -494,12 +494,12 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
   this->Mesh->Points[idx].SortId2 = -1;
   this->Mesh->Points[idx].OriginalId = idx;
   this->Mesh->Points[idx].InsertionId = -1; //dummy value until inserted
-  this->Mesh->Points[idx].X[0] = (double) x[0];
-  this->Mesh->Points[idx].X[1] = (double) x[1];
-  this->Mesh->Points[idx].X[2] = (double) x[2];
-  this->Mesh->Points[idx].P[0] = (double) p[0];
-  this->Mesh->Points[idx].P[1] = (double) p[1];
-  this->Mesh->Points[idx].P[2] = (double) p[2];
+  this->Mesh->Points[idx].X[0] = x[0];
+  this->Mesh->Points[idx].X[1] = x[1];
+  this->Mesh->Points[idx].X[2] = x[2];
+  this->Mesh->Points[idx].P[0] = p[0];
+  this->Mesh->Points[idx].P[1] = p[1];
+  this->Mesh->Points[idx].P[2] = p[2];
   this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
   
   return idx;
@@ -522,12 +522,12 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].SortId2 = -1;
   this->Mesh->Points[idx].OriginalId = idx;
   this->Mesh->Points[idx].InsertionId = -1; //dummy value until inserted
-  this->Mesh->Points[idx].X[0] = (double) x[0];
-  this->Mesh->Points[idx].X[1] = (double) x[1];
-  this->Mesh->Points[idx].X[2] = (double) x[2];
-  this->Mesh->Points[idx].P[0] = (double) p[0];
-  this->Mesh->Points[idx].P[1] = (double) p[1];
-  this->Mesh->Points[idx].P[2] = (double) p[2];
+  this->Mesh->Points[idx].X[0] = x[0];
+  this->Mesh->Points[idx].X[1] = x[1];
+  this->Mesh->Points[idx].X[2] = x[2];
+  this->Mesh->Points[idx].P[0] = p[0];
+  this->Mesh->Points[idx].P[1] = p[1];
+  this->Mesh->Points[idx].P[2] = p[2];
   this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
   
   return idx;
@@ -551,12 +551,12 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].SortId2 = sortid2;
   this->Mesh->Points[idx].OriginalId = idx;
   this->Mesh->Points[idx].InsertionId = -1; //dummy value until inserted
-  this->Mesh->Points[idx].X[0] = (double) x[0];
-  this->Mesh->Points[idx].X[1] = (double) x[1];
-  this->Mesh->Points[idx].X[2] = (double) x[2];
-  this->Mesh->Points[idx].P[0] = (double) p[0];
-  this->Mesh->Points[idx].P[1] = (double) p[1];
-  this->Mesh->Points[idx].P[2] = (double) p[2];
+  this->Mesh->Points[idx].X[0] = x[0];
+  this->Mesh->Points[idx].X[1] = x[1];
+  this->Mesh->Points[idx].X[2] = x[2];
+  this->Mesh->Points[idx].P[0] = p[0];
+  this->Mesh->Points[idx].P[1] = p[1];
+  this->Mesh->Points[idx].P[2] = p[2];
   this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
   
   return idx;
