@@ -846,7 +846,7 @@ void vtkSynchronizedTemplates3D::Execute()
 {
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
-  vtkPoints *outPts = output->GetPoints();
+  vtkPoints *outPts;
   vtkPointData *outPD = output->GetPointData();
   vtkCellArray *outTris = output->GetPolys();
   vtkScalars *outScalars = outPD->GetScalars();
@@ -862,6 +862,8 @@ void vtkSynchronizedTemplates3D::Execute()
   int *ext = input->GetWholeExtent();
 
   this->InitializeOutput(ext, output);
+
+  outPts = output->GetPoints();
 
   if (this->NumberOfThreads == 1)
     {
