@@ -143,7 +143,7 @@ public:
   // handles are set to ProjectionPosition.  No attempt is made to ensure that
   // the position is within the bounds of either the underlying image data or
   // the prop on which tracing is performed.
-  vtkSetMacro(ProjectionPosition,double);
+  void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition,double);
 
    // Description:
