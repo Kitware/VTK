@@ -5,10 +5,6 @@ setup.py for installing the VTK-Python bindings using distutils.
 
 Created by Prabhu Ramachandran, June 2002.
 
-TODO:
-
-  1. Test under different OS's.
-
 """
 
 import glob, sys, os
@@ -16,6 +12,7 @@ from types import StringType
 from distutils.core import setup
 from distutils.util import change_root, convert_path
 from distutils.command.install_data import install_data
+from distutils.sysconfig import get_config_var
 
 version = "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
 
@@ -32,8 +29,8 @@ def get_libs():
     """Returns a list of libraries to be installed.  """
     libs = []
     if os.name == 'posix':
-        libs = glob.glob(os.path.abspath(os.path.join(install_lib_dir,
-                                                      'libvtk*Python*.so')))
+        libs = glob.glob(os.path.abspath(os.path.join(
+            install_lib_dir, 'libvtk*Python*' + get_config_var('SO'))))
     else:
         d = os.path.normpath(build_lib_dir)
         if not os.path.isfile(os.path.join(d, 'vtkCommonPython.dll')):
@@ -61,7 +58,7 @@ def get_scripts():
             if os.path.exists(win32_bin_dir):
                 break
         for i in ('vtkpython.exe', 'pvtkpython.exe'):
-            f = os.path.join(win32_bin_dir, i)
+            f = os.path.join(os.path.normpath(win32_bin_dir), i)
             if os.path.exists(f):
                 scripts.append(f)
     return scripts

@@ -267,7 +267,7 @@ def main():
     gvtk.Initialize()
     gvtk.Start()
     # prevents 'q' from exiting the app.
-    gvtk.SetExitMethod(lambda x=None: x)
+    gvtk.AddObserver("ExitEvent", lambda o,e,x=None: x)
 
     # The VTK stuff.
     cone = vtk.vtkConeSource()
