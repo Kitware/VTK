@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING)
 
     FOREACH ( tfile
       Canny
+      capSphere
       clipArt
       createBFont
       cylMap
