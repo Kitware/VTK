@@ -118,6 +118,8 @@ proc SelectJuliaMandelbrot {} {
     mandelbrot SetSpacing [expr 3.0 / $XDIM]
     mandelbrot SetOrigin -2.2 -1.5 0
   } else {
+    mandelbrot SetOrigin -1.5 -1.5 0.12
+    mandelbrot SetSpacing [expr 3.0 / $XDIM]
     mandelbrot JuliaSetOn
   }
 
