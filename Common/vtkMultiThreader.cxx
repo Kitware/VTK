@@ -17,7 +17,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.46");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.47");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -192,9 +192,10 @@ void vtkMultiThreader::SetMultipleMethod( int index,
                                           vtkThreadFunctionType f, void *data )
 { 
   // You can only set the method for 0 through NumberOfThreads-1
-  if ( index >= this->NumberOfThreads ) {
+  if ( index >= this->NumberOfThreads )
+    {
     vtkErrorMacro( << "Can't set method " << index << 
-    " with a thread count of " << this->NumberOfThreads );
+                   " with a thread count of " << this->NumberOfThreads );
     }
   else
     {
@@ -251,7 +252,7 @@ void vtkMultiThreader::SingleMethodExecute()
   // of their process ids for use later in the waitid call
   for (thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
-    this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
+    this->ThreadInfoArray[thread_loop].UserData        = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       CreateThread(NULL, 0, this->SingleMethod, 
@@ -294,7 +295,7 @@ void vtkMultiThreader::SingleMethodExecute()
 
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
-    this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
+    this->ThreadInfoArray[thread_loop].UserData        = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       sproc( this->SingleMethod, PR_SADDR, 
@@ -306,7 +307,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
-  this->ThreadInfoArray[0].UserData = this->SingleData;
+  this->ThreadInfoArray[0].UserData        = this->SingleData;
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   this->SingleMethod((void *)(&this->ThreadInfoArray[0]) );
 
@@ -342,7 +343,7 @@ void vtkMultiThreader::SingleMethodExecute()
   
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
-    this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
+    this->ThreadInfoArray[thread_loop].UserData        = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
 
 #ifdef VTK_HP_PTHREADS
@@ -365,7 +366,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
-  this->ThreadInfoArray[0].UserData = this->SingleData;
+  this->ThreadInfoArray[0].UserData        = this->SingleData;
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   this->SingleMethod((void *)(&this->ThreadInfoArray[0]) );
 
@@ -381,7 +382,7 @@ void vtkMultiThreader::SingleMethodExecute()
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
-  this->ThreadInfoArray[0].UserData    = this->SingleData;
+  this->ThreadInfoArray[0].UserData        = this->SingleData;
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   this->SingleMethod( (void *)(&this->ThreadInfoArray[0]) );
 #endif
@@ -453,7 +454,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
   
   // Now, the parent thread calls the last method itself
-  this->ThreadInfoArray[0].UserData = this->MultipleData[0];
+  this->ThreadInfoArray[0].UserData        = this->MultipleData[0];
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   (this->MultipleMethod[0])((void *)(&this->ThreadInfoArray[0]) );
 
@@ -494,7 +495,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
   
   // Now, the parent thread calls the last method itself
-  this->ThreadInfoArray[0].UserData = this->MultipleData[0];
+  this->ThreadInfoArray[0].UserData        = this->MultipleData[0];
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   (this->MultipleMethod[0])((void *)(&this->ThreadInfoArray[0]) );
 
@@ -566,7 +567,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
-  this->ThreadInfoArray[0].UserData    = this->MultipleData[0];
+  this->ThreadInfoArray[0].UserData        = this->MultipleData[0];
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
   (this->MultipleMethod[0])( (void *)(&this->ThreadInfoArray[0]) );
 #endif
@@ -574,21 +575,15 @@ void vtkMultiThreader::MultipleMethodExecute()
 #endif
 }
 
-int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
+int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *userdata )
 {
   int id;
 
-  // avoid a warning
-  vtkThreadFunctionType tf;
-  tf = f; tf= tf;
-  
 #ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
 #endif
 
-  id = 0;
-
-  while ( id < VTK_MAX_THREADS )
+  for ( id = 0; id < VTK_MAX_THREADS; id++ )
     {
     if ( this->SpawnedThreadActiveFlagLock[id] == NULL )
       {
@@ -603,8 +598,6 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
       break;
       }
     this->SpawnedThreadActiveFlagLock[id]->Unlock();
-      
-    id++;
     }
 
   if ( id >= VTK_MAX_THREADS )
@@ -613,8 +606,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
     return -1;
     }
 
-
-  this->SpawnedThreadInfoArray[id].UserData        = UserData;
+  this->SpawnedThreadInfoArray[id].UserData        = userdata;
   this->SpawnedThreadInfoArray[id].NumberOfThreads = 1;
   this->SpawnedThreadInfoArray[id].ActiveFlag = 
     &this->SpawnedThreadActiveFlag[id];
@@ -686,31 +678,32 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   return id;
 }
 
-void vtkMultiThreader::TerminateThread( int ThreadID )
+void vtkMultiThreader::TerminateThread( int threadID )
 {
 
-  if ( !this->SpawnedThreadActiveFlag[ThreadID] ) {
+  if ( !this->SpawnedThreadActiveFlag[threadID] )
+    {
     return;
-  }
+    }
 
-  this->SpawnedThreadActiveFlagLock[ThreadID]->Lock();
-  this->SpawnedThreadActiveFlag[ThreadID] = 0;
-  this->SpawnedThreadActiveFlagLock[ThreadID]->Unlock();
+  this->SpawnedThreadActiveFlagLock[threadID]->Lock();
+  this->SpawnedThreadActiveFlag[threadID] = 0;
+  this->SpawnedThreadActiveFlagLock[threadID]->Unlock();
 
 #ifdef VTK_USE_WIN32_THREADS
-  WaitForSingleObject(this->SpawnedThreadProcessID[ThreadID], INFINITE);
-  CloseHandle(this->SpawnedThreadProcessID[ThreadID]);
+  WaitForSingleObject(this->SpawnedThreadProcessID[threadID], INFINITE);
+  CloseHandle(this->SpawnedThreadProcessID[threadID]);
 #endif
 
 #ifdef VTK_USE_SPROC
   siginfo_t info_ptr;
 
-  waitid( P_PID, (id_t) this->SpawnedThreadProcessID[ThreadID], 
+  waitid( P_PID, (id_t) this->SpawnedThreadProcessID[threadID], 
           &info_ptr, WEXITED );
 #endif
 
 #ifdef VTK_USE_PTHREADS
-  pthread_join( this->SpawnedThreadProcessID[ThreadID], NULL );
+  pthread_join( this->SpawnedThreadProcessID[threadID], NULL );
 #endif
 
 #ifndef VTK_USE_WIN32_THREADS
@@ -723,8 +716,8 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
 #endif
 #endif
 
-  this->SpawnedThreadActiveFlagLock[ThreadID]->Delete();
-  this->SpawnedThreadActiveFlagLock[ThreadID] = NULL;
+  this->SpawnedThreadActiveFlagLock[threadID]->Delete();
+  this->SpawnedThreadActiveFlagLock[threadID] = NULL;
 
 }
 
