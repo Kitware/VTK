@@ -124,6 +124,41 @@ if { [catch {set VTK_ROOT $env(VTK_ROOT)}] != 0} { set VTK_ROOT "../../../" }
 source $VTK_ROOT/vtk/graphics/examplesTcl/rtProcessCPUTimes.tcl
 ReadCPUTimeTable
 
+vtkXMLFileOutputWindow rtxLog
+  rtxLog SetFileName rtLog.xml
+  rtxLog AppendOff
+  rtxLog FlushOn
+  rtxLog SetInstance rtxLog
+#  rtxLog DisplayTag {<!DOCTYPE Frost SYSTEM "Frost.dtd">}
+  rtxLog DisplayTag {<Frost Database="vtk" Server="icehouse.crd.ge.com" Username="vtkuser" Password="sixsigma">}
+  rtxLog DisplayTag {<Schema>}
+  rtxLog DisplayTag {<Gauge Name="WallTime" Type="numeric/double" />}
+  rtxLog DisplayTag {<Gauge Name="CPUTime" Type="numeric/double" />}
+  rtxLog DisplayTag {<Gauge Name="ImageDiff" Type="numeric/double" />}
+  rtxLog DisplayTag {<Gauge Name="Image" Type="image/tiff" />}
+
+foreach afile $files {
+    rtxLog DisplayTag "<Test Name=\"$afile\">"
+    rtxLog DisplayTag {<Gauge Name="WallTime"/>}
+    rtxLog DisplayTag {<Gauge Name="CPUTime"/>}
+    rtxLog DisplayTag {<Gauge Name="ImageDiff"/>}
+    rtxLog DisplayTag {<Gauge Name="Image"/>}
+    rtxLog DisplayTag "</Test>"
+}
+  rtxLog DisplayTag "<TestGroup Name=\"$kitName\">"
+  rtxLog DisplayTag "<Description>$argv0 $argv</Description>"
+foreach afile $files {
+    rtxLog DisplayTag "<Test Name=\"$afile\"/>"
+}
+  rtxLog DisplayTag "</TestGroup>"
+  if {$tcl_platform(platform) == "unix"} {
+      set hostname [exec hostname]
+      rtxLog DisplayTag "<Machine Name=\"$hostname\" Architecture=\"$tcl_platform(os)\"/>"
+  }
+  rtxLog DisplayTag {</Schema>}
+  rtxLog DisplayTag "<TestGroupRun Name=\"$kitName\">"
+  rtxLog Delete
+
 # now do the tests
 foreach afile $files {
     #
@@ -146,13 +181,21 @@ foreach afile $files {
         }
     }
 
+    # Capture warnings and errors
+    vtkXMLFileOutputWindow rtLog
+      rtLog SetFileName rtLog.xml
+      rtLog AppendOn
+      rtLog FlushOn
+      rtLog SetInstance rtLog
+
     #
     # now see if there is an alternate image for this architecture
     if {[catch {set channel [open ${validImage}]}] != 0 } {
 	set validImage $validPath/$afile.tif
 	if {[catch {set channel [open ${validImage}]}] != 0 } {
-	    puts $logFile "WARNING: There is no valid image for $afile"
+	    rtLog DisplayWarningText "There is no valid image for $afile"
             set returnStatus 2
+	    vtkCommand DeleteAllObjects
 	    continue
 	} else {
 	    close $channel
@@ -161,7 +204,7 @@ foreach afile $files {
 	close $channel
     }
     vtkMath rtExMath
-    rtExMath RandomSeed 6
+      rtExMath RandomSeed 6
     
     # Start by putting the name out - right justify it and pad to 30 characters.
     # This line MUST start with a space so that name conflicts won't occur in
@@ -172,6 +215,9 @@ foreach afile $files {
     
     vtkWindowToImageFilter w2if
 
+    rtLog DisplayTag "<TestRun Name=\"$afile\">"
+    rtLog DisplayTag "<StartDateTime>[clock format [clock seconds]]</StartDateTime>"
+
     # Create a timer so that we can get CPU time.
     # Use the tcl time command to get wall time
     vtkTimerLog timer
@@ -180,7 +226,6 @@ foreach afile $files {
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
-    
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
     if {[info commands renWin] == "renWin"} {
@@ -232,6 +277,9 @@ foreach afile $files {
 
     set imageError [decipadString [imgDiff GetThresholdedError] 4 9]
 
+    rtLog DisplayTag "<Measurement Gauge=\"WallTime\"><Value>$wallTime</Value></Measurement>"
+    rtLog DisplayTag "<Measurement Gauge=\"CPUTime\"><Value>$CPUTime</Value></Measurement>"
+    rtLog DisplayTag "<Measurement Gauge=\"ImageDiff\"><Value>[imgDiff GetThresholdedError]</Value></Measurement>"
     # a test has to be off by at least threshold pixels for us to care   
     if {[imgDiff GetThresholdedError] <= $threshold} {
 	set imageStatus "Passed"
@@ -256,8 +304,10 @@ foreach afile $files {
     # If it failed, say why (Image, Time)
     if { $imageStatus == "Passed" } {
 	puts -nonewline $logFile "Passed    "
+	rtLog DisplayTag "<Passed>true</Passed>"
     } else {
 	puts $logFile "Failed (Image)"
+	rtLog DisplayTag "<Passed>false</Passed>"
     }
 
     set retval [CheckTime $afile [string trimleft $CPUTime]]
@@ -272,12 +322,23 @@ foreach afile $files {
     
     # reset global GL variables
     vtkPolyDataMapper rtMapper
-    rtMapper SetResolveCoincidentTopologyToDefault
-    rtMapper GlobalImmediateModeRenderingOff
+      rtMapper SetResolveCoincidentTopologyToDefault
+      rtMapper GlobalImmediateModeRenderingOff
 
+    rtLog DisplayTag "<EndDateTime>[clock format [clock seconds]]</EndDateTime>"
+    rtLog DisplayTag "</TestRun>"
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
 }
+
+vtkXMLFileOutputWindow rtxLog
+  rtxLog SetFileName rtLog.xml
+  rtxLog AppendOn
+  rtxLog FlushOn
+  rtxLog SetInstance rtxLog
+  rtxLog DisplayTag </TestGroupRun>
+  rtxLog DisplayTag </Frost>
+
 
 exit $returnStatus
