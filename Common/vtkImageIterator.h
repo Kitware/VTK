@@ -26,7 +26,7 @@
 #ifndef __vtkImageIterator_h
 #define __vtkImageIterator_h
 
-#include "vtkWin32Header.h"
+#include "vtkSystemIncludes.h"
 class vtkImageData;
 
 template<class DType>

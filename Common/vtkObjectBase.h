@@ -43,7 +43,6 @@
 #ifndef __vtkObjectBase_h
 #define __vtkObjectBase_h
 
-#include "vtkWin32Header.h"
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
 

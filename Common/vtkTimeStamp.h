@@ -26,7 +26,7 @@
 #ifndef __vtkTimeStamp_h
 #define __vtkTimeStamp_h
 
-#include "vtkWin32Header.h"
+#include "vtkSystemIncludes.h"
 
 class VTK_COMMON_EXPORT vtkTimeStamp 
 {

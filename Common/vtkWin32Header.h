@@ -23,6 +23,10 @@
 #ifndef __vtkWIN32Header_h
 #define __vtkWIN32Header_h
 
+#ifndef __VTK_SYSTEM_INCLUDES__INSIDE
+Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
+#endif
+
 #include "vtkConfigure.h"
 
 //

@@ -24,7 +24,6 @@
 #ifndef __vtkIndent_h
 #define __vtkIndent_h
 
-#include "vtkWin32Header.h"
 #include "vtkSystemIncludes.h"
 
 class VTK_COMMON_EXPORT vtkIndent

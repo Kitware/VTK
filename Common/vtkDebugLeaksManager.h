@@ -25,7 +25,7 @@
 #ifndef __vtkDebugLeaksManager_h
 #define __vtkDebugLeaksManager_h
 
-#include "vtkWin32Header.h"
+#include "vtkSystemIncludes.h"
 
 class VTK_COMMON_EXPORT vtkDebugLeaksManager
 {
