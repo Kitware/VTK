@@ -43,7 +43,7 @@ class vtkImageClip;
 class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkVolumeMapper,vtkAbstractMapper3D);
+  vtkTypeRevisionMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
