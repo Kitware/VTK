@@ -153,7 +153,8 @@ public:
   
 protected:
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
-  void GetOverlappingBuckets(float x[3], int ijk[3], float dist, int level);
+  void GetOverlappingBuckets(float x[3], int ijk[3], float dist, 
+                             int prevMinLevel[3], int prevMaxLevel[3]);
 
   void ClearCellHasBeenVisited();
   void ClearCellHasBeenVisited(int id);
