@@ -71,6 +71,7 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->ModelBounds[3] = 0.0;
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
+  this->BoundsComputed = 0;
 
   this->SampleDimensions[0] = 50;
   this->SampleDimensions[1] = 50;
@@ -112,8 +113,6 @@ void vtkImplicitModeller::StartAppend()
 
   vtkDebugMacro(<< "Initializing data");
   this->DataAppended = 1;
-  // only compute bounds once per StartAppend, Append, EndAppend
-  this->BoundsComputed = 0; 
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
@@ -332,10 +331,10 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   vtkDebugMacro(<< "Appending data");
 
   vtkStructuredPoints *output = this->GetOutput();
+
   if ( !this->BoundsComputed )
     {
-    this->InternalMaxDistance = this->ComputeModelBounds();
-    this->BoundsComputed = 1;
+    this->ComputeModelBounds(input);
     }
 
   Spacing = output->GetSpacing();
@@ -668,7 +667,7 @@ void vtkImplicitModeller::Execute()
 }
 
 // Compute ModelBounds from input geometry.
-float vtkImplicitModeller::ComputeModelBounds()
+float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
 {
   float *bounds, maxDist;
   int i;
@@ -680,7 +679,22 @@ float vtkImplicitModeller::ComputeModelBounds()
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
     {
-    bounds = this->GetInput()->GetBounds();
+    if (input != NULL)
+      {
+      bounds = input->GetBounds();
+      }
+    else
+      {
+      if (this->GetInput() != NULL)
+	{
+	bounds = this->GetInput()->GetBounds();
+	}
+      else
+	{
+	vtkErrorMacro( << "An input must be specified to Compute the model bounds.");
+	return VTK_LARGE_FLOAT;
+	}
+      }
     }
   else
     {
@@ -727,6 +741,9 @@ float vtkImplicitModeller::ComputeModelBounds()
     }
   output->SetSpacing(tempf);
 
+  this->BoundsComputed = 1;
+  this->InternalMaxDistance = maxDist;
+  
   return maxDist;  
 }
 
