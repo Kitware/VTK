@@ -156,6 +156,7 @@ vtkGaussianSplatter \
 vtkGeometryFilter \
 vtkGetGhostCells \
 vtkGetPolyDataGhostCells \
+vtkGlyph2D \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHull \
