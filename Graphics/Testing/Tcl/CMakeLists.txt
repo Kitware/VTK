@@ -60,6 +60,7 @@ IF (VTK_USE_RENDERING)
       Hyper
       KlineBottle
       motor
+      MassProperties
       MatrixToTransform
       MultidimensionalSolution
       nacaBinary
@@ -93,6 +94,7 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       testQuadricDecimation
+      text
       TransformConcatenation
       TransformPolyData
       triangularTCoords
