@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-29 18:26:14 barre>
+# Time-stamp: <2002-01-29 18:40:22 barre>
 #
 # Get author and contributors.
 #
@@ -253,14 +253,11 @@ my %log_revision_by_signature_file;
 
 mkpath($args{"cachedir"});
 
-# cd to source CVS dir
-
-chdir($args{"cvsdir"});
-
 my @files_submitted = keys %files;
 my $nb_file_submitted = scalar @files_submitted;
 my $nb_file_fraction = int($nb_file_submitted / 10.0);
 my %files_visited;
+my $last_chdir = '';
 
 foreach my $file_name (@files_submitted) {
 
@@ -286,17 +283,18 @@ foreach my $file_name (@files_submitted) {
         
         # Keep track of files visited
 
-        my $name = $file_name_abs_dir . '/' . $file_name_we . $extension;
+        my $base = $file_name_we . $extension;
+        my $name = $file_name_abs_dir . '/' . $base;
         next if exists $files_visited{$name} || ! -e $name;
         $files_visited{$name} = 1;
 
-        print "     $file_name_we$extension\n" if exists $args{"verbose"};
+        print "     $base\n" if exists $args{"verbose"};
 
         $classes{$class_name}{'files'}{$name} = 1;
 
         # Get the CVS log for that file or grab it from the cache
         
-        my $cache_name = $args{"cachedir"} . '/' . $file_name_we . $extension;
+        my $cache_name = $args{"cachedir"} . '/' . $base;
         my $output;
 
         my $old_slurp = $/;
@@ -310,8 +308,12 @@ foreach my $file_name (@files_submitted) {
             $output = <CACHE_FILE>;
             close(CACHE_FILE);
         } else {
-            print " >> cvs log $name\n" if exists $args{"verbose"};
-            $output = qx/cvs log $name/;
+            if ($last_chdir ne $file_name_abs_dir) {
+                chdir($file_name_abs_dir);
+                $last_chdir = $file_name_abs_dir;
+            }
+            print " >> cvs log $base\n" if exists $args{"verbose"};
+            $output = qx/cvs log $base/;
             sysopen(CACHE_FILE, 
                     $cache_name, 
                     O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
