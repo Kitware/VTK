@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.84");
+vtkCxxRevisionMacro(vtkMath, "1.85");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1091,8 +1091,8 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
   int someHomogeneous = 0;
   int allHomogeneous = 1;
-  double **hmt;
-  int homogRC;
+  double **hmt = NULL;
+  int homogRC = 0;
   int *homogenFlags = new int[yOrder];
 
   // Ok, first init some flags check and see if all the systems are homogeneous
@@ -1165,7 +1165,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
     // Ok, solve the homogeneous problem
     homogRC = vtkMath::SolveHomogeneousLeastSquares(numberOfSamples, xt, xOrder, hmt);
     }
-
+  
 
   // set up intermediate variables
   double **XXt = new double *[xOrder];     // size x by x
