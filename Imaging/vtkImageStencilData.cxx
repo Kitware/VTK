@@ -387,41 +387,20 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
     return 0;
     }
 
-  // if no clipping object is set, just use Extent
-  if (this->ExtentLists == NULL)
-    {
-    if (iter++ == 0)
-      {
-      r1 = this->Extent[0];
-      r2 = this->Extent[1];
-      if (r1 < rmin)
-        {
-        r1 = rmin;
-        }
-      if (r1 > rmax)
-        {
-        r1 = rmax + 1;
-        }
-      if (r2 > rmax)
-        {
-        r2 = rmax;
-        }
-      return (r2 >= r1);
-      }
-    else
-      {
-      return 0;
-      }
-    }
-
   // get the ExtentList and ExtentListLength for this yIdx,zIdx
   int incr = zIdx*yExt + yIdx;
   int *clist = this->ExtentLists[incr];
   int clistlen = this->ExtentListLengths[incr];
 
-  if (iter == 0)
+  if (iter <= 0)
     {
     int state = 1; // start outside
+    if (iter < 0)  // unless iter is negative at start
+      {
+      iter = 0;
+      state = -1;
+      }
+
     r1 = VTK_INT_MIN;
     for ( ; iter < clistlen; iter++)
       {

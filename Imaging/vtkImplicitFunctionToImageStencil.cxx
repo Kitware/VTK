@@ -86,8 +86,7 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 // (i.e. by evaluating the function at each and every voxel)
 void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData 
 							              *data,
-							int extent[6],
-							int vtkNotUsed(id))
+							int extent[6], int id)
 {
   vtkImplicitFunction *function = this->Input;
   float *spacing = data->GetSpacing();
@@ -96,6 +95,12 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
 
   // for conversion of (idX,idY,idZ) into (x,y,z)
   float point[3];
+
+  // for keeping track of progress
+  unsigned long count = 0;
+  unsigned long target = (unsigned long)
+    ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
+  target++;
 
   // loop through all voxels
   for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
@@ -108,6 +113,15 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
       int r2 = extent[1];
+
+      if (id == 0)
+	{ // update progress if we're the main thread
+	if (count%target == 0) 
+	  {
+	  this->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
 	{

@@ -237,6 +237,11 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
         }
 
       iter = 0;
+      if (self->GetReverseStencil())
+	{ // flag that we want the complementary extents
+	iter = -1;
+	}
+
       cr1 = outExt[0];
       for (;;)
 	{
@@ -248,23 +253,23 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
 	  rval = stencil->GetNextExtent(r1, r2, outExt[0], outExt[1],
 					idY, idZ, iter);
 	  }
+	else if (iter < 0)
+	  {
+	  r1 = outExt[0];
+	  r2 = outExt[1];
+	  rval = 1;
+	  iter = 1;
+	  }
 
 	tempPtr = background;
 	inIncX = 0; 
-	if (self->GetReverseStencil())
-	  {
-	  tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-			     inInc[1]*(idY - inExt[2]) +
-			     numscalars*(cr1 - inExt[0]));
-	  inIncX = numscalars;
-	  }
-	else if (in2Ptr)
+	if (in2Ptr)
 	  {
 	  tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
 			      in2Inc[1]*(idY - in2Ext[2]) +
 			      numscalars*(cr1 - in2Ext[0]));
 	  inIncX = numscalars;
-	  }	    
+	  }
 
 	cr2 = r1 - 1;
 	for (idX = cr1; idX <= cr2; idX++)
@@ -280,27 +285,14 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
           break;
 	  }
 
-	tempPtr = background;
-	inIncX = 0;
-	if (!self->GetReverseStencil())
-	  {
-	  tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-			     inInc[1]*(idY - inExt[2]) +
-			     numscalars*(r1 - inExt[0]));
-	  inIncX = numscalars;
-	  }
-	else if (in2Ptr)
-	  {
-	  tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
-			      in2Inc[1]*(idY - in2Ext[2]) +
-			      numscalars*(r1 - in2Ext[0]));
-	  inIncX = numscalars;
-	  }	    
+	tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
+			   inInc[1]*(idY - inExt[2]) +
+			   numscalars*(r1 - inExt[0]));
 
 	for (idX = r1; idX <= r2; idX++)
 	  {
           vtkCopyPixel(outPtr, tempPtr, numscalars);
-	  tempPtr += inIncX;
+	  tempPtr += numscalars;
 	  }
         }
       outPtr += outIncY;
