@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.6");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.7");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
   this->ProjectionMode = SIMPLE_PROJECTION;
   this->HeightOffset = 10.0;
   this->HeightTolerance = 10.0;
-  this->SubdivisionFactor = 1000;
+  this->MaximumNumberOfLines = VTK_LONG_MAX;
   this->PositiveLineError = NULL;
   this->NegativeLineError = NULL;
 }
@@ -176,12 +176,14 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   this->EdgeList = new EdgeListType;
   this->PositiveLineError = vtkPriorityQueue::New();
   this->NegativeLineError = vtkPriorityQueue::New();
+  this->NumLines = 0;
   for ( inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-1); j++)
       {
       this->EdgeList->push_back(vtkEdge(pts[j],pts[j+1]));
       this->ComputeError(this->EdgeList->size()-1); //puts edges in queues
+      this->NumLines++;
       }
     }
   
@@ -226,14 +228,16 @@ void vtkProjectedTerrainPath::RemoveOcclusions()
   vtkIdType eId;
   if ( this->HeightOffset > 0.0 ) //want path above terrain, eliminate negative errors
     {
-    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 )
+    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 &&
+      this->NumLines < this->MaximumNumberOfLines )
       {
       this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
       }
     }
   else //want path below terrain, eliminate positive errors
     {
-    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 )
+    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 &&
+      this->NumLines < this->MaximumNumberOfLines )
       {
       this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
       }
@@ -254,8 +258,12 @@ void vtkProjectedTerrainPath::HugTerrain()
   while ( stillPopping )
     {
     stillPopping = 0;
-    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 )
+    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 &&
+      this->NumLines < this->MaximumNumberOfLines )
       {
+      // Have to remove edge (if it exists) from other queue since
+      // it will be reprocessed
+      this->NegativeLineError->DeleteId(eId);
       if ( (-error) > this->HeightTolerance )
         {
         this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
@@ -266,8 +274,12 @@ void vtkProjectedTerrainPath::HugTerrain()
         break;
         }
       }
-    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 )
+    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 &&
+      this->NumLines < this->MaximumNumberOfLines )
       {
+      // Have to remove edge (if it exists) from other queue since
+      // it will be reprocessed
+      this->PositiveLineError->DeleteId(eId);
       if ( (-error) > this->HeightTolerance )
         {
         this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
@@ -287,6 +299,8 @@ void vtkProjectedTerrainPath::HugTerrain()
 // well as the appropriate priority queues.
 void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
 {
+  this->NumLines++;
+
   // Get the points defining the edge
   vtkEdge &e =(*this->EdgeList)[eId];
   double p1[3], p2[3];
@@ -519,6 +533,7 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Height Offset: " << this->HeightOffset << "\n";
   os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";
-  os << indent << "Subdivision Factor: " << this->SubdivisionFactor << "\n";
+  os << indent << "Maximum Number Of Lines: " 
+     << this->MaximumNumberOfLines << "\n";
   
 }

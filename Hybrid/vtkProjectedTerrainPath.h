@@ -24,26 +24,27 @@
 // subdivision of the polyline. 3) Hug mode insures that the polyine points
 // remain within a constant distance from the surface. This may also require
 // recursive subdivision of the polyline. Note that both non-occluded mode
-// and hug mode take into account the height offset, so it is possible to
-// create paths that hug terrain a certain distance above it. To use this
+// and hug mode also take into account the height offset, so it is possible 
+// to create paths that hug terrain a certain distance above it. To use this
 // filter, define two inputs: 1) a polyline, and 2) an image whose scalar
 // values represent a height field. Then specify the mode, and the height
 // offset to use.
 //
-// An outline of the algorithm is as follows. The filter begins by projecting
-// the polyline points to the image (offset by the specified height offset).
-// If the mode is non-occluded or hug, then the maximum error along each line
-// segment is computed and placed into a priority queue. Each line segment is
-// then split at the point of maximum error, and the two new line segments
-// are evaluated for maximum error. This process continues until the line is
-// not occluded by the terrain (non-occluded mode) or satisfies the error on
-// variation from the surface (hug mode). (Note this process is repeated for
-// each polyline in the input. Also, the maximum error is computed in two
-// parts: a maximum positive error and maximum negative error. If the
-// polyline is above the terrain--i.e., the height offset is positive--in
-// non-occluded or hug mode all negative errors are eliminated. If the
-// polyline is below the terrain--i.e., the height offset is negative--in
-// non-occluded or hug mode all positive errors are eliminated.)
+// An description of the algorithm is as follows. The filter begins by
+// projecting the polyline points to the image (offset by the specified
+// height offset).  If the mode is non-occluded or hug, then the maximum
+// error along each line segment is computed and placed into a priority
+// queue. Each line segment is then split at the point of maximum error, and
+// the two new line segments are evaluated for maximum error. This process
+// continues until the line is not occluded by the terrain (non-occluded
+// mode) or satisfies the error on variation from the surface (hug
+// mode). (Note this process is repeated for each polyline in the
+// input. Also, the maximum error is computed in two parts: a maximum
+// positive error and maximum negative error. If the polyline is above the
+// terrain--i.e., the height offset is positive--in non-occluded or hug mode
+// all negative errors are eliminated. If the polyline is below the
+// terrain--i.e., the height offset is negative--in non-occluded or hug mode
+// all positive errors are eliminated.)
 // 
 // .SECTION Caveats
 // This algorithm requires the entire input image to be in memory, hence it 
@@ -122,14 +123,11 @@ public:
   vtkGetMacro(HeightTolerance,double);
 
   // Description:
-  // This instance variable can be used to limit the total amount of 
-  // line segments created during subdivision. A value of two will
-  // limit the total number of line segments in the polyline to
-  // two times the original number. Note that this does not mean that
-  // each line segment will be subdivided the number of times indicated
-  // since the polylines are subdivided based on maximum error.
-  vtkSetClampMacro(SubdivisionFactor,double,1.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(SubdivisionFactor,double);
+  // This instance variable can be used to limit the total number of line
+  // segments created during subdivision. Note that the number of input line
+  // segments will be the minimum number that cab be output.
+  vtkSetClampMacro(MaximumNumberOfLines,vtkIdType,1,VTK_LONG_MAX);
+  vtkGetMacro(MaximumNumberOfLines,vtkIdType);
 
 protected:
   vtkProjectedTerrainPath();
@@ -148,10 +146,10 @@ protected:
   void SplitEdge(vtkIdType eId, double t);
 
   //ivars that the API addresses
-  int    ProjectionMode;
-  double HeightOffset;
-  double HeightTolerance;
-  int    SubdivisionFactor;
+  int       ProjectionMode;
+  double    HeightOffset;
+  double    HeightTolerance;
+  vtkIdType MaximumNumberOfLines;
 
   //Bookeeping arrays
   int          Dimensions[3];
@@ -160,6 +158,7 @@ protected:
   double       Spacing[3];
   vtkDataArray *Heights;
   vtkPoints    *Points;
+  vtkIdType    NumLines;
 
   //Errors above/below terrain. In both instances, negative values are 
   //inserted because the priority queue puts smallest values on top.

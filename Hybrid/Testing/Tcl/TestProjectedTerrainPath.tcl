@@ -66,9 +66,9 @@ vtkProjectedTerrainPath projectedPaths
   projectedPaths SetInput terrainPaths
   projectedPaths SetSource [demReader GetOutput]
   projectedPaths SetHeightOffset 25
-  projectedPaths SetHeightTolerance 10
+  projectedPaths SetHeightTolerance 5
   projectedPaths SetProjectionModeToNonOccluded
-#  projectedPaths SetProjectionModeToHug
+  projectedPaths SetProjectionModeToHug
 
 vtkPolyDataMapper pathMapper
   pathMapper SetInput [projectedPaths GetOutput]
