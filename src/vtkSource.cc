@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkSource::vtkSource()
 {
+  this->Output = NULL;
   this->StartMethod = NULL;
   this->StartMethodArgDelete = NULL;
   this->StartMethodArg = NULL;

@@ -44,12 +44,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object.
 vtkCastToConcrete::vtkCastToConcrete()
 {
-  this->PolyData.SetSource(this);
-  this->StructuredPoints.SetSource(this);
-  this->StructuredGrid.SetSource(this);
-  this->UnstructuredGrid.SetSource(this);
+  this->PolyData = new vtkPolyData;
+  this->PolyData->SetSource(this);
+  this->StructuredPoints = new vtkStructuredPoints;
+  this->StructuredPoints->SetSource(this);
+  this->StructuredGrid = new vtkStructuredGrid;
+  this->StructuredGrid->SetSource(this);
+  this->UnstructuredGrid = new vtkUnstructuredGrid;
+  this->UnstructuredGrid->SetSource(this);
 }
 
+vtkCastToConcrete::~vtkCastToConcrete()
+{
+  this->PolyData->Delete();
+  this->StructuredPoints->Delete();
+  this->StructuredGrid->Delete();
+  this->UnstructuredGrid->Delete();
+  this->Output = NULL;
+}
 
 // Description:
 // Special method just passes Update through pipeline.
@@ -85,26 +97,26 @@ void vtkCastToConcrete::Execute()
 
   if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
     {
-    this->PolyData.CopyStructure(this->Input);
-    this->PolyData.GetPointData()->PassData(this->Input->GetPointData());
+    this->PolyData->CopyStructure(this->Input);
+    this->PolyData->GetPointData()->PassData(this->Input->GetPointData());
     }
 
   else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
     {
-    this->StructuredPoints.CopyStructure(this->Input);
-    this->StructuredPoints.GetPointData()->PassData(this->Input->GetPointData());
+    this->StructuredPoints->CopyStructure(this->Input);
+    this->StructuredPoints->GetPointData()->PassData(this->Input->GetPointData());
     }
 
   else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
     {
-    this->StructuredGrid.CopyStructure(this->Input);
-    this->StructuredGrid.GetPointData()->PassData(this->Input->GetPointData());
+    this->StructuredGrid->CopyStructure(this->Input);
+    this->StructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
     }
 
   else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
     {
-    this->UnstructuredGrid.CopyStructure(this->Input);
-    this->UnstructuredGrid.GetPointData()->PassData(this->Input->GetPointData());
+    this->UnstructuredGrid->CopyStructure(this->Input);
+    this->UnstructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
     }
 
   else
@@ -143,7 +155,7 @@ vtkPolyData *vtkCastToConcrete::GetPolyDataOutput()
       }
     }
 
-  return &(this->PolyData);
+  return this->PolyData;
 }
 
 // Description:
@@ -164,7 +176,7 @@ vtkStructuredPoints *vtkCastToConcrete::GetStructuredPointsOutput()
       }
     }
 
-  return &(this->StructuredPoints);
+  return this->StructuredPoints;
 }
 
 // Description:
@@ -185,7 +197,7 @@ vtkStructuredGrid *vtkCastToConcrete::GetStructuredGridOutput()
       }
     }
 
-  return &(this->StructuredGrid);
+  return this->StructuredGrid;
 }
 
 // Description:
@@ -206,6 +218,6 @@ vtkUnstructuredGrid *vtkCastToConcrete::GetUnstructuredGridOutput()
       }
     }
 
-  return &(this->UnstructuredGrid);
+  return this->UnstructuredGrid;
 }
 

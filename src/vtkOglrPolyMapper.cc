@@ -60,10 +60,6 @@ vtkOglrPolyMapper::vtkOglrPolyMapper()
   this->Colors = NULL; 
 }
 
-vtkOglrPolyMapper::~vtkOglrPolyMapper()
-{
-}
-
 // Description:
 // Get the lmcolor property, this is a pretty important little 
 // function.  It determines how vertex colors will be handled  
