@@ -104,7 +104,7 @@ vtk: 	tkAppInit.o ${COMMON_DEPENDS} ${USE_GRAPHICS_DEPENDS} \
 	${USE_IMAGING_DEPENDS} ${USE_BORESCOPE_DEPENDS} ${USE_VOLUME_DEPENDS}
 	$(CXX) -o vtk tkAppInit.o \
 	-L. ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 
 #------------------------------------------------------------------------------
