@@ -62,7 +62,7 @@ public:
   // Return the dimension of parametric space. Depending on the dimension,
   // then the (u,v,w) parameters and associated information (e.g., derivates)
   // have meaning. For example, if the dimension of the function is one, then
-  // u[0] and Du[0-2] have meaning.
+  // u[0] and Du[0...2] have meaning.
   virtual int GetDimension() = 0;
 
   // Description:
