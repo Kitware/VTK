@@ -55,10 +55,10 @@ IF(PYTHON_EXECUTABLE)
 ENDIF(PYTHON_EXECUTABLE)
 
 IF(UNIX)
-  IF("x${CMAKE_INSTALL_PREFIX}" MATCHES "^x${VTK_BINARY_DIR}/TestInstall$")
+  IF("x${CMAKE_INSTALL_PREFIX}" MATCHES "^x${VTK_BINARY_DIR}/InstallTest$")
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Common/Testing/Install/test.sh.in
                    ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh @ONLY
                    IMMEDIATE)
     ADD_TEST(Install /bin/sh ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh)
-  ENDIF("x${CMAKE_INSTALL_PREFIX}" MATCHES "^x${VTK_BINARY_DIR}/TestInstall$")
+  ENDIF("x${CMAKE_INSTALL_PREFIX}" MATCHES "^x${VTK_BINARY_DIR}/InstallTest$")
 ENDIF(UNIX)
