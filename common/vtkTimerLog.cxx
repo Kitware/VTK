@@ -51,13 +51,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #ifndef _WIN32
 #include <limits.h>     // for CLK_TCK
+#include <sys/time.h>
+#include <unistd.h>
 #else
 #include <winsock.h>    // for Sleep?
 #endif
 
-#include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <time.h>
 
 // initialze the class variables
