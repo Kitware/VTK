@@ -148,26 +148,20 @@ class wxVTKRenderWindowInteractor(baseClass):
         baseClass.__init__(self, parent, ID, position, size, style)
 
         # create the RenderWindow and initialize it
-        self._RenderWindow = vtk.vtkRenderWindow()
-        try:
-            self._RenderWindow.SetSize(size.width, size.height)
-        except AttributeError:
-            self._RenderWindow.SetSize(size[0], size[1])
-        if stereo:
-            self._RenderWindow.StereoCapableWindowOn()
-            self._RenderWindow.SetStereoTypeToCrystalEyes()
-
-        self.__handle = None
-        # Tell the RenderWindow to render inside the wxWindow.
-        if self.GetHandle():
-            self.__handle = self.GetHandle()            
-            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
-
         self._Iren = vtk.vtkGenericRenderWindowInteractor()
-        self._Iren.SetRenderWindow(self._RenderWindow)
+        self._Iren.SetRenderWindow( vtk.vtkRenderWindow() )
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
 
+        try:
+            self._Iren.GetRenderWindow().SetSize(size.width, size.height)
+        except AttributeError:
+            self._Iren.GetRenderWindow().SetSize(size[0], size[1])
+        if stereo:
+            self._Iren.GetRenderWindow().StereoCapableWindowOn()
+            self._Iren.GetRenderWindow().SetStereoTypeToCrystalEyes()
+
+        self.__handle = None
         self._ActiveButton = 0
 
         self.BindEvents()
@@ -197,7 +191,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         EVT_KEY_UP(self, self.OnKeyUp)
         
         EVT_SIZE(self, self.OnSize)
-        
+
     def __getattr__(self, attr):        
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor"""
@@ -219,6 +213,10 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def OnPaint(self,event):
         dc = wxPaintDC(self)
+        # Tell the RenderWindow to render inside the wxWindow.
+        if not self.__handle:
+            self.__handle = self.GetHandle()
+            self._Iren.GetRenderWindow().SetWindowInfo(str(self.__handle))
         self.Render()
 
     def OnSize(self,event):
@@ -315,7 +313,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.KeyReleaseEvent()
 
     def GetRenderWindow(self):
-        return self._RenderWindow
+        return self._Iren.GetRenderWindow()
 
     def Render(self):
         RenderAllowed = 1
@@ -331,16 +329,16 @@ class wxVTKRenderWindowInteractor(baseClass):
             
         if RenderAllowed:
             if self.__handle and self.__handle == self.GetHandle():
-                self._RenderWindow.Render()
+                self._Iren.GetRenderWindow().Render()
 
             elif self.GetHandle():
                 # this means the user has reparented us; let's adapt to the
                 # new situation by doing the WindowRemap dance
-                self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
-                self._RenderWindow.WindowRemap()
+                self._Iren.GetRenderWindow().SetNextWindowInfo(str(self.GetHandle()))
+                self._Iren.GetRenderWindow().WindowRemap()
                 # store the new situation
                 self.__handle = self.GetHandle()
-                self._RenderWindow.Render()
+                self._Iren.GetRenderWindow().Render()
 
     def SetRenderWhenDisabled(self, newValue):
         """Change value of __RenderWhenDisabled ivar.
