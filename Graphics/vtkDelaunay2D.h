@@ -127,7 +127,7 @@ class vtkCellArray;
 class vtkIdList;
 class vtkPointSet;
 
-#define VTK_XY_PLANE 0
+#define VTK_DELAUNAY_XY_PLANE 0
 #define VTK_SET_TRANSFORM_PLANE 1
 #define VTK_BEST_FITTING_PLANE 2
 
@@ -196,7 +196,7 @@ public:
   // Description:
   // Define
   vtkSetClampMacro(ProjectionPlaneMode,int,
-                   VTK_XY_PLANE,VTK_BEST_FITTING_PLANE);
+                   VTK_DELAUNAY_XY_PLANE,VTK_BEST_FITTING_PLANE);
   vtkGetMacro(ProjectionPlaneMode,int);
 
 protected:

@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.67");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.68");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -42,7 +42,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
   this->Transform = NULL;
-  this->ProjectionPlaneMode = VTK_XY_PLANE;
+  this->ProjectionPlaneMode = VTK_DELAUNAY_XY_PLANE;
 
   // optional 2nd input
   this->SetNumberOfInputPorts(2);
