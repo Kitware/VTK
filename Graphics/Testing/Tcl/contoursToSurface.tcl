@@ -108,7 +108,7 @@ vtkActor contourActor
     [contourActor GetProperty] SetRepresentationToWireframe
 
 
-ren1 AddProp contourActor
+ren1 AddViewProp contourActor
 
 [ren1 GetActiveCamera] Azimuth   10
 [ren1 GetActiveCamera] Elevation 30
@@ -139,7 +139,7 @@ m ImmediateModeRenderingOn
 vtkActor a
 a SetMapper m
 
-ren1 AddProp a
+ren1 AddViewProp a
 contourActor VisibilityOff
 
 ren1 SetBackground .1 .2 .4
