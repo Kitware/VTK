@@ -69,6 +69,10 @@ vtkRIBProperty::~vtkRIBProperty()
     {
     this->Property->Delete ();
     }
+  if (this->Parameters)
+    {
+    delete [] this->Parameters;
+    }
 }
 
 void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
@@ -121,6 +125,7 @@ void vtkRIBProperty::AddVariable (char *variable, char *value)
     strcpy (this->Declarations, oldDeclarations);
     strcat (this->Declarations, newVariable);
     delete [] oldDeclarations;
+    delete [] newVariable;
     this->Modified ();
     }
 }
@@ -160,6 +165,7 @@ void vtkRIBProperty::AddParameter (char *Parameter, char *value)
     strcpy (this->Parameters, oldParameters);
     strcat (this->Parameters, newParameter);
     delete [] oldParameters;
+    delete [] newParameter;
     this->Modified ();
     }
 }
