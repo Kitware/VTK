@@ -54,7 +54,7 @@ vtkScalars::vtkScalars(int dataType, int dim) : vtkAttributeData(dataType)
   
   this->CurrentAlpha = 1.0;
   this->CurrentLookupTable = NULL;
-  this->CurrentColorFunction = NULL;
+  this->CurrentColorFunction = &vtkScalars::MapThroughLookupTable;
 }
 
 vtkScalars::~vtkScalars()
