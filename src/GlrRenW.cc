@@ -611,15 +611,6 @@ Colormap vlGlrRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-// Description:
-// Create named interactor type
-vlRenderWindowInteractor *vlGlrRenderWindow::MakeRenderWindowInteractor()
-{
-  this->Interactor = (vlRenderWindowInteractor *)new vlXRenderWindowInteractor;
-  this->Interactor->SetRenderWindow((vlRenderWindow *)this);
-  return this->Interactor;
-}
-
 void vlGlrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlXRenderWindow::PrintSelf(os,indent);

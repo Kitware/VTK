@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include <iostream.h>
 #include "XRenWin.hh"
+#include "XInter.hh"
 
 vlXRenderWindow::vlXRenderWindow()
 {
@@ -122,6 +123,14 @@ void vlXRenderWindow::SetDisplayId(Display  *arg)
   this->DisplayId = arg;
 }
 
+// Description:
+// Create named interactor type
+vlRenderWindowInteractor *vlXRenderWindow::MakeRenderWindowInteractor()
+{
+  this->Interactor = (vlRenderWindowInteractor *)new vlXRenderWindowInteractor;
+  this->Interactor->SetRenderWindow((vlRenderWindow *)this);
+  return this->Interactor;
+}
 
 void vlXRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {

@@ -913,17 +913,6 @@ void vlSbrRenderWindow::SetSize(int x,int y)
   XSync(this->DisplayId,False);
 }
 
-// Description:
-// Create named interactor type
-vlRenderWindowInteractor *vlSbrRenderWindow::MakeRenderWindowInteractor()
-{
-  this->Interactor = (vlRenderWindowInteractor *)new vlXRenderWindowInteractor;
-  this->Interactor->SetRenderWindow((vlRenderWindow *)this);
-  return this->Interactor;
-}
-
-
-
 void vlSbrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlXRenderWindow::PrintSelf(os,indent);

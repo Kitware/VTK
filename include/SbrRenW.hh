@@ -27,7 +27,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include "XRenWin.hh"
-#include "XInter.hh"
 
 class vlSbrRenderWindow : public vlXRenderWindow
 {
@@ -41,7 +40,6 @@ public:
   vlLight     *MakeLight();
   vlCamera    *MakeCamera();
   vlProperty  *MakeProperty();
-  vlRenderWindowInteractor *MakeRenderWindowInteractor();
 
   void Start(void);
   void Frame(void);

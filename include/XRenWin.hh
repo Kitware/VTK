@@ -13,11 +13,10 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlSbrRenderWindow - HP starbase rendering window
+// .NAME vlXRenderWindow - rendering window for X Window system
 // .SECTION Description
-// vlSbrRenderWindow is a concrete implementation of the abstract class
-// vlRenderWindow. vlSbrRenderer interfaces to the Hewlett-Packard starbase
-// graphics library.
+// vlXRenderWindow is a concrete implementation of the abstract class
+// vlRenderWindow. vlXRenderer interfaces to the X Window system.
 
 #ifndef __vlXRenderWindow_hh
 #define __vlXRenderWindow_hh
@@ -35,6 +34,9 @@ public:
   char *GetClassName() {return "vlXRenderWindow";};
   void PrintSelf(ostream& os, vlIndent indent);
   
+  // supply base class virtual function
+  vlRenderWindowInteractor *MakeRenderWindowInteractor();
+
   // Xwindow get set functions
   int     *GetSize();
   int     *GetScreenSize();
