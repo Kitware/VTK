@@ -145,6 +145,11 @@ class_def : CLASS VTK_ID
       /* handle any special classes */
       handle_special();
       
+      /* add the ListInstances method */
+      fprintf(yyout,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n    {\n");
+      fprintf(yyout,"    vtkTclListInstances(interp,%sCommand);\n",class_name);
+      fprintf(yyout,"    return TCL_OK;\n    }\n");
+
       /* add the ListMethods method */
       fprintf(yyout,"\n  if (!strcmp(\"ListMethods\",argv[1]))\n    {\n");
       /* recurse up the tree */

@@ -27,6 +27,7 @@ void stuffit()
     fprintf(stdout,"extern Tcl_HashTable vtkPointerLookup;\n");
     fprintf(stdout,"extern Tcl_HashTable vtkCommandLookup;\n");
     }
+  fprintf(stdout,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
   
   fprintf(stdout,"\n\nextern \"C\" {int %s_SafeInit(Tcl_Interp *interp);}\n\n",
 	  kitName);
@@ -40,7 +41,6 @@ void stuffit()
   fprintf(stdout,"int vtk%sNewInstanceCommand(ClientData cd, Tcl_Interp *interp,\n                         int argc, char *argv[])\n{\n",kitName);
   fprintf(stdout,"  Tcl_HashEntry *entry;\n  int is_new;\n  char temps[80];\n");
   fprintf(stdout,"  cd = 0; /* just prevents compiler warnings */\n");
-  fprintf(stdout,"\n  if (argc != 2)\n    {\n    interp->result = \"vtk object creation requires one argument, a name.\";\n    return TCL_ERROR;\n    }\n\n");
 
   fprintf(stdout,"\n  if (argc != 2)\n    {\n    interp->result = \"vtk object creation requires one argument, a name.\";\n    return TCL_ERROR;\n    }\n\n");
   fprintf(stdout,"  if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))\n    {\n    interp->result = \"vtk object names must start with a letter.\";\n    return TCL_ERROR;\n    }\n\n");
@@ -49,7 +49,12 @@ void stuffit()
   for (i = 0; i < anindex; i++)
     {
     fprintf(stdout,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
-    fprintf(stdout,"    ClientData temp = %sNewCommand();\n",names[i]);
+    fprintf(stdout,"    ClientData temp;\n");
+    fprintf(stdout,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
+    fprintf(stdout,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
+    fprintf(stdout,"      return TCL_OK;\n      }\n");
+
+    fprintf(stdout,"    temp = %sNewCommand();\n",names[i]);
     fprintf(stdout,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
     fprintf(stdout,"    sprintf(temps,\"%%p\",(void *)temp);\n");
     fprintf(stdout,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
