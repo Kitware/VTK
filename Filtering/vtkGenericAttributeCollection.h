@@ -23,6 +23,7 @@
 #include "vtkObject.h"
 
 class vtkGenericAttributeInternalVector;
+class vtkIntInternalVector;
 class vtkGenericAttribute;
 
 class VTK_FILTERING_EXPORT vtkGenericAttributeCollection : public vtkObject
@@ -48,6 +49,12 @@ public:
   // found in all attributes.
   // \post positive_result: result>=0
   int GetNumberOfComponents();
+  
+  // Description:
+  // Return the number of components. This is the sum of all components
+  // found in all point centered attributes.
+  // \post positive_result: result>=0
+  int GetNumberOfPointCenteredComponents();
   
   // Description:
   // Maximum number of components encountered among all attributes.
@@ -79,6 +86,13 @@ public:
   // \pre name_exists: name!=0
   // \post valid_result: (result==-1) || (result>=0) && (result<=GetNumberOfAttributes())
   int FindAttribute(const char *name);
+  
+  // Description:
+  // Return the index of the first component of attribute `i' in an array of
+  // format attrib0comp0 attrib0comp1 ... attrib4comp0 ...
+  // \pre valid_i: i>=0 && i<GetNumberOfAttributes()
+  // \pre is_point_centered: GetAttribute(i)->GetCentering()==vtkPointCentered
+  int GetAttributeIndex(int i);
   
   // Description:
   // Add the attribute `a' to the end of the collection.
@@ -199,13 +213,18 @@ protected:
   // Description:
   // STL vector for storing attributes
   vtkGenericAttributeInternalVector* AttributeInternalVector;
-
+  // Description:
+  // STL vector for storing index of point centered attributes
+  vtkIntInternalVector *AttributeIndices;
+  
+  
   int ActiveAttribute;
   int ActiveComponent;
   int NumberOfAttributesToInterpolate;
   int AttributesToInterpolate[10];
   
   int NumberOfComponents; // cache
+  int NumberOfPointCenteredComponents; // cache
   int MaxNumberOfComponents; // cache
   unsigned long ActualMemorySize; // cache
   vtkTimeStamp ComputeTime; // cache time stamp

@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.3");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.4");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -32,16 +32,25 @@ public:
   VectorType Vector;
 };
 
+class vtkIntInternalVector
+{
+public:
+  typedef vtkstd::vector<int> VectorType;
+  VectorType Vector;
+};
+
 //----------------------------------------------------------------------------
 // Description:
 // Default constructor: empty collection
 vtkGenericAttributeCollection::vtkGenericAttributeCollection()
 {
   this->AttributeInternalVector = new vtkGenericAttributeInternalVector;
+  this->AttributeIndices = new vtkIntInternalVector;
   this->ActiveAttribute = 0;
   this->ActiveComponent = 0;
   this->NumberOfAttributesToInterpolate = 0;
   this->NumberOfComponents = 0;
+  this->NumberOfPointCenteredComponents = 0;
   this->MaxNumberOfComponents = 0; // cache
   this->ActualMemorySize = 0;
 }
@@ -49,11 +58,12 @@ vtkGenericAttributeCollection::vtkGenericAttributeCollection()
 //----------------------------------------------------------------------------
 vtkGenericAttributeCollection::~vtkGenericAttributeCollection()
 {
-  for(unsigned int i = 0; i < this->AttributeInternalVector->Vector.size(); ++i)
+  for(unsigned int i=0; i < this->AttributeInternalVector->Vector.size(); ++i)
     {
     this->AttributeInternalVector->Vector[i]->Delete();
     }
   delete this->AttributeInternalVector;
+  delete this->AttributeIndices;
 }
 
 //----------------------------------------------------------------------------
@@ -103,6 +113,18 @@ int vtkGenericAttributeCollection::GetNumberOfComponents()
   this->ComputeNumbers();
 
   return this->NumberOfComponents;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return the number of components. This is the sum of all components
+// found in all point centered attributes.
+// \post positive_result: result>=0
+int vtkGenericAttributeCollection::GetNumberOfPointCenteredComponents()
+{
+  this->ComputeNumbers();
+
+  return this->NumberOfPointCenteredComponents;
 }
 
 //----------------------------------------------------------------------------
@@ -182,6 +204,19 @@ int vtkGenericAttributeCollection::FindAttribute(const char *name)
  
   return result;
 }
+//----------------------------------------------------------------------------
+// Description:
+// Return the index of the first component of attribute `i' in an array of
+// format attrib0comp0 attrib0comp1 ... attrib4comp0 ...
+// \pre valid_i: i>=0 && i<GetNumberOfAttributes()
+// \pre is_point_centered: GetAttribute(i)->GetCentering()==vtkPointCentered
+int vtkGenericAttributeCollection::GetAttributeIndex(int i)
+{
+  assert("pre: valid_i" && i>=0 && i<this->GetNumberOfAttributes());
+  assert("pre: is_point_centered" && this->GetAttribute(i)->GetCentering()==vtkPointCentered);
+  this->ComputeNumbers();
+  return this->AttributeIndices->Vector[i];
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -194,6 +229,7 @@ void vtkGenericAttributeCollection::InsertNextAttribute(vtkGenericAttribute *a)
 #endif
 
   this->AttributeInternalVector->Vector.push_back(a);
+  this->AttributeIndices->Vector.push_back(0); // a dummy default value
   this->Modified();
   
   assert("post: more_items" && this->GetNumberOfAttributes()==oldnumber+1);
@@ -234,6 +270,10 @@ void vtkGenericAttributeCollection::RemoveAttribute(int i)
   
   this->AttributeInternalVector->Vector.erase(
     this->AttributeInternalVector->Vector.begin()+i);
+  
+  this->AttributeIndices->Vector.erase(
+    this->AttributeIndices->Vector.begin()+i);
+  
   this->Modified();
   
   assert("post: fewer_items" && this->GetNumberOfAttributes()==(oldnumber-1));
@@ -249,6 +289,7 @@ void vtkGenericAttributeCollection::Reset()
     this->AttributeInternalVector->Vector[i]->Delete();
     }
   this->AttributeInternalVector->Vector.clear();
+  this->AttributeIndices->Vector.clear();
   this->Modified();
   
   assert("post: is_empty" && this->IsEmpty());
@@ -265,6 +306,9 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
   this->AttributeInternalVector->Vector.resize(
     other->AttributeInternalVector->Vector.size());
   
+  this->AttributeIndices->Vector.resize(
+    other->AttributeIndices->Vector.size());
+  
   int c = this->AttributeInternalVector->Vector.size();
   for(int i=0; i<c; i++)
     {
@@ -275,6 +319,8 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
       }
     this->AttributeInternalVector->Vector[i]->DeepCopy(
       other->AttributeInternalVector->Vector[i]);
+    // Dont need to copy the contents of AttributeIndices: it will be
+    // recomputed because of the following Moditied call.
     }
   this->Modified();
   
@@ -291,6 +337,7 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
   
   this->AttributeInternalVector->Vector = 
     other->AttributeInternalVector->Vector;
+  this->AttributeIndices->Vector = other->AttributeIndices->Vector;
   this->Modified();
   
   assert("post: same_size" && this->GetNumberOfAttributes()==other->GetNumberOfAttributes());
@@ -324,9 +371,12 @@ void vtkGenericAttributeCollection::ComputeNumbers()
   if ( this->GetMTime() > this->ComputeTime )
     {
     int nb = 0;
+    int pnb = 0;
     int count = 0;
     int maxNb = 0;
     unsigned long memory=0;
+    int firstComponentIndex=0;
+    
     
     int c = this->GetNumberOfAttributes();
     
@@ -339,13 +389,21 @@ void vtkGenericAttributeCollection::ComputeNumbers()
         maxNb = count;
         }
       nb += count;
+      if(this->GetAttribute(i)->GetCentering()==vtkPointCentered)
+        {
+        pnb += count;
+        this->AttributeIndices->Vector[i]=firstComponentIndex;
+        firstComponentIndex=firstComponentIndex+count;
+        }
       }
     
     this->NumberOfComponents = nb;
+    this->NumberOfPointCenteredComponents = pnb;
     this->MaxNumberOfComponents = maxNb;
     this->ActualMemorySize = memory;
     
     assert("check: positive_number" && this->NumberOfComponents>=0);
+    assert("check: positive_point_centered_number" && this->NumberOfPointCenteredComponents>=0);
     assert("check: positiveMaxNumber" && this->MaxNumberOfComponents>=0);
     assert("check: valid_number" && this->MaxNumberOfComponents<=this->NumberOfComponents);
     this->ComputeTime.Modified();
