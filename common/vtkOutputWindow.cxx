@@ -69,6 +69,7 @@ vtkOutputWindow::vtkOutputWindow()
 
 vtkOutputWindow::~vtkOutputWindow()
 {
+  vtkOutputWindow::Instance = 0;
 }
 
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -89,12 +90,16 @@ void vtkOutputWindow::DisplayText(const char* txt)
   if (this->PromptUser)
     {
     char c = 'n';
-    cerr << "\nDo you want to suppress any further messages (y,n)?." 
+    cerr << "\nDo you want to suppress any further messages (y,n,q)?." 
               << endl;
     cin >> c;
     if (c == 'y')
       {
       vtkObject::GlobalWarningDisplayOff(); 
+      }
+    if(c == 'q')
+      {
+      this->PromptUser = false;
       }
     }
 }
