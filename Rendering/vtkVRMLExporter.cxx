@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.71");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.72");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -269,7 +269,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   tempd = trans->GetOrientationWXYZ();
   fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2], 
-          tempf[3], tempf[0]*3.1415926/180.0);
+          tempd[3], tempd[0]*3.1415926/180.0);
   tempd = trans->GetScale();
   fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"      children [\n");
