@@ -1097,6 +1097,83 @@ void vtkCamera::SetViewPlaneNormal(float a[3])
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
 }
 
+// Description:
+// Return the 6 planes (Ax + By + Cz + D = 0) that bound
+// the view frustum. 
+void vtkCamera::GetFrustumPlanes( float planes[24] )
+{
+  vtkMatrix4x4 m;
+  vtkTransform transform;
+  float        in[4], out[8][4] ;
+  int          i, j, k, index;
+  int          which_points[6][3];
+  float        v1[3], v2[3], A, B, C, D, t;
+
+  m = this->GetCompositePerspectiveTransform(1,0,1);
+  transform.SetMatrix( m );
+  transform.Inverse();
+  transform.GetMatrix( m );
+
+  in[3] = 1.0;
+  index = 0;
+
+  for ( k = 0; k <= 1; k+=1 )
+    for ( j = -1; j <= 1; j+=2 )
+      for ( i = -1; i <= 1; i+=2 )
+	{
+	in[0] = i;
+	in[1] = j;
+	in[2] = k;
+	m.MultiplyPoint( in, out[index] );
+	if ( out[index][3] )
+	  {
+	  out[index][0] /= out[index][3];
+	  out[index][1] /= out[index][3];
+	  out[index][2] /= out[index][3];
+	  }
+	else
+	  {
+	  vtkErrorMacro( << "Invalid camera matrix - can't get frustum bounds!" );
+	  }
+	index++;
+	}
+
+  which_points[0][0] = 0; which_points[0][1] = 4; which_points[0][2] = 6;
+  which_points[1][0] = 1; which_points[1][1] = 3; which_points[1][2] = 7;
+  which_points[2][0] = 0; which_points[2][1] = 1; which_points[2][2] = 5;
+  which_points[3][0] = 2; which_points[3][1] = 6; which_points[3][2] = 7;
+  which_points[4][0] = 3; which_points[4][1] = 1; which_points[4][2] = 0;
+  which_points[5][0] = 4; which_points[5][1] = 5; which_points[5][2] = 7;
+
+  for ( index = 0; index < 6; index++ )
+    {
+    v1[0] = out[which_points[index][2]][0] - out[which_points[index][1]][0];
+    v1[1] = out[which_points[index][2]][1] - out[which_points[index][1]][1];
+    v1[2] = out[which_points[index][2]][2] - out[which_points[index][1]][2];
+
+    v2[0] = out[which_points[index][0]][0] - out[which_points[index][1]][0];
+    v2[1] = out[which_points[index][0]][1] - out[which_points[index][1]][1];
+    v2[2] = out[which_points[index][0]][2] - out[which_points[index][1]][2];
+
+    A = v1[1] * v2[2] - v2[1] * v1[2];
+    B = v1[2] * v2[0] - v2[2] * v1[0];
+    C = v1[0] * v2[1] - v2[0] * v1[1];
+
+    t = sqrt( (double)( A*A + B*B + C*C ) );
+    A /= t;
+    B /= t;
+    C /= t;
+    D = -( A * out[which_points[index][0]][0] +
+	   B * out[which_points[index][0]][1] + 
+	   C * out[which_points[index][0]][2] );
+
+    planes[4*index + 0] = A;
+    planes[4*index + 1] = B;
+    planes[4*index + 2] = C;
+    planes[4*index + 3] = D;
+    }
+}
+
 unsigned long int vtkCamera::GetViewingRaysMTime()
 {
   return this->ViewingRaysMTime.GetMTime();

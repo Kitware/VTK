@@ -159,21 +159,21 @@ class VTK_EXPORT vtkProp : public vtkObject
   virtual void Pick() {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
 
 protected:
-  vtkMatrix4x4 *UserMatrix;
-  vtkMatrix4x4 Matrix;
-  vtkTimeStamp MatrixMTime;
-  float Origin[3];
-  float Position[3];
-  float Orientation[3];
-  float Center[3];
-  int   Visibility;
-  int   Pickable;
-  void (*PickMethod)(void *);
-  void (*PickMethodArgDelete)(void *);
-  void *PickMethodArg;
-  int   Dragable;
-  vtkTransform Transform;
-  float Bounds[6];
+  vtkMatrix4x4  *UserMatrix;
+  vtkMatrix4x4  Matrix;
+  vtkTimeStamp  MatrixMTime;
+  float         Origin[3];
+  float         Position[3];
+  float         Orientation[3];
+  float         Center[3];
+  int           Visibility;
+  int           Pickable;
+  void          (*PickMethod)(void *);
+  void          (*PickMethodArgDelete)(void *);
+  void          *PickMethodArg;
+  int           Dragable;
+  vtkTransform  Transform;
+  float         Bounds[6];
 };
 
 #endif

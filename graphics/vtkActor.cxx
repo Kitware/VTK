@@ -63,6 +63,12 @@ vtkActor::vtkActor()
 
   // an experiment with culling and LOD
   this->AllocatedRenderTime = 10.0;
+
+  // The mapper bounds are cache to know when the bounds must be recomputed
+  // from the mapper bounds.
+  this->MapperBounds[0] = this->MapperBounds[2] = this->MapperBounds[4] = 
+  this->MapperBounds[1] = this->MapperBounds[3] = this->MapperBounds[5] = 0.0;
+
 }
 
 vtkActor::~vtkActor()
@@ -289,7 +295,9 @@ float *vtkActor::GetBounds()
   float *bounds, bbox[24], *fptr;
   float *result;
   vtkMatrix4x4 matrix;
-  
+
+  vtkDebugMacro( << "Getting Bounds" );
+
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
     {
@@ -298,50 +306,66 @@ float *vtkActor::GetBounds()
 
   bounds = this->Mapper->GetBounds();
 
-  // fill out vertices of a bounding box
-  bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
-  bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
-  bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
-  bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
-  bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
-  bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
-  bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
-  bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
-  
-  // save the old transform
-  this->GetMatrix(matrix);
-  this->Transform.Push(); 
-  this->Transform.PostMultiply ();
-  this->Transform.Identity();
-  this->Transform.Concatenate(matrix);
+  // Check if we have cached values for these bounds - we cache the
+  // values returned by this->Mapper->GetBounds() and we store the time
+  // of caching. If the values returned this time are different, or
+  // the modified time of this class is newer than the cached time,
+  // then we need to rebuild.
+  if ( ( memcmp( this->MapperBounds, bounds, 6*sizeof(float) ) != 0 ) ||
+       ( this->GetMTime() > this->BoundsMTime ) )
+    {
+    vtkDebugMacro( << "Recomputing bounds..." );
 
-  // and transform into actors coordinates
-  fptr = bbox;
-  for (n = 0; n < 8; n++) 
-    {
-    this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
+    memcpy( this->MapperBounds, bounds, 6*sizeof(float) );
+
+    // fill out vertices of a bounding box
+    bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
+    bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
+    bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
+    bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
+    bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
+    bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
+    bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
+    bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
-    // now store the result
-    result = this->Transform.GetPoint();
-    fptr[0] = result[0] / result[3];
-    fptr[1] = result[1] / result[3];
-    fptr[2] = result[2] / result[3];
-    fptr += 3;
-    }
-  
-  this->Transform.PreMultiply ();
-  this->Transform.Pop();  
-  
-  // now calc the new bounds
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
-  for (i = 0; i < 8; i++)
-    {
-    for (n = 0; n < 3; n++)
+    // save the old transform
+    this->GetMatrix(matrix);
+    this->Transform.Push(); 
+    this->Transform.PostMultiply();
+    this->Transform.Identity();
+    this->Transform.Concatenate(matrix);
+
+    // and transform into actors coordinates
+    fptr = bbox;
+    for (n = 0; n < 8; n++) 
       {
-      if (bbox[i*3+n] < this->Bounds[n*2]) this->Bounds[n*2] = bbox[i*3+n];
-      if (bbox[i*3+n] > this->Bounds[n*2+1]) this->Bounds[n*2+1] = bbox[i*3+n];
+      this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
+  
+      // now store the result
+      result = this->Transform.GetPoint();
+      fptr[0] = result[0] / result[3];
+      fptr[1] = result[1] / result[3];
+      fptr[2] = result[2] / result[3];
+      fptr += 3;
       }
+  
+    this->Transform.PreMultiply();
+    this->Transform.Pop();  
+  
+    // now calc the new bounds
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    for (i = 0; i < 8; i++)
+      {
+      for (n = 0; n < 3; n++)
+	{
+	if (bbox[i*3+n] < this->Bounds[n*2]) 
+	  this->Bounds[n*2] = bbox[i*3+n];
+	if (bbox[i*3+n] > this->Bounds[n*2+1]) 
+	  this->Bounds[n*2+1] = bbox[i*3+n];
+	}
+      }
+    this->BoundsMTime.Modified();
     }
 
   return this->Bounds;

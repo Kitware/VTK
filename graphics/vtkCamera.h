@@ -193,6 +193,11 @@ class VTK_EXPORT vtkCamera : public vtkReferenceCount
   unsigned long int GetViewingRaysMTime();
   void              ViewingRaysModified();
 
+  // Description:
+  // Get the plane equations that bound the view frustum.
+  // The plane normals point inward.
+  void GetFrustumPlanes( float planes[24] );
+
  protected:
   float WindowCenter[2];
   float FocalPoint[3];
