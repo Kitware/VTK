@@ -31,9 +31,9 @@
  */
 #include "tiffiop.h"
 
-#ifndef TIFFSwabShort
+#ifndef vtk_TIFFSwabShort
 void
-TIFFSwabShort(uint16* wp)
+vtk_TIFFSwabShort(uint16* wp)
 {
         register u_char* cp = (u_char*) wp;
         int t;
@@ -42,9 +42,9 @@ TIFFSwabShort(uint16* wp)
 }
 #endif
 
-#ifndef TIFFSwabLong
+#ifndef vtk_TIFFSwabLong
 void
-TIFFSwabLong(uint32* lp)
+vtk_TIFFSwabLong(uint32* lp)
 {
         register u_char* cp = (u_char*) lp;
         int t;
@@ -54,9 +54,9 @@ TIFFSwabLong(uint32* lp)
 }
 #endif
 
-#ifndef TIFFSwabArrayOfShort
+#ifndef vtk_TIFFSwabArrayOfShort
 void
-TIFFSwabArrayOfShort(uint16* wp, register u_long n)
+vtk_TIFFSwabArrayOfShort(uint16* wp, register u_long n)
 {
         register u_char* cp;
         register int t;
@@ -70,9 +70,9 @@ TIFFSwabArrayOfShort(uint16* wp, register u_long n)
 }
 #endif
 
-#ifndef TIFFSwabArrayOfLong
+#ifndef vtk_TIFFSwabArrayOfLong
 void
-TIFFSwabArrayOfLong(register uint32* lp, register u_long n)
+vtk_TIFFSwabArrayOfLong(register uint32* lp, register u_long n)
 {
         register unsigned char *cp;
         register int t;
@@ -87,9 +87,9 @@ TIFFSwabArrayOfLong(register uint32* lp, register u_long n)
 }
 #endif
 
-#ifndef TIFFSwabDouble
+#ifndef vtk_TIFFSwabDouble
 void
-TIFFSwabDouble(double *dp)
+vtk_TIFFSwabDouble(double *dp)
 {
         register uint32* lp = (uint32*) dp;
         uint32 t;
@@ -99,9 +99,9 @@ TIFFSwabDouble(double *dp)
 }
 #endif
 
-#ifndef TIFFSwabArrayOfDouble
+#ifndef vtk_TIFFSwabArrayOfDouble
 void
-TIFFSwabArrayOfDouble(double* dp, register u_long n)
+vtk_TIFFSwabArrayOfDouble(double* dp, register u_long n)
 {
         register uint32* lp = (uint32*) dp;
         register uint32 t;
