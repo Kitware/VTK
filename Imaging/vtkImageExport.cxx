@@ -385,27 +385,27 @@ const char* vtkImageExport::ScalarTypeCallback()
   switch (this->GetInput()->GetScalarType())
     {
     case VTK_DOUBLE:
-      { return "double"; } break;
+      { return "double"; }
     case VTK_FLOAT:
-      { return "float"; } break;
+      { return "float"; }
     case VTK_LONG:
-      { return "long"; } break;
+      { return "long"; }
     case VTK_UNSIGNED_LONG:
-      { return "unsigned long"; } break;
+      { return "unsigned long"; }
     case VTK_INT:
-      { return "int"; } break;
+      { return "int"; }
     case VTK_UNSIGNED_INT:
-      { return "unsigned int"; } break;
+      { return "unsigned int"; }
     case VTK_SHORT:
-      { return "short"; } break;
+      { return "short"; }
     case VTK_UNSIGNED_SHORT:
-      { return "unsigned short"; } break;
+      { return "unsigned short"; }
     case VTK_CHAR:
-      { return "char"; } break;
+      { return "char"; }
     case VTK_UNSIGNED_CHAR:
-      { return "unsigned char"; } break;
+      { return "unsigned char"; }
     default:
-      { return "<unsupported>"; } break;
+      { return "<unsupported>"; }
     }
 }
   
