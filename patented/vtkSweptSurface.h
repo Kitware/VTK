@@ -173,6 +173,9 @@ protected:
   void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);
   void Cap(vtkScalars *s);
+  void GetRelativePosition(vtkTransform &t, float *origin, float *position);
+  virtual void InterpolateStates(float *pos1, float *pos2, float *euler1, 
+		float *euler2, float t, float *posOut, float *eulerOut);
 
   int SampleDimensions[3];
   float FillValue;
@@ -190,8 +193,6 @@ private:
   vtkIdList *IdList;
   vtkScalars *VoxelScalars;
   vtkTransform *T;
-
-  void GetRelativePosition(vtkTransform &t, float *origin, float *position);
 };
 
 #endif
