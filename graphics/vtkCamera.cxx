@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimeStamp.h"
 #include "vtkGraphicsFactory.h"
 
+//----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 
 // and position=(0,0,1). The view up is along the y-axis, 
 // view angle is 30 degrees, and the clipping range is (.1,1000).
@@ -71,39 +72,35 @@ vtkCamera::vtkCamera()
 
   this->ParallelProjection = 0;
   this->ParallelScale = 1.0;
-  this->LeftEye = 1;
+ 
   this->EyeAngle = 2.0;
+  this->Stereo = 0;
+  this->LeftEye = 1;
 
   this->Thickness = 1000.0;
   this->Distance = 1.0;
 
-  this->ViewPlaneNormal[0] = 0.0;
-  this->ViewPlaneNormal[1] = 0.0;
-  this->ViewPlaneNormal[2] = 1.0;
-
-  this->Orientation[0] = 0.0;
-  this->Orientation[1] = 0.0;
-  this->Orientation[2] = 0.0;
-  
   this->WindowCenter[0] = 0.0;
   this->WindowCenter[1] = 0.0;
   
-  this->FocalDisk = 1.0;
-  this->Stereo = 0;
-  this->VPNDotDOP = 0.0;
+  this->ObliqueAngles[0] = 90.0;
+  this->ObliqueAngles[1] = 45.0;
 
-  this->Transform = vtkTransform::New();
+  this->FocalDisk = 1.0;
+
+  this->Transform = vtkProjectionTransform::New();
+  this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkProjectionTransform::New();
 }
 
-
+//----------------------------------------------------------------------------
 vtkCamera::~vtkCamera()
 {
   this->Transform->Delete();
-  this->PerspectiveTransform->Delete();
+  this->ViewTransform->Delete();
 }
 
-
+//----------------------------------------------------------------------------
 // return the correct type of Camera 
 vtkCamera *vtkCamera::New()
 {
@@ -112,107 +109,444 @@ vtkCamera *vtkCamera::New()
   return (vtkCamera*)ret;
 }
 
-void vtkCamera::SetPosition(double X, double Y, double Z)
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// The first set of methods deal exclusively with the ViewTransform, which
+// is the only transform which is set up entirely in the camera.  The
+// perspective transform must be set up by the Renderer because the 
+// Camera doesn't know the Renderer's aspect ratio.
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetPosition(double x, double y, double z)
 {
-  if (X == this->Position[0] && Y == this->Position[1] 
-      && Z == this->Position[2])
+  if (x == this->Position[0] && 
+      y == this->Position[1] &&
+      z == this->Position[2])
     {
     return;
     }
   
-  this->Position[0] = X;
-  this->Position[1] = Y;
-  this->Position[2] = Z;
+  this->Position[0] = x;
+  this->Position[1] = y;
+  this->Position[2] = z;
 
-  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
-  << this->Position[1] << ", " << this->Position[2] << ")");
+  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", " << this->Position[1] << ", " << this->Position[2] << ")");
 
-  // recalculate distance
+  // recompute the focal distance
   this->ComputeDistance();
-  
+
+  this->ComputeViewTransform();
   this->Modified();
 }
 
-void vtkCamera::SetFocalPoint(double X, double Y, double Z)
+//----------------------------------------------------------------------------
+void vtkCamera::SetFocalPoint(double x, double y, double z)
 {
-  if (X == this->FocalPoint[0] && Y == this->FocalPoint[1] 
-      && Z == this->FocalPoint[2])
+  if (x == this->FocalPoint[0] && 
+      y == this->FocalPoint[1] && 
+      z == this->FocalPoint[2])
     {
     return;
     }
 
-  this->FocalPoint[0] = X; 
-  this->FocalPoint[1] = Y; 
-  this->FocalPoint[2] = Z;
+  this->FocalPoint[0] = x; 
+  this->FocalPoint[1] = y; 
+  this->FocalPoint[2] = z;
 
-  vtkDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", "
-  << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
+  vtkDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", " << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
-  // recalculate distance
+  // recompute the focal distance
   this->ComputeDistance();
-  
+
+  this->ComputeViewTransform();
   this->Modified();
 }
 
-void vtkCamera::SetViewUp(double X, double Y, double Z)
+//----------------------------------------------------------------------------
+void vtkCamera::SetViewUp(double x, double y, double z)
 {
-  double norm;
-
-  // normalize ViewUp
-  norm = sqrt( X * X + Y * Y + Z * Z );
+  // normalize ViewUp, but do _not_ orthogonalize it by default
+  double norm = sqrt(x*x + y*y + z*z);
   
   if(norm != 0) 
     {
-    X /= norm;
-    Y /= norm;
-    Z /= norm;
+    x /= norm; 
+    y /= norm; 
+    z /= norm;
     }
   else 
     {
-    X = 0;
-    Y = 1;
-    Z = 0;
+    x = 0; 
+    y = 1; 
+    z = 0;
     }
   
-  if (X == this->ViewUp[0] && Y == this->ViewUp[1] 
-      && Z == this->ViewUp[2])
+  if (x == this->ViewUp[0] && 
+      y == this->ViewUp[1] &&
+      z == this->ViewUp[2])
     {
     return;
     }
 
-  this->ViewUp[0] = X;
-  this->ViewUp[1] = Y;
-  this->ViewUp[2] = Z;
+  this->ViewUp[0] = x;
+  this->ViewUp[1] = y;
+  this->ViewUp[2] = z;
 
-  vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
-  << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
+  vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", " << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
+  this->ComputeViewTransform();
   this->Modified();
 }
 
-void vtkCamera::SetClippingRange(double X, double Y)
+//----------------------------------------------------------------------------
+// The ViewTransform depends on only three ivars:  the Position, the
+// FocalPoint, and the ViewUp vector.  All the other methods are there
+// simply for the sake of the users' convenience.
+void vtkCamera::ComputeViewTransform()
+{
+  // main view through the camera
+  this->Transform->Identity();
+  this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+  this->ViewTransform->SetMatrix(this->Transform->GetMatrixPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::OrthogonalizeViewUp()
+{
+  // the orthogonalized ViewUp is just the second row of the view matrix
+  vtkMatrix4x4 *matrix = this->ViewTransform->GetMatrixPointer();
+  this->ViewUp[0] = matrix->GetElement(1,0);
+  this->ViewUp[1] = matrix->GetElement(1,1);
+  this->ViewUp[2] = matrix->GetElement(1,2);
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Set the distance of the focal point from the camera. The focal point is 
+// modified accordingly. This should be positive.
+void vtkCamera::SetDistance(double d)
+{
+  if (this->Distance == d)
+    {
+    return;
+    }
+
+  this->Distance = d; 
+
+  // Distance should be greater than .0002
+  if (this->Distance < 0.0002) 
+    {
+    this->Distance = 0.0002;
+    vtkDebugMacro(<< " Distance is set to minimum.");
+    }
+  
+  // we want to keep the camera pointing in the same direction
+  double *vec = this->DirectionOfProjection;
+
+  // recalculate FocalPoint
+  this->FocalPoint[0] = this->Position[0] + vec[0]*this->Distance;
+  this->FocalPoint[1] = this->Position[1] + vec[1]*this->Distance;
+  this->FocalPoint[2] = this->Position[2] + vec[2]*this->Distance;
+
+  vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
+
+  this->ComputeViewTransform();
+  this->Modified();
+}  
+
+//----------------------------------------------------------------------------
+// Set the camera->focus direction.
+void vtkCamera::SetDirectionOfProjection(double x, double y, double z)
+{
+  if (x == this->DirectionOfProjection[0] && 
+      y == this->DirectionOfProjection[1] &&
+      z == this->DirectionOfProjection[2])
+    {
+    return;
+    }
+
+  this->DirectionOfProjection[0] = x;
+  this->DirectionOfProjection[1] = y;
+  this->DirectionOfProjection[2] = z;
+
+  // set focal point to match
+  this->SetDistance(this->Distance);
+}
+
+//----------------------------------------------------------------------------
+// This method must be called when the focal point or camera position changes
+void vtkCamera::ComputeDistance()
+{
+  double dx = this->FocalPoint[0] - this->Position[0];
+  double dy = this->FocalPoint[1] - this->Position[1];
+  double dz = this->FocalPoint[2] - this->Position[2];
+
+  this->Distance = sqrt(dx*dx + dy*dy + dz*dz);
+
+  if (this->Distance < 0.0002) 
+    {
+    this->Distance = 0.0002;
+    vtkDebugMacro(<< " Distance is set to minimum.");
+
+    double *vec = this->DirectionOfProjection;
+
+    // recalculate FocalPoint
+    this->FocalPoint[0] = this->Position[0] + vec[0]*this->Distance;
+    this->FocalPoint[1] = this->Position[1] + vec[1]*this->Distance;
+    this->FocalPoint[2] = this->Position[2] + vec[2]*this->Distance;
+    }
+
+  this->DirectionOfProjection[0] = dx/this->Distance;
+  this->DirectionOfProjection[1] = dy/this->Distance;
+  this->DirectionOfProjection[2] = dz/this->Distance;
+} 
+
+//----------------------------------------------------------------------------
+// Move the position of the camera along the view plane normal. Moving
+// towards the focal point (e.g., > 1) is a dolly-in, moving away 
+// from the focal point (e.g., < 1) is a dolly-out.
+void vtkCamera::Dolly(double amount)
+{
+  if (amount <= 0.0)
+    {
+    return;
+    }
+  
+  // dolly moves the camera towards the focus
+  double d = this->Distance/amount;
+  
+  this->SetPosition(this->FocalPoint[0] - d*this->DirectionOfProjection[0],
+		    this->FocalPoint[1] - d*this->DirectionOfProjection[1],
+		    this->FocalPoint[2] - d*this->DirectionOfProjection[2]);
+}
+
+//----------------------------------------------------------------------------
+// Set the roll angle of the camera about the direction of projection
+void vtkCamera::SetRoll(double roll)
+{
+  // roll is a rotation of camera view up about the direction of projection
+  vtkDebugMacro(<< " Setting Roll to " << roll << "");
+
+  // subtract the current roll
+  roll -= this->GetRoll();
+
+  if (fabs(roll) < 0.00001)
+    {
+    return;
+    }
+
+  this->Roll(roll);
+}
+
+//----------------------------------------------------------------------------
+// Returns the roll of the camera.
+double vtkCamera::GetRoll()
+{
+  double orientation[3];
+  this->ViewTransform->GetOrientation(orientation);
+  return orientation[2];
+}
+
+//----------------------------------------------------------------------------
+// Rotate the camera around the view plane normal.
+void vtkCamera::Roll(double angle)
+{
+  double newViewUp[3];
+  this->Transform->Identity();
+
+  // rotate ViewUp about the Direction of Projection
+  this->Transform->RotateWXYZ(angle,this->DirectionOfProjection);
+
+  // okay, okay, TransformPoint shouldn't be used on vectors -- but
+  // the transform is rotation with no translation so this works fine.
+  this->Transform->TransformPoint(this->ViewUp,newViewUp);
+  this->SetViewUp(newViewUp);
+}
+
+//----------------------------------------------------------------------------
+// Rotate the focal point about the view up vector centered at the camera's 
+// position. 
+void vtkCamera::Yaw(double angle)
+{
+  double newFocalPoint[3];
+  double *pos = this->Position;
+  this->Transform->Identity();
+
+  // translate the camera to the origin,
+  // rotate about axis,
+  // translate back again
+  this->Transform->Translate(+pos[0],+pos[1],+pos[2]);   
+  this->Transform->RotateWXYZ(angle,this->ViewUp);
+  this->Transform->Translate(-pos[0],-pos[1],-pos[2]);
+  
+  // now transform focal point
+  this->Transform->TransformPoint(this->FocalPoint,newFocalPoint);
+  this->SetFocalPoint(newFocalPoint);
+}
+
+//----------------------------------------------------------------------------
+// Rotate the focal point about the cross product of the view up vector 
+// and the negative of the , centered at the camera's position.
+void vtkCamera::Pitch(double angle)
+{
+  double axis[3], newFocalPoint[3];
+  double *pos = this->Position;
+  this->Transform->Identity();
+
+  // the axis is the first row of the view transform matrix
+  axis[0] = this->ViewTransform->GetMatrixPointer()->GetElement(0,0);
+  axis[1] = this->ViewTransform->GetMatrixPointer()->GetElement(0,1);
+  axis[2] = this->ViewTransform->GetMatrixPointer()->GetElement(0,2);
+  
+  // translate the camera to the origin,
+  // rotate about axis,
+  // translate back again
+  this->Transform->Translate(+pos[0],+pos[1],+pos[2]);   
+  this->Transform->RotateWXYZ(angle,axis);
+  this->Transform->Translate(-pos[0],-pos[1],-pos[2]);
+  
+  // now transform focal point
+  this->Transform->TransformPoint(this->FocalPoint,newFocalPoint);
+  this->SetFocalPoint(newFocalPoint);
+}
+
+//----------------------------------------------------------------------------
+// Rotate the camera about the view up vector centered at the focal point.
+void vtkCamera::Azimuth(double angle)
+{
+  double newPosition[3];
+  double *fp = this->FocalPoint;
+  this->Transform->Identity();
+
+  // translate the focal point to the origin,
+  // rotate about view up,
+  // translate back again  
+  this->Transform->Translate(+fp[0],+fp[1],+fp[2]);   
+  this->Transform->RotateWXYZ(angle,this->ViewUp);
+  this->Transform->Translate(-fp[0],-fp[1],-fp[2]);
+  
+  // apply the transform to the position
+  this->Transform->TransformPoint(this->Position,newPosition);
+  this->SetPosition(newPosition);
+}
+
+//----------------------------------------------------------------------------
+// Rotate the camera about the cross product of the negative of the
+// direction of projection and the view up vector centered on the focal point.
+void vtkCamera::Elevation(double angle)
+{
+  double axis[3], newPosition[3];
+  double *fp = this->FocalPoint;
+  this->Transform->Identity();
+
+  // snatch the axis from the view transform matrix
+  axis[0] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,0);
+  axis[1] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,1);
+  axis[2] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,2);
+  
+  // translate the focal point to the origin,
+  // rotate about axis,
+  // translate back again
+  this->Transform->Translate(+fp[0],+fp[1],+fp[2]);   
+  this->Transform->RotateWXYZ(angle,axis);
+  this->Transform->Translate(-fp[0],-fp[1],-fp[2]);
+  
+  // now transform position
+  this->Transform->TransformPoint(this->Position,newPosition);
+  this->SetPosition(newPosition);
+}
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// The following methods set up the information that the Renderer needs
+// to set up the perspective transform.  The transformation matrix is
+// created using the GetPerspectiveTransformMatrix method.
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetParallelProjection(int flag)
+{
+  if ( this->ParallelProjection != flag ) 
+    {
+    this->ParallelProjection = flag;
+    this->Modified();
+    this->ViewingRaysModified(); 
+    } 
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetViewAngle(double angle)
+{
+  double min =   1.0;
+  double max = 179.0;
+
+  if ( this->ViewAngle != angle )
+    {
+    this->ViewAngle = (angle<min?min:(angle>max?max:angle));
+    this->Modified();
+    this->ViewingRaysModified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetParallelScale(double scale)
+{
+  if ( this->ParallelScale != scale )
+    {
+    this->ParallelScale = scale;
+    this->Modified();
+    this->ViewingRaysModified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Change the ViewAngle (for perspective) or the ParallelScale (for parallel)
+// so that more or less of a scene occupies the viewport.  A value > 1 is a 
+// zoom-in. A value < 1 is a zoom-out.
+void vtkCamera::Zoom(double amount)
+{
+  if (amount <= 0.0)
+    {
+    return;
+    }
+  
+  if (this->ParallelScale)
+    {
+    this->SetParallelScale(this->ParallelScale/amount);
+    }
+  else
+    {
+    this->SetViewAngle(this->ViewAngle/amount);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetClippingRange(double near, double far)
 {
   double thickness;
   
   // check the order
-  if(X > Y) 
+  if(near > far) 
     {
-    double temp;
     vtkDebugMacro(<< " Front and back clipping range reversed");
-    temp = X;
-    X = Y;
-    Y = temp;
+    double temp = near;
+    near = far;
+    far = temp;
     }
   
   // front should be greater than 0.0001
-  if (X < 0.0001) 
+  if (near < 0.0001) 
     {
-    Y += 0.0001 - X;
-    X = 0.0001;
+    far += 0.0001 - near;
+    near = 0.0001;
     vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
   
-  thickness = Y - X;
+  thickness = far - near;
   
   // thickness should be greater than 0.0001
   if (thickness < 0.0001) 
@@ -221,36 +555,37 @@ void vtkCamera::SetClippingRange(double X, double Y)
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     
     // set back plane
-    Y = X + thickness;
+    far = near + thickness;
     }
   
-  if (X == this->ClippingRange[0] && Y == this->ClippingRange[1] &&
+  if (near == this->ClippingRange[0] && 
+      far == this->ClippingRange[1] && 
       this->Thickness == thickness)
     {
     return;
     }
 
-  this->ClippingRange[0] = X; 
-  this->ClippingRange[1] = Y; 
+  this->ClippingRange[0] = near; 
+  this->ClippingRange[1] = far; 
   this->Thickness = thickness;
   
-  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
-  << this->ClippingRange[1] << ")");
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "  << this->ClippingRange[1] << ")");
 
   this->Modified();
 }  
 
-// Set the distance between clipping planes. A side effect of this method is
-// to adjust the back clipping plane to be equal to the front clipping plane 
-// plus the thickness.
-void vtkCamera::SetThickness(double X)
+//----------------------------------------------------------------------------
+// Set the distance between clipping planes. 
+// This method adjusts the back clipping plane to the specified thickness
+// behind the front clipping plane 
+void vtkCamera::SetThickness(double s)
 {
-  if (this->Thickness == X)
+  if (this->Thickness == s)
     {
     return;
     }
 
-  this->Thickness = X; 
+  this->Thickness = s; 
 
   // thickness should be greater than 0.0001
   if (this->Thickness < 0.0001) 
@@ -262,200 +597,43 @@ void vtkCamera::SetThickness(double X)
   // set back plane
   this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
 
-  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
-  << this->ClippingRange[1] << ")");
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", " << this->ClippingRange[1] << ")");
 
   this->Modified();
 }  
 
-// Set the distance of the focal point from the camera. The focal point is 
-// modified accordingly. This should be positive.
-void vtkCamera::SetDistance(double X)
+//----------------------------------------------------------------------------
+void vtkCamera::SetWindowCenter(double x, double y)
 {
-  if (this->Distance == X)
+  if (this->WindowCenter[0] != x || this->WindowCenter[1] != y)
     {
-    return;
-    }
-
-  this->Distance = X; 
-
-  // Distance should be greater than .0002
-  if (this->Distance < 0.0002) 
-    {
-    this->Distance = 0.0002;
-    vtkDebugMacro(<< " Distance is set to minimum.");
-    }
-  
-  // recalculate FocalPoint
-  this->FocalPoint[0] = this->Position[0] - 
-    this->ViewPlaneNormal[0] * this->Distance;
-  this->FocalPoint[1] = this->Position[1] - 
-    this->ViewPlaneNormal[1] * this->Distance;
-  this->FocalPoint[2] = this->Position[2] - 
-    this->ViewPlaneNormal[2] * this->Distance;
-
-  vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
-
-  this->Modified();
-}  
-
-// Compute the view plane normal from the position and focal point.
-void vtkCamera::ComputeViewPlaneNormal()
-{
-  double dx,dy,dz;
-  double distance;
-  double *vpn = this->ViewPlaneNormal;
-
-  // view plane normal is calculated from position and focal point
-  //
-  dx = this->Position[0] - this->FocalPoint[0];
-  dy = this->Position[1] - this->FocalPoint[1];
-  dz = this->Position[2] - this->FocalPoint[2];
-  
-  distance = sqrt(dx*dx+dy*dy+dz*dz);
-
-  if (distance > 0.0) 
-    {
-    vpn[0] = dx / distance;
-    vpn[1] = dy / distance;
-    vpn[2] = dz / distance;
-    }
-  
-  vtkDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")");
-}
-
-
-// Set the roll angle of the camera about the view plane normal.
-void vtkCamera::SetRoll(double roll)
-{
-  double current;
-  double temp[3];
-
-  // roll is a rotation of camera view up about view plane normal
-  vtkDebugMacro(<< " Setting Roll to " << roll << "");
-
-  // get the current roll
-  current = this->GetRoll();
-
-  if (fabs(current - roll) < 0.00001)
-    {
-    return;
-    }
-  
-  roll -= current;
-
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PreMultiply();
-
-  // rotate about view plane normal
-  this->Transform->RotateWXYZ(-roll,this->ViewPlaneNormal[0],
-			      this->ViewPlaneNormal[1],
-			      this->ViewPlaneNormal[2]);
-
-  this->Transform->TransformVector(this->ViewUp,temp);
-  this->SetViewUp(temp);
-  
-  this->Transform->Pop();
-}
-
-// Returns the roll of the camera.
-double vtkCamera::GetRoll()
-{
-  double *orient;
-  
-  // set roll using orientation
-  orient = this->GetOrientation();
-
-  vtkDebugMacro(<< " Returning Roll of " << orient[2] << "");
-
-  return orient[2];
-}
-
-// Compute the camera distance, which is the distance between the 
-// focal point and position.
-void vtkCamera::ComputeDistance()
-{
-  double *distance;
-  double dx, dy, dz;
-  
-  // pickup pointer to distance
-  distance = &this->Distance;
-  
-  dx = this->FocalPoint[0] - this->Position[0];
-  dy = this->FocalPoint[1] - this->Position[1];
-  dz = this->FocalPoint[2] - this->Position[2];
-  
-  *distance = sqrt( dx * dx + dy * dy + dz * dz );
-  
-  // Distance should be greater than .002
-  if (this->Distance < 0.002) 
-    {
-    this->Distance = 0.002;
-    vtkDebugMacro(<< " Distance is set to minimum.");
-
-    // recalculate position
-    this->Position[0] = 
-      this->ViewPlaneNormal[0] * *distance + this->FocalPoint[0];
-    this->Position[1] = 
-      this->ViewPlaneNormal[1] * *distance + this->FocalPoint[1];
-    this->Position[2] = 
-      this->ViewPlaneNormal[2] * *distance + this->FocalPoint[2];
-    
-    vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
-    << this->Position[1] << ", " << this->Position[2] << ")");
-    
-    vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
     this->Modified();
+    this->ViewingRaysModified();
+    this->WindowCenter[0] = x;
+    this->WindowCenter[1] = y;
     }
-  
-  vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
-  
-  this->Modified();
-} 
-
-// Returns the orientation of the camera. This is a vector of X,Y and Z 
-// rotations that when performed in the order RotateZ, RotateX, and finally
-// RotateY, will yield the same 3x3 rotation matrix for the camera.
-double *vtkCamera::GetOrientation()
-{
-  // calculate a new orientation
-  this->Transform->SetMatrix(this->GetViewTransformMatrix());
-
-  float tmp[3];
-  this->Transform->GetOrientation(tmp[0],tmp[1],tmp[2]);
-  this->Orientation[0] = tmp[0];
-  this->Orientation[1] = tmp[1];
-  this->Orientation[2] = tmp[2];
-
-  vtkDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
-  << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")");
-  
-  return this->Orientation;
 }
 
-// Returns the WXYZ orientation of the camera. 
-float *vtkCamera::GetOrientationWXYZ()
+//----------------------------------------------------------------------------
+void vtkCamera::SetObliqueAngles(double alpha, double phi)
 {
-  this->Transform->SetMatrix(this->GetViewTransformMatrix());
-  return this->Transform->GetOrientationWXYZ();
+  if (this->ObliqueAngles[0] != alpha || this->ObliqueAngles[1] != phi)
+    {
+    this->Modified();
+    this->ViewingRaysModified();
+    this->ObliqueAngles[0] = alpha;
+    this->ObliqueAngles[1] = phi;
+    }
 }
 
-// Compute the view transform matrix. This is used in converting 
-// between view and world coordinates.  It is a rigid-body matrix:
-// only translation and rotation.
-void vtkCamera::ComputeViewTransform()
-{
-  this->PerspectiveTransform->SetupCamera(this->Position, 
-					  this->FocalPoint,
-					  this->ViewUp);
-}
-
+//----------------------------------------------------------------------------
 // Compute the perspective transform matrix. This is used in converting 
 // between view and world coordinates.
 void vtkCamera::ComputePerspectiveTransform(double aspect, 
 					    double nearz, double farz)
 {
+  this->PerspectiveTransform->Identity();
+
   // adjust Z-buffer range
   this->PerspectiveTransform->AdjustZBuffer(-1, +1, nearz, farz);
 
@@ -475,9 +653,9 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 				      this->ClippingRange[0],
 				      this->ClippingRange[1]);
     }
-  else if (this->WindowCenter[0] != 0.0 || this->WindowCenter[1] != 0.0)
+  else
     {
-    // set up an off-axis frustum
+    // set up a perspective frustum
 
     double tmp = tan(this->ViewAngle*vtkMath::DoubleDegreesToRadians()/2);
     double width = this->ClippingRange[0]*tmp*aspect;
@@ -492,14 +670,6 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 					this->ClippingRange[0],
 					this->ClippingRange[1]);
     }
-  else
-    {
-    // set up an on-axis frustum
-
-    this->PerspectiveTransform->Perspective(this->ViewAngle,aspect,
-					    this->ClippingRange[0],
-					    this->ClippingRange[1]);
-    }
 
   if (this->Stereo)
     {
@@ -507,342 +677,100 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 
     if (this->LeftEye)
       {
-      this->PerspectiveTransform->Stereo(-this->EyeAngle/2,this->Distance);
+      this->PerspectiveTransform->Stereo(-this->EyeAngle/2,
+					 this->Distance);
       }
     else
       {
-      this->PerspectiveTransform->Stereo(+this->EyeAngle/2,this->Distance);
+      this->PerspectiveTransform->Stereo(+this->EyeAngle/2,
+					 this->Distance);
       }
+    }
+
+  if (this->ObliqueAngles[0] != 90.0)
+    {
+    // apply shear for oblique projections
+
+    double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
+    double phi = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
+
+    this->PerspectiveTransform->Shear(cos(phi)/tan(alpha),
+				      sin(phi)/tan(alpha),
+				      this->Distance);
     }
 }
 
-
+//----------------------------------------------------------------------------
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
 						       double nearz,
 						       double farz)
 {
-  this->PerspectiveTransform->Identity();
   this->ComputePerspectiveTransform(aspect, nearz, farz);
   
   // return the transform 
   return this->PerspectiveTransform->GetMatrixPointer();
 }
 
-// Return the perspective transform matrix. See ComputePerspectiveTransform.
-vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
-{
-  this->PerspectiveTransform->Identity();
-  this->ComputeViewTransform();
-  
-  // return the transform 
-  return this->PerspectiveTransform->GetMatrixPointer();
-}
-
+//----------------------------------------------------------------------------
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 								double nearz,
 								double farz)
 {
-  this->PerspectiveTransform->Identity();
-  this->ComputePerspectiveTransform(aspect, nearz, farz);
-  this->ComputeViewTransform();
+  // turn off stereo, the CompositePerspectiveTransformMatrix is used for
+  // picking, not for rendering.
+  int stereo = this->Stereo;
+  this->Stereo = 0;
+
+  this->Transform->Identity();
+  this->Transform->Concatenate(this->GetPerspectiveTransformMatrix(aspect,
+								   nearz,
+								   farz));
+  this->Transform->Concatenate(this->GetViewTransformMatrix());
+
+  this->Stereo = stereo;
   
   // return the transform 
-  return this->PerspectiveTransform->GetMatrixPointer();
+  return this->Transform->GetMatrixPointer();
 }
 
-// Recompute the view up vector so that it is perpendicular to the
-// view plane normal.
-void vtkCamera::OrthogonalizeViewUp()
+//----------------------------------------------------------------------------
+double *vtkCamera::GetViewPlaneNormal()
 {
-  double vec[3];
-
-  vtkMath::Cross(this->ViewPlaneNormal,this->ViewUp,vec);
-  vtkMath::Cross(vec,this->ViewPlaneNormal,vec);
-  vtkMath::Normalize(vec);
-
-  this->SetViewUp(vec);
-}
-
-// Move the position of the camera along the view plane normal. Moving
-// towards the focal point (e.g., > 1) is a dolly-in, moving away 
-// from the focal point (e.g., < 1) is a dolly-out.
-void vtkCamera::Dolly(double amount)
-{
-  if (amount <= 0.0)
+  // shear the view matrix and extract the third row, the result is the
+  // ViewPlaneNormal.
+  
+  if (this->ObliqueAngles[0] != 90.0)
     {
-    return;
+    double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
+    double phi = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
+    this->Transform->Identity();
+    this->Transform->Shear(cos(phi)/tan(alpha),
+			   sin(phi)/tan(alpha),
+			   this->Distance);
+    this->Transform->Concatenate(this->ViewTransform->GetMatrixPointer());
+    return this->Transform->GetMatrixPointer()->Element[2];
     }
-  
-  // zoom moves position along view plane normal by a specified ratio
-  double distance =  this->Distance / amount;
-  
-  this->SetPosition(this->FocalPoint[0] + distance * this->ViewPlaneNormal[0],
-		    this->FocalPoint[1] + distance * this->ViewPlaneNormal[1],
-		    this->FocalPoint[2] + distance * this->ViewPlaneNormal[2]);
-}
-
-// Change the ViewAngle of the camera so that more or less of a scene 
-// occupies the viewport. A value > 1 is a zoom-in. A value < 1 is a zoom-out.
-void vtkCamera::Zoom(double amount)
-{
-  if (amount <= 0.0)
+  else
     {
-    return;
+    return this->ViewTransform->GetMatrixPointer()->Element[2];
     }
-  
-  this->ViewAngle = this->ViewAngle/amount;
+}  
 
-  this->ViewingRaysModified();
-}
-
-
-// Rotate the camera about the view up vector centered at the focal point.
-void vtkCamera::Azimuth(double angle)
+//----------------------------------------------------------------------------
+void vtkCamera::SetViewPlaneNormal(double x, double y, double z)
 {
-  double temp[3];
-
-  // azimuth is a rotation of camera position about view up vector
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PostMultiply();
-  
-  // translate to focal point
-  this->Transform->Translate(-this->FocalPoint[0],
-			     -this->FocalPoint[1],
-			     -this->FocalPoint[2]);
-   
-  // rotate about view up
-  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			      this->ViewUp[2]);
-  
-  // translate to focal point
-  this->Transform->Translate(this->FocalPoint[0],
-			     this->FocalPoint[1],
-			     this->FocalPoint[2]);
-   
-
-  // now transform position
-  this->Transform->TransformPoint(this->Position,temp);
-  this->SetPosition(temp);
-
-  // also azimuth the vpn
-  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
-  this->SetViewPlaneNormal(temp);
-  
-  this->Transform->Pop();
+  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, the direction of projection is set up automatically.");
 }
 
-// Rotate the camera about the cross product of the view plane normal and 
-// the view up vector centered on the focal point.
-void vtkCamera::Elevation(double angle)
+//----------------------------------------------------------------------------
+void vtkCamera::ComputeViewPlaneNormal()
 {
-  double axis[3], temp[3];
-  
-  // elevation is a rotation of camera position about cross between
-  // view plane normal and view up
-  axis[0] = (this->ViewPlaneNormal[1] * this->ViewUp[2] -
-	     this->ViewPlaneNormal[2] * this->ViewUp[1]);
-  axis[1] = (this->ViewPlaneNormal[2] * this->ViewUp[0] -
-	     this->ViewPlaneNormal[0] * this->ViewUp[2]);
-  axis[2] = (this->ViewPlaneNormal[0] * this->ViewUp[1] -
-	     this->ViewPlaneNormal[1] * this->ViewUp[0]);
-
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PostMultiply();
-  
-  // translate to focal point
-  this->Transform->Translate(-this->FocalPoint[0],
-			     -this->FocalPoint[1],
-			     -this->FocalPoint[2]);
-   
-  // rotate about view up
-  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  
-  
-  // translate to focal point
-  this->Transform->Translate(this->FocalPoint[0],
-			     this->FocalPoint[1],
-			     this->FocalPoint[2]);
-   
-  // now transform position
-  this->Transform->TransformPoint(this->Position,temp);
-  this->SetPosition(temp);
-
-  // also elevate the vpn
-  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
-  this->SetViewPlaneNormal(temp);
-  
-  this->Transform->Pop();
+  vtkWarningMacro(<< "ComputeViewPlaneNormal:  This method is deprecated, the direction of projection is set up automatically.");
 }
 
-// Rotate the focal point about the view up vector centered at the camera's 
-// position. 
-void vtkCamera::Yaw(double angle)
-{
-  double temp[3];
-
-  // yaw is a rotation of camera focal_point about view up vector
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PostMultiply();
-  
-  // translate to position
-  this->Transform->Translate(-this->Position[0],
-			     -this->Position[1],
-			     -this->Position[2]);
-
-  // rotate about view up
-  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			      this->ViewUp[2]);
-  
-  // translate to position
-  this->Transform->Translate(this->Position[0],
-			     this->Position[1],
-			     this->Position[2]);
-
-  // now transform focal point
-  this->Transform->TransformPoint(this->FocalPoint,temp);
-  this->SetFocalPoint(temp);
-
-  // also yaw the vpn
-  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
-  this->SetViewPlaneNormal(temp);
-
-  this->Transform->Pop();
-}
-
-// Rotate the focal point about the cross product of the view up vector 
-// and the view plane normal, centered at the camera's position.
-void vtkCamera::Pitch(double angle)
-{
-  double axis[3],temp[3];
-
-  
-  // pitch is a rotation of camera focal point about cross between
-  // view up and view plane normal
-  axis[0] = (this->ViewUp[1] * this->ViewPlaneNormal[2] -
-	     this->ViewUp[2] * this->ViewPlaneNormal[1]);
-  axis[1] = (this->ViewUp[2] * this->ViewPlaneNormal[0] -
-	     this->ViewUp[0] * this->ViewPlaneNormal[2]);
-  axis[2] = (this->ViewUp[0] * this->ViewPlaneNormal[1] -
-	     this->ViewUp[1] * this->ViewPlaneNormal[0]);
-
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PostMultiply();
-  
-  // translate to position
-  this->Transform->Translate(-this->Position[0],
-			     -this->Position[1],
-			     -this->Position[2]);
-
-  // rotate about view up
-  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  
-   
-  // translate to position
-  this->Transform->Translate(this->Position[0],
-			     this->Position[1],
-			     this->Position[2]);
-
-  // now transform focal point
-  this->Transform->TransformPoint(this->FocalPoint,temp);
-  this->SetFocalPoint(temp);
-
-  // also pitch the vpn
-  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
-  this->SetViewPlaneNormal(temp);
-  
-  this->Transform->Pop();
-}
-
-// Rotate the camera around the view plane normal.
-void vtkCamera::Roll(double angle)
-{
-  double temp[3];
-
-  // roll is a rotation of camera view up about view plane normal
-  this->Transform->Push();
-  this->Transform->Identity();
-  this->Transform->PreMultiply();
-
-  // rotate about view plane normal
-  this->Transform->RotateWXYZ(-angle,this->ViewPlaneNormal[0],
-			      this->ViewPlaneNormal[1],
-			      this->ViewPlaneNormal[2]);
-  
-  // now transform view up
-  this->Transform->TransformVector(this->ViewUp,temp);
-  this->SetViewUp(temp);
-
-  this->Transform->Pop();
-}
-
-// Set the direction that the camera points.
-// Adjusts position to be consistent with the view plane normal.
-void vtkCamera::SetViewPlaneNormal(double X,double Y,double Z)
-{
-  double norm;
-  double dx, dy, dz;
-  double dot_product;
-
-  // normalize it
-  norm = sqrt( X * X + Y * Y + Z * Z );
-  if (norm == 0.0)
-    {
-    vtkErrorMacro(<< "SetViewPlaneNormal of (0,0,0)");
-    return;
-    }
-  
-  X = X/norm;
-  Y = Y/norm;
-  Z = Z/norm;
-  
-  if (X == this->ViewPlaneNormal[0] && Y == this->ViewPlaneNormal[1] 
-      && Z == this->ViewPlaneNormal[2])
-    {
-    return;
-    }
-  
-  this->ViewPlaneNormal[0] = X;
-  this->ViewPlaneNormal[1] = Y;
-  this->ViewPlaneNormal[2] = Z;
-
-  vtkDebugMacro(<< " ViewPlaneNormal set to ( " << X << ", "
-    << Y << ", " << Z << ")");
- 
-  // Compute the dot product between the view plane normal and the 
-  // direction of projection. If this has changed, the viewing rays need 
-  // to be recalculated.
-  dx = this->Position[0] - this->FocalPoint[0];
-  dy = this->Position[1] - this->FocalPoint[1];
-  dz = this->Position[2] - this->FocalPoint[2];
-  
-  norm = sqrt(dx*dx+dy*dy+dz*dz);
-
-  if (norm > 0.0) 
-    {
-    dx = dx / norm;
-    dy = dy / norm;
-    dz = dz / norm;
-    }
-  
-  dot_product = dx*this->ViewPlaneNormal[0] +
-		dy*this->ViewPlaneNormal[1] +
-		dz*this->ViewPlaneNormal[2];
-
-  if( fabs((this->VPNDotDOP - dot_product)) > 0.001 )
-    {
-    this->VPNDotDOP = dot_product;
-    this->ViewingRaysModified();
-    }
-
-  this->Modified();
-}
-
+//----------------------------------------------------------------------------
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
 // the view frustum. 
 void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
@@ -884,45 +812,45 @@ void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkCamera::GetViewingRaysMTime()
 {
   return this->ViewingRaysMTime.GetMTime();
 }
 
+//----------------------------------------------------------------------------
 void vtkCamera::ViewingRaysModified()
 {
   this->ViewingRaysMTime.Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  // update orientation
-  this->GetOrientation();
-  
-  os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
-    << this->ClippingRange[1] << ")\n";
+  os << indent << "ClippingRange: (" << this->ClippingRange[0] << ", " 
+     << this->ClippingRange[1] << ")\n";
   os << indent << "Distance: " << this->Distance << "\n";
-  os << indent << "Eye Angle: " << this->EyeAngle << "\n";
-  os << indent << "Focal Disk: " << this->FocalDisk << "\n";
-  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
-    << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-  os << indent << "Left Eye: " << this->LeftEye << "\n";
-  os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-    << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+  os << indent << "EyeAngle: " << this->EyeAngle << "\n";
+  os << indent << "FocalDisk: " << this->FocalDisk << "\n";
+  os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", " 
+     << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "Position: (" << this->Position[0] << ", " 
-    << this->Position[1] << ", " << this->Position[2] << ")\n";
+     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "ParallelProjection: " << 
     (this->ParallelProjection ? "On\n" : "Off\n");
   os << indent << "Parallel Scale: " << this->ParallelScale << "\n";
   os << indent << "Stereo: " << (this->Stereo ? "On\n" : "Off\n");
+  os << indent << "ObliqueAngles: " << this->ObliqueAngles[0] << ", " 
+     << this->ObliqueAngles[1] << "\n";
   os << indent << "Thickness: " << this->Thickness << "\n";
-  os << indent << "View Angle: " << this->ViewAngle << "\n";
-  os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
-    << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
-  os << indent << "View Up: (" << this->ViewUp[0] << ", " 
-    << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
-  os << indent << "Window Center: (" << this->WindowCenter[0] << ", " 
-    << this->WindowCenter[1] << ")\n";
+  os << indent << "ViewAngle: " << this->ViewAngle << "\n";
+  os << indent << "DirectionOfProjection: " << this->DirectionOfProjection[0]
+     << ", " << this->DirectionOfProjection[1] 
+     << ", " << this->DirectionOfProjection[2] << ")\n";
+  os << indent << "ViewUp: (" << this->ViewUp[0] << ", " 
+     << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
+  os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", " 
+     << this->WindowCenter[1] << ")\n";
 }

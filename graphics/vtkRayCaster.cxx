@@ -848,7 +848,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // inverse of the camera's view transform. Copy it into an array for 
   // faster processing
   this->ViewToWorldTransform->SetMatrix( 
-	    ren->GetActiveCamera()->GetViewTransform() );
+	    ren->GetActiveCamera()->GetViewTransformMatrix() );
   this->ViewToWorldTransform->Inverse();
   for ( j = 0; j < 4; j++ )
     {
