@@ -3,18 +3,19 @@ SET(KIT Hybrid)
 SET(MyTests     
   BoxWidget.cxx
   TestImplicitPlaneWidget.cxx
+  TestOrientationMarkerWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
-  SET(MyTests ${MyTests}     
+  SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
     PushTest.cxx
-    TestSplineWidget.cxx 
+    TestSplineWidget.cxx
     TestScalarBarWidget.cxx
     TestLineWidget.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
-    TestImageTracerWidget.cxx   
+    TestImageTracerWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 
@@ -23,6 +24,7 @@ IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests     
     BoxWidget.cxx
     TestImplicitPlaneWidget.cxx
+    TestOrientationMarkerWidget.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
