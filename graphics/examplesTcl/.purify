@@ -13,8 +13,6 @@ suppress umr ExprGetValue
 suppress umc ios::ios(void)
 suppress umr ios::fill(char)
 suppress umr ios::flags(long)
-suppress mse strlen
-suppress mse _open; InitDispatchArea
 suppress umr isLocal; CreateContext
 suppress umr ios::precision(int)
 suppress umr ios::tie(ostream*); ios::init(streambuf*)
@@ -38,16 +36,12 @@ suppress par TclLoadFile; Tcl_LoadCmd
 suppress mse strlen; XQueryExtension
 suppress mse _open
 suppress par TclLoadFile
-suppress mse strlen
-suppress mse strcpy
-suppress mse memcpy
 suppress umr isLocal
 suppress umr ExprGetValue
 suppress umr ios::flags(long)
 suppress umr ios::precision(int)
 suppress umr ios::fill(char)
 suppress umr ios::tie(ostream*)
-suppress mse *
 suppress umc XauReadAuth
 suppress umr _write; _X11TransSocketWrite
 suppress abr _open; __glLockedMemoryInit
@@ -70,6 +64,7 @@ suppress umc __glMipsCopyDispatch
 suppress umc vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
 suppress umr _bcmp; addTexTableUsage
 suppress umc memcpy; vtkRendererSource::Execute(void)
+
 suppress mlk _malloc; Tcl_CreateFileHandler
 suppress mlk _malloc; DoConfig; Tk_ConfigureWidget
 suppress mlk _malloc; _calloc; _X11TransSocketOpen
@@ -100,38 +95,34 @@ suppress mlk _malloc; operator new(unsigned int); __nw__FUi; filebuf::filebuf(in
 suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
 suppress umr __glSPDlalloc; __glsplc_Enable; __glce_common_listable
 suppress umc memcpy; vtkWindowToImageFilter::Execute(vtkImageData*)
-suppress abr strncmp; vtkDataReader::SetInputString(char*,int)
 suppress fmr  __glXCloseDisplay; XCloseDisplay
 
 suppress umc TkpGetColor;Tk_GetColor
 suppress umc  __getcwd; _getcwd
 suppress umc Tk_QueueWindowEvent; TkInOutEvents
 
+suppress umr isLocal
+suppress umr __glKonTexQuickSortPairs
+suppress umr __glKonTexChecksum
+suppress umr __glKonTexEvaluateCubicSpline
+suppress umr bindTexTable
+
+suppress mse *
 
 suppress mse _open
 suppress mse strlen
 suppress mse strcpy
 suppress mse memcpy
-suppress umr isLocal
 suppress mse _open
 suppress mse strlen
 suppress mse strcpy
 suppress mse memcpy
-suppress umr isLocal
 suppress mse _open
 suppress mse strlen
 suppress mse strcpy
 suppress mse memcpy
-suppress abr _open
-suppress abr strncmp
-suppress abr strcat
-suppress abr strncat
-suppress umr __glKonTexQuickSortPairs
-suppress umr __glKonTexChecksum
-suppress abr _bcopy
-suppress umr __glKonTexEvaluateCubicSpline
-suppress umr bindTexTable
 suppress mse _open
 suppress mse strlen
 suppress mse strcpy
 suppress mse memcpy
+suppress mse strlen
