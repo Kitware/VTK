@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING)
       Delaunay3D
       dicer
       Disk
+      dispPlot
       edgePoints
       eleState
       EnSight6Elements
