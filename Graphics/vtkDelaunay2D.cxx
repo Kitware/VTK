@@ -332,7 +332,7 @@ void vtkDelaunay2D::Execute()
   vtkIdList *neighbors, *cells;
   double center[3], radius, tol, x[3];
   int *triUse = NULL;
-  float *fCenter;
+  float *bounds;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
@@ -398,10 +398,10 @@ void vtkDelaunay2D::Execute()
     tPoints = NULL;
     }
 
-  fCenter = input->GetCenter();
-  center[0] = fCenter[0];
-  center[1] = fCenter[1];
-  center[2] = fCenter[2];
+  bounds = points->GetBounds();
+  center[0] = (bounds[0]+bounds[1])/2.0;
+  center[1] = (bounds[2]+bounds[3])/2.0;
+  center[2] = (bounds[4]+bounds[5])/2.0;
   tol = input->GetLength();
   radius = this->Offset * tol;
   tol *= this->Tolerance;
