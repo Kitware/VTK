@@ -53,6 +53,10 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->RGBTransferFunction		= NULL;
   this->OpacityTransferFunction		= NULL;
 
+  this->SelfCreatedGTFun		= 0;
+  this->SelfCreatedRGBTFun		= 0;
+  this->SelfCreatedOTFun		= 0;
+
   this->Shade				= 0;  // False
   this->Ambient				= 0.1;
   this->Diffuse				= 0.7;
@@ -64,7 +68,14 @@ vtkVolumeProperty::vtkVolumeProperty()
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
+  if( this->SelfCreatedGTFun && this->GrayTransferFunction )
+    this->GrayTransferFunction->Delete();
 
+  if( this->SelfCreatedRGBTFun && this->RGBTransferFunction )
+    this->RGBTransferFunction->Delete();
+
+  if( this->SelfCreatedOTFun && this->OpacityTransferFunction )
+    this->OpacityTransferFunction->Delete();
 }
 
 // Description:
@@ -73,10 +84,15 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 {
   if( this->GrayTransferFunction != function )
     {
+    if( this->SelfCreatedGTFun )
+      this->GrayTransferFunction->Delete();
+
+    this->SelfCreatedGTFun      = 0;
     this->GrayTransferFunction	= function;
     this->GrayTransferFunctionMTime.Modified();
     this->Modified();
     }
+
   if ( this->ColorChannels != 1 )
     {
     this->ColorChannels		= 1;
@@ -85,15 +101,35 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 }
 
 // Description:
+// Get the currently set gray transfer function. Create one if none set.
+vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction()
+{
+  if( this->GrayTransferFunction == NULL )
+    {
+    this->GrayTransferFunction = vtkPiecewiseFunction::New();
+    this->GrayTransferFunction->AddPoint(    0, 0.0 );
+    this->GrayTransferFunction->AddPoint( 1024, 1.0 );
+    this->SelfCreatedGTFun = 1;
+    }
+
+  return this->GrayTransferFunction;
+}
+
+// Description:
 // Set the color of a volume to an RGB transfer function
 void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 {
   if( this->RGBTransferFunction != function )
     {
+    if( this->SelfCreatedRGBTFun )
+      this->RGBTransferFunction->Delete();
+
+    this->SelfCreatedRGBTFun    = 0;
     this->RGBTransferFunction	= function;
     this->RGBTransferFunctionMTime.Modified();
     this->Modified();
     }
+
   if ( this->ColorChannels != 3 )
     {
     this->ColorChannels		= 3;
@@ -102,16 +138,54 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 }
 
 // Description:
+// Get the currently set RGB transfer function. Create one if none set.
+vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
+{
+  if( this->RGBTransferFunction == NULL )
+    {
+    this->RGBTransferFunction = vtkColorTransferFunction::New();
+    this->RGBTransferFunction->AddRedPoint(      0, 0.0 );
+    this->RGBTransferFunction->AddRedPoint(   1024, 1.0 );
+    this->RGBTransferFunction->AddGreenPoint(    0, 0.0 );
+    this->RGBTransferFunction->AddGreenPoint( 1024, 1.0 );
+    this->RGBTransferFunction->AddBluePoint(     0, 0.0 );
+    this->RGBTransferFunction->AddBluePoint(  1024, 1.0 );
+    this->SelfCreatedRGBTFun = 1;
+    }
+
+  return this->RGBTransferFunction;
+}
+
+// Description:
 // Set the opacity of a volume to a transfer function
 void vtkVolumeProperty::SetOpacity( vtkPiecewiseFunction *function )
 {
   if( this->OpacityTransferFunction != function )
     {
+    if( this->SelfCreatedOTFun )
+      this->OpacityTransferFunction->Delete();
+
+    this->SelfCreatedOTFun		= 0;
     this->OpacityTransferFunction	= function;
 
     this->OpacityTransferFunctionMTime.Modified();
     this->Modified();
     }
+}
+
+// Description:
+// Get the currently set opacity transfer function. Create one if none set.
+vtkPiecewiseFunction *vtkVolumeProperty::GetOpacityTransferFunction()
+{
+  if( this->OpacityTransferFunction == NULL )
+    {
+    this->OpacityTransferFunction = vtkPiecewiseFunction::New();
+    this->OpacityTransferFunction->AddPoint(    0, 0.0 );
+    this->OpacityTransferFunction->AddPoint( 1024, 1.0 );
+    this->SelfCreatedOTFun = 1;
+    }
+
+  return this->OpacityTransferFunction;
 }
 
 // Description:
