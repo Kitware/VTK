@@ -371,6 +371,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkMatrix4x4 &GetCompositePerspectiveTransform(double aspect, double nearz, double farz) 
     {VTK_LEGACY_METHOD(GetCompositePerspectiveTransformMatrix,"3.2"); return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
 #endif
+
+  vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
   
 protected:
   vtkCamera();
