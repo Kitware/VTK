@@ -373,6 +373,10 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
   self->vtk_ptr->Delete();
   // the rest of the delection is handled when the VTK-level object
   // is destroyed
+  vtkPythonDeleteObjectFromHash((PyObject *)self);
+  Py_DECREF((PyObject *)self->vtk_class);
+  Py_DECREF(self->vtk_dict);
+  PyMem_DEL(self);
 }
 
 //--------------------------------------------------------------------
@@ -441,9 +445,10 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObject *ptr)
   self->vtk_dict = PyDict_New();
 
   vtkPythonAddObjectToHash((PyObject *)self, ptr);
+  /* I'll reinstate this later
   ptr->AddObserver(vtkCommand::DeleteEvent,
                    vtkPythonDeleteCommand::New(self));
-  
+  */
   return (PyObject *)self;
 }
 
