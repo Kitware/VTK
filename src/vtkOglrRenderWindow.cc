@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrTexture.hh"
 #include "vtkOglrCamera.hh"
 #include "vtkOglrLight.hh"
+#include "vtkOglrActor.hh"
 #include "GL/gl.h"
 #include "GL/glu.h"
 
@@ -252,6 +253,16 @@ vtkCameraDevice *vtkOglrRenderWindow::MakeCamera()
 
   camera = new vtkOglrCamera;
   return (vtkCameraDevice *)camera;
+}
+
+// Description:
+// Create a OpenGL specific actor.
+vtkActorDevice *vtkOglrRenderWindow::MakeActor()
+{
+  vtkOglrActor *actor;
+
+  actor = new vtkOglrActor;
+  return (vtkActorDevice *)actor;
 }
 
 // Description:

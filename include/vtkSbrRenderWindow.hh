@@ -64,6 +64,7 @@ public:
   vtkRenderer       *MakeRenderer();
   vtkLightDevice    *MakeLight();
   vtkCameraDevice   *MakeCamera();
+  vtkActorDevice    *MakeActor();
   vtkPropertyDevice *MakeProperty();
   vtkTextureDevice  *MakeTexture();
 

@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrTexture.hh"
 #include "vtkSbrCamera.hh"
 #include "vtkSbrLight.hh"
+#include "vtkSbrActor.hh"
 
 #define MAX_LIGHTS 16
 
@@ -108,6 +109,16 @@ vtkCameraDevice *vtkSbrRenderWindow::MakeCamera()
 
   camera = new vtkSbrCamera;
   return (vtkCameraDevice *)camera;
+}
+
+// Description:
+// Create a starbase specific actor.
+vtkActorDevice *vtkSbrRenderWindow::MakeActor()
+{
+  vtkSbrActor *actor;
+
+  actor = new vtkSbrActor;
+  return (vtkActorDevice *)actor;
 }
 
 // Description:

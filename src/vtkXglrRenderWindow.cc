@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrTexture.hh"
 #include "vtkXglrCamera.hh"
 #include "vtkXglrLight.hh"
+#include "vtkXglrActor.hh"
 
 // some globals left over from some Sun code
 Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object 
@@ -126,6 +127,16 @@ vtkCameraDevice *vtkXglrRenderWindow::MakeCamera()
 
   camera = new vtkXglrCamera;
   return (vtkCameraDevice *)camera;
+}
+
+// Description:
+// Create a Xglr specific actor.
+vtkActorDevice *vtkXglrRenderWindow::MakeActor()
+{
+  vtkXglrActor *actor;
+
+  actor = new vtkXglrActor;
+  return (vtkActorDevice *)actor;
 }
 
 // Description:

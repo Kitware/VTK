@@ -61,32 +61,15 @@ vtkXglrRenderer::vtkXglrRenderer()
 int vtkXglrRenderer::UpdateActors()
 {
   vtkActor *anActor;
-  float visibility;
-  vtkMatrix4x4 matrix;
   int count = 0;
-  Xgl_trans model_trans;
 
   // loop through actors 
-  for (this->Actors.InitTraversal(); 
-       (anActor = this->Actors.GetNextItem()); )
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
-    visibility = anActor->GetVisibility();
-
-    if (visibility == 1.0)
+    if (anActor->GetVisibility())
       {
       count++;
-      // build transformation 
-      anActor->GetMatrix(matrix);
-
-      // shold we transpose this matrix ?
-      matrix.Transpose();
- 
-      // insert model transformation 
-      xgl_object_get(this->Context,
-		     XGL_CTX_GLOBAL_MODEL_TRANS, &model_trans);
-      xgl_transform_write(model_trans,(float (*)[4])(matrix[0]));
-
       anActor->Render((vtkRenderer *)this);
       }
     }

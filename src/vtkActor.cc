@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkActor.hh"
+#include "vtkActorDevice.hh"
+#include "vtkRenderWindow.hh"
 
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
@@ -75,6 +77,7 @@ vtkActor::vtkActor()
   this->Dragable   = 1;
   
   this->SelfCreatedProperty = 0;
+  this->Device = NULL;
 }
 
 vtkActor::~vtkActor()
@@ -86,7 +89,8 @@ vtkActor::~vtkActor()
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
-// assigned, then the actor will create one automatically.
+// assigned, then the actor will create one automatically. Note that a 
+// side effect of this method is that the visualization network is updated.
 void vtkActor::Render(vtkRenderer *ren)
 {
   // render the property
@@ -100,11 +104,12 @@ void vtkActor::Render(vtkRenderer *ren)
   // render the texture */
   if (this->Texture) this->Texture->Render(ren);
 
-  // send a render to the mapper
-  if ( ! this->Mapper )
-    vtkWarningMacro(<<"No mapper defined for actor...can't render");
-  else
-    this->Mapper->Render(ren);
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeActor();
+    }
+
+  if ( this->Mapper ) this->Device->Render(this,ren,this->Mapper);
 }
 
 void vtkActor::SetProperty(vtkProperty *lut)

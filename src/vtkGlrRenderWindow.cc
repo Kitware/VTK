@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlrTexture.hh"
 #include "vtkGlrCamera.hh"
 #include "vtkGlrLight.hh"
+#include "vtkGlrActor.hh"
 #include "gl/glws.h"
 #include "gl/get.h"
 
@@ -163,6 +164,16 @@ vtkLightDevice *vtkGlrRenderWindow::MakeLight()
 
   light = new vtkGlrLight;
   return (vtkLightDevice *)light;
+}
+
+// Description:
+// Create a gl specific actor.
+vtkActorDevice *vtkGlrRenderWindow::MakeActor()
+{
+  vtkGlrActor *actor;
+
+  actor = new vtkGlrActor;
+  return (vtkActorDevice *)actor;
 }
 
 // Description:

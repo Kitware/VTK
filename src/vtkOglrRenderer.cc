@@ -62,38 +62,24 @@ vtkOglrRenderer::vtkOglrRenderer()
 }
 
 // Description:
-// Ask actors to build and draw themselves.
+// Ask actors to render themselves. As a side effect will cause 
+// visualization network to update.
 int vtkOglrRenderer::UpdateActors()
 {
   vtkActor *anActor;
-  float visibility;
-  vtkMatrix4x4 matrix;
   int count = 0;
  
   // set matrix mode for actors 
   glMatrixMode(GL_MODELVIEW);
 
   // loop through actors 
-  for (this->Actors.InitTraversal(); 
-       (anActor = this->Actors.GetNextItem()); )
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
-    visibility = anActor->GetVisibility();
-
-    if (visibility == 1.0)
+    if (anActor->GetVisibility())
       {
       count++;
-      // build transformation 
-      anActor->GetMatrix(matrix);
-      matrix.Transpose();
- 
-      // insert model transformation 
-      glPushMatrix();
-      glMultMatrixf(matrix[0]);
- 
       anActor->Render((vtkRenderer *)this);
- 
-      glPopMatrix();
       }
     }
   return count;

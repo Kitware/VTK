@@ -47,16 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Implement base class method.
 void vtkSbrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
 {
-  this->Render(actor, (vtkSbrRenderer *)ren, mapper);
-}
-
-// Description:
-// Actual actor render method.
-void vtkSbrActor::Render(vtkActor *actor, vtkSbrRenderer *ren,
-                         vtkMapper *mapper)
-{
   static vtkMatrix4x4 matrix;
-  int Fd=ren->GetFd();
+  int Fd=((vtkSbrRenderer *)ren)->GetFd();
 
   // build transformation 
   actor->GetMatrix(matrix);

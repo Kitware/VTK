@@ -58,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderWindowInteractor;
 class vtkLightDevice;
 class vtkCameraDevice;
+class vtkActorDevice;
 class vtkTextureDevice;
 class vtkPropertyDevice;
 
@@ -112,6 +113,11 @@ public:
   // Create a device specific camera. This is used by vtkCamera to create
   // the correct type of vtkCameraDevice.
   virtual vtkCameraDevice    *MakeCamera() = 0;
+
+  // Description:
+  // Create a device specific actor. This is used by vtkActor to create
+  // the correct type of vtkActorDevice.
+  virtual vtkActorDevice    *MakeActor() = 0;
 
   // Description:
   // Create a device specific property. This is used by vtkProperty to create

@@ -46,23 +46,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Implement base class method.
 void vtkXglrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
 {
-  this->Render(actor, (vtkXglrRenderer *)ren, mapper);
-}
-
-// Description:
-// Actual actor render method.
-void vtkXglrActor::Render(vtkActor *actor, vtkXglrRenderer *ren,
-                          vtkMapper *mapper)
-{
   static vtkMatrix4x4 matrix;
   Xgl_trans model_trans;
 
   // build transformation 
-  anActor->GetMatrix(matrix);
+  actor->GetMatrix(matrix);
   matrix.Transpose();
 
   // insert model transformation 
-  xgl_object_get(ren->GetContext(),
+  xgl_object_get(*(((vtkXglrRenderer *)ren)->GetContext()),
                  XGL_CTX_GLOBAL_MODEL_TRANS, &model_trans);
   xgl_transform_write(model_trans,(float (*)[4])(matrix[0]));
 

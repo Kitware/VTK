@@ -47,14 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Implement base class method.
 void vtkGlrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
 {
-  this->Render(actor, (vtkGlrRenderer *)ren, mapper);
-}
-
-// Description:
-// Actual actor render method.
-void vtkGlrActor::Render(vtkActor *actor, vtkGlrRenderer *ren,
-                         vtkMapper *mapper)
-{
   static vtkMatrix4x4 matrix;
 
   // build transformation 
@@ -68,9 +60,7 @@ void vtkGlrActor::Render(vtkActor *actor, vtkGlrRenderer *ren,
   // send a render to the mapper; update pipeline
   mapper->Render(ren);
 
-  popmatrix();
-
   // pop transformation matrix
-  glPopMatrix();
+  popmatrix();
 }
 

@@ -57,8 +57,7 @@ protected:
 public:
   char *GetClassName() {return "vtkOglrActor";};
 
-  void Render(vtkActor *a, vtkRenderer *ren);
-  void Render(vtkActor *a, vtkOglrRenderer *ren);
+  void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);
 };
 
 #endif

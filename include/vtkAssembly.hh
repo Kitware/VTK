@@ -117,6 +117,7 @@ protected:
   vtkActorCollection Parts;
   int ApplyTransform;
   int ApplyProperty;
+  vtkTimeStamp RenderTime;
 
 };
 

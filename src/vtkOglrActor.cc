@@ -46,17 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkOglrRenderer.hh"
 #include "vtkOglrActor.hh"
-
-// Description:
-// Implement base class method.
-void vtkOglrActor::Render(vtkActor *actor, vtkRenderer *ren);
-{
-  this->Render(actor, (vtkOglrRenderer *)ren,actor_index);
-}
+#include "vtkActor.hh"
 
 // Description:
 // Actual actor render method.
-void vtkOglrActor::Render(vtkActor *actor, vtkOglrRenderer *ren)
+void vtkOglrActor::Render(vtkActor *actor, vtkRenderer *ren,
+                          vtkMapper *mapper)
 {
   static vtkMatrix4x4 matrix;
 
@@ -68,19 +63,8 @@ void vtkOglrActor::Render(vtkActor *actor, vtkOglrRenderer *ren)
   glPushMatrix();
   glMultMatrixf(matrix[0]);
 
-  // render the property
-  if (!this->Property)
-    {
-    // force creation of a property
-    this->GetProperty();
-    }
-  this->Property->Render(ren);
-
-  // render the texture */
-  if (this->Texture) this->Texture->Render(ren);
-
-  // send a render to the mapper
-  if ( this->Mapper ) this->Mapper->Render(ren);
+  // send a render to the mapper; update pipeline
+  mapper->Render(ren);
 
   // pop transformation matrix
   glPopMatrix();

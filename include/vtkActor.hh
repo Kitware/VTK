@@ -50,7 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // possibly a texture map.
 
 // .SECTION See Also
-// vtkProperty vtkTexture vtkMapper vtkFollower vtkLODActor
+// vtkProperty vtkTexture vtkMapper vtkActorDevice vtkFollower vtkLODActor
+// vtkAssembly
 
 #ifndef __vtkActor_hh
 #define __vtkActor_hh
@@ -62,6 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.hh"
 
 class vtkRenderer;
+class vtkActorDevice;
 
 class vtkActor : public vtkObject
 {
@@ -193,6 +195,7 @@ protected:
   float Bounds[6];
   int SelfCreatedProperty;
   float Center[3];
+  vtkActorDevice *Device;
 };
 
 #endif

@@ -67,6 +67,8 @@ public:
   char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkProperty &operator=(const vtkProperty& p);
+
   // Description:
   // This method causes the property to set up whatever is required for
   // its instance variables. This is actually handled by an instance of

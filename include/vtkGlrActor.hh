@@ -58,7 +58,6 @@ public:
   char *GetClassName() {return "vtkGlrActor";};
 
   void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);
-  void Render(vtkActor *a, vtkGlrRenderer *ren, vtkMapper *mapper);
 };
 
 #endif

@@ -67,8 +67,6 @@ vtkGlrRenderer::vtkGlrRenderer()
 int vtkGlrRenderer::UpdateActors()
 {
   vtkActor *anActor;
-  float visibility;
-  vtkMatrix4x4 matrix;
   int count = 0;
  
   // set matrix mode for actors 
@@ -78,22 +76,10 @@ int vtkGlrRenderer::UpdateActors()
   for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
     {
     // if it's invisible, we can skip the rest 
-    visibility = anActor->GetVisibility();
-
-    if (visibility == 1.0)
+    if (anActor->GetVisibility())
       {
       count++;
-      // build transformation 
-      anActor->GetMatrix(matrix);
-      matrix.Transpose();
- 
-      // insert model transformation 
-      pushmatrix();
-      multmatrix((float (*)[4])(matrix[0]));
- 
       anActor->Render((vtkRenderer *)this);
- 
-      popmatrix();
       }
     }
   return count;
