@@ -98,7 +98,6 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
-vtkMultiBlockDataSetGeometryFilter.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
