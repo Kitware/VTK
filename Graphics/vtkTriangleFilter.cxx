@@ -67,7 +67,6 @@ void vtkTriangleFilter::Execute()
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkIdType updateInterval;
-  vtkIdType numPoints=input->GetNumberOfPoints();
   vtkCellArray *cells, *newCells;
   vtkPoints *inPts=input->GetPoints();
 
