@@ -54,19 +54,18 @@ public:
   vtkImageSinusoidSource();
   static vtkImageSinusoidSource *New() {return new vtkImageSinusoidSource;};
   const char *GetClassName() {return "vtkImageSinusoidSource";};
-  // void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
   // Set/Get the extent of the whole output image.
-  void SetWholeExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(WholeExtent);
+  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
+		      int zMin, int zMax);
   
   // Description:
   // Set/Get the direction vector which determines the sinusoidal
   // orientation. The magnitude is ignored.
-  void SetDirection(int num, float *direction);
-  vtkImageSetMacro(Direction,float);
-  vtkGetVector4Macro(Direction, float);
+  void SetDirection(float,float,float);
+  void SetDirection(float *);
+  vtkGetVector3Macro(Direction, float);
   
   // Description:
   // Set/Get the period of the sinusoid in pixels.
@@ -84,13 +83,13 @@ public:
   void UpdateImageInformation();
 
 private:
-  int WholeExtent[8];
-  float Direction[4];
+  int WholeExtent[6];
+  float Direction[3];
   float Period;
   float Phase;
   float Amplitude;
 
-  void Execute(vtkImageRegion *outRegion);
+  void Execute(vtkImageData *data);
 };
 
 

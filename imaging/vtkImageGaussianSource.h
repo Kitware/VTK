@@ -54,17 +54,16 @@ public:
   vtkImageGaussianSource();
   static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
   const char *GetClassName() {return "vtkImageGaussianSource";};
-  // void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
   // Set/Get the extent of the whole output image.
-  void SetWholeExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(WholeExtent);
+  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
+		      int zMin, int zMax);
   
   // Description:
   // Set/Get the center of the Gaussian.
-  vtkSetVector4Macro(Center, float);
-  vtkGetVector4Macro(Center, float);
+  vtkSetVector3Macro(Center, float);
+  vtkGetVector3Macro(Center, float);
 
   vtkSetMacro(Maximum, float);
   vtkGetMacro(Maximum, float);
@@ -76,11 +75,11 @@ public:
 
 private:
   float StandardDeviation;
-  int WholeExtent[8];
-  float Center[4];
+  int WholeExtent[6];
+  float Center[3];
   float Maximum;
 
-  void Execute(vtkImageRegion *outRegion);
+  void Execute(vtkImageData *data);
 };
 
 

@@ -19,8 +19,8 @@ vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [gradient GetOutput]
 viewer SetZSlice 22
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetColorWindow 1000
+viewer SetColorLevel 500
 
 
 # make interface

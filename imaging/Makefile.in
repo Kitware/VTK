@@ -46,12 +46,15 @@ vtkImageConnector \
 vtkImageConstantPad \
 vtkImageCorrelation \
 vtkImageCursor3D \
+vtkImageDivergence \
+vtkImageDotProduct \
 vtkImageEllipsoidSource \
 vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFlip \
 vtkImageFourierCenter \
 vtkImageGaussianSmooth \
+vtkImageGaussianSource \
 vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
@@ -75,6 +78,7 @@ vtkImageRGBToHSV \
 vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageShrink3D \
+vtkImageSinusoidSource \
 vtkImageStaticCache \
 vtkImageThreshold \
 vtkImageViewer \
@@ -96,11 +100,8 @@ vtkXTextMapper
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \
 #vtkImageDilateErode3D \
-#vtkImageDivergence3D \
-#vtkImageDotProduct \
 #vtkImageEuclideanToPolar \
 #vtkImageFeatureAnd \
-#vtkImageGaussianSource \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
 #vtkImageHybridMedian2D \
@@ -109,11 +110,9 @@ vtkXTextMapper
 #vtkImageLaplacian \
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
-#vtkImageMagnify1D \
 #vtkImageOpenClose3D \
 #vtkImageRange3D \
 #vtkImageShortWriter \
-#vtkImageSinusoidSource \
 #vtkImageSkeleton2D \
 #vtkImageSobel2D \
 #vtkImageSobel3D \

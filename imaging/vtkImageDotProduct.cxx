@@ -38,17 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageDotProduct.h"
-
-
-
-//----------------------------------------------------------------------------
-vtkImageDotProduct::vtkImageDotProduct()
-{
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS);
-}
 
 
 //----------------------------------------------------------------------------
@@ -63,51 +54,72 @@ void vtkImageDotProduct::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
+// Handles the two input operations
 template <class T>
 static void vtkImageDotProductExecute(vtkImageDotProduct *self,
-			       vtkImageRegion *in1Region, T *in1Ptr,
-			       vtkImageRegion *in2Region, T *in2Ptr,
-			       vtkImageRegion *outRegion, T *outPtr)
+				      vtkImageData *in1Data, 
+				      T *in1Ptr,
+				      vtkImageData *in2Data, 
+				      T *in2Ptr,
+				      vtkImageData *outData, 
+				      T *outPtr,
+				      int outExt[6], int id)
 {
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int in2IncX, in2IncY, in2IncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
   float dot;
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int in1Inc0, in1Inc1;
-  int in2Inc0, in2Inc1;
-  int outInc0, outInc1;
-  T *in1Ptr0, *in1Ptr1;
-  T *in2Ptr0, *in2Ptr1;
-  T *outPtr1;
-
-  self = self;
-  // Get information to march through data 
-  in1Region->GetIncrements(in1Inc0, in1Inc1);
-  in2Region->GetIncrements(in2Inc0, in2Inc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  in1Region->GetExtent(min0, max0, min1, max1);
   
+  // find the region to loop over
+  maxC = in1Data->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+  
+  // Get increments to march through data 
+  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
   // Loop through ouput pixels
-  in1Ptr1 = in1Ptr;
-  in2Ptr1 = in2Ptr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    dot = 0.0;
-    in1Ptr0 = in1Ptr1;
-    in2Ptr0 = in2Ptr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      dot += (float)(*in1Ptr0 * *in2Ptr0);
-      in1Ptr0 += in1Inc0;
-      in2Ptr0 += in2Inc0;
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// now process the components
+	dot = 0.0;
+	for (idxC = 0; idxC < maxC; idxC++)
+	  {
+	  // Pixel operation
+	  dot += (float)(*in1Ptr * *in2Ptr);
+	  in1Ptr++;
+	  in2Ptr++;
+	  }
+	*outPtr = (T)dot;
+	outPtr++;
+	}
+      outPtr += outIncY;
+      in1Ptr += inIncY;
+      in2Ptr += in2IncY;
       }
-    *outPtr1 = (T)(dot);
-    outPtr1 += outInc1;
-    in1Ptr1 += in1Inc1;
-    in2Ptr1 += in2Inc1;
+    outPtr += outIncZ;
+    in1Ptr += inIncZ;
+    in2Ptr += in2IncZ;
     }
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -116,63 +128,72 @@ static void vtkImageDotProductExecute(vtkImageDotProduct *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageDotProduct::Execute(vtkImageRegion *inRegion1, 
-				 vtkImageRegion *inRegion2, 
-				 vtkImageRegion *outRegion)
+void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData, 
+					 vtkImageData *outData,
+					 int outExt[6], int id)
 {
-  void *inPtr1 = inRegion1->GetScalarPointer();
-  void *inPtr2 = inRegion2->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that inputs are the same type as output.
-  if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||
-      inRegion2->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
+      inData[1]->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarTypes, " 
-        << inRegion1->GetScalarType() << " and " << inRegion2->GetScalarType()
-        << ", must match out ScalarType " << outRegion->GetScalarType());
-    return;
+      vtkErrorMacro(<< "Execute: input ScalarType, " << 
+      inData[0]->GetScalarType()
+      << ", must match out ScalarType " << outData->GetScalarType());
+      return;
     }
   
-  switch (inRegion1->GetScalarType())
+  switch (inData[0]->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageDotProductExecute(this, 
-			  inRegion1, (float *)(inPtr1), 
-			  inRegion2, (float *)(inPtr2), 
-			  outRegion, (float *)(outPtr));
+      vtkImageDotProductExecute(this, inData[0], 
+				(float *)(in1Ptr), 
+				inData[1], (float *)(in2Ptr), 
+				outData, (float *)(outPtr), 
+				outExt, id);
       break;
     case VTK_INT:
-      vtkImageDotProductExecute(this, 
-			  inRegion1, (int *)(inPtr1), 
-			  inRegion2, (int *)(inPtr2), 
-			  outRegion, (int *)(outPtr));
+      vtkImageDotProductExecute(this, inData[0], (int *)(in1Ptr), 
+				inData[1], (int *)(in2Ptr), 
+				outData, (int *)(outPtr), 
+				outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageDotProductExecute(this, 
-			  inRegion1, (short *)(inPtr1), 
-			  inRegion2, (short *)(inPtr2), 
-			  outRegion, (short *)(outPtr));
+      vtkImageDotProductExecute(this, inData[0], 
+				(short *)(in1Ptr), 
+				inData[1], (short *)(in2Ptr), 
+				outData, (short *)(outPtr), 
+				outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageDotProductExecute(this, 
-			  inRegion1, (unsigned short *)(inPtr1), 
-			  inRegion2, (unsigned short *)(inPtr2), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageDotProductExecute(this, inData[0], 
+				(unsigned short *)(in1Ptr), 
+				inData[1], 
+				(unsigned short *)(in2Ptr), 
+				outData, 
+				(unsigned short *)(outPtr), 
+				outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageDotProductExecute(this, 
-			  inRegion1, (unsigned char *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageDotProductExecute(this, inData[0], 
+				(unsigned char *)(in1Ptr), 
+				inData[1], 
+				(unsigned char *)(in2Ptr), 
+				outData, 
+				(unsigned char *)(outPtr), 
+				outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
 
 
 

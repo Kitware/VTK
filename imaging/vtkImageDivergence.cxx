@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGradientMagnitude.cxx
+  Module:    vtkImageDivergence.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to C. Charles Law who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -40,88 +40,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageCache.h"
-#include "vtkImageGradientMagnitude.h"
+#include "vtkImageDivergence.h"
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImageGradientMagnitude fitler.
-vtkImageGradientMagnitude::vtkImageGradientMagnitude()
+vtkImageDivergence::vtkImageDivergence()
 {
   this->Dimensionality = 2;
-  this->HandleBoundaries = 1;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDivergence::ExecuteImageInformation()
 {
-  this->vtkImageFilter::PrintSelf(os, indent);
-  os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
-  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  this->Output->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// This method is passed a region that holds the image extent of this filters
-// input, and changes the region to hold the image extent of this filters
-// output.
-void vtkImageGradientMagnitude::ExecuteImageInformation()
-{  
-  int extent[6];
+// Just clip the request.  The subclass may need to overwrite this method.
+void vtkImageDivergence::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							    int outExt[6])
+{
   int idx;
-
-  this->Input->GetWholeExtent(extent);
-  if ( ! this->HandleBoundaries)
-    {
-    // shrink output image extent.
-    for (idx = 0; idx < this->Dimensionality; ++idx)
-      {
-      extent[idx*2] += 1;
-      extent[idx*2 + 1] -= 1;
-      }
-    }
-  
-  this->Output->SetWholeExtent(extent);
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(int inExt[6],
-								 int outExt[6])
-{
   int *wholeExtent;
-  int idx;
-
+  
+  // handle XYZ
+  memcpy(inExt,outExt,sizeof(int)*6);
+  
   wholeExtent = this->Input->GetWholeExtent();
-  
-  memcpy(inExt,outExt,6*sizeof(int));
-  
-  // grow input whole extent.
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  // update and Clip
+  for (idx = 0; idx < 3; ++idx)
     {
-    inExt[idx*2] -= 1;
-    inExt[idx*2+1] += 1;
-    if (this->HandleBoundaries)
+    --inExt[idx*2];
+    ++inExt[idx*2+1];
+    if (inExt[idx*2] < wholeExtent[idx*2])
       {
-      // we must clip extent with whole extent is we hanlde boundaries.
-      if (inExt[idx*2] < wholeExtent[idx*2])
-	{
-	inExt[idx*2] = wholeExtent[idx*2];
-	}
-      if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-	{
-	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-	}
+      inExt[idx*2] = wholeExtent[idx*2];
+      }
+    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
+      {
+      inExt[idx*2] = wholeExtent[idx*2 + 1];
+      }
+    if (inExt[idx*2+1] < wholeExtent[idx*2])
+      {
+      inExt[idx*2+1] = wholeExtent[idx*2];
+      }
+    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+      {
+      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
 }
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -129,10 +97,10 @@ void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(int inExt[6],
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+static void vtkImageDivergenceExecute(vtkImageDivergence *self,
+				      vtkImageData *inData, T *inPtr,
+				      vtkImageData *outData, T *outPtr,
+				      int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -146,7 +114,7 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
   // find the region to loop over
-  maxC = outData->GetNumberOfScalarComponents();
+  maxC = inData->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
@@ -160,11 +128,13 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // The data spacing is important for computing the gradient.
+  // The spacing is important for computing the gradient.
+  // central differences (2 * ratio).
+  // Negative because below we have (min - max) for dx ...
   inData->GetSpacing(r);
-  r[0] = 0.5 / r[0];
-  r[1] = 0.5 / r[1];
-  r[2] = 0.5 / r[2];
+  r[0] = -0.5 / r[0];
+  r[1] = -0.5 / r[1];
+  r[2] = -0.5 / r[2];
 
   // get some other info we need
   inIncs = inData->GetIncrements(); 
@@ -188,30 +158,31 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 	{
 	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
 	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+	sum = 0.0;
 	for (idxC = 0; idxC < maxC; idxC++)
 	  {
 	  // do X axis
 	  d = (float)(inPtr[useXMin]);
 	  d -= (float)(inPtr[useXMax]);
 	  d *= r[0]; // multiply by the data spacing
-	  sum = d * d;
+	  sum = sum + d * r[0];
 	  // do y axis
 	  d = (float)(inPtr[useYMin]);
 	  d -= (float)(inPtr[useYMax]);
 	  d *= r[1]; // multiply by the data spacing
-	  sum += (d * d);
+	  sum = sum + d * r[1];
 	  if (axesNum == 3)
 	    {
 	    // do z axis
 	    d = (float)(inPtr[useZMin]);
 	    d -= (float)(inPtr[useZMax]);
 	    d *= r[2]; // multiply by the data spacing
-	    sum += (d * d);
+	    sum = sum + d * r[2];
 	    }
-	  *outPtr = (T)(sqrt(sum));
-	  outPtr++;
 	  inPtr++;
 	  }
+	*outPtr = (T)sum;
+	outPtr++;
 	}
       outPtr += outIncY;
       inPtr += inIncY;
@@ -221,56 +192,56 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
     }
 }
 
-
+  
 //----------------------------------------------------------------------------
 // Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageGradientMagnitude::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+void vtkImageDivergence::ThreadedExecute(vtkImageData *inData, 
+					   vtkImageData *outData,
+					   int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
   switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageGradientMagnitudeExecute(this, 
-			  inData, (float *)(inPtr), 
-			  outData, (float *)(outPtr), outExt, id);
+      vtkImageDivergenceExecute(this, 
+				inData, (float *)(inPtr), 
+				outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageGradientMagnitudeExecute(this, 
-			  inData, (int *)(inPtr), 
-			  outData, (int *)(outPtr), outExt, id);
+      vtkImageDivergenceExecute(this, 
+				inData, (int *)(inPtr), 
+				outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageGradientMagnitudeExecute(this, 
-			  inData, (short *)(inPtr), 
-			  outData, (short *)(outPtr), outExt, id);
+      vtkImageDivergenceExecute(this, 
+				inData, (short *)(inPtr), 
+				outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageGradientMagnitudeExecute(this, 
-			  inData, (unsigned short *)(inPtr), 
-			  outData, (unsigned short *)(outPtr), outExt, id);
+      vtkImageDivergenceExecute(this, 
+				inData, (unsigned short *)(inPtr), 
+				outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageGradientMagnitudeExecute(this, 
-			  inData, (unsigned char *)(inPtr), 
-			  outData, (unsigned char *)(outPtr), outExt, id);
+      vtkImageDivergenceExecute(this, 
+				inData, (unsigned char *)(inPtr), 
+				outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

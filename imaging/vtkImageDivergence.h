@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDivergence3D.h
+  Module:    vtkImageDivergence.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,35 +38,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDivergence3D - Scalar field from vector field.
+// .NAME vtkImageDivergence - Scalar field from vector field.
 // .SECTION Description
-// vtkImageDivergence3D takes a 3D vector field from a surface detection
-// filter (i.e. 3D Gradient) and creates a scalar field which 
+// vtkImageDivergence takes a 3D vector field from a surface detection
+// filter (i.e. Gradient) and creates a scalar field which 
 // which represents the rate of change of the vector field.
-// The filteredAxes are hard coded to be x, y, z.
-// If a single image (whole extent) is filtered, then the filter degenerates
-// to a 2D Divergence fitler because of boundary handling.
-// Input and output are always float.
 
 
-
-
-#ifndef __vtkImageDivergence3D_h
-#define __vtkImageDivergence3D_h
+#ifndef __vtkImageDivergence_h
+#define __vtkImageDivergence_h
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageDivergence3D : public vtkImageFilter
+class VTK_EXPORT vtkImageDivergence : public vtkImageFilter
 {
 public:
-  vtkImageDivergence3D();
-  static vtkImageDivergence3D *New() {return new vtkImageDivergence3D;};
-  const char *GetClassName() {return "vtkImageDivergence3D";};
+  vtkImageDivergence();
+  static vtkImageDivergence *New() {return new vtkImageDivergence;};
+  const char *GetClassName() {return "vtkImageDivergence";};
   
+  // Description:
+  // Determines how the input is interpreted (set of 2d slices ...)
+  vtkSetClampMacro(Dimensionality,int,2,3);
+  vtkGetMacro(Dimensionality,int);
+
 protected:
+  int Dimensionality;
+
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int ext[6], int id);
 };
 
 #endif

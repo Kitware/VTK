@@ -6,7 +6,6 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageReader reader
-reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
@@ -14,12 +13,12 @@ reader SetDataMask 0x7fff
 #reader DebugOn
 
 vtkImageGradient gradient
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+gradient SetDimensionality 3
 gradient SetInput [reader GetOutput]
 
-vtkImageDivergence3D derivative
+vtkImageDivergence derivative
+derivative SetDimensionality 3
 derivative SetInput [gradient GetOutput]
-derivative ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [derivative GetOutput]

@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageGaussianSource.h"
 
@@ -49,37 +48,54 @@ vtkImageGaussianSource::vtkImageGaussianSource()
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
-  this->Center[3] = 0.0;
 
   this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
-  this->WholeExtent[6] = 0;  this->WholeExtent[7] = 0;
   this->StandardDeviation = 100.0;
-  
-  this->SetOutputScalarType(VTK_FLOAT);
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSource::SetWholeExtent(int dim, int *extent)
+void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax, 
+					    int yMin, int yMax,
+					    int zMin, int zMax)
 {
-  int idx;
+  int modified = 0;
   
-  if (dim > 4)
+  if (this->WholeExtent[0] != xMin)
     {
-    vtkWarningMacro("SetWholeExtent: Too many axes");
-    dim = 4;
+    modified = 1;
+    this->WholeExtent[0] = xMin ;
     }
-  
-  for (idx = 0; idx < dim*2; ++idx)
+  if (this->WholeExtent[1] != xMax)
     {
-    if (this->WholeExtent[idx] != extent[idx])
-      {
-      this->WholeExtent[idx] = extent[idx];
-      this->Modified();
-      }
+    modified = 1;
+    this->WholeExtent[1] = xMax ;
+    }
+  if (this->WholeExtent[2] != yMin)
+    {
+    modified = 1;
+    this->WholeExtent[2] = yMin ;
+    }
+  if (this->WholeExtent[3] != yMax)
+    {
+    modified = 1;
+    this->WholeExtent[3] = yMax ;
+    }
+  if (this->WholeExtent[4] != zMin)
+    {
+    modified = 1;
+    this->WholeExtent[4] = zMin ;
+    }
+  if (this->WholeExtent[5] != zMax)
+    {
+    modified = 1;
+    this->WholeExtent[5] = zMax ;
+    }
+  if (modified)
+    {
+    this->Modified();
     }
 }
 
@@ -88,40 +104,61 @@ void vtkImageGaussianSource::UpdateImageInformation()
 {
   this->CheckCache();
   this->Output->SetWholeExtent(this->WholeExtent);
+  this->Output->SetScalarType(VTK_FLOAT);
+  this->Output->SetNumberOfScalarComponents(1);
 }
 
-//----------------------------------------------------------------------------
-void vtkImageGaussianSource::Execute(vtkImageRegion *region)
+void vtkImageGaussianSource::Execute(vtkImageData *data)
 {
-  int min, max;
-  float *ptr;
-  int idx, inc, extent[8];
-  int idx2;
-  float sum, temp, temp2;
-
-  if (region->GetScalarType() != VTK_FLOAT)
+  float *outPtr;
+  int idxX, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int outIncX, outIncY, outIncZ;
+  int *outExt;
+  float sum;
+  float yContrib, zContrib;
+  float temp, temp2;
+  
+  if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");
     }
-
-  region->GetExtent(4, extent);
-  min = extent[0];
-  max = extent[1];
-  region->GetIncrements(inc);
-  ptr = (float *)(region->GetScalarPointer());
   
+  outExt = data->GetExtent();
+  
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  
+  // Get increments to march through data 
+  data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  
+
+  // Loop through ouput pixels
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
-  for (idx = min; idx <= max; ++idx)
+
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    sum = 0.0;
-    extent[0] = idx;
-    for (idx2 = 0; idx2 < 4; ++idx2)
+    zContrib = this->Center[2] - (idxZ + outExt[4]);
+    zContrib = zContrib*zContrib;
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      temp = this->Center[idx2] - (float)(extent[idx2*2]);
-      sum += temp * temp;
+      yContrib = this->Center[1] - (idxY + outExt[2]);
+      yContrib = yContrib*yContrib;
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// Pixel operation
+	sum = zContrib + yContrib;
+	temp = this->Center[0] - (idxX + outExt[0]);
+	sum = sum + (temp * temp);
+	*outPtr = this->Maximum * exp(-sum * temp2);
+	outPtr++;
+	}
+      outPtr += outIncY;
       }
-    *ptr = this->Maximum * exp(-sum * temp2);
-    ptr += inc;
+    outPtr += outIncZ;
     }
 }
 

@@ -6,8 +6,8 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageGaussianSource gauss
-gauss SetWholeExtent 0 225 0 225 0 20 0 0
-gauss SetCenter 100 100 10 0
+gauss SetWholeExtent 0 225 0 225 0 20
+gauss SetCenter 100 100 10
 gauss SetStandardDeviation 100.0
 gauss SetMaximum 255.0
 gauss ReleaseDataFlagOff

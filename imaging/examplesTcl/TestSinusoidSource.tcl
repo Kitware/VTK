@@ -6,7 +6,7 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageSinusoidSource cos
-cos SetWholeExtent 0 225 0 225 0 20 0 0
+cos SetWholeExtent 0 225 0 225 0 20
 cos SetAmplitude 250
 cos SetDirection 1 1 1
 cos SetPeriod 20

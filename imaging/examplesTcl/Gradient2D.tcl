@@ -23,8 +23,8 @@ ellipsoid SetInValue 200
 ellipsoid SetOutputScalarType $VTK_FLOAT
 
 vtkImageGaussianSource gauss
-gauss SetWholeExtent 0 255 0 255 0 44 0 0
-gauss SetCenter 127 127 22 0
+gauss SetWholeExtent 0 255 0 255 0 44
+gauss SetCenter 127 127 22
 gauss SetStandardDeviation 50.0
 gauss SetMaximum 8000.0
 
