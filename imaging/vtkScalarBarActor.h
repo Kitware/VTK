@@ -99,7 +99,10 @@ public:
   // Access the Position2 instance variable. This variable controls
   // the upper right corner of the scalarbar. It is by default
   // relative to Position1 and in Normalized Viewport coordinates.
-  vtkViewportCoordinateMacro(Position2);
+  void SetPosition2(float,float);
+  void SetPosition2(float x[2]);
+  vtkCoordinate *GetPosition2Coordinate();
+  float *GetPosition2();
   
   // Description:
   // Draw the scalar bar and annotation text to the screen.
