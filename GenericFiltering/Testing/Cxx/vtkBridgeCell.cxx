@@ -70,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.9");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.10");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -105,7 +105,47 @@ int vtkBridgeCell::IsInDataSet()
 //       (result==VTK_HIGHER_ORDER_TETRAHEDRON)
 int vtkBridgeCell::GetType()
 {
-  return this->Cell->GetCellType();
+  int result=0;
+  switch(this->Cell->GetCellType())
+    {
+    case VTK_TRIANGLE:
+    case VTK_QUADRATIC_TRIANGLE:
+      result=VTK_HIGHER_ORDER_TRIANGLE;
+      break;
+    case VTK_QUAD:
+    case VTK_QUADRATIC_QUAD:
+      result=VTK_HIGHER_ORDER_QUAD;
+      break;
+    case VTK_TETRA:
+    case VTK_QUADRATIC_TETRA:
+      result=VTK_HIGHER_ORDER_TETRAHEDRON;
+      break;
+    case VTK_VOXEL:
+    case VTK_HEXAHEDRON:
+    case VTK_QUADRATIC_HEXAHEDRON:
+      result=VTK_HIGHER_ORDER_HEXAHEDRON;
+      break;
+    case VTK_WEDGE:
+    case VTK_QUADRATIC_WEDGE:
+      result=VTK_HIGHER_ORDER_WEDGE;
+      break;
+    case VTK_PYRAMID:
+    case VTK_QUADRATIC_PYRAMID:
+      result=VTK_HIGHER_ORDER_PYRAMID;
+      break;
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+    case VTK_PENTAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+    case VTK_HEXAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+#endif
+    default:
+      assert("check: impossible case" && 0);
+      break;
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -1002,35 +1042,188 @@ void vtkBridgeCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
 }
 #endif
 
-// Copy/paste from vtkTetra:
-static int faces[4][3] = { {0,1,3}, {1,2,3}, {2,0,3}, {0,2,1} };
-
 //-----------------------------------------------------------------------------
 // Description:
-// Return the 3 ids of the vertices defining face `faceId', assuming the
-// cell is a tetrahedron
-// \pre is_a_tetra: GetType()==VTK_TETRA || GetType()==VTK_QUADRATIC_TETRA
-//                  GetType()==VTK_HIGHER_ORDER_TETRAHEDRON
-// \pre valid_faceId_range: faceId>=0 && faceId<=3
+// Return the ids of the vertices defining face `faceId'.
+// \pre is_3d: this->GetDimension()==3
+// \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
 // \post result_exists: result!=0
-// \post valid_size: sizeof(result)>=3
+// \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
 int *vtkBridgeCell::GetFaceArray(int faceId)
 {
-  assert("pre: is_a_tetra" && (this->GetType()==VTK_TETRA || this->GetType()==VTK_QUADRATIC_TETRA || this->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON));
-  assert("pre: valid_faceId_range" && faceId>=0 && faceId<=3);
-  
+  assert("pre: is_3d" && this->GetDimension()==3);
+  assert("pre: valid_faceId_range" && faceId>=0 && faceId<this->GetNumberOfBoundaries(2));
+ 
   int *result=0;
   
   switch(this->GetType())
     {
-    case VTK_TETRA:
-    case VTK_QUADRATIC_TETRA:
-      result=faces[faceId];
-      break;
     case VTK_HIGHER_ORDER_TETRAHEDRON:
-      assert("check: in the bridge, we only manage standard cells" && 0);
+      result=vtkTetra::GetFaceArray(faceId);
+      break;
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
+      if(this->Cell->GetCellType()==VTK_VOXEL)
+        {
+        result=vtkVoxel::GetFaceArray(faceId);
+        }
+      else
+        {
+        result=vtkHexahedron::GetFaceArray(faceId);
+        }
+      break;
+    case VTK_HIGHER_ORDER_WEDGE:
+      result=vtkWedge::GetFaceArray(faceId);
+      break;
+    case VTK_HIGHER_ORDER_PYRAMID:
+      result=vtkPyramid::GetFaceArray(faceId);
+      break;
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+    case VTK_PENTAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+    case VTK_HEXAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+#endif
+    default:
+      assert("check: impossible case" && 0);
       break;
     }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the number of vertices defining face `faceId'
+// \pre is_3d: this->GetDimension()==3
+// \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
+// \post positive_result: && result>0
+int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
+{
+  assert("pre: is_3d" && this->GetDimension()==3);
+  assert("pre: valid_faceId_range" && faceId>=0 && faceId<this->GetNumberOfBoundaries(2));
+  
+  int result;
+  
+  switch(this->GetType())
+    {
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+      result=3;
+      break;
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
+      result=4;
+      break;
+    case  VTK_HIGHER_ORDER_WEDGE:
+      if(faceId<=1)
+        {
+        result=3;
+        }
+      else
+        {
+        result=4;
+        }
+      break;
+    case VTK_HIGHER_ORDER_PYRAMID:
+      if(faceId==0)
+        {
+        result=4;
+        }
+      else
+        {
+        result=3;
+        }
+      break;
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+#if 0 // TODO
+    case VTK_PENTAGONAL_PRISM:
+      if(faceId<=1)
+        {
+        result=4;
+        }
+      else
+        {
+        result=3;
+        }
+      break;
+    case VTK_HEXAGONAL_PRISM:
+       if(faceId<=1)
+        {
+        result=6;
+        }
+      else
+        {
+        result=4;
+        }
+      break;
+#endif
+#endif
+    default:
+      assert("check: impossible case" && 0);
+      break;
+    }
+  
+  assert("post: positive_result" && result>0);
+  return result;
+}
+
+// copy/paste of vtkTriangle.cxx
+static int triangleEdges[3][2] = { {0,1}, {1,2}, {2,0} };
+static int quadEdges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the ids of the vertices defining edge `edgeId'.
+// \pre valid_dimension: this->GetDimension()>=2
+// \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
+// \post result_exists: result!=0
+// \post valid_size: sizeof(result)==2
+int *vtkBridgeCell::GetEdgeArray(int edgeId)
+{
+  assert("pre: valid_dimension" && this->GetDimension()>=2);
+  assert("pre: valid_faceId_range" && edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1));
+  
+  int *result;
+  
+  switch(this->GetType())
+    {
+    case VTK_HIGHER_ORDER_TRIANGLE:
+      result=triangleEdges[edgeId];
+      break;
+    case VTK_HIGHER_ORDER_QUAD:
+      result=quadEdges[edgeId];
+      break;
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+      result=vtkTetra::GetEdgeArray(edgeId);
+      break;
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
+      if(this->Cell->GetCellType()==VTK_VOXEL)
+        {
+        result=vtkVoxel::GetEdgeArray(edgeId);
+        }
+      else
+        {
+        result=vtkHexahedron::GetEdgeArray(edgeId);
+        }
+      break;
+    case VTK_HIGHER_ORDER_WEDGE:
+      result=vtkWedge::GetEdgeArray(edgeId);
+      break;
+    case VTK_HIGHER_ORDER_PYRAMID:
+      result=vtkPyramid::GetEdgeArray(edgeId);
+      break;
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+    case VTK_PENTAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+    case VTK_HEXAGONAL_PRISM:
+      assert("check: TODO" && 0);
+      break;
+#endif
+    default:
+      assert("check: impossible case" && 0);
+      break;
+    }
+  
   
   return result;
 }

@@ -54,6 +54,9 @@ class vtkGenericAttributeCollection;
 class vtkGenericAdaptorCell;
 class vtkGenericCellIterator;
 class vtkPointData;
+class vtkOrderedTriangulator;
+class vtkPolygon;
+class vtkIdList;
 
 //-----------------------------------------------------------------------------
 //
@@ -70,39 +73,48 @@ public:
   vtkGetObjectMacro(GenericCell, vtkGenericAdaptorCell);
 
   // Description:
-  // Tessellate a face of a tetrahedron cell. The face is specified by the
+  // Tessellate a face of a 3D `cell'. The face is specified by the
   // index value.
+  // The result is a set of smaller linear triangles in `cellArray' with
+  // `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_tetra: (cell->GetType()==VTK_TETRA)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TETRA)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON)
-  // \pre valid_index_range: (index>=0) && (index<4)
-  virtual void TessellateTriangleFace(vtkGenericAdaptorCell *cell,
-                                      vtkGenericAttributeCollection *att,
-                                      vtkIdType index,
-                                      vtkDoubleArray *points,
-                                      vtkCellArray *cellArray,
-                                      vtkPointData *internalPd);
+  // \pre valid_dimension: cell->GetDimension()==3
+  // \pre valid_index_range: (index>=0) && (index<cell->GetNumberOfBoundaries(2))
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
+  void TessellateFace(vtkGenericAdaptorCell *cell,
+                      vtkGenericAttributeCollection *att,
+                      vtkIdType index,
+                      vtkDoubleArray *points,
+                      vtkCellArray *cellArray,
+                      vtkPointData *internalPd);
 
   // Description:
-  // Tessellate a tetrahedron `cell'. The result is a set of smaller linear
-  // cells `cellArray' with `points' and point data `scalars'.
+  // Tessellate a 3D `cell'. The result is a set of smaller linear
+  // tetrahedra in `cellArray' with `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_tetra: (cell->GetType()==VTK_TETRA)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TETRA)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON)
+  // \pre valid_dimension: cell->GetDimension()==3
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
   void Tessellate(vtkGenericAdaptorCell *cell,
                   vtkGenericAttributeCollection *att,
-                  vtkDoubleArray *points,
+                  vtkDoubleArray *points, 
                   vtkCellArray *cellArray,
-                  vtkPointData *internalPd);
+                  vtkPointData *internalPd );
 
   // Description:
-  // Triangulate a triangle `cell'.
+  // Triangulate a 2D `cell'. The result is a set of smaller linear triangles
+  // in `cellArray' with `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_triangle: (cell->GetType()==VTK_TRIANGLE)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TRIANGLE)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TRIANGLE)
+  // \pre valid_dimension: cell->GetDimension()==2
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
   void Triangulate(vtkGenericAdaptorCell *cell,
                    vtkGenericAttributeCollection *att,
                    vtkDoubleArray *points,
@@ -184,14 +196,58 @@ protected:
   // Description:
   //HashTable instead of vtkPointLocator
   vtkGenericEdgeTable *EdgeTable;
+  
   void InsertEdgesIntoEdgeTable( vtkTriangleTile &tri );
   void RemoveEdgesFromEdgeTable( vtkTriangleTile &tri );
   void InsertPointsIntoEdgeTable( vtkTriangleTile &tri );
 
   void InsertEdgesIntoEdgeTable( vtkTetraTile &tetra );
   void RemoveEdgesFromEdgeTable( vtkTetraTile &tetra );
-  void InsertPointsIntoEdgeTable( vtkTetraTile &tetra );
 
+  // Description:
+  // Initialize `root' with the sub-tetra defined by the `localIds' points on
+  // the complex cell, `ids' are the global ids over the mesh of those points.
+  // The sub-tetra is also defined by the ids of its edges and of its faces
+  // relative to the complex cell. -1 means that the edge or the face of the
+  // sub-tetra is not an original edge or face of the complex cell.
+  // \pre cell_exists: this->GenericCell!=0
+  // \pre localIds_exists: localIds!=0
+  // \pre localIds_size: sizeof(localIds)==4
+  // \pre ids_exists: ids!=0
+  // \pre ids_size: sizeof(ids)==4
+  // \pre edgeIds_exists: edgeIds!=0
+  // \pre edgeIds_size: sizeof(edgeIds)==6
+  // \pre faceIds_exists: faceIds!=0
+  // \pre faceIds_size: sizeof(faceIds)==4
+  void InitTetraTile(vtkTetraTile &root,
+                     vtkIdType *localIds,
+                     vtkIdType *ids,
+                     int *edgeIds,
+                     int *faceIds);
+  
+  // Description:
+  // Triangulate a triangle of `cell'. This triangle can be the top-level
+  // triangle if the cell is a triangle or a toplevel sub-triangle is the cell
+  // is a polygon, or a triangular face of a 3D cell or a top-level
+  // sub-triangle of a face of a 3D cell if the face is not a triangle.
+  // Arguments `localIds', `ids' and `edgeIds' have the same meaning than
+  // for InitTetraTile.
+  // \pre cell_exists: cell!=0
+  // \pre localIds_exists: localIds!=0
+  // \pre localIds_size: sizeof(localIds)==3
+  // \pre ids_exists: ids!=0
+  // \pre ids_size: sizeof(ids)==3
+  // \pre edgeIds_exists: edgeIds!=0
+  // \pre edgeIds_size: sizeof(edgeIds)==3
+  void TriangulateTriangle(vtkGenericAdaptorCell *cell,
+                           vtkIdType *localIds,
+                           vtkIdType *ids,
+                           int *edgeIds,
+                           vtkGenericAttributeCollection *att,
+                           vtkDoubleArray *points,
+                           vtkCellArray *cellArray,
+                           vtkPointData *internalPd);
+  
   // Description:
   // To access the higher order cell from third party library
   vtkGenericAdaptorCell *GenericCell;
@@ -232,12 +288,7 @@ protected:
   // To avoid New/Delete
   vtkDoubleArray     *TessellatePoints;  //Allow to use GetPointer
   vtkCellArray       *TessellateCellArray;
-//  vtkDoubleArray     *TessellateScalars;
   vtkPointData *TessellatePointData;
-
-  // Description:
-  // Internal function used to tessellate a triangle
-  void InternalTessellateTriangle( vtkTriangleTile& root );
 
   int FindEdgeReferenceCount(double p1[3], double p2[3], 
                              vtkIdType &e1, vtkIdType &e2);
@@ -274,6 +325,18 @@ protected:
   int FindEdgeParent(double p1[3], double p2[3], int &localId);
   
   // Description:
+  // Allocate some memory if PointIds does not exist or is smaller than size.
+  // \pre positive_size: size>0
+  void AllocatePointIds(int size);
+  
+  // Description:
+  // Are the faces `originalFace' and `face' equal?
+  // The result is independent from any order or orientation.
+  // \pre originalFace_exists: originalFace!=0
+  int FacesAreEqual(int *originalFace,
+                    int face[3]);
+  
+  // Description:
   // Dataset to be tessellated.
   vtkGenericDataSet *DataSet;
   
@@ -284,6 +347,34 @@ protected:
   int FixedSubdivisions;
   int MaxSubdivisionLevel;
   int CurrentSubdivisionLevel;
+  
+  // Description:
+  // For each edge (6) of the sub-tetra, there is the id of the original edge
+  // or -1 if the edge is not an original edge
+  int *EdgeIds;
+  // Description:
+  // For each face (4) of the sub-tetra, there is the id of the original face
+  // or -1 if the face is not an original face
+  int *FaceIds;
+  
+  // The following variables are for complex cells.
+  
+  // Used to create tetra from more complex cells, because the tessellator
+  // is supposed to deal with simplices only.
+  vtkOrderedTriangulator *Triangulator;
+  
+  // Used to store the sub-tetra during the tessellation of complex
+  // cells.
+  vtkCellArray *Connectivity;
+  
+  // Used to create triangles from a face of a complex cell.
+  vtkPolygon *Polygon;
+  
+  // Used to store the sub-triangles during the tessellation of complex cells.
+  vtkIdList *TriangleIds;
+  
+  vtkIdType *PointIds;
+  int PointIdsCapacity;
   
 private:
   vtkSimpleCellTessellator(const vtkSimpleCellTessellator&);  // Not implemented.

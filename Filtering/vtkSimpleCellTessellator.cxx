@@ -27,7 +27,12 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+#include "vtkOrderedTriangulator.h"
+#include "vtkPolygon.h"
+#include "vtkTetra.h"
+
 #include <vtkstd/queue>
+#include <vtkstd/stack>
 #include <assert.h>
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
@@ -38,6 +43,7 @@ const int ATTRIBUTES_OFFSET = 6;
 // Pre computed table for the point to edge equivalence:
 // [edge][point]
 static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
+
 
 // Pre computed table for the tessellation of triangles
 #define NO_TRIAN {-1,-1,-1}
@@ -359,7 +365,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.16");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.17");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -486,15 +492,138 @@ public:
     return sum == 2;
   }
 
+  // Description:
+  // Copy point j of source into point i of the current tile.
+  void CopyPoint(int i,
+                 vtkTriangleTile *source,
+                 int j)
+    {
+      assert("pre: primary_i" && i>=0 && i<=2);
+      assert("pre: source_exists" && source!=0);
+      assert("pre: valid_j" && j>=0 && j<=5);
+      
+      this->PointId[i] = source->PointId[j];
+      
+      this->Vertex[i][0] = source->Vertex[j][0];
+      this->Vertex[i][1] = source->Vertex[j][1];
+      this->Vertex[i][2] = source->Vertex[j][2];
+      
+      this->Edges[i][0]=source->Edges[j][0];
+      this->Edges[i][1]=source->Edges[j][1];
+      
+      assert("inv: " && this->ClassInvariant());
+    }
+  
+  
+  
   // can tile be split; if so, return TessellatePointsing tiles
   //  vtkTriangleTile res[4]
   int Refine( vtkSimpleCellTessellator* tess, vtkTriangleTile *res );
-
+  
+  // Description:
+  // Initialize the Edges array as for a root triangle
+  void SetOriginal()
+    {
+      // key note: for each vertex, the edges number it belongs to are
+      // given in increasing order.
+      // vertex 0
+      this->Edges[0][0]=0;
+      this->Edges[0][1]=2;
+      // vertex 1
+      this->Edges[1][0]=0;
+      this->Edges[1][1]=1;
+      // vertex 2
+      this->Edges[2][0]=1;
+      this->Edges[2][1]=2;
+    }
+  
+  // Description:
+  // Find the parent (if any) of the edge defined by the local point ids i and
+  // j. Return the local id of the parent edge, -1 otherwise.
+  char FindEdgeParent(int p1,
+                      int p2)
+    {
+      assert("pre: primary point" && p1>=0 && p1<=2 && p2>=0 && p2<=2);
+      int p;
+      int q;
+      
+      // choose the point with minimal edge id.
+      if(this->Edges[p1][0]<=this->Edges[p2][0])
+        {
+        p=p1;
+        q=p2;
+        }
+      else
+        {
+        p=p2;
+        q=p1;
+        }
+      int i=0;
+      char result=-1;
+      
+      while(result==-1 && i<2)
+        {
+        if(this->Edges[p][i]<0)
+          {
+          i=2;
+          }
+        else
+          {
+          int j=0;
+          while(result==-1 && j<2)
+            {
+            if(this->Edges[q][j]<0)
+              {
+              j=2;
+              }
+            else
+              {
+              if(this->Edges[p][i]==this->Edges[q][j])
+                {
+                result=this->Edges[p][i];
+                }
+              else
+                {
+                if(this->Edges[p][i]<this->Edges[q][j])
+                  {
+                  j=2; // no way to find a common edge
+                  }
+                else
+                  {
+                  ++j;
+                  }
+                }
+              }
+            }
+          ++i;
+          }
+        }
+      return result;
+    }
+  
+  // Description:
+  // Set the edge parent of mid as parentEdge.
+  void SetEdgeParent(int mid,
+                     char parentEdge)
+    {
+      assert("pre: mid-point" && mid>=3 && mid<=5);
+      this->Edges[mid][0]=parentEdge;
+      this->Edges[mid][1]=-1; // always for mid-points
+    }
+  
 private:
   // Keep track of local coordinate in order to evaluate shape function
   double Vertex[3+3][3];  //3 points + 3 mid edge points
   vtkIdType PointId[3+3];
   int SubdivisionLevel;
+  
+  // local ids (-1 to 2) of the original edges on which the points are.
+  // a point can be on almost 2 edges:
+  // * only a vertex of the original triangle is on 2 edges
+  // * the mid-points can be only on 1 edge
+  // * -1 encodes no edge
+  // * each array is an increasing list of ids terminated by -1 is no edge
+  char Edges[3+3][2];
 };
 //-----------------------------------------------------------------------------
 //
@@ -502,6 +631,15 @@ private:
 // 
 
 class vtkTetraTile;
+
+// For each of the 4 original vertices, list of the 3 edges it belongs to
+// each sub-array is in increasing order.
+// [vertex][edge]
+static int VERTEX_EDGES[4][3]={{0,2,3},{0,1,4},{1,2,5},{3,4,5}};
+// For each of the 4 original vertices, list of the 3 faces it belongs to
+// each sub-array is in increasing order.
+// [vertex][face]
+static int VERTEX_FACES[4][3]={{0,2,3},{0,1,3},{1,2,3},{0,1,2}};
 
 class vtkTetraTile
 {
@@ -623,13 +761,303 @@ public:
       }
     return sum == 2;
   }
-
+  
+  // Description:
+  // Copy point j of source into point i of the current tile.
+  void CopyPoint(int i,
+                 vtkTetraTile *source,
+                 int j)
+    {
+      assert("pre: primary_i" && i>=0 && i<=3);
+      assert("pre: source_exists" && source!=0);
+      assert("pre: valid_j" && j>=0 && j<=9);
+      
+      this->PointId[i] = source->PointId[j];
+      
+      this->Vertex[i][0] = source->Vertex[j][0];
+      this->Vertex[i][1] = source->Vertex[j][1];
+      this->Vertex[i][2] = source->Vertex[j][2];
+      
+      this->Edges[i][0]=source->Edges[j][0];
+      this->Edges[i][1]=source->Edges[j][1];
+      this->Edges[i][2]=source->Edges[j][2];
+      this->Faces[i][0]=source->Faces[j][0];
+      this->Faces[i][1]=source->Faces[j][1];
+      this->Faces[i][2]=source->Faces[j][2];
+      
+      assert("inv: " && this->ClassInvariant());
+    }
+  
+  // Description:
+  // Copy the pointer to the Edge and Face Ids on the
+  // top-level sub-tetrahedron.
+  void CopyEdgeAndFaceIds(vtkTetraTile *source)
+    {
+      assert("pre: source_exists" && source!=0);
+      this->EdgeIds= source->EdgeIds;
+      this->FaceIds= source->FaceIds;
+    }
+  
+  // Description:
+  // Return the local edge id the complex cell from the local edge id
+  // of the top-level subtetra
+  int GetEdgeIds(int idx)
+    {
+      assert("pre:" && idx>=0); // <=number of edges on a complex cell
+      return this->EdgeIds[idx];
+    }
+  
+  // Description:
+  // Return the local face id the complex cell from the local face id
+  // of the top-level subtetra
+  int GetFaceIds(int idx)
+    {
+      assert("pre:" && idx>=0);// <=number of faces on a complex cell
+      return this->FaceIds[idx];
+    }
+  
   // can tile be split; if so, return TessellatePointsing tiles
   // There can't be more than 8 tetras as it corresponds to the splitting
   // of all edges 
   // vtkTetraTile res[8]
   int Refine( vtkSimpleCellTessellator* tess, vtkTetraTile *res);
-
+  
+  // Description:
+  // Initialize the Edges and Faces arrays as for a root tetrahedron
+  void SetOriginal(vtkIdType order[4],
+                   int *edgeIds, //6
+                   int *faceIds) // 4
+    {
+      this->EdgeIds=edgeIds;
+      this->FaceIds=faceIds;
+      
+      int i=0;
+      while(i<4) // for each vertex
+        {
+        int j=order[i];
+        int k=0;
+        int n=0;
+        int tmp;
+        while(n<3) // copy each edge
+          {
+          tmp=VERTEX_EDGES[j][n];
+          if(edgeIds[tmp]!=-1)
+            {
+            this->Edges[i][k]=tmp;
+            ++k;
+            }
+          ++n;
+          }
+        while(k<3)
+          {
+          this->Edges[i][k]=-1;
+          ++k;
+          }
+        
+        k=0;
+        n=0;
+        while(n<3) // copy each face
+          {
+          tmp=VERTEX_FACES[j][n];
+          if(faceIds[tmp]!=-1)
+            {
+            this->Faces[i][k]=tmp;
+            ++k;
+            }
+          ++n;
+          }
+        while(k<3)
+          {
+          this->Faces[i][k]=-1;
+          ++k;
+          }
+        ++i;
+        }
+    }
+  
+  // Description:
+  // Find the parent (if any) of the edge defined by the local point ids i and
+  // j. Return the local id of the parent edge, -1 otherwise.
+  int FindEdgeParent(int p1,
+                     int p2,
+                     char &parentId)
+    {
+      assert("pre: primary point" && p1>=0 && p1<=3 && p2>=0 && p2<=3);
+      
+      int p;
+      int q;
+      // choose the point with minimal edge id.
+      if(this->Edges[p1][0]<=this->Edges[p2][0])
+        {
+        p=p1;
+        q=p2;
+        }
+      else
+        {
+        p=p2;
+        q=p1;
+        }
+      int i=0;
+      int result=3;
+      parentId=-1;
+      
+      while(result==3 && i<3)
+        {
+        if(this->Edges[p][i]<0)
+          {
+          i=3; //done
+          }
+        else
+          {
+          int j=0;
+          while(result==3 && j<3)
+            {
+            if(this->Edges[q][j]<0)
+              {
+              j=3; // end of the edges of q, skip to next i
+              }
+            else
+              {
+              if(this->Edges[p][i]==this->Edges[q][j])
+                {
+                parentId=this->Edges[p][i];
+                result=1;
+                }
+              else
+                {
+                if(this->Edges[p][i]<this->Edges[q][j])
+                  {
+                  j=3; // no way to find a common face for this i, skip to next i
+                  }
+                else
+                  {
+                  ++j;
+                  }
+                }
+              }
+            }
+          ++i;
+          }
+        }
+      
+      if(result==3) // there is no common edge
+        {
+        // it seems there is at most one common face
+        // choose the point with minimal face id.
+        if(this->Faces[p1][0]<=this->Faces[p2][0])
+          {
+          p=p1;
+          q=p2;
+          }
+        else
+          {
+          p=p2;
+          q=p1;
+          }
+        i=0;
+        while(result==3 && i<3)
+          {
+          if(this->Faces[p][i]<0)
+            {
+            i=3; // no common face
+            }
+          else
+            {
+            int j=0;
+            while(result==3 && j<3)
+              {
+              if(this->Faces[q][j]<0)
+                {
+                j=3; // end of the edges of q, skip to next i
+                }
+              else
+                {
+                if(this->Faces[p][i]==this->Faces[q][j])
+                  {
+                  parentId=this->Faces[p][i];
+                  result=2;
+                  }
+                else
+                  {
+                  if(this->Faces[p][i]<this->Faces[q][j])
+                    {
+                    j=3; // no way to find a common face for this i, skip to next i
+                    }
+                  else
+                    {
+                    ++j;
+                    }
+                  }
+                }
+              }
+            ++i;
+            }
+          }
+        }
+      return result;
+    }
+  
+  
+  // Description:
+  // Set the edge parent of mid as parentEdge.
+  void SetParent(int mid,
+                 char parentId,
+                 int type)
+    {
+      assert("pre: mid-point" && mid>=4 && mid<=9);
+      assert("pre: valid_type" && type>=1 && type<=3);
+      assert("pre: id_match_type" &&
+             ( (type==1 && parentId>=0 && parentId<=5) ||
+               (type==2 && parentId>=0 && parentId<=3) ||
+               (type==3 && parentId==-1) ) );
+      
+      if(type==1) // edge
+        {
+        this->Edges[mid][0]=parentId;
+        // it means also that the point belongs to two faces
+        // the id of the faces can be found thanks to the edge id
+        switch(parentId)
+          {
+          case 0:
+            this->Faces[mid][0]=0;
+            this->Faces[mid][1]=3;
+            break;
+          case 1:
+            this->Faces[mid][0]=1;
+            this->Faces[mid][1]=3;
+            break;
+          case 2:
+            this->Faces[mid][0]=2;
+            this->Faces[mid][1]=3;
+            break;
+          case 3:
+            this->Faces[mid][0]=0;
+            this->Faces[mid][1]=2;
+            break;
+          case 4:
+            this->Faces[mid][0]=0;
+            this->Faces[mid][1]=1;
+            break;
+          case 5:
+            this->Faces[mid][0]=1;
+            this->Faces[mid][1]=2;
+            break;
+          default:
+            assert("check: impossible case" && 0);
+          }
+        
+        }
+      else // face (type==2 parentId!=-1) or no parent (parentId==-1 type==3)
+        {
+        this->Edges[mid][0]=-1;
+        this->Faces[mid][0]=parentId;
+        this->Faces[mid][1]=-1;
+        }
+      this->Edges[mid][1]=-1; // always for mid-points
+      this->Edges[mid][2]=-1; // always for mid-points
+      this->Faces[mid][2]=-1; // always for mid-points
+    }
+  
   // Description:
   // Return if the four corner points of the tetra are all differents
 #ifndef NDEBUG
@@ -683,6 +1111,25 @@ private:
   double Vertex[4+6][3];  // 4 tetra points + 6 mid edge points
   vtkIdType PointId[4+6];
   int SubdivisionLevel;
+  
+  // local ids (-1 to 5) of the original edges on which the points are.
+  // a point can be on almost 3 edges:
+  // * only a vertex of the original tetrahedron is on 3 edges
+  // * the mid-points can be only on 1 edge
+  // * -1 encodes no edge
+  // * each array is an increasing list of ids terminated by -1 is no edge
+  char Edges[4+6][3];
+  // local ids (-1 to 3) of the original faces on which the points are.
+  // a point can be on almost 3 faces:
+  // * only a vertex of the original tetrahedron is on 3 faces
+  // * the mid-points can be only on 2 faces
+  // * a mid-point which is on two faces is also on one edge.
+  // * -1 encodes no face
+  // * each array is an increasing list of ids terminated by -1 is no face
+  char Faces[4+6][3];
+  
+  int *EdgeIds;
+  int *FaceIds;
 };
 
 //-----------------------------------------------------------------------------
@@ -729,8 +1176,9 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
         {
         for(int j=0; j<3; j++)
           {
-          res[numTriangleCreated].SetPointId( j, this->PointId[cases[j]] );
-          res[numTriangleCreated].SetVertex( j, this->Vertex[cases[j]] );
+          res[numTriangleCreated].CopyPoint(j,this,cases[j]);
+//          res[numTriangleCreated].SetPointId( j, this->PointId[cases[j]] );
+//          res[numTriangleCreated].SetVertex( j, this->Vertex[cases[j]] );
           }
         //update number of triangles
         numTriangleCreated++;
@@ -975,10 +1423,10 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
         // Set the tetras point for the next recursion     
         for(int j=0;j<4;j++)
           {
-          res[numTetraCreated].SetPointId( j, this->PointId[cases[order[j]]] );
-          res[numTetraCreated].SetVertex( j, this->Vertex[cases[order[j]]] );
+          res[numTetraCreated].CopyPoint(j,this,cases[order[j]]);
           }
-          numTetraCreated++;
+        res[numTetraCreated].CopyEdgeAndFaceIds(this);
+        numTetraCreated++;
         }
       k = 0;
       while(k < numTetraCreated)
@@ -1030,6 +1478,18 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->FixedSubdivisions       = 0; // 0 means no fixed subdivision
   this->MaxSubdivisionLevel     = 0; // 0 means no subdivision at all
   this->CurrentSubdivisionLevel = 0;
+  
+  
+  this->Triangulator=vtkOrderedTriangulator::New();
+  this->Triangulator->UseTemplatesOn();
+  
+  this->PointIds=0;
+  this->PointIdsCapacity=0;
+  
+  this->Connectivity=vtkCellArray::New();
+  this->Polygon=vtkPolygon::New();
+  this->TriangleIds=vtkIdList::New();
+  this->TriangleIds->Allocate(VTK_CELL_SIZE);
 }
 
 //-----------------------------------------------------------------------------
@@ -1044,6 +1504,15 @@ vtkSimpleCellTessellator::~vtkSimpleCellTessellator()
     {
     delete[] this->Scalars;
     }
+  
+  this->Triangulator->Delete();
+  if(this->PointIds!=0)
+    {
+    delete[] this->PointIds;
+    }
+  this->Connectivity->Delete();
+  this->Polygon->Delete();
+  this->TriangleIds->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -1068,33 +1537,6 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile &tri)
 
       //Put everything in ths point hash table
       this->EdgeTable->InsertPointAndScalar(tri.GetPointId(j), global,
-                                            this->Scalars);
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
-// This function is supposed to be called only at toplevel (for passing data
-// from third party to the hash point table)
-void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
-{
-  double global[3];
- 
-  for(int j=0; j<4; j++)
-    {
-    // Need to check first if point is not already in the hash table
-    // since EvaluateLocation / EvaluateTuple are expensive calls
-    if( !this->EdgeTable->CheckPoint(tetra.GetPointId(j)) )
-      {
-      // its real space coordinate:
-      this->GenericCell->EvaluateLocation(0,tetra.GetVertex(j), global);
-
-      // Then scalar value associated with point:  
-      this->GenericCell->InterpolateTuple(this->AttributeCollection,
-                                          tetra.GetVertex(j), this->Scalars);
-
-      //Put everything in the point hash table
-      this->EdgeTable->InsertPointAndScalar(tetra.GetPointId(j), global,
                                             this->Scalars);
       }
     }
@@ -1173,29 +1615,18 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
       {
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
-      int localId;
-      int type = FindEdgeParent2D(left, right, localId);
-
-      if( type == 1)
+      
+      char parentEdge=tri.FindEdgeParent(l,r);
+      if(parentEdge==-1)
         {
-        // On edge:
-        refCount = this->GetNumberOfCellsUsingEdge( localId );
-        }
-      else if( type == 2)
-        {
-        //On face:
-        //refCount = this->GenericCell->GetNumberOfCellsUsingFace( localId );
-        //assert("check: " && 0 );
-
-        // This means inside, this case should not happen
-        // This only for consistency with the tetra version
+        // no parent
         refCount = 1;
         }
-      else if( type == 3)
+      else
         {
-        // Inside:
-        refCount = 1;
+        refCount = this->GetNumberOfCellsUsingEdge(parentEdge);
         }
+      
       doSubdivision = tri.GetSubdivisionLevel() < this->GetMaxSubdivisionLevel();
       if(doSubdivision)
         {
@@ -1245,6 +1676,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         //Save mid point:
         tri.SetVertex(j+3, local);
         tri.SetPointId(j+3, ptId);
+        tri.SetEdgeParent(j+3,parentEdge);
 
         //Put everything in ths point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
@@ -1274,6 +1706,12 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         pcoords[2] = tri.GetVertex(l)[2] + alpha*(tri.GetVertex(r)[2] - tri.GetVertex(l)[2]);
 
         tri.SetVertex(j+3, pcoords);
+        // note we dont need to call SetEdgeParent() because
+        // if the edge is already in the hashtable it means that
+        // it is already tessellated. All other point using this
+        // edge will come from either inside the triangle either from
+        // and another edge. For sur the resulting edge will be inside (-1)
+        tri.SetEdgeParent(j+3,-1);
         }
       }
     }
@@ -1353,24 +1791,26 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
       {
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
-      int localId;
-      int type = FindEdgeParent(left, right, localId);
+      
 
+      char parentId;
+      int type=tetra.FindEdgeParent(l,r,parentId);
       if(type == 1)
         {
         // On edge:
-        refCount = this->GetNumberOfCellsUsingEdge( localId );
+        refCount = this->GetNumberOfCellsUsingEdge( tetra.GetEdgeIds(parentId) );
         }
       else if(type == 2)
         {
         //On face:
-        refCount = this->GetNumberOfCellsUsingFace( localId );
+        refCount = this->GetNumberOfCellsUsingFace( tetra.GetFaceIds(parentId) );
         }
       else if(type == 3)
         {
         // Inside:
         refCount = 1;
         }
+      
       doSubdivision = tetra.GetSubdivisionLevel() < this->GetMaxSubdivisionLevel();
       if(doSubdivision)
         {
@@ -1421,7 +1861,8 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         //Save mid point:
         tetra.SetVertex(j+4, local);
         tetra.SetPointId(j+4, ptId);
-
+        tetra.SetParent(j+4,parentId,type);
+        
         //Put everything in the point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
                                               midPoint + ATTRIBUTES_OFFSET);
@@ -1458,6 +1899,11 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
                                      && (right[2] == pcoords[2]))));
 
         tetra.SetVertex(j+4, pcoords);
+        
+        char parentId;
+        int type=tetra.FindEdgeParent(l,r,parentId);
+
+        tetra.SetParent(j+4,parentId,type); //tetra.SetParent(j+4,-1,3);
         }
       }
     }
@@ -1508,40 +1954,6 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable( vtkTetraTile &tetra )
     this->EdgeTable->RemoveEdge(ll, rr);
     }
 }
-//-----------------------------------------------------------------------------
-void vtkSimpleCellTessellator::InternalTessellateTriangle(vtkTriangleTile& root )
-{
-  // use a queue instead of a list to speed things up 
-  vtkstd::queue< vtkTriangleTile > work;
-  vtkTriangleTile begin = vtkTriangleTile(root);
-  work.push( begin );
-
-  while( !work.empty() ) 
-    {
-    vtkTriangleTile piece[4];
-    vtkTriangleTile curr = work.front();
-    work.pop();
-
-    int n = curr.Refine( this, piece );
-
-    for( int i = 0; i<n; i++) 
-      {
-      work.push( piece[i] );
-      }
-    // We are done we should clean ourself from the hash table:
-    this->RemoveEdgesFromEdgeTable( curr );
-    }
-
-  // remove top level points
-  for(int i = 0; i<3; i++)
-    {
-    this->EdgeTable->RemovePoint( root.GetPointId(i) );
-    }
-
-  //this->EdgeTable->LoadFactor();
-  //this->EdgeTable->DumpTable();
-
-}
 
 //-----------------------------------------------------------------------------
 void vtkSimpleCellTessellator::Reset()
@@ -1573,8 +1985,16 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
                                           vtkCellArray *cellArray,
                                           vtkPointData *internalPd )
 {
-  int i;
- 
+  assert("pre: cell_exists" && cell!=0);
+  assert("pre: valid_dimension" && cell->GetDimension()==3);
+  assert("pre: att_exists" && att!=0);
+  assert("pre: points_exists" && points!=0);
+  assert("pre: cellArray_exists" && cellArray!=0);
+  assert("pre: internalPd_exists" && internalPd!=0);
+  
+  int j;
+  int numVertices;
+  
   // Save parameter for later use
   this->GenericCell = cell;
   this->TessellatePoints = points;
@@ -1585,55 +2005,216 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     {
     this->CellIterator = cell->NewCellIterator();
     }
-#if 1
-  // FIXME
-  this->SetGenericCell( cell );
-//  this->ErrorMetric->SetAttributeCollection( att );
-#endif
-  // Here we need to be very cautious to create the first level of tetra
-  // We need to pre-order the tetra, meaning classify it either as a right hand
-  // or left hand order
-  // At the same time we evaluate the interpolation function to find the scalar
-  // value associated with the points
-  vtkTetraTile root;
-  double *point;
-  vtkIdType tetra[4], order[4] = {-1,-1,-1,-1};
-
-  assert("check: is a tetra" && 
-         this->GenericCell->GetNumberOfBoundaries(0) == 4);
-
-  // Using third package ptId: It has to be consitent (assuming)
-  // Therefore if no tessellation occurs the pointId should match
-  this->GenericCell->GetPointIds(tetra);
-
-  Reorder(tetra, order);
-
-  for(i=0; i<4; i++)
-    {
-    //this->GenericCell->GetParametricCoords(order[i], point);
-    point = this->GenericCell->GetParametricCoords() + 3*order[i];
-    root.SetVertex(i, point);
-    root.SetPointId(i, tetra[order[i]]);
-    //vtkDebugMacro( << "tetra[order[i]]:" << tetra[order[i]] );
-    }
-
-  // Init the edge table
   
+  // send the cell to the error metrics
+  this->SetGenericCell( cell );
+  
+  int complexCell=cell->GetType()!=VTK_HIGHER_ORDER_TETRAHEDRON;
+  
+  if(complexCell)
+    {
+    numVertices=cell->GetNumberOfBoundaries(0);
+    }
+  else
+    {
+    numVertices=4;
+    }
+  
+  this->AllocatePointIds(numVertices);
+  cell->GetPointIds(this->PointIds);
+  
+  
+  // Init the edge table
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
- 
   this->PointOffset = internalPd->GetNumberOfComponents()+6;
   this->AllocateScalars(this->PointOffset*3);
- 
-  // Pass data to hash table:
-  this->InsertPointsIntoEdgeTable( root );
-
-  //Prepare the hash table with the top-level edges:
-  this->InsertEdgesIntoEdgeTable( root );
-
-  //Start of the algorithm use a queue for now:
+  
+  // Insert the points of the complex cell into the hashtable
+  double global[3];
+  for(j=0; j<numVertices; j++)
+    {
+    // Need to check first if point is not already in the hash table
+    // since EvaluateLocation / EvaluateTuple are expensive calls
+    if( !this->EdgeTable->CheckPoint(this->PointIds[j]) )
+      {
+      double *pcoords=cell->GetParametricCoords() + 3*j;
+      // its real space coordinate:
+      cell->EvaluateLocation(0,pcoords, global);
+      
+      // Then scalar value associated with point:  
+      cell->InterpolateTuple(this->AttributeCollection,
+                             pcoords, this->Scalars);
+      
+      //Put everything in the point hash table
+      this->EdgeTable->InsertPointAndScalar(this->PointIds[j], global,
+                                            this->Scalars);
+      }
+    }
+  
   vtkstd::queue<vtkTetraTile> work;
-  work.push( root );
- 
+  vtkTetraTile roots[10]; // up to 10 top-level sub-tetra
+  
+  // Put the top-levels subtetra in the work queue.
+  
+  if(complexCell)
+    {
+    this->Triangulator->PreSortedOff();
+    this->Triangulator->InitTriangulation(0,1,0,1,0,1,numVertices);
+    int i=0;
+    double *pcoords=cell->GetParametricCoords();
+    while(i<numVertices)
+      {
+      // we feed the triangulator with dummy global coordinates
+      // because we just care about the connectivity
+      this->Triangulator->InsertPoint(i,pcoords,pcoords,0); // 2
+      ++i;
+      pcoords+=3;
+      }
+    this->Triangulator->Triangulate();
+    this->Connectivity->Reset();
+    this->Triangulator->AddTetras(0,this->Connectivity); // 1
+    this->Connectivity->InitTraversal();
+    vtkIdType npts=0;
+    vtkIdType *pts=0;
+    vtkIdType ids[4];
+    
+    int numEdges=cell->GetNumberOfBoundaries(1);
+    int numFaces=cell->GetNumberOfBoundaries(2);
+    
+    int edgesIdsArray[6*10]; // 6 edges per sub-tetra, max of 10 sub-tetra
+    int faceIdsArray[4*10]; // 4 faces per sub-tetra,  max of 10 sub-tetra
+    int *edgeIds=edgesIdsArray;
+    int *faceIds=faceIdsArray;
+    
+    int tetraId=0;
+    while(this->Connectivity->GetNextCell(npts,pts))
+      {
+      assert("check: is a tetra" && npts==4);
+      // Get the point Ids (global)
+      j=0;
+      while(j<4)
+        {
+        ids[j]=this->PointIds[pts[j]];
+        ++j;
+        }
+      // Get the edges Ids (local)
+//      int edgeIds[6];
+      int *originalEdge;
+      int edge[2];
+      j=0;
+      while(j<6)
+        {
+        edge[0]=pts[vtkTetra::GetEdgeArray(j)[0]];
+        edge[1]=pts[vtkTetra::GetEdgeArray(j)[1]];
+        int k=0;
+        edgeIds[j]=-1;
+        while(k<numEdges&&(edgeIds[j]==-1))
+          {
+          originalEdge=cell->GetEdgeArray(k);
+          if((originalEdge[0]==edge[0]&&originalEdge[1]==edge[1])||
+             (originalEdge[0]==edge[1]&&originalEdge[1]==edge[0]))
+            {
+            edgeIds[j]=k;
+            }
+          ++k;
+          }
+        ++j;
+        }
+      
+      // Get the face Ids (local)
+//      int faceIds[4];
+      int *originalFace;
+      int face[3];
+      j=0;
+      while(j<4)
+        {
+        face[0]=pts[vtkTetra::GetFaceArray(j)[0]];
+        face[1]=pts[vtkTetra::GetFaceArray(j)[1]];
+        face[2]=pts[vtkTetra::GetFaceArray(j)[2]];
+        int k=0;
+        faceIds[j]=-1;
+        while(k<numFaces&&(faceIds[j]==-1))
+          {
+          originalFace=cell->GetFaceArray(k);
+          
+          if(this->FacesAreEqual(originalFace,face))
+            {
+            faceIds[j]=k;
+            }
+          ++k;
+          }
+        ++j;
+        }
+      
+      this->InitTetraTile(roots[tetraId],pts,ids,edgeIds, faceIds);
+      work.push(roots[tetraId]);
+      
+      edgeIds=edgeIds+6;
+      faceIds=faceIds+4;
+      ++tetraId;
+      } // while(connectivity)
+    }
+  else
+    {
+    vtkIdType pts[4]={0,1,2,3}; // from sub-tetra tessellation
+    
+    //
+    // Get the edges Ids (local)
+    int edgeIds[6];
+    int *originalEdge;
+    int edge[2];
+    j=0;
+    while(j<6)
+      {
+      edge[0]=vtkTetra::GetEdgeArray(j)[0]; // faster that edge[0]=pts[vtkTetra::GetEdgeArray(j)[0]]
+      edge[1]=vtkTetra::GetEdgeArray(j)[1];
+      int k=0;
+      edgeIds[j]=-1;
+      while(edgeIds[j]==-1)
+        {
+        originalEdge=cell->GetEdgeArray(k);
+        if((originalEdge[0]==edge[0]&&originalEdge[1]==edge[1])||
+           (originalEdge[0]==edge[1]&&originalEdge[1]==edge[0]))
+          {
+          edgeIds[j]=k;
+          }
+        ++k;
+        }
+      ++j;
+      }
+    
+    // Get the face Ids (local)
+    int faceIds[4];
+    int *originalFace;
+    int face[3];
+    int numFaces=cell->GetNumberOfBoundaries(2);
+    j=0;
+    while(j<4)
+      {
+      face[0]=pts[vtkTetra::GetFaceArray(j)[0]];
+      face[1]=pts[vtkTetra::GetFaceArray(j)[1]];
+      face[2]=pts[vtkTetra::GetFaceArray(j)[2]];
+      int k=0;
+      faceIds[j]=-1;
+      // k<this->GetNumberOfBoundaries(2) is not required because with no tessellation
+      // all the faceIds array has to match with the original faces
+      while(k<numFaces&&(faceIds[j]==-1))
+        {
+        originalFace=cell->GetFaceArray(k);
+        if(this->FacesAreEqual(originalFace,face))
+          {
+          faceIds[j]=k;
+          }
+        ++k;
+        }
+      ++j;
+      }
+    this->InitTetraTile(roots[0],pts,this->PointIds,edgeIds, faceIds);
+    work.push(roots[0]);
+    }
+  
+  // refine loop
+  int count=0;
   while( !work.empty() ) 
     {
     vtkTetraTile piece[8];
@@ -1642,28 +2223,56 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
 
     int n = curr.Refine( this, piece);
 
-    for(i = 0; i<n; i++) 
+    for(int i = 0; i<n; i++) 
       {
       work.push( piece[i] );
       }
 
     // We are done we should clean ourself from the hash table:
     this->RemoveEdgesFromEdgeTable( curr );
+    ++count;
     }
-
-  // remove top level points
-  for(i = 0; i<4; i++)
+  
+  // remove the points of the complex cell from the hashtable
+  for(j=0; j<numVertices; j++)
     {
-    this->EdgeTable->RemovePoint( root.GetPointId(i) );
+    this->EdgeTable->RemovePoint(this->PointIds[j]);
     }
-
-  // We are done with this cell, dump the hash-table to check if it is clean:
-  // Thus it should only contains points on face/edge:
-
-//  this->EdgeTable->LoadFactor();
-//  this->EdgeTable->DumpTable();
 }
 
+//-----------------------------------------------------------------------------
+void vtkSimpleCellTessellator::InitTetraTile(vtkTetraTile &root,
+                                             vtkIdType *localIds,
+                                             vtkIdType *ids,
+                                             int *edgeIds,
+                                             int *faceIds)
+{
+  assert("pre: cell_exists" && this->GenericCell!=0);
+  assert("pre: localIds_exists" && localIds!=0);
+  assert("pre: ids_exists" && ids!=0);
+  assert("pre: edgeIds_exists" && edgeIds!=0);
+  assert("pre: faceIds_exists" && faceIds!=0);
+  
+#ifndef NDEBUG
+  vtkIdType order[4] = {-1,-1,-1,-1};
+#else
+  vtkIdType order[4];
+#endif
+  int i;
+  double *point;
+  
+  Reorder(ids, order);
+  for(i=0; i<4; i++)
+    {
+    point = this->GenericCell->GetParametricCoords() + 3*localIds[order[i]];
+    root.SetVertex(i, point);
+    root.SetPointId(i, ids[order[i]]);
+    }
+  root.SetOriginal(order,edgeIds,faceIds);
+  
+   //Prepare the hash table with the top-level edges:
+  this->InsertEdgesIntoEdgeTable( root );
+}
 //-----------------------------------------------------------------------------
 void vtkSimpleCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1680,72 +2289,266 @@ void vtkSimpleCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 void
-vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell, 
-                                                 vtkGenericAttributeCollection *att,
-                                                 vtkIdType index,
-                                                 vtkDoubleArray *points,
-                                                 vtkCellArray *cellArray,
-                                                 vtkPointData *internalPd)
+vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell *cell,
+                                         vtkGenericAttributeCollection *att,
+                                         vtkIdType index,
+                                         vtkDoubleArray *points,
+                                         vtkCellArray *cellArray,
+                                         vtkPointData *internalPd)
 {
-  assert("pre: cell_exixts" && cell!=0);
-  assert("pre: valid_cell_type" && ((cell->GetType() == VTK_TETRA)
-                                  ||(cell->GetType() == VTK_QUADRATIC_TETRA
-                                  ||(cell->GetType() == VTK_HIGHER_ORDER_TETRAHEDRON))));
-  assert("pre: valid_range_index" && index>=0 && index<=3 );
-
-  // Save parameter for later use
-  this->TessellateCellArray = cellArray;
-  this->TessellatePoints    = points;
-  this->TessellatePointData = internalPd;
-
-//  this->Reset(); // reset point cell and scalars
-
-  this->GenericCell = cell;
-  this->AttributeCollection = att;
-  if(this->CellIterator==0)
+  assert("pre: cell_exists" && cell!=0);
+  assert("pre: valid_dimension" && cell->GetDimension()==3);
+  assert("pre: valid_index_range" && (index>=0) && (index<cell->GetNumberOfBoundaries(2)));
+  assert("pre: att_exists" && att!=0);
+  assert("pre: points_exists" && points!=0);
+  assert("pre: cellArray_exists" && cellArray!=0);
+  assert("pre: internalPd_exists" && internalPd!=0);
+  
+  int j;
+  if(cell->GetType()!=VTK_HIGHER_ORDER_TETRAHEDRON)
     {
-    this->CellIterator = cell->NewCellIterator();
+    // build a linear polygon, call tessellate() on it and iterate over each triangle
+    // by sending it to the tessellator
+    
+    int *faceVerts=cell->GetFaceArray(index);
+    int numVerts=cell->GetNumberOfVerticesOnFace(index);
+    this->Polygon->PointIds->SetNumberOfIds(numVerts);
+    this->Polygon->Points->SetNumberOfPoints(numVerts);
+
+    this->AllocatePointIds(cell->GetNumberOfBoundaries(0));
+    cell->GetPointIds(this->PointIds);
+    double *pcoords=cell->GetParametricCoords();
+    
+    int i=0;
+    while(i<numVerts)
+      {
+      this->Polygon->PointIds->SetId(i,i); // this->PointIds[i]
+      this->Polygon->Points->SetPoint(i, pcoords+3*faceVerts[i]); // should be global?
+      ++i;
+      }
+    
+    this->Polygon->Triangulate(this->TriangleIds);
+    
+    // now iterate over any sub-triangle and call triangulateface on it
+    vtkIdType pts[3];
+    vtkIdType ids[3];
+    int c=this->TriangleIds->GetNumberOfIds();
+    i=0;
+    while(i<c)
+      {
+      // Build the next sub-triangle
+      j=0;
+      while(j<3)
+        {
+        pts[j]=faceVerts[this->TriangleIds->GetId(i)];
+        // Get the point Ids (global)
+        ids[j]=this->PointIds[pts[j]];
+        ++j;
+        ++i;
+        }
+      
+      //
+      // Get the edges Ids (local)
+      int edgeIds[3];
+      int *originalEdge;
+      int edge[2];
+      j=0;
+      int numEdges=cell->GetNumberOfBoundaries(1);
+      
+      while(j<3)
+        {
+        edge[0]=pts[TRIANGLE_EDGES_TABLE[j][0]];
+        edge[1]=pts[TRIANGLE_EDGES_TABLE[j][1]];
+        int k=0;
+        edgeIds[j]=-1;
+        while(k<numEdges&&(edgeIds[j]==-1))
+          {
+          originalEdge=cell->GetEdgeArray(k);
+          if((originalEdge[0]==edge[0]&&originalEdge[1]==edge[1])||
+             (originalEdge[0]==edge[1]&&originalEdge[1]==edge[0]))
+            {
+            edgeIds[j]=k;
+            }
+          ++k;
+          }
+        ++j;
+        }
+      
+      // index is not used in the tessellator.
+      this->TriangulateTriangle(cell, pts,ids,edgeIds,att,points,cellArray, internalPd);
+      }
+        
     }
-#if 1 
-  // FIXME
-  this->SetGenericCell( cell );
-//  this->ErrorMetric->SetAttributeCollection( att );
-#endif
-  // Based on the id of the face we can find the points of the triangle:
-  // When triangle found just tessellate it.
-  vtkTriangleTile root;
-  double *point;
-
-  vtkIdType tetra[4];
-  this->GenericCell->GetPointIds(tetra);
-  int *indexTab = cell->GetFaceArray(index);
-
-  for(int i=0; i<3; i++)
+  else
     {
-    point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
-    root.SetVertex(i, point);
+    vtkIdType pts[3]; // from sub-tetra tessellation
 
-    root.SetPointId(i, tetra[indexTab[i]]);
+    this->AllocatePointIds(4); // tetra
+    cell->GetPointIds(this->PointIds);
+    
+    int *facepts = cell->GetFaceArray(index);
+    // we know we are using a tetra.
+    pts[0]=facepts[0];
+    pts[1]=facepts[1];
+    pts[2]=facepts[2];
+      
+    vtkIdType ids[3];
+    // Get the point Ids (global)
+    j=0;
+    while(j<3)
+      {
+      ids[j]=this->PointIds[pts[j]];
+      ++j;
+      }
+    
+      //
+    // Get the edges Ids (local)
+    int edgeIds[3];
+    int *originalEdge;
+    int edge[2];
+    j=0;
+    while(j<3)
+      {
+      edge[0]=pts[TRIANGLE_EDGES_TABLE[j][0]];
+      edge[1]=pts[TRIANGLE_EDGES_TABLE[j][1]];
+      int k=0;
+      edgeIds[j]=-1;
+      while(edgeIds[j]==-1)
+        {
+        originalEdge=cell->GetEdgeArray(k);
+        if((originalEdge[0]==edge[0]&&originalEdge[1]==edge[1])||
+           (originalEdge[0]==edge[1]&&originalEdge[1]==edge[0]))
+          {
+          edgeIds[j]=k;
+          }
+        ++k;
+        }
+      ++j;
+      }
+    
+    // index is not used in the tessellator.
+    this->TriangulateTriangle(cell, pts,ids,edgeIds,att,points,cellArray, internalPd);
     }
-
-  // Init the edge table
-  this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
-
-  this->PointOffset = internalPd->GetNumberOfComponents() + 6;
-  this->AllocateScalars(this->PointOffset*3);
-
-  this->InsertPointsIntoEdgeTable( root );
-  this->InsertEdgesIntoEdgeTable( root );
-  this->InternalTessellateTriangle( root );
 }
 
 //-----------------------------------------------------------------------------
-void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell, 
+void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
                                            vtkGenericAttributeCollection *att,
                                            vtkDoubleArray *points,
                                            vtkCellArray *cellArray, 
                                            vtkPointData *internalPd)
 {
+  assert("pre: cell_exists" && cell!=0);
+  assert("pre: valid_dimension" && cell->GetDimension()==2);
+  assert("pre: att_exists" && att!=0);
+  assert("pre: points_exists" && points!=0);
+  assert("pre: cellArray_exists" && cellArray!=0);
+  assert("pre: internalPd_exists" && internalPd!=0);
+  
+  int j;
+  
+  if(cell->GetType()!=VTK_HIGHER_ORDER_TRIANGLE)
+    {
+     // build a linear polygon, call tessellate() on it and iterate over each triangle
+    // by sending it to the tessellator
+    
+//    int *faceVerts=cell->GetFaceArray(index); // implicit
+//    int numVerts=cell->GetNumberOfVerticesOnFace(index);
+    int numVerts=cell->GetNumberOfBoundaries(0);
+    
+    this->Polygon->PointIds->SetNumberOfIds(numVerts);
+    this->Polygon->Points->SetNumberOfPoints(numVerts);
+
+    this->AllocatePointIds(cell->GetNumberOfBoundaries(0));
+    cell->GetPointIds(this->PointIds);
+    double *pcoords=cell->GetParametricCoords();
+    
+    int i=0;
+    while(i<numVerts)
+      {
+      this->Polygon->PointIds->SetId(i,i); // this->PointIds[i]
+      this->Polygon->Points->SetPoint(i, pcoords+3*i); // should be global?
+      ++i;
+      }
+    
+    this->Polygon->Triangulate(this->TriangleIds);
+    
+    // now iterate over any sub-triangle and call triangulateface on it
+    vtkIdType pts[3];
+    vtkIdType ids[3];
+    int c=this->TriangleIds->GetNumberOfIds();
+    i=0;
+    while(i<c)
+      {
+      // Build the next sub-triangle
+      j=0;
+      while(j<3)
+        {
+        pts[j]=this->TriangleIds->GetId(i);
+        // Get the point Ids (global)
+        ids[j]=this->PointIds[pts[j]];
+        ++j;
+        ++i;
+        }
+      
+      //
+      // Get the edges Ids (local)
+      int edgeIds[3];
+      int *originalEdge;
+      int edge[2];
+      j=0;
+      int numEdges=cell->GetNumberOfBoundaries(1);
+      
+      while(j<3)
+        {
+        edge[0]=pts[TRIANGLE_EDGES_TABLE[j][0]];
+        edge[1]=pts[TRIANGLE_EDGES_TABLE[j][1]];
+        int k=0;
+        edgeIds[j]=-1;
+        while(k<numEdges&&(edgeIds[j]==-1))
+          {
+          originalEdge=cell->GetEdgeArray(k);
+          if((originalEdge[0]==edge[0]&&originalEdge[1]==edge[1])||
+             (originalEdge[0]==edge[1]&&originalEdge[1]==edge[0]))
+            {
+            edgeIds[j]=k;
+            }
+          ++k;
+          }
+        ++j;
+        }
+      
+      // index is not used in the tessellator.
+      this->TriangulateTriangle(cell, pts,ids,edgeIds,att,points,cellArray, internalPd);
+      }
+    }
+  else
+    {
+    vtkIdType pts[3]={0,1,2};
+    int edgeIds[3]={0,1,2};
+    this->AllocatePointIds(cell->GetNumberOfBoundaries(0));
+    cell->GetPointIds(this->PointIds);
+    this->TriangulateTriangle(cell, pts, this->PointIds, edgeIds, att,
+                              points, cellArray,internalPd);
+    
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
+                                                   vtkIdType *localIds,
+                                                   vtkIdType *ids,
+                                                   int *edgeIds,
+                                                   vtkGenericAttributeCollection *att,
+                                                   vtkDoubleArray *points,
+                                                   vtkCellArray *cellArray, 
+                                                   vtkPointData *internalPd)
+{
+  assert("pre: cell_exixts" && cell!=0);
+  assert("pre: localIds_exists" && localIds!=0);
+  assert("pre: ids_exists" && ids!=0);
+  assert("pre: edgeIds_exists" && edgeIds!=0);
+  
   // Save parameter for later use
   this->GenericCell = cell;
 
@@ -1759,23 +2562,21 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
     {
     this->CellIterator = cell->NewCellIterator();
     }
-#if 1
-  // FIXME
+  this->EdgeIds=edgeIds;
+
   this->SetGenericCell( cell );
-//  this->ErrorMetric->SetAttributeCollection( att );
-#endif
+
   vtkTriangleTile root;
   double *point;
-  vtkIdType tri[3];
-  this->GenericCell->GetPointIds(tri);
 
   for(int i=0; i<3; i++)
     {
-    point = this->GenericCell->GetParametricCoords() + 3*i;
+    point = this->GenericCell->GetParametricCoords() + 3*localIds[i];
     root.SetVertex(i, point);
-    root.SetPointId(i, tri[i]);
+    root.SetPointId(i, ids[i]);
     }
-
+  root.SetOriginal();
+  
   // Init the edge table
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
 
@@ -1786,244 +2587,35 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
 
   //Prepare the hash table with the top-level edges:
   this->InsertEdgesIntoEdgeTable( root );
-  this->InternalTessellateTriangle( root );
-}
+  
+  vtkstd::queue< vtkTriangleTile > work;
+  vtkTriangleTile begin = vtkTriangleTile(root);
+  work.push( begin );
 
-//-----------------------------------------------------------------------------
-// Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
-// some edge of the original triangle? If yes return on which edge it is,
-// else return -1.
-// \pre p1!=p2
-// \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
-// \post valid_result: (result==-1) || ( result>=0 && result<=2 )
-int IsEdgeOnEdgeOfTriangle(double p1[3], double p2[3])
-{
-  assert("pre: points_differ" && (p1!=p2) && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
+  while( !work.empty() ) 
+    {
+    vtkTriangleTile piece[4];
+    vtkTriangleTile curr = work.front();
+    work.pop();
 
-  assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
-  assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
- 
-  // In fact, this test only check if the point are on an infinite line.
+    int n = curr.Refine( this, piece );
 
-  //Test on edge 0:
-  if((p1[1] == p2[1]) && (p2[1] == 0.0) && (p1[2] == p2[2]) && (p2[2] == 0.0))
-    {
-    return 0;
-    }
-  //Test on edge 1:
-  else if( (p1[0] + p1[1] == 1.0) && (p2[0] + p2[1] == 1.0) && 
-           (p1[2] == p2[2]) && (p2[2] == 0.0))
-    {
-    return 1;
-    }
-  //Test on edge 2:
-  else if((p1[0] == p2[0]) && (p2[0] == 0.0) && (p1[2] == p2[2]) && 
-          (p2[2] == 0.0))
-    {
-    return 2;
-    }
-  return -1;
-}
-
-//-----------------------------------------------------------------------------
-// Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
-// some edge of the original tetrahedron? If yes return on which edge it is,
-// else return -1.
-// \pre p1!=p2
-// \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
-// \post valid_result: (result==-1) || ( result>=0 && result<=5 )
-int IsEdgeOnEdge(double p1[3], double p2[3])
-{
-  assert("pre: points_differ" && (p1!=p2) && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
-
-  assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
-  assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
- 
-  // In fact, this test only check if the point are on an infinite line.
-
-  //Test on edge 0:
-  if((p1[1] == p2[1]) && (p2[1] == 0.0) && (p1[2] == p2[2]) && (p2[2] == 0.0))
-    {
-    return 0;
-    }
-  //Test on edge 1:
-  else if( (p1[0] + p1[1] == 1.0) && (p2[0] + p2[1] == 1.0) && 
-           (p1[2] == p2[2]) && (p2[2] == 0.0))
-    {
-    return 1;
-    }
-  //Test on edge 2:
-  else if((p1[0] == p2[0]) && (p2[0] == 0.0) && (p1[2] == p2[2]) && 
-          (p2[2] == 0.0))
-    {
-    return 2;
-    }
-  //Test on edge 3:
-  else if((p1[0] == p2[0]) && (p2[0] == 0.0) && (p1[1] == p2[1]) && 
-          (p2[1] == 0.0))
-    {
-    return 3;
-    }
-  //Test on edge 4:
-  else if((p1[1] == p2[1]) && (p2[1] == 0.0) && (p1[0] + p1[2] == 1.0) && 
-          (p2[0] + p2[2] == 1.0))
-    {
-    return 4;
-    }
-  //Test on edge 5:
-  else if((p1[0] == p2[0]) && (p2[0] == 0.0) && (p1[1] + p1[2] == 1.0) && 
-          (p2[1] + p2[2] == 1.0))
-    {
-    return 5;
-    }
-  return -1;
-}
-
-//-----------------------------------------------------------------------------
-// Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
-// some face of the original tetrahedron? If yes return on which face it is,
-// else return -1.
-// \pre p1!=p2
-// \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
-// \post valid_result: (result==-1) || ( result>=0 && result<=3 )
-int vtkSimpleCellTessellator::IsEdgeOnFace(double p1[3], double p2[3])
-{
-  assert("pre: points_differ" && (p1!=p2) && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
-
-  assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
-  assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
-
-  int result;
-  int *indexTab;
-
-  int face; // sum of the vertex id (trick to encode the face number).
-
-   //Test on face 0:  (012)
-  if(p1[2] == p2[2] && p2[2] == 0.0)
-    {
-    face = 3; // 0
-    }
-  else
-    {
-    //Test on face 1: (013)
-    if(p1[1] == p2[1] && p2[1] == 0.0)
+    for( int i = 0; i<n; i++) 
       {
-      face = 4; // 1
+      work.push( piece[i] );
       }
-    else
-      {
-      //Test on face 2: (123)
-      if((p1[0] + p1[1] + p1[2] == 1.0) && (p2[0] + p2[1] + p2[2] == 1.0))
-        {
-        face = 6; // 2
-        }
-      else
-        {
-        //Test on face 3: (023)
-        if(p1[0] == p2[0] && p2[0] == 0.0)
-          {
-          face = 5; // 3;
-          }
-        else
-          {
-          face = -1;
-          }
-        }
-      }
+    // We are done we should clean ourself from the hash table:
+    this->RemoveEdgesFromEdgeTable( curr );
     }
-  if(face != -1)
-    {
-    result = 0; // from this point, face is used as an end condition
-    while( face != -1 && result < 4 )
-      {
-      indexTab = this->GenericCell->GetFaceArray(result);
-      if(face != (indexTab[0] + indexTab[1] + indexTab[2]))
-        {
-        ++result;
-        }
-      else
-        {
-        face = -1;
-        }
-      }
-    }
-  else
-    {
-    result = -1;
-    }
-  assert("post: valid_result" && (result==-1) || ( result>=0 && result<=3 ));
-  return result;
-}
 
-//-----------------------------------------------------------------------------
-// Return 1 if the parent of edge defined by vertices (`p1',`p2') in parametric
-// coordinates, is an edge; 3 if there is no parent (the edge is inside).
-// If the parent is an edge, return its id in `localId'.
-// \pre p1!=p2
-// \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
-// \post valid_result: (result==1)||(result==3)
-int vtkSimpleCellTessellator::FindEdgeParent2D(double p1[3], double p2[3],
-                                               int &localId)
-{
-  assert("pre: points_differ" && (p1!=p2) && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
-
-  assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
-  assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
-
-  int result;
-
-  if( ( localId = IsEdgeOnEdgeOfTriangle(p1, p2) ) != -1)
+  // remove top level points
+  for(int i = 0; i<3; i++)
     {
-    // On Edge
-    // edge (p1,p2) is on the parent edge #id
-    result = 1;
+    this->EdgeTable->RemovePoint( root.GetPointId(i) );
     }
-  else
-    {
-    // Inside
-    result = 3;
-    }
-  assert("post: valid_result" && ((result==1)||(result==3)));
-  return result;
-}
 
-//-----------------------------------------------------------------------------
-// Return 1 if the parent of edge defined by vertices (`p1',`p2') in parametric
-// coordinates, is an edge; 2 if the parent is a face, 3 if there is no parent
-// (the edge is inside). If the parent is an edge or a face, return its id in
-// `localId'.
-// \pre p1!=p2
-// \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
-// \post valid_result: result>=1 && result<=3
-int vtkSimpleCellTessellator::FindEdgeParent(double p1[3], double p2[3],
-                                             int &localId)
-{
-  assert("pre: points_differ1" && (p1!=p2));
-  assert("pre: points_differ2" && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
-  assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
-  assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
-
-  int result;
-
-  if( ( localId = IsEdgeOnEdge(p1, p2) ) != -1)
-    {
-    // On Edge
-    // edge (p1,p2) is on the parent edge #id
-    result = 1;
-    }
-  else if( ( localId = IsEdgeOnFace(p1, p2) ) != -1)
-    {
-    // On Face
-    // edge (p1,p2) is on the parent face #id
-    result = 2;
-    }
-  else
-    {
-    // Inside
-    result = 3;
-    }
-  assert("post: valid_result" && result>=1 && result<=3);
-  return result;
+  //this->EdgeTable->LoadFactor();
+  //this->EdgeTable->DumpTable();
 }
 
 //#define SLOW_API 1
@@ -2031,6 +2623,7 @@ int vtkSimpleCellTessellator::FindEdgeParent(double p1[3], double p2[3],
 // Return number of cells using edge #edgeId
 int vtkSimpleCellTessellator::GetNumberOfCellsUsingEdge( int edgeId )
 {
+  assert("pre: valid_range" && edgeId>=0 ); // && edgeId<=5);
 #if SLOW_API
   int result = 0;
   this->GenericCell->GetBoundaryIterator(this->CellIterator, 1);
@@ -2048,9 +2641,10 @@ int vtkSimpleCellTessellator::GetNumberOfCellsUsingEdge( int edgeId )
   result = this->GenericCell->CountNeighbors(this->CellIterator->GetCell())+1;
   return result;
 #else
-  int edgeSharing[6];
+  // The cell with the greatest number of edges is the hexagonal prism
+  // 6*2+6
+  int edgeSharing[18];
   this->GenericCell->CountEdgeNeighbors( edgeSharing );
-  
   return edgeSharing[edgeId]+1;
 #endif
 }
@@ -2077,8 +2671,6 @@ int vtkSimpleCellTessellator::GetNumberOfCellsUsingFace( int faceId )
   
   return result;
 #else
-  // basically 1 or 2:
-  //Test if cell is on boundary
   if( this->GenericCell->IsFaceOnBoundary( faceId ) )
     {
     // So no other cell is using it:
@@ -2199,3 +2791,67 @@ void vtkSimpleCellTessellator::SetSubdivisionLevels(int fixed,
   this->MaxSubdivisionLevel = maxLevel;
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// Allocate some memory if PointIds does not exist or is smaller than size.
+// \pre positive_size: size>0
+void vtkSimpleCellTessellator::AllocatePointIds(int size)
+{
+  assert("pre: positive_size" && size>0);
+  
+  if(this->PointIdsCapacity<size)
+    {
+    if(this->PointIds!=0)
+      {
+      delete[] this->PointIds;
+      }
+    this->PointIds=new vtkIdType[size];
+    this->PointIdsCapacity=size;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Are the faces `originalFace' and `face' equal?
+// The result is independent from any order or orientation.
+// \pre originalFace_exists: originalFace!=0
+int vtkSimpleCellTessellator::FacesAreEqual(int *originalFace,
+                                            int face[3])
+{
+  assert("pre: originalFace_exists" && originalFace!=0);
+  
+  int result=0;
+  int i=0;
+  int j=1;
+  int k=2;
+  while(!result && i<3)
+    {
+    // counterclockwise
+    result=originalFace[0]==face[i]
+      && originalFace[1]==face[j]
+      && originalFace[2]==face[k];
+    // clockwise
+    if(!result)
+      {
+      result=originalFace[0]==face[i]
+        && originalFace[2]==face[j]
+        && originalFace[1]==face[k];
+      }
+    ++i;
+    ++j;
+    ++k;
+    
+    if(j>2)
+      {
+      j=0;
+      }
+    else
+      {
+      if(k>2)
+        {
+        k=0;
+        }
+      }
+    }
+  return result;
+}

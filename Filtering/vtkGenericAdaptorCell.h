@@ -78,6 +78,11 @@ class vtkGenericAttributeCollection;
 class vtkGenericAttribute;
 class vtkGenericPointIterator;
 class vtkIdList;
+class vtkOrderedTriangulator;
+class vtkPolygon;
+class vtkUnsignedCharArray;
+class vtkQuad;
+class vtkHexahedron;
 
 class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
@@ -454,6 +459,9 @@ public:
   // over cell iterations: they store the result of each call to Tessellate().
   // `internalPd' is initialized by the calling filter and stores the
   // result of the tessellation.
+  // If it is not null, `types' is fill with the types of the linear cells.
+  // `types' is null when it is called from vtkGenericGeometryFilter and not
+  // null when it is called from vtkGenericDatasetTessellator.
   // \pre attributes_exist: attributes!=0
   // \pre tessellator_exists: tess!=0
   // \pre points_exist: points!=0
@@ -461,14 +469,14 @@ public:
   // \pre internalPd_exists: internalPd!=0
   // \pre pd_exist: pd!=0
   // \pre cd_exists: cd!=0
-  
   virtual void Tessellate(vtkGenericAttributeCollection *attributes, 
                           vtkGenericCellTessellator *tess,
                           vtkPoints *points,
                           vtkPointLocator *locator,
                           vtkCellArray* cellArray,
                           vtkPointData *internalPd,
-                          vtkPointData *pd, vtkCellData* cd);
+                          vtkPointData *pd, vtkCellData* cd,
+                          vtkUnsignedCharArray *types);
 
   // The following methods are for the internals of the tesselation algorithm
   // (the hash table in particular)
@@ -511,14 +519,27 @@ public:
                                vtkPointData *pd, vtkCellData *cd );
   
   // Description:
-  // Return the 3 ids of the vertices defining face `faceId', assuming the
-  // cell is a tetrahedron
-  // \pre is_a_tetra: GetType()==VTK_TETRA || GetType()==VTK_QUADRATIC_TETRA
-  //                  GetType()==VTK_HIGHER_ORDER_TETRAHEDRON
-  // \pre valid_faceId_range: faceId>=0 && faceId<=3
+  // Return the ids of the vertices defining face `faceId'.
+  // \pre is_3d: this->GetDimension()==3
+  // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
   // \post result_exists: result!=0
-  // \post valid_size: sizeof(result)>=3
+  // \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
   virtual int *GetFaceArray(int faceId)=0;
+  
+  // Description:
+  // Return the number of vertices defining face `faceId'.
+  // \pre is_3d: this->GetDimension()==3
+  // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
+  // \post positive_result: && result>0
+  virtual int GetNumberOfVerticesOnFace(int faceId)=0;
+  
+  // Description:
+  // Return the ids of the vertices defining edge `edgeId'.
+  // \pre valid_dimension: this->GetDimension()>=2
+  // \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
+  // \post result_exists: result!=0
+  // \post valid_size: sizeof(result)==2
+  virtual int *GetEdgeArray(int edgeId)=0;
   
 protected:
   vtkGenericAdaptorCell();
@@ -527,12 +548,19 @@ protected:
   // Description:
   // Reset internal structures.
   void Reset();
-
+  
+  // Description:
+  // Allocate some memory if Tuples does not exist or is smaller than size.
+  // \pre positive_size: size>0
+  void AllocateTuples(int size);
+  
   //Internal tetra used for the contouring/clipping algoirthm
   vtkTetra       *Tetra;
   vtkTriangle    *Triangle;
   vtkLine        *Line;
   vtkVertex      *Vertex; //is it used ?
+  vtkQuad *Quad;
+  vtkHexahedron *Hexa;
 
   // Internal locator when tessellating on a cell basis, this is different
   // from the main locator used in contour/clip filter, this locator is used for
@@ -550,6 +578,11 @@ protected:
   vtkDoubleArray  *Scalars;
   vtkPointData    *PointData;
   vtkCellData     *CellData;
+  
+  // Scalar buffer to store the attributes values at some location
+  // There are variable members to reduce memory allocations.
+  double *Tuples;
+  int TuplesCapacity;
   
   // Cached Bounds.
   double Bounds[6];

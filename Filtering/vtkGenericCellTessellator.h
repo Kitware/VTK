@@ -59,39 +59,48 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Tessellate a face of a tetrahedron cell. The face is specified by the
+  // Tessellate a face of a 3D `cell'. The face is specified by the
   // index value.
+  // The result is a set of smaller linear triangles in `cellArray' with
+  // `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_tetra: (cell->GetType()==VTK_TETRA)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TETRA)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON)
-  // \pre valid_index_range: (index>=0) && (index<4)
-  virtual void TessellateTriangleFace(vtkGenericAdaptorCell *cell,
-                                      vtkGenericAttributeCollection *att,
-                                      vtkIdType index,
-                                      vtkDoubleArray *points,
-                                      vtkCellArray *cellArray,
-                                      vtkPointData *internalPd)=0;
+  // \pre valid_dimension: cell->GetDimension()==3
+  // \pre valid_index_range: (index>=0) && (index<cell->GetNumberOfBoundaries(2))
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
+  virtual void TessellateFace(vtkGenericAdaptorCell *cell,
+                              vtkGenericAttributeCollection *att,
+                              vtkIdType index,
+                              vtkDoubleArray *points,
+                              vtkCellArray *cellArray,
+                              vtkPointData *internalPd)=0;
 
   // Description:
-  // Tessellate a tetrahedron `cell'. The result is a set of smaller linear
-  // cells `cellArray' with `points' and point data `scalars'.
+  // Tessellate a 3D `cell'. The result is a set of smaller linear
+  // tetrahedra in `cellArray' with `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_tetra: (cell->GetType()==VTK_TETRA)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TETRA)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON)
+  // \pre valid_dimension: cell->GetDimension()==3
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
   virtual void Tessellate(vtkGenericAdaptorCell *cell,
                           vtkGenericAttributeCollection *att,
-                          vtkDoubleArray *points,
+                          vtkDoubleArray *points, 
                           vtkCellArray *cellArray,
-                          vtkPointData *internalPd)=0;
+                          vtkPointData *internalPd )=0;
 
   // Description:
-  // Triangulate a triangle `cell'.
+  // Triangulate a 2D `cell'. The result is a set of smaller linear triangles
+  // in `cellArray' with `points' and point data `internalPd'.
   // \pre cell_exists: cell!=0
-  // \pre is_a_triangle: (cell->GetType()==VTK_TRIANGLE)
-  //                 ||(cell->GetType()==VTK_QUADRATIC_TRIANGLE)
-  //                 ||(cell->GetType()==VTK_HIGHER_ORDER_TRIANGLE)
+  // \pre valid_dimension: cell->GetDimension()==2
+  // \pre att_exists: att!=0
+  // \pre points_exists: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
   virtual void Triangulate(vtkGenericAdaptorCell *cell,
                            vtkGenericAttributeCollection *att,
                            vtkDoubleArray *points,

@@ -31,7 +31,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.11");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.12");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ void vtkGenericDataSetTessellator::Execute()
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                      newPts, locator, conn, this->internalPD,outputPD,
-                     outputCD);    
+                     outputCD,types);    
     numNew = conn->GetNumberOfCells() - numInserted;
     numInserted = conn->GetNumberOfCells();
     
@@ -186,21 +186,6 @@ void vtkGenericDataSetTessellator::Execute()
       {
       locs->InsertNextValue(conn->GetTraversalLocation());
       conn->GetNextCell(npts,pts); //side effect updates traversal location
-     
-      switch (cell->GetDimension())
-        {
-        case 1:
-          types->InsertNextValue(VTK_LINE);
-          break;
-        case 2:
-          types->InsertNextValue(VTK_TRIANGLE);
-          break;
-        case 3:
-          types->InsertNextValue(VTK_TETRA);
-          break;
-        default:
-          vtkErrorMacro(<<"Bad mojo in data set tessellation");
-        } //switch
       } //insert each new cell
     } //for all cells
   cellIt->Delete();

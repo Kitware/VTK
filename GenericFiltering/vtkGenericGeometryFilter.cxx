@@ -37,7 +37,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.6");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.7");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -311,7 +311,7 @@ void vtkGenericGeometryFilter::Execute()
               {
               cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                                newPts, locator,cellArray, this->internalPD,
-                               outputPD, outputCD); //newScalars );
+                               outputPD, outputCD,0); //newScalars );
               }
           break;
         case 3:

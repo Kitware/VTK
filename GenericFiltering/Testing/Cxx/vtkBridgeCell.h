@@ -407,14 +407,27 @@ public:
 #endif
   
   // Description:
-  // Return the 3 ids of the vertices defining face `faceId', assuming the
-  // cell is a tetrahedron
-  // \pre is_a_tetra: GetType()==VTK_TETRA || GetType()==VTK_QUADRATIC_TETRA
-  //                  GetType()==VTK_HIGHER_ORDER_TETRAHEDRON
-  // \pre valid_faceId_range: faceId>=0 && faceId<=3
+  // Return the ids of the vertices defining face `faceId'.
+  // \pre is_3d: this->GetDimension()==3
+  // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
   // \post result_exists: result!=0
-  // \post valid_size: sizeof(result)>=3
+  // \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
   int *GetFaceArray(int faceId);
+  
+  // Description:
+  // Return the number of vertices defining face `faceId'
+  // \pre is_3d: this->GetDimension()==3
+  // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
+  // \post positive_result: && result>0
+  int GetNumberOfVerticesOnFace(int faceId);
+  
+  // Description:
+  // Return the ids of the vertices defining edge `edgeId'.
+  // \pre valid_dimension: this->GetDimension()>=2
+  // \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
+  // \post result_exists: result!=0
+  // \post valid_size: sizeof(result)==2
+  int *GetEdgeArray(int edgeId);
   
   // Description:
   // Used internally for the Bridge.
