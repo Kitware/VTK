@@ -158,17 +158,25 @@ INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator
 
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS)
+
+SET(VTK_DEFAULT_USE_X ON)
 IF (APPLE)
-  OPTION (VTK_USE_COCOA "Build classes using Cocoa API - Can only use one of these!" OFF)
+  OPTION (VTK_USE_COCOA 
+     "Build classes using Cocoa API - Can only use one of these!" OFF)
   OPTION (VTK_USE_CARBON "Build classes using Carbon API" ON)
   IF (CMAKE_HAS_X)
-    OPTION(VTK_USE_X "Build classes for the X11 window manager" OFF)
+    SET(VTK_DEFAULT_USE_X OFF)
   ENDIF (CMAKE_HAS_X)
 ELSE(APPLE)
-  IF (CMAKE_HAS_X)
-    OPTION(VTK_USE_X "Build classes for the X11 window manager" ON)
-  ENDIF (CMAKE_HAS_X)
+  IF(CYGWIN)
+    SET(VTK_DEFAULT_USE_X OFF)
+  ENDIF(CYGWIN)
 ENDIF(APPLE)
+
+IF(CMAKE_HAS_X)
+  OPTION(VTK_USE_X "Build classes for the X11 window manager" 
+         ${VTK_DEFAULT_USE_X})
+ENDIF(CMAKE_HAS_X)
 
 IF(VTK_WRAP_TCL)
   IF(VTK_USE_RENDERING)
