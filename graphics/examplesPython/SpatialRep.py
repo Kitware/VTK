@@ -1,11 +1,12 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
-
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # lines make a nice test
 line1 = vtkLineSource()
@@ -21,7 +22,7 @@ line2.SetResolution(1000)
 #  asource AddInput [line2 GetOutput]
 
 asource = vtkSTLReader()
-asource.SetFileName("../../../vtkdata/42400-IDGH.stl")
+asource.SetFileName(VTK_DATA + "/42400-IDGH.stl")
 #vtkCyberReader asource
 #  asource SetFileName ../../../vtkdata/fran_cut
 dataMapper = vtkPolyDataMapper()
@@ -62,15 +63,7 @@ ren.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(500,500)
 iren.Initialize()
 
-# render the image
-#
 ren.GetActiveCamera().Zoom(1.4)
 renWin.Render()
-
-#renWin SetFileName valid/SpatialRep.tcl.ppm
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 iren.Start()

@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,8 +20,8 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/bluntfinxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/bluntfinq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/bluntfinxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/bluntfinq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
@@ -56,7 +57,8 @@ plane1.SetExtent(10,10,0,100,0,100)
 conn = vtkPolyDataConnectivityFilter()
 conn.SetInput(plane1.GetOutput())
 conn.ScalarConnectivityOn()
-conn.SetScalarRange(1.5,4.0)
+scalarRange=(1.5,4.0)
+conn.SetScalarRange(scalarRange)
 plane1Map = vtkPolyDataMapper()
 plane1Map.SetInput(conn.GetOutput())
 plane1Map.SetScalarRange(pl3d.GetOutput().GetScalarRange())
@@ -94,15 +96,5 @@ ren.SetActiveCamera(cam1)
 
 iren.Initialize()
 
-# render the image
-#
-
-renWin.SetFileName("polyConn.tcl.ppm")
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
-
+renWin.SetFileName("polyConn.ppm")
 iren.Start()

@@ -4,6 +4,7 @@ from scanfile import scanner
 
 #
 # tcl2py.py - try to Pythonize a vtk tcl script
+# Author:  Randy Heiland
 # 
 
 name = sys.argv[1]

@@ -1,14 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-
-# Create the RenderWindow, Renderer and both Actors
-#
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
@@ -116,13 +115,6 @@ renWin.Render()
 ren.GetActiveCamera().Zoom(1.4)
 renWin.Render()
 
-# render the image
-#
-
 renWin.Render()
-#renWin SetFileName Peano.tcl.ppm
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 iren.Start()

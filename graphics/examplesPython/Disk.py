@@ -1,12 +1,12 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
-
-#catch  load vtktcl 
-# this is a tcl version of the Mace example
-# include get the vtk interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -33,17 +33,7 @@ ren.AddActor(diskActor)
 ren.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(450,450)
 
-# Get handles to some useful objects
-#
 iren.Initialize()
 renWin.Render()
-
-#renWin SetFileName Disk.tcl.ppm
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
 
 iren.Start()

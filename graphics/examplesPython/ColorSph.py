@@ -1,13 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Example demonstrates use of abstract vtkDataSetToDataSetFilter
 # (i.e., vtkElevationFilter - an abstract filter)
-#
-#source ../../examplesTcl/vtkInt.tcl
 
 sphere = vtkSphereSource()
 sphere.SetPhiResolution(12)
@@ -37,8 +39,4 @@ ren.GetActiveCamera().Zoom(1.4)
 
 iren.Initialize()
 
-#renWin SetFileName ColorSph.tcl.ppm
-#renWin SaveImageAsPPM
-
-#wm withdraw .
 iren.Start()

@@ -1,10 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -88,7 +91,6 @@ ren.ResetCameraClippingRange()
 
 iren.Initialize()
 
-#wm withdraw .
 
 # Update the scalars in the structured points with the probe's output
 def updateStructuredPoints():

@@ -1,20 +1,21 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 ## LOx post CFD case study
 
-# get helper scripts
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # read data
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/postxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/postq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/postxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/postq.bin")
 pl3d.Update()
 
 # computational planes
@@ -88,20 +89,5 @@ renWin.SetSize(400,400)
 
 iren.Initialize()
 renWin.Render()
-
-# render the image
-#
-
-renWin.Render()
-#renWin SetFileName "LOxGrid.tcl.ppm"
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
-
-
-
 
 iren.Start()

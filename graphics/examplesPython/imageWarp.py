@@ -1,4 +1,9 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
@@ -7,13 +12,11 @@ from libVTKImagingPython import *
 # Mix imaging and visualization; warp an image in z-direction
 #
 
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 # read in some structured points
 #
 reader = vtkPNMReader()
-reader.SetFileName("../../../vtkdata/masonry.ppm")
+reader.SetFileName(VTK_DATA + "/masonry.ppm")
 
 luminance = vtkImageLuminance()
 luminance.SetInput(reader.GetOutput())
@@ -62,11 +65,7 @@ cam1=ren.GetActiveCamera()
 cam1.Zoom(1.4)
 iren.Initialize()
 
-#renWin SetFileName "valid/imageWarp.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

@@ -1,14 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
 from libVTKContribPython import *
 
-#catch  load vtktcl 
-# this is a tcl version of the Mace example
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
+# Mace example
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -30,7 +32,7 @@ earthActor.SetMapper(earthMapper)
 #
 atext = vtkTexture()
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/earth.ppm")
+pnmReader.SetFileName(VTK_DATA + "/earth.ppm")
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
 earthActor.SetTexture(atext)
@@ -57,11 +59,13 @@ renWin.SetSize(300,300)
 cam1=ren.GetActiveCamera()
 cam1.Zoom(1.4)
 iren.Initialize()
-#renWin SetFileName "earth.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
+# export to rib format
+rib = vtkRIBExporter()
+rib.SetFilePrefix("earth")
+rib.SetRenderWindow(renWin)
+rib.BackgroundOn()
+rib.Write()
 
 iren.Start()

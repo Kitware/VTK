@@ -1,13 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Generate implicit model of a sphere
 #
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create renderer stuff
 #
@@ -52,11 +54,7 @@ iren.Initialize()
 # render the image
 #
 
-#renWin SetFileName "sphere.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

@@ -1,11 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # create camera figure
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -253,10 +256,6 @@ cam1.Azimuth(150)
 cam1.Elevation(30)
 
 iren.Initialize()
-#renWin SetFileName camera2.tcl.ppm
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 iren.Start()

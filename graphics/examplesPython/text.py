@@ -1,11 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Created oriented text
-#source ../../examplesTcl/vtkInt.tcl
 
 # pipeline
 
@@ -78,8 +81,5 @@ renWin.Render()
 
 iren.Initialize()
 
-#renWin SetFileName "text.tcl.ppm"
-#renWin SaveImageAsPPM
 
-#wm withdraw .
 iren.Start()

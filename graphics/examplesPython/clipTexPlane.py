@@ -1,4 +1,9 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
@@ -8,10 +13,7 @@ from libVTKImagingPython import *
 # clip a textured plane
 #
 
-#catch  load vtktcl 
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 ren = vtkRenderer()
@@ -52,7 +54,7 @@ plane2Actor.SetMapper(plane2Mapper)
 #
 atext = vtkTexture()
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/masonry.ppm")
+pnmReader.SetFileName(VTK_DATA + "/masonry.ppm")
 
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
@@ -71,11 +73,7 @@ cam1.Elevation(-30)
 cam1.Roll(-20)
 renWin.Render()
 
-#renWin SetFileName "clipTexPlane.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

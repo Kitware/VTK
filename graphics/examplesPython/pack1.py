@@ -1,4 +1,9 @@
-#!/usr/people/heiland/Python/Python-1.5.1/python
+#!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 import sys, string
 
 for name in sys.argv[1:]:

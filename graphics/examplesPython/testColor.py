@@ -1,4 +1,9 @@
-
+#!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 def printColor(r,g,b):
 	print 'r,g,b= ',r,g,b
 

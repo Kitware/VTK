@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
-
-#catch  load vtktcl 
-# user interface command widget
-#source ../../examplesTcl/vtkInt.tcl
 
 # create a rendering window and renderer
 ren = vtkRenderer()
@@ -34,7 +35,7 @@ w2if.SetInput(renWin)
 imgDiff = vtkImageDifference()
     
 rtpnm = vtkPNMReader()
-rtpnm.SetFileName("valid/Cone.tcl.ppm");
+rtpnm.SetFileName("valid/Cone.ppm");
 
 imgDiff.SetInput(w2if.GetOutput());
 imgDiff.SetImage(rtpnm.GetOutput());

@@ -1,14 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 #
 # Demonstrate the use of clipping on polygonal data
 #
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # create pipeline
 #
@@ -91,11 +93,7 @@ iren.Initialize()
 # render the image
 #
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
-#renWin SetFileName "clipSphCyl.tcl.ppm"
-#renWin SaveImageAsPPM
 
 
 iren.Start()

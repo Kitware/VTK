@@ -1,16 +1,18 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Create blow molding image (data point 5)
-# get the interactor
-#source ../../examplesTcl/vtkInt.tcl
 
 # create reader and warp data with vectors
 reader = vtkUnstructuredGridReader()
-reader.SetFileName("../../../vtkdata/blow.vtk")
+reader.SetFileName(VTK_DATA + "/blow.vtk")
 reader.SetScalarsName("thickness9")
 reader.SetVectorsName("displacement9")
 warp = vtkWarpVector()
@@ -77,11 +79,7 @@ renWin.SetSize(750,400)
 
 iren.Initialize()
 
-#renWin SetFileName "blow.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

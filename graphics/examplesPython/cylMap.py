@@ -1,4 +1,12 @@
+#!/usr/local/bin/python
+
 # Generate texture coordinates on a "random" sphere.
+
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
@@ -31,7 +39,7 @@ mapper.SetInput(xform.GetOutput())
 # load in the texture map and assign to actor
 #
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/masonry.ppm")
+pnmReader.SetFileName(VTK_DATA + "/masonry.ppm")
 atext = vtkTexture()
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
@@ -56,7 +64,6 @@ renWin.Render()
 # render the image
 #
 renWin.Render()
-renWin.SetFileName("valid/cylMap.tcl.ppm")
-#renWin SaveImageAsPPM
+renWin.SetFileName("valid/cylMap.ppm")
 
 iren.Start()

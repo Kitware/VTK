@@ -1,17 +1,20 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 
 reader = vtkSLCReader()
-reader.SetFileName("../../../vtkdata/poship.slc")
+reader.SetFileName(VTK_DATA + "/poship.slc")
 
 reader2 = vtkSLCReader()
-reader2.SetFileName("../../../vtkdata/neghip.slc")
+reader2.SetFileName(VTK_DATA + "/neghip.slc")
 
 opacityTransferFunction = vtkPiecewiseFunction()
 opacityTransferFunction.AddPoint(20,0.0)
@@ -41,13 +44,13 @@ volumeProperty.ShadeOff()
 compositeFunction = vtkVolumeRayCastCompositeFunction()
 
 volumeMapper = vtkVolumeRayCastMapper()
-volumeMapper.SetScalarInput(reader.GetOutput())
+volumeMapper.SetInput(reader.GetOutput())
 volumeMapper.SetVolumeRayCastFunction(compositeFunction)
 volumeMapper.SetSampleDistance(0.25)
 
 volume = vtkVolume()
-volume.SetVolumeMapper(volumeMapper)
-volume.SetVolumeProperty(volumeProperty)
+volume.SetMapper(volumeMapper)
+volume.SetProperty(volumeProperty)
 
 contour = vtkContourFilter()
 contour.SetInput(reader2.GetOutput())
@@ -83,13 +86,12 @@ ren.GetActiveCamera().SetViewPlaneNormal(0.839404,-0.00427837,0.543492)
 ren.GetActiveCamera().SetClippingRange(15.4748,773.74)
 
 ren.AddVolume(volume)
-renWin.SetSize(200,200)
+#renWin.SetSize(200,200)
 renWin.Render()
 
 iren.SetDesiredUpdateRate(1)
 iren.Initialize()
 
-#wm withdraw .
 
 
 

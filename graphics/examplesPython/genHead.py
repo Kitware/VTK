@@ -1,22 +1,23 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKPatentedPython import *
 
-#catch  load vtktcl 
 # Generate marching cubes head model (full resolution)
 
-# get the interactor ui and colors
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # create pipeline
 # reader reads slices
 v16 = vtkVolume16Reader()
 v16.SetDataDimensions(256,256)
 v16.SetDataByteOrderToLittleEndian()
-v16.SetFilePrefix("../../../vtkdata/fullHead/headsq")
+v16.SetFilePrefix(VTK_DATA + "/fullHead/headsq")
 v16.SetDataSpacing(0.8,0.8,1.5)
 v16.SetImageRange(30,50)
 v16.SetDataMask(0x7fff)
@@ -63,10 +64,6 @@ ren.GetActiveCamera().Elevation(90)
 
 iren.Initialize()
 
-#renWin SetFileName "genHead.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 iren.Start()

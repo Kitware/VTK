@@ -1,4 +1,9 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
@@ -8,10 +13,6 @@ from libVTKGraphicsPython import *
 #
 # converted from tcutSph.cxx
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow  Renderer and both Actors
 #
@@ -60,7 +61,7 @@ outerMapper = vtkDataSetMapper()
 outerMapper.SetInput(tcoords.GetOutput())
 
 tmap = vtkStructuredPointsReader()
-tmap.SetFileName("../../../vtkdata/texThres.vtk")
+tmap.SetFileName(VTK_DATA + "/texThres.vtk")
 
 texture = vtkTexture()
 texture.SetInput(tmap.GetOutput())
@@ -81,8 +82,5 @@ renWin.SetSize(500,500)
 renWin.Render()
 iren.Initialize()
 
-#renWin SetFileName "tcutSph.tcl.ppm"
-#renWin SaveImageAsPPM
 
-#wm withdraw .
 iren.Start()

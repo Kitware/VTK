@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,8 +20,8 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/combxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/combq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/combxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
@@ -71,11 +72,7 @@ ren.GetActiveCamera().Zoom(1.4)
 # render the image
 #
 renWin.Render()
-#renWin SetFileName "velProf.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

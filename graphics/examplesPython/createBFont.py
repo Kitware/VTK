@@ -1,15 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
 
-#catch  load vtktcl 
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 # and some nice colors
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Now create the RenderWindow, Renderer and Interactor
 #
@@ -20,7 +21,7 @@ iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 image = vtkPNMReader()
-image.SetFileName("../../../vtkdata/B.pgm")
+image.SetFileName(VTK_DATA + "/B.pgm")
 
 gaussian = vtkImageGaussianSmooth()
 gaussian.SetStandardDeviations(2,2)
@@ -62,9 +63,5 @@ iren.Initialize()
 # render the image
 #
 renWin.Render()
-#renWin SetFileName "createBFont.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 iren.Start()

@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,8 +20,8 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/bluntfinxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/bluntfinq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/bluntfinxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/bluntfinq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
@@ -53,21 +54,32 @@ finActor.GetProperty().SetColor(0.8,0.8,0.8)
 plane1 = vtkStructuredGridGeometryFilter()
 plane1.SetInput(pl3d.GetOutput())
 plane1.SetExtent(10,10,0,100,0,100)
-plane1Map = vtkPolyDataMapper()
+
+#plane1Map = vtkPolyDataMapper()
+plane1Map = vtkDataSetMapper()
 plane1Map.SetInput(plane1.GetOutput())
 pl3dPtData=pl3d.GetOutput().GetPointData()
 pl3dScalars=pl3dPtData.GetScalars()
-plane1Map.SetScalarRange(pl3dScalars.GetRange())
+range1=pl3dScalars.GetRange()
+print 'range1= ',range1
+#range1=  (0.192599996924, 4.97749996185)
+#plane1Map.SetScalarRange(pl3dScalars.GetRange())
+plane1Map.SetScalarRange(range1)
 plane1Actor = vtkActor()
 plane1Actor.SetMapper(plane1Map)
 
 plane2 = vtkStructuredGridGeometryFilter()
 plane2.SetInput(pl3d.GetOutput())
 plane2.SetExtent(25,25,0,100,0,100)
-plane2Map = vtkPolyDataMapper()
+
+#plane2Map = vtkPolyDataMapper()
+plane2Map = vtkDataSetMapper()
+#rwh
+plane2Map.ImmediateModeRenderingOn()
 plane2Map.SetInput(plane2.GetOutput())
-plane2Map.SetScalarRange(  \
-pl3d.GetOutput().GetPointData().GetScalars().GetRange() )
+#plane2Map.SetScalarRange(pl3d.GetOutput().GetPointData().GetScalars().GetRange() )
+plane2Map.SetScalarRange(range1)
+
 
 plane2Actor = vtkActor()
 plane2Actor.SetMapper(plane2Map)
@@ -75,10 +87,13 @@ plane2Actor.SetMapper(plane2Map)
 plane3 = vtkStructuredGridGeometryFilter()
 plane3.SetInput(pl3d.GetOutput())
 plane3.SetExtent(35,35,0,100,0,100)
+
 plane3Map = vtkDataSetMapper()
+#rwh
+plane3Map.ImmediateModeRenderingOn()
 plane3Map.SetInput(plane3.GetOutput())
-plane3Map.SetScalarRange(  \
-pl3d.GetOutput().GetPointData().GetScalars().GetRange() )
+#plane3Map.SetScalarRange(pl3d.GetOutput().GetPointData().GetScalars().GetRange() )
+plane3Map.SetScalarRange(range1)
 
 plane3Actor = vtkActor()
 plane3Actor.SetMapper(plane3Map)
@@ -86,7 +101,10 @@ plane3Actor.SetMapper(plane3Map)
 # outline
 outline = vtkStructuredGridOutlineFilter()
 outline.SetInput(pl3d.GetOutput())
-outlineMapper = vtkPolyDataMapper()
+#outlineMapper = vtkPolyDataMapper()
+outlineMapper = vtkDataSetMapper()
+#rwh
+outlineMapper.ImmediateModeRenderingOn()
 outlineMapper.SetInput(outline.GetOutput())
 outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
@@ -114,9 +132,5 @@ renWin.Render()
 # render the image
 #
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
-#renWin SetFileName bluntF.tcl.ppm
-#renWin SaveImageAsPPM
 iren.Start()

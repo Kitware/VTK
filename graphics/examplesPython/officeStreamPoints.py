@@ -1,13 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
-from colors import *#source ../../examplesTcl/vtkInclude.tcl
+from colors import *
 
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -18,7 +19,7 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 reader = vtkStructuredGridReader()
-reader.SetFileName("../../../vtkdata/office.vtk")
+reader.SetFileName(VTK_DATA + "/office.vtk")
 reader.Update() #force.a.read.to.occur()
 
 length=reader.GetOutput().GetLength()
@@ -280,10 +281,5 @@ ren.SetActiveCamera(aCamera)
 
 renWin.SetSize(500,300)
 iren.Initialize()
-#renWin SetFileName "officeStreamPoints.tcl.ppm"
-#renWin SaveImageAsPPM
-
-# interact with data
-#wm withdraw .
 
 iren.Start()

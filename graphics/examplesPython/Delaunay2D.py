@@ -1,11 +1,12 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
-
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -55,16 +56,9 @@ renWin.Render()
 cam1=ren.GetActiveCamera()
 cam1.Zoom(1.5)
 
-# render the image
-#
-
 renWin.Render()
 
-#renWin SetFileName Delaunay2D.tcl.ppm
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
+#renWin.SetFileName("Delaunay2D.ppm")
+#renWin.SaveImageAsPPM()
 
 iren.Start()

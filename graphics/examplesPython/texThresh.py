@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,8 +20,8 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/bluntfinxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/bluntfinq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/bluntfinxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/bluntfinq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
@@ -51,7 +52,7 @@ finActor.GetProperty().SetColor(0.8,0.8,0.8)
 
 # planes to threshold
 tmap = vtkStructuredPointsReader()
-tmap.SetFileName("../../../vtkdata/texThres.vtk")
+tmap.SetFileName(VTK_DATA + "/texThres.vtk")
 texture = vtkTexture()
 texture.SetInput(tmap.GetOutput())
 texture.InterpolateOff()
@@ -133,11 +134,7 @@ iren.Initialize()
 
 # render the image
 #
-#renWin SetFileName "texThresh.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

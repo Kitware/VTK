@@ -1,15 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# this is a tcl version of motor visualization
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
+# motor visualization
 from colors import *
-# Create the RenderWindow, Renderer and both Actors
 #
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -32,7 +32,7 @@ planes.SetNormals(norms)
 
 # texture
 texReader = vtkStructuredPointsReader()
-texReader.SetFileName("../../../vtkdata/texThres2.vtk")
+texReader.SetFileName(VTK_DATA + "/texThres2.vtk")
 texture = vtkTexture()
 texture.SetInput(texReader.GetOutput())
 texture.InterpolateOff()
@@ -41,7 +41,7 @@ texture.RepeatOff()
 # read motor parts...each part colored separately
 #
 byu = vtkBYUReader()
-byu.SetGeometryFileName("../../../vtkdata/motor.g")
+byu.SetGeometryFileName(VTK_DATA + "/motor.g")
 byu.SetPartNumber(1)
 normals = vtkPolyDataNormals()
 normals.SetInput(byu.GetOutput())
@@ -57,7 +57,7 @@ byuActor.SetTexture(texture)
 byuActor.GetProperty().SetColor(cold_grey[0],cold_grey[1],cold_grey[2])
 
 byu2 = vtkBYUReader()
-byu2.SetGeometryFileName("../../../vtkdata/motor.g")
+byu2.SetGeometryFileName(VTK_DATA + "/motor.g")
 byu2.SetPartNumber(2)
 normals2 = vtkPolyDataNormals()
 normals2.SetInput(byu2.GetOutput())
@@ -73,7 +73,7 @@ byuActor2.SetTexture(texture)
 byuActor2.GetProperty().SetColor(peacock[0],peacock[1],peacock[2])
 
 byu3 = vtkBYUReader()
-byu3.SetGeometryFileName("../../../vtkdata/motor.g")
+byu3.SetGeometryFileName(VTK_DATA + "/motor.g")
 byu3.SetPartNumber(3)
 
 triangle3 = vtkTriangleFilter()
@@ -93,7 +93,7 @@ byuActor3.SetTexture(texture)
 byuActor3.GetProperty().SetColor(raw_sienna[0],raw_sienna[1],raw_sienna[2])
 
 byu4 = vtkBYUReader()
-byu4.SetGeometryFileName("../../../vtkdata/motor.g")
+byu4.SetGeometryFileName(VTK_DATA + "/motor.g")
 byu4.SetPartNumber(4)
 normals4 = vtkPolyDataNormals()
 normals4.SetInput(byu4.GetOutput())
@@ -109,7 +109,7 @@ byuActor4.SetTexture(texture)
 byuActor4.GetProperty().SetColor(banana[0],banana[1],banana[2])
 
 byu5 = vtkBYUReader()
-byu5.SetGeometryFileName("../../../vtkdata/motor.g")
+byu5.SetGeometryFileName(VTK_DATA + "/motor.g")
 byu5.SetPartNumber(5)
 normals5 = vtkPolyDataNormals()
 normals5.SetInput(byu5.GetOutput())
@@ -147,10 +147,6 @@ ren.SetActiveCamera(camera)
 
 # render the image
 iren.Initialize()
-renWin.SetFileName("motor.tcl.ppm")
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
+renWin.SetFileName("motor.ppm")
 
 iren.Start()

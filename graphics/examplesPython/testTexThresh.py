@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -35,7 +36,7 @@ plane.GetPointData().SetScalars(scalars)
 # read in texture map
 #
 tmap = vtkStructuredPointsReader()
-tmap.SetFileName("../../../vtkdata/texThres2.vtk")
+tmap.SetFileName(VTK_DATA + "/texThres2.vtk")
 texture = vtkTexture()
 texture.SetInput(tmap.GetOutput())
 texture.InterpolateOff()
@@ -67,16 +68,12 @@ planeActor.GetProperty().SetOpacity(0.999)
 ren.AddActor(planeActor)
 ren.SetBackground(0.5,0.5,0.5)
 renWin.SetSize(450,450)
-#renWin SetFileName "testTexThres.tcl.ppm"
-#renWin SaveImageAsPPM
 
 iren.Initialize()
 
 # render the image
 #
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

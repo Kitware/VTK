@@ -1,19 +1,22 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
 
-#catch  load vtktcl 
 # Create a rolling billboard - requires texture support
 
 # Get the interactor
-#source ../../examplesTcl/vtkInt.tcl
 
 # load in the texture map
 #
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/billBoard.pgm")
+pnmReader.SetFileName(VTK_DATA + "/billBoard.pgm")
 atext = vtkTexture()
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
@@ -66,11 +69,7 @@ for i in range(0,112):
 	renWin.Render()
  
 
-#renWin SetFileName billBoard.tcl.ppm
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

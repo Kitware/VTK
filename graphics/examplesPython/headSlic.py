@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -22,7 +23,7 @@ v16 = vtkVolume16Reader()
 v16.SetDataDimensions(128,128)
 v16.GetOutput().SetOrigin(0.0,0.0,0.0)
 v16.SetDataByteOrderToLittleEndian()
-v16.SetFilePrefix("../../../vtkdata/headsq/half")
+v16.SetFilePrefix(VTK_DATA + "/headsq/half")
 v16.SetImageRange(45,45)
 v16.SetDataSpacing(1.6,1.6,1.5)
 iso = vtkContourFilter()
@@ -53,12 +54,8 @@ ren.SetBackground(0.1,0.2,0.4)
 
 iren.Initialize()
 
-#renWin SetFileName "headSlic.tcl.ppm"
-#renWin SaveImageAsPPM
 
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

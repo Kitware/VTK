@@ -1,4 +1,9 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
@@ -8,8 +13,6 @@ from libVTKImagingPython import *
 # structured points to geometry
 #
 
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -22,7 +25,7 @@ iren.SetRenderWindow(renWin)
 # read in some structured points
 #
 reader = vtkPNMReader()
-reader.SetFileName("../../../vtkdata/B.pgm")
+reader.SetFileName(VTK_DATA + "/B.pgm")
 
 geometry = vtkStructuredPointsGeometryFilter()
 geometry.SetInput(reader.GetOutput())
@@ -54,11 +57,7 @@ renWin.SetSize(640,480)
 cam1=ren.GetActiveCamera()
 cam1.Zoom(1.4)
 iren.Initialize()
-#renWin SetFileName "spToPd.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

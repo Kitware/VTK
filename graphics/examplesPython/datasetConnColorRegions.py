@@ -1,23 +1,24 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
-renWin.SetSize(400,400)
+renWin.SetSize(256,256)
 
 iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 reader = vtkSTLReader()
-reader.SetFileName("../../../vtkdata/cadPart.stl")
+reader.SetFileName(VTK_DATA + "/cadPart.stl")
 
 cpd = vtkCleanPolyData()
 cpd.SetInput(reader.GetOutput())
@@ -56,11 +57,9 @@ ren.GetActiveCamera().Elevation(60)
 ren.GetActiveCamera().Dolly(1.2)
 ren.ResetCameraClippingRange()
 
-#wm withdraw .
+renWin.Render()
+renWin.SetFileName("datasetConnColorRegions.ppm")
+renWin.SaveImageAsPPM()
 
 iren.Initialize()
-
-#renWin SetFileName polyConnColorRegions.tcl.ppm
-#renWin SaveImageAsPPM
-
 iren.Start()

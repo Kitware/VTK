@@ -1,9 +1,13 @@
-
+#!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
 import whrandom
-#import vtkColors
 
 ren1 = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -136,6 +140,6 @@ def constraint(value):
     aSplineZ.SetLeftConstraint(value)
     aSplineZ.SetRightConstraint(value)
 
-renWin.SetFileName("CSpline.tcl.ppm")
+renWin.SetFileName("CSpline.ppm")
 iren.Start()
 

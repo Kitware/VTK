@@ -1,13 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Generate implicit model of a sphere
 #
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create renderer stuff
 #
@@ -20,7 +22,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 cone = vtkBYUReader()
-cone.SetGeometryFileName("../../../vtkdata/Viewpoint/cow.g")
+cone.SetGeometryFileName(VTK_DATA + "/Viewpoint/cow.g")
 
 coneMapper = vtkPolyDataMapper()
 coneMapper.SetInput(cone.GetOutput())
@@ -58,8 +60,6 @@ renWin.Render()
 #
 
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 #
 def RotateX():
@@ -114,21 +114,15 @@ def RotateXY():
 
 RotateX()
 renWin.SetFileName("rotX.ppm")
-#renWin SaveImageAsPPM
 
 RotateY()
 renWin.SetFileName("rotY.ppm")
-#renWin SaveImageAsPPM
 
 RotateZ()
 renWin.SetFileName("rotZ.ppm")
-#renWin SaveImageAsPPM
 
 RotateXY()
 renWin.EraseOff()
 renWin.SetFileName("rotXY.ppm")
-#renWin SaveImageAsPPM
 
-#renWin SetFileName "rotations.tcl.ppm"
-#renWin SaveImageAsPPM
 iren.Start()

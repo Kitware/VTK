@@ -1,15 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKPatentedPython import *
 
-#catch  load vtktcl 
 # decimate hawaii dataset
 #
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -22,7 +23,7 @@ iren.SetRenderWindow(renWin)
 # create a cyberware source
 #
 reader = vtkPolyDataReader()
-reader.SetFileName("../../../vtkdata/honolulu.vtk")
+reader.SetFileName(VTK_DATA + "/honolulu.vtk")
 deci = vtkDecimate()
 deci.SetInput(reader.GetOutput())
 deci.SetTargetReduction(0.9)
@@ -49,8 +50,6 @@ renWin.SetSize(500,500)
 
 iren.Initialize()
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

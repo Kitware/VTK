@@ -1,15 +1,17 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Simple volume rendering example.
 reader = vtkSLCReader()
-reader.SetFileName("../../../vtkdata/poship.slc")
+reader.SetFileName(VTK_DATA + "/poship.slc")
 
 # Create transfer functions for opacity and color
 opacityTransferFunction = vtkPiecewiseFunction()
@@ -39,12 +41,12 @@ volumeProperty.SetScalarOpacity(opacityTransferFunction)
 compositeFunction = vtkVolumeRayCastCompositeFunction()
 
 volumeMapper = vtkVolumeRayCastMapper()
-volumeMapper.SetScalarInput(reader.GetOutput())
+volumeMapper.SetInput(reader.GetOutput())
 volumeMapper.SetVolumeRayCastFunction(compositeFunction)
 
 volume = vtkVolume()
-volume.SetVolumeMapper(volumeMapper)
-volume.SetVolumeProperty(volumeProperty)
+volume.SetMapper(volumeMapper)
+volume.SetProperty(volumeProperty)
 
 # Create outline
 outline = vtkOutlineFilter()
@@ -79,9 +81,6 @@ renWin.SetAbortCheckMethod(TkCheckAbort)
 
 iren.Initialize()
 
-#renWin SetFileName "valid/volSimple.ppm"
-#renWin SaveImageAsPPM
 
-#wm withdraw .
 
 iren.Start()

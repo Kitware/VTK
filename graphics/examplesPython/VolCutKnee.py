@@ -1,10 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 ren = vtkRenderer()
 
@@ -17,7 +20,7 @@ iren.SetRenderWindow(renWin)
 
 
 reader = vtkSLCReader()
-reader.SetFileName("../../../vtkdata/vw_knee.slc")
+reader.SetFileName(VTK_DATA + "/vw_knee.slc")
 
 reader.Update()
 
@@ -43,12 +46,12 @@ comp_func = vtkVolumeRayCastCompositeFunction()
 
 volmap = vtkVolumeRayCastMapper()
 volmap.SetVolumeRayCastFunction(comp_func)
-volmap.SetScalarInput(reader.GetOutput())
+volmap.SetInput(reader.GetOutput())
 volmap.SetSampleDistance(1.0)
 
 vol = vtkVolume()
-vol.SetVolumeProperty(vol_prop)
-vol.SetVolumeMapper(volmap)
+vol.SetProperty(vol_prop)
+vol.SetMapper(volmap)
 
 ren.AddVolume(vol)
 
@@ -100,6 +103,5 @@ iren.Initialize()
 
 renWin.Render()
 
-#wm withdraw .
 
 iren.Start()

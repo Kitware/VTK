@@ -1,22 +1,22 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
 ## Display a rectilinear grid and some common visualization techniques
 ##
-#catch  load vtktcl 
-
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
-from colors import *#source ../../examplesTcl/vtkInclude.tcl
+from colors import *
 from vtkInclude import *
 
 # create pipeline
 #
 reader = vtkRectilinearGridReader()
-reader.SetFileName("../../../vtkdata/RectGrid.vtk")
+reader.SetFileName(VTK_DATA + "/RectGrid.vtk")
 reader.Update()
 plane = vtkRectilinearGridGeometryFilter()
 plane.SetInput(reader.GetOutput())
@@ -117,11 +117,7 @@ iren.Initialize()
 
 # render the image
 #
-#renWin SetFileName "valid/rectGrid.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

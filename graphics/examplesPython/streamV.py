@@ -1,12 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # create selected streamlines in arteries
-#source ../../examplesTcl/colors.tcl
-from colors import *#source ../../examplesTcl/vtkInclude.tcl
+from colors import *
 from vtkInclude import *
 
 ren = vtkRenderer()
@@ -18,7 +21,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 reader = vtkStructuredPointsReader()
-reader.SetFileName("../../../vtkdata/carotid.vtk")
+reader.SetFileName(VTK_DATA + "/carotid.vtk")
 psource = vtkPointSource()
 psource.SetNumberOfPoints(25)
 psource.SetCenter(133.1,116.3,5.0)
@@ -30,7 +33,8 @@ streamers = vtkStreamLine()
 streamers.SetInput(reader.GetOutput())
 streamers.SetSource(psource.GetOutput())
 streamers.SetMaximumPropagationTime(100.0)
-streamers.SetIntegrationStepLength(0.2)
+#streamers.SetIntegrationStepLength(0.2)
+streamers.SetIntegrationStepLength(0.1)
 streamers.SpeedScalarsOn()
 streamers.SetTerminalSpeed(.1)
 tubes = vtkTubeFilter()
@@ -42,6 +46,8 @@ lut = vtkLookupTable()
 lut.SetHueRange(.667,0.0)
 lut.Build()
 streamerMapper = vtkPolyDataMapper()
+#rwh- add
+streamerMapper.ImmediateModeRenderingOn()
 streamerMapper.SetInput(tubes.GetOutput())
 streamerMapper.SetScalarRange(2,10)
 streamerMapper.SetLookupTable(lut)
@@ -53,6 +59,8 @@ iso = vtkContourFilter()
 iso.SetInput(reader.GetOutput())
 iso.SetValue(0,190)
 isoMapper = vtkPolyDataMapper()
+#rwh- add
+isoMapper.ImmediateModeRenderingOn()
 isoMapper.SetInput(iso.GetOutput())
 isoMapper.ScalarVisibilityOff()
 isoActor = vtkActor()
@@ -64,6 +72,8 @@ isoActor.GetProperty().SetOpacity(0.25)
 outline = vtkOutlineFilter()
 outline.SetInput(reader.GetOutput())
 outlineMapper = vtkPolyDataMapper()
+#rwh- add
+outlineMapper.ImmediateModeRenderingOn()
 outlineMapper.SetInput(outline.GetOutput())
 outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
@@ -94,9 +104,5 @@ iren.Initialize()
 #commandloop."puts(-nonewline,vtki>".puts.cont)
 
 renWin.Render()
-#renWin SetFileName "streamV.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 iren.Start()

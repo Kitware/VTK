@@ -1,12 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Demonstrate use of scalar connectivity
 
-#source ../../examplesTcl/vtkInt.tcl
 
 # Quadric definition
 quadric = vtkQuadric()
@@ -71,8 +74,5 @@ ren.AddActor(outlineActor)
 ren.GetActiveCamera().Zoom(1.4)
 iren.Initialize()
 
-renWin.SetFileName("valid/scalarConn.tcl.ppm")
-#renWin SaveImageAsPPM
-
-#wm withdraw .
+renWin.SetFileName("valid/scalarConn.ppm")
 iren.Start()

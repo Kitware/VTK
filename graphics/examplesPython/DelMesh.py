@@ -1,17 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Create a fancy image of a 2D Delaunay triangulation. Points are randomly 
 # generated.
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-
-# get some nice colors
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # create some points
 #
@@ -80,22 +79,13 @@ iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
 ren.AddActor(ballActor)
-#ren1 AddActor meshActor
 ren.AddActor(edgeActor)
 ren.SetBackground(1,1,1)
 renWin.SetSize(150,150)
-#renWin SetSize 500 500
 
-# render the image
-#
 ren.GetActiveCamera().Zoom(1.5)
 iren.Initialize()
 
 renWin.SetFileName("DelMesh.ppm")
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
 
 iren.Start()

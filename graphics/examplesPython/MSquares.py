@@ -1,12 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 ## Test the marching squares contouring class
-
-#source ../../examplesTcl/vtkInt.tcl
 
 # Quadric definition
 quadric = vtkQuadric()
@@ -60,8 +62,4 @@ ren.AddActor(outlineActor)
 ren.GetActiveCamera().Zoom(1.5)
 iren.Initialize()
 
-#renWin SetFileName MSquares.tcl.ppm
-#renWin SaveImageAsPPM
-
-#wm withdraw .
 iren.Start()

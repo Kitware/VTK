@@ -1,12 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 #
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create renderer stuff
 #
@@ -19,7 +21,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 cow = vtkBYUReader()
-cow.SetGeometryFileName("../../../vtkdata/Viewpoint/cow.g")
+cow.SetGeometryFileName(VTK_DATA + "/Viewpoint/cow.g")
 
 cowMapper = vtkPolyDataMapper()
 cowMapper.SetInput(cow.GetOutput())
@@ -55,8 +57,6 @@ renWin.Render()
 # render the image
 #
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 #
 cowTransform = vtkTransform()
@@ -142,7 +142,5 @@ walk()
 #renWin.EraseOff()
 renWin.EraseOn()
 
-#renWin SetFileName "walkCow.tcl.ppm"
-#renWin SaveImageAsPPM
 
 iren.Start()

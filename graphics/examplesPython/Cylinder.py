@@ -1,12 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# this is a tcl version of the Mace example
-# include get the vtk interactor ui
-#source ../../examplesTcl/vtkInt.tcl
+# this is a Python version of the Mace example
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -17,9 +19,6 @@ iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 cone = vtkCylinderSource()
-#vtkDiskSource cone
-#cone SetInnerRadius 1.0
-#cone SetOuterRadius 1.0
 coneMapper = vtkPolyDataMapper()
 coneMapper.SetInput(cone.GetOutput())
 coneActor = vtkActor()
@@ -36,13 +35,6 @@ renWin.SetSize(450,450)
 iren.Initialize()
 renWin.Render()
 
-#renWin SetFileName Cylinder.tcl.ppm
-#renWin SaveImageAsPPM
-
 coneProp=coneActor.GetProperty()
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
 
 iren.Start()

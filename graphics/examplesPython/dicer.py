@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui and colors
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,8 +20,8 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 reader = vtkSTLReader()
-reader.SetFileName("../../../vtkdata/42400-IDGH.stl")
-dicer = vtkDicer()
+reader.SetFileName(VTK_DATA + "/42400-IDGH.stl")
+dicer = vtkOBBDicer()
 dicer.SetInput(reader.GetOutput())
 dicer.SetNumberOfPointsPerPiece(1000)
 dicer.Update()
@@ -51,10 +52,6 @@ ren.SetBackground(slate_grey)
 #
 renWin.Render()
 
-#renWin SetFileName "dicer.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 iren.Start()

@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,7 +20,7 @@ iren.SetRenderWindow(renWin)
 # read data
 #
 input = vtkPolyDataReader()
-input.SetFileName("../../../vtkdata/brainImageSmooth.vtk")
+input.SetFileName(VTK_DATA + "/brainImageSmooth.vtk")
 
 #
 # generate vectors
@@ -46,22 +47,13 @@ ren.AddActor(brain)
 
 renWin.SetSize(320,240)
 
-cam1=ren.GetActiveCamera()
-cam1.SetPosition(152.589,-135.901,173.068)
-cam1.SetFocalPoint(146.003,22.3839,0.260541)
-cam1.SetViewUp(-0.255578,-0.717754,-0.647695)
+#cam1=ren.GetActiveCamera()
+#cam1.SetPosition(152.589,-135.901,173.068)
+#cam1.SetFocalPoint(146.003,22.3839,0.260541)
+#cam1.SetViewUp(-0.255578,-0.717754,-0.647695)
 
 iren.Initialize()
 renWin.Render()
-
-# render the image
-#
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-#renWin SetFileName writers.tcl.ppm
-#renWin SaveImageAsPPM
 
 #
 # test the writers
@@ -97,7 +89,5 @@ stl = vtkSTLWriter()
 stl.SetInput(triangles.GetOutput())
 stl.SetFileName("brain.stl")
 stl.Write()
-
-
 
 iren.Start()

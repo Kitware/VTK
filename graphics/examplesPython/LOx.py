@@ -1,20 +1,21 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 ## LOx post CFD case study
 
-# get helper scripts
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
-from colors import *
+#from colors import *
 # read data
 #
 pl3d = vtkPLOT3DReader()
-pl3d.SetXYZFileName("../../../vtkdata/postxyz.bin")
-pl3d.SetQFileName("../../../vtkdata/postq.bin")
+pl3d.SetXYZFileName(VTK_DATA + "/postxyz.bin")
+pl3d.SetQFileName(VTK_DATA + "/postq.bin")
 pl3d.SetScalarFunctionNumber(153)
 pl3d.SetVectorFunctionNumber(200)
 pl3d.Update()
@@ -86,22 +87,27 @@ fanActor.GetProperty().SetColor(0,0,0)
 rake = vtkPointSource()
 rake.SetCenter(-0.74,0,0.3)
 rake.SetNumberOfPoints(10)
+
 # a line of seed points
 seedsComp = vtkStructuredGridGeometryFilter()
 seedsComp.SetExtent(10,10,37,39,1,35)
 seedsComp.SetInput(pl3d.GetOutput())
+
 streamers = vtkStreamLine()
 streamers.SetInput(pl3d.GetOutput())
-#    streamers SetSource [rake GetOutput]
+#streamers.SetSource(rake.GetOutput())
 streamers.SetSource(seedsComp.GetOutput())
 streamers.SetMaximumPropagationTime(250)
 streamers.SpeedScalarsOn()
-streamers.SetIntegrationStepLength(.2)
-streamers.SetStepLength(.25)
+#streamers.SetIntegrationStepLength(.2)
+streamers.SetIntegrationStepLength(.4)
+#streamers.SetStepLength(.25)
+
 tubes = vtkTubeFilter()
 tubes.SetInput(streamers.GetOutput())
 tubes.SetNumberOfSides(8)
-tubes.SetRadius(.08)
+#tubes.SetRadius(.08)
+tubes.SetRadius(.06)
 tubes.SetVaryRadius(0)
 mapTubes = vtkPolyDataMapper()
 mapTubes.SetInput(tubes.GetOutput())
@@ -145,24 +151,9 @@ aCam.SetViewUp(0.00653193,0.617865,0.786257)
 
 ren.SetBackground(.1,.2,.4)
 ren.SetActiveCamera(aCam)
-renWin.SetSize(400,400)
+renWin.SetSize(256,256)
 
 iren.Initialize()
 renWin.Render()
-
-# render the image
-#
-
-renWin.Render()
-#renWin SetFileName "LOx.tcl.ppm"
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
-
-
-
 
 iren.Start()

@@ -1,19 +1,22 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
 
-#catch  load vtktcl 
 # Test the texture transformation object
 
 # Get the interactor
-#source ../../examplesTcl/vtkInt.tcl
 
 # load in the texture map
 #
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/masonry.ppm")
+pnmReader.SetFileName(VTK_DATA + "/masonry.ppm")
 atext = vtkTexture()
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
@@ -44,11 +47,7 @@ ren.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(500,500)
 renWin.Render()
 
-#renWin SetFileName "texTrans.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

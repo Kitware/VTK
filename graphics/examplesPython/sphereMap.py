@@ -1,14 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 from libVTKImagingPython import *
 
-#catch  load vtktcl 
 # Generate texture coordinates on a "random" sphere.
-
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # create some random points in a sphere
 #
@@ -37,7 +38,7 @@ mapper.SetInput(xform.GetOutput())
 # load in the texture map and assign to actor
 #
 pnmReader = vtkPNMReader()
-pnmReader.SetFileName("../../../vtkdata/masonry.ppm")
+pnmReader.SetFileName(VTK_DATA + "/masonry.ppm")
 atext = vtkTexture()
 atext.SetInput(pnmReader.GetOutput())
 atext.InterpolateOn()
@@ -61,12 +62,6 @@ renWin.SetSize(500,500)
 # render the image
 #
 renWin.Render()
-renWin.SetFileName("valid/sphereMap.tcl.ppm")
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
+renWin.SetFileName("valid/sphereMap.ppm")
 
 iren.Start()

@@ -1,14 +1,13 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# this is a tcl version of motor visualization
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-
-# Create the RenderWindow, Renderer and both Actors
 #
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -19,7 +18,7 @@ iren.SetRenderWindow(renWin)
 # read a vtk file
 #
 byu = vtkBYUReader()
-byu.SetGeometryFileName("../../../vtkdata/fohe.g")
+byu.SetGeometryFileName(VTK_DATA + "/fohe.g")
 normals = vtkPolyDataNormals()
 normals.SetInput(byu.GetOutput())
 byuMapper = vtkPolyDataMapper()
@@ -36,12 +35,4 @@ renWin.SetSize(500,500)
 # render the image
 #
 iren.Initialize()
-
-#renWin SetFileName "fohe.tcl.ppm"
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
-
 iren.Start()

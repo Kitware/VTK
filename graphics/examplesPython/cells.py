@@ -1,13 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
+from libVTKContribPython import *
 
-#catch  load vtktcl 
 # Demonstrates the 3D Studio Importer and all exporters
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -389,11 +392,15 @@ vrml.SetFileName("cells.wrl")
 vrml.Write()
 
 if globals().has_key("vtkRIBExporter"):
-	vtkRIBExporter.rib()
-	rib.SetInput(renWin)
-	rib.SetFilePrefix("cells")
-	rib.Write()
- 
+  print 'yep, globals has vtkRIBExporter'
+  rib = vtkRIBExporter()
+  rib.SetFilePrefix("cells")
+  rib.SetRenderWindow(renWin)
+  rib.BackgroundOn()
+  rib.Write()
+else:
+  print 'nope, globals has no vtkRIBExporter'
+
 
 iv = vtkIVExporter()
 iv.SetInput(renWin)
@@ -409,9 +416,6 @@ obj.Write()
 # render the image
 #
 iren.Initialize()
-#wm withdraw .
 
-#renWin SetFileName "cells.tcl.ppm"
-#renWin SaveImageAsPPM
 
 iren.Start()

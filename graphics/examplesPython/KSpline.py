@@ -1,16 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
-# Now create the RenderWindow, Renderer and Interactor
-#
+
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
@@ -125,9 +124,6 @@ renWin.SetSize(500,500)
 #
 iren.Initialize()
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
-
 def defaults():
 	aSplineX.SetDefaultBias(0)
 	aSplineX.SetDefaultTension(0)
@@ -177,7 +173,5 @@ def varyContinuity():
 		Continuity = Continuity + 0.05
      
  
-
-renWin.SetFileName("KSpline.tcl.ppm")
-#renWin SaveImageAsPPM
+renWin.SetFileName("KSpline.ppm")
 iren.Start()

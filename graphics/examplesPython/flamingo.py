@@ -1,13 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # Demonstrates the 3D Studio Importer
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -16,7 +18,7 @@ renWin.AddRenderer(ren)
 importer = vtk3DSImporter()
 importer.SetRenderWindow(renWin)
 importer.ComputeNormalsOn()
-importer.SetFileName("../../../vtkdata/Viewpoint/iflamigm.3ds")
+importer.SetFileName(VTK_DATA + "/Viewpoint/iflamigm.3ds")
 importer.Read()
 
 iren = vtkRenderWindowInteractor()
@@ -48,8 +50,5 @@ ren.ResetCameraClippingRange()
 # render the image
 #
 iren.Initialize()
-#wm withdraw .
 
-#renWin SetFileName "flamingo.tcl.ppm"
-#renWin SaveImageAsPPM
 iren.Start()

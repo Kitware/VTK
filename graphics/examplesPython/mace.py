@@ -1,4 +1,9 @@
-from libVTKCommonPython import *
+#!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 from libVTKGraphicsPython import *
 
 # Create the RenderWindow, Renderer and both Actors

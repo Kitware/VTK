@@ -1,15 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
-# this is a tcl version showing diffs between flat & gouraud
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
+# showing diffs between flat & gouraud
 
-# Create the RenderWindow, Renderer and both Actors
-#
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
@@ -47,16 +47,11 @@ prop.SetSpecularPower(5)
 prop.SetSpecular(0.5)
 renWin.Render()
 renWin.SetFileName("f1.ppm")
-#renWin SaveImageAsPPM
 
 prop.SetSpecular(1.0)
 renWin.Render()
 
-#renWin SetFileName specular.tcl.ppm
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()

@@ -1,13 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # create selected cones
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-#source ../../examplesTcl/colors.tcl
 from colors import *
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -18,7 +19,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 reader = vtkStructuredPointsReader()
-reader.SetFileName("../../../vtkdata/carotid.vtk")
+reader.SetFileName(VTK_DATA + "/carotid.vtk")
 threshold = vtkThresholdPoints()
 threshold.SetInput(reader.GetOutput())
 threshold.ThresholdByUpper(200)
@@ -81,9 +82,5 @@ iren.Initialize()
 # render the image
 #
 
-#renWin SetFileName "thrshldV.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 iren.Start()

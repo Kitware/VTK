@@ -1,12 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
 # Example demonstrates how to generate a 3D tetrahedra mesh from a volume
 #
-#catch  load vtktcl 
-#source ../../examplesTcl/vtkInt.tcl
 
 # Quadric definition
 quadric = vtkQuadric()
@@ -57,8 +60,5 @@ ren.AddActor(outlineActor)
 
 iren.Initialize()
 
-#renWin SetFileName clipVolume.tcl.ppm
-#renWin SaveImageAsPPM
 
-#wm withdraw .
 iren.Start()

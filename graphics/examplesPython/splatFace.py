@@ -1,12 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 # splat points to generate surface
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -19,7 +21,7 @@ iren.SetRenderWindow(renWin)
 # read cyberware file
 #
 cyber = vtkPolyDataReader()
-cyber.SetFileName("../../../vtkdata/fran_cut.vtk")
+cyber.SetFileName(VTK_DATA + "/fran_cut.vtk")
 normals = vtkPolyDataNormals()
 normals.SetInput(cyber.GetOutput())
 mask = vtkMaskPoints()
@@ -70,10 +72,6 @@ ren.SetActiveCamera(camera)
 # render the image
 #
 renWin.Render()
-#renWin SetFileName "splatFace.tcl.ppm"
-#renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 iren.Start()

@@ -1,17 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 #
 # create a triangular texture and save it as a ppm
-#
-
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
-
-# Create the RenderWindow, Renderer and both Actors
 #
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -78,9 +76,6 @@ ren.GetActiveCamera().Zoom(1.5)
 # render the image
 #
 iren.Initialize()
-renWin.SetFileName("triangularTexture.tcl.ppm")
-#renWin SaveImageAsPPM
+renWin.SetFileName("triangularTexture.ppm")
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 iren.Start()

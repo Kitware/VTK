@@ -1,13 +1,15 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 #create triangle strip - won't see anything with backface culling on
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -57,14 +59,10 @@ ren.SetBackground(1,1,1)
 renWin.SetSize(500,500)
 renWin.Render()
 
-#renWin SetFileName "strip.tcl.ppm"
-#renWin SaveImageAsPPM
 
 # render the image
 #
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 

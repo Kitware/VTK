@@ -1,14 +1,16 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 ## Test the rotational extrusion filter and tube generator. Sweep a spiral
 ## curve to generate a tube.
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # create bottle profile
 #
@@ -93,10 +95,6 @@ ren.SetActiveCamera(acam)
 renWin.SetSize(400,400)
 renWin.Render()
 
-renWin.SetFileName("sweptCurve.tcl.ppm")
-#renWin SaveImageAsPPM
-
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
+renWin.SetFileName("sweptCurve.ppm")
 
 iren.Start()

@@ -1,12 +1,14 @@
 #!/usr/local/bin/python
+import os
+try:
+  VTK_DATA = os.environ['VTK_DATA']
+except KeyError:
+  VTK_DATA = '../../../vtkdata/'
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
 
-#catch  load vtktcl 
 
-# get the interactor ui
-#source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -47,16 +49,12 @@ ren.AddActor(planeActor)
 ren.SetBackground(1,1,1)
 renWin.SetSize(300,300)
 
-#renWin SetFileName "cutPlane.tcl.ppm"
-#renWin SaveImageAsPPM
 
 
 # render the image
 #
 iren.Initialize()
 
-# prevent the tk window from showing up then start the event loop
-#wm withdraw .
 
 
 iren.Start()
