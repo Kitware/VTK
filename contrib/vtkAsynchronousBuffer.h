@@ -99,7 +99,12 @@ public:
   // is messed up by the asynchronous nature of the update.  The UpdateTime
   // of a down stream filter can not be compared to the modifiedTime
   // of an up stream object.
-  void UpdateInformation();  
+  void UpdateInformation(); 
+  
+  // Description:
+  // If this value is 1 then, the buffer is in the middle of an
+  // asynchronous update.
+  vtkGetMacro(Finished, unsigned char); 
   
   // This ivar is public so thread func. can have access.
   // I do not think we need a lock on this variable.
