@@ -60,6 +60,7 @@ int TestGenericCutter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -95,7 +96,7 @@ int TestGenericCutter(int argc, char* argv[])
   // Create the filter
   
   vtkPlane *implicitPlane = vtkPlane::New();
-  implicitPlane->SetOrigin(0.5, 0, 0);
+  implicitPlane->SetOrigin(0.5, 0, 0); // 0, -1, 0
   implicitPlane->SetNormal(1, 1, 1);
   
   vtkGenericCutter *cutter = vtkGenericCutter::New();

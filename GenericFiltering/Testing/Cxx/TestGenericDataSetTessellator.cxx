@@ -21,7 +21,7 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-//#define WRITE_GENERIC_RESULT
+#define WRITE_GENERIC_RESULT
 
 #define WITH_GEOMETRY_FILTER
 
@@ -59,6 +59,10 @@
 # include "vtkXMLUnstructuredGridWriter.h"
 #endif // #ifdef WRITE_GENERIC_RESULT
 
+// debugging when clipping on n=(1,1,1) c=(0.5,0,0)
+//#include "vtkExtractGeometry.h"
+//#include "vtkSphere.h"
+
 // Remark about the lookup tables that seem different between the
 // GenericGeometryFilter and GenericDataSetTessellator:
 // the lookup table is set for the whole unstructured grid, the tetra plus
@@ -84,7 +88,7 @@ public:
     }
   
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
-    { 
+    {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
         {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
@@ -115,7 +119,13 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet4.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tetraMesh.vtu");
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
+  
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
+  
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -137,15 +147,13 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   
   // 2. for the attribute error metric
   vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
-  attributesError->SetAttributeTolerance(0.01); // 0.11
+  attributesError->SetAttributeTolerance(0.01); // 0.11, 0.005
   
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
-
   
-  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
-    
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetSubdivisionLevels(0,100);
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
   
@@ -156,6 +164,30 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   tessellator->Update(); //So that we can call GetRange() on the scalars
   
   assert(tessellator->GetOutput()!=0);
+  
+  // for debugging clipping on the hexa
+#if 0
+  vtkExtractGeometry *eg=vtkExtractGeometry::New();
+  eg->SetInput(tessellator->GetOutput());
+  
+  vtkSphere *sphere=vtkSphere::New();
+  sphere->SetRadius(0.1);
+  sphere->SetCenter(0,0,0);
+  
+  eg->SetImplicitFunction(sphere);
+  eg->SetExtractInside(1);
+  eg->SetExtractBoundaryCells(0);
+  
+  vtkXMLUnstructuredGridWriter *cwriter=vtkXMLUnstructuredGridWriter::New();
+  cwriter->SetInput(eg->GetOutput());
+  cwriter->SetFileName("extracted_tessellated.vtu");
+  cwriter->SetDataModeToAscii();
+  cwriter->Write();
+  
+  cwriter->Delete();
+  sphere->Delete();
+  eg->Delete();
+#endif
   
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New(); 
