@@ -2,6 +2,7 @@
 #define    __FTGLTextureFont__
 
 #include "FTGL.h"
+#include "FTGLgl.h"
 #include "FTFont.h"
 
 class FTTextureGlyph;

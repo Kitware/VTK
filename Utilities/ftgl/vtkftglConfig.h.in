@@ -10,6 +10,11 @@
 #endif
 
 /*
+  Support Mangle Mesa
+*/
+#cmakedefine VTKFTGL_SUPPORT_MANGLE_MESA
+
+/*
   Do not use texture fonts (crash on Type1 fonts)
 */
 #cmakedefine VTKFTGL_DO_NOT_USE_TEXTURE_FONT
@@ -24,7 +29,6 @@
 #if defined(VTKFTGL_DO_NOT_USE_VECTORISER) && !defined(FTGL_DO_NOT_USE_VECTORISER)
 #define FTGL_DO_NOT_USE_VECTORISER
 #endif
-
 
 /* 
    Static or shared lib flags

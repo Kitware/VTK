@@ -21,10 +21,16 @@ INCLUDE_DIRECTORIES (
 SET (VTKFTGL_LIBS "")
 
 #
-#
 # Do not use the STL (portability issue)
 #
 SET (VTKFTGL_DO_NOT_USE_STL 1)
+
+#
+# Support Mangle Mesa
+#
+IF (VTK_MANGLE_MESA)
+  SET (VTKFTGL_SUPPORT_MANGLE_MESA 1)
+ENDIF (VTK_MANGLE_MESA)
 
 #
 # Source files
@@ -48,7 +54,7 @@ SET (FTGL_SRCS
 #
 SET (VTKFTGL_DO_NOT_USE_TEXTURE_FONT 1)
 IF (NOT VTKFTGL_DO_NOT_USE_TEXTURE_FONT)
-  SOURCE_FILES (FTGL_SRCS
+  SET (FTGL_SRCS ${FTGL_SRCS}
     src/FTGLTextureFont.cpp
     src/FTTextureGlyph.cpp
   )

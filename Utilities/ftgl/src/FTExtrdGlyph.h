@@ -6,6 +6,7 @@
 #include FT_GLYPH_H
 
 #include "FTGL.h"
+#include "FTGLgl.h"
 #include "FTGlyph.h"
 
 class FTVectoriser;
