@@ -119,7 +119,7 @@ public:
   // corner).
   virtual void HideCursor() = 0;
   virtual void ShowCursor() = 0;
-  virtual void SetCursorPosition(int x, int y) {};
+  virtual void SetCursorPosition(int , int ) {};
 
   // Description:
   // Turn on/off rendering full screen window size.
