@@ -30,7 +30,7 @@
 #include "vtkObject.h"
 
 class vtkAlgorithmInternals;
-class vtkData;
+class vtkDataObject;
 class vtkExecutive;
 class vtkInformation;
 class vtkInformationVector;
@@ -114,13 +114,9 @@ public:
   void SetInput(int index, vtkAlgorithmOutput* input);
 
   // Description:
-  // Get a proxy object corresponding to the given output of this
-  // algorithm.  The proxy object can be passed to another algorithm's
-  // SetInput method to establish a pipeline connection.
-  //
-  // TODO: Use an actual vtkDataObject instance as the proxy object to
-  // maintain backward compatability.
-  vtkAlgorithmOutput* GetOutput(int index);
+  // Get the data object that will contain the algorithm output for
+  // the given port.
+  vtkDataObject* GetOutput(int port);
 
   // Description:
   // Set the connection for the given input port index.  Removes
