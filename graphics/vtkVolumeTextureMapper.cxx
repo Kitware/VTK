@@ -136,7 +136,8 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   float *GArray;
   int   colorChannels;
   float gradientOpacityConstant;
-
+  float tmp;
+  
   // Hang on to the render window - we'll need it to test for abort
   this->RenderWindow = ren->GetRenderWindow();
 
@@ -177,11 +178,12 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     RGBArray = vol->GetRGBArray();    
     for ( i=0, j=0, k=0; i < size; i++ )
       {
-      this->RGBAArray[j++] = (unsigned char) (RGBArray[k++]*255.99);
-      this->RGBAArray[j++] = (unsigned char) (RGBArray[k++]*255.99);
-      this->RGBAArray[j++] = (unsigned char) (RGBArray[k++]*255.99);
-      this->RGBAArray[j++]
-	= (unsigned char) (AArray[i]*255.99*gradientOpacityConstant);
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+      tmp = 0.5+AArray[i]*255.0*gradientOpacityConstant;
+      //tmp =  ( tmp > 0.2 && tmp < 2.0 )?(2.0):(tmp);
+      this->RGBAArray[j++] = (unsigned char) tmp;
       }
     }
   else if ( colorChannels == 1 )
@@ -189,9 +191,10 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     GArray = vol->GetGrayArray();
     for ( i=0, j=0; i < size; i++ )
       {
-      this->RGBAArray[j++] = (unsigned char) (GArray[i]*255.99);
-      this->RGBAArray[j++]
-	= (unsigned char) (AArray[i]*255.99*gradientOpacityConstant);
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+      tmp = 0.5 + AArray[i]*255.0*gradientOpacityConstant;
+      // tmp =  ( tmp > 0.2 && tmp < 2.0 )?(2.0):(tmp);
+      this->RGBAArray[j++] = (unsigned char) tmp;
       }
     }
 
