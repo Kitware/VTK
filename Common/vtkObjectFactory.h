@@ -71,6 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkObjectFactoryCollection;
 class vtkOverrideInformationCollection;
+class vtkCollection;
 
 class VTK_COMMON_EXPORT vtkObjectFactory : public vtkObject
 {
@@ -83,6 +84,14 @@ public:
   // the factory was in the VTK_AUTOLOAD_PATH.  After the
   // first factory returns the object no other factories are asked.
   static vtkObject* CreateInstance(const char* vtkclassname);
+
+  // Description:
+  // Create all possible instances of the named vtk object.
+  // Each registered vtkObjectFactory will be asked, and the
+  // result will be stored in the user allocated vtkCollection
+  // passed in to the function.
+  static void CreateAllInstance(const char* vtkclassname,
+                                vtkCollection* retList);
   // Description:
   // Re-check the VTK_AUTOLOAD_PATH for new factory libraries.
   // This calls UnRegisterAll before re-loading
