@@ -146,7 +146,7 @@ public:
 
   // Description:
   // Returns true if line intersects node.
-  int LineIntersectsNode( vtkOBBNode *pA, float B0[3], float B1[3] );
+  int LineIntersectsNode( vtkOBBNode *pA, float b0[3], float b1[3] );
 
   // Description:
   // Returns true if triangle (optionally transformed) intersects node.

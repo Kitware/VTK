@@ -28,7 +28,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.51");
+vtkCxxRevisionMacro(vtkOBBTree, "1.52");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -1746,7 +1746,7 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
 // pass all the way through the node, but at least some portion of the line
 // must lie within the node.
 int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
-                                    float B0[3], float B1[3] )
+                                    float b0[3], float b1[3] )
 {
   double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotB;
   double eps;
@@ -1759,9 +1759,9 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
     rangeAmax = rangeAmin + vtkMath::Dot( pA->Axes[ii], pA->Axes[ii] );
 
     // compute B range...
-    rangeBmin = vtkMath::Dot( B0, pA->Axes[ii] );
+    rangeBmin = vtkMath::Dot( b0, pA->Axes[ii] );
     rangeBmax = rangeBmin;
-    dotB = vtkMath::Dot( B1, pA->Axes[ii] );
+    dotB = vtkMath::Dot( b1, pA->Axes[ii] );
     if ( dotB < rangeBmin )
       {
       rangeBmin = dotB;
