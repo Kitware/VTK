@@ -130,8 +130,6 @@ int  FTFont::Descender() const
   return charSize.Descender();
 }
 
-#define FTFONT_DEBUG 0
-
 void FTFont::BBox( const char* string,
                    float& llx, float& lly, float& llz, float& urx, float& ury, float& urz)
 {
@@ -165,11 +163,6 @@ void FTFont::BBox( const char* string,
   llx = glyphList->BBox( *string).x1;
   urx -= glyphList->Advance( *(c - 1), 0);
   urx += bbox.x2;
-
-#if FTFONT_DEBUG 
-    printf("FTFont::BBox: (%f, %f, %f) -> (%f, %f, %f)\n",
-           llx, lly, llz, urx, ury, urz);
-#endif
 }
 
 void FTFont::BBox( const wchar_t* string,

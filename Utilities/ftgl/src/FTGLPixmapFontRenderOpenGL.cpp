@@ -9,9 +9,6 @@
 #define RenderFunctionName RenderOpenGL
 #endif
 
-#define ToString(arg) ToString0(arg)
-#define ToString0(arg) #arg
-
 void FTGLPixmapFont::RenderFunctionName(const char* string,
                                         const FTGLRenderContext *context)
 {  
@@ -23,8 +20,6 @@ void FTGLPixmapFont::RenderFunctionName(const char* string,
   glEnable(GL_BLEND);
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable( GL_TEXTURE_2D);
-
-  printf("FTGLPixmapFont::"ToString(RenderFunctionName)"\n");
 
   FTFont::render(string, context);
 
