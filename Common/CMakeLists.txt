@@ -318,9 +318,11 @@ INSTALL_FILES(/lib/vtk/testing FILES
               ${VTK_SOURCE_DIR}/${KIT}/Testing/HeaderTesting.py
               ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/FindString.tcl
               ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/PrintSelfCheck.tcl
-              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/rtImageTest.tcl)
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/rtImageTest.tcl
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/TestSetGet.tcl
+)
 INSTALL_FILES(/include/vtk FILES
-              ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkRegressionTestImage.h)
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkTestUtilities.h)
 IF(VTK_USE_PARALLEL)
   INSTALL_FILES(/lib/vtk/testing FILES
                 ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/prtImageTest.tcl)
