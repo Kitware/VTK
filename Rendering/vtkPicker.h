@@ -38,14 +38,14 @@
 #ifndef __vtkPicker_h
 #define __vtkPicker_h
 
-#include "vtkObject.h"
 #include "vtkAbstractPropPicker.h"
-#include "vtkRenderer.h"
-#include "vtkActor.h"
-#include "vtkActorCollection.h"
-#include "vtkProp3DCollection.h"
-#include "vtkMapper.h"
-#include "vtkTransform.h"
+
+class vtkAbstractMapper3D;
+class vtkDataSet;
+class vtkTransform;
+class vtkActorCollection;
+class vtkProp3DCollection;
+class vtkPoints;
 
 class VTK_RENDERING_EXPORT vtkPicker : public vtkAbstractPropPicker
 {
@@ -84,11 +84,7 @@ public:
   // Return a collection of all the actors that were intersected.
   // This collection is not sorted. (This is a convenience method
   // to maintain backward compatibility.)
-  vtkActorCollection *GetActors() {
-    if (this->Actors->GetNumberOfItems() != 
-        this->PickedPositions->GetNumberOfPoints()) {
-      vtkWarningMacro(<<"Not all Prop3Ds are actors, use GetProp3Ds instead");}
-    return this->Actors; };
+  vtkActorCollection *GetActors();
 
   // Description:
   // Return a list of the points the the actors returned by GetActors

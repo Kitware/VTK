@@ -17,6 +17,10 @@
 =========================================================================*/
 #include "vtkPicker.h"
 
+
+#include "vtkActor.h"
+#include "vtkMapper.h"
+#include "vtkProp3DCollection.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
@@ -24,11 +28,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkVertex.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.74");
+vtkCxxRevisionMacro(vtkPicker, "1.75");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -423,6 +428,18 @@ void vtkPicker::Initialize()
   this->Mapper = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
 }
+
+
+vtkActorCollection *vtkPicker::GetActors() 
+{
+  if (this->Actors->GetNumberOfItems() != 
+        this->PickedPositions->GetNumberOfPoints()) 
+    {
+    vtkWarningMacro(<<"Not all Prop3Ds are actors, use GetProp3Ds instead");
+    }
+  return this->Actors; 
+}
+
 
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
