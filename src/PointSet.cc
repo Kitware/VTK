@@ -79,8 +79,8 @@ void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
   vlDataSet::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  os << indent << "Point Data: " << this->Points;
-  os << indent << "Locator: " << this->Locator;
+  os << indent << "Point Data: " << this->Points << "\n";
+  os << indent << "Locator: " << this->Locator << "\n";
 }
 
 int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,

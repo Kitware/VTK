@@ -478,7 +478,7 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
     }
   else
     {
-    os << indent << "Scalar: (none)\n";
+    os << indent << "Scalars: (none)\n";
     }
 
   if ( this->Vectors )
