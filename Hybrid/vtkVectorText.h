@@ -41,8 +41,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkVectorText - create polygonal text
 // .SECTION Description
-// vtkVectorText converts a text string into polygons.  This way you can 
-// insert text into your renderings.
+// vtkVectorText generates vtkPolyData from an input text string. Besides
+// the ASCII alphanumeric characters a-z, A-Z, 0-9, vtkVectorText also 
+// supports ASCII punctuation marks. (Supported set is ASCII characters
+// (33-126) inclusive. The only control character supported is the 
+// line feed character "\n", which advances to a new line.
+//
+// To use thie class, you normally couple it with a vtkPolyDataMapper and a
+// vtkActor. In this case you would use the vtkActor's transformation methods
+// to position, orient, and scale the text. You may also wish to use a
+// vtkFollower to orient the text so that it always faces the camera.
+
+// .SECTION See Also
+// vtkTextMapper vtkCaptionActor2D
 
 #ifndef __vtkVectorText_h
 #define __vtkVectorText_h
