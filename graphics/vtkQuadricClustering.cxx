@@ -523,4 +523,6 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "Number of Z Divisions: " << this->NumberOfZDivisions
      << "\n";
+  os << indent << "Number of Expected Inputs: "
+     << this->NumberOfExpectedInputs << "\n";
 }
