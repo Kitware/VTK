@@ -166,10 +166,8 @@ ELSE (WIN32)
                  vtkQuartzRenderWindow
                  vtkQuartzWindow
                  vtkQuartzGLView
-                 vtkQuartzWindowController
-                 vtkQuartzBridge)
-    WRAP_EXCLUDE_FILES(vtkQuartzBridge
-	      	       vtkQuartzGLView
+                 vtkQuartzWindowController)
+    WRAP_EXCLUDE_FILES(vtkQuartzGLView
 		       vtkQuartzWindow
 		       vtkQuartzWindowController)
     LINK_LIBRARIES (${OPENGL_LIBRARY})
