@@ -220,6 +220,7 @@ vtkSTLReader \
 vtkSTLWriter \
 vtkSampleFunction \
 vtkScalarTree \
+vtkSelectPolyData \
 vtkSelectVisiblePoints \
 vtkShepardMethod \
 vtkShrinkFilter \
