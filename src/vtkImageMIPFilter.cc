@@ -199,9 +199,9 @@ vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 
   // reduce bounds from 3 to 2 D.
-  region->GetImageBounds3d(bounds);
+  inRegion->GetImageBounds3d(bounds);
   bounds[4] = 0; bounds[5] =0;
-  region->SetImageBounds3d(bounds);
+  outRegion->SetImageBounds3d(bounds);
 }
 
 
