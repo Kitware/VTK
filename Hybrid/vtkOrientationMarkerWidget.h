@@ -121,6 +121,8 @@ protected:
   vtkPolyData *Outline;
   vtkActor2D  *OutlineActor;
 
+  unsigned long StartEventObserverId;
+  
   static void ProcessEvents(vtkObject *object, unsigned long event,
                             void *clientdata, void *calldata);
 

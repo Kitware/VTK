@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.2");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.3");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -57,6 +57,7 @@ public:
 
 vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
 {
+  this->StartEventObserverId = 0;
   this->EventCallbackCommand->SetCallback( vtkOrientationMarkerWidget::ProcessEvents );
 
   this->Observer = vtkOrientationMarkerWidgetObserver::New();
@@ -179,8 +180,8 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
 
     // We need to copy the camera before the compositing observer is called.
     // Compositing temporarily changes the camera to display an image.
-    this->CurrentRenderer->AddObserver( vtkCommand::StartEvent,
-      this->Observer, 1 );
+    this->StartEventObserverId = this->CurrentRenderer->AddObserver(
+      vtkCommand::StartEvent, this->Observer, 1 );
     this->InvokeEvent( vtkCommand::EnableEvent, NULL );
     }
   else
@@ -199,7 +200,10 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
     this->Renderer->RemoveProp( this->OutlineActor );
 
     this->CurrentRenderer->GetRenderWindow()->RemoveRenderer( this->Renderer );
-    this->CurrentRenderer->RemoveObserver( vtkCommand::StartEvent );
+    if ( this->StartEventObserverId != 0 )
+      {
+      this->CurrentRenderer->RemoveObserver( this->StartEventObserverId );
+      }
 
     this->InvokeEvent( vtkCommand::DisableEvent, NULL );
     this->SetCurrentRenderer( NULL );
