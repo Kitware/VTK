@@ -29,4 +29,5 @@
 #include "vtkOpenGLRenderWindow.cxx"
 #undef vtkOpenGLRenderWindow
 
-vtkCxxRevisionMacro(vtkMesaRenderWindow, "1.28");
+vtkCxxRevisionMacro(vtkMesaRenderWindow, "1.29");
+vtkStandardNewMacro(vtkMesaRenderWindow);
