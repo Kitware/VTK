@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkPolyDataToPolyDataFilter : public vtkPolyDataSource
+class VTK_FILTERING_EXPORT vtkPolyDataToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkPolyDataToPolyDataFilter,vtkPolyDataSource);

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_CTF_RGB   0
 #define VTK_CTF_HSV   1
 
-class VTK_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
+class VTK_FILTERING_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
 public:
   static vtkColorTransferFunction *New();

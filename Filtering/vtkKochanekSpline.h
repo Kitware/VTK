@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkSpline.h"
 
-class VTK_EXPORT vtkKochanekSpline : public vtkSpline
+class VTK_FILTERING_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
   vtkTypeMacro(vtkKochanekSpline,vtkSpline);

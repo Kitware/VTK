@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkUnstructuredGrid.h"
 
-class VTK_EXPORT vtkUnstructuredGridToPolyDataFilter : public vtkPolyDataSource
+class VTK_FILTERING_EXPORT vtkUnstructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridToPolyDataFilter,vtkPolyDataSource);

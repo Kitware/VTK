@@ -70,7 +70,7 @@ class vtkPolyData;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
+class VTK_FILTERING_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
   vtkTypeMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);

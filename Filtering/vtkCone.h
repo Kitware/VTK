@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkCone : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
   // Description

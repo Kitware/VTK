@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkPiecewiseFunction.h"
 
-class VTK_EXPORT vtkSpline : public vtkObject
+class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline,vtkObject);

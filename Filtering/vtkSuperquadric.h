@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_MIN_SUPERQUADRIC_THICKNESS  1e-4
 
-class VTK_EXPORT vtkSuperquadric : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkSuperquadric : public vtkImplicitFunction
 {
 public:
   // Description

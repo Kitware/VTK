@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_DIFFERENCE 2
 #define VTK_UNION_OF_MAGNITUDES 3
 
-class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);

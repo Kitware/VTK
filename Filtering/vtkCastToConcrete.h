@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
+class VTK_FILTERING_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
 {
 
 public:

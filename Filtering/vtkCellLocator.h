@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkNeighborCells;
 
-class VTK_EXPORT vtkCellLocator : public vtkLocator
+class VTK_FILTERING_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkCellLocator,vtkLocator);

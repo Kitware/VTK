@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkSphere : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkSphere,vtkImplicitFunction);

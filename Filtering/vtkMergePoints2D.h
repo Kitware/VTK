@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPointLocator2D.h"
 
-class VTK_EXPORT vtkMergePoints2D : public vtkPointLocator2D
+class VTK_FILTERING_EXPORT vtkMergePoints2D : public vtkPointLocator2D
 {
 public:
   static vtkMergePoints2D *New();

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkPolyDataSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkPolyDataSource : public vtkSource
 {
 public:
   static vtkPolyDataSource *New();

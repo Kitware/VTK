@@ -83,7 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkDataObject;
 
-class VTK_EXPORT vtkDataObjectSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
   static vtkDataObjectSource *New();

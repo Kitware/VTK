@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataObject.h"
 
-class VTK_EXPORT vtkPiecewiseFunction : public vtkDataObject
+class VTK_FILTERING_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction *New();

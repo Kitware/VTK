@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkRectilinearGrid.h"
 
-class VTK_EXPORT vtkRectilinearGridSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
   static vtkRectilinearGridSource *New();

@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkPointSet.h"
 
-class VTK_EXPORT vtkPointSetSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkPointSetSource : public vtkSource
 {
 public:
   static vtkPointSetSource *New();

@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitFunction.h"
 #include "vtkPolygon.h"
 
-class VTK_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);

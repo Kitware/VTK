@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkStructuredGrid.h"
 
-class VTK_EXPORT vtkStructuredGridSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   static vtkStructuredGridSource *New();

@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkSource.h"
 
-class VTK_EXPORT vtkImageSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkImageSource : public vtkSource
 {
 public:
   vtkTypeMacro(vtkImageSource,vtkSource);

@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitFunction.h"
 #include "vtkImageData.h"
 
-class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);

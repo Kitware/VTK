@@ -74,7 +74,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
+class VTK_FILTERING_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:

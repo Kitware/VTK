@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsSource.h"
 
-class VTK_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPointsSource
+class VTK_FILTERING_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkDataSetToStructuredPointsFilter,vtkStructuredPointsSource);

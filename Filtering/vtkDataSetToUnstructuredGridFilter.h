@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkUnstructuredGridSource.h"
 
-class VTK_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
+class VTK_FILTERING_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
   vtkTypeMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkRectilinearGrid.h"
 
-class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
+class VTK_FILTERING_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToPolyDataFilter,vtkPolyDataSource);

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkMultiThreader.h"
 
-class VTK_EXPORT vtkImageToImageFilter : public vtkImageSource
+class VTK_FILTERING_EXPORT vtkImageToImageFilter : public vtkImageSource
 {
 public:
   static vtkImageToImageFilter *New();

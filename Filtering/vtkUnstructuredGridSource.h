@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkUnstructuredGrid.h"
 
-class VTK_EXPORT vtkUnstructuredGridSource : public vtkSource
+class VTK_FILTERING_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
 public:
   static vtkUnstructuredGridSource *New();

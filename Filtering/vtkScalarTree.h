@@ -70,7 +70,7 @@ typedef struct _vtkScalarRange
 
 class vtkFloatArray;
 
-class VTK_EXPORT vtkScalarTree : public vtkObject
+class VTK_FILTERING_EXPORT vtkScalarTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarTree,vtkObject);

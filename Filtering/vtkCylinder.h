@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkCylinder,vtkImplicitFunction);

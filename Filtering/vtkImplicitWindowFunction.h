@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
+class VTK_FILTERING_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);

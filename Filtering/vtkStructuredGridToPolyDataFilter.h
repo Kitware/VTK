@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkStructuredGrid.h"
 
-class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
+class VTK_FILTERING_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkStructuredGridToPolyDataFilter,vtkPolyDataSource);

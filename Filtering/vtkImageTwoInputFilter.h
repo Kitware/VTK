@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageMultipleInputFilter.h"
 
-class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
+class VTK_FILTERING_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageTwoInputFilter *New();

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredPointsCollection : public vtkCollection
+class VTK_FILTERING_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   static vtkStructuredPointsCollection *New();

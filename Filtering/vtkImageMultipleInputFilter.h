@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiThreader.h"
 
 
-class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
+class VTK_FILTERING_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
 {
 public:
   static vtkImageMultipleInputFilter *New();
