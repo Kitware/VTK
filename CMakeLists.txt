@@ -1,5 +1,5 @@
 PROJECT(VTK)
-INCLUDE_REGULAR_EXPRESSION("^(vtk|png|j).*$")
+INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
