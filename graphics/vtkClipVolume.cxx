@@ -244,6 +244,13 @@ void vtkClipVolume::Execute()
           else if ( s < value ) below = 1;
           }
     
+        // take into account inside/out flag
+        if ( this->InsideOut )
+          {
+          above = !above;
+          below = !below;
+          }
+        
         // see whether voxel is fully inside or outside
         if ( (above && !below) || 
         (this->GenerateClippedOutput && (below && !above)) )
@@ -270,7 +277,7 @@ void vtkClipVolume::Execute()
             }
           }
         
-        else if (above && below ) // clipped voxel, have to triangulate 
+        else if (above == below ) // clipped voxel, have to triangulate 
           {
           this->ClipVoxel(value, cellScalars, flip, origin, spacing, 
                           *cellIds, *cellPts, inPD, outPD);
@@ -350,7 +357,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
   
   // Initialize Delaunay insertion process with voxel triangulation.
   // No more than 20 points (8 corners + 12 edges) may be inserted.
-  this->Mesh = this->Triangulator->InitPointInsertion(center, 2.5*length, 20, points);
+  this->Mesh = this->Triangulator->InitPointInsertion(center, 2.5*length, 
+                                                      20, points);
 
   // Inject ordered voxel corner points into triangulation
   for (numPts=0; numPts<8; numPts++)
@@ -360,7 +368,9 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
     this->Triangulator->InsertPoint(this->Mesh, points, ptId, xPtr, holeTetras);
       
     // Incorporate points into output if appropriate
-    if ( cellScalars.GetScalar(ptId) >= value || this->GenerateClippedOutput )
+    s1 = cellScalars.GetScalar(ptId);
+    if ( (s1 >= value && !this->InsideOut) ||
+    (s1 < value && this->InsideOut) || this->GenerateClippedOutput )
       {
       if ( this->Locator->IsInsertedPoint(xPtr) < 0 )
         {
@@ -401,7 +411,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
         }
       
       //Insert into Delaunay triangulation
-      this->Triangulator->InsertPoint(this->Mesh, points, numPts++, x, holeTetras);
+      this->Triangulator->InsertPoint(this->Mesh, points, numPts++, 
+                                      x, holeTetras);
       
       // Incorporate point into output and interpolate edge data as necessary
       if ( this->Locator->IsInsertedPoint(x) < 0 )
@@ -465,12 +476,19 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
           }
         }
       
+      if ( this->InsideOut )
+        {
+        if (j >= 4) j = 0;
+        else j = 4;
+        }
+      
       if ( j >= 4 || this->GenerateClippedOutput )
         {
         for (k=0; k<4; k++)
           {
           xPtr = points->GetPoint(pts[k]);
-          tPts[k] = this->Locator->IsInsertedPoint(xPtr); //point previously inserted
+          //point was previously inserted - will always return valid id
+          tPts[k] = this->Locator->IsInsertedPoint(xPtr); 
           }
 
         if ( j >= 4 ) output->InsertNextCell(VTK_TETRA, 4, tPts);
