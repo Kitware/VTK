@@ -12,9 +12,13 @@
 // .SECTION Description
 // this program tests the TimerLog
 
-#include <stdio.h>
 #include "vtkTimerLog.h"
 #include "vtkDebugLeaks.h"
+
+// this is needed for the unlink call
+#if defined(__CYGWIN__)
+#include <sys/unistd.h>
+#endif
 
 void Test(ostream& strm)
 {
