@@ -94,7 +94,8 @@ public:
   vtkGetStringMacro(InputString);
   void SetInputString(char *in, int len);
   vtkGetMacro(InputStringLength, int);
-  
+  void SetBinaryInputString(unsigned char *, int len);
+    
   // Description:
   // Get the header from the vtk data file.
   vtkGetStringMacro(Header);

@@ -182,6 +182,10 @@ void vtkDataReader::SetInputString(char* in)
     }
 }
 
+void vtkDataReader::SetBinaryInputString(unsigned char* in, int len)
+{
+    this->SetInputString((char *)in,len);
+}
 
 void vtkDataReader::SetInputString(char* in, int len)
 { 
