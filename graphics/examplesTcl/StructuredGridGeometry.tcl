@@ -92,7 +92,7 @@ iren Initialize
 renWin SetFileName "StructuredGridGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
 
-vtkStructuredGridWriter writer
+vtkDataSetWriter writer
   writer SetFileName sgrid.vtk
   writer SetInput sg3
   writer Update
