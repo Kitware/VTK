@@ -133,7 +133,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
     // force creation of a property
     this->GetProperty();
     }
-  this->Property->Render(ren);
+  this->Property->Render(ren, this);
 
   /* render the texture */
   if (this->Texture) this->Texture->Render(ren);
