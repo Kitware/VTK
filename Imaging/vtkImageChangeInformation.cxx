@@ -18,14 +18,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.12");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.13");
 vtkStandardNewMacro(vtkImageChangeInformation);
-vtkCxxSetObjectMacro(vtkImageChangeInformation, InformationInput, vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkImageChangeInformation::vtkImageChangeInformation()
 {
-  this->InformationInput = NULL;
+  this->NumberOfRequiredInputs = 2;
   this->CenterImage = 0;
 
   for (int i = 0; i < 3; i++)
@@ -43,22 +42,31 @@ vtkImageChangeInformation::vtkImageChangeInformation()
     }
 }
 
+// Specify a source object at a specified table location.
+void vtkImageChangeInformation::SetInformationInput(vtkImageData *pd)
+{
+  this->vtkProcessObject::SetNthInput(1, pd);
+}
+
+// Get a pointer to a source object at a specified table location.
+vtkImageData *vtkImageChangeInformation::GetInformationInput()
+{
+  if (this->NumberOfInputs > 1)
+    {
+    return (vtkImageData *)this->Inputs[1];
+    }
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 vtkImageChangeInformation::~vtkImageChangeInformation()
 {
-  if (this->InformationInput)
-    {
-    this->SetInformationInput(NULL);
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "InformationInput: (" 
-     << this->InformationInput << ")" << endl;
 
   os << indent << "CenterImage : "
      << (this->CenterImage ? "On":"Off") << endl;
@@ -110,13 +118,12 @@ void vtkImageChangeInformation::ExecuteInformation(vtkImageData *inData,
   
   inData->GetWholeExtent(inExtent);
 
-  if (this->InformationInput)
+  if (this->GetInformationInput())
     {
-    this->InformationInput->UpdateInformation();    
-    this->InformationInput->GetOrigin(origin);
-    this->InformationInput->GetSpacing(spacing);
+    this->GetInformationInput()->GetOrigin(origin);
+    this->GetInformationInput()->GetSpacing(spacing);
 
-    this->InformationInput->GetWholeExtent(extent);
+    this->GetInformationInput()->GetWholeExtent(extent);
     for (i = 0; i < 3; i++)
       {
       extent[2*i+1] = extent[2*i] - inExtent[2*i] + inExtent[2*i+1];

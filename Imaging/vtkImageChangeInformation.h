@@ -36,7 +36,7 @@ public:
   // Copy the information from another data set.  By default,
   // the information is copied from the input.
   virtual void SetInformationInput(vtkImageData*);
-  vtkGetObjectMacro(InformationInput, vtkImageData);
+  virtual vtkImageData *GetInformationInput();
 
   // Description:
   // Specify new starting values for the extent explicitly.
@@ -95,7 +95,6 @@ protected:
   vtkImageChangeInformation();
   ~vtkImageChangeInformation();
 
-  vtkImageData *InformationInput;
   int CenterImage;
 
   int OutputExtentStart[3];
