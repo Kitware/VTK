@@ -19,7 +19,9 @@
 // .SECTION Description
 // vtkPointSource is a source object that creates a user-specified number 
 // of points within a specified radius about a specified center point. 
-// By default location of the points is random within the sphere. 
+// By default location of the points is random within the sphere. It is
+// also possible to generate random points only on the surface of the
+// sphere.
 
 #ifndef __vtkPointSource_h
 #define __vtkPointSource_h
@@ -55,8 +57,8 @@ public:
 
   // Description:
   // Specify the distribution to use.  The default is a
-  // uniform distribution.  The Shell distribution produces
-  // and empty sphere.
+  // uniform distribution.  The shell distribution produces
+  // random points on the surface of the sphere, none in the interior.
   vtkSetMacro(Distribution,int);
   void SetDistributionToUniform() {
     this->SetDistribution(VTK_POINT_UNIFORM);};
@@ -75,6 +77,7 @@ protected:
   float Center[3];
   float Radius;
   int Distribution;
+
 private:
   vtkPointSource(const vtkPointSource&);  // Not implemented.
   void operator=(const vtkPointSource&);  // Not implemented.
