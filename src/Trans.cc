@@ -516,6 +516,13 @@ vlMatrix4x4 & vlTransform::GetMatrix ()
 }
 
 // Description:
+// Set the matrix directly.
+void vlTransform::SetMatrix(vlMatrix4x4& m)
+{
+  **this->Stack = m;
+}
+
+// Description:
 // Creates an identity matrix and makes it the current transformation matrix.
 void vlTransform::Identity ()
 {
@@ -609,8 +616,8 @@ void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 }
 
 // Description:
-// Returns point transformed by the current transformation matrix.
-
+// Returns point transformed by the current transformation matrix. Point is
+// expressed in homogeneous coordinates.
 float *vlTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
@@ -624,6 +631,12 @@ float *vlTransform::GetPoint()
     this->Stack[0]->PointMultiply(this->Point,this->Point);
     }
   return this->Point;
+}
+
+void vlTransform::GetPoint(float p[4])
+{
+  float *x=this->vlTransform::GetPoint();
+  for (int i=0; i<4; i++) p[i] = x[i];
 }
 
 // Description:

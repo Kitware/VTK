@@ -61,6 +61,7 @@ class vlTransform : public vlObject
   float *GetOrientation();
   void GetPosition (float & x,float & y,float & z);
   void GetScale ( float & x, float & y, float & z);
+  void SetMatrix(vlMatrix4x4& m);
   vlMatrix4x4& GetMatrix();
   void GetMatrix (vlMatrix4x4& m);
   void Concatenate (vlMatrix4x4 & matrix);
@@ -71,6 +72,7 @@ class vlTransform : public vlObject
   void MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals);
   vlSetVector4Macro(Point,float);
   float *GetPoint();
+  void GetPoint(float p[3]);
 
  private:
   int PreMultiplyFlag;
