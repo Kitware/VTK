@@ -106,6 +106,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 %token GetVector4Macro
 %token SetVectorMacro
 %token GetVectorMacro
+%token ViewportCoordinateMacro
+%token WorldCoordinateMacro
 
 %%
 /*
@@ -469,6 +471,74 @@ macro:
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = $<integer>7;
    output_function();
+   }
+| ViewportCoordinateMacro '(' any_id ')'
+   { 
+     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 0;
+     currentFunction->ReturnType = 309;
+     currentFunction->ReturnClass = strdup("vtkCoordinate");
+     output_function();
+
+     sprintf(temps,"Set%s",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 2;
+     currentFunction->ArgTypes[0] = 1;
+     currentFunction->ArgCounts[0] = 0;
+     currentFunction->ArgTypes[1] = 1;
+     currentFunction->ArgCounts[1] = 0;
+     currentFunction->ReturnType = 2;
+     output_function();
+
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 301;
+     currentFunction->ArgCounts[0] = 2;
+     output_function();
+     
+     sprintf(temps,"Get%s",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 0;
+     currentFunction->ReturnType = 301;
+     currentFunction->HaveHint = 1;
+     currentFunction->HintSize = 2;
+     output_function();
+   }
+| WorldCoordinateMacro '(' any_id ')'
+   { 
+     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 0;
+     currentFunction->ReturnType = 309;
+     currentFunction->ReturnClass = strdup("vtkCoordinate");
+     output_function();
+
+     sprintf(temps,"Set%s",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 3;
+     currentFunction->ArgTypes[0] = 1;
+     currentFunction->ArgCounts[0] = 0;
+     currentFunction->ArgTypes[1] = 1;
+     currentFunction->ArgCounts[1] = 0;
+     currentFunction->ArgTypes[2] = 1;
+     currentFunction->ArgCounts[2] = 0;
+     currentFunction->ReturnType = 2;
+     output_function();
+
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 301;
+     currentFunction->ArgCounts[0] = 3;
+     output_function();
+     
+     sprintf(temps,"Get%s",$<str>3); 
+     currentFunction->Name = strdup(temps);
+     currentFunction->NumberOfArguments = 0;
+     currentFunction->ReturnType = 301;
+     currentFunction->HaveHint = 1;
+     currentFunction->HintSize = 3;
+     output_function();
    }
 ;
 

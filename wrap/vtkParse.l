@@ -82,8 +82,8 @@
 "vtkGetVector4Macro"   return(GetVector4Macro);
 "vtkSetVectorMacro"    return(SetVectorMacro);
 "vtkGetVectorMacro"    return(GetVectorMacro);
-"vtkImageSetMacro"     return(ImageSetMacro);
-"vtkImageSetExtentMacro" return(ImageSetExtentMacro);
+"vtkViewportCoordinateMacro"     return(ViewportCoordinateMacro);
+"vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 
