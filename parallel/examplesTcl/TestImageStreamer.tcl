@@ -56,4 +56,4 @@ viewer SetZSlice 50
 viewer Render
 
 #make interface
-source ../../imaging/examplesTcl/WindowLevelInterface.tcl
+source ${VTK_TCL}/../imaging/examplesTcl/WindowLevelInterface.tcl
