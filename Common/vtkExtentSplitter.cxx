@@ -23,7 +23,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtentSplitter, "1.1");
+vtkCxxRevisionMacro(vtkExtentSplitter, "1.2");
 vtkStandardNewMacro(vtkExtentSplitter);
 
 //----------------------------------------------------------------------------
@@ -248,7 +248,7 @@ int vtkExtentSplitter::ComputeSubExtents()
   
   vtkExtentSplitterInternals::SubExtentsType subExtents;
   int bestPriority;
-  int dimensionality;
+  int dimensionality = 0;
   
   while(!this->Internal->Queue.empty())
     {
