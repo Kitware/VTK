@@ -90,6 +90,7 @@ vtkBrownianPoints \
 vtkCamera \
 vtkCardinalSpline \
 vtkCastToConcrete \
+vtkCellCenters \
 vtkCellDataToPointData \
 vtkCellLocator \
 vtkCellPicker \
@@ -147,6 +148,7 @@ vtkGeometryFilter \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHyperStreamline \
+vtkIdFilter \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \
@@ -219,6 +221,7 @@ vtkSTLReader \
 vtkSTLWriter \
 vtkSampleFunction \
 vtkScalarTree \
+vtkSelectVisiblePoints \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
