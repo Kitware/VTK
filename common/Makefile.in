@@ -87,6 +87,7 @@ vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
+vtkProcessStatistics \
 vtkProperty2D \
 vtkQuad \
 vtkRectilinearGrid \
