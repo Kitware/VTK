@@ -46,7 +46,7 @@ void main( int argc, char *argv[] )
 
   // Create the volume mapper and set the ray function and scalar input
   vtkVolumeRayCastMapper *volumeMapper = vtkVolumeRayCastMapper::New();
-    volumeMapper->SetScalarInput(reader->GetOutput());
+    volumeMapper->SetInput(reader->GetOutput());
     volumeMapper->SetVolumeRayCastFunction(compositeFunction);
 
   // Create the volume and set the mapper and property
