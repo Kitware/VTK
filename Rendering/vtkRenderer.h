@@ -152,6 +152,15 @@ public:
   virtual vtkCamera *MakeCamera();
 
   // Description:
+  // When this flag is off, the renderer will not erase the background
+  // or the Zbuffer.  It is used to have overlapping renderers.
+  // Both the RenderWindow Erase and Render Erase must be on
+  // for the camera to clear the renderer.  By default, Erase is on.
+  vtkSetMacro(Erase, int);
+  vtkGetMacro(Erase, int);
+  vtkBooleanMacro(Erase, int);
+
+  // Description:
   // Add an culler to the list of cullers.
   void AddCuller(vtkCuller *);
 
@@ -394,6 +403,13 @@ protected:
   // Note that values which are too small may cause problems on systems
   // with low z-buffer resolution.
   double              NearClippingPlaneTolerance;
+
+  // Description:
+  // When this flag is off, the renderer will not erase the background
+  // or the Zbuffer.  It is used to have overlapping renderers.
+  // Both the RenderWindow Erase and Render Erase must be on
+  // for the camera to clear the renderer.  By default, Erase is on.
+  int Erase;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
