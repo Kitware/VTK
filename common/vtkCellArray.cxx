@@ -107,14 +107,6 @@ int vtkCellArray::GetMaxCellSize()
   return maxSize;
 }
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-int vtkCellArray::InsertNextCell(vtkIdList &pts)
-{
-  VTK_LEGACY_METHOD(InsertNextCell,"3.2");
-  return this->InsertNextCell(&pts);
-}
-#endif
-
 // Specify a group of cells.
 void vtkCellArray::SetCells(int ncells, vtkIntArray *cells)
 {

@@ -235,12 +235,6 @@ public:
   // been updated.
   unsigned long GetActualMemorySize();
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  int InsertNextCell(vtkIdList &pts);
-#endif
-  
 protected:
   vtkCellArray();
   vtkCellArray (const int sz, const int ext=1000);

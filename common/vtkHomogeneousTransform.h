@@ -110,14 +110,6 @@ public:
   void InternalTransformDerivative(const double in[3], double out[3],
 				   double derivative[3][3]);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // This is an obsolete method provided for backwards-compatibility.
-  // Do not use.
-  vtkMatrix4x4 *GetMatrixPointer() 
-    {VTK_LEGACY_METHOD(GetMatrix,"3.2");  return this->GetMatrix(); }
-#endif
-  
 protected:
   vtkHomogeneousTransform();
   ~vtkHomogeneousTransform();
