@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.9");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.10");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -285,6 +285,8 @@ void vtkPStreamTracer::ComputeInputUpdateExtents( vtkDataObject *output )
 
 void vtkPStreamTracer::ExecuteInformation()
 {
+  this->Superclass::ExecuteInformation();
+
   vtkDataSet *output = this->GetOutput();
   output->SetMaximumNumberOfPieces(-1);
 }
