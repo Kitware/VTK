@@ -19,13 +19,12 @@
 #include "vtkImageMapper.h"
 
 #include "vtkActor2D.h"
-#include "vtkImager.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.42");
+vtkCxxRevisionMacro(vtkImageMapper, "1.43");
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
