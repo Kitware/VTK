@@ -13,11 +13,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "Decimate.hh"
+#include "Decimat2.hh"
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
-// criterion of 0.0 criterion increment of 0.005, and maximum iterions of 6.
+// intial error of 0.0, error increment of 0.005, maximum error of 0.1, and
+// maximum iterions of 6.
 vlDecimate::vlDecimate()
 {
   this->FeatureAngle = 30;
@@ -26,9 +27,9 @@ vlDecimate::vlDecimate()
   this->PreserveEdges = 1;
   this->BoundaryVertexDeletion = 1;
 
-  this->Criterion = 0.0;
-  this->CriterionIncrement = 0.005;
-  this->MaximumCriterion = 0.1;
+  this->Error = 0.0;
+  this->ErrorIncrement = 0.005;
+  this->MaximumError = 0.1;
 
   this->TargetReduction = 0.90;
 
@@ -38,6 +39,8 @@ vlDecimate::vlDecimate()
   this->AspectRatio = 25.0;
 
   this->Degree = MAX_CELL_SIZE;
+
+  this->GenerateErrorScalars = 0;
 }
 
 //
@@ -65,7 +68,7 @@ void vlDecimate::Execute()
   vlLocalVertexPtr verts[MAX_TRIS_PER_VERTEX];
   vlLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
   int n1, n2, cellId;
-  float ar, criterion;
+  float ar, error;
   int totalEliminated=0;
   int *map, numNewPts, size;
   vlPolyData *input=(vlPolyData *)this->Input;
@@ -91,8 +94,8 @@ void vlDecimate::Execute()
            (bounds[2*i+1]-bounds[2*i]) : max);
 
   Tolerance = max * TOLERANCE;
-  criterion = this->Criterion;
-  Distance = this->Criterion * max;
+  error = this->Error;
+  Distance = this->Error * max;
   Angle = this->FeatureAngle;
   CosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
   AspectRatio2 = 1.0 / (this->AspectRatio * this->AspectRatio);
@@ -103,7 +106,7 @@ void vlDecimate::Execute()
                << "\tIterations= " << this->MaximumIterations << "\n"
                << "\tSub-iterations= " << this->MaximumSubIterations << "\n"
                << "\tLength= " << max << "\n"
-               << "\tCriterion= " << this->Criterion << "\n"
+               << "\tError= " << this->Error << "\n"
                << "\tDistance= " << Distance << "\n"
                << "\tAspect ratio= " << this->AspectRatio << "\n"
                << "\tMaximum vertex degree= " << this->Degree);
@@ -119,8 +122,13 @@ void vlDecimate::Execute()
   Mesh->SetPolys(newPolys);
   Mesh->BuildLinks();
 //
+// Create array of vertex errors (initially zero)
+//
+  VertexError = new float[numPts];
+  for (i=0; i<numPts; i++) VertexError[i] = 0.0;
+//
 //  Traverse all vertices, eliminating those that meet decimation
-//  criterion.  Initialize loop information.
+//  error.  Initialize loop information.
 //
 //************************************ Outer Loop ***************************
 
@@ -142,6 +150,11 @@ void vlDecimate::Execute()
       for (ptId=0; ptId < numPts; ptId++)
         {
         if ( ! (ptId % 5000) ) vlDebugMacro(<<"vertex #" << ptId);
+
+        // compute allowable error for this vertex
+        X = Mesh->GetPoint(ptId);
+        Error = Distance - VertexError[i];
+        MinEdgeError  = 1.0e29;
 
         Mesh->GetPointCells(ptId,ncells,cells);
         if ( ncells > 1 && 
@@ -169,7 +182,7 @@ void vlDecimate::Execute()
 //
           if ( (vtype == SIMPLE_VERTEX || 
           ( (vtype == INTERIOR_EDGE_VERTEX || vtype == CORNER_VERTEX) && !this->PreserveEdges)) &&
-          plane.DistanceToPlane(Mesh->GetPoint(ptId),Normal,Pt) <= Distance)
+          plane.DistanceToPlane(X,Normal,Pt) <= Error)
             {
             this->Triangulate (numVerts, verts);
             this->Stats[ELIMINATED_DISTANCE_TO_PLANE]++;
@@ -180,8 +193,8 @@ void vlDecimate::Execute()
 //
             } 
           else if ((vtype == INTERIOR_EDGE_VERTEX || 
-          vtype == BOUNDARY_VERTEX) &&
-          line.DistanceToLine(Mesh->GetPoint(ptId), Mesh->GetPoint(fedges[0]->id), Mesh->GetPoint(fedges[1]->id)) <= (Distance*Distance) &&
+          vtype == BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
+          line.DistanceToLine(X, Mesh->GetPoint(fedges[0]->id), Mesh->GetPoint(fedges[1]->id)) <= (Error*Error) &&
           this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
             {
             this->Triangulate (n1, l1);
@@ -195,24 +208,27 @@ void vlDecimate::Execute()
 
           if ( ContinueTriangulating ) 
             {
-            if ( vtype == BOUNDARY_VERTEX ) trisEliminated += 1;
-            else trisEliminated += 2;
+            if ( this->CheckError(ptId) )
+              {
+              if ( vtype == BOUNDARY_VERTEX ) trisEliminated += 1;
+              else trisEliminated += 2;
 
-            // Update the data structure to reflect deletion of vertex
-            Mesh->DeletePoint(ptId);
-            for (i=0; i < V.GetNumberOfVertices(); i++)
-              if ( (size=V.Array[i].newRefs-V.Array[i].deRefs) > 0 )
-                Mesh->ResizeCellList(V.Array[i].id,size);
+              // Update the data structure to reflect deletion of vertex
+              Mesh->DeletePoint(ptId);
+              for (i=0; i < V.GetNumberOfVertices(); i++)
+                if ( (size=V.Array[i].newRefs-V.Array[i].deRefs) > 0 )
+                  Mesh->ResizeCellList(V.Array[i].id,size);
 
-            for (i=0; i < T.GetNumberOfTriangles(); i++)
-              Mesh->RemoveCellReference(T.Array[i].id);
+              for (i=0; i < T.GetNumberOfTriangles(); i++)
+                Mesh->RemoveCellReference(T.Array[i].id);
 
-            for (i=0; i < T.GetNumberOfTriangles(); i++)
-              if ( T.Array[i].verts[0] != -1 ) //replaced with new triangle
-                Mesh->ReplaceLinkedCell(T.Array[i].id, 3, T.Array[i].verts);
-              else
-                Mesh->DeleteCell(T.Array[i].id);
+              for (i=0; i < T.GetNumberOfTriangles(); i++)
+                if ( T.Array[i].verts[0] != -1 ) //replaced with new triangle
+                  Mesh->ReplaceLinkedCell(T.Array[i].id, 3, T.Array[i].verts);
+                else
+                  Mesh->DeleteCell(T.Array[i].id);
 
+              }
             }
           }
         }
@@ -227,7 +243,7 @@ void vlDecimate::Execute()
                    <<"\tRemaining = " << numTris - totalEliminated << "\n"
                    <<"\tOriginal triangles = " << numTris << "\n"
                    <<"\tReduction = " << reduction << "\n"
-                   <<"\tCriterion = " << criterion << "\n"
+                   <<"\tError = " << error << "\n"
                    <<"\tDistance = " << Distance << "\n"
                    <<"\tFeature angle = " << Angle << "\n"
                    <<"\nStatistics\n"
@@ -247,10 +263,10 @@ void vlDecimate::Execute()
       } //********************* sub iteration ******************************
 
     iteration++;
-    criterion = this->Criterion +  iteration*this->CriterionIncrement;
-    criterion = ((criterion > this->MaximumCriterion &&
-    this->MaximumCriterion > 0.0) ? this->MaximumCriterion : criterion);
-    Distance = max * criterion;
+    error = this->Error +  iteration*this->ErrorIncrement;
+    error = ((error > this->MaximumError &&
+    this->MaximumError > 0.0) ? this->MaximumError : error);
+    Distance = max * error;
     Angle = this->FeatureAngle + iteration*this->FeatureAngleIncrement;
     Angle = ((Angle > this->MaximumFeatureAngle && 
               this->MaximumFeatureAngle > 0.0) ? this->MaximumFeatureAngle : Angle);
@@ -274,8 +290,12 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   int ptId, cellId, npts, *pts;
   vlFloatPoints *newPts;
   vlCellArray *newPolys;
+  vlFloatScalars *newScalars;
 
   vlDebugMacro (<<"Creating output...");
+
+  if ( ! this->GenerateErrorScalars )
+    delete [] VertexError;
 
   map = new int[numPts];
   for (i=0; i<numPts; i++) map[i] = -1;
@@ -286,6 +306,7 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     if ( ncells > 0 ) map[ptId] = numNewPts++;
     }
 
+  if ( this->GenerateErrorScalars ) this->PointData.CopyScalarsOff();
   this->PointData.CopyAllocate(pd,numNewPts);
   newPts = new vlFloatPoints(numNewPts);
 
@@ -296,6 +317,14 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
       newPts->SetPoint(map[ptId],inPts->GetPoint(ptId));
       this->PointData.CopyData(pd,ptId,map[ptId]);
       }
+    }
+
+  if ( this->GenerateErrorScalars )
+    {
+    newScalars = new vlFloatScalars[numNewPts];
+    for (ptId=0; ptId < numPts; ptId++)
+      if ( map[ptId] > -1 )
+        newScalars->SetScalar(map[ptId],VertexError[ptId]);
     }
 
   // Now renumber connectivity
@@ -316,6 +345,12 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   delete Mesh; //side effect: releases memory consumned by data structures
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
+
+  if ( this->GenerateErrorScalars )
+    {
+    this->PointData.SetScalars(newScalars);
+    delete [] VertexError;
+    }
 }
 
 //
@@ -539,15 +574,14 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
                                vlLocalVertexPtr fedges[])
 {
   int i, j, numNormals;
-  float *x1, *x2, *nx, *normal, den, loopArea;
+  float *x1, *x2, *normal, loopArea;
   float v1[3], v2[3], center[3];
   int numFEdges;
 //
 //  Traverse all polygons and generate normals and areas
 //
-  nx = Mesh->GetPoint(ptId);
   x2 = Mesh->GetPoint(V.Array[0].id);
-  for (i=0; i<3; i++) v2[i] = x2[i] - nx[i];
+  for (i=0; i<3; i++) v2[i] = x2[i] - X[i];
 
   loopArea=0.0;
   Normal[0] = Normal[1] = Normal[2] = 0.0;
@@ -563,11 +597,11 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
     for (j=0; j<3; j++) 
       {
       v1[j] = v2[j];
-      v2[j] = x2[j] - nx[j];
+      v2[j] = x2[j] - X[j];
       }
 
-    T.Array[i].area = triangle.TriangleArea (nx, x1, x2);
-    triangle.TriangleCenter (nx, x1, x2, center);
+    T.Array[i].area = triangle.TriangleArea (X, x1, x2);
+    triangle.TriangleCenter (X, x1, x2, center);
     loopArea += T.Array[i].area;
 
     math.Cross (v1, v2, normal);
@@ -575,12 +609,11 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //  Get normals.  If null, then normal make no contribution to loop.
 //  The center of the loop is the center of gravity.
 //
-    if ( (den=math.Norm(normal)) != 0.0 ) 
+    if ( math.Normalize(normal) != 0.0 ) 
       {
       numNormals++;
       for (j=0; j<3; j++) 
         {
-        normal[j] /= den;
         Normal[j] += T.Array[i].area * normal[j];
         Pt[j] += T.Array[i].area * center[j];
         }
@@ -602,10 +635,7 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
     Normal[j] /= loopArea;
     Pt[j] /= loopArea;
     }
-  if ( (den=math.Norm(Normal)) != 0.0 )
-      for (j=0; j<3; j++)
-          Normal[j] /= den;
-  else 
+  if ( math.Normalize(Normal) == 0.0 )
     {
     this->Stats[FAILED_ZERO_NORMAL_TEST]++;
     vtype = COMPLEX_VERTEX;
@@ -668,7 +698,7 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
 {
   int i, sign;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
-  float den, dist=LARGE_FLOAT;
+  float dist=LARGE_FLOAT;
 //
 //  See whether creating this edge would duplicate a new edge (this
 //  means collapsing a tunnel)
@@ -687,11 +717,7 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
   for (i=0; i<3; i++) v21[i] = v21[i] - sPt[i];
 
   math.Cross (v21,Normal,sN);
-  if ( (den=math.Norm(sN)) != 0.0 )
-    for (i=0; i<3; i++)
-      sN[i] /= den;
-  else
-    return 0;
+  if ( math.Normalize(sN) == 0.0 ) return 0;
 //
 //  This plane can only be split if all points of each loop lie on the
 //  same side of the splitting plane.  Also keep track of the minimum 
@@ -846,6 +872,8 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
 
       if ( maxI > -1 ) 
         {
+        float edgeError;
+
         fedges[0] = verts[maxI];
         fedges[1] = verts[maxJ];
 
@@ -853,6 +881,12 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
 
         this->Triangulate (n1, l1);
         this->Triangulate (n2, l2);
+
+        // Compute minimum edge error
+        edgeError = line.DistanceToLine(X, Mesh->GetPoint(fedges[0]->id), 
+                                        Mesh->GetPoint(fedges[1]->id));
+
+        if ( edgeError < MinEdgeError ) MinEdgeError = edgeError;
 
         return;
         }
@@ -864,14 +898,63 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
     }
 }
 
+int vlDecimate::CheckError (int ptId)
+{
+    int i, j;
+    float error, planeError;
+    float normal[3], np[3], v21[3], v31[3], *x1, *x2, *x3;
+//
+//  Loop through triangles computing distance to plane (looking for minimum
+//  perpendicular distance)
+//
+  for (planeError=LARGE_FLOAT, i=0; i < T.GetNumberOfTriangles(); i++) 
+    {
+    if ( T.Array[i].verts[0] == -1 ) break;
+
+    x1 = Mesh->GetPoint(T.Array[i].verts[0]);
+    x2 = Mesh->GetPoint(T.Array[i].verts[1]);
+    x3 = Mesh->GetPoint(T.Array[i].verts[2]);
+
+    for (j=0; j<3; j++) 
+      {
+      v21[j] = x2[j] - x1[j];
+      v31[j] = x3[j] - x1[j];
+      }
+
+    math.Cross (v31, v21, normal);
+
+    if ( math.Normalize(normal) != 0.0 ) 
+      {
+      for (j=0; j<3; j++) np[j] = X[j] - x1[j];
+      error = fabs((double) (math.Dot(normal,np)));
+      if ( error < planeError ) planeError = error;
+      }
+    }
+
+  if ( MinEdgeError > 0.0 ) 
+    MinEdgeError = sqrt((double)MinEdgeError);
+  else 
+    MinEdgeError = 0.0;
+
+  error = (planeError < MinEdgeError ? planeError : MinEdgeError);    
+  if ( error > Error ) return 0;
+//
+// Can distribute errors to surrounding nodes
+//
+  for (i=0; i < V.GetNumberOfVertices(); i++)
+    VertexError[V.Array[i].id] += error;
+
+  return 1; // okay to delete; error computed and distributed
+}
+
 void vlDecimate::PrintSelf(ostream& os, vlIndent indent)
 {
   vlPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
-  os << indent << "Criterion: " << this->Criterion << "\n";
-  os << indent << "Criterion Increment: " << this->CriterionIncrement << "\n";
-  os << indent << "Maximum Criterion: " << this->MaximumCriterion << "\n";
+  os << indent << "Error: " << this->Error << "\n";
+  os << indent << "Error Increment: " << this->ErrorIncrement << "\n";
+  os << indent << "Maximum Error: " << this->MaximumError << "\n";
   os << indent << "Maximum Iterations: " << this->MaximumIterations << "\n";
   os << indent << "Maximum Sub Iterations: " << this->MaximumSubIterations << "\n";
   os << indent << "Aspect Ratio: " << this->AspectRatio << "\n";
@@ -879,6 +962,7 @@ void vlDecimate::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Feature Angle Increment: " << this->FeatureAngleIncrement << "\n";
   os << indent << "Maximum Feature Angle: " << this->MaximumFeatureAngle << "\n";
+  os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
 
 
 }

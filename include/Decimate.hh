@@ -42,6 +42,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // the ratio of maximum edge length to minimum edge length. The degree 
 // is the number of triangles using a single vertex. Vertices of high degree
 // are considered "complex" and are never deleted.
+//    This implementation has been adapted for a global error bound decimation
+// criterion.
 
 #ifndef __vlDecimate_h
 #define __vlDecimate_h
@@ -146,6 +148,9 @@ static float AspectRatio2; // Allowable aspect ratio
 static int ContinueTriangulating; // Stops recursive tri. if necessary 
 static int Squawks; // Control output 
 
+static float *X; //coordinates of current point
+static float *VertexError, Error, MinEdgeError; //support error omputation
+
 // temporary working arrays
 static vlVertexArray V(MAX_TRIS_PER_VERTEX+1);//cycle of vertices around point
 static vlTriArray T(MAX_TRIS_PER_VERTEX+1); //cycle of triangles around point
@@ -160,22 +165,22 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Set the decimation criterion. Expressed as a fraction of the diagonal
+  // Set the decimation error bounds. Expressed as a fraction of the diagonal
   // of the input data's bounding box.
-  vlSetClampMacro(Criterion,float,0.0,1.0);
-  vlGetMacro(Criterion,float);
+  vlSetClampMacro(Error,float,0.0,1.0);
+  vlGetMacro(Error,float);
 
   // Description:
   // Set the value of the increment by which to increase the decimation
-  // criterion after each iteration.
-  vlSetClampMacro(CriterionIncrement,float,0.0,1.0);
-  vlGetMacro(CriterionIncrement,float);
+  // error after each iteration.
+  vlSetClampMacro(ErrorIncrement,float,0.0,1.0);
+  vlGetMacro(ErrorIncrement,float);
 
   // Description:
-  // Set the largest decimation criterion that can be achieved during
-  // by incrementing criterion.
-  vlSetClampMacro(MaximumCriterion,float,0.0,1.0);
-  vlGetMacro(MaximumCriterion,float);
+  // Set the largest decimation error that can be achieved during
+  // by incrementing error.
+  vlSetClampMacro(MaximumError,float,0.0,1.0);
+  vlGetMacro(MaximumError,float);
 
   // Description:
   // Specify the desired reduction in the total number of polygons. Because
@@ -242,15 +247,16 @@ protected:
   float MaximumFeatureAngle;
   int PreserveEdges; // do/don't worry about feature edges
   int BoundaryVertexDeletion;  
-  float Criterion; // decimation criterion in fraction of bounding box
-  float CriterionIncrement; // each iteration will bump criterion this amount
-  float MaximumCriterion; // maximum criterion
+  float Error; // decimation error in fraction of bounding box
+  float ErrorIncrement; // each iteration will bump error this amount
+  float MaximumError; // maximum error
   float TargetReduction; //target reduction of mesh (fraction)
   int MaximumIterations; // maximum number of passes over data
   int MaximumSubIterations; // maximum non-incrementing passes
   float AspectRatio; // control triangle shape during triangulation
   int Degree; // maximum number of triangles incident on vertex
   int Stats[NUMBER_STATISTICS]; // keep track of interesting statistics
+  int GenerateErrorScalars; // turn on/off vertex error scalar generation
 
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vlPointData *pd, vlPoints *inPts);
@@ -264,6 +270,7 @@ protected:
                  vlLocalVertexPtr *verts, int& n1, vlLocalVertexPtr *l1, 
                  int& n2, vlLocalVertexPtr *l2);
   void Triangulate(int numVerts, vlLocalVertexPtr verts[]);
+  int CheckError(int ptId);
 };
 
 #endif
