@@ -63,7 +63,11 @@ ADD_LIBRARY(vtkIO IO_SRCS)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOTCL IOTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkIOTCL vtkFilteringTCL vtkCommonTCL  ${TCL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkIOTCL 
+                         vtkGraphicsTCL 
+                         vtkFilteringTCL 
+                         vtkCommonTCL  
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkIOTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -73,7 +77,10 @@ ENDIF (VTK_WRAP_TCL)
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkIOPython IOPython_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOPython IOPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkIOPython vtkFilteringPython vtkCommonPython )
+  TARGET_LINK_LIBRARIES (vtkIOPython 
+                         vtkGraphicsPython
+                         vtkFilteringPython 
+                         vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkIOPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
@@ -86,13 +93,17 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkIOJava IOJava_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOJava IOJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkIOJava vtkCommonJava vtkFilteringJava)
+  TARGET_LINK_LIBRARIES (vtkIOJava 
+                         vtkGraphicsJava
+                         vtkCommonJava 
+                         vtkFilteringJava)
   INSTALL_TARGETS(/lib vtkIOJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering
+vtkGraphics
 vtkIO 
 )
 
