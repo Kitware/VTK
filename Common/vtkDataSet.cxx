@@ -390,7 +390,7 @@ int vtkDataSet::CheckAttributes()
       {
       vtkErrorMacro("Point array " << name << " with " 
                     << array->GetNumberOfComponents()
-                    << " components, only has " << numTuples << " but there are " 
+                    << " components, only has " << numTuples << " tuples but there are " 
                     << numPts << " points");
       return 1;
       }
@@ -398,7 +398,7 @@ int vtkDataSet::CheckAttributes()
       {
       vtkWarningMacro("Point array " << name << " with " 
                     << array->GetNumberOfComponents()
-                    << " components, has " << numTuples << " but there are only " 
+                    << " components, has " << numTuples << " tuples but there are only " 
                     << numPts << " points");
       }
     }
@@ -417,7 +417,7 @@ int vtkDataSet::CheckAttributes()
       {
       vtkErrorMacro("Cell array " << name << " with " 
                     << array->GetNumberOfComponents()
-                    << " components, has only " << numTuples << " but there are "
+                    << " components, has only " << numTuples << " tuples but there are "
                     << numCells << " cells");
       return 1;
       }
@@ -425,7 +425,7 @@ int vtkDataSet::CheckAttributes()
       {
       vtkWarningMacro("Cell array " << name << " with " 
                     << array->GetNumberOfComponents() 
-                    << " components, has " << numTuples << " but there are only " 
+                    << " components, has " << numTuples << " tuples but there are only " 
                     << numCells << " cells");
       }
     }
