@@ -442,13 +442,13 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
 
   // Inject ordered voxel corner points into triangulation
   int type;
-  int internalId[8]; //used in case points are merged due to nearby edge intersection
+  int internalId[8]; //used to merge points if nearby edge intersection
   for (numPts=0; numPts<8; numPts++)
     {
     ptId = order[flip][numPts];
       
-    // Currently all points are injected because of the possibility of intersection
-    // point merging.
+    // Currently all points are injected because of the possibility 
+    // of intersection point merging.
     s1 = cellScalars->GetScalar(ptId);
     if ( (s1 >= value && !this->InsideOut) || (s1 < value && this->InsideOut) )
       {
@@ -478,8 +478,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
       {
       t = (value - s1) / (s2 - s1);
 
-      // Check to see whether near the intersection is near a voxel corner. If so,
-      // have to merge requiring a change of type to type=boundary.
+      // Check to see whether near the intersection is near a voxel corner. 
+      // If so,have to merge requiring a change of type to type=boundary.
       if ( t < this->MergeTolerance )
         {
         this->Triangulator->UpdatePointType(internalId[edges[edgeNum][0]], 2);
