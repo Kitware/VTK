@@ -67,7 +67,10 @@ vtkImageMagnify* vtkImageMagnify::New()
 vtkImageMagnify::vtkImageMagnify()
 {
   this->Interpolate = 0;
-  this->SetMagnificationFactors(1, 1, 1);
+
+  this->MagnificationFactors[0] = 
+  this->MagnificationFactors[1] = 
+  this->MagnificationFactors[2] = 1;
 }
 
 

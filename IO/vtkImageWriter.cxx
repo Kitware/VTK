@@ -83,7 +83,8 @@ vtkImageWriter::vtkImageWriter()
   this->FileNumber = 0;
   this->FileDimensionality = 2;
 
-  this->SetFilePattern("%s.%d");
+  this->FilePattern = new char[strlen("%s.%d") + 1];
+  strcpy(this->FilePattern, "%s.%d");
   
   this->FileLowerLeft = 0;
 }
