@@ -43,28 +43,28 @@ public:
 
   // Description:
   // End the rendering process and display the image.
-  void Frame(void);
+  void Frame();
 
   // Description:
   // Specify various window parameters.
-  virtual void WindowConfigure(void);
+  virtual void WindowConfigure();
 
   // Description:
   // Create the window.
-  virtual void WindowInitialize(void);
+  virtual void WindowInitialize();
 
   // Description:
   // Initialize the rendering window. This will setup all system-specific
   // resources. This method and Finalize() must be symmetric and it
   // should be possible to call them multiple times, even changing WindowId
   // in-between. This is what WindowRemap does.
-  virtual void Initialize(void);
+  virtual void Initialize();
 
   // Description:
   // Finalize the rendering window. This will shutdown all system-specifc
   // resources. After having called this, it should be possible to destroy
   // a window that was used for a SetWindowId() call without any ill effects.
-  virtual void Finalize(void);
+  virtual void Finalize();
 
   // Description:
   // Change the window to fill the entire screen.
@@ -72,11 +72,11 @@ public:
 
   // Description:
   // Remap the window.
-  virtual void WindowRemap(void);
+  virtual void WindowRemap();
 
   // Description:
   // Set the preferred window size to full screen.
-  virtual void PrefFullScreen(void);
+  virtual void PrefFullScreen();
 
   // Description:
   // Set the size of the window.
@@ -86,6 +86,10 @@ public:
   // Description:
   // Get the current size of the window.
   virtual int *GetSize();
+
+  // Description:
+  // Set the position of the window.
+  virtual void SetPosition(int,int);
 
   // Description:
   // Return the scrren size.
