@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # Create blow molding image (data point 5)
 # get the interactor
 source ../../examplesTcl/vtkInt.tcl
@@ -17,7 +18,7 @@ vtkConnectivityFilter connect
     connect AddSpecifiedRegion 0
     connect AddSpecifiedRegion 1
 vtkDataSetMapper moldMapper
-    moldMapper SetInput [connect GetOutput]
+    moldMapper SetInput [reader GetOutput]
     moldMapper ScalarVisibilityOff
 vtkActor moldActor
     moldActor SetMapper moldMapper
@@ -43,6 +44,14 @@ vtkPolyDataMapper parisonMapper
 vtkActor parisonActor
     parisonActor SetMapper parisonMapper
 
+vtkContourFilter cf
+    cf SetInput [connect2 GetOutput]
+    cf SetValue 0 .5
+vtkPolyDataMapper contourMapper
+    contourMapper SetInput [cf GetOutput]
+vtkActor contours
+    contours SetMapper contourMapper
+
 # Create graphics stuff
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -53,16 +62,21 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 ren1 AddActor moldActor
 ren1 AddActor parisonActor
+ren1 AddActor contours
+[ren1 GetActiveCamera] Azimuth 60
+[ren1 GetActiveCamera] Roll -90
+[ren1 GetActiveCamera] Dolly 2
 ren1 SetBackground 1 1 1
-renWin SetSize 500 350
-[ren1 GetActiveCamera] Roll 90
-[ren1 GetActiveCamera] Elevation 90
-[ren1 GetActiveCamera] Zoom 2
+renWin SetSize 750 400
+
 iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
 
-#renWin SetFileName blow.tcl.ppm
+#renWin SetFileName "blow.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
+
+
+
