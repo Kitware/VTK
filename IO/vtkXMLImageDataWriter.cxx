@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLImageDataWriter, "1.6");
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,7 @@ void vtkXMLImageDataWriter::WritePrimaryElementAttributes()
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLImageDataWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.7");
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -86,6 +86,7 @@ vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
   return pWriter;
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLPImageDataWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
