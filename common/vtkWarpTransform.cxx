@@ -160,6 +160,10 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   inverse[1] -= 2*(inverse[1]-point[1]);
   inverse[2] -= 2*(inverse[2]-point[2]);
 
+  lastInverse[0] = inverse[0];
+  lastInverse[1] = inverse[1];
+  lastInverse[2] = inverse[2];
+
   // do a maximum 500 iterations, usually less than 10 are required
   int n = self->GetInverseIterations();
   int i;

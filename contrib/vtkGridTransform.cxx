@@ -1099,6 +1099,9 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
   inverse[0] = point[0] - (deltaP[0]*scale + shift)*invSpacing[0];
   inverse[1] = point[1] - (deltaP[1]*scale + shift)*invSpacing[1];
   inverse[2] = point[2] - (deltaP[2]*scale + shift)*invSpacing[2];
+  lastInverse[0] = inverse[0];
+  lastInverse[1] = inverse[1];
+  lastInverse[2] = inverse[2];
 
   // do a maximum 500 iterations, usually less than 10 are required
   int n = this->InverseIterations;
