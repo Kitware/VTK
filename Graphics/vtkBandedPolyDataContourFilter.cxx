@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.23");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.24");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -181,7 +181,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   vtkDataArray *inScalars = pd->GetScalars();
   int abort=0;
   vtkPoints *newPts;
-  int i, j, idx, npts, cellId=0;
+  int i, j, idx=0, npts, cellId=0;
   vtkIdType *pts;
   int numEdgePts, numNewPts, maxCellSize;
   vtkIdType v, vR, *intPts;
@@ -406,7 +406,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     vtkCellArray *tmpPolys = NULL;
 
     // If contour edges requested, set things up.
-    vtkCellArray *contourEdges;
+    vtkCellArray *contourEdges=0;
     if ( this->GenerateContourEdges )
       {
       contourEdges = vtkCellArray::New();

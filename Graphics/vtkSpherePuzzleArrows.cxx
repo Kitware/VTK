@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.6");
+vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.7");
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
 {
   float phi1, phi2, dPhi;
   float theta1, theta2, dTheta;
-  float phi, theta, phiOff, thetaOff;
+  float phi=0, theta=0, phiOff, thetaOff;
   float length;
   float x, y, z;
   int num, idx;

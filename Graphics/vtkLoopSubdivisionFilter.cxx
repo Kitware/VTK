@@ -19,7 +19,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.13");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.14");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static float LoopWeights[4] =
@@ -260,7 +260,7 @@ void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
   vtkCell *cell;
   int i;
   vtkIdType cell0, cell1;
-  vtkIdType p3, p4;
+  vtkIdType p3=0, p4=0;
 
   polys->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
   cell0 = cellIds->GetId(0);

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.7");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.8");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
@@ -89,7 +89,7 @@ void vtkRearrangeFields::Execute()
 vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds, 
                                                            int fieldLoc)
 {
-  vtkFieldData* fd;
+  vtkFieldData* fd=0;
 
   switch (fieldLoc)
     {

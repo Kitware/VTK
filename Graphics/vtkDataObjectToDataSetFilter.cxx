@@ -25,7 +25,7 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.40");
+vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.41");
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //----------------------------------------------------------------------------
@@ -252,7 +252,7 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
 void vtkDataObjectToDataSetFilter::Execute()
 {
   vtkIdType npts;
-  vtkDataObject *input = this->GetInput();
+  //vtkDataObject *input = this->GetInput();
 
   vtkDebugMacro(<<"Generating dataset from field data");
 

@@ -27,7 +27,7 @@
 #include "vtkPyramid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.85");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.86");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -118,7 +118,7 @@ void vtkGeometryFilter::Execute()
   vtkPoints *newPts;
   vtkIdType ptId;
   int npts;
-  vtkIdType pt;
+  vtkIdType pt=0;
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   int allVisible;

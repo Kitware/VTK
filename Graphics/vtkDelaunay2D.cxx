@@ -23,7 +23,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.51");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.52");
 vtkStandardNewMacro(vtkDelaunay2D);
 
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;
@@ -790,11 +790,11 @@ int *vtkDelaunay2D::RecoverBoundary()
 // the two halves. If any part of this fails, we leave things alone.
 int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
 {
-  vtkIdType cellId;
+  vtkIdType cellId = 0;
   int i, j, k;
   double p1X[3], p2X[3], xyNormal[3], splitNormal[3], p21[3];
   double x1[3], x2[3], sepNormal[3], v21[3];
-  int ncells, v1, v2, signX1, signX2, signP1, signP2;
+  int ncells, v1=0, v2=0, signX1=0, signX2, signP1, signP2;
   vtkIdType *pts, *leftTris, *rightTris, npts, numRightTris, numLeftTris;
   int success=0;
 

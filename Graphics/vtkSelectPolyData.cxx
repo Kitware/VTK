@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.22");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.23");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 // Description:
@@ -61,7 +61,7 @@ void vtkSelectPolyData::Execute()
   vtkPolyData *triMesh;
   vtkPointData *inPD, *outPD=output->GetPointData();
   vtkCellData *inCD, *outCD=output->GetCellData();
-  vtkIdType closest, numPolys, i, j;
+  vtkIdType closest=0, numPolys, i, j;
   int k;
   vtkIdList *loopIds, *edgeIds, *neighbors;
   float x[3], xLoop[3], closestDist2, dist2, t;
