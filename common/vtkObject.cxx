@@ -390,7 +390,7 @@ void vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     next = elem->Next;
     if (elem->Event == event)
       {
-      elem->Command->Execute(self,callData);
+      elem->Command->Execute(self,event,callData);
       }
     elem = next;
     }  

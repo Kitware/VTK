@@ -131,7 +131,7 @@ public:
     };
   void SetObject(PyObject *o) { this->obj = o; };
   
-  void Execute(vtkObject *, void *)
+  void Execute(vtkObject *, unsigned long, void *)
     {
       PyObject *arglist, *result;
 

@@ -104,7 +104,7 @@ public:
   void SetMethodID(jmethodID id) { this->mid = id; };
   void AssignJavaVM(JNIEnv *env) { env->GetJavaVM(&(this->vm)); };
   
-  void Execute(vtkObject *, void *)
+  void Execute(vtkObject *, unsigned long, void *)
     {
     // make sure we have a valid method ID
     if (this->mid)

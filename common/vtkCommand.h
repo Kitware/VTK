@@ -56,7 +56,7 @@ class vtkCommand
 public:
   virtual ~vtkCommand() {};
   void Delete() {delete this;};
-  virtual void Execute(vtkObject *caller, void *callData) = 0;
+  virtual void Execute(vtkObject *caller, unsigned long, void *callData) = 0;
 
   // all the currently defined events
   // developers can use -- vtkCommand::UserEvent + int to
@@ -137,21 +137,21 @@ public:
       }
     };
   void SetClientData(void *cd) {this->ClientData = cd;};
-  void SetCallback(void (*f)(vtkObject *, void *, void *)) 
+  void SetCallback(void (*f)(vtkObject *, unsigned long, void *, void *)) 
     {this->Callback = f;};
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;};
   
-  void Execute(vtkObject *caller, void *callData)
+  void Execute(vtkObject *caller, unsigned long event, void *callData)
     {
-    if (this->Callback)
-      {
-      this->Callback(caller, this->ClientData, callData);
-      }
+      if (this->Callback)
+        {
+        this->Callback(caller, event, this->ClientData, callData);
+        }
     };
   
   void *ClientData;
-  void (*Callback)(vtkObject *, void *, void *);
+  void (*Callback)(vtkObject *, unsigned long, void *, void *);
   void (*ClientDataDeleteCallback)(void *);
 };
 
@@ -174,7 +174,7 @@ public:
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;};
   
-  void Execute(vtkObject *,void *)
+  void Execute(vtkObject *,unsigned long, void *)
     {
     if (this->Callback)
       {
