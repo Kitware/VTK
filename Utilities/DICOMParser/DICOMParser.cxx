@@ -118,7 +118,7 @@ bool DICOMParser::OpenFile(const dicom_stl::string& filename)
 
   
 #ifdef DEBUG_DICOM
-  if (this->ParserOutputFile.is_open())
+  if (this->ParserOutputFile.rdbuf()->is_open())
     {
     this->ParserOutputFile.flush();
     this->ParserOutputFile.close();

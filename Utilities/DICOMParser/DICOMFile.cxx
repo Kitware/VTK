@@ -87,9 +87,11 @@ void DICOMFile::operator=(const DICOMFile& in)
 
 bool DICOMFile::Open(const dicom_stl::string& filename)
 {
-  InputStream.open(filename.c_str(), dicom_stream::ios::binary | dicom_stream::ios::in);
+  // InputStream.open(filename.c_str(), dicom_stream::ios::binary | dicom_stream::ios::in);
+  InputStream.open(filename.c_str(), dicom_stream::ios::in);
 
-  if (InputStream.is_open())
+  //if (InputStream.is_open())
+  if (InputStream.rdbuf()->is_open())
     {
     return true;
     }
