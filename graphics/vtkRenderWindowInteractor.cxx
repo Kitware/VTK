@@ -130,8 +130,6 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->DispObjCenter[1] = 0.0;
   this->DispObjCenter[2] = 0.0;
   this->Radius = 0.0;
-
-
   
   this->StartPickMethod = NULL;
   this->StartPickMethodArgDelete = NULL;
@@ -146,6 +144,19 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->ExitMethodArgDelete = NULL;
   this->ExitMethodArg = NULL;
 
+  this->CameraModeMethod = NULL;
+  this->CameraModeMethodArgDelete = NULL;
+  this->CameraModeMethodArg = NULL;
+  this->ActorModeMethod = NULL;
+  this->ActorModeMethodArgDelete = NULL;
+  this->ActorModeMethodArg = NULL;
+  this->JoystickModeMethod = NULL;
+  this->JoystickModeMethodArgDelete = NULL;
+  this->JoystickModeMethodArg = NULL;
+  this->TrackballModeMethod = NULL;
+  this->TrackballModeMethodArgDelete = NULL;
+  this->TrackballModeMethodArg = NULL;
+  
   this->TimerMethod = NULL;
   this->TimerMethodArgDelete = NULL;
   this->TimerMethodArg = NULL;
@@ -243,6 +254,22 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
       (this->RightButtonReleaseMethodArg);
     }
 
+  if ((this->CameraModeMethodArg)&&(this->CameraModeMethodArgDelete))
+    {
+    (*this->CameraModeMethodArgDelete)(this->CameraModeMethodArg);
+    }
+  if ((this->ActorModeMethodArg)&&(this->ActorModeMethodArgDelete))
+    {
+    (*this->ActorModeMethodArgDelete)(this->ActorModeMethodArg);
+    }
+  if ((this->JoystickModeMethodArg)&&(this->JoystickModeMethodArgDelete))
+    {
+    (*this->JoystickModeMethodArgDelete)(this->JoystickModeMethodArg);
+    }
+  if ((this->TrackballModeMethodArg)&&(this->TrackballModeMethodArgDelete))
+    {
+    (*this->TrackballModeMethodArgDelete)(this->TrackballModeMethodArg);
+    }
 }
 
 vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
@@ -337,9 +364,10 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
     this->OutlineActor->GetProperty()->SetDiffuse(0.0);
     }
 
-  if ( this->PickedRenderer ) {
+  if ( this->PickedRenderer ) 
+    {
     this->PickedRenderer->RemoveActor(this->OutlineActor);
-  };
+    }
 
   if ( ! actor )
     {
@@ -351,7 +379,7 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
     this->CurrentRenderer->AddActor(OutlineActor);
     this->Outline->SetBounds(actor->GetBounds());
     this->CurrentActor = actor;
-    };
+    }
   this->RenderWindow->Render();
 }
 
@@ -658,6 +686,122 @@ void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
     }
 }
 
+
+// Set the CameraMode method. This method is invoked on a <c> keypress.
+void 
+vtkRenderWindowInteractor::SetCameraModeMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->CameraModeMethod || arg != this->CameraModeMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->CameraModeMethodArg)&&(this->CameraModeMethodArgDelete))
+      {
+      (*this->CameraModeMethodArgDelete)(this->CameraModeMethodArg);
+      }
+    this->CameraModeMethod = f;
+    this->CameraModeMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetCameraModeMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->CameraModeMethodArgDelete)
+    {
+    this->CameraModeMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Set the ActorMode method. This method is invoked on a <a> keypress.
+void 
+vtkRenderWindowInteractor::SetActorModeMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ActorModeMethod || arg != this->ActorModeMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ActorModeMethodArg)&&(this->ActorModeMethodArgDelete))
+      {
+      (*this->ActorModeMethodArgDelete)(this->ActorModeMethodArg);
+      }
+    this->ActorModeMethod = f;
+    this->ActorModeMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetActorModeMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->ActorModeMethodArgDelete)
+    {
+    this->ActorModeMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Set the JoystickMode method. This method is invoked on a <j> keypress.
+void 
+vtkRenderWindowInteractor::SetJoystickModeMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->JoystickModeMethod || arg != this->JoystickModeMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->JoystickModeMethodArg)&&(this->JoystickModeMethodArgDelete))
+      {
+      (*this->JoystickModeMethodArgDelete)(this->JoystickModeMethodArg);
+      }
+    this->JoystickModeMethod = f;
+    this->JoystickModeMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Called when a void* argument is being discarded.  Lets the user free it.
+void 
+vtkRenderWindowInteractor::SetJoystickModeMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->JoystickModeMethodArgDelete)
+    {
+    this->JoystickModeMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Set the TrackballMode method. This method is invoked on a <t> keypress.
+void 
+vtkRenderWindowInteractor::SetTrackballModeMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->TrackballModeMethod || arg != this->TrackballModeMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->TrackballModeMethodArg)&&(this->TrackballModeMethodArgDelete))
+      {
+      (*this->TrackballModeMethodArgDelete)(this->TrackballModeMethodArg);
+      }
+    this->TrackballModeMethod = f;
+    this->TrackballModeMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Called when a void* argument is being discarded.  Lets the user free it.
+void 
+vtkRenderWindowInteractor::SetTrackballModeMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->TrackballModeMethodArgDelete)
+    {
+    this->TrackballModeMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+
+
+
+
+
 // treat renderWindow and interactor as one object.
 // it might be easier if the GetReference count method were redefined.
 void vtkRenderWindowInteractor::UnRegister(vtkObject *o)
@@ -759,7 +903,7 @@ void vtkRenderWindowInteractor::ComputeDisplayToWorld(float x, float y,
     worldPt[1] /= worldPt[3];
     worldPt[2] /= worldPt[3];
     worldPt[3] = 1.0;
-  };
+  }
 }
 
 
@@ -793,7 +937,7 @@ void vtkRenderWindowInteractor::JoystickRotateCamera(int x, int y) {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  };
+  }
   this->RenderWindow->Render();
 }
 
@@ -813,7 +957,7 @@ void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y) {
   }
   else if (yf < -1) {
     yf = -1;
-  };
+  }
 
   float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
@@ -872,7 +1016,7 @@ void vtkRenderWindowInteractor::JoystickPanCamera(int x, int y) {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  };
+  }
   this->RenderWindow->Render();
 }
 
@@ -895,13 +1039,13 @@ void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y) {
     this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                           clippingRange[1]/zoomFactor);
     this->CurrentCamera->Dolly(zoomFactor);
-  };
+  }
 
   if (this->LightFollowCamera) {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  };
+  }
   this->RenderWindow->Render();
 }
 
@@ -927,11 +1071,11 @@ void vtkRenderWindowInteractor::TrackballRotateCamera(int x, int y) {
       // get the first light
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    };	
+    }	
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 // Description:
@@ -957,7 +1101,7 @@ void vtkRenderWindowInteractor::TrackballSpinCamera(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 
@@ -1009,12 +1153,12 @@ void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y) {
       /* get the first light */
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    };
+    }
     
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 // Description:
@@ -1040,18 +1184,18 @@ void vtkRenderWindowInteractor::TrackballDollyCamera(int x, int y) {
       this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                             clippingRange[1]/zoomFactor);
       this->CurrentCamera->Dolly(zoomFactor);
-    };
+    }
     
     if (this->LightFollowCamera) {
       /* get the first light */
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    };
+    }
 
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 
@@ -1092,7 +1236,7 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
 
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  };
+  }
 
     
   float nxf = (float)(x - this->DispObjCenter[0]) / this->Radius;
@@ -1104,14 +1248,14 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
   }
   else if (nxf < -1.0) {
     nxf = -1.0;
-  };
+  }
 
   if (nyf > 1.0) {
     nyf = 1.0;
   }
   else if (nyf < -1.0) {
     nyf = -1.0;
-  };
+  }
   
   float newXAngle = asin(nxf) * this->RadianToDegree / this->TrackballFactor;
   float newYAngle = asin(nyf) * this->RadianToDegree / this->TrackballFactor;
@@ -1142,6 +1286,7 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
   delete [] rotate;
   
   this->RenderWindow->Render();
+  //this->HighlightActor( this->InteractionActor );
 }
 
 
@@ -1167,7 +1312,7 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
       this->MotionVector[1] = this->ViewPoint[1] - this->ObjCenter[1];
       this->MotionVector[2] = this->ViewPoint[2] - this->ObjCenter[2];
       vtkMath::Normalize(this->MotionVector);
-    };
+    }
     
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
@@ -1183,7 +1328,7 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
   }
   else if (yf < -1.0) {
     yf = -1.0;
-  };
+  }
 
   float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
@@ -1204,6 +1349,7 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
   delete [] rotate[0];
   delete [] rotate;
   
+  //this->HighlightActor(this->InteractionActor);
   this->RenderWindow->Render();
 }
 
@@ -1428,7 +1574,7 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y) {
         this->MotionVector[1] = this->ViewPoint[1] - this->ObjCenter[1];
         this->MotionVector[2] = this->ViewPoint[2] - this->ObjCenter[2];
         vtkMath::Normalize(this->MotionVector);
-      };
+      }
       
       this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                   this->ObjCenter[2], this->DispObjCenter);
@@ -1467,7 +1613,7 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 // Description:
@@ -1533,6 +1679,7 @@ void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y) {
                              this->ViewFocus[2]) * dollyFactor;
     
     this->InteractionActor->AddPosition(this->MotionVector);
+    //    this->HighlightActor(this->InteractionActor);
   
     this->OldX = x;
     this->OldY = y;
@@ -1612,3 +1759,67 @@ void vtkRenderWindowInteractor::ActorTransform(vtkActor *actor,
   oldMatrix->Delete();
   newTransform->Delete();
 }
+
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetActorModeToCamera()
+{
+  if (this->ActorMode == VTKXI_CAMERA)
+    {
+    return;
+    }
+  this->ActorMode = VTKXI_CAMERA;
+  this->Modified();
+  if (this->CameraModeMethod) 
+    {
+    (*this->CameraModeMethod)(this->CameraModeMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetActorModeToActor()
+{
+  if (this->ActorMode == VTKXI_ACTOR)
+    {
+    return;
+    }
+  this->ActorMode = VTKXI_ACTOR;
+  this->Modified();
+  if (this->ActorModeMethod) 
+    {
+    (*this->ActorModeMethod)(this->ActorModeMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetTrackballModeToTrackball()
+{
+  if (this->TrackballMode == VTKXI_TRACK)
+    {
+    return;
+    }
+  this->TrackballMode = VTKXI_TRACK;
+  this->Modified();
+  if (this->TrackballModeMethod) 
+    {
+    (*this->TrackballModeMethod)(this->TrackballModeMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetTrackballModeToJoystick()
+{
+  if (this->TrackballMode == VTKXI_JOY)
+    {
+    return;
+    }
+  this->TrackballMode = VTKXI_JOY;
+  this->Modified();
+  if (this->JoystickModeMethod) 
+    {
+    (*this->JoystickModeMethod)(this->JoystickModeMethodArg);
+    }
+}
+
+  
+  

@@ -255,6 +255,38 @@ public:
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
 
   // Description:
+  // This method is invoked on a <c> keypress
+  void SetCameraModeMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetCameraModeMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // This method is invoked on a <a> keypress
+  void SetActorModeMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetActorModeMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // This method is invoked on a <t> keypress
+  void SetTrackballModeMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetTrackballModeMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // This method is invoked on a <j> keypress
+  void SetJoystickModeMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetJoystickModeMethodArgDelete(void (*f)(void *));
+
+  // Description:
   // This method can be used by user callbacks to get the 
   // x, y, coordinates of the current event.
   vtkSetVector2Macro(EventPosition,int);
@@ -285,6 +317,19 @@ public:
   // For legacy compatibiltiy. Do not use.
   void SetPicker(vtkPicker& picker) {this->SetPicker(&picker);};
 
+  // Description:
+  // External switching between actor and camera mode.
+  void SetActorModeToCamera();
+  void SetActorModeToActor();
+  vtkGetMacro(ActorMode, int);
+  
+  // Description:
+  // External switching between joystick and trackball mode.
+  void SetTrackballModeToTrackball();
+  void SetTrackballModeToJoystick();
+  vtkGetMacro(TrackballMode, int);
+  
+  
 protected:
   vtkRenderWindow *RenderWindow;
   vtkCamera   *CurrentCamera;
@@ -360,6 +405,19 @@ protected:
   void (*ExitMethod)(void *);
   void (*ExitMethodArgDelete)(void *);
   void *ExitMethodArg;
+
+  void (*CameraModeMethod)(void *);
+  void (*CameraModeMethodArgDelete)(void *);
+  void *CameraModeMethodArg;
+  void (*ActorModeMethod)(void *);
+  void (*ActorModeMethodArgDelete)(void *);
+  void *ActorModeMethodArg;
+  void (*JoystickModeMethod)(void *);
+  void (*JoystickModeMethodArgDelete)(void *);
+  void *JoystickModeMethodArg;
+  void (*TrackballModeMethod)(void *);
+  void (*TrackballModeMethodArgDelete)(void *);
+  void *TrackballModeMethodArg;
 
   void (*TimerMethod)(void *);
   void (*TimerMethodArgDelete)(void *);

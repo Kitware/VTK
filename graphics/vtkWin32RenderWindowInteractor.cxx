@@ -787,34 +787,54 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
           
 	case 'j':
 	case 'J':
-	  if (me->State == VTKXI_START) {
+	  if (me->State == VTKXI_START) 
+	    {
             me->TrackballMode = VTKXI_JOY;
 	    //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
-          }
+	    if (me->JoystickModeMethod) 
+	      {
+	      (*me->JoystickModeMethod)(me->JoystickModeMethodArg);
+	      }
+	    }
 	  break;
           
 	case 't':
 	case 'T':
-	  if (me->State == VTKXI_START) {
+	  if (me->State == VTKXI_START) 
+	    {
             me->TrackballMode = VTKXI_TRACK;
             //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
-          }
+	    if (me->TrackballModeMethod) 
+	      {
+	      (*me->TrackballModeMethod)(me->TrackballModeMethodArg);
+	      }
+	    }
 	  break;
           
         case 'o':
         case 'O':
-          if (me->State == VTKXI_START) {
+          if (me->State == VTKXI_START) 
+	    {
             me->ActorMode = VTKXI_ACTOR;
             //vtkDebugMacro(<<"switch to Actor mode.");
-          }
+	    if (me->ActorModeMethod) 
+	      {
+	      (*me->ActorModeMethod)(me->ActorModeMethodArg);
+	      }
+            }
           break;
           
         case 'c':
         case 'C':
-          if (me->State == VTKXI_START) {
+          if (me->State == VTKXI_START) 
+	    {
             me->ActorMode = VTKXI_CAMERA;
             //vtkDebugMacro(<<"switch to Camera mode.");
-          }
+	    if (me->CameraModeMethod) 
+	      {
+	      (*me->CameraModeMethod)(me->CameraModeMethodArg);
+	      }
+	    }
           break;
           
 	}

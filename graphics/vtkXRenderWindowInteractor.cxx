@@ -671,9 +671,14 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_j:
 	case XK_J: //joystick style interaction
 	  {
-            if (me->State == VTKXI_START) {
-              me->TrackballMode = VTKXI_JOY; 
-	      //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
+	  if (me->State == VTKXI_START) 
+	    {
+	    me->TrackballMode = VTKXI_JOY; 
+	    //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
+	    if (me->JoystickModeMethod) 
+	      {
+	      (*me->JoystickModeMethod)(me->JoystickModeMethodArg);
+	      }
             }
 	  }
 	  break;
@@ -681,9 +686,14 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_t:
 	case XK_T: //trackball style interaction
 	  {
-            if (me->State == VTKXI_START) {
-              me->TrackballMode = VTKXI_TRACK;
-              //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
+	  if (me->State == VTKXI_START) 
+	    {
+	    me->TrackballMode = VTKXI_TRACK;
+	    //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
+	    if (me->TrackballModeMethod) 
+	      {
+	      (*me->TrackballModeMethod)(me->TrackballModeMethodArg);
+	      }
             }
 	  }
 	  break;
@@ -692,9 +702,14 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_o:
 	case XK_O: //actor interaction
 	  {
-            if (me->State == VTKXI_START) {
-              me->ActorMode = VTKXI_ACTOR;
-	      //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
+	  if (me->State == VTKXI_START) 
+	    {
+	    me->ActorMode = VTKXI_ACTOR;
+	    //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
+	    if (me->ActorModeMethod) 
+	      {
+	      (*me->ActorModeMethod)(me->ActorModeMethodArg);
+	      }
             }
 	  }
 	  break;
@@ -702,9 +717,14 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_c:
 	case XK_C: //camera interaction
 	  {
-            if (me->State == VTKXI_START) {
-              me->ActorMode = VTKXI_CAMERA;
-              // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
+	  if (me->State == VTKXI_START) 
+	    {
+	    me->ActorMode = VTKXI_CAMERA;
+	    // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
+	    if (me->CameraModeMethod) 
+	      {
+	      (*me->CameraModeMethod)(me->CameraModeMethodArg);
+	      }
             }
 	  }
 	  break;

@@ -303,6 +303,7 @@ void vtkMatrix4x4::DeepCopy(vtkMatrix4x4 *source)
 {
   int i, j;
   
+  this->Modified();
   for (i = 0; i < 4; ++i)
     {
     for (j = 0; j < 4; ++j)
@@ -316,6 +317,7 @@ vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
 {
   int i, j;
 
+  this->Modified();
   for (i = 0; i < 4; ++i)
     {
     for (j = 0; j < 4; ++j)
