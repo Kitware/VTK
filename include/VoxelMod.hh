@@ -42,6 +42,8 @@ public:
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vlGetVectorMacro(ModelBounds,float);
 
+  void Write(char *);
+
 protected:
   void Execute();
   int SampleDimensions[3];
