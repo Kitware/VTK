@@ -148,16 +148,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
   int ijk[3], *nei;
 
   this->BuildLocator(); // will subdivide if modified; otherwise returns
-  //
-  //  Make sure candidate point is in bounds.  If not, it is outside.
-  //
-  for (i=0; i<3; i++)
-    {
-    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
-      {
-      return -1;
-      }
-    }
+
   //
   //  Find bucket point is in.  
   //
@@ -165,6 +156,15 @@ int vtkPointLocator::FindClosestPoint(float x[3])
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
         (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+
+    if (ijk[j] < 0)
+      {
+      ijk[j] = 0;
+      }
+    else if (ijk[j] >= this->Divisions[j])
+      { 
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
   //
   //  Need to search this bucket for closest point.  If there are no
@@ -490,16 +490,7 @@ void vtkPointLocator::FindClosestNPoints(int N, float x[3],vtkIdList *result)
   result->Reset();
     
   this->BuildLocator(); // will subdivide if modified; otherwise returns
-  //
-  //  Make sure candidate point is in bounds.  If not, it is outside.
-  //
-  for (i=0; i<3; i++)
-    {
-    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
-      {
-      return;
-      }
-    }
+
   //
   //  Find bucket point is in.  
   //
@@ -507,6 +498,15 @@ void vtkPointLocator::FindClosestNPoints(int N, float x[3],vtkIdList *result)
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
         (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+
+    if (ijk[j] < 0)
+      {
+      ijk[j] = 0;
+      }
+    else if (ijk[j] >= this->Divisions[j])
+      { 
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // there are two steps, first a simple expanding wave of buckets until
@@ -625,22 +625,21 @@ void vtkPointLocator::FindPointsWithinRadius(float R, float x[3],
   
   this->BuildLocator(); // will subdivide if modified; otherwise returns
   //
-  //  Make sure candidate point is in bounds.  If not, it is outside.
-  //
-  for (i=0; i<3; i++)
-    {
-    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
-      {
-      return;
-      }
-    }
-  //
   //  Find bucket point is in.  
   //
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
         (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+
+    if (ijk[j] < 0)
+      {
+      ijk[j] = 0;
+      }
+    else if (ijk[j] >= this->Divisions[j])
+      { 
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // get all buckets within a distance
