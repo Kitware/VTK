@@ -46,7 +46,7 @@ class vtkRenderer;
 class vtkPointsProjectedHull;
 class vtkCell;
 
-class VTK_GRAPHICS_EXPORT vtkPlanesIntersection : public vtkPlanes
+class VTK_RENDERING_EXPORT vtkPlanesIntersection : public vtkPlanes
 {
   vtkTypeRevisionMacro(vtkPlanesIntersection, vtkPlanes);
 

@@ -72,6 +72,7 @@ vtkOBJExporter.cxx
 vtkOOGLExporter.cxx
 vtkParallelCoordinatesActor.cxx
 vtkPicker.cxx
+vtkPlanesIntersection.cxx
 vtkPointPicker.cxx
 vtkPolyDataMapper.cxx
 vtkPolyDataMapper2D.cxx
