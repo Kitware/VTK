@@ -600,8 +600,6 @@ void vtkUnstructuredGrid::CopyUpdateExtent(vtkDataObject *data)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::CopyInformation(vtkDataObject *data)
 {
-  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid*)(data);
-
   // Stuff specific to this data type.  Do nothing if data types don't match?
   if (strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0)
     {

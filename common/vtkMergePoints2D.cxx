@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // -1.
 int vtkMergePoints2D::IsInsertedPoint(float x[2])
 {
-  int i, ijk0, ijk1, ijk2;
+  int i, ijk0, ijk1;
   int idx;
   vtkIdList *bucket;
   //

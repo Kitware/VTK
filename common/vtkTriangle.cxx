@@ -752,7 +752,6 @@ int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
                              double v1[2], double v2[2], double v3[2])
 {
   double n[3], v21[3], v31[3], v[3], xLen;
-  float x1f[3], x2f[3], x3f[3];
 
   // Get normal for triangle
   vtkTriangle::ComputeNormal (x1, x2, x3, n);

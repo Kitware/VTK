@@ -790,7 +790,7 @@ int *vtkRectilinearGrid::GetExtent()
 int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3], 
                                                       float pcoords[3])
 {
-  int i, j, loc[3];
+  int i, j;
   float xPrev, xNext, tmp;
   vtkScalars *scalars[3];
 
@@ -805,7 +805,6 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 
   for ( j=0; j < 3; j++ )
     {
-    loc[j] = 0;
     xPrev = scalars[j]->GetScalar(0);
     xNext = scalars[j]->GetScalar(scalars[j]->GetNumberOfScalars()-1);
     if (xNext < xPrev)
@@ -972,7 +971,6 @@ void vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces)
 {
-  int *wholeDim;
   int numPiecesInFirstHalf;
   int size[3], mid, splitAxis;
   int ext[6];

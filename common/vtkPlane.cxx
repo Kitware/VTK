@@ -145,7 +145,6 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
                                float p0[3], float& t, float x[3])
 {
   float num, den, p21[3];
-  int i;
   float fabsden, fabstolerance;
   //
   // Compute line vector

@@ -403,7 +403,6 @@ void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
 void vtkImageData::GetCellBounds(int cellId, float bounds[6])
 {
   int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
-  int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -1178,8 +1177,6 @@ void vtkImageData::SetExtent(int *extent)
 //----------------------------------------------------------------------------
 void vtkImageData::SetNumberOfScalarComponents(int num)
 {
-  int modified = 0;
-  
   if (this->NumberOfScalarComponents == num)
     {
     return;

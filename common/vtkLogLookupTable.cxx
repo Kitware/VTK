@@ -149,7 +149,6 @@ void vtkLogLookupTable::MapScalarsThroughTable(void *input,
 					       int numberOfValues,
 					       int inputIncrement)
 {
-  int i = numberOfValues;
   switch (inputDataType)
     {
     case VTK_CHAR:

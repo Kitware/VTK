@@ -335,7 +335,7 @@ void vtkPixel::InterpolationDerivs(float pcoords[3], float derivs[8])
 int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId)
 {
-  float *pt1, *pt2, *pt3, *pt4, n[3];
+  float *pt1, *pt4, n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[4];
@@ -347,8 +347,6 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 // Get normal for triangle
 //
   pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
   pt4 = this->Points->GetPoint(3);
 
   n[0] = n[1] = n[2] = 0.0;

@@ -116,7 +116,6 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   double a21[3], b21[3], b1a1[3];
   double c[2];
   double *A[2], row1[2], row2[2];
-  int i;
   
   //  Initialize 
   u = v = 0.0;

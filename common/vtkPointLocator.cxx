@@ -323,7 +323,7 @@ void vtkPointLocator::FindDistributedPoints(int N, float x[3],
 					    vtkIdList *result, int M)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
   int level;
   int ptId, cno;
@@ -479,7 +479,7 @@ void vtkPointLocator::FindClosestNPoints(int N, float x,
 void vtkPointLocator::FindClosestNPoints(int N, float x[3],vtkIdList *result)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
   int level;
   int ptId, cno;
@@ -616,7 +616,7 @@ void vtkPointLocator::FindPointsWithinRadius(float R, float x[3],
 					     vtkIdList *result)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
   int level;
   int ptId, cno;

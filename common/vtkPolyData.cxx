@@ -1352,8 +1352,6 @@ void vtkPolyData::CopyUpdateExtent(vtkDataObject *data)
 //----------------------------------------------------------------------------
 void vtkPolyData::CopyInformation(vtkDataObject *data)
 {
-  vtkPolyData *polyData = (vtkPolyData*)(data);
-
   // Stuff specific to this data type.  Do nothing if data types don't match?
   if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
     {

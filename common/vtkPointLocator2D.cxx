@@ -304,7 +304,7 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
 					    vtkIdList *result, int M)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
   int level;
   int ptId, cno;
@@ -457,7 +457,7 @@ void vtkPointLocator2D::FindClosestNPoints(int N, float x,
 void vtkPointLocator2D::FindClosestNPoints(int N, float x[2],vtkIdList *result)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
   int level;
   int ptId, cno;
@@ -591,9 +591,8 @@ void vtkPointLocator2D::FindPointsWithinRadius(float R, float x[2],
 					       vtkIdList *result)
 {
   int i, j;
-  float minDist2, dist2;
+  float dist2;
   float *pt;
-  int level;
   int ptId, cno;
   vtkIdList *ptIds;
   int ijk[2], *nei;
@@ -659,7 +658,7 @@ void vtkPointLocator2D::BuildLocator()
   float *bounds;
   int numBuckets;
   float level;
-  int ndivs[3], product;
+  int ndivs[3];
   int i, j, ijk[2];
   int idx;
   vtkIdList *bucket;
@@ -770,7 +769,7 @@ void vtkPointLocator2D::BuildLocator()
 //
 void vtkPointLocator2D::GetBucketNeighbors(int ijk[2], int ndivs[2], int level)
 {
-  int i, j, k, min, max, minLevel[2], maxLevel[2];
+  int i, j, min, max, minLevel[2], maxLevel[2];
   int nei[2];
   //
   //  Initialize
@@ -817,7 +816,7 @@ void vtkPointLocator2D::GetBucketNeighbors(int ijk[2], int ndivs[2], int level)
 void vtkPointLocator2D::GetOverlappingBuckets(float x[2], int ijk[2], 
 					      float dist, int level)
 {
-  int i, j, k, nei[2], minLevel[2], maxLevel[2];
+  int i, j, nei[2], minLevel[2], maxLevel[2];
 
   // Initialize
   this->Buckets->Reset();
