@@ -85,6 +85,7 @@ DICOMAppHelper::DICOMAppHelper()
   this->ImageDataLengthInBytes = 0;
   this->PatientName = new dicom_stl::string();
   this->StudyUID = new dicom_stl::string();
+  this->StudyID = new dicom_stl::string();
   this->GantryAngle = 0.0;
   this->Width = 0;
   this->Height = 0;
@@ -108,6 +109,7 @@ DICOMAppHelper::DICOMAppHelper()
   this->PixelDataCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->PatientNameCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->StudyUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
+  this->StudyIDCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->GantryAngleCB = new DICOMMemberCallback<DICOMAppHelper>;
 
   this->Implementation = new DICOMAppHelperImplementation;
@@ -145,6 +147,11 @@ DICOMAppHelper::~DICOMAppHelper()
     delete this->StudyUID;
     }
 
+  if (this->StudyID)
+    {
+    delete this->StudyID;
+    }
+  
   delete this->SeriesUIDCB;
   delete this->SliceNumberCB;
   delete this->SliceLocationCB;
@@ -163,6 +170,7 @@ DICOMAppHelper::~DICOMAppHelper()
   delete this->PixelDataCB;
   delete this->PatientNameCB;
   delete this->StudyUIDCB;
+  delete this->StudyIDCB;
   delete this->GantryAngleCB;
 
   delete this->Implementation;
@@ -226,6 +234,9 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
   StudyUIDCB->SetCallbackFunction(this, &DICOMAppHelper::StudyUIDCallback);
   parser->AddDICOMTagCallback(0x0020, 0x000d, DICOMParser::VR_UI, StudyUIDCB);
 
+  StudyIDCB->SetCallbackFunction(this, &DICOMAppHelper::StudyIDCallback);
+  parser->AddDICOMTagCallback(0x0020, 0x0010, DICOMParser::VR_SH, StudyIDCB);
+  
   GantryAngleCB->SetCallbackFunction(this, &DICOMAppHelper::GantryAngleCallback);
   parser->AddDICOMTagCallback(0x0018, 0x1120, DICOMParser::VR_FL, GantryAngleCB);
 
@@ -1205,7 +1216,6 @@ void DICOMAppHelper::PatientNameCallback(DICOMParser *,
     }
 
   this->PatientName = new dicom_stl::string((char*) val);
-
 }
 
 void DICOMAppHelper::StudyUIDCallback(DICOMParser *,
@@ -1221,6 +1231,22 @@ void DICOMAppHelper::StudyUIDCallback(DICOMParser *,
     }
 
   this->StudyUID = new dicom_stl::string((char*) val);
+
+}
+
+void DICOMAppHelper::StudyIDCallback(DICOMParser *,
+                                         doublebyte,
+                                         doublebyte,
+                                         DICOMParser::VRTypes,
+                                         unsigned char* val,
+                                         quadbyte) 
+{
+  if (this->StudyID)
+    {
+    delete this->StudyID;
+    }
+
+  this->StudyID = new dicom_stl::string((char*) val);
 
 }
 
