@@ -67,6 +67,12 @@ public:
   void Inverse();
 
   // Description:
+  // Get the inverse flag of the transformation.  This flag is
+  // set to zero when the transformation is first created, and
+  // is flipped each time Inverse() is called.
+  vtkGetMacro(InverseFlag,int);
+
+  // Description:
   // Set the tolerance for inverse transformation.
   // The default is 0.001.
   vtkSetMacro(InverseTolerance,double);

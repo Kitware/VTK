@@ -89,7 +89,19 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAbstractTransform::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ")\n";
-  this->Concatenation->PrintSelf(os,indent);
+  os << indent << "InverseFlag: " << this->GetInverseFlag() << "\n";
+  os << indent << "NumberOfConcatenatedTransforms: " <<
+    this->GetNumberOfConcatenatedTransforms() << "\n";
+  if (this->GetNumberOfConcatenatedTransforms() != 0)
+    {
+    int n = this->GetNumberOfConcatenatedTransforms();
+    for (int i = 0; i < n; i++)
+      {
+      vtkAbstractTransform *t = this->GetConcatenatedTransform(i);
+      os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
+	 t << "\n";
+      }
+    }
 }
 
 //------------------------------------------------------------------------

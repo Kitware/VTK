@@ -247,6 +247,50 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
     this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
 
   // Description:
+  // Get the total number of transformations that are linked into this
+  // one via Concatenate() operations or via SetInput().
+  int GetNumberOfConcatenatedTransforms() {
+    return this->Concatenation->GetNumberOfTransforms() + 
+      (this->Input == NULL ? 0 : 1); };
+
+  // Description
+  // Get one of the concatenated transformations as a vtkAbstractTransform.
+  // These transformations are applied, in series, every time the 
+  // transformation of a coordinate occurs.  This method is provided
+  // to make it possible to decompose a transformation into its
+  // constituents, for example to save a transformation to a file.
+  vtkHomogeneousTransform *GetConcatenatedTransform(int i) {
+    if (this->Input == NULL) {
+      return (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i); }
+    else if (i < this->Concatenation->GetNumberOfPreTransforms()) {
+      return (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i); }
+    else if (i > this->Concatenation->GetNumberOfPreTransforms()) {
+      return (vtkHomogeneousTransform*)this->Concatenation->GetTransform(i-1);}
+    else if (this->GetInverseFlag()) {
+      return (vtkHomogeneousTransform *)this->Input->GetInverse(); }
+    else {
+      return (vtkHomogeneousTransform *)this->Input; } };
+
+  // Description:
+  // Set the input for this transformation.  This will be used as the
+  // base transformation if it is set.  This method allows you to build
+  // a transform pipeline: if the input is modified, then this transformation
+  // will automatically update accordingly.  Note that the InverseFlag,
+  // controlled via Inverse(), determines whether this transformation
+  // will use the Input or the inverse of the Input.
+  void SetInput(vtkHomogeneousTransform *input);
+  vtkHomogeneousTransform *GetInput() { return this->Input; };
+
+  // Description:
+  // Get the inverse flag of the transformation.  This controls
+  // whether it is the Input or the inverse of the Input that
+  // is used as the base transformation.  The InverseFlag is
+  // flipped every time Inverse() is called.  The InverseFlag
+  // is off when a transform is first created.
+  int GetInverseFlag() {
+    return this->Concatenation->GetInverseFlag(); };
+
+  // Description:
   // Pushes the current transformation onto the transformation stack.
   void Push() { if (this->Stack == NULL) { 
                     this->Stack = vtkTransformConcatenationStack::New(); }
@@ -259,15 +303,6 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   void Pop() { if (this->Stack == NULL) { return; }
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
-
-  // Description:
-  // Set the input for this transformation.  This will be used as the
-  // base transformation if it is set.  This method allows you to build
-  // a transform pipeline: if the input is modified, then this transformation
-  // will automatically update accordingly.
-  void SetInput(vtkHomogeneousTransform *input);
-  vtkHomogeneousTransform *GetInput() { return this->Input; };
-
 
   // Description:
   // Make a new transform of the same type -- you are responsible for
