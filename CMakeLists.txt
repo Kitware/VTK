@@ -294,7 +294,7 @@ IF(VTK_USE_COCOA)
 ELSE(VTK_USE_COCOA)
   VTK_DEPENDENT_OPTION(VTK_DISABLE_TK_INIT
                        "Disables the automatic initialization of Tk widgets when loading the rendering library." OFF
-                       "VTK_WRAP_TCL;VTK_USE_RENDERING" ON)
+                       "VTK_WRAP_TCL;VTK_USE_RENDERING" OFF)
   MARK_AS_ADVANCED(VTK_DISABLE_TK_INIT)
 ENDIF(VTK_USE_COCOA)
 MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
@@ -513,8 +513,8 @@ IF(VTK_USE_RENDERING)
   ENDIF(VTK_WRAP_PYTHON)
 ENDIF(VTK_USE_RENDERING)
 
-# Need Tk sources on Cygwin.
 IF(VTK_INCLUDE_NEED_TK)
+  # Need Tk sources on Cygwin.
   IF(WIN32)
     IF(UNIX)
       FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} 
@@ -522,6 +522,10 @@ IF(VTK_INCLUDE_NEED_TK)
       MARK_AS_ADVANCED(TK_XLIB_PATH)
     ENDIF(UNIX)
   ENDIF(WIN32)
+  # Need Tk headers and libraries for python TK widgets
+  IF(NOT VTK_WRAP_TCL)
+    INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
+  ENDIF(NOT VTK_WRAP_TCL)
 ENDIF(VTK_INCLUDE_NEED_TK)
 
 # Need Tk internal headers for Tk initialization.
