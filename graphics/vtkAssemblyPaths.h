@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the path including propagating transformation matrices and actor properties.
 
 // .SECTION see also
-// vtkAssembly vtkActor vtkAssemblyCollection 
+// vtkAssembly vtkActor
 
 #ifndef __vtkAssemblyPaths_h
 #define __vtkAssemblyPaths_h

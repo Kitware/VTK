@@ -51,8 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Trans(position)
 
 // .SECTION See Also
-// vtkProperty vtkTexture vtkMapper vtkActorDevice
-// vtkAssembly vtkFollower vtkLODActor
+// vtkProperty vtkTexture vtkMapper vtkAssembly vtkFollower vtkLODActor
 
 #ifndef __vtkActor_h
 #define __vtkActor_h
