@@ -21,6 +21,7 @@ vtkPLOT3DReader pl3d
 vtkLineWidget lineWidget
 vtkPolyData seeds
 lineWidget SetInput [pl3d GetOutput]
+lineWidget AlignWithYAxisOn
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
 
@@ -94,7 +95,7 @@ vtkRenderWindowInteractor iren
 # Associate the line widget with the interactor
 lineWidget SetInteractor iren
 lineWidget AddObserver StartInteractionEvent BeginInteraction
-lineWidget AddObserver EndInteractionEvent GenerateStreamlines
+lineWidget AddObserver InteractionEvent GenerateStreamlines
 
 lineWidget2 SetInteractor iren
 lineWidget2 AddObserver StartInteractionEvent BeginInteraction2

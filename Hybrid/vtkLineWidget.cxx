@@ -28,13 +28,17 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.1");
+vtkCxxRevisionMacro(vtkLineWidget, "1.2");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
 {
   this->WidgetCallbackCommand->SetCallback(vtkLineWidget::ProcessEvents);
   
+  this->AlignWithXAxis = 0;
+  this->AlignWithYAxis = 0;
+  this->AlignWithZAxis = 0;
+
   //Build the representation of the widget
   int i;
   // Represent the line
@@ -308,6 +312,13 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
+  os << indent << "Align With X Axis: " 
+     << (this->AlignWithXAxis ? "On" : "Off") << "\n";
+  os << indent << "Align With Y Axis: " 
+     << (this->AlignWithYAxis ? "On" : "Off") << "\n";
+  os << indent << "Align With Z Axis: " 
+     << (this->AlignWithZAxis ? "On" : "Off") << "\n";
+
   int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
   float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
@@ -556,11 +567,32 @@ void vtkLineWidget::MovePoint1(double *p1, double *p2)
   
   int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
+  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
 
   float point1[3];
-  for (int i=0; i<3; i++)
+  if ( this->AlignWithXAxis )
     {
-    point1[i] = pt1[i] + v[i];
+    point1[0] = pt1[0] + v[0];//only x-motion is considered
+    point1[1] = pt2[1] + v[1];
+    point1[2] = pt2[2] + v[2];
+    }
+  else if ( this->AlignWithYAxis )
+    {
+    point1[0] = pt2[0] + v[0];
+    point1[1] = pt1[1] + v[1];//only y-motion is considered
+    point1[2] = pt2[2] + v[2];
+    }
+  else if ( this->AlignWithZAxis )
+    {
+    point1[0] = pt2[0] + v[0];
+    point1[1] = pt2[1] + v[1];
+    point1[2] = pt1[2] + v[2];//only z-motion is considered
+    }
+  else
+    {
+    point1[0] = pt1[0] + v[0];
+    point1[1] = pt1[1] + v[1];
+    point1[2] = pt1[2] + v[2];
     }
   
   this->LineSource->SetPoint1(point1);
@@ -578,12 +610,33 @@ void vtkLineWidget::MovePoint2(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   int res = this->LineSource->GetResolution();
+  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
   float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
 
   float point2[3];
-  for (int i=0; i<3; i++)
+  if ( this->AlignWithXAxis )
     {
-    point2[i] = pt2[i] + v[i];
+    point2[0] = pt2[0] + v[0];//only x-motion is considered
+    point2[1] = pt1[1] + v[1];
+    point2[2] = pt1[2] + v[2];
+    }
+  else if ( this->AlignWithYAxis )
+    {
+    point2[0] = pt1[0] + v[0];
+    point2[1] = pt2[1] + v[1];//only y-motion is considered
+    point2[2] = pt1[2] + v[2];
+    }
+  else if ( this->AlignWithZAxis )
+    {
+    point2[0] = pt1[0] + v[0];
+    point2[1] = pt1[1] + v[1];
+    point2[2] = pt2[2] + v[2];//only z-motion is considered
+    }
+  else
+    {
+    point2[0] = pt2[0] + v[0];
+    point2[1] = pt2[1] + v[1];
+    point2[2] = pt2[2] + v[2];
     }
   
   this->LineSource->SetPoint2(point2);
@@ -703,8 +756,21 @@ void vtkLineWidget::PlaceWidget(float bounds[6])
   center[1] = (bounds[2]+bounds[3]) / 2.0;
   center[2] = (bounds[4]+bounds[5]) / 2.0;
   
-  this->LineSource->SetPoint1(bounds[0],center[1],center[2]);
-  this->LineSource->SetPoint2(bounds[1],center[1],center[2]);
+  if ( this->AlignWithYAxis )
+    {
+    this->LineSource->SetPoint1(center[0],bounds[2],center[2]);
+    this->LineSource->SetPoint2(center[0],bounds[3],center[2]);
+    }
+  else if ( this->AlignWithZAxis )
+    {
+    this->LineSource->SetPoint1(center[0],center[1],bounds[4]);
+    this->LineSource->SetPoint2(center[0],center[1],bounds[5]);
+    }
+  else //default or x-aligned
+    {
+    this->LineSource->SetPoint1(bounds[0],center[1],center[2]);
+    this->LineSource->SetPoint2(bounds[1],center[1],center[2]);
+    }
   this->LineSource->Update();
 
   // Position the handles at the end of the lines

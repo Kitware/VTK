@@ -57,7 +57,8 @@
 // Some additional features of this class include the ability to control the
 // properties of the widget. You can set the properties of the selected and
 // unselected representations of the line. For example, you can set the
-// property for the handles and line.
+// property for the handles and line. In addition there are methods to constrain
+// the line so that it is aligned along the x-y-z axes.
 
 // .SECTION Caveats
 // Note that handles and line can be picked even when they are "behind" other
@@ -127,6 +128,21 @@ public:
     {this->LineSource->GetPoint2(xyz);}
 
   // Description:
+  // Force the line widget to be aligned with one of the x-y-z axes.
+  // Remember that when the state changes, a ModifiedEvent is invoked.
+  // This can be used to snap the line to the axes if it is orginally
+  // not aligned.
+  vtkSetMacro(AlignWithXAxis,int);
+  vtkGetMacro(AlignWithXAxis,int);
+  vtkBooleanMacro(AlignWithXAxis,int);
+  vtkSetMacro(AlignWithYAxis,int);
+  vtkGetMacro(AlignWithYAxis,int);
+  vtkBooleanMacro(AlignWithYAxis,int);
+  vtkSetMacro(AlignWithZAxis,int);
+  vtkGetMacro(AlignWithZAxis,int);
+  vtkBooleanMacro(AlignWithZAxis,int);
+
+  // Description:
   // Grab the polydata (including points) that defines the line.  The
   // polydata consists of n+1 points, where n is the resolution of the
   // line. These point values are guaranteed to be up-to-date when either the
@@ -162,6 +178,11 @@ protected:
   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
   void OnRightButtonUp(int ctrl, int shift, int X, int Y);
   void OnMouseMove(int ctrl, int shift, int X, int Y);
+
+  // controlling ivars
+  int AlignWithXAxis;
+  int AlignWithYAxis;
+  int AlignWithZAxis;
 
   // the line
   vtkActor          *LineActor;
