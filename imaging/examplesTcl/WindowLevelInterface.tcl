@@ -40,6 +40,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    set sliceNumber [expr $sliceNumber + 1]
    viewer SetZSlice $sliceNumber
+   puts $sliceNumber
    viewer Render
 }
 
@@ -47,6 +48,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    set sliceNumber [expr $sliceNumber - 1]
    viewer SetZSlice $sliceNumber
+   puts $sliceNumber
    viewer Render
 }
 

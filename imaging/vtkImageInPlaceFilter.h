@@ -95,6 +95,7 @@ protected:
   int NumberOfFilteredAxes;
   vtkImageCache *Input;     
   int Bypass;
+  int Updating;
   
   virtual void SetFilteredAxes(int num, int *axes);
   virtual void ExecuteImageInformation(vtkImageCache *in,

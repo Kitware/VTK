@@ -83,6 +83,7 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
     seed->Index[idx] = index[idx];
     }
   seed->Pointer = ptr;
+  seed->Next = NULL;
 
   return seed;
 }
@@ -142,12 +143,16 @@ void vtkImageConnector::MarkRegion(vtkImageRegion *region, int numberOfAxes)
   vtkImageConnectorSeed *seed;
   unsigned char *ptr;
   int newIndex[3], *pIndex, idx;
+  long count = 0;
 
   incs = region->GetIncrements();
   extent = region->GetExtent();
   while (this->Seeds)
     {
+    ++count;
     seed = this->PopSeed();
+    // just in case the seed has not been marked visited.
+    *((unsigned char *)(seed->Pointer)) = this->ConnectedValue;
     // Add neighbors 
     newIndex[0] = seed->Index[0];
     newIndex[1] = seed->Index[1];
@@ -160,31 +165,38 @@ void vtkImageConnector::MarkRegion(vtkImageRegion *region, int numberOfAxes)
       // check pixel below
       if (*pExtent < *pIndex)
         {
-        ptr = (unsigned char *)(seed->Pointer) - pIncs[idx];
+        ptr = (unsigned char *)(seed->Pointer) - *pIncs;
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
-          --pIndex;
+          --(*pIndex);
+	  *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
-          ++pIndex;
+          ++(*pIndex);
           }
         }
       ++pExtent;
       // check above pixel
       if (*pExtent > *pIndex)
         {
-        ptr = (unsigned char *)(seed->Pointer) + pIncs[idx];
+        ptr = (unsigned char *)(seed->Pointer) + *pIncs;
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
-          ++pIndex;
+          ++(*pIndex);
+	  *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
-          --pIndex;
+          --(*pIndex);
           }
         }
-      // Delete seed, and mark seed position as part of the connected region
-      *((unsigned char *)(seed->Pointer)) = this->ConnectedValue;
-      delete seed;
+      ++pExtent;
+      // move to next axis
+      ++pIncs;
+      ++pIndex;
       }
+    
+    // Delete seed
+    delete seed;
     }
+  vtkDebugMacro("Marked " << count << " pixels");
 }
 
   

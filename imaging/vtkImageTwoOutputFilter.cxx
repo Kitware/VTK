@@ -177,6 +177,13 @@ void vtkImageTwoOutputFilter::Update()
   vtkImageRegion *outRegion1;
   vtkImageRegion *outRegion2;
 
+  // Make sure the Input has been set.
+  if ( ! this->Input)
+    {
+    vtkErrorMacro(<< "Input is not set.");
+    return;
+    }
+
   // prevent infinite update loops.
   if (this->Updating)
     {
@@ -184,12 +191,6 @@ void vtkImageTwoOutputFilter::Update()
     }
   this->Updating = 1;
   
-  // Make sure the Input has been set.
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
   // Make sure there is an output.
   this->CheckCache();
   this->CheckCache2();
@@ -215,6 +216,7 @@ void vtkImageTwoOutputFilter::Update()
       {
       this->Input->ReleaseData();
       }
+    this->Updating = 0;
     return;
     }
   
@@ -222,6 +224,7 @@ void vtkImageTwoOutputFilter::Update()
   if (this->NumberOfExecutionAxes < 0)
     {
     vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
+    this->Updating = 0;
     return;
     }
 
@@ -237,6 +240,7 @@ void vtkImageTwoOutputFilter::Update()
     {
     outRegion1->Delete();
     outRegion2->Delete();
+    this->Updating = 0;
     return;
     }
     
@@ -259,6 +263,7 @@ void vtkImageTwoOutputFilter::Update()
     inRegion->Delete();
     outRegion1->Delete();
     outRegion2->Delete();
+    this->Updating = 0;
     return;
     }     
   

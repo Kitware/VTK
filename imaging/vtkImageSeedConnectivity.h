@@ -85,6 +85,8 @@ public:
   
   void InterceptCacheUpdate(vtkImageCache *out);
 
+  vtkGetObjectMacro(Connector,vtkImageConnector);
+  
 private:
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;

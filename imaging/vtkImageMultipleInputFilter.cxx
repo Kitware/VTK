@@ -282,19 +282,19 @@ void vtkImageMultipleInputFilter::Update()
   vtkImageRegion *outRegion;
   int idx, idx2;
   
-  // prevent infinite update loops.
-  if (this->Updating)
-    {
-    return;
-    }
-  this->Updating = 1;
-  
   // We could handle NULLs in our input list, but ...
   if ( ! this->Inputs || ! this->Inputs[0])
     {
     vtkErrorMacro("Input0 required");
     return;
     }
+  
+  // prevent infinite update loops.
+  if (this->Updating)
+    {
+    return;
+    }
+  this->Updating = 1;
   
   // Make sure there is an output.
   this->CheckCache();
@@ -316,6 +316,7 @@ void vtkImageMultipleInputFilter::Update()
       {
       this->Inputs[0]->ReleaseData();
       }
+    this->Updating = 0;
     return;
     }  
   
@@ -324,6 +325,7 @@ void vtkImageMultipleInputFilter::Update()
   if (this->NumberOfExecutionAxes < 0)
     {
     vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
+    this->Updating = 0;
     return;
     }
 
@@ -336,6 +338,7 @@ void vtkImageMultipleInputFilter::Update()
   if (outRegion->IsEmpty())
     {
     outRegion->Delete();
+    this->Updating = 0;
     return;
     }
     
@@ -345,6 +348,7 @@ void vtkImageMultipleInputFilter::Update()
     if ( ! this->Inputs[idx])
       {
       vtkErrorMacro(<< "An input is not set.");
+      this->Updating = 0;
       return;
       }
     }
@@ -374,6 +378,7 @@ void vtkImageMultipleInputFilter::Update()
 	  this->Regions[idx2]->Delete();
 	  this->Regions[idx2] = NULL;
 	  }
+	this->Updating = 0;
 	return;
 	}   
     }

@@ -48,6 +48,8 @@ vtkImageFilter::vtkImageFilter()
 {
   this->FilteredAxes[0] = VTK_IMAGE_X_AXIS;
   this->FilteredAxes[1] = VTK_IMAGE_Y_AXIS;
+  this->FilteredAxes[2] = VTK_IMAGE_Z_AXIS;
+  this->FilteredAxes[3] = VTK_IMAGE_TIME_AXIS;
   this->NumberOfFilteredAxes = 2;
   this->Input = NULL;
   this->SplitOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
@@ -191,6 +193,13 @@ void vtkImageFilter::Update()
 {
   vtkImageRegion *outRegion;
 
+  // Make sure the Input has been set.
+  if ( ! this->Input)
+    {
+    vtkErrorMacro(<< "Input is not set.");
+    return;
+    }
+
   // prevent infinite update loops.
   if (this->Updating)
     {
@@ -198,12 +207,6 @@ void vtkImageFilter::Update()
     }
   this->Updating = 1;
   
-  // Make sure the Input has been set.
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
   // Make sure there is an output.
   this->CheckCache();
 
@@ -224,6 +227,7 @@ void vtkImageFilter::Update()
       {
       this->Input->ReleaseData();
       }
+    this->Updating = 0;
     return;
     }
   
@@ -244,6 +248,7 @@ void vtkImageFilter::Update()
   if (outRegion->IsEmpty())
     {
     outRegion->Delete();
+    this->Updating = 0;
     return;
     }
 

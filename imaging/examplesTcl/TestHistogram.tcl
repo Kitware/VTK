@@ -11,7 +11,7 @@ set ydim 256
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/HR_Data/i7903CTGE_flat"
 set prefix "/home/alyassin2/database/Duke/ss_dualpanc_3150/ss_dualpanc"
 
-#set prefix "../../../../vtkdata/fullHead/headsq"
+#set prefix "../../../vtkdata/fullHead/headsq"
 set numberofbins $xdim
 set offsetlevel 1050
 set window 3000

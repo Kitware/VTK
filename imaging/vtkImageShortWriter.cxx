@@ -296,9 +296,6 @@ void vtkImageShortWriter::Write()
 			     strlen(this->FilePattern) + 50];
     }  
   
-  // Set the coordinate system of the region
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-  
   // Fill in image information.
   this->Input->UpdateImageInformation();
 
@@ -316,6 +313,8 @@ void vtkImageShortWriter::Write()
 
   this->Input->Update();
   region = this->Input->GetScalarRegion();
+  // Set the coordinate system of the region
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   this->WriteRegion(region);
   region->Delete();
 }

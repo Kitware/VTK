@@ -116,8 +116,8 @@ void vtkImageTwoInputFilter::SetFilteredAxes(int num, int *axes)
   if (modified)
     {
     this->Modified();
-    this->SetExecutionAxes(num, this->FilteredAxes);
     }
+  this->SetExecutionAxes(num, this->FilteredAxes);
 }
 
 //----------------------------------------------------------------------------
@@ -214,6 +214,12 @@ void vtkImageTwoInputFilter::Update()
 {
   vtkImageRegion *inRegion1, *inRegion2, *outRegion;
   
+  // Make sure the Input has been set.
+  if ( ! this->Input1)
+    {
+    vtkErrorMacro(<< "Input1 is not set.");
+    return;
+    }
   // prevent infinite update loops.
   if (this->Updating)
     {
@@ -221,12 +227,6 @@ void vtkImageTwoInputFilter::Update()
     }
   this->Updating = 1;
   
-  // Make sure the Input has been set.
-  if ( ! this->Input1)
-    {
-    vtkErrorMacro(<< "Input1 is not set.");
-    return;
-    }
   // Make sure there is an output.
   this->CheckCache();
 
@@ -247,6 +247,7 @@ void vtkImageTwoInputFilter::Update()
       {
       this->Input1->ReleaseData();
       }
+    this->Updating = 0;    
     return;
     }  
   
@@ -255,6 +256,7 @@ void vtkImageTwoInputFilter::Update()
   if (this->NumberOfExecutionAxes < 0)
     {
     vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
+    this->Updating = 0;
     return;
     }
 
@@ -267,6 +269,7 @@ void vtkImageTwoInputFilter::Update()
   if (outRegion->IsEmpty())
     {
     outRegion->Delete();
+    this->Updating = 0;
     return;
     }
     
@@ -291,6 +294,7 @@ void vtkImageTwoInputFilter::Update()
     vtkErrorMacro("Update: Could not get input1");
     inRegion1->Delete();
     outRegion->Delete();
+    this->Updating = 0;
     return;
     }   
 
@@ -306,6 +310,7 @@ void vtkImageTwoInputFilter::Update()
       inRegion1->Delete();
       inRegion2->Delete();
       outRegion->Delete();
+      this->Updating = 0;
       return;
       }   
     }
@@ -341,7 +346,7 @@ void vtkImageTwoInputFilter::Update()
   // Delete the container for the data (not the data).
   outRegion->Delete();
   
-  this->Updating = 1;
+  this->Updating = 0;
 }
 
 

@@ -25,7 +25,7 @@ vtkImageVolume16Reader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../../../vtkdata/fullHead/headsq"
+reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 reader SetOutputScalarType $VTK_SHORT
 reader DebugOn

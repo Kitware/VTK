@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageFeatureAnd - Connectivity with seeds in second image.
 // .SECTION Description
 // vtkImageFeatureAnd implements a connectivity filter on the first input.
-// Seeds are computed by taking the intersection of the first image with the second image.
+// Seeds are computed by taking the intersection of the 
+// first image with the second image.
 // Connectivity is performed on non zero pixels of the input.
 // Input and output have to have scalar type unsigned char. 
 

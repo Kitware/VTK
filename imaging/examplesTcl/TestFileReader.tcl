@@ -12,7 +12,7 @@ reader ReleaseDataFlagOff
 reader SetDataMemoryOrder $VTK_IMAGE_COMPONENT_AXIS \
   $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 reader SetDataDimensions 3 512 256
-reader SetFileName "../../../../vtkdata/earth.ppm"
+reader SetFileName "../../../vtkdataearth.ppm"
 reader SetDataScalarType $VTK_UNSIGNED_CHAR
 #reader DebugOn
 

@@ -12,23 +12,22 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-#reader DebugOn
+reader DebugOn
 #reader Update
 
-vtkImageClip clip
-clip SetInput [reader GetOutput]
-clip SetOutputAxisWholeExtent $VTK_IMAGE_Y_AXIS 50 150
-clip ReleaseDataFlagOff
+
+vtkImageMIPFilter mip
+mip SetInput [reader GetOutput]
+mip MIPZOn
+mip SetProjectionRange 0 92
 
 vtkImageViewer viewer
-#viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
-viewer SetInput [clip GetOutput]
-viewer SetZSlice 22
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetInput [mip GetOutput]
+viewer SetColorWindow 3000
+viewer SetColorLevel 1500
 viewer SetOriginLocationToUpperLeft
 #viewer DebugOn
-viewer Render
+#viewer Render
 
 #make interface
 source WindowLevelInterface.tcl

@@ -41,7 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSkeleton2D.h"
 
 
-
+// 0 => remove pixel
+// 1 => remove if prunning
+// 2 => do not remove
+// 4 8 3
+// 5   7
+// 1 6 2
 static unsigned char VTK_IMAGE_SKELETON2D_CASES[] = 
 {
   1, 1, 1, 2,   1, 2, 2, 2,    // 0-7
@@ -75,8 +80,8 @@ static unsigned char VTK_IMAGE_SKELETON2D_CASES[] =
   0, 0, 0, 0,   0, 0, 0, 0,    // 216-223
   0, 0, 0, 0,   0, 0, 0, 0,    // 224-231
   0, 0, 0, 0,   0, 0, 0, 0,    // 232-239
-  0, 0, 0, 0,   0, 0, 0, 0,    // 240-247
-  0, 0, 0, 0,   0, 0, 0, 2     // 248-255
+  2, 2, 2, 0,   2, 0, 0, 0,    // 240-247
+  2, 0, 0, 0,   0, 0, 0, 2     // 248-255
 };
 
   
@@ -191,11 +196,11 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	  }
 	}
       
-      inPtr1 += inInc1;
-      outPtr1 += outInc1;      
+      inPtr0 += inInc0;
+      outPtr0 += outInc0;      
       }
-    inPtr0 += inInc0;
-    outPtr0 += outInc0;      
+    inPtr1 += inInc1;
+    outPtr1 += outInc1;      
     }
 }
 
