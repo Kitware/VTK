@@ -584,6 +584,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);
 #endif
+    ckfree (self->IV);
     self->IV = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
@@ -756,6 +757,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);
 #endif
+    ckfree (self->IV);
     self->IV = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
