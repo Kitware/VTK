@@ -1,6 +1,7 @@
 suppress umr vtkDoubleArray::GetTuple; vtkDataArray::InsertComponent; vtkDataArrayCppCommand
 suppress umr vtkLongArray::GetTuple; vtkDataArray::InsertComponent; vtkDataArrayCppCommand
 suppress umr stdiobuf::overflow; ostream::operator<<
+suppress mlk _malloc; _strdup; yylex(vtkVRMLImporter*)
 suppress umc yylex(vtkVRMLImporter*); yyparse(vtkVRMLImporter*); vtkVRMLImporter::ImportBegin(void)
 suppress umc memcpy; VectorType<vtkObject*>::Reserve(int)
 suppress umc memcpy; vtkFloatArray::DeepCopy(vtkDataArray*)
