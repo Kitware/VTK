@@ -17,6 +17,8 @@
 #include "tix.h"
 #endif
 
+#include <iostream.h>
+
 /*
  *----------------------------------------------------------------------
  *
@@ -40,7 +42,7 @@ EXTERN int main _ANSI_ARGS_((int     argc,
 int (*tclDummyMainPtr)() = (int (*)()) main;
 
 #if defined(DOMAIN) && defined(SING)
-EXTERN int matherr _ANSI_ARGS_((struct exception *));
+EXTERN "C" int matherr _ANSI_ARGS_((struct exception *));
 int (*tclDummyMathPtr)() = (int (*)()) matherr;
 #endif
 
@@ -49,14 +51,16 @@ int (*tclDummyMathPtr)() = (int (*)()) matherr;
  * The following variable is a special hack that is needed in order for
  * Sun shared libraries to be used for Tcl.
  */
-extern int matherr();
+extern "C" int matherr();
 int *tclDummyMathPtr = (int *) matherr;
+
 
 int
 main(int argc, char **argv)
 {
-    Tk_Main(argc, argv, Tcl_AppInit);
-    return 0;			/* Needed only to prevent compiler warning. */
+  ios::sync_with_stdio();
+  Tk_Main(argc, argv, Tcl_AppInit);
+  return 0;			/* Needed only to prevent compiler warning. */
 }
 
 #endif
@@ -80,29 +84,29 @@ main(int argc, char **argv)
  *----------------------------------------------------------------------
  */
 
-extern Vtkcommontcl_Init(Tcl_Interp *interp);
+extern "C" Vtkcommontcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_GRAPHICS
-extern Vtkgraphicstcl_Init(Tcl_Interp *interp);
+extern "C" Vtkgraphicstcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
-extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
+extern "C" Vtktkrenderwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
 #ifdef VTK_USE_IMAGING
-extern Vtkimagingtcl_Init(Tcl_Interp *interp);
+extern "C" Vtkimagingtcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
-extern Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
-extern Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
+extern "C" Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
+extern "C" Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
 #ifdef VTK_USE_PATENTED
-extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
+extern "C" Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_CONTRIB
-extern Vtkcontribtcl_Init(Tcl_Interp *interp);
+extern "C" Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
 
 int Tcl_AppInit(Tcl_Interp *interp)

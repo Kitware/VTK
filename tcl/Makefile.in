@@ -47,8 +47,8 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 
 all: 
 
-tkAppInit.o: tkAppInit.c Makefile
-	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
+tkAppInit.o: tkAppInit.cxx Makefile
+	$(CXX) $(CXX_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.cxx
 
 vtktcl.o: vtktcl.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtktcl.o $(srcdir)/vtktcl.c
