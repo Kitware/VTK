@@ -31,7 +31,7 @@ reader SetOutputScalarType $VTK_FLOAT
 
 vtkImageAnisotropicDiffusion2D diffusion;
 diffusion SetInput [reader GetOutput];
-diffusion SetDiffusionFactor 0.2;
+diffusion SetDiffusionFactor 1.0;
 diffusion SetDiffusionThreshold 200.0;
 diffusion SetNumberOfIterations 5;
 diffusion ReleaseDataFlagOff;
