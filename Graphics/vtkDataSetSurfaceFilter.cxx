@@ -36,7 +36,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24.2.2");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24.2.3");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -229,8 +229,7 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
 
   // Allocate attributes for copying.
   this->GetOutput()->GetPointData()->CopyAllocate(input->GetPointData());
-  this->GetOutput()->GetCellData()->CopyAllocate(input->GetCellData());
-
+  
   if (this->UseStrips)
     {
     // xMin face
@@ -248,6 +247,7 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
     }
   else
     {
+    this->GetOutput()->GetCellData()->CopyAllocate(input->GetCellData());
     // xMin face
     this->ExecuteFaceQuads(input, 0, ext, 0,1,2);
     // xMax face
