@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.63");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.64");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -176,9 +176,7 @@ void vtkImageShrink3D::ExecuteInformation (
   double spacing[3];
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  inData->GetSpacing(spacing);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
