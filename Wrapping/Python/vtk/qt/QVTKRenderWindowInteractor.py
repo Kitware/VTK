@@ -133,7 +133,9 @@ class QVTKRenderWindowInteractor(qt.QWidget):
             del kw['rw']
 
         # create qt-level widget
-        apply(qt.QWidget.__init__, (self,parent,name) + args, kw)
+        # You cannot pass kw anymore, you'll a TypeError: keyword arguments are not supported
+        # http://goldenspud.com/webrog/archives/2004/07/20/pyqt-platform-inconsistencies/
+        apply(qt.QWidget.__init__, (self,parent,name) + args)
 
         if rw: # user-supplied render window
             self._RenderWindow = rw
