@@ -1,6 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
 PROJECT(VTK)
-INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
@@ -102,6 +101,18 @@ VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
 VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+
+#-----------------------------------------------------------------------------
+# Include file dependency tracking regular expression.
+SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x])")
+IF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+  # Track all .txx file dependencies.
+  SET(VTK_REGEX_TXX "vtk[^.]*\\.txx")
+ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+  # Track all .txx file dependencies except *Implicit.txx files.
+  SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
+ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+INCLUDE_REGULAR_EXPRESSION("^((lex|png|j).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
