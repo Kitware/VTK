@@ -621,6 +621,9 @@ int ReadMakefiles(CPcmakerDlg *vals)
 	  concrete[num_concrete] = strdup("vtkWin32TextMapper");
     concrete_lib[num_concrete] = strdup("working");
     num_concrete++;
+	  concrete[num_concrete] = strdup("vtkWin32PolyMapper2D");
+    concrete_lib[num_concrete] = strdup("working");
+    num_concrete++;
     UpdateEnd(LT_WORKING);
     }
   if (vals->m_GEMSIP)
