@@ -53,6 +53,7 @@ IF (VTK_USE_RENDERING)
       edgePoints
       eleState
       EnSight6Elements
+      EnSight6OfficeBin
       EnSightGoldElements
       EnSightBlow1ASCII
       EnSightBlow1Bin
