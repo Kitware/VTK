@@ -144,6 +144,12 @@ public:
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
   void SetIntegratorType(int type);
   int GetIntegratorType();
+  void SetIntegratorTypeToRungeKutta2()
+    {this->SetIntegratorType(RUNGE_KUTTA2);};
+  void SetIntegratorTypeToRungeKutta4()
+    {this->SetIntegratorType(RUNGE_KUTTA4);};
+  void SetIntegratorTypeToRungeKutta45()
+    {this->SetIntegratorType(RUNGE_KUTTA45);};
 
   // Description:
   // Specify the maximum length of the streamlines expressed in 
@@ -156,6 +162,12 @@ public:
   void SetMaximumPropagationUnit(int unit);
   int GetMaximumPropagationUnit();
   float GetMaximumPropagation();
+  void SetMaximumPropagationUnitToTimeUnit()
+    {this->SetMaximumPropagationUnit(TIME_UNIT);};
+  void SetMaximumPropagationUnitToLengthUnit()
+    {this->SetMaximumPropagationUnit(LENGTH_UNIT);};
+  void SetMaximumPropagationUnitToCellLengthUnit()
+    {this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);};          
 
   // Description:
   // Specify the minimum step used in the integration expressed in 
@@ -169,6 +181,12 @@ public:
   void SetMinimumIntegrationStep(float step);
   int GetMinimumIntegrationStepUnit();
   float GetMinimumIntegrationStep();
+  void SetMinimumIntegrationStepUnitToTimeUnit()
+    {this->SetMinimumIntegrationStepUnit(TIME_UNIT);};
+  void SetMinimumIntegrationStepUnitToLengthUnit()
+    {this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);};
+  void SetMinimumIntegrationStepUnitToCellLengthUnit()
+    {this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);};
 
   // Description:
   // Specify the maximum step used in the integration expressed in 
@@ -182,6 +200,12 @@ public:
   void SetMaximumIntegrationStep(float step);
   int GetMaximumIntegrationStepUnit();
   float GetMaximumIntegrationStep();
+  void SetMaximumIntegrationStepUnitToTimeUnit()
+    {this->SetMaximumIntegrationStepUnit(TIME_UNIT);};
+  void SetMaximumIntegrationStepUnitToLengthUnit()
+    {this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);};
+  void SetMaximumIntegrationStepUnitToCellLengthUnit()
+    {this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);};
 
   // Description:
   // Specify the initial step used in the integration expressed in 
@@ -196,6 +220,12 @@ public:
   void SetInitialIntegrationStep(float step);
   int GetInitialIntegrationStepUnit();
   float GetInitialIntegrationStep();
+  void SetInitialIntegrationStepUnitToTimeUnit()
+    {this->SetInitialIntegrationStepUnit(TIME_UNIT);};
+  void SetInitialIntegrationStepUnitToLengthUnit()
+    {this->SetInitialIntegrationStepUnit(LENGTH_UNIT);};
+  void SetInitialIntegrationStepUnitToCellLengthUnit()
+    {this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);};
 
   // Description
   // Specify the maximum error in the integration. This value
@@ -227,10 +257,14 @@ public:
   // Description:
   // Specify whether the streamtrace will be generated in the
   // upstream or downstream direction.
-  vtkSetClampMacro(IntegrationDirection, int,
-                   FORWARD, BOTH);
+  vtkSetClampMacro(IntegrationDirection, int, FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
-
+  void SetIntegrationDirectionToForward()
+    {this->SetIntegrationDirection(FORWARD);};
+  void SetIntegrationDirectionToBackward()
+    {this->SetIntegrationDirection(BACKWARD);};
+  void SetIntegrationDirectionToBoth()
+    {this->SetIntegrationDirection(BOTH);};  
 
   // Description
   // Turn on/off calculation of vorticity at streamline points
