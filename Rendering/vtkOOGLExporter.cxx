@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.29");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.30");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -286,8 +286,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
    
   double p[3];
   unsigned char *c;
-  vtkTransform *trans;
-   
    
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
@@ -299,10 +297,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
   VTK_INDENT_MORE;
 
-  // first stuff out the transform
-  trans = vtkTransform::New();
-  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
-    
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
   
