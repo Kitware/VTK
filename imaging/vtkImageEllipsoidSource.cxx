@@ -183,7 +183,24 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
-    temp = ((float)idx2 - center[2]) / radius[2];
+    // handle divied by zero
+    if (radius[2] != 0.0)
+      {
+      temp = ((float)idx2 - center[2]) / radius[2];
+      }
+    else
+      {
+      if ((float)idx2 - center[2] == 0.0)
+	{
+	temp = 0.0;
+	}
+      else
+	{
+	temp = VTK_LARGE_FLOAT;
+	}  
+      }
+    
+    
     s2 = temp * temp;
     for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
@@ -192,11 +209,44 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 	self->UpdateProgress(count/(50.0*target));
 	}
       count++;
-      temp = ((float)idx1 - center[1]) / radius[1];
+      
+      // handle divied by zero
+      if (radius[1] != 0.0)
+	{
+	temp = ((float)idx1 - center[1]) / radius[1];
+	}
+      else
+	{
+	if ((float)idx1 - center[1] == 0.0)
+	  {
+	  temp = 0.0;
+	  }
+	else
+	  {
+	  temp = VTK_LARGE_FLOAT;
+	  }  
+	}
+      
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-	temp = ((float)idx0 - center[0]) / radius[0];
+	// handle divied by zero
+	if (radius[0] != 0.0)
+	  {
+	  temp = ((float)idx0 - center[0]) / radius[0];
+	  }
+	else
+	  {
+	  if ((float)idx0 - center[0] == 0.0)
+	    {
+	    temp = 0.0;
+	    }
+	  else
+	    {
+	    temp = VTK_LARGE_FLOAT;
+	    }  
+	  }
+
 	s0 = temp * temp;
 	if (s0 + s1 + s2 > 1.0)
 	  {
