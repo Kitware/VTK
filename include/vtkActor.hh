@@ -38,16 +38,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkActor - an entity in a rendered image
-// .SECTION Description
-// vtkActor is used to represent an entity in a rendering scene.  It handles
-// functions related to the actors position, orientation and scaling. It
-// combines these instance variables into one matrix as follows: [x y z 1]
-// = [x y z 1] Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) 
-// Trans(origin) Trans(position).
-//
-// The actor also maintains a reference to the defining geometry (i.e., the 
-// mapper), and rendering properties. 
+// .NAME vtkActor - an entity in a rendered image .SECTION Description
+// vtkActor is used to represent an entity in a rendering scene.  It
+// handles functions related to the actors position, orientation and
+// scaling. It combines these instance variables into one four by four
+// transformation matrix as follows: [x y z 1] = [x y z 1]
+// Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
+// Trans(position). The actor also maintains a reference to the
+// defining geometry (i.e., the mapper), rendering properties and
+// possibly a texture map.
+
+// .SECTION See Also
+// vtkProperty vtkTexture vtkMapper
 
 #ifndef __vtkActor_hh
 #define __vtkActor_hh
@@ -70,20 +72,29 @@ class vtkActor : public vtkObject
 
   virtual void Render(vtkRenderer *ren);
 
-  // Description:
-  // Set/Get the property object that controls surface properties.
+  // Description: 
+  // Set/Get the property object that controls this
+  // actors surface properties.  This is should be an instance of a
+  // vtkProperty object.  Every Actor must have a property associated
+  // with it.  If one isn't specified then one will be generated
+  // automatically. Multiple actors can share one property object.
   void SetProperty(vtkProperty *lut);
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   vtkProperty *GetProperty();
 
-  // Description:
-  // Set/Get the Texture object to control rendering texture.
+  // Description: 
+  // Set/Get the Texture object to control rendering
+  // texture maps.  This will be a vtkTexture object. An actor does
+  // not need to have an associated texture map and mutliple actors
+  // can share one texture.
   vtkSetObjectMacro(Texture,vtkTexture);
   vtkGetObjectMacro(Texture,vtkTexture);
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
-  // visualization pipeline, i.e. the Mapper.  
+  // visualization pipeline, i.e. the Mapper. This should be a subclass
+  // of vtkMapper. Typically vtkPolyMapper and vtkDataSetMapper will
+  // be used.
   vtkSetObjectMacro(Mapper,vtkMapper);
 
   // Description:
@@ -91,17 +102,20 @@ class vtkActor : public vtkObject
   vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
-  // Set/Get the user defined matrix to concatenate with.  
+  // In addition to the instance variables such as position and orientation,
+  // you can specify your own four by four transformation matrix that will
+  // get concatenated with the actor's four by four matrix as determined
+  // by the other instance variables. If the other instance variables such
+  // as position and orientation are left with  their default values then 
+  // they will result in the identity matrix. And the resulting matrix
+  // will be the user defined matrix.
   vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
   // Description:
-  // Set/Get the position of the actor.
+  // Set/Get/Add the position of the actor in world coordinates.
   vtkSetVector3Macro(Position,float);
   vtkGetVectorMacro(Position,float,3);
-
-  // Description:
-  // Add to the current position of the actor.
   void AddPosition(float deltaPosition[3]);
   void AddPosition(float deltaX,float deltaY,float deltaZ);
 
@@ -113,7 +127,7 @@ class vtkActor : public vtkObject
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
-  // X,Y and Z axis.
+  // X, Y and Z axis. A scale of zero is illegal and will be replace with one.
   vtkSetVector3Macro(Scale,float);
   vtkGetVectorMacro(Scale,float,3);
 
@@ -135,7 +149,9 @@ class vtkActor : public vtkObject
   // Set/Get the value of the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition.
+  // This does not affect methods such as SetPosition which will continue
+  // to work.  It is just intended to prevent some actors from being
+  // dragged from within a user interface..
   vtkSetMacro(Dragable,int);
   vtkGetMacro(Dragable,int);
   vtkBooleanMacro(Dragable,int);

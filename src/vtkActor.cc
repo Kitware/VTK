@@ -46,10 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). IMPORTANT NOTE: Usually the vtkRenderWindow
-// method MakeActor() is used to create a device specific actor. This
-// has the added benefit that a default device-specific property is 
-// automatically created. Try to use MakeActor() whenever possible.
+// orientation=(0,0,0). No user defined matrix and no texture map.
 vtkActor::vtkActor()
 {
   this->UserMatrix = NULL;
@@ -88,7 +85,8 @@ vtkActor::~vtkActor()
 
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
-// property and then mapper.  
+// property, texture map and then mapper. If a property hasn't been 
+// assigned yet then the actor will create one by itself.
 void vtkActor::Render(vtkRenderer *ren)
 {
   /* render the property */
@@ -128,8 +126,6 @@ vtkProperty *vtkActor::GetProperty()
   return this->Property;
 }
 
-// Description:
-// Change position by increments specified.
 void vtkActor::AddPosition (float deltaX,float deltaY,float deltaZ)
 {
   float position[3];
@@ -195,7 +191,8 @@ float *vtkActor::GetOrientation ()
 
 // Description:
 // Add to the current orientation. See SetOrientation and GetOrientation for 
-// more details.
+// more details. This basically does a GetOrientation adds the passed in
+// arguents and then calls SetOrientation.
 void vtkActor::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
