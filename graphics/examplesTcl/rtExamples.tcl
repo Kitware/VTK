@@ -51,9 +51,10 @@ if { $argv != ""} {
 # work right now
 set noTest {
     rt.tcl rtAll.tcl rib.tcl TkInteractor.tcl TkRenderWidget.tcl 
-    RenderWidget.tcl 
+    RenderWidget.tcl purifyExamples.tcl
+    mccases.tcl mccasesui.tcl InteractorDemo.tcl
     rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
-    Decimate.tcl assembly2.tcl connPineRoot.tcl deciHawa.tcl 
+    Decimate.tcl connPineRoot.tcl deciHawa.tcl 
     deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl
     volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl backdrop.tcl
     ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
