@@ -31,7 +31,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.58");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -126,7 +126,7 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
   T *inPtr = (T *)dataPtr;
   T *inPtr1 = inPtr;
 
-  int i = width;
+  int i;
   int j = height;
  
   unsigned char *newPtr;
@@ -273,7 +273,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   T *inPtr = (T *)dataPtr;
   T *inPtr1 = inPtr;
   
-  int i = width;
+  int i;
   int j = height;
   
   unsigned char *newPtr;
@@ -421,7 +421,7 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
     T *inPtr1 = inPtr;
     unsigned char tmp;
 
-    int i = width;
+    int i;
     int j = height;
 
     unsigned char *newPtr;

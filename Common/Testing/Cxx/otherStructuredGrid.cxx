@@ -305,15 +305,15 @@ int TestOSG(ostream& strm)
   sg3D->GetCell(k * (19 * 19) + j * 19 + i, gcell3D);
   strm << "gcell3D: " << *gcell3D ;
 
-  i = 10; j = 15; k = 7;
+  i = 10; j = 15;
   sg2Dxy->GetCell(j * 19 + i,gcell2D);
   strm << "gcell2D: " << *gcell2D ;
 
-  i = 10; j = 15; k = 7;
+  i = 10; j = 15;
   sg2Dxz->GetCell(j * 19 + i,gcell2D);
   strm << "gcell2D: " << *gcell2D ;
 
-  i = 10; j = 15; k = 7;
+  i = 10; j = 15;
   sg2Dyz->GetCell(j * 19 + i,gcell2D);
   strm << "gcell2D: " << *gcell2D ;
 

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.37");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.38");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
@@ -51,7 +51,7 @@ void vtkCastRay_NN_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicIn
   float           *CTF;
   float           *GTF;
   float           *GOTF;
-  int             offset=0;
+  int             offset;
   int             steps_this_ray = 0;
   int             grad_op_is_constant;
   float           gradient_opacity_constant;
@@ -255,7 +255,7 @@ template <class T>
 void vtkCastRay_NN_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
                            vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  int             value = 0;
+  int             value;
   unsigned char   *grad_mag_ptr = NULL;
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -278,7 +278,7 @@ void vtkCastRay_NN_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
   float           red_shaded_value   = 0.0;
   float           green_shaded_value = 0.0;
   float           blue_shaded_value  = 0.0;
-  int             offset = 0;
+  int             offset;
   int             steps_this_ray = 0;
   int             grad_op_is_constant;
   float           gradient_opacity_constant;
@@ -544,7 +544,7 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo 
                                        vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
-  unsigned char   *gmptr = NULL;
+  unsigned char   *gmptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -895,7 +895,7 @@ void vtkCastRay_TrilinSample_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *d
                                      vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
-  unsigned char   *gmptr = NULL;
+  unsigned char   *gmptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -2125,7 +2125,6 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo 
         offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
         dptr   = data_ptr + offset;
         nptr   = encoded_normals + offset;
-        goptr  = grad_mag_ptr + offset;
         
         A = SOTF[(*(dptr))];
         B = SOTF[(*(dptr + Binc))];

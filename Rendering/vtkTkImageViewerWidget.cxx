@@ -330,8 +330,7 @@ extern "C"
     
     if (self->ImageViewer)
       {
-      int netRefCount = 0;
-      netRefCount =  self->ImageViewer->GetReferenceCount();
+      int netRefCount = self->ImageViewer->GetReferenceCount();
       if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
           self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
           self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
@@ -565,8 +564,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   if (self->IV[0] == '\0')
     {
     // Make the ImageViewer window.
-    self->ImageViewer = vtkImageViewer::New();
-    ImageViewer = (vtkImageViewer *)(self->ImageViewer);
+    self->ImageViewer = ImageViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);

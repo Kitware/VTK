@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.18");
+vtkCxxRevisionMacro(vtkTesting, "1.19");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -52,7 +52,7 @@ char* vtkTestUtilitiesGetArgOrEnvOrDefault(const char* arg,
       }
     }
 
-  char* value = 0;
+  char* value;
 
   if (index != -1) 
     {
@@ -90,7 +90,7 @@ char* vtkTestUtilitiesExpandFileNameWithArgOrEnvOrDefault(const char* arg,
                                                           const char* fname,
                                                           int slash)
 {
-  char* fullName = 0;
+  char* fullName;
 
   char* value = vtkTestUtilitiesGetArgOrEnvOrDefault(arg, argc, argv, 
                                                      env, def);
@@ -511,7 +511,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   // If the test failed with the first image (foo.png) check if there are
   // images of the form foo_N.png (where N=1,2,3...) and compare against
   // them.
-  double error=0;
+  double error;
   int count=1, errIndex=-1;
   char* newFileName;
   while (!passed)

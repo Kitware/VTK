@@ -133,7 +133,7 @@ extern "C" {
                                  char **argv)
   {
     int status = 0;
-    vtkImageData* image = NULL;
+    vtkImageData* image;
     Tk_PhotoHandle photo;
     int slice = 0;
     double window = 256.0;
@@ -610,8 +610,7 @@ extern "C"
     
     if (self->RenderWindow)
       {
-      int netRefCount = 0;
-      netRefCount =  self->RenderWindow->GetReferenceCount();
+      int netRefCount = self->RenderWindow->GetReferenceCount();
       if (self->RenderWindow->GetInteractor() && 
           self->RenderWindow->GetInteractor()->GetRenderWindow() == self->RenderWindow &&
           self->RenderWindow->GetInteractor()->GetReferenceCount() == 1)

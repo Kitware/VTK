@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.66");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.67");
 #endif
 
 #define MAX_LIGHTS 8
@@ -207,8 +207,8 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     x_hi  = x1;
     }
 
-  unsigned char   *data = NULL;
-  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+  unsigned char *data = 
+           new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
   this->GetPixelData(x1, y1, x2, y2, front, data);
   return data;
 }
@@ -1172,7 +1172,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 
 float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
-  float           *z_data = NULL;
+  float           *z_data;
 
   int             width, height;
   width =  abs(x2 - x1)+1;
