@@ -21,7 +21,7 @@
 #include "vtkCommand.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.83");
+vtkCxxRevisionMacro(vtkObject, "1.84");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -88,10 +88,12 @@ public:
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
+  void RemoveObservers(unsigned long event, vtkCommand *cmd);
   int InvokeEvent(unsigned long event, void *callData, vtkObject *self);
   vtkCommand *GetCommand(unsigned long tag);
   unsigned long GetTag(vtkCommand*);
   int HasObserver(unsigned long event);
+  int HasObserver(unsigned long event, vtkCommand *cmd);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   int ListModified;
@@ -391,12 +393,62 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
   this->ListModified = 1;
 }
 
+void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand *cmd)
+{
+  vtkObserver *elem;
+  vtkObserver *prev;
+  vtkObserver *next;
+  
+  elem = this->Start;
+  prev = NULL;
+  while (elem)
+    {
+    if (elem->Event == event && elem->Command == cmd)
+      {
+      if (prev)
+        {
+        prev->Next = elem->Next;
+        next = prev->Next;
+        }
+      else
+        {
+        this->Start = elem->Next;
+        next = this->Start;
+        }
+      delete elem;
+      elem = next;
+      }
+    else
+      {
+      prev = elem;
+      elem = elem->Next;
+      }
+    }
+  
+  this->ListModified = 1;
+}
+
 int vtkSubjectHelper::HasObserver(unsigned long event)
 {
   vtkObserver *elem = this->Start;
   while (elem)
     {
     if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+      {
+      return 1;
+      }
+    elem = elem->Next;
+    }  
+  return 0;
+}
+
+int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
+{
+  vtkObserver *elem = this->Start;
+  while (elem)
+    {
+    if ((elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+        elem->Command == cmd)
       {
       return 1;
       }
@@ -553,6 +605,19 @@ void vtkObject::RemoveObservers(const char *event)
   this->RemoveObservers(vtkCommand::GetEventIdFromString(event));
 }
 
+void vtkObject::RemoveObservers(unsigned long event, vtkCommand *cmd)
+{
+  if (this->SubjectHelper)
+    {
+    this->SubjectHelper->RemoveObservers(event, cmd);
+    }
+}
+
+void vtkObject::RemoveObservers(const char *event, vtkCommand *cmd)
+{
+  this->RemoveObservers(vtkCommand::GetEventIdFromString(event), cmd);
+}
+
 int vtkObject::InvokeEvent(unsigned long event, void *callData)
 {
   if (this->SubjectHelper)
@@ -579,6 +644,20 @@ int vtkObject::HasObserver(unsigned long event)
 int vtkObject::HasObserver(const char *event)
 {
   return this->HasObserver(vtkCommand::GetEventIdFromString(event));
+}
+
+int vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
+{
+  if (this->SubjectHelper)
+    {
+    return this->SubjectHelper->HasObserver(event, cmd);
+    }
+  return 0;
+}
+
+int vtkObject::HasObserver(const char *event, vtkCommand *cmd)
+{
+  return this->HasObserver(vtkCommand::GetEventIdFromString(event), cmd);
 }
 
 void vtkObject::Modified()
