@@ -313,6 +313,8 @@ IF (VTK_WRAP_PYTHON)
       MESSAGE("Cannot find Python debug library. The regular Python library will be used. This means that when using debug build of VTK, python examples might not run. If you use release build or you do not care about python working, set PYTHON_DEBUG_LIBRARY to the same file as PYTHON_LIBRARY.")
     ENDIF(WIN32)
   ENDIF (NOT PYTHON_DEBUG_LIBRARY)
+  SET(VTK_PYTHON_EXE ${VTK_EXECUTABLE_PATH}/vtkpython)
+  SET(PVTK_PYTHON_EXE ${VTK_EXECUTABLE_PATH}/pvtkpython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # python executable is used by some tests whether VTK_WRAP_PYTHON is
