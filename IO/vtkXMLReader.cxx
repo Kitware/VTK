@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLReader, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -101,6 +101,12 @@ int vtkXMLReader::OpenVTKFile()
     {
     vtkErrorMacro("File already open.");
     return 1;
+    }
+
+  if (!this->FileName)
+    {
+    vtkErrorMacro("File name not specified");
+    return 0;
     }
   
   // First make sure the file exists.  This prevents an empty file
