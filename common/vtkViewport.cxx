@@ -363,6 +363,10 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Aspect: (" << this->Aspect[0] << ", " 
     << this->Aspect[1] << ")\n";
+
+  os << indent << "PixelAspect: (" << this->PixelAspect[0] << ", " 
+    << this->PixelAspect[1] << ")\n";
+
   os << indent << "Background: (" << this->Background[0] << ", " 
     << this->Background[1] << ", "  << this->Background[2] << ")\n";
 
