@@ -242,12 +242,13 @@ class wxVTKRenderWindow(baseClass):
         self.Render()
 
     def _OnSize(self,event):
-        try:
-            width, height = event.GetSize()
-        except:
-            width = event.GetSize().width
-            height = event.GetSize().height
-        self._RenderWindow.SetSize(width, height)
+        if wxPlatform != '__WXMSW__':
+            try:
+                width, height = event.GetSize()
+            except:
+                width = event.GetSize().width
+                height = event.GetSize().height
+            self._RenderWindow.SetSize(width, height)
         self.OnSize(event)
 
     def OnSize(self, event):
