@@ -48,6 +48,7 @@ IF (VTK_WRAP_TCL)
                          vtkImagingTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL)
+  INSTALL_TARGETS(/lib vtkParallelTCL)
 ENDIF (VTK_WRAP_TCL)
 
 
@@ -67,6 +68,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  INSTALL_TARGETS(/lib vtkParallelPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
@@ -79,6 +81,7 @@ IF (VTK_WRAP_JAVA)
                          vtkGraphicsJava 
                          vtkRenderingJava
                          vtkIOJava)
+  INSTALL_TARGETS(/lib vtkParallelJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -92,3 +95,5 @@ vtkParallel
 )
 
 
+INSTALL_TARGETS(/lib vtkParallel)
+INSTALL_FILES(/include/vtk .h Parallel_SRCS)

@@ -55,6 +55,7 @@ IF (VTK_WRAP_TCL)
                          vtkImagingTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL)
+  INSTALL_TARGETS(/lib vtkHybridTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -73,6 +74,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  INSTALL_TARGETS(/lib vtkHybridPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
@@ -85,6 +87,7 @@ IF (VTK_WRAP_JAVA)
                          vtkGraphicsJava 
                          vtkRenderingJava
                          vtkIOJava)
+  INSTALL_TARGETS(/lib vtkHybridJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -98,3 +101,5 @@ vtkHybrid
 )
 
 
+INSTALL_TARGETS(/lib vtkHybrid)
+INSTALL_FILES(/include/vtk .h Hybrid_SRCS)

@@ -182,6 +182,7 @@ IF (VTK_WRAP_TCL)
                          vtkImagingTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL)
+  INSTALL_TARGETS(/lib vtkRenderingTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -206,6 +207,7 @@ IF (VTK_WRAP_PYTHON)
      vtkTkImageViewerWidgetPython
      vtkTkImageWindowWidgetPython)
   ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
+  INSTALL_TARGETS(/lib vtkRenderingPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -224,6 +226,7 @@ IF (VTK_WRAP_JAVA)
   IF (JAVA_AWT_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkCommonJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)
+  INSTALL_TARGETS(/lib vtkRenderingJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -243,3 +246,6 @@ ENDIF(CMAKE_HAS_X)
 
 
 ADD_EXECUTABLE(Mace Mace)
+INSTALL_TARGETS(/lib vtkRendering)
+INSTALL_TARGETS(/bin Mace)
+INSTALL_FILES(/include/vtk .h Rendering_SRCS)

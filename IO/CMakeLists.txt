@@ -58,6 +58,7 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOTCL IOTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkIOTCL vtkFilteringTCL vtkCommonTCL )
+  INSTALL_TARGETS(/lib vtkIOTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -70,6 +71,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkIOPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  INSTALL_TARGETS(/lib vtkIOPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -79,6 +81,7 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkIOJava IOJava_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOJava IOJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkIOJava vtkCommonJava vtkFilteringJava)
+  INSTALL_TARGETS(/lib vtkIOJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -88,3 +91,5 @@ vtkIO
 )
 
 
+INSTALL_TARGETS(/lib vtkIO)
+INSTALL_FILES(/include/vtk .h IO_SRCS)

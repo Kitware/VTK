@@ -129,6 +129,7 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS Graphics_SRCS)
   ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL )
+  INSTALL_TARGETS(/lib vtkGraphicsTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -141,6 +142,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkGraphicsPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  INSTALL_TARGETS(/lib vtkGraphicsPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -150,6 +152,7 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkGraphicsJava GraphicsJava_SRCS Graphics_SRCS)
   ADD_LIBRARY(vtkGraphicsJava GraphicsJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkGraphicsJava vtkCommonJava vtkFilteringJava)
+  INSTALL_TARGETS(/lib vtkGraphicsJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -159,3 +162,5 @@ vtkGraphics
 )
 
 
+INSTALL_TARGETS(/lib vtkGraphics)
+INSTALL_FILES(/include/vtk .h Graphics_SRCS)

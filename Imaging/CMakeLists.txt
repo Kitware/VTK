@@ -109,6 +109,7 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingTCL vtkFilteringTCL vtkCommonTCL )
+  INSTALL_TARGETS(/lib vtkImagingTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -121,6 +122,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkImagingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  INSTALL_TARGETS(/lib vtkImagingPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -130,6 +132,7 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingJava ImagingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingJava vtkCommonJava vtkFilteringJava)
+  INSTALL_TARGETS(/lib vtkImagingJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -138,3 +141,5 @@ vtkFiltering
 vtkImaging 
 )
 
+INSTALL_TARGETS(/lib vtkImaging)
+INSTALL_FILES(/include/vtk .h Imaging_SRCS)

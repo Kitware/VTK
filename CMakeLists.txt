@@ -37,3 +37,5 @@ ${VTK_BINARY_DIR}/vtkConfigure.h)
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkToolkits.h.in 
 ${VTK_BINARY_DIR}/vtkToolkits.h)
+
+INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
