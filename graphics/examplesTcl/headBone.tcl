@@ -49,7 +49,6 @@ ren1 SetBackground 1 1 1
 ren1 AddLight lgt
 renWin SetSize 500 500
 ren1 SetBackground 0.1 0.2 0.4
-#renWin DoubleBufferOff
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 90
