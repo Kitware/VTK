@@ -155,11 +155,11 @@ public:
   // Get the value of a vector variable.
   double* GetVectorVariableValue(const char* variableName);
   void GetVectorVariableValue(const char* variableName, double value[3]) {
-    double *r = this->GetVectorResult();
+    double *r = this->GetVectorVariableValue(variableName);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
   double* GetVectorVariableValue(int i);
   void GetVectorVariableValue(int i, double value[3]) {
-    double *r = this->GetVectorResult();
+    double *r = this->GetVectorVariableValue(i);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
   
   // Description:
