@@ -13,9 +13,14 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class for manipulating data associated with points
-//
+// .NAME vlPointData - represent and manipulate point attribute data
+// .SECTION Description
+// vlPointData is a class that is used to represent and manipulate
+// point attribute data (e.g., scalars, vectors, normals, texture 
+// coordinates, etc.) Special methods are provided to work with filter
+// objects such as passing data through filter, copying data from one 
+// point to another, and interpolating data given shape functions.
+
 #ifndef __vlPointData_h
 #define __vlPointData_h
 
@@ -37,7 +42,10 @@ public:
   vlPointData &operator=(vlPointData& pd);
   virtual void Update() {};
 
-  // use to copy data
+  // pass thru all input data to output
+  void PassData(vlPointData* pd);
+
+  // use to copy data on a point by point basis
   void CopyAllocate(vlPointData* pd, int sze=0, int ext=1000);
   void CopyData(vlPointData *fromPd, int fromId, int toId);
 
@@ -51,30 +59,46 @@ public:
   // Reclaim memory
   void Squeeze();
 
+  // Description:
+  // Set the scalar data.
   vlSetObjectMacro (Scalars, vlScalars);
   vlGetObjectMacro (Scalars, vlScalars);
 
+  // Description:
+  // Set the vector data.
   vlSetObjectMacro (Vectors, vlVectors);
   vlGetObjectMacro (Vectors, vlVectors);
 
+  // Description:
+  // Set the normal data.
   vlSetObjectMacro (Normals, vlNormals);
   vlGetObjectMacro (Normals, vlNormals);
 
+  // Description:
+  // Set the texture coordinate data.
   vlSetObjectMacro (TCoords, vlTCoords);
   vlGetObjectMacro (TCoords, vlTCoords);
 
+  // Description:
+  // Turn on/off the copying of scalar data.
   vlSetMacro(CopyScalars,int);
   vlGetMacro(CopyScalars,int);
   vlBooleanMacro(CopyScalars,int);
 
+  // Description:
+  // Turn on/off the copying of vector data.
   vlSetMacro(CopyVectors,int);
   vlGetMacro(CopyVectors,int);
   vlBooleanMacro(CopyVectors,int);
 
+  // Description:
+  // Turn on/off the copying of normals data.
   vlSetMacro(CopyNormals,int);
   vlGetMacro(CopyNormals,int);
   vlBooleanMacro(CopyNormals,int);
 
+  // Description:
+  // Turn on/off the copying of texture coordinates data.
   vlSetMacro(CopyTCoords,int);
   vlGetMacro(CopyTCoords,int);
   vlBooleanMacro(CopyTCoords,int);

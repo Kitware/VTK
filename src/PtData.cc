@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PointData methods
-//
 #include "PtData.hh"
 #include "Cell.hh"
 #include "FScalars.hh"
@@ -23,6 +20,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FNormals.hh"
 #include "FTCoords.hh"
 
+// Description:
+// Construct with copying turned on for all data.
 vlPointData::vlPointData()
 {
   this->Scalars = NULL;
@@ -61,32 +60,14 @@ vlPointData::~vlPointData()
   vlPointData::Initialize();
 }
 
+// Description:
+// Shallow copy of data.
 vlPointData& vlPointData::operator=(vlPointData& pd)
 {
-  vlScalars *s;
-  vlVectors *v;
-  vlNormals *n;
-  vlTCoords *t;
-
-  if ( (s = pd.GetScalars()) ) 
-    {
-    this->SetScalars(s);
-    }
-
-  if ( (v = pd.GetVectors()) ) 
-    {
-    this->SetVectors(v);
-    }
-
-  if ( (n = pd.GetNormals()) ) 
-    {
-    this->SetNormals(n);
-    }
-
-  if ( (t = pd.GetTCoords()) ) 
-    {
-    this->SetTCoords(t);
-    }
+  this->SetScalars(pd.GetScalars());
+  this->SetVectors(pd.GetVectors());
+  this->SetNormals(pd.GetNormals());
+  this->SetTCoords(pd.GetTCoords());
 
   this->CopyScalars = pd.CopyScalars;
   this->CopyVectors = pd.CopyVectors;
@@ -96,9 +77,8 @@ vlPointData& vlPointData::operator=(vlPointData& pd)
   return *this;
 }
 
-//
-// Copy the point data from one point to another
-//
+// Description:
+// Copy the point data from one point to another.
 void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
 {
   if ( this->CopyScalars && fromPd->Scalars && this->Scalars )
@@ -132,36 +112,46 @@ void vlPointData::Initialize()
 //
 // First free up any memory
 //
-  if ( this->Scalars )
+  if ( this->Scalars != NULL )
     {
     this->Scalars->UnRegister(this);
     this->Scalars = NULL;
     }
 
-  if ( this->Vectors )
+  if ( this->Vectors != NULL )
     {
     this->Vectors->UnRegister(this);
     this->Vectors = NULL;
     }
 
-  if ( this->Normals )
+  if ( this->Normals != NULL )
     {
     this->Normals->UnRegister(this);
     this->Normals = NULL;
     }
 
-  if ( this->TCoords )
+  if ( this->TCoords != NULL )
     {
     this->TCoords->UnRegister(this);
     this->TCoords = NULL;
     }
 };
 
-//
-// Allocates point data for point-by-point copy operation.  If sze=0, then use 
-// the input PointData to create (i.e., find initial size of) new objects; 
-// otherwise use the sze variable.
-//
+// Description:
+// Pass entire arrays of input data through to output. Obey the "copy"
+// flags.
+void vlPointData::PassData(vlPointData* pd)
+{
+  if ( this->CopyScalars ) this->SetScalars(pd->GetScalars());
+  if ( this->CopyVectors ) this->SetVectors(pd->GetVectors());
+  if ( this->CopyNormals ) this->SetNormals(pd->GetNormals());
+  if ( this->CopyTCoords ) this->SetTCoords(pd->GetTCoords());
+}
+
+// Description:
+// Allocates point data for point-by-point copy operation.  If sze=0, then 
+// use the input PointData to create (i.e., find initial size of) new 
+// objects; otherwise use the sze variable.
 void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
 {
   vlScalars *s, *newScalars;
@@ -257,14 +247,13 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
 
     }
 }
-//
-// Initialize interpolation process
-//
 static vlFloatScalars cellScalars(MAX_CELL_SIZE);
 static vlFloatVectors cellVectors(MAX_CELL_SIZE);
 static vlFloatNormals cellNormals(MAX_CELL_SIZE);
 static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
 
+// Description:
+// Initialize point interpolation.
 void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
 {
   this->CopyAllocate(pd, sze, ext);
@@ -275,9 +264,8 @@ void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
     }
 }
 
-//
-// Interpolate data from points and interpolation weights
-//
+// Description:
+// Interpolate data from points and interpolation weights.
 void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights)
 {
   int i, j;
@@ -365,6 +353,8 @@ void vlPointData::Squeeze()
   if ( this->TCoords ) this->TCoords->Squeeze();
 }
 
+// Description:
+// Turn on copying of all data.
 void vlPointData::CopyAllOn()
 {
   this->CopyScalarsOn();
@@ -373,6 +363,8 @@ void vlPointData::CopyAllOn()
   this->CopyTCoordsOn();
 }
 
+// Description:
+// Turn off copying of all data.
 void vlPointData::CopyAllOff()
 {
   this->CopyScalarsOff();
