@@ -91,7 +91,8 @@ void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
 
   // update the light switch
   light_switch(fd, light_flag);
- 
+  ren->SetLightSwitch(light_flag);
+  
   vtkDebugMacro(<< "SB_light_switch: " << light_flag << "\n");
 }
 
