@@ -99,7 +99,6 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     return;
     }
   
-  /* ignore void */
   if (((aType % 10) == 2)&&(!((aType%1000)/100)))
     {
     return;
@@ -139,7 +138,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 1: fprintf(fp, " *"); break; /* act " &" */
     case 2: fprintf(fp, "&&"); break;
     case 3: 
-      if ((i == MAX_ARGS)||(aType%10 == 9)||(aType == 303)) 
+      if ((i == MAX_ARGS)||(aType%10 == 9)||(aType == 303)||(aType == 302))
 	{
 	fprintf(fp, " *"); 
 	}
@@ -153,12 +152,16 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
   
   /* handle arrays */
   if ((aType%1000/100 == 3)&&
-      (i != MAX_ARGS)&&(aType%10 != 9)&&(aType != 303))
+      (i != MAX_ARGS)&&(aType%10 != 9)&&(aType != 303)&&(aType != 302))
     {
     fprintf(fp,"[%i]",aCount);
     }
 
   fprintf(fp,";\n");
+  if (aType%1000 == 302)
+    {
+    fprintf(fp,"  int      size%d;\n",i);
+    }
   if ((i != MAX_ARGS) && ((aType%1000 == 309)||(aType%1000 == 109)))
     {
     fprintf(fp,"  PyObject *tempH%d;\n",i);
@@ -183,18 +186,21 @@ void do_return(FILE *fp)
   
   switch (currentFunction->ReturnType%1000)
     {
-    case 303: fprintf(fp,"      return PyString_FromString(temp%i);\n",
-		      MAX_ARGS);
+    case 303: 
+      fprintf(fp,"      return PyString_FromString(temp%i);\n",MAX_ARGS);
     break;
     case 109:
     case 309:  
       {
+      fprintf(fp,"      if (temp%i == NULL)\n        {\n",MAX_ARGS);
+      fprintf(fp,"        Py_INCREF(Py_None);\n");
+      fprintf(fp,"        return Py_None;\n        }\n");
       fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((void *)temp%i);\n",
 	      MAX_ARGS);
       fprintf(fp,"      if (!tempH)\n        {\n");
       fprintf(fp,"        if ((tempH = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	      currentFunction->ReturnClass);
-      fprintf(fp,"          return NULL;\n\n");
+      fprintf(fp,"            return NULL;\n");
       fprintf(fp,"        vtkPythonAddObjectToHash(tempH,(void *)temp%i,(void *)%s_Typecast);\n",
 	      MAX_ARGS, currentFunction->ReturnClass);
       fprintf(fp,"        ((vtkObject *)((void *)temp%i))->Register(NULL);\n        }\n",MAX_ARGS);
@@ -282,6 +288,8 @@ char *get_format_string()
       case 109:
       case 309: result[currPos] = 'O'; currPos++; break;
       case 303: result[currPos] = 'z'; currPos++; break;
+      case 302: result[currPos] = 's'; currPos++; 
+                result[currPos] = '#'; currPos++; break; 
       case 1:   result[currPos] = 'f'; currPos++; break;
       case 7:   result[currPos] = 'd'; currPos++; break;
       case 14:
@@ -362,6 +370,10 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      {
 	      fprintf(fp,", &tempH%d",i);
 	      }
+            else if (currentFunction->ArgTypes[i]%1000 == 302)
+              {
+              fprintf(fp,", &temp%d, &size%d",i,i);
+              }
 	    else
 	      {
 	      if (currentFunction->ArgCounts[i])
@@ -451,7 +463,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  fprintf(fp,"      }\n    }\n  }\n");
 	  }
 	}
-      fprintf(fp,"  return NULL;\n}\n\n");
+      fprintf(fp,"  return NULL;
+\n}\n\n");
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
@@ -541,7 +554,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
 	(currentFunction->ArgCounts[i] <= 0)&&
 	(currentFunction->ArgTypes[i] != 309)&&
-	(currentFunction->ArgTypes[i] != 303)) args_ok = 0;
+	(currentFunction->ArgTypes[i] != 303)&&
+        (currentFunction->ArgTypes[i] != 302)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
