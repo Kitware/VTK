@@ -40,11 +40,54 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkProcessStatistics.h"
 
+#ifndef _WIN32
 #include <sys/procfs.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 
+
+/* This mess was copied from the GNU getpagesize.h.  */
+#ifndef HAVE_GETPAGESIZE
+# ifdef HAVE_UNISTD_H
+#  include <unistd.h>
+# endif
+
+/* Assume that all systems that can run configure have sys/param.h.  */
+# ifndef HAVE_SYS_PARAM_H
+#  define HAVE_SYS_PARAM_H 1
+# endif
+
+# ifdef _SC_PAGESIZE
+#  define getpagesize() sysconf(_SC_PAGESIZE)
+# else /* no _SC_PAGESIZE */
+#  ifdef HAVE_SYS_PARAM_H
+#   include <sys/param.h>
+#   ifdef EXEC_PAGESIZE
+#    define getpagesize() EXEC_PAGESIZE
+#   else /* no EXEC_PAGESIZE */
+#    ifdef NBPG
+#     define getpagesize() NBPG * CLSIZE
+#     ifndef CLSIZE
+#      define CLSIZE 1
+#     endif /* no CLSIZE */
+#    else /* no NBPG */
+#     ifdef NBPC
+#      define getpagesize() NBPC
+#     else /* no NBPC */
+#      ifdef PAGESIZE
+#       define getpagesize() PAGESIZE
+#      endif /* PAGESIZE */
+#     endif /* no NBPC */
+#    endif /* no NBPG */
+#   endif /* no EXEC_PAGESIZE */
+#  else /* no HAVE_SYS_PARAM_H */
+#   define getpagesize() 8192	/* punt totally */
+#  endif /* no HAVE_SYS_PARAM_H */
+# endif /* no _SC_PAGESIZE */
+
+#endif /* no HAVE_GETPAGESIZE */
+#endif _WIN32
 
 // Description:
 // Construct the ProcessStatistics with eight points.
@@ -69,16 +112,25 @@ int vtkProcessStatistics::GetProcessSizeInBytes()
   // Get the size of a page in bytes
   pagesize = getpagesize();
 
-  // Open the /proc/pinfo/<pid> file and query the
+  // Open the /proc/<pid> file and query the
   // process info
-  sprintf( pname, "/proc/pinfo/%d", pid );
+  sprintf( pname, "/proc/%d", pid );
   fd = open( pname, O_RDONLY );
-  ioctl( fd, PIOCPSINFO, &psinfo );
-  close( fd );
+  if (fd != -1)
+    {
+    psinfo.pr_size = 0;
+    ioctl( fd, PIOCPSINFO, &psinfo );
+    close( fd );
+    }
+  else
+    {
+      vtkErrorMacro(<< "Cannot get size of " << pname);
+      return 0;
+    }
 
   // The size in bytes is the page size of the process times
   // the size of a page in bytes
-  return psinfo.pr_rssize * pagesize;
+  return psinfo.pr_size * pagesize;
 #endif
 
 #ifdef _WIN32
@@ -99,18 +151,16 @@ float vtkProcessStatistics::GetProcessCPUTimeInMilliseconds()
   // Get out process id
   pid = getpid();
 
-  // Open the /proc/pinfo/<pid> file and query the
+  // Open the /proc/<pid> file and query the
   // process info
-  sprintf( pname, "/proc/pinfo/%d", pid );
+  sprintf( pname, "/proc/%d", pid );
   fd = open( pname, O_RDONLY );
   ioctl( fd, PIOCPSINFO, &psinfo );
   close( fd );
 
   return 
     (float) psinfo.pr_time.tv_sec * 1000.0 + 
-    (float) psinfo.pr_time.tv_nsec / 1000000.0 +
-    (float) psinfo.pr_ctime.tv_sec * 1000.0 + 
-    (float) psinfo.pr_ctime.tv_nsec / 1000000.0;
+    (float) psinfo.pr_time.tv_nsec / 1000000.0;
 #endif
 
 #ifdef _WIN32
