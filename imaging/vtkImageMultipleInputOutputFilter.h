@@ -94,6 +94,13 @@ protected:
   void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);};
   virtual void Execute(vtkImageData **inDatas, vtkImageData **outDatas);
 
+  // this should never be called
+  virtual void Execute(vtkImageData **inDatas, vtkImageData *outDatas) {};
+  virtual void ThreadedExecute(vtkImageData **inDatas, 
+			       vtkImageData *outData,
+			       int extent[6], int threadId);
+  virtual void ExecuteInformation(vtkImageData **, vtkImageData *) {};
+
   // This one gets called by the superclass.
   void ExecuteInformation();
   // This is the one you should override.
