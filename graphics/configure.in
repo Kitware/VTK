@@ -44,8 +44,13 @@ AC_ARG_WITH(mesa,
          [  --with-mesa               use the mesa opengl package],
     oglr_obj=$srcdir/../Makefile.in.Mesaoglr)
 
+OGLR_INCLUDE=""
 AC_CHECK_HEADERS(GL/gl.h, oglr_obj=$srcdir/../Makefile.in.oglr)
+AC_CHECK_HEADERS(/usr/openwin/share/include/GL/gl.h, 
+		oglr_obj=$srcdir/../Makefile.in.oglr
+		OGLR_INCLUDE="-I/usr/openwin/share/include/")
 AC_SUBST_FILE(oglr_obj)
+AC_SUBST(OGLR_INCLUDE)
 
 #
 # has the user set up XGL_HOME
