@@ -38,13 +38,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRenderMaster - create device specific render window
+// .NAME vtkRenderMaster - create a device specific rendering window
 // .SECTION Description
-// vtkRenderMaster is used to create device specific rendering window.
+// vtkRenderMaster is used to create a device specific rendering window.
 // vtkRenderMaster interfaces with the operating system to determine
 // which type of rendering library to use. If the environment variable
-// VTK_RENDERER is set, then that rendering library is used. Otherwise
-// the internal software rendering library kgl is used.
+// VTK_RENDERER is set, then that rendering library is used. 
+// If VTK_RENDERER is not set then it will try to pick the best renderer
+// it can based on what was compiled into vtk.
+
+// .SECTION see also
+// vtkRenderWindow vtkRenderer
 
 #ifndef __vtkRenderMaster_hh
 #define __vtkRenderMaster_hh

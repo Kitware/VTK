@@ -64,7 +64,9 @@ vtkRenderMaster::vtkRenderMaster()
 }
 
 // Description:
-// Create named renderer type.
+// Create a vtkRenderWindow to match the type given. Current
+// values for type include sbr for starbase, glr for SGI's gl,
+// oglr for OpenGL and Mesa, xglr for Sun's XGL.
 vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 {
 #ifdef USE_SBR
@@ -109,7 +111,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 
 // Description:
 // Create renderer based on environment variable VTK_RENDERER. If VTK_RENDERER
-// not defined, then use default renderer kglr.
+// is not set then it will try to pick the best renderer it can.
 vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 {
   char *temp;
