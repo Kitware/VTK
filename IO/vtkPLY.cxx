@@ -1483,7 +1483,6 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   char **words;
   int nwords;
   int which_word;
-  FILE *fp = plyfile->fp;
   char *elem_data,*item;
   char *item_ptr;
   int item_size;
@@ -2113,13 +2112,13 @@ void vtkPLY::get_stored_item(
       break;
     case PLY_FLOAT:
       *double_val = *((float *) ptr);
-      *int_val = *double_val;
-      *uint_val = *double_val;
+      *int_val = (int) *double_val;
+      *uint_val = (unsigned int) *double_val;
       break;
     case PLY_DOUBLE:
       *double_val = *((double *) ptr);
-      *int_val = *double_val;
-      *uint_val = *double_val;
+      *int_val = (int) *double_val;
+      *uint_val = (unsigned int) *double_val;
       break;
     default:
       fprintf (stderr, "get_stored_item: bad type = %d\n", type);
@@ -2195,14 +2194,14 @@ void vtkPLY::get_binary_item(
     case PLY_FLOAT:
       fread (ptr, 4, 1, fp);
       *double_val = *((float *) ptr);
-      *int_val = *double_val;
-      *uint_val = *double_val;
+      *int_val = (int) *double_val;
+      *uint_val = (unsigned int) *double_val;
       break;
     case PLY_DOUBLE:
       fread (ptr, 8, 1, fp);
       *double_val = *((double *) ptr);
-      *int_val = *double_val;
-      *uint_val = *double_val;
+      *int_val = (int) *double_val;
+      *uint_val = (unsigned int) *double_val;
       break;
     default:
       fprintf (stderr, "get_binary_item: bad type = %d\n", type);
