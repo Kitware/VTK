@@ -2,7 +2,7 @@
 #define _freetypeConfig_h
 
 #if defined(__BORLANDC__)
-#pragma warn -8004 // Disable "foo is assigned a value that is never used."
+#pragma warn -8004 /* Disable "foo is assigned a value that is never used." */
 #endif
 
 /* 
