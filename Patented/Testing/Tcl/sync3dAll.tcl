@@ -32,6 +32,7 @@ foreach vtkType $types {
   vtkSynchronizedTemplates3D iso$vtkType
     iso$vtkType SetInput [castTo$vtkType GetOutput]
     iso$vtkType GenerateValues 1 30 30
+    iso$vtkType SetNumberOfThreads 8
 
   vtkPolyDataMapper iso${vtkType}Mapper
     iso${vtkType}Mapper SetInput [iso$vtkType GetOutput]
