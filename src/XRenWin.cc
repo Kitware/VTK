@@ -123,6 +123,10 @@ void vtkXRenderWindow::SetWindowId(Window arg)
 
   this->WindowId = arg;
 }
+void vtkXRenderWindow::SetWindowId(void *arg)
+{
+  this->SetWindowId((Window)arg);
+}
 
 // Description:
 // Set the window id of the new window once a WindowRemap is done.
@@ -140,6 +144,10 @@ void vtkXRenderWindow::SetDisplayId(Display  *arg)
   vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
 
   this->DisplayId = arg;
+}
+void vtkXRenderWindow::SetDisplayId(void *arg)
+{
+  this->SetDisplayId((Display *)arg);
 }
 
 // Description:
