@@ -90,7 +90,7 @@ const int VTK_REN_INFO_INT_SIZE = sizeof(RendererInfoInt)/sizeof(int);
 const int VTK_REN_INFO_FLOAT_SIZE = sizeof(RendererInfoFloat)/sizeof(float);
 const int VTK_LIGHT_INFO_FLOAT_SIZE = sizeof(LightInfoFloat)/sizeof(float);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.1");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.2");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -316,8 +316,6 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
         }
       else // LocalProcessId != RootProcessId
         {
-        vtkCallbackCommand *cbc;
-
         this->ObservingRenderWindow = true;
 
         cbc= vtkCallbackCommand::New();
@@ -725,12 +723,19 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
-  this->Controller->Receive((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE,
-                            this->RootProcessId,
-                            vtkParallelRenderManager::WIN_INFO_INT_TAG);
-  this->Controller->Receive((float *)(&winInfoFloat), VTK_WIN_INFO_FLOAT_SIZE,
-                            this->RootProcessId,
-                            vtkParallelRenderManager::WIN_INFO_FLOAT_TAG);
+  if (!this->Controller->Receive((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE,
+                                 this->RootProcessId,
+                                 vtkParallelRenderManager::WIN_INFO_INT_TAG))
+    {
+    return;
+    }
+  if (!this->Controller->Receive((float *)(&winInfoFloat),
+                                 VTK_WIN_INFO_FLOAT_SIZE, this->RootProcessId,
+                                 vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
+    {
+    return;
+    }
+  
   this->ReceiveWindowInformation();
 
   this->RenderWindow->SetDesiredUpdateRate(winInfoFloat.DesiredUpdateRate);
@@ -746,12 +751,19 @@ void vtkParallelRenderManager::SatelliteStartRender()
   rens->InitTraversal();
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
-    this->Controller->Receive((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE,
-                              this->RootProcessId,
-                              vtkParallelRenderManager::REN_INFO_INT_TAG);
-    this->Controller->Receive((float *)(&renInfoFloat),
-                              VTK_REN_INFO_FLOAT_SIZE, this->RootProcessId,
-                              vtkParallelRenderManager::REN_INFO_FLOAT_TAG);
+    if (!this->Controller->Receive((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE,
+                                   this->RootProcessId,
+                                   vtkParallelRenderManager::REN_INFO_INT_TAG))
+      {
+      continue;
+      }
+    if (!this->Controller->Receive((float *)(&renInfoFloat),
+                                   VTK_REN_INFO_FLOAT_SIZE,
+                                   this->RootProcessId,
+                                   vtkParallelRenderManager::REN_INFO_FLOAT_TAG))
+      {
+      continue;
+      }
 
     vtkLightCollection *lc = NULL;
     vtkRenderer *ren = rens->GetNextItem();
@@ -898,8 +910,11 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
 
   // Get proper renderer.
   int renderId;
-  this->Controller->Receive(&renderId, 1, this->RootProcessId,
-                            vtkParallelRenderManager::REN_ID_TAG);
+  if (!this->Controller->Receive(&renderId, 1, this->RootProcessId,
+                                 vtkParallelRenderManager::REN_ID_TAG))
+    {
+    return;
+    }
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
   vtkRenderer *ren = NULL;
   rens->InitTraversal();
@@ -1310,12 +1325,12 @@ static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
     int maxY = fullImageSize[1] - halfYMag;    //Don't access bad memory.
     for (y = halfYMag; y < maxY; y += ymag)
       {
-      unsigned int *destline = image + y*fullImageSize[0];
+      unsigned int *destline2 = image + y*fullImageSize[0];
       unsigned int *srcline1 = image + (y-halfYMag)*fullImageSize[0];
       unsigned int *srcline2 = image + (y+halfYMag)*fullImageSize[0];
       for (x = 0; x < fullImageSize[0]; x++)
         {
-        destline[x] = VTK_VEC_DIV_2(srcline1[x]) + VTK_VEC_DIV_2(srcline2[x]);
+        destline2[x] = VTK_VEC_DIV_2(srcline1[x]) + VTK_VEC_DIV_2(srcline2[x]);
         }
       }
     }
