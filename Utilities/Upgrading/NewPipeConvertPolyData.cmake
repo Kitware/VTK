@@ -27,6 +27,11 @@ STRING (REGEX REPLACE
   "vtkPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
+STRING (REGEX REPLACE 
+  "vtkDataSetToPolyDataFilter" 
+  "vtkPolyDataAlgorithm" 
+  H_CONTENTS "${H_CONTENTS}")
+
 STRING (REGEX REPLACE
   "void[ \t]+Execute[ \t]*\\([ \t]*\\)"
   "int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
