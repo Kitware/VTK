@@ -43,6 +43,28 @@
 int TestAssertion(ostream &strm,
                   vtkIndent indent,
                   const char *label,
+                  int assertion);
+
+int TestEmpty(ostream &strm);
+
+//-----------------------------------------------------------------------------
+// a dataset with points but no cells, and no pointdata and no celldata
+int TestWithPoints(ostream &strm);
+
+//-----------------------------------------------------------------------------
+// a dataset with points and cells, and no pointdata and no celldata
+int TestWithPointsAndCells(ostream &strm);
+
+//-----------------------------------------------------------------------------
+// a dataset with points and cells, pointdata but no celldata
+int TestWithPointsAndCellsAndPointData(ostream &strm);
+
+//-----------------------------------------------------------------------------
+// Description:
+// Display message for a test result and return the test value
+int TestAssertion(ostream &strm,
+                  vtkIndent indent,
+                  const char *label,
                   int assertion)
 {
   strm<<indent<<"Test `"<<label<<"\': ";
