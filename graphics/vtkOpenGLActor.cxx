@@ -50,8 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkOpenGLActor* vtkOpenGLActor::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,9 +62,6 @@ vtkOpenGLActor* vtkOpenGLActor::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLActor;
 }
-
-
-
 
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
