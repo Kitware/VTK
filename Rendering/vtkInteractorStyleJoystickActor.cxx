@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.13");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.14");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -468,6 +468,10 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
     {
     this->EndSpin();
     }
+  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_PAN)
+    {
+    this->EndPan();
+    }
   else
     {
     this->EndRotate();
@@ -552,7 +556,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
                                                       int vtkNotUsed(x),
                                                       int vtkNotUsed(y)) 
 {
-  this->EndZoom();
+  this->EndUniformScale();
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 
