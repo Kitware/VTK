@@ -78,6 +78,271 @@ char *GetNextArg(char *in)
   return result;
 }
 
+void ReadAValue(HKEY hKey,CString *val,char *key, char *adefault)
+  {
+  DWORD dwType, dwSize;
+  char *pb;
+
+  dwType = REG_SZ;
+  pb = val->GetBuffer(MAX_PATH);
+  dwSize = MAX_PATH;
+  if(RegQueryValueEx(hKey,_T(key), NULL, &dwType, 
+		       (BYTE *)pb, &dwSize) != ERROR_SUCCESS)
+    {
+    val->ReleaseBuffer();
+    *val = _T(adefault);
+    }
+  else
+    {
+    val->ReleaseBuffer();
+    }
+  }
+
+// ReadRegistry
+// Read values for dialog from keys in the registry
+int ReadRegistry(CPcmakerDlg &dlg)
+{
+  HKEY hKey;
+
+  if(RegOpenKeyEx(HKEY_CURRENT_USER, 
+		  _T("Software\\Kitware\\VTK PCMaker\\Settings"), 
+		  0, KEY_READ, &hKey) != ERROR_SUCCESS)
+    {
+    return 0;
+    }
+  else
+    {
+    DWORD dwType, dwSize, dwData;
+    
+    // save some values
+    ReadAValue(hKey, &(dlg.m_WhereVTK),"WhereVTK","C:\\vtk");
+    ReadAValue(hKey, &(dlg.m_WhereBuild),"WhereBuild", "C:\\vtkbin");
+    ReadAValue(hKey, &(dlg.m_WhereJDK),"WhereJDK","");
+    ReadAValue(hKey, &(dlg.m_WhereTcl),"WhereTcl","");
+    ReadAValue(hKey, &(dlg.m_WhereTk),"WhereTk","");
+    ReadAValue(hKey, &(dlg.m_WhereCompiler),"WhereCompiler",
+      "C:\\Program Files\\DevStudio\\vc");
+
+    // read the advanced options
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Common),"CFLAG_Common","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Contrib),"CFLAG_Contrib","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEAE),"CFLAG_GEAE","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSIO),"CFLAG_GEMSIO","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSIP),"CFLAG_GEMSIP","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSVol),"CFLAG_GEMSVol","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Graphics),"CFLAG_Graphics","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Imaging),"CFLAG_Imaging","");
+    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Working),"CFLAG_Working","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Common),"LINKF_Common","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Contrib),"LINKF_Contrib","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEAE),"LINKF_GEAE","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSIO),"LINKF_GEMSIO","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSIP),"LINKF_GEMSIP","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSVol),"LINKF_GEMSVol","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Graphics),"LINKF_Graphics","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Imaging),"LINKF_Imaging","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Working),"LINKF_Working","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Common),"LINKL_Common","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Contrib),"LINKL_Contrib","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEAE),"LINKL_GEAE","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSIO),"LINKL_GEMSIO","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSIP),"LINKL_GEMSIP","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSVol),"LINKL_GEMSVol","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Graphics),"LINKL_Graphics","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Imaging),"LINKL_Imaging","");
+    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Working),"LINKL_Working","");
+
+    // save which compiler
+    dwType = REG_DWORD;
+    dwSize = sizeof(DWORD);
+    if(RegQueryValueEx(hKey, _T("Compiler"), NULL, &dwType, 
+		       (BYTE *) &dwData, &dwSize) != ERROR_SUCCESS)
+      {
+      dlg.m_MSComp = TRUE;
+      dlg.m_BorlandComp = FALSE;
+      }
+    else
+      {
+      dlg.m_MSComp = dwData&0x1;
+      dlg.m_BorlandComp = (dwData&0x2)?TRUE:FALSE;
+      }
+
+    // save other flags
+    dwType = REG_DWORD;
+    dwSize = sizeof(DWORD);
+    if(RegQueryValueEx(hKey, _T("Flags"), NULL, &dwType, 
+		       (BYTE *)&dwData, &dwSize) != ERROR_SUCCESS)
+      {
+      dlg.m_Contrib = TRUE;
+      dlg.m_Graphics = TRUE;
+      dlg.m_Imaging = TRUE;
+      dlg.m_Patented = FALSE;
+      dlg.m_Lean = TRUE;
+      }
+    else
+      {
+      dlg.m_Contrib = dwData&0x1;
+      dlg.m_Graphics = (dwData&0x2)?TRUE:FALSE;
+      dlg.m_Imaging = (dwData&0x4)?TRUE:FALSE;
+      dlg.m_Patented = (dwData&0x8)?TRUE:FALSE;
+      dlg.m_Lean = (dwData&0x10)?TRUE:FALSE;
+      dlg.m_Working = (dwData&0x20)?TRUE:FALSE;
+      dlg.m_GEMSIP = (dwData&0x40)?TRUE:FALSE;
+      dlg.m_GEMSVOLUME = (dwData&0x80)?TRUE:FALSE;
+      dlg.m_GEAE = (dwData&0x100)?TRUE:FALSE;
+      dlg.m_DFA = (dwData&0x200)?TRUE:FALSE;
+      }
+    }
+
+  RegCloseKey(hKey);
+  return 1;
+}
+
+// WriteRegistry:
+// writes the values from the dialog into the registry
+void WriteRegistry(CPcmakerDlg &dlg)
+{
+  HKEY hKey;
+  DWORD dwDummy;
+
+  if(RegCreateKeyEx(HKEY_CURRENT_USER, 
+		    _T("Software\\Kitware\\VTK PCMaker\\Settings"),
+		    0, "", REG_OPTION_NON_VOLATILE, KEY_READ|KEY_WRITE, 
+		    NULL, &hKey, &dwDummy) != ERROR_SUCCESS) 
+    {
+    return;
+    }
+  else
+    {
+    DWORD dwData;
+		
+    RegSetValueEx(hKey, _T("WhereVTK"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereVTK, 
+		  dlg.m_WhereVTK.GetLength());
+    RegSetValueEx(hKey, _T("WhereBuild"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereBuild, 
+		  dlg.m_WhereBuild.GetLength());
+    RegSetValueEx(hKey, _T("WhereJDK"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereJDK, 
+		  dlg.m_WhereJDK.GetLength());
+    RegSetValueEx(hKey, _T("WhereTcl"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereTcl, 
+		  dlg.m_WhereTcl.GetLength());
+    RegSetValueEx(hKey, _T("WhereTk"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereTk, 
+		  dlg.m_WhereTk.GetLength());
+    RegSetValueEx(hKey, _T("WhereCompiler"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WhereCompiler, 
+		  dlg.m_WhereCompiler.GetLength());
+
+    // save the advanced settings
+    RegSetValueEx(hKey, _T("CFLAG_Common"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Common, 
+		  dlg.adlg.m_CFLAG_Common.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_Contrib"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Contrib, 
+		  dlg.adlg.m_CFLAG_Contrib.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_GEAE"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEAE, 
+		  dlg.adlg.m_CFLAG_GEAE.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_GEMSIO"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSIO, 
+		  dlg.adlg.m_CFLAG_GEMSIO.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_GEMSIP"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSIP, 
+		  dlg.adlg.m_CFLAG_GEMSIP.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_GEMSVol"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSVol, 
+		  dlg.adlg.m_CFLAG_GEMSVol.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_Graphics"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Graphics, 
+		  dlg.adlg.m_CFLAG_Graphics.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_Imaging"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Imaging, 
+		  dlg.adlg.m_CFLAG_Imaging.GetLength());
+    RegSetValueEx(hKey, _T("CFLAG_Working"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Working, 
+		  dlg.adlg.m_CFLAG_Working.GetLength());
+
+    RegSetValueEx(hKey, _T("LINKF_Common"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Common, 
+		  dlg.adlg.m_LINKF_Common.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_Contrib"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Contrib, 
+		  dlg.adlg.m_LINKF_Contrib.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_GEAE"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEAE, 
+		  dlg.adlg.m_LINKF_GEAE.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_GEMSIO"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSIO, 
+		  dlg.adlg.m_LINKF_GEMSIO.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_GEMSIP"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSIP, 
+		  dlg.adlg.m_LINKF_GEMSIP.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_GEMSVol"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSVol, 
+		  dlg.adlg.m_LINKF_GEMSVol.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_Graphics"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Graphics, 
+		  dlg.adlg.m_LINKF_Graphics.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_Imaging"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Imaging, 
+		  dlg.adlg.m_LINKF_Imaging.GetLength());
+    RegSetValueEx(hKey, _T("LINKF_Working"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Working, 
+		  dlg.adlg.m_LINKF_Working.GetLength());
+
+        RegSetValueEx(hKey, _T("LINKL_Common"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Common, 
+		  dlg.adlg.m_LINKL_Common.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_Contrib"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Contrib, 
+		  dlg.adlg.m_LINKL_Contrib.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_GEAE"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEAE, 
+		  dlg.adlg.m_LINKL_GEAE.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_GEMSIO"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSIO, 
+		  dlg.adlg.m_LINKL_GEMSIO.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_GEMSIP"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSIP, 
+		  dlg.adlg.m_LINKL_GEMSIP.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_GEMSVol"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSVol, 
+		  dlg.adlg.m_LINKL_GEMSVol.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_Graphics"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Graphics, 
+		  dlg.adlg.m_LINKL_Graphics.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_Imaging"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Imaging, 
+		  dlg.adlg.m_LINKL_Imaging.GetLength());
+    RegSetValueEx(hKey, _T("LINKL_Working"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Working, 
+		  dlg.adlg.m_LINKL_Working.GetLength());
+
+    dwData = 0;
+    dwData |= (dlg.m_MSComp)?1:0;
+    dwData |= (dlg.m_BorlandComp)?2:0;
+    RegSetValueEx(hKey, _T("Compiler"), 0, REG_DWORD, 
+		  (CONST BYTE *)&dwData, sizeof(DWORD));
+    dwData = 0;
+    dwData |= (dlg.m_Contrib)?1:0;
+    dwData |= (dlg.m_Graphics)?2:0;
+    dwData |= (dlg.m_Imaging)?4:0;
+    dwData |= (dlg.m_Patented)?8:0;
+    dwData |= (dlg.m_Lean)?0x10:0;
+    dwData |= (dlg.m_Working)?0x20:0;
+    dwData |= (dlg.m_GEMSIP)?0x40:0;
+    dwData |= (dlg.m_GEMSVOLUME)?0x80:0;
+    dwData |= (dlg.m_GEAE)?0x100:0;
+    dwData |= (dlg.m_DFA)?0x200:0;
+    RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
+		  (CONST BYTE *)&dwData, sizeof(DWORD));
+    }
+
+  RegCloseKey(hKey);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CPcmakerApp initialization
 
@@ -97,107 +362,26 @@ BOOL CPcmakerApp::InitInstance()
 	CPcmakerDlg dlg;
 	m_pMainWnd = &dlg;
 
+if(!ReadRegistry(dlg))
+    {
+    dlg.m_WhereVTK = "C:\\vtk";
+    dlg.m_WhereBuild = "C:\\vtkbin";
+    dlg.m_WhereCompiler = "C:\\msdev";
+    dlg.m_WhereJDK = "";
+    dlg.m_WhereTcl = "";
+    dlg.m_WhereTk  = "";
+    }
   if (m_lpCmdLine[0] != '\0')
     {
-    char *temps;
-    int tempi;
-
-    if (temps = GetNextArg(m_lpCmdLine))
-      dlg.m_WhereVTK = strdup(temps);
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (temps = GetNextArg(m_lpCmdLine))
-      dlg.m_WhereBuild = strdup(temps);
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-    
-    if (temps = GetNextArg(m_lpCmdLine))
-      dlg.m_WhereCompiler = strdup(temps);
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-    
-    if (temps = GetNextArg(m_lpCmdLine))
-      dlg.m_WhereJDK = strdup(temps);
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_MSComp = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_BorlandComp = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-/*    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Debug = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");*/
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Patented = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Lean = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Graphics = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Imaging = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Contrib = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_Working = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_GEMSIP = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_GEMSVOLUME = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_GEAE = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_DFA = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
-
     dlg.DoOKStuff();
     }
   else
     {
-    dlg.m_WhereVTK = "C:\\vtk";
-    dlg.m_WhereBuild = "C:\\vtkbin";
-	dlg.m_WhereCompiler = "C:\\MSDEV";
-    dlg.m_WhereJDK = "";
-  	dlg.DoModal();
+    if(dlg.DoModal() == IDOK)
+      {
+      WriteRegistry(dlg);
+      }
     }
 
 	// Since the dialog has been closed, return FALSE so that we exit the

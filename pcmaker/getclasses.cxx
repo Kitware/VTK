@@ -1535,22 +1535,33 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
+
+  if (strlen(vals->m_WhereTcl) > 1)
+    {
+    fprintf(fp," /I \"%s\" /I \"%s\\..\\xlib\" /I \"%s\\..\\generic\" /I \"%s\" /I \"%s\\..\\generic\" ",
+            vals->TkRoot, vals->TkRoot, vals->TkRoot, vals->TclRoot, vals->TclRoot);
+    }
+  else
+    {
+    fprintf(fp," /I \"%s\\pcmaker\\xlib\" ",vals->m_WhereVTK);
+    }
+
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
+    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
       vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
+    fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -1565,22 +1576,30 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+  if (strlen(vals->m_WhereTcl) > 1)
+    {
+    fprintf(fp," /I \"%s\" ",vals->TkRoot);
+    }
+  else
+    {
+    fprintf(fp," /I \"%s\\pcmaker\\xlib\" ",vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
       vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+    fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -1596,15 +1615,24 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 	fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /debug /libpath:\"%s\\lib\" \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /debug /libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /libpath:\"%s\\lib\" \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /libpath:\"%s\\lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
 
+  if (strlen(vals->m_WhereTcl) > 1)
+    {
+    fprintf(fp," \"%s\" \"%s\" \n",vals->m_WhereTk, vals->m_WhereTcl);
+    }
+  else
+    {
+    fprintf(fp," \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \n",
+            vals->m_WhereVTK, vals->m_WhereVTK);
+    }
   if (vals->m_DFA)
     fprintf(fp,"FORCE_MULTIPLE=/FORCE:MULTIPLE /WARN:0\n\n");
   fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtktcl.pdb\" /machine:I386\\\n");

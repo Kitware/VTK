@@ -3,6 +3,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CPcmakerDlg dialog
+#include "advanced.h"
 
 class CPcmakerDlg : public CDialog
 {
@@ -10,6 +11,9 @@ class CPcmakerDlg : public CDialog
 public:
 	CPcmakerDlg(CWnd* pParent = NULL);	// standard constructor
   void DoOKStuff();
+  char TclRoot[512];
+  char TkRoot[512];
+  advanced adlg;
 
 // Dialog Data
 	//{{AFX_DATA(CPcmakerDlg)
@@ -31,6 +35,8 @@ public:
 	BOOL	m_Working;
 	BOOL	m_GEAE;
 	BOOL	m_DFA;
+	CString	m_WhereTcl;
+	CString	m_WhereTk;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -50,6 +56,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	virtual void OnOK();
 	afx_msg void OnHelp1();
+	afx_msg void OnAdvanced();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

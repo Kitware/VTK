@@ -38,6 +38,8 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_Working = FALSE;
 	m_GEAE = FALSE;
 	m_DFA = FALSE;
+	m_WhereTcl = _T("");
+	m_WhereTk = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -68,6 +70,10 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_WORKING, m_Working);
 	DDX_Check(pDX, IDC_GEAE, m_GEAE);
 	DDX_Check(pDX, IDC_DFA, m_DFA);
+	DDX_Text(pDX, IDC_WHERETCL, m_WhereTcl);
+	DDV_MaxChars(pDX, m_WhereTcl, 512);
+	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);
+	DDV_MaxChars(pDX, m_WhereTk, 512);
 	//}}AFX_DATA_MAP
 }
 
@@ -76,6 +82,7 @@ BEGIN_MESSAGE_MAP(CPcmakerDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_HELP1, OnHelp1)
+	ON_BN_CLICKED(IDC_ADVANCED, OnAdvanced)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -201,6 +208,71 @@ void CPcmakerDlg::DoOKStuff()
       }
     fclose(fp);
     }
+
+  // make sure we can find tcl
+  if (strlen(this->m_WhereTcl) > 1)
+    {
+    int i;
+    sprintf(fname,"%s",this->m_WhereTcl);
+    fp = fopen(fname,"r");
+    if (!fp)
+      {
+      sprintf(msg, "Unable to find libtcl at: %s",this->m_WhereTcl);
+      AfxMessageBox(msg);
+      return;
+      }
+    fclose(fp);
+
+    i = strlen(this->m_WhereTcl);
+    while (i >= 2)
+      {
+      if (_strnicmp((const char *)this->m_WhereTcl + i - 2,
+                    "win",3) == 0)
+        {
+        int j;
+        for (j = 0; j <= i; j++)
+          {
+          this->TclRoot[j] = this->m_WhereTcl[j];
+          }
+        this->TclRoot[j] = '\0';
+        i = 0;
+        }
+      i--;
+      }
+    }
+
+  // make sure we can find tk
+  if (strlen(this->m_WhereTk) > 1)
+    {
+    int i;
+    sprintf(fname,"%s",this->m_WhereTk);
+    fp = fopen(fname,"r");
+    if (!fp)
+      {
+      sprintf(msg, "Unable to find libtk at: %s",this->m_WhereTk);
+      AfxMessageBox(msg);
+      return;
+      }
+    fclose(fp);
+
+    i = strlen(this->m_WhereTk);
+    while (i >= 2)
+      {
+      if (_strnicmp((const char *)this->m_WhereTk + i - 2,
+                    "win",3) == 0)
+        {
+        int j;
+        for (j = 0; j <= i; j++)
+          {
+          this->TkRoot[j] = this->m_WhereTk[j];
+          }
+        this->TkRoot[j] = '\0';
+        i = 0;
+        }
+      i--;
+      }
+    }
+
   // make sure only one compile is specified
   if ((this->m_MSComp + this->m_BorlandComp) > 1)
     {
@@ -270,4 +342,10 @@ void CPcmakerDlg::OnHelp1()
 	// TODO: Add your control notification handler code here
   help dlg;
   dlg.DoModal();	
+}
+
+void CPcmakerDlg::OnAdvanced() 
+{
+	// TODO: Add your control notification handler code here
+  this->adlg.DoModal();
 }
