@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.40");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.41");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -1901,4 +1901,5 @@ void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinimumTimeValue: " << this->MinimumTimeValue << endl;
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
   os << indent << "TimeSets: " << this->TimeSets << endl;
+  os << indent << "OutputsAreValid: " << this->OutputsAreValid << endl;
 }
