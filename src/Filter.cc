@@ -22,8 +22,10 @@ vlFilter::vlFilter()
   this->Input = NULL;
 
   this->StartMethod = NULL;
+  this->StartMethodArgDelete = NULL;
   this->StartMethodArg = NULL;
   this->EndMethod = NULL;
+  this->EndMethodArgDelete = NULL;
   this->EndMethodArg = NULL;
 
   this->Updating = 0;
@@ -79,6 +81,11 @@ void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
+      {
+      (*this->StartMethodArgDelete)(this->StartMethodArg);
+      }
     this->StartMethod = f;
     this->StartMethodArg = arg;
     this->_Modified();
@@ -92,8 +99,35 @@ void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
+      {
+      (*this->EndMethodArgDelete)(this->EndMethodArg);
+      }
     this->EndMethod = f;
     this->EndMethodArg = arg;
+    this->_Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlFilter::SetStartMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartMethodArgDelete)
+    {
+    this->StartMethodArgDelete = f;
+    this->_Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlFilter::SetEndMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndMethodArgDelete)
+    {
+    this->EndMethodArgDelete = f;
     this->_Modified();
     }
 }

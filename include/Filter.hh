@@ -41,13 +41,17 @@ public:
 
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
+  void SetStartMethodArgDelete(void (*f)(void *));
+  void SetEndMethodArgDelete(void (*f)(void *));
 
 protected:
   vlDataSet *Input;
   char Updating;
   void (*StartMethod)(void *);
+  void (*StartMethodArgDelete)(void *);
   void *StartMethodArg;
   void (*EndMethod)(void *);
+  void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
   vlTimeStamp ExecuteTime;
 
