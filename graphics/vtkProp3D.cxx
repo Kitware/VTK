@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkProp3D.h"
-#include "vtkAbstractMapper.h"
 
 typedef double (*SqMatPtr)[4];
 

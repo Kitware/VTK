@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper_h
 #define __vtkMapper_h
 
-#include "vtkAbstractMapper.h"
+#include "vtkAbstractMapper3D.h"
 #include "vtkScalarsToColors.h"
 #include "vtkDataSet.h"
 
@@ -84,7 +84,7 @@ class vtkWindow;
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkMapper : public vtkAbstractMapper
+class VTK_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   const char *GetClassName() {return "vtkMapper";};

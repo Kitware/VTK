@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 
 class vtkRenderer;
-class vtkAbstractMapper;
 
 class VTK_EXPORT vtkProp3D : public vtkProp
 {

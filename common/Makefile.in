@@ -27,6 +27,7 @@ vtkTransformCollection \
 vtkVersion
 
 ABSTRACT = \
+vtkAbstractMapper \
 vtkAttributeData \
 vtkCell \
 vtkDataArray \

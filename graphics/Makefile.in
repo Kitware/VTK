@@ -38,7 +38,7 @@ vtkStructuredPointsCollection \
 vtkVolumeCollection
 
 ABSTRACT = \
-vtkAbstractMapper \
+vtkAbstractMapper3D \
 vtkDicer \
 vtkEncodedGradientEstimator \
 vtkExporter \

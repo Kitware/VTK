@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageMapper.h"
-class vtkImageActor2D;
+class vtkActor2D;
 
 
 class VTK_EXPORT vtkOpenGLImageMapper : public vtkImageMapper

@@ -138,7 +138,7 @@ vtkStructuredPoints *vtkVolumeMapper::GetRGBTextureInput()
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAbstractMapper::PrintSelf(os,indent);
+  this->vtkAbstractMapper3D::PrintSelf(os,indent);
 
   if ( this->GetRGBTextureInput() )
     {

@@ -40,6 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkOpenGLImageMapper.h"
 #include "vtkProperty2D.h"
+#include "vtkWindow.h"
+#include "vtkViewport.h"
+#include "vtkActor2D.h"
 #include <GL/gl.h>
 #include <limits.h>
 

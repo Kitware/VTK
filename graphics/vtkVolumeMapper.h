@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVolumeMapper_h
 #define __vtkVolumeMapper_h
 
-#include "vtkAbstractMapper.h"
+#include "vtkAbstractMapper3D.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
 
@@ -71,7 +71,7 @@ class vtkVolume;
 
 class vtkWindow;
 
-class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper
+class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
 {
 public:
   const char *GetClassName() {return "vtkVolumeMapper";};
