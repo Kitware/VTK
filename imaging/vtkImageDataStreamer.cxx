@@ -60,7 +60,10 @@ vtkImageDataStreamer* vtkImageDataStreamer::New()
 //----------------------------------------------------------------------------
 vtkImageDataStreamer::vtkImageDataStreamer()
 {
-  this->MemoryLimit = 1000; 
+  // Set a default memory limit of a gigabyte
+  this->MemoryLimit = 1000000; 
+
+  // Set a default split mode to be slabs
   this->SplitMode   = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;
 }
 
