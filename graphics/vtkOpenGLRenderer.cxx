@@ -201,7 +201,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
   // set matrix mode for actors 
   glMatrixMode(GL_MODELVIEW);
-
   actor_count =  this->UpdateActors();
 
   // If we are rendering with a reduced size image for the volume
