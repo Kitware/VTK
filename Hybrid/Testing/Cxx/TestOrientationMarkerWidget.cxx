@@ -335,9 +335,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   wiggle->SetPoints( points );
   wiggle->SetLines( line );
 
-  points->Delete();
-  line->Delete();
-
   vtkTubeFilter* tube = vtkTubeFilter::New();
   tube->SetInput( wiggle );
   tube->SetGenerateTCoordsToOff();
@@ -345,8 +342,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   tube->SetVaryRadiusToVaryRadiusOff();
   tube->SetRadius( 0.02 );
   tube->SetNumberOfSides( 5 );
-
-  wiggle->Delete();
 
   // part 2 is generated from vtkAnnotatedCubeActor to test
   // vtkAxesActor SetUserDefinedTip
@@ -371,14 +366,13 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
 
   vtkCollectionSimpleIterator sit;
   props->InitTraversal( sit );
-  vtkActor *node;
   int nprops = props->GetNumberOfItems();
 
   for ( i = 0; i < nprops; i++ )
     {
-    node = vtkActor::SafeDownCast( props->GetNextProp( sit ) );
+    vtkActor *node = vtkActor::SafeDownCast( props->GetNextProp( sit ) );
 
-    // the first prop in the collection will be the cube ouline, the last
+    // the first prop in the collection will be the cube outline, the last
     // will be the text outlines
     //
     if ( node && i == 0 || i == (nprops - 1) )
@@ -400,9 +394,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
       }
     }
 
-  props->Delete();  
-  transformFilter->Delete();
-
   // the final actor the widget will follow
   //
   vtkAxesActor* axes = vtkAxesActor::New();
@@ -415,9 +406,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   axes->AxisLabelsOff();
   axes->SetUserDefinedShaft( tube->GetOutput() );
   axes->SetShaftTypeToUserDefined();
-
-  append->Delete();
-  tube->Delete();
 
   vtkProperty* property = axes->GetXAxisTipProperty();
   property->SetRepresentationToWireframe();
@@ -472,7 +460,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   property->SetAmbient( 1 );
   property->SetColor( 0.1800, 0.2800, 0.2300 );
 
-  // this static function resolves improves the appearance of the text edges
+  // this static function improves the appearance of the text edges
   // since they are overlaid on a surface rendering of the cube's faces
   //
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -486,7 +474,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   cube->FaceTextOff();
   cube->FaceTextOn();
 
-  // anatomical labelling
+  // anatomic labelling
   //
   cube->SetXPlusFaceText ( "A" );
   cube->SetXMinusFaceText( "P" );
@@ -527,7 +515,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   axes2->SetXAxisLabelText( "w" );
   axes2->SetYAxisLabelText( "v" );
   axes2->SetZAxisLabelText( "u" );
-  transform->Delete();
 
   axes2->SetTotalLength( 1.5, 1.5, 1.5 );
   axes2->SetCylinderRadius( 0.500 * axes2->GetCylinderRadius() );
@@ -586,14 +573,21 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   //
   recorder->Off();
   recorder->Delete();
-
-  cube->Delete();
-  axes->Delete();
-  axes2->Delete();
-  assembly->Delete();
-  iren->Delete();
   renderer->Delete();
   renWin->Delete();
+  iren->Delete();
+  props->Delete();
+  transformFilter->Delete();
+  transform->Delete();
+  points->Delete();
+  line->Delete();
+  wiggle->Delete();
+  tube->Delete();
+  append->Delete();
+  axes->Delete();
+  cube->Delete();
+  axes2->Delete();
+  assembly->Delete();
   widget->Delete();
 
   return !retVal;
