@@ -2433,7 +2433,7 @@ Entry:
   nwords  - number of words in the list
 ******************************************************************************/
 
-void vtkPLY::add_property (PlyFile *plyfile, char **words, int nwords)
+void vtkPLY::add_property (PlyFile *plyfile, char **words, int )
 {
   PlyProperty *prop;
   PlyElement *elem;
