@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.10");
+vtkCxxRevisionMacro(vtkPLYReader, "1.11");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
@@ -64,17 +64,22 @@ typedef struct _plyFace {
 void vtkPLYReader::Execute()
 {
   PlyProperty vertProps[] = {
-    {"x", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[0]), 0, 0, 0, 0},
-    {"y", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[1]), 0, 0, 0, 0},
-    {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
+    {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[0])), 
+     0, 0, 0, 0},
+    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[1])), 
+     0, 0, 0, 0},
+    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[2])), 
+     0, 0, 0, 0},
   };
   PlyProperty faceProps[] = {
-    {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
-     1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
-    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
-    {"red", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,red), 0, 0, 0, 0},
-    {"green", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,green), 0, 0, 0, 0},
-    {"blue", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,blue), 0, 0, 0, 0},
+    {"vertex_indices", PLY_INT, PLY_INT, 
+     static_cast<int>(offsetof(plyFace,verts)),
+     1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,nverts))},
+    {"intensity", PLY_UCHAR, PLY_UCHAR, 
+     static_cast<int>(offsetof(plyFace,intensity)), 0, 0, 0, 0},
+    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,red)), 0, 0, 0, 0},
+    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)), 0, 0, 0, 0},
+    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,blue)), 0, 0, 0, 0},
   };
 
   int i, j, k;

@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.9");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.10");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -289,7 +289,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
     }
   // read the first two bytes
   char magic[2];
-  int n = fread(magic, sizeof(magic), 1, fp);
+  int n = static_cast<int>(fread(magic, sizeof(magic), 1, fp));
   if (n != 1) 
     {
     fclose(fp);

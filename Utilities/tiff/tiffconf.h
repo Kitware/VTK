@@ -149,11 +149,14 @@
 #pragma warning ( disable : 4189 )
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4251 )
+#pragma warning ( disable : 4267 )
 #pragma warning ( disable : 4305 )
 #pragma warning ( disable : 4309 )
 #pragma warning ( disable : 4505 )
 #pragma warning ( disable : 4706 )
 #pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
 #endif
 
 #endif /* _TIFFCONF_ */

@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.62");
+vtkCxxRevisionMacro(vtkSTLReader, "1.63");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -360,7 +360,7 @@ int vtkSTLReader::GetSTLFileType(FILE *fp)
   //  Read a little from the file to figure what type it is.
   //
   // skip 255 characters so we are past any first line comment */
-  numChars = fread ((unsigned char *)header, 1, 255, fp);
+  numChars = static_cast<int>(fread ((unsigned char *)header, 1, 255, fp));
   for (i = 0, type=VTK_ASCII; i< numChars && type == VTK_ASCII; i++) // don't test \0
     {
     if (header[i] > 127)

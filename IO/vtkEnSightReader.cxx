@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.28");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.29");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -1810,7 +1810,7 @@ void vtkEnSightReader::SetCaseFileName(char* fileName)
     {
     position = endingSlash - this->CaseFileName + 1;
     path = new char[position + 1];
-    numChars = strlen(this->CaseFileName);
+    numChars = static_cast<int>(strlen(this->CaseFileName));
     newFileName = new char[numChars - position + 1];
     strcpy(path, "");
     strncat(path, this->CaseFileName, position);
@@ -1849,8 +1849,8 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
   char newChar;
   int newNum;
   
-  wildcardPos = strcspn(filename, "*");
-  numWildcards = strspn(filename + wildcardPos, "*");
+  wildcardPos = static_cast<int>(strcspn(filename, "*"));
+  numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
   
   tmpNum /= 10;
   while (tmpNum >= 1)

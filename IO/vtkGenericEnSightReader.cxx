@@ -22,7 +22,7 @@
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.20");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.21");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 //----------------------------------------------------------------------------
@@ -435,7 +435,7 @@ void vtkGenericEnSightReader::SetCaseFileName(char* fileName)
     {
     position = endingSlash - this->CaseFileName + 1;
     path = new char[position + 1];
-    numChars = strlen(this->CaseFileName);
+    numChars = static_cast<int>(strlen(this->CaseFileName));
     newFileName = new char[numChars - position + 1];
     strcpy(path, "");
     strncat(path, this->CaseFileName, position);
@@ -849,8 +849,8 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
   char newChar;
   int newNum;
   
-  wildcardPos = strcspn(fileName, "*");
-  numWildcards = strspn(fileName + wildcardPos, "*");
+  wildcardPos = static_cast<int>(strcspn(fileName, "*"));
+  numWildcards = static_cast<int>(strspn(fileName + wildcardPos, "*"));
   
   tmpNum /= 10;
   while (tmpNum >= 1)

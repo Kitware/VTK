@@ -21,7 +21,7 @@
 #include "expat.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.1");
+vtkCxxRevisionMacro(vtkXMLParser, "1.2");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ int vtkXMLParser::ParseBuffer(const char* buffer, unsigned int count)
 //----------------------------------------------------------------------------
 int vtkXMLParser::ParseBuffer(const char* buffer)
 {
-  return this->ParseBuffer(buffer, strlen(buffer));
+  return this->ParseBuffer(buffer, static_cast<int>(strlen(buffer)));
 }
 
 //----------------------------------------------------------------------------

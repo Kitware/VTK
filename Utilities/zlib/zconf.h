@@ -283,6 +283,7 @@ typedef uLong FAR uLongf;
 #pragma warning ( disable : 4127 ) /* cond expr is constant */
 #pragma warning ( disable : 4131 ) /* Old style declaration */
 #pragma warning ( disable : 4244 ) /* conversion loss of data */
+#pragma warning ( disable : 4267 )
 #endif
 
 #endif /* _ZCONF_H */

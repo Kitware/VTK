@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.53");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.54");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -134,7 +134,6 @@ void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
     }
 }
 
-
 void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *), 
                                                     void *arg)
 {
@@ -164,7 +163,6 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
     cmd->SetClientDataDeleteCallback(f);
     }
 }
-
 
 void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *), 
                                                     void *arg)
@@ -937,16 +935,18 @@ void vtkInteractorStyle::OnTimer(void)
 //----------------------------------------------------------------------------
 // Mouse events are identical for trackball and joystick mode
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-                                    int X, int Y) 
+void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), 
+                                     int vtkNotUsed(shift),
+                                     int X, int Y) 
 {
   this->LastPos[0] = X;
   this->LastPos[1] = Y;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift, 
-                                          int X, int Y) 
+void vtkInteractorStyle::OnLeftButtonDown(int vtkNotUsed(ctrl), 
+                                          int vtkNotUsed(shift), 
+                                          int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if (this->ShiftKey) 
     { // I haven't got a Middle button !
@@ -973,7 +973,9 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y) 
+void vtkInteractorStyle::OnLeftButtonUp(int vtkNotUsed(ctrl), 
+                                        int vtkNotUsed(shift), 
+                                        int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if (this->ShiftKey) 
     {
@@ -1000,8 +1002,10 @@ void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMiddleButtonDown(int ctrl, int shift, 
-                                            int X, int Y) 
+void vtkInteractorStyle::OnMiddleButtonDown(int vtkNotUsed(ctrl), 
+                                            int vtkNotUsed(shift), 
+                                            int vtkNotUsed(X), 
+                                            int vtkNotUsed(Y))
 {
   if (this->CtrlKey)
     {
@@ -1013,8 +1017,9 @@ void vtkInteractorStyle::OnMiddleButtonDown(int ctrl, int shift,
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift, 
-                                          int X, int Y) 
+void vtkInteractorStyle::OnMiddleButtonUp(int vtkNotUsed(ctrl), 
+                                          int vtkNotUsed(shift), 
+                                          int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if (this->CtrlKey) 
     {
@@ -1027,12 +1032,18 @@ void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y) 
+void vtkInteractorStyle::OnRightButtonDown(int vtkNotUsed(ctrl), 
+                                           int vtkNotUsed(shift), 
+                                           int vtkNotUsed(X), 
+                                           int vtkNotUsed(Y)) 
 {
   this->StartZoom();
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y) 
+void vtkInteractorStyle::OnRightButtonUp(int vtkNotUsed(ctrl), 
+                                           int vtkNotUsed(shift), 
+                                           int vtkNotUsed(X), 
+                                           int vtkNotUsed(Y))
 {
     this->EndZoom();
 }
@@ -1099,8 +1110,8 @@ void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
 // transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
 void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
-                                                      double z,
-                                                      double *worldPt)
+                                               double z,
+                                               double *worldPt)
 {
   this->CurrentRenderer->SetDisplayPoint(x, y, z);
   this->CurrentRenderer->DisplayToWorld();
@@ -1119,8 +1130,8 @@ void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
 // transform from world to display coordinates.
 // displayPt has to be allocated as 3 vector
 void vtkInteractorStyle::ComputeWorldToDisplay(double x, double y,
-                                                      double z,
-                                                      double *displayPt)
+                                               double z,
+                                               double *displayPt)
 {
   this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
   this->CurrentRenderer->WorldToDisplay();
@@ -1342,12 +1353,14 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
 void vtkInteractorStyle::ProcessEvents(vtkObject* object, unsigned long event,
-                                       void* clientdata, void* calldata)
+                                       void* clientdata, 
+                                       void* vtkNotUsed(calldata))
 {
-  vtkInteractorStyle* self = reinterpret_cast<vtkInteractorStyle *>( clientdata );
-  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
+  vtkInteractorStyle* self 
+    = reinterpret_cast<vtkInteractorStyle *>( clientdata );
+  vtkRenderWindowInteractor* rwi 
+    = static_cast<vtkRenderWindowInteractor *>( object );
   int* XY = rwi->GetEventPosition();
   switch(event)
     {
