@@ -256,16 +256,16 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
       {
       index = dsa->AttributeIndices[attributeType];
       if (index != -1)
-	{
-	this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
-	this->Attributes[attributeType] = dsa->Attributes[attributeType];
-	if (this->Attributes[attributeType])
-	  {
-	  this->Attributes[attributeType]->Register(this);
-	  }
-	}
+        {
+        this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
+        this->Attributes[attributeType] = dsa->Attributes[attributeType];
+        if (this->Attributes[attributeType])
+          {
+          this->Attributes[attributeType]->Register(this);
+          }
+        }
       this->CopyAttributeFlags[attributeType] = 
-	dsa->CopyAttributeFlags[attributeType];
+        dsa->CopyAttributeFlags[attributeType];
       }
     this->CopyFieldFlags(dsa);
     }
@@ -473,19 +473,19 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze,
   if ( pd != this )
     {
     for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
-	i=this->RequiredArrays.NextIndex())
+        i=this->RequiredArrays.NextIndex())
       {
       da = pd->GetArray(i);
       newDA = da->MakeObject();
       newDA->SetName(da->GetName());
       if ( sze > 0 )
-	{
-	newDA->Allocate(sze,ext);
-	}
+        {
+        newDA->Allocate(sze,ext);
+        }
       else
-	{
-	newDA->Allocate(da->GetNumberOfTuples());
-	}
+        {
+        newDA->Allocate(da->GetNumberOfTuples());
+        }
       newDA->SetLookupTable(da->GetLookupTable());
       this->TargetIndices[i] = this->AddArray(newDA);
       newDA->Delete();
@@ -495,20 +495,20 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze,
     for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       if (this->CopyAttributeFlags[attributeType])
-	{
-	index = pd->AttributeIndices[attributeType];
-	
-	if (index != -1)
-	  {
-	  this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
-	  }
-	}
+        {
+        index = pd->AttributeIndices[attributeType];
+        
+        if (index != -1)
+          {
+          this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
+          }
+        }
       }
     }
   else
     {
     for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
-	i=this->RequiredArrays.NextIndex())
+        i=this->RequiredArrays.NextIndex())
       {
       da = pd->GetArray(i);
       da->Resize(sze);
@@ -554,7 +554,7 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId,
       i=this->RequiredArrays.NextIndex())
     {
     this->CopyTuple(fromPd->Data[i], this->Data[this->TargetIndices[i]], 
-		    fromId, toId);
+                    fromId, toId);
     }
 }
 
@@ -575,7 +575,7 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
       i=this->RequiredArrays.NextIndex())
     {
     this->InterpolateTuple(fromPd->Data[i], 
-			   this->Data[this->TargetIndices[i]], 
+                           this->Data[this->TargetIndices[i]], 
                            toId, ptIds, weights);
     }
 }
@@ -585,14 +585,14 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
 // has been invoked before using this method.
 void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, 
-					   int toId, int p1, int p2, float t)
+                                           int toId, int p1, int p2, float t)
 {
   int i;
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
       i=this->RequiredArrays.NextIndex())
     {
     this->InterpolateTuple(fromPd->Data[i], 
-			   this->Data[this->TargetIndices[i]], 
+                           this->Data[this->TargetIndices[i]], 
                            toId, p1, p2, t);
     }
 }
@@ -1455,10 +1455,65 @@ vtkTensors* vtkDataSetAttributes::GetTensors()
 
 void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkFieldData::PrintSelf(os,indent);
-  for(int i=0; i<NUM_ATTRIBUTES; i++)
+  vtkFieldData::PrintSelf(os,indent);
+
+  // Print the copy flags
+  os << indent << "Copy Flags: ( ";
+  for (int i=0; i<NUM_ATTRIBUTES; i++)
     {
-    os << indent << "Copy " << i << " : " << this->CopyAttributeFlags[i] << endl;
+    os << this->CopyAttributeFlags[i] << " ";
+    }
+  os << ")" << endl;
+  
+  // Now print the various attributes
+  if ( this->Attributes[SCALARS] )
+    {
+    os << indent << "Scalars:\n";
+    this->Attributes[SCALARS]->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Scalars: (none)\n";
+    }
+
+  if ( this->Attributes[VECTORS] )
+    {
+    os << indent << "Vectors:\n";
+    this->Attributes[VECTORS]->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Vectors: (none)\n";
+    }
+
+  if ( this->Attributes[NORMALS] )
+    {
+    os << indent << "Normals:\n";
+    this->Attributes[NORMALS]->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Normals: (none)\n";
+    }
+
+  if ( this->Attributes[TCOORDS] )
+    {
+    os << indent << "Texture Coordinates:\n";
+    this->Attributes[TCOORDS]->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Texture Coordinates: (none)\n";
+    }
+
+  if ( this->Attributes[TENSORS] )
+    {
+    os << indent << "Tensors:\n";
+    this->Attributes[TENSORS]->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Tensors: (none)\n";
     }
 }
 
@@ -1557,21 +1612,21 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
           list.FieldIndices[i] = this->AddArray(newDA);
           this->SetActiveAttribute(list.Fields[i], i);
           }
-	else
-	  {
-	  list.FieldIndices[i] = -1;
-	  }
+        else
+          {
+          list.FieldIndices[i] = -1;
+          }
         }
       else //check if this field is to be copied
         {
-	if ( this->FindOffFlag(list.Fields[i]) == -1 )
-	  {
-	  list.FieldIndices[i] = this->AddArray(newDA);
-	  }
-	else
-	  {
-	  list.FieldIndices[i] = -1;
-	  }
+        if ( this->FindOffFlag(list.Fields[i]) == -1 )
+          {
+          list.FieldIndices[i] = this->AddArray(newDA);
+          }
+        else
+          {
+          list.FieldIndices[i] = -1;
+          }
         }
 
       newDA->Delete(); //okay, reference counting
@@ -1675,14 +1730,14 @@ void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* d
       {
       da = dsa->GetActiveAttribute(i);
       if ((da) && (da->GetDataType() == this->FieldTypes[i]) && 
-	  (da->GetNumberOfComponents() == this->FieldComponents[i]))
-	{
+          (da->GetNumberOfComponents() == this->FieldComponents[i]))
+        {
         this->DSAIndices[this->CurrentInput][i] = attributeIndices[i];
-	}
+        }
       else
-	{
+        {
         this->FieldIndices[i] = -1; //Attribute not present
-	}
+        }
       }
     }
   // Intersect the fields
@@ -1693,14 +1748,14 @@ void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* d
       {
       da = dsa->GetArray(this->Fields[i], index);
       if ((da) && (da->GetDataType() == this->FieldTypes[i]) &&
-	  (da->GetNumberOfComponents() == this->FieldComponents[i]))
-	{
+          (da->GetNumberOfComponents() == this->FieldComponents[i]))
+        {
         this->DSAIndices[this->CurrentInput][i] = index;
-	}
+        }
       else
-	{
+        {
         this->FieldIndices[i] = -1; //Field not present
-	}
+        }
       }
     }
 
