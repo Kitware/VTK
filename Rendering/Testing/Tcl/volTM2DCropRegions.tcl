@@ -64,7 +64,7 @@ for { set i 0 } { $i < 2 } { incr i } {
 
        volume_${i}_${j} SetUserTransform userMatrix_${i}_${j}
 
-       ren1 AddProp volume_${i}_${j}
+       ren1 AddViewProp volume_${i}_${j}
     }
 }
 

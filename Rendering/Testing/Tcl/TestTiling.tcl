@@ -97,8 +97,8 @@ vtkActor2D ia2
 ia2 SetMapper ia
 
 renWin SetSize 320 320
-ren2 RemoveProp scalarBar
-ren1 RemoveProp sphereActor
+ren2 RemoveViewProp scalarBar
+ren1 RemoveViewProp sphereActor
 ren1 AddActor ia2
 renWin RemoveRenderer ren2 
 ren1 SetViewport 0 0 1 1

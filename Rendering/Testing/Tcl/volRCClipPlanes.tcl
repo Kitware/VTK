@@ -108,8 +108,8 @@ vtkRenderWindowInteractor iren
 set culler [[ren1 GetCullers] GetNextItem]
 $culler SetSortingStyleToBackToFront
 
-ren1 AddProp sphereActor
-ren1 AddProp volume
+ren1 AddViewProp sphereActor
+ren1 AddViewProp volume
 ren1 SetBackground 0.1 0.2 0.4
 renWin Render
 
