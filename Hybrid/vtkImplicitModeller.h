@@ -212,6 +212,8 @@ protected:
 
   int BoundsComputed; // flag to limit to one ComputeModelBounds per StartAppend
   double InternalMaxDistance; // the max distance computed during that one call
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
   void operator=(const vtkImplicitModeller&);  // Not implemented.

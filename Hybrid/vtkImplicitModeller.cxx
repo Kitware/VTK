@@ -21,6 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
@@ -34,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.85");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.86");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -939,6 +940,18 @@ const char *vtkImplicitModeller::GetProcessModeAsString()
     {
     return "PerVoxel";
     }
+}
+
+//----------------------------------------------------------------------------
+int
+vtkImplicitModeller::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  return 1;
 }
 
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
