@@ -414,7 +414,9 @@ VrmlNodeType::has(const VectorType<NameTypeRec*> &recs, const char *nodeName) co
 
 #define YYDEBUG 1
 
+#ifndef DARWIN
 #include <malloc.h>
+#endif
 
 #ifdef USE_STD_NAMESPACE
 using namespace std;
