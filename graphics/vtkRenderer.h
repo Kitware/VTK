@@ -251,11 +251,6 @@ public:
   vtkGetMacro(Layer, int);
 
   // Description:
-  // Get the minimum and maximum z-buffer values that this renderer's layer 
-  // should map into.
-  void  GetLayer(float &min, float &max);
-
-  // Description:
   // Returns a bool indicating if this renderer is transparent.  It is
   // transparent if it is not in the deepest layer of its render window.
   int  Transparent();

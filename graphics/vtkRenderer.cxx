@@ -1330,12 +1330,6 @@ void vtkRenderer::PickGeometry()
 }
 
 
-void  vtkRenderer::GetLayer(float &min, float &max)
-{
-  this->RenderWindow->GetLayer(this->Layer, min, max);
-}
-
-
 int  vtkRenderer::Transparent()
 {
   int  numLayers = this->RenderWindow->GetNumLayers();
