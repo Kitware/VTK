@@ -43,10 +43,7 @@ proc SetWidgetVariableValue {widget varName value} {
 proc GetWidgetVariableValue {widget varName} {
    set var [GetWidgetVariable $widget $varName]
    global $var
-   set temp ""
-   catch {eval "set temp [format {$%s} $var]"}
-
-   return $temp
+   return [expr $$var]
 }
 
 
