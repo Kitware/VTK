@@ -1497,7 +1497,8 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
 void vtkCellLocator::GenerateFace(int face, int numDivs, int i, int j, int k,
                                   vtkPoints *pts, vtkCellArray *polys)
 {
-  int ii, ids[4];
+  int ii;
+  vtkIdType ids[4];
   float origin[3], x[3];
   float h[3];
 

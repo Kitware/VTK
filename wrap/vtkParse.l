@@ -126,6 +126,7 @@
 "friend"        return(FRIEND);
 "static"        return(STATIC);
 
+"vtkIdType"            return(LONG);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
 "vtkSetStringMacro"    return(SetStringMacro);

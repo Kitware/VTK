@@ -392,7 +392,7 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int pts[2];
+  vtkIdType pts[2];
   int e1, e2, newCellId;
   float t, x1[3], x2[3], x[3], deltaScalar;
 
@@ -664,8 +664,8 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
 
 // Compute the triangle normal from a points list, and a list of point ids
 // that index into the points list.
-void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts), int *pts, 
-                                float n[3])
+void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts),
+                                vtkIdType *pts, float n[3])
 {
   float v1[3], v2[3], v3[3];
 
@@ -848,7 +848,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
   TRIANGLE_EDGE_LIST  *edge;
   int i, j, index, *vert;
   int e1, e2, newCellId;
-  int pts[3];
+  vtkIdType pts[3];
   int vertexId;
   float t, x1[3], x2[3], x[3], deltaScalar;
 

@@ -73,7 +73,8 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
   vtkPointData *pd;
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, polyAllocSize;
-  int npts, *pts, newIds[3];
+  int npts;
+  vtkIdType *pts, newIds[3];
   vtkPoints *newPoints;
   T *p1, *p2, *p3;
   vtkPolyData *input = self->GetInput();

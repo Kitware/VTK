@@ -138,7 +138,7 @@ public:
 
   // Description:
   // For cell point i, return the actual point id.
-  int GetPointId(int ptId) {return this->PointIds->GetId(ptId);};
+  vtkIdType GetPointId(int ptId) {return this->PointIds->GetId(ptId);};
 
   // Description:
   // Return the edge cell from the edgeId of the cell.
@@ -298,7 +298,6 @@ protected:
   void operator=(const vtkCell&) {};
 
   float Bounds[6];
-
 };
 
 #endif

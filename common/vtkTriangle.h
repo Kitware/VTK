@@ -150,7 +150,8 @@ public:
   // Description:
   // Compute the triangle normal from a points list, and a list of point ids
   // that index into the points list.
-  static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
+  static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
+                            float n[3]);
 
   // Description:
   // Compute the triangle normal from three points.

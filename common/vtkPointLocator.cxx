@@ -1482,7 +1482,7 @@ int vtkPointLocator::IsInsertedPoint(const float x[3])
 }
 
 
-int vtkPointLocator::InsertUniquePoint(const float x[3], int &id)
+int vtkPointLocator::InsertUniquePoint(const float x[3], vtkIdType &id)
 {
   int ptId;
 
@@ -1756,7 +1756,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
 void vtkPointLocator::GenerateFace(int face, int i, int j, int k, 
                                    vtkPoints *pts, vtkCellArray *polys)
 {
-  int ids[4];
+  vtkIdType ids[4];
   float origin[3], x[3];
 
   // define first corner

@@ -88,7 +88,8 @@ void vtkTubeFilter::Execute()
   vtkPoints *newPts;
   vtkNormals *newNormals;
   vtkCellArray *newStrips;
-  int npts, *pts, i1, i2, ptOffset=0;
+  int npts, i1, i2, ptOffset=0;
+  vtkIdType *pts;
   float p[3], pNext[3];
   float maxSpeed = 0;
   float *n, normal[3], nP[3];

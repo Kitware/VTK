@@ -98,7 +98,8 @@ void vtkQuadricDecimation::Execute()
   int numTris = triangles->GetNumberOfCells();
   int numPts = input->GetNumberOfPoints();
   int i, j, edgeId;
-  int numCellPts, *cellPts, newCellPts[3];
+  int numCellPts, newCellPts[3];
+  vtkIdType *cellPts;
   float cost, x[3];
   vtkPoints *targetPoints = vtkPoints::New();
   vtkPointData *targetPointData = vtkPointData::New();
@@ -802,7 +803,8 @@ void vtkQuadricDecimation::FindAffectedEdges(int p1Id, int p2Id,
 //----------------------------------------------------------------------------
 int vtkQuadricDecimation::GetEdgeCellId(int p1Id, int p2Id)
 {
-  int *cells, i;
+  int i;
+  vtkIdType *cells;
   unsigned short int numCells;
   
   this->Mesh->GetPointCells(p1Id, numCells, cells);

@@ -259,6 +259,21 @@ USE_TKWIDGET_FLAG=""
 	 AC_DEFINE(VTK_USE_TKWIDGET)
          fi)
 
+##########################
+##			##
+##      64-BIT IDS      ##
+##			##
+##########################
+# check for 64-bit ids
+use_64bit_ids=no
+AC_ARG_WITH(64bit-ids,
+         [  --with-64bit-ids           use 64-bit ids],
+	 [use_64bit_ids=yes])
+
+VTK_USE_64BIT_IDS=0
+if test "$use_64bit_ids" = "yes"; then
+	AC_DEFINE(VTK_USE_64BIT_IDS)
+fi
 
 ##########################
 ##			##

@@ -72,7 +72,8 @@ void vtkPSphereSource::Execute()
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
-  int pts[3], base, numPoles=0, thetaResolution, phiResolution;
+  int base, numPoles=0, thetaResolution, phiResolution;
+  vtkIdType pts[3];
   vtkPolyData *output = this->GetOutput();
   int piece = output->GetUpdatePiece();
   int numPieces = output->GetUpdateNumberOfPieces();

@@ -63,7 +63,7 @@ vtkDataArray *vtkLongArray::MakeObject()
 }
 
 // Instantiate object.
-vtkLongArray::vtkLongArray(int numComp)
+vtkLongArray::vtkLongArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -87,7 +87,7 @@ vtkLongArray::~vtkLongArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkLongArray::SetArray(long* array, int size, int save)
+void vtkLongArray::SetArray(long* array, vtkIdType size, int save)
 {
   
   if ((this->Array) && (!this->SaveUserArray))
@@ -110,7 +110,7 @@ void vtkLongArray::SetArray(long* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkLongArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkLongArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array == NULL )
     {
@@ -187,10 +187,10 @@ void vtkLongArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-long *vtkLongArray::ResizeAndExtend(const int sz)
+long *vtkLongArray::ResizeAndExtend(const vtkIdType sz)
 {
   long *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -238,10 +238,10 @@ long *vtkLongArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkLongArray::Resize(int sz)
+void vtkLongArray::Resize(vtkIdType sz)
 {
   long *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -282,14 +282,14 @@ void vtkLongArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkLongArray::SetNumberOfTuples(const int number)
+void vtkLongArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkLongArray::GetTuple(const int i) 
+float *vtkLongArray::GetTuple(const vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -307,7 +307,7 @@ float *vtkLongArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkLongArray::GetTuple(const int i, float * tuple)
+void vtkLongArray::GetTuple(const vtkIdType i, float * tuple)
 {
   long *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -316,7 +316,7 @@ void vtkLongArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkLongArray::GetTuple(const int i, double * tuple)
+void vtkLongArray::GetTuple(const vtkIdType i, double * tuple)
 {
   long *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -326,18 +326,18 @@ void vtkLongArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkLongArray::SetTuple(const int i, const float * tuple)
+void vtkLongArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
     this->Array[loc+j] = (long)tuple[j];
     }
 }
 
-void vtkLongArray::SetTuple(const int i, const double * tuple)
+void vtkLongArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
     this->Array[loc+j] = (long)tuple[j];
@@ -346,7 +346,7 @@ void vtkLongArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkLongArray::InsertTuple(const int i, const float * tuple)
+void vtkLongArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -356,7 +356,7 @@ void vtkLongArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkLongArray::InsertTuple(const int i, const double * tuple)
+void vtkLongArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
   long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -369,7 +369,7 @@ void vtkLongArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkLongArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   long *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -382,7 +382,7 @@ int vtkLongArray::InsertNextTuple(const float * tuple)
 
 int vtkLongArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   long *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)

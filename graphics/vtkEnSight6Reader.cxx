@@ -235,7 +235,8 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints = NULL;
-  int i, id;
+  int i;
+  vtkIdType id;
   float coords[3];
   vtkPolyData *geom;
   
@@ -1340,7 +1341,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
   int lineRead = 1;
   char subLine[256];
   int i;
-  int *nodeIds;
+  vtkIdType *nodeIds;
   int numElements;
   int idx, cellId, cellType, testId;
   
@@ -1374,7 +1375,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
       {
       vtkDebugMacro("point");
       
-      nodeIds = new int[1];        
+      nodeIds = new vtkIdType[1];        
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       
@@ -1421,7 +1422,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
       {
       vtkDebugMacro("bar2");
       
-      nodeIds = new int[2];
+      nodeIds = new vtkIdType[2];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1465,7 +1466,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
       {
       vtkDebugMacro("bar3");
       vtkWarningMacro("Only vertex nodes of this element will be read.");
-      nodeIds = new int[2];
+      nodeIds = new vtkIdType[2];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1520,7 +1521,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_TRIA3;
         }
       
-      nodeIds = new int[3];
+      nodeIds = new vtkIdType[3];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1584,7 +1585,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_QUAD4;
         }
       
-      nodeIds = new int[4];
+      nodeIds = new vtkIdType[4];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1653,7 +1654,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_TETRA4;
         }
       
-      nodeIds = new int[4];
+      nodeIds = new vtkIdType[4];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1723,7 +1724,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_PYRAMID5;
         }
 
-      nodeIds = new int[5];
+      nodeIds = new vtkIdType[5];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1797,7 +1798,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_HEXA8;
         }
       
-      nodeIds = new int[8];
+      nodeIds = new vtkIdType[8];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);
@@ -1885,7 +1886,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_PENTA6;
         }
       
-      nodeIds = new int[6];
+      nodeIds = new vtkIdType[6];
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       lineRead = this->ReadNextDataLine(line);

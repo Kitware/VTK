@@ -83,7 +83,8 @@ void vtkDataSet::Initialize()
 // Compute the data bounding box from data points.
 void vtkDataSet::ComputeBounds()
 {
-  int i, j;
+  int j;
+  vtkIdType i;
   float *x;
 
   if ( this->GetMTime() > this->ComputeTime )
@@ -225,8 +226,8 @@ unsigned long int vtkDataSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 
-                                     float tol2, int& subId,
+vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell,
+                                     vtkIdType cellId, float tol2, int& subId,
                                      float pcoords[3], float *weights)
 {
   int newCell = this->FindCell(x,cell,cellId,tol2,subId,pcoords,weights);
@@ -242,10 +243,10 @@ vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                   vtkIdList *cellIds)
 {
-  int i, numPts;
+  vtkIdType i, numPts;
   vtkIdList *otherCells = vtkIdList::New();
   otherCells->Allocate(VTK_CELL_SIZE);
 
@@ -269,7 +270,7 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 //----------------------------------------------------------------------------
 void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 {
-  int cellId, numCells=this->GetNumberOfCells();
+  vtkIdType cellId, numCells=this->GetNumberOfCells();
   unsigned char type;
 
   types->Reset();
@@ -287,7 +288,7 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 //----------------------------------------------------------------------------
 // Default implementation. This is very slow way to compute this information.
 // Subclasses should override this method for efficiency.
-void vtkDataSet::GetCellBounds(int cellId, float bounds[6])
+void vtkDataSet::GetCellBounds(vtkIdType cellId, float bounds[6])
 {
   vtkGenericCell *cell = vtkGenericCell::New();
 

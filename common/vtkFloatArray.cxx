@@ -63,7 +63,7 @@ vtkDataArray *vtkFloatArray::MakeObject()
 }
 
 // Instantiate object with 1 components.
-vtkFloatArray::vtkFloatArray(int numComp)
+vtkFloatArray::vtkFloatArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -85,7 +85,7 @@ vtkFloatArray::~vtkFloatArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkFloatArray::SetArray(float* array, int size, int save)
+void vtkFloatArray::SetArray(float* array, vtkIdType size, int save)
 {
   if ((this->Array) && (!this->SaveUserArray))
     {
@@ -107,7 +107,7 @@ void vtkFloatArray::SetArray(float* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkFloatArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkFloatArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size)
     {
@@ -183,10 +183,10 @@ void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-float *vtkFloatArray::ResizeAndExtend(const int sz)
+float *vtkFloatArray::ResizeAndExtend(const vtkIdType sz)
 {
   float *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -233,10 +233,10 @@ float *vtkFloatArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkFloatArray::Resize(int sz)
+void vtkFloatArray::Resize(vtkIdType sz)
 {
   float *newArray;
-  int newSize = sz * this->NumberOfComponents;
+  vtkIdType newSize = sz * this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -276,19 +276,19 @@ void vtkFloatArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkFloatArray::SetNumberOfTuples(const int number)
+void vtkFloatArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location.
-float *vtkFloatArray::GetTuple(const int i)
+float *vtkFloatArray::GetTuple(const vtkIdType i)
 {
   return this->Array + this->NumberOfComponents*i;
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkFloatArray::GetTuple(const int i, float * tuple)
+void vtkFloatArray::GetTuple(const vtkIdType i, float * tuple)
 {
   float *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -297,7 +297,7 @@ void vtkFloatArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkFloatArray::GetTuple(const int i, double * tuple) 
+void vtkFloatArray::GetTuple(const vtkIdType i, double * tuple) 
 {
   float *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -307,18 +307,18 @@ void vtkFloatArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkFloatArray::SetTuple(const int i, const float * tuple)
+void vtkFloatArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = tuple[j];
     }
 }
 
-void vtkFloatArray::SetTuple(const int i, const double * tuple)
+void vtkFloatArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = (float)tuple[j];
@@ -327,7 +327,7 @@ void vtkFloatArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkFloatArray::InsertTuple(const int i, const float * tuple)
+void vtkFloatArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   float *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -337,7 +337,7 @@ void vtkFloatArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkFloatArray::InsertTuple(const int i, const double * tuple)
+void vtkFloatArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
   float *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -350,7 +350,7 @@ void vtkFloatArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkFloatArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   float *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -364,7 +364,7 @@ int vtkFloatArray::InsertNextTuple(const float * tuple)
 
 int vtkFloatArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   float *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -377,7 +377,7 @@ int vtkFloatArray::InsertNextTuple(const double * tuple)
 
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
-float vtkFloatArray::GetComponent(const int i, const int j)
+float vtkFloatArray::GetComponent(const vtkIdType i, const int j)
 {
   return this->GetValue(i*this->NumberOfComponents + j);
 }
@@ -386,14 +386,15 @@ float vtkFloatArray::GetComponent(const int i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkFloatArray::SetComponent(const int i, const int j, const float c)
+void vtkFloatArray::SetComponent(const vtkIdType i, const int j, const float c)
 {
   this->SetValue(i*this->NumberOfComponents + j, c);
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkFloatArray::InsertComponent(const int i, const int j, const float c)
+void vtkFloatArray::InsertComponent(const vtkIdType i, const int j,
+                                    const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, c);
 }

@@ -88,20 +88,22 @@ public:
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();}
-  float *GetPoint(int ptId) {return this->vtkPointSet::GetPoint(ptId);}
-  void GetPoint(int ptId, float p[3]) {this->vtkPointSet::GetPoint(ptId,p);}
-  vtkCell *GetCell(int cellId);
-  void GetCell(int cellId, vtkGenericCell *cell);
-  void GetCellBounds(int cellId, float bounds[6]);
-  int GetCellType(int cellId);
-  int GetNumberOfCells();
-  void GetCellPoints(int cellId, vtkIdList *ptIds);
-  void GetPointCells(int ptId, vtkIdList *cellIds)
+  vtkIdType GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();}
+  float *GetPoint(vtkIdType ptId) {return this->vtkPointSet::GetPoint(ptId);}
+  void GetPoint(vtkIdType ptId, float p[3])
+    {this->vtkPointSet::GetPoint(ptId,p);}
+  vtkCell *GetCell(vtkIdType cellId);
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
+  void GetCellBounds(vtkIdType cellId, float bounds[6]);
+  int GetCellType(vtkIdType cellId);
+  vtkIdType GetNumberOfCells();
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
-  void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds);
   virtual void GetScalarRange(float range[2]);
   float *GetScalarRange() {return this->vtkPointSet::GetScalarRange();}
 
@@ -125,8 +127,8 @@ public:
   int GetBlanking() {return this->Blanking;}
   void BlankingOn();
   void BlankingOff();
-  void BlankPoint(int ptId);
-  void UnBlankPoint(int ptId);
+  void BlankPoint(vtkIdType ptId);
+  void UnBlankPoint(vtkIdType ptId);
   
   // Description:
   // Get the array that defines the blanking (visibility) of each point.
@@ -148,7 +150,7 @@ public:
   // Description:
   // Return non-zero value if specified point is visible. Use this method 
   // only if blanking has been enabled (with BlankingOn()).
-  unsigned char IsCellVisible(int cellId);
+  unsigned char IsCellVisible(vtkIdType cellId);
   
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
@@ -212,7 +214,7 @@ protected:
 private:
   // Description:
   // For legacy compatibility. Do not use.
-  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 
   // Internal method used by DeepCopy and ShallowCopy.
@@ -221,7 +223,7 @@ private:
 };
 
 
-inline int vtkStructuredGrid::GetNumberOfCells() 
+inline vtkIdType vtkStructuredGrid::GetNumberOfCells() 
 {
   int nCells=1;
   int i;

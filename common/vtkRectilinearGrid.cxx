@@ -151,10 +151,11 @@ void vtkRectilinearGrid::CopyStructure(vtkDataSet *ds)
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkRectilinearGrid::GetCell(int cellId)
+vtkCell *vtkRectilinearGrid::GetCell(vtkIdType cellId)
 {
   vtkCell *cell = NULL;
-  int idx, loc[3], npts;
+  vtkIdType idx, npts;
+  int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
@@ -243,9 +244,10 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::GetCell(int cellId, vtkGenericCell *cell)
+void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  int idx, loc[3], npts;
+  vtkIdType idx, npts;
+  int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
@@ -332,7 +334,7 @@ void vtkRectilinearGrid::GetCell(int cellId, vtkGenericCell *cell)
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkRectilinearGrid::GetCellBounds(int cellId, float bounds[6])
+void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
 {
   int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -417,7 +419,7 @@ void vtkRectilinearGrid::GetCellBounds(int cellId, float bounds[6])
 
 
 //----------------------------------------------------------------------------
-float *vtkRectilinearGrid::GetPoint(int ptId)
+float *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
 {
   int loc[3];
   
@@ -474,7 +476,7 @@ float *vtkRectilinearGrid::GetPoint(int ptId)
   return this->PointReturn;
 }
 
-void vtkRectilinearGrid::GetPoint(int ptId, float x[3])
+void vtkRectilinearGrid::GetPoint(vtkIdType ptId, float x[3])
 {
   int loc[3];
   
@@ -531,7 +533,7 @@ void vtkRectilinearGrid::GetPoint(int ptId, float x[3])
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGrid::FindPoint(float x[3])
+vtkIdType vtkRectilinearGrid::FindPoint(float x[3])
 {
   int i, j, loc[3];
   float xPrev, xNext;
@@ -577,21 +579,23 @@ int vtkRectilinearGrid::FindPoint(float x[3])
          loc[1]*this->Dimensions[0] + loc[0];
   
 }
-int vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
-				 vtkGenericCell *vtkNotUsed(gencell),
-				 int vtkNotUsed(cellId), 
-				 float vtkNotUsed(tol2), 
-				 int& subId, float pcoords[3], 
-				 float *weights)
+vtkIdType vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+                                       vtkGenericCell *vtkNotUsed(gencell),
+                                       vtkIdType vtkNotUsed(cellId), 
+                                       float vtkNotUsed(tol2), 
+                                       int& subId, float pcoords[3], 
+                                       float *weights)
 {
   return
     this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
-                         int vtkNotUsed(cellId), float vtkNotUsed(tol2), 
-                         int& subId, float pcoords[3], float *weights)
+vtkIdType vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+                                       vtkIdType vtkNotUsed(cellId),
+                                       float vtkNotUsed(tol2), 
+                                       int& subId, float pcoords[3],
+                                       float *weights)
 {
   int loc[3];
 
@@ -610,12 +614,16 @@ int vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkRectilinearGrid::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cell), 
-                int vtkNotUsed(cellId), float vtkNotUsed(tol2), int& subId, 
-                float pcoords[3], float *weights)
+vtkCell *vtkRectilinearGrid::FindAndGetCell(float x[3],
+                                            vtkCell *vtkNotUsed(cell), 
+                                            vtkIdType vtkNotUsed(cellId),
+                                            float vtkNotUsed(tol2),
+                                            int& subId, 
+                                            float pcoords[3], float *weights)
 {
-  int loc[3], cellId;
-
+  int loc[3];
+  vtkIdType cellId;
+  
   subId = 0;
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -635,7 +643,7 @@ vtkCell *vtkRectilinearGrid::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cell
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGrid::GetCellType(int vtkNotUsed(cellId))
+int vtkRectilinearGrid::GetCellType(vtkIdType vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
     {
@@ -880,7 +888,7 @@ unsigned long vtkRectilinearGrid::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                           vtkIdList *cellIds)
 {
   int numPtIds=ptIds->GetNumberOfIds();

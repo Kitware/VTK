@@ -84,27 +84,28 @@ public:
   
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  int GetNumberOfCells();
-  int GetNumberOfPoints();
-  float *GetPoint(int ptId);
-  void GetPoint(int id, float x[3]);
-  vtkCell *GetCell(int cellId);
-  void GetCell(int cellId, vtkGenericCell *cell);
-  void GetCellBounds(int cellId, float bounds[6]);
-  int FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  int FindPoint(float x[3]);
-  int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, int& subId, 
-               float pcoords[3], float *weights);
-  int FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-	       int cellId, float tol2, int& subId, 
-               float pcoords[3], float *weights);
-  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
-               float tol2, int& subId, float pcoords[3], float *weights);
-  int GetCellType(int cellId);
-  void GetCellPoints(int cellId, vtkIdList *ptIds)
+  vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfPoints();
+  float *GetPoint(vtkIdType ptId);
+  void GetPoint(vtkIdType id, float x[3]);
+  vtkCell *GetCell(vtkIdType cellId);
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
+  void GetCellBounds(vtkIdType cellId, float bounds[6]);
+  vtkIdType FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(float x[3]);
+  vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2, 
+                     int& subId, float pcoords[3], float *weights);
+  vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
+                     vtkIdType cellId, float tol2, int& subId, 
+                     float pcoords[3], float *weights);
+  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, vtkIdType cellId, 
+                          float tol2, int& subId, float pcoords[3],
+                          float *weights);
+  int GetCellType(vtkIdType cellId);
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
 				      this->GetDimensions());}
-  void GetPointCells(int ptId, vtkIdList *cellIds)
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
@@ -153,12 +154,12 @@ public:
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the point id.
-  int ComputePointId(int ijk[3]) {
+  vtkIdType ComputePointId(int ijk[3]) {
     return vtkStructuredData::ComputePointId(this->GetDimensions(),ijk);};
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the cell id.
-  int ComputeCellId(int ijk[3]) {
+  vtkIdType ComputeCellId(int ijk[3]) {
     return vtkStructuredData::ComputeCellId(this->GetDimensions(),ijk);};
 
   // Description:
@@ -333,7 +334,7 @@ private:
 };
 
 
-inline void vtkImageData::GetPoint(int id, float x[3])
+inline void vtkImageData::GetPoint(vtkIdType id, float x[3])
 {
   float *p=this->GetPoint(id);
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
@@ -341,7 +342,7 @@ inline void vtkImageData::GetPoint(int id, float x[3])
 
 
 
-inline int vtkImageData::GetNumberOfPoints()
+inline vtkIdType vtkImageData::GetNumberOfPoints()
 {
   int *dims = this->GetDimensions();
   return dims[0]*dims[1]*dims[2];

@@ -84,7 +84,9 @@ public:
 
 
   // Description:
-  // Swap four byte word to be BE.
+  // For writing, swap four byte word to be BE.
+  // For reading, swap four byte word from BE to machine's internal
+  // representation.
   static void Swap4BE(char *c);
   static void Swap4BE(float *p) { vtkByteSwap::Swap4BE((char *)p);};
   static void Swap4BE(int *i)   { vtkByteSwap::Swap4BE((char *)i);};

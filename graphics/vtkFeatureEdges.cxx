@@ -96,8 +96,9 @@ void vtkFeatureEdges::Execute()
   int numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
   float scalar, n[3], x1[3], x2[3];
   float cosAngle = 0;
-  int lineIds[2];
-  int npts, *pts;
+  vtkIdType lineIds[2];
+  int npts;
+  vtkIdType *pts;
   vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkFloatArray *polyNormals = NULL;
   int numPts, numCells, numPolys, numStrips, nei;

@@ -283,7 +283,8 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
 void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
                                         int geometryFlag)
 {
-  int numCells, i, j, numPts, *ptIds;
+  int numCells, i, j, numPts;
+  vtkIdType *ptIds;
   float *pts[3];
   int binIds[3];
   int odd;  // Used to flip order of every other triangle in a strip.
@@ -316,7 +317,8 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
 void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
                                        int geometryFlag)
 {
-  int numCells, i, j, numPts, *ptIds;
+  int numCells, i, j, numPts;
+  vtkIdType *ptIds;
   float **pts;
   int binIds[3];
 
@@ -350,7 +352,7 @@ void vtkQuadricClustering::AddTriangle(int *binIds, float *pt0, float *pt1,
                                        float *pt2, int geometryFlag)
 {
   int i;
-  int triPtIds[3];
+  vtkIdType triPtIds[3];
   float quadric[9], quadric4x4[4][4];
  
   // Compute the quadric.
@@ -407,7 +409,8 @@ void vtkQuadricClustering::AddTriangle(int *binIds, float *pt0, float *pt1,
 void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
                                     int geometryFlag)
 {
-  int numCells, i, j, numPts, *ptIds;
+  int numCells, i, j, numPts;
+  vtkIdType *ptIds;
   float *pt0, *pt1;
   int binIds[2];
 
@@ -439,7 +442,7 @@ void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
                                    int geometryFlag)
 {
   int   i;
-  int edgePtIds[2];
+  vtkIdType edgePtIds[2];
   float length2, tmp;
   float d[3];
   float m[3];  // The mid point of the segement.(p1 or p2 could be used also).  
@@ -535,7 +538,8 @@ void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
 void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
                                        int geometryFlag)
 {
-  int numCells, i, j, numPts, *ptIds;
+  int numCells, i, j, numPts;
+  vtkIdType *ptIds;
   float *pt;
   int binId;
 
@@ -561,7 +565,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
 void vtkQuadricClustering::AddVertex(int binId, float *pt,
                                      int geometryFlag)
 {
-  int vertPtId;
+  vtkIdType vertPtId;
   float q[9];
 
   // Compute quadric for the vertex.
@@ -1112,7 +1116,8 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
                                              vtkPoints *edgePts,
                                              float vtkNotUsed(angle))
 {
-  int i, j, pointIds[2], numCellPts, *cellPts;
+  int i, j, pointIds[2], numCellPts;
+  vtkIdType *cellPts;
   vtkIdList *pointIdList = vtkIdList::New();
   int numPts = edgePts->GetNumberOfPoints();
   int numEdges = edges->GetNumberOfCells();
@@ -1121,7 +1126,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
   float featurePoint[3];
   float featureEdges[2][3];
   float point1[3], point2[3];
-  int *cellPointIds;
+  vtkIdType *cellPointIds;
   float radAngle = vtkMath::DegreesToRadians() * this->FeaturePointsAngle;
   
   this->FeaturePoints->Allocate(numPts);

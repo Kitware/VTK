@@ -68,7 +68,8 @@ void vtkSubdivideTetra::Execute()
   int numPts = input->GetNumberOfPoints();
   int numCells = input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints();
-  int cellId, i, pts[4];
+  int cellId, i;
+  vtkIdType pts[4];
   vtkGenericCell *cell;
   vtkPointData *pd = input->GetPointData();
   vtkUnstructuredGrid *output = this->GetOutput();

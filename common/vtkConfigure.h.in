@@ -13,3 +13,6 @@
 #undef HAVE_UNISTD_H
 
 #define _HP_NO_FAST_MACROS
+
+/* Define to use 64-bit ids */
+#undef VTK_USE_64BIT_IDS

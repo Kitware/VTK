@@ -288,7 +288,8 @@ void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values,
 
 // Given a triangle strip, decompose it into (triangle) polygons. The 
 // polygons are appended to the end of the list of polygons.
-void vtkTriangleStrip::DecomposeStrip(int npts, int *pts, vtkCellArray *polys)
+void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
+                                      vtkCellArray *polys)
 {
   int p1, p2, p3, i;
 

@@ -79,7 +79,7 @@ void vtkCubeSource::Execute()
   float x[3], n[3], tc[3];
   int numPolys=6, numPts=24;
   int i, j, k;
-  int pts[4];
+  vtkIdType pts[4];
   vtkPoints *newPoints; 
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords; // CCS 7/27/98 Added for Texture Mapping

@@ -94,7 +94,8 @@ void vtkPolyDataConnectivityFilter::Execute()
   int numPts, numCells;
   vtkPoints *inPts;
   vtkPoints *newPts;
-  int id, npts, *pts, *cells, n;
+  int id, npts, n;
+  vtkIdType *cells, *pts;
   unsigned short ncells;
   int maxCellsInRegion;
   int largestRegionId = 0;
@@ -435,7 +436,8 @@ void vtkPolyDataConnectivityFilter::Execute()
 //
 void vtkPolyDataConnectivityFilter::TraverseAndMark ()
 {
-  int i, j, k, cellId, numIds, ptId, npts, *pts, *cells;
+  int i, j, k, cellId, numIds, ptId, npts;
+  vtkIdType *pts, *cells;
   vtkIdList *tmpWave;
   unsigned short ncells;
 

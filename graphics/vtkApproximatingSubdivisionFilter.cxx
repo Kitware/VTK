@@ -252,9 +252,9 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
   int numCells = inputDS->GetNumberOfCells();
   int cellId, newId, id;
   int npts;
-  int *pts;
+  vtkIdType *pts;
   float edgePts[3];
-  int newCellPts[3];
+  vtkIdType newCellPts[3];
   vtkCellData *inputCD = inputDS->GetCellData();
 
   // Now create new cells from existing points and generated edge points

@@ -62,46 +62,46 @@ public:
 
   // Description:
   // Return the number of id's in the list.
-  int GetNumberOfIds() {return this->NumberOfIds;};
+  vtkIdType GetNumberOfIds() {return this->NumberOfIds;};
   
   // Description:
   // Return the id at location i.
-  int GetId(const int i) {return this->Ids[i];};
+  vtkIdType GetId(const int i) {return this->Ids[i];};
   
   // Description:
   // Specify the number of ids for this object to hold. Does an
   // allocation as well as setting the number of ids.
-  void SetNumberOfIds(const int number);
+  void SetNumberOfIds(const vtkIdType number);
 
   // Description:
   // Set the id at location i. Doesn't do range checking so it's a bit
   // faster than InsertId. Make sure you use SetNumberOfIds() to allocate
   // memory prior to using SetId().
-  void SetId(const int i, const int id) {this->Ids[i] = id;};
+  void SetId(const vtkIdType i, const vtkIdType id) {this->Ids[i] = id;};
 
   // Description:
   // Set the id at location i. Does range checking and allocates memory
   // as necessary.
-  void InsertId(const int i, const int id);
+  void InsertId(const vtkIdType i, const vtkIdType id);
 
   // Description:
   // Add the id specified to the end of the list. Range checking is performed.
-  int InsertNextId(const int id);
+  vtkIdType InsertNextId(const vtkIdType id);
 
   // Description:
   // If id is not already in list, insert it and return location in
   // list. Otherwise return just location in list.
-  int InsertUniqueId(const int id);
+  vtkIdType InsertUniqueId(const vtkIdType id);
 
   // Description:
   // Get a pointer to a particular data index.
-  int *GetPointer(const int i) {return this->Ids + i;};
+  vtkIdType *GetPointer(const vtkIdType i) {return this->Ids + i;};
 
   // Description:
   // Get a pointer to a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  int *WritePointer(const int i, const int number);
+  vtkIdType *WritePointer(const vtkIdType i, const vtkIdType number);
 
   // Description:
   // Reset to an empty state.
@@ -117,12 +117,12 @@ public:
 
   // Description:
   // Delete specified id from list. Will remove all occurrences of id in list.
-  void DeleteId(int id);
+  void DeleteId(vtkIdType id);
 
   // Description:
   // Return -1 if id specified is not contained in the list; otherwise return
   // the position in the list.
-  int IsId(int id);
+  vtkIdType IsId(vtkIdType id);
 
   // Description:
   // Intersect this list with another vtkIdList. Updates current list according
@@ -135,15 +135,15 @@ protected:
   vtkIdList(const vtkIdList&) {};
   void operator=(const vtkIdList&) {};
 
-  int NumberOfIds;
-  int Size; 
-  int *Ids;
+  vtkIdType NumberOfIds;
+  vtkIdType Size; 
+  vtkIdType *Ids;
 
-  int *Resize(const int sz);
+  vtkIdType *Resize(const vtkIdType sz);
 };
 
 // In-lined for performance
-inline int vtkIdList::InsertNextId(const int id)
+inline vtkIdType vtkIdList::InsertNextId(const vtkIdType id)
 {
   if ( this->NumberOfIds >= this->Size )
     {
@@ -153,9 +153,9 @@ inline int vtkIdList::InsertNextId(const int id)
   return this->NumberOfIds-1;
 }
 
-inline int vtkIdList::IsId(int id)
+inline vtkIdType vtkIdList::IsId(vtkIdType id)
 {
-  int *ptr, i;
+  vtkIdType *ptr, i;
   for (ptr=this->Ids, i=0; i<this->NumberOfIds; i++, ptr++)
     {
     if ( id == *ptr )

@@ -176,7 +176,7 @@ void vtkSuperquadricSource::Execute()
   vtkNormals *newNormals;
   vtkTCoords *newTCoords;
   vtkCellArray *newPolys;
-  int *ptidx;
+  vtkIdType *ptidx;
   float pt[3], nv[3], dims[3];
   float len;
   float alpha;
@@ -328,7 +328,7 @@ void vtkSuperquadricSource::Execute()
 
   // mesh!
   // build triangle strips for efficiency....
-  ptidx = new int[ptsPerStrip];
+  ptidx = new vtkIdType[ptsPerStrip];
   
   rowOffset = this->ThetaResolution+thetaSegs;
   

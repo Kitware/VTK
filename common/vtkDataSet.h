@@ -86,29 +86,29 @@ public:
   // Description:
   // Determine the number of points composing the dataset.
   // THIS METHOD IS THREAD SAFE
-  virtual int GetNumberOfPoints() = 0;
+  virtual vtkIdType GetNumberOfPoints() = 0;
 
   // Description:
   // Determine the number of cells composing the dataset.
   // THIS METHOD IS THREAD SAFE
-  virtual int GetNumberOfCells() = 0;
+  virtual vtkIdType GetNumberOfCells() = 0;
 
   // Description:
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual float *GetPoint(int ptId) = 0;
+  virtual float *GetPoint(vtkIdType ptId) = 0;
 
   // Description:
   // Copy point coordinates into user provided array x[3] for specified
   // point id.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPoint(int id, float x[3]);
+  virtual void GetPoint(vtkIdType id, float x[3]);
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell *GetCell(int cellId) = 0;
+  virtual vtkCell *GetCell(vtkIdType cellId) = 0;
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
@@ -116,7 +116,7 @@ public:
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCell(int cellId, vtkGenericCell *cell) = 0;
+  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell) = 0;
 
   // Description:
   // Get the bounds of the cell with cellId such that:
@@ -128,13 +128,13 @@ public:
   // to provide an efficient implementation.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellBounds(int cellId, float bounds[6]);
+  virtual void GetCellBounds(vtkIdType cellId, float bounds[6]);
   
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual int GetCellType(int cellId) = 0;
+  virtual int GetCellType(vtkIdType cellId) = 0;
 
   // Description:
   // Get a list of types of cells in a dataset. The list consists of an array
@@ -150,20 +150,20 @@ public:
   // Topological inquiry to get points defining cell.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellPoints(int cellId, vtkIdList *ptIds) = 0;
+  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) = 0;
 
   // Description:
   // Topological inquiry to get cells using point.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPointCells(int ptId, vtkIdList *cellIds) = 0;
+  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) = 0;
 
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId).
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(int cellId, vtkIdList *ptIds, 
+  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
 				vtkIdList *cellIds);
 
   // Description:
@@ -172,13 +172,13 @@ public:
   // when point is outside of dataset.)
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  int FindPoint(float x, float y, float z)
+  vtkIdType FindPoint(float x, float y, float z)
     {
     float xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->FindPoint (xyz);
     }
-  virtual int FindPoint(float x[3]) = 0;
+  virtual vtkIdType FindPoint(float x[3]) = 0;
 
   // Description:
   // Locate cell based on global coordinate x and tolerance
@@ -190,18 +190,20 @@ public:
   // points in the found cell). Tolerance is used to control how close
   // the point is to be considered "in" the cell.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
-                       int& subId, float pcoords[3], float *weights) = 0;
+  virtual vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId,
+                             float tol2, int& subId, float pcoords[3],
+                             float *weights) = 0;
 
   // Description:
   // This is a version of the above method that can be used with 
-  // multithreaded applications. A vtkGenericCell must be passes in
+  // multithreaded applications. A vtkGenericCell must be passed in
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual int FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-		       int cellId, float tol2, int& subId, float pcoords[3], 
-		       float *weights) = 0;
+  virtual vtkIdType FindCell(float x[3], vtkCell *cell,
+                             vtkGenericCell *gencell, vtkIdType cellId,
+                             float tol2, int& subId, float pcoords[3],
+                             float *weights) = 0;
   
   // Description:
   // Locate the cell that contains a point and return the cell. Also returns
@@ -210,7 +212,7 @@ public:
   // int FindCell and vtkCell *GetCell. Derived classes may provide a more 
   // efficient implementation. See for example vtkStructuredPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
+  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, vtkIdType cellId, 
 				  float tol2, int& subId, float pcoords[3], 
 				  float *weights);
 
@@ -332,7 +334,7 @@ private:
   void InternalDataSetCopy(vtkDataSet *src);  
 };
 
-inline void vtkDataSet::GetPoint(int id, float x[3])
+inline void vtkDataSet::GetPoint(vtkIdType id, float x[3])
 {
   float *pt = this->GetPoint(id);
   x[0] = pt[0]; x[1] = pt[1]; x[2] = pt[2]; 

@@ -266,7 +266,8 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int pts[2], newCellId;
+  int newCellId;
+  vtkIdType pts[2];
   float t, *x1, *x2, x[3];
 
   // Build the case table

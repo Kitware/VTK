@@ -1576,7 +1576,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   vtkCellArray *lines=pd->GetLines();
   vtkCellArray *newLines, *newVerts;
   int numPts=pd->GetNumberOfPoints();
-  int npts, *pts, newPts[2];
+  int npts;
+  vtkIdType newPts[2], *pts;
   int i, j, id;
   float *x1, *x2, *px, *n, xint[3], t;
   float p1[2], p2[2];

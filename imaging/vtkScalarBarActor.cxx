@@ -335,7 +335,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     //polygons & cell colors
     unsigned char *rgba, *rgb;
-    int ptIds[4];
+    vtkIdType ptIds[4];
     for (i=0; i<numColors; i++)
       {
       ptIds[0] = 2*i;

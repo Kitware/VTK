@@ -69,7 +69,8 @@ void vtkHedgeHog::Execute()
   vtkPointData *pd;
   vtkVectors *inVectors;
   vtkNormals *inNormals;
-  int i, ptId, pts[2];
+  int i, ptId;
+  vtkIdType pts[2];
   vtkCellArray *newLines;
   float *x, *v;
   float newX[3];

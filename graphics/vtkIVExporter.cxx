@@ -273,7 +273,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkProperty *prop;
   float *tempf;
   vtkCellArray *cells;
-  int npts, *indx;
+  int npts;
+  vtkIdType *indx;
   float tempf2;
   vtkPolyDataMapper *pm;
   vtkScalars *colors;

@@ -65,7 +65,7 @@ vtkDataArray *vtkCharArray::MakeObject()
 }
 
 // Instantiate object.
-vtkCharArray::vtkCharArray(int numComp)
+vtkCharArray::vtkCharArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -89,7 +89,7 @@ vtkCharArray::~vtkCharArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkCharArray::SetArray(char* array, int size, int save)
+void vtkCharArray::SetArray(char* array, vtkIdType size, int save)
 {
   
   if ((this->Array) && (!this->SaveUserArray))
@@ -112,7 +112,7 @@ void vtkCharArray::SetArray(char* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkCharArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkCharArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -182,10 +182,10 @@ void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-char *vtkCharArray::ResizeAndExtend(const int sz)
+char *vtkCharArray::ResizeAndExtend(const vtkIdType sz)
 {
   char *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -234,10 +234,10 @@ char *vtkCharArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkCharArray::Resize(int sz)
+void vtkCharArray::Resize(vtkIdType sz)
 {
   char *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -280,14 +280,14 @@ void vtkCharArray::Resize(int sz)
 
 // Set the number of tuples in the array. Note that this allocates space
 // depending on the tuple dimension.
-void vtkCharArray::SetNumberOfTuples(const int number)
+void vtkCharArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkCharArray::GetTuple(const int i) 
+float *vtkCharArray::GetTuple(const vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -305,7 +305,7 @@ float *vtkCharArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkCharArray::GetTuple(const int i, float * tuple) 
+void vtkCharArray::GetTuple(const vtkIdType i, float * tuple) 
 {
   char *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -314,7 +314,7 @@ void vtkCharArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkCharArray::GetTuple(const int i, double * tuple) 
+void vtkCharArray::GetTuple(const vtkIdType i, double * tuple) 
 {
   char *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -324,18 +324,18 @@ void vtkCharArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkCharArray::SetTuple(const int i, const float * tuple)
+void vtkCharArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = (char)tuple[j];
     }
 }
 
-void vtkCharArray::SetTuple(const int i, const double * tuple)
+void vtkCharArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = (char)tuple[j];
@@ -344,7 +344,7 @@ void vtkCharArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkCharArray::InsertTuple(const int i, const float * tuple)
+void vtkCharArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   char *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -354,7 +354,7 @@ void vtkCharArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkCharArray::InsertTuple(const int i, const double * tuple)
+void vtkCharArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
   char *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -367,7 +367,7 @@ void vtkCharArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkCharArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   char *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -380,7 +380,7 @@ int vtkCharArray::InsertNextTuple(const float * tuple)
 
 int vtkCharArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   char *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -393,7 +393,7 @@ int vtkCharArray::InsertNextTuple(const double * tuple)
 
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
-float vtkCharArray::GetComponent(const int i, const int j)
+float vtkCharArray::GetComponent(const vtkIdType i, const int j)
 {
   return (float) this->GetValue(i*this->NumberOfComponents + j);
 }
@@ -402,14 +402,15 @@ float vtkCharArray::GetComponent(const int i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkCharArray::SetComponent(const int i, const int j, const float c)
+void vtkCharArray::SetComponent(const vtkIdType i, const int j, const float c)
 {
   this->SetValue(i*this->NumberOfComponents + j, (char)c);
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkCharArray::InsertComponent(const int i, const int j, const float c)
+void vtkCharArray::InsertComponent(const vtkIdType i, const int j,
+                                   const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, (char)c);
 }

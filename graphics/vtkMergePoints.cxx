@@ -102,7 +102,7 @@ int vtkMergePoints::IsInsertedPoint(const float x[3])
     // and ids (we are assuming vtkPoints stores a FloatArray and vtkIdList
     // is storing ints).
     vtkFloatArray *dataArray = (vtkFloatArray *)this->Points->GetData();
-    int *idArray = bucket->GetPointer(0);
+    vtkIdType *idArray = bucket->GetPointer(0);
 
     for (i=0; i < NumberOfIds; i++) 
       {
@@ -125,7 +125,7 @@ int vtkMergePoints::IsInsertedPoint(const float x[3])
 
 
 int
-vtkMergePoints::InsertUniquePoint(const float x[3], int&id)
+vtkMergePoints::InsertUniquePoint(const float x[3], vtkIdType &id)
 {
   int i, ijk0, ijk1, ijk2;
   int idx;
@@ -159,7 +159,7 @@ vtkMergePoints::InsertUniquePoint(const float x[3], int&id)
     // and ids (we are assuming vtkPoints stores a FloatArray and vtkIdList
     // is storing ints).
     vtkFloatArray *dataArray = (vtkFloatArray *)this->Points->GetData();
-    int *idArray = bucket->GetPointer(0);
+    vtkIdType *idArray = bucket->GetPointer(0);
     
     for (i=0; i < NumberOfIds; i++) 
       {

@@ -74,7 +74,7 @@ void vtkDiskSource::Execute()
   int numPolys, numPts;
   float x[3];
   int i, j;
-  int pts[4];
+  vtkIdType pts[4];
   float theta, deltaRadius;
   float cosTheta, sinTheta;
   vtkPoints *newPoints; 

@@ -287,7 +287,8 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 {
-  int i, *x, ptIds[2], needToBuildFont;
+  int i, *x, needToBuildFont;
+  vtkIdType ptIds[2];
   float p1[3], p2[3], offset, maxWidth=0.0, maxHeight=0.0;
   int numLabels;
   float outRange[2], interval, deltaX, deltaY, xTick[3];

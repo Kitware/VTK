@@ -105,7 +105,7 @@ void vtkCursor3D::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines;
   float x[3];
-  int ptIds[2];
+  vtkIdType ptIds[2];
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Generating cursor");

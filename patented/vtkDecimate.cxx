@@ -168,7 +168,7 @@ void vtkDecimate::Execute()
   int iteration=0, sub;
   int trisEliminated;
   unsigned short int ncells;
-  int *cells;
+  vtkIdType *cells;
   int numFEdges;
   vtkLocalVertexPtr fedges[2];
   int vtype;
@@ -462,10 +462,11 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 {
   int *map, numNewPts;
   int i;
-  int newCellPts[VTK_CELL_SIZE];
+  vtkIdType newCellPts[VTK_CELL_SIZE];
   unsigned short int ncells;
-  int *cells;
-  int ptId, cellId, npts, *pts;
+  vtkIdType *cells;
+  int ptId, cellId, npts;
+  vtkIdType *pts;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkScalars *newScalars = NULL;
@@ -560,13 +561,15 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 //  Build loop around vertex in question.  Basic intent of routine is
 //  to identify the nature of the topolgy around the vertex.
 //
-int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
+int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris,
+                            vtkIdType *tris)
 {
   int numVerts;
   int numNei;
   vtkLocalTri t;
   vtkLocalVertex sn;
-  int i, j, *verts;
+  int i, j;
+  vtkIdType *verts;
   int startVertex, nextVertex;
 
   //

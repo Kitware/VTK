@@ -151,8 +151,9 @@ void vtkDepthSortPolyData::Execute()
   float p[3], *bounds, *w = NULL, xf[3];
   double vector[3];
   double origin[3];
-  int type, npts, *pts, newId, subId;
-
+  int type, npts, newId, subId;
+  vtkIdType *pts;
+  
   // Initialize
   //
   vtkDebugMacro(<<"Sorting polygonal data");

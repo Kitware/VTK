@@ -39,6 +39,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "vtkPrint"=.\vtkPrint.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "vtkWrapJava"=.\vtkWrapJava.dsp - Package Owner=<4>
 
 Package=<5>

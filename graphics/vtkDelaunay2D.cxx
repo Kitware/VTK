@@ -150,10 +150,11 @@ int vtkDelaunay2D::InCircle (double x[3], double x1[3], double x2[3],
 // found. Also, the array nei[3] is used to communicate info about points
 // that lie on triangle edges: nei[0] is neighboring triangle id, and nei[1]
 // and nei[2] are the vertices defining the edge.
-int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri, 
+int vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], int tri, 
                                 double tol, int nei[3], vtkIdList *neighbors)
 {
-  int i, j, ir, ic, npts, *pts, inside, i2, i3, newNei;
+  int i, j, ir, ic, npts, inside, i2, i3, newNei;
+  vtkIdType *pts;
   double p[3][3], n[2], vp[2], vx[2], dp, minProj;
 
   // get local triangle info
@@ -247,10 +248,11 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
 // triangle id.
 void vtkDelaunay2D::CheckEdge(int ptId, double x[3], int p1, int p2, int tri)
 {
-  int i, numNei, nei, npts, *pts, p3;
+  int i, numNei, nei, npts, p3;
+  vtkIdType *pts;
   double x1[3], x2[3], x3[3];
   vtkIdList *neighbors;
-  int swapTri[3];
+  vtkIdType swapTri[3];
 
   this->GetPoint(p1,x1);
   this->GetPoint(p2,x2);
@@ -321,7 +323,9 @@ void vtkDelaunay2D::Execute()
   vtkCellArray *triangles;
   vtkPointSet *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
-  int nodes[4][3], pts[3], npts, *triPts, numNeiPts, *neiPts, ncells;
+  int npts, numNeiPts, ncells;
+  vtkIdType nodes[4][3], *neiPts, *triPts;
+  vtkIdType pts[3];
   vtkIdList *neighbors, *cells;
   double center[3], radius, tol, x[3];
   int *triUse = NULL;
@@ -660,7 +664,7 @@ void vtkDelaunay2D::Execute()
     {
     vtkCellArray *alphaTriangles = vtkCellArray::New();
     alphaTriangles->Allocate(numTriangles);
-    int *alphaTriPts;
+    vtkIdType *alphaTriPts;
 
     for (i=0; i<numTriangles; i++)
       {
@@ -691,7 +695,8 @@ int *vtkDelaunay2D::RecoverBoundary()
   vtkPolyData *source=this->GetSource();
   vtkCellArray *lines=source->GetLines();
   vtkCellArray *polys=source->GetPolys();
-  int i, npts, *pts, p1, p2;
+  int i, npts, p1, p2;
+  vtkIdType *pts;
   int *triUse;
   
   // Recover the edges of the mesh
@@ -748,8 +753,9 @@ int vtkDelaunay2D::RecoverEdge(int p1, int p2)
   int i, j, k, cellId;
   double p1X[3], p2X[3], xyNormal[3], splitNormal[3], p21[3];
   double x1[3], x2[3], sepNormal[3], v21[3];
-  int npts, *pts, ncells, v1, v2, signX1, signX2, signP1, signP2;
-  int success=0, numRightTris, numLeftTris, *rightTris, *leftTris;
+  int npts, ncells, v1, v2, signX1, signX2, signP1, signP2;
+  vtkIdType *pts, *leftTris, *rightTris;
+  int success=0, numRightTris, numLeftTris;
 
   vtkIdList *cells=vtkIdList::New(); cells->Allocate(64);  
   vtkIdList *tris=vtkIdList::New(); tris->Allocate(64);
@@ -941,11 +947,12 @@ int vtkDelaunay2D::RecoverEdge(int p1, int p2)
 
 void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
 {
-  int npts, *pts, p1, p2, i, j, k, kk;
+  int npts, p1, p2, i, j, k, kk;
+  vtkIdType *pts, *triPts;
   static double xyNormal[3]={0.0,0.0,1.0};
   double negDir[3], x21[3], x1[3], x2[3], x[3];
   vtkIdList *neis=vtkIdList::New();
-  int cellId, numNeis, numPts, *triPts;
+  int cellId, numNeis, numPts;
   vtkIdList *currentFront = vtkIdList::New(), *tmpFront;
   vtkIdList *nextFront = vtkIdList::New();
   int numCellsInFront, neiId, numTriangles=this->Mesh->GetNumberOfCells();

@@ -175,9 +175,9 @@ private:
   float     Weights[4];
 
   void  Resample(vtkPolyData *output, vtkPoints *inPts, vtkPoints *newPts, 
-                 int npts, int *pts, int npts2, int *pts2);
+                 int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
   void  PointWalk(vtkPolyData *output, vtkPoints *inPts, 
-                  int npts, int *pts, int npts2, int *pts2);
+                  int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
   
 };
 

@@ -607,14 +607,14 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   double         previousD, d, crosspoint;
   double         *verts, *newVerts, *tmpVerts;
   int            vertCount, newVertCount;
-  int            *pnts;
+  vtkIdType      *pnts;
 
   // Use two arrays to store the vertices of the polygon
   verts = new double[3*(this->NumberOfPlanes+1)];
   newVerts = new double[3*(this->NumberOfPlanes+1)];
 
   // We need an array to store the indices for the polygon
-  pnts = new int[this->NumberOfPlanes-1];
+  pnts = new vtkIdType[this->NumberOfPlanes-1];
 
   // We have no vertices yet
   vertCount = 0;

@@ -111,7 +111,8 @@ void vtkMCubesReader::Execute()
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
   struct  stat buf;
-  int nodes[3], numDegenerate=0;
+  int numDegenerate=0;
+  vtkIdType nodes[3];
   float direction, n[3], dummy[2];
   vtkPolyData *output = this->GetOutput();
   int byteOrder = this->GetDataByteOrder();

@@ -123,7 +123,8 @@ void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
 // cell data.
 void vtkExtractUnstructuredGrid::Execute()
 {
-  int cellId, i, newCellId, newPtId;
+  int cellId, i, newCellId;
+  vtkIdType newPtId;
   vtkUnstructuredGrid *input=this->GetInput();
   int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();

@@ -80,7 +80,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   vtkScalars     *c=NULL;
   unsigned char  *rgba;
   unsigned char  color[4];
-  int            *pts;
+  vtkIdType      *pts;
   int            cellScalars = 0;
   int            cellNum = 0;
   vtkPlaneCollection *clipPlanes;

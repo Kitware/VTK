@@ -97,7 +97,8 @@ void vtkTensorGlyph::Execute()
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
-  int npts, *pts=new int[this->GetSource()->GetMaxCellSize()];
+  int npts;
+  vtkIdType *pts = new vtkIdType[this->GetSource()->GetMaxCellSize()];
   int ptIncr, cellId;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *m[3], w[3], *v[3];

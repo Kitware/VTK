@@ -6018,7 +6018,8 @@ vtkVRMLImporter::exitField()
       {
       if (yylval.mfint32->GetValue(i) == -1) 
         {
-        cells->InsertNextCell(cnt, yylval.mfint32->GetPointer(index));
+        cells->InsertNextCell(cnt,
+                              (vtkIdType*)yylval.mfint32->GetPointer(index));
         index = i+1;
         cnt = 0;
         }
@@ -6116,7 +6117,8 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "colorIndex") == 0) 
     {
     vtkCellArray *cells;
-    int npts, *pts, index, j;
+    int npts, index, j;
+    vtkIdType *pts;
     vtkPolyData *pd = (vtkPolyData *)this->CurrentMapper->GetInput();
     if (pd->GetNumberOfPolys() > 0)
       cells = pd->GetPolys();

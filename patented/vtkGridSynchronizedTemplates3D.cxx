@@ -347,7 +347,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkPoints *inPts = self->GetInput()->GetPoints();
   float t;
   int *isect1Ptr, *isect2Ptr;
-  int ptIds[3];
+  vtkIdType ptIds[3];
   int *tablePtr;
   int v0, v1, v2, v3;
   int idx, vidx;
@@ -956,7 +956,8 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
 void vtkGridSynchronizedTemplates3D::Execute()
 {
   int idx, inId, outId, offset, num, ptIdx, newIdx;
-  int numCellPts, *cellPts, newCellPts[3];
+  int numCellPts;
+  vtkIdType newCellPts[3], *cellPts;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
   vtkCellData *outCD;
