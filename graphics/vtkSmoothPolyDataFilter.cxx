@@ -180,8 +180,9 @@ void vtkSmoothPolyDataFilter::Execute()
         else //is edge vertex (unless already edge vertex!)
           {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
-          Verts[pts[j]].edges = vtkIdList::New();
-          Verts[pts[j]].edges->SetNumberOfIds(2);
+//          Verts[pts[j]].edges = vtkIdList::New();
+//          Verts[pts[j]].edges->SetNumberOfIds(2);
+          Verts[pts[j]].edges = new vtkIdList(2,2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
           }
@@ -238,13 +239,15 @@ void vtkSmoothPolyDataFilter::Execute()
 
         if ( Verts[p1].edges == NULL )
           {
-          Verts[p1].edges = vtkIdList::New();
-          Verts[p1].edges->Allocate(6,6);
+//          Verts[p1].edges = vtkIdList::New();
+//          Verts[p1].edges->Allocate(6,6);
+          Verts[p1].edges = new vtkIdList(6,6);
           }
         if ( Verts[p2].edges == NULL )
           {
-          Verts[p2].edges = vtkIdList::New();
-          Verts[p2].edges->Allocate(6,6);
+//          Verts[p2].edges = vtkIdList::New();
+//          Verts[p2].edges->Allocate(6,6);
+          Verts[p2].edges = new vtkIdList(6,6);
           }
 
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
