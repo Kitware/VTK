@@ -18,13 +18,15 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.77");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.78");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -55,10 +57,21 @@ vtkRibbonFilter::~vtkRibbonFilter()
 }
 
 
-void vtkRibbonFilter::Execute()
+int vtkRibbonFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData();
@@ -92,7 +105,7 @@ void vtkRibbonFilter::Execute()
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    return;
+    return 0;
     }
 
   // Create the geometry and topology
@@ -245,6 +258,8 @@ void vtkRibbonFilter::Execute()
   lineNormalGenerator->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 int vtkRibbonFilter::GeneratePoints(vtkIdType offset, 

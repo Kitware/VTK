@@ -33,7 +33,7 @@
 #ifndef __vtkRibbonFilter_h
 #define __vtkRibbonFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_TCOORDS_OFF                    0
 #define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
@@ -47,10 +47,10 @@ class vtkFloatArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkRibbonFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRibbonFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -136,7 +136,7 @@ protected:
   vtkRibbonFilter();
   ~vtkRibbonFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Width;
   double Angle;
   int VaryWidth; //controls whether width varies with scalar data
@@ -177,5 +177,3 @@ private:
 };
 
 #endif
-
-
