@@ -65,8 +65,8 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->FatalMILError = 0;
 
   this->ContrastLevel = 1.0;
-  this->BrightnessLevel = 1.0;
-  this->HueLevel = 1.0;
+  this->BrightnessLevel = 128;
+  this->HueLevel = 0.0;
   this->SaturationLevel = 1.0;
 
   this->VideoChannel = 0;
@@ -118,7 +118,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkMILVideoSource::PrintSelf(os,indent);
+  vtkVideoSource::PrintSelf(os,indent);
   
   os << indent << "ContrastLevel: " << this->ContrastLevel << "\n";
 
@@ -378,7 +378,6 @@ void vtkMILVideoSource::Initialize()
     if (this->MILAppID == 0)
       {
       this->ReleaseSystemResources();
-      this->FatalMILError = 1;
       vtkErrorMacro(<< "Initialize: couldn't open MIL application\n");
       return;
       }
@@ -399,7 +398,6 @@ void vtkMILVideoSource::Initialize()
       else
 	{
 	this->ReleaseSystemResources();
-	this->FatalMILError = 1;
 	vtkErrorMacro(<< "Initialize: couldn't find " << this->MILInterpreterDLL << ".dll\n");
 	return;
 	}
@@ -420,7 +418,6 @@ void vtkMILVideoSource::Initialize()
       if (system_types[i] == 0)
 	{
 	this->ReleaseSystemResources();
-	this->FatalMILError = 1;
 	vtkErrorMacro(<< "Initialize: Couldn't find a Matrox frame grabber on the system\n");
 	return;
 	}
@@ -486,7 +483,7 @@ void vtkMILVideoSource::ReleaseSystemResources()
     this->MILAppID = 0;
     }
   this->Initialized = 0;
-  this->FatalMILError = 0;
+  this->FatalMILError = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -849,7 +846,7 @@ void vtkMILVideoSource::SetBrightnessLevel(float brightness)
   this->BrightnessLevel = brightness;
   this->Modified();
 
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,0.5*brightness);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,brightness/255.0);
 }
 
 //----------------------------------------------------------------------------
@@ -863,7 +860,7 @@ void vtkMILVideoSource::SetContrastLevel(float contrast)
   this->ContrastLevel = contrast;
   this->Modified();
 
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,0.5*contrast);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,contrast/2.0);
 }
 
 //----------------------------------------------------------------------------
@@ -877,7 +874,7 @@ void vtkMILVideoSource::SetHueLevel(float hue)
   this->HueLevel = hue;
   this->Modified();
 
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,0.5*hue);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,0.5+hue);
 }
 
 //----------------------------------------------------------------------------
@@ -891,7 +888,7 @@ void vtkMILVideoSource::SetSaturationLevel(float saturation)
   this->SaturationLevel = saturation;
   this->Modified();
 
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,0.5*saturation);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,saturation/2.0);
 }
 
 //----------------------------------------------------------------------------
@@ -982,14 +979,26 @@ void vtkMILVideoSource::AllocateMILDigitizer()
 
   vtkMILVideoSourceSetChannel(this->MILDigID,this->VideoChannel);
 
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,
-			    0.5*this->BrightnessLevel);
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,
-			    0.5*this->ContrastLevel);
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,
-			    0.5*this->HueLevel);
-  vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,
-			    0.5*this->SaturationLevel);
+  if (this->BrightnessLevel != 128)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,
+			      this->BrightnessLevel/255);
+    }
+  if (this->ContrastLevel != 1.0)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,
+			      this->ContrastLevel/2.0);
+    }
+  if (this->HueLevel != 0.0)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,
+			      0.5+this->HueLevel);
+    }
+  if (this->SaturationLevel != 1.0)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,
+			      this->SaturationLevel/2.0);
+    }
 
   if (this->MILDigID && this->MILBufID)
     {

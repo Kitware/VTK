@@ -90,7 +90,7 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWin32VideoSource::PrintSelf(os,indent);
+  vtkVideoSource::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
@@ -273,7 +273,6 @@ void vtkWin32VideoSource::Initialize()
     vtkErrorMacro(<< "Initialize: couldn't connect to driver"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
-    this->FatalVFWError = 1;
     return;
     }
 
@@ -395,7 +394,7 @@ void vtkWin32VideoSource::ReleaseSystemResources()
     }
   UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
 
-  this->FatalVFWError = 0;
+  this->FatalVFWError = 1;
   this->Initialized = 0;
 }
 
