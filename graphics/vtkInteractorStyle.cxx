@@ -1316,6 +1316,33 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Prop Picked: " <<
     (this->PropPicked ? "Yes\n" : "No\n");
+  
+  if (this->LeftButtonPressMethod)
+    {
+    os << indent << "LeftButtonPressMethod: Defined\n";
+    }
+  if (this->LeftButtonReleaseMethod)
+    {
+    os << indent << "LeftButtonReleaseMethod: Defined\n";
+    }
+  
+  if (this->MiddleButtonPressMethod)
+    {
+    os << indent << "MiddleButtonPressMethod: Defined\n";
+    }
+  if (this->MiddleButtonReleaseMethod)
+    {
+    os << indent << "MiddleButtonReleaseMethod: Defined\n";
+    }
+  
+  if (this->RightButtonPressMethod)
+    {
+    os << indent << "RightButtonPressMethod: Defined\n";
+    }
+  if (this->RightButtonReleaseMethod)
+    {
+    os << indent << "RightButtonReleaseMethod: Defined\n";
+    }
 }
 
 
