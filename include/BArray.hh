@@ -30,14 +30,17 @@ public:
   vlBitArray(const int sz, const int ext);
   vlBitArray(const vlBitArray& ia);
   ~vlBitArray();
-  int GetValue(const int id) {return (this->Array[id/8]&(0x80 >> (id%8)));};
+  int GetValue(const int id) 
+    {if (this->Array[id/8]&(0x80 >> (id%8))) return 1; return 0;};
   char *GetPtr(const int id) {return this->Array + id/8;};
+
   vlBitArray &SetValue(const int id, const int i)
   {
   if (i) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
   if ( id > this->MaxId ) this->MaxId = id;
   }
+
   vlBitArray &InsertValue(const int id, const int i)
   {
   if ( id >= this->Size ) this->Resize(id);
@@ -46,6 +49,7 @@ public:
   if ( id > this->MaxId ) this->MaxId = id;
   return *this;
   }
+
   int InsertNextValue(const int i)
   {this->InsertValue (++this->MaxId,i); return this->MaxId;};
   vlBitArray &operator=(const vlBitArray& ia);
