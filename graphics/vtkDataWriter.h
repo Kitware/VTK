@@ -94,7 +94,9 @@ public:
   // the next call to write ...
   vtkGetMacro(OutputStringLength, int);  
   vtkGetStringMacro(OutputString);
-
+  unsigned char *GetBinaryOutputString() {
+      return (unsigned char *)this->OutputString;};
+      
   // Description:
   // This convenience method returns the string, sets the IVAR to NULL,
   // so that the user is responsible for deleting the string.
