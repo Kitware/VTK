@@ -46,11 +46,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageComposite::vtkImageComposite()
 {
+  this->SetOutput(vtkStructuredPoints::New());
+  this->Outputs[0]->Delete();
 }
 
 //----------------------------------------------------------------------------
 vtkImageComposite::~vtkImageComposite()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkImageComposite::SetOutput(vtkStructuredPoints *output)
+{
+  this->vtkSource::SetOutput(0, output);
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredPoints *vtkImageComposite::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Outputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -196,6 +215,6 @@ int vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
 //----------------------------------------------------------------------------
 void vtkImageComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 }
 

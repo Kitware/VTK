@@ -57,9 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageComposite_h
 #define __vtkImageComposite_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkSource.h"
+#include "vtkStructuredPoints.h"
 
-class VTK_EXPORT vtkImageComposite : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_EXPORT vtkImageComposite : public vtkSource
 {
 public:
   static vtkImageComposite *New() {return new vtkImageComposite;}
@@ -67,6 +68,11 @@ public:
   const char *GetClassName() {return "vtkImageComposite";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set/Get the output of this source.
+  void SetOutput(vtkStructuredPoints *output);
+  vtkStructuredPoints *GetOutput();
+  
   // Description:
   // Add a dataset to the list of data to append.
   void AddInput(vtkImageData *);
@@ -87,7 +93,7 @@ protected:
 
   // Usual data generation method
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *data);
+  int ComputeInputUpdateExtents(vtkDataObject *data);  
 };
 
 #endif
