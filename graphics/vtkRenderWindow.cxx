@@ -704,8 +704,6 @@ int vtkRenderWindow::CheckAbortStatus()
 
 void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int  i;
-
   vtkWindow::PrintSelf(os,indent);
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
