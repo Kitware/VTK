@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.50");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.51");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -253,9 +253,9 @@ int vtkBandedPolyDataContourFilter::RequestData(
     (this->ContourValues->GetValue(0));
   
   this->ClipValues[this->NumberOfClipValues - 1] = 
-    (range[1]<this->ContourValues->GetValue(this->NumberOfClipValues-2))?
+    (range[1]>this->ContourValues->GetValue(this->NumberOfClipValues-2-1))?
     (range[1]):
-    (this->ContourValues->GetValue(this->NumberOfClipValues-2));
+    (this->ContourValues->GetValue(this->NumberOfClipValues-2-1));
   
   for ( i=1; i<this->NumberOfClipValues-1; i++)
     {
