@@ -53,7 +53,7 @@ public:
 
   // Description:
   // Calls AddDataSet(dobj)
-  virtual void AddDataSet(vtkInformation* index, vtkDataObject* dobj)
+  virtual void AddDataSet(vtkInformation*, vtkDataObject* dobj)
     {
       this->AddDataSet(dobj);
     }

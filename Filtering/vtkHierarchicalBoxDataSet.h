@@ -63,6 +63,9 @@ public:
   vtkDataObject* GetDataSet(unsigned int level, unsigned int id)
     { return this->Superclass::GetDataSet(level, id); }
 
+  vtkDataObject* GetDataSet(vtkInformation* index)
+    { return this->Superclass::GetDataSet(index); }
+
   // Description:
   // Sets the refinement of a given level.
   void SetRefinementRatio(unsigned int level, int refRatio);
