@@ -43,7 +43,7 @@
 # define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD
 #endif
 
-#ifdef VTK_USE_RENDERING
+#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
 # include "tk.h"
 #else
 # include "tcl.h"
@@ -132,7 +132,7 @@ main(int argc, char **argv)
   VTKMPICleanup.Initialize(&argc, &argv);
 #endif // VTK_COMPILED_USING_MPI
 
-#ifdef VTK_USE_RENDERING
+#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
@@ -169,7 +169,7 @@ extern "C" int Vtkiotcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_RENDERING
 extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
-#ifdef VTK_DISABLE_TK_INIT
+#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
 extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
@@ -196,7 +196,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
   if (Tcl_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
-#ifdef VTK_USE_RENDERING
+#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
   if (Tk_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
@@ -228,7 +228,8 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#ifdef VTK_DISABLE_TK_INIT
+#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
+  // Need to init here because rendering did not when this option is on
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
