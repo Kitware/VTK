@@ -24,7 +24,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.42");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.43");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -54,9 +54,10 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
     }
   
   vtkObjectFactory* factory;
-  
-  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+  vtkCollectionSimpleIterator osit;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
+      (factory = vtkObjectFactory::RegisteredFactories->
+       GetNextObjectFactory(osit));)
     {
     vtkObject* newobject = factory->CreateObject(vtkclassname);
     if(newobject)
@@ -416,10 +417,11 @@ void vtkObjectFactory::UnRegisterAllFactories()
   // AFTER the factory has been deleted.
   void** libs = new void*[num+1];
   vtkObjectFactory* factory;
-  vtkObjectFactory::RegisteredFactories->InitTraversal();
+  vtkCollectionSimpleIterator osit;
+  vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
   int index = 0;
   while((factory =
-         vtkObjectFactory::RegisteredFactories->GetNextItem()))
+         vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit)))
     {
     libs[index++] = factory->LibraryHandle;
     }
@@ -619,8 +621,10 @@ vtkObjectFactoryCollection* vtkObjectFactory::GetRegisteredFactories()
 int vtkObjectFactory::HasOverrideAny(const char* className)
 {
   vtkObjectFactory* factory;
-  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+  vtkCollectionSimpleIterator osit;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
+      (factory = 
+       vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit));)
     {
     if(factory->HasOverride(className))
       {
@@ -630,49 +634,18 @@ int vtkObjectFactory::HasOverrideAny(const char* className)
   return 0;
 }
 
-// Create a helper class to get around
-// only being able to iterate a list only once at the
-// same time.
-class vtkObjectFactoryCollectionIterator : public vtkCollection
-{
-public:
-  vtkObjectFactoryCollectionIterator(vtkCollection* source)
-    {
-      Source = source;
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::ConstructClass("vtkCollection");
-#endif
-    }
-  vtkObjectFactory* GetNextItem() 
-    {
-      return vtkObjectFactory::SafeDownCast(this->GetNextItemAsObject());
-    }
-  
-  void InitTraversal()
-    { 
-      this->Current = this->Top = 
-        ((vtkObjectFactoryCollectionIterator*)this->Source)->Top;
-    }
-  vtkCollection* Source;
-private:
-  vtkObjectFactoryCollectionIterator(const vtkObjectFactoryCollectionIterator&);
-  void operator=(const vtkObjectFactoryCollectionIterator&);
-};
-
-
 // collect up information about current registered factories  
-void
-vtkObjectFactory::GetOverrideInformation(const char* name,
-                                         vtkOverrideInformationCollection* 
-                                         ret)
+void vtkObjectFactory::GetOverrideInformation(const char* name,
+                                              vtkOverrideInformationCollection* 
+                                              ret)
 {
   // create the collection to return
   vtkOverrideInformation* overInfo; // info object pointer
   vtkObjectFactory* factory; // factory pointer for traversal
-  vtkObjectFactoryCollectionIterator* it = 
-    new vtkObjectFactoryCollectionIterator(vtkObjectFactory::RegisteredFactories);
-  for(it->InitTraversal();
-      (factory = it->GetNextItem());)
+  vtkCollectionSimpleIterator osit;
+  vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
+  for(;(factory = 
+      vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit));)
     {
     for(int i =0; i < factory->OverrideArrayLength; i++)
       {
@@ -695,7 +668,6 @@ vtkObjectFactory::GetOverrideInformation(const char* name,
         }
       }
     }
-  it->Delete();
 }
 
 // set enable flag for all registered factories for the given className
@@ -703,8 +675,10 @@ void vtkObjectFactory::SetAllEnableFlags(int flag,
                                          const char* className)
 {
   vtkObjectFactory* factory;
-  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+  vtkCollectionSimpleIterator osit;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
+      (factory = 
+       vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit));)
     {
     factory->SetEnableFlag(flag, className, 0);
     }
@@ -718,8 +692,10 @@ void vtkObjectFactory::SetAllEnableFlags(int flag,
                                          const char* subclassName)
 {
   vtkObjectFactory* factory;
-  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+  vtkCollectionSimpleIterator osit;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal(osit);
+      (factory = 
+       vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit));)
     {
     factory->SetEnableFlag(flag, className, subclassName);
     }
@@ -735,7 +711,9 @@ void vtkObjectFactory::CreateAllInstance(const char* vtkclassname,
   vtkObjectFactory* f;
   vtkObjectFactoryCollection* collection
     = vtkObjectFactory::GetRegisteredFactories();
-  for(collection->InitTraversal(); (f = collection->GetNextItem()); )
+  vtkCollectionSimpleIterator osit;
+  for(collection->InitTraversal(osit); 
+      (f = collection->GetNextObjectFactory(osit)); )
     {
     vtkObject* o = f->CreateObject(vtkclassname);
     if(o)

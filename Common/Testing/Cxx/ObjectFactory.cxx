@@ -38,7 +38,7 @@ private:
   void operator=(const vtkTestVertex&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.18");
+vtkCxxRevisionMacro(vtkTestVertex, "1.19");
 
 class vtkTestVertex2 : public vtkVertex
 {
@@ -56,7 +56,7 @@ private:
   void operator=(const vtkTestVertex2&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.18");
+vtkCxxRevisionMacro(vtkTestVertex2, "1.19");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
@@ -143,9 +143,9 @@ int ObjectFactory(int, char *[])
       return 1;
       }
     }
-  
-  oic->InitTraversal();
-  oi = oic->GetNextItem();
+  vtkCollectionSimpleIterator oicit;
+  oic->InitTraversal(oicit);
+  oi = oic->GetNextOverrideInformation(oicit);
   oi->GetObjectFactory();
 
   if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
@@ -167,7 +167,7 @@ int ObjectFactory(int, char *[])
     failed = 1;
     }
 
-  oi = oic->GetNextItem();
+  oi = oic->GetNextOverrideInformation(oicit);
   if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
     {
     cout << "failed: GetClassOverrideName should be vtkVertex, is: "
