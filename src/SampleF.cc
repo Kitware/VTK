@@ -118,7 +118,7 @@ void vlSampleFunction::Execute()
   for (ptId=0; ptId < numPts; ptId++ )
     {
     p = this->GetPoint(ptId);
-    s = this->ImplicitFunction->Evaluate(p[0], p[1], p[2]);
+    s = this->ImplicitFunction->FunctionValue(p);
     newScalars->SetScalar(ptId,s);
     }
 //
@@ -131,7 +131,7 @@ void vlSampleFunction::Execute()
     for (ptId=0; ptId < numPts; ptId++ )
       {
       p = this->GetPoint(ptId);
-      this->ImplicitFunction->EvaluateGradient(p[0], p[1], p[2], n);
+      this->ImplicitFunction->FunctionGradient(p, n);
       math.Normalize(n);
       newNormals->SetNormal(ptId,n);
       }

@@ -36,7 +36,6 @@ void vlSource::UpdateFilter()
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
-    this->_MTime.Modified();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);

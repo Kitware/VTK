@@ -32,6 +32,7 @@ public:
   // Object interface
   void Modified();
   unsigned long int GetMTime();
+  unsigned long int _GetMTime() {this->GetMTime();};
   void DebugOn();
   void DebugOff();
 
