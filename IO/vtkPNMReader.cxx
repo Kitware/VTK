@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.24");
+vtkCxxRevisionMacro(vtkPNMReader, "1.25");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -212,7 +212,7 @@ int vtkPNMReader::CanReadFile(const char* fname)
     return 0;
     } 
   unsigned char magic[3];
-  if(fread(magic, 1, 3, fp) != 1)
+  if(fread(magic, 1, 3, fp) != 3)
     {
     fclose(fp);
     return 0;
