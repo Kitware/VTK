@@ -87,7 +87,7 @@ inline int vlStructuredPoints::GetNumberOfCells()
 
 inline int vlStructuredPoints::GetNumberOfPoints()
 {
-  return this->vlStructuredData::_GetNumberOfCells();
+  return this->vlStructuredData::_GetNumberOfPoints();
 }
 
 inline void vlStructuredPoints::GetCellPoints(int cellId, vlIdList& ptIds)
