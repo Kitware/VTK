@@ -16,14 +16,34 @@ import vtk
 from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
 class vtkTkRenderWindowInteractor(Tkinter.Widget):
+    """ A vtkTkRenderWidndowInteractor for Python.
 
-    """ A vtkTkRenderWidndowInteractor for Python.  Use
-    GetRenderWindow() to get the vtkRenderWindow.  Create with the
-    keyword stereo=1 in order to generate a stereo-capable window.
+    Use GetRenderWindow() to get the vtkRenderWindow.
+
+    Create with the keyword stereo=1 in order to generate a
+    stereo-capable window.
+
+    Create with the keyword focus_on_enter=1 to enable
+    focus-follows-mouse.  The default is for a click-to-focus mode.    
+
     __getattr__ is used to make the widget also behave like a
-    vtkGenericRenderWindowInteractor.  """
-    
+    vtkGenericRenderWindowInteractor.
+    """    
     def __init__(self, master, cnf={}, **kw):
+        """
+        Constructor.
+
+        Keyword arguments:
+
+          rw -- Use passed render window instead of creating a new one.
+
+          stereo -- If True, generate a stereo-capable window.
+          Defaults to False.
+
+          focus_on_enter -- If True, use a focus-follows-mouse mode.
+          Defaults to False where the widget will use a click-to-focus
+          mode.
+        """
         # load the necessary extensions into tk
         vtkLoadPythonTkWidgets(master.tk)
 
@@ -39,6 +59,13 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
 	except KeyError:
             pass
  
+        # check if focus should follow mouse
+        if kw.get('focus_on_enter'):
+            self._FocusOnEnter = 1
+            del kw['focus_on_enter']
+        else:
+            self._FocusOnEnter = 0
+ 
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
@@ -48,8 +75,9 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
 
-        # private attributes
         self._OldFocus = None
+
+        # private attributes
         self.__InExpose = 0
 
         # create the Tk bindings
@@ -172,7 +200,6 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Control-Shift-Leave>",
                   lambda e, s=self: s.LeaveEvent(e, 1, 1))
 
-
         self.bind("<Configure>", self.ConfigureEvent)
         self.bind("<Expose>",lambda e,s=self: s.ExposeEvent())
 
@@ -183,6 +210,10 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         """The timer is a one shot timer so will expire automatically."""
         return 1
 
+    def _GrabFocus(self, enter=0):
+        self._OldFocus=self.focus_get()
+        self.focus()
+
     def MouseMoveEvent(self, event, ctrl, shift):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
@@ -192,6 +223,8 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
         self._Iren.LeftButtonPressEvent()
+        if not self._FocusOnEnter:
+            self._GrabFocus()
 
     def LeftButtonReleaseEvent(self, event, ctrl, shift):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
@@ -202,6 +235,8 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
         self._Iren.MiddleButtonPressEvent()
+        if not self._FocusOnEnter:
+            self._GrabFocus()
 
     def MiddleButtonReleaseEvent(self, event, ctrl, shift):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
@@ -212,6 +247,8 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
         self._Iren.RightButtonPressEvent()
+        if not self._FocusOnEnter:
+            self._GrabFocus()
 
     def RightButtonReleaseEvent(self, event, ctrl, shift):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
@@ -240,14 +277,14 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.ConfigureEvent()
 
     def EnterEvent(self, event, ctrl, shift):
-        self._OldFocus=self.focus_get()
-        self.focus()
+        if self._FocusOnEnter:
+            self._GrabFocus()
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl, shift,
                                             chr(0), 0, None)
         self._Iren.EnterEvent()
 
     def LeaveEvent(self, event, ctrl, shift):
-        if (self._OldFocus != None):
+        if self._FocusOnEnter and (self._OldFocus != None):
             self._OldFocus.focus()
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl, shift,
                                             chr(0), 0, None)

@@ -17,11 +17,30 @@ from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 class vtkTkImageViewerWidget(Tkinter.Widget):
     """
     A vtkTkImageViewerWidget for Python.
+
     Use GetImageViewer() to get the vtkImageViewer.
-    Create with the keyword double=1 in order to
-    generate a double-buffered viewer.
+
+    Create with the keyword double=1 in order to generate a
+    double-buffered viewer.
+    
+    Create with the keyword focus_on_enter=1 to enable
+    focus-follows-mouse.  The default is for a click-to-focus mode.    
     """
     def __init__(self, master, cnf={}, **kw):
+        """
+        Constructor.
+
+        Keyword arguments:
+
+          iv -- Use passed image viewer instead of creating a new one.
+
+          double -- If True, generate a double-buffered viewer.
+          Defaults to False.
+
+          focus_on_enter -- If True, use a focus-follows-mouse mode.
+          Defaults to False where the widget will use a click-to-focus
+          mode.
+        """
         # load the necessary extensions into tk
         vtkLoadPythonTkWidgets(master.tk)
 
@@ -38,6 +57,13 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         except:
             pass
  
+        # check if focus should follow mouse
+        if kw.get('focus_on_enter'):
+            self._FocusOnEnter = 1
+            del kw['focus_on_enter']
+        else:
+            self._FocusOnEnter = 0
+
         kw['iv'] = imageViewer.GetAddressAsString("vtkImageViewer")
         Tkinter.Widget.__init__(self, master, 'vtkTkImageViewerWidget',
                                 cnf, kw)
@@ -145,13 +171,17 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 
     def Render(self):
         self._ImageViewer.Render()
-        
-    def EnterTkViewer(self):
+
+    def _GrabFocus(self):
         self._OldFocus=self.focus_get()
         self.focus()
+        
+    def EnterTkViewer(self):
+        if self._FocusOnEnter:
+            self._GrabFocus()
 
     def LeaveTkViewer(self):
-        if (self._OldFocus != None):
+        if self._FocusOnEnter and (self._OldFocus != None):
             self._OldFocus.focus()
 
     def ExposeTkImageViewer(self):
@@ -162,6 +192,8 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
             self._InExpose = 0
 
     def StartWindowLevelInteraction(self,x,y):
+        if not self._FocusOnEnter:
+            self._GrabFocus()
         viewer = self._ImageViewer
         self._LastX = x
         self._LastY = y
@@ -229,6 +261,8 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         self.Render()
    
     def StartQueryInteraction(self,x,y):
+        if not self._FocusOnEnter:
+            self._GrabFocus()
         # Query PixleValue stuff
         self._WindowActor.SetVisibility(1)
         self.UpdateQueryInteraction(x,y)

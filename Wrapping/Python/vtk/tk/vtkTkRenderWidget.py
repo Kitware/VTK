@@ -56,11 +56,30 @@ from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 class vtkTkRenderWidget(Tkinter.Widget):
     """
     A vtkTkRenderWidget for Python.
+
     Use GetRenderWindow() to get the vtkRenderWindow.
-    Create with the keyword stereo=1 in order to
-    generate a stereo-capable window.
+
+    Create with the keyword stereo=1 in order to generate a
+    stereo-capable window.
+
+    Create with the keyword focus_on_enter=1 to enable
+    focus-follows-mouse.  The default is for a click-to-focus mode.
     """
     def __init__(self, master, cnf={}, **kw):
+        """
+        Constructor.
+
+        Keyword arguments:
+
+          rw -- Use passed render window instead of creating a new one.
+
+          stereo -- If True, generate a stereo-capable window.
+          Defaults to False.
+
+          focus_on_enter -- If True, use a focus-follows-mouse mode.
+          Defaults to False where the widget will use a click-to-focus
+          mode.
+        """
         # load the necessary extensions into tk
         vtkLoadPythonTkWidgets(master.tk)
 
@@ -75,6 +94,13 @@ class vtkTkRenderWidget(Tkinter.Widget):
                del kw['stereo']
 	except KeyError:
             pass
+
+        # check if focus should follow mouse
+        if kw.get('focus_on_enter'):
+            self._FocusOnEnter = 1
+            del kw['focus_on_enter']
+        else:
+            self._FocusOnEnter = 0
  
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
@@ -145,10 +171,14 @@ class vtkTkRenderWidget(Tkinter.Widget):
                   lambda e,s=self: s.Surface())
         self.bind("<KeyPress-p>",
                   lambda e,s=self: s.PickActor(e.x,e.y))
-        self.bind("<Enter>",
-                  lambda e,s=self: s.Enter(e.x,e.y))
-        self.bind("<Leave>",
-                  lambda e,s=self: s.Leave(e.x,e.y))
+        if self._FocusOnEnter:
+            self.bind("<Enter>",
+                      lambda e,s=self: s.Enter(e.x,e.y))
+            self.bind("<Leave>",
+                      lambda e,s=self: s.Leave(e.x,e.y))
+        else:
+            self.bind("<ButtonPress>",
+                      lambda e,s=self: s.Enter(e.x,e.y))            
         self.bind("<Expose>",
                   lambda e,s=self: s.Expose())
 
@@ -241,7 +271,10 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def Enter(self,x,y):
         self._OldFocus=self.focus_get()
         self.focus()
-        self.UpdateRenderer(x,y)
+        if self._FocusOnEnter:
+            self.StartMotion(x, y)
+        else:
+            self.UpdateRenderer(x, y)
 
     def Leave(self,x,y):
         if (self._OldFocus != None):
