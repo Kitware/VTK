@@ -53,19 +53,24 @@ GLfloat laplacian[3][3] = {
 
 static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
 {
+  cout << "In ImageCallback" << endl;
+
   vtkRenderWindow *renwin = static_cast<vtkRenderWindow *>(__renwin);
   int *size = renwin->GetSize();
 
-  // Turn on convolution filtering for when we read the image.
+  cout << "Turn on convolution." << endl;
   glEnable(vtkgl::CONVOLUTION_2D);
 
+  cout << "Read back image." << endl;
   renwin->GetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, 0, image);
 
-  // Now turn it off for writing back out.
+  cout << "Turn off convolution." << endl;
   glDisable(vtkgl::CONVOLUTION_2D);
 
+  cout << "Write image." << endl;
   renwin->SetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, image, 0);
 
+  cout << "Swap buffers." << endl;
   renwin->SwapBuffersOn();
   renwin->Frame();
   renwin->SwapBuffersOff();
@@ -82,6 +87,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(renwin);
 
+  cout << "Query extension." << endl;
   if (!extensions->ExtensionSupported("GL_VERSION_1_2"))
     {
     cout << "Is it possible that your driver does not support OpenGL 1.2?"
@@ -119,9 +125,11 @@ int LoadOpenGLExtension(int argc, char *argv[])
       return 0;
       }
     }
+  cout << "Load extension." << endl;
   extensions->LoadExtension("GL_VERSION_1_2");
   extensions->Delete();
 
+  cout << "Set up pipeline." << endl;
   vtkConeSource *cone = vtkConeSource::New();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
@@ -138,13 +146,14 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->Elevation(-45);
 
-  // Do a render without convolution filter.
+  cout << "Do a render without convolution." << endl;
   renwin->Render();
 
   // Set up a convolution filter.  We are using the Laplacian filter, which
   // is basically an edge detector.  Once vtkgl::CONVOLUTION_2D is enabled,
   // the filter will be applied any time an image is transfered in the
   // pipeline.
+  cout << "Set up convolution filter." << endl;
   vtkgl::ConvolutionFilter2D(vtkgl::CONVOLUTION_2D, GL_LUMINANCE, 3, 3,
                              GL_LUMINANCE, GL_FLOAT, laplacian);
   vtkgl::ConvolutionParameteri(vtkgl::CONVOLUTION_2D,
@@ -161,6 +170,8 @@ int LoadOpenGLExtension(int argc, char *argv[])
   // the buffers.
   renwin->SwapBuffersOff();
 
+  cout << "Do test render with convolution on." << endl;
+  renwin->Render();
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
