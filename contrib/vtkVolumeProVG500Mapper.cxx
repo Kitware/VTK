@@ -585,6 +585,8 @@ void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *vtkNotUsed(ren), vtkVol
 			 this->CursorPosition[1],
 			 this->CursorPosition[2] );
     
+    cursor->SetWidth(1.0);
+    
     if ( this->CursorType == VTK_CURSOR_TYPE_CROSSHAIR )
       {
       cursor->SetType( VLICursor::kCrossHair );
