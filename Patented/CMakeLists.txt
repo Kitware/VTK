@@ -14,6 +14,7 @@ vtkKitwareContourFilter.cxx
 vtkMarchingContourFilter.cxx
 vtkMarchingCubes.cxx
 vtkMarchingSquares.cxx
+vtkRectilinearSynchronizedTemplates.cxx
 vtkSliceCubes.cxx
 vtkSweptSurface.cxx
 vtkSynchronizedTemplates2D.cxx

@@ -26,6 +26,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearSynchronizedTemplates.h"
 #include "vtkScalarTree.h"
 #include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates2D.h"
@@ -33,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.30");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.31");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -125,6 +127,32 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
        }
      }
 
+   if ( inputObjectType == VTK_RECTILINEAR_GRID )
+     {
+     int ext[6], dim=0;
+     ((vtkRectilinearGrid *)input)->GetWholeExtent(ext);
+     for(int j=0; j<3; j++)
+       {
+       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
+         {
+         dim++;
+         }
+       }
+     if (dim == 3)
+       {
+       vtkRectilinearSynchronizedTemplates *rTemp =
+         vtkRectilinearSynchronizedTemplates::New();
+       rTemp->SetInput((vtkRectilinearGrid *)input);
+       rTemp->SetComputeNormals (this->ComputeNormals);
+       rTemp->SetComputeGradients (this->ComputeGradients);
+       rTemp->SetComputeScalars (this->ComputeScalars);
+       rTemp->SetDebug(this->Debug);
+       rTemp->ComputeInputUpdateExtents(data);
+       rTemp->Delete();
+       return;
+       }
+     }
+   
   this->vtkContourFilter::ComputeInputUpdateExtents(data);
   return;
 }
@@ -186,6 +214,31 @@ void vtkKitwareContourFilter::Execute()
     if ( input->GetCell(0)->GetCellDimension() >= 3 ) 
       {
       this->StructuredGridContour(dim);
+      return;
+      }
+    }
+
+  if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
+    {
+    // We need a better way to determine dimensionality for images.
+    int dim = 3;
+    int *uExt = input->GetUpdateExtent();
+    if (uExt[0] == uExt[1])
+      {
+      --dim;
+      }
+    if (uExt[2] == uExt[3])
+      {
+      --dim;
+      }
+    if (uExt[4] == uExt[5])
+      {
+      --dim;
+      }
+
+    if ( input->GetCell(0)->GetCellDimension() == 3 ) 
+      {
+      this->RectilinearGridContour(dim);
       return;
       }
     }
@@ -299,6 +352,49 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
     gridTemp3D->Update();
     output->Register(this);
     gridTemp3D->Delete();
+    }
+  
+  thisOutput->CopyStructure(output);
+  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
+  thisOutput->GetCellData()->ShallowCopy(output->GetCellData());
+  output->UnRegister(this);
+}
+
+//
+// Special method handles rectilinear grids
+//
+void vtkKitwareContourFilter::RectilinearGridContour(int dim)
+{
+  vtkPolyData *output = NULL;
+  vtkPolyData *thisOutput = this->GetOutput();
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
+
+  if ( dim == 3 )
+    {
+    vtkRectilinearSynchronizedTemplates *rTemp;
+    int i;
+    
+    rTemp = vtkRectilinearSynchronizedTemplates::New();
+    rTemp->SetInput((vtkRectilinearGrid*)(this->GetInput()));
+    rTemp->SetComputeNormals (this->ComputeNormals);
+    rTemp->SetComputeGradients (this->ComputeGradients);
+    rTemp->SetComputeScalars (this->ComputeScalars);
+    rTemp->SetDebug(this->Debug);
+    rTemp->SetNumberOfContours(numContours);
+    for (i=0; i < numContours; i++)
+      {
+      rTemp->SetValue(i,values[i]);
+      }
+
+    output = rTemp->GetOutput();
+    output->SetUpdateNumberOfPieces(thisOutput->GetUpdateNumberOfPieces());
+    output->SetUpdatePiece(thisOutput->GetUpdatePiece());
+    output->SetUpdateGhostLevel(thisOutput->GetUpdateGhostLevel());
+    rTemp->SelectInputScalars(this->InputScalarsSelection);
+    rTemp->Update();
+    output->Register(this);
+    rTemp->Delete();
     }
   
   thisOutput->CopyStructure(output);
