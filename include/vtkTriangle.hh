@@ -67,7 +67,7 @@ public:
 
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkFloatScalars *cellScalars, 
-               vtkFloatPoints *points, vtkCellArray *verts,
+               vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkFloatScalars *s);
   int EvaluatePosition(float x[3], float closestPoint[3],

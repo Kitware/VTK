@@ -54,11 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // ImageRange ivar to reduce it to an image.
 
 // .SECTION Caveats
-// The output primitives are disjoint - that is, points may
-// be generated that are coincident but distinct. You may want to use
-// vtkCleanPolyData to remove the coincident points and create continuous 
-// polylines.
-//
 // This filter is specialized to images. If you are interested in 
 // contouring other types of data, use the general vtkContourFilter.
 // .SECTION See Also
@@ -103,6 +98,15 @@ public:
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
 
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified. The locator is
+  // used to merge coincident points.
+  void CreateDefaultLocator();
+
 protected:
   void Execute();
 
@@ -110,6 +114,8 @@ protected:
   int NumberOfContours;
   float Range[2];
   int ImageRange[6];
+  vtkPointLocator *Locator;
+  int SelfCreatedLocator;
 
 };
 

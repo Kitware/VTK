@@ -48,18 +48,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or 0D cells will generate isopoints. Combinations of output type 
 // are possible if the input dimension is mixed.
 //
-// If the input type is volume (e.g., 3D structured point dataset), 
-// you may wish to use vtkMarchingCubes. This class is specifically tailored
-// for volumes and is therefore much faster.
+// This filter will identify special dataset types (e.g., structured points) and use
+// the appropriate specialized filter to process the data. For examples, if the input
+// dataset type is a volume, this filter will create an internal vtkMarchingCubes
+// instance and use it. This gives much better performance.
+
 // .SECTION Caveats
-// vtkContourFilter uses variations of marching cubes to generate output
-// primitives. The output primitives are disjoint - that is, points may
-// be generated that are coincident but distinct. You may want to use
-// vtkCleanPolyData to remove the coincident points. Also, the isosurface
-// is not generated with surface normals. Use vtkPolyNormals to create them,
-// if desired.
+// For unstructured data or structured grids, normals and gradients are not computed.
+// This calculation will be implemented in the future. In the mean time, use 
+// vtkPolyNormals to compute the surface normals.
+
 // .SECTION See Also
-// vtkMarchingCubes vtkSliceCubes vtkDividingCubes
+// vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
 
 #ifndef __vtkContourFilter_h
 #define __vtkContourFilter_h
@@ -115,6 +115,15 @@ public:
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
 
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified. The locator is
+  // used to merge coincident points.
+  void CreateDefaultLocator();
+
 protected:
   void Execute();
 
@@ -124,6 +133,8 @@ protected:
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
+  vtkPointLocator *Locator;
+  int SelfCreatedLocator;
 
   void StructuredPointsContour(int dim); //special contouring for structured points
 };

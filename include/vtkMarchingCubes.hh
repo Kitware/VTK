@@ -104,15 +104,16 @@ public:
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
 
+  void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float range1, float range2);
+
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float range1, float range2);
-
   // Description:
-  // Create default locator. Used to create one when none is specified.
+  // Create default locator. Used to create one when none is specified. The locator
+  // is used to merge coincident points.
   void CreateDefaultLocator();
 
 protected:

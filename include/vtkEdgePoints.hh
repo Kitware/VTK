@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkEdgePoints_h
 
 #include "vtkDataSetToPolyFilter.hh"
+#include "vtkMergePoints.hh"
 
 class vtkEdgePoints : public vtkDataSetToPolyFilter
 {
@@ -71,6 +72,7 @@ protected:
   void Execute();
 
   float Value;
+  vtkMergePoints Locator;
 };
 
 #endif
