@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.16");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.17");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -255,18 +255,18 @@ void vtkBoxWidget::SetEnabled(int enabling)
     vtkRenderWindowInteractor *i = this->Interactor;
     i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand, 
                    this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
 
     // Add the various actors
     // Add the outline
@@ -1153,12 +1153,8 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
-  //double *p2 = pts + 3*2;
   double *p3 = pts + 3*3;
   double *p4 = pts + 3*4;
-  //double *p5 = pts + 3*5;
-  //double *p6 = pts + 3*6;
-  //double *p7 = pts + 3*7;
   double *p14 = pts + 3*14;
   double center[3], scale[3], scaleVec[3][3];
   int i;
