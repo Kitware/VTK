@@ -26,7 +26,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.27");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.28");
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter,LookupTable,vtkScalarsToColors);
@@ -1294,6 +1294,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
           else
             {
             vtkErrorMacro("Bad cell in smoothing operation");
+            connId = pts[0];
             }
           points->GetPoint(connId, xconn);
           xave[0] += xconn[0]; xave[1] += xconn[1]; xave[2] += xconn[2];
