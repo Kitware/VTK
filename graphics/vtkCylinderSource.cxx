@@ -165,9 +165,9 @@ void vtkCylinderSource::Execute()
       newNormals->InsertNormal(idx+i,nbot);
 
       idx = 3*this->Resolution;
-      newPoints->InsertPoint(idx+i,xtop);
-      newTCoords->InsertTCoord(idx+i,tctop);
-      newNormals->InsertNormal(idx+i,ntop);
+      newPoints->InsertPoint(idx+this->Resolution-i-1,xtop);
+      newTCoords->InsertTCoord(idx+this->Resolution-i-1,tctop);
+      newNormals->InsertNormal(idx+this->Resolution-i-1,ntop);
       }
 //
 // Generate polygons for top/bottom polygons
