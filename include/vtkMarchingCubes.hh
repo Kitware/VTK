@@ -47,10 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // contours to generate a series of evenly spaced contour values.
 
 // .SECTION Caveats
-// The output primitives are disjoint - that is, points may
-// be generated that are coincident but distinct. You may want to use
-// vtkCleanPolyData to remove the coincident points. 
-//
 // This filter is specialized to volumes. If you are interested in 
 // contouring other types of data, use the general vtkContourFilter. If you
 // want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
@@ -108,8 +104,16 @@ public:
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
 
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
 
 protected:
   void Execute();
@@ -120,7 +124,8 @@ protected:
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
-
+  vtkPointLocator *Locator;
+  int SelfCreatedLocator;
 };
 
 #endif
