@@ -384,9 +384,9 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
   int ijk[3], dn[3];
   float minDist2, refinedRadius, refinedRadius2, distance2ToBucket;
   float distance2ToCellBounds, cellBounds[6];
-  float pcoords[3], point[3], cachedPoint[3];
-  float *weights = NULL;
-  int nWeights = 0, nPoints;
+  float pcoords[3], point[3], cachedPoint[3], weightsArray[6];
+  float *weights = weightsArray;
+  int nWeights = 6, nPoints;
   vtkIdList *cellIds;
   
   leafStart = this->NumberOfOctants
@@ -477,7 +477,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                 nPoints = cell->GetPointIds()->GetNumberOfIds();
                 if (nPoints > nWeights)
                   {
-                  if (weights != NULL)
+                  if (nWeights > 6)
                     {
                     delete [] weights;
                     }
@@ -581,7 +581,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                 nPoints = cell->GetPointIds()->GetNumberOfIds();
                 if (nPoints > nWeights)
                   {
-                  if (weights != NULL)
+                  if (nWeights > 6)
                     {
                     delete [] weights;
                     }
@@ -623,7 +623,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
     this->DataSet->GetCell(cellId, cell);
     }
   
-  if (weights != NULL)
+  if (nWeights > 6)
     {
     delete [] weights;
     }
@@ -657,9 +657,9 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   int leafStart;
   int ijk[3], dn[3];
   float minDist2;
-  float pcoords[3], point[3], cachedPoint[3];
-  float *weights = NULL;
-  int nWeights = 0, nPoints;
+  float pcoords[3], point[3], cachedPoint[3], weightsArray[6];
+  float *weights = weightsArray;
+  int nWeights = 6, nPoints;
   int returnVal = 0;
   vtkIdList *cellIds;
   
@@ -750,7 +750,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
           nPoints = cell->GetPointIds()->GetNumberOfIds();
           if (nPoints > nWeights)
             {
-            if (weights != NULL)
+            if (nWeights > 6)
               {
               delete [] weights;
               }
@@ -883,7 +883,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                 nPoints = cell->GetPointIds()->GetNumberOfIds();
                 if (nPoints > nWeights)
                   {
-                  if (weights != NULL)
+                  if (nWeights > 6)
                     {
                     delete [] weights;
                     }
@@ -937,7 +937,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     returnVal = 1;
     }
   
-  if (weights != NULL)
+  if (nWeights > 6)
     {
     delete [] weights;
     }
