@@ -59,7 +59,7 @@ pack .top.f1.r1 -side left -padx 3 -pady 3 -fill both -expand t
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
 
-bind .top.f1.r1 <Expose> {imgWin Render}
+bind .top.f1.r1 <Expose> {.top.f1.r1 Render}
 
 update
 
