@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.28");
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.29");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
@@ -103,6 +103,7 @@ void vtkProjectedTexture::Execute()
   //
 
   newTCoords = vtkFloatArray::New();
+  newTCoords->SetName("ProjectedTextureCoordinates");
   newTCoords->SetNumberOfComponents(2);
   newTCoords->SetNumberOfTuples(numPts);
 
