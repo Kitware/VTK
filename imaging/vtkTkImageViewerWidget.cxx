@@ -446,6 +446,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     {
     return TCL_OK;
     }
+
+  dpy = Tk_Display(self->TkWin);
   
   if (winPtr->window != None) 
     {

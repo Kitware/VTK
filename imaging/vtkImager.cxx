@@ -66,7 +66,7 @@ void vtkImager::Render()
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
     }
   
-  int numActors = this->Actors2D.GetNumberOfItems();
+  int numActors = this->Actors2D->GetNumberOfItems();
   if (numActors == 0)
     {
     vtkDebugMacro (<< "vtkImager::Render - No actors in collection");
@@ -76,10 +76,10 @@ void vtkImager::Render()
   vtkDebugMacro(<<"vtkImager::Render - " << numActors << " actors in collection");
   vtkDebugMacro(<<"vtkImager::Render - Sorting actor collection.");
   
-  this->Actors2D.Sort();  
+  this->Actors2D->Sort();  
 
-  for ( this->Actors2D.InitTraversal(); 
-	(tempActor = this->Actors2D.GetNextItem());)
+  for ( this->Actors2D->InitTraversal(); 
+	(tempActor = this->Actors2D->GetNextItem());)
     {
     // Make sure that the actor is visible before rendering
     if (tempActor->GetVisibility() == 1) tempActor->Render(this);
