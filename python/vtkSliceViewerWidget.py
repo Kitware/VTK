@@ -57,6 +57,9 @@ class vtkSliceViewerWidget(Tkinter.Widget):
 
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
+
+        self._NoRender = 0
+        self._InExpose = 0
         
         self._ImageReslice = vtkImageReslice()
         self._ImageReslice.SetInterpolationModeToCubic()
@@ -163,14 +166,23 @@ class vtkSliceViewerWidget(Tkinter.Widget):
 
         self.bind('<Configure>',
                   lambda e,s=self: s.Configure(e.width,e.height))
-        self.bind("<Enter>",
+        self.bind('<Enter>',
                   lambda e,s=self: s.Enter())
+        self.bind('<Expose>',
+                  lambda e,s=self: s.Expose())
+
+    def Expose(self):
+        if self._InExpose:
+            return
+        self._InExpose = 1
+        self.update()
+        self._RenderWindow.Render()
+        self._InExpose = 0
 
     def Enter(self):
         self.focus()
 
     def Configure(self, width, height):
-
         reslice = self._ImageReslice
         extent = reslice.GetOutputExtent()
         origin = reslice.GetOutputOrigin()
@@ -311,23 +323,34 @@ class vtkSliceViewerWidget(Tkinter.Widget):
     def ChangeSlice(self,inc):
         reslice = self._ImageReslice
         input = reslice.GetInput()
-        orig_lo = input.GetOrigin()[2]
-        orig_hi = input.GetOrigin()[2]+input.GetSpacing()[2]*\
-                  (input.GetWholeExtent()[5]-input.GetWholeExtent()[4])
-        if (orig_lo > orig_hi):
-            tmp = orig_hi
-            orig_hi = orig_lo
-            orig_lo = tmp
+        extent = reslice.GetOutputExtent()
         origin = reslice.GetOutputOrigin()
         spacing = reslice.GetOutputSpacing()
+
+        reslice.SetOutputExtentToDefault()
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputSpacingToDefault()
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+        lo,hi = output.GetWholeExtent()[4:6]
+        s = output.GetSpacing()[2]
+        o = output.GetOrigin()[2]
+        lo = o + lo*s
+        hi = o + hi*s
+        orig_lo = min((lo,hi))
+        orig_hi = max((lo,hi))
+
         origin = list(origin)
-        origin[2] = origin[2]+inc*spacing[2]
+        origin[2] = math.floor((origin[2]-o)/s+inc+0.5)*s+o
         if (origin[2] > orig_hi):
             origin[2] = orig_hi
         elif (origin[2] < orig_lo):
             origin[2] = orig_lo
         origin = tuple(origin)
+
+        reslice.SetOutputSpacing(spacing)
         reslice.SetOutputOrigin(origin)
+        reslice.SetOutputExtent(extent)
         
     def Reset(self):
         reslice = self._ImageReslice
@@ -411,6 +434,8 @@ class vtkSliceViewerWidget(Tkinter.Widget):
         return self._ImageReslice.GetInput()
 
     def Render(self):
+        if self._NoRender:
+            return
         self._RenderWindow.Render()
 
 
@@ -450,12 +475,6 @@ if __name__ == '__main__':
     oblique.RotateWXYZ(-50,1,1,1)
 
     root = Tk()
-
-    def RenderAll():
-        viewer1.Render()
-        viewer2.Render()
-        viewer3.Render()
-        viewer4.Render()
 
     frame = Frame(root)
     
