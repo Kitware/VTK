@@ -74,6 +74,16 @@ class  vtkHeap;
 class  vtkIdList;
 class  vtkPoints;
 struct vtkOTMesh;
+struct vtkOTTemplates;
+
+// Template ID's must be 32-bits. See .cxx file for more information.
+#if VTK_SIZEOF_SHORT == 4
+typedef unsigned short  TemplateIDType;
+#elif VTK_SIZEOF_INT == 4
+typedef unsigned int    TemplateIDType;
+#elif VTK_SIZEOF_LONG == 4
+typedef unsigned long   TemplateIDType;
+#endif    
 
 class VTK_COMMON_EXPORT vtkOrderedTriangulator : public vtkObject
 {
@@ -123,6 +133,18 @@ public:
   // Triangulate method. The type is specified as inside (type=0), 
   // outside (type=1), or on the boundary (type=2). 
   void UpdatePointType(vtkIdType internalId, int type);
+
+  // Description:
+  // If this flag is set, then the ordered triangulator will create
+  // and use templates for the triangulation. To use templates, the
+  // template parameters must be set prior to each Triangulate()
+  // invocation.
+  vtkSetMacro(UseTemplates,int);
+  vtkGetMacro(UseTemplates,int);
+  vtkBooleanMacro(UseTemplates,int);
+  void SetTemplateParameters(int cellType, int numPts, int numEdges)
+    {this->CellType=cellType; 
+    this->NumberOfCellPoints=numPts; this->NumberOfCellEdges=numEdges;}
 
   // Description:
   // Boolean indicates whether the points have been pre-sorted. If 
@@ -193,14 +215,27 @@ protected:
   ~vtkOrderedTriangulator();
 
 private:
+  void       Initialize();
+
   vtkOTMesh *Mesh;
   int        NumberOfPoints; //number of points inserted
   int        MaximumNumberOfPoints; //maximum possible number of points to be inserted
+  float      Bounds[6];
   int        PreSorted;
   int        UseTwoSortIds;
   vtkHeap   *Heap;
   double     Quanta;
-  
+
+  int             UseTemplates;
+  int             CellType;
+  int             NumberOfCellPoints;
+  int             NumberOfCellEdges;
+  vtkHeap        *TemplateHeap;
+  vtkOTTemplates *Templates;
+  int             TemplateTriangulation();
+  void            AddTemplate();
+  TemplateIDType  ComputeTemplateIndex();
+    
 private:
   vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
   void operator=(const vtkOrderedTriangulator&);  // Not implemented.
