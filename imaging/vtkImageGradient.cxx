@@ -132,7 +132,7 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 				    int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
+  int maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
@@ -143,7 +143,6 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
   // find the region to loop over
-  maxC = outData->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];

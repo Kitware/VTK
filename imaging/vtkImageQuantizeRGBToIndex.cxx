@@ -232,7 +232,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 					      vtkImageData *outData, 
 					      unsigned short *outPtr)
 {
-  int                  extent[6], outExtent[6];
+  int                  extent[6];
   int                  inIncrement[3], outIncrement[3];
   T                    *rgbPtr;
   unsigned short       *indexPtr;
@@ -244,7 +244,6 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   int                  maxdevAxis, maxdevLeafNode;
   float                maxdev, dev;
   int                  leaf, axis;
-  int                  value;
   int                  cannotDivideFurther;
   vtkLookupTable       *lut;
   float                color[4];

@@ -141,7 +141,6 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   int outInc0, outInc1, outInc2;
   int tmpInc0, tmpInc1, tmpInc2;
   T *tmpPtr0, *tmpPtr1, *tmpPtr2;
-  int rowLength;
   int factor0, factor1, factor2;
   int averaging;
   float sum, norm;
@@ -160,7 +159,6 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   tmpInc2 = inInc2 * factor2;
   outData->GetContinuousIncrements(outExt,outInc0, outInc1, outInc2);
   norm = 1.0 / (float)(factor0 * factor1 * factor2);
-  rowLength = (outExt[1] - outExt[0]+1)*outData->GetNumberOfScalarComponents();
 
   target = (unsigned long)((outExt[5] - outExt[4] + 1)*
     (outExt[3] - outExt[2] + 1)/50.0);

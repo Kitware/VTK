@@ -76,7 +76,6 @@ XVisualInfo *vtkOpenGLImageWindowTryForVisual(Display *DisplayId,
 XVisualInfo *vtkOpenGLImageWindow::GetDesiredVisualInfo()
 {
   XVisualInfo   *v = NULL;
-  int           multi;
   
   // get the default display connection 
   if (!this->DisplayId)
