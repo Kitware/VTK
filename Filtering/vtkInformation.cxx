@@ -29,7 +29,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.1.2.3");
+vtkCxxRevisionMacro(vtkInformation, "1.1.2.4");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -115,16 +115,18 @@ void vtkInformation::Clear()
 //----------------------------------------------------------------------------
 void vtkInformation::Copy(vtkInformation* from)
 {
+  vtkInformationInternals* oldInternal = this->Internal;
+  this->Internal = new vtkInformationInternals;
   if(from)
     {
-    this->Internal->Map = from->Internal->Map;
+    vtkInformationInternals::MapType::const_iterator i;
+    for(i=from->Internal->Map.begin(); i != from->Internal->Map.end(); ++i)
+      {
+      this->CopyEntry(from, i->first);
+      }
     }
-  else
-    {
-    this->Internal->Map.clear();
-    }
+  delete oldInternal;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key)
