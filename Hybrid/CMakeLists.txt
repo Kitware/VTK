@@ -40,6 +40,7 @@ vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
 vtkLineWidget.cxx
+vtkOrientationMarkerWidget.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPlaneWidget.cxx
 vtkPointWidget.cxx
