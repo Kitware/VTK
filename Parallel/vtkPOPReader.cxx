@@ -19,16 +19,19 @@
 #include "vtkImageData.h"
 #include "vtkImageReader.h"
 #include "vtkImageWrapPad.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.19");
+vtkCxxRevisionMacro(vtkPOPReader, "1.20");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -64,6 +67,8 @@ vtkPOPReader::vtkPOPReader()
   this->ClipExtent[5] = VTK_LARGE_INTEGER;
 
   this->NumberOfGhostLevels = 1;
+
+  this->SetNumberOfInputPorts(0);
 } 
 
 //----------------------------------------------------------------------------
@@ -76,7 +81,6 @@ vtkPOPReader::~vtkPOPReader()
   this->DepthValues->Delete();
   this->DepthValues = NULL;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkPOPReader::DeleteArrays()
@@ -154,10 +158,15 @@ void vtkPOPReader::AddArray(char *arrayName, char *fileName, unsigned long offse
   ++this->NumberOfArrays;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkPOPReader::ExecuteInformation()
+int vtkPOPReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int xDim, yDim, zDim;
   
   this->ReadInformationFile();  
@@ -217,21 +226,31 @@ void vtkPOPReader::ExecuteInformation()
     this->ClipExtent[5] += this->NumberOfGhostLevels;
     }
 
-  this->GetOutput()->SetWholeExtent(this->ClipExtent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->ClipExtent, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPOPReader::Execute()
+int vtkPOPReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkStructuredGrid *output;
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *points;
   vtkImageData *image;
   vtkDataArray *array;
   int ext[6];
   int i;
 
-  output = this->GetOutput();
-  
   cout << "Reading POP file\n";
   cout.flush();
 
@@ -255,7 +274,7 @@ void vtkPOPReader::Execute()
   wrap->SetOutputWholeExtent(ext);
 
   image = wrap->GetOutput();
-  output->GetUpdateExtent(ext);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
   output->SetExtent(ext);
   ext[4] = 0;
   ext[5] = 1;
@@ -263,7 +282,7 @@ void vtkPOPReader::Execute()
   image->Update();
   
   // Create the grid points from the grid image.
-  points = this->ReadPoints(image);
+  points = this->ReadPoints(image, outInfo);
   output->SetPoints(points);
   points->Delete();
   points = NULL;
@@ -297,13 +316,13 @@ void vtkPOPReader::Execute()
         vtkErrorMacro("FileDimensionality can only be 2 or 3.");
         reader->Delete();
         wrap->Delete();
-        return;
+        return 1;
         }
       reader->SetHeaderSize(this->ArrayOffsets[i] * 4 
                             * this->Dimensions[0] * this->Dimensions[1]);
       // Just in case.
       //reader->SetHeaderSize(0);
-      output->GetUpdateExtent(ext);
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
       image = wrap->GetOutput();
       image->SetUpdateExtent(ext);
       image->Update();
@@ -320,9 +339,10 @@ void vtkPOPReader::Execute()
   wrap = NULL;
 
   // If there is flow defined.
-  this->ReadFlow();
-}
+  this->ReadFlow(output, outInfo);
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 vtkPoints *vtkPOPReader::GeneratePoints()
@@ -376,7 +396,8 @@ vtkPoints *vtkPOPReader::GeneratePoints()
 
 
 //----------------------------------------------------------------------------
-vtkPoints *vtkPOPReader::ReadPoints(vtkImageData *image)
+vtkPoints *vtkPOPReader::ReadPoints(vtkImageData *image,
+                                    vtkInformation *outInfo)
 {
   vtkPoints *points;
   double x, y, z, depth, radius;
@@ -386,7 +407,8 @@ vtkPoints *vtkPOPReader::ReadPoints(vtkImageData *image)
 
   // The only different between these two is the z extent.  We should
   // probably ditch ext and user update extent to make things simpler.
-  int *updateExt = this->GetOutput()->GetUpdateExtent();
+  int *updateExt =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   int *ext = image->GetExtent();
   
   points = vtkPoints::New();
@@ -660,9 +682,9 @@ char *vtkPOPReader::MakeFileName(char *name)
   
 
 //----------------------------------------------------------------------------
-void vtkPOPReader::ReadFlow()
+void vtkPOPReader::ReadFlow(vtkStructuredGrid *output,
+                            vtkInformation *outInfo)
 {
-  vtkStructuredGrid *output;
   vtkDataArray *array;
   vtkImageData *fImage;
   int updateExt[6], wholeExt[6], ext[6];
@@ -683,7 +705,6 @@ void vtkPOPReader::ReadFlow()
     return;
     }
 
-  output = this->GetOutput();
   pts = output->GetPoints();
 
   ext[0] = ext[2] = ext[4] = 0;
@@ -710,13 +731,13 @@ void vtkPOPReader::ReadFlow()
   
   // Figure out what extent we need for the request.
   wrap->GetOutputWholeExtent(wholeExt);
-  output->GetUpdateExtent(updateExt);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExt);
   if (wholeExt[5] != updateExt[5])
     {
     vtkErrorMacro("Requested extent does not have bottom slice required for correct completion of the flow vectors.");
     }
 
-  output->GetUpdateExtent(ext);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
   for (idx = 0; idx < 3; ++idx)
     {
     --ext[idx*2];
@@ -927,12 +948,6 @@ void vtkPOPReader::ReadFlow()
   fImage->ReleaseData();
   fImage->Delete();
 }
-
-
-
-
-
-
   
 //----------------------------------------------------------------------------
 void vtkPOPReader::PrintSelf(ostream& os, vtkIndent indent)

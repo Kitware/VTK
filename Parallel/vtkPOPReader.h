@@ -20,17 +20,17 @@
 #ifndef __vtkPOPReader_h
 #define __vtkPOPReader_h
 
-#include "vtkStructuredGridSource.h"
+#include "vtkStructuredGridAlgorithm.h"
 
 class vtkFloatArray;
 class vtkImageData;
 class vtkPoints;
 
-class VTK_PARALLEL_EXPORT vtkPOPReader : public vtkStructuredGridSource 
+class VTK_PARALLEL_EXPORT vtkPOPReader : public vtkStructuredGridAlgorithm 
 {
 public:
   static vtkPOPReader *New();
-  vtkTypeRevisionMacro(vtkPOPReader,vtkStructuredGridSource);
+  vtkTypeRevisionMacro(vtkPOPReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -72,12 +72,12 @@ protected:
   vtkPOPReader();
   ~vtkPOPReader();
 
-  void ExecuteInformation();
-  void Execute();
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void ReadInformationFile();
-  vtkPoints *ReadPoints(vtkImageData *image);
-  void ReadFlow();
+  vtkPoints *ReadPoints(vtkImageData *image, vtkInformation *outInfo);
+  void ReadFlow(vtkStructuredGrid *output, vtkInformation *outInfo);
   // NOT USED
   vtkPoints *GeneratePoints();
   
@@ -102,14 +102,12 @@ protected:
   unsigned long *ArrayOffsets;
   int ArrayFileDimensionality;
 
-
   char *UFlowFileName;
   vtkSetStringMacro(UFlowFileName);
   unsigned long UFlowFileOffset;
   char *VFlowFileName;
   vtkSetStringMacro(VFlowFileName);
-  unsigned long VFlowFileOffset;
-  
+  unsigned long VFlowFileOffset;  
 
   int IsFileName(char *name);
   char *MakeFileName(char *name);
@@ -121,5 +119,3 @@ protected:
 };
 
 #endif
-
-
