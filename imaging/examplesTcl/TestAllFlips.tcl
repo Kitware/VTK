@@ -17,10 +17,6 @@ vtkImageCast imageFloat
   imageFloat SetInput [reader GetOutput]
   imageFloat SetOutputScalarTypeToFloat
 
-vtkImageFlip flipNO
-  flipNO SetInput [imageFloat GetOutput]
-  flipNO BypassOn
-
 vtkImageFlip flipX
   flipX SetInput [imageFloat GetOutput]
   flipX SetFilteredAxes $VTK_IMAGE_X_AXIS 
@@ -30,7 +26,7 @@ vtkImageFlip flipY
   flipY SetFilteredAxes $VTK_IMAGE_Y_AXIS 
 
 vtkImageAppend append
-  append AddInput [flipNO GetOutput]
+  append AddInput [imageFloat GetOutput]
   append AddInput [flipX GetOutput]
   append AddInput [flipY GetOutput]
   append SetAppendAxis $VTK_IMAGE_X_AXIS

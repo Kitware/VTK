@@ -25,22 +25,28 @@ Or \
 Nor"
 
 foreach operator $operators {
-    vtkImageMaskBits operator${operator}
-      operator${operator} SetInput [shrink GetOutput]
-      if { $operator != "ByPass" } {
+    if { $operator != "ByPass" } {    
+	vtkImageMaskBits operator${operator}
+	operator${operator} SetInput [shrink GetOutput]
         operator${operator} SetOperationTo${operator}
-      } else {
-        operator${operator} BypassOn
-      }     
-      operator${operator} SetMasks 255 255 0
+	operator${operator} SetMasks 255 255 0
+    } 
+    
     vtkImageMapper mapper${operator}
-      mapper${operator} SetInput [operator${operator} GetOutput]
-      mapper${operator} SetColorWindow 255
-      mapper${operator} SetColorLevel 127.5
+    if { $operator != "ByPass" } {    	
+	mapper${operator} SetInput [operator${operator} GetOutput]
+    } else {
+	mapper${operator} SetInput [shrink GetOutput]
+    }
+    mapper${operator} SetColorWindow 255
+    mapper${operator} SetColorLevel 127.5
+
     vtkActor2D actor${operator}
-      actor${operator} SetMapper mapper${operator}
+    actor${operator} SetMapper mapper${operator}
+
     vtkImager imager${operator}
-      imager${operator} AddActor2D actor${operator}
+    imager${operator} AddActor2D actor${operator}
+
     imgWin AddImager imager${operator}
 }
 
