@@ -819,15 +819,15 @@ void outputFunction2(FILE *fp, FileInfo *data)
                 quote_string(wrappedFunctions[fnum]->Comment,1000));
         }
       }
-    }
   
-  if (!strcmp("vtkObject",data->ClassName))
-    {
-    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
-    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
+    if (!strcmp("vtkObject",data->ClassName))
+      {
+      fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
+      fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
+      }
+    
+    fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
     }
-  
-  fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
 }
 
 
