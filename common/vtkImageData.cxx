@@ -317,10 +317,21 @@ void vtkImageData::AllocateScalars()
   // if the current type matches the new type then ignore
   if (vtkGetScalarType(this) == this->ScalarType) 
     {
-    this->PointData.GetScalars()->
-      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-			 (this->Extent[3] - this->Extent[2] + 1)*
-			 (this->Extent[5] - this->Extent[4] + 1));
+    if (this->ScalarType == VTK_UNSIGNED_CHAR)
+      {
+      this->PointData.GetScalars()->
+	SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+			   (this->Extent[3] - this->Extent[2] + 1)*
+			   (this->Extent[5] - this->Extent[4] + 1));
+      }
+    else
+      {
+      this->PointData.GetScalars()->
+	SetNumberOfScalars(this->NumberOfScalarComponents*
+			   (this->Extent[1] - this->Extent[0] + 1)*
+			   (this->Extent[3] - this->Extent[2] + 1)*
+			   (this->Extent[5] - this->Extent[4] + 1));
+      }
     return;
     }
   
@@ -369,11 +380,23 @@ void vtkImageData::AllocateScalars()
   this->PointData.GetScalars()->UnRegister(this);
   
   // allocate enough memory
-  this->PointData.GetScalars()->
-    SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-		       (this->Extent[3] - this->Extent[2] + 1)*
-		       (this->Extent[5] - this->Extent[4] + 1));
+  if (this->ScalarType == VTK_UNSIGNED_CHAR)
+    {
+    this->PointData.GetScalars()->
+      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+			 (this->Extent[3] - this->Extent[2] + 1)*
+			 (this->Extent[5] - this->Extent[4] + 1));
+    }
+  else
+    {
+    this->PointData.GetScalars()->
+      SetNumberOfScalars(this->NumberOfScalarComponents*
+			 (this->Extent[1] - this->Extent[0] + 1)*
+			 (this->Extent[3] - this->Extent[2] + 1)*
+			 (this->Extent[5] - this->Extent[4] + 1));
+    }
 }
+
 
 
 int vtkImageData::GetScalarSize()
@@ -383,17 +406,13 @@ int vtkImageData::GetScalarSize()
     {
     case VTK_FLOAT:
       return sizeof(float);
-      break;
     case VTK_INT:
       return sizeof(int);
-      break;
     case VTK_SHORT:
     case VTK_UNSIGNED_SHORT:
       return 2;
-      break;
     case VTK_UNSIGNED_CHAR:
       return 1;
-      break;
     }
   
   return 1;
