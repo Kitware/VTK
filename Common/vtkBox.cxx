@@ -16,9 +16,10 @@
 
 =========================================================================*/
 #include "vtkBox.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBox, "1.1");
+vtkCxxRevisionMacro(vtkBox, "1.2");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -152,51 +153,94 @@ float vtkBox::EvaluateFunction(float x[3])
 // Evaluate box gradient.
 void vtkBox::EvaluateGradient(float x[3], float n[3])
 {
-  int i, dir[3], loc[3], minAxis, minDir;
+  int i, loc[3], minAxis=0;
   float dist, minDist=VTK_LARGE_FLOAT, center[3];
+  float inDir[3], outDir[3];
   
-  // Compute the location of the point with respect to the box
+  // Compute the location of the point with respect to the box.
+  // Ultimately the point will lie in one of 27 separate regions around
+  // or within the box. The gradient vector is computed differently in
+  // each of the regions.
+  inDir[0] = inDir[1] = inDir[2] = 0.0f;
+  outDir[0] = outDir[1] = outDir[2] = 0.0f;
   for (i=0; i<3; i++)
     {
+    center[i] = (this->XMin[i] + this->XMax[i])/2.0;
     if ( x[i] < this->XMin[i] )
       {
       loc[i] = 0;
+      outDir[i] = -1.0f;
       }
     else if ( x[i] > this->XMax[i] )
       {
       loc[i] = 2;
+      outDir[i] = 1.0f;
       }
     else
       {
       loc[i] = 1;
-      center[i] = (this->XMin[i] + this->XMax[i])/2.0;
       if ( x[i] <= center[i] )
         {
         dist = x[i] - this->XMin[i];
-        dir[i] = -1;
+        inDir[i] = -1.0f;
         }
       else
         {
         dist = this->XMax[i] - x[i];
-        dir[i] = 1;
+        inDir[i] = 1.0f;
         }
       if ( dist < minDist ) //remember, it's negative
         {
         minDist = dist;
         minAxis = i;
-        minDir = dir[i];
         }
       }//if inside
     }//for all coordinate directions
   
   int indx = loc[0] + 3*loc[1] + 9*loc[2];
 
-  n[0] = n[1] = n[2] = 0.0;
   switch (indx)
     {
-    case 0:
+    // verts - gradient points away from center point
+    case 0: case 2: case 6: case 8: case 18: case 20: case 24: case 26:
+      for (i=0; i<3; i++)
+        {
+        n[i] = x[i] - center[i]; 
+        }
+      vtkMath::Normalize(n);
       break;
       
+    // edges - gradient points out from axis of cube
+    case 1: case 3: case 5: case 7: 
+    case 9: case 11: case 15: case 17:
+    case 19: case 21: case 23: case 25:
+      for (i=0; i<3; i++)
+        {
+        if ( outDir[i] != 0.0f )
+          {
+          n[i] = x[i] - center[i]; 
+          }
+        else
+          {
+          n[i] = 0.0;
+          }
+        }
+      vtkMath::Normalize(n);
+      break;
+    
+    // faces - gradient points perpendicular to face
+    case 4: case 10: case 12: case 14: case 16: case 22:
+      for (i=0; i<3; i++)
+        {
+        n[i] = outDir[i];
+        }
+      break;
+    
+    // interior - gradient is perpendicular to closest face
+    case 13:
+      n[0] = n[1] = n[2] = 0.0;
+      n[minAxis] = inDir[minAxis];
+      break;
     }
 }
 
