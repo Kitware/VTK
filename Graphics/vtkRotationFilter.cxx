@@ -24,12 +24,17 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.4");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.5");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
 vtkRotationFilter::vtkRotationFilter()
 {
+  this->Axis = 0;
+  this->CopyInput = 0;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0;
+  this->NumberOfCopies = 0;
+  this->Angle = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -44,7 +49,8 @@ void vtkRotationFilter::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "Axis: " << this->Axis << endl;
   os << indent << "CopyInput: " << this->CopyInput << endl;
-  os << indent << "Center: " << this->Center << endl;
+  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1] 
+               << "," << this->Center[2] << ")" << endl;
   os << indent << "NumberOfCopies: " << this->NumberOfCopies << endl;
   os << indent << "Angle: " << this->Angle << endl;
 }
