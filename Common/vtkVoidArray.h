@@ -24,19 +24,21 @@
 #ifndef __vtkVoidArray_h
 #define __vtkVoidArray_h
 
-#include "vtkDataArray.h"
+#include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkVoidArray : public vtkDataArray
+class VTK_COMMON_EXPORT vtkVoidArray : public vtkObject
 {
 public:
+  // Description:
+  // Initialize with empty array.
   static vtkVoidArray *New();
 
-  vtkTypeRevisionMacro(vtkVoidArray,vtkDataArray);
+  vtkTypeRevisionMacro(vtkVoidArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
-  // Note that ext is no longer used.
+  // Note that the parameter ext is no longer used.
   int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
   // Description:
@@ -44,149 +46,77 @@ public:
   void Initialize();
 
   // Description:
-  // Get the data type.
-  int GetDataType() {return VTK_VOID;};
+  // Return the type of data.
+  int GetDataType() {return VTK_VOID;}
   
   // Description:
-  // Return the size of the data type.
+  // Return the size of the data contained in the array.
   int GetDataTypeSize() { return sizeof(void*); }
   
   // Description:
-  // Set the number of n-tuples in the array.
-  void SetNumberOfTuples(const vtkIdType number);
+  // Set the number of void* pointers held in the array.
+  void SetNumberOfPointers(const vtkIdType number)
+    {this->Allocate(number); this->NumberOfPointers = number;}
 
   // Description:
-  // Get a pointer to a tuple at the ith location.
-  float *GetTuple(const vtkIdType i);
+  // Get the number of void* pointers held in the array.
+  vtkIdType GetNumberOfPointers()
+    {return this->NumberOfPointers;}
 
   // Description:
-  // Copy the tuple value into a user-provided array.
-  void GetTuple(const vtkIdType i, float * tuple);
-  void GetTuple(const vtkIdType i, double * tuple);
+  // Get the void* pointer at the ith location.
+  void* GetVoidPointer(const vtkIdType id)
+    {return this->Array[id];}
 
   // Description:
-  // Set the tuple value at the ith location in the array.
-  void SetTuple(const vtkIdType i, const float * tuple);
-  void SetTuple(const vtkIdType i, const double * tuple);
+  // Set the void* pointer value at the ith location in the array.
+  void SetVoidPointer(const vtkIdType id, void* ptr)
+    {this->Array[id] = ptr;}
 
   // Description:
-  // Insert (memory allocation performed) the tuple into the ith location
+  // Insert (memory allocation performed) the void* into the ith location
   // in the array.
-  void InsertTuple(const vtkIdType i, const float * tuple);
-  void InsertTuple(const vtkIdType i, const double * tuple);
+  void InsertVoidPointer(const vtkIdType i, void* ptr);
 
   // Description:
-  // Insert (memory allocation performed) the tuple onto the end of the array.
-  vtkIdType InsertNextTuple(const float * tuple);
-  vtkIdType InsertNextTuple(const double * tuple);
+  // Insert (memory allocation performed) the void* pointer at the 
+  // end of the array.
+  vtkIdType InsertNextVoidPointer(void* tuple);
 
   // Description:
-  // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() {this->ResizeAndExtend (this->MaxId+1);};
-
-  // Description:
-  // Resize the array while conserving the data.
-  virtual void Resize(vtkIdType numTuples);
-
-  // Description:
-  // Get the data at a particular index.
-  void* GetValue(const vtkIdType id) {return this->Array[id];};
-
-  // Description:
-  // Specify the number of values for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetValue() method for fast insertion.
-  void SetNumberOfValues(const vtkIdType number);
-
-  // Description:
-  // Set the data at a particular index. Does not do range checking. Make sure
-  // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const vtkIdType id, void *value);
-
-  // Description:
-  // Insert data at a specified position in the array.
-  void InsertValue(const vtkIdType id, void* p);
-
-  // Description:
-  // Insert data at the end of the array. Return its location in the array.
-  vtkIdType InsertNextValue(void* v);
+  // Resize the array to just fit the inserted memory. Reclaims extra memory.
+  void Squeeze() 
+    {this->ResizeAndExtend (this->NumberOfPointers);}
 
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
   void** GetPointer(const vtkIdType id) {return this->Array + id;}
-  void *GetVoidPointer(const vtkIdType id) {return this->GetPointer(id);};
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set MaxId according to the number of
-  // data values requested.
+  // for the number of items requested. Set NumberOfPointers according to 
+  // the number of data values requested.
   void** WritePointer(const vtkIdType id, const vtkIdType number);
   
   // Description:
   // Deep copy of another void array.
-  void DeepCopy(vtkDataArray *da);
+  void DeepCopy(vtkVoidArray *va);
   
-
 protected:
   vtkVoidArray();
   ~vtkVoidArray();
 
-  void** Array;  // pointer to data
+  vtkIdType NumberOfPointers;
+  vtkIdType Size; 
+  void**    Array;  // pointer to data
+
   void** ResizeAndExtend(const vtkIdType sz);  // function to resize data
 
-  int TupleSize; //used for data conversion
-  float *Tuple;
 private:
   vtkVoidArray(const vtkVoidArray&);  // Not implemented.
   void operator=(const vtkVoidArray&);  // Not implemented.
 };
-
-
-inline void vtkVoidArray::SetNumberOfValues(const vtkIdType number) 
-{
-  this->Allocate(number);
-  this->MaxId = number - 1;
-}
-
-inline void vtkVoidArray::SetValue(const vtkIdType id, void *value) 
-{
-  this->Array[id] = value;
-}
-
-inline void** vtkVoidArray::WritePointer(const vtkIdType id,
-                                         const vtkIdType number) 
-{
-  vtkIdType newSize=id+number;
-  if ( newSize > this->Size )
-    {
-    this->ResizeAndExtend(newSize);
-    }
-  if ( (--newSize) > this->MaxId )
-    {
-    this->MaxId = newSize;
-    }
-  return this->Array + id;
-}
-
-inline void vtkVoidArray::InsertValue(const vtkIdType id, void* p)
-{
-  if ( id >= this->Size )
-    {
-    this->ResizeAndExtend(id+1);
-    }
-  this->Array[id] = p;
-  if ( id > this->MaxId )
-    {
-    this->MaxId = id;
-    }
-}
-
-inline vtkIdType vtkVoidArray::InsertNextValue(void* p)
-{
-  this->InsertValue (++this->MaxId,p);
-  return this->MaxId;
-}
 
 
 #endif
