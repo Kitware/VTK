@@ -13,6 +13,16 @@ AC_ARG_WITH(patented,
      VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi,)
 
+AC_ARG_WITH(shared,
+         [  --with-shared               create shared libraries],
+         [vtk_shared_ok=$withval], [vtk_shared_ok=no])
+
+# if not using shared libraries, then repeat libraries twice to handle
+# circular dependencies
+if test "$vtk_shared_ok" = "no"; then
+     VTK_LIB_FILE="${VTK_LIB_FILE} ${VTK_LIB_FILE}"
+fi
+
 AC_SUBST(VTK_LIB_FILE)
 
 
