@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.9");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.10");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -638,6 +638,6 @@ void vtkCocoaRenderWindow::ShowCursor()
     }
   this->CursorHidden = 0;
 
-  [NSCursor show];
+  [NSCursor unhide];
 }				   
 
