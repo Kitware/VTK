@@ -68,7 +68,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleImage *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleImage, vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyleImage, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
