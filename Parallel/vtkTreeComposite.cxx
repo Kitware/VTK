@@ -813,6 +813,8 @@ void vtkTreeComposite::InitializeOffScreen()
   renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
   if (renWin)
     {
+    // Lets keep the render window single buffer
+    renWin->DoubleBufferOff();
     // I do not want to replace the original.
     renWin = renWin;
     }
