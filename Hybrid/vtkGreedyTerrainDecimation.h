@@ -69,7 +69,6 @@ class vtkDoubleArray;
 //PIMPL Encapsulation for STL containers
 class vtkGreedyTerrainDecimationTerrainInfoType;
 class vtkGreedyTerrainDecimationPointInfoType;
-class vtkGreedyTerrainDecimationTriangleInfoType;
 
 #define VTK_ERROR_NUMBER_OF_TRIANGLES 0
 #define VTK_ERROR_SPECIFIED_REDUCTION 1
@@ -172,7 +171,6 @@ protected:
   vtkPriorityQueue                           *TerrainError; //errors for each pt in height field
   vtkGreedyTerrainDecimationTerrainInfoType  *TerrainInfo;  //owning triangle for each pt
   vtkGreedyTerrainDecimationPointInfoType    *PointInfo;    //map mesh pt id to input pt id
-  vtkGreedyTerrainDecimationTriangleInfoType *TriangleInfo; //triangle info for each tri in mesh
   
   //Make a guess at initial allocation
   void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType &numPts, vtkIdType &numTris);
