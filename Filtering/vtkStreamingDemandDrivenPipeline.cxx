@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.12");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.13");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -354,6 +354,10 @@ vtkStreamingDemandDrivenPipeline
             {
             if(outData->GetExtentType() == VTK_PIECES_EXTENT)
               {
+              if (outInfo->Get(UPDATE_PIECE_NUMBER()) < 0)
+                {
+                return;
+                }
               inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
               inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
               inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
@@ -374,7 +378,10 @@ vtkStreamingDemandDrivenPipeline
               int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
               int numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
               int ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
-              inExec->SetUpdateExtent(inPort, piece, numPieces, ghostLevel);
+              if (piece >= 0)
+                {
+                inExec->SetUpdateExtent(inPort, piece, numPieces, ghostLevel);
+                }
               }
             else if(outData->GetExtentType() == VTK_3D_EXTENT)
               {
