@@ -467,20 +467,20 @@ wm withdraw .
 #renWin SaveImageAsPPM
 
 proc DeleteCopies {} {
-global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon bTriangleStrip bLine bPolyLine bVertex bPolyVertex
-$bVoxel Delete
-$bHexahedron Delete
-$bTetra Delete
-$bPixel Delete
-$bQuad Delete
-$bTriangle Delete
-$bPolygon Delete
-$bTriangleStrip Delete
-$bLine Delete
-$bPolyLine Delete
-$bVertex Delete
-$bPolyVertex Delete
-
+  global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon
+  global bTriangleStrip bLine bPolyLine bVertex bPolyVertex
+  $bVoxel Delete
+  $bHexahedron Delete
+  $bTetra Delete
+  $bPixel Delete
+  $bQuad Delete
+  $bTriangle Delete
+  $bPolygon Delete
+  $bTriangleStrip Delete
+  $bLine Delete
+  $bPolyLine Delete
+  $bVertex Delete
+  $bPolyVertex Delete
 }
 
 DeleteCopies
