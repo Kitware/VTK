@@ -253,7 +253,7 @@ void vtkStructuredGridGeometryFilter::Execute()
               {
               x = input->GetPoint(pos+i);
               ptIds[0] = newPts->InsertNextPoint(x);
-              outPD->CopyData(pd,idx,ptIds[0]);
+              outPD->CopyData(pd,pos+i,ptIds[0]);
               newVerts->InsertNextCell(1,ptIds);
               }
             }
