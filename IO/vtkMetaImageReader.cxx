@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.2");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.3");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -473,11 +473,15 @@ void vtkMetaImageReader::ExecuteInformation()
       vtkErrorMacro(<< "Spacing " << cc << " is 0.");
       }
     }
+  for ( cc = ndims; cc < 3; cc ++ )
+    {
+    dims[cc] = 1;
+    }
 
   this->SetDataScalarType(data_type);
   this->SetNumberOfScalarComponents(number_of_channels);
   this->SetDataExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1);
-  this->SetFileDimensionality(ndims);
+  this->SetFileDimensionality(3);
   this->SetDataSpacing(spacing);
   this->SetDataOrigin(origin);
 
@@ -498,5 +502,5 @@ void vtkMetaImageReader::ExecuteInformation()
 void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "MHDFileName: " << this->MHDFileName << endl;
+  os << indent << "MHDFileName: " << (this->MHDFileName?this->MHDFileName:"(none)") << endl;
 }
