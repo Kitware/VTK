@@ -124,6 +124,12 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
+  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
+    {
+    inInc1 = -inInc1;
+    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
+    }  
+  
   // Loop through in regions pixels
   inPtr1 = inPtr;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
@@ -175,6 +181,11 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
   
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
+  
+  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
+    {
+    inInc1 = -inInc1;
+    }
   
   // Loop through in regions pixels
   redPtr1 = redPtr;
@@ -384,9 +395,25 @@ void vtkImageWin32Viewer::Render(void)
 
   if (this->ColorFlag)
     {
-    ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
-    ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
-    ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
+    if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
+      {
+      ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
+      ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
+      ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
+      }
+    else
+      {
+      ptr0 = region->GetScalarPointer(extent[0], extent[3], this->Red);
+      ptr1 = region->GetScalarPointer(extent[0], extent[3], this->Green);
+      ptr2 = region->GetScalarPointer(extent[0], extent[3], this->Blue);
+      }
+    
+    if ( ! ptr0 ||! ptr1 || ! ptr2)
+      {
+      vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
+      return;
+      }
+
     // Call the appropriate templated function
     switch (region->GetScalarType())
       {

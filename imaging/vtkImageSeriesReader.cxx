@@ -134,7 +134,6 @@ void vtkImageSeriesReader::Initialize()
   for (idx = this->FileDimensionality+1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->FileIncrements[idx] = this->FileIncrements[this->FileDimensionality];
-    cerr << idx << ": increment " << this->FileIncrements[idx] << "\n";
     }
   
   // Recompute the header size.
