@@ -48,8 +48,8 @@ vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [reader2 GetOutput]
 viewer SetZSlice 22
-viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetColorWindow 300
+viewer SetColorLevel 150
 
 
 # make interface
