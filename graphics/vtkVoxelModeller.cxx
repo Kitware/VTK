@@ -114,6 +114,8 @@ void vtkVoxelModeller::Execute()
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds(origin,spacing);
+  output->SetSpacing(spacing);
+  output->SetOrigin(origin);
 //
 // Voxel widths are 1/2 the height, width, length of a voxel
 //
