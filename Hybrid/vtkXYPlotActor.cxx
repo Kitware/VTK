@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.56");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.57");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -211,29 +211,10 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->TitleActor->Delete();
   this->TitleActor = NULL;
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
-  
-  if (this->XTitle)
-    {
-    delete [] this->XTitle;
-    this->XTitle = NULL;
-    }
-  
-  if (this->YTitle)
-    {
-    delete [] this->YTitle;
-    this->YTitle = NULL;
-    }
-  
-  if (this->LabelFormat) 
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  this->SetTitle(0);
+  this->SetXTitle(0);
+  this->SetYTitle(0);
+  this->SetLabelFormat(0);
 
   this->XAxis->Delete();
   this->YAxis->Delete();
@@ -327,7 +308,7 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
   delete [] this->SelectedInputScalars;
   this->SelectedInputScalars = newNames;
 
-  // Save the component it the int array.
+  // Save the component in the int array.
   this->SelectedInputScalarsComponent->InsertValue(num, component);
 
   // Add the data set to the collection
@@ -442,7 +423,7 @@ void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 {
-  int renderedSomething=0;
+  int renderedSomething = 0;
 
   // Make sure input is up to date.
   if ( this->InputList->GetNumberOfItems() < 1 && 
@@ -454,7 +435,7 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 
   renderedSomething += this->XAxis->RenderOverlay(viewport);
   renderedSomething += this->YAxis->RenderOverlay(viewport);
-  if ( this->Title != NULL )
+  if ( this->Title )
     {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
@@ -760,7 +741,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkDebugMacro(<<"Rendering plotactors");
     renderedSomething += this->PlotActor[i]->RenderOpaqueGeometry(viewport);
     }
-  if ( this->Title != NULL )
+  if ( this->Title )
     {
     vtkDebugMacro(<<"Rendering titleactors");
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
@@ -1582,9 +1563,9 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     else
       {
       if ( this->GetPlotPoints(i) == 0 || 
-           (this->LegendActor->GetEntrySymbol(i) &&
-            this->LegendActor->GetEntrySymbol(i) != 
-            this->GlyphSource->GetOutput()))
+          (this->LegendActor->GetEntrySymbol(i) &&
+           this->LegendActor->GetEntrySymbol(i) != 
+           this->GlyphSource->GetOutput()))
         {
         this->PlotData[i]->SetVerts(NULL);
         }
@@ -2041,10 +2022,11 @@ int vtkXYPlotActor::GetDataObjectYComponent(int i)
   return this->YComponent->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPointComponent(int i, int comp)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
-  int val=this->XComponent->GetValue(i);
+  int val = this->XComponent->GetValue(i);
   if ( val != comp )
     {
     this->Modified();
@@ -2060,7 +2042,8 @@ int vtkXYPlotActor::GetPointComponent(int i)
 }
 
 //----------------------------------------------------------------------------
-double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3])
+double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2],
+                                       double x[3], double xNew[3])
 {
   // First worry about exchanging axes
   if ( this->ExchangeAxes )
@@ -2124,3 +2107,49 @@ void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 
   this->Modified();
 }
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::PrintAsCSV(ostream &os)
+{
+  // First thing we need the number of points:
+  vtkPolyData *pd = this->PlotData[0];
+  vtkPoints* points = pd->GetPoints();
+  vtkIdType numPts = points->GetNumberOfPoints ();
+  
+  for( int j = 0 ; j < this->NumberOfInputs; j++)
+    {
+    //then the X and Y title:
+    if( j == 0 )
+      {
+      os << this->SelectedInputScalars[j];
+      }
+    else
+      {
+      os << "," << this->SelectedInputScalars[j];
+      }
+    }
+  os << endl;
+
+  // For each point
+  for(int i=0; i<numPts; i++)
+    {
+    // Iterate over all polydata:
+    for( int j = 0 ; j< this->NumberOfInputs; j++)
+      {
+      // Go on to the next polydata
+      pd = this->PlotData[j];
+      points = pd->GetPoints();
+      double *pt = points->GetPoint(i);
+      if( j == 0 )
+        {
+        // Special case we also need to put the X points
+        os << pt[0];
+        }
+      // Now put Y points
+      os << "," << pt[1];
+      }
+    os << endl;
+    }
+
+}
+
