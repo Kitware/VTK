@@ -54,6 +54,8 @@ vlCamera::vlCamera()
   this->Orientation[0] = 0.0;
   this->Orientation[1] = 0.0;
   this->Orientation[2] = 0.0;
+  
+  this->FocalDisk = 1.0;
 }
 
 // Description:

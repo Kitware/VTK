@@ -76,6 +76,13 @@ class vlCamera : public vlObject
   // images.
   vlGetMacro(EyeAngle,float);
 
+  // Description:
+  // Set the size of the cameras lense in world coordinates.
+  vlSetMacro(FocalDisk,float);
+  // Description:
+  // Get the size of the cameras lense in world coordinates.
+  vlGetMacro(FocalDisk,float);
+
   void SetThickness(float);
   vlGetMacro(Thickness,float);
 
@@ -130,7 +137,8 @@ class vlCamera : public vlObject
   vlTransform Transform;
   vlTransform PerspectiveTransform;
   float Orientation[3];
-
+  float FocalDisk;
 };
 
 #endif
+
