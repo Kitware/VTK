@@ -28,7 +28,7 @@ public:
 
   float Pi() {return 3.14159265358979;};
 
-  float DegreesToRadians() {return 0.018977369;};
+  float DegreesToRadians() {return 0.017453292;};
 
   float Dot(float x[3], float y[3]) 
     {return x[0]*y[0] + x[1]*y[1] + x[2]*y[2];};
