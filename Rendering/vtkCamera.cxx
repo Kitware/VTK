@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.105");
+vtkCxxRevisionMacro(vtkCamera, "1.106");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -735,6 +735,12 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 {
   this->PerspectiveTransform->Identity();
 
+  // apply user defined transform last if there is one 
+  if (this->UserTransform)
+    {
+    this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
+    }
+
   // adjust Z-buffer range
   this->PerspectiveTransform->AdjustZBuffer(-1, +1, nearz, farz);
 
@@ -804,11 +810,6 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
                                       this->ViewShear[2]*this->Distance);
     }
   
-  // apply user defined transform last if there is one 
-  if (this->UserTransform)
-    {
-    this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
-    }
 }
 
 //----------------------------------------------------------------------------
