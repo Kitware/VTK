@@ -44,7 +44,7 @@ vtkVolumeProperty volumeProperty
     volumeProperty SetScalarOpacityUnitDistance 0.75
 
 # The mapper / ray cast function / ray integrator know how to render the data
-vtkUnstructuredGridVolumeZsweepMapper volumeMapper
+vtkUnstructuredGridVolumeZSweepMapper volumeMapper
     volumeMapper SetInput [trifilter GetOutput]
 
 #vtkUnstructuredGridLinearRayIntegrator rayIntegrator

@@ -34,7 +34,7 @@ IF (VTK_USE_RENDERING)
       TestStyleTrackballActor
       TestStyleTrackballCamera
       TestTiling
-      TestZsweep
+      TestZSweep
       volRCClipPlanes
       volRCCropRegions
       volRCRotateClip

@@ -75,6 +75,12 @@ vtkPicker.cxx
 vtkPointPicker.cxx
 vtkPolyDataMapper.cxx
 vtkPolyDataMapper2D.cxx
+
+vtkProjectedTetrahedraMapper.cxx
+vtkVisibilitySort.cxx
+vtkCellCenterDepthSort.cxx
+vtkSortDataArray.cxx
+
 vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
@@ -107,7 +113,7 @@ vtkUnstructuredGridVolumeRayCastFunction.cxx
 vtkUnstructuredGridVolumeRayCastIterator.cxx
 vtkUnstructuredGridVolumeRayIntegrator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
-vtkUnstructuredGridVolumeZsweepMapper.cxx
+vtkUnstructuredGridVolumeZSweepMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
@@ -170,6 +176,7 @@ vtkUnstructuredGridVolumeRayIntegrator
 vtkVolumeMapper
 vtkVolumeRayCastFunction
 vtkVolumeTextureMapper
+vtkVisibilitySort
 ABSTRACT
 )
 

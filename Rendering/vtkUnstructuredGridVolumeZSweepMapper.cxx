@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridVolumeZsweepMapper.cxx
+  Module:    vtkUnstructuredGridVolumeZSweepMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkUnstructuredGridVolumeZsweepMapper.h"
+#include "vtkUnstructuredGridVolumeZSweepMapper.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
@@ -2183,17 +2183,17 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.8");
-vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.1");
+vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
-vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
+vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
                      vtkUnstructuredGridVolumeRayIntegrator);
 
 
 //-----------------------------------------------------------------------------
 // Description:
 // Set MaxPixelListSize to 32.
-vtkUnstructuredGridVolumeZsweepMapper::vtkUnstructuredGridVolumeZsweepMapper()
+vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
 {
   this->MaxPixelListSize=64; // default value.
   
@@ -2261,7 +2261,7 @@ vtkUnstructuredGridVolumeZsweepMapper::vtkUnstructuredGridVolumeZsweepMapper()
 }
 
 //-----------------------------------------------------------------------------
-vtkUnstructuredGridVolumeZsweepMapper::~vtkUnstructuredGridVolumeZsweepMapper()
+vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
 {
   if(this->MemoryManager!=0)
     {
@@ -2320,7 +2320,7 @@ vtkUnstructuredGridVolumeZsweepMapper::~vtkUnstructuredGridVolumeZsweepMapper()
 }
 
 //-----------------------------------------------------------------------------
-float vtkUnstructuredGridVolumeZsweepMapper::RetrieveRenderTime(
+float vtkUnstructuredGridVolumeZSweepMapper::RetrieveRenderTime(
   vtkRenderer *ren, 
   vtkVolume   *vol )
 {
@@ -2339,7 +2339,7 @@ float vtkUnstructuredGridVolumeZsweepMapper::RetrieveRenderTime(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::StoreRenderTime(
+void vtkUnstructuredGridVolumeZSweepMapper::StoreRenderTime(
   vtkRenderer *ren, 
   vtkVolume   *vol, 
   float       time )
@@ -2396,7 +2396,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::StoreRenderTime(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::SelectScalarArray(int arrayNum)
+void vtkUnstructuredGridVolumeZSweepMapper::SelectScalarArray(int arrayNum)
 {
   if (   (this->ArrayId == arrayNum)
       && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) )
@@ -2410,7 +2410,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::SelectScalarArray(int arrayNum)
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::SelectScalarArray(
+void vtkUnstructuredGridVolumeZSweepMapper::SelectScalarArray(
   const char *arrayName)
 {
   if (   !arrayName
@@ -2429,7 +2429,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::SelectScalarArray(
 
 //-----------------------------------------------------------------------------
 // Return the method for obtaining scalar data.
-const char *vtkUnstructuredGridVolumeZsweepMapper::GetScalarModeAsString(void)
+const char *vtkUnstructuredGridVolumeZSweepMapper::GetScalarModeAsString(void)
 {
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
     {
@@ -2454,7 +2454,7 @@ const char *vtkUnstructuredGridVolumeZsweepMapper::GetScalarModeAsString(void)
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::PrintSelf(ostream& os,
+void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
                                                       vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -2499,7 +2499,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::PrintSelf(ostream& os,
 // During the rendering, if a list of pixel is full, incremental compositing
 // is performed. Even if it is a user setting, it is an advanced parameter.
 // You have to understand how the algorithm works to change this value.
-int vtkUnstructuredGridVolumeZsweepMapper::GetMaxPixelListSize()
+int vtkUnstructuredGridVolumeZSweepMapper::GetMaxPixelListSize()
 {
   return this->MaxPixelListSize;
 }
@@ -2508,7 +2508,7 @@ int vtkUnstructuredGridVolumeZsweepMapper::GetMaxPixelListSize()
 // Description:
 // Change the maximum size allowed for a pixel list. It is an advanced
 // parameter.
-void vtkUnstructuredGridVolumeZsweepMapper::SetMaxPixelListSize(int size)
+void vtkUnstructuredGridVolumeZSweepMapper::SetMaxPixelListSize(int size)
 {
   assert("pre: positive_size" && size>0);
   this->MaxPixelListSize=size;
@@ -2530,7 +2530,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::SetMaxPixelListSize(int size)
 // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
 // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
 // Render the volume
-void vtkUnstructuredGridVolumeZsweepMapper::Render(vtkRenderer *ren,
+void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
                                                    vtkVolume *vol)
 {
   vtkDebugMacro(<<"Render");
@@ -2827,7 +2827,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::Render(vtkRenderer *ren,
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::AllocateUseSet(vtkIdType size)
+void vtkUnstructuredGridVolumeZSweepMapper::AllocateUseSet(vtkIdType size)
 {
   if(this->UseSet!=0)
     {
@@ -2848,7 +2848,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::AllocateUseSet(vtkIdType size)
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::AllocateVertices(vtkIdType size)
+void vtkUnstructuredGridVolumeZSweepMapper::AllocateVertices(vtkIdType size)
 {
   if(this->Vertices!=0)
     {
@@ -2865,7 +2865,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::AllocateVertices(vtkIdType size)
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::BuildUseSets()
+void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
 {
   int needsUpdate = 0;
   
@@ -2928,7 +2928,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::BuildUseSets()
 // Description:
 // Reorder vertices `v' in increasing order in `w'. Orientation does not
 // matter for the algorithm.
-void vtkUnstructuredGridVolumeZsweepMapper::ReorderTriangle(vtkIdType v[3],
+void vtkUnstructuredGridVolumeZSweepMapper::ReorderTriangle(vtkIdType v[3],
                                                             vtkIdType w[3])
 {
   if(v[0]>v[1])
@@ -2977,7 +2977,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::ReorderTriangle(vtkIdType v[3],
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::ProjectAndSortVertices(
+void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   vtkRenderer *ren,
   vtkVolume *vol)
 {
@@ -3062,7 +3062,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::ProjectAndSortVertices(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::CreateAndCleanPixelList()
+void vtkUnstructuredGridVolumeZSweepMapper::CreateAndCleanPixelList()
 {
   // paper: a "pixel list" is a double linked list. We put that in a queue.
   vtkIdType size=this->ImageInUseSize[0]*this->ImageInUseSize[1];
@@ -3082,7 +3082,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::CreateAndCleanPixelList()
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
+void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 {
   double previousZTarget;
   double zTarget;
@@ -3301,7 +3301,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::SavePixelListFrame()
+void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
 {
   vtkPolyData *dataset=vtkPolyData::New();
   
@@ -3366,7 +3366,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::SavePixelListFrame()
 //-----------------------------------------------------------------------------
 // Description:
 // Perform a scan conversion of a triangle, interpolating z and the scalar.
-void vtkUnstructuredGridVolumeZsweepMapper::RasterizeFace(vtkIdType faceIds[3])
+void vtkUnstructuredGridVolumeZSweepMapper::RasterizeFace(vtkIdType faceIds[3])
 {
   // The triangle is splitted by an horizontal line passing through the
   // second vertex v1 (y-order)
@@ -3383,7 +3383,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeFace(vtkIdType faceIds[3])
 //-----------------------------------------------------------------------------
 // Description:
 // Perform a scan conversion of a triangle, interpolating z and the scalar.
-void  vtkUnstructuredGridVolumeZsweepMapper::RasterizeTriangle(
+void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
   vtkVertexEntry *ve0,
   vtkVertexEntry *ve1,
   vtkVertexEntry *ve2
@@ -3670,7 +3670,7 @@ void  vtkUnstructuredGridVolumeZsweepMapper::RasterizeTriangle(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::RasterizeSpan(int y,
+void vtkUnstructuredGridVolumeZSweepMapper::RasterizeSpan(int y,
                                                           vtkScreenEdge *left,
                                                           vtkScreenEdge *right)
 {
@@ -3723,7 +3723,7 @@ enum
 };
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::RasterizeLine(vtkVertexEntry *v0,
+void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
                                                           vtkVertexEntry *v1)
 {
   assert("pre: v0_exists" && v0!=0);
@@ -3966,7 +3966,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeLine(vtkVertexEntry *v0,
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
+void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
 {
   int y=this->YBounds[0];
   vtkIdType i=y*this->ImageInUseSize[0]+this->XBounds[0];
@@ -4133,7 +4133,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
 //-----------------------------------------------------------------------------
 // Description:
 // Convert and clamp a float color component into a unsigned char.
-unsigned char vtkUnstructuredGridVolumeZsweepMapper::ColorComponentRealToByte(
+unsigned char vtkUnstructuredGridVolumeZSweepMapper::ColorComponentRealToByte(
   float color)
 {
   int val=static_cast<int>(color*255.0);
@@ -4152,7 +4152,7 @@ unsigned char vtkUnstructuredGridVolumeZsweepMapper::ColorComponentRealToByte(
 }
 
 //-----------------------------------------------------------------------------
-double vtkUnstructuredGridVolumeZsweepMapper::GetZBufferValue(int x,
+double vtkUnstructuredGridVolumeZSweepMapper::GetZBufferValue(int x,
                                                               int y)
 {
   int xPos, yPos;
@@ -4167,7 +4167,7 @@ double vtkUnstructuredGridVolumeZsweepMapper::GetZBufferValue(int x,
 }
 
 //-----------------------------------------------------------------------------
-double vtkUnstructuredGridVolumeZsweepMapper::GetMinimumBoundsDepth(
+double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
   vtkRenderer *ren,
   vtkVolume   *vol )
 {

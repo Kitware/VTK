@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridVolumeZsweepMapper.h
+  Module:    vtkUnstructuredGridVolumeZSweepMapper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridVolumeZsweepMapper - Unstructured grid volume mapper based the ZSweep Algorithm
+// .NAME vtkUnstructuredGridVolumeZSweepMapper - Unstructured grid volume mapper based the ZSweep Algorithm
 
 // .SECTION Description
 // This is a volume mapper for unstructured grid implemented with the ZSweep
@@ -29,8 +29,8 @@
 // October 2000.
 // http://www.cse.ogi.edu/~csilva/papers/volvis2000.pdf
 
-#ifndef __vtkUnstructuredGridVolumeZsweepMapper_h
-#define __vtkUnstructuredGridVolumeZsweepMapper_h
+#ifndef __vtkUnstructuredGridVolumeZSweepMapper_h
+#define __vtkUnstructuredGridVolumeZSweepMapper_h
 
 #include "vtkUnstructuredGridVolumeMapper.h"
 
@@ -59,15 +59,15 @@ class vtkDoubleScreenEdge;
 class vtkVertexEntry;
 class vtkPixelListEntryMemory;
 
-class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeZsweepMapper : public vtkUnstructuredGridVolumeMapper
+class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper,vtkUnstructuredGridVolumeMapper);
+  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
   
   // Description:
   // Set MaxPixelListSize to 32.
-  static vtkUnstructuredGridVolumeZsweepMapper *New();
+  static vtkUnstructuredGridVolumeZSweepMapper *New();
   
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -179,8 +179,8 @@ public:
 //ETX
   
 protected:
-  vtkUnstructuredGridVolumeZsweepMapper();
-  ~vtkUnstructuredGridVolumeZsweepMapper();
+  vtkUnstructuredGridVolumeZSweepMapper();
+  ~vtkUnstructuredGridVolumeZSweepMapper();
   
   // Description:
   // For each vertex, find the list of incident faces.
@@ -365,8 +365,8 @@ protected:
   
   vtkPixelListEntryMemory *MemoryManager;
 private:
-  vtkUnstructuredGridVolumeZsweepMapper(const vtkUnstructuredGridVolumeZsweepMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeZsweepMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
 };
 
 #endif
