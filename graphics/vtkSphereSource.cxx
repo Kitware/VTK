@@ -65,21 +65,23 @@ vtkSphereSource::vtkSphereSource(int res)
 void vtkSphereSource::Execute()
 {
   int i, j;
+  int jStart, jEnd, numOffset;
   int numPts, numPolys;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
-  int pts[3], base, numPoles=0, thetaResolution;
+  int pts[3], base, numPoles=0, thetaResolution, phiResolution;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 //
 // Set things up; allocate memory
 //
 
-  numPts = (this->PhiResolution - 1) * this->ThetaResolution + 2;
+
+  numPts = this->PhiResolution * this->ThetaResolution + 2;
   // creating triangles
-  numPolys = (this->PhiResolution - 1) * 2 * this->ThetaResolution;
+  numPolys = this->PhiResolution * 2 * this->ThetaResolution;
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -127,18 +129,26 @@ void vtkSphereSource::Execute()
   endPhi = (this->EndPhi > this->StartPhi ? this->EndPhi : this->StartPhi);
   endPhi *= vtkMath::Pi() / 180.0;
 
-  deltaPhi = (endPhi - startPhi) / this->PhiResolution;
+
+  phiResolution = this->PhiResolution - numPoles;
+  deltaPhi = (endPhi - startPhi) / (this->PhiResolution - 1);
   thetaResolution = (fabs(this->StartTheta - this->EndTheta) >= 360.0 ?
 		     this->ThetaResolution : this->ThetaResolution - 1);
   deltaTheta = (endTheta - startTheta) / thetaResolution;
+
+
+  jStart = (this->StartPhi <= 0.0 ? 1 : 0);
+  jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1 
+        : this->PhiResolution);
+
 
   // Create intermediate points
   for (i=0; i < this->ThetaResolution; i++)
     {
     theta = startTheta + i*deltaTheta;
-    for (j=0; j < (this->PhiResolution-1); j++)
+    for (j=jStart; j<jEnd; j++)
       {
-      phi = startPhi + (j+1)*deltaPhi;
+      phi = startPhi + j*deltaPhi;
       radius = this->Radius * sin((double)phi);
       n[0] = radius * cos((double)theta);
       n[1] = radius * sin((double)theta);
@@ -158,31 +168,14 @@ void vtkSphereSource::Execute()
     }
 
   // Generate mesh connectivity
-  if ( fabs(this->StartTheta - this->EndTheta) >= 360.0 )
-    {  
-    // this if statement is only here to work around a bug
-    // in MSVC 5.0 (including SP 3). It occurs in the 
-    // optimized build where MSVC simply doesn't evaluate
-    // the if clause properly even if the math is done
-    // outside the if statement.
-    if (this->Debug)
-      {
-      cerr << "Work around Microsoft compiler bug\n";
-      }
-    base = (this->PhiResolution - 1) * this->ThetaResolution;
-    }
-  else
-    {
-    base = (this->PhiResolution - 1)*this->ThetaResolution + 1;
-    }
-
-  
-  if ( this->StartPhi <= 0.0 ) // around north pole
+  base = phiResolution * this->ThetaResolution;
+ 
+  if ( this->StartPhi <= 0.0 )  // around north pole
     {
     for (i=0; i < thetaResolution; i++)
       {
-      pts[0] = (this->PhiResolution-1)*i + numPoles;
-      pts[1] = (((this->PhiResolution-1)*(i+1)) % base) + numPoles;
+      pts[0] = phiResolution*i + numPoles;
+      pts[1] = (phiResolution*(i+1) % base) + numPoles;
       pts[2] = 0;
       newPolys->InsertNextCell(3,pts);
       }
@@ -190,10 +183,13 @@ void vtkSphereSource::Execute()
   
   if ( this->EndPhi >= 180.0 ) // around south pole
     {
+    numOffset = phiResolution - 1 + numPoles;
+
+
     for (i=0; i < thetaResolution; i++)
       {
-      pts[0] = (this->PhiResolution-1)*i + this->PhiResolution - (2-numPoles);
-      pts[2] = (((this->PhiResolution-1)*(i+1)) % base) + this->PhiResolution - (2-numPoles);
+      pts[0] = phiResolution*i + numOffset;
+      pts[2] = ((phiResolution*(i+1)) % base) + numOffset;
       pts[1] = numPoles - 1;
       newPolys->InsertNextCell(3,pts);
       }
@@ -202,11 +198,11 @@ void vtkSphereSource::Execute()
   // bands inbetween poles
   for (i=0; i < thetaResolution; i++)
     {
-    for (j=0; j < (this->PhiResolution-2); j++)
+    for (j=0; j < (phiResolution-1); j++)
       {
-      pts[0] = numPoles + (this->PhiResolution-1)*i + j;
+      pts[0] = phiResolution*i + j + numPoles;
       pts[1] = pts[0] + 1;
-      pts[2] = (((this->PhiResolution-1)*(i+1)+j) % base) + numPoles + 1;
+      pts[2] = ((phiResolution*(i+1)+j) % base) + numPoles + 1;
       newPolys->InsertNextCell(3,pts);
 
       pts[1] = pts[2];

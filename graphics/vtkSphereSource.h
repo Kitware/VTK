@@ -88,7 +88,7 @@ public:
   // Description:
   // Set the number of points in the latitude direction (ranging
   // from StartPhi to EndPhi).
-  vtkSetClampMacro(PhiResolution,int,2,VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution,int);
 
   // Description:
