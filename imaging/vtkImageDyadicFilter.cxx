@@ -200,13 +200,6 @@ vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     return;
     }
   
-  // Make sure the Input has been set.
-  if ( ! this->Input1 || ! this->Input2)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
-  
   // Make the input regions that will be used to generate the output region
   inRegion1 = new vtkImageRegion;
   inRegion2 = new vtkImageRegion;
@@ -223,22 +216,11 @@ vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   inRegion2->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion1, inRegion2);
 
-  // Cheap and dirty streaming 
-  // No split order instance variable, and can not split into two ...
-  if (inRegion1->GetMemorySize() > this->InputMemoryLimit || 
-      inRegion2->GetMemorySize() > this->InputMemoryLimit)
+  // Streaming not implmented yet. (don't forget to consider scalar type)
+  if ((inRegion1->GetVolume() / 1000) > this->InputMemoryLimit || 
+      (inRegion2->GetVolume() / 1000) > this->InputMemoryLimit)
     {
-    inRegion1->Delete();
-    inRegion2->Delete();
-    if (dim == 0)
-      {
-      vtkErrorMacro(<< "UpdatePointData: Memory Limit "
-                    << this->InputMemoryLimit << " must be really small");
-      }
-    else
-      {
-      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
-      }
+    vtkErrorMacro(<< "Streaming not implemented yet.");
     return;
     }
   

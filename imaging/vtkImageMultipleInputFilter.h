@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth1D.cxx
+  Module:    vtkImageMultipleInputFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,85 +38,72 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include<math.h>
-#include "vtkImageGaussianSmooth1D.h"
+// .NAME vtkImageMultipleInputFilter - Generic filter that has N inputs.
+// .SECTION Description
+// vtkImageMultipleInputFilter is a super class for filters that 
+// any number of inputs.
 
 
-//----------------------------------------------------------------------------
-vtkImageGaussianSmooth1D::vtkImageGaussianSmooth1D()
+
+
+#ifndef __vtkImageMultipleInputFilter_h
+#define __vtkImageMultipleInputFilter_h
+
+
+#include "vtkImageCachedSource.h"
+#include "vtkImageRegion.h"
+
+class vtkImageMultipleInputFilter : public vtkImageCachedSource
 {
-  this->StandardDeviation = 1.0;
-  this->RadiusFactor = 2.0;
-  this->Radius = 2;
-  this->ComputeKernel();
-}
+public:
+  vtkImageMultipleInputFilter();
+  char *GetClassName() {return "vtkImageMultipleInputFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the Gaussian kernel.
-void vtkImageGaussianSmooth1D::ComputeKernel()
-{
-  int idx, radius = this->Radius;
-  float *kernel;
-  float sum, std = this->StandardDeviation;
-
-  // generate the kernel
-  kernel = new float[2 * radius + 1];
-  kernel[radius] = 1.0;
-  sum = 0.5;
-  for (idx = 1; idx <= radius; ++idx)
-    sum += kernel[radius + idx] = 
-      exp(- (float)(idx * idx) / (2.0 * std * std));
-
-  // normalize
-  sum = 0.5 / sum;
-  kernel[radius] *= sum;
-  for (idx = 1; idx <= radius; ++idx)
-    kernel[radius + idx] = kernel[radius - idx] = 
-      kernel[radius + idx] * sum;
-
-  this->BoundaryRescaleOn();
+  virtual void SetInput(int num, vtkImageSource *input);
+  void UpdatePointData(int dim, vtkImageRegion *outRegion);
+  void UpdateImageInformation(vtkImageRegion *outRegion);
+  unsigned long int GetPipelineMTime();
   
-  // set the kernel
-  this->SetKernel(kernel, Radius * 2 + 1);
-
-  // free kernel
-  delete [] kernel;
-}
+  vtkSetMacro(UseExecuteMethod,int);
+  vtkGetMacro(UseExecuteMethod,int);
+  vtkBooleanMacro(UseExecuteMethod,int);
   
+  // Description:
+  // Get one input to this filter.
+  vtkImageSource *GetInput(int num) {return this->Inputs[num];};
 
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetStandardDeviation(float std)
-{
-  this->StandardDeviation = std;
-  this->Radius = (int)(std * this->RadiusFactor);
-  this->Modified();
-  this->ComputeKernel();
-}
+  // Description:
+  // Set/Get input memory limit.  Make this smaller to stream.
+  vtkSetMacro(InputMemoryLimit,long);
+  vtkGetMacro(InputMemoryLimit,long);
 
-
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetRadiusFactor(float factor)
-{
-  this->RadiusFactor = factor;
-  this->Radius = (int)(this->StandardDeviation * factor);
-  this->Modified();
-  this->ComputeKernel();
-}
+  // Description:
+  // Get the number of inputs to this filter
+  vtkGetMacro(NumberOfInputs, int);
   
+  
+protected:
+  int NumberOfInputs;
+  vtkImageSource **Inputs;     // An Array of the inputs to the filter
+  vtkImageRegion **Regions;   // We need an array for inputs.
+  int UseExecuteMethod;        // Use UpdatePointData or Execute method?
 
+  long InputMemoryLimit;
+  
+  // Should be set in the constructor.
+  void SetNumberOfInputs(int num);
+  
+  virtual void ComputeOutputImageInformation(vtkImageRegion **inRegions,
+					     vtkImageRegion *outRegion);
+  virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
+						vtkImageRegion **inRegions);
+  virtual void Execute(int dim, vtkImageRegion **inRegions,
+		       vtkImageRegion *outRegion);
+  virtual void Execute(vtkImageRegion **inRegions, vtkImageRegion *outRegion);
+};
 
-
-
-
-
-
-
-
-
-
+#endif
 
 
 

@@ -63,6 +63,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Get the stride of the filter.  Strides are like shrink factors.
+  void GetStrides(int num, int *size);
+  vtkImageGetMacro(Strides,int);
+  int *GetStrides() {return this->Strides;};
+  
+  // Description:
   // Get the Spatial kernel size and middle.
   void GetKernelSize(int num, int *size);
   vtkImageGetMacro(KernelSize,int);
@@ -85,6 +91,7 @@ public:
   // users shouldn't access these directly but templated functions need to
   int   KernelSize[VTK_IMAGE_DIMENSIONS];
   int   KernelMiddle[VTK_IMAGE_DIMENSIONS];      // Index of kernel origin
+  int   Strides[VTK_IMAGE_DIMENSIONS];      // Shrink factor
   int   HandleBoundaries;     // Shrink kernel at boundaries?
   int   UseExecuteCenter;     // Will the subclass have special execute method.
 

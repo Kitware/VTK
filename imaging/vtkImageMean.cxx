@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth.cxx
+  Module:    vtkImageMean.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,16 +38,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageGaussianSmooth.h"
+#include "vtkImageMean.h"
 
 //----------------------------------------------------------------------------
-vtkImageGaussianSmooth::vtkImageGaussianSmooth()
+vtkImageMean::vtkImageMean()
 {
   int idx;
-
+  
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->Strides[idx] = 1;
+    this->KernelSize[idx] = 1;
     }
 }
 
@@ -55,7 +56,7 @@ vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 //----------------------------------------------------------------------------
 // Description:
 // This method sets up multiple smoothing filters
-void vtkImageGaussianSmooth::SetDimensionality(int num)
+void vtkImageMean::SetDimensionality(int num)
 {
   int idx;
   
@@ -71,10 +72,11 @@ void vtkImageGaussianSmooth::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageGaussianSmooth1D;
+    this->Filters[idx] = new vtkImageMean1D;
     this->Filters[idx]->SetAxes(this->Axes[idx]);
-    ((vtkImageGaussianSmooth1D *)
-     (this->Filters[idx]))->SetStride(this->Strides[idx]);
+    ((vtkImageMean1D *)
+     (this->Filters[idx]))->SetKernelSize(this->KernelSize[idx]);
+    ((vtkImageMean1D *)(this->Filters[idx]))->SetStride(this->Strides[idx]);
     }
   
   this->Dimensionality = num;
@@ -83,79 +85,86 @@ void vtkImageGaussianSmooth::SetDimensionality(int num)
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method sets the StandardDeviation. Both axes are the same.  
-// A future simple extension could make the kernel eliptical.
-void vtkImageGaussianSmooth::SetStandardDeviation(float std)
+void vtkImageMean::SetStrides(int num, int *Strides)
 {
   int idx;
   
-  if (this->Dimensionality == 0)
+  if (num > VTK_IMAGE_DIMENSIONS)
     {
-    vtkWarningMacro(<< "SetStandardDeviation: No Filters. "
-                    << "Try SetDimensionality first.");
+    vtkErrorMacro(<< "SetStrides: not that many dimensions.");
+    num = VTK_IMAGE_DIMENSIONS;
     }
-  
-  for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
-    if ( ! this->Filters[idx])
-      {
-      vtkWarningMacro(<< "SetStandardDeviation: Filter " << idx << " not set");
-      }
-    else
-      {
-      ((vtkImageGaussianSmooth1D *)
-       (this->Filters[idx]))->SetStandardDeviation(std);
-      }
-    }
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets the radius of the kernel in standard deviation units.
-void vtkImageGaussianSmooth::SetRadiusFactor(float factor)
-{
-  int idx;
-  
-  if (this->Dimensionality == 0)
-    {
-    vtkWarningMacro(<< "SetRadiusFactor: No Filters. "
-                    << "Try SetDimensionality first.");
-    }
-  
-  for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
-    if ( ! this->Filters[idx])
-      {
-      vtkWarningMacro(<< "SetRadiusFactor: Filter " << idx << " not set");
-      }
-    else
-      {
-      ((vtkImageGaussianSmooth1D *)
-       (this->Filters[idx]))->SetRadiusFactor(factor);
-      }
-    }
-
-  this->Modified();
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::SetStrides(int num, int *strides)
-{
-  int idx;
   
   for (idx = 0; idx < num; ++idx)
     {
-    this->Strides[idx] = strides[idx];
+    this->Strides[idx] = Strides[idx];
+    // Set the filter if it has been created.
     if (this->Filters[idx])
       {
-      ((vtkImageGaussianSmooth1D *)
-       (this->Filters[idx]))->SetStride(strides[idx]);
+      ((vtkImageMean1D *)(this->Filters[idx]))->SetStride(Strides[idx]);
       }
     }
-  
+
   this->Modified();
 }
+
+//----------------------------------------------------------------------------
+void vtkImageMean::GetStrides(int num, int *Strides)
+{
+  int idx;
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "GetStrides: not that many dimensions.");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    Strides[idx] = this->Strides[idx];
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageMean::SetKernelSize(int num, int *size)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetKernelSize: not that many dimensions.");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->KernelSize[idx] = size[idx];
+    // Set the filter if it has been created.
+    if (this->Filters[idx])
+      {
+      ((vtkImageMean1D *)(this->Filters[idx]))->SetKernelSize(size[idx]);
+      }
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMean::GetKernelSize(int num, int *size)
+{
+  int idx;
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "GetKernelSize: not that many dimensions.");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    size[idx] = this->KernelSize[idx];
+    }
+}
+

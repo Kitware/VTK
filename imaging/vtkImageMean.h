@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth1D.cxx
+  Module:    vtkImageMean.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,89 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include<math.h>
-#include "vtkImageGaussianSmooth1D.h"
+// .NAME vtkImageMean - smooths on a 3D plane.
+// .SECTION Description
+// vtkImageMean implements Gaussian smoothing over any number of 
+// axes. It really consists of multiple decomposed 1D filters.
 
 
-//----------------------------------------------------------------------------
-vtkImageGaussianSmooth1D::vtkImageGaussianSmooth1D()
+#ifndef __vtkImageMean_h
+#define __vtkImageMean_h
+
+
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageMean1D.h"
+
+class vtkImageMean : public vtkImageDecomposedFilter
 {
-  this->StandardDeviation = 1.0;
-  this->RadiusFactor = 2.0;
-  this->Radius = 2;
-  this->ComputeKernel();
-}
+public:
+  vtkImageMean();
+  char *GetClassName() {return "vtkImageMean";};
 
+  void SetDimensionality(int num);
 
+  // Description:
+  // Set/Get the size of the neighborhood to apply mean.
+  void SetKernelSize(int num, int *size);
+  vtkImageSetMacro(KernelSize, int);
+  void GetKernelSize(int num, int *size);
+  vtkImageGetMacro(KernelSize, int);
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the Gaussian kernel.
-void vtkImageGaussianSmooth1D::ComputeKernel()
-{
-  int idx, radius = this->Radius;
-  float *kernel;
-  float sum, std = this->StandardDeviation;
+  // Description:
+  // Set/Get the stride which shrinks the images.
+  void SetStrides(int num, int *size);
+  vtkImageSetMacro(Strides, int);
+  void GetStrides(int num, int *size);
+  vtkImageGetMacro(Strides, int);
 
-  // generate the kernel
-  kernel = new float[2 * radius + 1];
-  kernel[radius] = 1.0;
-  sum = 0.5;
-  for (idx = 1; idx <= radius; ++idx)
-    sum += kernel[radius + idx] = 
-      exp(- (float)(idx * idx) / (2.0 * std * std));
+protected:
+  int KernelSize[VTK_IMAGE_DIMENSIONS];
+  int Strides[VTK_IMAGE_DIMENSIONS];
+};
 
-  // normalize
-  sum = 0.5 / sum;
-  kernel[radius] *= sum;
-  for (idx = 1; idx <= radius; ++idx)
-    kernel[radius + idx] = kernel[radius - idx] = 
-      kernel[radius + idx] * sum;
-
-  this->BoundaryRescaleOn();
-  
-  // set the kernel
-  this->SetKernel(kernel, Radius * 2 + 1);
-
-  // free kernel
-  delete [] kernel;
-}
-  
-
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetStandardDeviation(float std)
-{
-  this->StandardDeviation = std;
-  this->Radius = (int)(std * this->RadiusFactor);
-  this->Modified();
-  this->ComputeKernel();
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetRadiusFactor(float factor)
-{
-  this->RadiusFactor = factor;
-  this->Radius = (int)(this->StandardDeviation * factor);
-  this->Modified();
-  this->ComputeKernel();
-}
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif
 
 
 

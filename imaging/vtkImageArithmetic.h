@@ -49,6 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageArithmetic_h
 
 
+// Operator options.
+#define VTK_ADD          0
+#define VTK_SUBTRACT     1
+#define VTK_MULTIPLY     2
+#define VTK_DIVIDE       3
+
+
 #include "vtkImageDyadicFilter.h"
 
 class vtkImageArithmetic : public vtkImageDyadicFilter
@@ -57,7 +64,19 @@ public:
   vtkImageArithmetic();
   char *GetClassName() {return "vtkImageArithmetic";};
 
+  // Description:
+  // Set/Get the operator to perform.
+  vtkSetMacro(Operator,int);
+  vtkGetMacro(Operator,int);
+  void SetOperatorAdd() {this->SetOperator(VTK_ADD);};
+  void SetOperatorSubtract() {this->SetOperator(VTK_SUBTRACT);};
+  void SetOperatorMultiply() {this->SetOperator(VTK_MULTIPLY);};
+  void SetOperatorDivide() {this->SetOperator(VTK_DIVIDE);};
+
+  
 protected:
+  int Operator;
+  
   void Execute(vtkImageRegion *inRegion1, 
 	       vtkImageRegion *inRegion2, 
 	       vtkImageRegion *outRegion);

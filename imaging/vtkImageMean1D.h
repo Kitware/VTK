@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth1D.cxx
+  Module:    vtkImageMean1D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,89 +38,59 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include<math.h>
-#include "vtkImageGaussianSmooth1D.h"
+// .NAME vtkImageMean1D - Mean of a neighborhood.
+// .SECTION Description
+// vtkImageMean1D replaces eache pixel with the mean of its neighborhood.
+// It is meant to be used by the decomposible mean filter.
+// It implements stride which will reduce the resolution of the image.
+// Start is center of the first neighborhood which will be mapped to
+// the pixel (0, 0, ...).  The input can be any type, but the output
+// is always the same type as the input.  Boundaries are always handled.
+// KernelCenter is set automatically.  If KernelCenter is set manually,
+// it should be in the range [0, KernelSize).
 
 
-//----------------------------------------------------------------------------
-vtkImageGaussianSmooth1D::vtkImageGaussianSmooth1D()
+#ifndef __vtkImageMean1D_h
+#define __vtkImageMean1D_h
+
+
+#include "vtkImageFilter.h"
+
+class vtkImageMean1D : public vtkImageFilter
 {
-  this->StandardDeviation = 1.0;
-  this->RadiusFactor = 2.0;
-  this->Radius = 2;
-  this->ComputeKernel();
-}
+public:
+  vtkImageMean1D();
+  char *GetClassName() {return "vtkImageMean1D";};
 
+  // Description:
+  // Set/Get the stride which will reduce the resolution of the output.
+  vtkSetMacro(Stride,int);
+  vtkGetMacro(Stride,int);
 
+  void SetKernelSize(int size);
+  // Description:
+  // Get the center of the kernel (neighborhood).
+  vtkGetMacro(KernelSize,int);
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the Gaussian kernel.
-void vtkImageGaussianSmooth1D::ComputeKernel()
-{
-  int idx, radius = this->Radius;
-  float *kernel;
-  float sum, std = this->StandardDeviation;
+  void SetKernelMiddle(int middle);
+  // Description:
+  // Set/Get the center of the kernel (neighborhood).
+  vtkGetMacro(KernelMiddle,int);
 
-  // generate the kernel
-  kernel = new float[2 * radius + 1];
-  kernel[radius] = 1.0;
-  sum = 0.5;
-  for (idx = 1; idx <= radius; ++idx)
-    sum += kernel[radius + idx] = 
-      exp(- (float)(idx * idx) / (2.0 * std * std));
-
-  // normalize
-  sum = 0.5 / sum;
-  kernel[radius] *= sum;
-  for (idx = 1; idx <= radius; ++idx)
-    kernel[radius + idx] = kernel[radius - idx] = 
-      kernel[radius + idx] * sum;
-
-  this->BoundaryRescaleOn();
-  
-  // set the kernel
-  this->SetKernel(kernel, Radius * 2 + 1);
-
-  // free kernel
-  delete [] kernel;
-}
+protected:
+  int KernelSize;
+  int KernelMiddle;
+  int Stride;
   
 
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetStandardDeviation(float std)
-{
-  this->StandardDeviation = std;
-  this->Radius = (int)(std * this->RadiusFactor);
-  this->Modified();
-  this->ComputeKernel();
-}
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
+};
 
-
-//----------------------------------------------------------------------------
-void vtkImageGaussianSmooth1D::SetRadiusFactor(float factor)
-{
-  this->RadiusFactor = factor;
-  this->Radius = (int)(this->StandardDeviation * factor);
-  this->Modified();
-  this->ComputeKernel();
-}
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif
 
 
 

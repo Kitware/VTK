@@ -61,7 +61,13 @@ public:
   void SetStandardDeviation(float std);
   void SetRadiusFactor(float factor);
 
+  // Description:
+  // Each axis can have a stride to srink the image.
+  void SetStrides(int num, int *strides);
+  vtkImageSetMacro(Strides, int);
+  
 protected:
+  int Strides[VTK_IMAGE_DIMENSIONS];
 };
 
 #endif

@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Replace the in range pixels with this value.
-  vtkSetMacro(InValue, float);
+  void SetInValue(float val);
   vtkGetMacro(InValue, float);
   
   // Description:
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Replace the in range pixels with this value.
-  vtkSetMacro(OutValue, float);
+  void SetOutValue(float val);
   vtkGetMacro(OutValue, float);
   
   // for the templated function (too many to make friends)

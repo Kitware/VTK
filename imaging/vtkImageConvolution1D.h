@@ -61,7 +61,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetKernel(float *kernel, int size);
-  void ComputeBoundaryFactors();
   
   // Description:
   // Set/Get whether to rescale boundary-truncated kernel
@@ -69,13 +68,18 @@ public:
   vtkGetMacro(BoundaryRescale,int);
   vtkBooleanMacro(BoundaryRescale,int);
 
+  // Description:
+  // This filter handles different strides to shrink the output.
+  void SetStride(int stride){ this->Strides[0] = stride; this->Modified();};
+  
   // users shouldn't access these directly but templated functions need to
   float *Kernel;
-  float *BoundaryFactors;     // Used to scale boundary-truncated kernel
+  float KernelArea;
   int   BoundaryRescale;  // Kernel is rescaled at boundaries
 
 protected:
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   
 };
 

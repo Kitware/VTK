@@ -49,13 +49,32 @@ vtkImageThreshold::vtkImageThreshold()
 {
   this->UpperThreshold = VTK_LARGE_FLOAT;
   this->LowerThreshold = -VTK_LARGE_FLOAT;
-  this->ReplaceIn = 1;
+  this->ReplaceIn = 0;
   this->InValue = 0.0;
   this->ReplaceOut = 0;
   this->OutValue = 0.0;
 
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageThreshold::SetInValue(float val)
+{
+  this->InValue = val;
+  this->ReplaceIn = 1;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageThreshold::SetOutValue(float val)
+{
+  this->OutValue = val;
+  this->ReplaceOut = 1;
+  this->Modified();
+}
+
+
 
 //----------------------------------------------------------------------------
 // Description:

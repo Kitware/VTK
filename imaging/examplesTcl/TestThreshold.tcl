@@ -34,9 +34,7 @@ thresh SetInput [reader GetOutput];
 thresh SetOutputScalarType $VTK_UNSIGNED_CHAR;
 thresh ThresholdByUpper 2000.0;
 thresh SetInValue 255;
-thresh ReplaceInOn;
 thresh SetOutValue 0;
-thresh ReplaceOutOn;
 thresh ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;

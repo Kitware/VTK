@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageArithmetic::vtkImageArithmetic()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->Operator = VTK_SUBTRACT;
 }
 
 
@@ -59,6 +60,7 @@ void vtkImageArithmeticExecute(vtkImageArithmetic *self,
 				       vtkImageRegion *in2Region, T *in2Ptr,
 				       vtkImageRegion *outRegion, T *outPtr)
 {
+  int op;
   int min0, max0, min1, max1;
   int idx0, idx1;
   int in1Inc0, in1Inc1;
@@ -68,7 +70,7 @@ void vtkImageArithmeticExecute(vtkImageArithmetic *self,
   T *in2Ptr0, *in2Ptr1;
   T *outPtr0, *outPtr1;
   
-  self = self;
+  op = self->GetOperator();
   
   // Get information to march through data 
   in1Region->GetIncrements(in1Inc0, in1Inc1);
@@ -88,8 +90,22 @@ void vtkImageArithmeticExecute(vtkImageArithmetic *self,
     for (idx0 = min0; idx0 <= max0; ++idx0)
       {
       
-      // Pixel operation
-      *outPtr0 = *in1Ptr0 - *in2Ptr0;
+      // Pixel operaton
+      switch (op)
+	{
+	case VTK_ADD:
+	  *outPtr0 = *in1Ptr0 + *in2Ptr0;
+	  break;
+	case VTK_SUBTRACT:
+	  *outPtr0 = *in1Ptr0 - *in2Ptr0;
+	  break;
+	case VTK_MULTIPLY:
+	  *outPtr0 = *in1Ptr0 * *in2Ptr0;
+	  break;
+	case VTK_DIVIDE:
+	  *outPtr0 = *in1Ptr0 / *in2Ptr0;
+	}
+      
       
       outPtr0 += outInc0;
       in1Ptr0 += in1Inc0;
