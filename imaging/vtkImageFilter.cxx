@@ -460,6 +460,10 @@ void vtkImageFilter::RecursiveLoopExecute(int dim, vtkImageRegion *inRegion,
       if (dim == 3)
         {
 	this->UpdateProgress ((float) (coordinate - inMin + 1) / (float) (inMax - inMin + 1));
+	if (coordinate == inMax)
+	  {
+	  this->Progress = 0.0;
+	  }
 	}
       this->RecursiveLoopExecute(dim - 1, inRegion, outRegion);
       }
