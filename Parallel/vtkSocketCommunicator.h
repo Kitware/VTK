@@ -123,17 +123,33 @@ public:
   int Receive(vtkDataArray *data, int remoteId, int tag)
     {return this->vtkCommunicator::Receive(data, remoteId, tag);}
 
+  // Description:
+  // Set or get the PerformHandshake ivar. If it is on, the communicator
+  // will try to perform a handshake when connected.
+  // It is on by default.
+  vtkSetClampMacro(PerformHandshake, int, 0, 1);
+  vtkBooleanMacro(PerformHandshake, int);
+  vtkGetMacro(PerformHandshake, int);
+
+  // Description:
+  // Wait for message and store it in the data. The message
+  // has maximum length of maxlength. It's actual length
+  // is stored in length.
+  int ReceiveMessage(char *data, int *length, int maxlength);
+
 protected:
 
   int Socket;
   int IsConnected;
   int NumberOfProcesses;
   int SwapBytesInReceivedData;
+  int PerformHandshake;
 
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
 
   int ReceiveMessage(char *data, int size, int length, int tag );
+
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.

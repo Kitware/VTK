@@ -48,7 +48,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.30");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.31");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -58,6 +58,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->IsConnected = 0;
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = 0;
+  this->PerformHandshake = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -255,28 +256,38 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   // This is really bad and should probably use some enum for types
   if (this->SwapBytesInReceivedData)
     {
-      if (size == 4)
-        {
-          vtkDebugMacro(<< " swapping 4 range, size = " << size << " length = " << length);
-          vtkSwap4Range(data, length);
-        }
-      else if (size == 8)
-        {
-          vtkDebugMacro(<< " swapping 8 range, size = " << size << " length = " << length );
-          vtkSwap8Range(data, length);
-        }
+    if (size == 4)
+      {
+      vtkDebugMacro(<< " swapping 4 range, size = " << size 
+      << " length = " << length);
+      vtkSwap4Range(data, length);
+      }
+    else if (size == 8)
+      {
+      vtkDebugMacro(<< " swapping 8 range, size = " << size 
+      << " length = " << length );
+      vtkSwap8Range(data, length);
+      }
     }
-
+  
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceiveMessage(char *data, int *length, 
+                                          int maxlength)
+{
+  *length = recv( this->Socket, data, maxlength, 0 );
+
+  return 1;
+}
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId, 
                                    int tag)
 {
   vtkSCCheckForError;
 
-  int retval = ReceiveMessage( (char *)data, sizeof(int), length, tag );
+  int retval = this->ReceiveMessage( (char *)data, sizeof(int), length, tag );
 
   if ( tag == vtkMultiProcessController::RMI_TAG )
     {
@@ -292,7 +303,8 @@ int vtkSocketCommunicator::Receive(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( (char *)data, sizeof(unsigned long), length, tag );
+  return this->ReceiveMessage( (char *)data, sizeof(unsigned long), 
+                               length, tag );
 }
 
 //----------------------------------------------------------------------------
@@ -301,7 +313,7 @@ int vtkSocketCommunicator::Receive(char *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( data, sizeof(char), length, tag);
+  return this->ReceiveMessage( data, sizeof(char), length, tag);
 }
 
 //----------------------------------------------------------------------------
@@ -310,7 +322,7 @@ int vtkSocketCommunicator::Receive(unsigned char *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( (char *)data, sizeof(char), length, tag);
+  return this->ReceiveMessage( (char *)data, sizeof(char), length, tag);
 }
 
 int vtkSocketCommunicator::Receive(float *data, int length, 
@@ -318,7 +330,7 @@ int vtkSocketCommunicator::Receive(float *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( (char *)data, sizeof(float), length, tag);
+  return this->ReceiveMessage( (char *)data, sizeof(float), length, tag);
 }
 
 int vtkSocketCommunicator::Receive(double *data, int length, 
@@ -326,7 +338,7 @@ int vtkSocketCommunicator::Receive(double *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( (char *)data, sizeof(double), length, tag);
+  return this->ReceiveMessage( (char *)data, sizeof(double), length, tag);
 }
 
 #ifdef VTK_USE_64BIT_IDS
@@ -335,7 +347,7 @@ int vtkSocketCommunicator::Receive(vtkIdType *data, int length,
 {
   vtkSCCheckForError;
 
-  return ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
+  return this->ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
 }
 #endif
 
@@ -371,27 +383,31 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     
   this->IsConnected = 1;
 
-  // Handshake to determine if the client machine has the same endianness
-  char clientIsBE;
-  if ( !ReceiveMessage( &clientIsBE, sizeof(char), 1,
-                        vtkSocketController::ENDIAN_TAG) )
+  if ( this->PerformHandshake )
     {
-    vtkErrorMacro("Endian handshake failed.");
-    return 0;
-    }
-  vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) << "-endian");
-
+    // Handshake to determine if the client machine has the same endianness
+    char clientIsBE;
+    if ( !this->ReceiveMessage( &clientIsBE, sizeof(char), 1,
+                                vtkSocketController::ENDIAN_TAG) )
+      {
+      vtkErrorMacro("Endian handshake failed.");
+      return 0;
+      }
+    vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) 
+    << "-endian");
+    
 #ifdef VTK_WORDS_BIGENDIAN
-  char IAmBE = 1;
+    char IAmBE = 1;
 #else
-  char IAmBE = 0;
+    char IAmBE = 0;
 #endif
-  vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
-
-  if ( clientIsBE != IAmBE )
-    {
-    this->SwapBytesInReceivedData = 1;
+    vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
+    SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+    
+    if ( clientIsBE != IAmBE )
+      {
+      this->SwapBytesInReceivedData = 1;
+      }
     }
 
   return 1;
@@ -454,8 +470,8 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
 
   char serverIsBE;
-  if ( !ReceiveMessage( &serverIsBE, sizeof(char), 1,
-                        vtkSocketController::ENDIAN_TAG ) )
+  if ( !this->ReceiveMessage( &serverIsBE, sizeof(char), 1,
+                              vtkSocketController::ENDIAN_TAG ) )
     {
     vtkErrorMacro("Endian handshake failed.");
     return 0;
