@@ -16,6 +16,7 @@
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 
+#ifdef VTK_MAKE_INSTANTIATOR
 /*
  * Make sure all the kits register their classes with vtkInstantiator.
  */
@@ -40,7 +41,7 @@
 #ifdef VTK_USE_PARALLEL
 #include "vtkParallelInstantiator.h"
 #endif
-
+#endif
 
 /*
  *----------------------------------------------------------------------

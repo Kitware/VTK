@@ -41,5 +41,7 @@
 
 #cmakedefine VTK_USE_ANSI_STDLIB
 
+#cmakedefine VTK_MAKE_INSTANTIATOR
+
 /* compiler used */
 #define VTK_CXX_COMPILER "${CMAKE_CXX_COMPILER}"
