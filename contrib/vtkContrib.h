@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPatented.h
+  Module:    vtkContrib.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,14 +39,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-#include "vtkDecimate.h"
-#include "vtkDividingCubes.h"
-#include "vtkGridSynchronizedTemplates3D.h"
-#include "vtkImageMarchingCubes.h"
-#include "vtkKitwareContourFilter.h"
-#include "vtkMarchingCubes.h"
-#include "vtkMarchingSquares.h"
-#include "vtkSliceCubes.h"
-#include "vtkSweptSurface.h"
-#include "vtkSynchronizedTemplates2D.h"
-#include "vtkSynchronizedTemplates3D.h"
+#include "vtkCellDerivatives.h"
+#include "vtkCubeAxesActor2D.h"
+#include "vtkDEMReader.h"
+#include "vtkEarthSource.h"
+#include "vtkIVWriter.h"
+#include "vtkImageReslice.h"
+#include "vtkMassProperties.h"
+#include "vtkOBJReader.h"
+#include "vtkProjectedTexture.h"
+#include "vtkRIBExporter.h"
+#include "vtkRIBLight.h"
+#include "vtkRIBProperty.h"
+#include "vtkRenderLargeImage.h"
+#include "vtkSubdivideTetra.h"
+#include "vtkSuperquadric.h"
+#include "vtkSuperquadricSource.h"
+#include "vtkSurfaceReconstructionFilter.h"
