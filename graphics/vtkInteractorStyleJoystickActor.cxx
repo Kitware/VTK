@@ -233,8 +233,6 @@ void vtkInteractorStyleJoystickActor::RotateXY(int x, int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::PanXY(int x, int y)
 {
-  vtkCamera *cam;
-  
   if (this->CurrentRenderer == NULL)
     {
     return;

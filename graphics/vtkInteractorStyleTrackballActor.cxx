@@ -228,16 +228,11 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::PanXY(int x, int y, int oldX, int oldY)
 {
-  vtkCamera *cam;
-  
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
 
-  // calculate the focal depth since we'll be using it a lot
-  cam = this->CurrentRenderer->GetActiveCamera();
-  
   vtkRenderWindowInteractor *rwi = this->Interactor;
   
   // use initial center as the origin from which to pan
