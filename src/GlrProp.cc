@@ -30,40 +30,49 @@ static float mat[] = {
 
 // Description:
 // Implement base class method.
-void vlGlrProperty::Render(vlRenderer *ren)
+void vlGlrProperty::Render(vlProperty *prop, vlRenderer *ren)
 {
-  this->Render((vlGlrRenderer *)ren);
+  this->Render(prop, (vlGlrRenderer *)ren);
 }
 
 // Description:
 // Actual property render method.
-void vlGlrProperty::Render(vlGlrRenderer *ren)
+void vlGlrProperty::Render(vlProperty *prop, vlGlrRenderer *ren)
 {
   int i, method;
+  float Ambient, Diffuse, Specular;
+  float *AmbientColor, *DiffuseColor, *SpecularColor;
 
   // unbind any textures for starters
   texbind(TX_TEXTURE_0,0);
 
   lmcolor (LMC_NULL);
-  mat[1] = this->Transparency;
-  mat[15] = this->SpecularPower;
+  mat[1] = prop->GetTransparency();
+  mat[15] = prop->GetSpecularPower();
+
+  Ambient = prop->GetAmbient();
+  Diffuse = prop->GetDiffuse();
+  Specular = prop->GetSpecular();
+  AmbientColor = prop->GetAmbientColor();
+  DiffuseColor = prop->GetDiffuseColor();
+  SpecularColor = prop->GetSpecularColor();
 
   for (i=0; i < 3; i++) 
     {
-    mat[i+3] = this->Ambient*this->AmbientColor[i];
-    mat[i+7] = this->Diffuse*this->DiffuseColor[i];
-    mat[i+11] = this->Specular*this->SpecularColor[i];
+    mat[i+3] = Ambient*AmbientColor[i];
+    mat[i+7] = Diffuse*DiffuseColor[i];
+    mat[i+11] = Specular*SpecularColor[i];
     }
-  
+
   lmdef(DEFMATERIAL, 1, 0, mat);
   lmbind(MATERIAL, 1);
   lmbind (BACKMATERIAL, 0);  
 
   // Tell the geometry primitives about the default properties 
-  vlGlrPrimitive::SetProperty(this);
+  vlGlrPrimitive::SetProperty(prop);
 
   // set interpolation 
-  switch (this->Interpolation) 
+  switch (prop->GetInterpolation()) 
     {
     case VL_FLAT:
       method = FLAT;

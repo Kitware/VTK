@@ -111,27 +111,13 @@ vlGlrRenderWindow::vlGlrRenderWindow()
 }
 
 // Description:
-// Create a gl-specific actor.
-vlActor *vlGlrRenderWindow::MakeActor()
-{
-  vlActor *actor;
-  vlGlrProperty *prop;
-
-  actor = new vlActor;
-  prop  = new vlGlrProperty;
-
-  actor->SetProperty((vlProperty *)prop);
-  return (vlActor *)actor;
-}
-
-// Description:
 // Create a gl specific light.
-vlLight *vlGlrRenderWindow::MakeLight()
+vlLightDevice *vlGlrRenderWindow::MakeLight()
 {
   vlGlrLight *light;
 
   light = new vlGlrLight;
-  return (vlLight *)light;
+  return (vlLightDevice *)light;
 }
 
 // Description:
@@ -151,32 +137,32 @@ vlRenderer *vlGlrRenderWindow::MakeRenderer()
 
 // Description:
 // Create a gl specific camera.
-vlCamera *vlGlrRenderWindow::MakeCamera()
+vlCameraDevice *vlGlrRenderWindow::MakeCamera()
 {
   vlGlrCamera *camera;
 
   camera = new vlGlrCamera;
-  return (vlCamera *)camera;
+  return (vlCameraDevice *)camera;
 }
 
 // Description:
 // Create a gl specific property.
-vlProperty *vlGlrRenderWindow::MakeProperty()
+vlPropertyDevice *vlGlrRenderWindow::MakeProperty()
 {
   vlGlrProperty *property;
 
   property = new vlGlrProperty;
-  return (vlProperty *)property;
+  return (vlPropertyDevice *)property;
 }
 
 // Description:
 // Create a gl specific texture.
-vlTexture *vlGlrRenderWindow::MakeTexture()
+vlTextureDevice *vlGlrRenderWindow::MakeTexture()
 {
   vlGlrTexture *texture;
 
   texture = new vlGlrTexture;
-  return (vlTexture *)texture;
+  return (vlTextureDevice *)texture;
 }
 
 // Description:

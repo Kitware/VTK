@@ -40,11 +40,10 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
   
   vlRenderer  *MakeRenderer();
-  vlActor     *MakeActor();
-  vlLight     *MakeLight();
-  vlCamera    *MakeCamera();
-  vlTexture   *MakeTexture();
-  vlProperty  *MakeProperty();
+  vlLightDevice     *MakeLight();
+  vlCameraDevice    *MakeCamera();
+  vlTextureDevice   *MakeTexture();
+  vlPropertyDevice  *MakeProperty();
 
   void Start(void);
   void Frame(void);

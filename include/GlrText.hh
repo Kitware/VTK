@@ -21,18 +21,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlGlrTexture_hh
 #define __vlGlrTexture_hh
 
-#include "Texture.hh"
+#include "TextDev.hh"
 
 class vlGlrRenderer;
 
-class vlGlrTexture : public vlTexture
+class vlGlrTexture : public vlTextureDevice
 {
 public:
   vlGlrTexture();
   char *GetClassName() {return "vlGlrTexture";};
   
-  void Load(vlRenderer *ren);
-  void Load(vlGlrRenderer *ren);
+  void Load(vlTexture *txt, vlRenderer *ren);
+  void Load(vlTexture *txt, vlGlrRenderer *ren);
   
 protected:
   vlTimeStamp   LoadTime;

@@ -40,14 +40,14 @@ void stereopersp(int fovy, float aspect, float near, float far,
 
 // Description:
 // Implement base class method.
-void vlGlrCamera::Render(vlRenderer *ren)
+void vlGlrCamera::Render(vlCamera *cam, vlRenderer *ren)
 {
-  this->Render((vlGlrRenderer *)ren);
+  this->Render(cam, (vlGlrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlGlrCamera::Render(vlGlrRenderer *ren)
+void vlGlrCamera::Render(vlCamera *cam, vlGlrRenderer *ren)
 {
   float aspect[3];
   float *vport;
@@ -57,6 +57,7 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   int left,right,bottom,top;
   float twist;
   int stereo;
+  float *Position, *FocalPoint, *ClippingRange;
 
   // get the bounds of the window 
   getsize(&width,&height);
@@ -79,7 +80,7 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VL_STEREO_CRYSTAL_EYES:
-	if (this->LeftEye) 
+	if (cam->GetLeftEye()) 
 	  {
 	  bottom = (int)(532 + (1023-532)*vport[1]);
 	  top = (int)(532 + (1023-532)*vport[3]);
@@ -127,30 +128,34 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
 
   mmode(MPROJECTION);
 
+  ClippingRange = cam->GetClippingRange();
+  Position = cam->GetPosition();
+  FocalPoint = cam->GetFocalPoint();
+
   // if were on a stereo renderer use correct perspective for eye 
   if (stereo)
     {
-    if (this->LeftEye)
+    if (cam->GetLeftEye())
       {
-      stereopersp((short)(10.0*this->ViewAngle), aspect[0] / aspect[1],
-		  this->ClippingRange[0],this->ClippingRange[1],
-		  this->Distance,-1.0*this->EyeAngle);
+      stereopersp((short)(10.0*cam->GetViewAngle()), aspect[0] / aspect[1],
+		  ClippingRange[0],ClippingRange[1],
+		  cam->GetDistance(),-1.0*cam->GetEyeAngle());
       }
     else
       {
-      stereopersp((short)(10.0*this->ViewAngle), aspect[0] / aspect[1],
-		  this->ClippingRange[0],this->ClippingRange[1],
-		  this->Distance,1.0*this->EyeAngle);
+      stereopersp((short)(10.0*cam->GetViewAngle()), aspect[0] / aspect[1],
+		  ClippingRange[0],ClippingRange[1],
+		  cam->GetDistance(),1.0*cam->GetEyeAngle());
       }
     }
   else
     {
-    perspective((short)(10.0*this->ViewAngle), aspect[0] / aspect[1], 
-		this->ClippingRange[0], this->ClippingRange[1]);
+    perspective((short)(10.0*cam->GetViewAngle()), aspect[0] / aspect[1], 
+		ClippingRange[0], ClippingRange[1]);
     }
 
   // get twist from camera object twist 
-  twist = this->GetTwist();
+  twist = cam->GetTwist();
   twist = twist*1800.0/3.1415926;
 
   // since lookat modifies the model view matrix do a push 
@@ -158,8 +163,8 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   // render action after the actors! message sis sent      
   mmode(MVIEWING);
   pushmatrix();
-  lookat(this->Position[0], this->Position[1], this->Position[2],
-	 this->FocalPoint[0], this->FocalPoint[1], this->FocalPoint[2], 
+  lookat(Position[0], Position[1], Position[2],
+	 FocalPoint[0], FocalPoint[1], FocalPoint[2], 
 	 (short)(twist));
   
   // get the background color
@@ -180,7 +185,7 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   // if we have a stereo renderer, draw other eye next time 
   if (stereo)
     {
-    if (this->LeftEye) this->LeftEye = 0;
-    else this->LeftEye = 1;
+    if (cam->GetLeftEye()) cam->SetLeftEye(0);
+    else cam->SetLeftEye(1);
     }
 }

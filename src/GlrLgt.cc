@@ -27,27 +27,33 @@ static float light_info[] = {
 
 // Description:
 // Implement base class method.
-void vlGlrLight::Render(vlRenderer *ren,int light_index)
+void vlGlrLight::Render(vlLight *lgt, vlRenderer *ren,int light_index)
 {
-  this->Render((vlGlrRenderer *)ren,light_index);
+  this->Render(lgt, (vlGlrRenderer *)ren,light_index);
 }
 
 // Description:
 // Actual light render method.
-void vlGlrLight::Render(vlGlrRenderer *ren,int light_index)
+void vlGlrLight::Render(vlLight *lgt, vlGlrRenderer *ren,int light_index)
 {
   float	dx, dy, dz;
   float	color[3];
+  float *Color, *Position, *FocalPoint;
+  float Intensity;
 
   // get required info from light
-  color[0] = this->Intensity * this->Color[0];
-  color[1] = this->Intensity * this->Color[1];
-  color[2] = this->Intensity * this->Color[2];
+  Intensity = lgt->GetIntensity();
+  Color = lgt->GetColor();
+  color[0] = Intensity * Color[0];
+  color[1] = Intensity * Color[1];
+  color[2] = Intensity * Color[2];
   
-  dx = this->FocalPoint[0] - this->Position[0];
-  dy = this->FocalPoint[1] - this->Position[1];
-  dz = this->FocalPoint[2] - this->Position[2];
-  
+  FocalPoint = lgt->GetFocalPoint();
+  Position   = lgt->GetPosition();
+  dx = FocalPoint[0] - Position[0];
+  dy = FocalPoint[1] - Position[1];
+  dz = FocalPoint[2] - Position[2];
+
   // define the light source
   light_info[1] = color[0];
   light_info[2] = color[1];

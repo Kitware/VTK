@@ -38,14 +38,14 @@ vlGlrTexture::vlGlrTexture()
 
 // Description:
 // Implement base class method.
-void vlGlrTexture::Load(vlRenderer *ren)
+void vlGlrTexture::Load(vlTexture *txt, vlRenderer *ren)
 {
-  this->Load((vlGlrRenderer *)ren);
+  this->Load(txt, (vlGlrRenderer *)ren);
 }
 
 // Description:
 // Actual Texture load method.
-void vlGlrTexture::Load(vlGlrRenderer *ren)
+void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
 {
   // make sure it can handle textures
   if (!getgdesc(GD_TEXTURE)) 
@@ -55,7 +55,7 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
     }
   
   // need to reload the texture
-  if (this->Input->GetMTime() > this->LoadTime.GetMTime())
+  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime())
     {
     int bytesPerPixel;
     int *size;
@@ -66,8 +66,8 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
     int xsize, ysize;
 
     // get some info
-    size = this->Input->GetDimensions();
-    scalars = (this->Input->GetPointData())->GetScalars();
+    size = txt->GetInput()->GetDimensions();
+    scalars = (txt->GetInput()->GetPointData())->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -142,7 +142,7 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
 	}
       }
 
-    if (this->Interpolate)
+    if (txt->GetInterpolate())
       {
       texprops[1] = TX_MIPMAP_BILINEAR;
       texprops[3] = TX_BILINEAR;
@@ -152,7 +152,7 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
       texprops[1] = TX_POINT;
       texprops[3] = TX_POINT;
       }
-    if (this->Repeat)
+    if (txt->GetRepeat())
       {
       texprops[5] = TX_REPEAT;
       }
