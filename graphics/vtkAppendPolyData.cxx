@@ -104,11 +104,22 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 // should only be used when UserManagedInputs is true.
 void vtkAppendPolyData::SetNumberOfInputs(int num)
 {
+  int overlap;
   if (!UserManagedInputs)
     {
     vtkErrorMacro(<<
       "SetNumberOfInputs is not supported if UserManagedInputs is false");
     return;
+    }
+  // if the user sets inputs to be less than we already have, we'd better
+  // unregister the tailend ones that are being discarded
+  overlap = this->GetNumberOfInputs() - num;
+  if (overlap>0)
+    {
+    for (int i=0; i<overlap; i++)
+      {
+      this->SetNthInput(i+num,NULL);
+      }
     }
   this->vtkProcessObject::SetNumberOfInputs(num);
 }
@@ -458,7 +469,10 @@ void vtkAppendPolyData::Execute()
     }
   outputCD->CopyAllocate(cd,numCells);
 
-  newPts = vtkPoints::New();
+  // Set the point type of the output initially to the point
+  // type of the first input
+  inPts = ((vtkPolyData *)(this->Inputs[0]))->GetPoints();
+  newPts = vtkPoints::New(inPts->GetData()->GetDataType());
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();
@@ -471,10 +485,10 @@ void vtkAppendPolyData::Execute()
   newStrips->Allocate(numCells*4);
 
   newPolys = vtkCellArray::New();
-  pPolys = newPolys->WritePointer(numPolys, sizePolys);  
-  
+  pPolys = newPolys->WritePointer(numPolys, sizePolys);
+
   // loop over all input sets
-  ptOffset = 0; 
+  ptOffset = 0;
   cellOffset = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
