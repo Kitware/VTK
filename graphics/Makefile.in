@@ -146,6 +146,7 @@ vtkGaussianSplatter \
 vtkGeometryFilter \
 vtkGlyph3D \
 vtkHedgeHog \
+vtkHull \
 vtkHyperStreamline \
 vtkIdFilter \
 vtkImplicitBoolean \
