@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Threshold a volume and write it to disk.
 # It then reads the new data set from disk and displays it.
 # Dont forget to delete the test files after the script is finished.
@@ -10,7 +13,7 @@ source vtkImageInclude.tcl
 vtkImageReader reader
   reader SetDataByteOrderToLittleEndian
   reader SetDataExtent 0 255 0 255 1 33
-  reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader SetDataMask 0x7fff
 
 vtkImageThreshold thresh

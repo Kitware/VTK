@@ -1,9 +1,12 @@
 # the start of a mini application that will let the user select
 # circular region of an image to process specifically.
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
-source ../../examplesTcl/WidgetObject.tcl
+source $VTK_TCL/WidgetObject.tcl
 
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
@@ -11,7 +14,7 @@ source ../../examplesTcl/WidgetObject.tcl
 
 vtkPNMReader reader
 reader ReleaseDataFlagOff
-reader SetFileName "../../../vtkdata/earth.ppm"
+reader SetFileName "$VTK_DATA/earth.ppm"
 
 vtkImageCast cast
 cast SetInput [reader GetOutput]

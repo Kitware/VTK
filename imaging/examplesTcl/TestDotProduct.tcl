@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # This script shows the magnitude of an image in frequency domain.
 
 
@@ -10,7 +13,7 @@ source vtkImageInclude.tcl
 vtkImageReader reader
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 22 22
-reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
 
@@ -29,7 +32,7 @@ gradient SetInput [scale2 GetOutput]
 gradient SetDimensionality 3
 
 vtkPNMReader pnm
-pnm SetFileName "../../../vtkdata/masonry.ppm"
+pnm SetFileName "$VTK_DATA/masonry.ppm"
 
 vtkImageCast cast2
 cast2 SetInput [pnm GetOutput]

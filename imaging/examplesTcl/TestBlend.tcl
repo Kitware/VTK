@@ -1,14 +1,17 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 
 # do alpha-blending of two images
 
 vtkPNMReader reader1
-reader1 SetFileName "../../../vtkdata/masonry.ppm"
+reader1 SetFileName "$VTK_DATA/masonry.ppm"
 
 vtkPNMReader reader2
-reader2 SetFileName "../../../vtkdata/B.pgm"
+reader2 SetFileName "$VTK_DATA/B.pgm"
 
 vtkLookupTable table
 table SetTableRange 0 127 

@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Derived from Cursor3D.  This script increases the coverage of the
 # vtkImageInplaceFilter super class.
 
@@ -18,7 +21,7 @@ set IMAGE_MAG_Z 1
 
 # pipeline stuff
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/poship.slc"
+    reader SetFileName "$VTK_DATA/poship.slc"
 
 # make the image a little biger
 vtkImageMagnify magnify

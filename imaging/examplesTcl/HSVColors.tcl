@@ -4,9 +4,12 @@
 # It is then converted into a color volume with Hue, 
 # Saturation and Value ramping
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "$VTK_DATA" }
+
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 source vtkImageInclude.tcl
 
 

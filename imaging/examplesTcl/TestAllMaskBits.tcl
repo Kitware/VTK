@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # This script calculates the luminanace of an image
 
 vtkImageWindow imgWin
@@ -7,7 +10,7 @@ vtkImageWindow imgWin
 # Image pipeline
 
 vtkBMPReader image
-  image SetFileName "../../../vtkdata/beach.bmp"
+  image SetFileName "$VTK_DATA/beach.bmp"
 
 vtkImageShrink3D shrink
 shrink SetInput [image GetOutput]

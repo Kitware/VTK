@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Get Vectors from the gradent, and extract the z component.
 
 
@@ -12,7 +15,7 @@ source vtkImageInclude.tcl
 #reader DebugOn
 #reader SetDataByteOrderToLittleEndian
 #reader SetDataExtent 0 255 0 255 1 93
-#reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+#reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 #reader SetDataMask 0x7fff
 
 #vtkImageGradient gradient
@@ -20,7 +23,7 @@ source vtkImageInclude.tcl
 #gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 
 vtkPNMReader reader
-reader SetFileName "../../../vtkdata/masonry.ppm"
+reader SetFileName "$VTK_DATA/masonry.ppm"
 
 vtkImageExtractComponents extract
 extract SetInput [reader GetOutput]

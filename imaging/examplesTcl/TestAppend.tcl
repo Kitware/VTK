@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 source TkImageViewerInteractor.tcl
@@ -8,11 +11,11 @@ source TkImageViewerInteractor.tcl
 
 vtkPNMReader reader1
 reader1 ReleaseDataFlagOff
-reader1 SetFileName "../../../vtkdata/earth.ppm"
+reader1 SetFileName "$VTK_DATA/earth.ppm"
 
 vtkPNMReader reader2
 reader2 ReleaseDataFlagOff
-reader2 SetFileName "../../../vtkdata/masonry.ppm"
+reader2 SetFileName "$VTK_DATA/masonry.ppm"
 
 
 vtkImageAppend append

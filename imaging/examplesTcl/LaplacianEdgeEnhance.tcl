@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # This script subtracts the 2D laplacian from an image to enhance the edges.
 
 
@@ -11,7 +14,7 @@ vtkImageReader reader
 [reader GetOutput] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
-reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkImageCast cast

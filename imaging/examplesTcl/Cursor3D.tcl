@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/WidgetObject.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/WidgetObject.tcl
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
 source ../../graphics/examplesTcl/TkInteractor.tcl
@@ -65,7 +68,7 @@ pack $renderWidget -side top
 
 # pipeline stuff
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/poship.slc"
+    reader SetFileName "$VTK_DATA/poship.slc"
 
 # cursor stuff
 vtkImageMagnify magnify

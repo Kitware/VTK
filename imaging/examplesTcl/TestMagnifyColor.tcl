@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 source TkImageViewerInteractor.tcl
@@ -10,7 +13,7 @@ source TkImageViewerInteractor.tcl
 
 vtkPNMReader reader
 reader ReleaseDataFlagOff
-reader SetFileName "../../../vtkdata/earth.ppm"
+reader SetFileName "$VTK_DATA/earth.ppm"
 
 vtkImageMagnify magnify
 magnify SetInput [reader GetOutput]

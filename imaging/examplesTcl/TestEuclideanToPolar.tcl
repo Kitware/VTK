@@ -1,6 +1,9 @@
 # This Script test the euclidean to polar by coverting 2D vectors 
 # from a gradient into polar, which is converted into HSV, and then to RGB.
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 

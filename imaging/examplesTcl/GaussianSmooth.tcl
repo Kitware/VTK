@@ -1,6 +1,9 @@
 # Show the constant kernel.  Smooth an impulse function.
 
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 source TkImageViewerInteractor.tcl
@@ -9,7 +12,7 @@ source TkImageViewerInteractor.tcl
 vtkImageReader reader
 reader ReleaseDataFlagOff
 reader SetDataExtent 0 255 0 255 1 1
-reader SetFilePrefix "../../../vtkdata/heart"
+reader SetFilePrefix "$VTK_DATA/heart"
 reader SetDataByteOrderToBigEndian
 
 vtkImageCast cast

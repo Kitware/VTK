@@ -1,11 +1,14 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source vtkImageInclude.tcl
 source TkImageViewerInteractor.tcl
 
 
 vtkPNMReader reader
-reader SetFileName "../../../vtkdata/vtks.pgm"
+reader SetFileName "$VTK_DATA/vtks.pgm"
 
 vtkImageFFT fft
 fft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
