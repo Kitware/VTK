@@ -65,14 +65,14 @@ public:
 
   // Description:
   // Return true if pointer is set to non-null.
-  operator SafeBool()
+  operator SafeBool() const
     {
     return this->Object? &SafeBoolDummy::Dummy : 0;
     }
 
   // Description:
   // Return true if pointer is set to null.
-  SafeBool operator!()
+  SafeBool operator!() const
     {
     return this->Object? 0 : &SafeBoolDummy::Dummy;
     }
@@ -94,7 +94,7 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-// Need to use vtkstd_bool type because std::less requires bool return
+// Need to use vtkstd_bool type because vtkstd::less requires bool return
 // type from operators.  This example should not be used to justify
 // using bool elsewhere in VTK.
 
