@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.15");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.15.4.1");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -865,7 +865,7 @@ void vtkPDataSetReader::Execute()
       {
       return;
       }
-    if (output->CheckAttributes())
+    if (data->CheckAttributes())
       {
       vtkErrorMacro("Attribute Mismatch.");
       return;
