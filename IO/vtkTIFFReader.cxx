@@ -52,7 +52,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.38");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.39");
 
 class vtkTIFFReaderInternal
 {
@@ -626,9 +626,9 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
       break;
     case vtkTIFFReader::PALETTE_RGB:
       this->GetColor(*source, &red, &green, &blue);     
-      *(image)   = static_cast<unsigned char>(red);
-      *(image+1) = static_cast<unsigned char>(green);
-      *(image+2) = static_cast<unsigned char>(blue);
+      *(image)   = static_cast<unsigned char>(red >> 8);
+      *(image+1) = static_cast<unsigned char>(green >> 8);
+      *(image+2) = static_cast<unsigned char>(blue >> 8);
       increment = 3;
       break;
     default:
