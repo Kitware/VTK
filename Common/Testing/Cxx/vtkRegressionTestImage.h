@@ -84,17 +84,35 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
       }
     }
 
+  int frontBuffer = 0;
+  for (i=0; i<argc; i++)
+    {
+    if ( strcmp("-FrontBuffer", argv[i]) == 0 )
+      {
+      frontBuffer = 1;
+      }
+    }
+
   if( imageIndex != -1 ) 
     { 
     // Prepend the data root to the filename
     char* fname=vtkTestUtilities::ExpandDataFileName(argc, argv, argv[imageIndex]);
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
-    // tell it to read the back buffer
-    rt_w2if->ReadFrontBufferOff();
     rt_w2if->SetInput(rw);
     // perform and extra render to make sure it is displayed
-    rw->Render();
+    if ( !frontBuffer )
+      {
+      rw->Render();
+      // tell it to read the back buffer
+      rt_w2if->ReadFrontBufferOff();
+      }
+    else
+      {
+      // read the front buffer
+      rt_w2if->ReadFrontBufferOn();
+      }
+    
     FILE *rt_fin = fopen(fname,"r"); 
     if (rt_fin) 
       { 
@@ -120,6 +138,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
         return FAILED;
         }
       }
+    
     vtkPNGReader *rt_png = vtkPNGReader::New(); 
     rt_png->SetFileName(fname); 
     vtkImageDifference *rt_id = vtkImageDifference::New(); 
@@ -136,6 +155,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
       delete[] fname;
       return PASSED; 
       }
+    
     // If the test failed with the first image (foo.png)
     // check if there are images of the form foo_N.png
     // (where N=1,2,3...) and compare against them.
