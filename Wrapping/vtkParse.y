@@ -22,7 +22,7 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
-  - Change "register int yystate" and "register int yyn" to use short
+  - Change int variables yystate, yyn, and yytoken to short.
 */
 
 

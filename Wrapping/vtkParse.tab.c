@@ -1250,7 +1250,7 @@ yyparse ()
   /* Number of tokens to shift before error messages enabled.  */
   int yyerrstatus;
   /* Lookahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  short yytoken = 0;
 
   /* Three stacks and their tools:
      `yyss': related to states,
