@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.40");
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.41");
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -122,17 +122,27 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   // handle the 2d case
   if (zdim < 2)
     {
-    if (x < 1 || y < 1 || x == (xdim-2) || y == (ydim -2))
+    if (x < 1 || y < 1 || x >= (xdim-2) || y >= (ydim -2))
       {
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      for (i = 0; i < 3; i++)
+      // if the point of off of the grad map just make up a value
+      if (x < 0 || y < 0 || x > xdim || y > ydim)
         {
-        resultNormal[i] = 
-          inVecs->GetTuple(x + xdim*y)[i];
+        resultNormal[0] = 1;
+        resultNormal[1] = 0;
+        resultNormal[2] = 0;        
         }
-      vtkMath::Normalize(resultNormal);
+      else
+        {
+        for (i = 0; i < 3; i++)
+          {
+          resultNormal[i] = 
+            inVecs->GetTuple(x + xdim*y)[i];
+          }
+        vtkMath::Normalize(resultNormal);
+        }
       }
     else 
       {
@@ -210,17 +220,27 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   else
     {
     if (x < 1 || y < 1 || z < 1 || 
-        x == (xdim-2) || y == (ydim -2) || z == (zdim -2))
+        x >= (xdim-2) || y >= (ydim -2) || z >= (zdim -2))
       {
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      for (i = 0; i < 3; i++)
+      if (x < 0 || y < 0 || z < 0 || 
+          x > xdim || y > ydim || z > zdim)
         {
-        resultNormal[i] = 
-          inVecs->GetTuple(x + xdim*y + xdim*ydim*z)[i];
+        resultNormal[0] = 1;
+        resultNormal[1] = 1;
+        resultNormal[2] = 1;
         }
-      vtkMath::Normalize(resultNormal);
+      else
+        {
+        for (i = 0; i < 3; i++)
+          {
+          resultNormal[i] = 
+            inVecs->GetTuple(x + xdim*y + xdim*ydim*z)[i];
+          }
+        vtkMath::Normalize(resultNormal);
+        }
       }
     else 
       {
