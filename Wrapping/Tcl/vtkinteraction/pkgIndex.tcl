@@ -1,1 +1,1 @@
-package ifneeded vtkinteraction 4.1 [list source [file join $dir vtkinteraction.tcl]]
+package ifneeded vtkinteraction 4.2 [list source [file join $dir vtkinteraction.tcl]]

@@ -1,1 +1,1 @@
-package ifneeded vtkhybrid 4.1 [list source [file join $dir vtkhybrid.tcl]]
+package ifneeded vtkhybrid 4.2 [list source [file join $dir vtkhybrid.tcl]]
