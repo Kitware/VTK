@@ -19,11 +19,13 @@ ABSTRACT =
 CONCRETE = \
 vtkDecimate \
 vtkDividingCubes \
+vtkGridSynchronizedTemplates3D \
 vtkImageMarchingCubes \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
-vtkSweptSurface 
+vtkSweptSurface \
+vtkSynchronizedTemplates3D 
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
