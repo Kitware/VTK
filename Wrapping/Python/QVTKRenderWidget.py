@@ -7,6 +7,20 @@ Created by David Gobbi, December 2001
 Based on vtkTkRenderWindget.py
 """
 
+"""
+This class works only with the UNIX version of Qt.
+It does not work under the Win32 version of Qt.
+
+Depending on the OpenGL graphics drivers, it may not
+be possible to have more than one QVTKRenderWidget
+per application.
+
+In short, this class is experimental.  A proper implementation
+will probably require a QVTKRenderWidget that is written in
+C++ and then wrapped to be made available through python,
+similar to the vtkTkRenderWidget.  
+"""
+
 import math, os, sys
 from qt import *
 
@@ -17,45 +31,9 @@ class QVTKRenderWidget(QWidget):
     Create with the keyword stereo=1 in order to
     generate a stereo-capable window.
     """
-    def __init__(self, parent=None, name=None, **kw):
+    def __init__(self, parent=None, name=None, *args, **kw):
 
-        # private attributes
-        self.__oldFocus = None
-        self.__saveX = 0
-        self.__saveY = 0
-        self.__saveState = 0
-        self.__connected = 0  # is QT->VTK connection done?
-
-        # create qt-level widget
-        QWidget.__init__(self,parent,name)
-
-        try: # check to see if a render window was specified
-            self._RenderWindow = kw['rw']
-        except KeyError:
-            self._RenderWindow = vtkRenderWindow()
-
-        try:  # was a stereo rendering context requested?
-            if kw['stereo']:
-	       self._RenderWindow.StereoCapableWindowOn()
-               self._RenderWindow.SetStereoTypeToCrystalEyes()
-               del kw['stereo']
-	except KeyError:
-            pass
- 
-        # do all the necessary qt setup
-        self.setBackgroundMode(2) # NoBackground
-        self.setMouseTracking(1) # get all mouse events
-        self.setFocusPolicy(2) # ClickFocus
-        if parent == None:
-            self.show()
-        
-        if self.isVisible():
-            if self.__connected == 0:
-                size = self.size()
-                self._RenderWindow.SetSize(size.width(),size.height())
-                self._RenderWindow.SetWindowInfo(str(self.winId()))
-                self.__connected = 1
-
+        # miscellaneous protected variables
         self._CurrentRenderer = None
         self._CurrentCamera = None
         self._CurrentZoom = 1.0
@@ -77,6 +55,56 @@ class QVTKRenderWidget(QWidget):
         # the current interaction mode (Rotate, Pan, Zoom, etc)
         self._Mode = None
         self._ActiveButton = 0
+
+        # private attributes
+        self.__oldFocus = None
+        self.__saveX = 0
+        self.__saveY = 0
+        self.__saveState = 0
+        self.__connected = 0  # is QT->VTK connection done?
+
+        # do special handling of some keywords:
+        # stereo, rw
+        
+        stereo = 0
+        
+        if kw.has_key('stereo'):
+            if kw['stereo']:
+                stereo = 1
+            del kw['stereo']
+
+        rw = None
+
+        if kw.has_key('rw'):
+            rw = kw['rw']
+            del kw['rw']
+
+        # create qt-level widget
+        apply(QWidget.__init__, (self,parent,name) + args, kw)
+
+        if rw: # user-supplied render window
+            self._RenderWindow = rw
+        else:
+            self._RenderWindow = vtkRenderWindow()
+
+        if stereo: # stereo mode
+            self._RenderWindow.StereoCapableWindowOn()
+            self._RenderWindow.SetStereoTypeToCrystalEyes()
+ 
+        # do all the necessary qt setup
+        self.setBackgroundMode(2) # NoBackground
+        self.setMouseTracking(1) # get all mouse events
+        self.setFocusPolicy(2) # ClickFocus
+        if parent == None:
+            self.show()
+        
+        if self.isVisible():
+            if self.__connected == 0:
+                size = self.size()
+                self._RenderWindow.SetSize(size.width(),size.height())
+                self._RenderWindow.SetWindowInfo(str(self.winId()))
+                self.__connected = 1
+
 
     def paintEvent(self,ev):
         if self.isVisible():
@@ -105,15 +133,15 @@ class QVTKRenderWidget(QWidget):
         if self._Mode != None:
             return
         
-        if ev.button() == 2 or \
-             ev.button() == 1 and ev.state() & 16:
+        if (ev.button() == 2 or 
+            ev.button() == 1 and ev.state() & 16):
             self._Mode = "Zoom"
             self._ActiveButton = ev.button()
-        elif ev.button() == 4 or \
-           ev.button() == 1 and ev.state() & 8:
+        elif (ev.button() == 4 or
+              ev.button() == 1 and ev.state() & 8):
             self._Mode = "Pan"
             self._ActiveButton = ev.button()
-        elif ev.button() == 1:
+        elif (ev.button() == 1):
             self._Mode = "Rotate"
             self._ActiveButton = ev.button()
         self.UpdateRenderer(ev.x(),ev.y())
