@@ -32,6 +32,7 @@ vtkPolyDataNormals normalsVx
 vtkPolyDataMapper isoVxMapper
     isoVxMapper SetInput [normalsVx GetOutput]
     isoVxMapper ScalarVisibilityOff
+    isoVxMapper ImmediateModeRenderingOn
 vtkActor isoVxActor
     isoVxActor SetMapper isoVxMapper
     eval [isoVxActor GetProperty] SetColor $tomato
@@ -48,6 +49,7 @@ vtkPolyDataNormals normalsVy
 vtkPolyDataMapper isoVyMapper
     isoVyMapper SetInput [normalsVy GetOutput]
     isoVyMapper ScalarVisibilityOff
+    isoVyMapper ImmediateModeRenderingOn
 vtkActor isoVyActor
     isoVyActor SetMapper isoVyMapper
     eval [isoVyActor GetProperty] SetColor $lime_green
@@ -64,6 +66,7 @@ vtkPolyDataNormals normalsVz
 vtkPolyDataMapper isoVzMapper
     isoVzMapper SetInput [normalsVz GetOutput]
     isoVzMapper ScalarVisibilityOff
+    isoVzMapper ImmediateModeRenderingOn
 vtkActor isoVzActor
     isoVzActor SetMapper isoVzMapper
     eval [isoVzActor GetProperty] SetColor $peacock
