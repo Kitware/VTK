@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.12");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.13");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -139,7 +139,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   extract->SetInput(tmp);
   extract->GetOutput()->SetUpdateNumberOfPieces(
                                 output->GetUpdateNumberOfPieces());
-  extract->GetOutput()->SetUpdatePiece(0);
+  extract->GetOutput()->SetUpdatePiece(output->GetUpdatePiece());
   extract->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
 
   extract->Update();
@@ -153,10 +153,6 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   for (i = 1; i < numProcs; ++i)
     {
     this->Controller->Receive(ext, 3, i, 22341);
-    if (ext[1] != output->GetUpdateNumberOfPieces())
-      {
-      vtkWarningMacro("Number of pieces mismatch between processes.");
-      }
     extract->GetOutput()->SetUpdateNumberOfPieces(ext[1]);
     extract->GetOutput()->SetUpdatePiece(ext[0]);
     extract->GetOutput()->SetUpdateGhostLevel(ext[2]);
