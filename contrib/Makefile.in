@@ -1,0 +1,88 @@
+#
+# vtk library makefile
+#
+# NOTE !!! when adding a class, it must be added in four locations
+# It must be in the SRC_OBJ list, TCL_OBJ list and TCL_RULES
+# If it is a concrete class then it should be added to TCL_NEWS
+# as well. At the end of this file there are a number of makefile
+# rules to build the tcl wrappers. On the command line there is a 1 
+# if the class is concrete or a 0 if it is abstract.
+#
+ME = Contrib
+
+# put all vtkFoo.cxx files here as .o files
+SRC_OBJ = \
+vtkRIBExporter.o 
+
+
+# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o \ files
+TCL_OBJ = \
+tcl/vtkRIBExporterTcl.o 
+
+
+# put all vtk classes that are concrete here as vtkFooTcl.h files
+TCL_NEWS = \
+vtkRIBExporter.h 
+
+
+# add in any extra libraies here
+KIT_LIBS =
+
+# standard stuff here
+KIT_OBJ = ${SRC_OBJ}
+KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
+KIT_NEWS = ${TCL_NEWS}
+KIT_FLAGS = -I${srcdir}/../graphics
+
+# The following is all boiler plate 
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in Config.mk
+
+CC            = @CC@
+CFLAGS        = @CFLAGS@
+CXX           = @CXX@
+CXXFLAGS      = @CXXFLAGS@
+XCFLAGS       = @X_CFLAGS@
+XLIBS         = @X_LIBS@
+RANLIB        = @RANLIB@
+srcdir        = @srcdir@
+VPATH         = @srcdir@
+prefix        = @prefix@
+exec_prefix   = @exec_prefix@
+WORDS_BIGENDIAN = @BIGENDIAN@
+VTK_SHLIB_CFLAGS = @VTK_SHLIB_CFLAGS@
+SHLIB_LD      = @SHLIB_LD@
+SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
+SHLIB_SUFFIX  = @SHLIB_SUFFIX@
+SHLIB_VERSION = @SHLIB_VERSION@
+VTK_LIB_FILE  = libVTK${ME}@VTK_LIB_EXT@
+TCL_LIB_FILE  = libVTK${ME}Tcl@VTK_LIB_EXT@
+VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
+VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
+BUILD_TCL         = @BUILD_TCL@
+CLEAN_TCL         = @CLEAN_TCL@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include the generic stuff here
+
+@MAKEINCLUDE@ @MAKEQUOTE@@srcdir@/../Kits.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include the depend stuff here
+
+@MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
+
+
+#------------------------------------------------------------------------------
+# all Tcl wrapped classes need a line here
+#
+# concrete classes will pass the last argument of 1 abstract will be 0.
+#
+tcl/vtkRIBExporterTcl.cxx: vtkRIBExporter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkRIBExporterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkRIBExporter.h ${srcdir}/../tcl/hints 1 > tcl/vtkRIBExporterTcl.cxx
+
