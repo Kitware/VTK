@@ -289,6 +289,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   if (pd->GetNumberOfPolys() > 0)
     {
     fprintf(fp,"          geometry IndexedFaceSet {\n");
+    // two sided lighting ? for now assume it is on
+    fprintf(fp,"            solid FALSE\n");
     if (!pointDataWritten)
       {
       this->WritePointData(points, normals, tcoords, colors, fp);
