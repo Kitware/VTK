@@ -16,19 +16,26 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.22.10.1");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.22.10.2");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
 // This method overrides information set by parent's ExecuteInformation.
-void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                           vtkImageData *outData)
+void vtkImageLuminance::ExecuteInformation(
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  outData[0]->SetNumberOfScalarComponents(1);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 //----------------------------------------------------------------------------

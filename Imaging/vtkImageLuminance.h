@@ -32,7 +32,13 @@ protected:
   vtkImageLuminance() {};
   ~vtkImageLuminance() {};
   
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+                           vtkInformationVector *);
+
+  void ThreadedExecute (vtkImageData ***inData, 
+                        vtkImageData **outData,
+                        int outExt[6], int id);
+
 private:
   vtkImageLuminance(const vtkImageLuminance&);  // Not implemented.
   void operator=(const vtkImageLuminance&);  // Not implemented.
