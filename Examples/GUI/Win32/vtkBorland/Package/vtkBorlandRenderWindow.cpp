@@ -356,6 +356,48 @@ void __fastcall TvtkBorlandRenderWindow::WMTimer(TWMTimer &Message)
     }
 }
 
+//---------------------------------------------------------------------------
+bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelDown(Classes::TShiftState Shift, const Windows::TPoint &MousePos)
+{
+  bool result;
+  if (this->OnMouseWheelDown && Shift.Contains(ssCtrl))
+    {
+    this->OnMouseWheelDown(this,Shift,MousePos,result);
+    return result;
+    }
+
+  if (FInteractor && FUsevtkInteractor)
+    {
+    int flags = 0;
+    if (Shift.Contains(ssShift)) { flags += MK_SHIFT; }
+    if (Shift.Contains(ssCtrl))  { flags += MK_CONTROL; }
+    FInteractor->OnMouseWheelBackward(Handle, flags, MousePos.x,MousePos.y);
+    result = true;
+    }
+  return result;
+}
+
+//---------------------------------------------------------------------------
+bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelUp(Classes::TShiftState Shift, const Windows::TPoint &MousePos)
+{
+  bool result;
+  if (this->OnMouseWheelUp && Shift.Contains(ssCtrl))
+    {
+    this->OnMouseWheelUp(this,Shift,MousePos,result);
+    return result;
+    }
+
+  if (FInteractor && FUsevtkInteractor)
+    {
+    int flags = 0;
+    if (Shift.Contains(ssShift)) { flags += MK_SHIFT; }
+    if (Shift.Contains(ssCtrl))  { flags += MK_CONTROL; }
+    FInteractor->OnMouseWheelForward(Handle, flags, MousePos.x,MousePos.y);
+    result = true;
+    }
+  return result;
+}
+
 
 
 

@@ -52,6 +52,9 @@ protected:
     DYNAMIC void __fastcall MouseMove(TShiftState shift, int x, int y );
     DYNAMIC void __fastcall MouseDown(TMouseButton button, TShiftState shift, int x, int y );
     DYNAMIC void __fastcall MouseUp(TMouseButton button, TShiftState shift, int x, int y );
+    DYNAMIC bool __fastcall DoMouseWheelDown(Classes::TShiftState Shift, const Windows::TPoint &MousePos);
+    DYNAMIC bool __fastcall DoMouseWheelUp(Classes::TShiftState Shift, const Windows::TPoint &MousePos);
+
     //
     // Messages : We want to directly intercept these
     //
@@ -154,6 +157,8 @@ __published:
     __property OnMouseDown;
     __property OnMouseMove;
     __property OnMouseUp;
+    __property OnMouseWheelDown;
+    __property OnMouseWheelUp;
 };
 //---------------------------------------------------------------------------
 #endif
