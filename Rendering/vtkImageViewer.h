@@ -80,22 +80,10 @@ public:
   // Description:
   // By default this is a color viewer.  GrayScaleHintOn will improve the
   // appearance of gray scale images on some systems.
-  VTK_LEGACY(int GetGrayScaleHint())
-#ifndef VTK_LEGACY_REMOVE
-    {vtkWarningMacro("GetGrayScaleHint deprecated, not required anymore"); return 0;};
-#endif
-  VTK_LEGACY(void SetGrayScaleHint(int vtkNotUsed(a)))
-#ifndef VTK_LEGACY_REMOVE
-    {vtkWarningMacro("SetGrayScaleHint deprecated, not required anymore");};
-#endif
-  VTK_LEGACY(void GrayScaleHintOn())
-#ifndef VTK_LEGACY_REMOVE
-    {vtkWarningMacro("GrayScaleHintOn deprecated, not required anymore");};
-#endif
-  VTK_LEGACY(void GrayScaleHintOff())
-#ifndef VTK_LEGACY_REMOVE
-    {vtkWarningMacro("GrayScaleHintOff deprecated, not required anymore");};
-#endif
+  VTK_LEGACY(int GetGrayScaleHint());
+  VTK_LEGACY(void SetGrayScaleHint(int vtkNotUsed(a)));
+  VTK_LEGACY(void GrayScaleHintOn());
+  VTK_LEGACY(void GrayScaleHintOff());
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
