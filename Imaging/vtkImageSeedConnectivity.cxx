@@ -15,10 +15,13 @@
 #include "vtkImageSeedConnectivity.h"
 
 #include "vtkImageConnector.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.29");
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.30");
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------
@@ -74,6 +77,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   this->Seeds = seed;
   this->Modified();
 }
+
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
 {
@@ -84,6 +88,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
   index[2] = i2;
   this->AddSeed(3, index);
 }
+
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 {
@@ -95,21 +100,31 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::ComputeInputUpdateExtents(vtkDataObject *)
+void vtkImageSeedConnectivity::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkImageData *input = this->GetInput();
-
-  if (input)
-    {
-    input->SetUpdateExtent(input->GetWholeExtent());
-    }
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+              6);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::ExecuteData(vtkDataObject *)
+void vtkImageSeedConnectivity::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *inData = this->GetInput();
-  vtkImageData *outData = this->GetOutput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkImageConnectorSeed *seed;
   int idx0, idx1, idx2;
   int inInc0, inInc1, inInc2;
@@ -120,9 +135,10 @@ void vtkImageSeedConnectivity::ExecuteData(vtkDataObject *)
   unsigned char temp1, temp2;
   int temp;
 
-  outData->SetExtent(this->GetOutput()->GetWholeExtent());
+  outData->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars();
-  
+
   if (inData->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -264,7 +280,6 @@ void vtkImageSeedConnectivity::ExecuteData(vtkDataObject *)
     }
 }
 
-
 void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -283,4 +298,3 @@ void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputConnectedValue: " << this->OutputConnectedValue << "\n";
   os << indent << "OutputUnconnectedValue: " << this->OutputUnconnectedValue << "\n";
 }
-

@@ -28,16 +28,16 @@
 #ifndef __vtkImageSeedConnectivity_h
 #define __vtkImageSeedConnectivity_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImageConnector;
 class vtkImageConnectorSeed;
 
-class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageAlgorithm
 {
 public:
   static vtkImageSeedConnectivity *New();
-  vtkTypeRevisionMacro(vtkImageSeedConnectivity,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageSeedConnectivity,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -82,9 +82,9 @@ protected:
   vtkImageConnector *Connector;
   int Dimensionality;
   
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteData(vtkDataObject *out); 
 private:
   vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);  // Not implemented.
   void operator=(const vtkImageSeedConnectivity&);  // Not implemented.
