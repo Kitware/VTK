@@ -230,7 +230,6 @@ public:
   // transform needs an update.
   void Update();
 
-//BTX
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
@@ -246,7 +245,7 @@ public:
                                            float derivative[3][3]) = 0;
   virtual void InternalTransformDerivative(const double in[3], double out[3],
                                            double derivative[3][3]) = 0;
-//ETX
+
   // Description:
   // Make another transform of the same type.
   virtual vtkAbstractTransform *MakeTransform() = 0;

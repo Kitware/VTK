@@ -306,9 +306,9 @@ var_id: any_id var_array { $<integer>$ = $<integer>2; };
 var_array: { $<integer>$ = 0; }
      | ARRAY_NUM { char temp[100]; sprintf(temp,"[%i]",$<integer>1); 
                    postSig(temp); } 
-       var_array { $<integer>$ = 300 + 10000 * $<integer>1; } 
+       var_array { $<integer>$ = 300 + 10000 * $<integer>1 + $<integer>3 % 1000; } 
      | '[' maybe_other_no_semi ']' var_array 
-           { postSig("[]"); $<integer>$ = 300; };
+           { postSig("[]"); $<integer>$ = 300 + $<integer>4 % 1000; };
 
 type: const_mod type_red1 {$<integer>$ = 1000 + $<integer>2;} 
           | type_red1 {$<integer>$ = $<integer>1;}; 
@@ -938,6 +938,8 @@ void look_for_hint()
 /* a simple routine that updates a few variables */
 void output_function()
 {
+  int i;
+
   /* a void argument is the same as no arguements */
   if (currentFunction->ArgTypes[0]%1000 == 2) 
     {
@@ -978,6 +980,16 @@ void output_function()
       case 304: case 305: case 306: case 313:
         look_for_hint();
 	break;
+      }
+    }
+
+  /* reject multi-dimensional arrays from wrappers */
+  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+    {
+    if ((currentFunction->ArgTypes[i]%1000)/100 == 6 ||
+        (currentFunction->ArgTypes[i]%1000)/100 == 9)
+      {
+      currentFunction->ArrayFailure = 1;
       }
     }
 

@@ -206,7 +206,6 @@ public:
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
 
-//BTX
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
@@ -221,7 +220,7 @@ public:
                                    float derivative[3][3]);
   void InternalTransformDerivative(const double in[3], double out[3],
                                    double derivative[3][3]);
-//ETX
+
   // Description:
   // Check for self-reference.  Will return true if concatenating
   // with the specified transform, setting it to be our inverse,

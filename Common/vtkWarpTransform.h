@@ -87,7 +87,6 @@ public:
   vtkSetMacro(InverseIterations,int);
   vtkGetMacro(InverseIterations,int);
 
-//BTX
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
@@ -128,7 +127,6 @@ public:
   void TemplateTransformInverse(const double in[3], double out[3],
                                 double derivative[3][3]) {
     this->InverseTransformDerivative(in,out,derivative); }; 
-//ETX
 
 protected:
   vtkWarpTransform();
