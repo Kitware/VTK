@@ -1,4 +1,4 @@
-package provide vtkbase 4.3
+package provide vtkbase 4.4
 
 namespace eval ::vtk {
 
