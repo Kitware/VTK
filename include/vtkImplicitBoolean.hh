@@ -40,17 +40,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImplicitBoolean - implicit function consisting of boolean combinations of implicit functions
 // .SECTION Description
-// vtkImplicitBoolean is an implicit function consisting of boolean combinations
-// of implicit functions. The class has a list of functions (FunctionList) that
-// are combined according to a specified operator (UNION or INTERSECTION or 
-// DIFFERENCE). You can use nested combinations of vtkImplicitFunctions 
-// (and/or vtkImplicitBoolean) to create elaborate implicit functions. 
-// vtkImplicitBoolean is a concrete implementation of vtkImplicitFunction.
+// vtkImplicitBoolean is an implicit function consisting of boolean
+// combinations of implicit functions. The class has a list of functions
+// (FunctionList) that are combined according to a specified operator
+// (VTK_UNION or VTK_INTERSECTION or VTK_DIFFERENCE). You can use nested
+// combinations of vtkImplicitFunctions (and/or vtkImplicitBoolean) to create
+// elaborate implicit functions.  vtkImplicitBoolean is a concrete
+// implementation of vtkImplicitFunction.
 //
-// The operators work as follows. The UNION operator takes the minimum value
-// of all implicit functions. The INTERSECTION operator takes the maximum value
-// of all implicit functions. The DIFFERENCE operator substracts the 2cnd 
-// through last implicit functions from the first.
+// The operators work as follows. The VTK_UNION operator takes the minimum
+// value of all implicit functions. The VTK_INTERSECTION operator takes the
+// maximum value of all implicit functions. The VTK_DIFFERENCE operator
+// substracts the 2cnd through last implicit functions from the first.
 
 
 #ifndef __vtkImplicitBoolean_h
@@ -59,9 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitFunction.hh"
 #include "vtkImplicitFunctionCollection.hh"
 
-#define UNION 0
-#define INTERSECTION 1
-#define DIFFERENCE 2
+#define VTK_UNION 0
+#define VTK_INTERSECTION 1
+#define VTK_DIFFERENCE 2
 
 class vtkImplicitBoolean : public vtkImplicitFunction
 {
@@ -86,7 +87,7 @@ public:
 
   // Description:
   // Specify the type of boolean operation.
-  vtkSetClampMacro(OperationType,int,UNION,DIFFERENCE);
+  vtkSetClampMacro(OperationType,int,VTK_UNION,VTK_DIFFERENCE);
   vtkGetMacro(OperationType,int);
 
 protected:
