@@ -17,9 +17,8 @@
 =========================================================================*/
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
-#include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkInstantiator, "1.4");
+vtkCxxRevisionMacro(vtkInstantiator, "1.5");
 vtkStandardNewMacro(vtkInstantiator);
 
 // Node in hash table.
@@ -41,14 +40,14 @@ private:
   CreateFunction Function;
 };
 
-// Hash table used by vtkInstantiator.
-class vtkInstantiatorHashTable : public vtkObject
+// Hash table used by vtkInstantiator.  Must not be a vtkObject.
+class vtkInstantiatorHashTable
 {
 public:
-  vtkTypeRevisionMacro(vtkInstantiatorHashTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  vtkInstantiatorHashTable();
+  ~vtkInstantiatorHashTable();
   
-  static vtkInstantiatorHashTable* New();
+  void PrintSelf(ostream& os, vtkIndent indent);  
   
   typedef vtkInstantiator::CreateFunction CreateFunction;
   void Insert(const char* className, CreateFunction function);
@@ -56,9 +55,6 @@ public:
   CreateFunction Find(const char* className);
   
 protected:
-  vtkInstantiatorHashTable();
-  ~vtkInstantiatorHashTable();
-  
   unsigned long Hash(const char* s);
   void ExtendBucket(unsigned long bucket);
   const char* AddClassName(const char* className);
@@ -75,19 +71,6 @@ private:
   vtkInstantiatorHashTable(const vtkInstantiatorHashTable&);  // Not implemented.
   void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
 };
-
-vtkCxxRevisionMacro(vtkInstantiatorHashTable, "1.4");
-
-//----------------------------------------------------------------------------
-vtkInstantiatorHashTable* vtkInstantiatorHashTable::New()
-{
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkInstantiatorHashTable");
-#endif    
-  // Don't use the object factory because it may not have been
-  // initialized when this table is allocated.
-  return new vtkInstantiatorHashTable;
-}
 
 //----------------------------------------------------------------------------
 vtkInstantiatorHashTable::vtkInstantiatorHashTable()
@@ -132,7 +115,6 @@ vtkInstantiatorHashTable::~vtkInstantiatorHashTable()
 //----------------------------------------------------------------------------
 void vtkInstantiatorHashTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os, indent);
   os << indent << "NumberOfBuckets: " << this->NumberOfBuckets << "\n";
   unsigned int i;
   float avgBucketSize = 0;
@@ -307,13 +289,13 @@ void vtkInstantiator::UnRegisterInstantiator(const char* className,
 //----------------------------------------------------------------------------
 void vtkInstantiator::ClassInitialize()
 {
-  vtkInstantiator::CreatorTable = vtkInstantiatorHashTable::New();
+  vtkInstantiator::CreatorTable = new vtkInstantiatorHashTable;
 }
 
 //----------------------------------------------------------------------------
 void vtkInstantiator::ClassFinalize()
 {
-  vtkInstantiator::CreatorTable->Delete();
+  delete vtkInstantiator::CreatorTable;
 }
 
 //----------------------------------------------------------------------------
