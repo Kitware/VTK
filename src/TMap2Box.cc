@@ -89,6 +89,33 @@ void vlTextureMapToBox::Execute()
   this->PointData.SetTCoords(newTCoords);
 }
 
+// Description:
+// Specify the bounding box to map into.
+void vlTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
+                                float zmin, float zmax)
+{
+  if ( xmin != this->Box[0] || xmax != this->Box[1] ||
+  ymin != this->Box[2] || ymax != this->Box[3] ||
+  zmin != this->Box[4] || zmax != this->Box[5] )
+    {
+    this->Modified();
+
+    this->Box[0] = xmin; this->Box[1] = xmax; 
+    this->Box[2] = xmin; this->Box[3] = xmax; 
+    this->Box[4] = xmin; this->Box[5] = xmax; 
+
+    for (int i=0; i<3; i++)
+      if ( this->Box[2*i] > this->Box[2*i+1] )
+         this->Box[2*i] = this->Box[2*i+1];
+    }
+}
+
+void vlTextureMapToBox::SetBox(float *bounds)
+{
+  this->SetBox(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
+               bounds[5]);
+}
+
 void vlTextureMapToBox::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSetToDataSetFilter::PrintSelf(os,indent);
