@@ -42,9 +42,12 @@ public:
 
   static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
-  static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
-  static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();
+  static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
+  static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
+  static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
+  static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
+  static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
 
   int PropagateUpdateExtent(int outputPort);
 

@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.12");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.13");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -49,51 +49,6 @@ vtkStreamingDemandDrivenPipeline::~vtkStreamingDemandDrivenPipeline()
 void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey*
-vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()
-{
-  static vtkInformationIntegerKey instance("REQUEST_UPDATE_EXTENT",
-                                           "vtkStreamingDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey*
-vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()
-{
-  static vtkInformationIntegerVectorKey instance("WHOLE_EXTENT",
-                                                 "vtkStreamingDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey*
-vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()
-{
-  static vtkInformationIntegerVectorKey instance("UPDATE_EXTENT",
-                                                 "vtkStreamingDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey*
-vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()
-{
-  static vtkInformationIntegerKey instance("UPDATE_EXTENT_INITIALIZED",
-                                           "vtkStreamingDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey*
-vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()
-{
-  static vtkInformationIntegerKey instance("MAXIMUM_NUMBER_OF_PIECES",
-                                           "vtkStreamingDemandDrivenPipeline");
-  return &instance;
 }
 
 //----------------------------------------------------------------------------
@@ -258,7 +213,6 @@ int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 {
@@ -302,3 +256,22 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
   // We do not need to execute.
   return 0;
 }
+
+//----------------------------------------------------------------------------
+// Define information keys for this pipeline object.
+#define VTK_SDDP_DEFINE_KEY_METHOD(NAME, type)                              \
+  vtkInformation##type##Key* vtkStreamingDemandDrivenPipeline::NAME()       \
+    {                                                                       \
+    static vtkInformation##type##Key instance(                              \
+           #NAME, "vtkStreamingDemandDrivenPipeline");                      \
+    return &instance;                                                       \
+    }
+VTK_SDDP_DEFINE_KEY_METHOD(REQUEST_UPDATE_EXTENT, Integer);
+VTK_SDDP_DEFINE_KEY_METHOD(WHOLE_EXTENT, IntegerVector);
+VTK_SDDP_DEFINE_KEY_METHOD(MAXIMUM_NUMBER_OF_PIECES, Integer);
+VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_EXTENT_INITIALIZED, Integer);
+VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_EXTENT, IntegerVector);
+VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_PIECE_NUMBER, Integer);
+VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_NUMBER_OF_PIECES, Integer);
+VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
+#undef VTK_SDDP_DEFINE_KEY_METHOD
