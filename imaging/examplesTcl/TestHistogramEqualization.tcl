@@ -1,4 +1,4 @@
-# Simple viewer for images.
+# Developed By Majeid Alyassin
 set slicenumber 0
 set numslices  10
 set xdim 256

@@ -1,4 +1,4 @@
-# Simple viewer for images.
+# Developed By Majeid Alyassin
 
 
 set slicenumber 5

@@ -1,4 +1,4 @@
-# Simple viewer for images.
+# Developed By Majeid Alyassin
 
 
 set firstslice 1
