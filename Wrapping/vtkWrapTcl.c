@@ -670,18 +670,25 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    delete buf.str();\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
 
-    fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc == 4))\n    {\n");
-    fprintf(fp,"    vtkTclCommand *cbc = vtkTclCommand::New();\n");
-    fprintf(fp,"    cbc->SetInterp(interp);\n");
-    fprintf(fp,"    cbc->SetStringCommand(argv[3]);\n");
-    
-    fprintf(fp,"    unsigned long      temp20;\n");
-    fprintf(fp,"    temp20 = op->AddObserver(argv[2],cbc);\n");
-    fprintf(fp,"    cbc->Delete();\n");
-    fprintf(fp,"    char tempResult[1024];\n");
-    fprintf(fp,"    sprintf(tempResult,\"%%li\",temp20);\n");
-    fprintf(fp,"    Tcl_SetResult(interp,tempResult,TCL_VOLATILE);\n");
-    fprintf(fp,"    return TCL_OK;\n    }\n");
+    fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc >= 4))\n    {\n");
+    fprintf(fp,"    error = 0;\n");
+    fprintf(fp,"    if (argc > 4 && Tcl_GetDouble(interp,argv[4],&tempd) != TCL_OK) error = 1;\n");
+    fprintf(fp,"    if (!error)\n      {\n");
+    fprintf(fp,"      vtkTclCommand *cbc = vtkTclCommand::New();\n");
+    fprintf(fp,"      cbc->SetInterp(interp);\n");
+    fprintf(fp,"      cbc->SetStringCommand(argv[3]);\n");
+    fprintf(fp,"      unsigned long      temp20;\n");
+    fprintf(fp,"      if (argc > 4)\n        {\n");
+    fprintf(fp,"        temp20 = op->AddObserver(argv[2],cbc,tempd);\n");
+    fprintf(fp,"        }\n      else\n        {\n");
+    fprintf(fp,"        temp20 = op->AddObserver(argv[2],cbc);\n");
+    fprintf(fp,"        }\n");
+    fprintf(fp,"      cbc->Delete();\n");
+    fprintf(fp,"      char tempResult[1024];\n");
+    fprintf(fp,"      sprintf(tempResult,\"%%li\",temp20);\n");
+    fprintf(fp,"      Tcl_SetResult(interp,tempResult,TCL_VOLATILE);\n");
+    fprintf(fp,"      return TCL_OK;\n      }\n");
+    fprintf(fp,"    }\n");
     }
   fprintf(fp,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
   fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n");
