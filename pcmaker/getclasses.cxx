@@ -399,8 +399,6 @@ void makeMakefile(CPcmakerDlg *vals)
     doAddedValue = 1;
     sprintf(fname,"%s\\gemsvolume\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("gemsvolume"));
-    sprintf(fname,"%s\\volume\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("volume"));
   }
 
   //remove any UNIX only stuff
@@ -434,7 +432,7 @@ void makeMakefile(CPcmakerDlg *vals)
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOpenGLProjectedPolyDataRayBounder");
-    concrete_lib[num_concrete] = strdup("volume");
+    concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOpenGLLight");
     concrete_lib[num_concrete] = strdup("graphics");
@@ -512,13 +510,13 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"\n");
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
@@ -646,8 +644,8 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
       vals->m_WhereVTK);
- fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics -DWIN32\n",
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
@@ -796,13 +794,13 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
@@ -813,8 +811,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   if (vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
@@ -1008,15 +1006,15 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
       vals->m_WhereVTK);
- fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics -DWIN32\n",
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
  fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
-  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\volume \\\n",
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
-  fprintf(fp,"| CPP_PROJ.CFG \n\n");
+  fprintf(fp,"| CPP_PROJ.CFG \n\n"); 
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib;..\\vtkdll\\obj\\vtkdll.lib;%s\\pcmaker\\tk42.lib;%s\\pcmaker\\tcl76.lib \\\n",
@@ -1196,13 +1194,13 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
@@ -1213,8 +1211,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
     vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
@@ -1392,14 +1390,14 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;VTKJAVA\n",
       vals->m_WhereVTK);
- fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics -DWIN32\n",
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
  fprintf(fp," -I%s\\include \n",vals->m_WhereJDK);
  fprintf(fp," -I%s\\include\\win32 \n",vals->m_WhereJDK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
-  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\volume \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
