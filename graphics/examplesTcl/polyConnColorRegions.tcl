@@ -16,7 +16,7 @@ vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]
 
 vtkPolyDataNormals normals
-  normals SetMaximumRecursionDepth 1000
+  normals SetMaximumRecursionDepth 100
   normals SetFeatureAngle 30
   normals SetInput [cpd GetOutput]
 
