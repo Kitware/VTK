@@ -15,7 +15,6 @@
 #
 package require vtktcl
 package require vtktcl_interactor
-catch {load vtktcl}
 
 # Create the RenderWindow, Renderer and interactor
 #
