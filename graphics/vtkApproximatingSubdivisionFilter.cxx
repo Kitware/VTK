@@ -133,10 +133,42 @@ void vtkApproximatingSubdivisionFilter::Execute()
     inputDS->Squeeze();
     } // each level
 
-  output->SetPoints(inputDS->GetPoints());
-  output->SetPolys(inputDS->GetPolys());
-  output->GetPointData()->PassData(inputDS->GetPointData());
-  output->GetCellData()->PassData(inputDS->GetCellData());
+  // Get rid of ghost cells if we have to.
+  vtkGhostLevels *ghostLevels = inputDS->GetCellData()->GetGhostLevels();
+  int updateGhostLevel = output->GetUpdateGhostLevel();
+  
+  if (input->GetGhostLevel() > updateGhostLevel && ghostLevels != NULL)
+    { // filter the ghost cells.
+    vtkIdList *idList = vtkIdList::New();
+    vtkCellArray *tmpPolys = vtkCellArray::New();
+    int idx, num;
+
+    // Build up an id list.
+    num = inputDS->GetNumberOfCells();
+    for (idx = 0; idx < num; ++idx)
+      {
+      if (ghostLevels->GetGhostLevel(idx) <= updateGhostLevel)
+	{
+	idList->InsertNextId(idx);
+	}
+      }
+    
+    tmpPolys->Allocate(outputPolys->GetNumberOfCells() * 4);
+    output->SetPolys(tmpPolys);
+    output->CopyCells(inputDS, idList);
+    output->Squeeze();
+    tmpPolys->Delete();
+    tmpPolys = NULL;
+    idList->Delete();
+    idList = NULL;
+    }
+  else
+    { // just copy
+    output->SetPoints(inputDS->GetPoints());
+    output->SetPolys(inputDS->GetPolys());
+    output->GetPointData()->PassData(inputDS->GetPointData());
+    output->GetCellData()->PassData(inputDS->GetCellData());
+    }
   inputDS->Delete();
 }
 

@@ -320,3 +320,18 @@ void vtkLoopSubdivisionFilter::GenerateOddStencil (int p1, int p2, vtkPolyData *
     }
   cellIds->Delete();
 }
+
+void vtkLoopSubdivisionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  int numPieces, ghostLevel;
+  
+  this->vtkApproximatingSubdivisionFilter::ComputeInputUpdateExtents(output);
+
+  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevel = output->GetUpdateGhostLevel();
+  if (numPieces > 1)
+    {
+    this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
+    }
+}
+

@@ -89,6 +89,8 @@ protected:
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD);
   void GenerateEvenStencil (int p1, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
   void GenerateOddStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
+
+  void ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif
