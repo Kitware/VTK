@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.100");
+vtkCxxRevisionMacro(vtkSource, "1.101");
 
 #ifndef NULL
 #define NULL 0
@@ -376,7 +376,6 @@ void vtkSource::UpdateData(vtkDataObject *output)
     }
   else
     {
-    this->ExecuteData(output);
     // Pass the vtkDataObject's field data from the first input
     // to all outputs
     vtkFieldData* fd;
@@ -393,6 +392,7 @@ void vtkSource::UpdateData(vtkDataObject *output)
           }
         }
       }
+    this->ExecuteData(output);
     }
 
   // If we ended due to aborting, push the progress up to 1.0 (since
