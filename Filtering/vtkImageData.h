@@ -145,21 +145,6 @@ public:
   virtual void UpdateInformation();
 
   // Description:
-  // Required for the lowest common denominator for setting the UpdateExtent
-  // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
-  // is valid (UpdateInformation has been called).
-  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
-  void SetUpdateExtent(int piece, int numPieces)
-    {this->SetUpdateExtent(piece, numPieces, 0);}
-  
-  // Description:
-  // Call superclass method to avoid hiding
-  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
-    { this->vtkDataSet::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
-  void SetUpdateExtent( int ext[6] )
-    { this->vtkDataSet::SetUpdateExtent( ext ); };
-
-  // Description:
   // Different ways to set the extent of the data array.  The extent
   // should be set before the "Scalars" are set or allocated.
   // The Extent is stored  in the order (X, Y, Z).

@@ -32,7 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.4");
+vtkCxxRevisionMacro(vtkPolyData, "1.5");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1753,14 +1753,6 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
   return 0;
 }
 
-
-//----------------------------------------------------------------------------
-void vtkPolyData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
-}
 
 //----------------------------------------------------------------------------
 void vtkPolyData::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)

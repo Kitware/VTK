@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.4");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.5");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -1353,12 +1353,4 @@ unsigned char vtkUniformGrid::GetCellBlanking()
 {
   return this->PointVisibility->IsConstrained() || 
     this->CellVisibility->IsConstrained();
-}
-
-//----------------------------------------------------------------------------
-void vtkUniformGrid::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
 }

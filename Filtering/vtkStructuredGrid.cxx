@@ -29,7 +29,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.3");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.4");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -846,22 +846,6 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
       ptIds->SetId(6, iMax + jMax*this->Dimensions[0] + kMax*d01);
       ptIds->SetId(7, iMin + jMax*this->Dimensions[0] + kMax*d01);
       break;
-    }
-}
-
-//----------------------------------------------------------------------------
-// Should we split up cells, or just points.  It does not matter for now.
-// Extent of structured data assumes points.
-void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces,
-                                        int ghostLevel)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
-    {
-    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
-                             numPieces, ghostLevel))
-      {
-      this->Modified();
-      }
     }
 }
 

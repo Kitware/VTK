@@ -205,19 +205,6 @@ public:
   vtkGetObjectMacro(Tessellator,vtkGenericCellTessellator);
 
   // Description:
-  // For streaming.  User/next filter specifies which piece the want updated.
-  // The source of this poly data has to return exactly this piece.
-  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
-  virtual void SetUpdateExtent( int ext[6] )
-    {
-    this->Superclass::SetUpdateExtent(ext);
-    }
-  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
-    {
-    this->Superclass::SetUpdateExtent(x1, x2, y1, y2, z1, z2);
-    }
-
-  // Description:
   // Actual size of the data in kilobytes; only valid after the pipeline has
   // updated. It is guaranteed to be greater than or equal to the memory
   // required to represent the data.

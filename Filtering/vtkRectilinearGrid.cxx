@@ -30,7 +30,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.2");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.3");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -862,20 +862,6 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(double x[3], int ijk[3],
     }
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces,
-                                         int ghostLevel)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
-    {
-    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
-                             numPieces, ghostLevel))
-      {
-      this->Modified();
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

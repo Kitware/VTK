@@ -184,9 +184,7 @@ public:
   // A generic way of specifying an update extent.  Subclasses
   // must decide what a piece is.  When the NumberOfPieces is zero, then
   // no data is requested, and the source will not execute.
-  virtual void SetUpdateExtent(int vtkNotUsed(piece),int vtkNotUsed(numPieces),
-                               int vtkNotUsed(ghostLevel))
-    {vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
+  virtual void SetUpdateExtent(int piece,int numPieces, int ghostLevel);
   void SetUpdateExtent(int piece, int numPieces)
     {this->SetUpdateExtent(piece, numPieces, 0);}
 

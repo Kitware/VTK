@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -829,14 +829,6 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
     }
 
   return id;
-}
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------

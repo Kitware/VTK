@@ -41,7 +41,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.6");
+vtkCxxRevisionMacro(vtkImageData, "1.7");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1180,19 +1180,6 @@ void vtkImageData::UpdateInformation()
   // from this data object instead of the pipeline information.  This
   // preserves compatibility.
   this->CopyOriginAndSpacingFromPipeline();
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
-    {
-    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
-                             numPieces, ghostLevel))
-      {
-      this->Modified();
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

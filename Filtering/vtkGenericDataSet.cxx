@@ -23,7 +23,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.4");
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.5");
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
@@ -96,14 +96,6 @@ void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
     }
   c->Delete();
   it->Delete();
-}
-
-//----------------------------------------------------------------------------
-void vtkGenericDataSet::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------

@@ -85,23 +85,6 @@ public:
   double *GetScalarRange() {return this->Superclass::GetScalarRange();}
 
   // Description:
-  // For streaming.  User/next filter specifies which piece the want updated.
-  // The source of this data has to return exactly this piece.
-  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
-  void SetUpdateExtent(int piece, int numPieces)
-    {this->SetUpdateExtent(piece, numPieces, 0);}
-
-  // Description:
-  // Call superclass method to avoid hiding
-  // Since this data type does not use 3D extents, this set method
-  // is useless but necessary since vtkDataSetToDataSetFilter does not
-  // know what type of data it is working on.
-  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
-    { this->Superclass::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
-  void SetUpdateExtent( int ext[6] )
-    { this->Superclass::SetUpdateExtent( ext ); };
-
-  // Description:
   // Set dimensions of structured points dataset.
   void SetDimensions(int i, int j, int k);
 
@@ -196,7 +179,7 @@ public:
   // Description:
   // Get the array that defines the blanking (visibility) of each cell.
   vtkUnsignedCharArray *GetCellVisibilityArray(); 
-
+  
   // Description:
   // Set an array that defines the (blanking) visibility of the cells 
   // in the grid. Make sure that length of the visibility array matches 

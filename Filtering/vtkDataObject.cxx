@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.14");
+vtkCxxRevisionMacro(vtkDataObject, "1.15");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -217,6 +217,20 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
+    {
+    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
+                             numPieces, ghostLevel))
+      {
+      this->Modified();
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
