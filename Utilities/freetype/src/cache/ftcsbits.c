@@ -505,7 +505,7 @@
 
     error = ftc_sbit_cache_lookup( FTC_CACHE( cache ),
                                    FTC_QUERY( &squery ),
-                                   (FTC_Node*)&node );
+                                   (FTC_Node*)(void*)&node );
     if ( !error )
     {
       *ansbit = node->sbits + ( gindex - FTC_GLYPH_NODE( node )->item_start );

@@ -148,7 +148,7 @@
 
     error = FT_LruList_Lookup( manager->faces_list,
                                (FT_LruKey)face_id,
-                               (FT_LruNode*)&node );
+                               (FT_LruNode*)(void*)&node );
     if ( !error )
       *aface = node->face;
 
@@ -299,7 +299,7 @@
 
       error = FT_LruList_Lookup( manager->sizes_list,
                                  (FT_LruKey)&query,
-                                 (FT_LruNode*)&node );
+                                 (FT_LruNode*)(void*)&node );
       if ( !error )
       {
         /* select the size as the current one for this face */

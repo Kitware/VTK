@@ -336,7 +336,7 @@
 
     error = ftc_cache_lookup( FTC_CACHE( cache ),
                               FTC_QUERY( &iquery ),
-                              (FTC_Node*)&node );
+                              (FTC_Node*)(void*)&node );
     if ( !error )
     {
       *aglyph = node->glyph;

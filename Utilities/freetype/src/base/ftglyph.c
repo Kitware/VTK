@@ -600,7 +600,7 @@
 
     /* create result bitmap glyph */
     error = ft_new_glyph( glyph->library, &ft_bitmap_glyph_class,
-                          (FT_Glyph*)&bitmap );
+                          (FT_Glyph*)(void*)&bitmap );
     if ( error )
       goto Exit;
 

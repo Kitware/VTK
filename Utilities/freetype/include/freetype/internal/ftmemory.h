@@ -204,18 +204,17 @@ FT_BEGIN_HEADER
 #define FT_MEM_FREE( _pointer_ )                                            \
           FT_Free_Debug( memory, (void**)&(_pointer_), __FILE__, __LINE__ )
 
-
 #else  /* !FT_DEBUG_MEMORY */
 
 
 #define FT_MEM_ALLOC( _pointer_, _size_ )                  \
-          FT_Alloc( memory, _size_, (void**)&(_pointer_) )
+          FT_Alloc( memory, _size_, (void**)(void*)&(_pointer_) )
 
 #define FT_MEM_FREE( _pointer_ )                  \
-          FT_Free( memory, (void**)&(_pointer_) )
+          FT_Free( memory, (void**)(void*)&(_pointer_) )
 
 #define FT_MEM_REALLOC( _pointer_, _current_, _size_ )                  \
-          FT_Realloc( memory, _current_, _size_, (void**)&(_pointer_) )
+          FT_Realloc( memory, _current_, _size_, (void**)(void*)&(_pointer_) )
 
 
 #endif /* !FT_DEBUG_MEMORY */

@@ -361,7 +361,7 @@
 
     error = ftc_cmap_cache_lookup( FTC_CACHE( cache ),
                                    FTC_QUERY( &cquery ),
-                                   (FTC_Node*)&node );
+                                   (FTC_Node*)(void*)&node );
     if ( !error )
     {
       FT_UInt  offset = (FT_UInt)( char_code - node->first );
