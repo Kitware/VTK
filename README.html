@@ -2,7 +2,7 @@
 <header>
 <title>vtk README</title>
 <!-- Created by: will schroeder,  July-1997 -->
-<!-- Changed by: kenneth m martin, 10-Feb-1998 -->
+<!-- Changed by: kenneth m martin,  5-Jun-1998 -->
 
 </header>
 <body>
@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.<p>
 "The Visualization Toolkit, an Object-Oriented Approach to 3D Graphics" is
 the title of a new book published by Prentice Hall (ISBN 013199837-4).  <p>
 
-This is version 2.0. In this release there have been many bugs fixed and a
+This is version 2.1. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
 <A HREF="http://www.kitware.com">http://www.kitware.com</A><p>
@@ -80,7 +80,7 @@ our web page. The web page also contains some html reference pages for the
 objects in vtk as well as a FAQ.<pre>
   The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics
   by Will Schroeder, Ken Martin and Bill Lorensen.
-  Prentice Hall, ISBN 013199837-4</pre>
+  Prentice Hall, Second Edition</pre>
 
 
 <HR>
@@ -205,11 +205,11 @@ architecture you wish to build.<p>
     dependencies and makefiles. Then you use the compiler make utility
     to compile as follows.<pre>
 
-    1. Install vtk2.0 distribution by unzipping in appropriate directory.
+    1. Install vtk2.1 distribution by unzipping in appropriate directory.
 
     2. Execute vtk\pcmaker\Debug\pcmaker.exe. This will pop-up a little
        GUI that allows you to tailor the build. It then starts
-       building makefiles and dependencies. It will run for 5 or more
+       building makefiles and dependencies. It will run for a couple
        minutes depending on your system. You'll have to tell pcamaker
        where you've placed your vtk source code, and where to build
        the object code and dll's (we'll call it "vtkbin").
@@ -241,8 +241,8 @@ during the link phase.<p>
 <HR>
 <h1><A NAME="Execution">Execution</h1>
 
-Many of the examples require the data found in vtk1.2data.tar.gz. This should
-be uncompressed and un-tarred so that there is a data directory in the vtk1.2
+Many of the examples require the data found in vtk2.0data.tar.gz. This should
+be uncompressed and un-tarred so that there is a data directory in the vtk2.1
 directory. The examples that require data look for it in ../../data.
 If you compiled with the --srcdir option you may need to create a symbolic 
 link to the data directory. <p>
@@ -257,12 +257,6 @@ To run the cc examples just type their name.  To run the tcl examples,
 <h1><A NAME="Problems">Common Problems</h1>
 I got a "warning: no configuration information is in tcl" from configure.
 This is correct and is supposed to happen. <p>
-
-cpp_parse fails to compile - this is usually due to running an old version
-of yacc or bison. I know that old versions of bison do not work. My
-suggestion would be to make sure you are using yacc or a recent version of
-bison (available at prep.ai.mit.edu in /pub/gnu)<p>
-
 
 <HR>
 <h1><A NAME="NewClass">Adding A New Class</h1>

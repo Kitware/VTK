@@ -39,10 +39,10 @@ Welcome to the Visualization Toolkit.
 "The Visualization Toolkit, an Object-Oriented Approach to 3D Graphics" is
 the title of a new book published by Prentice Hall (ISBN 013199837-4).  
 
-This is version 2.0. In this release there have been many bugs fixed and a
+This is version 2.1. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
-http://www.kitware.com/~martink/
+http://www.kitware.com/vtk.html
 
 
 2. Documentation
@@ -55,7 +55,7 @@ objects in vtk as well as a FAQ.
 
   The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics
   by Will Schroeder, Ken Martin and Bill Lorensen.
-  Prentice Hall, ISBN 013199837-4
+  Prentice Hall, Second Edition
 
 
 3. Installation
@@ -190,12 +190,6 @@ To run the cc examples just type their name.  To run the tcl examples,
 ------------------
 I got a "warning: no configuration information is in tcl" from configure.
 This is correct and is supposed to happen. 
-
-cpp_parse fails to compile - this is usually due to running an old version
-of yacc or bison. I know that old versions of bison do not work. My
-suggestion would be to make sure you are using yacc or a recent version of
-bison (available at prep.ai.mit.edu in /pub/gnu)
-
 
 6. Adding a new class to vtk
 ----------------------------
