@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.52");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.53");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -197,6 +197,11 @@ int vtkiscompare(const T *y1,const T *y2)
   return  1;
 }
 
+extern "C" 
+{
+  typedef int (*vtkCompareFunction)(const void*, const void*);
+}
+
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
 template <class T>
@@ -226,8 +231,10 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
     = (int (__cdecl *)(const void*, const void*)) compareF1;
 #else
   int (*compareF1)(const T*, const T*) = vtkiscompare;
-  int (*compareFn)(const void*, const void*)
-    = (int (*)(const void*, const void*)) compareF1;
+//  int (*compareFn)(const void*, const void*)
+//    = (int (*)(const void*, const void*)) compareF1;
+  vtkCompareFunction compareFn = 
+    reinterpret_cast<vtkCompareFunction>(compareF1);
 #endif
 
   self->GetShrinkFactors(factor0, factor1, factor2);
