@@ -61,6 +61,7 @@ void vlFeatureEdges::Execute()
     }
 
   // build cell structure.  Only operate with polygons.
+  Mesh.SetPoints(this->Input->GetPoints());
   Mesh.SetPolys(this->Input->GetPolys());
 //
 //  Allocate storage for lines/points

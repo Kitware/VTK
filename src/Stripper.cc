@@ -45,6 +45,7 @@ void vlStripper::Execute()
   this->Initialize();
 
   // build cell structure.  Only operate with polygons and triangle strips.
+  Mesh.SetPoints(this->Input->GetPoints());
   Mesh.SetPolys(this->Input->GetPolys());
   Mesh.SetStrips(this->Input->GetStrips());
 

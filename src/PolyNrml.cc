@@ -82,6 +82,7 @@ void vlPolyNormals::Execute()
   pd = this->Input->GetPointData();
     
   NewMesh = new vlPolyData;
+  NewMesh->SetPoints(this->Input->GetPoints());
   // create a copy because we're modifying it
   newPolys = new vlCellArray(*(this->Input->GetPolys()));
   NewMesh->SetPolys(newPolys);

@@ -91,7 +91,7 @@ void vlTransformStructuredPoints::Execute()
 {
   int i, numPts, numOutPts;
   int *dimIn;
-  float *originIn, *aspectIn;
+  float *originIn, *aspectIn, ar[3];
   vlPointData *pd;
   vlScalars *inScalars, *outScalars;
 
@@ -117,13 +117,13 @@ void vlTransformStructuredPoints::Execute()
   if (this->SampleDimensions[0] <= 1 || this->SampleDimensions[1] <= 1 || 
   this->SampleDimensions[2] <= 1)
     {
-    for (i = 0; i < 3; i++) this->Dimensions[i] = dimIn[i];
+    this->SetDimensions(dimIn);
     }
 	
   // otherwise use the specified dimensions
   else 
     {
-    for (i = 0; i < 3; i++) this->Dimensions[i] = this->SampleDimensions[i];
+    this->SetDimensions(this->SampleDimensions);
     }
 
   // if bounds are not specified, use input's aspect ratio and origin
@@ -131,21 +131,19 @@ void vlTransformStructuredPoints::Execute()
   this->ModelBounds[2] >= this->ModelBounds[3] ||
   this->ModelBounds[4] >= this->ModelBounds[5])
     {
-    for (i = 0; i < 3; i++) 
-      {
-      this->AspectRatio[i] = aspectIn[i];
-      this->Origin[i] = originIn[i];
-      }
+    this->SetAspectRatio(aspectIn);
+    this->SetOrigin(originIn);
     }
   // otherwise, calculate them from bounds
   else 
     {
-    for (i = 0; i < 3; i++) 
-      {
-      this->Origin[i] = this->ModelBounds[2*i];
-      this->AspectRatio[i] = (this->ModelBounds[2*i+1]-this->ModelBounds[2*i])/
-                             (this->Dimensions[i] - 1);
-      }
+    this->SetOrigin(this->ModelBounds[0], this->ModelBounds[1], 
+                    this->ModelBounds[2]);
+    for (i=0; i<3; i++) 
+      ar[i] = (this->ModelBounds[2*i+1]-this->ModelBounds[2*i]) /
+              (this->Dimensions[i] - 1);
+
+    this->SetAspectRatio(ar);
     }
 
   // Allocate data.  Scalar type is same as input.
