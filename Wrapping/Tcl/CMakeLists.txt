@@ -10,7 +10,13 @@ ENDIF (NOT TCL_LIBRARY)
 
 # Create the vtk Tcl wrapper executable.
 ADD_EXECUTABLE(vtk vtkTkAppInit.cxx)
-TARGET_LINK_LIBRARIES (vtk vtkGraphicsTCL vtkImagingTCL vtkIOTCL)
+TARGET_LINK_LIBRARIES (vtk
+  vtkCommonTCL
+  vtkFilteringTCL
+  vtkGraphicsTCL
+  vtkImagingTCL
+  vtkIOTCL
+)
 
 IF (VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(vtk vtkRenderingTCL)
@@ -31,7 +37,14 @@ INSTALL_TARGETS(/bin vtk)
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx)
-    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL)
+    TARGET_LINK_LIBRARIES (pvtk
+      vtkCommonTCL
+      vtkFilteringTCL
+      vtkGraphicsTCL
+      vtkImagingTCL
+      vtkIOTCL
+      vtkParallelTCL
+    )
 
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL)
