@@ -25,39 +25,39 @@
 // supports interactive window/level operations on the image. Note that
 // vtkImageViewer2 is simply a wrapper around these classes.
 //
-// Some notes on using vtkImageViewer2. It is possible to add geometry to a
-// scene using the methods:
+// vtkImageViewer2 uses the 3D rendering and texture mapping engine
+// to draw an image on a plane.  This allows for rapid rendering,
+// zooming, and panning. The image is placed in the 3D scene at a
+// depth based on the z-coordinate of the particular image slice. Each
+// call to SetZSlice() changes the image data (slice) displayed AND
+// changes the depth of the displayed slice in the 3D scene.
+//
+// It is possible to mix images and geometry, using the methods:
 //
 // viewer->SetInput( myImage );
 // viewer->GetRenderer()->AddActor( myActor );
 //
-// This is nice for "drawing" on top of an image.  For instance, you can
-// construct a PolyData of "edges" and draw them on top of an image, or
-// you can highlight sections of an image, etc.
+// This can be used to annotate an image with a PolyData of "edges" or
+// or highlight sections of an image or display a 3D isosurface
+// with a slice from the volume, etc. Any portions of your geometry
+// that are in front of the displayed slice will be visible; any
+// portions of your geometry that are behind the displayed slice will
+// be obscured. A more general framework (with respect to viewing
+// direction) for achieving this effect is provided by the
+// ImagePlaneWidgets.
 //
 // .SECTION Caveats
-// vtkImageViewer2 occasionally causes suprising clipping behavior.  Often
-// when the class is used to display slices from a volume, you can only look
-// at the first few slices of volume.  After the first few slices, the image
-// becomes black (i.e., background color).  This is because vtkImageViewer2
-// uses the 3D rendering/texture mapping engine to draw a slice onto a plane.
-// It turns out that the location of that plane is based on the
-// "z-coordinate" of the slice.  As you adjust the slice that is viewed, the
-// plane moves and eventually gets outside the camera clipping range.
-//
-// This behavior may be used to advantage in some situations.  If you are
-// mixing the image with 3D geometry, you may want the z-coordinate of the
-// plane to be adjusted as you switch slices.  This way the image can "hide"
-// the portions of the geometry that is behind it. There are other ways to do
-// this now using the ImagePlaneWidgets but ImageViewer2 is a quick and dirty
-// solution, especially if you want to restrict the view to be down the
-// z-axis.  vtkImageViewer2 is confusing, however, when just using the viewer
-// to look at each slice in the volume. To solve this problem, whenever you
-// call SetZSlice() on the viewer, you need to reset the camera clipping
-// range as follows:
-//
+// Since the displayed image is placed at a depth corresponding to the
+// z-coordinate of the particular image slice, you should reset the
+// camera clipping planes after each call to SetZSlice() to avoid
+// unintentional clipping of the image data, i.e.
+// 
 // viewer->SetZSlice( slice );
 // viewer->GetRenderer()->ResetCameraClippingRange();
+//
+// If you do not call ResetCameraClippingRange() on the viewer's
+// renderer, the viewer may show a blank image at some ZSlice
+// settings.
 
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer vtkImageActor vtkImageMapToWindowLevelColors
