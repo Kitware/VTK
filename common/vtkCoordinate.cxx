@@ -113,8 +113,22 @@ void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Coordinate System: " << this->GetCoordinateSystemAsString() << "\n";
   os << indent << "Value: (" << this->Value[0] << "," 
      << this->Value[1] << "," << this->Value[2] << ")\n";
-  os << indent << "ReferenceCoordinate: " << this->ReferenceCoordinate << "\n";
-  os << indent << "Viewport: " << this->Viewport << "\n";
+  if (this->ReferenceCoordinate)
+    {
+    os << indent << "ReferenceCoordinate: " << this->ReferenceCoordinate << "\n";
+    }
+  else
+    {
+    os << indent << "ReferenceCoordinate: (none)\n";
+    }
+  if (this->Viewport)
+    {
+    os << indent << "Viewport: " << this->Viewport << "\n";
+    }
+  else
+    {
+    os << indent << "Viewport: (none)\n";
+    }
 }
 
 
