@@ -6,7 +6,7 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 
 
 vtkPNMReader reader
-reader SetFileName "../../../vtkdata/AttenuationArtifact.pgm"
+reader SetFileName "$VTK_DATA/AttenuationArtifact.pgm"
 
 vtkImageCast cast
 cast SetInput [reader GetOutput]
