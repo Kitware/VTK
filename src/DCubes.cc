@@ -54,7 +54,6 @@ void vlDividingCubes::Execute()
     vlErrorMacro("Bad input: only treats 3D structured point datasets");
     return;
     }
-
   input->GetDimensions(dim);
   input->GetAspectRatio(ar);
   input->GetOrigin(origin);
@@ -66,6 +65,7 @@ void vlDividingCubes::Execute()
 // Loop over all cells checking to see which straddle the specified value. Since
 // we know that we are working with a volume, can create appropriate data directly.
 //
+  sliceSize = dim[0] * dim[1];
   for ( k=0; k < (dim[2]-1); k++)
     {
     kOffset = k*sliceSize;
@@ -104,7 +104,7 @@ void vlDividingCubes::Execute()
 
           if ( above && below ) // recursively generate points
             {
-            this->SubDivide(x, ar, voxelScalars);
+            this->SubDivide(x, ar, voxelScalars.GetPtr(0));
             }
           }
         }
@@ -127,7 +127,7 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
                                  {20,26,18,23,14,25,6,11},
                                  {26,21,23,19,25,15,11,7}};
 
-void vlDividingCubes::SubDivide(float origin[3], float h[3], vlFloatScalars &values)
+void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
 {
   int i;
   float hNew[3];
@@ -156,10 +156,10 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], vlFloatScalars &val
     {
     int j, k, idx, above, below, ii;
     float x[2];
-    vlFloatScalars newValues(8);
+    float newValues[8];
     float s[27], scalar;
 
-    for (i=0; i<8; i++) s[i] = values.GetScalar(i);
+    for (i=0; i<8; i++) s[i] = values[i];
 
     s[8] = (s[0] + s[1]) / 2.0; // edge verts
     s[9] = (s[2] + s[3]) / 2.0;
@@ -185,17 +185,15 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], vlFloatScalars &val
 
     for (k=0; k < 2; k++)
       {
-      idx = k*4;
       x[2] = origin[2] +  k*hNew[2];
 
       for (j=0; j < 2; j++)
         {
-        idx += j*2;
         x[1] = origin[1] +  j*hNew[1];
 
         for (i=0; i < 2; i++)
           {
-          idx += i;
+          idx = i + j*2 + k*4;
           x[0] = origin[0] +  i*hNew[0];
 
           for (above=below=0,ii=0; ii<8; ii++)
@@ -205,7 +203,7 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], vlFloatScalars &val
             if ( scalar >= this->Value ) above = 1;
             else if ( scalar < this->Value ) below = 1;
 
-            newValues.SetScalar(ii,scalar);
+            newValues[ii] = scalar;
             }
 
           if ( above && below )

@@ -53,7 +53,7 @@ public:
 
 protected:
   void Execute();
-  void SubDivide(float origin[3], float h[3], vlFloatScalars &values);
+  void SubDivide(float origin[3], float h[3], float values[8]);
   void AddPoint(float x[3]);
 
   float Value;
