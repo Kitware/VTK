@@ -43,20 +43,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <math.h>
 
+
 #include "vtkCocoaRenderWindow.h"
 #include "vtkCocoaRenderWindowInteractor.h"
 #include "vtkCocoaWindow.h"
-#include "vtkInteractorStyle.h"
-#include "vtkActor.h"
-#include <OpenGL/gl.h>
-#include "vtkObjectFactory.h"
 #include "vtkCocoaGLView.h"
 
 #import <Cocoa/Cocoa.h>
 
 #define id Id
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.1");
+#include "vtkInteractorStyle.h"
+#include "vtkActor.h"
+#include <OpenGL/gl.h>
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.2");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
