@@ -30,3 +30,4 @@ ADD_LIBRARY(vtkpng ${PNG_SRCS})
 TARGET_LINK_LIBRARIES(vtkpng vtkzlib)
 
 INSTALL_TARGETS(/lib/vtk vtkpng)
+INSTALL_FILES(/include/vtk .h png pngconf pngDllConfig)
