@@ -464,7 +464,7 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
 
   // loop through volumes looking for a visible one of the right type
   visible_volume = 0;
-  volumes = this->Renderer->GetVolumes();
+  volumes = ren->GetVolumes();
 
   for (volumes->InitTraversal(); (volume = volumes->GetNextItem()); )
     {
@@ -627,12 +627,13 @@ int vtkRayCaster::GetNumberOfSamplesTaken()
 // the graphics hardware) capture it for later use.
 void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
 {
-  float     *viewport;
-  int       *renWinSize;
-  int       something_in_framebuffer = 0;
-  vtkActor  *anActor;
-  vtkVolume *aVolume;
-  int       lowerLeftCorner[2];
+  float                *viewport;
+  int                  *renWinSize;
+  int                  something_in_framebuffer = 0;
+  vtkActor             *anActor;
+  vtkVolume            *aVolume;
+  vtkVolumeCollection  *volumes;
+  int                  lowerLeftCorner[2];
 
   // How big is this image?
   this->GetViewRaysSize( this->ImageSize );
@@ -657,8 +658,8 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
   // volumes that might be there
   if ( !something_in_framebuffer )
     {
-    for (ren->GetVolumes()->InitTraversal();
-	 (aVolume = ren->GetVolumes()->GetNextItem()); )
+    volumes = ren->GetVolumes();
+    for (volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
       {
       if (aVolume->GetVisibility() && 
 	  aVolume->GetVolumeMapper()->GetMapperType() == 
@@ -843,7 +844,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   float                 aspect;
   float                 ren_aspect[2];
   float                 cameraPosition[3], *volumePosition;
-
+ 
   // Get the position of the camera for use in determining the
   // distance to the center of each volume
   ren->GetActiveCamera()->GetPosition( cameraPosition );
@@ -861,7 +862,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // mapper, passing in the info structure so that information can be
   // stored there
   i = 0;
-  volumes = this->Renderer->GetVolumes();
+  volumes = ren->GetVolumes();
   for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
     {
     // Check visibility of volume 
@@ -1271,12 +1272,13 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount, 
 			  int softwareCount )
 {
-  int          deleteDisabled = 0;
-  vtkVolume    *aVolume;
-  vtkTimerLog  *timer;
-  float        *nextImage, *ptr1, *ptr2;
-  float        alpha;
-  int          i, j;
+  int                  deleteDisabled = 0;
+  vtkVolume            *aVolume;
+  vtkVolumeCollection  *volumes;
+  vtkTimerLog          *timer;
+  float                *nextImage, *ptr1, *ptr2;
+  float                alpha;
+  int                  i, j;
 
   // We need a timer to know how long the ray casting and software
   // buffer rendering takes. This will be used to determine what
@@ -1358,8 +1360,8 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
       delete this->ZImage;
 
       // Find that first software buffer volume
-      for ( ren->GetVolumes()->InitTraversal(); 
-	    (aVolume = ren->GetVolumes()->GetNextItem()); )
+      volumes = ren->GetVolumes();
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
 	{
 	if( aVolume->GetVisibility() &&
 	    aVolume->GetVolumeMapper()->GetMapperType() == 
@@ -1380,8 +1382,8 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
     else
       {     
       // Render each volume of the right type
-      for ( ren->GetVolumes()->InitTraversal(); 
-	    (aVolume = ren->GetVolumes()->GetNextItem()); )
+      volumes = ren->GetVolumes();
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
 	{
 	if( aVolume->GetVisibility() &&
 	    aVolume->GetVolumeMapper()->GetMapperType() == 
