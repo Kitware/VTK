@@ -79,16 +79,27 @@ void vtkImageCorrelation::ComputeRequiredInputUpdateExtent(int inExt[6],
     }
   else
     {
-    // use the outExtent
+    // try to get all the data required to handle the boundaries
+    // but limit to the whole extent
+    int idx;
+    int *i0WExtent = this->Inputs[0]->GetWholeExtent();
+    int *i1WExtent = this->Inputs[1]->GetWholeExtent();
     memcpy(inExt,outExt,6*sizeof(int));
+    for (idx = 0; idx < 3; idx++)
+      {
+      inExt[idx*2+1] = outExt[idx*2+1] +
+	(i1WExtent[idx*2+1] - i1WExtent[idx*2]);
+
+      // clip to whole extent
+      if (inExt[idx*2+1] > i0WExtent[idx*2+1])
+	{
+	inExt[idx*2+1] = i0WExtent[idx*2+1];
+	}
+      }
     }
 }
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This method is passed a input and output datas, and executes the filter
-// It only deals with floats for now
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
@@ -112,6 +123,8 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   T *in2Ptr2, *in1Ptr2;
   int kIdxX, kIdxY, kIdxZ;
   int xKernMax, yKernMax, zKernMax;
+  int maxIX, maxIY, maxIZ;
+  int *wExtent;
   
   // find the region to loop over
   maxC = in1Data->GetNumberOfScalarComponents();
@@ -130,12 +143,19 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   in2Data->GetIncrements(in2IncX, in2IncY, in2IncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-
+  // how far can we gon with input data
+  // this may be farther that the outExt because of 
+  // subpieces etc.
+  wExtent = in1Data->GetExtent();
+  maxIZ = wExtent[5] - outExt[4];
+  maxIY = wExtent[3] - outExt[2];
+  maxIX = wExtent[1] - outExt[0];
+  
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     // how much of kernel to use
-    zKernMax = maxZ - idxZ;
+    zKernMax = maxIZ - idxZ;
     if (zKernMax > in2Extent[5]) zKernMax = in2Extent[5];
     for (idxY = 0; idxY <= maxY; idxY++)
       {
@@ -144,13 +164,13 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
 	count++;
 	}
-      yKernMax = maxY - idxY;
+      yKernMax = maxIY - idxY;
       if (yKernMax > in2Extent[3]) yKernMax = in2Extent[3];
       for (idxX = 0; idxX <= maxX; idxX++)
 	{
 	// determine the extent of input 1 that contributes to this pixel
 	*outPtr = 0.0;
-	xKernMax = maxX - idxX;
+	xKernMax = maxIX - idxX;
 	if (xKernMax > in2Extent[1]) xKernMax = in2Extent[1];
 
 	// sumation
