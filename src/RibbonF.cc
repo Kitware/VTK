@@ -57,7 +57,7 @@ vtkRibbonFilter::vtkRibbonFilter()
 
 void vtkRibbonFilter::Execute()
 {
-  int i, j, k;
+  int i, j;
   vtkPoints *inPts;
   vtkNormals *inNormals;
   vtkPointData *pd;
