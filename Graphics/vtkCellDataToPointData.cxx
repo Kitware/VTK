@@ -72,7 +72,8 @@ void vtkCellDataToPointData::Execute()
   vtkCellData *inPD=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
   vtkIdList *cellIds;
-  float weight, *weights=new float[VTK_MAX_CELLS_PER_POINT];
+  float weight;
+  float *weights;
 
   vtkDebugMacro(<<"Mapping cell data to point data");
 
@@ -88,6 +89,7 @@ void vtkCellDataToPointData::Execute()
     cellIds->Delete();
     return;
     }
+  weights = new float[VTK_MAX_CELLS_PER_POINT];
   
   // Pass the point data first. The fields and attributes
   // which also exist in the cell data of the input will
