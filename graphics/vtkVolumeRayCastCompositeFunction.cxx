@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeRayCastCompositeFunction.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
+#include "vtkVolume.h"
 
 #define VTK_REMAINING_OPACITY		0.02
 
@@ -1120,9 +1121,11 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 // Description:
 // Bogus routine right now until I figure out how to get to the
 // volume's properties from here....
-float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume *vol )
+float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume 
+								  *vol )
 {
-  return( 1.0 );
+  return vol->GetVolumeProperty()->GetOpacityTransferFunction()->
+    GetFirstNonZeroValue();
 }
 
 // Description:
