@@ -80,7 +80,9 @@ void vtkImageDifference::Execute()
       (dims1[1] != dims2[1]) || 
       (dims1[2] != dims2[2]))
     {
-    vtkWarningMacro(<< "Images are not the same size");
+    vtkWarningMacro(<< "Images are not the same size: " << 
+	dims1[0] << ", " << dims1[1] << ", " << dims1[2] << " != " <<
+	dims2[0] << ", " << dims2[1] << ", " << dims2[2] );
     this->Error = 1;
     this->ThresholdedError = 1;
     return;
