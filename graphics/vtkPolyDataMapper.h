@@ -94,6 +94,13 @@ public:
   // Set the number of ghost cells to return.
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+
+  // Description:
+  // Return bounding box (array of six floats) of data expressed as
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  virtual float *GetBounds();
+  virtual void GetBounds(float bounds[6]) 
+    {this->vtkMapper::GetBounds(bounds);};
   
 protected:  
   vtkPolyDataMapper();

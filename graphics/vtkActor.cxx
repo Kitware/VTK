@@ -319,6 +319,12 @@ float *vtkActor::GetBounds()
     }
 
   bounds = this->Mapper->GetBounds();
+  // Check for the special case when the mapper's bounds are unknown
+  if (!bounds)
+    {
+    return bounds;
+    }
+
   // Check for the special case when the actor is empty.
   if (bounds[0] > bounds[1])
     { 
