@@ -48,7 +48,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.33");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.34");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -281,10 +281,26 @@ int vtkSocketCommunicator::ReceiveMessage(char *data, int *length,
 {
   if ( this->Socket < 0 )
     {
+    if ( this->IsConnected )
+      {
+      this->CloseConnection();
+      }
     return VTK_ERROR;
     }
-  
+
   *length = recv( this->Socket, data, maxlength, 0 );
+
+#ifdef _MSC_VER 
+  if ( GetLastError( ) == WSAECONNRESET )
+    {
+    if ( this->IsConnected )
+      {
+      this->CloseConnection();
+      }
+    return VTK_ERROR;
+    }
+#endif
+
   if ( length < 0 )
     {
     return VTK_ERROR;
