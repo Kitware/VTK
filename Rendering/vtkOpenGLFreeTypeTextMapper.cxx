@@ -22,7 +22,7 @@
 #include "vtkWindow.h"
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
 
-#include "vtkFreeTypeFontCache.h"
+#include "vtkFreeTypeUtilities.h"
 #include "vtkfreetypeConfig.h"
 #include "vtkftglConfig.h"
 
@@ -91,7 +91,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.39");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.40");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -171,7 +171,8 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
 
   // Check for font and try to set the size
 
-  vtkFreeTypeFontCache::Entry *entry = vtkFreeTypeFontCache::GetInstance()->GetFont(tprop);
+  vtkFreeTypeUtilities::Entry *entry = 
+    vtkFreeTypeUtilities::GetInstance()->GetFont(tprop);
   FTFont *font = entry->Font;
   if (!font) 
     {
@@ -351,37 +352,13 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
-  // Get the font color from the text actor
-
-  unsigned char red, green, blue, alpha;
-  
-  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
-  // to maintain backward compatibility for a while. Text mapper classes will
-  // use the Actor2D color instead of the text prop color if this value is 
-  // found (i.e. if the text prop color has not been set).
-  double* tpropColor = tprop->GetColor();
-  if (tpropColor[0] < 0.0 && tpropColor[1] < 0.0 && tpropColor[2] < 0.0)
-    {
-    tpropColor = actor->GetProperty()->GetColor();
-    }
-
-  // TOFIX: same goes for opacity
-
-  float opacity = tprop->GetOpacity();
-  if (opacity < 0.0)
-    {
-    opacity = actor->GetProperty()->GetOpacity();
-    }
-
-  red   = (unsigned char) (tpropColor[0] * 255.0);
-  green = (unsigned char) (tpropColor[1] * 255.0);
-  blue  = (unsigned char) (tpropColor[2] * 255.0);
-  alpha = (unsigned char) (opacity       * 255.0);
+  double* tprop_color = tprop->GetColor();
+  double tprop_opacity = tprop->GetOpacity();
 
   // Get the font
   
   FTFont *font = 
-    vtkFreeTypeFontCache::GetInstance()->GetFont(tprop, 1, red,green,blue)->Font;
+    vtkFreeTypeUtilities::GetInstance()->GetFont(tprop, tprop_color)->Font;
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -408,40 +385,30 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Set up the shadow color
 
-  int antialiasing_requested = 
-    (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_ALL || 
-     (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_SOME 
-      && tprop->GetAntiAliasing())) ? 1 : 0;
-
   if (tprop->GetShadow())
     {
-    unsigned char rgb = (red + green + blue) / 3.0 > 128.0 ? 0 : 255;
-    unsigned char shadow_red = rgb, shadow_green = rgb, shadow_blue = rgb; 
+    double shadow_color[3], rgb;
+    rgb = ((tprop_color[0] + tprop_color[1] + tprop_color[2]) / 3.0 > 0.5)
+      ? 0.0 : 1.0;
+    shadow_color[0] = shadow_color[1] = shadow_color[2] = rgb; 
 
     // Get the shadow font
   
-#if VTK_FTFC_CACHE_BY_RGBA
-    FTFont *shadow_font;
-    if (antialiasing_requested)
+    FTFont *shadow_font = vtkFreeTypeUtilities::GetInstance()->GetFont(
+      tprop, shadow_color)->Font;
+    if (!shadow_font) 
       {
-      shadow_font = vtkFreeTypeFontCache::GetInstance()->GetFont(
-        tprop, 1, shadow_red, shadow_green, shadow_blue)->Font;
-      if (!shadow_font) 
-        {
-        vtkErrorMacro(<< "Render - No shadow font");
-        return;
-        }
-      } 
-    else 
-      {
-      shadow_font = font;
+      vtkErrorMacro(<< "Render - No shadow font");
+      return;
       }
-#endif
     
     // Set the color here since load/render glyphs is done
     // on demand and this color has to be consistent for a given font entry.
     
-    glColor4ub(shadow_red, shadow_green, shadow_blue, alpha);
+    glColor4ub((unsigned char)(shadow_color[0] * 255.0),
+               (unsigned char)(shadow_color[1] * 255.0), 
+               (unsigned char)(shadow_color[2] * 255.0), 
+               (unsigned char)(tprop_opacity * 255.0));
 
     // Required for clipping to work correctly
 
@@ -450,25 +417,18 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     
     // Draw the shadow text
     
-#if VTK_FTFC_CACHE_BY_RGBA
     shadow_font->render(this->Input, ftgl_context);
 
     // Get the font again, Duh, since it may have been freed from the 
     // cache by the shadow font
 
-    if (antialiasing_requested)
+    font = vtkFreeTypeUtilities::GetInstance()->GetFont(
+      tprop, tprop_color)->Font;
+    if (!font) 
       {
-      font = 
-        vtkFreeTypeFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue)->Font;
-      if (!font) 
-        {
-        vtkErrorMacro(<< "Render - No font");
-        return;
-        }
+      vtkErrorMacro(<< "Render - No font");
+      return;
       }
-#else
-    font->render(this->Input, ftgl_context);
-#endif
 
     // Shadow text for GL2PS.
 
@@ -480,7 +440,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // Set the color here since load/render glyphs is done
   // on demand and this color has to be consistent for a given font entry.
 
-  glColor4ub(red, green, blue, alpha);
+  glColor4ub((unsigned char)(tprop_color[0] * 255.0),
+             (unsigned char)(tprop_color[1] * 255.0), 
+             (unsigned char)(tprop_color[2] * 255.0), 
+             (unsigned char)(tprop_opacity * 255.0));
 
   // Required for clipping to work correctly
 
