@@ -60,7 +60,7 @@ public:
   // Specify second order symmetric radial lens distortion parameter.
   // This is obsoleted by newer instance variables.
   void SetKappa(float kappa);
-  float GetKappa(float kappa);
+  float GetKappa();
 
   // Description:
   // Specify the center of radial distortion in pixels.

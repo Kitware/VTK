@@ -228,7 +228,7 @@ void vtkAppendPolyData::Execute()
   // use highest (double probably), otherwise the type of the first
   // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
   int ttype, firstType=1, AllSame=1;
-  int pointtype;
+  int pointtype = 0;
 
   // Keep track of types for fast point append
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
