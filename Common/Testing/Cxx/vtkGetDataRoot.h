@@ -27,6 +27,11 @@ char* vtkGetDataRoot(int argc, char* argv[])
   else 
     {
     dataRoot = getenv("VTK_DATA_ROOT");
+    if (!dataRoot)
+      {
+      dataRoot = new char[strlen("../../../../VTKData")+1];
+      strcpy(dataRoot, "../../../../VTKData");
+      }
     }
 
   return dataRoot;
