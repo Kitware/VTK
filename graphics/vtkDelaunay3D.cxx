@@ -88,13 +88,20 @@ static int NumberOfDegeneracies;
 // if no tetrahedron found.
 static int FindTetra(float x[3], int ptIds[4], float p[4][3], 
                      int tetra, vtkUnstructuredGrid *Mesh, 
-                     vtkFloatPoints *points, float tol, int nei)
+                     vtkFloatPoints *points, float tol, int depth)
 {
-  int i, j, inside, i2, i3, i4, newNei;
+  int i, j, inside, i2, i3, i4;
   vtkIdList pts(4), facePts(3);
   vtkIdList neighbors(2);
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
+  // prevent aimless wandering and depth by recursion
+  if ( depth++ > 100 )
+    {
+    NumberOfDegeneracies++;
+    return -1;
+    }
+
   // get local tetrahedron info
   Mesh->GetCellPoints(tetra,pts);
   for (i=0; i<4; i++) 
@@ -154,15 +161,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
   if ( !inside ) 
     {
     Mesh->GetCellNeighbors(tetra, facePts, neighbors);
-    if ( (newNei=neighbors.GetId(0)) == nei )
-      {
-      NumberOfDegeneracies++;
-      return -1;
-      }
-    else
-      {
-      return FindTetra(x,ptIds,p,newNei,Mesh,points,tol,tetra);
-      }
+    return FindTetra(x,ptIds,p,neighbors.GetId(0),Mesh,points,tol,depth);
     }
   else 
     {
@@ -227,7 +226,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
     }
   if ( i >= checkedTetras.GetNumberOfIds() ) //keep looking for enclosing tetra
     {
-    tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol,(-1));
+    tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol,0);
     if ( tetraId < 0 ) return 0; 
     tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
     }
