@@ -20,6 +20,7 @@ thresh ReleaseDataFlagOff
 
 vtkImageEuclideanDistance dist
 dist SetInput [thresh GetOutput]
+dist SetAlgorithmToSaito
 
 vtkImageViewer viewer
 viewer SetInput [dist GetOutput]
@@ -28,7 +29,4 @@ viewer SetColorLevel 43
 
 viewer Render
 
-
-
-
-
+source [file join [file dirname [info script]] WindowLevelInterface.tcl]
