@@ -18,6 +18,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestAmoebaMinimizer.cxx
   TestImageIterator.cxx
   TestContainers.cxx
+  TestDirectory.cxx
   TestReferenceCountedList.cxx
   TestList.cxx
   TestMap.cxx
