@@ -61,12 +61,6 @@ IF (VTK_WRAP_TCL)
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(pvtk tkAppInit)
 
-    IF (HAVE_PNG)
-      TARGET_LINK_LIBRARIES(pvtk ${PNG_LIBRARY})
-      IF (ZLIB_LIBRARY)
-        TARGET_LINK_LIBRARIES(pvtk ${ZLIB_LIBRARY})
-      ENDIF (ZLIB_LIBRARY)
-    ENDIF (HAVE_PNG)
 
     TARGET_LINK_LIBRARIES (pvtk
 			 vtkParallelTCL
@@ -78,6 +72,7 @@ IF (VTK_WRAP_TCL)
                          vtkCommonTCL
 			 ${TCL_LIBRARY}
 			 ${TK_LIBRARY})
+    TARGET_LINK_LIBRARIES(pvtk png zlib)
 
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
