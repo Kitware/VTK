@@ -50,6 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef _WIN32
 #include "vtkSetGet.h"
 #include "vtkWin32Header.h"
+
+// include stdmutex for borland
+#ifndef _MSC_VER
+#include <stdmutex.h>
+#endif
+
 #include "vtkObject.h"
 HANDLE vtkGlobalMutex = NULL;
 #define VTK_GET_MUTEX() WaitForSingleObject(vtkGlobalMutex,INFINITE)
