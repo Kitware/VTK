@@ -122,6 +122,4 @@ renWin Render
 
 
 renWin SetFileName "TextureReslice.tcl.ppm"
-renWin SaveImageAsPPM
-
-iren Start
+#renWin SaveImageAsPPM
