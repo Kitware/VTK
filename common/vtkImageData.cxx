@@ -225,7 +225,10 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
     }
 
   // In case the extent is set improperly, set the size to 0
-  size = (size < 0)?(0):size;
+  if (size < 0)
+    {
+    size = 0;
+    }
 
   // Convert from double bytes to unsigned long kilobytes
   size = size >> 10;
