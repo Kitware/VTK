@@ -393,6 +393,7 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
 
 int vlPLOT3DReader::ReadBinaryFunctionFile(FILE *fp)
 {
+  return 1;
 }
 
 //

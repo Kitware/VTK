@@ -35,7 +35,7 @@ vlMergeFilter::~vlMergeFilter()
 
 void vlMergeFilter::Update()
 {
-  unsigned long int mtime, dsMtime;
+  unsigned long int mtime=0, dsMtime;
 
   // prevent chasing our tail
   if (this->Updating) return;
