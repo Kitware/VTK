@@ -34,8 +34,9 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 #include "vtkBox.h"
+#include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.85");
+vtkCxxRevisionMacro(vtkPicker, "1.86");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -266,6 +267,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkActor *actor;
   vtkLODProp3D *prop3D;
   vtkVolume *volume;
+  vtkImageActor *imageActor = 0;
   vtkAssemblyPath *path;
   vtkProperty *tempProperty;
   this->Transform->PostMultiply();
@@ -308,11 +310,16 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
           {
           mapper = volume->GetMapper();
           }
-        else
+        else if ( (imageActor=vtkImageActor::SafeDownCast(propCandidate)) )
+          {
+          mapper = 0;
+          }
+        else 
           {
           pickable = 0; //only vtkProp3D's (actors and volumes) can be picked
           }
         }
+
       //  If actor can be picked, get its composite matrix, invert it, and
       //  use the inverted matrix to transform the ray points into mapper
       //  coordinates. 
@@ -370,7 +377,52 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
               }
             }
           }
+        }
+      else if ( pickable && imageActor )
+        { // special case for imageActor, which has no mapper
+        vtkMatrix4x4 *LastMatrix = path->GetLastNode()->GetMatrix();
+        if (LastMatrix == NULL)
+          {
+          vtkErrorMacro (<< "Pick: Null matrix.");
+          return 0;
+          }
+        this->Transform->SetMatrix(LastMatrix);
+        this->Transform->Push();
+        this->Transform->Inverse();
 
+        this->Transform->TransformPoint(p1World,p1Mapper);
+        this->Transform->TransformPoint(p2World,p2Mapper);
+
+        this->Transform->Pop();
+
+        //  Have the ray endpoints in data space, now need to compare this
+        //  with the displayed image bounds.
+        imageActor->GetDisplayBounds(bounds);
+        for (i = 0; i < 3; i++)
+          {
+          if (bounds[2*i] == bounds[2*i+1])
+            {
+            t = (p2World[i] - bounds[2*i])/(p2World[i] - p1World[i]);
+            break;
+            }
+          }
+        if (i < 3)
+          {
+          hitPosition[0] = (1.0 - t)*p1World[0] + t*p2World[0];
+          hitPosition[1] = (1.0 - t)*p1World[1] + t*p2World[1];
+          hitPosition[2] = (1.0 - t)*p1World[2] + t*p2World[2];
+          if ((bounds[0] == bounds[1] || (hitPosition[0] >= bounds[0]-tol &&
+                                          hitPosition[0] <= bounds[1]+tol)) &&
+              (bounds[2] == bounds[3] || (hitPosition[1] >= bounds[2]-tol &&
+                                          hitPosition[1] <= bounds[3]+tol)) &&
+              (bounds[4] == bounds[5] || (hitPosition[2] >= bounds[4]-tol &&
+                                          hitPosition[2] <= bounds[5]+tol)))
+            {
+            picked = 1;
+            this->Prop3Ds->AddItem((vtkProp3D *)prop);
+            this->PickedPositions->InsertNextPoint(hitPosition);
+            }
+          }
         }//if visible and pickable not transparent and has mapper
       }//for all parts
     }//for all actors

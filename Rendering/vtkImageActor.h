@@ -32,16 +32,16 @@
 #ifndef __vtkImageActor_h
 #define __vtkImageActor_h
 
-#include "vtkProp.h"
+#include "vtkProp3D.h"
 
 class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
 
-class VTK_RENDERING_EXPORT vtkImageActor : public vtkProp
+class VTK_RENDERING_EXPORT vtkImageActor : public vtkProp3D
 {
 public:
-  vtkTypeRevisionMacro(vtkImageActor,vtkProp);
+  vtkTypeRevisionMacro(vtkImageActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -80,7 +80,14 @@ public:
   // In either case the boudns is expressed as a 6-vector 
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   double *GetBounds();
-  void GetBounds(double bounds[6]);
+
+  // Description:
+  // Get the bounds of the data that is displayed by this image
+  // actor.  If the transformation matrix for this actor is the
+  // identity matrix, this will return the same value as
+  // GetBounds.
+  double *GetDisplayBounds();
+  void GetDisplayBounds(double bounds[6]);
 
   // Description:
   // Return a slice number computed from the display extent.
@@ -93,7 +100,7 @@ public:
   // Support the standard render methods.
   int RenderTranslucentGeometry(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void Load(vtkRenderer *) {};
+  virtual void Render(vtkRenderer *) {};
 //ETX
 
   // Description:
@@ -121,7 +128,8 @@ protected:
   double        Opacity;
   vtkImageData* Input;
   int           DisplayExtent[6];
-  double        Bounds[6];
+  double        DisplayBounds[6];
+
 private:
   vtkImageActor(const vtkImageActor&);  // Not implemented.
   void operator=(const vtkImageActor&);  // Not implemented.

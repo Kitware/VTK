@@ -38,6 +38,10 @@ public:
   void Load(vtkRenderer *ren);
   
   // Description:
+  // Implement base class method.
+  void Render(vtkRenderer *ren);
+
+  // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release. Using the same texture object in multiple
