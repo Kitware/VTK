@@ -223,14 +223,15 @@ int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
+  cptr = bitmap->WritePtr(0,ysize*packedXSize);
+  cptr = cptr + packedXSize*(ysize - 1);
 
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
 //
-  for (j=0; j<ysize; j++)
+  for (j=0; j<ysize; j++, cptr = cptr - packedXSize)
     {
-    cptr = bitmap->WritePtr((ysize-j-1)*packedXSize,packedXSize);
     if ( ! fread(cptr,1,packedXSize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw pbm data!");
@@ -248,13 +249,14 @@ int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
+  cptr = graymap->WritePtr(0,ysize*xsize);
+  cptr = cptr + xsize*(ysize - 1);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
 //
-  for (j=0; j<ysize; j++)
+  for (j=0; j<ysize; j++, cptr = cptr - xsize)
     {
-    cptr = graymap->WritePtr((ysize-j-1)*xsize,xsize);
     if ( ! fread(cptr,1,xsize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw pgm data!");
@@ -272,13 +274,15 @@ int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
+  cptr = pixmap->WritePtr(0,ysize*xsize);
+  cptr = cptr + 3*xsize*(ysize - 1);
+  
   //
   // Since pnm coordinate system is at upper left of image, need to convert
   // to lower rh corner origin by reading a row at a time.
   //
-  for (j=0; j<ysize; j++)
+  for (j=0; j<ysize; j++, cptr = cptr - 3*xsize)
     {
-    cptr = pixmap->WritePtr((ysize-j-1)*xsize,xsize);
     if ( ! fread(cptr,1,3*xsize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw ppm data!");
