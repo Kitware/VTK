@@ -67,13 +67,24 @@ void vtkWriter::Write()
     }
 
   this->Input->Update();
-  if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
-
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+  if ( this->Input->GetDataReleased() )
+    {
+    this->Input->ForceUpdate();
+    }
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
   this->WriteData();
-  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
 // Convenient alias for Write() method.
