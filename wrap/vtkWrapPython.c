@@ -309,7 +309,7 @@ char *get_format_string()
 
 void outputFunction2(FILE *fp, FileInfo *data)
 {
-  int i, j, fnum, occ, backnum, first;
+  int i, j, fnum, occ, backnum;
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
 
@@ -324,7 +324,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
     if ((theFunc->ReturnType%1000 == 309)||
 	(theFunc->ReturnType%1000 == 109))
       {
-      first = 1;
       /* check that we haven't done this type (no duplicate declarations) */
       for (backnum = fnum-1; backnum >= 0; backnum--) 
 	{
@@ -333,7 +332,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	     (backFunc->ReturnType%1000 == 109)) &&
 	    (strcmp(theFunc->ReturnClass,backFunc->ReturnClass) == 0))
 	  {
-	  first = 0;
 	  break;
 	  }
 	}
@@ -545,6 +543,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   int i;
   int args_ok = 1;
  
+  fp = fp;
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
