@@ -29,7 +29,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.4");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.5");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -64,7 +64,7 @@ void vtkKitwareCutter::Execute()
   if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
       input->GetDataObjectType() == VTK_IMAGE_DATA)
     {    
-    if ( input->GetCell(0)->GetCellDimension() >= 3 )
+    if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
       {
       this->StructuredPointsCutter();
       return;
@@ -73,11 +73,14 @@ void vtkKitwareCutter::Execute()
   
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
-    int dim = input->GetCell(0)->GetCellDimension();
-    // only do 3D structured grids (to be extended in the future)
-    if (dim >= 3)
+    if (input->GetCell(0))
       {
-      this->StructuredGridCutter();
+      int dim = input->GetCell(0)->GetCellDimension();
+      // only do 3D structured grids (to be extended in the future)
+      if (dim >= 3)
+        {
+        this->StructuredGridCutter();
+        }
       }
     }
   
