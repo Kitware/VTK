@@ -60,9 +60,6 @@ vtkLandmarkTransform::vtkLandmarkTransform()
   this->Mode = VTK_LANDMARK_SIMILARITY;
   this->SourceLandmarks=NULL;
   this->TargetLandmarks=NULL;
-
-  this->MatrixNeedsUpdate = 0;
-  this->UpdateMutex = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
@@ -76,7 +73,6 @@ vtkLandmarkTransform::~vtkLandmarkTransform()
     { 
     this->TargetLandmarks->Delete();
     }
-  this->UpdateMutex->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -99,24 +95,11 @@ void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Update the 4x4 matrix. Updates are only done as necessary.
  
-void vtkLandmarkTransform::Update()
+void vtkLandmarkTransform::InternalUpdate()
 {
-  // Lock so that threads don't collide.  The first thread will succeed
-  // in the update, the other threads will wait until the lock is released
-  // and then find that the update has already been done.
-  this->UpdateMutex->Lock();
-
   if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
     {
-    this->UpdateMutex->Unlock();
-    return;
-    }
-
-  if (this->UpdateTime.GetMTime() > this->GetMTime() && 
-      !this->MatrixNeedsUpdate)
-    {
-    // already up-to-date!
-    this->UpdateMutex->Unlock();
+    this->Matrix->Identity();
     return;
     }
 
@@ -134,7 +117,6 @@ void vtkLandmarkTransform::Update()
   const int N_PTS = this->SourceLandmarks->GetNumberOfPoints();
   if(N_PTS != this->TargetLandmarks->GetNumberOfPoints())
     {
-    this->UpdateMutex->Unlock();
     vtkErrorMacro("Update: Source and Target Landmarks contain a different number of points");
     return;
     }
@@ -314,10 +296,6 @@ void vtkLandmarkTransform::Update()
   this->Matrix->Element[3][3] = 1.0;
 
   this->Matrix->Modified();
-  this->MatrixNeedsUpdate = 0;
-
-  this->UpdateTime.Modified();
-  this->UpdateMutex->Unlock();
 }
 
 //------------------------------------------------------------------------
@@ -361,8 +339,6 @@ void vtkLandmarkTransform::SetSourceLandmarks(vtkPoints *source)
   this->SourceLandmarks = source;
 
   this->Modified();
-
-  this->MatrixNeedsUpdate = 1;
 }
 
 //------------------------------------------------------------------------
@@ -381,8 +357,6 @@ void vtkLandmarkTransform::SetTargetLandmarks(vtkPoints *target)
   target->Register(this);
   this->TargetLandmarks = target;
   this->Modified();
-
-  this->MatrixNeedsUpdate = 1;
 }
 
 //----------------------------------------------------------------------------

@@ -99,9 +99,6 @@ public:
   // Get the MTime.
   unsigned long GetMTime();
 
-  // Update the matrix from the quaternion.
-  void Update();
-
   // Description:
   // This method does no type checking, use DeepCopy instead.
   void InternalDeepCopy(vtkGeneralTransform *transform);
@@ -116,9 +113,8 @@ protected:
   vtkLandmarkTransform(const vtkLandmarkTransform&) {};
   void operator=(const vtkLandmarkTransform&) {};
 
-  int MatrixNeedsUpdate;
-  vtkTimeStamp UpdateTime;
-  vtkMutexLock *UpdateMutex;
+  // Update the matrix from the quaternion.
+  void InternalUpdate();
 
   vtkPoints* SourceLandmarks;
   vtkPoints* TargetLandmarks;

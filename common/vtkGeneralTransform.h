@@ -67,6 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkVectors.h"
+#include "vtkMutexLock.h"
 
 //BTX
 //forward declaration of a helper class
@@ -83,12 +84,14 @@ public:
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
-  virtual void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const float in[3], float out[3]) {
+    this->Update(); this->InternalTransformPoint(in,out); };
 
   // Description:
   // Apply the transformation to a double-precision coordinate.  
   // You can use the same array to store both the input and output point.
-  virtual void TransformPoint(const double in[3], double out[3]);
+  void TransformPoint(const double in[3], double out[3]) {
+    this->Update(); this->InternalTransformPoint(in,out); };
 
   // Description:
   // Synonymous with TransformFloatPoint(x,y,z).
@@ -133,6 +136,12 @@ public:
   vtkGeneralTransform *GetInverse();
 
   // Description:
+  // Set a transformation that this transform will be the inverse of.
+  // This transform will automatically update to agree with the 
+  // inverse transform that you set.
+  void SetInverse(vtkGeneralTransform *transform);
+
+  // Description:
   // Invert the transformation.
   virtual void Inverse() = 0;
 
@@ -149,7 +158,7 @@ public:
   // have been made.  You do not have to call this method 
   // yourself, it is called automatically whenever the
   // transform needs an update.
-  virtual void Update() {};
+  void Update();
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -177,29 +186,53 @@ public:
   virtual vtkGeneralTransform *MakeTransform() = 0;
 
   // Description:
+  // Override GetMTime necessary because of inverse transforms.
+  unsigned long GetMTime();
+
+  // Description:
   // Needs a special UnRegister() implementation to avoid
   // circular references.
   void UnRegister(vtkObject *O);
 
 protected:
-  vtkGeneralTransform() { this->MyInverse = NULL;
-                          this->Concatenation = NULL;
-			  this->InUnRegister = 0; };
-  ~vtkGeneralTransform() { if (this->MyInverse) 
-                          { this->MyInverse->Delete(); } }; 
+  vtkGeneralTransform();
+  ~vtkGeneralTransform();
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
-  vtkGeneralTransform *MyInverse;
+  // Description:
+  // Perform updates that are necessary for a specific transform type.
+  virtual void InternalUpdate() {};
+
+//BTX
+  // The Concatenation is only for use within the vtkGeneralTransform class
+  // and within the vtk*Concatenation classes.
+//ETX
+  vtkSimpleTransformConcatenation *Concatenation;
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
-  
-  int InUnRegister;
 
-  // The Concatenation is only for use within the vtkGeneralTransform class
-  // and within the vtk*Concatenation classes.
-  vtkSimpleTransformConcatenation *Concatenation;
+private:
+  
+//BTX
+  // We need to record the time of the last update, and we also need
+  // to do mutex locking so updates don't collide.  These are private
+  // because Update() is not virtual.
+  // If DependsOnInverse is set, then this transform object will
+  // check its inverse on every update, and update itself accordingly
+  // if necessary.
+//ETX
+  vtkTimeStamp UpdateTime;
+  vtkSimpleMutexLock UpdateMutex;
+  int DependsOnInverse;
+
+//BTX
+  // MyInverse is a transform which is the inverse of this one.
+//ETX
+  vtkGeneralTransform *MyInverse;
+
+  int InUnRegister;
 };
 
 //BTX
@@ -266,7 +299,6 @@ protected:
   int MaxNumberOfTransforms;
   vtkGeneralTransform **TransformList;
   vtkGeneralTransform **InverseList;
-  int *DependencyList;
 };
 //ETX
 

@@ -60,32 +60,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Apply the transformation to a coordinate.  You can use the same 
-  // array to store both the input and output point.
-  void TransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // Apply the transformation to a double-precision coordinate.  
-  // You can use the same array to store both the input and output point.
-  void TransformPoint(const double in[3], double out[3]);
-
-  // Description:
-  // Apply the transformation to an (x,y,z) coordinate.
-  // Use this if you are programming in python, tcl or Java.
-  float *TransformPoint(float x, float y, float z) {
-    return this->vtkGeneralTransform::TransformPoint(x,y,z); }
-  float *TransformPoint(const float point[3]) {
-    return this->TransformPoint(point[0],point[1],point[2]); };
-
-  // Description:
   // Apply the transformation to a normal.
   // You can use the same array to store both the input and output.
-  void TransformNormal(const float in[3], float out[3]);
+  void TransformNormal(const float in[3], float out[3]) {
+    this->Update(); this->InternalTransformNormal(in,out); };
 
   // Description:
   // Apply the transformation to a double-precision normal.
   // You can use the same array to store both the input and output.
-  void TransformNormal(const double in[3], double out[3]);
+  void TransformNormal(const double in[3], double out[3]) {
+    this->Update(); this->InternalTransformNormal(in,out); };
 
   // Description:
   // Synonymous with TransformFloatNormal(x,y,z).
@@ -120,12 +104,14 @@ public:
   // Description:
   // Apply the transformation to a vector.
   // You can use the same array to store both the input and output.
-  void TransformVector(const float in[3], float out[3]);
+  void TransformVector(const float in[3], float out[3]) {
+    this->Update(); this->InternalTransformVector(in,out); };
 
   // Description:
   // Apply the transformation to a double-precision vector.
   // You can use the same array to store both the input and output.
-  void TransformVector(const double in[3], double out[3]);
+  void TransformVector(const double in[3], double out[3]) {
+    this->Update(); this->InternalTransformVector(in,out); };
 
   // Description:
   // Apply the transformation to an (x,y,z) vector.
@@ -167,12 +153,8 @@ public:
 				     vtkVectors *outVrs);
 
   // Description:
-  // Get the inverse of this transform.  If you modify this transform,
-  // the returned inverse transform will automatically update.
-  vtkGeneralTransform *GetInverse();
-
-  // Description:
-  // Get the inverse of this transform, typecast to a vtkLinearTransform.
+  // Just like GetInverse, but it includes a typecast to 
+  // vtkLinearTransform.
   vtkLinearTransform *GetLinearInverse() { 
     return (vtkLinearTransform *)this->GetInverse(); }; 
 
@@ -181,6 +163,18 @@ public:
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
   void InternalTransformPoint(const double in[3], double out[3]);
+
+  // Description:
+  // This will calculate the transformation without calling Update.
+  // Meant for use only within other VTK classes.
+  virtual void InternalTransformNormal(const float in[3], float out[3]);
+  virtual void InternalTransformNormal(const double in[3], double out[3]);
+
+  // Description:
+  // This will calculate the transformation without calling Update.
+  // Meant for use only within other VTK classes.
+  virtual void InternalTransformVector(const float in[3], float out[3]);
+  virtual void InternalTransformVector(const double in[3], double out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative

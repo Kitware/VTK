@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkPerspectiveTransform.h"
-#include "vtkPerspectiveTransformConcatenation.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -92,25 +91,6 @@ static inline void vtkPerspectiveTransformDerivative(T1 M[4][4],
     derivative[1][i] = (M[1][i] - M[3][i]*out[1])*f;
     derivative[2][i] = (M[2][i] - M[3][i]*out[2])*f;
     }
-}
-
-//------------------------------------------------------------------------
-void vtkPerspectiveTransform::TransformPoint(const float in[3], 
-					     float out[3])
-{
-  this->Update();
-
-  vtkPerspectiveTransformPoint(this->Matrix->Element,in,out);
-}
-
-//------------------------------------------------------------------------
-
-void vtkPerspectiveTransform::TransformPoint(const double in[3], 
-					     double out[3])
-{
-  this->Update();
-
-  vtkPerspectiveTransformPoint(this->Matrix->Element,in,out);
 }
 
 //------------------------------------------------------------------------
@@ -236,20 +216,6 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       outNms->InsertNextNormal(outNrm);
       }
     }
-}
-
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
-{
-  if (this->MyInverse == NULL)
-    {
-    vtkPerspectiveTransformConcatenation *inverse = 
-      vtkPerspectiveTransformConcatenation::New();
-    inverse->Concatenate(this);
-    inverse->Inverse();
-    this->MyInverse = inverse;
-    }
-  return this->MyInverse;
 }
 
 //----------------------------------------------------------------------------

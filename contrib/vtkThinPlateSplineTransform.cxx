@@ -140,7 +140,6 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   this->UpdateRequired = 0;
   this->NumberOfPoints = 0;
   this->MatrixW = NULL;
-  this->UpdateMutex = vtkMutexLock::New();
 }
 
 //------------------------------------------------------------------------
@@ -163,7 +162,6 @@ vtkThinPlateSplineTransform::~vtkThinPlateSplineTransform()
     DeleteMatrix(this->MatrixW,this->NumberOfPoints+3+1,3);
     this->MatrixW = NULL;
     }
-  this->UpdateMutex->Delete();
 }
 
 //------------------------------------------------------------------------
@@ -183,8 +181,6 @@ void vtkThinPlateSplineTransform::SetSourceLandmarks(vtkPoints *source)
   this->SourceLandmarks = source;
 
   this->Modified();
-
-  this->UpdateRequired = 1;
 }
 
 //------------------------------------------------------------------------
@@ -203,8 +199,6 @@ void vtkThinPlateSplineTransform::SetTargetLandmarks(vtkPoints *target)
   target->Register(this);
   this->TargetLandmarks = target;
   this->Modified();
-
-  this->UpdateRequired = 1;
 }
 
 //------------------------------------------------------------------------
@@ -233,13 +227,8 @@ unsigned long vtkThinPlateSplineTransform::GetMTime()
 }
 
 //------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::Update()
+void vtkThinPlateSplineTransform::InternalUpdate()
 {
-  // Lock so that threads don't collide.  The first thread will succeed
-  // in the update, the other threads will wait until the lock is released
-  // and then find that the update has already been done.
-  this->UpdateMutex->Lock();
-
   if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
     {
     if (this->MatrixW)
@@ -248,15 +237,6 @@ void vtkThinPlateSplineTransform::Update()
       }
     this->MatrixW = NULL;
     this->NumberOfPoints = 0;
-    this->UpdateMutex->Unlock();
-    return;
-    }
-
-  if (this->UpdateTime.GetMTime() > this->GetMTime() && 
-      this->UpdateRequired == 0)
-    {
-    // already up-to-date!
-    this->UpdateMutex->Unlock();
     return;
     }
 
@@ -351,11 +331,6 @@ void vtkThinPlateSplineTransform::Update()
     }
   this->MatrixW = W;
   this->NumberOfPoints = N;
-
-  this->UpdateTime.Modified();
-  this->UpdateRequired = 0;
-
-  this->UpdateMutex->Unlock();
 }
 
 //------------------------------------------------------------------------

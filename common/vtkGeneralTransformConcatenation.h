@@ -107,10 +107,6 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Update the concatenated transform.
-  void Update();
-
-  // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
@@ -138,6 +134,10 @@ protected:
   ~vtkGeneralTransformConcatenation();
   vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
   void operator=(const vtkGeneralTransformConcatenation&) {};
+
+  // Description:
+  // Update the concatenated transform.
+  void InternalUpdate();
 };
 
 

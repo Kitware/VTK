@@ -60,14 +60,11 @@ vtkLinearTransformConcatenation *vtkLinearTransformConcatenation::New()
 vtkLinearTransformConcatenation::vtkLinearTransformConcatenation()
 {
   this->Concatenation = vtkSimpleTransformConcatenation::New(this);
-  this->UpdateMutex = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::~vtkLinearTransformConcatenation()
 {
-  this->Concatenation->Delete();
-  this->UpdateMutex->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -94,27 +91,18 @@ void vtkLinearTransformConcatenation::InternalDeepCopy(
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::Update()
+void vtkLinearTransformConcatenation::InternalUpdate()
 {
-  // lock the update just in case multiple threads update simultaneously
-  this->UpdateMutex->Lock();
+  this->Matrix->Identity();
 
-  if (this->GetMTime() > this->UpdateTime.GetMTime())
+  // concatenate transforms in forward direction
+  for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
     {
-    this->Matrix->Identity();
-
-    // concatenate transforms in forward direction
-    for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
-      {
-      vtkLinearTransform *transform = 
-	(vtkLinearTransform *)this->Concatenation->GetTransform(i);
-      vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),
-				this->Matrix,this->Matrix);
-      }
+    vtkLinearTransform *transform = 
+      (vtkLinearTransform *)this->Concatenation->GetTransform(i);
+    vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),
+			      this->Matrix,this->Matrix);
     }
-  
-  this->UpdateTime.Modified();
-  this->UpdateMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------

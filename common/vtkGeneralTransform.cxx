@@ -41,30 +41,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkGeneralTransform.h"
-#include "vtkGeneralTransformConcatenation.h"
 #include "vtkMath.h"
+
+//----------------------------------------------------------------------------
+vtkGeneralTransform::vtkGeneralTransform()
+{
+  this->MyInverse = NULL;
+  this->DependsOnInverse = 0;
+  this->Concatenation = NULL;
+  this->InUnRegister = 0;
+}
+
+//----------------------------------------------------------------------------
+vtkGeneralTransform::~vtkGeneralTransform()
+{
+  if (this->MyInverse) 
+    { 
+    this->MyInverse->Delete(); 
+    } 
+  if (this->Concatenation)
+    { 
+    this->Concatenation->Delete(); 
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-}
-
-//------------------------------------------------------------------------
-// Update() and perform the transformation.
-void vtkGeneralTransform::TransformPoint(const float input[3],
-					 float output[3])
-{
-  this->Update();
-  this->InternalTransformPoint(input,output);
-}
-
-//----------------------------------------------------------------------------
-void vtkGeneralTransform::TransformPoint(const double input[3], 
-					 double output[3])
-{
-  this->Update();
-  this->InternalTransformPoint(input,output);
+  os << indent << "Inverse: (" << this->MyInverse << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -164,49 +169,111 @@ vtkGeneralTransform *vtkGeneralTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {
-    // we create a circular reference here, it is dealt with
-    // in UnRegister
-    vtkGeneralTransformConcatenation *inverse =
-               vtkGeneralTransformConcatenation::New();
-    inverse->Concatenate(this);
-    inverse->Inverse();
+    // we create a circular reference here, it is dealt with in UnRegister
+    this->MyInverse = this->MakeTransform();
+    this->MyInverse->SetInverse(this);
     }
   return this->MyInverse;
 }
 
 //----------------------------------------------------------------------------
+void vtkGeneralTransform::SetInverse(vtkGeneralTransform *transform)
+{
+  if (this->MyInverse == transform)
+    {
+    return;
+    }
+
+  // check type first
+  if (!transform->IsA(this->GetClassName()))
+    {
+    vtkErrorMacro("SetInverse: requires a " << this->GetClassName() << ", a "
+		  << transform->GetClassName() << " is not compatible.");
+    return;
+    }
+  
+  if (this->MyInverse)
+    {
+    this->MyInverse->Delete();
+    }
+
+  transform->Register(this);
+  this->MyInverse = transform;
+
+  // we are now a special 'inverse transform'
+  this->DependsOnInverse = (transform != 0);
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkGeneralTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  for (;;)
+  // check whether we're trying to copy a transform to itself
+  if (transform == this)
     {
-    // check whether we're trying to copy a transform to itself
-    if (transform == this)
+    return;
+    }
+
+  // check to see if the transform is the same type as this one
+  if (transform->IsA(this->GetClassName()))
+    {
+    // same type, so we do the real DeepCopy. 
+    this->InternalDeepCopy(transform);
+    }
+  // otherwise, we're out of luck
+  else
+    {
+    vtkErrorMacro("DeepCopy: can't copy a " << transform->GetClassName()
+		  << " into a " << this->GetClassName() << ".");
+    }
+
+  return;
+}    
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Update()
+{
+  // locking is require to ensure that the class is thread-safe
+  this->UpdateMutex.Lock();
+
+  // check to see if we are a special 'inverse' transform
+  if (this->DependsOnInverse)
+    {
+    // just check to see when Modified() was last called
+    if (this->MyInverse->vtkObject::GetMTime() >= this->UpdateTime.GetMTime())
       {
-      return;
-      }
-    // check to see if the transform is the same type as this one
-    else if (transform->IsA(this->GetClassName()))
-      {
-      // same type, so we do the real DeepCopy. 
-      this->InternalDeepCopy(transform);
-      return;
-      }
-    // next check to see if the transform is a concatenation with a
-    // single member, if so we loop and try again
-    else if (transform->Concatenation != NULL && 
-	     transform->Concatenation->GetNumberOfTransforms() == 1)
-      {
-      transform = transform->Concatenation->GetTransform(0);
-      }
-    // otherwise, we're out of luck
-    else
-      {
-	vtkErrorMacro("DeepCopy: can't copy a " << transform->GetClassName()
-		      << " into a " << this->GetClassName() << ".");
-      return;
+      this->DeepCopy(this->MyInverse);
+      this->Inverse();
+      this->InternalUpdate();
       }
     }
-}    
+
+  // otherwise just check our MTime against our last update
+  else if (this->GetMTime() >= this->UpdateTime.GetMTime())
+    {
+    this->InternalUpdate();
+    }
+
+  this->UpdateTime.Modified();
+  this->UpdateMutex.Unlock();
+}
+
+//----------------------------------------------------------------------------
+// Need to check inverse's MTime if we are an inverse transform
+unsigned long vtkGeneralTransform::GetMTime()
+{
+  unsigned long mtime = this->vtkObject::GetMTime();
+  if (this->DependsOnInverse)
+    {
+    unsigned long inverseMTime = this->MyInverse->GetMTime();
+    if (inverseMTime > mtime)
+      {
+      return inverseMTime;
+      }
+    }
+  return mtime;
+}
 
 //----------------------------------------------------------------------------
 // We need to handle the circular reference between a transform and its
@@ -222,26 +289,12 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
   // check to see if the only reason our reference count is not 1
   // is the circular reference from MyInverse
   if (this->MyInverse && this->ReferenceCount == 2 &&
-      this->MyInverse->GetReferenceCount() == 1)
+      this->MyInverse->ReferenceCount == 1)
     { // break the cycle
     this->InUnRegister = 1;
     this->MyInverse->Delete();
     this->MyInverse = NULL;
     this->InUnRegister = 0;
-    }
-  // for transforms with a concatenation, check to see whether we
-  // are being used as an inverse transform
-  else if (this->Concatenation && 
-	   this->Concatenation->GetNumberOfTransforms() > 0)
-    {
-    vtkGeneralTransform *transform = this->Concatenation->GetTransform(0);
-    if (transform->MyInverse == this && this->ReferenceCount == 2 &&
-	transform->GetReferenceCount() == 1)
-      {
-      this->InUnRegister = 1;
-      this->Concatenation->Identity();
-      this->InUnRegister = 0;
-      }
     }
 
   this->vtkObject::UnRegister(o);
@@ -271,14 +324,6 @@ vtkSimpleTransformConcatenation::vtkSimpleTransformConcatenation(
 
   // The inverse list holds the inverses of these same transforms.
   this->InverseList = NULL;
-
-  // Only one of either the transform or its inverse was the original
-  // transform that was appended to the list using Concatenate(),
-  // the other must be continuously checked and updated.
-  // The dependency list has a 1 if the corresponding item in the 
-  // InverseList must be updated to match the TransformList, or
-  // -1 if vice-versa.
-  this->DependencyList = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -306,10 +351,6 @@ vtkSimpleTransformConcatenation::~vtkSimpleTransformConcatenation()
     {
     delete [] this->InverseList;
     }
-  if (this->DependencyList)
-    {
-    delete [] this->DependencyList;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -317,7 +358,6 @@ void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
 {
   vtkGeneralTransform **transList = this->TransformList;
   vtkGeneralTransform **inverseList = this->InverseList;
-  int *dependencyList = this->DependencyList;
   int n = this->NumberOfTransforms;
   this->NumberOfTransforms++;
   
@@ -327,12 +367,10 @@ void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
     int nMax = this->MaxNumberOfTransforms + 20;
     transList = new vtkGeneralTransform *[nMax];
     inverseList = new vtkGeneralTransform *[nMax];
-    dependencyList = new int[nMax];
     for (int i = 0; i < n; i++)
       {
       transList[i] = this->TransformList[i];
       inverseList[i] = this->InverseList[i];
-      dependencyList[i] = this->DependencyList[i];
       }
     if (this->TransformList)
       {
@@ -342,13 +380,8 @@ void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
       {
       delete [] this->InverseList;
       }
-    if (this->DependencyList)
-      {
-      delete [] this->DependencyList;
-      }
     this->TransformList = transList;
     this->InverseList = inverseList;
-    this->DependencyList = dependencyList;
     this->MaxNumberOfTransforms = nMax;
     }
 
@@ -360,7 +393,6 @@ void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
       {
       transList[i] = transList[i-1];
       inverseList[i] = inverseList[i-1];
-      dependencyList[i] = dependencyList[i-1];
       }
     n = 0;
     }
@@ -371,13 +403,11 @@ void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
     {
     transList[n] = NULL;
     inverseList[n] = trans;
-    dependencyList[n] = -1;
     }
   else
     {
     transList[n] = trans;
     inverseList[n] = NULL;
-    dependencyList[n] = +1;
     }
 
   this->Transform->Modified();
@@ -441,38 +471,25 @@ void vtkSimpleTransformConcatenation::Identity()
 vtkGeneralTransform *vtkSimpleTransformConcatenation::GetTransform(int i)
 {
   vtkGeneralTransform *transform, *inverse;
-  int dependency;
 
   // we walk through the list in reverse order if InverseFlag is set
   if (this->InverseFlag)
     {
     transform = this->InverseList[this->NumberOfTransforms-i-1];
     inverse = this->TransformList[this->NumberOfTransforms-i-1];
-    dependency = -this->DependencyList[this->NumberOfTransforms-i-1];
     }
   else
     {
     transform = this->TransformList[i];
     inverse = this->InverseList[i];
-    dependency = this->DependencyList[i];
     }
 
-  // okay, now here's a bit of magic: the transform might depend on its
-  // inverse, and if it does it must be 1) be DeepCopied from its inverse
-  // and then 2) be inverted using Inverse()
-
+  // if the transform is null, get it from the inverse list
   if (transform == NULL)
     {
-    transform = inverse->MakeTransform();
-    transform->DeepCopy(inverse);
-    transform->Inverse();
+    transform = inverse->GetInverse();
     }
-  else if (dependency < 0 && transform->GetMTime() < inverse->GetMTime())
-    {
-    transform->DeepCopy(inverse);
-    transform->Inverse();
-    }
-
+  
   return transform;
 }
 
@@ -484,14 +501,8 @@ unsigned long vtkSimpleTransformConcatenation::GetMaxMTime()
 
   for (int i = 0; i < this->NumberOfTransforms; i++)
     {
-    if (this->DependencyList[i] > 0)
-      {
-      mtime = this->TransformList[i]->GetMTime();
-      }
-    else
-      {
-      mtime = this->InverseList[i]->GetMTime();
-      }
+    mtime = this->TransformList[i]->GetMTime();
+
     if (mtime > result)
       {
       result = mtime;
@@ -515,10 +526,6 @@ void vtkSimpleTransformConcatenation::DeepCopy(
     {
     delete [] this->InverseList;
     }
-  if (this->DependencyList)
-    {
-    delete [] this->DependencyList;
-    }
 
   this->PreMultiplyFlag = concatenation->PreMultiplyFlag;
   this->InverseFlag = concatenation->InverseFlag;
@@ -528,7 +535,6 @@ void vtkSimpleTransformConcatenation::DeepCopy(
 
   this->TransformList = new vtkGeneralTransform *[this->MaxNumberOfTransforms];
   this->InverseList =   new vtkGeneralTransform *[this->MaxNumberOfTransforms];
-  this->DependencyList = new int[this->MaxNumberOfTransforms];
 
   // copy the transforms by reference
   for (int i = 0; i < this->NumberOfTransforms; i++)
@@ -541,7 +547,6 @@ void vtkSimpleTransformConcatenation::DeepCopy(
       {
       this->InverseList[i]->Register(this->Transform);  
       }
-    this->DependencyList[i] = concatenation->DependencyList[i];
     } 
 }
 

@@ -109,10 +109,6 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Update the concatenated transform.
-  void Update();
-
-  // Description:
   // This method does no type checking, use DeepCopy instead.
   void InternalDeepCopy(vtkGeneralTransform *transform);
 
@@ -127,8 +123,9 @@ protected:
 	  const vtkPerspectiveTransformConcatenation&) {};
   void operator=(const vtkPerspectiveTransformConcatenation&) {};
 
-  vtkTimeStamp UpdateTime;
-  vtkMutexLock *UpdateMutex;
+  // Description:
+  // Update the concatenated transform.
+  void InternalUpdate();
 };
 
 #endif

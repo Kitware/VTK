@@ -66,7 +66,6 @@ vtkGeneralTransformConcatenation::vtkGeneralTransformConcatenation()
 //----------------------------------------------------------------------------
 vtkGeneralTransformConcatenation::~vtkGeneralTransformConcatenation()
 {
-  this->Concatenation->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -170,7 +169,7 @@ void vtkGeneralTransformConcatenation::InternalDeepCopy(
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformConcatenation::Update()
+void vtkGeneralTransformConcatenation::InternalUpdate()
 {
   for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
     {

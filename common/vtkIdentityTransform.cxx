@@ -74,7 +74,8 @@ void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalDeepCopy(vtkGeneralTransform *transform)
+void vtkIdentityTransform::InternalDeepCopy(
+                                   vtkGeneralTransform *vtkNotUsed(transform))
 {
   // nothin' to do
 }
@@ -107,19 +108,6 @@ static inline void vtkIdentityTransformDerivative(T2 in[3], T3 out[3],
 }  
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::TransformPoint(const float in[3], float out[3])
-{
-  vtkIdentityTransformPoint(in,out);
-}
-
-//------------------------------------------------------------------------
-
-void vtkIdentityTransform::TransformPoint(const double in[3], double out[3])
-{
-  vtkIdentityTransformPoint(in,out);
-}
-
-//------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const float in[3], 
 						  float out[3])
 {
@@ -129,6 +117,34 @@ void vtkIdentityTransform::InternalTransformPoint(const float in[3],
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const double in[3], 
 						  double out[3])
+{
+  vtkIdentityTransformPoint(in,out);
+}
+
+//------------------------------------------------------------------------
+void vtkIdentityTransform::InternalTransformNormal(const float in[3], 
+						   float out[3])
+{
+  vtkIdentityTransformPoint(in,out);
+}
+
+//------------------------------------------------------------------------
+void vtkIdentityTransform::InternalTransformNormal(const double in[3], 
+						   double out[3])
+{
+  vtkIdentityTransformPoint(in,out);
+}
+
+//------------------------------------------------------------------------
+void vtkIdentityTransform::InternalTransformVector(const float in[3], 
+						   float out[3])
+{
+  vtkIdentityTransformPoint(in,out);
+}
+
+//------------------------------------------------------------------------
+void vtkIdentityTransform::InternalTransformVector(const double in[3], 
+						   double out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
@@ -214,12 +230,6 @@ void vtkIdentityTransform::TransformVectors(vtkVectors *inNms,
     inNms->GetVector(i,vect);
     outNms->InsertNextVector(vect);
     }
-}
-
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkIdentityTransform::GetInverse()
-{
-  return this;
 }
 
 

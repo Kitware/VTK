@@ -25,17 +25,12 @@ vtkFloatVectors		GetVector	301 3
 vtkGeneralTransform	TransformPoint	301 3
 vtkGeneralTransform	TransformFloatPoint 301 3
 vtkGeneralTransform	TransformDoublePoint 307 3
-vtkPerspectiveTransform	TransformPoint	301 3
-vtkLinearTransform	TransformPoint	301 3
 vtkLinearTransform	TransformNormal 301 3
 vtkLinearTransform	TransformFloatNormal 301 3
 vtkLinearTransform	TransformDoubleNormal 307 3
 vtkLinearTransform	TransformVector 301 3
 vtkLinearTransform	TransformFloatVector 301 3
 vtkLinearTransform	TransformDoubleVector 307 3
-vtkIdentityTransform	TransformPoint	301 3
-vtkIdentityTransform	TransformNormal 301 3
-vtkIdentityTransform	TransformVector 301 3
 vtkImplicitFunction	FunctionGradient	301 3
 vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4

@@ -109,10 +109,6 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Prepare the transformation for application.
-  void Update();
-
-  // Description:
   // This method does no type checking, use DeepCopy instead.
   void InternalDeepCopy(vtkGeneralTransform *transform);
 
@@ -125,6 +121,10 @@ protected:
   ~vtkThinPlateSplineTransform();
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) {};
   void operator=(const vtkThinPlateSplineTransform&) {};
+
+  // Description:
+  // Prepare the transformation for application.
+  void InternalUpdate();
 
   void ForwardTransformPoint(const float in[3], float out[3]) {
     vtkWarpTransform::ForwardTransformPoint(in,out); };
@@ -156,11 +156,8 @@ protected:
   float InverseTolerance;
 
   int UpdateRequired;
-  vtkTimeStamp UpdateTime;
   int NumberOfPoints;
   double **MatrixW;
-
-  vtkMutexLock *UpdateMutex;
 };
 
 #endif
