@@ -42,6 +42,8 @@
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 #include "vtkMath.h" // For all the inline methods
 
+class vtkPartialPreIntegrationTransferFunction;
+
 class VTK_RENDERING_EXPORT vtkUnstructuredGridPartialPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
@@ -86,8 +88,8 @@ protected:
 
   vtkVolumeProperty *Property;
 
-  vtkDoubleArray **ControlPoints;
-  vtkTimeStamp ControlPointsModified;
+  vtkPartialPreIntegrationTransferFunction *TransferFunctions;
+  vtkTimeStamp TransferFunctionsModified;
   int NumIndependentComponents;
 
 //BTX

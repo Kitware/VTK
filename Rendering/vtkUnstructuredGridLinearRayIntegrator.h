@@ -42,6 +42,8 @@
 
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+class vtkLinearRayIntegratorTransferFunction;
+
 class VTK_RENDERING_EXPORT vtkUnstructuredGridLinearRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
@@ -83,8 +85,8 @@ protected:
 
   vtkVolumeProperty *Property;
 
-  vtkDoubleArray **ControlPoints;
-  vtkTimeStamp ControlPointsModified;
+  vtkLinearRayIntegratorTransferFunction *TransferFunctions;
+  vtkTimeStamp TransferFunctionsModified;
   int NumIndependentComponents;
 
 private:

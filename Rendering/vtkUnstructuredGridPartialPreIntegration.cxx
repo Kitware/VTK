@@ -31,11 +31,157 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkUnstructuredGridLinearRayIntegrator.h"
 
+#include <vtkstd/vector>
 #include <vtkstd/set>
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.2");
+// VTK's native classes for defining transfer functions is actually slow to
+// access, so we have to cache it somehow.  This class is straightforward
+// copy of the transfer function.
+class vtkPartialPreIntegrationTransferFunction
+{
+public:
+  void GetTransferFunction(vtkColorTransferFunction *color,
+                           vtkPiecewiseFunction *opacity,
+                           double unit_distance,
+                           double scalar_range[2]);
+  void GetTransferFunction(vtkPiecewiseFunction *intensity,
+                           vtkPiecewiseFunction *opacity,
+                           double unit_distance,
+                           double scalar_range[2]);
+
+  inline void GetColor(double x, double c[4]);
+
+  struct acolor {
+    double c[4];
+  };
+  vtkstd::vector<double> ControlPoints;
+  vtkstd::vector<acolor> Colors;
+};
+
+void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
+                                              vtkColorTransferFunction *color,
+                                              vtkPiecewiseFunction *opacity,
+                                              double unit_distance,
+                                              double scalar_range[2])
+{
+  vtkstd::set<double> cpset;
+
+  double *function_range = color->GetRange();
+  double *function = color->GetDataPointer();
+  while (1)
+    {
+    cpset.insert(function[0]);
+    if (function[0] == function_range[1]) break;
+    function += 4;
+    }
+
+  function_range = opacity->GetRange();
+  function = opacity->GetDataPointer();
+  while (1)
+    {
+    cpset.insert(function[0]);
+    if (function[0] == function_range[0]) break;
+    function += 2;
+    }
+
+  cpset.insert(scalar_range[1]);
+  // Make sure there are at least two entries.
+  if (cpset.size() < 2)
+    {
+    cpset.insert(scalar_range[0]);
+    }
+
+  // Now record control points and colors.
+  this->ControlPoints.erase(this->ControlPoints.begin(),
+                            this->ControlPoints.end());
+  this->ControlPoints.resize(cpset.size());
+  this->Colors.erase(this->Colors.begin(), this->Colors.end());
+  this->Colors.resize(cpset.size());
+
+  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
+  for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
+    {
+    color->GetColor(this->ControlPoints[i], this->Colors[i].c);
+    this->Colors[i].c[3] = (  opacity->GetValue(this->ControlPoints[i])
+                            / unit_distance);
+    }
+}
+
+void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
+                                              vtkPiecewiseFunction *intensity,
+                                              vtkPiecewiseFunction *opacity,
+                                              double unit_distance,
+                                              double scalar_range[2])
+{
+  vtkstd::set<double> cpset;
+
+  double *function_range = intensity->GetRange();
+  double *function = intensity->GetDataPointer();
+  while (1)
+    {
+    cpset.insert(function[0]);
+    if (function[0] == function_range[1]) break;
+    function += 2;
+    }
+
+  function_range = opacity->GetRange();
+  function = opacity->GetDataPointer();
+  while (1)
+    {
+    cpset.insert(function[0]);
+    if (function[0] == function_range[0]) break;
+    function += 2;
+    }
+
+  cpset.insert(scalar_range[1]);
+  // Make sure there are at least two entries.
+  if (cpset.size() < 2)
+    {
+    cpset.insert(scalar_range[0]);
+    }
+
+  // Now record control points and colors.
+  this->ControlPoints.erase(this->ControlPoints.begin(),
+                            this->ControlPoints.end());
+  this->ControlPoints.resize(cpset.size());
+  this->Colors.erase(this->Colors.begin(), this->Colors.end());
+  this->Colors.resize(cpset.size());
+
+  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
+  for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
+    {
+    // Is setting all the colors to the same value the right thing to do?
+    this->Colors[i].c[0] = this->Colors[i].c[1] = this->Colors[i].c[2]
+      = intensity->GetValue(this->ControlPoints[i]);
+    this->Colors[i].c[3] = (  opacity->GetValue(this->ControlPoints[i])
+                            / unit_distance);
+    }
+}
+
+inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
+                                                               double c[4])
+{
+  int i = 1;
+  while (this->ControlPoints[i] < x) i++;
+
+  double before = this->ControlPoints[i-1];
+  double after = this->ControlPoints[i];
+
+  double interp = (x-before)/(after-before);
+
+  double *beforec = this->Colors[i-1].c;
+  double *afterc = this->Colors[i].c;
+  c[0] = (1-interp)*beforec[0] + interp*afterc[0];
+  c[1] = (1-interp)*beforec[1] + interp*afterc[1];
+  c[2] = (1-interp)*beforec[2] + interp*afterc[2];
+  c[3] = (1-interp)*beforec[3] + interp*afterc[3];
+}
+
+//-----------------------------------------------------------------------------
+
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
@@ -45,7 +191,7 @@ float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABL
 vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegration()
 {
   this->Property = NULL;
-  this->ControlPoints = NULL;
+  this->TransferFunctions = NULL;
   this->NumIndependentComponents = 0;
 
   this->BuildPsiTable();
@@ -54,11 +200,7 @@ vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegrati
 //-----------------------------------------------------------------------------
 vtkUnstructuredGridPartialPreIntegration::~vtkUnstructuredGridPartialPreIntegration()
 {
-  for (int c = 0; c < this->NumIndependentComponents; c++)
-    {
-    this->ControlPoints[c]->Delete();
-    }
-  delete[] this->ControlPoints;
+  delete[] this->TransferFunctions;
 }
 
 //-----------------------------------------------------------------------------
@@ -75,7 +217,7 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
                                                     vtkDataArray *scalars)
 {
   if (   (property == this->Property)
-      && (this->ControlPointsModified > property->GetMTime()) )
+      && (this->TransferFunctionsModified > property->GetMTime()) )
     {
     // Nothing has changed from the last time Initialize was run.
     return;
@@ -84,7 +226,7 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
   int numcomponents = scalars->GetNumberOfComponents();
 
   this->Property = property;
-  this->ControlPointsModified.Modified();
+  this->TransferFunctionsModified.Modified();
 
   if (!property->GetIndependentComponents())
     {
@@ -93,64 +235,33 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
       {
       vtkErrorMacro("Only 2-tuples and 4-tuples allowed for dependent components.");
       }
-    this->Property = property;
     return;
     }
 
-  int component;
-  for (component = 0; component < this->NumIndependentComponents; component++)
-    {
-    this->ControlPoints[component]->Delete();
-    }
-  delete[] this->ControlPoints;
+  delete[] this->TransferFunctions;
 
   this->NumIndependentComponents = numcomponents;
-  this->ControlPoints = new vtkDoubleArray*[numcomponents];
+  this->TransferFunctions
+      = new vtkPartialPreIntegrationTransferFunction[numcomponents];
 
-  vtkstd::set<double> cpset;
-  for (component = 0; component < numcomponents; component++)
+  for (int component = 0; component < numcomponents; component++)
     {
-    cpset.erase(cpset.begin(), cpset.end());
-    vtkPiecewiseFunction *opacity = property->GetScalarOpacity(component);
-    double *function_range = opacity->GetRange();
-    double *function = opacity->GetDataPointer();
-    while (1)
-      {
-      cpset.insert(function[0]);
-      if (function[0] == function_range[1]) break;
-      function += 2;
-      }
     if (property->GetColorChannels(component) == 1)
       {
-      vtkPiecewiseFunction *intensity
-        = property->GetGrayTransferFunction(component);
-      function_range = intensity->GetRange();
-      function = intensity->GetDataPointer();
-      while (1)
-        {
-        cpset.insert(function[0]);
-        if (function[0] == function_range[1]) break;
-        function += 2;
-        }
+      this->TransferFunctions[component]
+        .GetTransferFunction(property->GetGrayTransferFunction(component),
+                             property->GetScalarOpacity(component),
+                             property->GetScalarOpacityUnitDistance(component),
+                             scalars->GetRange(component));
       }
     else
       {
-      vtkColorTransferFunction *color
-        = property->GetRGBTransferFunction(component);
-      function_range = color->GetRange();
-      function = color->GetDataPointer();
-      while (1)
-        {
-        cpset.insert(function[0]);
-        if (function[0] == function_range[1]) break;
-        function += 4;
-        }
+      this->TransferFunctions[component]
+        .GetTransferFunction(property->GetRGBTransferFunction(component),
+                             property->GetScalarOpacity(component),
+                             property->GetScalarOpacityUnitDistance(component),
+                             scalars->GetRange(component));
       }
-    this->ControlPoints[component] = vtkDoubleArray::New();
-    this->ControlPoints[component]->SetNumberOfComponents(1);
-    this->ControlPoints[component]->SetNumberOfTuples(cpset.size());
-    vtkstd::copy(cpset.begin(), cpset.end(),
-                 this->ControlPoints[component]->GetPointer(0));
     }
 }
 
@@ -182,8 +293,8 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
         {
-        double *cp = this->ControlPoints[j]->GetPointer(0);
-        vtkIdType numcp = this->ControlPoints[j]->GetNumberOfTuples();
+        vtkstd::vector<double> cp = this->TransferFunctions[j].ControlPoints;
+        vtkIdType numcp = cp.size();
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
           {
@@ -226,57 +337,48 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
         // between 0 and 1.
         for (int j = 0; j < numscalars; j++)
           {
-          double c[4];
           double scalar
             = (farScalars[j]-nearScalars[j])*nearInterpolant + nearScalars[j];
-          if (this->Property->GetColorChannels(j) == 3)
+          if (j == 0)
             {
-            this->Property->GetRGBTransferFunction(j)->GetColor(scalar,c);
+            this->TransferFunctions[j].GetColor(scalar, nearcolor);
             }
           else
             {
-            // Is this the right thing to do?
-            c[0] = c[1] = c[2]
-              = this->Property->GetGrayTransferFunction(j)->GetValue(scalar);
-            }
-          c[3] = this->Property->GetScalarOpacity(j)->GetValue(scalar);
-          // Normalize by unit distance.
-          c[3] /= this->Property->GetScalarOpacityUnitDistance(j);
-          if (c[3] + nearcolor[3] > 1.0e-8f)
-            {
-            nearcolor[0] *= nearcolor[3]/(c[3] + nearcolor[3]);
-            nearcolor[1] *= nearcolor[3]/(c[3] + nearcolor[3]);
-            nearcolor[2] *= nearcolor[3]/(c[3] + nearcolor[3]);
-            nearcolor[0] += c[0]*c[3]/(c[3] + nearcolor[3]);
-            nearcolor[1] += c[1]*c[3]/(c[3] + nearcolor[3]);
-            nearcolor[2] += c[2]*c[3]/(c[3] + nearcolor[3]);
-            nearcolor[3] += c[3];
+            double c[4];
+            this->TransferFunctions[j].GetColor(scalar, c);
+            if (c[3] + nearcolor[3] > 1.0e-8f)
+              {
+              nearcolor[0] *= nearcolor[3]/(c[3] + nearcolor[3]);
+              nearcolor[1] *= nearcolor[3]/(c[3] + nearcolor[3]);
+              nearcolor[2] *= nearcolor[3]/(c[3] + nearcolor[3]);
+              nearcolor[0] += c[0]*c[3]/(c[3] + nearcolor[3]);
+              nearcolor[1] += c[1]*c[3]/(c[3] + nearcolor[3]);
+              nearcolor[2] += c[2]*c[3]/(c[3] + nearcolor[3]);
+              nearcolor[3] += c[3];
+              }
             }
 
           scalar
             = (farScalars[j]-nearScalars[j])*farInterpolant + nearScalars[j];
-          if (this->Property->GetColorChannels(j) == 3)
+          if (j == 0)
             {
-            this->Property->GetRGBTransferFunction(j)->GetColor(scalar,c);
+            this->TransferFunctions[j].GetColor(scalar, farcolor);
             }
           else
             {
-            // Is setting the RGB values the same the right thing to do?
-            c[0] = c[1] = c[2]
-              = this->Property->GetGrayTransferFunction(j)->GetValue(scalar);
-            }
-          c[3] = this->Property->GetScalarOpacity(j)->GetValue(scalar);
-          // Normalize by unit distance.
-          c[3] /= this->Property->GetScalarOpacityUnitDistance(j);
-          if (c[3] + farcolor[3] > 1.0e-8f)
-            {
-            farcolor[0] *= farcolor[3]/(c[3] + farcolor[3]);
-            farcolor[1] *= farcolor[3]/(c[3] + farcolor[3]);
-            farcolor[2] *= farcolor[3]/(c[3] + farcolor[3]);
-            farcolor[0] += c[0]*c[3]/(c[3] + farcolor[3]);
-            farcolor[1] += c[1]*c[3]/(c[3] + farcolor[3]);
-            farcolor[2] += c[2]*c[3]/(c[3] + farcolor[3]);
-            farcolor[3] += c[3];
+            double c[4];
+            this->TransferFunctions[j].GetColor(scalar, c);
+            if (c[3] + farcolor[3] > 1.0e-8f)
+              {
+              farcolor[0] *= farcolor[3]/(c[3] + farcolor[3]);
+              farcolor[1] *= farcolor[3]/(c[3] + farcolor[3]);
+              farcolor[2] *= farcolor[3]/(c[3] + farcolor[3]);
+              farcolor[0] += c[0]*c[3]/(c[3] + farcolor[3]);
+              farcolor[1] += c[1]*c[3]/(c[3] + farcolor[3]);
+              farcolor[2] += c[2]*c[3]/(c[3] + farcolor[3]);
+              farcolor[3] += c[3];
+              }
             }
           }
         this->IntegrateRay(length, nearcolor, nearcolor[3],
