@@ -38,10 +38,8 @@
 // will be used (and all color functions will be ignored). Omitting the
 // index parameter on the Set/Get methods will access index = 0.
 
-
 // .SECTION see also
 // vtkPiecewiseFunction vtkColorTransferFunction
-
 
 #ifndef __vtkVolumeProperty_h
 #define __vtkVolumeProperty_h
@@ -63,7 +61,30 @@ public:
   // Get the modified time for this object (or the properties registered
   // with this object).
   unsigned long GetMTime();
-  
+ 
+  // Description:
+  // Does the data have independent components, or do some define color 
+  // only? If IndependentComponents is On (the default) then each component 
+  // will be independently passed through a lookup table to determine RGBA, 
+  // shaded. Some volume Mappers can handle 1 to 4 component 
+  // unsigned char or unsigned short data (see each mapper header file to
+  // determine functionality). If IndependentComponents is Off, then you 
+  // must have either 2 or 4 component data. For 2 component data, the 
+  // first is passed through the first color transfer function and the 
+  // second component is passed through the first opacity transfer function. 
+  // Normals will be generated off of the second component. For 4 component 
+  // data, the first three will directly represent RGB (no lookup table). 
+  // The fourth component will be passed through the first scalar opacity 
+  // transfer function for opacity. Normals will be generated from the fourth 
+  // component.
+  vtkSetClampMacro( IndependentComponents, int, 0, 1 );
+  vtkGetMacro( IndependentComponents, int );
+  vtkBooleanMacro( IndependentComponents, int );
+
+  // Description:
+  // Set/Get the scalar component weights
+  virtual void SetComponentWeight(int index, float value);
+  virtual float GetComponentWeight(int index);
 
   // Description:
   // Set the interpolation type for sampling a volume.
@@ -82,7 +103,6 @@ public:
   // color channels for this component to 1.
   void SetColor( int index, vtkPiecewiseFunction *function );
   void SetColor( vtkPiecewiseFunction *f ){this->SetColor(0,f);};
-  
       
   // Description:
   // Set the color of a volume to an RGB transfer function
@@ -172,11 +192,6 @@ public:
     {return this->GetStoredGradientOpacity( 0 );}
 
   // Description:
-  // Set/Get the scalar component weights
-  virtual void SetComponentWeight(int index, float value);
-  virtual float GetComponentWeight(int index);
-
-  // Description:
   // Set/Get the shading of a volume. If shading is turned off, then
   // the mapper for the volume will not perform shading calculations.
   // If shading is turned on, the mapper may perform shading 
@@ -194,7 +209,6 @@ public:
   void ShadeOn() {this->ShadeOn(0);}
   void ShadeOff( int index );
   void ShadeOff() {this->ShadeOff(0);}
-  
 
   // Description:
   // Set/Get the ambient lighting coefficient.
@@ -202,7 +216,6 @@ public:
   void SetAmbient( float value ) {this->SetAmbient( 0, value );}
   float GetAmbient( int index );
   float GetAmbient() {return this->GetAmbient(0);}
-  
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
@@ -225,7 +238,7 @@ public:
   float GetSpecularPower( int index );
   float GetSpecularPower() {return this->GetSpecularPower(0);}
 
-//BTX
+  //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // UpdateMTimes performs a Modified() on all TimeStamps.
@@ -261,12 +274,14 @@ public:
   vtkTimeStamp GetGrayTransferFunctionMTime( int index );
   vtkTimeStamp GetGrayTransferFunctionMTime()
     { return this->GetGrayTransferFunctionMTime(0); }  
-//ETX
-
+  //ETX
 
 protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty();
+
+  int                           IndependentComponents;
+  float                         ComponentWeight[VTK_MAX_VRCOMP];
 
   int                           InterpolationType;
 
@@ -285,8 +300,6 @@ protected:
   vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
   vtkPiecewiseFunction          *DefaultGradientOpacity[VTK_MAX_VRCOMP];
   int                           DisableGradientOpacity[VTK_MAX_VRCOMP];
-
-  float                         ComponentWeight[VTK_MAX_VRCOMP];
 
   int                           Shade[VTK_MAX_VRCOMP];
   float                         Ambient[VTK_MAX_VRCOMP];
