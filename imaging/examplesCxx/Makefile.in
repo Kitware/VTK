@@ -24,7 +24,7 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = ScalarBar
+EXAMPLES = ScalarBar ImportExport
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
@@ -46,6 +46,10 @@ all: ${EXAMPLES}
 
 ScalarBar: ScalarBar.o ${VTKLIB}
 	${CXX} -o ScalarBar ${CXX_FLAGS} ScalarBar.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+ImportExport: ImportExport.o ${VTKLIB}
+	${CXX} -o ImportExport ${CXX_FLAGS} ImportExport.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
