@@ -40,7 +40,7 @@ main(int argc, char **argv)
   return 0;			/* Needed only to prevent compiler warning. */
 }
 
-
+
 /*
  *----------------------------------------------------------------------
  *
