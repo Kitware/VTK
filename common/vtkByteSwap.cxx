@@ -246,7 +246,7 @@ void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
   
 }
 #else
-void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
+void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num){}
 #endif
 
 // Description:
