@@ -27,7 +27,7 @@
 #include "vtkOpenGL.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.28");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.29");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -129,11 +129,20 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   
   // now contiguous would require that xdim = 0 and ydim = 1
   // OR xextent = 1 pixel and xdim = 1 and ydim = 2 
-  // OR xdim = 0 and ydim = 2 and yextent = i pixel
+  // OR xdim = 0 and ydim = 2 and yextent = i pixel. In addition
+  // the corresponding x display extents must match the 
+  // extent of the data
   int *ext = this->Input->GetExtent();
-  if ((xdim ==0 && ydim == 1)||
-      (ext[0] == ext[1] && xdim == 1) ||
-      (ext[2] == ext[3] && xdim == 0 && ydim == 2))
+  
+  if ( ( xdim == 0 && ydim == 1 && 
+         this->DisplayExtent[0] == ext[0] && 
+         this->DisplayExtent[1] == ext[1] )||
+       ( ext[0] == ext[1] && xdim == 1 && 
+         this->DisplayExtent[2] == ext[2] && 
+         this->DisplayExtent[3] == ext[3] ) ||
+       ( ext[2] == ext[3] && xdim == 0 && ydim == 2 &&
+         this->DisplayExtent[0] == ext[0] && 
+         this->DisplayExtent[1] == ext[1] ) )
     {
     contiguous = 1;
     }
@@ -445,9 +454,165 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   glEnable( GL_LIGHTING );
 }
 
+// Determine if a given texture size is supported by the
+// video card
+int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
+{
+  // In version 1.1 or later, use proxy texture to figure out if
+  // the texture is too big
+#ifdef GL_VERSION_1_1
+  
+  // Test the texture to see if it fits in memory
+  glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8, 
+                size[0], size[1],
+                0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)NULL );
+  
+  GLint params[1];
+  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, params ); 
+
+  // if it does, we will render it later. define the texture here
+  if ( params[0] == 0 )
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
+#else
+  
+  // Otherwise we are version 1.0 and we'll just assume the card can do 1024x1024
+  if ( size[0] > 1024 || size[1] > 1024 ) 
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
+#endif
+}
+
+
 // Actual actor render method.
+// Recursive to handle larger textures than can be rendered by
+// a given video card. Assumes all video cards can render a texture
+// of 256x256 so will fail if card reports that it cannot render
+// a texture of this size rather than recursing further
 void vtkOpenGLImageActor::Render(vtkRenderer *ren)
 {
+  // Save the current display extent since we might change it
+  int savedDisplayExtent[6];
+  this->GetDisplayExtent( savedDisplayExtent );
+ 
+  // What is the power of two texture big enough to fit the display extent?
+  // This should be 1 in some direction.
+  int i;
+  int pow2[3] = {1,1,1};
+  int baseSize[3];
+  for ( i = 0; i < 3; i++ )
+    {
+    baseSize[i] = this->DisplayExtent[i*2+1] - this->DisplayExtent[i*2] + 1;
+    while( pow2[i] < baseSize[i] )
+      {
+      pow2[i] *= 2;
+      }
+    }
+  
+  // Find the 2d texture in the 3d pow2 structure
+  int size[2];
+  if ( pow2[0] == 1 )
+    {
+    size[0] = pow2[1];
+    size[1] = pow2[2];
+    }
+  else if ( pow2[1] == 1 )
+    {
+    size[0] = pow2[0];
+    size[1] = pow2[2];
+    }
+  else
+    {
+    size[0] = pow2[0];
+    size[1] = pow2[1];
+    }
+  
+  // Check if we can fit this texture in memory
+  if ( this->TextureSizeOK(size) )
+    {
+    // We can fit it - render
+    this->InternalRender( ren );
+    }
+  else
+    {
+    // If we can't handle a 256x256 or smaller texture,
+    // just give up and don't render anything. Something
+    // must be horribly wrong...
+    if ( size[0] <= 256 && size[1] <= 256 )
+      {
+      return;
+      }
+    
+    // We can't fit it - subdivide
+    int newDisplayExtent[6];
+    int idx;
+
+    // Find the biggest side
+    if ( baseSize[0] >= baseSize[1] && baseSize[0] >= baseSize[2] )
+      {
+      idx = 0;
+      }
+    else if ( baseSize[1] >= baseSize[0] && baseSize[1] >= baseSize[2] )
+      {
+      idx = 1;
+      }
+    else 
+      {
+      idx = 2;
+      }
+    
+    // For the other two sides, just copy in the display extent
+    for ( i = 0; i < 3; i++ )
+      {
+      if ( i != idx )
+        {
+        newDisplayExtent[i*2] = this->DisplayExtent[i*2];
+        newDisplayExtent[i*2+1] = this->DisplayExtent[i*2+1];        
+        }
+      }
+    
+    // For the biggest side - divide the power of two size in 1/2
+    // This is the first half
+    newDisplayExtent[idx*2] = savedDisplayExtent[idx*2];
+    newDisplayExtent[idx*2+1] = 
+      this->DisplayExtent[idx*2] + baseSize[idx]/2 - 1;
+    
+    
+    // Set it as the display extent and render
+    this->SetDisplayExtent( newDisplayExtent );
+    this->Render(ren);
+
+    // This is the remaining side (since the display extent is not 
+    // necessarily a power of 2, this is likely to be less than half
+    newDisplayExtent[idx*2] = 
+      this->DisplayExtent[idx*2] + baseSize[idx]/2 - 1;
+    newDisplayExtent[idx*2+1] = savedDisplayExtent[idx*2+1];
+    
+    // Set it as the display extent and render
+    this->SetDisplayExtent( newDisplayExtent );
+    this->Render(ren);
+    }
+  
+  // Restore the old display extent
+  this->SetDisplayExtent( savedDisplayExtent ); 
+}
+
+// This is the non-recursive render that will not check the
+// size of the image (it has already been determined to
+// be fine)
+void vtkOpenGLImageActor::InternalRender(vtkRenderer *ren)
+{
+
   // for picking
   glDepthMask (GL_TRUE);
 

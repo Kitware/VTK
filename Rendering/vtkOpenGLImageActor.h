@@ -61,6 +61,13 @@ protected:
   double Coords[12];
   double TCoords[8];
   int TextureSize[2];
+  
+  // Non-recursive internal method
+  void InternalRender(vtkRenderer *ren);
+  
+  // Is a certain size texture supported?
+  int TextureSizeOK( int size[2] );
+  
 private:
   vtkOpenGLImageActor(const vtkOpenGLImageActor&);  // Not implemented.
   void operator=(const vtkOpenGLImageActor&);  // Not implemented.
