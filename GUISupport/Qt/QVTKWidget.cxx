@@ -813,31 +813,11 @@ void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
 }
 #endif
 
-void QVTKWidget::hide()
-{
-#if defined(QVTK_HAVE_VTK_4_5)
-  if (this->mRenWin)
-    {
-    // gotta finalize the window on the mac to make it really disappear
-    // if it needs starting up again, paintEvent() will do that
-    this->mRenWin->Finalize();
-    }
-#endif
-  QWidget::hide();
-}
-
-void QVTKWidget::show()
+void QVTKWidget::showEvent(QShowEvent* event)
 {
   this->markCachedImageAsDirty();
 
-  QWidget::show();
-#if defined(QVTK_HAVE_VTK_4_5)
-  if (this->mRenWin)
-    {
-    // gotta start the window on the mac to make it come back
-    this->mRenWin->Start();
-    }
-#endif
+  QWidget::showEvent(event);
 }
 
 /*! allocation method for Qt/VTK interactor
@@ -1237,6 +1217,12 @@ void QVTKWidget::macFixRect()
       // no clipping, disable it
       if(!aglIsEnabled(context, AGL_CLIP_REGION))
         aglDisable(context, AGL_CLIP_REGION);
+      
+      bufRect[0] = 0;
+      bufRect[1] = 0;
+      bufRect[2] = 0;
+      bufRect[3] = 0;
+      aglSetInteger(context, AGL_BUFFER_RECT, bufRect);
     }
     else
     {
@@ -1247,13 +1233,10 @@ void QVTKWidget::macFixRect()
       // give agl the clip region
       aglSetInteger(context, AGL_CLIP_REGION, (const GLint*)clip.handle(TRUE));
     }
-
   }
-  else
-  {
-    // update the context
-    aglUpdateContext((AGLContext)this->GetRenderWindow()->GetGenericDisplayId());
-  }
+  
+  // update the context
+  aglUpdateContext((AGLContext)this->GetRenderWindow()->GetGenericDisplayId());
 }
 
 void QVTKWidget::setRegionDirty(bool b)

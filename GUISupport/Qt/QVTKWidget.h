@@ -120,10 +120,8 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     virtual void setParent(QWidget* parent, Qt::WFlags f);
 #endif
     
-    //! handle hides
-    virtual void hide();
     //! handle shows
-    virtual void show();
+    virtual void showEvent(QShowEvent*);
 
   signals:
     // Description:
@@ -221,7 +219,6 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     bool automaticImageCache;
     double maxImageCacheRenderRate;
   
-
   private:
     //! unimplemented operator=
     QVTKWidget const& operator=(QVTKWidget const&);
