@@ -48,7 +48,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.31");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.32");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,8 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SwapBytesInReceivedData: " << this->SwapBytesInReceivedData
      << endl;
   os << indent << "IsConnected: " << this->IsConnected << endl;
+  os << indent << "Perform a handshake: " 
+     << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
 }
 
 static inline int checkForError(int id, int maxId)
