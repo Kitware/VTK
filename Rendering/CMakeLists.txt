@@ -241,7 +241,7 @@ IF (VTK_WRAP_JAVA)
                          vtkImagingJava 
                          vtkGraphicsJava)
   IF (JAVA_AWT_LIBRARY)
-    TARGET_LINK_LIBRARIES (vtkCommonJava ${JAVA_AWT_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtkRenderingJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)
   INSTALL_TARGETS(/lib vtkRenderingJava)
 ENDIF (VTK_WRAP_JAVA)
