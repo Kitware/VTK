@@ -25,6 +25,7 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkLinearExtrusionFilter.h"
+#include "vtkMapper.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataToImageStencil.h"
@@ -341,6 +342,10 @@ public:
 int TestImageTracerWidget( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+
+  // Increase polygon offsets to support some OpenGL drivers
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(10,10);
 
 // Start by loading some data.
 //
