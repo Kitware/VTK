@@ -28,10 +28,12 @@ vtkActor sphereActor
 
 
 vtkRenderer ren1
-    ren1 SetBackground 0.1 0.2 0.4
+    ren1 SetBackground  0.8 0.4 0.3
+    # WinNT mixes both background colors in a stripped pattern
+    #ren1 SetBackground  0.1 0.2 0.4
     ren1 AddActor sphereActor
 vtkRenderer ren2
-    ren2 SetBackground .8 .4 .3
+    ren2 SetBackground 0.8 0.4 0.3
     ren2 AddActor coneActor
     ren2 SetActiveCamera [ren1 GetActiveCamera]
 vtkRenderWindow renWin1
