@@ -29,7 +29,7 @@
 #include "vtkToolkits.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.18");
+vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.19");
 vtkStandardNewMacro(vtkXMesaTextMapper);
 
 static void
@@ -504,3 +504,8 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
   glEnable( GL_LIGHTING);
 }
 
+//----------------------------------------------------------------------------
+void vtkXMesaTextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

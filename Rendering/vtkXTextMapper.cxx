@@ -25,7 +25,7 @@
 //mark this class for future legacy-related changes
 #endif
 
-vtkCxxRevisionMacro(vtkXTextMapper, "1.36");
+vtkCxxRevisionMacro(vtkXTextMapper, "1.37");
 
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
@@ -226,8 +226,8 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
   XFreeFontInfo(NULL, fontStruct, 1);
 }
 
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkXTextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
