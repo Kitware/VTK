@@ -84,6 +84,8 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->UseInputPoints = 0;
 
   this->OutputTriangleArray = NULL;
+  this->OutputLines = NULL;
+  this->OutputVerts = NULL;
 
   // Overide superclass so that append can be called directly.
   this->NumberOfRequiredInputs = 0;
@@ -187,8 +189,22 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     this->OutputTriangleArray = NULL;
     vtkWarningMacro("Array already created.  Did you call EndAppend?");
     }
+  if (this->OutputLines)
+    {
+    this->OutputLines->Delete();
+    this->OutputLines = NULL;
+    vtkWarningMacro("Array already created.  Did you call EndAppend?");
+    }
+  if (this->OutputVerts)
+    {
+    this->OutputVerts->Delete();
+    this->OutputVerts = NULL;
+    vtkWarningMacro("Array already created.  Did you call EndAppend?");
+    }
 
   this->OutputTriangleArray = vtkCellArray::New();
+  this->OutputLines = vtkCellArray::New();
+  this->OutputVerts = vtkCellArray::New();
 
   this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfXDivisions;
   this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfYDivisions;
@@ -215,59 +231,86 @@ void vtkQuadricClustering::StartAppend(float *bounds)
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::Append(vtkPolyData *pd)
 {
-  vtkCellArray *inputTris = pd->GetPolys();
-  int numTris = pd->GetNumberOfPolys(); // assuming we only have triangles
+  vtkCellArray *inputTris, *inputLines, *inputVerts;
   vtkPoints *inputPoints = pd->GetPoints();
-  int *cellPtIds;
-  int i, numPts;
-  int abort=0, tenth;
   
   // Check for mis-use of the Append methods.
-  if (this->OutputTriangleArray == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
+      this->OutputVerts == NULL)
     {
     vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
 
-  if ( !numTris )
+  inputVerts = pd->GetVerts();
+  if (inputVerts)
     {
-    return;
-    }      
-  
-  tenth = numTris/10 + 1;
-  inputTris->InitTraversal();
-  for (i = 0; i < numTris && !abort ; i++)
+    this->AddVerticies(inputVerts, inputPoints, 1);
+    }
+
+  inputLines = pd->GetLines();
+  if (inputLines)
     {
-    if ( !(i % tenth) ) 
+    this->AddEdges(inputLines, inputPoints, 1);
+    }
+
+  inputTris = pd->GetPolys();
+  if (inputTris)
+    {
+    this->AddTriangles(inputTris, inputPoints, 1);
+    }
+
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
+                                        int geometryFlag)
+{
+  int numCells, i, j, numPts, *ptIds;
+  float *pts[3];
+  int binIds[3];
+  int odd;  // Used to flip order of every other triangle in a strip.
+
+  numCells = tris->GetNumberOfCells();
+  tris->InitTraversal();
+  for (i = 0; i < numCells; ++i)
+    {
+    tris->GetNextCell(numPts, ptIds);
+    pts[0] = points->GetPoint(ptIds[0]);
+    binIds[0] = this->HashPoint(pts[0]);
+    pts[1] = points->GetPoint(ptIds[1]);
+    binIds[1] = this->HashPoint(pts[1]);
+    // This internal loop handles triangle strips.
+    odd = 0;
+    for (j = 2; j < numPts; ++j)
       {
-      vtkDebugMacro(<<"Visiting triangle #" << i);
-      this->UpdateProgress(0.8 * i/numTris);
-      abort = this->GetAbortExecute();
-      }
-    inputTris->GetNextCell(numPts, cellPtIds);
-    if (numPts == 3)
-      {
-      this->AddTriangle(inputPoints->GetPoint(cellPtIds[0]),
-                        inputPoints->GetPoint(cellPtIds[1]),
-                        inputPoints->GetPoint(cellPtIds[2]));
+      pts[2] = points->GetPoint(ptIds[j]);
+      binIds[2] = this->HashPoint(pts[2]);
+      this->AddTriangle(binIds, pts[0], pts[1], pts[2], geometryFlag);
+      pts[odd] = pts[2];
+      binIds[odd] = binIds[2];
+      // Toggle odd.
+      odd = odd ? 0 : 1;
       }
     }
 }
-
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::AddTriangle(float *p0, float *p1, float *p2)
+// The error function is the volume (squared) of the tetrahedron formed by the 
+// triangle and the point.  We ignore constants factors across all coefficents, 
+// and the constant coefficient.
+// If geomertyFlag is 1 then the triangle is added to the output.  Otherwise,
+// only the quadric is affected.
+void vtkQuadricClustering::AddTriangle(int *binIds, float *pt0, float *pt1,
+                                       float *pt2, int geometryFlag)
 {
   int i;
-  int binIds[3];
   int triPtIds[3];
   float quadric[9], quadric4x4[4][4];
  
-  binIds[0] = this->HashPoint(p0);
-  binIds[1] = this->HashPoint(p1);
-  binIds[2] = this->HashPoint(p2);
-
   // Compute the quadric.
-  vtkTriangle::ComputeQuadric(p0, p1, p2, quadric4x4);
+  vtkTriangle::ComputeQuadric(pt0, pt1, pt2, quadric4x4);
   quadric[0] = quadric4x4[0][0];
   quadric[1] = quadric4x4[0][1];
   quadric[2] = quadric4x4[0][2];
@@ -277,38 +320,265 @@ void vtkQuadricClustering::AddTriangle(float *p0, float *p1, float *p2)
   quadric[6] = quadric4x4[1][3];
   quadric[7] = quadric4x4[2][2];
   quadric[8] = quadric4x4[2][3];
-  // Add it to the quadric array (point bins).
-  for (i = 0; i < 3; i++)
+
+  // Add the quadric to each of the three corner bins.
+  for (i = 0; i < 3; ++i)
     {
+    // If the current quadric is not initialized, then clear it out.
     if (this->QuadricArray[binIds[i]].Dimension > 2)
-      { // Initialize quadric.
+      {
+      this->QuadricArray[binIds[i]].Dimension = 2; 
+      // Initialize the coeff
       this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
-      this->QuadricArray[binIds[i]].Dimension = 2;
       }
     if (this->QuadricArray[binIds[i]].Dimension == 2)
-      { // Points and lines supercede triangles.
+      { // Points and segments supercede triangles.
       this->AddQuadric(binIds[i], quadric);
       }
     }
 
-  // Now add the triangle to the geometry.
-  for (i = 0; i < 3; i++)
+  if (geometryFlag)
     {
-    // Get the vertex from each bin.
-    if (this->QuadricArray[binIds[i]].VertexId == -1)
+    // Now add the triangle to the geometry.
+    for (i = 0; i < 3; i++)
       {
-      this->QuadricArray[binIds[i]].VertexId = this->NumberOfBinsUsed;
-      this->NumberOfBinsUsed++;
+      // Get the vertex from each bin.
+      if (this->QuadricArray[binIds[i]].VertexId == -1)
+        {
+        this->QuadricArray[binIds[i]].VertexId = this->NumberOfBinsUsed;
+        this->NumberOfBinsUsed++;
+        }
+      triPtIds[i] = this->QuadricArray[binIds[i]].VertexId;
       }
-    triPtIds[i] = this->QuadricArray[binIds[i]].VertexId;
-    }
-  // This comparison could just as well be on triPtIds.
-  if (binIds[0] != binIds[1] && binIds[0] != binIds[2] &&
-    	binIds[1] != binIds[2])
-    {
-    this->OutputTriangleArray->InsertNextCell(3, triPtIds);
+    // This comparison could just as well be on triPtIds.
+    if (binIds[0] != binIds[1] && binIds[0] != binIds[2] &&
+    	  binIds[1] != binIds[2])
+      {
+      this->OutputTriangleArray->InsertNextCell(3, triPtIds);
+      }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
+                                    int geometryFlag)
+{
+  int numCells, i, j, numPts, *ptIds;
+  float *pt0, *pt1;
+  int binIds[2];
+
+  // Add the edges to the error fuction.
+  numCells = edges->GetNumberOfCells();
+  edges->InitTraversal();
+  for (i = 0; i < numCells; ++i)
+    {
+    edges->GetNextCell(numPts, ptIds);
+    pt0 = points->GetPoint(ptIds[0]);
+    binIds[0] = this->HashPoint(pt0);
+    // This internal loop handles line strips.
+    for (j = 1; j < numPts; ++j)
+      {
+      pt1 = points->GetPoint(ptIds[j]);
+      binIds[1] = this->HashPoint(pt1);
+      this->AddEdge(binIds, pt0, pt1, geometryFlag);
+      pt0 = pt1;
+      binIds[0] = binIds[1];
+      }
+    }
+}
+//----------------------------------------------------------------------------
+// The error function is the area of the triangle formed by the edge and the 
+// point squared.  We ignore constants across all terms.
+// If geomertyFlag is 1 then the edge is added to the output.  Otherwise,
+// only the quadric is affected.
+void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
+                                   int geometryFlag)
+{
+  int   i;
+  int edgePtIds[2];
+  float length2, tmp;
+  float d[3];
+  float m[3];  // The mid point of the segement.(p1 or p2 could be used also).  
+  float md;    // The dot product of m and d.
+  float q[9];
+
+
+  // Compute quadric for line segment
+  // Line segment quadric is the area (squared) of the triangle (seg,pt).
+
+  // Compute the direction vector of the segment.
+  d[0] = pt1[0] - pt0[0];
+  d[1] = pt1[1] - pt0[1];
+  d[2] = pt1[2] - pt0[2];
+
+  // Compute the length^2 of the line segement.
+  length2 = d[0]*d[0] + d[1]*d[1] + d[2]*d[2];
+
+  // Normalize the direction vector.
+  tmp = 1.0 / sqrt(length2);
+  d[0] = d[0] * tmp;
+  d[1] = d[1] * tmp;
+  d[2] = d[2] * tmp;
+
+  // Compute the mid point of the segment.
+  m[0] = 0.5 * (pt1[0] + pt0[0]);
+  m[1] = 0.5 * (pt1[1] + pt0[1]);
+  m[2] = 0.5 * (pt1[2] + pt0[2]);
+
+  // Compute dot(m, d);
+  md = m[0]*d[0] + m[1]*d[1] + m[2]*d[2];
+
+  // We save nine coefficients of the error function cooresponding to:
+  // 0: Px^2
+  // 1: PxPy
+  // 2: PxPz
+  // 3: Px
+  // 4: Py^2
+  // 5: PyPz
+  // 6: Py
+  // 7: Pz^2
+  // 8: Pz
+  // We ignore the constant because it disappears with the derivative.
+  q[0] = length2*(1.0 - d[0]*d[0]);
+  q[1] = -length2*(d[0]*d[1]);
+  q[2] = -length2*(d[0]*d[2]);
+  q[3] = length2*(d[0]*md - m[0]);
+  q[4] = length2*(1.0 - d[1]*d[1]);
+  q[5] = -length2*(d[1]*d[2]);
+  q[6] = length2*(d[1]*md - m[1]);
+  q[7] = length2*(1.0 - d[2]*d[2]);
+  q[8] = length2*(d[2]*md - m[2]);
+
+  for (i = 0; i < 2; ++i)
+    {
+    // If the current quadric is from triangles (or not initialized), then clear it out.
+    if (this->QuadricArray[binIds[i]].Dimension > 1)
+      {
+      this->QuadricArray[binIds[i]].Dimension = 1; 
+      // Initialize the coeff
+      this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
+      }
+    if (this->QuadricArray[binIds[i]].Dimension == 1)
+      { // Points supercede segements.
+      this->AddQuadric(binIds[i], q);
+      }
+    }
+
+
+  if (geometryFlag)
+    {
+    // Now add the edge to the geometry.
+    for (i = 0; i < 2; i++)
+      {
+      // Get the vertex from each bin.
+      if (this->QuadricArray[binIds[i]].VertexId == -1)
+        {
+        this->QuadricArray[binIds[i]].VertexId = this->NumberOfBinsUsed;
+        this->NumberOfBinsUsed++;
+        }
+      edgePtIds[i] = this->QuadricArray[binIds[i]].VertexId;
+      }
+    // This comparison could just as well be on edgePtIds.
+    if (binIds[0] != binIds[1])
+      {
+      this->OutputLines->InsertNextCell(2, edgePtIds);
+      }
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddVerticies(vtkCellArray *verts, vtkPoints *points,
+                                        int geometryFlag)
+{
+  int numCells, i, j, numPts, *ptIds;
+  float *pt;
+  int binId;
+
+  numCells = verts->GetNumberOfCells();
+  verts->InitTraversal();
+  for (i = 0; i < numCells; ++i)
+    {
+    verts->GetNextCell(numPts, ptIds);
+    // Can there be poly verticies?
+    for (j = 0; j < numPts; ++j)
+      {
+      pt = points->GetPoint(ptIds[j]);
+      binId = this->HashPoint(pt);
+      this->AddVertex(binId, pt, geometryFlag);
+      }
+    }
+}
+//----------------------------------------------------------------------------
+// The error function is the length (point to vert) squared.
+// We ignore constants across all terms.
+// If geomertyFlag is 1 then the vert is added to the output.  Otherwise,
+// only the quadric is affected.
+void vtkQuadricClustering::AddVertex(int binId, float *pt,
+                                     int geometryFlag)
+{
+  int vertPtId;
+  float q[9];
+
+  // Compute quadric for the vertex.
+
+  // We save nine coefficients of the error function cooresponding to:
+  // 0: Px^2
+  // 1: PxPy
+  // 2: PxPz
+  // 3: Px
+  // 4: Py^2
+  // 5: PyPz
+  // 6: Py
+  // 7: Pz^2
+  // 8: Pz
+  // We ignore the constant because it disappears with the derivative.
+  q[0] = 1.0;
+  q[1] = 0.0;
+  q[2] = 0.0;
+  q[3] = -pt[0];
+  q[4] = 1.0;
+  q[5] = 0.0;
+  q[6] = -pt[1];
+  q[7] = 1.0;
+  q[8] = -pt[2];
+
+  // If the current quadric is from triangles, edges (or not initialized), then clear it out.
+  if (this->QuadricArray[binId].Dimension > 0)
+    {
+    this->QuadricArray[binId].Dimension = 0; 
+    // Initialize the coeff
+    this->InitializeQuadric(this->QuadricArray[binId].Quadric);
+    }
+  if (this->QuadricArray[binId].Dimension == 0)
+    { // Points supercede all other types of quadrics.
+    this->AddQuadric(binId, q);
+    }
+
+  if (geometryFlag)
+    {
+    int flag = 1;
+    // Now add the vert to the geometry.
+    // Get the vertex from the bin.
+    if (this->QuadricArray[binId].VertexId == -1)
+      {
+      flag = 0;
+      this->QuadricArray[binId].VertexId = this->NumberOfBinsUsed;
+      this->NumberOfBinsUsed++;
+      }
+    vertPtId = this->QuadricArray[binId].VertexId;
+
+    // Here is a flaw: How do we enforce one vert per bin?
+    // We could search the array (n^2 complexity).
+    // This approach will work if verts are added before all other types.
+    if (flag)
+      {
+      this->OutputVerts->InsertNextCell(1, &vertPtId);
+      }
+    }
+}
+
+
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::InitializeQuadric(float quadric[9])
@@ -384,7 +654,8 @@ void vtkQuadricClustering::EndAppend()
   vtkPolyData *output = this->GetOutput();
   
   // Check for mis use of the Append methods.
-  if (this->OutputTriangleArray == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
+      this->OutputVerts == NULL)
     {
     vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
@@ -408,18 +679,38 @@ void vtkQuadricClustering::EndAppend()
       }
     }
 
-  output->SetPolys(this->OutputTriangleArray);
+  // Set up the output data object.
   output->SetPoints(outputPoints);
   outputPoints->Delete();
-  delete [] this->QuadricArray;
-  this->QuadricArray = NULL;
 
+  if (this->OutputTriangleArray->GetNumberOfCells() > 0)
+    {
+    output->SetPolys(this->OutputTriangleArray);
+    }
   this->OutputTriangleArray->Delete();
   this->OutputTriangleArray = NULL;
+
+  if (this->OutputLines->GetNumberOfCells() > 0)
+    {
+    output->SetLines(this->OutputLines);
+    }
+  this->OutputLines->Delete();
+  this->OutputLines = NULL;
+
+  if (this->OutputVerts->GetNumberOfCells() > 0)
+    {
+    output->SetVerts(this->OutputVerts);
+    }
+  this->OutputVerts->Delete();
+  this->OutputVerts = NULL;
 
   // Tell the data is is up to date 
   // (in case the user calls this method directly).
   output->DataHasBeenGenerated();
+
+  // Free the quadric array.
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 }
 
 
@@ -649,7 +940,8 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
     }
 
   // Check for mis use of the Append methods.
-  if (this->OutputTriangleArray == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
+      this->OutputVerts == NULL)
     {
     vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
@@ -707,6 +999,10 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 
   this->OutputTriangleArray->Delete();
   this->OutputTriangleArray = NULL;
+  this->OutputLines->Delete();
+  this->OutputLines = NULL;
+  this->OutputVerts->Delete();
+  this->OutputVerts = NULL;
 
   delete minError;
 }
@@ -723,9 +1019,6 @@ void vtkQuadricClustering::AppendBoundaryQuadrics(vtkPolyData *pd)
   vtkPolyData *input = vtkPolyData::New();
   vtkPoints *edgePts;
   vtkCellArray *edges;
-  int numCells, i, j, numPts, *ptIds;
-  float *pt0, *pt1;
-  int binIds[2];
 
   // Find the boundary edges.
   input->ShallowCopy(pd);
@@ -736,101 +1029,11 @@ void vtkQuadricClustering::AppendBoundaryQuadrics(vtkPolyData *pd)
   edgePts = edgeFilter->GetOutput()->GetPoints();
   edges = edgeFilter->GetOutput()->GetLines();
 
-  // Add the edges to the error fuction.
-  numCells = edges->GetNumberOfCells();
-  for (i = 0; i < numCells; ++i)
+  if (edges)
     {
-    edges->GetNextCell(numPts, ptIds);
-    pt0 = edgePts->GetPoint(ptIds[0]);
-    binIds[0] = this->HashPoint(pt0);
-    // This internal loop handles line strips.
-    for (j = 1; j < numPts; ++j)
-      {
-      pt1 = edgePts->GetPoint(ptIds[j]);
-      binIds[1] = this->HashPoint(pt1);
-      this->AddEdgeQuadric(binIds, pt0, pt1);
-      pt0 = pt1;
-      binIds[0] = binIds[1];
-      }
+    this->AddEdges(edges, edgePts, 0);
     }
 }
-
-//----------------------------------------------------------------------------
-// The error function is the area of the triangle formed by the edge and the 
-// point squared.  We ignore constants across all terms.
-void vtkQuadricClustering::AddEdgeQuadric(int *binIds, float *pt0, float *pt1)
-{
-  int   i;
-  float length2, tmp;
-  float d[3];
-  float m[3];  // The mid point of the segement.(p1 or p2 could be used also).  
-  float md;    // The dot product of m and d.
-  float q[9];
-
-
-  // Compute quadric for line segment
-  // Line segment quadric is the area (squared) of the triangle (seg,pt).
-
-  // Compute the direction vector of the segment.
-  d[0] = pt1[0] - pt0[0];
-  d[1] = pt1[1] - pt0[1];
-  d[2] = pt1[2] - pt0[2];
-
-  // Compute the length^2 of the line segement.
-  length2 = d[0]*d[0] + d[1]*d[1] + d[2]*d[2];
-
-  // Normalize the direction vector.
-  tmp = 1.0 / sqrt(length2);
-  d[0] = d[0] * tmp;
-  d[1] = d[1] * tmp;
-  d[2] = d[2] * tmp;
-
-  // Compute the mid point of the segment.
-  m[0] = 0.5 * (pt1[0] + pt0[0]);
-  m[1] = 0.5 * (pt1[1] + pt0[1]);
-  m[2] = 0.5 * (pt1[2] + pt0[2]);
-
-  // Compute dot(m, d);
-  md = m[0]*d[0] + m[1]*d[1] + m[2]*d[2];
-
-  // We save nine coefficients of the error function cooresponding to:
-  // 0: Px^2
-  // 1: PxPy
-  // 2: PxPz
-  // 3: Px
-  // 4: Py^2
-  // 5: PyPz
-  // 6: Py
-  // 7: Pz^2
-  // 8: Pz
-  // We ignore the constant because it disappears with the derivative.
-  q[0] = length2*(1.0 - d[0]*d[0]);
-  q[1] = -length2*(d[0]*d[1]);
-  q[2] = -length2*(d[0]*d[2]);
-  q[3] = length2*(d[0]*md - m[0]);
-  q[4] = length2*(1.0 - d[1]*d[1]);
-  q[5] = -length2*(d[1]*d[2]);
-  q[6] = length2*(d[1]*md - m[1]);
-  q[7] = length2*(1.0 - d[2]*d[2]);
-  q[8] = length2*(d[2]*md - m[2]);
-
-  for (i = 0; i < 2; ++i)
-    {
-    // If the current quadric is from triangles (or not initialized), then clear it out.
-    if (this->QuadricArray[binIds[i]].Dimension > 1)
-      {
-      this->QuadricArray[binIds[i]].Dimension = 1; 
-      // Initialize the coeff
-      this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
-      }
-    if (this->QuadricArray[binIds[i]].Dimension == 1)
-      { // Points supercede segements.
-      this->AddQuadric(binIds[i], q);
-      }
-    }
-}
-
-
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
