@@ -1,0 +1,77 @@
+suppress umc memcpy; vtkUnsignedCharArray::Resize(const int)
+suppress umc memcpy; vtkIntArray::Resize(const int)
+suppress umc memcpy; vtkFloatArray::Resize(const int)
+suppress umc vtkCellTypes::Resize(int)
+suppress umc XNextEvent
+suppress umc _XEventToWire
+suppress umc XSendEvent
+suppress umc memcpy; XChangeProperty
+suppress umc XSetSizeHints
+suppress umc memcpy; Tk_BindEvent
+suppress umc Tk_GetColor
+suppress umr ExprGetValue
+suppress umc ios::ios(void)
+suppress umr ios::fill(char)
+suppress umr ios::flags(long)
+suppress mse strlen
+suppress mse _open; InitDispatchArea
+suppress umr isLocal; CreateContext
+suppress umr ios::precision(int)
+suppress umr ios::tie(ostream*); ios::init(streambuf*)
+suppress mse _open; InitDispatchArea
+suppress par TclLoadFile; Tcl_LoadCmd
+suppress mse strlen; XQueryExtension; XInitExtension
+suppress mse strlen; XInitExtension; XextAddDisplay
+suppress mse strcpy; XInitExtension; XextAddDisplay
+suppress mse memcpy; _XInternAtom; XInternAtom
+suppress mse strcpy; _XUpdateAtomCache; XInternAtom
+suppress mse strlen; __glXClientInfo; __glXInitialize
+suppress mse memcpy; __glXClientInfo; __glXInitialize
+suppress umr isLocal; CreateContext; glXCreateContext
+suppress umr ExprGetValue; ExprTopLevel; Tcl_ExprString
+suppress umr ios::flags(long); ios::init(streambuf*); fstreambase::fstreambase(const char*,int,int)
+suppress umr ios::precision(int); ios::init(streambuf*); fstreambase::fstreambase(const char*,int,int)
+suppress umr ios::fill(char); ios::init(streambuf*); fstreambase::fstreambase(const char*,int,int)
+suppress umr ios::tie(ostream*); ios::init(streambuf*); fstreambase::fstreambase(const char*,int,int)
+suppress mse _open; InitDispatchArea
+suppress par TclLoadFile; Tcl_LoadCmd
+suppress mse strlen; XQueryExtension
+suppress mse _open
+suppress par TclLoadFile
+suppress mse strlen
+suppress mse strcpy
+suppress mse memcpy
+suppress umr isLocal
+suppress umr ExprGetValue
+suppress umr ios::flags(long)
+suppress umr ios::precision(int)
+suppress umr ios::fill(char)
+suppress umr ios::tie(ostream*)
+suppress mse *
+suppress umc XauReadAuth
+suppress umr _write; _X11TransSocketWrite
+suppress abr _open; __glLockedMemoryInit
+suppress abr _open; map_rtc
+suppress abr strncmp; GetBoardInfo
+suppress abr strcat; GetBoardInfo
+suppress abr strncat; GetBoardInfo
+suppress abr _bcopy; addTexTableUsage
+suppress umr __glKonTexQuickSortPairs
+suppress umc __glKonTexQuickSortPairs
+suppress umc addTexTableUsage
+suppress umr addTexTableUsage
+suppress umr __glKonTexChecksum
+suppress umc __glKonTexEvaluateCubicSpline
+suppress umr __glKonTexEvaluateCubicSpline
+suppress umr bindTexTable
+suppress umc __glkonle_Push
+suppress umc __glce_common_listable
+suppress umc __glMipsCopyDispatch
+suppress umc vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
+suppress umr _bcmp; addTexTableUsage
+suppress umc memcpy; vtkRendererSource::Execute(void)
+suppress mlk _malloc; __glXInitThread
+suppress mlk _malloc; __glXMalloc; __glven_InitPixelState
+suppress mlk _malloc; Tcl_GetFile; DisplaySetupProc
+
+
