@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Actually draw the poly data.
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
   vtkOpenGLPolyDataMapper2D() {};

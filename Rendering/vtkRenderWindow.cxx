@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.122");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.123");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -335,8 +335,6 @@ void vtkRenderWindow::Render()
       this->CurrentSubFrame = 0;
       this->CopyResultFrame();
 
-      this->Renderers->RenderOverlay();
-
       // free any memory
       delete [] this->AccumulationBuffer;
       this->AccumulationBuffer = NULL;
@@ -384,7 +382,6 @@ void vtkRenderWindow::Render()
       }
     
     this->CopyResultFrame();
-    this->Renderers->RenderOverlay();
     }  
 
   if (this->ResultFrame) 

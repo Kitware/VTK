@@ -267,12 +267,6 @@ public:
   float GetZ (int x, int y);
 
   // Description:
-  // Render the overlay actors. This gets called from the RenderWindow
-  // because it may need to be synchronized to happen after the
-  // buffers have been swapped.
-  void RenderOverlay();
-
-  // Description:
   // Return the MTime of the renderer also considering its ivars.
   unsigned long GetMTime();
 
