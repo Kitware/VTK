@@ -92,7 +92,7 @@ suppress mlk _malloc; __glXInitThread
 suppress mlk _malloc; __glXMalloc; __glven_InitPixelState
 suppress mlk _malloc; Tcl_GetFile; DisplaySetupProc
 suppress mlk _malloc; __glXInitThread; InitDispatchArea
-suppress mlk _malloc; _malloc; __glXMalloc; checkTexImage
+suppress mlk _malloc; __glXMalloc; checkTexImage
 suppress mlk _malloc; operator new(unsigned int); __nw__FUi; filebuf::filebuf(int); Iostream_init::Iostream_init(void)
 
 suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
