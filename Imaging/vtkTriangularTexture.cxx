@@ -178,7 +178,7 @@ static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor,
 void vtkTriangularTexture::Execute()
 {
   int numPts;
-  vtkScalars *newScalars;
+  vtkUnsignedCharArray *newScalars;
   vtkUnsignedCharArray *data;
   vtkStructuredPoints *output = this->GetOutput();
   
@@ -189,18 +189,18 @@ void vtkTriangularTexture::Execute()
     }
 
   output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,2);
-  newScalars->Allocate(numPts);
-  data = (vtkUnsignedCharArray *)newScalars->GetData();
+  newScalars = vtkUnsignedCharArray::New();
+  newScalars->SetNumberOfComponents(2);
+  newScalars->Allocate(2*numPts);
 
   switch (this->TexturePattern) 
     {
     case 1: // opaque at element vertices
-      OpaqueAtVertices (this->XSize, this->YSize, this->ScaleFactor, data);
+      OpaqueAtVertices (this->XSize, this->YSize, this->ScaleFactor, newScalars);
       break;
 
     case 2: // opaque at element centroid
-      OpaqueAtElementCentroid (this->XSize, this->YSize, this->ScaleFactor, data);
+      OpaqueAtElementCentroid (this->XSize, this->YSize, this->ScaleFactor, newScalars);
       break;
 
     case 3: // opaque in rings around vertices

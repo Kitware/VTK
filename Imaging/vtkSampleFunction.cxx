@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkSampleFunction.h"
 #include "vtkMath.h"
-#include "vtkScalars.h"
+#include "vtkFloatArray.h"
 #include "vtkNormals.h"
 #include "vtkObjectFactory.h"
 
@@ -89,7 +89,7 @@ vtkSampleFunction::vtkSampleFunction()
 
 vtkSampleFunction::~vtkSampleFunction() 
 {
-  this->SetScalars(NULL);
+  this->SetScalars((vtkDataArray*)NULL);
   this->SetImplicitFunction(NULL);
 }
 
@@ -179,11 +179,11 @@ void vtkSampleFunction::Execute()
 
   if (this->Scalars == NULL) 
     {
-    this->Scalars = vtkScalars::New(); //ref count is 1
+    this->Scalars = vtkFloatArray::New(); //ref count is 1
     this->Scalars->Register(this);
     this->Scalars->Delete();
     }
-  this->Scalars->SetNumberOfScalars(numPts);
+  this->Scalars->SetNumberOfTuples(numPts);
 
   //
   // Traverse all points evaluating implicit function at each point
@@ -192,7 +192,7 @@ void vtkSampleFunction::Execute()
     {
     p = output->GetPoint(ptId);
     s = this->ImplicitFunction->FunctionValue(p);
-    this->Scalars->SetScalar(ptId,s);
+    this->Scalars->SetComponent(ptId,0,s);
     }
   //
   // If normal computation turned on, compute them
@@ -248,7 +248,7 @@ unsigned long vtkSampleFunction::GetMTime()
   return mTime;
 }
 
-void vtkSampleFunction::Cap(vtkScalars *s)
+void vtkSampleFunction::Cap(vtkDataArray *s)
 {
   int i,j,k;
   vtkIdType idx;
@@ -260,7 +260,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0], this->CapValue);
+      s->SetComponent(i+j*this->SampleDimensions[0], 0, this->CapValue);
       }
     }
 
@@ -270,7 +270,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
+      s->SetComponent(idx+i+j*this->SampleDimensions[0], 0, this->CapValue);
       }
     }
 
@@ -280,7 +280,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      s->SetComponent(j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
       }
     }
 
@@ -289,7 +289,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      s->SetComponent(i+j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
       }
     }
 
@@ -299,7 +299,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+k*d01, this->CapValue);
+      s->SetComponent(i+k*d01, 0, this->CapValue);
       }
     }
 
@@ -309,7 +309,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+k*d01, this->CapValue);
+      s->SetComponent(idx+i+k*d01, 0, this->CapValue);
       }
     }
 }

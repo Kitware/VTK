@@ -74,10 +74,14 @@ public:
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
 
   // Description:
-  // Control the type of the vtkScalars object by explicitly providing a scalar
+  // Control the type of the scalars object by explicitly providing a scalar
   // object.  vtkSampleFunction() will allocate space (as necessary)
   // in the scalar object.
-  vtkSetObjectMacro(Scalars,vtkScalars);
+  vtkSetObjectMacro(Scalars,vtkDataArray);
+  void SetScalars(vtkScalars* scalars)
+    {
+      this->SetScalars(scalars->GetData());
+    }
 
   // Description:
   // Specify the dimensions of the data on which to sample.
@@ -124,11 +128,11 @@ protected:
 
   void Execute();
   void ExecuteInformation();
-  void Cap(vtkScalars *s);
+  void Cap(vtkDataArray *s);
 
   int SampleDimensions[3];
   float ModelBounds[6];
-  vtkScalars *Scalars;
+  vtkDataArray *Scalars;
   int Capping;
   float CapValue;
   vtkImplicitFunction *ImplicitFunction;

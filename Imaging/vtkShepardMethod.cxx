@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkShepardMethod.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //-------------------------------------------------------------------------
 vtkShepardMethod* vtkShepardMethod::New()
@@ -137,8 +138,8 @@ void vtkShepardMethod::Execute()
   float *px, x[3], s, *sum, spacing[3], origin[3];
   
   float maxDistance, distance2, inScalar;
-  vtkScalars *inScalars;
-  vtkScalars *newScalars;
+  vtkDataArray *inScalars;
+  vtkFloatArray *newScalars;
   vtkIdType numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
@@ -155,7 +156,7 @@ void vtkShepardMethod::Execute()
     return;
     }
 
-  if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
+  if ( (inScalars = input->GetPointData()->GetActiveScalars()) == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined!");
     return;
@@ -166,13 +167,13 @@ void vtkShepardMethod::Execute()
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
 
-  newScalars = vtkScalars::New();
-  newScalars->SetNumberOfScalars(numNewPts);
+  newScalars = vtkFloatArray::New();
+  newScalars->SetNumberOfTuples(numNewPts);
 
   sum = new float[numNewPts];
   for (i=0; i<numNewPts; i++) 
     {
-    newScalars->SetScalar(i,0.0);
+    newScalars->SetComponent(i,0,0.0);
     sum[i] = 0.0;
     }
 
@@ -197,7 +198,7 @@ void vtkShepardMethod::Execute()
       }
 
     px = input->GetPoint(ptId);
-    inScalar = inScalars->GetScalar(ptId);
+    inScalar = inScalars->GetComponent(ptId,0);
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
@@ -256,13 +257,13 @@ void vtkShepardMethod::Execute()
           if ( distance2 == 0.0 )
             {
             sum[idx] = VTK_LARGE_FLOAT;
-            newScalars->SetScalar(idx,VTK_LARGE_FLOAT);
+            newScalars->SetComponent(idx,0,VTK_LARGE_FLOAT);
             }
           else
             {
-            s = newScalars->GetScalar(idx);
+            s = newScalars->GetComponent(idx,0);
             sum[idx] += 1.0 / distance2;
-            newScalars->SetScalar(idx,s+(inScalar/distance2));
+            newScalars->SetComponent(idx,0,s+(inScalar/distance2));
             }
           }
         }
@@ -273,14 +274,14 @@ void vtkShepardMethod::Execute()
   //
   for (ptId=0; ptId<numNewPts; ptId++)
     {
-    s = newScalars->GetScalar(ptId);
+    s = newScalars->GetComponent(ptId,0);
     if ( sum[ptId] != 0.0 )
       {
-      newScalars->SetScalar(ptId,s/sum[ptId]);
+      newScalars->SetComponent(ptId,0,s/sum[ptId]);
       }
     else
       {
-      newScalars->SetScalar(ptId,this->NullValue);
+      newScalars->SetComponent(ptId,0,this->NullValue);
       }
     }
 

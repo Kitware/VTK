@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkVoxelModeller.h"
 #include "vtkObjectFactory.h"
+#include "vtkBitArray.h"
 
 //----------------------------------------------------------------------------
 vtkVoxelModeller* vtkVoxelModeller::New()
@@ -109,7 +110,7 @@ void vtkVoxelModeller::Execute()
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
-  vtkScalars *newScalars;
+  vtkBitArray *newScalars;
   vtkIdType numPts, idx, numCells;
   int subId;
   int min[3], max[3];
@@ -128,11 +129,11 @@ void vtkVoxelModeller::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
     this->SampleDimensions[2];
-  newScalars = vtkScalars::New(VTK_BIT);
-  newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkBitArray::New();
+  newScalars->SetNumberOfTuples(numPts);
   for (i=0; i<numPts; i++)
     {
-    newScalars->SetScalar(i,0);
+    newScalars->SetComponent(i,0,0);
     }
 
   output->SetDimensions(this->GetSampleDimensions());
@@ -185,7 +186,7 @@ void vtkVoxelModeller::Execute()
         for (i = min[0]; i <= max[0]; i++) 
           {
 	  idx = jkFactor*k + this->SampleDimensions[0]*j + i;
-	  if (!(newScalars->GetScalar(idx)))
+	  if (!(newScalars->GetComponent(idx,0)))
 	    {
 	    x[0] = spacing[0] * i + origin[0];
 
@@ -195,7 +196,7 @@ void vtkVoxelModeller::Execute()
                   (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
                   (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
 	      {
-	      newScalars->SetScalar(idx,1);
+	      newScalars->SetComponent(idx,0,1);
 	      }
 	    }
 	  }
@@ -314,7 +315,7 @@ void vtkVoxelModeller::Write(char *fname)
   int i, j, k;
   float origin[3], spacing[3];
   
-  vtkScalars *newScalars;
+  vtkDataArray *newScalars;
   int idx;
   int bitcount;
   unsigned char uc;
@@ -325,7 +326,7 @@ void vtkVoxelModeller::Write(char *fname)
   // update the data
   this->Update();
   
-  newScalars = output->GetPointData()->GetScalars();
+  newScalars = output->GetPointData()->GetActiveScalars();
 
   output->SetDimensions(this->GetSampleDimensions());
   this->ComputeModelBounds(origin,spacing);
@@ -354,7 +355,7 @@ void vtkVoxelModeller::Write(char *fname)
       {
       for (i = 0; i < this->SampleDimensions[0]; i++)
 	{
-	if (newScalars->GetScalar(idx))
+	if (newScalars->GetComponent(idx,0))
 	  {
 	  uc |= (0x80 >> bitcount);
 	  }
