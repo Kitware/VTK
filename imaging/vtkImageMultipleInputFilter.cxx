@@ -359,6 +359,11 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
       // Get the input region (Update extent was set at start of this method).
       inDatas[idx] = this->Inputs[idx]->UpdateAndReturnData();
       }
+    else
+      {  
+      // Input does not presently exist.
+      inDatas[idx] = NULL;
+      }  
     }
 
   // The StartMethod call is placed here to be after updating the input.
