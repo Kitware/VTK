@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.9");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.10");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -119,6 +119,9 @@ void vtkMeshQuality::Execute()
     case VTK_QUALITY_EDGE_RATIO:
       TriangleQuality = TriangleEdgeRatio;
       break;
+    default:
+      TriangleQuality = NULL;
+      break;
     }
 
   switch ( this->GetQuadQualityMeasure() )
@@ -135,6 +138,9 @@ void vtkMeshQuality::Execute()
     case VTK_QUALITY_EDGE_RATIO:
       QuadQuality = QuadEdgeRatio;
       break;
+    default:
+      QuadQuality = NULL;
+      break;
     }
 
   switch ( this->GetTetQualityMeasure() )
@@ -150,6 +156,9 @@ void vtkMeshQuality::Execute()
       break;
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
+    default:
+      TetQuality = NULL;
+      break;
     }
 
   out->ShallowCopy( in );
@@ -678,7 +687,7 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
   return normal_coeff * hm * (a1 + b1 + c1 + d1) / (vtkMath::Norm(ab) + vtkMath::Norm(cd));
 }
 
-double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* cell )
+double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* vtkNotUsed(cell) )
 {
   return 1.;
 }
@@ -843,7 +852,7 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double u[3],v[3],w[3];
-  double l11,l22,l33,l12,l13,l23,den;
+  double den;
   static double normal_coeff=sqrt(2.);
   
   p = cell->GetPoints();
@@ -959,7 +968,7 @@ double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
   return sqrt(M2 / m2);
 }
 
-double vtkMeshQuality::HexahedronQuality( vtkCell* cell )
+double vtkMeshQuality::HexahedronQuality( vtkCell* vtkNotUsed(cell) )
 {
   return 1.;
 }
