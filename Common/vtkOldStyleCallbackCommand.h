@@ -36,6 +36,10 @@
 
 #include "vtkCommand.h"
 
+#ifdef VTK_REMOVE_LEGACY_CODE
+vtkOldStyleCallbackCommand_is_deprecated__Do_not_use
+#endif
+
 // the old style void fund(void *) callbacks
 class VTK_COMMON_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
