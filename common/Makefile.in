@@ -67,6 +67,7 @@ vtkLogLookupTable \
 vtkLookupTable \
 vtkMath \
 vtkMatrix4x4 \
+vtkMultiThreader \
 vtkObject \
 vtkPixel \
 vtkPixmap \
