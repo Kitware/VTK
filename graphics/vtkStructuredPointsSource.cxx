@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredPointsSource.hh"
+#include "vtkStructuredPointsSource.h"
 
 vtkStructuredPointsSource::vtkStructuredPointsSource()
 {

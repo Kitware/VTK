@@ -44,14 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkRenderWindow. vtkSbrRenderer interfaces to the Hewlett-Packard starbase
 // graphics library.
 
-#ifndef __vtkSbrRenderWindow_hh
-#define __vtkSbrRenderWindow_hh
+#ifndef __vtkSbrRenderWindow_h
+#define __vtkSbrRenderWindow_h
 
 #include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkXRenderWindow.hh"
+#include "vtkXRenderWindow.h"
 
 class vtkSbrRenderWindow : public vtkXRenderWindow
 {

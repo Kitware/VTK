@@ -46,11 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkStructuredPointsToPolyDataFilter vtkStructuredPointsToStructuredPointsFilter
 
-#ifndef __vtkStructuredPointsFilter_hh
-#define __vtkStructuredPointsFilter_hh
+#ifndef __vtkStructuredPointsFilter_h
+#define __vtkStructuredPointsFilter_h
 
-#include "vtkFilter.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkFilter.h"
+#include "vtkStructuredPoints.h"
 
 class vtkStructuredPointsFilter : public vtkFilter 
 {

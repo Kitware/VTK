@@ -53,10 +53,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkPolyMapper
 
-#ifndef __vtkPolyMapperDevice_hh
-#define __vtkPolyMapperDevice_hh
+#ifndef __vtkPolyMapperDevice_h
+#define __vtkPolyMapperDevice_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 class vtkPolyData;
 class vtkColorScalars;

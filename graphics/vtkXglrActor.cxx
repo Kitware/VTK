@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkXglrRenderer.hh"
-#include "vtkXglrActor.hh"
-#include "vtkActor.hh"
+#include "vtkXglrRenderer.h"
+#include "vtkXglrActor.h"
+#include "vtkActor.h"
 
 // Description:
 // Implement base class method.

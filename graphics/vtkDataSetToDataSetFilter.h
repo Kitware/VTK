@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    DS2DSF.hh
+  Module:    DS2DSF.h
   Language:  C++
   Date:      2/17/94
   Version:   1.8
@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToDataSetFilter_h
 #define __vtkDataSetToDataSetFilter_h
 
-#include "vtkDataSetFilter.hh"
-#include "vtkDataSet.hh"
+#include "vtkDataSetFilter.h"
+#include "vtkDataSet.h"
 
 class vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {

@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetCollection is an object that creates and manipulates lists of
 // datasets. See also vtkCollection and subclasses.
 
-#ifndef __vtkDataSetCollection_hh
-#define __vtkDataSetCollection_hh
+#ifndef __vtkDataSetCollection_h
+#define __vtkDataSetCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkDataSet.hh"
+#include "vtkCollection.h"
+#include "vtkDataSet.h"
 
 class vtkDataSetCollection : public vtkCollection
 {

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <ctype.h>
-#include "vtkVoxelReader.hh"
+#include "vtkVoxelReader.h"
 
 vtkVoxelReader::vtkVoxelReader()
 {

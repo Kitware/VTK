@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyMapper.hh"
-#include "vtkPolyMapperDevice.hh"
-#include "vtkRenderWindow.hh"
+#include "vtkPolyMapper.h"
+#include "vtkPolyMapperDevice.h"
+#include "vtkRenderWindow.h"
 
 // Description:
 // Construct mapper with vertices, lines, polygons, and triangle strips

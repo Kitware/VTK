@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkExtractVectorComponents.hh"
+#include "vtkExtractVectorComponents.h"
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {

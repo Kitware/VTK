@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVoxelWriter.hh"
-#include "vtkBitScalars.hh"
+#include "vtkVoxelWriter.h"
+#include "vtkBitScalars.h"
 
 vtkVoxelWriter::vtkVoxelWriter()
 {

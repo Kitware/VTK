@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkRenderWindowInteractor.hh"
-#include "vtkActor.hh"
-#include "vtkCellPicker.hh"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkActor.h"
+#include "vtkCellPicker.h"
 
 // Description:
 // Construct object so that light follows camera motion.

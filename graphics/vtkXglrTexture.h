@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrTexture is a concrete implementation of the abstract class vtkTexture.
 // currently we don't support texture mapping on starbase.
 
-#ifndef __vtkXglrTexture_hh
-#define __vtkXglrTexture_hh
+#ifndef __vtkXglrTexture_h
+#define __vtkXglrTexture_h
 
 #include <xgl/xgl.h>
-#include "vtkTextureDevice.hh"
+#include "vtkTextureDevice.h"
 
 class vtkXglrRenderer;
 

@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVolumeReader_h
 
 #include <stdio.h>
-#include "vtkStructuredPointsSource.hh"
+#include "vtkStructuredPointsSource.h"
 
 class vtkVolumeReader : public vtkStructuredPointsSource
 {

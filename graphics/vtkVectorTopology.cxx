@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkVectorTopology.hh"
+#include "vtkVectorTopology.h"
 
 // Description:
 // Construct object with distance 0.1.

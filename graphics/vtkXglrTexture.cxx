@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkXglrRenderWindow.hh"
-#include "vtkXglrRenderer.hh"
-#include "vtkXglrTexture.hh"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
+#include "vtkXglrTexture.h"
 
 // shared increasing counter
 long vtkXglrTexture::GlobalIndex = 0;

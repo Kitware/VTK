@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrTexture is a concrete implementation of the abstract class vtkTexture.
 // currently we don't support texture mapping on starbase.
 
-#ifndef __vtkSbrTexture_hh
-#define __vtkSbrTexture_hh
+#ifndef __vtkSbrTexture_h
+#define __vtkSbrTexture_h
 
-#include "vtkTexture.hh"
+#include "vtkTexture.h"
 
 class vtkSbrRenderer;
 

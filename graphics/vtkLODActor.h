@@ -56,15 +56,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkActor vtkRenderer
 
-#ifndef __vtkLODActor_hh
-#define __vtkLODActor_hh
+#ifndef __vtkLODActor_h
+#define __vtkLODActor_h
 
-#include "vtkActor.hh"
-#include "vtkMaskPoints.hh"
-#include "vtkOutlineFilter.hh"
-#include "vtkPolyMapper.hh"
-#include "vtkGlyph3D.hh"
-#include "vtkPointSource.hh"
+#include "vtkActor.h"
+#include "vtkMaskPoints.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPolyMapper.h"
+#include "vtkGlyph3D.h"
+#include "vtkPointSource.h"
 
 class vtkLODActor : public vtkActor
 {

@@ -104,8 +104,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDelaunay3D_h
 #define __vtkDelaunay3D_h
 
-#include "vtkPointSetFilter.hh"
-#include "vtkUnstructuredGrid.hh"
+#include "vtkPointSetFilter.h"
+#include "vtkUnstructuredGrid.h"
 
 class vtkDelaunay3D : public vtkPointSetFilter
 {

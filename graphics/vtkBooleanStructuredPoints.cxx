@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBooleanStructuredPoints.hh"
+#include "vtkBooleanStructuredPoints.h"
 
 // Description:
 // Construct with sample resolution of (50,50,50) and automatic 

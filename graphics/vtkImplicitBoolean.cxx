@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImplicitBoolean.hh"
+#include "vtkImplicitBoolean.h"
 
 // Description:
 // 

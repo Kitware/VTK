@@ -58,8 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTransformFilter_h
 #define __vtkTransformFilter_h
 
-#include "vtkPointSetToPointSetFilter.hh"
-#include "vtkTransform.hh"
+#include "vtkPointSetToPointSetFilter.h"
+#include "vtkTransform.h"
 
 class vtkTransformFilter : public vtkPointSetToPointSetFilter
 {

@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPNMWriter_h
 
 #include <stdio.h>
-#include "vtkWriter.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkWriter.h"
+#include "vtkStructuredPoints.h"
 
 class vtkPNMWriter : public vtkWriter
 {

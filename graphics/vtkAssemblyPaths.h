@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkAssembly vtkActor vtkAssemblyCollection 
 
-#ifndef __vtkAssemblyPaths_hh
-#define __vtkAssemblyPaths_hh
+#ifndef __vtkAssemblyPaths_h
+#define __vtkAssemblyPaths_h
 
-#include "vtkActorCollection.hh"
+#include "vtkActorCollection.h"
 class vtkActor;
 
 class vtkAssemblyPaths : public vtkCollection

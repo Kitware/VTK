@@ -50,12 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkDataSetMapper vtkPolyMapper
 
-#ifndef __vtkMapper_hh
-#define __vtkMapper_hh
+#ifndef __vtkMapper_h
+#define __vtkMapper_h
 
-#include "vtkObject.hh"
-#include "vtkLookupTable.hh"
-#include "vtkDataSet.hh"
+#include "vtkObject.h"
+#include "vtkLookupTable.h"
+#include "vtkDataSet.h"
 
 class vtkRenderer;
 class vtkActor;

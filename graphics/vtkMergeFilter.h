@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMergeFilter_h
 #define __vtkMergeFilter_h
 
-#include "vtkDataSet.hh"
-#include "vtkFilter.hh"
+#include "vtkDataSet.h"
+#include "vtkFilter.h"
 
 class vtkMergeFilter : public vtkFilter
 {

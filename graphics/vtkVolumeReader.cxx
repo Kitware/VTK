@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVolumeReader.hh"
+#include "vtkVolumeReader.h"
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 

@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTextureMapToSphere_h
 #define __vtkTextureMapToSphere_h
 
-#include "vtkDataSetToDataSetFilter.hh"
+#include "vtkDataSetToDataSetFilter.h"
 
 class vtkTextureMapToSphere : public vtkDataSetToDataSetFilter 
 {

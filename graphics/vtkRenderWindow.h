@@ -49,11 +49,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderer vtkRenderMaster vtkRenderWindowInteractor
 
-#ifndef __vtkRenderWindow_hh
-#define __vtkRenderWindow_hh
+#ifndef __vtkRenderWindow_h
+#define __vtkRenderWindow_h
 
-#include "vtkObject.hh"
-#include "vtkRendererCollection.hh"
+#include "vtkObject.h"
+#include "vtkRendererCollection.h"
 
 class vtkRenderWindowInteractor;
 class vtkLightDevice;

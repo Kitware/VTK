@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVoxelWriter_h
 
 #include <stdio.h>
-#include "vtkWriter.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkWriter.h"
+#include "vtkStructuredPoints.h"
 
 class vtkVoxelWriter : public vtkWriter
 {

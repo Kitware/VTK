@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkStructuredGridWriter_hh
-#define __vtkStructuredGridWriter_hh
+#ifndef __vtkStructuredGridWriter_h
+#define __vtkStructuredGridWriter_h
 
-#include "vtkDataWriter.hh"
-#include "vtkStructuredGrid.hh"
+#include "vtkDataWriter.h"
+#include "vtkStructuredGrid.h"
 
 class vtkStructuredGridWriter : public vtkDataWriter
 {

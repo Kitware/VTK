@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnstructuredGridSource_h
 #define __vtkUnstructuredGridSource_h
 
-#include "vtkSource.hh"
-#include "vtkUnstructuredGrid.hh"
+#include "vtkSource.h"
+#include "vtkUnstructuredGrid.h"
 
 class vtkUnstructuredGridSource : public vtkSource
 {

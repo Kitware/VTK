@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVectorText.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkTransformPolyFilter.hh"
-#include "vtkPolyReader.hh"
+#include "vtkVectorText.h"
+#include "vtkFloatPoints.h"
+#include "vtkTransformPolyFilter.h"
+#include "vtkPolyReader.h"
 
 char *VTK_VECTOR_TEXT_0 = 
 "# vtk DataFile Version 1.0\n"

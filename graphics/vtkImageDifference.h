@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageDifference_h
 #define __vtkImageDifference_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.hh"
+#include "vtkStructuredPointsToStructuredPointsFilter.h"
 
 class vtkImageDifference : public vtkStructuredPointsToStructuredPointsFilter
 {

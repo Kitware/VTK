@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridToPolyFilter_h
 #define __vtkStructuredGridToPolyFilter_h
 
-#include "vtkStructuredGridFilter.hh"
-#include "vtkPolyData.hh"
+#include "vtkStructuredGridFilter.h"
+#include "vtkPolyData.h"
 
 class vtkStructuredGridToPolyFilter : public vtkStructuredGridFilter
 {

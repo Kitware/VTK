@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrActor is a concrete implementation of the abstract class vtkActor.
 // vtkOglrActor interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOglrActor_hh
-#define __vtkOglrActor_hh
+#ifndef __vtkOglrActor_h
+#define __vtkOglrActor_h
 
-#include "vtkActorDevice.hh"
+#include "vtkActorDevice.h"
 
 class vtkOglrRenderer;
 

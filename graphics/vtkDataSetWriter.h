@@ -44,10 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data to disk (or into a communications port). The input to this object is
 // a dataset of any type.
 
-#ifndef __vtkDataSetWriter_hh
-#define __vtkDataSetWriter_hh
+#ifndef __vtkDataSetWriter_h
+#define __vtkDataSetWriter_h
 
-#include "vtkDataWriter.hh"
+#include "vtkDataWriter.h"
 
 class vtkDataSetWriter : public vtkDataWriter
 {

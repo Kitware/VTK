@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractVOI_h
 #define __vtkExtractVOI_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.hh"
+#include "vtkStructuredPointsToStructuredPointsFilter.h"
 
 class vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredGridReader.hh"
+#include "vtkStructuredGridReader.h"
 
 vtkStructuredGridReader::vtkStructuredGridReader()
 {

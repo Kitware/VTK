@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkProperty
 
-#ifndef __vtkPropertyDevice_hh
-#define __vtkPropertyDevice_hh
+#ifndef __vtkPropertyDevice_h
+#define __vtkPropertyDevice_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 class vtkRenderer;
 class vtkProperty;
 class vtkActor;

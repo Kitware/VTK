@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkBYUReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 class vtkBYUReader : public vtkPolySource 
 {

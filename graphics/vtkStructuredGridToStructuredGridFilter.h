@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridToStructuredGridFilter_h
 #define __vtkStructuredGridToStructuredGridFilter_h
 
-#include "vtkStructuredGridFilter.hh"
-#include "vtkStructuredGrid.hh"
+#include "vtkStructuredGridFilter.h"
+#include "vtkStructuredGrid.h"
 
 class vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridFilter
 {

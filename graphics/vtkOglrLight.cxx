@@ -44,8 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkOglrRenderer.hh"
-#include "vtkOglrLight.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrLight.h"
 
 // Description:
 // Implement base class method.

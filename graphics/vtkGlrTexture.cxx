@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <string.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrTexture.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrTexture.h"
 
 static float texprops[] 
   = {

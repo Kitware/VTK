@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrActor is a concrete implementation of the abstract class vtkActor.
 // vtkGlrActor interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrActor_hh
-#define __vtkGlrActor_hh
+#ifndef __vtkGlrActor_h
+#define __vtkGlrActor_h
 
-#include "vtkActorDevice.hh"
+#include "vtkActorDevice.h"
 
 class vtkGlrRenderer;
 

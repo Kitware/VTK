@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolyReader_h
 #define __vtkPolyReader_h
 
-#include "vtkPolySource.hh"
-#include "vtkDataReader.hh"
+#include "vtkPolySource.h"
+#include "vtkDataReader.h"
 
 class vtkPolyReader : public vtkPolySource
 {

@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPointsToStructuredPointsFilter_h
 #define __vtkStructuredPointsToStructuredPointsFilter_h
 
-#include "vtkStructuredPointsFilter.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkStructuredPointsFilter.h"
+#include "vtkStructuredPoints.h"
 
 class vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPointsFilter
 {

@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkXglrRenderWindow.hh"
-#include "vtkXglrRenderer.hh"
-#include "vtkXglrProperty.hh"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
+#include "vtkXglrProperty.h"
 
 // Description:
 // Implement base class method.

@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Methods for Cone generator
 //
 #include <math.h>
-#include "vtkConeSource.hh"
+#include "vtkConeSource.h"
 
 // Description:
 // Construct with default resolution 6, height 1.0, radius 0.5, and capping

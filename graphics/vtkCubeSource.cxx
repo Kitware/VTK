@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkCubeSource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkFloatNormals.hh"
+#include "vtkCubeSource.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatNormals.h"
 
 vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 {

@@ -47,11 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkCollection vtkLight
 
-#ifndef __vtkLightC_hh
-#define __vtkLightC_hh
+#ifndef __vtkLightC_h
+#define __vtkLightC_h
 
-#include "vtkCollection.hh"
-#include "vtkLight.hh"
+#include "vtkCollection.h"
+#include "vtkLight.h"
 
 class vtkLightCollection : public vtkCollection
 {

@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkHyperStreamline.hh"
-#include "vtkMath.hh"
+#include "vtkHyperStreamline.h"
+#include "vtkMath.h"
 
 vtkHyperPoint::vtkHyperPoint()
 {

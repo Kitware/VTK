@@ -63,10 +63,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPNMReader_h
 
 #include <stdio.h>
-#include "vtkVolumeReader.hh"
-#include "vtkPixmap.hh"
-#include "vtkGraymap.hh"
-#include "vtkBitmap.hh"
+#include "vtkVolumeReader.h"
+#include "vtkPixmap.h"
+#include "vtkGraymap.h"
+#include "vtkBitmap.h"
 
 class vtkPNMReader : public vtkVolumeReader
 {

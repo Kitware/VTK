@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMergePoints_h
 #define __vtkMergePoints_h
 
-#include "vtkPointLocator.hh"
+#include "vtkPointLocator.h"
 
 class vtkMergePoints : public vtkPointLocator
 {

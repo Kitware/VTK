@@ -41,8 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <stdlib.h>
 #include <iostream.h>
-#include "vtkXRenderWindow.hh"
-#include "vtkXRenderWindowInteractor.hh"
+#include "vtkXRenderWindow.h"
+#include "vtkXRenderWindowInteractor.h"
 
 vtkXRenderWindow::vtkXRenderWindow()
 {

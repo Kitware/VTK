@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkSbrRenderer.hh"
-#include "vtkSbrLight.hh"
-#include "vtkLight.hh"
+#include "vtkSbrRenderer.h"
+#include "vtkSbrLight.h"
+#include "vtkLight.h"
 
 // Description:
 // Implement base class method.

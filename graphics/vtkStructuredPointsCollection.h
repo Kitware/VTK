@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStructuredPointsCollection is an object that creates and manipulates lists of
 // structured points datasets. See also vtkCollection and subclasses.
 
-#ifndef __vtkStructuredPointsCollection_hh
-#define __vtkStructuredPointsCollection_hh
+#ifndef __vtkStructuredPointsCollection_h
+#define __vtkStructuredPointsCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkCollection.h"
+#include "vtkStructuredPoints.h"
 
 class vtkStructuredPointsCollection : public vtkCollection
 {

@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToStructuredGridFilter_h
 #define __vtkDataSetToStructuredGridFilter_h
 
-#include "vtkDataSetFilter.hh"
-#include "vtkStructuredGrid.hh"
+#include "vtkDataSetFilter.h"
+#include "vtkStructuredGrid.h"
 
 class vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
 {

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWarpVector_h
 #define __vtkWarpVector_h
 
-#include "vtkPointSetToPointSetFilter.hh"
+#include "vtkPointSetToPointSetFilter.h"
 
 class vtkWarpVector : public vtkPointSetToPointSetFilter
 {

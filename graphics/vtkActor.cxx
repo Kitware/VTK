@@ -41,9 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 
-#include "vtkActor.hh"
-#include "vtkActorDevice.hh"
-#include "vtkRenderWindow.hh"
+#include "vtkActor.h"
+#include "vtkActorDevice.h"
+#include "vtkRenderWindow.h"
 
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 

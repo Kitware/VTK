@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredGridWriter.hh"
+#include "vtkStructuredGridWriter.h"
 
 // Description:
 // Specify the input data or filter.

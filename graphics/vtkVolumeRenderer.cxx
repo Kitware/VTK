@@ -42,9 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 
 #include <math.h>
-#include "vtkVolumeRenderer.hh"
-#include "vtkRenderWindow.hh"
-#include "vtkVoxel.hh"
+#include "vtkVolumeRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkVoxel.h"
 
 // Description:
 // Create an instance of a VolumeRenderer with its step size to one.

@@ -60,13 +60,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkActor vtkRenderer vtkTextureDevice
 
-#ifndef __vtkTexture_hh
-#define __vtkTexture_hh
+#ifndef __vtkTexture_h
+#define __vtkTexture_h
 
-#include "vtkObject.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkLookupTable.hh"
-#include "vtkColorScalars.hh"
+#include "vtkObject.h"
+#include "vtkStructuredPoints.h"
+#include "vtkLookupTable.h"
+#include "vtkColorScalars.h"
 
 class vtkRenderer;
 class vtkTextureDevice;

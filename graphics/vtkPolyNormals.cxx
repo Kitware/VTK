@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyNormals.hh"
-#include "vtkMath.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkPolygon.hh"
-#include "vtkTriangleStrip.hh"
+#include "vtkPolyNormals.h"
+#include "vtkMath.h"
+#include "vtkFloatNormals.h"
+#include "vtkPolygon.h"
+#include "vtkTriangleStrip.h"
 
 // Description:
 // Construct with feature angle=30, splitting and consistency turned on, 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUGFacetReader.hh"
+#include "vtkUGFacetReader.h"
 
 vtkUGFacetReader::vtkUGFacetReader()
 {

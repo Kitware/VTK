@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDifference.hh"
-#include "vtkPixmap.hh"
+#include "vtkImageDifference.h"
+#include "vtkPixmap.h"
 #include "stdlib.h"
 
 // Description:

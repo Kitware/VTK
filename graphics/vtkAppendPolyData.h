@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAppendPolyData_h
 #define __vtkAppendPolyData_h
 
-#include "vtkPolyData.hh"
-#include "vtkFilter.hh"
-#include "vtkPolyDataCollection.hh"
+#include "vtkPolyData.h"
+#include "vtkFilter.h"
+#include "vtkPolyDataCollection.h"
 
 class vtkAppendPolyData : public vtkFilter
 {

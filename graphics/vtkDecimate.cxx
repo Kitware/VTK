@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDecimate.hh"
+#include "vtkDecimate.h"
 
 #define VTK_TOLERANCE 1.0e-05
 

@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFeatureEdges.hh"
-#include "vtkMath.hh"
-#include "vtkPolygon.hh"
-#include "vtkFloatNormals.hh"
+#include "vtkFeatureEdges.h"
+#include "vtkMath.h"
+#include "vtkPolygon.h"
+#include "vtkFloatNormals.h"
 
 // Description:
 // Construct object with feature angle = 30; all types of edges extracted

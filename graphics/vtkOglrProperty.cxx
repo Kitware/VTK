@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkOglrRenderer.hh"
-#include "vtkOglrProperty.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrProperty.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif

@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCellLocator_h
 #define __vtkCellLocator_h
 
-#include "vtkLocator.hh"
+#include "vtkLocator.h"
 
 class vtkCellLocator : public vtkLocator
 {

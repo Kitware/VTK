@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDataSetToStructuredGridFilter.hh"
+#include "vtkDataSetToStructuredGridFilter.h"
 
 vtkDataSetToStructuredGridFilter::vtkDataSetToStructuredGridFilter()
 {

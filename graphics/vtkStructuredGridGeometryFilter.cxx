@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredGridGeometryFilter.hh"
+#include "vtkStructuredGridGeometryFilter.h"
 
 // Description:
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).

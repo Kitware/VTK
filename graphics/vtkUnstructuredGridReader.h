@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnstructuredGridReader_h
 #define __vtkUnstructuredGridReader_h
 
-#include "vtkUnstructuredGridSource.hh"
-#include "vtkDataReader.hh"
+#include "vtkUnstructuredGridSource.h"
+#include "vtkDataReader.h"
 
 class vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 {

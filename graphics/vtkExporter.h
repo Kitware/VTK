@@ -59,11 +59,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkOBJExporter vtkRenderWindow vtkWriter
 
-#ifndef __vtkExporter_hh
-#define __vtkExporter_hh
+#ifndef __vtkExporter_h
+#define __vtkExporter_h
 
-#include "vtkObject.hh"
-#include "vtkRenderWindow.hh"
+#include "vtkObject.h"
+#include "vtkRenderWindow.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2

@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkUGFacetReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.hh"
-#include "vtkShortArray.hh"
+#include "vtkPolySource.h"
+#include "vtkShortArray.h"
 
 class vtkUGFacetReader : public vtkPolySource 
 {

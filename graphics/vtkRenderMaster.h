@@ -50,13 +50,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderWindow vtkRenderer
 
-#ifndef __vtkRenderMaster_hh
-#define __vtkRenderMaster_hh
+#ifndef __vtkRenderMaster_h
+#define __vtkRenderMaster_h
 
-#include "vtkObject.hh"
-#include "vtkRenderWindow.hh"
-#include "vtkRenderWindowCollection.hh"
-#include "vtkRenderWindowInteractor.hh"
+#include "vtkObject.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowCollection.h"
+#include "vtkRenderWindowInteractor.h"
 
 class vtkRenderMaster : public vtkObject
 {

@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkTexture
 
-#ifndef __vtkTextureDevice_hh
-#define __vtkTextureDevice_hh
+#ifndef __vtkTextureDevice_h
+#define __vtkTextureDevice_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 class vtkRenderer;
 class vtkTexture;
 

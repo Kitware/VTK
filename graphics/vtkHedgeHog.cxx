@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkHedgeHog.hh"
+#include "vtkHedgeHog.h"
 
 void vtkHedgeHog::Execute()
 {

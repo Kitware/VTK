@@ -47,10 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of the sphere at which the continents are placed. Obtains data from
 // an imbeded array of coordinates.
 
-#ifndef __vtkEarthSource_hh
-#define __vtkEarthSource_hh
+#ifndef __vtkEarthSource_h
+#define __vtkEarthSource_h
 
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 class vtkEarthSource : public vtkPolySource 
 {

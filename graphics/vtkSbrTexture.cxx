@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkSbrRenderer.hh"
-#include "vtkSbrTexture.hh"
+#include "vtkSbrRenderer.h"
+#include "vtkSbrTexture.h"
 
 // shared increasing counter
 long vtkSbrTexture::GlobalIndex = 0;

@@ -38,12 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPlaneSource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkFloatTCoords.hh"
-#include "vtkMath.hh"
-#include "vtkTransform.hh"
+#include "vtkPlaneSource.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatNormals.h"
+#include "vtkFloatTCoords.h"
+#include "vtkMath.h"
+#include "vtkTransform.h"
 
 
 // Description:

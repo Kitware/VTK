@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkThresholdPoints.hh"
+#include "vtkThresholdPoints.h"
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper.

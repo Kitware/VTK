@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkGeometryFilter.hh"
+#include "vtkGeometryFilter.h"
 
 // Description:
 // Construct with all types of clipping turned off.

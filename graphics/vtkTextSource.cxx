@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTextSource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkGraymap.hh"
+#include "vtkTextSource.h"
+#include "vtkFloatPoints.h"
+#include "vtkGraymap.h"
 
 #define vtkfont_width 9
 #define vtkfont_row_width 864

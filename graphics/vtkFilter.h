@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFilter_h
 #define __vtkFilter_h
 
-#include "vtkSource.hh"
+#include "vtkSource.h"
 class vtkDataSet;
 
 class vtkFilter : public vtkSource

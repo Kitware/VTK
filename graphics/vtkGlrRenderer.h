@@ -44,13 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkRenderer. vtkGlrRenderer interfaces to the Silicon Graphics gl
 // graphics library.
 
-#ifndef __vtkGlrRenderer_hh
-#define __vtkGlrRenderer_hh
+#ifndef __vtkGlrRenderer_h
+#define __vtkGlrRenderer_h
 
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkRenderer.hh"
+#include "vtkRenderer.h"
 #include "gl.h"
 
 class vtkGlrRenderer : public vtkRenderer

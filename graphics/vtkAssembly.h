@@ -78,7 +78,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAssembly_h
 #define __vtkAssembly_h
 
-#include "vtkActor.hh"
+#include "vtkActor.h"
 
 class vtkAssemblyPaths;
 

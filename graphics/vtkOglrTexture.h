@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrTexture is a concrete implementation of the abstract class 
 // vtkTexture. vtkOglrTexture interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOglrTexture_hh
-#define __vtkOglrTexture_hh
+#ifndef __vtkOglrTexture_h
+#define __vtkOglrTexture_h
 
-#include "vtkTextureDevice.hh"
+#include "vtkTextureDevice.h"
 
 class vtkOglrRenderer;
 

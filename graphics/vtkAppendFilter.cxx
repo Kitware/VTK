@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAppendFilter.hh"
+#include "vtkAppendFilter.h"
 
 vtkAppendFilter::vtkAppendFilter()
 {

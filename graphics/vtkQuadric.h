@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkQuadric_h
 #define __vtkQuadric_h
 
-#include "vtkImplicitFunction.hh"
+#include "vtkImplicitFunction.h"
 
 class vtkQuadric : public vtkImplicitFunction
 {

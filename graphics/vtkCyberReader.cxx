@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCyberReader.hh"
+#include "vtkCyberReader.h"
 
 #include <stdio.h>
 #include <string.h>

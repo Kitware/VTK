@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vtkNewVolumeRenderer.hh"
-#include "vtkRenderWindow.hh"
-#include "vtkVoxel.hh"
+#include "vtkNewVolumeRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkVoxel.h"
 
 
 vtkNewVolumeRenderer::vtkNewVolumeRenderer()

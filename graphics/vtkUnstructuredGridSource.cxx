@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGridSource.hh"
+#include "vtkUnstructuredGridSource.h"
 
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointPicker_h
 #define __vtkPointPicker_h
 
-#include "vtkPicker.hh"
+#include "vtkPicker.h"
 
 class vtkPointPicker : public vtkPicker
 {

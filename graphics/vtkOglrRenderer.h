@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrRenderer is a concrete implementation of the abstract class
 // vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+#ifndef __vtkOglrRenderer_h
+#define __vtkOglrRenderer_h
 
 #include <stdlib.h>
-#include "vtkRenderer.hh"
+#include "vtkRenderer.h"
 
 class vtkOglrRenderer : public vtkRenderer
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCellPicker.hh"
+#include "vtkCellPicker.h"
 
 vtkCellPicker::vtkCellPicker()
 {

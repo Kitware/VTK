@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTextureMapToCylinder.hh"
-#include "vtkMath.hh"
-#include "vtkLine.hh"
-#include "vtkOBBTree.hh"
+#include "vtkTextureMapToCylinder.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
+#include "vtkOBBTree.h"
 
 // Description:
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 

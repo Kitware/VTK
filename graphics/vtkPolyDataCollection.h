@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkDataSetCollection vtkCollection
 
-#ifndef __vtkPolyDataCollection_hh
-#define __vtkPolyDataCollection_hh
+#ifndef __vtkPolyDataCollection_h
+#define __vtkPolyDataCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkPolyData.hh"
+#include "vtkCollection.h"
+#include "vtkPolyData.h"
 
 class vtkPolyDataCollection : public vtkCollection
 {

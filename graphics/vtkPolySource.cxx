@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 vtkPolySource::vtkPolySource()
 {

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVRMLExporter_h
 
 #include <stdio.h>
-#include "vtkExporter.hh"
+#include "vtkExporter.h"
 
 class vtkVRMLExporter : public vtkExporter
 {

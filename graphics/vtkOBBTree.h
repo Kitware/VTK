@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkOBBTree_h
 #define __vtkOBBTree_h
 
-#include "vtkCellLocator.hh"
+#include "vtkCellLocator.h"
 
 //
 // Special class defines node for the OBB tree

@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "vtkSbrPolyMapper.hh"
-#include "vtkSbrRenderer.hh"
-#include "vtkPolyData.hh"
+#include "vtkSbrPolyMapper.h"
+#include "vtkSbrRenderer.h"
+#include "vtkPolyData.h"
 
 // Description:
 // Construct empty object.

@@ -43,13 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrPolyMapper is a subclass of vtkPolyMapperDevice. 
 // vtkSbrPolyMapper is a PolyMapper for the HP starbase rendering library.
 
-#ifndef __vtkSbrPolyMapper_hh
-#define __vtkSbrPolyMapper_hh
+#ifndef __vtkSbrPolyMapper_h
+#define __vtkSbrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.hh"
-#include "vtkPolyData.hh"
-#include "vtkColorScalars.hh"
+#include "vtkPolyMapperDevice.h"
+#include "vtkPolyData.h"
+#include "vtkColorScalars.h"
 
 class vtkSbrRenderer;
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkLinearExtrusionFilter.hh"
+#include "vtkLinearExtrusionFilter.h"
 
 // Description:
 // Create object with normal extrusion type, capping on, scale factor=1.0,

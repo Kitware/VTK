@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMarchingCubes.hh"
-#include "vtkMarchingCubesCases.hh"
-#include "vtkMergePoints.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkMath.hh"
-#include "vtkUnsignedCharScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkIntScalars.hh"
+#include "vtkMarchingCubes.h"
+#include "vtkMarchingCubesCases.h"
+#include "vtkMergePoints.h"
+#include "vtkStructuredPoints.h"
+#include "vtkMath.h"
+#include "vtkUnsignedCharScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkFloatScalars.h"
+#include "vtkIntScalars.h"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value

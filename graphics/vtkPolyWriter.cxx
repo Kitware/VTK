@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyWriter.hh"
+#include "vtkPolyWriter.h"
 
 // Description:
 // Specify the input data or filter.

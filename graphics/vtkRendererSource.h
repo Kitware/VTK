@@ -49,11 +49,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderer vtkStructuredPoints
 
-#ifndef __vtkRendererSource_hh
-#define __vtkRendererSource_hh
+#ifndef __vtkRendererSource_h
+#define __vtkRendererSource_h
 
-#include "vtkStructuredPointsSource.hh"
-#include "vtkRenderer.hh"
+#include "vtkStructuredPointsSource.h"
+#include "vtkRenderer.h"
 
 class vtkRendererSource : public vtkStructuredPointsSource
 {

@@ -43,13 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrRenderWindow is a concrete implementation of the abstract class
 // vtkRenderWindow. vtkOglrRenderer interfaces to the OpenGL graphics library.
 
-#ifndef __vtkOglrRenderWindow_hh
-#define __vtkOglrRenderWindow_hh
+#ifndef __vtkOglrRenderWindow_h
+#define __vtkOglrRenderWindow_h
 
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkXRenderWindow.hh"
+#include "vtkXRenderWindow.h"
 #include "GL/glx.h"
 
 class vtkOglrRenderWindow : public vtkXRenderWindow

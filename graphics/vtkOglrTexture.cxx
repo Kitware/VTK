@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkOglrRenderer.hh"
-#include "vtkOglrTexture.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrTexture.h"
 
 // shared increasing counter
 long vtkOglrTexture::GlobalIndex = 0;

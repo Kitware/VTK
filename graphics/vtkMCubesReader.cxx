@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <sys/stat.h>
-#include "vtkMCubesReader.hh"
-#include "vtkMergePoints.hh"
-#include "vtkByteSwap.hh"
+#include "vtkMCubesReader.h"
+#include "vtkMergePoints.h"
+#include "vtkByteSwap.h"
 
 // Description:
 // Construct object with FlipNormals turned off and Normals set to true.

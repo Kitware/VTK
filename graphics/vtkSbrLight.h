@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrLight is a concrete implementation of the abstract class vtkLight.
 // vtkSbrLight interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vtkSbrLight_hh
-#define __vtkSbrLight_hh
+#ifndef __vtkSbrLight_h
+#define __vtkSbrLight_h
 
-#include "vtkLightDevice.hh"
+#include "vtkLightDevice.h"
 
 class vtkSbrRenderer;
 

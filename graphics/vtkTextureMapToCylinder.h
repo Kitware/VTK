@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTextureMapToCylinder_h
 #define __vtkTextureMapToCylinder_h
 
-#include "vtkDataSetToDataSetFilter.hh"
+#include "vtkDataSetToDataSetFilter.h"
 
 class vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
 {

@@ -48,12 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetWriter vtkPolyWriter vtkStructuredGridWriter
 // vtkStructuredPointsWriter vtkUnstructuredGridWriter
 
-#ifndef __vtkDataWriter_hh
-#define __vtkDataWriter_hh
+#ifndef __vtkDataWriter_h
+#define __vtkDataWriter_h
 
 #include <stdio.h>
-#include "vtkWriter.hh"
-#include "vtkDataSet.hh"
+#include "vtkWriter.h"
+#include "vtkDataSet.h"
 
 class vtkDataWriter : public vtkWriter
 {

@@ -44,8 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrPolyMapper is a geometric PolyMapper for the OpenGL 
 // rendering library.
 
-#ifndef __vtkOglrPolyMapper_hh
-#define __vtkOglrPolyMapper_hh
+#ifndef __vtkOglrPolyMapper_h
+#define __vtkOglrPolyMapper_h
 
 #include <stdlib.h>
 
@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkPolyMapperDevice.hh"
+#include "vtkPolyMapperDevice.h"
 
 class vtkOglrRenderer;
 class vtkProperty;

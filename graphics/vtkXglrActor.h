@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrActor is a concrete implementation of the abstract class vtkActor.
 // vtkXglrActor interfaces to the Sun xgl rendering library.
 
-#ifndef __vtkXglrActor_hh
-#define __vtkXglrActor_hh
+#ifndef __vtkXglrActor_h
+#define __vtkXglrActor_h
 
-#include "vtkActorDevice.hh"
+#include "vtkActorDevice.h"
 
 class vtkXglrRenderer;
 

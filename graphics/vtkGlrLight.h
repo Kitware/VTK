@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrLight is a concrete implementation of the abstract class vtkLight.
 // vtkGlrLight interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrLight_hh
-#define __vtkGlrLight_hh
+#ifndef __vtkGlrLight_h
+#define __vtkGlrLight_h
 
-#include "vtkLightDevice.hh"
+#include "vtkLightDevice.h"
 
 class vtkGlrRenderer;
 

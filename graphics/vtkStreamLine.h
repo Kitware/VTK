@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStreamLine_h
 #define __vtkStreamLine_h
 
-#include "vtkStreamer.hh"
+#include "vtkStreamer.h"
 
 class vtkStreamLine : public vtkStreamer
 {

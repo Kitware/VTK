@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPNMReader.hh"
+#include "vtkPNMReader.h"
 
 //tags used to comminicate types in system
 #define VTK_UNKNOWN_TYPE 0

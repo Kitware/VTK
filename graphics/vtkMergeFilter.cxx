@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMergeFilter.hh"
-#include "vtkPolyData.hh"
+#include "vtkMergeFilter.h"
+#include "vtkPolyData.h"
 
 vtkMergeFilter::vtkMergeFilter()
 {

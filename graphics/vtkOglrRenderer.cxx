@@ -44,13 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GL/gl.h>
 
 #include <math.h>
-#include "vtkOglrRenderer.hh"
-#include "vtkRenderWindow.hh"
-#include "vtkOglrProperty.hh"
-#include "vtkOglrCamera.hh"
-#include "vtkOglrLight.hh"
-#include "vtkVolumeRenderer.hh"
-#include "vtkNewVolumeRenderer.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkOglrProperty.h"
+#include "vtkOglrCamera.h"
+#include "vtkOglrLight.h"
+#include "vtkVolumeRenderer.h"
+#include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 8
 

@@ -116,7 +116,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSmoothPolyFilter_h
 #define __vtkSmoothPolyFilter_h
 
-#include "vtkPolyToPolyFilter.hh"
+#include "vtkPolyToPolyFilter.h"
 
 class vtkSmoothPolyFilter : public vtkPolyToPolyFilter
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredPointsToStructuredPointsFilter.hh"
+#include "vtkStructuredPointsToStructuredPointsFilter.h"
 
 vtkStructuredPointsToStructuredPointsFilter::vtkStructuredPointsToStructuredPointsFilter()
 {

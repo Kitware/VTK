@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMarchingSquares_h
 #define __vtkMarchingSquares_h
 
-#include "vtkStructuredPointsToPolyDataFilter.hh"
+#include "vtkStructuredPointsToPolyDataFilter.h"
 
 #define VTK_MAX_CONTOURS 256
 

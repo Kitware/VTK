@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrCamera is a concrete implementation of the abstract class vtkCamera.
 // vtkGlrCamera interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrCamera_hh
-#define __vtkGlrCamera_hh
+#ifndef __vtkGlrCamera_h
+#define __vtkGlrCamera_h
 
-#include "vtkCameraDevice.hh"
+#include "vtkCameraDevice.h"
 
 class vtkGlrRenderer;
 

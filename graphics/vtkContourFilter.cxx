@@ -39,12 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkContourFilter.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkCell.hh"
-#include "vtkMergePoints.hh"
-#include "vtkMarchingSquares.hh"
-#include "vtkMarchingCubes.hh"
+#include "vtkContourFilter.h"
+#include "vtkFloatScalars.h"
+#include "vtkCell.h"
+#include "vtkMergePoints.h"
+#include "vtkMarchingSquares.h"
+#include "vtkMarchingCubes.h"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value

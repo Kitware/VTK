@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCastToConcrete.hh"
+#include "vtkCastToConcrete.h"
 
 // Description:
 // Construct object.

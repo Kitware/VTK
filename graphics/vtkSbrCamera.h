@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrCamera is a concrete implementation of the abstract class vtkCamera.
 // vtkSbrCamera interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vtkSbrCamera_hh
-#define __vtkSbrCamera_hh
+#ifndef __vtkSbrCamera_h
+#define __vtkSbrCamera_h
 
-#include "vtkCameraDevice.hh"
+#include "vtkCameraDevice.h"
 #include "starbase.c.h"
 
 class vtkSbrRenderer;

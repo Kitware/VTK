@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTubeFilter.hh"
-#include "vtkPolyLine.hh"
-#include "vtkMath.hh"
+#include "vtkTubeFilter.h"
+#include "vtkPolyLine.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct object with radius 0.5, radius variation turned off, the number 

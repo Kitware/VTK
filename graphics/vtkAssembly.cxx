@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAssembly.hh"
+#include "vtkAssembly.h"
 
 // Description:
 // Construct object with no children.

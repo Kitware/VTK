@@ -50,11 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkCameraDevice
 
-#ifndef __vtkCamera_hh
-#define __vtkCamera_hh
+#ifndef __vtkCamera_h
+#define __vtkCamera_h
 
-#include "vtkObject.hh"
-#include "vtkTransform.hh"
+#include "vtkObject.h"
+#include "vtkTransform.h"
 
 class vtkRenderer;
 class vtkCameraDevice;

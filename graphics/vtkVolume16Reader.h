@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVolume16Reader_h
 
 #include <stdio.h>
-#include "vtkVolumeReader.hh"
+#include "vtkVolumeReader.h"
 
 class vtkVolume16Reader : public vtkVolumeReader
 {

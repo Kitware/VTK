@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkQuadric.hh"
+#include "vtkQuadric.h"
 
 // Description
 // Construct quadric with all coefficients = 1.

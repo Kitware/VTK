@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolySource_h
 #define __vtkPolySource_h
 
-#include "vtkSource.hh"
-#include "vtkPolyData.hh"
+#include "vtkSource.h"
+#include "vtkPolyData.h"
 
 class vtkPolySource : public vtkSource
 {

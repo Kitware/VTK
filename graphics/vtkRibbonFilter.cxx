@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMath.hh"
-#include "vtkRibbonFilter.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkPolyLine.hh"
+#include "vtkMath.h"
+#include "vtkRibbonFilter.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatNormals.h"
+#include "vtkPolyLine.h"
 
 // Description:
 // Construct ribbon so that width is 0.1, the width does 

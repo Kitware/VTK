@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMCubesWriter.hh"
-#include "vtkByteSwap.hh"
+#include "vtkMCubesWriter.h"
+#include "vtkByteSwap.h"
 
 // Description:
 // Create object.

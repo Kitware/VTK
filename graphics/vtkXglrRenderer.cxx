@@ -40,13 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <iostream.h>
-#include "vtkXglrProperty.hh"
-#include "vtkXglrCamera.hh"
-#include "vtkXglrLight.hh"
-#include "vtkXglrRenderWindow.hh"
-#include "vtkXglrRenderer.hh"
-#include "vtkNewVolumeRenderer.hh"
-#include "vtkVolumeRenderer.hh"
+#include "vtkXglrProperty.h"
+#include "vtkXglrCamera.h"
+#include "vtkXglrLight.h"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
+#include "vtkNewVolumeRenderer.h"
+#include "vtkVolumeRenderer.h"
 
 
 vtkXglrRenderer::vtkXglrRenderer()

@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "vtkCellLocator.hh"
-#include "vtkVoxel.hh"
-#include "vtkPolyData.hh"
+#include "vtkCellLocator.h"
+#include "vtkVoxel.h"
+#include "vtkPolyData.h"
 
 #define OUTSIDE 0
 #define INSIDE 1

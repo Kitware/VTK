@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractGrid_h
 #define __vtkExtractGrid_h
 
-#include "vtkStructuredGridToStructuredGridFilter.hh"
+#include "vtkStructuredGridToStructuredGridFilter.h"
 
 class vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 {

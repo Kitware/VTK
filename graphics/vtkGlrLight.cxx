@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrLight.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrLight.h"
 
 // Use directional light instead so mirror lights behave nicer 
 static float light_info[] = {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyFilter.hh"
+#include "vtkPolyFilter.h"
 
 // Description:
 // Specify the input data or filter.

@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.hh"
-#include "vtkPolyData.hh"
-#include "vtkColorScalars.hh"
+#include "vtkPolyMapperDevice.h"
+#include "vtkPolyData.h"
+#include "vtkColorScalars.h"
 
 // Description:
 // Construct empty geometry primitive.

@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkOBBTree.hh"
-#include "vtkMath.hh"
-#include "vtkLine.hh"
-#include "vtkPolyData.hh"
+#include "vtkOBBTree.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
+#include "vtkPolyData.h"
 
 vtkOBBNode::vtkOBBNode()
 {

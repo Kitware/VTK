@@ -38,25 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDataReader.hh"
+#include "vtkDataReader.h"
 #include <ctype.h>
 #include <strstream.h>
-#include "vtkBitScalars.hh"
-#include "vtkUnsignedCharScalars.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkIntScalars.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkIntPoints.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkFloatTensors.hh"
-#include "vtkFloatTCoords.hh"
-#include "vtkGraymap.hh"
-#include "vtkAGraymap.hh"
-#include "vtkPixmap.hh"
-#include "vtkAPixmap.hh"
-#include "vtkLookupTable.hh"
-#include "vtkByteSwap.hh"
+#include "vtkBitScalars.h"
+#include "vtkUnsignedCharScalars.h"
+#include "vtkFloatScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkIntScalars.h"
+#include "vtkFloatPoints.h"
+#include "vtkIntPoints.h"
+#include "vtkFloatNormals.h"
+#include "vtkFloatTensors.h"
+#include "vtkFloatTCoords.h"
+#include "vtkGraymap.h"
+#include "vtkAGraymap.h"
+#include "vtkPixmap.h"
+#include "vtkAPixmap.h"
+#include "vtkLookupTable.h"
+#include "vtkByteSwap.h"
 
 // Description:
 // Construct object.

@@ -51,11 +51,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderer vtkVolume
 
-#ifndef __vtkVolumeRenderer_hh
-#define __vtkVolumeRenderer_hh
+#ifndef __vtkVolumeRenderer_h
+#define __vtkVolumeRenderer_h
 
-#include "vtkRenderer.hh"
-#include "vtkVolumeCollection.hh"
+#include "vtkRenderer.h"
+#include "vtkVolumeCollection.h"
 
 class vtkVolumeRenderer : public vtkObject
 {

@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkLight
 
-#ifndef __vtkLightDevice_hh
-#define __vtkLightDevice_hh
+#ifndef __vtkLightDevice_h
+#define __vtkLightDevice_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 class vtkRenderer;
 class vtkLight;
 

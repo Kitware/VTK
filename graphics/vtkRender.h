@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#ifndef __Render_hh
-#define __Render_hh
+#ifndef __Render_h
+#define __Render_h
 
 // shading models
 #define VTK_FLAT    0

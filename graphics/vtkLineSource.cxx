@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkLineSource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkFloatTCoords.hh"
+#include "vtkLineSource.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatTCoords.h"
 
 vtkLineSource::vtkLineSource(int res)
 {

@@ -5,11 +5,11 @@
 // .SECTION see also
 // vtkRenderer vtkNewVolume vtkRLGridVolume
 
-#ifndef __vtkNewVolumeRenderer_hh
-#define __vtkNewVolumeRenderer_hh
+#ifndef __vtkNewVolumeRenderer_h
+#define __vtkNewVolumeRenderer_h
 
-#include "vtkRenderer.hh"
-// #include "vtkNewVolumeCollection.hh"
+#include "vtkRenderer.h"
+// #include "vtkNewVolumeCollection.h"
 
 class vtkNewVolumeRenderer : public vtkObject
 {

@@ -1,3 +1,4 @@
 .git*            export-ignore
 
+configure        crlf=input
 install-sh       crlf=input

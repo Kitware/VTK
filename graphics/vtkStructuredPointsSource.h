@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPointsSource_h
 #define __vtkStructuredPointsSource_h
 
-#include "vtkSource.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkSource.h"
+#include "vtkStructuredPoints.h"
 
 class vtkStructuredPointsSource : public vtkSource
 {

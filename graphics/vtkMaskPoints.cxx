@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMaskPoints.hh"
-#include "vtkMath.hh"
+#include "vtkMaskPoints.h"
+#include "vtkMath.h"
 
 vtkMaskPoints::vtkMaskPoints()
 {

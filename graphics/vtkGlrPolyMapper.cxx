@@ -40,11 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkPolygon.hh"
-#include "vtkTriangle.hh"
-#include "vtkPolyData.hh"
-#include "vtkGlrPolyMapper.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkPolygon.h"
+#include "vtkTriangle.h"
+#include "vtkPolyData.h"
+#include "vtkGlrPolyMapper.h"
 
 // Description:
 // Construct empty object.

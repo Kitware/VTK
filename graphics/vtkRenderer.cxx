@@ -41,11 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <string.h>
 
-#include "vtkRenderer.hh"
-#include "vtkRenderWindow.hh"
-#include "vtkVolumeRenderer.hh"
-#include "vtkNewVolumeRenderer.hh"
-#include "vtkMath.hh"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkVolumeRenderer.h"
+#include "vtkNewVolumeRenderer.h"
+#include "vtkMath.h"
 
 // Description:
 // Create a vtkRenderer with a black background, a white ambient light, 

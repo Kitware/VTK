@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    BrownPts.hh
+  Module:    BrownPts.h
   Language:  C++
   Date:      9/14/94
   Version:   1.1
@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBrownianPoints_h
 #define __vtkBrownianPoints_h
 
-#include "vtkDataSetToDataSetFilter.hh"
+#include "vtkDataSetToDataSetFilter.h"
 
 class vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {

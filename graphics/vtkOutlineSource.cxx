@@ -1,4 +1,4 @@
-#include "vtkOutlineSource.hh"
+#include "vtkOutlineSource.h"
 
 vtkOutlineSource::vtkOutlineSource()
 {

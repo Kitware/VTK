@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkXglrCamera.hh"
-#include "vtkXglrRenderWindow.hh"
-#include "vtkXglrRenderer.hh"
+#include "vtkXglrCamera.h"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
 #include <xgl/xgl.h>
 
 extern Xgl_sys_state xglr_sys_state;

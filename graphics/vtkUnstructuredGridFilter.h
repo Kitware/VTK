@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkUnstructuredGridFilter is a filter that takes a single unstructured grid
 // data object as input.
 
-#ifndef __vtkUnstructuredGridFilter_hh
-#define __vtkUnstructuredGridFilter_hh
+#ifndef __vtkUnstructuredGridFilter_h
+#define __vtkUnstructuredGridFilter_h
 
-#include "vtkFilter.hh"
-#include "vtkUnstructuredGrid.hh"
+#include "vtkFilter.h"
+#include "vtkUnstructuredGrid.h"
 
 class vtkUnstructuredGridFilter : public vtkFilter 
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointSetFilter.hh"
+#include "vtkPointSetFilter.h"
 
 vtkPointSetFilter::~vtkPointSetFilter()
 {

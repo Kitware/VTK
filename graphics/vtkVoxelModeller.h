@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkBitScalars vtkImplicitModeller
 
-#ifndef __vtkVoxelModeller_hh
-#define __vtkVoxelModeller_hh
+#ifndef __vtkVoxelModeller_h
+#define __vtkVoxelModeller_h
 
-#include "vtkDataSetToStructuredPointsFilter.hh"
+#include "vtkDataSetToStructuredPointsFilter.h"
 
 class vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {

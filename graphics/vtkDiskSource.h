@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDiskSource_h
 #define __vtkDiskSource_h
 
-#include "vtkPolySource.hh"
-#include "vtkPolyData.hh"
+#include "vtkPolySource.h"
+#include "vtkPolyData.h"
 
 class vtkDiskSource : public vtkPolySource 
 {

@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBrownianPoints.hh"
-#include "vtkFloatVectors.hh"
-#include "vtkMath.hh"
+#include "vtkBrownianPoints.h"
+#include "vtkFloatVectors.h"
+#include "vtkMath.h"
 
 vtkBrownianPoints::vtkBrownianPoints()
 {

@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h
 
-#include "vtkPolyToPolyFilter.hh"
+#include "vtkPolyToPolyFilter.h"
 
 #define VTK_VARY_RADIUS_OFF 0
 #define VTK_VARY_RADIUS_BY_SCALAR 1

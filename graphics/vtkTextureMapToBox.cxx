@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTextureMapToBox.hh"
-#include "vtkFloatTCoords.hh"
+#include "vtkTextureMapToBox.h"
+#include "vtkFloatTCoords.h"
 
 // Description:
 // Construct with r-s-t range=(0,1) and automatic box generation turned on.

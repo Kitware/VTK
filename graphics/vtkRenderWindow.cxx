@@ -41,9 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "vtkRenderWindow.hh"
-#include "vtkRenderWindowInteractor.hh"
-#include "vtkMath.hh"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct an instance of  vtkRenderWindow with its screen size 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointSetToPointSetFilter.hh"
+#include "vtkPointSetToPointSetFilter.h"
 
 // Description:
 // Specify the input data or filter.

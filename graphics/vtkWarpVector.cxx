@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkWarpVector.hh"
+#include "vtkWarpVector.h"
 
 void vtkWarpVector::Execute()
 {

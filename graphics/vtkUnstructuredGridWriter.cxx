@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGridWriter.hh"
-#include "vtkByteSwap.hh"
+#include "vtkUnstructuredGridWriter.h"
+#include "vtkByteSwap.h"
 
 // Description:
 // Specify the input data or filter.

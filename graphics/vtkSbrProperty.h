@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrProperty is a concrete implementation of the abstract class vtkProperty.
 // vtkSbrProperty interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vtkSbrProperty_hh
-#define __vtkSbrProperty_hh
+#ifndef __vtkSbrProperty_h
+#define __vtkSbrProperty_h
 
-#include "vtkPropertyDevice.hh"
+#include "vtkPropertyDevice.h"
 
 class vtkSbrRenderer;
 

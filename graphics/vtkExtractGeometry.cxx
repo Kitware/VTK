@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkExtractGeometry.hh"
+#include "vtkExtractGeometry.h"
 
 // Description:
 // Construct object with ExtractInside turned on.

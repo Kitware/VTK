@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToPolyFilter_h
 #define __vtkDataSetToPolyFilter_h
 
-#include "vtkDataSetFilter.hh"
-#include "vtkPolyData.hh"
+#include "vtkDataSetFilter.h"
+#include "vtkPolyData.h"
 
 class vtkDataSetToPolyFilter : public vtkDataSetFilter
 {

@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrTexture is a concrete implementation of the abstract class vtkTexture.
 // vtkGlrTexture interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrTexture_hh
-#define __vtkGlrTexture_hh
+#ifndef __vtkGlrTexture_h
+#define __vtkGlrTexture_h
 
-#include "vtkTextureDevice.hh"
+#include "vtkTextureDevice.h"
 
 class vtkGlrRenderer;
 

@@ -79,7 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRotationalExtrusionFilter_h
 #define __vtkRotationalExtrusionFilter_h
 
-#include "vtkPolyToPolyFilter.hh"
+#include "vtkPolyToPolyFilter.h"
 
 class vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter 
 {

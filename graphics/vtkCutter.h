@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCutter_h
 #define __vtkCutter_h
 
-#include "vtkDataSetToPolyFilter.hh"
-#include "vtkImplicitFunction.hh"
+#include "vtkDataSetToPolyFilter.h"
+#include "vtkImplicitFunction.h"
 
 class vtkCutter : public vtkDataSetToPolyFilter
 {

@@ -78,9 +78,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSpatialRepFilter_h
 #define __vtkSpatialRepFilter_h
 
-#include "vtkDataSetFilter.hh"
-#include "vtkPolyData.hh"
-#include "vtkLocator.hh"
+#include "vtkDataSetFilter.h"
+#include "vtkPolyData.h"
+#include "vtkLocator.h"
 
 #define VTK_MAX_SPATIALREP_LEVEL 24
 

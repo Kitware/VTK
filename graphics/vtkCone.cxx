@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCone.hh"
-#include "vtkMath.hh"
+#include "vtkCone.h"
+#include "vtkMath.h"
 
 // Description
 // Construct cone with angle of 45 degrees.

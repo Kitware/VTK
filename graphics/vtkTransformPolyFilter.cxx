@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTransformPolyFilter.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkFloatVectors.hh"
+#include "vtkTransformPolyFilter.h"
+#include "vtkFloatNormals.h"
+#include "vtkFloatVectors.h"
 
 void vtkTransformPolyFilter::Execute()
 {

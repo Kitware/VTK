@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImplicitModeller.hh"
-#include "vtkFloatScalars.hh"
+#include "vtkImplicitModeller.h"
+#include "vtkFloatScalars.h"
 
 // Description:
 // Construct with sample dimensions=(50,50,50), and so that model bounds are

@@ -47,11 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkCollection vtkVolume
 
-#ifndef __vtkVolumeC_hh
-#define __vtkVolumeC_hh
+#ifndef __vtkVolumeC_h
+#define __vtkVolumeC_h
 
-#include "vtkCollection.hh"
-#include "vtkVolume.hh"
+#include "vtkCollection.h"
+#include "vtkVolume.h"
 
 class vtkVolumeCollection : public vtkCollection
 {

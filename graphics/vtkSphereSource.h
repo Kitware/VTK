@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSphereSource_h
 #define __vtkSphereSource_h
 
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 

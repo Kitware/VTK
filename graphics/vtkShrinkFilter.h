@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkShrinkFilter_h
 #define __vtkShrinkFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.hh"
+#include "vtkDataSetToUnstructuredGridFilter.h"
 
 class vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
 {

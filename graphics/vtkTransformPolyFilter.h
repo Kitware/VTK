@@ -58,8 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTransformPolyFilter_h
 #define __vtkTransformPolyFilter_h
 
-#include "vtkPolyToPolyFilter.hh"
-#include "vtkTransform.hh"
+#include "vtkPolyToPolyFilter.h"
+#include "vtkTransform.h"
 
 class vtkTransformPolyFilter : public vtkPolyToPolyFilter
 {

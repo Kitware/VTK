@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrProperty.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrProperty.h"
 
 // temporary material structure
 static float mat[] = {

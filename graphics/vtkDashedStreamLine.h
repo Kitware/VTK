@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDashedStreamLine_h
 #define __vtkDashedStreamLine_h
 
-#include "vtkStreamLine.hh"
+#include "vtkStreamLine.h"
 
 class vtkDashedStreamLine : public vtkStreamLine
 {

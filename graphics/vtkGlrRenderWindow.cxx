@@ -40,14 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <iostream.h>
-#include "vtkGlrRenderWindow.hh"
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrProperty.hh"
-#include "vtkGlrTexture.hh"
-#include "vtkGlrCamera.hh"
-#include "vtkGlrLight.hh"
-#include "vtkGlrActor.hh"
-#include "vtkGlrPolyMapper.hh"
+#include "vtkGlrRenderWindow.h"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrProperty.h"
+#include "vtkGlrTexture.h"
+#include "vtkGlrCamera.h"
+#include "vtkGlrLight.h"
+#include "vtkGlrActor.h"
+#include "vtkGlrPolyMapper.h"
 #include "gl/glws.h"
 #include "gl/get.h"
 

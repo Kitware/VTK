@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrActor.hh"
-#include "vtkActor.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrActor.h"
+#include "vtkActor.h"
 
 // Description:
 // Implement base class method.

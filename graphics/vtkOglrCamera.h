@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrCamera is a concrete implementation of the abstract class vtkCamera.
 // vtkOglrCamera interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOglrCamera_hh
-#define __vtkOglrCamera_hh
+#ifndef __vtkOglrCamera_h
+#define __vtkOglrCamera_h
 
-#include "vtkCameraDevice.hh"
+#include "vtkCameraDevice.h"
 
 class vtkOglrRenderer;
 

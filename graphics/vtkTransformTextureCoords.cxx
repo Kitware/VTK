@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTransformTextureCoords.hh"
-#include "vtkTransform.hh"
+#include "vtkTransformTextureCoords.h"
+#include "vtkTransform.h"
 
 // Description:
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale

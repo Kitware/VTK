@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkMapper.hh"
+#include "vtkMapper.h"
 
 // Description:
 // Construct with initial range (0,1).

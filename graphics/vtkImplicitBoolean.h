@@ -57,8 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImplicitBoolean_h
 #define __vtkImplicitBoolean_h
 
-#include "vtkImplicitFunction.hh"
-#include "vtkImplicitFunctionCollection.hh"
+#include "vtkImplicitFunction.h"
+#include "vtkImplicitFunctionCollection.h"
 
 #define VTK_UNION 0
 #define VTK_INTERSECTION 1

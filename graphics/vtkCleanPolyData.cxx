@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCleanPolyData.hh"
-#include "vtkMergePoints.hh"
+#include "vtkCleanPolyData.h"
+#include "vtkMergePoints.h"
 
 // Description:
 // Construct object with initial tolerance of 0.0.

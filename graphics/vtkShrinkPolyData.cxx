@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkShrinkPolyData.hh"
+#include "vtkShrinkPolyData.h"
 
 
 vtkShrinkPolyData::vtkShrinkPolyData(float sf)

@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkPolyWriter_hh
-#define __vtkPolyWriter_hh
+#ifndef __vtkPolyWriter_h
+#define __vtkPolyWriter_h
 
-#include "vtkDataWriter.hh"
-#include "vtkPolyData.hh"
+#include "vtkDataWriter.h"
+#include "vtkPolyData.h"
 
 class vtkPolyWriter : public vtkDataWriter
 {

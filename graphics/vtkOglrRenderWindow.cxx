@@ -41,14 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 #include <iostream.h>
-#include "vtkOglrRenderWindow.hh"
-#include "vtkOglrRenderer.hh"
-#include "vtkOglrProperty.hh"
-#include "vtkOglrTexture.hh"
-#include "vtkOglrCamera.hh"
-#include "vtkOglrLight.hh"
-#include "vtkOglrActor.hh"
-#include "vtkOglrPolyMapper.hh"
+#include "vtkOglrRenderWindow.h"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrProperty.h"
+#include "vtkOglrTexture.h"
+#include "vtkOglrCamera.h"
+#include "vtkOglrLight.h"
+#include "vtkOglrActor.h"
+#include "vtkOglrPolyMapper.h"
 #include "GL/gl.h"
 #include "GL/glu.h"
 

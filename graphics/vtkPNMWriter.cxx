@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPNMWriter.hh"
-#include "vtkColorScalars.hh"
+#include "vtkPNMWriter.h"
+#include "vtkColorScalars.h"
 
 vtkPNMWriter::vtkPNMWriter()
 {

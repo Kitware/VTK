@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkOBJExporter.hh"
-#include "vtkGeometryFilter.hh"
+#include "vtkOBJExporter.h"
+#include "vtkGeometryFilter.h"
 
 vtkOBJExporter::vtkOBJExporter()
 {

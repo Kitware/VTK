@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBooleanStructuredPoints_h
 #define __vtkBooleanStructuredPoints_h
 
-#include "vtkFilter.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkStructuredPointsCollection.hh"
+#include "vtkFilter.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsCollection.h"
 
 #define VTK_UNION_OPERATOR 0
 #define VTK_INTERSECTION_OPERATOR 1

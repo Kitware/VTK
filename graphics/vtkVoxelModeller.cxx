@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <stdio.h>
-#include "vtkVoxelModeller.hh"
-#include "vtkBitScalars.hh"
+#include "vtkVoxelModeller.h"
+#include "vtkBitScalars.h"
 
 // Description:
 // Construct an instance of vtkVoxelModeller with its sample dimensions

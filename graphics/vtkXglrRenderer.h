@@ -43,15 +43,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrRenderer is a concrete implementation of the abstract class
 // vtkRenderer. vtkXglrRenderer interfaces to Suns XGL graphics library.
 
-#ifndef __vtkXglrRenderer_hh
-#define __vtkXglrRenderer_hh
+#ifndef __vtkXglrRenderer_h
+#define __vtkXglrRenderer_h
 
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkRenderer.hh"
+#include "vtkRenderer.h"
 #include <xgl/xgl.h>
-#include "vtkXglrRenderWindow.hh"
+#include "vtkXglrRenderWindow.h"
 
 #define VTK_MAX_LIGHTS 12
 

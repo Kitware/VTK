@@ -43,13 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrPolyMapper is a subclass of vtkPolyMapperDevice.
 // vtkXglrPolyMapper is a geometric PolyMapper for Suns XGL rendering library.
 
-#ifndef __vtkXglrPolyMapper_hh
-#define __vtkXglrPolyMapper_hh
+#ifndef __vtkXglrPolyMapper_h
+#define __vtkXglrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.hh"
-#include "vtkPolyData.hh"
-#include "vtkColorScalars.hh"
+#include "vtkPolyMapperDevice.h"
+#include "vtkPolyData.h"
+#include "vtkColorScalars.h"
 #include <xgl/xgl.h>
 
 class vtkXglrRenderer;

@@ -94,8 +94,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
-#include "vtkPointSetFilter.hh"
-#include "vtkPolyData.hh"
+#include "vtkPointSetFilter.h"
+#include "vtkPolyData.h"
 
 class vtkDelaunay2D : public vtkPointSetFilter
 {

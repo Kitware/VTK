@@ -50,12 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkActor vtkPropertyDevice
 
-#ifndef __vtkProperty_hh
-#define __vtkProperty_hh
+#ifndef __vtkProperty_h
+#define __vtkProperty_h
 
-#include "vtkRender.hh"
-#include "vtkObject.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkRender.h"
+#include "vtkObject.h"
+#include "vtkStructuredPoints.h"
 
 class vtkRenderer;
 class vtkPropertyDevice;

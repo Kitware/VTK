@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridReader_h
 #define __vtkStructuredGridReader_h
 
-#include "vtkStructuredGridSource.hh"
-#include "vtkDataReader.hh"
+#include "vtkStructuredGridSource.h"
+#include "vtkDataReader.h"
 
 class vtkStructuredGridReader : public vtkStructuredGridSource
 {

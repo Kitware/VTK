@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetReader_h
 #define __vtkDataSetReader_h
 
-#include "vtkSource.hh"
-#include "vtkDataReader.hh"
+#include "vtkSource.h"
+#include "vtkDataReader.h"
 
 class vtkDataSetReader : public vtkSource
 {

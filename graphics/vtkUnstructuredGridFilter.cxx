@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGridFilter.hh"
+#include "vtkUnstructuredGridFilter.h"
 
 // Description:
 // Specify the input data or filter.

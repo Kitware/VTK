@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSbrActor is a concrete implementation of the abstract class vtkActor.
 // vtkSbrActor interfaces to the HP starbase rendering library.
 
-#ifndef __vtkSbrActor_hh
-#define __vtkSbrActor_hh
+#ifndef __vtkSbrActor_h
+#define __vtkSbrActor_h
 
-#include "vtkActorDevice.hh"
+#include "vtkActorDevice.h"
 
 class vtkSbrRenderer;
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkShrinkFilter.hh"
+#include "vtkShrinkFilter.h"
 
 vtkShrinkFilter::vtkShrinkFilter(float sf)
 {

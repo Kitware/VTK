@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkSphere.hh"
+#include "vtkSphere.h"
 
 // Description
 // Construct sphere with center at (0,0,0) and radius=0.5.

@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrLight is a concrete implementation of the abstract class vtkLight.
 // vtkXglrLight interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vtkXglrLight_hh
-#define __vtkXglrLight_hh
+#ifndef __vtkXglrLight_h
+#define __vtkXglrLight_h
 
-#include "vtkLightDevice.hh"
+#include "vtkLightDevice.h"
 
 class vtkXglrRenderer;
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyReader.hh"
+#include "vtkPolyReader.h"
 
 vtkPolyReader::vtkPolyReader()
 {

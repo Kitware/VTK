@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //===========================================================
 // now we define the C++ class
 
-#include "vtkRenderWindowInteractor.hh"
+#include "vtkRenderWindowInteractor.h"
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 

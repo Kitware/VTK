@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrProperty is a concrete implementation of the abstract class 
 // vtkProperty. vtkOglrProperty interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOglrProperty_hh
-#define __vtkOglrProperty_hh
+#ifndef __vtkOglrProperty_h
+#define __vtkOglrProperty_h
 
-#include "vtkPropertyDevice.hh"
+#include "vtkPropertyDevice.h"
 
 class vtkOglrRenderer;
 

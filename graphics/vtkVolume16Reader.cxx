@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVolume16Reader.hh"
-#include "vtkShortScalars.hh"
+#include "vtkVolume16Reader.h"
+#include "vtkShortScalars.h"
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 

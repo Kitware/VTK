@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFeatureVertices.hh"
-#include "vtkMath.hh"
+#include "vtkFeatureVertices.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct object with feature angle = 30; all types of vertices extracted

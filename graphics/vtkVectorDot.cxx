@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVectorDot.hh"
-#include "vtkMath.hh"
+#include "vtkVectorDot.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct object with scalar range is (-1,1).

@@ -41,14 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 #include <iostream.h>
-#include "vtkSbrRenderWindow.hh"
-#include "vtkSbrRenderer.hh"
-#include "vtkSbrProperty.hh"
-#include "vtkSbrTexture.hh"
-#include "vtkSbrCamera.hh"
-#include "vtkSbrLight.hh"
-#include "vtkSbrActor.hh"
-#include "vtkSbrPolyMapper.hh"
+#include "vtkSbrRenderWindow.h"
+#include "vtkSbrRenderer.h"
+#include "vtkSbrProperty.h"
+#include "vtkSbrTexture.h"
+#include "vtkSbrCamera.h"
+#include "vtkSbrLight.h"
+#include "vtkSbrActor.h"
+#include "vtkSbrPolyMapper.h"
 
 #define MAX_LIGHTS 16
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTransformStructuredPoints.hh"
+#include "vtkTransformStructuredPoints.h"
 
 // Description:
 // Construct object to use input dimensions as sample dimensions,

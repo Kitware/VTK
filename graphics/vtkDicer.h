@@ -63,8 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDicer_h
 #define __vtkDicer_h
 
-#include "vtkDataSetToDataSetFilter.hh"
-#include "vtkOBBTree.hh"
+#include "vtkDataSetToDataSetFilter.h"
+#include "vtkOBBTree.h"
 
 class vtkDicer : public vtkDataSetToDataSetFilter 
 {

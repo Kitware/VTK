@@ -44,9 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkOglrRenderer.hh"
-#include "vtkOglrActor.hh"
-#include "vtkActor.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrActor.h"
+#include "vtkActor.h"
 
 // Description:
 // Actual actor render method.

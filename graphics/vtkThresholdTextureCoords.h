@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h
 
-#include "vtkDataSetToDataSetFilter.hh"
+#include "vtkDataSetToDataSetFilter.h"
 
 class vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {

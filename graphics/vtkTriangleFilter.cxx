@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTriangleFilter.hh"
-#include "vtkPolygon.hh"
-#include "vtkTriangleStrip.hh"
+#include "vtkTriangleFilter.h"
+#include "vtkPolygon.h"
+#include "vtkTriangleStrip.h"
 
 void vtkTriangleFilter::Execute()
 {

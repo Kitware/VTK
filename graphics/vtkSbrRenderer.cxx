@@ -40,13 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <iostream.h>
-#include "vtkSbrProperty.hh"
-#include "vtkSbrCamera.hh"
-#include "vtkSbrLight.hh"
-#include "vtkSbrRenderWindow.hh"
-#include "vtkSbrRenderer.hh"
-#include "vtkVolumeRenderer.hh"
-#include "vtkNewVolumeRenderer.hh"
+#include "vtkSbrProperty.h"
+#include "vtkSbrCamera.h"
+#include "vtkSbrLight.h"
+#include "vtkSbrRenderWindow.h"
+#include "vtkSbrRenderer.h"
+#include "vtkVolumeRenderer.h"
+#include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 16
 

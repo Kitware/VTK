@@ -43,14 +43,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrRenderWindow is a concrete implementation of the abstract class
 // vtkRenderWindow. vtkXglrRenderer interfaces to Suns XGL graphics library.
 
-#ifndef __vtkXglrRenderWindow_hh
-#define __vtkXglrRenderWindow_hh
+#ifndef __vtkXglrRenderWindow_h
+#define __vtkXglrRenderWindow_h
 
 #include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkXRenderWindow.hh"
+#include "vtkXRenderWindow.h"
 #include <xgl/xgl.h>
 
 class vtkXglrRenderWindow : public vtkXRenderWindow

@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkSTLWriter.hh"
-#include "vtkTriangle.hh"
-#include "vtkByteSwap.hh"
+#include "vtkSTLWriter.h"
+#include "vtkTriangle.h"
+#include "vtkByteSwap.h"
 
 vtkSTLWriter::vtkSTLWriter()
 {

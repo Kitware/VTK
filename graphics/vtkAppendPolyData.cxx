@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAppendPolyData.hh"
+#include "vtkAppendPolyData.h"
 
 vtkAppendPolyData::vtkAppendPolyData()
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDataSetFilter.hh"
+#include "vtkDataSetFilter.h"
 
 // Description:
 // Specify the input data or filter.

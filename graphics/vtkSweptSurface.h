@@ -63,8 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSweptSurface_h
 #define __vtkSweptSurface_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.hh"
-#include "vtkTransformCollection.hh"
+#include "vtkStructuredPointsToStructuredPointsFilter.h"
+#include "vtkTransformCollection.h"
 
 class vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {

@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointSource.hh"
-#include "vtkMath.hh"
+#include "vtkPointSource.h"
+#include "vtkMath.h"
 
 vtkPointSource::vtkPointSource(int numPts)
 {

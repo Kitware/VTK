@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointPicker.hh"
-#include "vtkMath.hh"
+#include "vtkPointPicker.h"
+#include "vtkMath.h"
 
 vtkPointPicker::vtkPointPicker()
 {

@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridSource_h
 #define __vtkStructuredGridSource_h
 
-#include "vtkSource.hh"
-#include "vtkStructuredGrid.hh"
+#include "vtkSource.h"
+#include "vtkStructuredGrid.h"
 
 class vtkStructuredGridSource : public vtkSource
 {

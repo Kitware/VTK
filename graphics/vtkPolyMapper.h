@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolyMapper_h
 #define __vtkPolyMapper_h
 
-#include "vtkMapper.hh"
-#include "vtkPolyData.hh"
-#include "vtkRenderer.hh"
+#include "vtkMapper.h"
+#include "vtkPolyData.h"
+#include "vtkRenderer.h"
 
 class vtkPolyMapperDevice;
 

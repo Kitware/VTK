@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkWarpTo.hh"
-#include "vtkMath.hh"
+#include "vtkWarpTo.h"
+#include "vtkMath.h"
 
 void vtkWarpTo::Execute()
 {

@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkGlrRenderWindow.hh"
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrCamera.hh"
+#include "vtkGlrRenderWindow.h"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrCamera.h"
 
 // Description:
 // Implement base class method.

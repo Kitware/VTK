@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDelaunay2D.hh"
-#include "vtkMath.hh"
-#include "vtkTriangle.hh"
+#include "vtkDelaunay2D.h"
+#include "vtkMath.h"
+#include "vtkTriangle.h"
 
 // Description:
 // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;

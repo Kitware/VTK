@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVoxelReader_h
 
 #include <stdio.h>
-#include "vtkStructuredPointsSource.hh"
-#include "vtkBitScalars.hh"
+#include "vtkStructuredPointsSource.h"
+#include "vtkBitScalars.h"
 
 class vtkVoxelReader : public vtkStructuredPointsSource 
 {

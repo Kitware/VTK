@@ -52,13 +52,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkRenderWindow vtkActor vtkCamera vtkLight
 
-#ifndef __vtkRenderer_hh
-#define __vtkRenderer_hh
+#ifndef __vtkRenderer_h
+#define __vtkRenderer_h
 
-#include "vtkMatrix4x4.hh"
-#include "vtkLightCollection.hh"
-#include "vtkCamera.hh"
-#include "vtkActor.hh"
+#include "vtkMatrix4x4.h"
+#include "vtkLightCollection.h"
+#include "vtkCamera.h"
+#include "vtkActor.h"
 
 class vtkRenderWindow;
 class vtkVolumeRenderer;

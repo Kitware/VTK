@@ -61,14 +61,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkDataSetToDataSetFilter vtkPointSetToPointSetFilter
 
-#ifndef __vtkCastToConcrete_hh
-#define __vtkCastToConcrete_hh
+#ifndef __vtkCastToConcrete_h
+#define __vtkCastToConcrete_h
 
-#include "vtkDataSetFilter.hh"
-#include "vtkPolyData.hh"
-#include "vtkStructuredGrid.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkUnstructuredGrid.hh"
+#include "vtkDataSetFilter.h"
+#include "vtkPolyData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
 class vtkCastToConcrete : public vtkDataSetFilter
 {

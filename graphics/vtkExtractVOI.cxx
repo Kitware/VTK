@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkExtractVOI.hh"
+#include "vtkExtractVOI.h"
 
 // Description:
 // Construct object to extract all of the input data.

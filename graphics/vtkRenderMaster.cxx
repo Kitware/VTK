@@ -42,30 +42,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 
 #ifdef USE_SBR
-#include "vtkSbrRenderWindow.hh"
+#include "vtkSbrRenderWindow.h"
 #endif
 
 #ifdef USE_GLR
-#include "vtkGlrRenderWindow.hh"
+#include "vtkGlrRenderWindow.h"
 #endif
 
 #ifdef USE_OGLR
-#include "vtkOglrRenderWindow.hh"
+#include "vtkOglrRenderWindow.h"
 #endif
 
 #ifdef USE_PRMAN
-#include "vtkPrmanRenderWindow.hh"
+#include "vtkPrmanRenderWindow.h"
 #endif
 
 #ifdef USE_XGLR
-#include "vtkXglrRenderWindow.hh"
+#include "vtkXglrRenderWindow.h"
 #endif
 
 #ifdef _WIN32
-#include "vtkWin32OglrRenderWindow.hh"
+#include "vtkWin32OglrRenderWindow.h"
 #endif
 
-#include "vtkRenderMaster.hh"
+#include "vtkRenderMaster.h"
 
 vtkRenderMaster::vtkRenderMaster()
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkProbeFilter.hh"
+#include "vtkProbeFilter.h"
 
 vtkProbeFilter::vtkProbeFilter()
 {

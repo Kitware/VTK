@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkSbrCamera.hh"
-#include "vtkSbrRenderWindow.hh"
-#include "vtkSbrRenderer.hh"
+#include "vtkSbrCamera.h"
+#include "vtkSbrRenderWindow.h"
+#include "vtkSbrRenderer.h"
 
 
 // Description:

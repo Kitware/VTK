@@ -44,13 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
 // See text for format.
 
-#ifndef __vtkDataReader_hh
-#define __vtkDataReader_hh
+#ifndef __vtkDataReader_h
+#define __vtkDataReader_h
 
 #include <stdio.h>
 #include <fstream.h>
-#include "vtkObject.hh"
-#include "vtkPointSet.hh"
+#include "vtkObject.h"
+#include "vtkPointSet.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2

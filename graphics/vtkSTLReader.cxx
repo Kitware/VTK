@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <ctype.h>
-#include "vtkSTLReader.hh"
-#include "vtkByteSwap.hh"
-#include "vtkMergePoints.hh"
+#include "vtkSTLReader.h"
+#include "vtkByteSwap.h"
+#include "vtkMergePoints.h"
 
 #define ASCII 0
 #define BINARY 1

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkConnectivityFilter.hh"
+#include "vtkConnectivityFilter.h"
 
 // Description:
 // Construct with default extraction mode to extract largest regions.

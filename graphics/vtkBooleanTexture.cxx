@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBooleanTexture.hh"
-#include "vtkAGraymap.hh"
+#include "vtkBooleanTexture.h"
+#include "vtkAGraymap.h"
 
 vtkBooleanTexture::vtkBooleanTexture()
 {

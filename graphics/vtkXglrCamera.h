@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrCamera is a concrete implementation of the abstract class vtkCamera.
 // vtkXglrCamera interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vtkXglrCamera_hh
-#define __vtkXglrCamera_hh
+#ifndef __vtkXglrCamera_h
+#define __vtkXglrCamera_h
 
-#include "vtkCameraDevice.hh"
+#include "vtkCameraDevice.h"
 
 class vtkXglrRenderer;
 

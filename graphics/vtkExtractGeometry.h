@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractGeometry_h
 #define __vtkExtractGeometry_h
 
-#include "vtkDataSetToUnstructuredGridFilter.hh"
-#include "vtkImplicitFunction.hh"
+#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkImplicitFunction.h"
 
 class vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {

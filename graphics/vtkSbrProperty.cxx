@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkSbrProperty.hh"
-#include "vtkSbrRenderer.hh"
+#include "vtkSbrProperty.h"
+#include "vtkSbrRenderer.h"
 #include "starbase.c.h"
 
 // Description:

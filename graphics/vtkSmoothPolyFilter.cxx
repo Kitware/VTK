@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkSmoothPolyFilter.hh"
-#include "vtkMath.hh"
-#include "vtkTriangleFilter.hh"
-#include "vtkPolygon.hh"
+#include "vtkSmoothPolyFilter.h"
+#include "vtkMath.h"
+#include "vtkTriangleFilter.h"
+#include "vtkPolygon.h"
 
 // Description:
 // Construct object with number of iterations 20; expansion factor -0.34;

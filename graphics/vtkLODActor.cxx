@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sys/time.h>
 #endif
 
-#include "vtkLODActor.hh"
-#include "vtkActorDevice.hh"
-#include "vtkRenderWindow.hh"
+#include "vtkLODActor.h"
+#include "vtkActorDevice.h"
+#include "vtkRenderWindow.h"
 
 // Description:
 // Creates a vtkLODActor with the following defaults: origin(0,0,0) 

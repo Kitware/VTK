@@ -41,14 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <stdlib.h>
 #include <iostream.h>
-#include "vtkXglrRenderWindow.hh"
-#include "vtkXglrRenderer.hh"
-#include "vtkXglrProperty.hh"
-#include "vtkXglrTexture.hh"
-#include "vtkXglrCamera.hh"
-#include "vtkXglrLight.hh"
-#include "vtkXglrActor.hh"
-#include "vtkXglrPolyMapper.hh"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
+#include "vtkXglrProperty.h"
+#include "vtkXglrTexture.h"
+#include "vtkXglrCamera.h"
+#include "vtkXglrLight.h"
+#include "vtkXglrActor.h"
+#include "vtkXglrPolyMapper.h"
 
 // some globals left over from some Sun code
 Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object 

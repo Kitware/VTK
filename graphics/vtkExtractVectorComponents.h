@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
 
-#include "vtkFilter.hh"
+#include "vtkFilter.h"
 
 class vtkExtractVectorComponents : public vtkFilter
 {

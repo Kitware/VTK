@@ -40,13 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include <iostream.h>
-#include "vtkGlrRenderer.hh"
-#include "vtkGlrRenderWindow.hh"
-#include "vtkGlrProperty.hh"
-#include "vtkGlrCamera.hh"
-#include "vtkGlrLight.hh"
-#include "vtkVolumeRenderer.hh"
-#include "vtkNewVolumeRenderer.hh"
+#include "vtkGlrRenderer.h"
+#include "vtkGlrRenderWindow.h"
+#include "vtkGlrProperty.h"
+#include "vtkGlrCamera.h"
+#include "vtkGlrLight.h"
+#include "vtkVolumeRenderer.h"
+#include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 8
 

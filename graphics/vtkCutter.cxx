@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkCutter.hh"
-#include "vtkMergePoints.hh"
+#include "vtkCutter.h"
+#include "vtkMergePoints.h"
 #include <math.h>
 
 // Description:

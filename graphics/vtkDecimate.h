@@ -82,12 +82,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
 
-#include "vtkPolyToPolyFilter.hh"
-#include "vtkMath.hh"
-#include "vtkTriangle.hh"
-#include "vtkPlane.hh"
-#include "vtkPolygon.hh"
-#include "vtkLine.hh"
+#include "vtkPolyToPolyFilter.h"
+#include "vtkMath.h"
+#include "vtkTriangle.h"
+#include "vtkPlane.h"
+#include "vtkPolygon.h"
+#include "vtkLine.h"
 
 #define VTK_NUMBER_STATISTICS 12
 

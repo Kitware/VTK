@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointSetToPointSetFilter_h
 #define __vtkPointSetToPointSetFilter_h
 
-#include "vtkPointSetFilter.hh"
-#include "vtkPointSet.hh"
+#include "vtkPointSetFilter.h"
+#include "vtkPointSet.h"
 
 class vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {

@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDataSetWriter.hh"
-#include "vtkPolyWriter.hh"
-#include "vtkStructuredPointsWriter.hh"
-#include "vtkStructuredGridWriter.hh"
-#include "vtkUnstructuredGridWriter.hh"
+#include "vtkDataSetWriter.h"
+#include "vtkPolyWriter.h"
+#include "vtkStructuredPointsWriter.h"
+#include "vtkStructuredGridWriter.h"
+#include "vtkUnstructuredGridWriter.h"
 
 // Description:
 // Specify the input data or filter.

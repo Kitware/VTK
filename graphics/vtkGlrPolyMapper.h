@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrPolyMapper is a subclass of vtkPolyMapperDevice. vtkGlrPolyMapper is
 // a geometric PolyMapper for the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrPolyMapper_hh
-#define __vtkGlrPolyMapper_hh
+#ifndef __vtkGlrPolyMapper_h
+#define __vtkGlrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.hh"
+#include "vtkPolyMapperDevice.h"
 
 class vtkGlrRenderer;
 class vtkProperty;

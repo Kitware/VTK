@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDicer.hh"
-#include "vtkMath.hh"
-#include "vtkShortScalars.hh"
+#include "vtkDicer.h"
+#include "vtkMath.h"
+#include "vtkShortScalars.h"
 
 // Description:
 // Create object with 5000 points per piece.

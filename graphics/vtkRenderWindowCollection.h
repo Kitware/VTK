@@ -47,11 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderWindow vtkCollection
 
-#ifndef __vtkRenderWindowCollection_hh
-#define __vtkRenderWindowCollection_hh
+#ifndef __vtkRenderWindowCollection_h
+#define __vtkRenderWindowCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkRenderWindow.hh"
+#include "vtkCollection.h"
+#include "vtkRenderWindow.h"
 
 class vtkRenderWindowCollection : public vtkCollection
 {

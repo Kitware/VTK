@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkOglrLight is a concrete implementation of the abstract class vtkLight.
 // vtkOglrLight interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOglrLight_hh
-#define __vtkOglrLight_hh
+#ifndef __vtkOglrLight_h
+#define __vtkOglrLight_h
 
-#include "vtkLightDevice.hh"
+#include "vtkLightDevice.h"
 
 class vtkOglrRenderer;
 

@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkXglrProperty is a concrete implementation of the abstract class 
 // vtkProperty. vtkXglrProperty interfaces to Suns XGL rendering library.
 
-#ifndef __vtkXglrProperty_hh
-#define __vtkXglrProperty_hh
+#ifndef __vtkXglrProperty_h
+#define __vtkXglrProperty_h
 
-#include "vtkPropertyDevice.hh"
+#include "vtkPropertyDevice.h"
 
 class vtkXglrRenderer;
 

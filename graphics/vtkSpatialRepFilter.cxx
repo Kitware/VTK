@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkSpatialRepFilter.hh"
+#include "vtkSpatialRepFilter.h"
 
 vtkSpatialRepFilter::vtkSpatialRepFilter()
 {

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSliceCubes.hh
+  Module:    vtkSliceCubes.h
   Language:  C++
   Date:      11 Sep 1995
   Version:   1.12
@@ -70,9 +70,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSliceCubes_h
 #define __vtkSliceCubes_h
 
-#include "vtkObject.hh"
-#include "vtkVolumeReader.hh"
-#include "vtkMCubesReader.hh"
+#include "vtkObject.h"
+#include "vtkVolumeReader.h"
+#include "vtkMCubesReader.h"
 
 class vtkSliceCubes : public vtkObject
 {

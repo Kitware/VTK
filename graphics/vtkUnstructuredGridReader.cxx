@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGridReader.hh"
-#include "vtkByteSwap.hh"
+#include "vtkUnstructuredGridReader.h"
+#include "vtkByteSwap.h"
 
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {

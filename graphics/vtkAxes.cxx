@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAxes.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkFloatNormals.hh"
+#include "vtkAxes.h"
+#include "vtkFloatScalars.h"
+#include "vtkFloatNormals.h"
 
 // Description:
 // Construct with origin=(0,0,0) and scale factor=1.

@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointLoad.hh"
-#include "vtkMath.hh"
-#include "vtkFloatTensors.hh"
+#include "vtkPointLoad.h"
+#include "vtkMath.h"
+#include "vtkFloatTensors.h"
 
 // Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),

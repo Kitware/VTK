@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkOBJExporter_h
 
 #include <stdio.h>
-#include "vtkExporter.hh"
+#include "vtkExporter.h"
 
 class vtkOBJExporter : public vtkExporter
 {

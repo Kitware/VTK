@@ -52,10 +52,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkActor vtkCamera
 
-#ifndef __vtkFollower_hh
-#define __vtkFollower_hh
+#ifndef __vtkFollower_h
+#define __vtkFollower_h
 
-#include "vtkActor.hh"
+#include "vtkActor.h"
 class vtkCamera;
 
 class vtkFollower : public vtkActor

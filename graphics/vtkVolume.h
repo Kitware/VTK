@@ -49,13 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkActor vtkVolumeCollection vtkVolumeRenderer
 
-#ifndef __vtkVolume_hh
-#define __vtkVolume_hh
+#ifndef __vtkVolume_h
+#define __vtkVolume_h
 
-#include "vtkObject.hh"
-#include "vtkTransform.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkLookupTable.hh"
+#include "vtkObject.h"
+#include "vtkTransform.h"
+#include "vtkStructuredPoints.h"
+#include "vtkLookupTable.h"
 
 class vtkRenderer;
 

@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkExtractEdges.hh"
-#include "vtkEdgeTable.hh"
+#include "vtkExtractEdges.h"
+#include "vtkEdgeTable.h"
 
 // Description:
 // Construct object.

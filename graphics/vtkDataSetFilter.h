@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetFilter_h
 #define __vtkDataSetFilter_h
 
-#include "vtkFilter.hh"
-#include "vtkDataSet.hh"
+#include "vtkFilter.h"
+#include "vtkDataSet.h"
 
 class vtkDataSetFilter : public vtkFilter 
 {

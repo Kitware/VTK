@@ -41,17 +41,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 
-#include "vtkOglrPolyMapper.hh"
+#include "vtkOglrPolyMapper.h"
 
 #ifdef _WIN32
-#include "vtkWin32OglrRenderWindow.hh"
+#include "vtkWin32OglrRenderWindow.h"
 #else
-#include "vtkOglrRenderWindow.hh"
+#include "vtkOglrRenderWindow.h"
 #endif
-#include "vtkOglrRenderer.hh"
-#include "vtkPolyData.hh"
-#include "vtkPolygon.hh"
-#include "vtkTriangle.hh"
+#include "vtkOglrRenderer.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkTriangle.h"
 
 // Description:
 // Construct empty object.

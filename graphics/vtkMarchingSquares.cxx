@@ -39,14 +39,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkMarchingSquares.hh"
-#include "vtkMarchingSquaresCases.hh"
-#include "vtkStructuredPoints.hh"
-#include "vtkMergePoints.hh"
-#include "vtkUnsignedCharScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkIntScalars.hh"
+#include "vtkMarchingSquares.h"
+#include "vtkMarchingSquaresCases.h"
+#include "vtkStructuredPoints.h"
+#include "vtkMergePoints.h"
+#include "vtkUnsignedCharScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkFloatScalars.h"
+#include "vtkIntScalars.h"
 
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value

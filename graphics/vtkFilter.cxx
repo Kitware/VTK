@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFilter.hh"
+#include "vtkFilter.h"
 
 // Description:
 // Construct new filter without start or end methods.

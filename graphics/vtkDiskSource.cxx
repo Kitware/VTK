@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkDiskSource.hh"
-#include "vtkMath.hh"
+#include "vtkDiskSource.h"
+#include "vtkMath.h"
 
 vtkDiskSource::vtkDiskSource()
 {

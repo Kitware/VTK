@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkConnectivityFilter_h
 #define __vtkConnectivityFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.hh"
+#include "vtkDataSetToUnstructuredGridFilter.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2

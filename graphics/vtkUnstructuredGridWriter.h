@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkUnstructuredGridWriter_hh
-#define __vtkUnstructuredGridWriter_hh
+#ifndef __vtkUnstructuredGridWriter_h
+#define __vtkUnstructuredGridWriter_h
 
-#include "vtkDataWriter.hh"
-#include "vtkUnstructuredGrid.hh"
+#include "vtkDataWriter.h"
+#include "vtkUnstructuredGrid.h"
 
 class vtkUnstructuredGridWriter : public vtkDataWriter
 {

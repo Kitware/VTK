@@ -58,9 +58,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSTLReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkCellArray.hh"
+#include "vtkPolySource.h"
+#include "vtkFloatPoints.h"
+#include "vtkCellArray.h"
 
 class vtkSTLReader : public vtkPolySource 
 {

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkCyberReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 class vtkCyberReader : public vtkPolySource 
 {

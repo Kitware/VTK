@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // Binary files written on one system may not be writable on other systems.
 
-#ifndef __vtkStructuredPointsWriter_hh
-#define __vtkStructuredPointsWriter_hh
+#ifndef __vtkStructuredPointsWriter_h
+#define __vtkStructuredPointsWriter_h
 
-#include "vtkDataWriter.hh"
-#include "vtkStructuredPoints.hh"
+#include "vtkDataWriter.h"
+#include "vtkStructuredPoints.h"
 
 class vtkStructuredPointsWriter : public vtkDataWriter
 {

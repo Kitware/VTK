@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVectorText_h
 #define __vtkVectorText_h
 
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 class vtkVectorText : public vtkPolySource 
 {

@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTensorGlyph.hh"
-#include "vtkTransform.hh"
-#include "vtkFloatVectors.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkMath.hh"
+#include "vtkTensorGlyph.h"
+#include "vtkTransform.h"
+#include "vtkFloatVectors.h"
+#include "vtkFloatNormals.h"
+#include "vtkMath.h"
 
 // Description
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 

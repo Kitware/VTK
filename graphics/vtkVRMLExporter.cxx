@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVRMLExporter.hh"
-#include "vtkGeometryFilter.hh"
-#include "vtkPolyMapper.hh"
-#include "vtkMath.hh"
+#include "vtkVRMLExporter.h"
+#include "vtkGeometryFilter.h"
+#include "vtkPolyMapper.h"
+#include "vtkMath.h"
 
 vtkVRMLExporter::vtkVRMLExporter()
 {

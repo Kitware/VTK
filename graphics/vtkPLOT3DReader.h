@@ -97,9 +97,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPLOT3DReader_h
 
 #include <stdio.h>
-#include "vtkStructuredGridSource.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkFloatVectors.hh"
+#include "vtkStructuredGridSource.h"
+#include "vtkFloatScalars.h"
+#include "vtkFloatVectors.h"
 
 // file formats
 #define VTK_WHOLE_SINGLE_GRID_NO_IBLANKING 0

@@ -43,10 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkGlrProperty is a concrete implementation of the abstract class vtkProperty.
 // vtkGlrProperty interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vtkGlrProperty_hh
-#define __vtkGlrProperty_hh
+#ifndef __vtkGlrProperty_h
+#define __vtkGlrProperty_h
 
-#include "vtkPropertyDevice.hh"
+#include "vtkPropertyDevice.h"
 
 class vtkGlrRenderer;
 

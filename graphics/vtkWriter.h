@@ -54,11 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkBYUWriter vtkDataWriter vtkSTLWriter vtkVoxelWriter vtkMCubesWriter
 
-#ifndef __vtkWriter_hh
-#define __vtkWriter_hh
+#ifndef __vtkWriter_h
+#define __vtkWriter_h
 
-#include "vtkObject.hh"
-#include "vtkDataSet.hh"
+#include "vtkObject.h"
+#include "vtkDataSet.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2

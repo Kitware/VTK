@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStreamer.hh"
-#include "vtkMath.hh"
+#include "vtkStreamer.h"
+#include "vtkMath.h"
 
 vtkStreamArray::vtkStreamArray()
 {

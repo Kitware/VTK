@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkExporter.hh"
+#include "vtkExporter.h"
 
 // Description:
 // Construct with no start and end write methods or arguments.

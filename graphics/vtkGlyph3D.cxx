@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkGlyph3D.hh"
-#include "vtkTransform.hh"
-#include "vtkFloatVectors.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkMath.hh"
+#include "vtkGlyph3D.h"
+#include "vtkTransform.h"
+#include "vtkFloatVectors.h"
+#include "vtkFloatNormals.h"
+#include "vtkMath.h"
 
 // Description
 // Construct object with scaling on, scaling mode is by scalar value, 

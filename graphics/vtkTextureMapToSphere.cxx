@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTextureMapToSphere.hh"
-#include "vtkMath.hh"
+#include "vtkTextureMapToSphere.h"
+#include "vtkMath.h"
 
 // Description:
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 

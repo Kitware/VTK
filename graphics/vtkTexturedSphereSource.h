@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTexturedSphereSource_h
 #define __vtkTexturedSphereSource_h
 
-#include "vtkPolySource.hh"
+#include "vtkPolySource.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 

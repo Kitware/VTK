@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkSliceCubes.hh"
+#include "vtkSliceCubes.h"
 #include <stdio.h>
-#include "vtkMarchingCubesCases.hh"
-#include "vtkMath.hh"
-#include "vtkUnsignedCharScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkIntScalars.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkByteSwap.hh"
+#include "vtkMarchingCubesCases.h"
+#include "vtkMath.h"
+#include "vtkUnsignedCharScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkIntScalars.h"
+#include "vtkFloatScalars.h"
+#include "vtkByteSwap.h"
 
 // Description:
 // Construct with NULL reader, output filename specification, and limits 

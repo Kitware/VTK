@@ -59,12 +59,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
 
-#include "vtkRenderWindow.hh"
-#include "vtkCamera.hh"
-#include "vtkLight.hh"
-#include "vtkPicker.hh"
-#include "vtkPolyMapper.hh"
-#include "vtkOutlineSource.hh"
+#include "vtkRenderWindow.h"
+#include "vtkCamera.h"
+#include "vtkLight.h"
+#include "vtkPicker.h"
+#include "vtkPolyMapper.h"
+#include "vtkOutlineSource.h"
 
 class vtkRenderWindowInteractor : public vtkObject
 {
