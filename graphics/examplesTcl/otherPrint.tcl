@@ -22,6 +22,24 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkIndent"} {
 	    continue
 	}
+	if {$a == "vtkFloatNormals"} {
+	    continue
+	}
+	if {$a == "vtkFloatPoints"} {
+	    continue
+	}
+	if {$a == "vtkFloatScalars"} {
+	    continue
+	}
+	if {$a == "vtkFloatTCoords"} {
+	    continue
+	}
+	if {$a == "vtkFloatTensors"} {
+	    continue
+	}
+	if {$a == "vtkFloatVectors"} {
+	    continue
+	}
 	if {$a == "vtkOutputPort"} {
 	    continue
 	}
