@@ -677,6 +677,15 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
 
   Extension::WriteSupportWrapperBegin(hfile, Extension::GLX);
   hfile << "namespace vtkglX {" << endl;
+  // glxext.h is not written very well.  Add some typedefs that may not
+  // be defined.
+  hfile << "  //Miscellaneous definitions." << endl;
+  hfile << "  typedef XID GLXContextID;" << endl;
+  hfile << "  typedef XID GLXPbuffer;" << endl;
+  hfile << "  typedef XID GLXWindow;" << endl;
+  hfile << "  typedef XID GLXFBConfigID;" << endl;
+  hfile << "  typedef int int32_t;" << endl;
+  hfile << "  typedef long long int64_t;" << endl;
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GLX);
   hfile << "}" << endl;
