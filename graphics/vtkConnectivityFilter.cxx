@@ -228,11 +228,11 @@ void vtkConnectivityFilter::Execute()
 	  minId = i;
           minDist2 = dist2;
 	  }
-	input->GetPointCells(minId,cellIds);
-	for (j=0; j < cellIds->GetNumberOfIds(); j++) 
-	  {
-	  this->RecursionSeeds->InsertNextId(cellIds->GetId(j));
-	  }
+	}
+      input->GetPointCells(minId,cellIds);
+      for (j=0; j < cellIds->GetNumberOfIds(); j++) 
+	{
+	this->RecursionSeeds->InsertNextId(cellIds->GetId(j));
 	}
       }
     this->UpdateProgress (0.5);

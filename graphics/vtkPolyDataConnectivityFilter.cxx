@@ -236,11 +236,11 @@ void vtkPolyDataConnectivityFilter::Execute()
 	  minId = i;
           minDist2 = dist2;
 	  }
-        this->Mesh->GetPointCells(minId,ncells,cells);
-        for (j=0; j < ncells; j++) 
-	  {
-          this->RecursionSeeds->InsertNextId(cells[j]);
-	  }
+	}
+      this->Mesh->GetPointCells(minId,ncells,cells);
+      for (j=0; j < ncells; j++) 
+	{
+        this->RecursionSeeds->InsertNextId(cells[j]);
 	}
       }
     this->UpdateProgress (0.5);
