@@ -76,7 +76,7 @@ STRING (REGEX REPLACE
 IF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the info objects.*")
   STRING (REGEX REPLACE  
     "::ExecuteInformation[ \t]*\\([^{]*{"
-    "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     this->GetInputConnectionInformation(inputVector,0,0);\n"
+    "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
 ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the info objects.*")
 
@@ -90,7 +90,7 @@ STRING (REGEX REPLACE
 IF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
   STRING (REGEX REPLACE  
     "::RequestUpdateExtent[ \t]*\\([^{]*{"
-    "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     this->GetInputConnectionInformation(inputVector,0,0);\n"
+    "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
 ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
 
