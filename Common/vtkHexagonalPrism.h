@@ -103,8 +103,6 @@ protected:
   vtkCellData      *CellData;
   vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
 
-  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
-
 private:
   vtkHexagonalPrism(const vtkHexagonalPrism&);  // Not implemented.
   void operator=(const vtkHexagonalPrism&);  // Not implemented.
