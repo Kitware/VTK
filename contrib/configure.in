@@ -1,7 +1,7 @@
 #
 # configure script for vtk source directory
 #
-AC_INIT(vtkRIBExporter.cxx)
+AC_INIT(vtkIVWriter.cxx)
 
 #
 # check for some programs we use
