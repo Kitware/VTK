@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.90");
+vtkCxxRevisionMacro(vtkDataWriter, "1.91");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -663,6 +663,15 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     {
     char format[1024];
     *fp << "SCALARS ";
+
+    // Buffer size is size of array name times four because 
+    // in theory there could be array name consisting of only
+    // weird symbols.
+    char *buffer = new char[ strlen(scalars->GetName()) * 4 + 1];
+    this->EncodeArrayName(buffer, scalars->GetName());
+    this->SetScalarsName(buffer);
+    delete [] buffer;
+
     if (numComp == 1) 
       {
       sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n",this->ScalarsName, name);
@@ -737,6 +746,15 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
   char format[1024];
 
   *fp << "VECTORS ";
+
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  char *buffer = new char[ strlen(vectors->GetName()) * 4 + 1];
+  this->EncodeArrayName(buffer, vectors->GetName());
+  this->SetVectorsName(buffer);
+  delete [] buffer;
+
   sprintf(format, "%s %s\n", this->VectorsName, "%s");
   return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
@@ -744,6 +762,14 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
 int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
 {
   char format[1024];
+
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  char *buffer = new char[ strlen(normals->GetName()) * 4 + 1];
+  this->EncodeArrayName(buffer, normals->GetName());
+  this->SetNormalsName(buffer);
+  delete [] buffer;
 
   *fp << "NORMALS ";
   sprintf(format, "%s %s\n", this->NormalsName, "%s");
@@ -755,6 +781,14 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
 
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  char *buffer = new char[ strlen(tcoords->GetName()) * 4 + 1];
+  this->EncodeArrayName(buffer, tcoords->GetName());
+  this->SetTCoordsName(buffer);
+  delete [] buffer;
+
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
   return this->WriteArray(fp, tcoords->GetDataType(), tcoords, format, num, 
@@ -764,6 +798,14 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
 int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
 {
   char format[1024];
+
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  char *buffer = new char[ strlen(tensors->GetName()) * 4 + 1];
+  this->EncodeArrayName(buffer, tensors->GetName());
+  this->SetTensorsName(buffer);
+  delete [] buffer;
 
   *fp << "TENSORS "; 
   sprintf(format, "%s %s\n", this->TensorsName, "%s");

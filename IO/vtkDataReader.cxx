@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.124");
+vtkCxxRevisionMacro(vtkDataReader, "1.125");
 vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1138,13 +1138,16 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   int skipScalar=0;
   vtkDataArray *data;
   int numComp = 1;
+  char buffer[1024];
   
-  if (!(this->ReadString(name) && this->ReadString(line)))
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
     {
     vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
     << this->FileName);
     return 0;
     }
+
+  this->DecodeArrayName(name, buffer);
 
   if (!this->ReadString(key))
     {
@@ -1219,12 +1222,14 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
   int skipVector=0;
   char line[256], name[256];
   vtkDataArray *data;
+  char buffer[1024];
 
-  if (!(this->ReadString(name) && this->ReadString(line)))
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
     {
     vtkErrorMacro(<<"Cannot read vector data!" << " for file: " << this->FileName);
     return 0;
     }
+  this->DecodeArrayName(name, buffer);
 
   //
   // See whether vector has been already read or vector name (if specified) 
@@ -1262,13 +1267,14 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
   int skipNormal=0;
   char line[256], name[256];
   vtkDataArray *data;
+  char buffer[1024];
 
-  if (!(this->ReadString(name) && this->ReadString(line)))
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
     {
     vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << this->FileName);
     return 0;
-
     }
+  this->DecodeArrayName(name, buffer);
 
   //
   // See whether normal has been already read or normal name (if specified) 
@@ -1306,12 +1312,14 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
   int skipTensor=0;
   char line[256], name[256];
   vtkDataArray *data;
+  char buffer[1024];
 
-  if (!(this->ReadString(name) && this->ReadString(line)))
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
     {
     vtkErrorMacro(<<"Cannot read tensor data!" << " for file: " << this->FileName);
     return 0;
     }
+  this->DecodeArrayName(name, buffer);
   //
   // See whether tensor has been already read or tensor name (if specified) 
   // matches name in file. 
@@ -1347,13 +1355,15 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 {
   int i, j, idx, numComp, skipScalar=0;
   char name[256];
+  char buffer[1024];
 
-  if (!(this->ReadString(name) && this->Read(&numComp)))
+  if (!(this->ReadString(buffer) && this->Read(&numComp)))
     {
     vtkErrorMacro(<<"Cannot read color scalar data!" << " for file: " 
                   << this->FileName);
     return 0;
     }
+  this->DecodeArrayName(name, buffer);
   //
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
@@ -1432,13 +1442,15 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
   int skipTCoord = 0;
   char line[256], name[256];
   vtkDataArray *data;
+  char buffer[1024];
 
-  if (!(this->ReadString(name) && this->Read(&dim) && 
+  if (!(this->ReadString(buffer) && this->Read(&dim) && 
         this->ReadString(line)))
     {
     vtkErrorMacro(<<"Cannot read texture data!" << " for file: " << this->FileName);
     return 0;
     }
+  this->DecodeArrayName(name, buffer);
 
   if ( dim < 1 || dim > 3 )
     {
