@@ -9,8 +9,8 @@ pnggccrd.c  pngread.c   pngset.c   pngwio.c
 )
 
 CONFIGURE_FILE(
-${PNG_SOURCE_DIR}/.NoDartCoverage 
-${PNG_BINARY_DIR}/.NoDartCoverage)
+${VTKPNG_SOURCE_DIR}/.NoDartCoverage 
+${VTKPNG_BINARY_DIR}/.NoDartCoverage)
 
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)

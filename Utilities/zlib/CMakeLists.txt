@@ -10,8 +10,8 @@ inflate.c   trees.c
 )
 
 CONFIGURE_FILE(
-${ZLIB_SOURCE_DIR}/.NoDartCoverage 
-${ZLIB_BINARY_DIR}/.NoDartCoverage)
+${VTKZLIB_SOURCE_DIR}/.NoDartCoverage 
+${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
 
 # for windows add the .def and .rc files to the source list
 IF(WIN32)
