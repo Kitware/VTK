@@ -52,11 +52,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkPolyData;
 
 // Arbitrary tags used by the ports for communication.
-#define VTK_PORT_DOWN_DATA_TIME_TAG      989877
-#define VTK_PORT_UPDATE_EXTENT_TAG       389870
-#define VTK_PORT_TRANSFER_NEEDED_TAG     564441
-#define VTK_PORT_DATA_TRANSFER_TAG       666665
-#define VTK_PORT_NEW_DATA_TIME_TAG       100110
+#define VTK_PORT_DOWN_DATA_TIME_TAG         98970
+#define VTK_PORT_UPDATE_EXTENT_TAG          98971
+#define VTK_PORT_TRANSFER_NEEDED_TAG        98972
+#define VTK_PORT_INFORMATION_TRANSFER_TAG   98973
+#define VTK_PORT_DATA_TRANSFER_TAG          98974
+#define VTK_PORT_NEW_DATA_TIME_TAG          98975
 
 
 class VTK_EXPORT vtkDownStreamPort : public vtkSource
@@ -76,6 +77,7 @@ public:
   // Description:
   // Output is specified by the process the output port is in,
   // and a tag so there can be more than one output port per process.
+  // THE TAG MUST BE EVEN BECAUSE TWO RMIs ARE CREATED FROM IT!!!
   vtkSetMacro(UpStreamProcessId, int);
   vtkGetMacro(UpStreamProcessId, int);
   vtkSetMacro(Tag, int);

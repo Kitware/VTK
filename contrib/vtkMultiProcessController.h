@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Set the number of processes you will be using.  This defaults
-  // to the value spawned by MPI.  If you set this to a value
+  // to the maximum number available.  If you set this to a value
   // higher than the default, you will get an error.
   virtual void SetNumberOfProcesses(int num);
   vtkGetMacro( NumberOfProcesses, int );
@@ -204,8 +204,12 @@ protected:
   int ReadPolyData(vtkPolyData *object);
   void CopyPolyData(vtkPolyData *src, vtkPolyData *dest);
 
-  int WriteUnstructuredExtent(vtkUnstructuredExtent *object);
-  int ReadUnstructuredExtent(vtkUnstructuredExtent *object);
+  int WriteExtent(vtkExtent *object);
+  int ReadExtent(vtkExtent *object);
+
+  int WriteDataInformation(vtkDataInformation *info);
+  int ReadDataInformation(vtkDataInformation *info);
+
 };
 
 

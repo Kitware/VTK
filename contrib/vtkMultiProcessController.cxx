@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
+#include "vtkThreadController.h"
 
 #include "vtkCollection.h"
 #include "vtkPolyDataReader.h"
@@ -107,7 +107,7 @@ vtkMultiProcessController::~vtkMultiProcessController()
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {
-  return vtkMPIController::New();
+  return vtkThreadController::New();
 }
 
 
@@ -338,6 +338,26 @@ void vtkMultiProcessController::ProcessRMIs()
     }
 }
 
+
+//----------------------------------------------------------------------------
+// Internal method.  Assumes responsibility for deleting the string
+void vtkMultiProcessController::DeleteAndSetMarshalString(char *str, 
+							  int strLength)
+{
+  // delete any previous srting
+  if (this->MarshalString)
+    {
+    delete [] this->MarshalString;
+    this->MarshalString = NULL;
+    this->MarshalStringLength = 0;
+    this->MarshalDataLength = 0;
+    }
+  
+  this->MarshalString = str;
+  this->MarshalStringLength = strLength;
+}
+
+
   
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::WriteObject(vtkObject *data)
@@ -349,6 +369,13 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
   if (strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
     {
     return this->WriteUnstructuredExtent((vtkUnstructuredExtent*)data);
+    }
+  if (strcmp(data->GetClassName(), "vtkDataInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkUnstructuredInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkImageInformation") == 0)
+    {
+    return this->WriteInformation((vtkDataInformation*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
@@ -363,9 +390,18 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
     {
     return this->ReadPolyData((vtkPolyData*)data);
     }
-  if (strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
+  if (strcmp(data->GetClassName(), "vtkExtent") == 0 || 
+      strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
+      strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
     {
-    return this->ReadUnstructuredExtent((vtkUnstructuredExtent*)data);
+    return this->ReadExtent((vtkExtent*)data);
+    }
+  if (strcmp(data->GetClassName(), "vtkDataInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkUnstructuredInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
+      strcmp(data->GetClassName(), "vtkImageInformation") == 0)
+    {
+    return this->ReadInformation((vtkDataInformation*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
@@ -472,14 +508,11 @@ void vtkMultiProcessController::CopyPolyData(vtkPolyData *src, vtkPolyData *dest
 
 
 //----------------------------------------------------------------------------
-int 
-vtkMultiProcessController::WriteUnstructuredExtent(vtkUnstructuredExtent *ext)
+int vtkMultiProcessController::WriteExtent(vtkExtent *ext)
 {
   ostrstream *fptr = new ostrstream();
   
-  *fptr << ext->GetClassName() << endl;
-  *fptr << ext->GetPiece() << " ";
-  *fptr << ext->GetNumberOfPieces() << endl;
+  ext->WriteSelf(*fptr);
   
   // I am responsible for deleting this string.
   this->DeleteAndSetMarshalString(fptr->str(), fptr->pcount());
@@ -492,8 +525,7 @@ vtkMultiProcessController::WriteUnstructuredExtent(vtkUnstructuredExtent *ext)
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadUnstructuredExtent(
-                                             vtkUnstructuredExtent *object)
+int vtkMultiProcessController::ReadExtent(vtkExtent *ext)
 {
   istrstream *fptr;
   char name[100];
@@ -505,18 +537,7 @@ int vtkMultiProcessController::ReadUnstructuredExtent(
     }
   
   fptr = new istrstream(this->MarshalString, this->MarshalStringLength);
-  
-  *fptr >> name;
-  if (strcmp(name, "vtkUnstructuredExtent") != 0)
-    {
-    vtkErrorMacro("Expecting vtkUnstructuredExtent: got " << name);
-    delete fptr;
-    return 0;
-    }
-  
-  *fptr >> t1 >> t2;
-  object->SetExtent(t1, t2);
-  
+  ext->ReadSelf(*fptr);
   delete fptr;
   
   return 1;
@@ -524,23 +545,41 @@ int vtkMultiProcessController::ReadUnstructuredExtent(
 
 
 //----------------------------------------------------------------------------
-// Internal method.  Assumes responsibility for deleting the string
-void vtkMultiProcessController::DeleteAndSetMarshalString(char *str, 
-							  int strLength)
+int vtkMultiProcessController::WriteDataInformation(vtkDataInformation *info)
 {
-  // delete any previous srting
-  if (this->MarshalString)
-    {
-    delete [] this->MarshalString;
-    this->MarshalString = NULL;
-    this->MarshalStringLength = 0;
-    this->MarshalDataLength = 0;
-    }
+  ostrstream *fptr = new ostrstream();
   
-  this->MarshalString = str;
-  this->MarshalStringLength = strLength;
+  info->WriteSelf(*fptr);
+  
+  // I am responsible for deleting this string.
+  this->DeleteAndSetMarshalString(fptr->str(), fptr->pcount());
+
+  // save the actual length of the data string.
+  this->MarshalDataLength = this->MarshalStringLength;
+  delete fptr;
+  
+  return 1;
 }
 
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::ReadDataInformation(vtkDataInformation *info)
+{
+  istrstream *fptr;
+  char name[100];
+  int t1, t2;
+  
+  if (this->MarshalString == NULL || this->MarshalStringLength == 0)
+    {
+    return 0;
+    }
+  
+  fptr = new istrstream(this->MarshalString, this->MarshalStringLength);
+  info->ReadSelf(*fptr);
+  delete fptr;
+  
+  return 1;
+}
 
 
 

@@ -70,6 +70,7 @@ public:
   // Output is specified by the process the output port is in,
   // and a tag so there can be more than one output port per process.
   // Tag must be set before this port can be used.
+  // THIS TAG MUST BE EVEN BECAUSE TWO RMIs ARE CREATED FROM IT!!!
   void SetTag(int tag);
   vtkGetMacro(Tag, int);
   
@@ -85,9 +86,10 @@ public:
   vtkMultiProcessController *GetController() {return this->Controller;}
 
   // Description:
-  // RMI function needs to call this.  Should make it a friend.
+  // RMI function needs to call this.  Should make function a friend.
   // No one else should call it.
-  void Trigger(int remoteProcessId);
+  void TriggerUpdateInformation(int remoteProcessId);
+  void TriggerUpdate(int remoteProcessId);
   
 protected:
   vtkUpStreamPort();

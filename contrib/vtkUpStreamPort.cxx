@@ -75,99 +75,89 @@ void vtkUpStreamPort::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Remote method call to start an update.
-// Actually call by UpdateInformation.
+// Remote method call to UpdateInformation and send the information downstream.
+// This should be a friend.
+void vtkUpStreamPortUpdateInformationCallBack(void *arg, int remoteProcessId)  
+{
+  vtkUpStreamPort *self = (vtkUpStreamPort*)arg;
+  
+  // Just call a method
+  self->TriggerUpdateInformation(remoteProcessId);
+}
+//----------------------------------------------------------------------------
+void vtkUpStreamPort::TriggerUpdateInformation(int remoteProcessId)
+{
+  vtkDataObject *input = this->GetInput();
+  
+  // Handle no input gracefully.
+  if ( input != NULL )
+    {
+    input->UpdateInformation();
+    }
+
+  // Now just send the information downstream.
+  // PipelineMTime is part of information, so downstream
+  // port will make the time comparison, and call Update if necessary.
+  this->Controller->Send( input->GetDataInformation(), remoteProcessId,
+			  VTK_PORT_INFORMATION_TRANSFER_TAG);
+}
+
+
+//----------------------------------------------------------------------------
+// Remote method call to Update and send data downstream.
+// This should be a friend.
 void vtkUpStreamPortUpdateCallBack(void *arg, int remoteProcessId)  
 {
   vtkUpStreamPort *self = (vtkUpStreamPort*)arg;
   
   // Just call a method
-  self->Trigger(remoteProcessId);
+  self->TriggerUpdate(remoteProcessId);
 }
-
-  
 //----------------------------------------------------------------------------
-void vtkUpStreamPort::Trigger(int remoteProcessId)
+void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
 {
   vtkDataObject *input = this->GetInput();
-  unsigned long pmt, downDataTime;
-  int transferNeeded;
   
   // First get the update extent requested.
   this->Controller->Receive((vtkObject*)(input->GetGenericUpdateExtent()),
 			    remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
-  
-  // Second, receive the previous "TransferTime" from the down stream port.
-  this->Controller->Receive( &downDataTime, 1, remoteProcessId, 
-			     VTK_PORT_DOWN_DATA_TIME_TAG);
-  
-  // Handle no input gracefully.
-  if ( input == NULL )
-    {
-    vtkErrorMacro("Input is not set.");
-    transferNeeded = 0;
-    this->Controller->Send( &transferNeeded, 1, remoteProcessId,
-			    VTK_PORT_TRANSFER_NEEDED_TAG);
-    return;
-    }
-
-  // Get PipelineMTime.
-  input->UpdateInformation();
-  pmt = input->GetPipelineMTime();
     
-  // See if the down stream port needs new data.
-  transferNeeded = (pmt > downDataTime);
-  
-  // Send message back whether to expect data.
-  this->Controller->Send( &transferNeeded, 1, remoteProcessId,
-			  VTK_PORT_TRANSFER_NEEDED_TAG);
-  
-  if ( ! transferNeeded)
-    {
-    return;
-    }
-  
-  // Now, it is a little unusual to have an update during an
-  // UpdateInformation call.  However, it is the only way to
-  // get task parallelism initiated in parallel without defining
-  // a non-blocking update in vtkSource.  One note: A second 
-  // call to UpdateInformation could block while this Update
-  // is finishing.  This should not be a problem now that there
-  // is only one UpdateInformation per Update 
-  // (thanks to InternalUpdate). Ah! But if we have more than
-  // one port in a serially linked pipeline, each one adds another 
-  // call to UpdateInformation.  I am assume this will not cause 
-  // a problem.  STREAMING (BABY)!
-  
-  // Do we need to update?
-  if (pmt > this->UpdateTime)
+  // Handle no input gracefully.
+  if ( input != NULL )
     {
     input->InternalUpdate();
-    this->UpdateTime.Modified();
     }
+
+  // Since this time has to be local to downstream process
+  // and we have no data, we have to create a time here.
+  // (The output data usually does this.) 
+  this->UpdateTime.Modified();
+
   
+  // This is to time the marshaling and transfer of data.
   if ( this->StartMethod )
     {
     (*this->StartMethod)(this->StartMethodArg);
-    }  
+    }   
   
-  
-  // The data transfer is received in the down stream ports Update method.
   // First transfer the new data.
   this->Controller->Send( input, remoteProcessId,
 			  VTK_PORT_DATA_TRANSFER_TAG);
-  // Last, send its time for the down stream port to store.
-  downDataTime = this->UpdateTime.GetMTime();
-  this->Controller->Send( &downDataTime, 1, remoteProcessId,
-			  VTK_PORT_NEW_DATA_TIME_TAG);
-  
+
   if ( this->EndMethod )
     {
     (*this->EndMethod)(this->EndMethodArg);
     }
-}
 
+  // Since this UpStreamPort can have multiple DownStreamPorts
+  // and the DownStreamPort makes the update-descision time comparison,
+  // the DownStreamPort has to store this time.
+  downDataTime = this->UpdateTime.GetMTime();
+  this->Controller->Send( &downDataTime, 1, remoteProcessId,
+			  VTK_PORT_NEW_DATA_TIME_TAG);
+  
+}
 
 
 
@@ -190,7 +180,10 @@ vtkDataObject *vtkUpStreamPort::GetInput()
 
 
 //----------------------------------------------------------------------------
-// We need to create an RMI when the tag is set.
+// We need to create two RMIs when the tag is set.
+// This means we must generate two tags form this ports tag.
+// The ports tag should be even. 
+// (I do not like this, but is there another solution?)
 void vtkUpStreamPort::SetTag(int tag)
 {
   if (this->Tag == tag)
@@ -203,11 +196,16 @@ void vtkUpStreamPort::SetTag(int tag)
   // remove old RMI.
   if (this->Tag != -1)
     {
-    this->Controller->RemoveRMI(vtkUpStreamPortUpdateCallBack, (void *)this, this->Tag);
+    this->Controller->RemoveRMI(vtkUpStreamPortUpdateCallBack, 
+                                (void *)this, this->Tag);
+    this->Controller->RemoveRMI(vtkUpStreamPortUpdateInformationCallBack, 
+                                (void *)this, this->Tag + 1);
     }
   
   this->Tag = tag;
   this->Controller->AddRMI(vtkUpStreamPortUpdateCallBack, (void *)this, tag);
+  this->Controller->AddRMI(vtkUpStreamPortUpdateInformationCallBack, 
+                           (void *)this, tag+1);
 }
 
 
