@@ -43,6 +43,11 @@ public:
   // must already be managed by this executive.  Returns 1 for success
   // and 0 for failure.
   virtual int Update(vtkAlgorithm* algorithm);
+
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetOutputData(int port);
+  virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
 protected:
   vtkDistributedExecutive();
   ~vtkDistributedExecutive();

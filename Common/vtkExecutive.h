@@ -28,6 +28,7 @@
 
 class vtkAlgorithm;
 class vtkAlgorithmToExecutiveFriendship;
+class vtkDataObject;
 
 class VTK_COMMON_EXPORT vtkExecutive : public vtkObject
 {
@@ -40,6 +41,10 @@ public:
   // must already be managed by this executive.  Returns 1 for success
   // and 0 for failure.
   virtual int Update(vtkAlgorithm* algorithm)=0;
+
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port)=0;
 
   // Description:
   // Decrement the count of references to this object and participate
