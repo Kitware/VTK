@@ -234,9 +234,6 @@ protected:
   float Wvinf;
   
   //methods to read data
-  int ReadASCIIGrid(FILE *fp);
-  int ReadASCIISolution(FILE *fp);
-  int ReadASCIIFunctionFile(FILE *fp);
   int ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output);
   int ReadBinarySolution(FILE *fp, vtkStructuredGrid *output);
   int ReadBinaryFunctionFile(FILE *fp);

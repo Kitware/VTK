@@ -351,4 +351,12 @@ void Get##name (type data[count]) \
 #define vtkErrorMacro(x) \
   cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
+//
+// This macro is used to quiet compiler warnings about unused parameters
+// to methods. Only use it when the parameter really shouldn't be used.
+// Don't use it as a way to shut up the compiler while you take your
+// sweet time getting around to implementing the method.
+//
+#define vtkNotUsed(x)
+
 #endif
