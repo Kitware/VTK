@@ -93,22 +93,22 @@ int main (int argc, char *argv[])
   /* some more tcl rules */
   for (i = concrete_start; i <= concrete_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_start; i <= abstract_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
   for (i = concrete_h_start; i <= concrete_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_h_start; i <= abstract_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
 
@@ -165,9 +165,9 @@ int main (int argc, char *argv[])
     if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"../java/vtk/%s.java: %s.h ../java/java_parse\n\trm -f ../java/vtk/%s.java; ../java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
+      fprintf(fp,"../java/vtk/%s.java: %s.h ../java/java_parse ../tcl/hints\n\trm -f ../java/vtk/%s.java; ../java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
-      fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
+      fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap ../tcl/hints\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
