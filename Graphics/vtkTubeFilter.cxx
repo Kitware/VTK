@@ -77,14 +77,15 @@ vtkTubeFilter::vtkTubeFilter()
 
 void vtkTubeFilter::Execute()
 {
-  int i, j, k;
+  vtkIdType i;
+  int j, k;
   vtkPoints *inPts;
   vtkCellArray *inLines = NULL;
   vtkNormals *inNormals;
   vtkScalars *inScalars=NULL;
   vtkVectors *inVectors=NULL;
-  int numPts = 0;
-  int numNewPts;
+  vtkIdType numPts = 0;
+  vtkIdType numNewPts;
   vtkPoints *newPts;
   vtkNormals *newNormals;
   vtkCellArray *newStrips;
@@ -96,7 +97,8 @@ void vtkTubeFilter::Execute()
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
   float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
-  int deleteNormals=0, ptId;
+  vtkIdType ptId;
+  int deleteNormals=0;
   float sFactor=1.0, range[2];
   vtkPointData *pd, *outPD;
   vtkPolyData *input = this->GetInput();
@@ -383,11 +385,12 @@ void vtkTubeFilter::Execute()
   // Take care of capping
   if (this->Capping)
     {
-    int offset = newPts->GetNumberOfPoints();
-    int st, e;
+    vtkIdType offset = newPts->GetNumberOfPoints();
+    vtkIdType st, e;
     // Insert new points (different normals)
-    int num = capPoints->GetNumberOfPoints();
+    vtkIdType num = capPoints->GetNumberOfPoints();
     float *tmp;
+    
     for (i = 0; i < num; ++i)
       {
       tmp = capPoints->GetPoint(i);
@@ -477,4 +480,3 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
      " )\n";
   os << indent << "Capping: " << this->Capping << endl;
 }
-

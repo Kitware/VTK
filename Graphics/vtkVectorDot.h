@@ -81,5 +81,3 @@ protected:
 };
 
 #endif
-
-

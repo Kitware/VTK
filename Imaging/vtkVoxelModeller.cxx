@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoxelModeller.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkVoxelModeller* vtkVoxelModeller::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkVoxelModeller* vtkVoxelModeller::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkVoxelModeller;
 }
-
-
-
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
 // set to (50,50,50), and so that the model bounds are
@@ -86,14 +81,16 @@ vtkVoxelModeller::vtkVoxelModeller()
 // Specify the position in space to perform the voxelization.
 void vtkVoxelModeller::SetModelBounds(float bounds[6])
 {
-  vtkVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3],
+                                   bounds[4], bounds[5]);
 }
 
-void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin,
+                                      float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
-  this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
-  this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
+      this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
+      this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
     {
     this->Modified();
     this->ModelBounds[0] = xmin;
@@ -107,12 +104,13 @@ void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float 
 
 void vtkVoxelModeller::Execute()
 {
-  int cellNum, i, j, k;
+  vtkIdType cellNum, i;
+  int j, k;
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
   vtkScalars *newScalars;
-  int numPts, idx, numCells;
+  vtkIdType numPts, idx, numCells;
   int subId;
   int min[3], max[3];
   float x[3], distance2;
@@ -128,7 +126,8 @@ void vtkVoxelModeller::Execute()
 //
   vtkDebugMacro(<< "Executing Voxel model");
 
-  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
+  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
+    this->SampleDimensions[2];
   newScalars = vtkScalars::New(VTK_BIT);
   newScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++)
@@ -164,10 +163,8 @@ void vtkVoxelModeller::Execute()
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
-      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
-                      spacing[i]);
-      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
-                      spacing[i]);
+      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / spacing[i]);
+      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / spacing[i]);
       if (min[i] < 0)
 	{
 	min[i] = 0;
@@ -192,10 +189,11 @@ void vtkVoxelModeller::Execute()
 	    {
 	    x[0] = spacing[0] * i + origin[0];
 
-	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, distance2, weights) != -1 &&
-	    ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
-            (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
-	    (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
+	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords,
+                                        distance2, weights) != -1 &&
+                 ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
+                  (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
+                  (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
 	      {
 	      newScalars->SetScalar(idx,1);
 	      }
@@ -277,10 +275,12 @@ void vtkVoxelModeller::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
 
-  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1]
+                << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != this->SampleDimensions[1] ||
-  dim[2] != this->SampleDimensions[2] )
+  if ( dim[0] != this->SampleDimensions[0] ||
+       dim[1] != this->SampleDimensions[1] ||
+       dim[2] != this->SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
@@ -386,8 +386,10 @@ void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";
   os << indent << "Model Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", "
+     << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", "
+     << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", "
+     << this->ModelBounds[5] << ")\n";
 }
-

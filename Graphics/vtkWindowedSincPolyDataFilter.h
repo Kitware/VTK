@@ -216,7 +216,6 @@ public:
   vtkSetMacro(GenerateErrorVectors,int);
   vtkGetMacro(GenerateErrorVectors,int);
   vtkBooleanMacro(GenerateErrorVectors,int);
-
   
  protected:
   vtkWindowedSincPolyDataFilter();
@@ -234,7 +233,6 @@ public:
   int BoundarySmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;
-
 };
 
 #endif 
