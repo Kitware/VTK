@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSourceCons_h
 
 
-#include "vtkObject.hh"
-#include "vtkImageSource.hh"
+#include "vtkObject.h"
+#include "vtkImageSource.h"
 
 class vtkImageSourceCons : public vtkObject 
 {

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dFourierWaveletFilter_h
 
 #include <math.h>
-#include "vtkImageFilter.hh"
+#include "vtkImageFilter.h"
 
 class vtkImage2dFourierWaveletFilter : public vtkImageFilter
 {

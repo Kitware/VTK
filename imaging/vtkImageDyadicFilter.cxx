@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDyadicFilter.hh"
-#include "vtkImageCache.hh"
+#include "vtkImageDyadicFilter.h"
+#include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------

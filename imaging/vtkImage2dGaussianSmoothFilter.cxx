@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage2dGaussianSmoothFilter.hh"
+#include "vtkImage2dGaussianSmoothFilter.h"
 
 //----------------------------------------------------------------------------
 // Description:

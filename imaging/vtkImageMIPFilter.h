@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMIPFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImageFilter.h"
 
 class vtkImageMIPFilter : public vtkImageFilter
 {

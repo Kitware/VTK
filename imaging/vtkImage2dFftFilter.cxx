@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage2dFftFilter.hh"
+#include "vtkImage2dFftFilter.h"
 
 //----------------------------------------------------------------------------
 // Description:

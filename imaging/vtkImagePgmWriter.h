@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkObject.hh"
-#include "vtkImageSource.hh"
+#include "vtkObject.h"
+#include "vtkImageSource.h"
 
 class vtkImagePgmWriter : public vtkObject 
 {

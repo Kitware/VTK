@@ -54,9 +54,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	<stdlib.h>
 #include 	<iostream.h>
 
-#include 	"vtkObject.hh"
-#include 	"vtkImageSource.hh"
-#include 	"vtkImageRegion.hh"
+#include 	"vtkObject.h"
+#include 	"vtkImageSource.h"
+#include 	"vtkImageRegion.h"
 
 class vtkImageXViewer : public vtkObject {
 public:

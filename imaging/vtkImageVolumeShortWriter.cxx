@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageVolumeShortWriter.hh"
+#include "vtkImageVolumeShortWriter.h"
 
 //----------------------------------------------------------------------------
 // Description:

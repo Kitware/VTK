@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageVolumeShortReader.hh"
-#include "vtkImageCache.hh"
+#include "vtkImageVolumeShortReader.h"
+#include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 // Description:

@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage1dConvolutionFilter_h
 
 
-#include "vtkImage1dSpatialFilter.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImage1dSpatialFilter.h"
+#include "vtkImageRegion.h"
 
 class vtkImage1dConvolutionFilter : public vtkImage1dSpatialFilter
 {

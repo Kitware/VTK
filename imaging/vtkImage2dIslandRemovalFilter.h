@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dIslandRemovalFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImageFilter.h"
 
 
 

@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageLowerThresholdFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImageFilter.h"
 
 class vtkImageLowerThresholdFilter : public vtkImageFilter
 {

@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageDyadicFilter_h
 
 
-#include "vtkImageCachedSource.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImageCachedSource.h"
+#include "vtkImageRegion.h"
 
 class vtkImageDyadicFilter : public vtkImageCachedSource
 {

@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImagePadFilter.hh"
+#include "vtkImagePadFilter.h"
 
 
 //----------------------------------------------------------------------------

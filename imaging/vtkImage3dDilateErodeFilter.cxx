@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage3dDilateErodeFilter.hh"
+#include "vtkImage3dDilateErodeFilter.h"
 
 
 //----------------------------------------------------------------------------

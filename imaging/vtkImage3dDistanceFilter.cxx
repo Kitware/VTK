@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage3dDistanceFilter.hh"
+#include "vtkImage3dDistanceFilter.h"
 
 //----------------------------------------------------------------------------
 // Description:

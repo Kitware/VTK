@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageDifferenceFilter_h
 
 
-#include "vtkImageDyadicFilter.hh"
+#include "vtkImageDyadicFilter.h"
 
 class vtkImageDifferenceFilter : public vtkImageDyadicFilter
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageXViewer.hh"
+#include "vtkImageXViewer.h"
 
 //----------------------------------------------------------------------------
 vtkImageXViewer::vtkImageXViewer()

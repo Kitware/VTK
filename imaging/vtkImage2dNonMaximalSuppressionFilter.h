@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dNonMaximalSuppressionFilter_h
 
 
-#include "vtkImageSpatialFilter.hh"
+#include "vtkImageSpatialFilter.h"
 
 class vtkImage2dNonMaximalSuppressionFilter : public vtkImageSpatialFilter
 {

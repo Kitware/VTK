@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImage2dGradientFilter.hh"
+#include "vtkImage2dGradientFilter.h"
 
 
 //----------------------------------------------------------------------------

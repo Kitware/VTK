@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dDistanceFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dDistanceFilter.hh"
+#include "vtkImage2dDecomposedFilter.h"
+#include "vtkImage1dDistanceFilter.h"
 
 class vtkImage2dDistanceFilter : public vtkImage2dDecomposedFilter
 {

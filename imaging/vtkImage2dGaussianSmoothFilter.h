@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dGaussianSmoothFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dGaussianSmoothFilter.hh"
+#include "vtkImage2dDecomposedFilter.h"
+#include "vtkImage1dGaussianSmoothFilter.h"
 
 class vtkImage2dGaussianSmoothFilter : public vtkImage2dDecomposedFilter
 {

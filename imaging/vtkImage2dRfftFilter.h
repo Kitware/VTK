@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dRfftFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dRfftFilter.hh"
+#include "vtkImage2dDecomposedFilter.h"
+#include "vtkImage1dRfftFilter.h"
 
 class vtkImage2dRfftFilter : public vtkImage2dDecomposedFilter
 {

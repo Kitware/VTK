@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage1dGaussianSmoothFilter_h
 
 
-#include "vtkImage1dConvolutionFilter.hh"
+#include "vtkImage1dConvolutionFilter.h"
 
 class vtkImage1dGaussianSmoothFilter : public vtkImage1dConvolutionFilter
 {

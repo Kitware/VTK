@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage2dFourierWaveletFilter.hh"
+#include "vtkImage2dFourierWaveletFilter.h"
 
 
 //----------------------------------------------------------------------------

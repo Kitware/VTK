@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage2dDistanceFilter.hh"
+#include "vtkImage2dDistanceFilter.h"
 
 //----------------------------------------------------------------------------
 // Description:

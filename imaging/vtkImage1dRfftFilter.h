@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage1dRfftFilter_h
 
 
-#include "vtkImageFourierFilter.hh"
+#include "vtkImageFourierFilter.h"
 
 class vtkImage1dRfftFilter : public vtkImageFourierFilter
 {

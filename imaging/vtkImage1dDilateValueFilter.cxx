@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage1dDilateValueFilter.hh"
+#include "vtkImage1dDilateValueFilter.h"
 
 
 //----------------------------------------------------------------------------

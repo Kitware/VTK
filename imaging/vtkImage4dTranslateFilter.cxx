@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage4dTranslateFilter.hh"
+#include "vtkImage4dTranslateFilter.h"
 
 
 

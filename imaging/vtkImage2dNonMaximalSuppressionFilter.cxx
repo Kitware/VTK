@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImage2dNonMaximalSuppressionFilter.hh"
+#include "vtkImage2dNonMaximalSuppressionFilter.h"
 
 
 //----------------------------------------------------------------------------

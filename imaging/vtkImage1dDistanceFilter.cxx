@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage1dDistanceFilter.hh"
+#include "vtkImage1dDistanceFilter.h"
 
 //----------------------------------------------------------------------------
 vtkImage1dDistanceFilter::vtkImage1dDistanceFilter()

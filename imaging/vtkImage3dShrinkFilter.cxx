@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage3dShrinkFilter.hh"
-#include "vtkImageCache.hh"
+#include "vtkImage3dShrinkFilter.h"
+#include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------

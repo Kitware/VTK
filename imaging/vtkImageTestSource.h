@@ -45,8 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageTestSource_h
 #define __vtkImageTestSource_h
 
-#include "vtkImageCachedSource.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImageCachedSource.h"
+#include "vtkImageRegion.h"
 
 
 class vtkImageTestSource : public vtkImageCachedSource 

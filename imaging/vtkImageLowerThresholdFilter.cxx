@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageLowerThresholdFilter.hh"
+#include "vtkImageLowerThresholdFilter.h"
 
 
 

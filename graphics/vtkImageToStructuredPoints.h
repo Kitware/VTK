@@ -47,10 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageToStructurePoints_h
 #define __vtkImageToStructurePoints_h
 
-#include "vtkStructuredPointsSource.hh"
-#include "vtkGraymap.hh"
-#include "vtkImageSource.hh"
-#include "vtkImageRegion.hh"
+#include "vtkStructuredPointsSource.h"
+#include "vtkGraymap.h"
+#include "vtkImageSource.h"
+#include "vtkImageRegion.h"
 
 
 class vtkImageToStructuredPoints : public vtkStructuredPointsSource

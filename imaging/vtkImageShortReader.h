@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkImageCachedSource.hh"
+#include "vtkImageCachedSource.h"
 
 class vtkImageShortReader : public vtkImageCachedSource
 {

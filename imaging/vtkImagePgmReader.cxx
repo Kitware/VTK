@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <ctype.h>
 #include <string.h>
-#include "vtkImagePgmReader.hh"
-#include "vtkImageCache.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImagePgmReader.h"
+#include "vtkImageCache.h"
+#include "vtkImageRegion.h"
 
 
 //----------------------------------------------------------------------------

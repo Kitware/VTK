@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageSpatialFilter.hh"
+#include "vtkImageSpatialFilter.h"
 
 
 //----------------------------------------------------------------------------

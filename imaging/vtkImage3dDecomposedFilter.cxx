@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
-#include "vtkImage3dDecomposedFilter.hh"
+#include "vtkImage3dDecomposedFilter.h"
 
 //----------------------------------------------------------------------------
 vtkImage3dDecomposedFilter::vtkImage3dDecomposedFilter()

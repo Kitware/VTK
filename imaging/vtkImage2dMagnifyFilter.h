@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dMagnifyFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dMagnifyFilter.hh"
+#include "vtkImage2dDecomposedFilter.h"
+#include "vtkImage1dMagnifyFilter.h"
 
 class vtkImage2dMagnifyFilter : public vtkImage2dDecomposedFilter
 {

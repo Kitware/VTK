@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
-#include "vtkImage1dGaussianSmoothFilter.hh"
+#include "vtkImage1dGaussianSmoothFilter.h"
 
 
 //----------------------------------------------------------------------------

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dGradientFilter_h
 
 
-#include "vtkImageSpatialFilter.hh"
+#include "vtkImageSpatialFilter.h"
 
 class vtkImage2dGradientFilter : public vtkImageSpatialFilter
 {

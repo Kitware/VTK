@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDifferenceFilter.hh"
+#include "vtkImageDifferenceFilter.h"
 
 
 

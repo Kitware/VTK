@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage3dDilateErodeFilter_h
 
 
-#include "vtkImageSpatialFilter.hh"
+#include "vtkImageSpatialFilter.h"
 
 class vtkImage3dDilateErodeFilter : public vtkImageSpatialFilter
 {

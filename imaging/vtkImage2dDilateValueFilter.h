@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dDilateValueFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dDilateValueFilter.hh"
+#include "vtkImage2dDecomposedFilter.h"
+#include "vtkImage1dDilateValueFilter.h"
 
 class vtkImage2dDilateValueFilter : public vtkImage2dDecomposedFilter
 {

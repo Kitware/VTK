@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageFilter.hh"
-#include "vtkImageCache.hh"
+#include "vtkImageFilter.h"
+#include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------

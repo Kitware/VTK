@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImage4dShortReader.hh"
-#include "vtkImageCache.hh"
+#include "vtkImage4dShortReader.h"
+#include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 // Description:

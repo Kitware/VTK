@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageTestSource.hh"
-#include "vtkImageCache.hh"
+#include "vtkImageTestSource.h"
+#include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 // Description:

@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage3dDistanceFilter_h
 
 
-#include "vtkImage3dDecomposedFilter.hh"
-#include "vtkImage1dDistanceFilter.hh"
+#include "vtkImage3dDecomposedFilter.h"
+#include "vtkImage1dDistanceFilter.h"
 
 class vtkImage3dDistanceFilter : public vtkImage3dDecomposedFilter
 {

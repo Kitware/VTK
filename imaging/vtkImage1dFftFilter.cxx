@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImage1dFftFilter.hh"
+#include "vtkImage1dFftFilter.h"
 
 
 //----------------------------------------------------------------------------

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageToStructuredPoints.hh"
+#include "vtkImageToStructuredPoints.h"
 
 
 

@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage3dSpatialFilter_h
 
 
-#include "vtkImageFilter.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImageFilter.h"
+#include "vtkImageRegion.h"
 
 class vtkImage3dSpatialFilter : public vtkImageFilter
 {
