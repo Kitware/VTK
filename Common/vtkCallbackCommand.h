@@ -56,6 +56,8 @@ public:
 
   void SetClientData(void *cd) 
     {this->ClientData = cd;};
+  void* GetClientData()
+    {return this->ClientData; }
   void SetCallback(void (*f)(vtkObject *, unsigned long, void *, void *)) 
     {this->Callback = f;};
   void SetClientDataDeleteCallback(void (*f)(void *))
