@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.13");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.14");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -120,7 +120,9 @@ void vtkMeshQuality::Execute()
       TriangleQuality = TriangleEdgeRatio;
       break;
     default:
-      TriangleQuality = NULL;
+      vtkWarningMacro( "Bad TriangleQualityMeasure ("
+        << this->GetTriangleQualityMeasure() << "), using RadiusRatio instead");
+      TriangleQuality = TriangleRadiusRatio;
       break;
     }
 
@@ -139,7 +141,9 @@ void vtkMeshQuality::Execute()
       QuadQuality = QuadEdgeRatio;
       break;
     default:
-      QuadQuality = NULL;
+      vtkWarningMacro( "Bad QuadQualityMeasure ("
+        << this->GetQuadQualityMeasure() << "), using EdgeRatio instead");
+      QuadQuality = QuadEdgeRatio;
       break;
     }
 
@@ -157,7 +161,9 @@ void vtkMeshQuality::Execute()
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
     default:
-      TetQuality = NULL;
+      vtkWarningMacro( "Bad TetQualityMeasure ("
+        << this->GetTetQualityMeasure() << "), using RadiusRatio instead");
+      TetQuality = TetRadiusRatio;
       break;
     }
 
@@ -304,84 +310,44 @@ void vtkMeshQuality::Execute()
       }
     }
 
-  switch ( ntri )
+  if ( ntri )
     {
-  case 0:
-    qtrim = Eqtri = qtriM = Eqtri2 = 0.;
-    break;
-  case 1:
-    if ( qtrim == VTK_DOUBLE_MAX )
-      {
-      qtrim = qtriM;
-      }
-    else
-      {
-      qtriM = qtrim;
-      }
-    // fall through
-  default:
     Eqtri  /= (double) ntri;
     Eqtri2 /= (double) ntri;
     }
-  
-  switch ( nqua )
+  else
     {
-  case 0:
-    qquam = Eqqua = qquaM = Eqqua2 = 0.;
-    break;
-  case 1:
-    if ( qquam == VTK_DOUBLE_MAX )
-      {
-      qquam = qquaM;
-      }
-    else
-      {
-      qquaM = qquam;
-      }
-    // fall through
-  default:
+    qtrim = Eqtri = qtriM = Eqtri2 = 0.;
+    }
+  
+  if ( nqua )
+    {
     Eqqua  /= (double) nqua;
     Eqqua2 /= (double) nqua;
     }
-  
-  switch ( ntet )
+  else
     {
-  case 0:
-    qtetm = Eqtet = qtetM = Eqtet2 = 0.;
-    break;
-  case 1:
-    if ( qtetm == VTK_DOUBLE_MAX )
-      {
-      qtetm = qtetM;
-      }
-    else
-      {
-      qtetM = qtetm;
-      }
-    // fall through
-  default:
+    qquam = Eqqua = qquaM = Eqqua2 = 0.;
+    }
+  
+  if ( ntet )
+    {
     Eqtet  /= (double) ntet;
     Eqtet2 /= (double) ntet;
     }
-
-  switch ( nhex )
+  else
     {
-  case 0:
-    qhexm = Eqhex = qhexM = Eqhex2 = 0.;
-    break;
-  case 1:
-    if ( qhexm == VTK_DOUBLE_MAX )
-      {
-      qhexm = qhexM;
-      }
-    else
-      {
-      qhexM = qhexm;
-      }
-    // fall through
-  default:
+    qtetm = Eqtet = qtetM = Eqtet2 = 0.;
+    }
+
+  if ( nhex )
+    {
     Eqhex  /= (double) nhex;
     Eqhex2 /= (double) nhex;
+    }
+  else
+    {
+    qhexm = Eqhex = qhexM = Eqhex2 = 0.;
     }
 
   quality = vtkDoubleArray::New();
