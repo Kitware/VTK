@@ -205,9 +205,17 @@ void vtkImageReader::SetFileName(const char *name)
     {
     delete [] this->FilePrefix;
     this->FilePrefix = NULL;
-    }  
-  this->FileName = new char[strlen(name) + 1];
-  strcpy(this->FileName, name);
+    }
+  if (name)
+    {
+    this->FileName = new char[strlen(name) + 1];
+    strcpy(this->FileName, name);
+    }
+  else
+    {
+    this->FileName = NULL;
+    }
+
   this->Modified();
 }
 
