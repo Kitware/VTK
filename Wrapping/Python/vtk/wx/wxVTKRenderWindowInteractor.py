@@ -87,6 +87,8 @@ class wxVTKRenderWindowInteractor(baseClass):
         # private attributes
         self.__OldFocus = None
 
+        self.__RenderWhenDisabled = 0
+
         # First do special handling of some keywords:
         # stereo, position, size, width, height, style
         
@@ -217,9 +219,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             width = event.GetSize().width
             height = event.GetSize().height
         self._Iren.SetSize(width, height)
-        self._Iren.ConfigureEvent()        
-        if self.__Created:
-            self._RenderWindow.Render()
+        self._Iren.ConfigureEvent()
+        # this will check for __Created
+        self.Render()
 
     def OnMotion(self, event):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
@@ -319,8 +321,39 @@ class wxVTKRenderWindowInteractor(baseClass):
         return self._RenderWindow
 
     def Render(self):
-        if self.__Created:
+        RenderAllowed = 1
+        
+        if not self.__RenderWhenDisabled:
+            # the user doesn't want us to render when the toplevel frame
+            # is disabled - first find the top level parent
+            topParent = wxGetTopLevelParent(self)
+            if topParent:
+                # if it exists, check whether it's enabled
+                # if it's not enabeld, RenderAllowed will be false
+                RenderAllowed = topParent.IsEnabled()
+            
+        if self.__Created and RenderAllowed:
             self._RenderWindow.Render()
+
+    def SetRenderWhenDisabled(self, newValue):
+        """Change value of __RenderWhenDisabled ivar.
+
+        If __RenderWhenDisabled is false (the default), this widget will not
+        call Render() on the RenderWindow if the top level frame (i.e. the
+        containing frame) has been disabled.
+
+        This prevents recursive rendering during wxSafeYield() calls.
+        wxSafeYield() can be called during the ProgressMethod() callback of
+        a VTK object to have progress bars and other GUI elements updated -
+        it does this by disabling all windows (disallowing user-input to
+        prevent re-entrancy of code) and then handling all outstanding
+        GUI events.
+        
+        However, this often triggers an OnPaint() method for wxVTKRWIs,
+        resulting in a Render(), resulting in Update() being called whilst
+        still in progress.
+        """
+        self.__RenderWhenDisabled = bool(newValue)
 
 
 #--------------------------------------------------------------------  
