@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.15");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.16");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -275,7 +275,7 @@ int vtkDemandDrivenPipeline::Update(int port)
     {
     return 0;
     }
-  if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
+  if(port >= -1 && port < this->Algorithm->GetNumberOfOutputPorts())
     {
     return this->UpdateData(port);
     }

@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.10");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.11");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -152,7 +152,7 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     {
     return 0;
     }
-  if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
+  if(port >= -1 && port < this->Algorithm->GetNumberOfOutputPorts())
     {
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
@@ -446,6 +446,7 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
         return 0;
         }
       }
+    return 1;
     }
 
   // Get the information object to check.
