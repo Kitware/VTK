@@ -111,7 +111,7 @@ protected:
   int NumberOfThreads;
   
   void ExecuteInformation();
-  virtual ExecuteImageInformation() {};
+  virtual void ExecuteImageInformation() {};
 
   int ComputeInputUpdateExtents(vtkDataObject *out);
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
