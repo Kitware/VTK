@@ -54,7 +54,6 @@ IF (VTK_USE_RENDERING)
       extractUGrid
       ExtractTensors
       extractVectors
-      extrudeCopyCD
       fieldToPolyData
       fieldToRGrid
       fieldToSGrid
@@ -123,6 +122,15 @@ IF (VTK_USE_RENDERING)
         -V Baseline/Graphics/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH ( tfile )
+
+  IF(VTK_USE_HYBRID)
+    ADD_TEST(extrudeCopyCD-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/extrudeCopyCD.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/extrudeCopyCD.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ENDIF(VTK_USE_HYBRID)
 
   #
   # If we do not have the data, still run the tests that we can
