@@ -80,6 +80,112 @@ extern "C"
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self);
 extern int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
                                   int argc, char *argv[]);
+extern "C" {
+int VTK_TK_EXPORT vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
+                         int argc, char **argv)
+{
+  int status = 0;
+  vtkImageData* image = NULL;
+  Tk_PhotoHandle photo;
+  int z = 0;
+    
+  // Usage: vtkImageDataToTkPhoto vtkImageData photo z
+  if ( argc != 4 )
+    {
+    Tcl_SetResult ( interp, "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo z\"", NULL );
+    return TCL_ERROR;
+    }
+
+  // Start with z, it's fast, etc...
+  status = Tcl_GetInt ( interp, argv[3], &z );
+  if ( status != TCL_OK )
+    {
+    return status;
+    }
+
+  // Find the image
+#ifdef VTK_PYTHON_BUILD
+  int len = 1;
+  image = (vtkImageData*) vtkPythonUnmanglePointer ( argv[1], &len, "vtkImageData" );
+  char buffer[1024];
+  sprintf ( buffer, "Found: %d - %lx\n", len, (long)image );
+  Tcl_AppendResult ( interp, buffer, NULL );
+  if ( (void*)image == (void*)argv[1] ) { image = NULL; }
+#else
+  image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status );
+#endif
+  if ( !image )
+    {
+    Tcl_AppendResult ( interp, "could not find vtkImageData: ", argv[1], NULL );
+    return TCL_ERROR;
+    }
+
+  // Find the photo widget
+  photo = Tk_FindPhoto ( interp, argv[2] );
+  if ( !photo )
+    {
+    Tcl_AppendResult ( interp, "could not find photo: ", argv[2], NULL );
+    return TCL_ERROR;
+    }
+
+  // Determine if we have the correct datatype
+  if ( image->GetScalarType() != VTK_UNSIGNED_CHAR )
+    {
+    Tcl_SetResult ( interp, "image data type must be of type unsigned char", NULL );
+    return TCL_ERROR;
+    }
+
+  int components = image->GetNumberOfScalarComponents();
+  if ( components != 1 && components != 3 )
+    {
+    Tcl_SetResult ( interp, "number of scalar components must be 1, 3, 4", NULL );
+    return TCL_ERROR;
+    }
+    
+  int extent[6];
+  image->GetExtent ( extent );
+  if ( z < extent[4] || z > extent[5] )
+    {
+    Tcl_SetResult ( interp, "z is outside the image extent", NULL );
+    return TCL_ERROR;
+    }
+  extent[4] = extent[5] = z;
+  image->SetUpdateExtent ( extent );
+  image->Update();
+
+  // Setup the photo data block
+  Tk_PhotoImageBlock block;
+  block.pixelPtr = (unsigned char*) image->GetScalarPointerForExtent ( extent );
+  // Read upwards from the bottom of the image
+  block.pixelPtr = (unsigned char*) image->GetScalarPointer ( 0, extent[3], z );
+  block.width = extent[1] - extent[0] + 1;
+  block.height = extent[3] - extent[2] + 1;
+  block.pitch = -components * ( block.width );
+  block.pixelSize = components;
+  block.offset[0] = 0;
+  block.offset[1] = 1;
+  block.offset[2] = 2;
+  block.offset[3] = 0;
+  switch ( components )
+    {
+    case 1:
+      block.offset[0] = 0;
+      block.offset[1] = 0;
+      block.offset[2] = 0;
+      block.offset[3] = 0;
+      break;
+    case 3:
+      block.offset[3] = 0;
+      break;
+    case 4:
+      block.offset[3] = 3;
+      break;
+    }
+  Tk_PhotoSetSize ( photo, block.width, block.height );
+  Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height );
+  return TCL_OK;
+}
+}
 
     
 //----------------------------------------------------------------------------
@@ -388,9 +494,6 @@ extern "C"
 // vtkTkRenderWidget_Init
 // Called upon system startup to create vtkTkRenderWidget command.
 extern "C" {int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp);}
-extern "C" {int VTK_TK_EXPORT vtkImageDataToTkPhoto_Cmd (ClientData clientData,
-                                                   Tcl_Interp *interp, 
-                                                   int argc, char **argv); }
 
 int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
@@ -957,110 +1060,4 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #endif
 
 
-extern "C" {
-int VTK_TK_EXPORT vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
-                         int argc, char **argv)
-{
-  int status = 0;
-  vtkImageData* image = NULL;
-  Tk_PhotoHandle photo;
-  int z = 0;
-    
-  // Usage: vtkImageDataToTkPhoto vtkImageData photo z
-  if ( argc != 4 )
-    {
-    Tcl_SetResult ( interp, "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo z\"", NULL );
-    return TCL_ERROR;
-    }
-
-  // Start with z, it's fast, etc...
-  status = Tcl_GetInt ( interp, argv[3], &z );
-  if ( status != TCL_OK )
-    {
-    return status;
-    }
-
-  // Find the image
-#ifdef VTK_PYTHON_BUILD
-  int len = 1;
-  image = (vtkImageData*) vtkPythonUnmanglePointer ( argv[1], &len, "vtkImageData" );
-  char buffer[1024];
-  sprintf ( buffer, "Found: %d - %lx\n", len, (long)image );
-  Tcl_AppendResult ( interp, buffer, NULL );
-  if ( (void*)image == (void*)argv[1] ) { image = NULL; }
-#else
-  image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status );
-#endif
-  if ( !image )
-    {
-    Tcl_AppendResult ( interp, "could not find vtkImageData: ", argv[1], NULL );
-    return TCL_ERROR;
-    }
-
-  // Find the photo widget
-  photo = Tk_FindPhoto ( interp, argv[2] );
-  if ( !photo )
-    {
-    Tcl_AppendResult ( interp, "could not find photo: ", argv[2], NULL );
-    return TCL_ERROR;
-    }
-
-  // Determine if we have the correct datatype
-  if ( image->GetScalarType() != VTK_UNSIGNED_CHAR )
-    {
-    Tcl_SetResult ( interp, "image data type must be of type unsigned char", NULL );
-    return TCL_ERROR;
-    }
-
-  int components = image->GetNumberOfScalarComponents();
-  if ( components != 1 && components != 3 )
-    {
-    Tcl_SetResult ( interp, "number of scalar components must be 1, 3, 4", NULL );
-    return TCL_ERROR;
-    }
-    
-  int extent[6];
-  image->GetExtent ( extent );
-  if ( z < extent[4] || z > extent[5] )
-    {
-    Tcl_SetResult ( interp, "z is outside the image extent", NULL );
-    return TCL_ERROR;
-    }
-  extent[4] = extent[5] = z;
-  image->SetUpdateExtent ( extent );
-  image->Update();
-
-  // Setup the photo data block
-  Tk_PhotoImageBlock block;
-  block.pixelPtr = (unsigned char*) image->GetScalarPointerForExtent ( extent );
-  // Read upwards from the bottom of the image
-  block.pixelPtr = (unsigned char*) image->GetScalarPointer ( 0, extent[3], z );
-  block.width = extent[1] - extent[0] + 1;
-  block.height = extent[3] - extent[2] + 1;
-  block.pitch = -components * ( block.width );
-  block.pixelSize = components;
-  block.offset[0] = 0;
-  block.offset[1] = 1;
-  block.offset[2] = 2;
-  block.offset[3] = 0;
-  switch ( components )
-    {
-    case 1:
-      block.offset[0] = 0;
-      block.offset[1] = 0;
-      block.offset[2] = 0;
-      block.offset[3] = 0;
-      break;
-    case 3:
-      block.offset[3] = 0;
-      break;
-    case 4:
-      block.offset[3] = 3;
-      break;
-    }
-  Tk_PhotoSetSize ( photo, block.width, block.height );
-  Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height );
-  return TCL_OK;
-}
-}
 #endif
