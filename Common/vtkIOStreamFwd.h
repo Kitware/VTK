@@ -39,8 +39,10 @@ using std::filebuf;
 using std::ifstream;
 using std::ofstream;
 using std::fstream;
-
 #else
+# ifdef __BORLANDC__
+#  include <iosfwd.h>
+# else
 
 // Forward-declare non-ansi streams.
 class ios;
@@ -52,6 +54,7 @@ class filebuf;
 class ifstream;
 class ofstream;
 class fstream;
+# endif
 
 #endif
 

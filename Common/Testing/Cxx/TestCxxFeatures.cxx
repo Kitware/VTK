@@ -78,16 +78,6 @@
 
 //----------------------------------------------------------------------------
 
-/* Test inclusion of iosfwd header.  */
-#if defined(VTK_USE_ANSI_STDLIB) && !defined(VTK_CXX_ACC)
-# include <iosfwd>
-#else
-// No iosfwd header.  Just see if forward declaring the class works.
-class ostream;
-#endif
-
-//----------------------------------------------------------------------------
-
 #include "vtkSystemIncludes.h"
 
 //----------------------------------------------------------------------------
