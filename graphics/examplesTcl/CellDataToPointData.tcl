@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # cell scalars to point scalars
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
