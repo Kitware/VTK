@@ -49,56 +49,24 @@ void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(int inExt[6],
 							 int outExt[6])
 {
   int *wExtent = this->Input->GetWholeExtent();
-  int pad[6];
   int idx;
   
-  // iitialize inExt
-  memcpy(inExt,outExt,6*sizeof(int));
-  
-  // how much padding is required ?
-  // if padding is required on a boundary then we know we need the whole extent
-  // for that boundary. The following code handles the cases where the outputextent
-  // is all inside or outside of the whole extent
+  // initialize inExt
+  memcpy(inExt,wExtent,6*sizeof(int));
+
+  // a simple approximation to the required extent
+  // basically get the whole extent for an axis unless a fully
+  // contained subset is being requested. If so then use that.
   for (idx = 0; idx < 3; idx++)
     {
-    pad[idx*2] = 0;
-    pad[idx*2+1] = 0;
-    if (outExt[idx*2] < wExtent[idx*2])
+    if (outExt[idx*2] >= wExtent[idx*2] &&
+	outExt[idx*2+1] <= wExtent[idx*2+1])
       {
-      pad[idx*2] = wExtent[idx*2] - outExt[idx*2];
-      inExt[idx*2] = wExtent[idx*2];
-      }
-    if (outExt[idx*2+1] > wExtent[idx*2+1])
-      {
-      pad[idx*2+1] = outExt[idx*2+1] - wExtent[idx*2+1];
-      inExt[idx*2+1] = wExtent[idx*2+1];
-      }
-    }
-  
-  // now handle mixed case where negative pad mirrored may 
-  // require a larger positive extent
-  for (idx = 0; idx < 3; idx++)
-    {
-    if (pad[idx*2] > inExt[idx*2+1])
-      {
-      inExt[idx*2+1] = pad[idx*2];
-      if (inExt[idx*2+1] > wExtent[idx*2+1])
-	{
-	inExt[idx*2+1] = wExtent[idx*2+1];
-	}
-      }
-    if (wExtent[idx*2+1] - pad[idx*2+1] < inExt[idx*2])
-      {
-      inExt[idx*2] = wExtent[idx*2+1] - pad[idx*2+1];
-      if (inExt[idx*2] < wExtent[idx*2])
-	{
-	inExt[idx*2] = wExtent[idx*2];
-	}
+      inExt[idx*2] = outExt[idx*2];
+      inExt[idx*2+1] = outExt[idx*2+1];
       }
     }
 }
-
-
 
 
 //----------------------------------------------------------------------------
@@ -164,6 +132,11 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       {
       inIncStart[idx] = -inIncStart[idx];
       inIdxStart[idx] = inIdxStart[idx] + (wExtent[idx*2+1] - wExtent[idx*2] + 1);
+      }
+    while (inIdxStart[idx] > wExtent[idx*2+1])
+      {
+      inIncStart[idx] = -inIncStart[idx];
+      inIdxStart[idx] = inIdxStart[idx] - (wExtent[idx*2+1] - wExtent[idx*2] + 1);
       }
     // if we are heading negative then we need to mirror the offset
     if (inIncStart[idx] < 0)
