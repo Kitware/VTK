@@ -65,15 +65,15 @@ void stuffit()
     fprintf(stdout,
 	    "  Tcl_InitHashTable(&info->CommandLookup, TCL_STRING_KEYS);\n");
     fprintf(stdout,
-            "  Tcl_SetAssocData(interp,\"vtk\",NULL,(ClientData *)info);\n");
+            "  Tcl_SetAssocData(interp,(char *) \"vtk\",NULL,(ClientData *)info);\n");
 
     /* create special vtkCommand command */
-    fprintf(stdout,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
+    fprintf(stdout,"  Tcl_CreateCommand(interp,(char *) \"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
     }
   
   for (i = 0; i < anindex; i++)
     {
-    fprintf(stdout,"  vtkTclCreateNew(interp,\"%s\", %sNewCommand,\n",
+    fprintf(stdout,"  vtkTclCreateNew(interp,(char *) \"%s\", %sNewCommand,\n",
 	    names[i], names[i]);
     fprintf(stdout,"                  %sCommand);\n",names[i]);
     }
