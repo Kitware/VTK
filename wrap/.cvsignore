@@ -8,3 +8,4 @@ vtkWrapPythonInit
 vtkWrapTcl
 vtkWrapTclInit
 vtkPrint
+vtkHTML
