@@ -28,6 +28,7 @@ proc rtOtherTest { fileid } {
            $a b
            b Print
            if {[b IsA $a] == 0} {puts stderr "$a failed IsA test!!!"}
+           if {[b IsA "vtkObject"] == 0} {puts stdout "$a is not a sub-class of vtkObject"}
            b GetClassName
            b Delete
         }
