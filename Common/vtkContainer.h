@@ -142,9 +142,9 @@ static inline int vtkContainerCompareMethod(float d1, float d2)
 static inline int vtkContainerCompareMethod(double d1, double d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 static inline int vtkContainerCompareMethod(const char* d1, const char* d2)
-{ return strcmp(d1, d2); }
+{ return vtkString::Compare(d1, d2); }
 static inline int vtkContainerCompareMethod(char* d1, char* d2)
-{ return strcmp(d1, d2); }
+{ return vtkString::Compare(d1, d2); }
 static inline int vtkContainerCompareMethod(void* d1, void* d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 
