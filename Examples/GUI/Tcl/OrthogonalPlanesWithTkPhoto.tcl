@@ -61,9 +61,12 @@ grid [label .c.text -textvariable Label -bd 2 -relief raised] -row 4 -columnspan
 set Label "Use the right mouse button to change data type"
 .c.w set 1370
 .c.l set 1268
-set Position(x) 0
-set Position(y) 0
-set Position(z) 0
+reader Update
+
+set d [[reader GetOutput] GetDimensions]
+set Position(x) [expr int ( [lindex $d 0] / 2.0 ) ]
+set Position(y) [expr int ( [lindex $d 1] / 2.0 ) ]
+set Position(z) [expr int ( [lindex $d 2] / 2.0 ) ]
 # Scale = 255 / window
 # Shift = Window / 2 - level
 

@@ -43,7 +43,9 @@ class SampleViewer:
         tphoto = self.tphoto = self.tphoto = vtkTkPhotoImage ();
         cphoto = self.cphoto = vtkTkPhotoImage ();
         sphoto = self.sphoto = vtkTkPhotoImage ();
-        self.Position = [0, 0, 0]
+        reader.Update()
+        d = reader.GetOutput().GetDimensions()
+        self.Position = [ int(d[0]/2.0), int(d[0]/2.0), int(d[0]/2.0) ]
 
         # Create a popup menu
         v = IntVar()
@@ -76,6 +78,7 @@ class SampleViewer:
 
         w = self.LabelWidget = Label ( Tk, bd=2, relief='raised' )
         w.grid ( row=4, columnspan=2, sticky='ew' )
+        w.configure ( text = "Use the right mouse button to change data type" )
 
         
     def DoPopup ( self, event ):
