@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.8");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.9");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -58,6 +58,19 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
 {
   this->ContourValues->Delete();
+}
+
+int vtkBandedPolyDataContourFilter::ComputeIndex(float val1, float val2)
+{
+  float val = (val1+val2) / 2.0;
+  for (int i=0; i < (this->NumberOfClipValues-1); i++)
+    {
+    if ( val >= this->ClipValues[i] && val < this->ClipValues[i+1]  )
+      {
+      return i;
+      }
+    }
+  return 0;
 }
 
 int vtkBandedPolyDataContourFilter::ComputeLowerScalarIndex(float val)
@@ -378,9 +391,9 @@ void vtkBandedPolyDataContourFilter::Execute()
     vtkIdType *intPts;
     int numIntPts, intsInc;
     int intersectionPoint;
-    int mL, mR;
+    int mL, mR, m2L, m2R, numPointsToAdd;
     int numPolyPoints, intsIdx;
-    int numFullPts, intLoc, startIdxL, startIdxR;
+    int numFullPts, intLoc;
       
     int maxCellSize = polys->GetMaxCellSize();
     int *edgeInts = new int [maxCellSize]; //intersections around polygon
@@ -400,22 +413,25 @@ void vtkBandedPolyDataContourFilter::Execute()
       //code.
       for ( intersectionPoint=0, numFullPts=0, i=0; i<npts; i++)
         {
-        s[numFullPts] = outScalars->GetTuple1(pts[i]);
+        v = pts[i];
+        vR = pts[(i+1)%npts];
+        
+        s[numFullPts] = outScalars->GetTuple1(v);
         if ( (isContourValue[numFullPts]=this->IsContourValue(s[numFullPts])) )
           {
           intersectionPoint = 1;
           }
              
         isOriginalVertex[numFullPts] = 1;
-        fullPoly[numFullPts++] = pts[i];
+        fullPoly[numFullPts++] = v;
 
         //see whether intersection points need to be added.
-        if ( (intLoc=edgeTable->IsEdge(pts[i],pts[(i+1)%npts])) != -1 )
+        if ( (intLoc=edgeTable->IsEdge(v,vR)) != -1 )
           {
           intersectionPoint = 1;
           intList->GetCell(intLoc,numIntPts,intPts);
           if ( v < vR ) {intsIdx = 0; intsInc=1;} //order of the edge
-          else {intsIdx=numIntPts-1; intsIdx=(-1);}
+          else {intsIdx=numIntPts-1; intsInc=(-1);}
           for ( ; intsIdx >= 0 && intsIdx < numIntPts; intsIdx += intsInc )
             {
             s[numFullPts] = outScalars->GetTuple1(intPts[intsIdx]);
@@ -453,61 +469,78 @@ void vtkBandedPolyDataContourFilter::Execute()
         }
 
       //Find the first intersection points in the polygons starting
-      //from this vertex
-      numPolyPts = 0;
-      newPolygon[numPolyPts++] = fullPoly[idx];
+      //from this vertex and build a polygon.
       for ( mR=idx, intersectionPoint=0; !intersectionPoint; )
         {
-        mR = (idx + 1) % numFullPts;
-        
+        mR = (mR + 1) % numFullPts;
+        if ( isContourValue[mR] ) intersectionPoint = 1;
         }
-
-      //The first cell is always a triangle clipping the vertex.
-      newPolygon[1] = fullPoly[idx];
-      newPolygon[2] = fullPoly[mR];
-      newPolys->InsertNextCell(3,pts);
-      newScalars->InsertTuple1(cellId++, 1);
-      
-      //From the current point, we move around the polygon until we hit an
-      //intersection point. Note that polygon vertices can be an intersection
-      //point in that they have a scalar contour value. This is very tricky.
-      m2L = (mL+numFullPts-1) % numFullPts;
-      m2R = (mR+1) % numFullPts ;
-      while ( mR != mL )
+      for ( mL=idx, intersectionPoint=0; !intersectionPoint; )
         {
-        //from this edge (mL,mR) we create a polygon
-        numPolyPts = 0;
-        newPolygon[numPolyPts++] = fullPoly[mL];
-        newPolygon[numPolyPts++] = fullPoly[mR];
+        mL = (mL + numFullPts - 1) % numFullPts;
+        if ( isContourValue[mL] ) intersectionPoint = 1;
+        }
+      for ( numPolyPoints=0, i=0; i<(numFullPts-(mL-mR)+1); i++)
+        {
+        newPolygon[numPolyPoints++] = fullPoly[(mL+i)%numFullPts];
+        }
+      newPolys->InsertNextCell(numPolyPoints,newPolygon);
+      newScalars->InsertTuple1(cellId++, this->ComputeIndex(s[idx],s[mR]));
 
-        for ( intersectionPoint=0; !intersectionPoint; ) //move right
-          {
-          newPolygon[numPolyPts++] = fullPoly[m2R];
-          if ( isContourValue[m2R] ) 
+      //We've got an edge (mL,mR) that marks the edge of the region not yet
+      //clipped. We move this edge forward from intersection point to
+      //interection point.
+      m2R = mR;
+      m2L = mL;
+      while ( m2R != m2L )
+        {
+        numPointsToAdd = mL - mR + 1;
+        if ( numPointsToAdd <= 3 )
+          {//just a triangle left
+          for (numPolyPoints=0, i=0; i<numPointsToAdd; i++)
             {
-            intersectionPoint = 1;
-            mR = m2R;
+            newPolygon[i] = fullPoly[(mR+i)%numFullPts];
             }
-          m2R = (m2R+1) % numFullPts; //next time we start here
+          newPolys->InsertNextCell(numPointsToAdd,newPolygon);
+          newScalars->InsertTuple1(cellId++,
+                      this->ComputeIndex(s[mR],s[(mR+1)%numFullPts]));
+          break;
           }
-
-        for ( intersectionPoint=0; !intersectionPoint; ) //move left
+        else //find the next intersection points
           {
-          newPolygon[numPolyPts++] = fullPoly[m2R];
-          mL = (mL+numFullPts-1) % numFullPts;
-          if ( isContourValue[mL] ) 
+          for ( intersectionPoint=0; !intersectionPoint; )
             {
-            intersectionPoint = 1;
-            startIdxL = mL;
+            m2R = (m2R + 1) % numFullPts;
+            if ( isContourValue[m2R] ) intersectionPoint = 1;
             }
-          }
+          for ( intersectionPoint=0; !intersectionPoint; )
+            {
+            m2L = (m2L + numFullPts - 1) % numFullPts;
+            if ( isContourValue[m2L] ) intersectionPoint = 1;
+            }
 
-        //inject the cell
-        newPolys->InsertNextCell(numPolyPoints,newPolygon);
-        newScalars->InsertTuple1(cellId++, 1);
-        }//while not completely processed
+          //speciy the polygon vertices. From m2L to mL, then mR to m2R.
+          numPointsToAdd = mL - m2L;
+          for ( numPolyPoints=0, i=0; i<numPointsToAdd; i++)
+            {
+            newPolygon[numPolyPoints++] = fullPoly[(m2L+i)%numFullPts];
+            }
+          newPolygon[numPolyPoints++] = fullPoly[mL];
+          newPolygon[numPolyPoints++] = fullPoly[mR];
+          numPointsToAdd = m2R - mR;
+          for ( i=1; i<=numPointsToAdd; i++)
+            {
+            newPolygon[numPolyPoints++] = fullPoly[(mR+i)%numFullPts];
+            }
 
-      }//while polygon being processed
+          //add the polygon
+          newPolys->InsertNextCell(numPolyPoints,newPolygon);
+          newScalars->InsertTuple1(cellId++,this->ComputeIndex(s[mR],s[m2R]));
+          mL = m2L;
+          mR = m2R;
+          }//add a polygon
+        }//while still removing polygons
+      }//for all polygons
 
     delete [] s;
     delete [] edgeInts;
