@@ -211,7 +211,6 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
 {
   int i, numPts=points->GetNumberOfPoints();
   char *type;
-  vtkByteSwap swap;
   
   fprintf (fp, "POINTS %d ", numPts);
   type = points->GetDataType();
@@ -234,7 +233,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
       vtkFloatPoints *fpoints = (vtkFloatPoints *)points;
       float *fptr=fpoints->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(fptr,3*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -258,7 +257,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
       vtkIntPoints *ipoints = (vtkIntPoints *)points;
       int *iptr=ipoints->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(iptr,3*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(iptr,3*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -277,7 +276,6 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
   int i, size = 0;
   char *type, *name;
   vtkLookupTable *lut;
-  vtkByteSwap swap;
 
   if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) > 0 )
     name = "default";
@@ -351,7 +349,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         vtkShortScalars *sscalars = (vtkShortScalars *)scalars;
         short *sptr=sscalars->GetPtr(0);
 	// swap the bytes if necc
-	swap.SwapWrite2BERange(sptr,numPts,fp);
+	vtkByteSwap::SwapWrite2BERange(sptr,numPts,fp);
         }
       fprintf (fp,"\n");
       }
@@ -374,7 +372,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         vtkIntScalars *iscalars = (vtkIntScalars *)scalars;
         int *iptr=iscalars->GetPtr(0);
 	// swap the bytes if necc
-	swap.SwapWrite4BERange(iptr,numPts,fp);
+	vtkByteSwap::SwapWrite4BERange(iptr,numPts,fp);
         }
       fprintf (fp,"\n");
       }
@@ -397,7 +395,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         vtkFloatScalars *fscalars = (vtkFloatScalars *)scalars;
         float *fptr=fscalars->GetPtr(0);
 	// swap the bytes if necc
-	swap.SwapWrite4BERange(fptr,numPts,fp);
+	vtkByteSwap::SwapWrite4BERange(fptr,numPts,fp);
         }
       fprintf (fp,"\n");
       }
@@ -499,7 +497,6 @@ int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
 {
   int i;
   char *type;
-  vtkByteSwap swap;
 
 
   fprintf (fp, "VECTORS ");
@@ -523,7 +520,7 @@ int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
       vtkFloatVectors *fvectors = (vtkFloatVectors *)vectors;
       float *fptr=fvectors->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(fptr,3*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -541,7 +538,6 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
 {
   int i;
   char *type;
-  vtkByteSwap swap;
 
   fprintf (fp, "NORMALS ");
   type = normals->GetDataType();
@@ -564,7 +560,7 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
       vtkFloatNormals *fnormals = (vtkFloatNormals *)normals;
       float *fptr=fnormals->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(fptr,3*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -582,7 +578,6 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
 {
   int i, j, dim;
   char *type;
-  vtkByteSwap swap;
 
   fprintf (fp, "TEXTURE_COORDINATES ");
   type = tcoords->GetDataType();
@@ -606,7 +601,7 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
       vtkFloatTCoords *ftcoords = (vtkFloatTCoords *)tcoords;
       float *fptr=ftcoords->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(fptr,dim*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(fptr,dim*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -624,7 +619,6 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
 {
   int i, j, k, dim;
   char *type;
-  vtkByteSwap swap;
 
   fprintf (fp, "TENSORS ");
   type = tensors->GetDataType();
@@ -651,7 +645,7 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
       vtkFloatTensors *ftensors = (vtkFloatTensors *)tensors;
       float *fptr=ftensors->GetPtr(0);
       // swap the bytes if necc
-      swap.SwapWrite4BERange(fptr,dim*dim*numPts,fp);
+      vtkByteSwap::SwapWrite4BERange(fptr,dim*dim*numPts,fp);
       }
     fprintf (fp,"\n");
     }
@@ -669,7 +663,6 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
 {
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetNumberOfConnectivityEntries();
-  vtkByteSwap swap;
 
   if ( ncells < 1 ) return 1;
 
@@ -691,7 +684,7 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
   else
     {
     // swap the bytes if necc
-    swap.SwapWrite4BERange(cells->GetPtr(),size,fp);
+    vtkByteSwap::SwapWrite4BERange(cells->GetPtr(),size,fp);
     }
 
   fprintf (fp,"\n");

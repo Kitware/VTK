@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUGFacetReader.h"
+#include "vtkByteSwap.h"
 
 vtkUGFacetReader::vtkUGFacetReader()
 {
@@ -89,6 +90,9 @@ void vtkUGFacetReader::Execute()
     return;
     }
 
+  // swap bytes since this is a binary file format
+  vtkByteSwap::Swap4BE(&numFacetSets);
+  
   // allocate memory
   if ( ! this->PartColors ) 
     {
@@ -116,6 +120,11 @@ void vtkUGFacetReader::Execute()
       break;
       }
 
+    // swap bytes if necc
+    vtkByteSwap::Swap4BE(&numberTris);
+    vtkByteSwap::Swap2BERange(&ugiiColor,1);
+    vtkByteSwap::Swap2BERange(&direction,1);
+    
     this->PartColors->InsertNextValue(ugiiColor);
 
     for (facetNumber=0; facetNumber < numberTris; facetNumber++)
@@ -126,6 +135,9 @@ void vtkUGFacetReader::Execute()
         break;
         }
 
+      // swap bytes if necc
+      vtkByteSwap::Swap4BERange((float *)(&facet),18);
+      
       if ( this->PartNumber == -1 || this->PartNumber == setNumber )
         {
         ptId[0] = newPoints->InsertNextPoint(facet.v1);
@@ -189,6 +201,9 @@ int vtkUGFacetReader::GetNumberOfParts()
     return 0;
     }
 
+  // swap bytes if necc
+  vtkByteSwap::Swap4BE(&numberOfParts);
+  
   fclose(fp);
   return numberOfParts;
 }

@@ -155,7 +155,6 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
   float pts[8][3], grad[8][3];
   float t, *x1, *x2, *n1, *n2;
   float point[6];
-  vtkByteSwap swap;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
@@ -328,7 +327,7 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
               }
             vtkMath::Normalize(point+3);
 	    // swap bytes if necessary
-	    swap.SwapWrite4BERange(point,6,outFP);
+	    vtkByteSwap::SwapWrite4BERange(point,6,outFP);
             }
           numTriangles++;
           }//for each triangle
@@ -447,7 +446,6 @@ void vtkSliceCubes::Execute()
 
   if ( this->LimitsFilename )
     {
-    vtkByteSwap swap;
     int i;
     float t;
 
@@ -460,14 +458,14 @@ void vtkSliceCubes::Execute()
       for (i=0; i<3; i++)
         {
         t = origin[i] + (dims[i] - 1)*aspectRatio[i];
-	swap.SwapWrite4BERange(origin+i,1,outFP);
+	vtkByteSwap::SwapWrite4BERange(origin+i,1,outFP);
 	// swap if neccessary
-	swap.SwapWrite4BERange(&t,1,outFP);
+	vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
         }
       for (i=0; i<3; i++)
         {
-	swap.SwapWrite4BERange(xmin+i,1,outFP);
-	swap.SwapWrite4BERange(xmax+i,1,outFP);
+	vtkByteSwap::SwapWrite4BERange(xmin+i,1,outFP);
+	vtkByteSwap::SwapWrite4BERange(xmax+i,1,outFP);
         }
       }
      fclose(outFP);

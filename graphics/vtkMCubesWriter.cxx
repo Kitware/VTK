@@ -114,7 +114,6 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *po
   pointType point;
   int i;
   int npts, *indx;
-  vtkByteSwap swap;
 
 //
 //  Write out triangle polygons.  In not a triangle polygon, create triangles.
@@ -125,16 +124,14 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *po
 	{
 	pts->GetPoint(indx[i],&point.x[0]);
 	normals->GetNormal(indx[i],&point.n[0]);
-	swap.SwapWrite4BERange((float *) (&point),6,fp);
+	vtkByteSwap::SwapWrite4BERange((float *) (&point),6,fp);
 	}
     }
 }
 void WriteLimits(FILE *fp, float *bounds)
 {
-  vtkByteSwap swap;
-
-  swap.SwapWrite4BERange((float *) bounds,6,fp);
-  swap.SwapWrite4BERange((float *) bounds,6,fp);
+  vtkByteSwap::SwapWrite4BERange((float *) bounds,6,fp);
+  vtkByteSwap::SwapWrite4BERange((float *) bounds,6,fp);
 }
 
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -161,7 +161,6 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
   unsigned long   ulint;
   unsigned short  ibuff2;
   char    header[81];
-  vtkByteSwap swap;
   typedef struct  {float  n[3], v1[3], v2[3], v3[3];} facet_t;
   facet_t facet;
 
@@ -171,7 +170,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
 //
   fread (header, 1, 80, fp);
   fread (&ulint, 1, 4, fp);
-  swap.Swap4LE(&ulint);
+  vtkByteSwap::Swap4LE(&ulint);
 //
 // Many .stl files contain bogus count.  Hence we will ignore and read 
 //   until end of file.
@@ -185,23 +184,23 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
     {
     fread(&ibuff2,2,1,fp); //read extra junk
 
-    swap.Swap4LE (facet.n);
-    swap.Swap4LE (facet.n+1);
-    swap.Swap4LE (facet.n+2);
+    vtkByteSwap::Swap4LE (facet.n);
+    vtkByteSwap::Swap4LE (facet.n+1);
+    vtkByteSwap::Swap4LE (facet.n+2);
 
-    swap.Swap4LE (facet.v1);
-    swap.Swap4LE (facet.v1+1);
-    swap.Swap4LE (facet.v1+2);
+    vtkByteSwap::Swap4LE (facet.v1);
+    vtkByteSwap::Swap4LE (facet.v1+1);
+    vtkByteSwap::Swap4LE (facet.v1+2);
     pts[0] = newPts->InsertNextPoint(facet.v1);
 
-    swap.Swap4LE (facet.v2);
-    swap.Swap4LE (facet.v2+1);
-    swap.Swap4LE (facet.v2+2);
+    vtkByteSwap::Swap4LE (facet.v2);
+    vtkByteSwap::Swap4LE (facet.v2+1);
+    vtkByteSwap::Swap4LE (facet.v2+2);
     pts[1] = newPts->InsertNextPoint(facet.v2);
 
-    swap.Swap4LE (facet.v3);
-    swap.Swap4LE (facet.v3+1);
-    swap.Swap4LE (facet.v3+2);
+    vtkByteSwap::Swap4LE (facet.v3);
+    vtkByteSwap::Swap4LE (facet.v3+1);
+    vtkByteSwap::Swap4LE (facet.v3+2);
     pts[2] = newPts->InsertNextPoint(facet.v3);
 
     newPolys->InsertNextCell(3,pts);

@@ -79,7 +79,6 @@ void vtkMCubesReader::Execute()
   int nodes[3], numDegenerate=0;
   float direction, n[3], dummy[2];
   vtkPolyData *output = this->GetOutput();
-  vtkByteSwap swap;
   
   vtkDebugMacro(<<"Reading marching cubes file");
   
@@ -114,7 +113,7 @@ void vtkMCubesReader::Execute()
       fread (&bounds[i], sizeof (float), 1, limitp);
       }
     // do swapping if necc
-    swap.Swap4BERange(bounds,6);
+    vtkByteSwap::Swap4BERange(bounds,6);
     
     fclose (limitp);
 
@@ -129,7 +128,7 @@ void vtkMCubesReader::Execute()
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
       {
       // swap bytes if necc
-      swap.Swap4BERange((float *)(&point),6);
+      vtkByteSwap::Swap4BERange((float *)(&point),6);
       for (j=0; j<3; j++) 
         {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
@@ -165,7 +164,7 @@ void vtkMCubesReader::Execute()
       {
       fread (&point, sizeof(pointType), 1, fp);
       // swap bytes if necc
-      swap.Swap4BERange((float *)(&point),6);
+      vtkByteSwap::Swap4BERange((float *)(&point),6);
       if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
         {
         nodes[j] = this->Locator->InsertNextPoint(point.x);

@@ -1,12 +1,12 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnstructuredGridWriter.cxx
+  Module:    %M%
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      %G%
+  Version:   %I%
 
-
+  
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -38,69 +38,61 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGridWriter.h"
-#include "vtkByteSwap.h"
+// .NAME vtkWin32RenderWindowInteractor - provide an event driven interface 
+// to the renderer
+// .SECTION Description
+// vtkWin32RenderWindowInteractor is a convenience object that provides event 
+// event bindings to common graphics functions. For example, camera
+// zoom-in/zoom-out, azimuth, and roll. It is one of the window system
+// specific subclasses of vtkRenderWindowInteractor.
 
-// Description:
-// Specify the input data or filter.
-void vtkUnstructuredGridWriter::SetInput(vtkUnstructuredGrid *input)
+// .SECTION see also
+// vtkRenderWindowInteractor vtkWin32OglrRenderWindow
+
+// .SECTION Event Bindings
+// Mouse bindings: Button 1 - rotate, Button 2 - pan, Button 3 - zoom
+// The distance from the center of the renderer viewport determines
+// how quickly to rotate, pan and zoom.
+// Keystrokes:
+//    r - reset camera view
+//    w - turn all actors wireframe
+//    s - turn all actors surface
+//    e - exits
+
+
+#ifndef __vtkWin32RenderWindowInteractor_h
+#define __vtkWin32RenderWindowInteractor_h
+
+#include <windows.h>
+#include "vtkRenderWindowInteractor.h"
+
+class vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vtkDataSet *) input;
-    this->Modified();
-    }
-}
+public:
+  vtkWin32RenderWindowInteractor();
+  ~vtkWin32RenderWindowInteractor();
+  char *GetClassName() {return "vtkWin32RenderWindowInteractor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-void vtkUnstructuredGridWriter::WriteData()
-{
-  FILE *fp;
-  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->Input;
-  int *types, ncells, cellId;
+  virtual void Initialize();
+  virtual void Start();
+  void UpdateSize(int,int);
+  void StartRotate();
+  void EndRotate();
+  void StartZoom();
+  void EndZoom();
+  void StartPan();
+  void EndPan();
+  
+  friend LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
+					   WPARAM w, LPARAM l);
 
-  vtkDebugMacro(<<"Writing vtk unstructured grid data...");
+protected:
+  HWND WindowId;
+  UINT TimerId;
+  WNDPROC OldProc;
+};
 
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      return;
-//
-// Write unstructured grid specific stuff
-//
-  fprintf(fp,"DATASET UNSTRUCTURED_GRID\n");
-  this->WritePoints(fp, input->GetPoints());
-  this->WriteCells(fp, input->GetCells(),"CELLS");
-//
-// Cell types are a little more work
-//
-  ncells = input->GetCells()->GetNumberOfCells();
-  types = new int[ncells];
-  for (cellId=0; cellId < ncells; cellId++)
-    {
-    types[cellId] = input->GetCellType(cellId);
-    }
+#endif
 
-  fprintf (fp, "CELL_TYPES %d\n", ncells);
-  if ( this->FileType == VTK_ASCII )
-    {
-    for (cellId=0; cellId<ncells; cellId++)
-      {
-      fprintf (fp, "%d\n", types[cellId]);
-      }
-    }
-  else
-    {
-    // swap the bytes if necc
-    vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
-    }
-  fprintf (fp,"\n");
-    
-  delete [] types;
-  this->WritePointData(fp, input);
 
-  this->CloseVTKFile(fp);  
-}
-
-void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkDataWriter::PrintSelf(os,indent);
-}

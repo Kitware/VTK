@@ -364,7 +364,6 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 {
   int i;
   char line[256];
-  vtkByteSwap swap;
 
   if (!this->ReadString(line)) 
     {
@@ -386,7 +385,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
         }
-      swap.Swap4BERange(ptr,3*numPts);
+      vtkByteSwap::Swap4BERange(ptr,3*numPts);
       points->WrotePtr();
       }
     else // ascii
@@ -420,7 +419,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
         }
-      swap.Swap4BERange(ptr,3*numPts);
+      vtkByteSwap::Swap4BERange(ptr,3*numPts);
       points->WrotePtr();
       }
     else // ascii
@@ -457,7 +456,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 {
   char line[256], name[256], key[256], tableName[256];
   int i, skipScalar=0;
-  vtkByteSwap swap;
 
   if (!(this->ReadString(name) && this->ReadString(line) && 
 	this->ReadString(key) && this->ReadString(tableName)))
@@ -563,7 +561,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary short scalars!");
         return 0;
         }
-      swap.Swap2BERange(ptr,numPts);
+      vtkByteSwap::Swap2BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -597,7 +595,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary int scalars!");
         return 0;
         }
-      swap.Swap4BERange(ptr,numPts);
+      vtkByteSwap::Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -631,7 +629,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary float scalars!");
         return 0;
         }
-      swap.Swap4BERange(ptr,numPts);
+      vtkByteSwap::Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -666,7 +664,6 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
 {
   int i, skipVector=0;
   char line[256], name[256];
-  vtkByteSwap swap;
 
   if (!(this->ReadString(name) && this->ReadString(line)))
     {
@@ -698,7 +695,7 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary vectors!");
         return 0;
         }
-      swap.Swap4BERange(ptr,3*numPts);
+      vtkByteSwap::Swap4BERange(ptr,3*numPts);
       vectors->WrotePtr();
       }
     else // ascii
@@ -734,7 +731,6 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
 {
   int i, skipNormal=0;
   char line[256], name[256];
-  vtkByteSwap swap;
 
   if (!(this->ReadString(name) && this->ReadString(line)))
     {
@@ -765,7 +761,7 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary normals!");
         return 0;
         }
-      swap.Swap4BERange(ptr,3*numPts);
+      vtkByteSwap::Swap4BERange(ptr,3*numPts);
       normals->WrotePtr();
       }
     else // ascii
@@ -801,7 +797,6 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
 {
   int i, skipTensor=0;
   char line[256], name[256];
-  vtkByteSwap swap;
 
   if (!(this->ReadString(name) && this->ReadString(line)))
     {
@@ -833,7 +828,7 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
         }
-      swap.Swap4BERange(ptr,3*numPts);
+      vtkByteSwap::Swap4BERange(ptr,3*numPts);
       tensors->WrotePtr();
       }
     else // ascii
@@ -1055,7 +1050,6 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
   int i, dim;
   int skipTCoord = 0;
   char line[256], name[256];
-  vtkByteSwap swap;
 
   if (!(this->ReadString(name) && this->ReadInt(&dim) && 
 	this->ReadString(line)))
@@ -1095,7 +1089,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
         }
-      swap.Swap4BERange(ptr,dim*numPts);
+      vtkByteSwap::Swap4BERange(ptr,dim*numPts);
       tcoords->WrotePtr();
       }
     else // ascii
@@ -1193,7 +1187,6 @@ int vtkDataReader::ReadCells(int size, int *data)
 {
   char line[256];
   int i;
-  vtkByteSwap swap;
 
   if ( this->FileType == VTK_BINARY)
     {
@@ -1205,7 +1198,7 @@ int vtkDataReader::ReadCells(int size, int *data)
       vtkErrorMacro(<<"Error reading binary cell data!");
       return 0;
       }
-    swap.Swap4BERange(data,size);
+    vtkByteSwap::Swap4BERange(data,size);
     }
   else // ascii
     {

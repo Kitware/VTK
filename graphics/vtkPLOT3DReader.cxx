@@ -219,12 +219,11 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float x[3];
-  vtkByteSwap swapper;
   
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
     if (fread(&(this->NumGrids), sizeof(int), 1, fp) < 1 ) return 1;
-    swapper.Swap4BE(&(this->NumGrids));
+    vtkByteSwap::Swap4BE(&(this->NumGrids));
     }
   else
     {
@@ -237,7 +236,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
-    swapper.Swap4BERange(dim,3);
+    vtkByteSwap::Swap4BERange(dim,3);
     
     gridSize = dim[0] * dim[1] * dim[2];
 
@@ -272,7 +271,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read, load coordinates in points object
     {
-    swapper.Swap4BERange(this->TempStorage,3*this->NumPts);
+    vtkByteSwap::Swap4BERange(this->TempStorage,3*this->NumPts);
     for (i=0; i < this->NumPts; i++)
       {
       x[0] = this->TempStorage[i];
@@ -301,12 +300,11 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   int i, gridFound, offset, gridSize, maxGridSize;
   float m[3], params[4];
   int numGrids, numPts = 0;
-  vtkByteSwap swapper;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
     if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
-    swapper.Swap4BE(&numGrids);
+    vtkByteSwap::Swap4BE(&numGrids);
     }
   else
     {
@@ -325,7 +323,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
-    swapper.Swap4BERange(dim,3);
+    vtkByteSwap::Swap4BERange(dim,3);
     gridSize = dim[0] * dim[1] * dim[2];
 
     if ( i < this->GridNumber ) 
@@ -356,7 +354,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
   //read solution parameters
   if ( fread (params, sizeof(float), 4, fp) < 4 ) return 1;
-  swapper.Swap4BERange(params,4);
+  vtkByteSwap::Swap4BERange(params,4);
   this->Fsmach = params[0];
   this->Alpha = params[1];
   this->Re = params[2];
@@ -378,7 +376,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read
     {
-    swapper.Swap4BERange(this->TempStorage,numPts);
+    vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
       newDensity->SetScalar(i,this->TempStorage[i]);
     }
@@ -394,7 +392,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read, load coordinates into vector object
     {
-    swapper.Swap4BERange(this->TempStorage,3*this->NumPts);
+    vtkByteSwap::Swap4BERange(this->TempStorage,3*this->NumPts);
     for (i=0; i < this->NumPts; i++)
       {
       m[0] = this->TempStorage[i];
@@ -415,7 +413,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read
     {
-    swapper.Swap4BERange(this->TempStorage,numPts);
+    vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
       newEnergy->SetScalar(i,this->TempStorage[i]);
     }
