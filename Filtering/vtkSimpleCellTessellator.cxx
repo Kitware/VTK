@@ -16,11 +16,9 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkPoints.h"
-#include "vtkIdList.h"
 #include "vtkGenericAdaptorCell.h"
 #include "vtkPointData.h"
 #include "vtkDoubleArray.h"
-#include "vtkMergePoints.h"
 #include "vtkCellArray.h"
 #include "vtkGenericEdgeTable.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
@@ -30,20 +28,18 @@
 #include "vtkGenericDataSet.h"
 
 #include <vtkstd/queue>
-#include <vtkstd/stack>
 #include <assert.h>
 
 #include "vtkMath.h"
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]
-const int PARAMETRIC_OFFSET=3;
-const int ATTRIBUTES_OFFSET=6;
+const int PARAMETRIC_OFFSET = 3;
+const int ATTRIBUTES_OFFSET = 6;
 
 // Pre computed table for the point to edge equivalence:
 // [edge][point]
 static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
-
 
 // Pre computed table for the tessellation of triangles
 #define NO_TRIAN {-1,-1,-1}
@@ -51,40 +47,30 @@ static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
 // [case][triangle][vertex]
 static signed char vtkTessellatorTriangleCases[9][4][3] = {
 // Case no edge is split:  -> 0
-  { NO_TRIAN, NO_TRIAN, NO_TRIAN, NO_TRIAN},
+{ NO_TRIAN, NO_TRIAN, NO_TRIAN, NO_TRIAN},
 // Case edge 3 is split:  -> 1
-  {{0, 3, 2},{1, 2, 3}, NO_TRIAN, NO_TRIAN},
+{{0, 3, 2},{1, 2, 3}, NO_TRIAN, NO_TRIAN},
 // Case edge 4 is split:  -> 2
-  {{0, 1, 4},{0, 4, 2}, NO_TRIAN, NO_TRIAN},
+{{0, 1, 4},{0, 4, 2}, NO_TRIAN, NO_TRIAN},
 // Case edge 3 & 4 are split:  -> 3
-  {{0, 3, 2},{1, 4, 3},{3, 4, 2}, NO_TRIAN},
+{{0, 3, 2},{1, 4, 3},{3, 4, 2}, NO_TRIAN},
 // Case edge 5 is split:  -> 4
-  {{0, 1, 5},{1, 2, 5}, NO_TRIAN, NO_TRIAN},
+{{0, 1, 5},{1, 2, 5}, NO_TRIAN, NO_TRIAN},
 // Case edge 3 & 5 are split:  -> 5
-  {{0, 3, 5},{1, 5, 3},{1, 2, 5}, NO_TRIAN},
+{{0, 3, 5},{1, 5, 3},{1, 2, 5}, NO_TRIAN},
 // Case edge 4 & 5 are split:  -> 6
-  {{0, 4, 5},{0, 1, 4},{2, 5, 4}, NO_TRIAN},
+{{0, 4, 5},{0, 1, 4},{2, 5, 4}, NO_TRIAN},
 // Case edge 4, 5 & 6 are split:  -> 7
-  {{0, 3, 5},{3, 4, 5},{1, 4, 3},{2, 5, 4}},
+{{0, 3, 5},{3, 4, 5},{1, 4, 3},{2, 5, 4}},
 //In case we reach outside the table
-  { NO_TRIAN, NO_TRIAN, NO_TRIAN, NO_TRIAN},
-};
-
-// Symmetric cases
-// [case][triangle][vertex]
-static signed char vtkTessellatorTriangleCases2[3][4][3] = {
-// Case edge 3 & 4 are split:  -> 3
-  {{0, 3, 4},{1, 4, 3},{0, 4, 2}, NO_TRIAN},
-// Case edge 3 & 5 are split:  -> 5
-  {{0, 3, 5},{1, 2, 3},{3, 2, 5}, NO_TRIAN},
-// Case edge 4 & 5 are split:  -> 6
-  {{1, 4, 5},{0, 1, 5},{2, 5, 4}, NO_TRIAN},
+{ NO_TRIAN, NO_TRIAN, NO_TRIAN, NO_TRIAN},
 };
 
 // Pre computed table for the point to edge equivalence:
 // [edge][point]
-static int TETRA_EDGES_TABLE[6][2] = {{0, 1}, {1, 2}, {2, 0}, {0, 3}, {1, 3},
-                                      {2, 3}};
+static int TETRA_EDGES_TABLE[6][2] = {
+{0, 1}, {1, 2}, {2, 0}, {0, 3}, {1, 3}, {2, 3}
+};
 
 // Pre computed table for the tessellation of tetras
 // There is two cases for the tessellation of a tetra, it is either oriented
@@ -364,7 +350,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.10");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.11");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -689,22 +675,16 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
                             vtkTriangleTile *res ) // res[4]
 {
   int i, index;
-  int numTriangleCreated;
+  int numTriangleCreated = 0;
 
   double edgeSplitList[3];
   vtkIdType ptId = 0;
   int l, r;
 
-  int numEdges=0;
-  double d1;
-  double d2;
-  
-  numTriangleCreated=0;
-  
   if(this->SubdivisionLevel < tess->GetMaxSubdivisionLevel())
     {
     // loop over edges
-    for(i=0, index=0;i<3;i++)
+    for(i=0, index=0; i<3; i++)
       {
       // we have to calculate mid point between edge TRIANGLE_EDGES_TABLE[i][0]
       // and TRIANGLE_EDGES_TABLE[i][1]
@@ -720,7 +700,6 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
       // Build the case table
       if (edgeSplitList[i])
         {
-        ++numEdges;
         index |= 1 << i;
         }
       }
@@ -728,64 +707,11 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
     if( index )
       {
       // That mean at least one edge was split and thus index != 0
-      signed char *cases;
-    
-      if(numEdges == 2) // asymmetric cases
+      signed char *cases = **(vtkTessellatorTriangleCases + index);
+
+      for(; cases[0] > -1; cases+=3)
         {
-        int index2 = 0;
-        int v0 = 0;
-        int v1 = 0;
-        int v2 = 0;
-        int v3 = 0;
-        switch(index)
-          {
-          case 3:
-            index2 = 0;
-            v0 = 3;
-            v1 = 2;
-            v2 = 4;
-            v3 = 0;
-            break;
-          case 5:
-            index2 = 1;
-            v0 = 5;
-            v1 = 1;
-            v2 = 3;
-            v3 = 2;
-            break;
-          case 6:
-            index2 = 2;
-            v0 = 4;
-            v1 = 0;
-            v2 = 5;
-            v3 = 1;
-            break;
-          default:
-            assert("check: impossible case" && 0);
-            break;
-          }
-        d1 = vtkMath::Dot(this->Vertex[v0], this->Vertex[v1]);
-        d2 = vtkMath::Dot(this->Vertex[v2], this->Vertex[v3]);
-        
-        // We try to generate triangles with edges as small as possible
-        if(d1<d2)
-          {
-          cases = **(vtkTessellatorTriangleCases2 + index2);
-          }
-        else
-          {
-          cases = **(vtkTessellatorTriangleCases + index);
-          }
-        }
-      else
-        {
-        // symmetric cases
-        cases = **(vtkTessellatorTriangleCases + index);
-        }
-      
-      for(; cases[0]> -1; cases+=3)
-        {
-        for(int j=0;j<3;j++)
+        for(int j=0; j<3; j++)
           {
           res[numTriangleCreated].SetPointId( j, this->PointId[cases[j]] );
           res[numTriangleCreated].SetVertex( j, this->Vertex[cases[j]] );
@@ -795,9 +721,9 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
         }
       //Insert edges from new triangle into hash table:
       int k=0;
-      while(k<numTriangleCreated)
+      while(k < numTriangleCreated)
         {
-        res[k].SubdivisionLevel=this->SubdivisionLevel+1;
+        res[k].SubdivisionLevel = this->SubdivisionLevel + 1;
         tess->InsertEdgesIntoEdgeTable( res[k] );
         ++k;
         }
