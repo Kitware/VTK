@@ -6,7 +6,7 @@ proc BindTkRenderWidget {widget} {
     bind $widget <B1-Motion> {Rotate %W %x %y}
     bind $widget <B2-Motion> {Pan %W %x %y}
     bind $widget <B3-Motion> {Zoom %W %x %y}
-    bind $widget <Shift-B2-Motion> {Zoom %W %x %y}
+    bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
 }
 
