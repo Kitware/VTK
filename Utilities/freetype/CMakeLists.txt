@@ -25,7 +25,6 @@ SET (FREETYPE_SRCS
   src/base/ftmm.c
   src/autohint/autohint.c
   src/cache/ftcache.c
-#  src/sfnt/sfnt.c
   src/cff/cff.c
   src/psnames/psmodule.c
   src/psaux/psaux.c
@@ -41,6 +40,7 @@ SET (FREETYPE_SRCS
   src/pfr/pfr.c
   src/type42/type42.c
 )
+#  src/sfnt/sfnt.c
 
 #
 # Static or shared lib flags
