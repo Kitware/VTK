@@ -5,10 +5,10 @@ source ../../examplesTcl/vtkInt.tcl
 
 # Read some points. Use a programmable filter to read them.
 #
-vtkProgrammableSource source
-    source SetExecuteMethod readPoints
+vtkProgrammableSource pointSource
+    pointSource SetExecuteMethod readPoints
 proc readPoints {} {
-    set output [source GetPolyDataOutput]
+    set output [pointSource GetPolyDataOutput]
     vtkPoints points
     $output SetPoints points
 
@@ -27,7 +27,7 @@ proc readPoints {} {
 # Construct the surface and create isosurface
 #
 vtkSurfaceReconstructionFilter surf
-    surf SetInput [source GetPolyDataOutput]
+    surf SetInput [pointSource GetPolyDataOutput]
 
 vtkContourFilter cf
     cf SetInput [surf GetOutput]
