@@ -292,8 +292,9 @@ void vtkOpenGLRenderWindow::Start(void)
 // End the rendering process and display the image.
 void vtkOpenGLRenderWindow::Frame(void)
 {
+  this->MakeCurrent();
   glFlush();
-  if (!this->AbortRender && this->DoubleBuffer&&this->SwapBuffers)
+  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
     glXSwapBuffers(this->DisplayId, this->WindowId);
     vtkDebugMacro(<< " glXSwapBuffers\n");
