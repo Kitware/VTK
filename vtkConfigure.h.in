@@ -40,6 +40,11 @@
 #define VTK_NO_ANSI_STRING_STREAM
 #endif
 
+#cmakedefine CMAKE_NO_STD_NAMESPACE
+#ifdef CMAKE_NO_STD_NAMESPACE
+#define VTK_NO_STD_NAMESPACE
+#endif
+
 #cmakedefine VTK_BUILD_SHARED_LIBS
 #ifdef VTK_BUILD_SHARED_LIBS
 #define VTKDLL
