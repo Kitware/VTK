@@ -47,13 +47,21 @@ actor SetMapper mapper
 
 vtkRenderWindow renWin
   renWin SetSize 500 350
+  renWin DoubleBufferOff
+
 vtkRenderer ren
 renWin AddRenderer ren
 
+# set the background color before we turn erase off
+ren SetBackground 0.5 0.5 0.5 
+renWin Render
+renWin EraseOff
+
+
+
+
 ren AddActor actor
 
-
-ren SetBackground 0.5 0.5 0.5 
 
 vtkPipelineSize psize
 mapper SetNumberOfPieces 80000000
@@ -69,6 +77,8 @@ ren ResetCamera -1.1566 -1.13452 -0.266 -0.252 -0.1878 -0.1566
 for { set i 8698560 } { $i < 8698585 } { incr i 1 } {
     mapper SetPiece $i
     renWin Render
-    renWin EraseOff
 }
+
+
+
 
