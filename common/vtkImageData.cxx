@@ -1661,18 +1661,9 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
 // method to connect the image pipeline to the visualization pipeline.
 vtkImageToStructuredPoints *vtkImageData::MakeImageToStructuredPoints()
 {
-  if ( ! this->ImageToStructuredPoints)
-    {
-    this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
-    this->ImageToStructuredPoints->SetInput(this);
-    }
-  else
-    {
-    // we must up the ref count because this is a Make method
-    // it will be matched by a Delete
-    this->ImageToStructuredPoints->Register(this);
-    }
-  return this->ImageToStructuredPoints;
+  vtkImageToStructuredPoints *i2sp = vtkImageToStructuredPoints::New();
+  i2sp->SetInput(this);
+  return i2sp;
 }
 
 //----------------------------------------------------------------------------
