@@ -26,7 +26,7 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
-  --without-volume        do not include the volume classes"
+  --with-volume           include the volume classes"
 ac_help="$ac_help
   --with-borescope        include the borescope classes"
 ac_help="$ac_help
@@ -751,8 +751,6 @@ fi
 # Check whether --with-volume or --without-volume was given.
 if test "${with_volume+set}" = set; then
   withval="$with_volume"
-  :
-else
   volumedir=volume
          BUILD_VOLUME=build_volume
          DEPEND_VOLUME=depend_volume

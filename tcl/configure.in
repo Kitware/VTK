@@ -510,11 +510,11 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
 
 AC_ARG_WITH(volume,
-         [  --without-volume       do not include the volume classes],
-         [vtk_use_volume=no], 
+         [  --with-volume          include the volume classes],
          [vtk_use_volume=yes] 
          USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
-         USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME")
+         USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME",
+         [vtk_use_volume=no])
 
 AC_ARG_WITH(borescope,
          [  --with-borescope        include the borescope classes],

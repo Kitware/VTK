@@ -59,11 +59,11 @@ AC_SUBST(DEPEND_IMAGING)
 AC_SUBST(CLEAN_IMAGING)
 
 AC_ARG_WITH(volume,
-         [  --without-volume        do not include the volume classes],,
+         [  --with-volume           include the volume classes],
          volumedir=volume
          BUILD_VOLUME=build_volume
          DEPEND_VOLUME=depend_volume
-         CLEAN_VOLUME=clean_volume)
+         CLEAN_VOLUME=clean_volume,)
 
 AC_SUBST(BUILD_VOLUME)
 AC_SUBST(DEPEND_VOLUME)

@@ -26,7 +26,7 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
-  --without-volume       do not include the volume classes"
+  --with-volume          include the volume classes"
 ac_help="$ac_help
   --with-borescope        include the borescope classes"
 ac_help="$ac_help
@@ -2891,11 +2891,11 @@ fi
 # Check whether --with-volume or --without-volume was given.
 if test "${with_volume+set}" = set; then
   withval="$with_volume"
-  vtk_use_volume=no
-else
   vtk_use_volume=yes 
          USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
          USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME"
+else
+  vtk_use_volume=no
 fi
 
 
