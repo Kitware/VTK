@@ -41,7 +41,7 @@ tpoints SetPoint 5 0.5 0.5 1
 vtkThinPlateSplineTransform trans
     trans SetSourceLandmarks spoints
     trans SetTargetLandmarks tpoints
-
+    trans SetBasisToR
 # yeah, this is silly -- improves code coverage though
 vtkGeneralTransformConcatenation transconcat
     transconcat Concatenate trans

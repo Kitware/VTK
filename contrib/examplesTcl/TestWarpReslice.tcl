@@ -43,6 +43,7 @@ p2 InsertNextPoint 128 128 50
 vtkThinPlateSplineTransform transform
   transform SetSourceLandmarks p1
   transform SetTargetLandmarks p2
+  transform SetBasisToR
 
 vtkImageReslice reslice
   reslice SetInput [reader GetOutput]
