@@ -283,7 +283,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // we really want polydata
   if ( ds->GetDataSetType() != VTK_POLY_DATA )
     {
-    gf = new vtkGeometryFilter;
+    gf = vtkGeometryFilter::New();
     gf->SetInput(ds);
     gf->Update();
     pd = gf->GetOutput();

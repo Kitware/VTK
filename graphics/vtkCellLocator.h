@@ -66,6 +66,7 @@ class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
   vtkCellLocator();
+  ~vtkCellLocator();
   static vtkCellLocator *New() {return new vtkCellLocator;};
   const char *GetClassName() {return "vtkCellLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);

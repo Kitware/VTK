@@ -100,6 +100,7 @@ class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkOBBTree();
+  ~vtkOBBTree();
   static vtkOBBTree *New() {return new vtkOBBTree;};
   const char *GetClassName() {return "vtkOBBTree";};
 

@@ -70,6 +70,7 @@ class VTK_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
   vtkPointLocator();
+  ~vtkPointLocator();
   static vtkPointLocator *New() {return new vtkPointLocator;};
   const char *GetClassName() {return "vtkPointLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -59,6 +59,11 @@ vtkCellLocator::vtkCellLocator()
   this->NumberOfDivisions = 1;
 }
 
+vtkCellLocator::~vtkCellLocator()
+{
+  this->FreeSearchStructure();
+}
+
 void vtkCellLocator::FreeSearchStructure()
 {
   vtkIdList *cellIds;

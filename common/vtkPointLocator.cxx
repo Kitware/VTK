@@ -87,6 +87,11 @@ vtkPointLocator::vtkPointLocator()
   this->InsertionTol2 = 0.0001;
 }
 
+vtkPointLocator::~vtkPointLocator()
+{
+  this->FreeSearchStructure();
+}
+
 void vtkPointLocator::Initialize()
 {
   if ( this->Points ) this->Points->UnRegister(this);

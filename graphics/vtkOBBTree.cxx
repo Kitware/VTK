@@ -70,11 +70,18 @@ vtkOBBTree::vtkOBBTree()
   this->Tree = NULL;
 }
 
+vtkOBBTree::~vtkOBBTree()
+{
+  this->FreeSearchStructure();
+}
+
 void vtkOBBTree::FreeSearchStructure()
 {
   if ( this->Tree )
     {
     this->DeleteTree(this->Tree);
+    delete this->Tree;
+    this->Tree = NULL;
     }
 }
 
