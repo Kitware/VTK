@@ -1195,16 +1195,16 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" %s /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-            ansiFlags, vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+            vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     /* would like to use compiler option /Ox but this option includes /Og which
        causes several problems in subexpressions and loop optimizations.  Therefore
        we include all the compiler options that /Ox uses except for /Og */
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" %s /MD /W3 /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    ansiFlags, vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /W3 /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented) 
     {
@@ -1219,8 +1219,8 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," /I \"%s\" \\\n",vals->adlg.m_WhereMPIInclude);
     }
   
-  fprintf(fp," %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
-	  vals->adlg.m_EXTRA_CFLAGS);
+  fprintf(fp," %s %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+	  vals->adlg.m_EXTRA_CFLAGS, ansiFlags);
 
 
   if (!debugFlag && vals->m_Lean)
@@ -1856,15 +1856,21 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
+  const char* ansiFlags = "/GX /Zm1000";
+  if(!vals->m_AnsiCpp)
+    {
+    ansiFlags = "";
+    }
+
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s %s \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS, ansiFlags);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /W3 /O2 /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /W3 /O2 /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s %s\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS, ansiFlags);
     }
 
 
