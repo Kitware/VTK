@@ -58,7 +58,7 @@
 #ifndef __vtkClipVolume_h
 #define __vtkClipVolume_h
 
-#include "vtkStructuredPointsToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkCellData;
 class vtkDataArray;
@@ -76,10 +76,10 @@ class vtkCellArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 
-class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkClipVolume,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -168,7 +168,9 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
                 vtkDataArray *cellScalars, vtkIdList *tetraIds, 
                 vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD, 

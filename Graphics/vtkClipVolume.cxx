@@ -20,6 +20,9 @@
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
@@ -31,7 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.70");
+vtkCxxRevisionMacro(vtkClipVolume, "1.71");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -54,8 +57,10 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->Triangulator->PreSortedOn();
   
   // optional clipped output
-  this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
-  this->Outputs[1]->Delete();
+  this->SetNumberOfOutputPorts(2);
+  vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
 }
 
 vtkClipVolume::~vtkClipVolume()
@@ -72,12 +77,8 @@ vtkClipVolume::~vtkClipVolume()
 
 vtkUnstructuredGrid *vtkClipVolume::GetClippedOutput()
 {
-  if (this->NumberOfOutputs < 2)
-    {
-    return NULL;
-    }
-  
-  return static_cast<vtkUnstructuredGrid*>(this->Outputs[1]);
+  return vtkUnstructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 // Overload standard modified time function. If Clip functions is modified,
@@ -86,7 +87,7 @@ unsigned long vtkClipVolume::GetMTime()
 {
   unsigned long mTime, time;
 
-  mTime=this->vtkStructuredPointsToUnstructuredGridFilter::GetMTime();
+  mTime=this->Superclass::GetMTime();
 
   if ( this->Locator != NULL )
     {
@@ -106,11 +107,21 @@ unsigned long vtkClipVolume::GetMTime()
 //
 // Clip through volume generating tetrahedra
 //
-void vtkClipVolume::Execute()
+int vtkClipVolume::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *input = this->GetInput();
-  if (input == NULL) {return;}
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkCellArray *outputConn;
   vtkIdTypeArray *outputLoc;
@@ -158,13 +169,13 @@ void vtkClipVolume::Execute()
   if ( dimension < 3 )
     {
     vtkErrorMacro("This filter only clips 3D volume data");
-    return;
+    return 1;
     }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars without clip function");
-    return;
+    return 1;
     }
 
   // Create objects to hold output of clip operation
@@ -218,7 +229,7 @@ void vtkClipVolume::Execute()
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
-      return;
+      return 1;
       }
     }
     
@@ -417,6 +428,8 @@ void vtkClipVolume::Execute()
   clipTetra->Delete();
   
   this->Locator->Initialize();//release any extra memory
+
+  return 1;
 }
 
 
@@ -658,6 +671,12 @@ void vtkClipVolume::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+int vtkClipVolume::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
