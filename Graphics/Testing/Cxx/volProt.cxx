@@ -5,23 +5,31 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastCompositeFunction.h"
+#include "vtkVolumeRayCastMIPFunction.h"
+#include "vtkVolumeRayCastIsosurfaceFunction.h"
+#include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkVolumeRayCastMapper.h"
+#include "vtkVolumeTextureMapper2D.h"
 #include "vtkVolume.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
+// Create an 8x7 grid of render windows in a renderer and render a volume
+// using various techniques for testing purposes
 int main( int argc, char *argv[] )
 {
 
   vtkDebugLeaks::PromptUserOff();
 
-  // Create the renderer, render window, and interactor
-  vtkRenderer *ren1 = vtkRenderer::New();
+  int i, j, k, l;
+  
+  // Create the renderers, render window, and interactor
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AddRenderer(ren1);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
+  vtkRenderer *ren = vtkRenderer::New();
+  renWin->AddRenderer(ren);
   
   // Read the data from a vtk file
   char* fname = vtkExpandDataFileName(argc, argv, "Data/ironProt.vtk");
@@ -31,42 +39,209 @@ int main( int argc, char *argv[] )
 
   // Create a transfer function mapping scalar value to opacity
   vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
-    oTFun->AddSegment(80, 0.0, 255, 1.0);
+  oTFun->AddSegment(10, 0.0, 255, 0.3);
+
+  vtkPiecewiseFunction *oTFun2 = vtkPiecewiseFunction::New();
+  oTFun2->AddSegment(  0, 0.0, 128, 1.0);
+  oTFun2->AddSegment(128, 1.0, 255, 0.0);
 
   // Create a transfer function mapping scalar value to color (grey)
-  vtkPiecewiseFunction *cTFun = vtkPiecewiseFunction::New();
-    cTFun->AddSegment(0, 1.0, 255, 1.0);
+  vtkPiecewiseFunction *gTFun = vtkPiecewiseFunction::New();
+  gTFun->AddSegment(0, 1.0, 255, 1.0);
+    
+  // Create a transfer function mapping scalar value to color (color)
+  vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
+  cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 );
+  cTFun->AddRGBPoint(  64, 1.0, 1.0, 0.0 );
+  cTFun->AddRGBPoint( 128, 0.0, 1.0, 0.0 );
+  cTFun->AddRGBPoint( 192, 0.0, 1.0, 1.0 );
+  cTFun->AddRGBPoint( 255, 0.0, 0.0, 1.0 );
 
-  // Create a property for the volume and set the transfer functions.
-  // Turn shading on and use trilinear interpolation
-  vtkVolumeProperty *volumeProperty = vtkVolumeProperty::New();
-    volumeProperty->SetColor(cTFun);
-    volumeProperty->SetScalarOpacity(oTFun);
-    volumeProperty->SetInterpolationTypeToLinear();
-    volumeProperty->ShadeOn();
+  // Create a transfer function mapping magnitude of gradient to opacity
+  vtkPiecewiseFunction *goTFun = vtkPiecewiseFunction::New();
+  goTFun->AddPoint(   0, 0.0 );
+  goTFun->AddPoint(  30, 0.0 );
+  goTFun->AddPoint(  40, 1.0 );
+  goTFun->AddPoint( 255, 1.0 );
 
-  // Create a ray function - this is a compositing ray function
-  vtkVolumeRayCastCompositeFunction *compositeFunction = 
-    vtkVolumeRayCastCompositeFunction::New();
+  // Create a set of properties with varying options
+  vtkVolumeProperty *prop[16];
+  int index = 0;
+  for ( l = 0; l < 2; l++ )
+    {
+    for ( k = 0; k < 2; k++ )
+      {
+      for ( j = 0; j < 2; j++ )
+        {
+        for ( i = 0; i < 2; i++ )
+          {
+          prop[index] = vtkVolumeProperty::New();
+          prop[index]->SetShade(k);
+          prop[index]->SetAmbient(0.3);
+          prop[index]->SetDiffuse(1.0);
+          prop[index]->SetSpecular(0.2);
+          prop[index]->SetSpecularPower(50.0);
+          prop[index]->SetScalarOpacity(oTFun);
+          
+          if ( l )
+            {
+            prop[index]->SetGradientOpacity( goTFun );
+            }
+          
+          if ( j )
+            {
+            prop[index]->SetColor( cTFun );
+            }
+          else
+            {
+            prop[index]->SetColor( gTFun );
+            }
+          
+          if ( i )
+            {
+            prop[index]->SetInterpolationTypeToNearest();
+            }
+          else
+            {
+            prop[index]->SetInterpolationTypeToLinear();
+            }
+          
+          index++;
+          }
+        }
+      }
+    }
 
-  // Create the volume mapper and set the ray function and scalar input
-  vtkVolumeRayCastMapper *volumeMapper = vtkVolumeRayCastMapper::New();
-    volumeMapper->SetInput(reader->GetOutput());
-    volumeMapper->SetVolumeRayCastFunction(compositeFunction);
+  // Create a set of properties for mip
+  vtkVolumeProperty *mipprop[4];
+  index = 0;
+  for ( j = 0; j < 2; j++ )
+    {
+    for ( i = 0; i < 2; i++ )
+      {
+      mipprop[index] = vtkVolumeProperty::New();
+      mipprop[index]->SetScalarOpacity(oTFun2);          
+          
+      if ( j )
+        {
+        mipprop[index]->SetColor( cTFun );
+        }
+      else
+        {
+        mipprop[index]->SetColor( gTFun );
+        }
+      
+      if ( i )
+        {
+        mipprop[index]->SetInterpolationTypeToNearest();
+        }
+      else
+        {
+        mipprop[index]->SetInterpolationTypeToLinear();
+        }
+          
+      index++;
+      }
+    }
 
-  // Create the volume and set the mapper and property
-  vtkVolume *volume = vtkVolume::New();
-    volume->SetMapper(volumeMapper);
-    volume->SetProperty(volumeProperty);
-
-  // Add this volume to the renderer and get a closer look
-  ren1->AddVolume(volume);
-  ren1->GetActiveCamera()->Azimuth(20.0);
-  ren1->GetActiveCamera()->Dolly(1.60);
-  ren1->ResetCameraClippingRange();
   
-  renWin->SetSize(300,300);
 
+  // Create compositing ray functions
+  vtkVolumeRayCastCompositeFunction *compositeFunction1 = 
+    vtkVolumeRayCastCompositeFunction::New();
+  compositeFunction1->SetCompositeMethodToInterpolateFirst();
+
+  vtkVolumeRayCastCompositeFunction *compositeFunction2 = 
+    vtkVolumeRayCastCompositeFunction::New();
+  compositeFunction2->SetCompositeMethodToClassifyFirst();
+
+  
+  // Create mip ray functions
+  vtkVolumeRayCastMIPFunction *MIPFunction1 = 
+    vtkVolumeRayCastMIPFunction::New();
+  MIPFunction1->SetMaximizeMethodToScalarValue();
+
+  vtkVolumeRayCastMIPFunction *MIPFunction2 = 
+    vtkVolumeRayCastMIPFunction::New();
+  MIPFunction2->SetMaximizeMethodToOpacity();
+
+  // Create an isosurface ray function
+  vtkVolumeRayCastIsosurfaceFunction *isosurfaceFunction = 
+    vtkVolumeRayCastIsosurfaceFunction::New();
+  isosurfaceFunction->SetIsoValue(80);
+
+  vtkFiniteDifferenceGradientEstimator *gradest = 
+    vtkFiniteDifferenceGradientEstimator::New();
+  
+  // Create 56 volumes
+  vtkVolume *volume[56];
+  index = 0;
+  for ( j = 0; j < 7; j++ )
+    {
+    for ( i = 0; i < 8; i++ )
+      {
+      volume[index] = vtkVolume::New();
+      volume[index]->AddPosition( i*70, j*70, 0 );
+      ren->AddProp(volume[index]);
+      index++;
+      }
+    }
+  
+  
+  // Create 48 ray cast mappers - 32 composite, 8 mip, 8 isosurface
+  vtkVolumeRayCastMapper *raycastMapper[48];
+  for ( i = 0; i < 48; i++ )
+    {
+    raycastMapper[i] = vtkVolumeRayCastMapper::New();
+    raycastMapper[i]->SetInput(reader->GetOutput());
+    raycastMapper[i]->SetGradientEstimator(gradest);
+    volume[i]->SetMapper( raycastMapper[i] );
+
+    if ( i < 16 )
+      {
+      volume[i]->SetProperty( prop[i] );
+      raycastMapper[i]->SetVolumeRayCastFunction( compositeFunction1 );
+      }
+    else if ( i < 32 )
+      {
+      volume[i]->SetProperty( prop[i-16] );
+      raycastMapper[i]->SetVolumeRayCastFunction( compositeFunction2 );
+      }
+    else
+      {
+      if ( i < 36 )
+        {
+        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction1 );  
+        volume[i]->SetProperty( mipprop[i-32] );
+        }
+      else if ( i < 40 )
+        {
+        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction2 );  
+        volume[i]->SetProperty( mipprop[i-36] );
+        }
+      else 
+        {
+        raycastMapper[i]->SetVolumeRayCastFunction( isosurfaceFunction );  
+        volume[i]->SetProperty( prop[i-40] );
+        }
+      }
+    }
+
+  // Create 8 texture mappers
+  vtkVolumeTextureMapper2D *textureMapper[8];
+  for ( i = 0; i < 8; i++ )
+    {
+    textureMapper[i] = vtkVolumeTextureMapper2D::New();
+    textureMapper[i]->SetInput( reader->GetOutput() );    
+    volume[i+48]->SetMapper( textureMapper[i] );
+    volume[i+48]->SetProperty( prop[i*2] );
+    }
+  
+
+  renWin->SetSize(400,350);
+
+  ren->GetActiveCamera()->Zoom(2.0);
+  
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
@@ -77,17 +252,8 @@ int main( int argc, char *argv[] )
   iren->SetStillUpdateRate(0.001);
 
   // Clean up
-  ren1->Delete();
-  renWin->Delete();
-  iren->Delete();
-  reader->Delete();
-  oTFun->Delete();
-  cTFun->Delete();
-  volumeProperty->Delete();
-  compositeFunction->Delete();
-  volumeMapper->Delete();
-  volume->Delete();
 
+  iren->Start();
   return !retVal;
 }
 
