@@ -140,10 +140,6 @@ int vtkLargeInteger::to_int(void) const
 
 long vtkLargeInteger::to_long(void) const
 {
-  if (length() > 31)
-    {
-    vtkGenericWarningMacro("overflow in converting large integer to long");
-    }
   long n = 0;
 
     for (int i = sig; i >= 0; i--)
@@ -155,6 +151,31 @@ long vtkLargeInteger::to_long(void) const
         return -n;
     else
         return n;
+}
+
+// convert to an unsigned long, return max if bigger than unsigned long
+unsigned long vtkLargeInteger::to_unsigned_long(void) const
+{
+  unsigned long n = 0;
+
+  if (sig >= (8*sizeof(unsigned long)))
+    {
+    for (int i = (8*sizeof(unsigned long)); i > 0; i--)
+      {
+      n <<= 1;
+      n |= 1;
+      }
+    }
+  else
+    {
+    for (int i = sig; i >= 0; i--)
+      {
+      n <<= 1;
+      n |= number[i];
+      }
+    }
+  
+  return n;
 }
 
 int vtkLargeInteger::even(void) const

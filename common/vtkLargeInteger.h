@@ -57,6 +57,7 @@ public:
   short to_short(void) const;
   int to_int(void) const;
   long to_long(void) const;
+  unsigned long to_unsigned_long(void) const;
   
   int even(void) const;
   int odd(void) const;
