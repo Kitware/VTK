@@ -310,7 +310,7 @@ int vtkDataReader::ReadHeader()
     {
     delete [] this->Header;
     }
-  this->Header = strdup(line);
+  this->Header = new char[strlen(line) + 1];
   
   vtkDebugMacro(<< "Reading vtk file entitled: " << line);
   //
