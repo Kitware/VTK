@@ -39,7 +39,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.10");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.11");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -373,6 +373,22 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   glEnable(GL_TEXTURE_2D);
 
   // draw the quad
+  if ( vtkMapper::GetResolveCoincidentTopology() )
+    {
+    if ( vtkMapper::GetResolveCoincidentTopology() == 
+         VTK_RESOLVE_SHIFT_ZBUFFER )
+      {
+      }
+    else
+      {
+#ifdef GL_VERSION_1_1
+      float f, u;
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      glPolygonOffset(f,u);
+#endif      
+      }
+    }
   glDisable(GL_COLOR_MATERIAL);
   glDisable (GL_CULL_FACE);
   glDisable( GL_LIGHTING );
