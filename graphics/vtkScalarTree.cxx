@@ -165,6 +165,7 @@ void vtkScalarTree::BuildTree()
     }
 
   this->BuildTime.Modified();
+  cellScalars->Delete();
 }
 
 // Begin to traverse the cells based on a scalar value. Returned cells
