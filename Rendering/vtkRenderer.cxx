@@ -34,7 +34,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.188");
+vtkCxxRevisionMacro(vtkRenderer, "1.189");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -683,10 +683,11 @@ void vtkRenderer::ResetCamera()
   if ( allBounds[0] == VTK_LARGE_FLOAT )
     {
     vtkDebugMacro( << "Cannot reset camera!" );
-    return;
     }
-
-  this->ResetCamera(allBounds);
+  else
+    {
+    this->ResetCamera(allBounds);
+    }
 
   // Here to let parallel/distributed compositing intercept 
   // and do the right thing.
@@ -704,10 +705,11 @@ void vtkRenderer::ResetCameraClippingRange()
   if ( allBounds[0] == VTK_LARGE_FLOAT )
     {
     vtkDebugMacro( << "Cannot reset camera clipping range!" );
-    return;
     }
-
-  this->ResetCameraClippingRange(allBounds);
+  else
+    {
+    this->ResetCameraClippingRange(allBounds);
+    }
 
   // Here to let parallel/distributed compositing intercept 
   // and do the right thing.
