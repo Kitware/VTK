@@ -118,7 +118,7 @@ protected:
   float ColorWindow;
   float ColorLevel;
  
-  int DisplayExtent[6];
+  int PositionAdjustment[2];
   int ZSlice;
 };
 

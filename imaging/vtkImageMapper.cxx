@@ -153,10 +153,14 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   // Get the window size
   vtkWindow* window = viewport->GetVTKWindow();
   int* winSize = window->GetSize();
-  
+
+  // if we clip based on 0,0 then we need to store the amount we
+  // adjusted by so that we can take that into account in the
+  // positioning of the actor
   // Now clip to imager extents
   if (displayExtent[0] < 0) 
     {
+    this->PositionAdjustment[0] = -1*displayExtent[0];
     displayExtent[0] = 0;
     }
   if (displayExtent[1] > (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
@@ -165,6 +169,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     }
   if (displayExtent[2] < 0) 
     {
+    this->PositionAdjustment[1] = -1*displayExtent[2];
     displayExtent[2] = 0;
     }
   if (displayExtent[3] > (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
@@ -187,13 +192,6 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     vtkErrorMacro(<< "Render: Could not get data from input.");
     return;
     }
-
-  this->DisplayExtent[0] = displayExtent[0];
-  this->DisplayExtent[1] = displayExtent[1];
-  this->DisplayExtent[2] = displayExtent[2];
-  this->DisplayExtent[3] = displayExtent[3];
-  this->DisplayExtent[4] = displayExtent[4];
-  this->DisplayExtent[5] = displayExtent[5];
 
   this->RenderData(viewport, data, actor);
 }
