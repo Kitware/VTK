@@ -53,19 +53,19 @@ vtkpython: vtkpython$(SHLIB_SUFFIX)
 vtkpython.o: vtkpython.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtkpython.o $(srcdir)/vtkpython.c
 
-vtkTkRenderWidget: ${srcdir}/../graphics/vtkTkRenderWidget.cxx
+vtkTkRenderWidget: ${srcdir}/../graphics/vtkTkRenderWidget.cxx ${TOOLKIT_DEPENDS}
 	${CXX} -o vtkTkRenderWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../graphics/vtkTkRenderWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageViewerWidget: ${srcdir}/../imaging/vtkTkImageViewerWidget.cxx
+vtkTkImageViewerWidget: ${srcdir}/../imaging/vtkTkImageViewerWidget.cxx ${TOOLKIT_DEPENDS}
 	${CXX} -o vtkTkImageViewerWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageViewerWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageWindowWidget: ${srcdir}/../imaging/vtkTkImageWindowWidget.cxx
+vtkTkImageWindowWidget: ${srcdir}/../imaging/vtkTkImageWindowWidget.cxx ${TOOLKIT_DEPENDS}
 	${CXX} -o vtkTkImageWindowWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageWindowWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
@@ -80,10 +80,16 @@ vtkpython${SHLIB_SUFFIX}: Makefile vtkpython.o ${TOOLKIT_DEPENDS}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
+# build vtkpython.pth
+vtkpython.pth: Makefile
+	-rm -f vtkpython.pth
+	echo $(LIB_INSTALL_DIR)/vtk/python/ > vtkpython.pth
+
+#------------------------------------------------------------------------------
 # Install the python files and libraries
 # Note: install can only handle one file at a time, so if a new *.py file
 #       is added, it must be installed explicitly!
-install: all
+install: all vtkpython.pth
 	${INSTALL} -m 755 -d $(LIB_INSTALL_DIR)/vtk
 	${INSTALL} -m 755 -d $(LIB_INSTALL_DIR)/vtk/python
 	${INSTALL} -m 644 ${srcdir}/VTK.py                      $(LIB_INSTALL_DIR)/vtk/python/
@@ -100,11 +106,16 @@ install: all
 	${INSTALL} -m 644 ${srcdir}/vtkImageWindowWidget.py     $(LIB_INSTALL_DIR)/vtk/python/
 	${INSTALL} -m 644 ${srcdir}/vtkRenderWidget.py          $(LIB_INSTALL_DIR)/vtk/python/
 	${INSTALL} -m 755 vtkpython.so                          $(LIB_INSTALL_DIR)/vtk/python/
-	${INSTALL} -m 755 vtkTkImageViewerWidget                $(LIB_INSTALL_DIR)/vtk/python/
-	${INSTALL} -m 755 vtkTkImageWindowWidget                $(LIB_INSTALL_DIR)/vtk/python/
-	${INSTALL} -m 755 vtkTkRenderWidget                     $(LIB_INSTALL_DIR)/vtk/python/
-	
-
+	-${INSTALL} -m 755 vtkpython.pth                        `python getmodulepath.py`
+	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageViewerWidget
+	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageWindowWidget
+	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageRenderWidget
+	${INSTALL} -m 755 vtkTkImageViewerWidget                $(LIB_INSTALL_DIR)/
+	${INSTALL} -m 755 vtkTkImageWindowWidget                $(LIB_INSTALL_DIR)/
+	${INSTALL} -m 755 vtkTkRenderWidget                     $(LIB_INSTALL_DIR)/
+	ln $(LIB_INSTALL_DIR)/vtkTkImageViewerWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageViewerWidget
+	ln $(LIB_INSTALL_DIR)/vtkTkImageWindowWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageWindowWidgit
+	ln $(LIB_INSTALL_DIR)/vtkTkRenderWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkRenderWidget
 #------------------------------------------------------------------------------
 clean: 
 	-rm -f *.so *.o *.a *.pyc Makefile vtkTk*Widget
