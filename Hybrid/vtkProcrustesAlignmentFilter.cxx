@@ -5,7 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Tim Hutton who developed and contributed this class
+  Thanks:    Tim Hutton and Rasmus Paulsen who developed and contributed this class
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
   All rights reserved.
@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.3");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.4");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -42,6 +42,82 @@ vtkProcrustesAlignmentFilter::~vtkProcrustesAlignmentFilter()
     this->LandmarkTransform->Delete();
     }
 }
+
+//----------------------------------------------------------------------------
+// Calculate the centroid of a point cloud
+void Centroid(vtkPoints* pd, float *cp)
+{
+  // Center point
+  cp[0] = 0; cp[1] = 0; cp[2] = 0;
+  
+  int np = pd->GetNumberOfPoints();
+  
+  // Calculate center of shape
+  for (int i = 0; i < np; i++)
+  {
+    float *p = pd->GetPoint(i);
+    cp[0] += p[0]; cp[1] += p[1]; cp[2] += p[2];
+  }
+  cp[0] /= np; cp[1] /= np; cp[2] /= np;
+}
+
+//----------------------------------------------------------------------------
+// Calculate the centroid size of a point cloud
+double CentroidSize(vtkPoints* pd, float *cp)
+{
+  Centroid(pd, cp);
+  
+  double S = 0;
+  for (int i = 0; i < pd->GetNumberOfPoints(); i++)
+  {
+    float *p = pd->GetPoint(i);
+    
+    S += vtkMath::Distance2BetweenPoints(p,cp);
+  }
+  
+  return S;
+}
+
+//----------------------------------------------------------------------------
+// Translation of point cloud. Could be done using transformations
+void TranslateShape(vtkPoints* pd, float *tp)
+{
+  for (int i = 0; i < pd->GetNumberOfPoints(); i++)
+  {
+    float *p = pd->GetPoint(i);
+    
+    pd->SetPoint(i, p[0]+tp[0], p[1]+tp[1], p[2]+tp[2]);
+  }
+}
+
+//----------------------------------------------------------------------------
+// Scaling of point cloud. Could be done using transformations
+void ScaleShape(vtkPoints* pd, double S)
+{
+  for (int i = 0; i < pd->GetNumberOfPoints(); i++)
+  {
+    float *p = pd->GetPoint(i);
+    
+    pd->SetPoint(i, p[0]*S, p[1]*S, p[2]*S);
+  }
+}
+
+//----------------------------------------------------------------------------
+// Normalise a point cloud to have centroid (0,0,0) and centroid size 1
+int NormaliseShape(vtkPoints* pd)
+{
+  float cp[3];
+  double S = CentroidSize(pd, cp);
+  if (S == 0)
+    return 0;
+  
+  float tp[3];
+  tp[0] = -cp[0]; tp[1] = -cp[1]; tp[2] = -cp[2]; 
+  TranslateShape(pd, tp);
+  ScaleShape(pd, 1/S);
+  return 1;
+}
+
 
 //----------------------------------------------------------------------------
 // protected
@@ -71,6 +147,12 @@ void vtkProcrustesAlignmentFilter::Execute()
 
   vtkDebugMacro(<<"N_POINTS is " <<N_POINTS);
 
+  if(N_POINTS == 0)
+    {
+    vtkErrorMacro(<<"No points!");
+    return;
+    }
+
   // all the inputs must have the same number of points to consider executing
   for(i=1;i<N_SETS;i++) 
     {
@@ -89,6 +171,22 @@ void vtkProcrustesAlignmentFilter::Execute()
   // (which are otherwise undefined and the loop will not converge)
   vtkPoints *first_mean = vtkPoints::New();
   first_mean->DeepCopy(mean_points);
+
+
+  // If the similarity transform is used, the mean shape must be normalised
+  // to avoid shrinking
+  if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY)
+  {
+    if (!NormaliseShape(mean_points)) {
+      vtkErrorMacro(<<"Centroid size zero");
+      return;
+    }
+    if (!NormaliseShape(first_mean)) {
+      vtkErrorMacro(<<"Centroid size zero");
+      return;
+    }
+  }
+  
 
   // storage for the new mean that is being calculated
   vtkPoints *new_mean = vtkPoints::New();
@@ -133,14 +231,28 @@ void vtkProcrustesAlignmentFilter::Execute()
       p[2] = point[2]/(float)N_SETS;
       }
 
-    // align the new mean with the fixed mean
-    this->LandmarkTransform->SetSourceLandmarks(new_mean);
-    this->LandmarkTransform->SetTargetLandmarks(first_mean);
-    this->LandmarkTransform->Update();
-    for(v=0;v<N_POINTS;v++) {
-      this->LandmarkTransform->InternalTransformPoint(
-        new_mean->GetPoint(v),new_mean->GetPoint(v));
+    // align the new mean with the fixed mean if the transform
+    // is similarity or rigidbody. It is not yet decided what to do with affine
+    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY || 
+        this->LandmarkTransform->GetMode() == VTK_LANDMARK_RIGIDBODY){
+      this->LandmarkTransform->SetSourceLandmarks(new_mean);
+      this->LandmarkTransform->SetTargetLandmarks(first_mean);
+      this->LandmarkTransform->Update();
+      for(v=0;v<N_POINTS;v++) {
+        this->LandmarkTransform->InternalTransformPoint(
+          new_mean->GetPoint(v),new_mean->GetPoint(v));
       }
+    }
+
+    // If the similarity transform is used, the mean shape must be normalised
+    // to avoid shrinking
+    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY) {
+      if (!NormaliseShape(new_mean)) {
+        vtkErrorMacro(<<"Centroid size zero");
+        return;
+      }
+    }
+
 
     // the new mean becomes our mean
     // compute the difference between the two
