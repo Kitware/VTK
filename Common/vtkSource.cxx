@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.98");
+vtkCxxRevisionMacro(vtkSource, "1.99");
 
 #ifndef NULL
 #define NULL 0
@@ -237,7 +237,7 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
   int idx;
 
   // Check flag to avoid executing forever if there is a loop.
-  if (this->Updating)
+  if (this->Updating || this->NumberOfInputs == 0)
     {
     return;
     }
