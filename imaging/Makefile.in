@@ -73,6 +73,7 @@ vtkImageMagnify \
 vtkImageMagnitude \
 vtkImageMapper \
 vtkImageMask \
+vtkImageMaskBits \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
