@@ -207,7 +207,6 @@ void vtkDataArray::CreateDefaultLookupTable()
   // otherwise problems with InsertScalar trying to map through 
   // non built lut
   this->LookupTable->Build();
-  this->LookupTable->Register(this);
 }
 
 void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
