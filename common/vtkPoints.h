@@ -55,7 +55,10 @@ class vtkPoints;
 class VTK_EXPORT vtkPoints : public vtkAttributeData
 {
 public:
-  static vtkPoints *New(int dataType=VTK_FLOAT);
+//BTX
+  static vtkPoints *New(int dataType);
+//ETX
+  static vtkPoints *New();
 
   vtkTypeMacro(vtkPoints,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);

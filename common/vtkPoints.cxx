@@ -55,6 +55,11 @@ vtkPoints* vtkPoints::New(int dataType)
   return new vtkPoints(dataType);
 }
 
+vtkPoints* vtkPoints::New()
+{
+  return vtkPoints::New(VTK_FLOAT);
+}
+
 vtkAttributeData *vtkPoints::MakeObject()
 {
   vtkPoints *p = vtkPoints::New();
