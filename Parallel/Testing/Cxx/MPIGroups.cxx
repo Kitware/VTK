@@ -139,7 +139,7 @@ void proc1( vtkMultiProcessController *controller, void *arg )
 
   if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Start();
+    treeComp->StartInteractor();
     }
 
   iren->Delete();
