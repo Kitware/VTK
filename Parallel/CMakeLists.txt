@@ -5,7 +5,6 @@ vtkCutMaterial
 vtkExtractPolyDataPiece 
 vtkExtractUnstructuredGridPiece 
 vtkGetRemoteGhostCells 
-vtkImageComposite 
 vtkInputPort 
 vtkMemoryLimitImageDataStreamer 
 vtkMultiProcessController 
