@@ -563,7 +563,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
     fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != NULL)",
-	    data->SuperClasses[i],data->SuperClasses[i]);
+	    data->SuperClasses[i]);
     fprintf(fp," { return res; }\n");
     }
   fprintf(fp,"  return NULL;\n");
