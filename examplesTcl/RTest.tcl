@@ -9,7 +9,7 @@
 # rtImageTclExamples.tcl.
 #
 #    TCL_EXECUTABLE -       Where the Tcl/Tk executable is, defaults to
-#                           c:/Program Files/Tcl/bin/wish82.exe
+#                           [info nameofexecutable]
 #    BIN_DIR -              Where to find this script and supporting Tcl
 #                           stuff, dll's, etc. Default is "".
 #    VTK_ROOT -             vtk root directory, 
@@ -37,7 +37,7 @@ if { [catch {set tmp $env(BIN_DIR) }] != 0} {
    } else {
       # Starting in vtk/examplesTcl
       set env(BIN_DIR) $currentDirectory
-      set env(TCL_EXECUTABLE) "c:/Program Files/Tcl/bin/wish82.exe"
+      set env(TCL_EXECUTABLE) [info nameofexecutable]
    }
 }
 
