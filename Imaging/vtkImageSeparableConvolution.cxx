@@ -101,6 +101,33 @@ void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outIm
     }
 }
 
+// Description:
+// Overload standard modified time function. If kernel arrays are modified,
+// then this object is modified as well.
+unsigned long vtkImageSeparableConvolution::GetMTime()
+{
+  unsigned long mTime=this->vtkImageDecomposeFilter::GetMTime();
+  unsigned long kTime;
+
+  if ( this->XKernel )
+    {
+    kTime = this->XKernel->GetMTime();
+    mTime = kTime > mTime ? kTime : mTime;
+    }
+  if ( this->YKernel )
+    {
+    kTime = this->YKernel->GetMTime();
+    mTime = kTime > mTime ? kTime : mTime;
+    }
+  if ( this->YKernel )
+    {
+    kTime = this->YKernel->GetMTime();
+    mTime = kTime > mTime ? kTime : mTime;
+    }
+  return mTime;
+}
+
+
 //------------------------------------------------------------------------------
 vtkImageSeparableConvolution* vtkImageSeparableConvolution::New()
 {
@@ -154,11 +181,42 @@ void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
     return;
     }
 
+  vtkFloatArray* KernelArray = NULL;
+  switch ( this->GetIteration() )
+    {
+    case 0:
+      KernelArray = this->GetXKernel();
+      break;
+    case 1:
+      KernelArray = this->GetYKernel();
+      break;
+    case 2:
+      KernelArray = this->GetZKernel();
+      break;
+    }
+  int kernelSize = 0;
+  if ( KernelArray )
+    {
+    kernelSize = KernelArray->GetNumberOfTuples();
+    kernelSize = (int) ( ( kernelSize - 1 ) / 2.0 ); 
+    }
+  
+  
+  
   // Assumes that the input update extent has been initialized to output ...
   memcpy(inExt, outExt, 6 * sizeof(int));
   wholeExtent = this->GetInput()->GetWholeExtent();
-  inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
-  inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
+  inExt[this->Iteration * 2] = outExt[this->Iteration * 2] - kernelSize;
+  if ( inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2] )
+    {
+    inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
+    }
+  
+  inExt[this->Iteration * 2 + 1] = outExt[this->Iteration * 2 + 1] + kernelSize;
+  if ( inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1] )
+    {
+    inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
+    }
 }
 
 template <class T>
@@ -171,23 +229,25 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
   float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  int min0, max0, min1, max1, min2, max2;
+  int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
+  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int idx0, idx1, idx2;
-  int outExt[6];
+  int outExt[6], inExt[6];
   int i;
   unsigned long count = 0;
   unsigned long target;
-  
-  self->GetOutput()->GetWholeExtent ( outExt );
 
+  inData->GetUpdateExtent ( inExt );
+  outData->GetUpdateExtent ( outExt );
 
   // Reorder axes (the in and out extents are assumed to be the same)
   // (see intercept cache update)
-  self->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
+  self->PermuteExtent(outExt, outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  self->PermuteExtent(inExt, inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   
-  target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
+  target = (unsigned long)((inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
   target++;
 
   vtkFloatArray* KernelArray = NULL;
@@ -218,20 +278,20 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
       }
     }
 
-  int imageSize = max0 + 1;
+  int imageSize = inMax0 + 1;
   float* image = new float[imageSize];
   float* outImage = new float[imageSize];
   float* imagePtr = NULL;
 
   
   // loop over all the extra axes
-  inPtr2 = (T *)inData->GetScalarPointerForExtent(outExt);
+  inPtr2 = (T *)inData->GetScalarPointerForExtent(inExt);
   outPtr2 = (float *)outData->GetScalarPointerForExtent(outExt);
-  for (idx2 = min2; idx2 <= max2; ++idx2)
+  for (idx2 = inMin2; idx2 <= inMax2; ++idx2)
     {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
-    for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
+    for (idx1 = inMin1; !self->AbortExecute && idx1 <= inMax1; ++idx1)
       {
       if (!(count%target))
         {
@@ -240,7 +300,7 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
       count++;
       inPtr0 = inPtr1;
       imagePtr = image;
-      for (idx0 = min0; idx0 <= max0; ++idx0)
+      for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
         {
         *imagePtr = (float)(*inPtr0);
         inPtr0 += inInc0;
@@ -259,12 +319,13 @@ static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* 
         imagePtr = image;
         }
       
-      // Copy to output
+      // Copy to output, be aware that we only copy to the extent that was asked for
       outPtr0 = outPtr1;
-      for (idx0 = min0; idx0 <= max0; ++idx0)
+      imagePtr = imagePtr + (outMin0 - inMin0);
+      for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
         {
         *outPtr0 = (*imagePtr);
-        outPtr0 += inInc0;
+        outPtr0 += outInc0;
         ++imagePtr;
         }
       inPtr1 += inInc1;
@@ -332,9 +393,6 @@ void vtkImageSeparableConvolution::IterativeExecuteData(vtkImageData *inData,
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
     }
-
-  outData->SetExtent(this->GetOutput()->GetWholeExtent());
-  outData->AllocateScalars();
 
   // choose which templated function to call.
   switch (inData->GetScalarType())
