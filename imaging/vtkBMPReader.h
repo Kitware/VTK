@@ -93,7 +93,7 @@ protected:
   short Depth;
   
   virtual void ComputeDataIncrements();
-  virtual void UpdateInformation();
+  virtual void ExecuteInformation();
   virtual void Execute(vtkImageData *out);
   void Execute() { this->vtkImageReader::Execute(); };
   

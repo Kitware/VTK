@@ -84,7 +84,7 @@ vtkBMPReader::~vtkBMPReader()
     }
 }
 
-void vtkBMPReader::UpdateInformation()
+void vtkBMPReader::ExecuteInformation()
 {
   int xsize, ysize;
   FILE *fp;
@@ -290,11 +290,10 @@ void vtkBMPReader::UpdateInformation()
   this->DataExtent[1] = xsize - 1;
   this->DataExtent[2] = 0;
   this->DataExtent[3] = ysize - 1;
-  
+
   this->SetDataScalarTypeToUnsignedChar();
   this->SetNumberOfScalarComponents(3);
-  
-  vtkImageReader::UpdateInformation();
+  this->vtkImageReader::ExecuteInformation();
 }
 
 //----------------------------------------------------------------------------
@@ -490,6 +489,7 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 // are assumed to be the same as the file extent/order.
 void vtkBMPReader::Execute(vtkImageData *data)
 {
+  vtkErrorMacro( << "executing" );
   this->ComputeDataIncrements();
   
   // Call the correct templated function for the output
