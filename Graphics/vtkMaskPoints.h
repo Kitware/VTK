@@ -68,8 +68,8 @@ public:
 
   // Description:
   // Limit the number of points that can be passed through.
-  vtkSetClampMacro(MaximumNumberOfPoints,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(MaximumNumberOfPoints,int);
+  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
 
   // Description:
   // Start with this point.
@@ -102,7 +102,7 @@ protected:
   int OnRatio;     // every OnRatio point is on; all others are off.
   vtkIdType Offset;      // offset (or starting point id)
   int RandomMode;  // turn on/off randomization
-  int MaximumNumberOfPoints;
+  vtkIdType MaximumNumberOfPoints;
   int GenerateVertices; //generate polydata verts
 };
 
