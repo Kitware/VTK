@@ -109,6 +109,12 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   // be blended with other geoemtry (non-intersecting only)
   glEnable( GL_BLEND );
 
+#ifdef GL_VERSION_1_1
+  GLuint tempIndex;
+  glGenTextures(1, &tempIndex);
+  glBindTexture(GL_TEXTURE_2D, tempIndex);
+#endif
+
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
@@ -142,17 +148,22 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 
   this->GenerateTexturesAndRenderRectangles(); 
     
-  glDisable( GL_BLEND );
-  glDisable( GL_TEXTURE_2D );
-
-  // Turn lighting back on
-  glEnable( GL_LIGHTING );
-
   // pop transformation matrix
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   matrix->Delete();
+
+  glDisable( GL_BLEND );
+  glDisable( GL_TEXTURE_2D );
+  
+#ifdef GL_VERSION_1_1
+  glFlush();
+  glDeleteTextures(1, &tempIndex);
+#endif
+  
+  // Turn lighting back on
+  glEnable( GL_LIGHTING );
 
   if ( clipPlanes )
     {
