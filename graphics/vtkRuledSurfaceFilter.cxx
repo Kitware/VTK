@@ -345,8 +345,8 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
         }
       }
     // compute the point at t on the second polyline
-    this->Ids->SetId(3,pts2[i10]);
-    this->Ids->SetId(2,pts2[i11]);
+    this->Ids->SetId(2,pts2[i10]);
+    this->Ids->SetId(3,pts2[i11]);
     if (d1 == 0.0)
       {
       vv = 0.0;
@@ -374,10 +374,10 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
 
       id = offset + i*(this->Resolution[1] + 1) + j;
       newPts->SetPoint(id, pt);
-      this->Weights[0] = 1.0 - uu;
-      this->Weights[1] = uu;
-      this->Weights[2] = vv;
-      this->Weights[3] = 1.0 - vv;
+      this->Weights[0] = (1.0 - v)*(1.0 - uu);
+      this->Weights[1] = (1.0 - v)*uu;
+      this->Weights[2] = v*(1.0 - vv);
+      this->Weights[3] = v*vv;
       outPD->InterpolatePoint(inPD, id, this->Ids, this->Weights);
       }
     }
