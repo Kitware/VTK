@@ -88,17 +88,17 @@ int main (int argc, char *argv[])
   if (!strcmp(vtkLocal + strlen(vtkLocal) - 8,"graphics"))
     {
     fprintf(fp,"vtkXRenderWindowInteractor.o : %s/vtkXRenderWindowInteractor.cxx",
-	    vtkLocal,vtkLocal,argv[i]);
+	    vtkLocal);
     sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
     fprintf(fp,"vtkXRenderWindowTclInteractor.o : %s/vtkXRenderWindowTclInteractor.cxx",
-	    vtkLocal,vtkLocal,argv[i]);
+	    vtkLocal);
     sprintf(filename,"%s/vtkXRenderWindowTclInteractor.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
     fprintf(fp,"vtkTkRenderWidget.o : %s/vtkTkRenderWidget.cxx",
-	    vtkLocal,vtkLocal,argv[i]);
+	    vtkLocal);
     sprintf(filename,"%s/vtkTkRenderWidget.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
@@ -108,7 +108,7 @@ int main (int argc, char *argv[])
   if (!strcmp(vtkLocal + strlen(vtkLocal) - 7,"imaging"))
     {
     fprintf(fp,"vtkTkImageViewerWidget.o : %s/vtkTkImageViewerWidget.cxx",
-	    vtkLocal,vtkLocal,argv[i]);
+	    vtkLocal);
     sprintf(filename,"%s/vtkTkImageViewerWidget.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
