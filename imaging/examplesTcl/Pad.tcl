@@ -12,19 +12,16 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 94
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-#reader ReleaseDataFlagOff
 #reader DebugOn
 
 vtkImageMirrorPad pad1
 pad1 SetInput [reader GetOutput]
-pad1 SetOutputWholeExtent -127 383 -127 383 0 93 0 0
-pad1 ReleaseDataFlagOff
+pad1 SetOutputWholeExtent -127 383 -127 383 0 93
 
 vtkImageConstantPad pad2
 pad2 SetInput [reader GetOutput]
-pad2 SetOutputWholeExtent -127 383 -127 383 0 93 0 0
+pad2 SetOutputWholeExtent -127 383 -127 383 0 93
 pad2 SetConstant 800
-pad2 ReleaseDataFlagOff
 
 vtkImageViewer viewer1
 viewer1 SetInput [pad1 GetOutput]

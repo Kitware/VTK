@@ -8,33 +8,35 @@ source vtkImageInclude.tcl
 
 vtkImageReader reader
 #reader DebugOn
-[reader GetCache] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarType $VTK_FLOAT
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageLaplacian lap
-lap SetInput [reader GetOutput]
+lap SetInput [cast GetOutput]
 lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 
 vtkImageMathematics subtract
 subtract SetOperationToSubtract
-subtract SetInput1 [reader GetOutput]
+subtract SetInput1 [cast GetOutput]
 subtract SetInput2 [lap GetOutput]
 subtract ReleaseDataFlagOff
 #subtract BypassOn
 
 vtkImageViewer viewer1
-viewer1 SetInput [reader GetOutput]
+viewer1 SetInput [cast GetOutput]
 viewer1 SetZSlice 22
 viewer1 SetColorWindow 2000
 viewer1 SetColorLevel 1000
 
 
 vtkImageViewer viewer2
-viewer2 SetInput [lap GetOutput]
+viewer2 SetInput [cast GetOutput]
 viewer2 SetZSlice 22
 viewer2 SetColorWindow 1000
 viewer2 SetColorLevel 0

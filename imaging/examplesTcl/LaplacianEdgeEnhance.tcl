@@ -13,15 +13,18 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarType $VTK_FLOAT
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageLaplacian lap
-lap SetInput [reader GetOutput]
+lap SetInput [cast GetOutput]
 lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 
 vtkImageMathematics subtract
 subtract SetOperationToSubtract
-subtract SetInput1 [reader GetOutput]
+subtract SetInput1 [cast GetOutput]
 subtract SetInput2 [lap GetOutput]
 subtract ReleaseDataFlagOff
 #subtract BypassOn

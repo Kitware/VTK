@@ -14,16 +14,14 @@ reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkImageMagnify magnify
-magnify SetDimensionality 2
 magnify SetInput [reader GetOutput]
-magnify SetMagnificationFactors 2 2
+magnify SetMagnificationFactors 2 2 1
 magnify InterpolateOn
-magnify ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [magnify GetOutput]
-viewer SetCoordinate2 22
+viewer SetZSlice 22
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 

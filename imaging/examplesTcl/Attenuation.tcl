@@ -2,22 +2,18 @@
 
 catch {load vtktcl}
 
-source vtkImageInclude.tcl
-
 vtkPNMReader reader
-reader ReleaseDataFlagOff
 reader SetFileName "../../../vtkdata/AttenuationArtifact.pgm"
 
-vtkImageThreshold cast
-cast ThresholdByLower 0
+vtkImageCast cast
 cast SetInput [reader GetOutput]
 cast SetOutputScalarTypeToFloat
 
 # get rid of discrete scalars
 vtkImageGaussianSmooth smooth
-smooth SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+smooth SetDimensionality 2
 smooth SetInput [cast GetOutput]
-smooth SetStandardDeviations 0.8 0.8
+smooth SetStandardDeviations 0.8 0.8 0
 
 vtkSphere m1
 m1 SetCenter 310 130 0

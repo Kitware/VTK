@@ -13,7 +13,7 @@ reader SetDataMask 0x7fff
 
 vtkImageConstantPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -300 355 -300 370 0 92
+pad SetOutputWholeExtent -100 355 -100 370 0 92
 pad SetConstant 800
 pad SetNumberOfThreads 1
 pad ReleaseDataFlagOff
@@ -23,6 +23,8 @@ viewer SetInput [pad GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 1200
 viewer SetColorLevel 600
+[viewer GetActor2D] SetDisplayPosition 100 100
+
 #viewer DebugOn
 
 

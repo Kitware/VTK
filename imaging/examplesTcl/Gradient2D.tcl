@@ -20,7 +20,7 @@ ellipsoid SetCenter 127 127 22
 ellipsoid SetRadius 100 100 100
 ellipsoid SetOutValue 0
 ellipsoid SetInValue 200
-ellipsoid SetOutputScalarTypeToFloat
+ellipsoid SetOutputScalarType $VTK_FLOAT
 
 vtkImageGaussianSource gauss
 gauss SetWholeExtent 0 255 0 255 0 44 0 0
@@ -32,7 +32,7 @@ vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
 #gradient SetInput [ellipsoid GetOutput]
 #gradient SetInput [gauss GetOutput]
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+gradient SetDimensionality 2
 gradient ReleaseDataFlagOff
 
 vtkImageEuclideanToPolar polar

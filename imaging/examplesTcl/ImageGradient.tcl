@@ -9,25 +9,26 @@ vtkImageReader reader
     reader SetDataExtent 0 255 0 255 1 93
     reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
     reader SetDataMask 0x7fff
-    reader SetOutputScalarTypeToFloat
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageMagnify magnify
-    magnify SetInput [reader GetOutput]
-    magnify SetMagnificationFactors 4 4
-    magnify SetFilteredAxes $VTK_IMAGE_Y_AXIS $VTK_IMAGE_X_AXIS
+    magnify SetInput [cast GetOutput]
+    magnify SetMagnificationFactors 4 4 1
     magnify InterpolateOn
 
 # remove high freqeuncy artifacts due to linear interpolation
 vtkImageGaussianSmooth smooth
     smooth SetInput [magnify GetOutput]
-    smooth SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-    smooth SetStandardDeviations 1.5 1.5
-    smooth SetRadiusFactors 2.01 2.01
+    smooth SetDimensionality 2
+    smooth SetStandardDeviations 1.5 1.5 0
+    smooth SetRadiusFactors 2.01 2.01 0
 
 vtkImageGradient gradient
     gradient SetInput [smooth GetOutput]
-    gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-    gradient ReleaseDataFlagOff
+    gradient SetDimensionality 2
 
 vtkImageEuclideanToPolar polar
     polar SetInput [gradient GetOutput]

@@ -8,11 +8,15 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 94
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarTypeToFloat
+
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageFFT fft
 fft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-fft SetInput [reader GetOutput]
+fft SetInput [cast GetOutput]
 fft ReleaseDataFlagOff
 
 vtkImageIdealHighPass highPass1

@@ -7,7 +7,6 @@ source vtkImageInclude.tcl
 
 vtkPNMReader reader
 reader SetFileName "../../../vtkdata/binary.pgm"
-reader SetOutputScalarTypeToUnsignedChar
 
 vtkImageCast cast
 cast SetInput [reader GetOutput]

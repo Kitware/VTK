@@ -8,15 +8,18 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 94
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarTypeToFloat
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 set shotNoiseAmplitude 2000.0
 set shotNoiseFraction 0.1
-set shotNoiseExtent "0 255 0 255 0 92 0 0"
+set shotNoiseExtent "0 255 0 255 0 92"
 source ShotNoiseInclude.tcl
  
 vtkImageMathematics add
-add SetInput1 [reader GetOutput]
+add SetInput1 [cast GetOutput]
 add SetInput2 [shotNoise GetOutput]
 add SetOperationToAdd
 
@@ -25,7 +28,7 @@ med SetInput [add GetOutput]
 med SetKernelSize 5 5 1
 
 vtkImageGaussianSmooth gauss
-gauss SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+gauss SetDimensionality 2
 gauss SetInput [add GetOutput]
 gauss SetStandardDeviations 2.0 2.0
 gauss SetRadiusFactors 2.0 2.0
@@ -33,7 +36,7 @@ gauss SetRadiusFactors 2.0 2.0
 
 
 vtkImageViewer viewer1
-viewer1 SetInput [reader GetOutput]
+viewer1 SetInput [cast GetOutput]
 viewer1 SetZSlice 22
 viewer1 SetColorWindow 3000
 viewer1 SetColorLevel 1000

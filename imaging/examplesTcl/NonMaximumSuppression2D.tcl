@@ -17,7 +17,7 @@ reader SetDataMask 0x7fff
 
 vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+gradient SetDimensionality 2
 gradient ReleaseDataFlagOff
 
 vtkImageMagnitude magnitude
@@ -26,12 +26,11 @@ magnitude SetInput [gradient GetOutput]
 vtkImageNonMaximumSuppression suppress
 suppress SetVectorInput [gradient GetOutput]
 suppress SetMagnitudeInput [magnitude GetOutput]
-suppress SetNumberOfFilteredAxes 2
-suppress ReleaseDataFlagOff
+suppress SetDimensionality 2
 
 vtkImageViewer viewer
 viewer SetInput [suppress GetOutput]
-viewer SetCoordinate2 22
+viewer SetZSlice 22
 viewer SetColorWindow 1000
 viewer SetColorLevel 500
 #viewer DebugOn

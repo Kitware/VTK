@@ -6,15 +6,17 @@ source vtkImageInclude.tcl
 
 vtkImageReader reader
 reader ReleaseDataFlagOff
-reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 1
 reader SetFilePrefix "../../../vtkdata/heart"
 reader SetDataByteOrderToBigEndian
-reader SetOutputScalarTypeToFloat
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageGaussianSmooth smooth
-smooth SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-smooth SetInput [reader GetOutput]
+smooth SetDimensionality 2
+smooth SetInput [cast GetOutput]
 smooth SetStandardDeviations 4.0 4.0
 smooth SetRadiusFactors 2.0 2.0
 
@@ -23,7 +25,7 @@ smooth SetRadiusFactors 2.0 2.0
 
 vtkImageCanvasSource2D canvas
 canvas SetScalarType $VTK_FLOAT
-canvas SetExtent -10 10 -10 10
+canvas SetExtent -10 10 -10 10 0 0
 # back ground zero
 canvas SetDrawColor 0
 canvas FillBox -10 10 -10 10
@@ -32,15 +34,14 @@ canvas SetDrawColor 8000
 canvas DrawPoint 0 0
  
 vtkImageGaussianSmooth smooth2
-smooth2 SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+smooth2 SetDimensionality 2
 smooth2 SetInput [canvas GetOutput]
 smooth2 SetStandardDeviations 4.0 4.0
 smooth2 SetRadiusFactors 3.0 3.0
  
 vtkImageMagnify magnify
-magnify SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 magnify InterpolateOff
-magnify SetMagnificationFactors 5 5
+magnify SetMagnificationFactors 5 5 1
 magnify SetInput [smooth2 GetOutput]
  
 vtkImageViewer viewer2
@@ -50,7 +51,7 @@ viewer2 SetColorLevel 32
 
 
 vtkImageViewer viewer1
-viewer1 SetInput [reader GetOutput]
+viewer1 SetInput [cast GetOutput]
 viewer1 SetZSlice 0
 viewer1 SetColorWindow 400
 viewer1 SetColorLevel 200
