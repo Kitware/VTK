@@ -24,11 +24,13 @@
 // vtkInteractorStyle, hence the mouse bindings are different. (The bindings
 // keep the camera's view plane normal perpendicular to the x-y plane.) In
 // summary the mouse events are as follows:
+// + Left Mouse button triggers window level events
 // + CTRL Left Mouse spins the camera around its view plane normal
-// + SHIFT Left  Mouse pans the camera
+// + SHIFT Left Mouse pans the camera
 // + CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
 // + Middle mouse button pans the camera
 // + Right mouse button dollys the camera.
+// + SHIFT Right Mouse triggers pick events
 //
 // Note that the renderer's actors are not moved; instead the camera is moved.
 
@@ -47,6 +49,7 @@
 #define VTK_INTERACTOR_STYLE_IMAGE_PAN     2
 #define VTK_INTERACTOR_STYLE_IMAGE_ZOOM    3
 #define VTK_INTERACTOR_STYLE_IMAGE_SPIN    4
+#define VTK_INTERACTOR_STYLE_IMAGE_PICK    5
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
 {
@@ -75,6 +78,11 @@ public:
   vtkGetVector2Macro(WindowLevelStartPosition,int);
   vtkGetVector2Macro(WindowLevelCurrentPosition,int);
   
+  // Description:
+  // Some useful information for interaction
+  vtkSetClampMacro(State,int,VTK_INTERACTOR_STYLE_IMAGE_NONE,VTK_INTERACTOR_STYLE_IMAGE_PICK);
+  vtkGetMacro(State,int);
+  
 protected:
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
@@ -83,6 +91,7 @@ protected:
   void PanXY(int x, int y, int oldX, int oldY);
   void DollyXY(int dx, int dy);
   void SpinXY(int dx, int dy, int oldX, int oldY);
+  void PickXY(int x, int y);
   
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
