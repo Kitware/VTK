@@ -104,6 +104,8 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
   os << indent << "FilePattern: " << 
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
+
+  os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
 }
 
 //----------------------------------------------------------------------------

@@ -230,5 +230,6 @@ void vtkImageHSVToRGB::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "Maximum: " << this->Maximum << "\n";
 }
 

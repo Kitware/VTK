@@ -302,5 +302,12 @@ void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
+  os << indent << "InValue: " << this->InValue << "\n";
+  os << indent << "OutValue: " << this->OutValue << "\n";
+  os << indent << "LowerThreshold: " << this->LowerThreshold << "\n";
+  os << indent << "UpperThreshold: " << this->UpperThreshold << "\n";
+  os << indent << "ReplaceIn: " << this->ReplaceIn << "\n";
+  os << indent << "ReplaceOut: " << this->ReplaceOut << "\n";
 }
 

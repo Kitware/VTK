@@ -166,6 +166,15 @@ void vtkImageGaussianSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
 
+  os << indent << "Maximum: " << this->Maximum << "\n";
+
+  os << indent << "StandardDeviation: " << this->StandardDeviation << "\n";
+
+  os << indent << "Center: ( "
+     << this->Center[0] << ", "
+     << this->Center[1] << ", "
+     << this->Center[2] << " )\n";
+
 }
 
 

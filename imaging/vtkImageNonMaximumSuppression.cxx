@@ -360,6 +360,9 @@ void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageTwoInputFilter::PrintSelf(os,indent);
 
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+
+  os << indent << "HandleBoundaries: " << (this->HandleBoundaries ? "On\n" : "Off\n");
 }
 
 
