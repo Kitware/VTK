@@ -4,54 +4,49 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
    }
 }
 
-package require vtk
+package require vtktcl
 vtkObject a
 a GlobalWarningDisplayOff
 a Delete
 
 
-vtkMultiThreader t
-t SetGlobalDefaultNumberOfThreads 1
-t Delete
-
-# Create empty data sets of each type.
-vtkImageData         d1
-vtkRectilinearGrid   d2
-vtkStructuredGrid    d3
-vtkPolyData          d4
-vtkUnstructuredGrid  d5
-
-
+vtkPolyData emptyPD
+vtkImageData emptyID
+vtkStructuredGrid emptySG
+vtkUnstructuredGrid emptyUG
+vtkRectilinearGrid emptyRG
 
 proc TestOne {cname} {
+
    $cname b 
-   if {[catch {b SetInput ""}] == 0} {
-      # One is bound to work.
-      catch {b SetInput d1}
-      catch {b SetInput d2}
-      catch {b SetInput d3}
-      catch {b SetInput d4}
-      catch {b SetInput d5}
-      catch {b Update}
-   }
+
+    if {[b IsA "vtkSource"]} {
+	catch {b SetInput emptyPD}
+	catch {b Update}
+	catch {b SetInput emptyID}
+	catch {b Update}
+	catch {b SetInput emptySG}
+	catch {b Update}
+	catch {b SetInput emptyUG}
+	catch {b Update}
+	catch {b SetInput emptyRG}
+	catch {b Update}
+    }
+
    b Delete
 }
 
-# Any filter with multiple inputs. ...
 set classExceptions {
-   vtkCommand
-   vtkIndent
-   vtkTimeStamp
-   vtkTkImageViewerWidget
-   vtkTkImageWindowWidget
-   vtkTkRenderWidget
-   vtkDataSetToDataObjectFilter
-   vtkImageToPolyDataFilter
-   vtkProbeFilter
-   vtkTensorGlyph
+    vtkCommand
+    vtkIndent
+    vtkTimeStamp
+    vtkTkImageViewerWidget
+    vtkTkImageWindowWidget
+    vtkTkRenderWidget
+    vtkJPEGReader
 }
 
-proc rtSetGetTest { fileid } { 
+proc rtTestEmptyInputTest { fileid } { 
    global classExceptions
    # for every class
    set all [lsort [info command vtk*]]
@@ -64,15 +59,19 @@ proc rtSetGetTest { fileid } {
    }
 }
 
-# All tests should end with the following...
 
-rtSetGetTest stdout
 
-d1 Delete
-d2 Delete
-d3 Delete
-d4 Delete
-d5 Delete
+
+
+rtTestEmptyInputTest stdout
+
+emptyPD Delete
+emptyID Delete
+emptySG Delete
+emptyUG Delete
+emptyRG Delete
 
 
 exit
+
+
