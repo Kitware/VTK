@@ -28,7 +28,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.59");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.60");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -42,6 +42,7 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->ComputePointNormals = 1;
   this->ComputeCellNormals = 0;
   this->NonManifoldTraversal = 1;
+  this->AutoOrientNormals = 0;
   // some internal data
   this->NumFlips = 0;
 }
@@ -714,6 +715,7 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
   os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "Auto Orient Normals: " << (this->AutoOrientNormals ? "On\n" : "Off\n");
   os << indent << "Num Flips: " << this->NumFlips << endl;
   os << indent << "Compute Point Normals: " 
      << (this->ComputePointNormals ? "On\n" : "Off\n");
