@@ -1,6 +1,5 @@
 /* Minimal main program -- everything is loaded from the library */
 
-#include "vtkString.h"
 #include "vtkVersion.h"
 
 #include "Python.h"
@@ -18,7 +17,7 @@ main(int argc, char **argv)
     int cc;
     for ( cc = 1; cc < argc; cc ++ )
       {
-      if ( vtkString::Equals(argv[cc], "-V") )
+      if ( strcmp(argv[cc], "-V") == 0 )
 	{
         displayVersion = 1;
 	break;
