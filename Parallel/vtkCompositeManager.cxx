@@ -27,7 +27,7 @@
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.14");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.15");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -673,7 +673,7 @@ void vtkCompositeManager::ResetCameraClippingRange(vtkRenderer *ren)
 
 //----------------------------------------------------------------------------
 void vtkCompositeManager::ComputeVisiblePropBounds(vtkRenderer *ren, 
-                                                float bounds[6])
+						   float bounds[6])
 {
   float tmp[6];
   int id, num;
