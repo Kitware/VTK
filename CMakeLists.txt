@@ -454,7 +454,9 @@ ENDIF(BUILD_TESTING)
 
 # Examples.
 IF(BUILD_EXAMPLES)
-  SUBDIRS(Examples)
+  # Temporarily disable examples until we can get in-tree building
+  # to work again.
+  #SUBDIRS(Examples)
 ENDIF(BUILD_EXAMPLES)
 
 #-----------------------------------------------------------------------------
