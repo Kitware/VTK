@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPolyDataToImageStencil.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
 #include "vtkOBBTree.h"
@@ -22,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.11");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.12");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -273,6 +274,30 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     delete [] zlist;
     }
   points->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataToImageStencil::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // This filter shares our input and is therefore involved in a
+  // reference loop.
+  collector->ReportReference(this->OBBTree, "OBBTree");
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataToImageStencil::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->OBBTree)
+    {
+    this->OBBTree->Delete();
+    this->OBBTree = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
 }
 
 //----------------------------------------------------------------------------

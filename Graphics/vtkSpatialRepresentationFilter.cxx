@@ -16,10 +16,11 @@
 
 #include "vtkLocator.h"
 #include "vtkInformation.h"
+#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.34");
+vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.35");
 vtkStandardNewMacro(vtkSpatialRepresentationFilter);
 vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
                      SpatialRepresentation,vtkLocator);
@@ -182,6 +183,31 @@ vtkDataSet *vtkSpatialRepresentationFilter::GetInput()
     }
   
   return (vtkDataSet *)(this->Inputs[0]);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSpatialRepresentationFilter::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // This filter shares our input and is therefore involved in a
+  // reference loop.
+  collector->ReportReference(this->SpatialRepresentation, "SpatialRepresentation");
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkSpatialRepresentationFilter::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->SpatialRepresentation)
+    {
+    this->SpatialRepresentation->Delete();
+    this->SpatialRepresentation = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
 }
 
 //----------------------------------------------------------------------------

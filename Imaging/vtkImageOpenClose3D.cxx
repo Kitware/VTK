@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageOpenClose3D.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkImageDilateErode3D.h"
 #include "vtkObjectFactory.h"
@@ -21,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.25");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.26");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -303,21 +304,32 @@ double vtkImageOpenClose3D::GetOpenValue()
   return this->Filter0->GetErodeValue();
 }
 
+//----------------------------------------------------------------------------
+void vtkImageOpenClose3D::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // These filters share our input and are therefore involved in a
+  // reference loop.
+  collector->ReportReference(this->Filter0, "Filter0");
+  collector->ReportReference(this->Filter1, "Filter1");
+#endif
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkImageOpenClose3D::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->Filter0)
+    {
+    this->Filter0->Delete();
+    this->Filter0 = 0;
+    }
+  if(this->Filter1)
+    {
+    this->Filter1->Delete();
+    this->Filter1 = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
+}
