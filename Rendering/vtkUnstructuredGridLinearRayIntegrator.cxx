@@ -26,6 +26,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkVolumeProperty.h"
+#include "vtkVolume.h"
 #include "vtkDoubleArray.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
@@ -195,7 +196,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.10");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.11");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -223,9 +224,11 @@ void vtkUnstructuredGridLinearRayIntegrator::PrintSelf(ostream &os,
 //-----------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::Initialize(
-                                                    vtkVolumeProperty *property,
+                                                    vtkVolume *volume,
                                                     vtkDataArray *scalars)
 {
+  vtkVolumeProperty *property = volume->GetProperty();
+
   if (   (property == this->Property)
       && (this->TransferFunctionsModified > property->GetMTime()) )
     {

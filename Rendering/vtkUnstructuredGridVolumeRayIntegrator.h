@@ -30,7 +30,7 @@
 
 #include "vtkObject.h"
 
-class vtkVolumeProperty;
+class vtkVolume;
 class vtkDoubleArray;
 class vtkDataArray;
 
@@ -42,7 +42,7 @@ public:
 
   // Description:
   // Set up the integrator with the given properties and scalars.
-  virtual void Initialize(vtkVolumeProperty *property,
+  virtual void Initialize(vtkVolume *volume,
                           vtkDataArray* scalars) = 0;
 
   // Description:

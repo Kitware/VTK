@@ -43,6 +43,7 @@
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
 class vtkLinearRayIntegratorTransferFunction;
+class vtkVolumeProperty;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridLinearRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
 {
@@ -52,7 +53,7 @@ public:
   static vtkUnstructuredGridLinearRayIntegrator *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  virtual void Initialize(vtkVolumeProperty *property, vtkDataArray *scalars);
+  virtual void Initialize(vtkVolume *volume, vtkDataArray *scalars);
 
   virtual void Integrate(vtkDoubleArray *intersectionLengths,
                          vtkDataArray *nearIntersections,

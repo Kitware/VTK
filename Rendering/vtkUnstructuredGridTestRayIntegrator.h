@@ -34,6 +34,7 @@
 class vtkColorTransferFunction;
 class vtkPiecewiseFunction;
 class vtkUnstructuredGrid;
+class vtkVolumeProperty;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridTestRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
 {
@@ -45,7 +46,7 @@ public:
 
   // Description:
   // Set up the integrator with the given properties.
-  virtual void Initialize(vtkVolumeProperty *property, vtkDataArray *scalars);
+  virtual void Initialize(vtkVolume *property, vtkDataArray *scalars);
 
   // Description:
   // Given a set of intersections (defined by the three arrays), compute

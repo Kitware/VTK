@@ -43,6 +43,7 @@
 #include "vtkMath.h" // For all the inline methods
 
 class vtkPartialPreIntegrationTransferFunction;
+class vtkVolumeProperty;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridPartialPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
 {
@@ -52,7 +53,7 @@ public:
   static vtkUnstructuredGridPartialPreIntegration *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  virtual void Initialize(vtkVolumeProperty *property, vtkDataArray *scalars);
+  virtual void Initialize(vtkVolume *volume, vtkDataArray *scalars);
 
   virtual void Integrate(vtkDoubleArray *intersectionLengths,
                          vtkDataArray *nearIntersections,

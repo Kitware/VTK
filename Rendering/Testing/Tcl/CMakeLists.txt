@@ -24,6 +24,7 @@ IF (VTK_USE_RENDERING)
       TestOnePoint
       TestParallelCoordinates
       TestPartialPreIntegration
+      TestPreIntegration
       TestStyleJoystickActor
       TestStyleJoystickCamera
       TestStyleRubberBandZoom

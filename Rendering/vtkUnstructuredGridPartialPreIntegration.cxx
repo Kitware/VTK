@@ -26,6 +26,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkVolumeProperty.h"
+#include "vtkVolume.h"
 #include "vtkDoubleArray.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
@@ -183,7 +184,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
@@ -215,9 +216,11 @@ void vtkUnstructuredGridPartialPreIntegration::PrintSelf(ostream &os,
 //-----------------------------------------------------------------------------
 
 void vtkUnstructuredGridPartialPreIntegration::Initialize(
-                                                    vtkVolumeProperty *property,
+                                                    vtkVolume *volume,
                                                     vtkDataArray *scalars)
 {
+  vtkVolumeProperty *property = volume->GetProperty();
+
   if (   (property == this->Property)
       && (this->TransferFunctionsModified > property->GetMTime()) )
     {

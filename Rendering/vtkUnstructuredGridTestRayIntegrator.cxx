@@ -17,10 +17,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
 #include "vtkVolumeProperty.h"
+#include "vtkVolume.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridTestRayIntegrator);
 
 template<class T>
@@ -351,9 +352,11 @@ void vtkUnstructuredGridTestRayIntegrator::UpdateColorTable(
 //-----------------------------------------------------------------------------
 
 void vtkUnstructuredGridTestRayIntegrator::Initialize(
-                                                  vtkVolumeProperty *property,
+                                                  vtkVolume *volume,
                                                   vtkDataArray *scalars)
 {
+  vtkVolumeProperty *property = volume->GetProperty();
+
   this->UpdateColorTable(property, scalars);
 
   this->ScalarOpacityUnitDistance = property->GetScalarOpacityUnitDistance();
