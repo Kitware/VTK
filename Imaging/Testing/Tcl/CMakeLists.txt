@@ -28,6 +28,7 @@ IF (VTK_USE_RENDERING)
         TestButterworthLowPass
         TestButterworthHighPass
         TestCache
+	TestCheckerboard
         TestCityBlockDistance
         TestConvolve
         TestCorrelation
