@@ -71,9 +71,13 @@ public:
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions,int,3);
 
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  void SetModelBounds(float *bounds);
+  // Description:
+  // Specify the region in space over which the tensors are computed. The point
+  // load is assumed to be applied at top center of the volume.
+  vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
+                      float zmin, float zmax);
 
   // Description:
   // Set/Get Poisson's ratio.

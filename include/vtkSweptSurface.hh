@@ -104,7 +104,6 @@ public:
   vtkGetMacro(Interpolation,int);
 
   // Description:
-  // Description:
   // The outer boundary of the sampling volume can be capped (i.e., assigned 
   // fill value). This will "close" the implicit model if the geometry 
   // approaches close to or passes through the boundary of the volume (i.e.,
@@ -114,11 +113,18 @@ public:
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
   
-  void SetModelBounds(float *bounds);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+  // Description:
+  // Define the volume (in world coordinates) in which the sampling is to 
+  // occur. Make sure that the volume is large enough to accomodate the 
+  // motion of the geometry along the path. If the model bounds are set to
+  // all zero values, the model bounds will be computed automatically from
+  // the input geometry and path.
+  vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
+                      float zmin, float zmax);
 
-  //overload to check trnasformation matrices
+  //overload to check transformation matrices
   unsigned long int GetMTime();
 
 protected:

@@ -77,16 +77,19 @@ public:
 
   // Description:
   // Specify influence distance of each input point. This distance is a 
-  // fraction of the length of the diagonal of the sample space. Thus values of 
-  // 1.0 will cause each input point to influence all points in the structured 
-  // point dataset. Values less than 1.0 can improve performance significantly.
+  // fraction of the length of the diagonal of the sample space. Thus values 
+  // of 1.0 will cause each input point to influence all points in the 
+  // structured point dataset. Values less than 1.0 can improve performance
+  // significantly.
   vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
   vtkGetMacro(MaximumDistance,float);
 
+  // Description:
   // Specify the position in space to perform the sampling.
-  void SetModelBounds(float *bounds);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+  vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
+                      float zmin, float zmax);
 
   // Description:
   // Set the Null value for output points not receiving a contribution from the

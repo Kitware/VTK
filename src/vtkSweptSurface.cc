@@ -65,41 +65,19 @@ vtkSweptSurface::vtkSweptSurface()
   this->Capping = 1;
 }
 
-// Description:
-// Define the volume (in world coordinates) in which the sampling is to occur.
-// Make sure that the volume is large enough to accomodate the motion of the
-// geometry along the path. If the model bounds are set to all zero values, the
-// model bounds will be computed automatically from the input and path.
-void vtkSweptSurface::SetModelBounds(float *bounds)
+void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
+                                     float ymax, float zmin, float zmax)
 {
-  vtkSweptSurface::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-}
+  float bounds[6];
 
-void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
-{
-  if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
-  this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
-  this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
-    {
-    float length;
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
 
-    this->Modified();
-    this->ModelBounds[0] = xmin;
-    this->ModelBounds[1] = xmax;
-    this->ModelBounds[2] = ymin;
-    this->ModelBounds[3] = ymax;
-    this->ModelBounds[4] = zmin;
-    this->ModelBounds[5] = zmax;
-
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
-
-    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
-    }
+  this->SetModelBounds(bounds);
 }
 
 void vtkSweptSurface::Execute()
@@ -113,10 +91,10 @@ void vtkSweptSurface::Execute()
   int numSteps, stepNum;
   int numTransforms, transNum;
   vtkActor a;
-  vtkTransform *t1, *t2;
+  vtkTransform *transform1, *transform2, t;
   float time;
   float position[3], position1[3], position2[3];
-  float orientation[3], orientation1[3], orientation2[3];
+  float orient[3], orient1[3], orient2[3];
 
   vtkDebugMacro(<<"Creating swept surface");
   this->Initialize();
@@ -145,14 +123,7 @@ void vtkSweptSurface::Execute()
     }
 
   this->SetDimensions(this->SampleDimensions);
-
-  // if bounds are not specified, compute bounds from path
-  if (this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5])
-    {
-    this->ComputeBounds();
-    }
+  this->ComputeBounds();
 
   input->GetDimensions(inDim);
   input->GetAspectRatio(inAr);
@@ -167,25 +138,26 @@ void vtkSweptSurface::Execute()
 // Sample data at each point in path
 //
   this->Transforms->InitTraversal();
-  t2 = this->Transforms->GetNextItem();
-  t2->Push();
-  t2->Inverse();
+  transform2 = this->Transforms->GetNextItem();
+  transform2->GetInverse(t.GetMatrix());
+
+  t.GetPosition(position2[0], position2[1], position2[2]);
+  t.GetOrientation(orient2[0], orient2[1], orient2[2]);
 
   for (transNum=0; transNum < (numTransforms-1); transNum++)
     {
     vtkDebugMacro(<<"Injecting between transforms "<< transNum+1 <<" and "
                   << transNum+2);
-    t1 = t2;
-    t2 = this->Transforms->GetNextItem();
-    t2->Push();
-    t2->Inverse();
+    transform1 = transform2;
+    transform2 = this->Transforms->GetNextItem();
+    transform2->GetInverse(t.GetMatrix());
 //
 // Loop over all points (i.e., voxels), transform into input coordinate system,
 // and obtain interpolated value. Then perform union operation.  
 //
     if ( this->Interpolation > 0 ) numSteps = this->Interpolation;
     else if ( this->Interpolation < 0 ) numSteps = 1;
-    else numSteps = this->ComputeNumberOfSteps(t1,t2);
+    else numSteps = this->ComputeNumberOfSteps(transform1,transform2);
 
     for (stepNum=0; stepNum < numSteps; stepNum++)
       {
@@ -195,33 +167,29 @@ void vtkSweptSurface::Execute()
       for (i=0; i<3; i++)
         {
         position1[i] = position2[i];
-        orientation1[i] = orientation2[i];
+        orient1[i] = orient2[i];
         }
-      t2->GetPosition(position2[0], position2[1], position2[2]);
-      t2->GetOrientation(orientation2[0], orientation2[1], orientation2[2]);
+      t.GetPosition(position2[0], position2[1], position2[2]);
+      t.GetOrientation(orient2[0], orient2[1], orient2[2]);
 
       for (i=0; i<3; i++)
         {
         position[i] = position1[i] + time*(position2[i] - position1[i]);
-        orientation[i] = orientation1[i] + time*(orientation2[i] - orientation1[i]);
+        orient[i] = orient1[i] + time*(orient2[i] - orient1[i]);
         }
 
       a.SetPosition(position);
-      a.SetOrientation(orientation);
+      a.SetOrientation(orient);
       this->SampleInput(a.GetMatrix(), inDim, inOrigin, inAr,
                         inScalars, newScalars);
       }
-
-    t1->Pop();
     }
 
   //finish off last step
   a.SetPosition(position2);
-  a.SetOrientation(orientation2);
+  a.SetOrientation(orient2);
   this->SampleInput(a.GetMatrix(), inDim, inOrigin, inAr,
                     inScalars, newScalars);
-
-  t2->Pop();
 
   // Update ourselves and release memory
   this->PointData.SetScalars(newScalars);
@@ -249,10 +217,10 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
-      x[1] = this->Origin[1] + k * this->AspectRatio[1];
+      x[1] = this->Origin[1] + j * this->AspectRatio[1];
       for (i=0; i<this->SampleDimensions[0]; i++)
         {
-        x[0] = this->Origin[0] + k * this->AspectRatio[0];
+        x[0] = this->Origin[0] + i * this->AspectRatio[0];
 
         // transform into local space
         m.PointMultiply(x,xTrans);
@@ -274,10 +242,10 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
           idList.SetId(1,idx+1);
           idList.SetId(2,idx+1 + inDim[0]);
           idList.SetId(3,idx + inDim[0]);
-          idList.SetId(0,idx + sliceSize);
-          idList.SetId(1,idx+1 + sliceSize);
-          idList.SetId(2,idx+1 + inDim[0] + sliceSize);
-          idList.SetId(3,idx + inDim[0] + sliceSize);
+          idList.SetId(4,idx + inSliceSize);
+          idList.SetId(5,idx+1 + inSliceSize);
+          idList.SetId(6,idx+1 + inDim[0] + inSliceSize);
+          idList.SetId(7,idx + inDim[0] + inSliceSize);
 
           inScalars->GetScalars(idList,voxelScalars);
 
@@ -316,6 +284,27 @@ unsigned long int vtkSweptSurface::GetMTime()
 // compute model bounds from geometry and path
 void vtkSweptSurface::ComputeBounds()
 {
+  int i, dim;
+
+  // if bounds are not specified, compute bounds from path
+  if (this->ModelBounds[0] >= this->ModelBounds[1] ||
+  this->ModelBounds[2] >= this->ModelBounds[3] ||
+  this->ModelBounds[4] >= this->ModelBounds[5])
+    {
+    }
+  else // else use what's specified
+    {
+    for (i=0; i<3; i++)
+      {
+      this->Origin[i] = this->ModelBounds[2*i];
+      if ( (dim=this->SampleDimensions[i]) <= 1 )
+        {
+        vtkWarningMacro(<<"Dimensions don't specify volume");
+        }
+      this->AspectRatio[i] =(this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+                             / (dim - 1);
+      }
+    }
 }
 
 // based on both path and bounding box of input, compute the number of 

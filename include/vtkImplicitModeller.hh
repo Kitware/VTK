@@ -71,10 +71,12 @@ public:
   vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
   vtkGetMacro(MaximumDistance,float);
 
-  // Specify the position in space to perform the sampling.
-  void SetModelBounds(float *bounds);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+  // Description:
+  // Specify the region in space in which to perform the sampling.
+  vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
+                      float zmin, float zmax);
 
   // Description:
   // The outer boundary of the structured point set can be assigned a 

@@ -65,38 +65,19 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->CapValue = LARGE_FLOAT;
 }
 
-// Description:
-// Specify the position in space to perform the sampling.
-void vtkImplicitModeller::SetModelBounds(float *bounds)
+void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
+                                         float ymax, float zmin, float zmax)
 {
-  vtkImplicitModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-}
+  float bounds[6];
 
-void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
-{
-  if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
-  this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
-  this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
-    {
-    float length;
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
 
-    this->Modified();
-    this->ModelBounds[0] = xmin;
-    this->ModelBounds[1] = xmax;
-    this->ModelBounds[2] = ymin;
-    this->ModelBounds[3] = ymax;
-    this->ModelBounds[4] = zmin;
-    this->ModelBounds[5] = zmax;
-
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
-
-    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
-    }
+  this->SetModelBounds(bounds);
 }
 
 void vtkImplicitModeller::Execute()

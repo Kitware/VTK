@@ -90,9 +90,13 @@ public:
   vtkSetClampMacro(Eccentricity,float,0.001,LARGE_FLOAT);
   vtkGetMacro(Eccentricity,float);
 
-  void SetModelBounds(float *bounds);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+  // Description:
+  // Set the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which the 
+  // sampling is performed.
+  vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
+                      float zmin, float zmax);
 
   // Description:
   // Turn on/off the generation of elliptical splats.
