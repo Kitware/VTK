@@ -142,7 +142,11 @@ public:
   // Set/Get the amount of time this renderer is allowed to spend
   // rendering its scene. This is used by vtkLODActor's.
   vtkSetMacro(AllocatedRenderTime,float);
-  vtkGetMacro(AllocatedRenderTime,float);
+  virtual float GetAllocatedRenderTime();
+
+  // Description:
+  // Get the ratio between allocated time and actual render time.
+  virtual float GetTimeFactor();
 
   // Description:
   // Create an image. This is a superclass method which will in turn 
@@ -333,6 +337,7 @@ protected:
   float              Ambient[3];  
   vtkRenderWindow    *RenderWindow;
   float              AllocatedRenderTime;
+  float              TimeFactor;
   int                TwoSidedLighting;
   int                BackingStore;
   unsigned char      *BackingImage;

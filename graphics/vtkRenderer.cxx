@@ -55,7 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
 
-
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
 // turned off.
@@ -72,6 +71,7 @@ vtkRenderer::vtkRenderer()
   this->RayCaster->SetRenderer( this );
 
   this->AllocatedRenderTime = 100;
+  this->TimeFactor = 1.0;
   
   this->CreatedLight = NULL;
   
@@ -306,9 +306,46 @@ void vtkRenderer::Render(void)
     }
     
 
-  t2 = vtkTimerLog::GetCurrentTime();
+  // If we aborted, do not record the last render time.
+  // Lets play around with determining the acuracy of the 
+  // EstimatedRenderTimes.  We can try to adjust for bad 
+  // estimates with the TimeFactor.
+  if ( ! this->RenderWindow->GetAbortRender() )
+    {
+    float totalEstimate = 0.0;
+    // Sum up the total EstimatedRenderTime.
+    for (this->Props->InitTraversal(); 
+         (aProp = this->Props->GetNextProp()); )
+      {
+      if (aProp->GetVisibility())
+        {
+        totalEstimate += aProp->GetEstimatedRenderTime();
+        }
+      }
+    // Measure the actual RenderTime
+    t2 = vtkTimerLog::GetCurrentTime();
+    this->LastRenderTimeInSeconds = (float) (t2 - t1);
 
-  this->LastRenderTimeInSeconds = (float) (t2 - t1);
+    if (this->LastRenderTimeInSeconds == 0)
+      {
+      this->TimeFactor = VTK_LARGE_FLOAT;
+      }
+    else
+      {
+      this->TimeFactor = totalEstimate 
+                          / this->LastRenderTimeInSeconds;
+      }
+    }
+}
+
+float vtkRenderer::GetAllocatedRenderTime()
+{
+  return this->AllocatedRenderTime;
+}
+
+float vtkRenderer::GetTimeFactor()
+{
+  return this->TimeFactor;
 }
 
 void vtkRenderer::RenderOverlay()
@@ -398,7 +435,7 @@ void vtkRenderer::AllocateTime()
     // to the renderer's AllocatedRenderTime.
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
-                             this->AllocatedRenderTime );  
+                             this->AllocatedRenderTime * this->TimeFactor );  
     }
 
   // Since we now have allocated render times, we can select an LOD
@@ -1045,6 +1082,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Last Time To Render (Seconds): " 
      << this->LastRenderTimeInSeconds << endl;
+  os << indent << "TimeFactor: " << this->TimeFactor << endl;
 
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRenderedAsGeometry;
