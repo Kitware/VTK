@@ -138,17 +138,17 @@ public:
   // valid). The result consists in the `cell', the `subId' of the sub-cell
   // (0 if primary cell), the parametric coordinates `pcoord' of the
   // position. It returns whether the position is inside the cell or
-  // not. Tolerance is used to control how close the point is to be
+  // not (boolean). Tolerance is used to control how close the point is to be
   // considered "in" the cell.
   // THIS METHOD IS NOT THREAD SAFE.
   // \pre not_empty: GetNumberOfCells()>0
   // \pre cell_exists: cell!=0
   // \pre positive_tolerance: tol2>0
-  virtual vtkIdType FindCell(double x[3],
-                             vtkGenericCellIterator* &cell,
-                             double tol2,
-                             int &subId,
-                             double pcoords[3]) = 0;
+  virtual int FindCell(double x[3],
+                       vtkGenericCellIterator* &cell,
+                       double tol2,
+                       int &subId,
+                       double pcoords[3]) = 0;
   
   // Description:
   // Locate the closest point `p' to position `x' (global coordinates).
