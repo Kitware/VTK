@@ -75,6 +75,9 @@ public:
   void GetOutputImageExtent(int dim, int *extent);
   vtkImageGetExtentMacro(OutputImageExtent);
   
+  // Description:
+  // Sets the output image extent to be the input image extent.
+  void ResetOutputImageExtent();
 
 protected:
   // Time when OutputImageExtent was computed.

@@ -149,6 +149,25 @@ void vtkImageClip::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 
 //----------------------------------------------------------------------------
+// Change the imageExtent
+void vtkImageClip::ResetOutputImageExtent()
+{
+  vtkImageRegion *region;
+  
+  if ( ! this->Input)
+    {
+    vtkErrorMacro("ResetOutputImageExtent: No input");
+    return;
+    }
+
+  region = new vtkImageRegion;
+  this->Input->UpdateImageInformation(region);
+  this->SetOutputImageExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
+  region->Delete();
+}
+
+
+//----------------------------------------------------------------------------
 // Do nothing.  Every thing was done by ComputeImageInformation
 void vtkImageClip::Execute(vtkImageRegion *inRegion, 
 			   vtkImageRegion *outRegion)
