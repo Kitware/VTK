@@ -1,8 +1,5 @@
-package require vtktcl_interactor
-
-# Source the interactor that we will use for the TkRenderWidget
-source C:/vtk32/graphics/examplesTcl/TkInteractor.tcl
-
+package require vtk
+package require vtkinteraction
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
