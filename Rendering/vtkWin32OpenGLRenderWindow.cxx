@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.124");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.125");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -43,9 +43,11 @@ vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
+#  define vtkGWLP_HINSTANCE GWLP_HINSTANCE
 #  define vtkGetWindowLong GetWindowLongPtr
 #  define vtkSetWindowLong SetWindowLongPtr
 #else // regular Visual studio 
+#  define vtkGWLP_HINSTANCE GWL_HINSTANCE
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
 #endif // 
@@ -676,7 +678,7 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
     // if we have a parent window get the app instance from it
     if (this->ParentId)
       {
-      this->ApplicationInstance = (HINSTANCE)vtkGetWindowLong(this->ParentId,GWL_HINSTANCE);
+      this->ApplicationInstance = (HINSTANCE)vtkGetWindowLong(this->ParentId,vtkGWLP_HINSTANCE);
       }
     else
       {
