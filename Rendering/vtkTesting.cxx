@@ -30,7 +30,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.14");
+vtkCxxRevisionMacro(vtkTesting, "1.15");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -464,6 +464,14 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
         {
         passed = 1;
         }
+      else
+        {
+        vtkErrorMacro("ImageDifference produced output with no data.");
+        }
+      }
+    else
+      {
+      vtkErrorMacro("ImageDifference did not produce output.");
       }
     }
 
