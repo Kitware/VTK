@@ -37,16 +37,20 @@ shrink ReleaseDataFlagOff;
 
 # ReplaceOut is not working for some reason. debug later..
 vtkImageThreshold thresh1;
-#thresh1 SetOutputScalarType $VTK_UNSIGNED_CHAR;
+thresh1 SetOutputScalarType $VTK_UNSIGNED_CHAR;
 thresh1 SetInput [reader GetOutput];
 thresh1 ThresholdByUpper 2000.0;
-thresh1 SetReplaceIn 255;
-thresh1 SetReplaceOut 0;
+thresh1 SetInValue 255;
+thresh1 ReplaceInOn;
+thresh1 SetOutValue 0;
+thresh1 ReplaceOutOn;
 
 vtkImageThreshold thresh2;
+thresh2 SetOutputScalarType $VTK_UNSIGNED_CHAR;
 thresh2 SetInput [shrink GetOutput];
 thresh2 ThresholdByUpper 1000.0;
-thresh2 SetReplaceIn 0;
+thresh2 SetInValue 0;
+thresh2 ReplaceInOn;
 
 # connectivity
 
@@ -54,10 +58,13 @@ vtkImageDilateErode3D dilate;
 dilate SetInput [thresh1 GetOutput];
 dilate SetDilateValue 255;
 dilate SetErodeValue 0;
+dilate SetKernelSize 3 3 3;
 
 vtkImageArithmetic subtract;
 subtract SetInput1 [dilate GetOutput];
 subtract SetInput2 [thresh1 GetOutput];
+subtract ReleaseDataFlagOff;
+
 
 # will be an adaptive median with subtract as input too.
 vtkImageMedian median;
@@ -71,7 +78,7 @@ median SetKernelSize 5 5 5;
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [thresh1 GetOutput];
+viewer SetInput [subtract GetOutput];
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 255
 viewer SetColorLevel 128
