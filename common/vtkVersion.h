@@ -44,7 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (major, minor, build).
 
 // .SECTION Caveats
-// The cxx file for this class will change frequently.
+// This file will change frequently to update the VTKVersionID which timestamps
+// a particular source release.
 
 
 #ifndef __vtkVersion_h
@@ -57,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_MAJOR_VERSION 2
 #define VTK_MINOR_VERSION 2
 #define VTK_BUILD_VERSION 2
+#define VTK_VERSION_ID "vtkVersion.h $Revision: 1.2 $, $Date: 1998-11-18 14:19:15 $"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
@@ -66,11 +68,13 @@ class VTK_EXPORT vtkVersion : public vtkObject {
 
   // Description: 
   // Return the version of vtk this object is a part of.
-  // A variety of methods are included.
+  // A variety of methods are included. GetVTKVersionID returns a string
+  // with an identifier which timestamps a particular source tree. 
   static const char *GetVTKVersion() { return VTK_VERSION; };
   static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; };
   static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; };
   static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; };
+  static const char *GetVTKVersionID() { return VTK_VERSION_ID; };
   
  protected:
 
