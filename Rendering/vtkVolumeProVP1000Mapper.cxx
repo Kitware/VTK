@@ -886,6 +886,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
   this->UpdateCursor( ren, vol );
 
+  this->Context->SetCorrectGradient (VLItrue);
 
   switch ( this->BlendMode )
     {
