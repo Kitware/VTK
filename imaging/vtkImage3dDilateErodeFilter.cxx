@@ -139,6 +139,7 @@ vtkImage3dDilateErodeFilter::SetKernelSize(int size0, int size1, int size2)
       }
     ptr2 += inc2;
     }
+    this->Modified ();
 }
 
 
