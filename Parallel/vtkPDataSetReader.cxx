@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.33");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.34");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -916,7 +916,7 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
       vtkErrorMacro("Could not read file: " << this->FileName);
       return 0;
       }
-    data->Update();
+//    data->Update();
 
     if (data->CheckAttributes())
       {

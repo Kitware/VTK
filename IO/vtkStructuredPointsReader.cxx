@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.62");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.63");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -134,6 +134,8 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           return 1;
           }
         outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                     0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                      0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
         dimsRead = 1;
         }
