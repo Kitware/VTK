@@ -46,7 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // DIFFERENCE). You can use nested combinations of vtkImplicitFunctions 
 // (and/or vtkImplicitBoolean) to create elaborate implicit functions. 
 // vtkImplicitBoolean is a concrete implementation of vtkImplicitFunction.
-//    The operators work as follows. The UNION operator takes the minimum value
+//
+// The operators work as follows. The UNION operator takes the minimum value
 // of all implicit functions. The INTERSECTION operator takes the maximum value
 // of all implicit functions. The DIFFERENCE operator substracts the 2cnd 
 // through last implicit functions from the first.

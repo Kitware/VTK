@@ -44,7 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // functions. Implicit functions are of the form F(x,y,z) = 0. Two primitive 
 // operations are required: the ability to evaluate the function and the 
 // function gradient at a given point.
-//    vtkImplicitFunction provides a mechanism to transform the implicit
+//
+// vtkImplicitFunction provides a mechanism to transform the implicit
 // function(s) via a transformation matrix. This capability can be used to 
 // translate, orient, or scale implicit functions. For example, a sphere 
 // implicit function can be transformed into an oriented ellipse. This is 
