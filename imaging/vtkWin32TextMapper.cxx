@@ -122,12 +122,21 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-  long status = SetTextColor(hdc, RGB(red, green, blue));
 
-  if (status == CLR_INVALID)  vtkErrorMacro(<<"vtkWin32TextMapper::Render - SetTextColor failed!");
+  // Set up the shadow color
+  float intensity;
+  intensity = (red + green + blue)/3.0;
 
-  // Set the background mode to transparent
-  SetBkMode(hdc, TRANSPARENT);
+  unsigned char shadowRed, shadowGreen, shadowBlue;
+  if (intensity > 128)
+    {
+    shadowRed = shadowBlue = shadowGreen = 0;
+    }
+  else
+    {
+    shadowRed = shadowBlue = shadowGreen = 255;
+    }
+
 
   // Create the font
   LOGFONT fontStruct;
@@ -200,6 +209,32 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   // Calculate the size of the bounding rectangle
   DrawText(hdc, this->Input, strlen(this->Input), &rect, 
 	   DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
+
+  // Set the colors for the shadow
+  long status;
+  if (this->Shadow)
+    {
+    status = SetTextColor(hdc, RGB(shadowRed, shadowGreen, shadowBlue));
+    if (status == CLR_INVALID)
+      vtkErrorMacro(<<"vtkWin32TextMapper::Render - Set shadow color failed!");
+
+    // Set the background mode to transparent
+    SetBkMode(hdc, TRANSPARENT);
+
+    // Draw the shadow text
+    rect.left++;  rect.top++; rect.bottom++; rect.right++;
+    DrawText(hdc, this->Input, strlen(this->Input), &rect,DT_LEFT|DT_NOPREFIX);
+    rect.left--;  rect.top--; rect.bottom--; rect.right--;
+    }
+  
+  // set the colors for the foreground
+  status = SetTextColor(hdc, RGB(red, green, blue));
+  if (status == CLR_INVALID)
+    vtkErrorMacro(<<"vtkWin32TextMapper::Render - SetTextColor failed!");
+
+  // Set the background mode to transparent
+  SetBkMode(hdc, TRANSPARENT);
+
   // Draw the text
   DrawText(hdc, this->Input, strlen(this->Input), &rect, DT_LEFT|DT_NOPREFIX);
 

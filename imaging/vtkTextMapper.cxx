@@ -55,6 +55,7 @@ vtkTextMapper::vtkTextMapper()
   this->FontSize = 12;
   this->Bold = 0;
   this->Italic = 0;
+  this->Shadow = 0;
   this->FontFamily = VTK_ARIAL;
   this->FontChanged = 0;
 }
@@ -75,10 +76,11 @@ vtkTextMapper *vtkTextMapper::New()
 void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
+  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
+  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "FontFamily: " << this->FontFamily << "\n";
   os << indent << "FontSize: " << this->FontSize << "\n";
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
  
   vtkMapper2D::PrintSelf(os,indent);
 }

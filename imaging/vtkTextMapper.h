@@ -109,6 +109,14 @@ public:
   vtkBooleanMacro(Italic, int);
 
   // Description:
+  // Set/Get the shadow property.
+  // vtkSetMacro(Shadow, int);
+  void SetShadow(int val) 
+  {this->Shadow = val; this->FontChanged = 1; this->Modified();};
+  vtkGetMacro(Shadow, int);
+  vtkBooleanMacro(Shadow, int);
+  
+  // Description:
   // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
   // vtkSetMacro(FontFamily, int);
@@ -122,6 +130,7 @@ public:
 protected:
   int   Italic;
   int	Bold;
+  int   Shadow;
   int   FontSize;
   int   FontFamily;
   char* Input;

@@ -146,6 +146,20 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   unsigned char green = (unsigned char) (actorColor[1] * 255.0);
   unsigned char  blue = (unsigned char)  (actorColor[2] * 255.0);
 
+  // Set up the shadow color
+  float intensity;
+  intensity = (red + green + blue)/3.0;
+
+  unsigned char shadowRed, shadowGreen, shadowBlue;
+  if (intensity > 128)
+    {
+    shadowRed = shadowBlue = shadowGreen = 0;
+    }
+  else
+    {
+    shadowRed = shadowBlue = shadowGreen = 255;
+    }
+  
   // Use the color masks from the visual
   unsigned long rmask = 0;
   unsigned long gmask = 0;
@@ -158,7 +172,8 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   temp1.visualid = winAttribs.visual->visualid;
 
   int nvisuals = 0;
-  XVisualInfo* visuals = XGetVisualInfo(displayId, VisualIDMask, &temp1, &nvisuals);   
+  XVisualInfo* visuals = XGetVisualInfo(displayId, VisualIDMask, &temp1,
+                                        &nvisuals);   
 
   if (nvisuals == 0)  vtkErrorMacro(<<"Could not get color masks");
 
@@ -199,7 +214,11 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   foreground = foreground | ((gmask & (green << 24)) >> gshift);
   foreground = foreground | ((bmask & (blue << 24)) >> bshift);
 
-  XSetForeground(displayId, gc, foreground);
+  unsigned long shadowForeground = 0;
+  shadowForeground = shadowForeground | ((rmask & (shadowRed << 24)) >>rshift);
+  shadowForeground = shadowForeground | ((gmask & (shadowGreen<<24)) >>gshift);
+  shadowForeground = shadowForeground | ((bmask & (shadowBlue<< 24)) >>bshift);
+
 
   // Set up the font name string. Note: currently there is no checking to see
   // if we've exceeded the fontname length.
@@ -265,8 +284,18 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   Drawable drawable = (Drawable) window->GetGenericDrawable();
   if (!drawable) vtkErrorMacro(<<"Window returned NULL drawable!");
 
+  // Draw the shadow
+  if (this->Shadow)
+    {
+    XSetForeground(displayId, gc, shadowForeground);
+    XDrawString(displayId, drawable, gc, actorPos[0]+1, actorPos[1]+1,
+                this->Input, strlen(this->Input));
+    }
+  
   // Draw the string
-  XDrawString(displayId, drawable, gc, actorPos[0], actorPos[1], this->Input, strlen(this->Input));
+  XSetForeground(displayId, gc, foreground);
+  XDrawString(displayId, drawable, gc, actorPos[0], actorPos[1],
+              this->Input, strlen(this->Input));
  
   // Flush the X queue
   XFlush(displayId);
