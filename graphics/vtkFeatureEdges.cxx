@@ -44,10 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolygon.h"
 #include "vtkNormals.h"
 #include "vtkMergePoints.h"
-#include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkTriangleStrip.h"
+#include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkFeatureEdges* vtkFeatureEdges::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +60,6 @@ vtkFeatureEdges* vtkFeatureEdges::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFeatureEdges;
 }
-
-
-
 
 // Construct object with feature angle = 30; all types of edges, except 
 // manifold edges, are extracted and colored.
@@ -100,9 +98,9 @@ void vtkFeatureEdges::Execute()
   float cosAngle = 0;
   int lineIds[2];
   int npts, *pts;
-  vtkCellArray *inPolys;
+  vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkNormals *polyNormals = NULL;
-  int numPts, numCells, nei;
+  int numPts, numCells, numPolys, numStrips, nei;
   vtkIdList *neighbors;
   int p1, p2, newId;
   vtkPolyData *output = this->GetOutput();
@@ -130,26 +128,50 @@ void vtkFeatureEdges::Execute()
   //  Check input
   //
   inPts=input->GetPoints();
-  inPolys=input->GetPolys();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || inPts == NULL ||
-       inPolys == NULL )
+  numCells = input->GetNumberOfCells();
+  numPolys = input->GetNumberOfPolys();
+  numStrips = input->GetNumberOfStrips();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || !inPts || 
+       (numPolys < 1 && numStrips < 1) )
     {
     vtkErrorMacro(<<"No input data!");
     return;
     }
-  numCells = input->GetNumberOfCells();
 
   if ( !this->BoundaryEdges && !this->NonManifoldEdges && 
   !this->FeatureEdges && !this->ManifoldEdges )
     {
-    vtkWarningMacro(<<"All edge types turned off!");
-    return;
+    vtkDebugMacro(<<"All edge types turned off!");
     }
   
-  // build cell structure.  Only operate with polygons.
+  // Build cell structure.  Might have to triangulate the strips.
   Mesh = vtkPolyData::New();
   Mesh->SetPoints(inPts);
-  Mesh->SetPolys(inPolys);
+  inPolys=input->GetPolys();
+  if ( numStrips > 0 )
+    {
+    newPolys = vtkCellArray::New();
+    if ( numPolys > 0 )
+      {
+      newPolys->DeepCopy(inPolys);
+      }
+    else
+      {
+      newPolys->Allocate(newPolys->EstimateSize(numStrips,5));
+      }
+    inStrips = input->GetStrips();
+    for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+      {
+      vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
+      }
+    Mesh->SetPolys(newPolys);
+    newPolys->Delete();
+    }
+  else
+    {
+    newPolys = inPolys;
+    Mesh->SetPolys(newPolys);
+    }
   Mesh->BuildLinks();
 
   // Allocate storage for lines/points (arbitrary allocation sizes)
@@ -182,9 +204,9 @@ void vtkFeatureEdges::Execute()
   if ( this->FeatureEdges ) 
     {    
     polyNormals = vtkNormals::New();
-    polyNormals->Allocate(inPolys->GetNumberOfCells());
+    polyNormals->Allocate(newPolys->GetNumberOfCells());
 
-    for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
+    for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
     cellId++)
       {
       vtkPolygon::ComputeNormal(inPts,npts,pts,n);
@@ -201,8 +223,8 @@ void vtkFeatureEdges::Execute()
   int progressInterval=numCells/20+1;
 
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
-  for (cellId=0, inPolys->InitTraversal(); 
-       inPolys->GetNextCell(npts,pts) && !abort; cellId++)
+  for (cellId=0, newPolys->InitTraversal(); 
+       newPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
     if ( ! (cellId % progressInterval) ) //manage progress / early abort
       {
