@@ -77,7 +77,7 @@ void vtkStringTree::SetItem(char *str)
   char *copy;
 
   // copy the string
-  copy = new char [strlen(str)];
+  copy = new char [strlen(str)+1];
   strcpy(copy, str);
 
   this->vtkTree::SetItem(copy);
