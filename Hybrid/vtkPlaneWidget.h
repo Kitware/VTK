@@ -229,6 +229,7 @@ public:
   // and unselected can be manipulated.
   virtual void SetPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(PlaneProperty,vtkProperty);
+  vtkGetObjectMacro(SelectedPlaneProperty,vtkProperty);
   
 protected:
   vtkPlaneWidget();
