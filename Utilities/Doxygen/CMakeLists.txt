@@ -4,6 +4,13 @@
 INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
 
 IF (BUILD_DOCUMENTATION)
+  OPTION(DOXYGEN_SHORT_NAMES "Build Doxygen of VTK using short file names" OFF)
+  MARK_AS_ADVANCED(DOXYGEN_SHORT_NAMES)
+  IF(DOXYGEN_SHORT_NAMES)
+    SET(DOXYGEN_SHORT_NAMES YES)
+  ELSE(DOXYGEN_SHORT_NAMES)
+    SET(DOXYGEN_SHORT_NAMES NO)
+  ENDIF(DOXYGEN_SHORT_NAMES)
 
   #
   # Configure the script and the doxyfile, then add target
