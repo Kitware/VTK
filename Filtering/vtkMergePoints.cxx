@@ -18,8 +18,9 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkMergePoints, "1.39");
+vtkCxxRevisionMacro(vtkMergePoints, "1.40");
 vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.
@@ -56,8 +57,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
     // Check the list of points in that bucket.
     //
     vtkIdType ptId;
-    double *pt;
-    int NumberOfIds = bucket->GetNumberOfIds ();
+    int nbOfIds = bucket->GetNumberOfIds ();
 
     // For efficiency reasons, we break the data abstraction for points
     // and ids (we are assuming and vtkIdList
@@ -70,10 +70,12 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
       f[0] = static_cast<float>(x[0]);
       f[1] = static_cast<float>(x[1]);
       f[2] = static_cast<float>(x[2]);
-      for (i=0; i < NumberOfIds; i++) 
+      vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
+      float *pt;
+      for (i=0; i < nbOfIds; i++) 
         {
         ptId = idArray[i];
-        pt = dataArray->GetTuple(ptId);
+        pt = floatArray->GetPointer(0) + 3*ptId;
         if ( f[0] == pt[0] && f[1] == pt[1] && f[2] == pt[2] )
           {
           return ptId;
@@ -82,7 +84,9 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
       }
     else
       {
-      for (i=0; i < NumberOfIds; i++) 
+      // Using the double interface
+      double *pt;
+      for (i=0; i < nbOfIds; i++) 
         {
         ptId = idArray[i];
         pt = dataArray->GetTuple(ptId);
@@ -98,8 +102,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 }
 
 
-int
-vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
+int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
 {
   int i, ijk0, ijk1, ijk2;
   vtkIdType idx;
@@ -126,8 +129,7 @@ vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
     // Check the list of points in that bucket.
     //
     vtkIdType ptId;
-    double *pt;
-    int NumberOfIds = bucket->GetNumberOfIds ();
+    int nbOfIds = bucket->GetNumberOfIds ();
 
     // For efficiency reasons, we break the data abstraction for points
     // and ids (we are assuming vtkPoints stores a vtkIdList
@@ -141,10 +143,12 @@ vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       f[0] = static_cast<float>(x[0]);
       f[1] = static_cast<float>(x[1]);
       f[2] = static_cast<float>(x[2]);
-      for (i=0; i < NumberOfIds; i++) 
+      vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
+      float *pt;
+      for (i=0; i < nbOfIds; i++) 
         {
         ptId = idArray[i];
-        pt = dataArray->GetTuple(ptId);
+        pt = floatArray->GetPointer(0) + 3*ptId;
         if ( f[0] == pt[0] && f[1] == pt[1] && f[2] == pt[2] )
           {
           // point is already in the list, return 0 and set the id parameter
@@ -155,7 +159,9 @@ vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       }
     else
       {
-      for (i=0; i < NumberOfIds; i++) 
+      // Using the double interface
+      double *pt;
+      for (i=0; i < nbOfIds; i++) 
         {
         ptId = idArray[i];
         pt = dataArray->GetTuple(ptId);
