@@ -118,7 +118,7 @@ public:
   // This is the allowable variation in the altitude of the path
   // with respect to the variation in the terrain. It only comes
   // into play if the hug projection mode is enabled.
-  vtkSetMacro(HeightTolerance,double);
+  vtkSetClampMacro(HeightTolerance,double,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(HeightTolerance,double);
 
   // Description:

@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.4");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.5");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -207,6 +207,8 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
     }
   output->SetLines(outLines);
   outLines->Delete();
+  vtkDebugMacro("Produced " << outLines->GetNumberOfCells() << " lines from "
+                << numLines << " input polylines");
 
   // Clean up
   delete this->EdgeList;
@@ -221,19 +223,17 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
 void vtkProjectedTerrainPath::RemoveOcclusions()
 {
   double error;
-  vtkIdType numEdges, eId;
+  vtkIdType eId;
   if ( this->HeightOffset > 0.0 ) //want path above terrain, eliminate negative errors
     {
-    for ( numEdges=0; (eId=this->NegativeLineError->Pop(0,error)) >= 0;
-          ++numEdges )
+    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 )
       {
       this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
       }
     }
   else //want path below terrain, eliminate positive errors
     {
-    for ( numEdges=0; (eId=this->PositiveLineError->Pop(0,error)) >= 0;
-          ++numEdges )
+    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 )
       {
       this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
       }
@@ -244,18 +244,41 @@ void vtkProjectedTerrainPath::RemoveOcclusions()
 // Adjust the lines so that they hug the terrain within the tolerance specified
 void vtkProjectedTerrainPath::HugTerrain()
 {
+  // Loop until error meets threshold. 
+  // Remember that the errors in the priority queues are negative.
+  // Also, splitting an edge can cause the polyline to reintersect the terrain.
+  // This is the reason for the outer while{} loop.
   double error;
-  vtkIdType numEdges, eId;
-  if ( this->HeightOffset > 0.0 ) //want path above terrain
+  vtkIdType eId, stillPopping=1;
+
+  while ( stillPopping )
     {
-    for ( numEdges=0; (eId=this->NegativeLineError->Pop(0,error)) >= 0;
-          ++numEdges )
+    stillPopping = 0;
+    while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 )
       {
+      if ( (-error) > this->HeightTolerance )
+        {
+        this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
+        stillPopping = 1;
+        }
+      else
+        {
+        break;
+        }
       }
-    }
-  else //want path below terrain
-    {
-    }
+    while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 )
+      {
+      if ( (-error) > this->HeightTolerance )
+        {
+        this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
+        stillPopping = 1;
+        }
+      else
+        {
+        break;
+        }
+      }
+    } //while still popping
 }
 
 
@@ -439,13 +462,19 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         error = x[2] - zMap;
         if ( error >= 0.0 )
           {
-          posError = (error > posError ? error : posError);
-          e.tPos = (flip ? (1-t) : t);
+          if (error > posError)
+            {
+            posError = error;
+            e.tPos = (flip ? (1-t) : t);
+            }
           }
         else
           {
-          negError = (error < negError ? error : negError);
-          e.tNeg = (flip ? (1-t) : t);
+          if (error < negError)
+            {
+            negError = error;
+            e.tNeg = (flip ? (1-t) : t);
+            }
           }
         } //if lying on image
       } //for all x-intersection points
