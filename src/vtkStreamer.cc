@@ -226,6 +226,8 @@ void vtkStreamer::Integrate()
   float d, step, dir, vNext[3], tol2, p[3];
   float w[MAX_CELL_SIZE], dist2;
   float closestPoint[3];
+  cellVectors.ReferenceCountingOff();
+  cellScalars.ReferenceCountingOff();
   
   vtkDebugMacro(<<"Generating streamers");
   this->Initialize();
