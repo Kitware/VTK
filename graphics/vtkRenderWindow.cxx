@@ -209,7 +209,7 @@ vtkRenderWindow *vtkRenderWindow::New()
 vtkRenderer *vtkRenderWindow::MakeRenderer()
 {
   vtkRenderer *ren = vtkRenderer::New();
-  this->AddRenderers(ren);
+  this->AddRenderer(ren);
 
   // by default we are its parent
   ren->SetRenderWindow(this);
@@ -676,7 +676,7 @@ void vtkRenderWindow::DoStereoRender()
 
 // Description:
 // Add a renderer to the list of renderers.
-void vtkRenderWindow::AddRenderers(vtkRenderer *ren)
+void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
   // we are its parent 
   ren->SetRenderWindow(this);
@@ -685,7 +685,7 @@ void vtkRenderWindow::AddRenderers(vtkRenderer *ren)
 
 // Description:
 // Remove a renderer from the list of renderers.
-void vtkRenderWindow::RemoveRenderers(vtkRenderer *ren)
+void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent 
   this->Renderers.RemoveItem(ren);

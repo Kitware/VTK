@@ -77,8 +77,8 @@ public:
   char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void AddRenderers(vtkRenderer *);
-  void RemoveRenderers(vtkRenderer *);
+  void AddRenderer(vtkRenderer *);
+  void RemoveRenderer(vtkRenderer *);
   vtkRendererCollection *GetRenderers() {return &(this->Renderers);};
 
   virtual void Render();

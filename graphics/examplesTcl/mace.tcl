@@ -5,11 +5,11 @@ source vtkInt.tcl
 
 # Now create the RenderWindow, Renderer and both Actors
 #
-vtkRenderWindow renWin
 vtkRenderer ren1
-renWin AddRenderers ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
-iren SetRenderWindow renWin
+    iren SetRenderWindow renWin
 
 # create a sphere source and actor
 #
