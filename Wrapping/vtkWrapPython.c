@@ -715,9 +715,19 @@ void outputFunction2(FILE *fp, FileInfo *data)
                 }
               else
                 {
-                fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
-                sprintf(methodname,"op->%s::%s",
-                        data->ClassName,currentFunction->Name);
+                if (currentFunction->IsPureVirtual)
+                  {
+                  fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+                  fprintf(fp,"      PyErr_SetString(PyExc_TypeError,\"pure virtual method call\");\n");
+                  fprintf(fp,"      return NULL;\n    }\n");
+                  continue;
+                  }
+                else
+                  {
+                  fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+                  sprintf(methodname,"op->%s::%s",
+                    data->ClassName,currentFunction->Name);
+                  }
                 }
               }
             else
@@ -852,8 +862,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   fp = fp;
   /* some functions will not get wrapped no matter what else,
      and some really common functions will appear only in vtkObjectPython */
-  if (currentFunction->IsPureVirtual ||
-      currentFunction->IsOperator || 
+  if (currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
       !currentFunction->Name)
