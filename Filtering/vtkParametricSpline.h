@@ -95,9 +95,16 @@ public:
   vtkBooleanMacro(Closed,int);
 
   // Description:
+  // Control whether the spline is parameterized by length or by point index.
+  // Default is by length.
+  vtkSetMacro(ParameterizeByLength,int);
+  vtkGetMacro(ParameterizeByLength,int);
+  vtkBooleanMacro(ParameterizeByLength,int);   
+
+  // Description:
   // Set the type of constraint of the left(right) end points. Four
   // constraints are available:
-  // 
+  //
   // 0: the first derivative at left(right) most point is determined
   // from the line defined from the first(last) two points.
   //
@@ -140,6 +147,7 @@ protected:
   int    RightConstraint;
   double LeftValue;
   double RightValue;
+  int    ParameterizeByLength;
 
   // Initializing the spline
   unsigned long InitializeTime;
