@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.6");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.7");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -157,6 +157,23 @@ void vtkInformationIntegerVectorKey::Copy(vtkInformation* from,
                                           vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationIntegerVectorKey::Print(ostream& os, vtkInformation* info)
+{
+  // Print the value.
+  if(this->Has(info))
+    {
+    int* value = this->Get(info);
+    int length = this->Length(info);
+    const char* sep = "";
+    for(int i=0; i < length; ++i)
+      {
+      os << sep << value[i];
+      sep = " ";
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -231,6 +231,33 @@ void vtkInformationExecutivePortVectorKey::Copy(vtkInformation* from,
 void vtkInformationExecutivePortVectorKey::Remove(vtkInformation* info)
 {
   this->Superclass::Remove(info);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationExecutivePortVectorKey::Print(ostream& os,
+                                                 vtkInformation* info)
+{
+  // Print the value.
+  if(this->Has(info))
+    {
+    vtkExecutive** executives = this->GetExecutives(info);
+    int* ports = this->GetPorts(info);
+    int length = this->Length(info);
+    const char* sep = "";
+    for(int i=0; i < length; ++i)
+      {
+      if(executives[i])
+        {
+        os << sep << executives[i]->GetClassName()
+           << "(" << executives[i] << ") port " << ports[i];
+        }
+      else
+        {
+        os << sep << "(NULL) port " << ports[i];
+        }
+      sep = ", ";
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

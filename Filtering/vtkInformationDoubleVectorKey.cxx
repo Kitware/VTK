@@ -18,7 +18,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey
@@ -143,4 +143,21 @@ void vtkInformationDoubleVectorKey::Copy(vtkInformation* from,
                                           vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationDoubleVectorKey::Print(ostream& os, vtkInformation* info)
+{
+  // Print the value.
+  if(this->Has(info))
+    {
+    double* value = this->Get(info);
+    int length = this->Length(info);
+    const char* sep = "";
+    for(int i=0; i < length; ++i)
+      {
+      os << sep << value[i];
+      sep = " ";
+      }
+    }
 }

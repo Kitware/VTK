@@ -46,6 +46,10 @@ public:
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
 
+  // Description:
+  // Print the key's value in an information object to a stream.
+  virtual void Print(ostream& os, vtkInformation* info);
+
 protected:
   // Description:
   // Get the address at which the actual value is stored.  This is

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkInformationDoubleKey.h"
 
-vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location):
@@ -85,6 +85,16 @@ int vtkInformationDoubleKey::Has(vtkInformation* info)
 void vtkInformationDoubleKey::Copy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
+{
+  // Print the value.
+  if(this->Has(info))
+    {
+    os << this->Get(info);
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.11");
+vtkCxxRevisionMacro(vtkInformation, "1.12");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -64,7 +64,10 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
   vtkInformationInternals::MapType::const_iterator i;
   for(i=this->Internal->Map.begin(); i != this->Internal->Map.end(); ++i)
     {
-    os << indent << i->first << ": " << i->second.GetPointer() << "\n";
+    vtkInformationKey* key = i->first;
+    os << indent << key->GetName() << ": ";
+    key->Print(os, this);
+    os << "\n";
     }
 }
 

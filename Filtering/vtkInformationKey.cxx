@@ -17,7 +17,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationKey, "1.8");
+vtkCxxRevisionMacro(vtkInformationKey, "1.9");
 
 class vtkInformationKeyToInformationFriendship
 {
@@ -104,6 +104,22 @@ void vtkInformationKey::Remove(vtkInformation* info)
 void vtkInformationKey::Report(vtkInformation*, vtkGarbageCollector*)
 {
   // Report nothing by default.
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::Print(vtkInformation* info)
+{
+  this->Print(cout, info);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::Print(ostream& os, vtkInformation* info)
+{
+  // Just print the value type and pointer by default.
+  if(vtkObjectBase* value = this->GetAsObjectBase(info))
+    {
+    os << value->GetClassName() << "(" << value << ")";
+    }
 }
 
 //----------------------------------------------------------------------------

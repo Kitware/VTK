@@ -78,6 +78,11 @@ public:
   // Report a reference this key has in the given information object.
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
+  // Description:
+  // Print the key's value in an information object to a stream.
+  void Print(vtkInformation* info);
+  virtual void Print(ostream& os, vtkInformation* info);
+
 protected:
   const char* Name;
   const char* Location;

@@ -50,6 +50,10 @@ public:
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
 
+  // Description:
+  // Print the key's value in an information object to a stream.
+  virtual void Print(ostream& os, vtkInformation* info);
+
 protected:
   // The required length of the vector value (-1 is no restriction).
   int RequiredLength;

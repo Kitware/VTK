@@ -49,6 +49,10 @@ public:
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
 
+  // Description:
+  // Print the key's value in an information object to a stream.
+  virtual void Print(ostream& os, vtkInformation* info);
+
 private:
   vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&);  // Not implemented.
   void operator=(const vtkInformationKeyVectorKey&);  // Not implemented.
