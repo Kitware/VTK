@@ -17,7 +17,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.59");
+vtkCxxRevisionMacro(vtkStructuredData, "1.60");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
@@ -53,11 +53,6 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
   
   if ( inDim[0] != dim[0] || inDim[1] != dim[1] || inDim[2] != dim[2] )
     {
-    if ( inDim[0]<1 || inDim[1]<1 || inDim[2]<1 )
-      {
-      return VTK_EMPTY;
-      }
-
     for (dataDim=0, i=0; i<3 ; i++)
       {
       dim[i] = inDim[i];
@@ -65,6 +60,11 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
         {
         dataDim++;
         }
+      }
+
+    if ( inDim[0]<1 || inDim[1]<1 || inDim[2]<1 )
+      {
+      return VTK_EMPTY;
       }
 
     if ( dataDim == 3 )
@@ -127,11 +127,6 @@ int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
     return VTK_UNCHANGED;
     }
   
-  if ( inExt[0]>inExt[1] || inExt[2]>inExt[3] || inExt[4]>inExt[5] )
-    {
-    return VTK_EMPTY;
-    }
-
   dataDim = 0;
   for (i=0; i<3 ; ++i)
     {
@@ -143,6 +138,11 @@ int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
       }
     }
   
+  if ( inExt[0]>inExt[1] || inExt[2]>inExt[3] || inExt[4]>inExt[5] )
+    {
+    return VTK_EMPTY;
+    }
+
   if ( dataDim == 3 )
     {
     dataDescription = VTK_XYZ_GRID;
