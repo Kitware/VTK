@@ -290,7 +290,7 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
     edge.SetId(0,p1);
     edge.SetId(1,p2);
 
-    OldMesh.GetCellNeighbors(cellId, edge, cellIds);
+    OldMesh->GetCellNeighbors(cellId, edge, cellIds);
 //
 //  Check the direction of the neighbor ordering.  Should be
 //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
