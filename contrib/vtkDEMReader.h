@@ -165,8 +165,7 @@ protected:
   void ComputeExtentOriginAndSpacing (int extent[6], float origin[6], float spacing[6]);
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
-  void Execute();
-  void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);}
+  void ExecuteData(vtkDataObject *out);
 };
 
 #endif

@@ -119,7 +119,7 @@ void vtkDEMReader::ExecuteInformation()
 
 //----------------------------------------------------------------------------
 // Convert to Imaging API
-void vtkDEMReader::Execute()
+void vtkDEMReader::ExecuteData(vtkDataObject *)
 {
   vtkImageData *output = this->GetOutput();
 
