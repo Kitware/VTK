@@ -21,6 +21,7 @@ IF(PYTHON_EXECUTABLE)
            vtkCellType.h
            vtkCommand.h
            vtkContainer.h
+           vtkDataArrayTemplate.h
            vtkDebugLeaksManager.h
            vtkErrorCode.h
            vtkHashMap.h
