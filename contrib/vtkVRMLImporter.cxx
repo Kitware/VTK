@@ -1191,6 +1191,8 @@ yyparse(YYPARSE_PARAM)
   yylen = yyr2[yyn];
   if (yylen > 0)
     yyval = yyvsp[1-yylen]; /* implement default value of the action */
+  else
+    yyval.sfint = 0;
 
 #if YYDEBUG != 0
   if (yydebug)
