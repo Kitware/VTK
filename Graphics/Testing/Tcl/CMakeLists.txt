@@ -44,7 +44,9 @@ IF (VTK_USE_RENDERING)
       dicer
       EnSight6Elements
       EnSightGoldElements
+      extractPolyData
       extractUGrid
+      ExtractTensors
       extractVectors
       geomFilter
       glyph2D
