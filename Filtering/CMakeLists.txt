@@ -1,0 +1,101 @@
+SOURCE_FILES( Filtering_SRCS
+vtkApproximatingSubdivisionFilter
+vtkCastToConcrete
+vtkCellLocator
+vtkColorTransferFunction
+vtkDataObjectSource
+vtkDataObjectToDataSetFilter
+vtkDataReader
+vtkDataSetSource
+vtkDataSetToDataObjectFilter
+vtkDataSetToDataSetFilter
+vtkDataSetToPolyDataFilter
+vtkDataSetToStructuredGridFilter
+vtkDataSetToStructuredPointsFilter
+vtkDataSetToUnstructuredGridFilter
+vtkDataWriter
+vtkDicer
+vtkFieldDataToAttributeDataFilter
+vtkGeometryFilter
+vtkInterpolatingSubdivisionFilter
+vtkMaskPoints
+vtkMergePoints
+vtkOutlineFilter
+vtkOutlineSource
+vtkPiecewiseFunction
+vtkPointSetSource
+vtkPointSetToPointSetFilter
+vtkPolyDataCollection
+vtkPolyDataNormals
+vtkPolyDataToPolyDataFilter
+vtkRectilinearGridSource
+vtkRectilinearGridToPolyDataFilter
+vtkSphereSource
+vtkSpline
+vtkStripper
+vtkStructuredGridSource
+vtkStructuredGridToPolyDataFilter
+vtkStructuredGridToStructuredGridFilter
+vtkStructuredPointsCollection
+vtkStructuredPointsSource
+vtkStructuredPointsToPolyDataFilter
+vtkStructuredPointsToStructuredPointsFilter
+vtkStructuredPointsToUnstructuredGridFilter
+vtkTransformPolyDataFilter
+vtkTriangleFilter
+vtkUnstructuredGridSource
+vtkUnstructuredGridToPolyDataFilter
+vtkUnstructuredGridToUnstructuredGridFilter
+vtkWriter
+)
+
+ABSTRACT_FILES(
+vtkApproximatingSubdivisionFilter
+vtkDataObjectToDataSetFilter
+vtkDataSetToDataSetFilter
+vtkDataSetToPolyDataFilter
+vtkDataSetToStructuredGridFilter
+vtkDataSetToStructuredPointsFilter
+vtkDataSetToUnstructuredGridFilter
+vtkDicer
+vtkInterpolatingSubdivisionFilter
+vtkPointSetToPointSetFilter
+vtkPolyDataToPolyDataFilter
+vtkProp3D
+vtkRectilinearGridToPolyDataFilter
+vtkSpline
+vtkStructuredGridToPolyDataFilter
+vtkStructuredGridToStructuredGridFilter
+vtkStructuredPointsToPolyDataFilter
+vtkStructuredPointsToStructuredPointsFilter
+vtkStructuredPointsToUnstructuredGridFilter
+vtkUnstructuredGridToPolyDataFilter
+vtkUnstructuredGridToUnstructuredGridFilter
+vtkWriter
+)
+
+ADD_LIBRARY(vtkFiltering Filtering_SRCS)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_TCL)
+  VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS Filtering_SRCS)
+  ADD_LIBRARY(vtkFilteringTCL FilteringTCL_SRCS)
+  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL )
+ENDIF (VTK_WRAP_TCL)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkFilteringPython FilteringPython_SRCS Filtering_SRCS)
+  ADD_LIBRARY(vtkFilteringPython FilteringPython_SRCS)
+  TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
+ENDIF (VTK_WRAP_PYTHON)
+
+LINK_LIBRARIES (
+vtkCommon 
+vtkFiltering 
+)
+
