@@ -376,9 +376,9 @@ void vtkOglrRenderWindow::WindowConfigure()
 // Initialize the window for rendering.
 void vtkOglrRenderWindow::WindowInitialize (void)
 {
-  XVisualInfo  *v;
+  XVisualInfo  *v, matcher;
   XSetWindowAttributes	attr;
-  int x,y,width,height;
+  int x, y, width, height, nItems;
   XWindowAttributes winattr;
   XSizeHints xsh;
 
@@ -442,6 +442,11 @@ void vtkOglrRenderWindow::WindowInitialize (void)
     {
     XChangeWindowAttributes(this->DisplayId,this->WindowId,
 			    CWOverrideRedirect, &attr);
+    XGetWindowAttributes(this->DisplayId,
+			 this->WindowId,&winattr);
+    matcher.visualid = XVisualIDFromVisual(winattr.visual);
+    v = XGetVisualInfo(this->DisplayId, VisualIDMask,
+		       &matcher, &nItems);
     }
 
   // RESIZE THE WINDOW TO THE DESIRED SIZE
