@@ -151,15 +151,15 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 				      T *inPtr, unsigned char *outPtr)
 {
   int colorIdx;
-  T *inPtr0, *inPtr1;
+  T *inPtr0, *inPtr1, *endPtr;
   int inMin0, inMax0, inMin1, inMax1;
   int inInc0, inInc1;
-  int idx0, idx1;
+  int idx1;
   float shift, scale;
   XColor *colors;
   int colorsMax;
   int visualDepth, visualClass;
-  
+  T   lower, upper;
   
   visualClass = self->GetVisualClass();
   if (visualClass == TrueColor)
@@ -177,6 +177,8 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   visualDepth = self->GetVisualDepth();
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
+  lower = -shift;
+  upper = lower + colorsMax/scale;
   
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
@@ -189,40 +191,82 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
     inPtr0 = inPtr1;
-    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+    if (visualClass == TrueColor)
       {
-
-      colorIdx = (int)(((float)(*inPtr0) + shift) * scale);
-      if (colorIdx < 0)
+      while (inPtr0 != endPtr)
 	{
-	colorIdx = 0;
+	*outPtr++ = 255;
+	if (*inPtr0 <= lower) 
+	  {
+	  *outPtr++ = 0;
+	  *outPtr++ = 0;
+	  *outPtr++ = 0;
+	  }
+	else if (*inPtr0 >= upper)
+	  {
+	  *outPtr++ = 255;
+	  *outPtr++ = 255;
+	  *outPtr++ = 255;
+	  }
+	else
+	  {
+	  colorIdx = ((*inPtr0 - lower) * scale);
+	  *outPtr++ = colorIdx;
+	  *outPtr++ = colorIdx;
+	  *outPtr++ = colorIdx;
+	  }
+	inPtr0 += inInc0;
 	}
-      if (colorIdx > colorsMax)
+      }
+    else if (visualClass == DirectColor)
+      {
+      while (inPtr0 != endPtr)
 	{
-	colorIdx = colorsMax;
+	if (*inPtr0 <= lower) 
+	  {
+	  *outPtr++ = (unsigned char)(colors->pixel);
+	  *outPtr++ = (unsigned char)(colors->pixel);
+	  *outPtr++ = (unsigned char)(colors->pixel);
+	  *outPtr++ = (unsigned char)(colors->pixel);
+	  }
+	else if (*inPtr0 >= upper)
+	  {
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  }
+	else
+	  {
+	  colorIdx = ((*inPtr0 - lower) * scale);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  }
+	inPtr0 += inInc0;
 	}
-
-      if (visualClass == TrueColor)
+      }
+    else if (visualClass == PseudoColor)
+      {
+      while (inPtr0 != endPtr)
 	{
-	*outPtr++ = (unsigned char)(255);
-	*outPtr++ = (unsigned char)(colorIdx);
-	*outPtr++ = (unsigned char)(colorIdx);
-	*outPtr++ = (unsigned char)(colorIdx);
+	if (*inPtr0 <= lower) 
+	  {
+	  *outPtr++ = (unsigned char)(colors->pixel);
+	  }
+	else if (*inPtr0 >= upper)
+	  {
+	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  }
+	else
+	  {
+	  colorIdx = ((*inPtr0 - lower) * scale);
+	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	  }
+	inPtr0 += inInc0;
 	}
-      else if (visualClass == DirectColor)
-	{
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	}
-      else if (visualClass == PseudoColor)
-	{
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	}
-      
-
-      inPtr0 += inInc0;
       }
     inPtr1 += inInc1;
     }

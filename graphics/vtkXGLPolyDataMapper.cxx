@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -567,6 +567,9 @@ void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   if (this->NumVerts)
     {
-    xgl_multimarker(this->Context, this->PL2 + this->NumLines);
+    for (i = 0; i < this->NumVerts; i++)
+      {
+      xgl_multimarker(this->Context, this->PL2 + i + this->NumLines);
+      }
     }
 }

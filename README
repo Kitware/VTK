@@ -1,4 +1,4 @@
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -41,16 +41,16 @@ the title of a new book published by Prentice Hall (ISBN 013199837-4).
 This is version 2.0. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
-http://www.cs.rpi.edu/~martink/
+http://www.kitware.com/~martink/
 
 
 2. Documentation
 ----------------
 
-This software does come with automatically generated man pages for all of the
-C++ objects. The ideal way to learn about the software is from the book it is
-designed to support.  You should be able to get the book from any local
-bookstore or from our web page.
+The ideal way to learn about the software is from the book it is designed to
+support.  You should be able to get the book from any local bookstore or from
+our web page. The web page also contains some html reference pages for the
+objects in vtk as well as a FAQ.
 
   The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics
   by Will Schroeder, Ken Martin and Bill Lorensen.
@@ -72,7 +72,7 @@ If you will be using C++ as your development language:
   1) untar the src files
   2) untar the data files
   3) cd vtk
-  4) ./configure (set your CC and CXX environment variables first)
+  4) ./configure
   5) read and edit user.make 
   6) make
 
@@ -82,9 +82,19 @@ If you will be using tcl in addition to C++:
   2) untar the data files
   3) cd vtk
   4) obtain and build Tcl/Tk if you don't already have it
-  5) ./configure --with-tcl  (set your CC and CXX environment variables first)
+  5) ./configure --with-tcl 
   6) read and edit user.make
   7) make
+
+It is a very good idea to tell configure what C and C++ compilers
+you will be using. This can avoid many build problems.
+On most systems you can pass this information to configure in the 
+following way:
+
+env CXX=/your/C++/compiler CC=/your/c/compiler ./configure
+
+otherwise you must set CXX and CC in your environment and then
+run configure.
 
 This release has some java support, you can use --with-java but
 I think it only works on Sun Solaris and Windows. But feel free 
@@ -199,25 +209,12 @@ bison (available at prep.ai.mit.edu in /pub/gnu)
 7. Adding a new toolkit to vtk (UNIX version)
 ---------------------------------------------
 The short answer is don't do this, its messy. The best thing to
-do is use the contrib directory which only has two classes in it.
-If you insist on makeing your own directory do the following.
+do is use the contrib directory which was designed for people
+to put their own classes into. The contrib directory is 
+misnamed since we often put contributed classes into other
+directories. Think of contrib as a development directory
+for you that happens to include a couple files to serve as
+an example for the Makefile.in
 
-If you are not using cvs revision control then you can ignore steps
-2 and 4. You can get autoconf from prep.ai.mit.edu in the /pub/gnu
-directory. 
 
-1) create a directory for it
-2) cvs add that directory
-3) cd into that directory and create a tcl and java subdirectory
-4) cvs add the tcl and java subdirectorys
-5) edit configure.in at the top level and follow the example of graphics
-   to add your directory. You might want to make it excluded by default.
-6) edit Makefile.in at the top level, again follow the example of graphics
-7) run autoconf on the configure.in to generate a new configure
-8) using one of the other kits as an example, create a
-     configure.in and Makefile.in in your toolkit directory
-9) run autoconf to create the new configure for your configure.in
-10) in the top level tcl and java directorys edit configure.in 
-11) generate a new configure file
-12) edit Makefile.in and tkAppInit.c as done for graphics
 

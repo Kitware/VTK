@@ -15,34 +15,14 @@ then
     cp $srcdir/targets.make targets.make || exit 1
 fi
 
-#------------------------------------------------------------------------------
-#       Some make programs require includes to be 
-#         .include "file"
-#     others...
-#         include file
-#------------------------------------------------------------------------------
-
-AC_MSG_CHECKING(how make handles includes)
-cat > confmakeinc <<EOF
-
-EOF
-  cat > confmakefile <<EOF
-include confmakeinc
-
-all:
-EOF
-
-if make -f confmakefile >/dev/null 2>/dev/null; then
-    MAKEINCLUDE="include"
-    MAKEQUOTE=''
-    AC_MSG_RESULT(common make include syntax)
-else
-    MAKEINCLUDE=".include"
-    MAKEQUOTE='"'
-    AC_MSG_RESULT(BSD make include syntax)
-fi
-rm confmakefile confmakeinc
-
+# option for handling BSD style makefile includes
+#
+AC_ARG_WITH(mesa,
+         [  --with-bsdmake            uses bsd style makefile includes],
+         MAKEINCLUDE=".include"
+         MAKEQUOTE='"',
+         MAKEINCLUDE="include"
+         MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 

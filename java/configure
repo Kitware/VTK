@@ -11,6 +11,8 @@
 ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
+ac_help="$ac_help
+  --with-bsdmake            uses bsd style makefile includes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -519,34 +521,18 @@ fi
 
 
 
-#------------------------------------------------------------------------------
-#       Some make programs require includes to be 
-#         .include "file"
-#     others...
-#         include file
-#------------------------------------------------------------------------------
-
-echo $ac_n "checking how make handles includes""... $ac_c" 1>&6
-echo "configure:531: checking how make handles includes" >&5
-cat > confmakeinc <<EOF
-
-EOF
-  cat > confmakefile <<EOF
-include confmakeinc
-
-all:
-EOF
-
-if make -f confmakefile >/dev/null 2>/dev/null; then
-    MAKEINCLUDE="include"
-    MAKEQUOTE=''
-    echo "$ac_t""common make include syntax" 1>&6
+# option for handling BSD style makefile includes
+#
+# Check whether --with-mesa or --without-mesa was given.
+if test "${with_mesa+set}" = set; then
+  withval="$with_mesa"
+  MAKEINCLUDE=".include"
+         MAKEQUOTE='"'
 else
-    MAKEINCLUDE=".include"
-    MAKEQUOTE='"'
-    echo "$ac_t""BSD make include syntax" 1>&6
+  MAKEINCLUDE="include"
+         MAKEQUOTE=''
 fi
-rm confmakefile confmakeinc
+
 
 
 

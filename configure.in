@@ -16,6 +16,13 @@ if test $ac_cv_c_bigendian = yes; then
 fi
 AC_SUBST(BIGENDIAN)
 
+# some stuff Tcl uses
+#
+AC_CHECK_HEADER(limits.h, HAVE_LIMITS_H=-DHAVE_LIMITS_H,HAVE_LIMITS_H="")
+AC_SUBST(HAVE_LIMITS_H)
+AC_HAVE_HEADERS(unistd.h, HAVE_UNISTD_H=-DHAVE_UNISTD_H,HAVE_UNISTD_H="")
+AC_SUBST(HAVE_UNISTD_H)
+
 ##########################
 ##			##
 ##	Starbase	##
@@ -155,7 +162,7 @@ AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
@@ -165,7 +172,7 @@ AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],,
          imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DVTK_USE_IMAGING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
@@ -178,7 +185,7 @@ AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
          patenteddir=patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DVTK_USE_PATENTED"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
@@ -188,7 +195,7 @@ AC_ARG_WITH(working,
          [  --with-working           include development classes],
          workingdir=working
          USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../working -DVTK_USE_WORKING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_working"
@@ -198,7 +205,7 @@ AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
          contribdir=contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DVTK_USE_CONTRIB"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
@@ -208,7 +215,7 @@ AC_ARG_WITH(geae,
          [  --with-geae             include the geae classes],
          geaedir=geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DVTK_USE_GEAE"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
@@ -218,7 +225,7 @@ AC_ARG_WITH(gemsip,
          [  --with-gemsip           include the gemsip classes],
          gemsipdir=gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
@@ -228,7 +235,7 @@ AC_ARG_WITH(gemsio,
          [  --with-gemsio           include the gemsio classes],
          gemsiodir=gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
@@ -238,7 +245,7 @@ AC_ARG_WITH(gemsvolume,
          [  --with-gemsvolume       include the gemsvolume classes],
          gemsvolumedir=gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
@@ -249,34 +256,15 @@ AC_SUBST(INSTALL_TOOLKITS)
 AC_SUBST(DEPEND_TOOLKITS)
 AC_SUBST(CLEAN_TOOLKITS)
 
-#------------------------------------------------------------------------------
-#       Some make programs require includes to be 
-#         .include "file"
-#     others...
-#         include file
-#------------------------------------------------------------------------------
 
-AC_MSG_CHECKING(how make handles includes)
-cat > confmakeinc <<EOF
-
-EOF
-  cat > confmakefile <<EOF
-include confmakeinc
-
-all:
-EOF
-
-if make -f confmakefile >/dev/null 2>/dev/null; then
-    MAKEINCLUDE="include"
-    MAKEQUOTE=''
-    AC_MSG_RESULT(common make include syntax)
-else
-    MAKEINCLUDE=".include"
-    MAKEQUOTE='"'
-    AC_MSG_RESULT(BSD make include syntax)
-fi
-rm confmakefile confmakeinc
-
+# option for handling BSD style makefile includes
+#
+AC_ARG_WITH(mesa,
+         [  --with-bsdmake            uses bsd style makefile includes],
+         MAKEINCLUDE=".include"
+         MAKEQUOTE='"',
+         MAKEINCLUDE="include"
+         MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 

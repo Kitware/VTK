@@ -78,6 +78,8 @@ vtkMarchingCubes::vtkMarchingCubes()
 vtkMarchingCubes::~vtkMarchingCubes()
 {
   this->ContourValues->Delete();
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->SelfCreatedLocator = 0;
 }
 
 // Description:
