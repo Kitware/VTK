@@ -173,15 +173,15 @@ void vtkImageToStructuredPoints::Execute()
 	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
 	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
-      if (output->GetPointData())
+      if (data->GetPointData())
 	{
 	output->GetPointData()->PassData(data->GetPointData());
 	}
-      if (output->GetCellData())
+      if (data->GetCellData())
 	{
 	output->GetCellData()->PassData(data->GetCellData());
 	}
-      if (output->GetFieldData())
+      if (data->GetFieldData())
 	{
 	output->GetFieldData()->ShallowCopy(data->GetFieldData());
 	}
