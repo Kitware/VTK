@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorStyleImage.h"
 
-vtkCxxRevisionMacro(vtkImageViewer, "1.39");
+vtkCxxRevisionMacro(vtkImageViewer, "1.40");
 vtkStandardNewMacro(vtkImageViewer);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,7 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << *this->ImageMapper << endl;
   os << indent << *this->RenderWindow << endl;
   os << indent << *this->Renderer << endl;
+  os << indent << *this->Actor2D << endl;
 }
 
 
