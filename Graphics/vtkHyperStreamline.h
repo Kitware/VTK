@@ -45,7 +45,7 @@
 #ifndef __vtkHyperStreamline_h
 #define __vtkHyperStreamline_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
@@ -58,10 +58,10 @@
 
 class vtkHyperArray;
 
-class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperStreamline,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkHyperStreamline,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -208,8 +208,8 @@ protected:
   ~vtkHyperStreamline();
 
   // Integrate data
-  void Execute();
-  void BuildTube();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int BuildTube(vtkDataSet *input, vtkPolyData *output);
 
   // Flag indicates where streamlines start from (either position or location)
   int StartFrom;
@@ -258,5 +258,3 @@ private:
 };
 
 #endif
-
-

@@ -18,11 +18,13 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.57");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.58");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -320,9 +322,21 @@ static void FixVectors(double **prev, double **current, int iv, int ix, int iy)
     }
 }
 
-void vtkHyperStreamline::Execute()
+int vtkHyperStreamline::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *inScalars;
   vtkDataArray *inTensors;
@@ -350,7 +364,7 @@ void vtkHyperStreamline::Execute()
   if ( ! (inTensors=pd->GetTensors()) )
     {
     vtkErrorMacro(<<"No tensor data defined!");
-    return;
+    return 0;
     }
   w = new double[input->GetMaxCellSize()];
 
@@ -371,7 +385,6 @@ void vtkHyperStreamline::Execute()
     cellScalars->SetNumberOfComponents(numComp);
     cellScalars->SetNumberOfTuples(VTK_CELL_SIZE);
     }
-  
   
   tol2 = input->GetLength() / 1000.0;
   tol2 = tol2 * tol2;
@@ -596,14 +609,16 @@ void vtkHyperStreamline::Execute()
 
     } //for each hyperstreamline
 
-  this->BuildTube();
+  int retval = this->BuildTube(input, output);
 
   delete [] w;
   cellTensors->Delete();
   cellScalars->Delete();  
+
+  return retval;
 }
 
-void vtkHyperStreamline::BuildTube()
+int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
 {
   vtkHyperPoint *sPrev, *sPtr;
   vtkPoints *newPts;
@@ -617,8 +632,6 @@ void vtkHyperStreamline::BuildTube()
   double xT[3], sFactor, normal[3], w[3];
   double theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkPointData *outPD;
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   int iv, ix, iy;
   vtkIdType numIntPts;
   //
@@ -627,7 +640,7 @@ void vtkHyperStreamline::BuildTube()
   vtkDebugMacro(<<"Creating hyperstreamline tube");
   if ( this->NumberOfStreamers <= 0 )
     {
-    return;
+    return 0;
     }
 
   stepLength = input->GetLength() * this->StepLength;
@@ -783,6 +796,8 @@ void vtkHyperStreamline::BuildTube()
   newVectors->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
@@ -841,5 +856,3 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Integrate Along Minor Eigenvector\n";
     }
 }
-
-
