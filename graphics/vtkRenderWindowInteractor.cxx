@@ -89,7 +89,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 {
 #ifdef _WIN32
-  return vtkWin32RenderWIndowInteractor::New();
+  return vtkWin32RenderWindowInteractor::New();
 #else
   return vtkXRenderWindowInteractor::New();
 #endif  
