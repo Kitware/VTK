@@ -71,11 +71,11 @@ void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift,
   XWindowAttributes winAttribs;
   XVisualInfo temp1;
 
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use a NULL WindowId" );
-		return;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use a NULL WindowId" );
+    return;
+    }
 	
   XGetWindowAttributes(this->DisplayId, this->WindowId, &winAttribs);
   temp1.visualid = winAttribs.visual->visualid;
@@ -201,11 +201,11 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
   int rscale, gscale, bscale;
   unsigned long rmask, gmask, bmask;
 
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return (unsigned char*) NULL;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return (unsigned char*) NULL;
+    }
 	
   this->GetShiftsScalesAndMasks(rshift,gshift,bshift,rscale,gscale,bscale,
 				rmask,gmask,bmask);
@@ -282,11 +282,11 @@ void vtkXImageWindow::SwapBuffers()
     }
   else
     {
-		if ( !this->WindowId )
-		{
-			vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-			return;
-		}
+    if ( !this->WindowId )
+      {
+      vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+      return;
+      }
     XCopyArea(this->DisplayId, this->Drawable, this->WindowId, this->Gc, 
 	      0, 0, this->Size[0], this->Size[1], 0, 0);
     XSync(this->DisplayId, False);
@@ -300,11 +300,11 @@ void *vtkXImageWindow::GetGenericDrawable()
 {
   if (this->DoubleBuffer)
     {
-		if ( !this->WindowId )
-		{
-			vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-			return (void*) NULL;
-		}
+    if ( !this->WindowId )
+      {
+      vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+      return (void*) NULL;
+      }
     if (!this->Drawable)
       {
       this->Drawable = XCreatePixmap(this->DisplayId, this->WindowId, 
@@ -412,11 +412,11 @@ void vtkXImageWindow::SetWindowName(char* name)
       vtkWarningMacro(<< "Can't rename window"); 
       return;
       }
- 		if ( !this->WindowId )
-		{
-			vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-			return;
-		}
+    if ( !this->WindowId )
+      {
+      vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+      return;
+      }
    
     XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
     XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
@@ -446,11 +446,11 @@ void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
   unsigned short green = 0;
   unsigned short blue = 0;
 
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return;
+    }
 	
   // Get color masks from visual
   windowID = (Window) this->GetGenericWindowId();
@@ -643,11 +643,11 @@ void vtkXImageWindow::SetPosition(int x, int y)
     return;
     }
 	
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return;
+    }
 
   // This is different from vtkXRenderWindow which calls XMoveResizeWindow.
   // XMoveResizeWindow cannot be called here beacuse, this->Size[] may be zero.
@@ -673,11 +673,11 @@ void vtkXImageWindow::SetSize(int x, int y)
     return;
     }
 
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return;
+    }
 
    // Make the X window call 
    XResizeWindow(this->DisplayId, this->WindowId, this->Size[0], this->Size[1]);
@@ -704,11 +704,11 @@ int* vtkXImageWindow::GetSize()
     return(this->Size);
     }
 		
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return(this->Size);
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return(this->Size);
+    }
 
   //  Find the current window size 
   XFlush(this->DisplayId);
@@ -740,11 +740,6 @@ void vtkXImageWindow::MakeDefaultWindow()
 
   vtkDebugMacro (<< "vtkXImageWindow::MakeDefaultWindow" ); 
   
-  if ( ! this->WindowId )
-    {
-    vtkErrorMacro (<< "Window Id must be NULL");
-    return;
-    }
   strcpy(name,"vtk - X Viewer Window");
 
   // make sure we have a connection to the X server.
@@ -1114,11 +1109,11 @@ void vtkXImageWindow::AllocateDirectColorMap()
   Colormap newMap;
   
 //  vtkDebugMacro(<< "vtkXImageWindow::AllocateDirectColorMap\n"); 
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return;
-	}
+  if ( !this->WindowId )
+    {
+    vtkErrorMacro ( << "Attempt to use NULL WindowId" );
+    return;
+    }
 
   this->Offset = 100;
 
