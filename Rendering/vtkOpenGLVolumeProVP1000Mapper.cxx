@@ -17,15 +17,18 @@
 =========================================================================*/
 
 #include "vtkOpenGLVolumeProVP1000Mapper.h"
-#include "vtkTransform.h"
-#include "vtkRenderer.h"
-#include "vtkVolume.h"
-#include <GL/gl.h>
-#include "vtkObjectFactory.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.10");
+#include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
+#include "vtkVolume.h"
+
+#include <GL/gl.h>
+
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.11");
 vtkStandardNewMacro(vtkOpenGLVolumeProVP1000Mapper);
 
 void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,

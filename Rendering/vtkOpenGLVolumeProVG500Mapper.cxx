@@ -17,13 +17,16 @@
 =========================================================================*/
 
 #include "vtkOpenGLVolumeProVG500Mapper.h"
-#include "vtkTransform.h"
-#include "vtkRenderer.h"
-#include "vtkVolume.h"
-#include <GL/gl.h>
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVG500Mapper, "1.17");
+#include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
+#include "vtkVolume.h"
+
+#include <GL/gl.h>
+
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVG500Mapper, "1.18");
 vtkStandardNewMacro(vtkOpenGLVolumeProVG500Mapper);
 
 void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,

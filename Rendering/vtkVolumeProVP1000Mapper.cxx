@@ -16,19 +16,22 @@
 
 =========================================================================*/
 #include "vtkVolumeProVP1000Mapper.h"
+
+#include "vtkCamera.h"
+#include "vtkDebugLeaks.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkLight.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLVolumeProVP1000Mapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkVolume.h"
-#include "vtkObjectFactory.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
-#include "vtkDebugLeaks.h"
+#include "vtkVolume.h"
 
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.15");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.16");
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
