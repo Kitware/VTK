@@ -122,7 +122,6 @@ void vtkImageGaussianSmooth::ComputeKernel(float std, float factor)
 //----------------------------------------------------------------------------
 void vtkImageGaussianSmooth::ExecuteImageInformation()
 {
-  this->Output->SetScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
@@ -163,13 +162,13 @@ static void
 vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 		      float *kernel, int kernelSize,
 		      vtkImageData *inData, T *inPtrC,
-		      vtkImageData *outData, int outExt[6], float *outPtrC)
+		      vtkImageData *outData, int outExt[6], T *outPtrC)
 {
   int maxC, max0, max1;
   int idxC, idx0, idx1, idxK;
   int *inIncs, *outIncs;
   int inInc0, inInc1, inIncK, outInc0, outInc1;
-  float *outPtr1, *outPtr0;
+  T *outPtr1, *outPtr0;
   T *inPtr1, *inPtr0, *inPtrK;
   float *ptrK, sum;
   
@@ -224,7 +223,7 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 	  ++ptrK;
 	  inPtrK += inIncK;
 	  }
-	*outPtr0 = sum;
+	*outPtr0 = (T)(sum);
 	inPtr0 += inInc0;
 	outPtr0 += outInc0;
 	}
@@ -250,7 +249,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   float *kernel, sum;
   int kernelSize, kernelLeftClip, kernelRightClip;
   void *inPtr;
-  float *outPtr;
+  void *outPtr;
   int coords[3], *outIncs, outIncA;
 
   // Compute the correct kernel for this axis (also set Radius)
@@ -258,9 +257,32 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 		      this->RadiusFactors[axis]);
   
   // Get the correct starting pointer of the output
-  outPtr = (float *)outData->GetScalarPointerForExtent(outExt);
+  outPtr = outData->GetScalarPointerForExtent(outExt);
   outIncs = outData->GetIncrements();
   outIncA = outIncs[axis];
+  
+  // trick to account for the scalar type of the output (used to be only float)
+  switch (outData->GetScalarType())
+    {
+    case VTK_FLOAT:
+      outIncA *= sizeof(float);
+      break;
+    case VTK_INT:
+      outIncA *= sizeof(int);
+      break;
+    case VTK_SHORT:
+      outIncA *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      outIncA *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      outIncA *= sizeof(unsigned char);
+      break;
+    default:
+      vtkErrorMacro("Unknown scalar type");
+      return;
+    }
 
   // Determine default starting position of input
   coords[0] = inExt[0];
@@ -274,7 +296,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 
   // loop over the convolution axis
   max = outExt[axis*2+1];
-  for (idxA = outExt[axis*2]; idxA <= max; ++idxA, outPtr += outIncA)
+  for (idxA = outExt[axis*2]; idxA <= max; ++idxA)
     {
     // left boundary condition
     coords[axis] = idxA - this->Radius;
@@ -325,32 +347,33 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       case VTK_FLOAT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
 				      inData, (float *)(inPtr),
-				      outData, outExt, outPtr);
+				      outData, outExt, (float *)(outPtr));
 	break;
       case VTK_INT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
 				      inData, (int *)(inPtr),
-				      outData, outExt, outPtr);
+				      outData, outExt, (int *)(outPtr));
 	break;
       case VTK_SHORT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
 				      inData, (short *)(inPtr),
-				      outData, outExt, outPtr);
+				      outData, outExt, (short *)(outPtr));
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (unsigned short *)(inPtr),
-				      outData, outExt, outPtr);
+			      inData, (unsigned short *)(inPtr),
+			      outData, outExt, (unsigned short *)(outPtr));
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (unsigned char *)(inPtr),
-				      outData, outExt, outPtr);
+			      inData, (unsigned char *)(inPtr),
+			      outData, outExt, (unsigned char *)(outPtr));
 	break;
       default:
 	vtkErrorMacro("Unknown scalar type");
 	return;
       }
+    outPtr = (void *)((unsigned char *)outPtr + outIncA);
     }
 }
 
@@ -368,11 +391,11 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
   
   id = id;
   
-  // this filter expects the output to be type float
-  if (outData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro("Execute: output ScalarType, " 
-		  << outData->GetScalarType() << ", must be float");
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+              << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
 
@@ -394,7 +417,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
       tempData = vtkImageData::New();
       tempData->SetExtent(tempExt);
       tempData->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
-      tempData->SetScalarType(VTK_FLOAT);
+      tempData->SetScalarType(inData->GetScalarType());
       ExecuteAxis(1, inData, inExt, tempData, tempExt);
       ExecuteAxis(0, tempData, tempExt, outData, outExt);
       // release temporary data
@@ -418,12 +441,12 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
       temp0Data = vtkImageData::New();
       temp0Data->SetExtent(temp0Ext);
       temp0Data->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
-      temp0Data->SetScalarType(VTK_FLOAT);
+      temp0Data->SetScalarType(inData->GetScalarType());
 
       temp1Data = vtkImageData::New();
       temp1Data->SetExtent(temp1Ext);
       temp1Data->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
-      temp1Data->SetScalarType(VTK_FLOAT);
+      temp1Data->SetScalarType(inData->GetScalarType());
       ExecuteAxis(2, inData, inExt, temp0Data, temp0Ext);
       ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext);
       temp0Data->Delete();
