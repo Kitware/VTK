@@ -75,7 +75,7 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}
 
 .java.class:
-	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
+	${JAVAC} -d ${JAVA_CLASS_HOME} -classpath ${JAVA_CLASS_HOME} $< 
 
 libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP}
 	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)
