@@ -69,6 +69,7 @@ using std::fstream;
 #  include "vtkWinCE.h"   // Include mini-streams for Windows CE.
 # else
 #  include <iostream.h>   // Include old-style istream and ostream.
+#  include <iomanip.h>
 #  if defined(_MSC_VER)
 #   include <strstrea.h>  // Include old-style strstream from MSVC.
 #  else
