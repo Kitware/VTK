@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.68");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.69");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -45,54 +45,60 @@ vtkDataSetReader::~vtkDataSetReader()
 {
 }
 
-vtkDataSet * vtkDataSetReader::GetOutput() 
+int vtkDataSetReader::RequestDataObject(
+  vtkInformation *,
+  vtkInformationVector** vtkNotUsed(inputVector) , 
+  vtkInformationVector* outputVector)
 {
   if (this->GetFileName() == NULL &&
       (this->GetReadFromInputString() == 0 ||
        (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
     {
     vtkWarningMacro(<< "FileName must be set");
-    return (vtkDataSet *) NULL;
+    return 0;
     }
 
-  vtkDataObject *output = this->GetOutputDataObject(0);
   int outputType = this->ReadOutputType();
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+
   if (output && (output->GetDataObjectType() == outputType))
     {
-    return vtkDataSet::SafeDownCast(output);
+    return 1;
     }
 
-  switch (outputType)
+  if (!output || output->GetDataObjectType() != outputType) 
     {
-    case VTK_POLY_DATA:
-      output = vtkPolyData::New();
-      this->GetExecutive()->SetOutputData(0, output);
-      output->Delete();
-      break;
-    case VTK_STRUCTURED_POINTS:
-      output = vtkStructuredPoints::New();
-      output->Delete();
-      break;
-    case VTK_STRUCTURED_GRID:
-      output = vtkStructuredGrid::New();
-      this->GetExecutive()->SetOutputData(0, output);
-      output->Delete();
-      break;
-    case VTK_RECTILINEAR_GRID:
-      output = vtkRectilinearGrid::New();
-      this->GetExecutive()->SetOutputData(0, output);
-      output->Delete();
-      break;
-    case VTK_UNSTRUCTURED_GRID:
-      output = vtkUnstructuredGrid::New();
-      this->GetExecutive()->SetOutputData(0, output);
-      output->Delete();
-      break;
-    default:
-      return NULL;
+    switch (outputType)
+      {
+      case VTK_POLY_DATA:
+        output = vtkPolyData::New();
+        break;
+      case VTK_STRUCTURED_POINTS:
+        output = vtkStructuredPoints::New();
+        break;
+      case VTK_STRUCTURED_GRID:
+        output = vtkStructuredGrid::New();
+        break;
+      case VTK_RECTILINEAR_GRID:
+        output = vtkRectilinearGrid::New();
+        break;
+      case VTK_UNSTRUCTURED_GRID:
+        output = vtkUnstructuredGrid::New();
+        break;
+      default:
+        return 0;
+      }
+    
+    this->GetExecutive()->SetOutputData(0, output);
+    output->Delete();
+    this->GetOutputPortInformation(0)->Set(
+      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
     }
 
-  return this->GetOutput(0);
+  return 1;
 }
 
 int vtkDataSetReader::RequestInformation(
@@ -450,15 +456,6 @@ vtkRectilinearGrid *vtkDataSetReader::GetRectilinearGridOutput()
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
-//----------------------------------------------------------------------------
-void vtkDataSetReader::Update()
-{
-  if (this->GetOutput())
-    {
-    this->GetOutput()->Update();
-    }
-}
-
 void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -469,8 +466,25 @@ vtkDataSet *vtkDataSetReader::GetOutput(int idx)
   return vtkDataSet::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
+vtkDataSet *vtkDataSetReader::GetOutput()
+{
+  return vtkDataSet::SafeDownCast(this->GetOutputDataObject(0));
+}
+
 int vtkDataSetReader::FillOutputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
+}
+
+int vtkDataSetReader::ProcessRequest(vtkInformation* request,
+                                     vtkInformationVector** inputVector,
+                                     vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

@@ -48,9 +48,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the output of this source as a general vtkDataSet. Since we need 
-  // to know the type of the data, the FileName must be set before GetOutput 
-  // is applied.
+  // Get the output of this filter
   vtkDataSet *GetOutput();
   vtkDataSet *GetOutput(int idx);
 
@@ -67,10 +65,6 @@ public:
   vtkRectilinearGrid *GetRectilinearGridOutput();
 
   // Description:
-  // If there is no output, execute anyway.  Execute creates an output.
-  void Update();
-  
-  // Description:
   // This method can be used to find out the type of output expected without
   // needing to read the whole file.
   virtual int ReadOutputType();
@@ -79,8 +73,12 @@ protected:
   vtkDataSetReader();
   ~vtkDataSetReader();
 
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
+                                vtkInformationVector *);
   virtual int FillOutputPortInformation(int, vtkInformation *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
