@@ -817,4 +817,8 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Result Array Name: "
      << (this->ResultArrayName ? this->ResultArrayName : "(none)") << endl;
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Number Of Scalar Arrays: " << this->NumberOfScalarArrays
+     << endl;
+  os << indent << "Number Of Vector Arrays: " << this->NumberOfVectorArrays
+     << endl;
 }
