@@ -60,6 +60,7 @@ vtkGenericAttributeCollection.cxx
 vtkGenericCell.cxx
 vtkGenericCellIterator.cxx
 vtkGenericCellTessellator.cxx
+vtkSimpleCellTessellator.cxx
 vtkGenericDataSet.cxx
 vtkGenericDataSetSource.cxx
 vtkGenericDataSetToPolyDataFilter.cxx
@@ -211,6 +212,7 @@ vtkExplicitCell
 vtkGenericAdaptorCell
 vtkGenericAttribute
 vtkGenericCellIterator
+vtkGenericCellTessellator
 vtkGenericDataSet
 vtkGenericDataSetSource
 vtkGenericDataSetToUnstructuredGridFilter
