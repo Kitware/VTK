@@ -1,14 +1,13 @@
 set NAME skin
-set SLICE_ORDER si
+set SLICE_ORDER is
 set ROWS 470
 set COLUMNS 500
-set STUDY ../../data/frog/frog
+set STUDY ../slices/frog
 set PIXEL_SIZE 1
 set SPACING 1.5
 set START_SLICE 1
 set END_SLICE 138
-set ZMAX [expr $END_SLICE - $START_SLICE]
-set VOI "0 499 0 469 0 $ZMAX"
+set VOI "0 499 0 469 $START_SLICE $END_SLICE"
 set VALUE 10.5
 set SAMPLE_RATE "2 2 1"
 set DECIMATE_REDUCTION .95

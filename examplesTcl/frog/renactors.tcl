@@ -3,8 +3,8 @@
 #
 
 # get the interactor ui
-source ../vtkInt.tcl
-source ../colors.tcl
+source vtkInt.tcl
+source colors.tcl
 
 proc mkname {a b} {return $a$b}
 
@@ -21,7 +21,7 @@ proc MakeActor { name r g b} {
         $mapper SetInput [$reader GetOutput]
         $mapper ScalarVisibilityOff
     set actor [ eval mkname $name Actor]
-    vtkLODActor $actor
+    vtkActor $actor
         $actor SetMapper $mapper
         eval [$actor GetProperty] SetDiffuseColor $r $g $b
         eval [$actor GetProperty] SetSpecularPower 50
@@ -48,7 +48,7 @@ proc MakeConnectedActor { name r g b} {
         $mapper SetInput [$connect GetOutput]
         $mapper ScalarVisibilityOff
     set actor [ eval mkname $name Actor]
-    vtkLODActor $actor
+    vtkActor $actor
         $actor SetMapper $mapper
         eval [$actor GetProperty] SetDiffuseColor $r $g $b
         eval [$actor GetProperty] SetSpecularPower 50
@@ -74,7 +74,7 @@ ren1 AddActor [eval MakeActor heart $tomato]
 ren1 AddActor [eval MakeActor liver $pink]
 ren1 AddActor [eval MakeActor duodenum $orange]
 ren1 AddActor [eval MakeActor blood $salmon]
-ren1 AddActor [eval MakeActor brainbin $beige]
+ren1 AddActor [eval MakeActor brain $beige]
 ren1 AddActor [eval MakeActor eye_retna $misty_rose]
 ren1 AddActor [eval MakeActor eye_white $white]
 ren1 AddActor [eval MakeActor ileum $raspberry]
@@ -84,14 +84,14 @@ ren1 AddActor [eval MakeActor nerve $carrot]
 ren1 AddActor [eval MakeActor spleen $violet]
 ren1 AddActor [eval MakeActor stomach $plum]
 ren1 AddActor [eval MakeActor skeleton $wheat]
-ren1 AddActor [eval MakeActor skin $lime_green]
-[skinActor GetProperty] SetOpacity .4
+#ren1 AddActor [eval MakeActor skin $lime_green]
+#[skinActor GetProperty] SetOpacity .4
 
 ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 450 450
 [ren1 GetActiveCamera] SetViewUp 0 -1 0
-[ren1 GetActiveCamera] Azimuth 230
-[ren1 GetActiveCamera] Elevation 30
+[ren1 GetActiveCamera] Azimuth 0
+[ren1 GetActiveCamera] Elevation 0
 [ren1 GetActiveCamera] Dolly 1.75
 iren Initialize
 

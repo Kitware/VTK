@@ -1,6 +1,7 @@
 # Generate triangle files for medical images
 
-source permutes.tcl
+source SliceOrder.tcl
+
 # reader reads slices
 
 set OK 1
@@ -47,13 +48,16 @@ if {[info exists DECIMATE_ERROR_INCREMENT] == 0} {set DECIMATE_ERROR_INCREMENT .
 if {[info exists ISLAND_AREA] == 0} {set ISLAND_AREA 4}
 if {[info exists ISLAND_REPLACE] == 0} {set ISLAND_REPLACE -1}
 if {[info exists SMOOTH_FACTOR] == 0} {set SMOOTH_FACTOR .01}
-if {[info exists GAUSSIAN_STANDARD_DEVIATION] == 0} {set GAUSSIAN_STANDARD_DEVIATION "1 1 1"}
+if {[info exists GAUSSIAN_STANDARD_DEVIATION] == 0} {set GAUSSIAN_STANDARD_DEVIATION "2 2 2"}
+if {[info exists GAUSSIAN_RADIUS_FACTORS] == 0} {set GAUSSIAN_RADIUS_FACTORS "1 1 1"}
 if {[info exists VOI] == 0} {
     set VOI "0 [expr $COLUMNS - 1] 0 [expr $ROWS - 1] 0 $ZMAX]"
 }
 if {[info exists SAMPLE_RATE] == 0} {set SAMPLE_RATE "1 1 1"}
 
 
+#
+# 
 set originx [expr ( $COLUMNS / 2.0 ) * $PIXEL_SIZE * -1.0]
 set originy [expr ( $ROWS / 2.0 ) * $PIXEL_SIZE * -1.0]
 set minx [lindex $VOI 0]
@@ -73,18 +77,11 @@ vtkPNMReader reader;
     reader SetFilePrefix $STUDY
     reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
     reader SetDataOrigin $originx $originy [expr $START_SLICE * $SPACING]
-    reader SetImageRange $START_SLICE $END_SLICE
+    eval reader SetDataVOI $minx $maxx $miny $maxy $minz $maxz
+    reader SetTransform $SLICE_ORDER
     [reader GetOutput] ReleaseDataFlagOn
 
-vtkExtractVOI extractor
-    extractor SetInput [reader GetOutput]
-    eval extractor SetVOI $minx $maxx $miny $maxy $minz $maxz
-
-vtkStructuredPointsToImage toImage
-    toImage SetInput [extractor GetOutput]
-    toImage SetOutputScalarTypeToFloat
-
-set lastConnection toImage
+set lastConnection reader
 if {$ISLAND_REPLACE >= 0} {
   vtkImageIslandRemoval2D islandRemover
       islandRemover SetAreaThreshold $ISLAND_AREA
@@ -96,7 +93,7 @@ if {$ISLAND_REPLACE >= 0} {
 
 vtkImageThreshold selectTissue
     selectTissue ThresholdBetween $TISSUE $TISSUE
-    selectTissue SetInValue 1024
+    selectTissue SetInValue 255
     selectTissue SetOutValue 0
     selectTissue SetInput [$lastConnection GetOutput]
 
@@ -108,13 +105,11 @@ eval shrinker SetShrinkFactors $SAMPLE_RATE
 set lastConnection shrinker
 if {$GAUSSIAN_STANDARD_DEVIATION != "0 0 0"} {
   vtkImageGaussianSmooth gaussian
-      gaussian SetDimensionality 3
       eval gaussian SetStandardDeviations $GAUSSIAN_STANDARD_DEVIATION
-      gaussian SetRadiusFactors 1 1 1
+      eval gaussian SetRadiusFactors $GAUSSIAN_RADIUS_FACTORS
       gaussian SetInput [shrinker GetOutput]
       set lastConnection gaussian
 }
-
 vtkImageToStructuredPoints toStructuredPoints
     toStructuredPoints SetInput [$lastConnection GetOutput]
     [toStructuredPoints GetOutput] ReleaseDataFlagOn
@@ -149,17 +144,9 @@ vtkSmoothPolyDataFilter smoother
     smoother SetConvergence 0
     [smoother GetOutput] ReleaseDataFlagOn
 
-vtkTransformPolyDataFilter transformer
-    eval transformer SetTransform $SLICE_ORDER
-    transformer SetInput [smoother GetOutput]
-    [transformer GetOutput] ReleaseDataFlagOn
-
 vtkPolyDataNormals normals
-    normals SetInput [transformer GetOutput]
+    normals SetInput [smoother GetOutput]
     eval normals SetFeatureAngle $FEATURE_ANGLE
-    if { $SLICE_ORDER == "si" || $SLICE_ORDER == "pa" || $SLICE_ORDER == "rl" } {
-        normals FlipNormalsOn
-    }
     [normals GetOutput] ReleaseDataFlagOn
 
 vtkStripper stripper
@@ -169,12 +156,10 @@ vtkStripper stripper
 vtkPolyDataWriter writer
     writer SetInput [stripper GetOutput]
     eval writer SetFileName $NAME.vtk
-    writer SetFileTypeToASCII
+    writer SetFileType 2
 
 proc readerStart {} {global NAME; puts -nonewline "$NAME read took:\t"; flush stdout};
 reader SetStartMethod readerStart
-proc extractorStart {} {global NAME; puts -nonewline "$NAME extractor took:\t"; flush stdout};
-extractor SetStartMethod extractorStart
 proc toStructuredPointsStart {} {global NAME; puts -nonewline "$NAME toStructuredPoints took\t"; flush stdout};
 toStructuredPoints SetStartMethod toStructuredPointsStart
 proc mcubesStart {} {global NAME; puts -nonewline "$NAME mcubes generated\t"; flush stdout};
@@ -200,19 +185,15 @@ smoother SetStartMethod smootherStart
 proc normalsStart {} {global NAME; puts -nonewline "$NAME normals took:\t"; flush stdout};
 normals SetStartMethod normalsStart
 proc writerStart {} {global NAME; puts -nonewline "$NAME writer took:\t"; flush stdout};
-transformer SetStartMethod transformerStart
-proc transformerStart {} {global NAME; puts -nonewline "$NAME transformer took:\t"; flush stdout};
 stripper SetStartMethod stripperStart
 proc stripperStart {} {global NAME; puts -nonewline "$NAME stripper took:\t"; flush stdout};
 
 puts "[expr [lindex [time {reader Update;} 1] 0] / 1000000.0] seconds"
-puts "[expr [lindex [time {extractor Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {toStructuredPoints Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {mcubes Update;} 1] 0] / 1000000.0] seconds"
 #puts "[expr [lindex [time {cleaner Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {decimator Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {smoother Update;} 1] 0] / 1000000.0] seconds"
-puts "[expr [lindex [time {transformer Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {normals Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {stripper Update;} 1] 0] / 1000000.0] seconds"
 writerStart

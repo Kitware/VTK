@@ -4,7 +4,6 @@ set NAME blood
 set TISSUE 1
 set START_SLICE 14
 set END_SLICE 131
-set ZMAX [expr $END_SLICE - $START_SLICE]
-set VOI "33 406 62 425 0 $ZMAX"
+set VOI "33 406 62 425 $START_SLICE $END_SLICE"
 
 source segmented8.tcl

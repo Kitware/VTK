@@ -4,7 +4,6 @@ set NAME l_intestine
 set TISSUE 9
 set START_SLICE 56
 set END_SLICE 106
-set ZMAX [expr $END_SLICE - $START_SLICE]
-set VOI "115 224 209 284 0 $ZMAX"
+set VOI "115 224 209 284 $START_SLICE $END_SLICE"
 
 source segmented8.tcl

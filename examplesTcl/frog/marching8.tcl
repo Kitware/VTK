@@ -1,7 +1,6 @@
-catch {load vtktcl}
 # Generate triangle files for medical images
 
-source permutes.tcl
+source SliceOrder.tcl
 # reader reads slices
 
 set OK 1
@@ -68,20 +67,13 @@ set maxy [expr $ROWS - $tmp -1]
 vtkPNMReader reader;
     reader SetFilePrefix $STUDY
     reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
+    eval reader SetDataVOI $minx $maxx $miny $maxy $minz $maxz
     reader SetDataOrigin $originx $originy [expr $START_SLICE * $SPACING]
-    reader SetImageRange $START_SLICE $END_SLICE
+    reader SetTransform $SLICE_ORDER
     [reader GetOutput] ReleaseDataFlagOn
 
-vtkExtractVOI extractor
-    extractor SetInput [reader GetOutput]
-    eval extractor SetVOI $minx $maxx $miny $maxy $minz $maxz
-
-vtkStructuredPointsToImage toImage
-    toImage SetInput [extractor GetOutput]
-    toImage SetOutputScalarTypeToFloat
-
 vtkImageShrink3D shrinker
-     shrinker SetInput [toImage GetOutput]
+     shrinker SetInput [reader GetOutput]
 eval shrinker SetShrinkFactors $SAMPLE_RATE
      shrinker AveragingOn
 
@@ -124,17 +116,9 @@ vtkSmoothPolyDataFilter smoother
     smoother SetConvergence 0
     [smoother GetOutput] ReleaseDataFlagOn
 
-vtkTransformPolyDataFilter transformer
-    eval transformer SetTransform $SLICE_ORDER
-    transformer SetInput [smoother GetOutput]
-    [transformer GetOutput] ReleaseDataFlagOn
-
 vtkPolyDataNormals normals
-    normals SetInput [transformer GetOutput]
+    normals SetInput [smoother GetOutput]
     eval normals SetFeatureAngle $FEATURE_ANGLE
-    if { $SLICE_ORDER == "si" || $SLICE_ORDER == "pa" || $SLICE_ORDER == "rl" } {
-        normals FlipNormalsOn
-    }
     [normals GetOutput] ReleaseDataFlagOn
 
 vtkStripper stripper
@@ -148,8 +132,6 @@ vtkPolyDataWriter writer
 
 proc readerStart {} {global NAME; puts -nonewline "$NAME read took:\t"; flush stdout};
 reader SetStartMethod readerStart
-proc extractorStart {} {global NAME; puts -nonewline "$NAME extractor took:\t"; flush stdout};
-extractor SetStartMethod extractorStart
 proc toStructuredPointsStart {} {global NAME; puts -nonewline "$NAME toStructuredPoints took\t"; flush stdout};
 toStructuredPoints SetStartMethod toStructuredPointsStart
 proc mcubesStart {} {global NAME; puts -nonewline "$NAME mcubes generated\t"; flush stdout};
@@ -175,19 +157,14 @@ smoother SetStartMethod smootherStart
 proc normalsStart {} {global NAME; puts -nonewline "$NAME normals took:\t"; flush stdout};
 normals SetStartMethod normalsStart
 proc writerStart {} {global NAME; puts -nonewline "$NAME writer took:\t"; flush stdout};
-transformer SetStartMethod transformerStart
-proc transformerStart {} {global NAME; puts -nonewline "$NAME transformer took:\t"; flush stdout};
 stripper SetStartMethod stripperStart
 proc stripperStart {} {global NAME; puts -nonewline "$NAME stripper took:\t"; flush stdout};
 
 puts "[expr [lindex [time {reader Update;} 1] 0] / 1000000.0] seconds"
-puts "[expr [lindex [time {extractor Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {toStructuredPoints Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {mcubes Update;} 1] 0] / 1000000.0] seconds"
-#puts "[expr [lindex [time {cleaner Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {decimator Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {smoother Update;} 1] 0] / 1000000.0] seconds"
-puts "[expr [lindex [time {transformer Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {normals Update;} 1] 0] / 1000000.0] seconds"
 puts "[expr [lindex [time {stripper Update;} 1] 0] / 1000000.0] seconds"
 writerStart

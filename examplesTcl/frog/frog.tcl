@@ -1,11 +1,12 @@
-set SLICE_ORDER si
+set SLICE_ORDER hfsi
 set ROWS 470
 set COLUMNS 500
-set STUDY ../../../vtkdata/frog/frogTissue
+set STUDY ../frogMasks/frogTissue
 set PIXEL_SIZE 1
 set SPACING 1.5
-set VALUE 511.5
+set VALUE 127.5
 set SAMPLE_RATE "1 1 1"
+set GAUSSIAN_STANDARD_DEVIATION "2 2 2"
 set DECIMATE_REDUCTION .95
 set DECIMATE_ITERATIONS 5
 set DECIMATE_ERROR .0002

@@ -34,12 +34,12 @@ set endY [expr ( $ROWS - 1 ) ]
 set endZ [expr ( $END_SLICE - 1 ) ]
 set originX [expr ( $COLUMNS / 2.0 ) * $PIXEL_SIZE * -1.0]
 set originY [expr ( $ROWS / 2.0 ) * $PIXEL_SIZE * -1.0]
-set SLICE_ORDER si
+set SLICE_ORDER is
 
 vtkPNMReader greyReader
   eval greyReader SetFilePrefix $GREYSTUDY
   eval greyReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
-  eval greyReader SetImageRange $sliceNumber $sliceNumber
+  eval greyReader SetDataVOI 0 $endX 0 $endY $sliceNumber $sliceNumber
   greyReader DebugOn
 
 vtkImageConstantPad greyPadder
@@ -80,8 +80,9 @@ vtkActor greyActor
 vtkPNMReader segmentReader
   eval segmentReader SetFilePrefix $SEGMENTSTUDY
   eval segmentReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
-  eval segmentReader SetImageRange $sliceNumber $sliceNumber
+eval segmentReader SetDataVOI 0 $endX 0 $endY $sliceNumber $sliceNumber
   segmentReader DebugOn
+
 
 vtkImageConstantPad segmentPadder
   segmentPadder SetInput [segmentReader GetOutput]
