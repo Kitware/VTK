@@ -26,7 +26,7 @@
 #include "vtkImageProgressIterator.h"
 #include "vtkImageData.h"
 
-template<typename T>
+template<class T>
 int DoTest(T*)
 {
   int ext[6] = { 0, 0, 0, 0, 0, 0 };
