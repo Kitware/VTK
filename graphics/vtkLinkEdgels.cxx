@@ -108,7 +108,7 @@ void vtkLinkEdgels::Execute()
   vtkFloatScalars *outScalars;
   vtkFloatVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
-  int sliceNum;
+  int sliceNum, sliceMin, sliceMax;
   
   // error checking
   if ( this->Input == NULL )
@@ -158,12 +158,20 @@ void vtkLinkEdgels::Execute()
   //
   // for each slice link edgels
   //
-  for (sliceNum = regionBounds[6]; sliceNum <= regionBounds[7]; sliceNum++)
+  sliceMin = regionBounds[6];
+  sliceMax = regionBounds[7];
+  for (sliceNum = sliceMin; sliceNum <= sliceMax; sliceNum++)
     {
-    region->SetDefaultCoordinate3(sliceNum);
-    
+    // Set bounds to be just one slice.
+    regionBounds[6] = regionBounds[7] = sliceNum;
+    region->SetBounds(regionBounds);
     this->LinkEdgels(region, newLines,newPts,outScalars,outVectors, sliceNum);
     }
+  // restore original bounds.
+  regionBounds[6] = sliceMin;
+  regionBounds[7] = sliceMax;
+  region->SetBounds(regionBounds);
+  
   
   output->SetPoints(newPts);
   output->SetLines(newLines);
