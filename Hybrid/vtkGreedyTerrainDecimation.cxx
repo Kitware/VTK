@@ -36,7 +36,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.9");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.10");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -735,35 +735,36 @@ void vtkGreedyTerrainDecimation::Execute()
   triangles->Delete();
 }
 
-
-// "Scan conversion" routines to update all points lying in a triangle.
-//
-// Divide a triangle into two subtriangles as shown.
-//     
-//                     o  max
-//                    / \
-//                    |   \
-//                   /      \
-//                   |        \
-//             midL o..........o  midR
-//                  |        _/
-//                  /      _/
-//                 |     _/
-//                 /   _/
-//                |  _/
-//                /_/
-//               o    min
-//
-// This way we can scan the two subtriangles independently without worrying about
-// the transistion in interpolation that occurs at the vertices.
-//
-// A triangle may be characterized in one of four ways:
-//   VTK_TWO_TRIANGLES: We can create a two triangle representation
-//   VTK_BOTTOM_TRIANGLE: We should only scan the lower triangle
-//   VTK_TOP_TRIANGLE: We should only scan the upper triangle
-//   VTK_DEGENERATE: The points are colinear (not scan converted)
-//
-// Configuration of the two triangles
+/*----------------------------------------------------------------------
+  "Scan conversion" routines to update all points lying in a triangle.
+ 
+  Divide a triangle into two subtriangles as shown.
+      
+                      o  max
+                     / \
+                     |   \
+                    /      \
+                    |        \
+              midL o..........o  midR
+                   |        _/
+                   /      _/
+                  |     _/
+                  /   _/
+                 |  _/
+                 /_/
+                o    min
+ 
+  This way we can scan the two subtriangles independently without worrying about
+  the transistion in interpolation that occurs at the vertices.
+ 
+  A triangle may be characterized in one of four ways:
+    VTK_TWO_TRIANGLES: We can create a two triangle representation
+    VTK_BOTTOM_TRIANGLE: We should only scan the lower triangle
+    VTK_TOP_TRIANGLE: We should only scan the upper triangle
+    VTK_DEGENERATE: The points are colinear (not scan converted)
+ 
+  Configuration of the two triangles
+  --------------------------------------------------------------------------*/
 #define VTK_TWO_TRIANGLES   0 //most often
 #define VTK_BOTTOM_TRIANGLE 1
 #define VTK_TOP_TRIANGLE    2
@@ -834,8 +835,8 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
         {
         idx = j*this->Dimensions[0];
         t = (double)(j - midL[1]) / (max[1] - midL[1]);
-        xL = t*max[0] + (1.0-t)*midL[0];
-        xR = t*max[0] + (1.0-t)*midR[0];
+        xL = (int) (t*max[0] + (1.0-t)*midL[0]);
+        xR = (int) (t*max[0] + (1.0-t)*midR[0]);
         hL = t*hMax + (1.0-t)*hMidL;
         hR = t*hMax + (1.0-t)*hMidR;
         for (i=xL; i<=xR; i++)
@@ -1059,7 +1060,7 @@ int vtkGreedyTerrainDecimation::CharacterizeTriangle(int ij1[2], int ij2[2], int
   //
   mid2[1] = mid[1];
   double t = (double) (mid2[1] - min[1]) / (max[1] - min[1]);
-  mid2[0] = (1.0-t)*min[0] + t*max[0] + 0.5; //rounding
+  mid2[0] = (int) ((1.0-t)*min[0] + t*max[0] + 0.5); //rounding
   hMid2 = (1.0-t)*hMin + t*hMax;
 
   if ( mid[0] < mid2[0] )

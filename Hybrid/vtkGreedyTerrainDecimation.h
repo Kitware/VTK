@@ -191,7 +191,7 @@ protected:
   void GetTerrainPoint(int i, int j, double x[3]);
   void ComputeImageCoordinates(vtkIdType inputPtId, int ij[2]);
   int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
-  int FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
+  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
                          double tol, vtkIdType nei[3], vtkIdList *neighbors, int& status);
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
                  vtkIdType tri);
