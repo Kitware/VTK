@@ -66,7 +66,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->UseCircleClip              = 0;
   this->LastUpdateTimeInSeconds    = -1.0;
   this->LastUpdateTimeInCPUSeconds = -1.0;
-  this->ZeroNormalTolerance        = 0.0;
+  this->ZeroNormalThreshold        = 0.0;
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
@@ -97,17 +97,17 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
     }
 }
 
-void vtkEncodedGradientEstimator::SetZeroNormalTolerance( float v )
+void vtkEncodedGradientEstimator::SetZeroNormalThreshold( float v )
 {
-  if ( this->ZeroNormalTolerance != v )
+  if ( this->ZeroNormalThreshold != v )
     {
     if ( v < 0.0 )
       {
-      vtkErrorMacro( << "The ZeroNormalTolerance must be a value >= 0.0" );
+      vtkErrorMacro( << "The ZeroNormalThreshold must be a value >= 0.0" );
       return;
       }
 
-    this->ZeroNormalTolerance = v;
+    this->ZeroNormalThreshold = v;
     this->Modified();
     }
 }
@@ -321,6 +321,9 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Gradient Magnitude Bias: " 
      << this->GradientMagnitudeBias << endl;
 
+  os << indent << "Zero Normal Threshold: " 
+     << this->ZeroNormalThreshold << endl;
+    
   os << indent << "Compute Gradient Magnitudes: " 
      << ((this->ComputeGradientMagnitudes)?"On":"Off") << endl;
 
