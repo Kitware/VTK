@@ -90,5 +90,7 @@ renWin SetWindowName "Process $myProcId"
 
 wm withdraw .
 
-renWin Render
+if { $numProcs < 2 } {
+    renWin Render
+}
 
