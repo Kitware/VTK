@@ -270,7 +270,7 @@ static void vtkTkImageWindowWidget_EventProc(ClientData clientData,
         {
 	self->Width = Tk_Width(self->TkWin);
 	self->Height = Tk_Height(self->TkWin);
-        Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
+        //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
 	if (self->ImageWindow)
 	  {
           self->ImageWindow->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
@@ -440,11 +440,22 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     }
   else
     {
+    // is IW an address ? big ole python hack here
+    if (self->IW[0] == 'A' && self->IW[1] == 'd' && 
+	self->IW[2] == 'd' && self->IW[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->IW+5,"%p",&tmp);
+      ImageWindow = (vtkImageWindow *)tmp;
+      }
+    else
+      {
 #ifndef VTK_PYTHON_BUILD
-    ImageWindow = (vtkImageWindow *)
-      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
-				 new_flag);
+      ImageWindow = (vtkImageWindow *)
+	vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
+				   new_flag);
 #endif
+      }
     if (ImageWindow != self->ImageWindow)
       {
       if (self->ImageWindow != NULL)
@@ -605,11 +616,22 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     }
   else
     {
+    // is IW an address ? big ole python hack here
+    if (self->IW[0] == 'A' && self->IW[1] == 'd' && 
+	self->IW[2] == 'd' && self->IW[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->IW+5,"%p",&tmp);
+      ImageWindow = (vtkXImageWindow *)tmp;
+      }
+    else
+      {
 #ifndef VTK_PYTHON_BUILD
-    ImageWindow = (vtkXImageWindow *)
-      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
-				 new_flag);
+      ImageWindow = (vtkXImageWindow *)
+	vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
+				   new_flag);
 #endif
+      }
     if (ImageWindow != self->ImageWindow)
       {
       if (self->ImageWindow != NULL)
