@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "vtkParse.h"
 
@@ -56,7 +57,7 @@ void use_hints(FILE *fp)
   switch (currentFunction->ReturnType%1000)
     {
     case 301:
-      fprintf(fp,"      return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue(\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"f");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++) 
@@ -66,7 +67,7 @@ void use_hints(FILE *fp)
       fprintf(fp,");\n");
       break;
     case 307:  
-      fprintf(fp,"      return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue(\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"d");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++) 
@@ -76,7 +77,7 @@ void use_hints(FILE *fp)
       fprintf(fp,");\n");
       break;
     case 304: 
-      fprintf(fp,"      return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue(\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++) 
@@ -170,11 +171,6 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     {
     fprintf(fp,"  PyObject *tempH%d;\n",i);
     }
-
-  if ((i == MAX_ARGS) && ((aType%1000 == 309)||(aType%1000 == 109)))
-    {
-    fprintf(fp,"  PyObject *tempH;\n");
-    }
 }
 
 void do_return(FILE *fp)
@@ -183,28 +179,25 @@ void do_return(FILE *fp)
   if (((currentFunction->ReturnType % 10) == 2)&&
       (!((currentFunction->ReturnType%1000)/100)))
     {
-    fprintf(fp,"      Py_INCREF(Py_None);\n");
-    fprintf(fp,"      return Py_None;\n");
+    fprintf(fp,"    Py_INCREF(Py_None);\n");
+    fprintf(fp,"    return Py_None;\n");
     return;
     }
   
   switch (currentFunction->ReturnType%1000)
     {
     case 303:
-      fprintf(fp,"      if (temp%i == NULL) {\n",MAX_ARGS);
-      fprintf(fp,"        Py_INCREF(Py_None);\n");
-      fprintf(fp,"        return Py_None;\n        }\n");
-      fprintf(fp,"      return PyString_FromString(temp%i);\n",MAX_ARGS);
+      fprintf(fp,"    if (temp%i == NULL) {\n",MAX_ARGS);
+      fprintf(fp,"      Py_INCREF(Py_None);\n");
+      fprintf(fp,"      return Py_None;\n      }\n");
+      fprintf(fp,"    else {\n");
+      fprintf(fp,"      return PyString_FromString(temp%i);\n      }\n",MAX_ARGS);
     break;
     case 109:
     case 309:  
       {
-      fprintf(fp,"      if (temp%i == NULL)\n        {\n",MAX_ARGS);
-      fprintf(fp,"        Py_INCREF(Py_None);\n");
-      fprintf(fp,"        return Py_None;\n        }\n");
-      fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
+      fprintf(fp,"    return vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
 	      MAX_ARGS);
-      fprintf(fp,"      return tempH;\n");
       break;
       }
       
@@ -216,27 +209,43 @@ void do_return(FILE *fp)
       break;
     case 302:
       {
-      fprintf(fp,"      if (temp%i == NULL)\n        {\n",MAX_ARGS);
-      fprintf(fp,"        Py_INCREF(Py_None);\n");
-      fprintf(fp,"        return Py_None;\n        }\n");
-      fprintf(fp,"      return PyString_FromString(vtkPythonManglePointer(temp%i,\"void_p\"));\n",
+      fprintf(fp,"    if (temp%i == NULL)\n        {\n",MAX_ARGS);
+      fprintf(fp,"      Py_INCREF(Py_None);\n");
+      fprintf(fp,"      return Py_None;\n        }\n");
+      fprintf(fp,"    else\n        {\n");
+      fprintf(fp,"      return PyString_FromString(vtkPythonManglePointer(temp%i,\"void_p\"));\n        }\n",
 	      MAX_ARGS);
       break;
       }
     case 1:
-    case 7:   fprintf(fp,"      return PyFloat_FromDouble(temp%i);\n",
-		      MAX_ARGS); break;
+    case 7:
+      {
+      fprintf(fp,"    return PyFloat_FromDouble(temp%i);\n",
+		      MAX_ARGS);
+      break;
+      }
     case 13:
     case 14:
     case 15:
     case 4:
     case 5:
-    case 6:   fprintf(fp,"      return PyInt_FromLong(temp%i);\n", MAX_ARGS); 
+    case 6:
+      {
+      fprintf(fp,"    return PyInt_FromLong(temp%i);\n", MAX_ARGS); 
       break;
-    case 16:   fprintf(fp,"      return PyInt_FromLong((long)temp%i);\n",
-		       MAX_ARGS); break;
-    case 3:   fprintf(fp,"      return PyString_FromStringAndSize((char *)&temp%i,1);\n",
-		      MAX_ARGS); break;
+      }
+    case 16:   
+      {
+      fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n",
+	      MAX_ARGS); 
+      break;
+      }
+    case 3:   
+      {
+      fprintf(fp,"    return PyString_FromStringAndSize((char *)&temp%i,1);\n",
+	      MAX_ARGS);
+      break;
+      }
     }
 }
 
@@ -308,7 +317,7 @@ char *get_format_string()
 
 void outputFunction2(FILE *fp, FileInfo *data)
 {
-  int i, j, fnum, occ, backnum;
+  int i, j, k, is_static, fnum, occ, backnum, goto_used;
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
 
@@ -352,21 +361,25 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      data->ClassName,currentFunction->Name);
       fprintf(fp,"{\n");
       
-      /* local error flag */
-      fprintf(fp,"  int error;\n");
-      
-      /* get the object pointer */
-      fprintf(fp,"  %s *op;\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n\n",
-	      data->ClassName);
-      
+      /* declare the variables */
+      fprintf(fp,"  %s *op;\n\n",data->ClassName);
+
       /* find all occurances of this method */
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
 	{
+	goto_used = 0;
+	is_static = 0;
+
 	/* is it the same name */
 	if (wrappedFunctions[occ]->Name && 
 	    !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
 	  {
+	  /* check for static methods */
+	  if (((wrappedFunctions[occ]->ReturnType/1000) & 2) == 2)
+	    {
+	    is_static = 1;
+	    }
+
 	  fprintf(fp,"  /* handle an occurrence */\n  {\n");
 	  currentFunction = wrappedFunctions[occ];
 	  /* process the args */
@@ -378,11 +391,17 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    }
 	  output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
 		      currentFunction->ReturnClass,0);
-	  
-	  fprintf(fp,"\n  PyErr_Clear();\n");
-	  fprintf(fp,"  error = 0;\n");
-	  fprintf(fp,"  if (PyArg_ParseTuple(args, \"%s\"",
-		  get_format_string());
+	  if (is_static)
+	    {
+	    fprintf(fp,"  PyErr_Clear();\n");
+            fprintf(fp,"  if ((PyArg_ParseTuple(args, \"%s\"",
+		    get_format_string());
+	    }
+	  else
+	    {
+            fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"%s\"",
+		    data->ClassName,get_format_string());
+	    }
 	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
 	    {
 	    if ((currentFunction->ArgTypes[i]%1000 == 309)||
@@ -409,7 +428,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 		}
 	      }
 	    }
-	  fprintf(fp,"))\n    {\n");
+	  fprintf(fp,")))\n    {\n");
 
 	  /* lookup and required objects */
 	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -420,7 +439,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,\"%s\");\n",
 		      i, currentFunction->ArgClasses[i], i, 
 		      currentFunction->ArgClasses[i]);
-	      fprintf(fp,"    if (!temp%d && tempH%d != Py_None) error = 1;\n",i,i);
+	      fprintf(fp,"    if (!temp%d && tempH%d != Py_None) goto break%d;\n",i,i,occ);
+	      goto_used = 1;
 	      }
 	    }
 	  
@@ -435,67 +455,93 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    fprintf(fp,"    Py_INCREF(temp0);\n");
 	    }
 	  
-	  fprintf(fp,"    if (!error)\n      {\n");
-	  
 	  /* check for void pointers and pass appropriate info*/
 	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
 	    {
 	    if (currentFunction->ArgTypes[i]%1000 == 302)
 	      {
-	      fprintf(fp,"      temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
-	      fprintf(fp,"      if (size%i == -1) {\n        PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
+	      fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
+	      fprintf(fp,"    if (size%i == -1) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
                       i,currentFunction->Name,data->ClassName);
-              fprintf(fp,"       return NULL;\n      }\n");
-              fprintf(fp,"      else if (size%i == -2) {\n        PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was poorly formed.\");\n",
+	      fprintf(fp,"      return NULL;\n      }\n");
+              fprintf(fp,"    else if (size%i == -2) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was poorly formed.\");\n",
 		      i,currentFunction->Name,data->ClassName);
-	      fprintf(fp,"       return NULL;\n      }\n"); 
+	      fprintf(fp,"      return NULL;\n      }\n"); 
 	      }
 	    }
 
-	  switch (currentFunction->ReturnType%1000)
+	  for (k = 0; k < (2 - is_static); k++)
 	    {
-	    case 2:
-	      fprintf(fp,"      op->%s(",currentFunction->Name);
-	      break;
-	    case 109:
-	      fprintf(fp,"      temp%i = &(op)->%s(",MAX_ARGS,
-		      currentFunction->Name);
-	      break;
-	    default:
-	      fprintf(fp,"      temp%i = op->%s(",MAX_ARGS,
-		      currentFunction->Name);
-	    }
-
-	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	    {
-	    if (i)
+	    char methodname[256]; 
+	    if (k == 0)
 	      {
-	      fprintf(fp,",");
-	      }
-	    if (currentFunction->ArgTypes[i]%1000 == 109)
-	      {
-	      fprintf(fp,"*(temp%i)",i);
-	      }
-	    else if (currentFunction->NumberOfArguments == 1 
-		     && currentFunction->ArgTypes[i] == 5000)
-	      {
-	      fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
+	      if (is_static)
+		{
+		  fprintf(fp,"      {\n      op = NULL; /* avoid compiler warning */\n");
+		sprintf(methodname,"%s::%s",
+			data->ClassName,currentFunction->Name);
+		}
+	      else
+		{
+		fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+		sprintf(methodname,"op->%s::%s",
+			data->ClassName,currentFunction->Name);
+		}
 	      }
 	    else
 	      {
-	      fprintf(fp,"temp%i",i);
+	      fprintf(fp,"    else {\n");
+	      sprintf(methodname,"op->%s",currentFunction->Name);
 	      }
-	    }
-	  fprintf(fp,");\n");
+		
+	    switch (currentFunction->ReturnType%1000)
+	      {
+	      case 2:
+		fprintf(fp,"      %s(",methodname);
+		break;
+	      case 109:
+		fprintf(fp,"      temp%i = &%s(",MAX_ARGS,methodname);
+		break;
+	      default:
+		fprintf(fp,"      temp%i = %s(",MAX_ARGS,methodname);
+	      }
+
+	    for (i = 0; i < currentFunction->NumberOfArguments; i++)
+	      {
+	      if (i)
+		{
+	        fprintf(fp,",");
+		}
+	      if (currentFunction->ArgTypes[i]%1000 == 109)
+		{
+	        fprintf(fp,"*(temp%i)",i);
+		}
+	      else if (currentFunction->NumberOfArguments == 1 
+		       && currentFunction->ArgTypes[i] == 5000)
+		{
+	        fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
+		}
+	      else
+		{
+	        fprintf(fp,"temp%i",i);
+		}
+	      }
+	    fprintf(fp,");\n");
 	  
-	  if (currentFunction->NumberOfArguments == 1 
-	      && currentFunction->ArgTypes[0] == 5000)
-	    {
-	    fprintf(fp,"      op->%sArgDelete(vtkPythonVoidFuncArgDelete);\n",
-		    currentFunction->Name);
+	    if (currentFunction->NumberOfArguments == 1 
+		&& currentFunction->ArgTypes[0] == 5000)
+	      {
+	      fprintf(fp,"      %sArgDelete(vtkPythonVoidFuncArgDelete);\n",
+		      methodname);
+	      }
+	    fprintf(fp,"      }\n");
 	    }
 	  do_return(fp);
-	  fprintf(fp,"      }\n    }\n  }\n");
+	  fprintf(fp,"    }\n  }\n");
+	  if (goto_used) 
+	    {
+	    fprintf(fp," break%d:\n",occ);
+	    }
 	  }
 	}
       fprintf(fp,"  return NULL;\n}\n\n");
@@ -507,8 +553,15 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	if (wrappedFunctions[occ]->Name && 
 	    !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
 	  {
+	  int siglen = strlen(wrappedFunctions[fnum]->Signature);
 	  /* memory leak here but ... */
 	  wrappedFunctions[occ]->Name = NULL;
+	  wrappedFunctions[fnum]->Signature = (char *)
+	    realloc(wrappedFunctions[fnum]->Signature,siglen+2+
+		    strlen(wrappedFunctions[occ]->Signature));
+	  strcpy(&wrappedFunctions[fnum]->Signature[siglen],"\\n");
+	  strcpy(&wrappedFunctions[fnum]->Signature[siglen+2],
+		 wrappedFunctions[occ]->Signature);
 	  }
 	}
       } /* is this method non NULL */
@@ -522,14 +575,14 @@ void outputFunction2(FILE *fp, FileInfo *data)
     {
     if (wrappedFunctions[fnum]->Name)
       {
-      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1},\n",
+      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\"},\n",
 	      wrappedFunctions[fnum]->Name, data->ClassName, 
-	      wrappedFunctions[fnum]->Name);
+	      wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature);
       }
     }
   if (!strcmp("vtkObject",data->ClassName))
     {
-    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1},\n", data->ClassName);
+    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"Get address of vtkObject in format 'Addr=%%p'\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
@@ -543,12 +596,13 @@ void outputFunction(FILE *fp, FileInfo *data)
   int args_ok = 1;
  
   fp = fp;
-  /* some functions will not get wrapped no matter what else */
+  /* some functions will not get wrapped no matter what else,
+     and some really common functions will appear only in vtkObjectPython */
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
-      !currentFunction->Name) 
+      !currentFunction->Name)
     {
     return;
     }
@@ -628,9 +682,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
   
+  fprintf(fp,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
+	  data->ClassName);
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"PyObject *Py%s_PyGetAttr(PyObject *self,char *name);\n",
+    fprintf(fp,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
 	    data->SuperClasses[i]);
     }
   
@@ -638,12 +694,19 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     /* while we are at it spit out the GetStringFromObject method */
     fprintf(fp,"PyObject *PyvtkObject_GetAddressAsString(PyObject *self, PyObject *args)\n");
-    fprintf(fp,"{\n  char *typecast;\n\n  PyErr_Clear();\n");
-    fprintf(fp,"  if (PyArg_ParseTuple(args, \"s\", &typecast))\n");
+    fprintf(fp,"{\n");
+
+    /* declare the variables */
+    fprintf(fp,"  %s *op;\n",data->ClassName);
+
+    /* handle unbound method call if 'self' is a PyVTKClass */
+    fprintf(fp,"  char *typecast;\n\n");
+    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"s\", &typecast)))\n",data->ClassName);
     fprintf(fp,"    {\n    char temp20[256];\n");
-    fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",((PyVTKObject *)self)->ptr);\n");
+    fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",op);\n");
     fprintf(fp,"    return PyString_FromString(temp20);\n");
-    fprintf(fp,"    }\n  return NULL;\n}\n\n");
+    fprintf(fp,"    }\n");
+    fprintf(fp,"  return NULL;\n}\n\n");
     }
   
   /* insert function handling code here */
@@ -654,106 +717,37 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   outputFunction2(fp, data);
   
-  if (data->NumberOfSuperClasses)
-    {
-    fprintf(fp,"extern int Py%s_PyPrint(PyObject *,FILE *,int);\n",
-	    data->SuperClasses[0]);
-    fprintf(fp,"int Py%s_PyPrint(PyObject *self, FILE *fp, int)\n",
-	    data->ClassName);
-    fprintf(fp,"{\n  return Py%s_PyPrint(self, fp, 0);\n}\n\n",
-	    data->SuperClasses[0]);
-
-    fprintf(fp,"extern PyObject *Py%s_PyRepr(PyObject *);\n",
-	    data->SuperClasses[0]);
-    fprintf(fp,"PyObject *Py%s_PyRepr(PyObject *self)\n",data->ClassName);
-    fprintf(fp,"{\n  return Py%s_PyRepr(self);\n}\n\n", data->SuperClasses[0]);
-    }
-  else
-    {
-    fprintf(fp,"int Py%s_PyPrint(PyObject *self, FILE *fp, int)\n",data->ClassName);
-    if (!strcmp("vtkObject",data->ClassName))
-      {
-      fprintf(fp,"{\n  %s *op;\n  ostrstream buf;\n\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
-      fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");
-      fprintf(fp,"  fprintf(fp,\"%%s\",buf.str());\n");
-      fprintf(fp,"  delete buf.str();\n  return 0;\n}\n\n");
-
-      fprintf(fp,"PyObject *Py%s_PyRepr(PyObject *self)\n",data->ClassName);
-      fprintf(fp,"{\n  %s *op;\n  PyObject *tempH;\n  ostrstream buf;\n\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
-      fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");
-      fprintf(fp,"  tempH = PyString_FromString(buf.str());\n");
-      fprintf(fp,"  delete buf.str();\n  return tempH;\n}\n\n");
-      }
-    else
-      {
-      fprintf(fp,"{\n  fprintf(fp,\"<no print method>\");\n");
-      fprintf(fp,"  return 0;\n}\n\n");
-
-      fprintf(fp,"PyObject *Py%s_PyRepr(PyObject *self)\n",data->ClassName);
-      fprintf(fp,"{\n  return PyString_FromString(\"<no print method>\");\n}\n");
-      }
-    }
-	
-
-  fprintf(fp,"static void Py%s_PyDelete(PyObject *self)\n",data->ClassName);
-  fprintf(fp,"{\n  %s *op;\n",data->ClassName);
-  fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
-  fprintf(fp,"  vtkPythonDeleteObjectFromHash(self);\n");
-  fprintf(fp,"  op->Delete();\n");
-  fprintf(fp,"  PyMem_DEL(self);\n}\n\n");
-
-  fprintf(fp,"PyObject *Py%s_PyGetAttr(PyObject *self, char *name)\n",
-	  data->ClassName);
-  fprintf(fp,"{\n  PyObject *result;\n\n");
-  fprintf(fp,"  result = Py_FindMethod(Py%sMethods, self, name);\n",data->ClassName);
-  if (data->NumberOfSuperClasses)
-    {
-    fprintf(fp,"  if (!result) return Py%s_PyGetAttr(self,name);\n",
-	    data->SuperClasses[0]);
-    }
-  fprintf(fp,"  return result;\n}\n\n");
-	
-  fprintf(fp,"PyTypeObject Py%sType = {\n",data->ClassName);
-  fprintf(fp,"  PyObject_HEAD_INIT(NULL)\n  0,\n  \"%s\",sizeof(PyVTKObject),\n  0,\n",
-	  data->ClassName);
-  fprintf(fp,"  (destructor)Py%s_PyDelete,\n  	(printfunc)Py%s_PyPrint,\n",data->ClassName, data->ClassName);
-  fprintf(fp,"  (getattrfunc)Py%s_PyGetAttr,\n  0, 0, (reprfunc)Py%s_PyRepr, 0, 0, 0,\n};\n\n",
-	  data->ClassName, data->ClassName);
-
-  fprintf(fp,"static PyObject *Py%s_PyNew(PyObject *vtkNotUsed(self),PyObject *arg)\n",
-          data->ClassName);
-  fprintf(fp,"  {\n");
-  fprintf(fp,"  PyObject *obj;\n\n");
-  if (data->NumberOfSuperClasses == 0 &&
-      strcmp(data->ClassName,"vtkObject") != 0) 
-    {
-    fprintf(fp,"  PyErr_SetString(PyExc_RuntimeError,\"%s is not derived from vtkObject, and not available from Python.\");\n  obj = 0;\n\n",data->ClassName);
-    }
-  else
-    {
-    fprintf(fp,"  if (arg)\n    {\n");
-    fprintf(fp,"    return vtkPythonGetObjectFromObject(arg,\"%s\");\n    }",
-	    data->ClassName);
-    fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
-	    data->ClassName);
-    fprintf(fp,"    return NULL;\n\n");
-    fprintf(fp,"  vtkPythonAddObjectToHash(obj,%s::New());\n",
-	    data->ClassName);
-    }
-  fprintf(fp,"  return obj;\n}\n\n");	
-  
-  fprintf(fp,"static PyMethodDef Py%s_ClassMethods[] = {\n",data->ClassName);
-  fprintf(fp,"  {\"New\", (PyCFunction)Py%s_PyNew},\n",data->ClassName);
-  fprintf(fp,"  {NULL, NULL}\n};\n\n");
-	
   /* output the class initilization function */
-  fprintf(fp,"extern \"C\" { void init%s();}\n",data->ClassName);
-  fprintf(fp,"void init%s()\n{\n",data->ClassName);
-  fprintf(fp,"  Py_InitModule(\"%s\", Py%s_ClassMethods);\n",
-	  data->ClassName, data->ClassName);
-  fprintf(fp,"  vtkPythonAddTypeToHash(&Py%sType,\"%s\");\n}\n\n",
-	  data->ClassName, data->ClassName);
+  if (data->NumberOfSuperClasses)
+    { 
+    fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+    fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
+
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
+    fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",
+	    data->ClassName);
+    fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
+    fprintf(fp,"                        \"%s\",modulename,\"\",\n",data->ClassName);
+    fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
+	    data->SuperClasses[0]);
+    }
+  else if (strcmp(data->ClassName,"vtkObject") == 0)
+    {
+    fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+    fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
+
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
+    fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",
+            data->ClassName);
+    fprintf(fp,"                        Py%sMethods,\n",
+            data->ClassName);
+    fprintf(fp,"                        \"%s\",modulename,\"\",0);\n}\n\n",
+            data->ClassName);
+    }
+  else
+    {
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
+    fprintf(fp,"  return NULL;\n}\n\n");
+    }
 }
 

@@ -43,21 +43,77 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimeStamp.h"
 #include "Python.h"
 
+// This is the VTK/Python 'class,' it contains the method list and a pointer
+// to the superclass
+typedef vtkObject *(*vtknewfunc)();
+
 typedef struct {
   PyObject_HEAD
-  vtkObject *ptr;
+  PyMethodDef *vtk_methods;
+  vtknewfunc vtk_new;
+  char *vtk_name;
+  char *vtk_module;
+  char *vtk_doc;
+  PyObject *vtk_bases;
+} PyVTKClass;
+
+// This is the VTK/Python 'object,' it contains the python object header
+// plus a pointer to the associated vtkObject and PyVTKClass.
+typedef struct {
+  PyObject_HEAD
+  vtkObject *vtk_ptr;
+  PyVTKClass *vtk_class;
 } PyVTKObject;
 
-extern void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type); 
+// Standard methods for all vtk/python objects
+extern "C" 
+{
+int PyVTKObject_Check(PyObject *obj);
+int PyVTKClass_Check(PyObject *obj);
+PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr);
+PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
+			 char *classname, char *modulename, char *docstring,
+			 PyObject *base);
+
+// this is a special version of ParseTuple that handles both bound
+// and unbound method calls for VTK objects
+vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
+			       char *format, ...);
+}
+
+// Add a PyVTKClass to the type lookup table, this allows us to later
+// create object given only the class name.
+extern void vtkPythonAddClassToHash(PyObject *obj, char *type); 
+
+// Extract the vtkObject from a PyVTKObject.  If the PyObject is not a 
+// PyVTKObject, or is not a PyVTKObject of the specified type, the python
+// error indicator will be set.
+// Special behaviour: Py_None is converted to NULL without no error.
 extern vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
+
+// Convert a vtkObject to a PyVTKObject.  This will first check to see if
+// the PyVTKObject already exists, and create a new PyVTKObject if necessary.
+// This function also passes ownership of the reference to the PyObject.
+// Special behaviour: NULL is converted to Py_None.
 extern PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr);
-extern void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *anInstance);
-extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
+
+// Try to convert some PyObject into a PyVTKObject, currently conversion
+// is supported for SWIG-style mangled pointer strings.
 extern PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 
+// Add and delete PyVTKObject/vtkObject pairs from the wrapper hash table,
+// these methods do not change the reference counts of either the vtkObject
+// or the PyVTKObject.
+extern void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *anInstance);
+extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
+
+// Utility functions for creating/usinge SWIG-style mangled pointer strings.
 extern char *vtkPythonManglePointer(void *ptr, const char *type);
 extern void *vtkPythonUnmanglePointer(char *ptrText, int *len,
 				      const char *type);
 
+// For use by SetXXMethod() , SetXXMethodArgDelete()
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);
+
+

@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#define VTKPYTHONDEBUG
 
 //--------------------------------------------------------------------
+// There are two hash tables associated with the Python wrappers
 class vtkPythonUtil
 {
 public:
@@ -53,7 +54,7 @@ public:
   ~vtkPythonUtil();
 
   PyObject *PointerDict;
-  PyObject *TypeDict;
+  PyObject *ClassDict;
 };
 
 //--------------------------------------------------------------------
@@ -63,18 +64,358 @@ vtkPythonUtil *vtkPythonHash = NULL;
 vtkPythonUtil::vtkPythonUtil()
 {
   this->PointerDict = PyDict_New();
-  this->TypeDict = PyDict_New();
+  this->ClassDict = PyDict_New();
 }
 
 //--------------------------------------------------------------------
 vtkPythonUtil::~vtkPythonUtil()
 {
   Py_DECREF(this->PointerDict);
-  Py_DECREF(this->TypeDict);
+  Py_DECREF(this->ClassDict);
 }
 
 //--------------------------------------------------------------------
-void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
+static int PyVTKObject_PyPrint(PyObject *self, FILE *fp, int)
+{
+  vtkObject *op;
+  ostrstream buf;
+
+  op = (vtkObject *)((PyVTKObject *)self)->vtk_ptr;
+  op->Print(buf);
+  buf.put('\0');
+  fprintf(fp,"%s",buf.str());
+  delete buf.str();
+  return 0;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKObject_PyRepr(PyObject *self)
+{
+  vtkObject *op;
+  PyObject *tempH;
+  ostrstream buf;
+
+  op = (vtkObject *)((PyVTKObject *)self)->vtk_ptr;
+  op->Print(buf);
+  buf.put('\0');
+  tempH = PyString_FromString(buf.str());
+  delete buf.str();
+  return tempH;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
+{
+  PyVTKClass *pyclass = ((PyVTKObject *)self)->vtk_class;
+  PyObject *result, *bases;
+
+  if (name[0] == '_')
+    {
+    if (strcmp(name,"__class__") == 0)
+      {
+      Py_INCREF(((PyVTKObject *)self)->vtk_class);
+      return (PyObject *)((PyVTKObject *)self)->vtk_class;
+      }
+
+    if (strcmp(name,"__this__") == 0)
+      {
+      char buf[256];
+      sprintf(buf,"%s_p",((PyVTKObject *)self)->vtk_ptr->GetClassName());
+      return PyString_FromString(
+	       vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
+      }
+    }
+
+  while (pyclass != NULL)
+    {
+    if ((result = Py_FindMethod(pyclass->vtk_methods, self, name)))
+      {
+      return result;
+      }
+    bases = ((PyVTKClass *)pyclass)->vtk_bases;
+    pyclass = NULL;
+    if (PyTuple_Size(bases))
+      {
+      pyclass = (PyVTKClass *)PyTuple_GET_ITEM(bases,0);
+      }
+    }
+
+  return NULL;
+}
+
+//--------------------------------------------------------------------
+static void PyVTKObject_PyDelete(PyObject *self)
+{
+  vtkPythonDeleteObjectFromHash(self);
+  ((vtkObject *)((PyVTKObject *)self)->vtk_ptr)->Delete();
+  Py_DECREF((PyObject *)((PyVTKObject *)self)->vtk_class);
+  PyMem_DEL(self);
+}
+
+//--------------------------------------------------------------------
+static PyTypeObject PyVTKObjectType = {
+  PyObject_HEAD_INIT(NULL)
+  0,
+  "vtkobject",                           // tp_name
+  sizeof(PyVTKObject),                   // tp_basicsize
+  0,                                     // tp_itemsize
+  (destructor)PyVTKObject_PyDelete,      // tp_dealloc
+  (printfunc)PyVTKObject_PyPrint,        // tp_print
+  (getattrfunc)PyVTKObject_PyGetAttr,    // tp_getattr
+  (setattrfunc)0,                        // tp_setattr
+  (cmpfunc)0,                            // tp_compare
+  (reprfunc)PyVTKObject_PyRepr,          // tp_repr
+  0,                                     // tp_as_number 
+  0,                                     // tp_as_sequence
+  0,                                     // tp_as_mapping
+  (hashfunc)0,                           // tp_hash
+  (ternaryfunc)0,                        // tp_call
+  (reprfunc)0,                           // tp_string
+  (getattrofunc)0,                       // tp_getattro
+  (setattrofunc)0,                       // tp_setattro
+  0,                                     // tp_as_buffer
+  0,                                     // tp_flags
+  0,                                     // tp_doc
+};
+
+int PyVTKObject_Check(PyObject *obj)
+{
+  return (obj->ob_type == &PyVTKObjectType);
+}
+
+PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr)
+{
+  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
+  if (ptr)
+    {
+    ptr->Register(NULL);
+    }
+  else
+    {
+    ptr = ((PyVTKClass *)vtkclass)->vtk_new();
+    }
+  self->vtk_ptr = ptr;
+  self->vtk_class = (PyVTKClass *)
+    PyDict_GetItemString(vtkPythonHash->ClassDict,(char *)ptr->GetClassName());
+
+  // if specific type is not a python vtkclass (i.e. if it was loaded by
+  // the Factories or some such thing) just use the originally specified class
+  if (self->vtk_class == NULL)
+    {
+    self->vtk_class = (PyVTKClass *)vtkclass;
+    }
+
+  Py_INCREF(self->vtk_class);
+
+  vtkPythonAddObjectToHash((PyObject *)self,ptr);
+
+  return (PyObject *)self;
+}
+
+//--------------------------------------------------------------------
+static int PyVTKClass_PyPrint(PyObject *self, FILE *fp, int)
+{
+  fprintf(fp,"%s.%s",((PyVTKClass *)self)->vtk_module,
+	             ((PyVTKClass *)self)->vtk_name);
+  return 0;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKClass_PyRepr(PyObject *self)
+{
+  char buf[255];
+  sprintf(buf,"<%s %s.%s at %p>",self->ob_type->tp_name,
+ 	                        ((PyVTKClass *)self)->vtk_module,
+ 	                        ((PyVTKClass *)self)->vtk_name,self);
+  
+  return PyString_FromString(buf);
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKClass_PyCall(PyObject *self, PyObject *arg, PyObject *kw)
+{
+  if (kw != NULL)
+    {
+    PyErr_SetString(PyExc_TypeError,
+		    "this function takes no keyword arguments");
+    return NULL;
+    }
+  if (PyArg_ParseTuple(arg,""))
+    {
+    return PyVTKObject_New(self,NULL);
+    }
+
+  return NULL;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
+{
+  PyVTKClass *pyclass = (PyVTKClass *)self;
+  PyObject *result, *bases;
+
+  if (name[0] == '_')
+    {
+    if (strcmp(name,"__bases__") == 0)
+      {
+      Py_INCREF(((PyVTKClass *)self)->vtk_bases);
+      return ((PyVTKClass *)self)->vtk_bases;
+      }
+
+    if (strcmp(name,"__name__") == 0)
+      {
+      return PyString_FromString(((PyVTKClass *)self)->vtk_name);
+      }
+
+    if (strcmp(name,"__module__") == 0)
+      {
+      return PyString_FromString(((PyVTKClass *)self)->vtk_module);
+      }
+
+    if (strcmp(name,"__doc__") == 0)
+      {
+      return PyString_FromString(((PyVTKClass *)self)->vtk_doc);
+      }
+    }
+
+  while (pyclass != NULL)
+    {
+    if ((result = Py_FindMethod(pyclass->vtk_methods, self, name)))
+      {
+      return result;
+      }
+    bases = ((PyVTKClass *)pyclass)->vtk_bases;
+    pyclass = NULL;
+    if (PyTuple_Size(bases))
+      {
+      pyclass = (PyVTKClass *)PyTuple_GET_ITEM(bases,0);
+      }
+    }
+
+  return NULL;
+}
+
+//--------------------------------------------------------------------
+static void PyVTKClass_PyDelete(PyObject *self)
+{
+  PyMem_DEL(self);
+}
+
+//--------------------------------------------------------------------
+static PyTypeObject PyVTKClassType = {
+  PyObject_HEAD_INIT(NULL)
+  0,
+  "vtkclass",                            // tp_name
+  sizeof(PyVTKClass),                    // tp_basicsize
+  0,                                     // tp_itemsize
+  (destructor)PyVTKClass_PyDelete,       // tp_dealloc
+  (printfunc)PyVTKClass_PyPrint,         // tp_print
+  (getattrfunc)PyVTKClass_PyGetAttr,     // tp_getattr
+  (setattrfunc)0,                        // tp_setattr
+  (cmpfunc)0,                            // tp_compare
+  (reprfunc)PyVTKClass_PyRepr,           // tp_repr
+  0,                                     // tp_as_number 
+  0,                                     // tp_as_sequence
+  0,                                     // tp_as_mapping
+  (hashfunc)0,                           // tp_hash
+  (ternaryfunc)PyVTKClass_PyCall,        // tp_call
+  (reprfunc)0,                           // tp_string
+  (getattrofunc)0,                       // tp_getattro
+  (setattrofunc)0,                       // tp_setattro
+  0,                                     // tp_as_buffer
+  0,                                     // tp_flags
+  0,                                     // tp_doc
+};
+
+int PyVTKClass_Check(PyObject *obj)
+{
+  return (obj->ob_type == &PyVTKClassType);
+}
+
+PyObject *PyVTKClass_New(vtknewfunc constructor,
+			 PyMethodDef *methods,
+			 char *classname, char *modulename, char *docstring,
+			 PyObject *base)
+{
+  PyVTKClass *self = NULL;
+  if (vtkPythonHash)
+    {
+    (PyVTKClass *)PyDict_GetItemString(vtkPythonHash->ClassDict,classname);
+    }
+  if (self)
+    {
+    Py_INCREF((PyObject *)self);
+    }
+  else
+    {
+    self = PyObject_NEW(PyVTKClass, &PyVTKClassType);
+    self->vtk_methods = methods;
+    self->vtk_new = constructor;
+    self->vtk_name = classname;
+    self->vtk_module = modulename;
+    self->vtk_doc = docstring;
+    if (base)
+      {
+      self->vtk_bases = PyTuple_New(1);
+      PyTuple_SET_ITEM(((PyVTKClass *)self)->vtk_bases, 0, base);
+      }
+    else
+      {
+      self->vtk_bases = PyTuple_New(0);
+      }
+    vtkPythonAddClassToHash((PyObject *)self,classname);
+    }
+
+  return (PyObject *)self;
+}
+  
+//--------------------------------------------------------------------
+vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
+			       char *format, ...)
+{
+  vtkObject *obj = NULL;
+  va_list va;
+  va_start(va, format);
+
+  PyErr_Clear();
+
+  /* check if this was called as an unbound method */
+  if (self->ob_type == &PyVTKClassType)
+    {
+    int n = PyTuple_Size(args);
+    PyVTKClass *vtkclass = (PyVTKClass *)self;
+
+    if (n == 0 || (self = PyTuple_GET_ITEM(args,0)) == NULL ||
+	self->ob_type != &PyVTKObjectType ||
+	!((PyVTKObject *)self)->vtk_ptr->IsA(vtkclass->vtk_name))
+      {
+      char buf[256];
+      sprintf(buf,"unbound method requires a %s as the first argument",
+	      vtkclass->vtk_name);
+      PyErr_SetString(PyExc_ValueError,buf);
+      return NULL;
+      }
+    // re-slice the args to remove 'self'
+    args = PyTuple_GetSlice(args,1,n);
+    if (PyArg_VaParse(args,format,va))
+      {
+      obj = ((PyVTKObject *)self)->vtk_ptr;
+      }
+    Py_DECREF(args);
+    }
+  /* it was called as a bound method */
+  else
+    {
+    if (PyArg_VaParse(args,format,va))
+      {
+      obj = ((PyVTKObject *)self)->vtk_ptr;
+      }
+    }    
+  return obj;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonAddClassToHash(PyObject *vtkclass, char *classname)
 {
   if (vtkPythonHash == NULL)
     {
@@ -86,7 +427,7 @@ void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
 #endif  
 
   // lets make sure it isn't already there
-  if (PyDict_GetItemString(vtkPythonHash->TypeDict,type))
+  if (PyDict_GetItemString(vtkPythonHash->ClassDict,classname))
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Attempt to add type to the hash when already there!!!");
@@ -94,9 +435,7 @@ void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
     return;
     }
 
-  PyObject *pyType = PyInt_FromLong((long)typeObject);
-  PyDict_SetItemString(vtkPythonHash->TypeDict,type,pyType);
-  Py_DECREF(pyType);
+  PyDict_SetItemString(vtkPythonHash->ClassDict,classname,vtkclass);
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
@@ -115,7 +454,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
   vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
 #endif  
 
-  ((PyVTKObject *)obj)->ptr = (vtkObject *)ptr;
+  ((PyVTKObject *)obj)->vtk_ptr = (vtkObject *)ptr;
   PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
   PyObject *pyPtr2 = PyInt_FromLong((long)obj);
   PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr1,pyPtr2);
@@ -124,7 +463,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to hash obj= " << obj << " " 
-			 << ((PyVTKObject *)obj)->ptr);
+			 << ((PyVTKObject *)obj)->vtk_ptr);
 #endif  
 }  
 
@@ -133,10 +472,10 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 {
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Deleting an object from hash obj = " << obj << " "
-			 << ((PyVTKObject *)obj)->ptr);
+			 << ((PyVTKObject *)obj)->vtk_ptr);
 #endif  
 
-  void *ptr = (void *)((PyVTKObject *)obj)->ptr;
+  void *ptr = (void *)((PyVTKObject *)obj)->vtk_ptr;
   PyObject *pyPtr = PyInt_FromLong((long)ptr);
   PyDict_DelItem(vtkPythonHash->PointerDict,pyPtr);
   Py_DECREF(pyPtr);  
@@ -145,36 +484,37 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 //--------------------------------------------------------------------
 PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
 {
+  PyObject *obj = 0;
+
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into pointer " << ptr);
 #endif
   
-  PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
-  PyObject *pyPtr2 = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr1);
-  Py_DECREF(pyPtr1);
-
-  PyObject *obj = 0;
-  if (pyPtr2)
+  if (ptr)
     {
-    obj = (PyObject *)PyInt_AsLong(pyPtr2);
+    PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
+    PyObject *pyPtr2 = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr1);
+    Py_DECREF(pyPtr1);
+
+    if (pyPtr2)
+      {
+      obj = (PyObject *)PyInt_AsLong(pyPtr2);
+      }
+    }
+  else
+    {
+    obj = Py_None;
     }
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
 #endif
 
-  if (obj == 0)
+  if (obj == NULL)
     {
-    PyObject *pyType = PyDict_GetItemString(vtkPythonHash->TypeDict,
+    PyObject *vtkclass = PyDict_GetItemString(vtkPythonHash->ClassDict,
 			     (char *)((vtkObject *)ptr)->GetClassName());
-    PyTypeObject *typeObject = (PyTypeObject *)PyInt_AsLong(pyType);
-    obj = PyObject_NEW(PyObject, typeObject);
-    if (obj == NULL)
-      {
-      return NULL;
-      }
-    vtkPythonAddObjectToHash(obj,ptr);
-    ((vtkObject *)ptr)->Register(NULL);
+    obj = PyVTKObject_New(vtkclass,ptr);
     }
   else
     {
@@ -187,8 +527,14 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
 //--------------------------------------------------------------------
 vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
 { 
-  // if the type name is in the hash, it is a VTK object
-  if (!PyDict_GetItemString(vtkPythonHash->TypeDict,obj->ob_type->tp_name))
+  // convert Py_None to NULL every time
+  if (obj == Py_None)
+    {
+    return NULL;
+    }
+
+  // check to ensure it is a vtk object
+  if (obj->ob_type != &PyVTKObjectType)
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
@@ -197,7 +543,7 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
     return NULL;
     }   
 
-  vtkObject *ptr = ((PyVTKObject *)obj)->ptr;
+  vtkObject *ptr = ((PyVTKObject *)obj)->vtk_ptr;
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
@@ -223,8 +569,6 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
     }
 }
 
-//--------------------------------------------------------------------
-// create a python object from a python string object
 PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
 {
   if (PyString_Check(arg))
@@ -270,7 +614,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
 char *vtkPythonManglePointer(void *ptr, const char *type)
 {
   static char ptrText[128];
-  sprintf(ptrText,"_%*.*lx_%s",(int)sizeof(void *),(int)sizeof(void *),
+  sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
 	  (long)ptr,type);
   return ptrText;
 }
@@ -337,3 +681,4 @@ void vtkPythonVoidFuncArgDelete(void *arg)
     }
 }
   
+//--------------------------------------------------------------------

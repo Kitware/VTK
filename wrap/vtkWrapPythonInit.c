@@ -12,7 +12,8 @@ void stuffit()
   
   for (i = 0; i < anindex; i++)
     {
-    fprintf(stdout,"extern \"C\" { void init%s(); }\n",names[i]);
+    fprintf(stdout,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
+	    names[i]);
     }
 
   fprintf(stdout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n",
@@ -23,29 +24,23 @@ void stuffit()
 
   /* module init function */
   fprintf(stdout,"void init%s()\n{\n",kitName);
-  fprintf(stdout,"  PyObject *m1, *d1, *d2, *n, *m2, *meth;\n\n");
-  fprintf(stdout,"  m1 = Py_InitModule(\"%s\", Py%s_ClassMethods);\n",
-	  kitName, kitName);
-  
-  fprintf(stdout,"  d1 = PyModule_GetDict(m1);\n");
-  fprintf(stdout,"  if (!d1) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
+  fprintf(stdout,"  PyObject *m, *d, *c;\n\n");
+  fprintf(stdout,"  static char modulename[] = \"%s\";\n",kitName);
+  fprintf(stdout,"  m = Py_InitModule(modulename, Py%s_ClassMethods);\n",
 	  kitName);
-  fprintf(stdout,"  n = PyString_FromString(\"New\");\n");
+  
+  fprintf(stdout,"  d = PyModule_GetDict(m);\n");
+  fprintf(stdout,"  if (!d) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
+	  kitName);
 
   for (i = 0; i < anindex; i++)
     {
-      fprintf(stdout,"  init%s();\n",names[i]);
-      fprintf(stdout,"  m2 = PyImport_ImportModule(\"%s\");\n", names[i]);
-      fprintf(stdout,"  if (!m2) Py_FatalError(\"can't initialize module %s!\");\n",
-	      names[i]);
-      fprintf(stdout,"  d2 = PyModule_GetDict(m2);\n");
-      fprintf(stdout,"  meth = PyDict_GetItem(d2, n);\n");
-      fprintf(stdout,"  if (-1 == PyDict_SetItemString(d1, \"%s\", (meth?meth:m2)))\n",names[i]);
-      fprintf(stdout,"    Py_FatalError(\"can't add module %s to dictionary!\");\n\n",
-	      names[i]);
+    fprintf(stdout,"  if ((c = PyVTKClass_%sNew(modulename)))\n",names[i]);
+    fprintf(stdout,"    if (-1 == PyDict_SetItemString(d, \"%s\", c))\n",
+	    names[i]);
+    fprintf(stdout,"      Py_FatalError(\"can't add class %s to dictionary!\");\n\n",
+	    names[i]);
     }
-
-  fprintf(stdout,"  Py_DECREF(n);\n");
   fprintf(stdout,"}\n\n");
 }
 
@@ -65,11 +60,11 @@ int main(int argc,char *argv[])
   for (i = 2; i < argc; i++)
     {
     /* remove the .h and store */
-    argv[i][strlen(argv[i])-2] = '\0';
     names[i-2] = strdup(argv[i]);
+    names[i-2][strlen(argv[i])-2] = '\0';
     }
   anindex = argc - 2;
-  
+
   fprintf(stdout,"#include <string.h>\n");
   fprintf(stdout,"#include \"Python.h\"\n\n");
 
