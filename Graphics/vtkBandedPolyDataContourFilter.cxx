@@ -68,7 +68,7 @@ vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
   this->ContourValues->Delete();
 }
 
-int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
+int vtkBandedPolyDataContourFilter::ComputeLowerScalarIndex(float val)
 {
   for (int i=0; i < (this->NumberOfClipValues-1); i++)
     {
@@ -77,7 +77,17 @@ int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
       return i;
       }
     }
-  return (this->NumberOfClipValues - 2); //on the end point
+}
+
+int vtkBandedPolyDataContourFilter::ComputeUpperScalarIndex(float val)
+{
+  for (int i=0; i < (this->NumberOfClipValues-1); i++)
+    {
+    if ( val > this->ClipValues[i] && val <= this->ClipValues[i+1]  )
+      {
+      return i;
+      }
+    }
 }
 
 int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
@@ -92,8 +102,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
   float s1 = scalars->GetTuple(v1)[0];
   float s2 = scalars->GetTuple(v2)[0];
   
-  int idx1 = this->ComputeScalarIndex(s1);
-  int idx2 = this->ComputeScalarIndex(s2);
+  int idx1 = this->ComputeLowerScalarIndex(s1);
+  int idx2 = this->ComputeUpperScalarIndex(s2);
 
   float *x1 = newPts->GetPoint(v1);
   float *x2 = newPts->GetPoint(v2);
@@ -104,7 +114,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
   this->T[idx2-idx1+1] = 1.0;
   this->CellScalars[0] = idx1;
   
-  for (int i=1; i < (idx2-idx1); i++)
+  for (int i=1; i < (idx2-idx1+1); i++)
     {
     this->T[i] = (this->ClipValues[idx1+i] - s1) / (s2 - s1);
     x[0] = x1[0] + this->T[i]*(x2[0]-x1[0]);
@@ -220,7 +230,6 @@ void vtkBandedPolyDataContourFilter::Execute()
   //
   if ( input->GetVerts()->GetNumberOfCells() > 0 )
     {
-    int newId;
     vtkCellArray *verts = input->GetVerts();
     vtkCellArray *newVerts = vtkCellArray::New();
     newVerts->Allocate(verts->GetSize());
@@ -228,9 +237,9 @@ void vtkBandedPolyDataContourFilter::Execute()
       {
       for (i=0; i<npts; i++)
         {
-        newId = newVerts->InsertNextCell(1,pts+i);
-        idx = this->ComputeScalarIndex(inScalars->GetTuple(pts[i])[0]);
-        newScalars->InsertTuple1(newId,idx);
+        newVerts->InsertNextCell(1,pts+i);
+        idx = this->ComputeLowerScalarIndex(inScalars->GetTuple(pts[i])[0]);
+        newScalars->InsertTuple1(cellId++,idx);
         }
       }
     output->SetVerts(newVerts);
@@ -242,7 +251,6 @@ void vtkBandedPolyDataContourFilter::Execute()
   if ( input->GetLines()->GetNumberOfCells() > 0 )
     {
     int numSegments;
-    int newId, newIds[2];
     vtkCellArray *lines = input->GetLines();
     vtkCellArray *newLines = vtkCellArray::New();
     newLines->Allocate(lines->GetSize());
@@ -262,11 +270,13 @@ void vtkBandedPolyDataContourFilter::Execute()
           }
         for (j=0; j<numSegments; j++)
           {
-          newId = newLines->InsertNextCell(2,this->PtIds+j);
-          newScalars->InsertTuple1(newId,this->CellScalars[j]);
+          newLines->InsertNextCell(2,this->PtIds+j);
+          newScalars->InsertTuple1(cellId++,this->CellScalars[j]);
           }
         }
       }
+    output->SetLines(newLines);
+    newLines->Delete();
     }
   
   // Polygons are assumed convex and chopped into filled, convex polygons.
