@@ -23,11 +23,13 @@ vtkWarpTransform
 
 CONCRETE = \
 vtkArcPlotter \
+vtkBranchExtentTranslator \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkDEMReader \
 vtkDepthSortPolyData \
 vtkEarthSource \
+vtkGetRemoteGhostCells \
 vtkGridTransform \
 vtkImageToPolyDataFilter \
 vtkImageReslice \
