@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING)
   # Add all the executables that require rendering
   #
   ADD_EXECUTABLE(CellLocator CellLocator)
+  ADD_EXECUTABLE(PointLocator PointLocator)
   ADD_EXECUTABLE(Mace Mace)
   ADD_EXECUTABLE(expCos expCos)
   ADD_EXECUTABLE(volProt volProt)
@@ -40,6 +41,9 @@ IF (VTK_USE_RENDERING)
     ADD_TEST(Mace-image ${CXX_TEST_PATH}/Mace
                 -D ${VTK_DATA_ROOT}
                 -V Baseline/Graphics/Mace.png)
+    ADD_TEST(PointLocator-image ${CXX_TEST_PATH}/PointLocator
+                -D ${VTK_DATA_ROOT}
+                -V Baseline/Graphics/PointLocator.png)
     ADD_TEST(expCos-image ${CXX_TEST_PATH}/expCos 
                 -D ${VTK_DATA_ROOT}
                 -V Baseline/Graphics/expCos.png)
