@@ -112,11 +112,6 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     this->Threads[idx] = NULL;
     }
   this->InputScalarsSelection = NULL;
-
-  this->Normals = NULL;
-  this->Gradients = NULL;
-  this->Scalars = NULL;
-
 }
 
 //----------------------------------------------------------------------------
@@ -137,6 +132,65 @@ unsigned long vtkSynchronizedTemplates3D::GetMTime()
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   return mTime;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
+                                                vtkPolyData *o,
+                                                vtkFloatArray *scalars,
+                                                vtkFloatArray *normals,
+                                                vtkFloatArray *gradients)
+{
+  vtkPoints *newPts;
+  vtkCellArray *newPolys;
+  long estimatedSize;  
+  
+  estimatedSize = (int) pow ((double) 
+      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
+  newPts = vtkPoints::New();
+  newPts->Allocate(estimatedSize,estimatedSize);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
+
+  o->GetPointData()->CopyAllOn();
+  // It is more efficient to just create the scalar array 
+  // rather than redundantly interpolate the scalars.
+  o->GetPointData()->CopyScalarsOff();
+
+  if (normals)
+    {
+    normals->SetNumberOfComponents(3);
+    normals->Allocate(3*estimatedSize,3*estimatedSize/2);
+    normals->SetName("Normals");
+    }
+  if (gradients)
+    {
+    gradients->SetNumberOfComponents(3);
+    gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
+    gradients->SetName("Gradients");
+    }
+  if (scalars)
+    {
+    scalars->Allocate(estimatedSize,estimatedSize/2);
+    scalars->SetName("Scalars");
+    }
+  
+  o->GetPointData()->InterpolateAllocate(input->GetPointData(),
+                                         estimatedSize,estimatedSize/2);
+  o->GetCellData()->CopyAllocate(input->GetCellData(),
+                                 estimatedSize,estimatedSize/2);
+  
+  o->SetPoints(newPts);
+  newPts->Delete();
+
+  o->SetPolys(newPolys);
+  newPolys->Delete();
+
 }
 
 
@@ -285,17 +339,29 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   vtkPointData *outPD = output->GetPointData();  
   vtkCellData *outCD = output->GetCellData();  
   // Use to be arguments
-  vtkDataArray *newScalars;
-  vtkDataArray *newNormals;
-  vtkDataArray *newGradients;
+  vtkFloatArray *newScalars = NULL;
+  vtkFloatArray *newNormals = NULL;
+  vtkFloatArray *newGradients = NULL;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
 
+  if (self->GetComputeScalars())
+    {
+    newScalars = vtkFloatArray::New();
+    }
+  if (self->GetComputeScalars())
+    {
+    newNormals = vtkFloatArray::New();
+    }
+  if (self->GetComputeScalars())
+    {
+    newGradients = vtkFloatArray::New();
+    }
+  vtkSynchronizedTemplates3DInitializeOutput(exExt, self->GetInput(), output, 
+                                         newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = self->Scalars;
-  newNormals = self->Normals;
-  newGradients = self->Gradients;  
+
   
   // this is an exploded execute extent.
   xMin = exExt[0];
@@ -507,6 +573,25 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       }
     }
   delete [] isect1;
+
+  if (newScalars)
+    {
+    output->GetPointData()->SetScalars(newScalars);
+    newScalars->Delete();
+    newScalars = NULL;
+    }
+  if (newGradients)
+    {
+    output->GetPointData()->SetVectors(newGradients);
+    newGradients->Delete();
+    newGradients = NULL;
+    }
+  if (newNormals)
+    {
+    output->GetPointData()->SetNormals(newNormals);
+    newNormals->Delete();
+    newNormals = NULL;
+    }
 }
 
 
@@ -550,12 +635,10 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   if (this->NumberOfThreads <= 1)
     { // Special case when only one thread (fast, no copy).
     output = this->GetOutput();
-    this->InitializeOutput(exExt, output);
     }
   else
     { // For thread saftey, each writes into a separate output which are merged later.
     output = vtkPolyData::New();
-    this->InitializeOutput(exExt, output);
     this->Threads[threadId] = output;
     }
   
@@ -638,63 +721,6 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
 }
 
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
-{
-  vtkPoints *newPts;
-  vtkCellArray *newPolys;
-  long estimatedSize;  
-  
-  estimatedSize = (int) pow ((double) 
-      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
-  if (estimatedSize < 1024)
-    {
-    estimatedSize = 1024;
-    }
-  newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize,estimatedSize);
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
-
-  o->GetPointData()->CopyAllOn();
-  // It is more efficient to just create the scalar array 
-  // rather than redundantly interpolate the scalars.
-  o->GetPointData()->CopyScalarsOff();
-  if (this->ComputeNormals)
-    {
-    this->Normals = vtkFloatArray::New();
-    this->Normals->SetNumberOfComponents(3);
-    this->Normals->Allocate(3*estimatedSize,3*estimatedSize/2);
-    this->Normals->SetName("Normals");
-    o->GetPointData()->CopyNormalsOff();
-    }
-  if (this->ComputeGradients)
-    {
-    this->Gradients = vtkFloatArray::New();
-    this->Gradients->SetNumberOfComponents(3);
-    this->Gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
-    this->Gradients->SetName("Gradients");
-    o->GetPointData()->CopyVectorsOff();
-    }
-  if (this->ComputeScalars)
-    {
-    this->Scalars = vtkFloatArray::New();
-    this->Scalars->Allocate(estimatedSize,estimatedSize/2);
-    this->Scalars->SetName("Scalars");
-    }
-  
-  o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
-                                         estimatedSize,estimatedSize/2);
-  o->GetCellData()->CopyAllocate(this->GetInput()->GetCellData(),
-                                 estimatedSize,estimatedSize/2);
-  
-  o->SetPoints(newPts);
-  newPts->Delete();
-
-  o->SetPolys(newPolys);
-  newPolys->Delete();
-
-}
 
 //----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
@@ -888,25 +914,6 @@ void vtkSynchronizedTemplates3D::Execute()
       }
     newPolys->Delete();
     newPts->Delete();
-    }
-
-  if (this->Scalars)
-    {
-    output->GetPointData()->SetScalars(this->Scalars);
-    this->Scalars->Delete();
-    this->Scalars = NULL;
-    }
-  if (this->Gradients)
-    {
-    output->GetPointData()->SetVectors(this->Gradients);
-    this->Gradients->Delete();
-    this->Gradients = NULL;
-    }
-  if (this->Normals)
-    {
-    output->GetPointData()->SetNormals(this->Normals);
-    this->Normals->Delete();
-    this->Normals = NULL;
     }
 
   output->Squeeze();

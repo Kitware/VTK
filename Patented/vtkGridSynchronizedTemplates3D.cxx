@@ -111,10 +111,6 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
     this->Threads[idx] = NULL;
     }
   this->InputScalarsSelection = NULL;
-
-  this->Scalars = NULL;
-  this->Normals = NULL;
-  this->Gradients = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -144,6 +140,64 @@ unsigned long vtkGridSynchronizedTemplates3D::GetMTime()
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
+                                                vtkStructuredGrid *input,
+                                                vtkPolyData *o,
+                                                vtkFloatArray *scalars,
+                                                vtkFloatArray *normals,
+                                                vtkFloatArray *gradients)
+{
+  vtkPoints *newPts;
+  vtkCellArray *newPolys;
+  long estimatedSize;
+  
+  estimatedSize = (int) pow ((double) 
+      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
+
+  newPts = vtkPoints::New();
+  newPts->Allocate(estimatedSize,estimatedSize);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
+  o->SetPoints(newPts);
+  newPts->Delete();
+  o->SetPolys(newPolys);
+  newPolys->Delete();
+  
+  o->GetPointData()->CopyAllOn();
+  o->GetPointData()->CopyScalarsOff();
+
+
+  if (normals)
+    {
+    normals->SetNumberOfComponents(3);
+    normals->Allocate(3*estimatedSize,3*estimatedSize/2);
+    normals->SetName("Normals");
+    }
+  if (gradients)
+    {
+    gradients->SetNumberOfComponents(3);
+    gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
+    gradients->SetName("Gradients");
+    }
+  if (scalars)
+    {
+    scalars->Allocate(estimatedSize,estimatedSize/2);
+    scalars->SetName("Scalars");
+    }
+
+
+  // It is more efficient to just create the scalar array 
+  o->GetPointData()->InterpolateAllocate(input->GetPointData(),
+                                         estimatedSize,estimatedSize/2);  
+  o->GetCellData()->CopyAllocate(input->GetCellData(),
+                                 estimatedSize,estimatedSize/2);
 }
 
 //----------------------------------------------------------------------------
@@ -366,15 +420,26 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   // Used to be passed in as parameteters.
   vtkCellArray *newPolys;
   vtkPoints *newPts;
-  vtkDataArray *newScalars;
-  vtkDataArray *newNormals;
-  vtkDataArray *newGradients;
+  vtkFloatArray *newScalars = NULL;
+  vtkFloatArray *newNormals = NULL;
+  vtkFloatArray *newGradients = NULL;
 
+  if (self->GetComputeScalars())
+    {
+    newScalars = vtkFloatArray::New();
+    }
+  if (self->GetComputeScalars())
+    {
+    newNormals = vtkFloatArray::New();
+    }
+  if (self->GetComputeScalars())
+    {
+    newGradients = vtkFloatArray::New();
+    }
+  vtkGridSynchronizedTemplates3DInitializeOutput(exExt, self->GetInput(), output, 
+                                            newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = self->Scalars;
-  newNormals = self->Normals;
-  newGradients = self->Gradients;
 
   // this is an exploded execute extent.
   XMin = exExt[0];
@@ -537,38 +602,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
               x[1] = p0[1] + t*(p3[1] - p0[1]);
               x[2] = p0[2] + t*(p3[2] - p0[2]);
               *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
-              //VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
-
-if (NeedGradients) 
-  { 
-  if (!g0) 
-    { \
-    ComputeGridPointGradient(i, j, k, inExt, incY, incZ, s0, p0, n0); 
-    g0 = 1; 
-    } 
-  ComputeGridPointGradient(i, j, k+1, inExt, incY, incZ, s3, p3, n1); 
-  for (jj=0; jj<3; jj++) 
-    { 
-    grad[jj] = n0[jj] + t * (n1[jj] - n0[jj]); 
-    } 
-  if (ComputeGradients) 
-    { 
-    newGradients->InsertNextTuple(grad); 
-    } 
-  if (ComputeNormals) 
-    { 
-    norm[0] = -grad[0];  norm[1] = -grad[1];  norm[2] = -grad[2]; 
-    vtkMath::Normalize(norm); 
-    newNormals->InsertNextTuple(norm); 
-    }   
-} 
-if (ComputeScalars) 
-{ 
-  newScalars->InsertNextTuple(&value); 
-} 
-
-
-
+              VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
               outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+incZ, t);     
               }
             else
@@ -630,62 +664,26 @@ if (ComputeScalars)
       }
     }
 
+  if (newScalars)
+    {
+    output->GetPointData()->SetScalars(newScalars);
+    newScalars->Delete();
+    newScalars = NULL;
+    }
+  if (newGradients)
+    {
+    output->GetPointData()->SetVectors(newGradients);
+    newGradients->Delete();
+    newGradients = NULL;
+    }
+  if (newNormals)
+    {
+    output->GetPointData()->SetNormals(newNormals);
+    newNormals->Delete();
+    newNormals = NULL;
+    }
+
   delete [] isect1;
-}
-
-//----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
-{
-  vtkPoints *newPts;
-  vtkCellArray *newPolys;
-  long estimatedSize;
-  
-  estimatedSize = (int) pow ((double) 
-      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
-  if (estimatedSize < 1024)
-    {
-    estimatedSize = 1024;
-    }
-
-  newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize,estimatedSize);
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
-  o->SetPoints(newPts);
-  newPts->Delete();
-  o->SetPolys(newPolys);
-  newPolys->Delete();
-  
-  o->GetPointData()->CopyAllOn();
-  o->GetPointData()->CopyScalarsOff();
-  if (this->ComputeScalars)
-    {
-    this->Scalars = vtkFloatArray::New();
-    this->Scalars->SetNumberOfComponents(1);
-    this->Scalars->Allocate(3*estimatedSize,3*estimatedSize/2);
-    this->Scalars->SetName("Scalars");
-    }
-  if (this->ComputeNormals)
-    {
-    this->Normals = vtkFloatArray::New();
-    this->Normals->SetNumberOfComponents(3);
-    this->Normals->Allocate(3*estimatedSize,3*estimatedSize/2);
-    this->Normals->SetName("Normals");
-    o->GetPointData()->CopyNormalsOff();
-    }
-  if (this->ComputeGradients)
-    {
-    this->Gradients = vtkFloatArray::New();
-    this->Gradients->SetNumberOfComponents(3);
-    this->Gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
-    this->Gradients->SetName("Gradients");
-    o->GetPointData()->CopyVectorsOff();
-    }
-  // It is more efficient to just create the scalar array 
-  o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
-                                         estimatedSize,estimatedSize/2);  
-  o->GetCellData()->CopyAllocate(this->GetInput()->GetCellData(),
-                                 estimatedSize,estimatedSize/2);
 }
 
 //----------------------------------------------------------------------------
@@ -701,12 +699,10 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
   if (this->NumberOfThreads <= 1)
     { // Special case when only one thread (fast, no copy).
     output = this->GetOutput();
-    this->InitializeOutput(exExt, output);
     }
   else
     { // For thread saftey, each writes into a separate output which are merged later.
     output = vtkPolyData::New();
-    this->InitializeOutput(exExt, output);
     this->Threads[threadId] = output;
     }
 
@@ -1124,24 +1120,5 @@ void vtkGridSynchronizedTemplates3D::Execute()
     newPts->Delete();
     }
   
-  if (this->Scalars)
-    {
-    output->GetPointData()->SetScalars(this->Scalars);
-    this->Scalars->Delete();
-    this->Scalars = NULL;
-    }
-  if (this->Normals)
-    {
-    output->GetPointData()->SetNormals(this->Normals);
-    this->Normals->Delete();
-    this->Normals = NULL;
-    }
-  if (this->Gradients)
-    {
-    output->GetPointData()->SetVectors(this->Gradients);
-    this->Gradients->Delete();
-    this->Gradients = NULL;
-    }
-
   output->Squeeze();
 }
