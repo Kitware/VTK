@@ -71,13 +71,11 @@ public:
   void PreMultiply();
   void PostMultiply();
 
-//BTX
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
   void TransformPoint(const float in[3], float out[3]);
   void TransformPoint(const double in[3], double out[3]);
-//ETX
 
   // Description:
   // Apply the transformation to a series of points, and append the

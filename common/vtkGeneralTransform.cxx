@@ -66,13 +66,15 @@ void vtkGeneralTransform::TransformPoint(const double in[3], double out[3])
 }
 
 //----------------------------------------------------------------------------
-float *vtkGeneralTransform::TransformPoint(float x, float y, float z)
+float *vtkGeneralTransform::TransformFloatPoint(float x, 
+						float y, 
+						float z)
 {
-  this->InternalPoint[0] = x;
-  this->InternalPoint[1] = y;
-  this->InternalPoint[2] = z;
-  this->TransformPoint(this->InternalPoint,this->InternalPoint);
-  return this->InternalPoint;
+  this->InternalFloatPoint[0] = x;
+  this->InternalFloatPoint[1] = y;
+  this->InternalFloatPoint[2] = z;
+  this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
+  return this->InternalFloatPoint;
 }
 
 //----------------------------------------------------------------------------

@@ -82,10 +82,8 @@ class VTK_EXPORT vtkTransform : public vtkGeneralTransform
   // Description:
   // Linear transformations (the perspective portion of
   // the 4x4 matrix is ignored).
-//BTX
   void TransformPoint(const float in[3], float out[3]);
   void TransformPoint(const double in[3], double out[3]);
-//ETX
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
   void TransformNormals(vtkPoints *inPts, vtkPoints *outPts,
 			vtkNormals *inNms, vtkNormals *outNms);

@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkGeneralTransform - superclass for geometric transformations
 // .SECTION Description
-// vtkGeneralTransform provides a generic interface for linear, perspective,
-// and warp transformations.
+// vtkGeneralTransform provides a generic interface for linear, 
+// perspective, and nonlinear warp transformations.
 // .SECTION see also
 // vtkTransform
 
@@ -85,16 +85,14 @@ public:
   // Description:
   // Apply the transformation to an (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
-  float *TransformPoint(float x, float y, float z);
+  float *TransformFloatPoint(float x, float y, float z);
   double *TransformDoublePoint(double x, double y, double z);
 
-//BTX
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
   virtual void TransformPoint(const float in[3], float out[3]) = 0;
   virtual void TransformPoint(const double in[3], double out[3]);
-//ETX
 
   // Description:
   // Apply the transformation to a series of points, and append the
@@ -136,7 +134,7 @@ public:
 
   // Description:
   // Copy this transform from another of the same type.
-  virtual void DeepCopy(vtkGeneralTransform *transform) {};
+  virtual void DeepCopy(vtkGeneralTransform *) {};
 
   // Description:
   // Update the transform to account for any changes which
@@ -163,6 +161,7 @@ public:
 protected:
   vtkGeneralTransform() { this->AutoUpdate = 1; 
                           this->MyInverse = NULL; };
+
   ~vtkGeneralTransform() {};
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
@@ -171,7 +170,7 @@ protected:
   int AutoUpdate;
   vtkGeneralTransformInverse *MyInverse;
   
-  float InternalPoint[3];
+  float InternalFloatPoint[3];
   double InternalDoublePoint[3];
 };
 
