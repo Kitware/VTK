@@ -2,7 +2,6 @@
 
 main ()
 {
-  vtkRenderMaster rm;
   vtkRenderWindow *renWin;
   vtkRenderer *ren1;
   vtkRenderWindowInteractor *iren;
@@ -14,20 +13,22 @@ main ()
   vtkOutlineFilter *outline;
   vtkContourFilter *contours;
 
-  renWin = rm.MakeRenderWindow();
-  iren = renWin->MakeRenderWindowInteractor();
-  ren1 = renWin->MakeRenderer();
-
+  ren1 = vtkRenderer::New();
+  renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(ren1);
+  iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
+  
   // Quadric definition
-  quadric = new vtkQuadric;
+  quadric = vtkQuadric::New();
     quadric->SetCoefficients(.5,1,.2,0,.1,0,0,.2,0,0);
 
-  sample = new vtkSampleFunction;
+  sample = vtkSampleFunction::New();
     sample->SetSampleDimensions(50,50,50);
     sample->SetImplicitFunction(quadric);
 
   // Create five surfaces F(x,y,z) = constant between range specified
-  contours = new vtkContourFilter;
+  contours = vtkContourFilter::New();
     contours->SetInput(sample->GetOutput());
     contours->GenerateValues(5, 0.0, 1.2);
 
@@ -39,7 +40,7 @@ main ()
     contActor->SetMapper(contMapper);
 
   // Create outline
-  outline = new vtkOutlineFilter;
+  outline = vtkOutlineFilter::New();
     outline->SetInput(sample->GetOutput());
 
   outlineMapper = vtkPolyMapper::New();
@@ -50,8 +51,8 @@ main ()
     outlineActor->GetProperty()->SetColor(0,0,0);
 
   ren1->SetBackground(1,1,1);
-  ren1->AddActors(contActor);
-  ren1->AddActors(outlineActor);
+  ren1->AddActor(contActor);
+  ren1->AddActor(outlineActor);
 
   renWin->Render();
 
