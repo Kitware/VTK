@@ -260,11 +260,22 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WhereTcl = "";
     dlg.m_WhereTk  = "";
     }
-   if (strncmp(m_lpCmdLine, "quality", 7) == 0)  // skip any trailing characters
+   if (strncmp(m_lpCmdLine, "qualityNT", 9) == 0)  // skip any trailing characters
     {
     // use the quality testing effort defaults
     dlg.m_WhereVTK = "d:\\production\\vtk";
     dlg.m_WhereBuild = "d:\\production\\vtkbin";
+    dlg.m_WhereJDK = "";
+    dlg.m_WhereTcl = "";
+    dlg.m_WhereTk  = "";
+    dlg.Create(IDD_PCMAKER_DIALOG,NULL);
+    dlg.DoOKStuff();
+    }
+   else if (strncmp(m_lpCmdLine, "quality98", 9) == 0)  // skip any trailing characters
+    {
+    // use the quality testing effort defaults
+    dlg.m_WhereVTK = "c:\\production\\vtk";
+    dlg.m_WhereBuild = "c:\\production\\vtkbin";
     dlg.m_WhereJDK = "";
     dlg.m_WhereTcl = "";
     dlg.m_WhereTk  = "";
