@@ -16,12 +16,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlRenderer - abstract specification  for renderers
 // .SECTION Description
 // vlRenderer provides an abstract specification for renderers. A renderer
-// is an object that controls the rendering process for objects. Rendering is
-// the process of converting geometry, a specification for lights, and a 
-// camera view into an image. vlRenderer also performs coordinate 
+// is an object that controls the rendering process for objects. Rendering
+// is the process of converting geometry, a specification for lights, and 
+// a camera view into an image. vlRenderer also performs coordinate 
 // transformation between world coordinates, view coordinates (the computer
-// graphics rendering coordinate system), and display coordinates (the actual
-// screen coordinates on the display device).
+// graphics rendering coordinate system), and display coordinates (the 
+// actual screen coordinates on the display device).
 
 #ifndef __vlRenderer_hh
 #define __vlRenderer_hh
@@ -68,7 +68,9 @@ public:
   vlGetVectorMacro(Ambient,float,3);
 
   // Description:
-  // Turn on/off whether objects are light from behind with another light.
+  // Turn on/off whether objects are lit from behind with another light.
+  // If backlighting is on, for every light that is created, a second 
+  // opposing light is created to backlight the object.
   vlSetMacro(BackLight,int);
   vlGetMacro(BackLight,int);
   vlBooleanMacro(BackLight,int);
