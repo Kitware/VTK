@@ -106,6 +106,9 @@ public:
   float GetColorShift();
   float GetColorScale();
 
+  // Public for templated functions.
+  int DisplayExtent[6];
+
 protected:
   vtkImageMapper();
   ~vtkImageMapper();

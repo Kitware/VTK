@@ -215,7 +215,18 @@ void vtkMesaImageWindow::SwapBuffers()
     vtkDebugMacro(<< " glXSwapBuffers\n");
     }
 }
- 
+
+// End the Imaging process and display the image.
+void vtkMesaImageWindow::Frame()
+{
+  glFlush();
+  vtkDebugMacro(<< "Frame\n");
+  if (this->DoubleBuffer)
+    {
+    glXSwapBuffers(this->DisplayId, this->WindowId);
+    }
+}
+
 
 // Initialize the window for Imaging.
 void vtkMesaImageWindow::MakeDefaultWindow()

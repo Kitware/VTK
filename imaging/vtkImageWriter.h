@@ -91,7 +91,7 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  void SetInput(vtkImageData *input);
+  virtual void SetInput(vtkImageData *input);
   vtkImageData *GetInput();
 
   // Description:

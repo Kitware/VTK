@@ -219,11 +219,9 @@ void vtkImageWindow::Render()
     {
     tempImager->RenderTranslucentGeometry(); 
     }
- 
-  if (this->DoubleBuffer)
-    {
-    this->SwapBuffers();
-    }
+
+  // flush buffer and swap if necessary
+  this->Frame();
 
   // tell each of the imagers to render
   for (this->Imagers->InitTraversal(); 

@@ -97,6 +97,7 @@ protected:
   void operator=(const vtkExtractVOI&) {};
 
   void Execute();
+  void ExecuteInformation();
 
   int VOI[6];
   int SampleRate[3];

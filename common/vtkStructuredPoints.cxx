@@ -70,6 +70,13 @@ void vtkStructuredPoints::ModifyExtentForUpdateExtent()
   this->SetUpdateExtent( this->WholeExtent );
 }
 
+void vtkStructuredPoints::PropagateUpdateExtent()
+{
+  // Make sure the extent is the whole extent
+  this->SetUpdateExtent( this->WholeExtent );
+
+  this->vtkImageData::PropagateUpdateExtent();
+}
 
 
 

@@ -186,7 +186,18 @@ void vtkOpenGLImageWindow::SwapBuffers()
     vtkDebugMacro(<< " glXSwapBuffers\n");
     }
 }
- 
+
+// End the Imaging process and display the image.
+void vtkOpenGLImageWindow::Frame()
+{
+  glFlush();
+  vtkDebugMacro(<< "Frame\n");
+  if (this->DoubleBuffer)
+    {
+    glXSwapBuffers(this->DisplayId, this->WindowId);
+    }
+}
+
 
 // Initialize the window for Imaging.
 void vtkOpenGLImageWindow::MakeDefaultWindow()

@@ -273,7 +273,15 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
-  glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
+  if (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION)
+    {
+    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
+    }
+  else
+    {
+    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, -1, 0);
+    }
+  
   glDisable( GL_LIGHTING);
 
   glListBase(vtkXOpenGLTextMapper::GetListBaseForFont(this,viewport,

@@ -139,6 +139,23 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
   this->CopyInformation(sPts);
 }
 
+void vtkImageData::PrepareForNewData()
+{
+  // free everything but the scalars
+  vtkScalars *scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+    {
+    scalars->Register(this);
+    }
+  this->Initialize();
+  if (scalars)
+    {
+    this->GetPointData()->SetScalars(scalars);
+    scalars->UnRegister(this);
+    }
+}
+
+
 //----------------------------------------------------------------------------
 
 // The input data object must be of type vtkImageData or a subclass!
@@ -1597,6 +1614,22 @@ void vtkImageData::SetExtent(int *extent)
   this->Dimensions[1] = extent[3] - extent[2] + 1;
   this->Dimensions[2] = extent[5] - extent[4] + 1;
   this->ComputeIncrements();
+}
+
+//----------------------------------------------------------------------------
+
+int vtkImageData::UpdateExtentIsOutsideOfTheExtent()
+{
+  if ( this->UpdateExtent[0] < this->Extent[0] ||
+       this->UpdateExtent[1] > this->Extent[1] ||
+       this->UpdateExtent[2] < this->Extent[2] ||
+       this->UpdateExtent[3] > this->Extent[3] ||
+       this->UpdateExtent[4] < this->Extent[4] ||
+       this->UpdateExtent[5] > this->Extent[5] )
+    {
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -273,6 +273,12 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
   return data;
 }
 
+void vtkXImageWindow::Frame()
+{
+  this->SwapBuffers();
+}
+
+
 void vtkXImageWindow::SwapBuffers()
 {
   static int swapFlag = 0;
@@ -283,18 +289,20 @@ void vtkXImageWindow::SwapBuffers()
     }
   else
     {
-    if ( !this->WindowId )
+    if ( !this->WindowId)
       {
       vtkErrorMacro ( << "Attempt to use NULL WindowId" );
       return;
       }
-    XCopyArea(this->DisplayId, this->Drawable, this->WindowId, this->Gc, 
-	      0, 0, this->Size[0], this->Size[1], 0, 0);
+    if (this->DoubleBuffer)
+      {
+      XCopyArea(this->DisplayId, this->Drawable, this->WindowId, this->Gc, 
+		0, 0, this->Size[0], this->Size[1], 0, 0);
+      swapFlag = 0;
+      }
+    }
     XSync(this->DisplayId, False);
     XFlush(this->DisplayId);
-    swapFlag = 0;
-    }
-
 }
 
 void *vtkXImageWindow::GetGenericDrawable()

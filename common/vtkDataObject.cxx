@@ -98,6 +98,7 @@ vtkDataObject::vtkDataObject()
   this->MaximumNumberOfPieces = 1;
 
   this->PipelineMTime = 0;
+  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -223,37 +224,37 @@ void vtkDataObject::UpdateInformation()
 	}
       break;
     }
+  
+  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 }
 
 //----------------------------------------------------------------------------
 
 void vtkDataObject::PropagateUpdateExtent()
 {
-  // Release data if update extent does not lie within extent
-  this->ModifyExtentForUpdateExtent();
-
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
   // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased )
+  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
+       this->UpdateExtentIsOutsideOfTheExtent() || 
+       this->LastUpdateExtentWasOutsideOfTheExtent)
     {
     if (this->Source)
       {
       this->Source->PropagateUpdateExtent(this);
       }
     }
-
+  
+  // update the value of this ivar
+  this->LastUpdateExtentWasOutsideOfTheExtent = 
+    this->UpdateExtentIsOutsideOfTheExtent();
+  
   // Check that the update extent lies within the whole extent
   if ( ! this->VerifyUpdateExtent() )
     {
     // invalid update piece - this should not occur!
     return;
     }
-
-  // Release data if update extent does not lie within extent
-  // We have to do it again because the source may have modified our
-  // UpdateExtent during propagation.
-  this->ModifyExtentForUpdateExtent();
 }
 
 //----------------------------------------------------------------------------
@@ -263,7 +264,8 @@ void vtkDataObject::TriggerAsynchronousUpdate()
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the trigger to the source
   // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased )
+  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
+       this->UpdateExtentIsOutsideOfTheExtent())
     {
     if (this->Source)
       {
@@ -279,7 +281,8 @@ void vtkDataObject::UpdateData()
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the UpdateData to the source
   // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased )
+  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
+       this->UpdateExtentIsOutsideOfTheExtent())
     {
     if (this->Source)
       {
@@ -485,6 +488,40 @@ int vtkDataObject::VerifyUpdateExtent()
   return retval;
 }
 
+
+int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
+{
+  switch ( this->GetExtentType() )
+    {
+    case VTK_PIECES_EXTENT:
+      if ( this->UpdatePiece != this->Piece ||
+	   this->UpdateNumberOfPieces != this->NumberOfPieces )
+	{
+        return 1;
+	}
+      break;
+
+    case VTK_3D_EXTENT:
+      if ( this->UpdateExtent[0] < this->Extent[0] ||
+	   this->UpdateExtent[1] > this->Extent[1] ||
+	   this->UpdateExtent[2] < this->Extent[2] ||
+	   this->UpdateExtent[3] > this->Extent[3] ||
+	   this->UpdateExtent[4] < this->Extent[4] ||
+	   this->UpdateExtent[5] > this->Extent[5] )
+	{
+        return 1;
+	}
+      break;
+
+    // We should never have this case occur
+    default:
+      vtkErrorMacro( << "Internal error - invalid extent type!" );
+      break;
+    }
+  return 0;
+}
+
+
 //----------------------------------------------------------------------------
 
 void vtkDataObject::ModifyExtentForUpdateExtent()
@@ -546,6 +583,7 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
     }  
 }
 
+
 //----------------------------------------------------------------------------
 
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
@@ -588,4 +626,7 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "LastUpdateExtentWasOutsideOfTheExtent: " << 
+    this->LastUpdateExtentWasOutsideOfTheExtent << endl;
 }

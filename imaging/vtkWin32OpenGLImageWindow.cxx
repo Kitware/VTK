@@ -217,7 +217,18 @@ void vtkWin32OpenGLImageWindow::SwapBuffers()
     vtkDebugMacro(<< " SwapBuffers\n");
     }
 }
- 
+
+// End the rendering process and display the image.
+void vtkWin32OpenGLImageWindow::Frame()
+{
+  glFlush();
+  vtkDebugMacro(<< "Frame\n");
+  if (this->DoubleBuffer)
+    {
+    vtkWin32OpenGLSwapBuffers(this->DeviceContext);
+    }
+}
+
 
 void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
 						  int debug, int bpp, 

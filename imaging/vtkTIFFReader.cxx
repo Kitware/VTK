@@ -45,8 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkObjectFactory.h"
 
-
-
 //------------------------------------------------------------------------------
 vtkTIFFReader* vtkTIFFReader::New()
 {
@@ -70,6 +68,8 @@ void vtkTIFFReader::Swap2(short *stmp)
     vtkByteSwap::SwapVoidRange(stmp, 1, 2);
     }
 }
+
+#if (!(_MIPS_SZLONG == 64))
 void vtkTIFFReader::Swap4(int *stmp)
 {
   if (this->SwapBytes)
@@ -77,7 +77,9 @@ void vtkTIFFReader::Swap4(int *stmp)
     vtkByteSwap::SwapVoidRange(stmp, 1, 4);
     }
 }
-void vtkTIFFReader::Swap4(long *stmp)
+#endif
+
+void vtkTIFFReader::Swap4(vtkTiffLong *stmp)
 {
   if (this->SwapBytes)
     {
@@ -88,7 +90,7 @@ void vtkTIFFReader::Swap4(long *stmp)
 void vtkTIFFReader::ReadTag(_vtkTifTag *tag, FILE *fp)
 {
   short stmp;
-  long ltmp;
+  vtkTiffLong ltmp;
   int itmp;
   
   fread(&stmp,sizeof(short),1,fp);
@@ -100,14 +102,14 @@ void vtkTIFFReader::ReadTag(_vtkTifTag *tag, FILE *fp)
   tag->DataType = stmp;
 
   int sizeLong;
-  sizeLong = sizeof(long);
+  sizeLong = sizeof(vtkTiffLong);
   if (sizeLong == 4)
     {
-    fread(&ltmp,sizeof(long),1,fp);
+    fread(&ltmp,sizeof(vtkTiffLong),1,fp);
     this->Swap4(&ltmp);
     tag->DataCount = ltmp;
     
-    fread(&ltmp,sizeof(long),1,fp);
+    fread(&ltmp,sizeof(vtkTiffLong),1,fp);
     tag->DataOffset = ltmp;
     }
   else
@@ -121,7 +123,7 @@ void vtkTIFFReader::ReadTag(_vtkTifTag *tag, FILE *fp)
     }
 }
 
-long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
+vtkTiffLong vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
 {
   int result;
   int curPos;
@@ -132,7 +134,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
       ((tag->DataCount > 4)&&(tag->DataType == 1)))
     {
     // jump to offset and read the first value
-    curPos = ftell(fp);
+    curPos = (int) ftell(fp);
     // swap offset as 4 byte
     this->Swap4(&tag->DataOffset);
     fseek(fp, tag->DataOffset, SEEK_SET);
@@ -178,12 +180,12 @@ void vtkTIFFReader::ExecuteInformation()
   int xsize, ysize;
   FILE *fp;
   short stmp;
-  long IFDOffset;
+  vtkTiffLong IFDOffset;
   int iIFDOffset;
   _vtkTifTag aTag;
   int i;
   short numTags;
-  long ltmp;
+  vtkTiffLong ltmp;
   int numComp, bpp;
   int numSlices = 1;
   
@@ -246,10 +248,10 @@ void vtkTIFFReader::ExecuteInformation()
   
   // get the offset to the image file directory
   int sizeLong;
-  sizeLong = sizeof(long);
+  sizeLong = sizeof(vtkTiffLong);
   if (sizeLong == 4)
     {
-    fread(&IFDOffset,sizeof(long),1,fp);
+    fread(&IFDOffset,sizeof(vtkTiffLong),1,fp);
     this->Swap4(&IFDOffset);
     }
   else

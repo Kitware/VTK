@@ -185,6 +185,11 @@ void vtkWin32ImageWindow::SwapBuffers()
 {
 }
 
+// Win32 version does not handle double buffering
+void vtkWin32ImageWindow::Frame()
+{
+}
+
 
 //----------------------------------------------------------------------------
 vtkWin32ImageWindow::vtkWin32ImageWindow()
