@@ -1,14 +1,15 @@
-# RTest.tcl - a little application to run regression tests
-# 	Written by Will Schroeder
+# RTest.tcl - a little application to run VTK regression tests
+# 	      Written by Will Schroeder
 #
 
 # Start by setting environment variables - most of them are found 
-# automatically given a "normal" setup.
+# automatically given a "standard" VTK setup.
 # Read default values if present; otherwise we'll make a guess. This
 # environment variables interact with RTestGUI.tcl and
 # rtImageTclExamples.tcl.
 #
 #    TCL_EXECUTABLE -       Where the Tcl/Tk executable is, defaults to
+#                           the value returned by the Tcl command 
 #                           [info nameofexecutable]
 #    BIN_DIR -              Where to find this script and supporting Tcl
 #                           stuff, dll's, etc. Default is "".
@@ -19,10 +20,11 @@
 #    VTK_VALID_IMAGE_PATH - where the valid images are, 
 #                           defaults to $VTK_ROOT/vtkbaseline
 #    VTK_RESULTS_PATH -     where to put regression test images, 
-#                           defaults to "d:/rtResults"
+#                           defaults to $VTK_ROOT/rtResults
 #    VTK_REGRESSION_LOG -   where to send log messages, 
 #                           defaults to $VTK_RESULTS_PATH/rt.log
-#    VTK_PLATFORM -         the OS of the computer, defaults to "WinNT"
+#    VTK_PLATFORM -         the OS of the computer, defaults to "", i.e., generic
+#
 ######################### Check environment #################
 #######
 
@@ -60,11 +62,14 @@ if { [file exists $env(BIN_DIR)/RTest.gif] } {
 # VTK_ROOT is "d:\foo")
 if { [catch {set tmp $env(VTK_ROOT) }] != 0} {
    # See whether we can figure it out
-   set idx [string first "/vtk/" $currentDirectory]
+   set idx [string last "/vtk" $currentDirectory]
    if { $idx >= 0 } {
       set env(VTK_ROOT) [string range $currentDirectory 0 $idx]
+      set idx2 [string last "/" $currentDirectory]
+      set env(VTK_DIR) [string range $currentDirectory $idx $idx2]
    } else {
       set env(VTK_ROOT) $currentDirectory
+      set env(VTK_DIR)  $currentDirectory/vtk
    }
 }
 
@@ -73,7 +78,7 @@ if { [catch {set tmp $env(VTK_VALID_IMAGE_PATH) }] != 0} {
    # Create default
    set env(VTK_VALID_IMAGE_PATH) $env(VTK_ROOT)/vtkbaseline/images
    if { [file isdir $env(VTK_VALID_IMAGE_PATH)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_ROOT)" \
               -title "Location of vtkbaseline/images" ]
       if { $dirname != "" && [file isdir $env(VTK_VALID_IMAGE_PATH)] != 0 } {
          set $env(VTK_VALID_IMAGE_PATH) $dirname
@@ -88,7 +93,7 @@ if { [catch {set tmp $env(VTK_DATA) }] != 0} {
    # Create default
    set env(VTK_DATA) $env(VTK_ROOT)/vtkdata
    if { [file isdir $env(VTK_DATA)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_ROOT)" \
               -title "Location of vtkdata/" ]
       if { $dirname != "" && [file isdir $env(VTK_DATA)] != 0 } {
          set $env(VTK_DATA) $dirname
@@ -101,9 +106,9 @@ if { [catch {set tmp $env(VTK_DATA) }] != 0} {
 # Set the Tcl auxiliary files location
 if { [catch {set tmp $env(VTK_TCL) }] != 0} {
    # Create default
-   set env(VTK_TCL) $env(VTK_ROOT)/vtk/examplesTcl
+   set env(VTK_TCL) $env(VTK_ROOT)/$env(VTK_DIR)/examplesTcl
    if { [file isdir $env(VTK_TCL)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_TCL)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_TCL)" \
               -title "Location of vtk/examplesTcl/" ]
       if { $dirname != "" && [file isdir $env(VTK_TCL)] != 0 } {
          set $env(VTK_TCL) $dirname

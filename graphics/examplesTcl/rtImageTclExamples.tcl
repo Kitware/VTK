@@ -121,7 +121,8 @@ proc padString { str amount } {
 
 # if VTK_ROOT is defined, then use it to find the CPU processing scripts
 if { [catch {set VTK_ROOT $env(VTK_ROOT)}] != 0} { set VTK_ROOT "../../../" }
-source $VTK_ROOT/vtk/graphics/examplesTcl/rtProcessCPUTimes.tcl
+if { [catch {set VTK_DIR $env(VTK_DIR)}] != 0} { set VTK_DIR "vtk" }
+source $VTK_ROOT/$VTK_DIR/graphics/examplesTcl/rtProcessCPUTimes.tcl
 ReadCPUTimeTable
 
 # now do the tests
