@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.48");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.49");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -228,7 +228,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->TransformBounds(viewport, bounds, pts);
 
   // Find the portion of the bounding box that fits within the viewport,
-  if ( !ShowActualBounds && (this->ClipBounds(viewport, pts, bounds) == 0) )
+  if ( !this->ShowActualBounds && (this->ClipBounds(viewport, pts, bounds) == 0) )
     {
     this->RenderSomething = 0;
     return 0;
@@ -549,7 +549,7 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     xCoords[3] = xCoords[3] - this->CornerOffset * (xCoords[3] - ave);
 
     ave = (xRange[1] + xRange[0]) / 2.0;
-    if (!ShowActualBounds)
+    if (!this->ShowActualBounds)
       {
       xRange[0] = xRange[0] - this->CornerOffset * (xRange[0] - ave);
       xRange[1] = xRange[1] - this->CornerOffset * (xRange[1] - ave);
@@ -565,7 +565,7 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     yCoords[3] = yCoords[3] - this->CornerOffset * (yCoords[3] - ave);
 
     ave = (yRange[1] + yRange[0]) / 2.0;
-    if (!ShowActualBounds)
+    if (!this->ShowActualBounds)
       {
       yRange[0] = yRange[0] - this->CornerOffset * (yRange[0] - ave);
       yRange[1] = yRange[1] - this->CornerOffset * (yRange[1] - ave);
@@ -581,7 +581,7 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     zCoords[3] = zCoords[3] - this->CornerOffset * (zCoords[3] - ave);
 
     ave = (zRange[1] + zRange[0]) / 2.0;
-    if (!ShowActualBounds)
+    if (!this->ShowActualBounds)
       {
       zRange[0] = zRange[0] - this->CornerOffset * (zRange[0] - ave);
       zRange[1] = zRange[1] - this->CornerOffset * (zRange[1] - ave);
