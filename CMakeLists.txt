@@ -262,6 +262,7 @@ ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 
 #-----------------------------------------------------------------------------
 # Select a streams library.
+INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
 CHECK_INCLUDE_FILE_CXX("iosfwd" VTK_HAVE_ANSI_STREAMS)
 CHECK_INCLUDE_FILE_CXX("iostream.h" VTK_HAVE_OLD_STREAMS)
 
