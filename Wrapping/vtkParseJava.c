@@ -402,7 +402,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"  protected void finalize() { this.VTKDelete();};\n");
       }
     }
-  // Special case for vtkObject
+  /* Special case for vtkObject */
   else if ( strcmp("vtkObject",data->ClassName) == 0 )
     {
     fprintf(fp,"\n  public %s() { super(); this.VTKInit(); };\n",

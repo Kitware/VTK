@@ -168,7 +168,7 @@
     else
     {
       pitch = ( width + 7 ) >> 3;
-      //      pitch = ( ( width + 15 ) >> 4 ) << 1;
+      /*  pitch = ( ( width + 15 ) >> 4 ) << 1; */
       bitmap->pixel_mode = ft_pixel_mode_mono;
     }
 
