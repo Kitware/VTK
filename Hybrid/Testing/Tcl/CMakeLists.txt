@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING)
       MassProperties
       OverlayTextOnImage
       TestCaptionActor
+      TestGreedyTerrainDecimation
       TestGridWarp3D
       TestGridWarpCubic
       TestGridWarpLinear
