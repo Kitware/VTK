@@ -42,7 +42,8 @@ label .top.f1.f2.f2.f1.label -text "Composite Rendering" \
 vtkTkRenderWidget .top.f1.f2.f1.f1.ren -width 256 -height 256 
     BindTkRenderWidget .top.f1.f2.f1.f1.ren
 
-vtkTkRenderWidget .top.f1.f2.f2.f1.ren -width 256 -height 256 
+vtkRenderWindow renWin
+vtkTkRenderWidget .top.f1.f2.f2.f1.ren  -rw renWin -width 256 -height 256
     BindTkRenderWidget .top.f1.f2.f2.f1.ren
 
 pack .top.f1.f2.f1 .top.f1.f2.f2 -side top
@@ -57,7 +58,8 @@ set renWin1 [.top.f1.f2.f1.f1.ren GetRenderWindow]
 vtkRenderer ren1
 $renWin1 AddRenderer ren1
 
-set renWin3 [.top.f1.f2.f2.f1.ren GetRenderWindow]
+
+set renWin3 renWin
 vtkRenderer ren3
 $renWin3 AddRenderer ren3
 
