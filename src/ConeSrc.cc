@@ -34,7 +34,7 @@ void vlConeSource::Execute()
   int numLines, numPolys, numPts;
   float x[3], xbot;
   int i;
-  int pts[MAX_RESOLUTION];
+  int pts[MAX_CELL_SIZE];
   vlFloatPoints *newPoints; 
   vlCellArray *newLines=0;
   vlCellArray *newPolys=0;

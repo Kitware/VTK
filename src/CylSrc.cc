@@ -37,7 +37,7 @@ void vlCylinderSource::Execute()
   float xbot[3], tcbot[2], nbot[3];
   float xtop[3], tctop[2], ntop[3];
   int i, idx;
-  int pts[MAX_RESOLUTION];
+  int pts[MAX_CELL_SIZE];
   vlFloatPoints *newPoints; 
   vlFloatNormals *newNormals;
   vlFloatTCoords *newTCoords;

@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "PolySrc.hh"
 
-#define MAX_RESOLUTION 512
+#define MAX_SPHERE_RESOLUTION 1024
 
 class vlSphereSource : public vlPolySource 
 {
@@ -42,12 +42,12 @@ public:
 
   // Description:
   // Set the number of points in the longitude direction.
-  vlSetClampMacro(ThetaResolution,int,4,MAX_RESOLUTION);
+  vlSetClampMacro(ThetaResolution,int,4,MAX_SPHERE_RESOLUTION);
   vlGetMacro(ThetaResolution,int);
 
   // Description:
   // Set the number of points in the latitude direction.
-  vlSetClampMacro(PhiResolution,int,4,MAX_RESOLUTION);
+  vlSetClampMacro(PhiResolution,int,4,MAX_SPHERE_RESOLUTION);
   vlGetMacro(PhiResolution,int);
 
   // Description:

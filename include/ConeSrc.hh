@@ -29,8 +29,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "PolySrc.hh"
 
-#define MAX_RESOLUTION MAX_CELL_SIZE
-
 class vlConeSource : public vlPolySource 
 {
 public:
@@ -50,7 +48,7 @@ public:
 
   // Description:
   // Set the number of facets used to represent cone.
-  vlSetClampMacro(Resolution,int,0,MAX_RESOLUTION)
+  vlSetClampMacro(Resolution,int,0,MAX_CELL_SIZE)
   vlGetMacro(Resolution,int);
 
   // Description:
