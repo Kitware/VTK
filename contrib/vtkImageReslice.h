@@ -184,7 +184,7 @@ protected:
   float OutputOrigin[3];
   float OutputSpacing[3];
   int OutputExtent[6];
-  float BackgroundLevel[4];
+
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
@@ -198,6 +198,12 @@ protected:
   // the regions data types.
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
+
+  // Description: 
+  // Methods which are used when the 'Optimized' flag is setd
+  void OptimizedComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+				int ext[6], int id);  
 };
 
 //----------------------------------------------------------------------------
