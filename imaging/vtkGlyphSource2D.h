@@ -161,7 +161,7 @@ protected:
 
   void Execute();
 
-  float Center[2];
+  float Center[3];
   float Scale;
   float Scale2;
   float Color[3];
