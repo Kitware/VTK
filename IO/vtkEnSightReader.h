@@ -118,7 +118,8 @@ public:
   int GetComplexVariableType(int n);
   
   void Update();
-
+  void UpdateInformation();
+  
   // Description:
   // Set/Get the time value at which to get the value.
   vtkSetMacro(TimeValue, float);
@@ -128,6 +129,10 @@ public:
   // Get the minimum or maximum time value in this data set.
   vtkGetMacro(MinimumTimeValue, float);
   vtkGetMacro(MaximumTimeValue, float);
+
+  // Description:
+  // Get the time values per time set
+  vtkGetObjectMacro(TimeSetTimeValuesCollection, vtkCollection);
   
 protected:
   vtkEnSightReader();
@@ -138,6 +143,9 @@ protected:
   // Description:
   // Read the case file.  If an error occurred, 0 is returned; otherwise 1.
   int ReadCaseFile();
+
+  // set in UpdateInformation to value returned from ReadCaseFile
+  int CaseFileRead;
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.

@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.30");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.31");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -236,7 +236,7 @@ void vtkEnSightReader::Execute()
   char* fileName;
   int filenameNum;
   
-  if (!this->ReadCaseFile())
+  if ( ! this->CaseFileRead)
     {
     vtkErrorMacro("error reading case file");
     return;
@@ -424,6 +424,7 @@ void vtkEnSightReader::Update()
 {
   int i;
   
+  this->UpdateInformation();
   this->Execute();
   
   for (i = 0; i < this->GetNumberOfOutputs(); i++)
@@ -433,6 +434,11 @@ void vtkEnSightReader::Update()
       this->GetOutput(i)->DataHasBeenGenerated();
       }
     }
+}
+//----------------------------------------------------------------------------
+void vtkEnSightReader::UpdateInformation()
+{
+  this->CaseFileRead = this->ReadCaseFile();
 }
 
 //----------------------------------------------------------------------------

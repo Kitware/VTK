@@ -22,7 +22,7 @@
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.22");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.23");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 //----------------------------------------------------------------------------
@@ -61,6 +61,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->TimeValue = 0;
   this->MinimumTimeValue = 0;
   this->MaximumTimeValue = 0;
+  
+  this->TimeSetTimeValuesCollection = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -121,41 +123,10 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
 void vtkGenericEnSightReader::Execute()
 {
   int i;
-  int version = this->DetermineEnSightVersion();
-  
-  if (version == VTK_ENSIGHT_6)
-    {
-    vtkDebugMacro("EnSight6");
-    this->Reader = vtkEnSight6Reader::New();
-    }
-  else if (version == VTK_ENSIGHT_6_BINARY)
-    {
-    vtkDebugMacro("EnSight6 binary");
-    this->Reader = vtkEnSight6BinaryReader::New();
-    }
-  else if (version == VTK_ENSIGHT_GOLD)
-    {
-    vtkDebugMacro("EnSightGold");
-    this->Reader = vtkEnSightGoldReader::New();
-    }
-  else if (version == VTK_ENSIGHT_GOLD_BINARY)
-    {
-    vtkDebugMacro("EnSightGold binary");
-    this->Reader = vtkEnSightGoldBinaryReader::New();
-    }
-  else
-    {
-    vtkErrorMacro("Error determining EnSightVersion");
-    return;
-    }
-  
-  this->Reader->SetCaseFileName(this->GetCaseFileName());
-  this->Reader->SetFilePath(this->GetFilePath());
+
   this->Reader->SetTimeValue(this->GetTimeValue());
   this->Reader->Update();
 
-  this->MinimumTimeValue = this->Reader->GetMinimumTimeValue();
-  this->MaximumTimeValue = this->Reader->GetMaximumTimeValue();
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
   this->NumberOfVectorsPerNode = this->Reader->GetNumberOfVectorsPerNode();
   this->NumberOfTensorsSymmPerNode = this->Reader->GetNumberOfTensorsSymmPerNode();
@@ -501,6 +472,7 @@ void vtkGenericEnSightReader::Update()
 {
   int i;
   
+  this->UpdateInformation();
   this->Execute();
   
   for (i = 0; i < this->GetNumberOfOutputs(); i++)
@@ -510,6 +482,50 @@ void vtkGenericEnSightReader::Update()
       this->GetOutput(i)->DataHasBeenGenerated();
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericEnSightReader::UpdateInformation()
+{
+  if ( ! this->Reader)
+    {
+    int version = this->DetermineEnSightVersion();
+    
+    if (version == VTK_ENSIGHT_6)
+      {
+      vtkDebugMacro("EnSight6");
+      this->Reader = vtkEnSight6Reader::New();
+      }
+    else if (version == VTK_ENSIGHT_6_BINARY)
+      {
+      vtkDebugMacro("EnSight6 binary");
+      this->Reader = vtkEnSight6BinaryReader::New();
+      }
+    else if (version == VTK_ENSIGHT_GOLD)
+      {
+      vtkDebugMacro("EnSightGold");
+      this->Reader = vtkEnSightGoldReader::New();
+      }
+    else if (version == VTK_ENSIGHT_GOLD_BINARY)
+      {
+      vtkDebugMacro("EnSightGold binary");
+      this->Reader = vtkEnSightGoldBinaryReader::New();
+      }
+    else
+      {
+      vtkErrorMacro("Error determining EnSightVersion");
+      return;
+      }
+    }
+  
+  this->Reader->SetCaseFileName(this->GetCaseFileName());
+  this->Reader->SetFilePath(this->GetFilePath());
+  this->Reader->UpdateInformation();
+  
+  this->SetTimeSetTimeValuesCollection(
+    this->Reader->GetTimeSetTimeValuesCollection());
+  this->MinimumTimeValue = this->Reader->GetMinimumTimeValue();
+  this->MaximumTimeValue = this->Reader->GetMaximumTimeValue();
 }
 
 //----------------------------------------------------------------------------
