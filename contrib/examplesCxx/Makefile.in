@@ -8,7 +8,6 @@
 SHELL = /bin/sh
 .SUFFIXES: .cxx
 
-ldir          = `pwd`
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 VTK_LIB_FILE  = @VTK_LIB_FILE@
@@ -31,13 +30,14 @@ EXAMPLES = TestMPI TestController TestPolyDataPort TestStructuredPointsPort \
 
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
-	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
+	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} ${CONTROLLER_API_FLAGS} \
 	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
 	-I${srcdir}/../../imaging -I${srcdir}/../../graphics
 
 VTKLIB = ${VTK_LIB_FILE}
 
-LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS} ${MPI_LIBS} -lXext -lXt -lSM -lICE -lX11  -lm
+LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} \
+	${THREAD_LIBS} ${CONTROLLER_API_LIBS} -lXext -lXt -lSM -lICE -lX11  -lm
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
