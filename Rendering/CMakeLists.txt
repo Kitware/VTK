@@ -328,13 +328,11 @@ IF (VTK_WRAP_TCL)
        vtkTkImageViewerWidget.cxx)
   ENDIF(NOT VTK_USE_COCOA)
 
-  # find the tk internals for win32
-  IF (NOT WIN32)
-    IF(NOT APPLE)
-      SET(KitTCL_SRCS ${KitTCL_SRCS} 
-        vtkXRenderWindowTclInteractor.cxx)
-    ENDIF (NOT APPLE)
-  ENDIF (NOT WIN32) 
+  # Use special interactor for X and Tk.
+  IF(VTK_USE_X)
+    SET(KitTCL_SRCS ${KitTCL_SRCS}
+      vtkXRenderWindowTclInteractor.cxx)
+  ENDIF(VTK_USE_X)
 
   # if VTK_DISABLE_TK_INIT is not defined, then those widgets *will* be
   # initialized by the Rendering kit. If *not* defined we need to do it
