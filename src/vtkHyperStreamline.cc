@@ -250,6 +250,54 @@ void vtkHyperStreamline::IntegrateMinorEigenvector()
   }
 }
 
+// Make sure coordinate systems are consistent
+static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
+{
+  float p0[3], p1[3], p2[3];
+  float v0[3], v1[3], v2[3];
+  float temp[3];
+  vtkMath math;
+  int i;
+
+  for (i=0; i<3; i++)
+    {
+    v0[i] = current[i][iv];
+    v1[i] = current[i][ix];
+    v2[i] = current[i][iy];
+    }
+
+  if ( prev == NULL ) //make sure coord system is right handed
+    {
+    math.Cross(v0,v1,temp);
+    if ( math.Dot(v2,temp) < 0.0 )
+      {
+      for (i=0; i<3; i++) current[i][iy] *= -1.0;
+      }
+    }
+
+  else //make sure vectors consistent from one point to the next
+    {
+    for (i=0; i<3; i++)
+      {
+      p0[i] = prev[i][iv];
+      p1[i] = prev[i][ix];
+      p2[i] = prev[i][iy];
+      }
+    if ( math.Dot(p0,v0) < 0.0 )
+      {
+      for (i=0; i<3; i++) current[i][iv] *= -1.0;
+      }
+    if ( math.Dot(p1,v1) < 0.0 )
+      {
+      for (i=0; i<3; i++) current[i][ix] *= -1.0;
+      }
+    if ( math.Dot(p2,v2) < 0.0 )
+      {
+      for (i=0; i<3; i++) current[i][iy] *= -1.0;
+      }
+    }
+}
+
 void vtkHyperStreamline::Execute()
 {
   vtkDataSet *input=this->Input;
@@ -258,7 +306,7 @@ void vtkHyperStreamline::Execute()
   vtkTensors *inTensors;
   vtkTensor *tensor;
   vtkHyperPoint *sNext, *sPtr;
-  int i, j, k, ptId, offset, subId, iv;
+  int i, j, k, ptId, offset, subId, iv, ix, iy;
   vtkCell *cell;
   float ev[3], xNext[3], stepLength;
   vtkMath math;
@@ -290,6 +338,8 @@ void vtkHyperStreamline::Execute()
   tol2 = input->GetLength() / 1000.0;
   tol2 = tol2 * tol2;
   iv = this->IntegrationEigenvector;
+  ix = (iv + 1) % 3;
+  iy = (iv + 2) % 3;
 //
 // Create starting points
 //
@@ -345,6 +395,7 @@ void vtkHyperStreamline::Execute()
       }
 
     math.Jacobi(m, sPtr->w, sPtr->v);
+    FixVectors(NULL, sPtr->v, iv, ix, iy);
 
     if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
       {
@@ -407,6 +458,7 @@ void vtkHyperStreamline::Execute()
         }
 
       math.Jacobi(m, ev, v);
+      FixVectors(sPtr->v, v, iv, ix, iy);
 
       //now compute final position
       for (i=0; i<3; i++)
@@ -453,6 +505,7 @@ void vtkHyperStreamline::Execute()
           }
 
         math.Jacobi(m, sNext->w, sNext->v);
+        FixVectors(sPtr->v, sNext->v, iv, ix, iy);
 
         if ( inScalars )
           for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
@@ -484,7 +537,7 @@ void vtkHyperStreamline::BuildTube()
   int i, ptId, j, id, k, i1, i2;
   int npts, ptOffset=0;
   float dOffset, x[3], v[3], s, r, r1[3], r2[3], stepLength;
-  float xT[3], sFactor=1.0, normal[3], w[3];
+  float xT[3], sFactor, normal[3], w[3];
   vtkMath math;
   float theta=2.0*math.Pi()/this->NumberOfSides;
   vtkPointData *outPD;
@@ -524,6 +577,11 @@ void vtkHyperStreamline::BuildTube()
     sPrev = this->Streamers[ptId].GetHyperPoint(0);
     sPtr = this->Streamers[ptId].GetHyperPoint(1);
 
+    // compute scale factor
+    i = (sPrev->w[ix] > sPrev->w[iy] ? ix : iy);
+    if ( sPrev->w[i] == 0.0 ) sFactor = 1.0;
+    else sFactor = this->Radius / sPrev->w[i];
+
     if ( numIntPts == 2 && sPtr->cellId < 0 ) continue;
 
     dOffset = sPrev->d;
@@ -554,19 +612,19 @@ void vtkHyperStreamline::BuildTube()
             {
             normal[j] = w[ix]*r1[j]*cos((double)k*theta) + 
                         w[iy]*r2[j]*sin((double)k*theta);
-            xT[j] = x[j] + this->Radius * sFactor * normal[j];
+            xT[j] = x[j] + sFactor * normal[j];
             }
-          newPts->InsertPoint(this->NumberOfSides*npts+k,xT);
-          newVectors->InsertVector(this->NumberOfSides*npts+k,v);
+          id = newPts->InsertNextPoint(xT);
+          newVectors->InsertVector(id,v);
           math.Normalize(normal);
-          newNormals->InsertNormal(this->NumberOfSides*npts+k,normal);
+          newNormals->InsertNormal(id,normal);
           }
 
         if ( newScalars ) //add scalars around tube
           {
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           for (k=0; k<this->NumberOfSides; k++)
-            newScalars->InsertScalar(this->NumberOfSides*npts+k,s);
+            newScalars->InsertNextScalar(s);
           }
 
         npts++;
