@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.2");
+vtkCxxRevisionMacro(vtkSubGroup, "1.3");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -491,49 +491,88 @@ int vtkSubGroup::Barrier()
 
 void vtkSubGroup::PrintSubGroup() const
 {
-   this->Print(cout);
-}
-
-void PrintSelf(ostream &os, vtkIndent indent)
-{
   int i;
-  os << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
+  cout << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
   if (this->nFrom > 0)
     {
     for (i=0; i<nFrom; i++)
       {
-      os << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
+      cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
       }
     }
-  if (this->nTo > 0) os << "fanInTo = " << this->fanInTo << endl;
+  if (this->nTo > 0) cout << "fanInTo = " << this->fanInTo << endl;
 
-  os << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
+  cout << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
   if (this->nRecv > 0)
     {
     for (i=0; i<nRecv; i++)
       {
-      os << "recvId[" << i << "] = " << this->recvId[i];
-      os << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
-      os << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
+      cout << "recvId[" << i << "] = " << this->recvId[i];
+      cout << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
+      cout << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
       }
     }
   if (nSend > 0)
     {
-    os << "sendId = " << this->sendId;
-    os << ", sendOffset = " << this->sendOffset;
-    os << ", sendLength = " << this->sendLength << endl;
+    cout << "sendId = " << this->sendId;
+    cout << ", sendOffset = " << this->sendOffset;
+    cout << ", sendLength = " << this->sendLength << endl;
     }
-  os << "gatherRoot " << this->gatherRoot ;
-  os << ", gatherLength " << this->gatherLength << endl;
+  cout << "gatherRoot " << this->gatherRoot ;
+  cout << ", gatherLength " << this->gatherLength << endl;
 
-  os << "nmembers: " << this->nmembers << endl;
-  os << "myLocalRank: " << this->myLocalRank << endl;
+  cout << "nmembers: " << this->nmembers << endl;
+  cout << "myLocalRank: " << this->myLocalRank << endl;
   for (i=0; i<this->nmembers; i++)
     {
-    os << "  " << this->members[i];
-    if (i && (i%20 == 0)) os << endl;
+    cout << "  " << this->members[i];
+    if (i && (i%20 == 0)) cout << endl;
     }
-  os << endl;
-  os << "comm: " << this->comm;
-  os << endl;
+  cout << endl;
+  cout << "comm: " << this->comm;
+  cout << endl;
+}
+
+void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
+{
+  int i;
+  os << indent << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
+  if (this->nFrom > 0)
+    {
+    for (i=0; i<nFrom; i++)
+      {
+      os << indent << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
+      }
+    }
+  if (this->nTo > 0) os << indent << "fanInTo = " << this->fanInTo << endl;
+
+  os << indent << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
+  if (this->nRecv > 0)
+    {
+    for (i=0; i<nRecv; i++)
+      {
+      os << indent << "recvId[" << i << "] = " << this->recvId[i];
+      os << indent << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
+      os << indent << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
+      }
+    }
+  if (nSend > 0)
+    {
+    os << indent << "sendId = " << this->sendId;
+    os << indent << ", sendOffset = " << this->sendOffset;
+    os << indent << ", sendLength = " << this->sendLength << endl;
+    }
+  os << indent << "gatherRoot " << this->gatherRoot ;
+  os << indent << ", gatherLength " << this->gatherLength << endl;
+
+  os << indent << "nmembers: " << this->nmembers << endl;
+  os << indent << "myLocalRank: " << this->myLocalRank << endl;
+  for (i=0; i<this->nmembers; i++)
+    {
+    os << indent << "  " << this->members[i];
+    if (i && (i%20 == 0)) os << indent << endl;
+    }
+  os << indent << endl;
+  os << indent << "comm: " << this->comm;
+  os << indent << endl;
 }
