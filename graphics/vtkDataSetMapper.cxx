@@ -160,6 +160,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   // update ourselves in case something has changed
   this->PolyDataMapper->SetLookupTable(this->GetLookupTable());
   this->PolyDataMapper->SetScalarVisibility(this->GetScalarVisibility());
+  this->PolyDataMapper->SetUseLookupTableScalarRange(this->GetUseLookupTableScalarRange());
   this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
   this->PolyDataMapper->SetImmediateModeRendering
     (this->GetImmediateModeRendering());

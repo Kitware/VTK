@@ -53,6 +53,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
+  this->UseLookupTableScalarRange = 0;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   
@@ -143,14 +144,17 @@ vtkScalars *vtkPolyDataMapper2D::GetColors()
       {
       // make sure we have a lookup table
       if ( this->LookupTable == NULL )
-	{
-	this->CreateDefaultLookupTable();
-	}
+      	{
+      	this->CreateDefaultLookupTable();
+      	}
       this->LookupTable->Build();
       }
 
-    // Setup mapper/scalar object for color generation
-    this->LookupTable->SetRange(this->ScalarRange[0], this->ScalarRange[1]);
+    if (!this->UseLookupTableScalarRange)
+      {
+      this->LookupTable->SetRange(this->ScalarRange);
+      }
+
     if (this->Colors)
       {
       this->Colors->Delete();
@@ -252,6 +256,7 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
+  os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
   
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
