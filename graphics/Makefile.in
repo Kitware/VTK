@@ -147,6 +147,7 @@ vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkIsoVolumeRayCaster \
+vtkIVExporter \
 vtkLODActor \
 vtkLight \
 vtkLineSource \
