@@ -51,7 +51,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.21");
+vtkCxxRevisionMacro(vtkKdTree, "1.22");
 
 // Timing data ---------------------------------------------
 
@@ -216,10 +216,13 @@ vtkKdTree::~vtkKdTree()
     {
     for (int i=0; i<this->NumDataSetsAllocated; i++)
       {
+#if 0
       if (this->DataSets[i])
         {
         this->DataSets[i]->UnRegister(this);
         }
+#endif
+      this->SetNthDataSet(i, NULL);
       }
     delete [] (this->DataSets);
     }
