@@ -56,17 +56,18 @@
 #define VTK_PARSER_DOT_PRODUCT 24
 #define VTK_PARSER_VECTOR_ADD 25
 #define VTK_PARSER_VECTOR_SUBTRACT 26
-#define VTK_PARSER_SCALAR_MULTIPLE 27
-#define VTK_PARSER_MAGNITUDE 28
-#define VTK_PARSER_NORMALIZE 29
+#define VTK_PARSER_SCALAR_TIMES_VECTOR 27
+#define VTK_PARSER_VECTOR_TIMES_SCALAR 28
+#define VTK_PARSER_MAGNITUDE 29
+#define VTK_PARSER_NORMALIZE 30
 
 // constants involving vectors
-#define VTK_PARSER_IHAT 30
-#define VTK_PARSER_JHAT 31
-#define VTK_PARSER_KHAT 32
+#define VTK_PARSER_IHAT 31
+#define VTK_PARSER_JHAT 32
+#define VTK_PARSER_KHAT 33
 
 // codes for scalar variables come before those for vectors
-#define VTK_PARSER_BEGIN_VARIABLES 33
+#define VTK_PARSER_BEGIN_VARIABLES 34
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
