@@ -9,7 +9,7 @@ IF (NOT TCL_LIBRARY)
 ENDIF (NOT TCL_LIBRARY)
 
 # Create the vtk Tcl wrapper executable.
-ADD_EXECUTABLE(vtk vtkTkAppInit.cxx)
+ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${TK_RESOURCE_FILE})
 TARGET_LINK_LIBRARIES (vtk
   vtkCommonTCL
   vtkFilteringTCL
@@ -48,7 +48,7 @@ INSTALL_TARGETS(/bin vtk)
 # Create the pvtk Tcl wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
-    ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx)
+    ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${TK_RESOURCE_FILE})
     IF(VTK_USE_CARBON)
       FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
       IF(VTK_APPLE_RESOURCE)

@@ -503,6 +503,15 @@ IF(VTK_WRAP_TCL)
   OPTION(TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
   MARK_AS_ADVANCED(TCL_TK_STATIC)
 
+  IF(TCL_TK_STATIC AND WIN32)
+     IF(TK_LIBRARY MATCHES tk84)
+	   SET(TRY_TK_RESOURCE_FILE_IN 
+           ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84/win/rc)
+     ENDIF(TK_LIBRARY MATCHES tk84)
+     FIND_FILE(TK_RESOURCE_FILE tk.rc ${TRY_TK_RESOURCE_FILE_IN} DOC "The resource file required to add the proper resources to a static Tk build")
+     MARK_AS_ADVANCED(TK_RESOURCE_FILE)
+  ENDIF (TCL_TK_STATIC AND WIN32)
+
 ENDIF(VTK_WRAP_TCL)
 
 #-----------------------------------------------------------------------------
