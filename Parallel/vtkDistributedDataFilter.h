@@ -394,7 +394,7 @@ private:
                                  const char *arrayName, unsigned char val);
   static void AddConstantUnsignedCharCellArray(vtkUnstructuredGrid *grid, 
                                  const char *arrayName, unsigned char val);
-  static void RemoveRemoteCellsFromList(vtkIdList *cellList, vtkIntArray *gidCells, 
+  static void RemoveRemoteCellsFromList(vtkIdList *cellList, int *gidCells, 
                                  int *remoteCells, int nRemoteCells);
   static vtkUnstructuredGrid *MergeGrids(vtkDataSet **sets, int nsets,
          int deleteDataSets,

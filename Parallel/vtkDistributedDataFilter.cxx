@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.12")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.13")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -3881,9 +3881,7 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 
     if (gl == 1)
       {
-      vtkDataArray *da = myGrid->GetCellData()->GetArray(TEMP_ELEMENT_ID_NAME);
-      vtkIntArray *ia= vtkIntArray::SafeDownCast(da);
-      int *gidsCell = ia->GetPointer(0);
+      int *gidsCell = this->GetGlobalElementIds(myGrid);
 
       extraGhostPointIds = new vtkIntArray * [nprocs];
 
@@ -4028,10 +4026,6 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
 
   vtkIdList *cellList = vtkIdList::New();
 
-  vtkDataArray *da = grid->GetCellData()->GetArray(TEMP_ELEMENT_ID_NAME);
-
-  vtkIntArray *gidCells = vtkIntArray::SafeDownCast(da);
-
   vtkIdList **sendCells = new vtkIdList * [nprocs];
 
   for (proc = 0; proc < nprocs; proc++)
@@ -4085,6 +4079,8 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
         // the receive side.
 
         int *remoteCells = ptarray + id + 2;
+        int *gidCells = this->GetGlobalElementIds(grid);
+
         vtkDistributedDataFilter::RemoveRemoteCellsFromList(cellList, 
                                      gidCells, remoteCells, nYourCells);
         }
@@ -4129,7 +4125,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
   return sendCells;
 }
 void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
-     vtkIdList *cellList, vtkIntArray *gidCells, int *remoteCells, int nRemoteCells)
+     vtkIdList *cellList, int *gidCells, int *remoteCells, int nRemoteCells)
 {
   vtkIdType id, nextId;
   int id2;
@@ -4140,7 +4136,7 @@ void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
   for (id = 0, nextId = 0; id < nLocalCells; id++)
     {
     vtkIdType localCellId  = cellList->GetId(id);
-    int globalCellId = gidCells->GetValue(localCellId);
+    int globalCellId = gidCells[localCellId];
 
     int found = 0;
 
