@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImager.h"
 #include "vtkImageWindow.h"
 #include "vtkImagingFactory.h"
+#include "vtkCommand.h"
 
 vtkImager* vtkImager::New()
 {
@@ -79,10 +80,7 @@ int vtkImager::RenderOpaqueGeometry()
 
   vtkDebugMacro (<< "vtkImager::RenderOpaque");
   
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
   
   for ( this->Props->InitTraversal(); 
 	(tempActor = this->Props->GetNextProp());)
@@ -138,10 +136,7 @@ int vtkImager::RenderOverlay()
       }
     }
   
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
   
   renderedSomething = (renderedSomething > 0)?(1):(0);
 

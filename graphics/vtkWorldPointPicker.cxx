@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkWorldPointPicker.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //------------------------------------------------------------------------------
 vtkWorldPointPicker* vtkWorldPointPicker::New()
@@ -78,10 +79,7 @@ int vtkWorldPointPicker::Pick(float selectionX, float selectionY,
   this->SelectionPoint[2] = selectionZ;
 
   // Invoke start pick method if defined
-  if ( this->StartPickMethod )
-    {
-    (*this->StartPickMethod)(this->StartPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
   z = renderer->GetZ ((int) selectionX, (int) selectionY);
 
@@ -124,10 +122,7 @@ int vtkWorldPointPicker::Pick(float selectionX, float selectionY,
     }
 
   // Invoke end pick method if defined
-  if ( this->EndPickMethod )
-    {
-    (*this->EndPickMethod)(this->EndPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 
   return 0;
 }

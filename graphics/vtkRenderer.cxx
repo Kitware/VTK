@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 #include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
+#include "vtkCommand.h"
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -155,10 +156,7 @@ void vtkRenderer::Render(void)
 
   t1 = vtkTimerLog::GetCurrentTime();
 
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   // if backing store is on and we have a stored image
   if (this->BackingStore && this->BackingImage &&
@@ -207,10 +205,7 @@ void vtkRenderer::Render(void)
       rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
       ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
       this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
-      if (this->EndRenderMethod) 
-       {
-       (*this->EndRenderMethod)(this->EndRenderMethodArg);
-       }
+      this->InvokeEvent(vtkCommand::EndEvent,NULL);
       return;
       }
     }
@@ -359,10 +354,7 @@ void vtkRenderer::RenderOverlay()
       }
     }
 
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
   this->RenderTime.Modified();
 }
 
@@ -1284,10 +1276,7 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   vtkProp  *aProp;
   vtkAssemblyPath *path;
 
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
   if( props->GetNumberOfItems() <= 0)
     {
     return;

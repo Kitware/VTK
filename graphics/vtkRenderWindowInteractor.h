@@ -267,20 +267,10 @@ protected:
   int   CursorHidden;
   
   // user methods that can be used to override default behavior
-  void (*StartPickMethod)(void *);
-  void (*StartPickMethodArgDelete)(void *);
-  void *StartPickMethodArg;
-  void (*EndPickMethod)(void *);
-  void (*EndPickMethodArgDelete)(void *);
-  void *EndPickMethodArg;
-
-  void (*UserMethod)(void *);
-  void (*UserMethodArgDelete)(void *);
-  void *UserMethodArg;
-
-  void (*ExitMethod)(void *);
-  void (*ExitMethodArgDelete)(void *);
-  void *ExitMethodArg;
+  unsigned long StartPickTag;
+  unsigned long EndPickTag;
+  unsigned long UserTag;
+  unsigned long ExitTag;
 };
 
 #endif

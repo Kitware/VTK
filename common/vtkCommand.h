@@ -69,7 +69,10 @@ public:
     EndEvent,
     ProgressEvent,
     PickEvent,
+    StartPickEvent,
+    EndPickEvent,
     AbortCheckEvent,
+    ExitEvent,
     UserEvent = 1000
   };
     

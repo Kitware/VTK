@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkProp.h"
+#include "vtkCommand.h"
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -79,12 +80,8 @@ vtkViewport::vtkViewport()
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
 
-  this->StartRenderMethod = NULL;
-  this->StartRenderMethodArgDelete = NULL;
-  this->StartRenderMethodArg = NULL;
-  this->EndRenderMethod = NULL;
-  this->EndRenderMethodArgDelete = NULL;
-  this->EndRenderMethodArg = NULL;
+  this->StartTag = 0;
+  this->EndTag = 0;
 
   this->Size[0] = 0;
   this->Size[1] = 0;
@@ -109,16 +106,6 @@ vtkViewport::~vtkViewport()
   this->Actors2D = NULL;
   this->Props->Delete();
   this->Props = NULL;
-
-  // delete the current arg if there is one and a delete meth
-  if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
-    {
-    (*this->StartRenderMethodArgDelete)(this->StartRenderMethodArg);
-    }
-  if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))
-    {
-    (*this->EndRenderMethodArgDelete)(this->EndRenderMethodArg);
-    }
   
   if (this->VTKWindow != NULL)
     {
@@ -328,36 +315,32 @@ int vtkViewport::IsInViewport(int x,int y)
 // Function will be called with argument provided.
 void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->StartRenderMethod || arg != this->StartRenderMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
-      {
-      (*this->StartRenderMethodArgDelete)(this->StartRenderMethodArg);
-      }
-    this->StartRenderMethod = f;
-    this->StartRenderMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartTag);
+  this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
 }
 
 // Set the arg delete method. This is used to free user memory.
 void vtkViewport::SetStartRenderMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->StartRenderMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartTag);
+  if (cmd)
     {
-    this->StartRenderMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set the arg delete method. This is used to free user memory.
 void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->EndRenderMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndTag);
+  if (cmd)
     {
-    this->EndRenderMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -365,17 +348,11 @@ void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 // Function will be called with argument provided.
 void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndRenderMethod || arg != this->EndRenderMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))
-      {
-      (*this->EndRenderMethodArgDelete)(this->EndRenderMethodArg);
-      }
-    this->EndRenderMethod = f;
-    this->EndRenderMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartTag);
+  this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
 }
 
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
@@ -401,7 +378,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", " 
       << this->WorldPoint[3] << ")\n";
 
-  if ( this->StartRenderMethod )
+  if ( this->StartTag)
     {
     os << indent << "Start Render method defined.\n";
     }
@@ -410,7 +387,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No Start Render method.\n";
     }
 
-  if ( this->EndRenderMethod )
+  if ( this->EndTag )
     {
     os << indent << "End Render method defined.\n";
     }

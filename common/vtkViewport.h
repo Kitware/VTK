@@ -293,12 +293,9 @@ protected:
   float Viewport[4];
   float Aspect[2];
   float Center[2];
-  void (*StartRenderMethod)(void *);
-  void (*StartRenderMethodArgDelete)(void *);
-  void *StartRenderMethodArg;
-  void (*EndRenderMethod)(void *);
-  void (*EndRenderMethodArgDelete)(void *);
-  void *EndRenderMethodArg;
+
+  unsigned long StartTag;
+  unsigned long EndTag;
 
   int Size[2];
   int Origin[2];

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPropPicker.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkCommand.h"
 
 
 // Construct object so that light follows camera motion.
@@ -65,18 +66,10 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->Picker->Register(this);
   this->Picker->Delete();
 
-  this->StartPickMethod = NULL;
-  this->StartPickMethodArgDelete = NULL;
-  this->StartPickMethodArg = NULL;
-  this->EndPickMethod = NULL;
-  this->EndPickMethodArgDelete = NULL;
-  this->EndPickMethodArg = NULL;
-  this->UserMethod = NULL;
-  this->UserMethodArgDelete = NULL;
-  this->UserMethodArg = NULL;
-  this->ExitMethod = NULL;
-  this->ExitMethodArgDelete = NULL;
-  this->ExitMethodArg = NULL;
+  this->StartPickTag = 0;
+  this->EndPickTag = 0;
+  this->UserTag = 0;
+  this->ExitTag = 0;
 
   this->EventPosition[0] = 0;
   this->EventPosition[1] = 0;
@@ -94,24 +87,6 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
   if ( this->Picker)
     {
     this->Picker->UnRegister(this);
-    }
-
-  // delete the current arg if there is one and a delete meth
-  if ((this->UserMethodArg)&&(this->UserMethodArgDelete))
-    {
-    (*this->UserMethodArgDelete)(this->UserMethodArg);
-    }
-  if ((this->ExitMethodArg)&&(this->ExitMethodArgDelete))
-    {
-    (*this->ExitMethodArgDelete)(this->ExitMethodArg);
-    }
-  if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-    {
-    (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-    }
-  if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-    {
-    (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
     }
 }
 
@@ -206,51 +181,41 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
 // Specify a method to be executed prior to the pick operation.
 void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-      {
-      (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-      }
-    this->StartPickMethod = f;
-    this->StartPickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartPickTag);
+  this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
 }
 
 // Specify a method to be executed after the pick operation.
 void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-      {
-      (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
-      }
-    this->EndPickMethod = f;
-    this->EndPickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->EndPickTag);
+  this->EndPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->StartPickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartPickTag);
+  if (cmd)
     {
-    this->StartPickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->EndPickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndPickTag);
+  if (cmd)
     {
-    this->EndPickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -263,60 +228,50 @@ vtkAbstractPropPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 // Set the user method. This method is invoked on a <u> keypress.
 void vtkRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->UserMethod || arg != this->UserMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->UserMethodArg)&&(this->UserMethodArgDelete))
-      {
-      (*this->UserMethodArgDelete)(this->UserMethodArg);
-      }
-    this->UserMethod = f;
-    this->UserMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->UserTag);
+  this->UserTag = this->AddObserver(vtkCommand::UserEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->UserMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->UserTag);
+  if (cmd)
     {
-    this->UserMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetExitMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->ExitMethod || arg != this->ExitMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->ExitMethodArg)&&(this->ExitMethodArgDelete))
-      {
-      (*this->ExitMethodArgDelete)(this->ExitMethodArg);
-      }
-    this->ExitMethod = f;
-    this->ExitMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->ExitTag);
+  this->ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetExitMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->ExitMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->ExitTag);
+  if (cmd)
     {
-    this->ExitMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 void vtkRenderWindowInteractor::ExitCallback()
 {
-  if (this->ExitMethod) 
+  if (this->HasObserver(vtkCommand::ExitEvent))
     {
-    (*this->ExitMethod)(this->ExitMethodArg);
+    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
     }
   else
     {
@@ -326,26 +281,17 @@ void vtkRenderWindowInteractor::ExitCallback()
 
 void vtkRenderWindowInteractor::UserCallback()
 {
-  if (this->UserMethod) 
-    {
-    (*this->UserMethod)(this->UserMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::UserEvent,NULL);
 }
 
 void vtkRenderWindowInteractor::StartPickCallback()
 {
-  if (this->StartPickMethod) 
-    {
-    (*this->StartPickMethod)(this->StartPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 }
 
 void vtkRenderWindowInteractor::EndPickCallback()
 {
-  if (this->EndPickMethod) 
-    {
-    (*this->EndPickMethod)(this->EndPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 }
 
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
