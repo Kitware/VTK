@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSbrRenderWindow::vtkSbrRenderWindow()
 {
   this->Fd = -1;
-  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   strcpy(this->Name,"Visualization Toolkit - Starbase");
   this->Buffer = 0;
 }
@@ -966,10 +965,11 @@ void vtkSbrRenderWindow::SetSize(int x,int y)
     return;
     }
   
-  if ((this->Size[0] != x)||(this->Size[1] != y))
+  if ((this->Size[0] == x)&&(this->Size[1] == y))
     {
-    this->Modified();
+    return;
     }
+  this->Modified();
   this->Size[0] = x;
   this->Size[1] = y;
   
