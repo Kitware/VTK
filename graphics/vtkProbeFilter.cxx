@@ -42,8 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProbeFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
 //----------------------------------------------------------------------------
 vtkProbeFilter* vtkProbeFilter::New()
 {
@@ -56,9 +54,6 @@ vtkProbeFilter* vtkProbeFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkProbeFilter;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
@@ -134,21 +129,29 @@ void vtkProbeFilter::Execute()
   output->CopyStructure( input );
 
   numPts = input->GetNumberOfPoints();
-  //
+
   // Allocate storage for output PointData
   //
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(pd);
-  //
+
   // Use tolerance as a function of size of source data
   //
   tol2 = source->GetLength();
   tol2 = tol2*tol2 / 1000.0;
-  //
+
   // Loop over all input points, interpolating source data
   //
-  for (ptId=0; ptId < numPts; ptId++)
+  int abort=0;
+  int progressInterval=numPts/20 + 1;
+  for (ptId=0; ptId < numPts && !abort; ptId++)
     {
+    if ( !(ptId % progressInterval) )
+      {
+      this->UpdateProgress((float)ptId/numPts);
+      abort = GetAbortExecute();
+      }
+
     // Get the xyz coordinate of the point in the input dataset
     x = input->GetPoint(ptId);
 

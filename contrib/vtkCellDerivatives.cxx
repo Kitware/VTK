@@ -137,9 +137,10 @@ void vtkCellDerivatives::Execute()
     vtkTensor *tens = vtkTensor::New();
 
     // Loop over all cells computing derivatives
+    int progressInterval = numCells/20 + 1;
     for (cellId=0; cellId < numCells; cellId++)
       {
-      if ( ! (cellId % 20000) ) 
+      if ( ! (cellId % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing cell #" << cellId);
         this->UpdateProgress ((float)cellId/numCells);

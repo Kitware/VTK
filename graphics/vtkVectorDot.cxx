@@ -44,8 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkVectorDot* vtkVectorDot::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkVectorDot* vtkVectorDot::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkVectorDot;
 }
-
-
-
 
 // Construct object with scalar range is (-1,1).
 vtkVectorDot::vtkVectorDot()
@@ -81,9 +77,9 @@ void vtkVectorDot::Execute()
   float s, *n, *v, min, max, dR, dS;
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
-//
-// Initialize
-//
+
+  // Initialize
+  //
   vtkDebugMacro(<<"Generating vector/normal dot product!");
 
   // First, copy the input to the output as a starting point
@@ -104,16 +100,24 @@ void vtkVectorDot::Execute()
     vtkErrorMacro(<< "No normals defined!");
     return;
     }
-//
-// Allocate
-//
+
+  // Allocate
+  //
   newScalars = vtkScalars::New();
   newScalars->Allocate(numPts);
-//
-// Compute initial scalars
-//
-  for (min=VTK_LARGE_FLOAT,max=(-VTK_LARGE_FLOAT),ptId=0; ptId < numPts; ptId++)
+
+  // Compute initial scalars
+  //
+  int abort=0;
+  int progressInterval=numPts/20 + 1;
+  for (min=VTK_LARGE_FLOAT,max=(-VTK_LARGE_FLOAT),ptId=0; 
+       ptId < numPts && !abort; ptId++)
     {
+    if ( ! (ptId % progressInterval) ) 
+      {
+      this->UpdateProgress ((float)ptId/numPts);
+      abort = this->GetAbortExecute();
+      }
     n = inNormals->GetNormal(ptId);
     v = inVectors->GetVector(ptId);
     s = vtkMath::Dot(n,v);
@@ -127,9 +131,9 @@ void vtkVectorDot::Execute()
       }
     newScalars->InsertScalar(ptId,s);
     }
-//
-// Map scalars into scalar range
-//
+
+  // Map scalars into scalar range
+  //
   if ( (dR=this->ScalarRange[1]-this->ScalarRange[0]) == 0.0 )
     {
     dR = 1.0;
@@ -145,9 +149,9 @@ void vtkVectorDot::Execute()
     s = ((s - min)/dS) * dR + this->ScalarRange[0];
     newScalars->InsertScalar(ptId,s);
     }
-//
-// Update self and relase memory
-//
+
+  // Update self and relase memory
+  //
   outPD->CopyScalarsOff();
   outPD->PassData(input->GetPointData());
 

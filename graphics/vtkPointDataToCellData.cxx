@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointDataToCellData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkPointDataToCellData* vtkPointDataToCellData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkPointDataToCellData* vtkPointDataToCellData::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPointDataToCellData;
 }
-
-
-
 
 // Instantiate object so that point data is not passed to output.
 vtkPointDataToCellData::vtkPointDataToCellData()
@@ -96,8 +91,16 @@ void vtkPointDataToCellData::Execute()
   // It's weird, but it works.
   outPD->CopyAllocate(inPD,numCells);
 
-  for (cellId=0; cellId < numCells; cellId++)
+  int abort=0;
+  int progressInterval=numCells/20 + 1;
+  for (cellId=0; cellId < numCells && !abort; cellId++)
     {
+    if ( !(cellId % progressInterval) )
+      {
+      this->UpdateProgress((float)cellId/numCells);
+      abort = GetAbortExecute();
+      }
+
     input->GetCellPoints(cellId, cellPts);
     numPts = cellPts->GetNumberOfIds();
     if ( numPts > 0 )

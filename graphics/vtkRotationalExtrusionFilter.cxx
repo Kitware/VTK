@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkRotationalExtrusionFilter* vtkRotationalExtrusionFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkRotationalExtrusionFilter* vtkRotationalExtrusionFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkRotationalExtrusionFilter;
 }
-
-
-
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
@@ -87,14 +82,13 @@ void vtkRotationalExtrusionFilter::Execute()
   float psi, theta;
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
-  vtkCell *cell, *edge;
+  vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
   int i, j, k, p1, p2;
   vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   double tempd;
 
-  //
   // Initialize / check input
   //
   vtkDebugMacro(<<"Rotationally extruding data");
@@ -106,7 +100,7 @@ void vtkRotationalExtrusionFilter::Execute()
     vtkErrorMacro(<<"No data to extrude!");
     return;
     }
-  //
+
   // Build cell data structure.
   //
   mesh = vtkPolyData::New();
@@ -124,10 +118,10 @@ void vtkRotationalExtrusionFilter::Execute()
     {
     mesh->BuildLinks();
     }
-//
-// Allocate memory for output. We don't copy normals because surface geometry
-// is modified.
-//
+
+  // Allocate memory for output. We don't copy normals because surface geometry
+  // is modified.
+  //
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd,(this->Resolution+1)*numPts);
   newPts = vtkPoints::New();
@@ -150,6 +144,7 @@ void vtkRotationalExtrusionFilter::Execute()
     newPts->InsertPoint(ptId,inPts->GetPoint(ptId));
     outPD->CopyData(pd,ptId,ptId);
     }
+  this->UpdateProgress(0.1);
 
   // loop assumes rotation around z-axis
   radIncr = this->DeltaRadius / this->Resolution;
@@ -157,6 +152,7 @@ void vtkRotationalExtrusionFilter::Execute()
   angleIncr = this->Angle / this->Resolution * vtkMath::DegreesToRadians();
   for ( i = 1; i <= this->Resolution; i++ )
     {
+    this->UpdateProgress(0.1 + 0.5*(i-1)/this->Resolution);
     for (ptId=0; ptId < numPts; ptId++)
       {
       x = inPts->GetPoint(ptId);
@@ -211,9 +207,9 @@ void vtkRotationalExtrusionFilter::Execute()
       outPD->CopyData(pd,ptId,ptId+i*numPts);
       }
     }
-//
-// If capping is on, copy 2D cells to output (plus create cap)
-//
+
+  // If capping is on, copy 2D cells to output (plus create cap)
+  //
   if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0 ||
   this->Translation != 0.0) )
     {
@@ -249,13 +245,22 @@ void vtkRotationalExtrusionFilter::Execute()
 
   cellIds = vtkIdList::New();
   cellIds->Allocate(VTK_CELL_SIZE);
-  //
+
   // Loop over all polygons and triangle strips searching for boundary edges. 
   // If boundary edge found, extrude triangle strip.
   //
-  for ( cellId=0; cellId < numCells; cellId++)
+  int abort=0;
+  int progressInterval = numCells/10 + 1;
+  vtkGenericCell *cell = vtkGenericCell::New();
+  for ( cellId=0; cellId < numCells && !abort; cellId++)
     {
-    cell = mesh->GetCell(cellId);
+    if ( ! (cellId % progressInterval) ) //manage progress / early abort
+      {
+      this->UpdateProgress (0.6 + 0.4*cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
+    mesh->GetCell(cellId,cell);
     cellPts = cell->GetPointIds();
 
     if ( (dim=cell->GetCellDimension()) == 0 ) //create lines from points
@@ -312,7 +317,8 @@ void vtkRotationalExtrusionFilter::Execute()
         } //for each edge
       } //for each polygon or triangle strip
     } //for each cell
-  //
+  cell->Delete();
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);

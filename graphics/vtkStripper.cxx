@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkStripper* vtkStripper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -146,22 +144,20 @@ void vtkStripper::Execute()
   longestStrip = 0; numStrips = 0;
   longestLine = 0; numLines = 0;
 
-  for ( cellId=0; cellId < numCells; cellId++)
+  int abort=0;
+  int progressInterval=numCells/20 + 1;
+  for ( cellId=0; cellId < numCells && !abort; cellId++)
     {
-    if ((cellId % 1000) == 0) 
+    if ( !(cellId % progressInterval) ) 
       {
-      this->UpdateProgress ((float) cellId / (float) numCells);
-      if (this->GetAbortExecute())
-        {
-        break;
-        }
+      this->UpdateProgress ((float) cellId/numCells);
+      abort = this->GetAbortExecute();
       }
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
       if ( Mesh->GetCellType(cellId) == VTK_TRIANGLE )
         {
-	//
 	//  Got a starting point for the strip.  Initialize.  Find a neighbor
 	//  to extend strip.
 	//
@@ -184,7 +180,6 @@ void vtkStripper::Execute()
             break;
             }
           }
-	//
 	//  If no unvisited neighbor, just create the strip of one triangle.
 	//
         if ( i >= 3 ) 
@@ -196,7 +191,6 @@ void vtkStripper::Execute()
           } 
         else // continue strip 
           { 
-	  //
 	  //  Have a neighbor.  March along grabbing new points
 	  //
           while ( neighbor >= 0 )
@@ -270,7 +264,6 @@ void vtkStripper::Execute()
               }
             }
           }
-	//
 	//  If no unvisited neighbor, just create the poly-line from one line.
 	//
         if ( !foundOne ) 
@@ -279,7 +272,6 @@ void vtkStripper::Execute()
           } 
         else // continue poly-line
           { 
-	  //
 	  //  Have a neighbor.  March along grabbing new points
 	  //
           while ( neighbor >= 0 )
@@ -325,7 +317,7 @@ void vtkStripper::Execute()
 
       } // if not visited
     } // for all elements
-  //
+
   // Update output and release memory
   //
   delete [] pts;

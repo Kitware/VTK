@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkTriangularTCoords* vtkTriangularTCoords::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkTriangularTCoords* vtkTriangularTCoords::New()
   return new vtkTriangularTCoords;
 }
 
-
-
-
 void vtkTriangularTCoords::Execute()
 {
   int tmp;
@@ -71,7 +66,7 @@ void vtkTriangularTCoords::Execute()
   vtkCellArray *inPolys,*inStrips;
   int numNewPts, numNewPolys, polyAllocSize;
   vtkTCoords *newTCoords;
-  int npts, *pts, newId, newIds[3];
+  int npts, *pts, newId, newIds[3], numCells, cellId;
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;
@@ -80,9 +75,9 @@ void vtkTriangularTCoords::Execute()
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
-//
-// Initialize
-//
+
+  // Initialize
+  //
   vtkDebugMacro(<<"Generating triangular texture coordinates");
 
   inPts = input->GetPoints();
@@ -90,10 +85,10 @@ void vtkTriangularTCoords::Execute()
 
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-//
-// Count the number of new points and other primitives that 
-// need to be created.
-//
+
+  // Count the number of new points and other primitives that 
+  // need to be created.
+  //
   numNewPts = input->GetNumberOfVerts();
 
   numNewPolys = 0;
@@ -110,16 +105,15 @@ void vtkTriangularTCoords::Execute()
     numNewPts += (npts-2) * 3;
     polyAllocSize += (npts - 2) * 4;
     }
+  numCells = inPolys->GetNumberOfCells() + inStrips->GetNumberOfCells();
 
-//
-//  Allocate texture data
-//
+  //  Allocate texture data
+  //
   newTCoords = vtkTCoords::New(VTK_FLOAT,2);
   newTCoords->Allocate(numNewPts);
 
-//
-// Allocate
-//
+  // Allocate
+  //
   newPoints = vtkPoints::New();
   newPoints->Allocate(numNewPts);
 
@@ -129,9 +123,8 @@ void vtkTriangularTCoords::Execute()
   pointData->CopyTCoordsOff();
   pointData->CopyAllocate(pd);
 
-//
-// Texture coordinates are the same for each triangle
-//
+  // Texture coordinates are the same for each triangle
+  //
   tCoords[0]= 0.0;
   tCoords[1]= 0.0;
   tCoords[2]= 1.0;
@@ -139,11 +132,21 @@ void vtkTriangularTCoords::Execute()
   tCoords[4]= 0.5;
   tCoords[5]= sqrt(3.0)/2.0;
 
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+  int abort=0;
+  int progressInterval=numCells/20 + 1;
+  for (cellId=0, inPolys->InitTraversal(); 
+       inPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
+    if ( !(cellId % progressInterval) )
+      {
+      this->UpdateProgress((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+    
     if (npts != 3)
       {
-      if (errorLogging) vtkWarningMacro(<< "No texture coordinates for this cell, it is not a triangle");
+      if (errorLogging) vtkWarningMacro(
+        << "No texture coordinates for this cell, it is not a triangle");
       errorLogging = 0;
       continue;
       }
@@ -157,11 +160,17 @@ void vtkTriangularTCoords::Execute()
       newTCoords->SetTCoord (newId,&tCoords[2*j]);
       }
     }
-//
-// Triangle strips
-//
-  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+
+  // Triangle strips
+  //
+  for (inStrips->InitTraversal(); 
+       inStrips->GetNextCell(npts,pts) && !abort; cellId++)
     {
+    if ( !(cellId % progressInterval) )
+      {
+      this->UpdateProgress((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
 
     for (j=0; j<(npts-2); j++)
       {
@@ -191,9 +200,9 @@ void vtkTriangularTCoords::Execute()
       newPolys->InsertNextCell(3,newIds);
       }
     }
-//
-// Update self and release memory
-//
+
+  // Update self and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 

@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVectorNorm.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkVectorNorm* vtkVectorNorm::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkVectorNorm* vtkVectorNorm::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkVectorNorm;
 }
-
-
-
 
 // Construct with normalize flag off.
 vtkVectorNorm::vtkVectorNorm()
@@ -104,13 +99,16 @@ void vtkVectorNorm::Execute()
     }
 
   // Allocate / operate on point data
+  int abort=0;
+  int progressInterval;
   if ( computePtScalars )
     {
     numVectors = ptVectors->GetNumberOfVectors();
     newScalars = vtkScalars::New();
     newScalars->SetNumberOfScalars(numVectors);
 
-    for (maxScalar=0.0, i=0; i < numVectors; i++)
+    progressInterval=numVectors/10+1;
+    for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
       {
       v = ptVectors->GetVector(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
@@ -120,7 +118,7 @@ void vtkVectorNorm::Execute()
 	}
       newScalars->SetScalar(i,s);
 
-      if ( ! (i % 20000) ) 
+      if ( ! (i % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing point vector norm #" << i);
         this->UpdateProgress (0.5*i/numVectors);
@@ -149,7 +147,8 @@ void vtkVectorNorm::Execute()
     newScalars = vtkScalars::New();
     newScalars->SetNumberOfScalars(numVectors);
 
-    for (maxScalar=0.0, i=0; i < numVectors; i++)
+    progressInterval=numVectors/10+1;
+    for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
       {
       v = cellVectors->GetVector(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
@@ -158,10 +157,10 @@ void vtkVectorNorm::Execute()
 	maxScalar = s;
 	}
       newScalars->SetScalar(i,s);
-      if ( ! (i % 20000) ) 
+      if ( ! (i % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing cell vector norm #" << i);
-        this->UpdateProgress (0.5*i/numVectors+0.5);
+        this->UpdateProgress (0.5+0.5*i/numVectors);
         }
       }
 

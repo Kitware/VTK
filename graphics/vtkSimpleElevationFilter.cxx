@@ -105,15 +105,14 @@ void vtkSimpleElevationFilter::Execute()
 
   // Compute dot product
   //
-  for (i=0; i<numPts; i++)
+  int abort=0;
+  int progressInterval=numPts/20 + 1;
+  for (i=0; i<numPts && !abort; i++)
     {
-    if ( ! (i % 10000) ) 
+    if ( ! (i % progressInterval) ) 
       {
       this->UpdateProgress ((float)i/numPts);
-      if (this->GetAbortExecute())
-	{
-	break;
-	}
+      abort = this->GetAbortExecute();
       }
 
     input->GetPoint(i,x);

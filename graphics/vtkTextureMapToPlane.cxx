@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTCoords.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkTextureMapToPlane* vtkTextureMapToPlane::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkTextureMapToPlane* vtkTextureMapToPlane::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTextureMapToPlane;
 }
-
-
-
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()
@@ -95,6 +90,7 @@ void vtkTextureMapToPlane::Execute()
   float s, t, sSf, tSf, *p;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
+  int abort=0, progressInterval;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
 
@@ -112,6 +108,7 @@ void vtkTextureMapToPlane::Execute()
   //
   newTCoords = vtkTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
+  progressInterval = numPts/20 + 1;
 
   //  Compute least squares plane if on automatic mode; otherwise use
   //  normal specified or plane specified
@@ -172,8 +169,14 @@ void vtkTextureMapToPlane::Execute()
 
     //  Now can loop over all points, computing parametric coordinates.
     //
-    for (i=0; i<numPts; i++) 
+    for (i=0; i<numPts && !abort; i++) 
       {
+      if ( !(i % progressInterval) )
+        {
+        this->UpdateProgress((float)i/numPts);
+        abort = this->GetAbortExecute();
+        }
+
       p = output->GetPoint(i);
       for (j=0; j<3; j++)
         {
@@ -207,8 +210,13 @@ void vtkTextureMapToPlane::Execute()
       }
 
     // compute s-t coordinates
-    for (i=0; i < numPts; i++) 
+    for (i=0; i < numPts && !abort; i++) 
       {
+      if ( !(i % progressInterval) )
+        {
+        this->UpdateProgress((float)i/numPts);
+        abort = this->GetAbortExecute();
+        }
       p = output->GetPoint(i);
       for (j=0; j<3; j++)
         {
