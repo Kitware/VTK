@@ -25,10 +25,9 @@
 #include "vtkCellTypes.h"
 #include "vtkCellType.h"
 
-void Test(ostream& strm)
+void Test()
 {
   // actual test
-  strm << "Test CellTypes Start" << endl;
   vtkCellTypes *ct = vtkCellTypes::New();
   ct->Allocate();
 
@@ -74,14 +73,13 @@ void Test(ostream& strm)
   ct->Delete();
   cellLocations->Delete();
   cellTypes->Delete();
-  strm << "Test CellTypes Complete" << endl;
 }
 
 int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
+  Test();
 
   return 0;
 } 

@@ -41,7 +41,7 @@ private:
   void operator=(const vtkTestVertex&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.15");
+vtkCxxRevisionMacro(vtkTestVertex, "1.16");
 
 class vtkTestVertex2 : public vtkVertex
 {
@@ -59,7 +59,7 @@ private:
   void operator=(const vtkTestVertex2&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.15");
+vtkCxxRevisionMacro(vtkTestVertex2, "1.16");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
@@ -97,11 +97,7 @@ TestFactory::TestFactory()
 
 void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 {
-  if(strcmp(v->GetClassName(), expectedClassName) == 0)
-    {
-    cout << "Test Passed" << endl;
-    }
-  else
+  if(strcmp(v->GetClassName(), expectedClassName) != 0)
     {
     failed = 1;
     cout << "Test Failed" << endl;
@@ -111,18 +107,10 @@ void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 
 int main()
 {
-  ostrstream vtkmsg; 
-  vtkmsg << "hello" << ends;
-  cout << vtkmsg.str() << "\n";
-  
-
-  
-  vtkmsg.rdbuf()->freeze(0);
   vtkDebugLeaks::PromptUserOff();
   vtkGenericWarningMacro("Test Generic Warning");
   TestFactory* factory = TestFactory::New();
   vtkObjectFactory::RegisterFactory(factory);
-  factory->Print(cout);
   factory->Delete();
   vtkVertex* v = vtkVertex::New();
   TestNewVertex(v, "vtkTestVertex");
@@ -159,15 +147,9 @@ int main()
       }
     }
   
-  
   oic->InitTraversal();
   oi = oic->GetNextItem();
-  cout << *oi;
-  if(oi->GetObjectFactory())
-    {
-    oi->GetObjectFactory()->Print(cout);
-    }
-  
+  oi->GetObjectFactory();
 
   if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
     {
@@ -189,7 +171,6 @@ int main()
     }
 
   oi = oic->GetNextItem();
-  oi->Print(cout);
   if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
     {
     cout << "failed: GetClassOverrideName should be vtkVertex, is: "

@@ -770,6 +770,7 @@ int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  return Test(cout);
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 
 } 

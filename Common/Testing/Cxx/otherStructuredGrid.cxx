@@ -28,7 +28,7 @@
 
 #include "vtkDebugLeaks.h"
 
-void Test(ostream& strm)
+int Test(ostream& strm)
 {
   int i, j, k;
   // actual test
@@ -490,7 +490,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dxy) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg2Dxy): " << *found;
@@ -507,7 +507,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dxz) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg2Dxz): " << *found;
@@ -524,7 +524,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dyz) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg2Dyz): " << *found;
@@ -539,7 +539,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dx) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg1Dx): " << *found;
@@ -555,7 +555,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dy) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg1Dy): " << *found;
@@ -571,7 +571,7 @@ void Test(ostream& strm)
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dz) not found!" << endl;
-    return;
+    return 1;
     }
   
   strm << "FindAndGetCell(sg1Dz): " << *found;
@@ -624,14 +624,13 @@ void Test(ostream& strm)
   gcell0D->Delete();
   
   strm << "Testing completed" << endl;
-  
+  return 0;
 }
 
 int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
-
-  return 0;
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 } 

@@ -97,7 +97,8 @@ int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
+  ostrstream vtkmsg; 
+  Test(vtkmsg);
 
   return 0;
 } 

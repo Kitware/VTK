@@ -23,7 +23,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDebugLeaks.h"
 
-void Test(ostream& strm)
+int Test(ostream& strm)
 {
   int i, j, k;
   vtkColorTransferFunction *ctf1 = vtkColorTransferFunction::New();
@@ -144,6 +144,7 @@ void Test(ostream& strm)
   delete []dData;
 
   strm << "Test vtkColorTransferFunction End" << endl;
+  return 0;
 }
 
 
@@ -151,7 +152,6 @@ int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
-
-  return 0;
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 } 

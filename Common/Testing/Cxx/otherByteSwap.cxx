@@ -70,34 +70,34 @@ int Test(ostream& strm)
   strm << "Swap8BERange(char *\"abcdefgh\",8) -> " << (char) check[0] << (char) check[1]  << (char) check[2] << (char) check[3] << (char) check[4] << (char) check[5]  << (char) check[6] << (char) check[7] << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite2BERange(char *\"abcdefghijklmnop\",8,stdout) -> ";
+  strm << "SwapWrite2BERange(char *\"abcdefghijklmnop\",8,stdout) -> ";
   vtkByteSwap::SwapWrite2BERange(cword,8,stdout);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite4BERange(char *\"abcdefghijklmnop\",4,stdout) -> ";
+  strm << "SwapWrite4BERange(char *\"abcdefghijklmnop\",4,stdout) -> ";
   vtkByteSwap::SwapWrite4BERange(cword,4,stdout);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite8BERange(char *\"abcdefghijklmnop\",2,stdout) -> ";
+  strm << "SwapWrite8BERange(char *\"abcdefghijklmnop\",2,stdout) -> ";
   vtkByteSwap::SwapWrite8BERange(cword,2,stdout);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite2BERange(char *\"abcdefghijklmnop\",8,&strm) -> ";
+  strm << "SwapWrite2BERange(char *\"abcdefghijklmnop\",8,&strm) -> ";
   vtkByteSwap::SwapWrite2BERange(cword,8,&strm);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite4BERange(char *\"abcdefghijklmnop\",4,&strm) -> ";
+  strm << "SwapWrite4BERange(char *\"abcdefghijklmnop\",4,&strm) -> ";
   vtkByteSwap::SwapWrite4BERange(cword,4,&strm);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) cword, "abcdefghijklmnop", 16);
-  cout << "SwapWrite8BERange(char *\"abcdefghijklmnop\",2,&strm) -> ";
+  strm << "SwapWrite8BERange(char *\"abcdefghijklmnop\",2,&strm) -> ";
   vtkByteSwap::SwapWrite8BERange(cword,2,&strm);
-  cout << endl;
+  strm << endl;
 
   memcpy ((char *) sword, "abcd", 2);
   vtkByteSwap::Swap2LE(sword);
@@ -159,6 +159,7 @@ int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  return Test(cout);
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 
 } 

@@ -36,7 +36,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 
-void Test(ostream& strm)
+int Test(ostream& strm)
 {
   // actual test
   vtkIdList *ids = vtkIdList::New();
@@ -426,13 +426,13 @@ void Test(ostream& strm)
   hexahedron->Delete();
 
   strm << "Test vtkCell::CellPosition Complete" << endl;
+  return 0;
 }
 
 int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
-
-  return 0;
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 } 

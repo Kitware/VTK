@@ -55,7 +55,7 @@ void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1,
 
 
 }
-void Test(ostream& strm)
+int Test(ostream& strm)
 {
   // actual test
   strm << "Testing vtkCoordinate" << endl;
@@ -166,15 +166,14 @@ void Test(ostream& strm)
   camera->Delete ();
 
   strm << "Testing completed" << endl;
-  
+  return 0;
 }
 
 int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
-
-  return 0;
+  ostrstream vtkmsg; 
+  return Test(vtkmsg);
 }
 

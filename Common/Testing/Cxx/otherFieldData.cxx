@@ -62,8 +62,12 @@ int main()
   ptIds->Delete();
 
   int arrayComp;
-  cout << fd->GetArrayContainingComponent(1, arrayComp) << endl;
-
+  int a = fd->GetArrayContainingComponent(1, arrayComp);
+  if (a != 0)
+    {
+    return 1;
+    }
+  
   float tuple[10];
   fd->GetTuple(2);
   fd->SetTuple(2, tuple);
