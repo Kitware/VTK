@@ -29,7 +29,7 @@ class vlAppendFilter : public vlUnstructuredGrid, public vlFilter
 {
 public:
   vlAppendFilter();
-  ~vlAppendFilter() {};
+  ~vlAppendFilter();
   char *GetClassName() {return "vlAppendFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 

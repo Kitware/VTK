@@ -34,7 +34,7 @@ public:
   vlSetClampMacro(Radius,float,0,LARGE_FLOAT);
   vlGetMacro(Radius,float);
 
-  vlSetClampMacro(Angle,float,0,180);
+  vlSetClampMacro(Angle,float,0,360);
   vlGetMacro(Angle,float);
 
 protected:
