@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.34");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.35");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -455,6 +455,22 @@ void vtkBoxWidget::PositionHandles()
   this->GenerateOutline();
 }
 #undef VTK_AVERAGE
+
+void vtkBoxWidget::HandlesOn()
+{
+  for (int i=0; i<7; i++)
+    {
+    this->Handle[i]->VisibilityOn();
+    }
+}
+
+void vtkBoxWidget::HandlesOff()
+{
+  for (int i=0; i<7; i++)
+    {
+    this->Handle[i]->VisibilityOff();
+    }
+}
 
 void vtkBoxWidget::SizeHandles()
 {
@@ -1288,8 +1304,35 @@ void vtkBoxWidget::GetPolyData(vtkPolyData *pd)
   pd->SetPolys(this->HexPolyData->GetPolys());
 }
 
+void vtkBoxWidget::SetOutlineFaceWires(int newValue)
+{
+  if (this->OutlineFaceWires != newValue)
+    {
+    this->OutlineFaceWires = newValue;
+    this->Modified();
+    // the outline is dependent on this value, so we have to regen
+    this->GenerateOutline();
+    }
+}
+
+void vtkBoxWidget::SetOutlineCursorWires(int newValue)
+{
+  if (this->OutlineCursorWires != newValue)
+    {
+    this->OutlineCursorWires = newValue;
+    this->Modified();
+    // the outline is dependent on this value, so we have to regen
+    this->GenerateOutline();
+    }
+}
+
 void vtkBoxWidget::GenerateOutline()
 {
+  // Whatever the case may be, we have to reset the Lines of the
+  // OutlinePolyData (i.e. nuke all current line data)
+  vtkCellArray *cells = this->OutlinePolyData->GetLines();
+  cells->Reset();
+
   // Now the outline lines
   if ( ! this->OutlineFaceWires && ! this->OutlineCursorWires )
     {
@@ -1297,8 +1340,6 @@ void vtkBoxWidget::GenerateOutline()
     }
 
   vtkIdType pts[2];
-  vtkCellArray *cells = this->OutlinePolyData->GetLines();
-  cells->Reset();
 
   if ( this->OutlineFaceWires )
     {
