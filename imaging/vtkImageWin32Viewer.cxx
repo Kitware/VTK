@@ -562,9 +562,6 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
   BITMAP bm;
   GetObject(this->HBitmap, sizeof (BITMAP), (LPSTR) &bm);
 
-  // vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap width: " << bm.bmWidth);
-  // vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap height: " << bm.bmHeight);
-
   // create the DIBSection if not done already
   if (!this->HBitmap)
     {
@@ -587,27 +584,23 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
    // if region size differs from bitmap size, reallocate the bitmap
    else if ((width != bm.bmWidth) || (height != bm.bmHeight))
      {
-
-	// vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Changing bitmap size to: "
-	//   << width << "," << height << "(" << dataWidth*height << " bytes)");
-    	
-    DeleteObject(this->HBitmap);
-
-    BITMAPINFO dataHeader;
-    dataHeader.bmiHeader.biSize = 40;
-    dataHeader.bmiHeader.biWidth = width;
-    dataHeader.bmiHeader.biHeight = height;
-    dataHeader.bmiHeader.biPlanes = 1;
-    dataHeader.bmiHeader.biBitCount = 24;
-    dataHeader.bmiHeader.biCompression = BI_RGB;
-    dataHeader.bmiHeader.biSizeImage = dataWidth*height;
-    dataHeader.bmiHeader.biClrUsed = 0;
-    dataHeader.bmiHeader.biClrImportant = 0;  
-
-    // try using a DIBsection
-    this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
-                         DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
-
+     DeleteObject(this->HBitmap);
+     
+     BITMAPINFO dataHeader;
+     dataHeader.bmiHeader.biSize = 40;
+     dataHeader.bmiHeader.biWidth = width;
+     dataHeader.bmiHeader.biHeight = height;
+     dataHeader.bmiHeader.biPlanes = 1;
+     dataHeader.bmiHeader.biBitCount = 24;
+     dataHeader.bmiHeader.biCompression = BI_RGB;
+     dataHeader.bmiHeader.biSizeImage = dataWidth*height;
+     dataHeader.bmiHeader.biClrUsed = 0;
+     dataHeader.bmiHeader.biClrImportant = 0;  
+     
+     // try using a DIBsection
+     this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
+				      DIB_RGB_COLORS, 
+				      (void **)(&(this->DataOut)), NULL, 0);
      }
    
   int min = 0;
@@ -623,9 +616,16 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
 				      this->RedComponent);
       ptr1 = region->GetScalarPointer(extent[0], extent[2], 
 				      this->GreenComponent);
-      ptr2 = region->GetScalarPointer(extent[0], extent[2], 
-				      this->BlueComponent);
-
+      if (dim > 2)
+	{
+	ptr2 = region->GetScalarPointer(extent[0], extent[2], 
+					this->BlueComponent);
+	}
+      else
+	{
+	ptr2 = ptr1;
+	}
+      
 
     if ( ! ptr0 ||! ptr1 || ! ptr2)
       {

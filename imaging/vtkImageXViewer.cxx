@@ -206,14 +206,6 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
     upperPixel = temp;
     }
   
-#if 0
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
-    }
-#endif
-
     inInc1 = -inInc1;
     inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
 
@@ -327,14 +319,7 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
-#if 0
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    }
-#endif  
-
-    inInc1 = -inInc1;
+  inInc1 = -inInc1;
 
   // Loop through in regions pixels
   redPtr1 = redPtr;
@@ -431,49 +416,29 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
   region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
   dim = max - min + 1;
 
-#if 0
-  if (this->ColorFlag)
-#endif
-  
   if (dim > 1)
     { 
-
-#if 0
-    if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
+    ptr0 = region->GetScalarPointer(extent[0], extent[3], 
+				    this->RedComponent);
+    ptr1 = region->GetScalarPointer(extent[0], extent[3], 
+				    this->GreenComponent);
+    if (dim > 2)
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[2], 
-				      this->RedComponent);
-      ptr1 = region->GetScalarPointer(extent[0], extent[2], 
-				      this->GreenComponent);
-      ptr2 = region->GetScalarPointer(extent[0], extent[2], 
+      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
 				      this->BlueComponent);
       }
     else
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->RedComponent);
-      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->GreenComponent);
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->BlueComponent);
+      ptr2 = ptr1;
       }
     
-#endif
-
-      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->RedComponent);
-      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->GreenComponent);
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->BlueComponent);
-
-
+    
     if ( ! ptr0 ||! ptr1 || ! ptr2)
       {
       vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
       return;
       }
-      
+    
     // Call the appropriate templated function
     switch (region->GetScalarType())
       {
