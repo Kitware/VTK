@@ -70,7 +70,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->SubFrames = 0;
   this->AccumulationBuffer = NULL;
   this->CurrentSubFrame = 0;
-  this->DesiredUpdateRate = 0;
+  this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = NULL;
   this->Filename = NULL;
   this->Erase = 1;
