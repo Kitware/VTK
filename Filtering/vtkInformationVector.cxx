@@ -20,7 +20,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.5");
+vtkCxxRevisionMacro(vtkInformationVector, "1.6");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -105,16 +105,7 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
 void vtkInformationVector::SetInformationObject(int index,
                                                 vtkInformation* newInfo)
 {
-  // We do not allow NULL information objects.  If one is not given,
-  // create an empty one.
-  vtkInformation* info = 0;
-  if(!newInfo)
-    {
-    newInfo = vtkInformation::New();
-    info = newInfo;
-    }
-
-  if(index >= 0 && index < this->GetNumberOfInformationObjects())
+  if(newInfo && index >= 0 && index < this->GetNumberOfInformationObjects())
     {
     // Replace an existing information object.
     vtkInformation* oldInfo = this->Internal->Vector[index];
@@ -125,7 +116,8 @@ void vtkInformationVector::SetInformationObject(int index,
       oldInfo->UnRegister(this);
       }
     }
-  else if(index >= 0)
+  else if(newInfo && index >= 0 &&
+          index >= this->GetNumberOfInformationObjects())
     {
     // If a hole will be created fill it with empty objects.
     if(index > this->GetNumberOfInformationObjects())
@@ -137,11 +129,20 @@ void vtkInformationVector::SetInformationObject(int index,
     newInfo->Register(this);
     this->Internal->Vector.push_back(newInfo);
     }
-
-  // Delete the artifically created empty information object.
-  if(info)
+  else if(!newInfo && index >= 0 &&
+          index < this->GetNumberOfInformationObjects()-1)
     {
-    info->Delete();
+    // We do not allow NULL information objects.  Create an empty one
+    // to fill in the hole.
+    vtkInformation* oldInfo = this->Internal->Vector[index];
+    this->Internal->Vector[index] = vtkInformation::New();
+    oldInfo->UnRegister(this);
+    }
+  else if(!newInfo && index >= 0 &&
+          index == this->GetNumberOfInformationObjects()-1)
+    {
+    // Remove the last information object.
+    this->SetNumberOfInformationObjects(index);
     }
 }
 
