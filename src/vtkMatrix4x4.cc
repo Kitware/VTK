@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Construct identity matrix.
+// Construct a 4x4 identity matrix.
 vtkMatrix4x4::vtkMatrix4x4 ()
 {
   int i,j;
@@ -74,7 +74,7 @@ vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
 }
 
 // Description:
-// Set all elements of matrix to input value.
+// Set all elements of matrix to the given value.
 void vtkMatrix4x4::operator= (float element)
 {
   int i,j;
@@ -90,8 +90,9 @@ void vtkMatrix4x4::operator= (float element)
 }
 
 // Description:
-// Multiply a point (in homogeneous coordinates) by matrix. The in[4] and 
-// result[4] arrays can be the same array.
+// Multiply a point (in homogeneous coordinates) by this matrix. 
+// and return the result in result. The in[4] and result[4] 
+// arrays must both be allocated but they can be the same array.
 void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
@@ -153,7 +154,7 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 }
 
 // Description:
-// Compute the determinant of the matrix.
+// Compute the determinant of the matrix and return it.
 float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 {
   vtkMath math;
@@ -181,7 +182,7 @@ float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 }
 
 // Description:
-// Compute adjoint of matrix.
+// Compute adjoint of matrix andput it into out.
 void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
 {
 // 
@@ -258,7 +259,7 @@ void vtkMatrix4x4::operator= (vtkMatrix4x4& source)
 }
 
 // Description:
-// Transpose the matrix. 
+// Transpose the matrix and put it into out. 
 void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {
   int i, j;
