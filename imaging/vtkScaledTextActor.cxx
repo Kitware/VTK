@@ -66,6 +66,15 @@ vtkScaledTextActor::~vtkScaledTextActor()
   this->Position2Coordinate = NULL;
 }
 
+// Release any graphics resources that are being consumed by this actor.
+// The parameter window could be used to determine which graphic
+// resources to release.
+void vtkScaledTextActor::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->vtkActor2D::ReleaseGraphicsResources(win);
+  this->TextActor->ReleaseGraphicsResources(win);
+}
+
 void vtkScaledTextActor::SetWidth(float w)
 {
   float *pos;
