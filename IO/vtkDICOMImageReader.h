@@ -194,6 +194,9 @@ protected:
   char* StudyID;
   char* TransferSyntaxUID;
 
+  // DICOMFileNames accessor methods for subclasses:
+  int GetNumberOfFileNames();
+  const char* GetFileName(int index);
 private:
   vtkDICOMImageReader(const vtkDICOMImageReader&);  // Not implemented.
   void operator=(const vtkDICOMImageReader&);  // Not implemented.

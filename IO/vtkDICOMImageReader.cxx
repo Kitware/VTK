@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.25");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.26");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -552,3 +552,20 @@ float vtkDICOMImageReader::GetGantryAngle()
 {
   return this->AppHelper->GetGantryAngle();
 }
+
+//----------------------------------------------------------------------------
+int vtkDICOMImageReader::GetNumberOfFileNames()
+{
+  return static_cast<int>(this->DICOMFileNames->size());
+}
+
+//----------------------------------------------------------------------------
+const char* vtkDICOMImageReader::GetFileName(int index)
+{
+  if(index >= 0 && index < this->GetNumberOfFileNames())
+    {
+    return (*this->DICOMFileNames)[index].c_str();
+    }
+  return 0;
+}
+
