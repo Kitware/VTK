@@ -18,8 +18,11 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.5");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.6");
 vtkStandardNewMacro(vtkGenericEdgeTable);
+
+static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
+                              2039, 4093};
 
 // Description:
 // Constructor with a scalar field of `size' doubles.
