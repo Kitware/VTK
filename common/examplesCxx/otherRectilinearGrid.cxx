@@ -587,7 +587,37 @@ void Test(ostream& strm)
   strm << "GetActualMemorySize(rg1Dz): " << rg1Dz->GetActualMemorySize() << endl;
   strm << "GetActualMemorySize(rg0D): " << rg0D->GetActualMemorySize() << endl;
   
-  
+  // Cleanup  
+  rg0D->Delete();
+  rg1Dx->Delete();
+  rg1Dy->Delete();
+  rg1Dz->Delete();
+  rg2Dxy->Delete();
+  rg2Dxz->Delete();
+  rg2Dyz->Delete();
+  rg3D->Delete();
+  xs->Delete();
+  ys->Delete();
+  zs->Delete();
+  xdata->Delete();
+  ydata->Delete();
+  zdata->Delete();
+  shortScalars3D->Delete();
+  scalars3D->Delete();
+  shortScalars2D->Delete();
+  scalars2D->Delete();
+  shortScalars1D->Delete();
+  scalars1D->Delete();
+  shortScalars0D->Delete();
+  scalars0D->Delete();
+  scrg3D->Delete();
+  dcrg3D->Delete();
+  ids->Delete();
+  gcell3D->Delete();
+  gcell2D->Delete();
+  gcell1D->Delete();
+  gcell0D->Delete();
+
   strm << "Testing completed" << endl;
   
 }
