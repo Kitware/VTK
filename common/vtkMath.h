@@ -531,4 +531,44 @@ inline float vtkMath::Random(float min, float max)
   return (min + vtkMath::Random()*(max-min));
 }
 
+// Cross product of two 3-vectors. Result vector in z[3].
+inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
+{
+  float Zx = x[1]*y[2] - x[2]*y[1]; 
+  float Zy = x[2]*y[0] - x[0]*y[2];
+  float Zz = x[0]*y[1] - x[1]*y[0];
+  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+}
+
+// Cross product of two 3-vectors. Result vector in z[3].
+inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
+{
+  double Zx = x[1]*y[2] - x[2]*y[1]; 
+  double Zy = x[2]*y[0] - x[0]*y[2];
+  double Zz = x[0]*y[1] - x[1]*y[0];
+  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+}
+
+//BTX
+//----------------------------------------------------------------------------
+template<class T>
+static inline double vtkDeterminant3x3(T A[3][3])
+{
+  return A[0][0]*A[1][1]*A[2][2] + A[1][0]*A[2][1]*A[0][2] + 
+         A[2][0]*A[0][1]*A[1][2] - A[0][0]*A[2][1]*A[1][2] - 
+         A[1][0]*A[0][1]*A[2][2] - A[2][0]*A[1][1]*A[0][2];
+}
+//ETX
+
+inline double vtkMath::Determinant3x3(float A[3][3])
+{
+  return vtkDeterminant3x3(A);
+}
+
+inline double vtkMath::Determinant3x3(double A[3][3])
+{
+  return vtkDeterminant3x3(A);
+}
+
+
 #endif
