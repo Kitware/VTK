@@ -7,6 +7,7 @@
 <!-- Changed by: Bill Hoffman,  15-Jun-2000 -->
 <!-- Changed by: will schroeder,  5-Dec-2001 -->
 <!-- Changed by: will schroeder,  17-Jan-2003 -->
+<!-- Changed by: Prabhu Ramachandran,  6-Feb-2003 -->
 
 </header>
 <body>
@@ -227,6 +228,20 @@ for information about getting Tcl and Tk. To turn on Tcl wrapping,
 set VTK_WRAP_TCL to ON during the configuration process (as a post-build step, you might want to check the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file). You will then have
 to set the values for Tcl/Tk include directories and libraries.
 
+<P>
+If you want to use VTK from <A href="http://www.python.org">Python</A>
+you will need to have Python installed.  To turn on Python wrapping,
+set VTK_WRAP_PYTHON to ON during the configuration process and then
+set the values for the Python related directories and libraries.  If
+you want to use Tkinter with VTK-Python then you should also turn on
+Tcl wrapping by setting VTK_WRAP_TCL to ON.  Make sure that the Tcl/Tk
+libraries that you set correspond to the same version used by Tkinter.
+Note that the VTK-Python modules are not installed by default via
+'make install'.  The <A
+href="Wrapping/Python/README.txt">Wrapping/Python/README.txt</A> file
+documents the installation procedure and the VTK-Python modules.
+</P>
+
 <h3><A NAME="Cygwin">Cygwin Installation</h3><p>
 The build process for Cygwin is almost exactly the same as the UNIX build process
 (see previous section)
@@ -337,6 +352,12 @@ aliased, you would type:
 Note that most Tcl scripts allow you to type "u" in the render window to
 obtain an interpreter. You can use the interpreter to modify the application
 at run-time.
+
+<P>
+If you have enabled Python Wrapping you should read the instructions
+located in the <A
+href="Wrapping/Python/README.txt">Wrapping/Python/README.txt</A> file.
+</P>
 
 <HR>
 <h1><A NAME="NewClass">Adding A New Class</h1> There are several ways to
