@@ -270,9 +270,11 @@ void vlUnstructuredGridReader::Execute()
     vlErrorMacro(<< "Unrecognized keyord: " << line);
     }
 //
-// Now read the point data
+// Clean-up and get out
 //
   if ( types ) delete [] types;
+
+  vlDebugMacro(<<"Read " <<this->GetNumberOfPoints() <<" points," <<this->GetNumberOfCells() <<" cells.\n");
   return;
 }
 
