@@ -1,4 +1,5 @@
 # Generate triangle files for medical images
+catch {load vtktcl}
 
 source SliceOrder.tcl
 
