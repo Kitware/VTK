@@ -26,7 +26,7 @@
 class VTK_RENDERING_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
-  static vtkGraphicsFactory *New() {return new vtkGraphicsFactory;};
+  static vtkGraphicsFactory *New();
   vtkTypeRevisionMacro(vtkGraphicsFactory,vtkObject);
 
   // Description:

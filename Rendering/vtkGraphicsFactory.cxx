@@ -76,7 +76,8 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.28");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.29");
+vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {
@@ -147,9 +148,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkXMesaRenderWindow::New();
-	}
+        {
+        return vtkXMesaRenderWindow::New();
+        }
 #endif
       return vtkXOpenGLRenderWindow::New();
       }
@@ -202,9 +203,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaActor::New();
-	}
+        {
+        return vtkMesaActor::New();
+        }
 #endif
       return vtkOpenGLActor::New();
       }
@@ -212,9 +213,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaCamera::New();
-	}
+        {
+        return vtkMesaCamera::New();
+        }
 #endif
       return vtkOpenGLCamera::New();
       }
@@ -222,9 +223,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaImageActor::New();
-	}
+        {
+        return vtkMesaImageActor::New();
+        }
 #endif
       return vtkOpenGLImageActor::New();
       }
@@ -232,9 +233,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaLight::New();
-	}
+        {
+        return vtkMesaLight::New();
+        }
 #endif
       return vtkOpenGLLight::New();
       }
@@ -242,9 +243,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaProperty::New();
-	}
+        {
+        return vtkMesaProperty::New();
+        }
 #endif
       return vtkOpenGLProperty::New();
       }
@@ -252,9 +253,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaPolyDataMapper::New();
-	}
+        {
+        return vtkMesaPolyDataMapper::New();
+        }
 #endif
       return vtkOpenGLPolyDataMapper::New();
       }
@@ -262,9 +263,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaRenderer::New();
-	}
+        {
+        return vtkMesaRenderer::New();
+        }
 #endif
       return vtkOpenGLRenderer::New();
       }
@@ -272,9 +273,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaTexture::New();
-	}
+        {
+        return vtkMesaTexture::New();
+        }
 #endif
       return vtkOpenGLTexture::New();
       }
@@ -282,9 +283,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaVolumeTextureMapper2D::New();
-	}
+        {
+        return vtkMesaVolumeTextureMapper2D::New();
+        }
 #endif
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
@@ -292,9 +293,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
 #if defined(VTK_MANGLE_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
-	{
-	return vtkMesaVolumeRayCastMapper::New();
-	}
+        {
+        return vtkMesaVolumeRayCastMapper::New();
+        }
 #endif
       return vtkOpenGLVolumeRayCastMapper::New();
       }
