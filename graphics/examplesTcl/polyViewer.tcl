@@ -3,6 +3,7 @@
 source TkInteractor.tcl
 
 # Create gui
+wm title . "vtk Polygonal Data Viewer"
 frame .mbar -relief raised -bd 2
 pack .mbar -side top -fill x
 
@@ -101,7 +102,7 @@ vtkActor actor
     actor SetMapper mapper
 
 vtkVectorText banner
-    banner SetText "      vtk\nStereo-Lithography\n     Viewer"
+    banner SetText "     vtk\nPolygonal Data\n    Viewer"
 vtkPolyMapper bannerMapper
     bannerMapper SetInput [banner GetOutput]
 vtkActor bannerActor
