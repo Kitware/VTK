@@ -6,24 +6,24 @@
 
 #include "Object.h"
 
-class vlIntArray : public vlObject {
-
+class vlIntArray : public vlObject 
+{
 public:
   vlIntArray():Array(0),Size(0),MaxId(-1),Extend(1000) {};
   int Initialize(const int sz, const int ext);
   vlIntArray(const int sz, const int ext);
   vlIntArray(const vlIntArray& ia);
-  virtual ~vlIntArray();
-  int GetValue(const int id) {return Array[id];};
-  int *GetPtr(const int id) {return Array + id;};
+  ~vlIntArray();
+  int GetValue(const int id) {return this->Array[id];};
+  int *GetPtr(const int id) {return this->Array + id;};
   vlIntArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
   vlIntArray &operator=(vlIntArray& ia);
   void operator+=(vlIntArray& ia);
-  void operator+=(const int i) {InsertNextValue(i);};
+  void operator+=(const int i) {this->InsertNextValue(i);};
   // operator[] can be used on both left and right side of expression;
   // Note: if used on left hand side, user's responsibility to do range checking
-  int& operator[](const int i) {return Array[i];};
+  int& operator[](const int i) {return this->Array[i];};
   void Squeeze();
   int GetSize();
   int GetMaxId();

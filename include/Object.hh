@@ -17,7 +17,8 @@
 // Class definition
 //
 
-class vlObject {
+class vlObject 
+{
 public:
   vlObject();
   virtual ~vlObject();
