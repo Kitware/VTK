@@ -51,7 +51,7 @@ vtkAxisActor2D* vtkAxisActor2D::New()
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAxisActor2D");
   if(ret)
     {
-    return (vtkAxisActor2D*)ret;
+      return (vtkAxisActor2D*)ret;
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkAxisActor2D;
@@ -96,9 +96,9 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->LabelActors = new vtkActor2D * [VTK_MAX_LABELS];
   for ( int i=0; i < VTK_MAX_LABELS; i++)
     {
-    this->LabelMappers[i] = vtkTextMapper::New();
-    this->LabelActors[i] = vtkActor2D::New();
-    this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
+      this->LabelMappers[i] = vtkTextMapper::New();
+      this->LabelActors[i] = vtkActor2D::New();
+      this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
     }
 
   this->Axis = vtkPolyData::New();
@@ -129,8 +129,8 @@ vtkAxisActor2D::~vtkAxisActor2D()
   
   if (this->LabelFormat) 
     {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
+      delete [] this->LabelFormat;
+      this->LabelFormat = NULL;
     }
 
   this->TitleMapper->Delete();
@@ -138,19 +138,19 @@ vtkAxisActor2D::~vtkAxisActor2D()
 
   if (this->Title)
     {
-    delete [] this->Title;
-    this->Title = NULL;
+      delete [] this->Title;
+      this->Title = NULL;
     }
 
   if (this->LabelMappers != NULL )
     {
-    for (int i=0; i < VTK_MAX_LABELS; i++)
-      {
-      this->LabelMappers[i]->Delete();
-      this->LabelActors[i]->Delete();
-      }
-    delete [] this->LabelMappers;
-    delete [] this->LabelActors;
+      for (int i=0; i < VTK_MAX_LABELS; i++)
+	{
+	  this->LabelMappers[i]->Delete();
+	  this->LabelActors[i]->Delete();
+	}
+      delete [] this->LabelMappers;
+      delete [] this->LabelActors;
     }
 
   this->Axis->Delete();
@@ -169,20 +169,20 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // Everything is built, just have to render
   if ( this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility )
     {
-    renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
+      renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
 
   if ( this->AxisVisibility || this->TickVisibility )
     {
-    renderedSomething += this->AxisActor->RenderOpaqueGeometry(viewport);
+      renderedSomething += this->AxisActor->RenderOpaqueGeometry(viewport);
     }
   
   if ( this->LabelVisibility )
     {
-    for (i=0; i<this->NumberOfLabelsBuilt; i++)
-      {
-      renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
-      }
+      for (i=0; i<this->NumberOfLabelsBuilt; i++)
+	{
+	  renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
+	}
     }
 
   return renderedSomething;
@@ -197,20 +197,20 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport *viewport)
   // Everything is built, just have to render
   if ( this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility )
     {
-    renderedSomething += this->TitleActor->RenderOverlay(viewport);
+      renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
 
   if ( this->AxisVisibility || this->TickVisibility )
     {
-    renderedSomething += this->AxisActor->RenderOverlay(viewport);
+      renderedSomething += this->AxisActor->RenderOverlay(viewport);
     }
   
   if ( this->LabelVisibility )
     {
-    for (i=0; i<this->NumberOfLabelsBuilt; i++)
-      {
-      renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
-      }
+      for (i=0; i<this->NumberOfLabelsBuilt; i++)
+	{
+	  renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
+	}
     }
 
   return renderedSomething;
@@ -224,7 +224,7 @@ void vtkAxisActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->TitleActor->ReleaseGraphicsResources(win);
   for (int i=0; i < VTK_MAX_LABELS; i++)
     {
-    this->LabelActors[i]->ReleaseGraphicsResources(win);
+      this->LabelActors[i]->ReleaseGraphicsResources(win);
     }
   this->AxisActor->ReleaseGraphicsResources(win);
 }
@@ -243,15 +243,15 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Font Family: ";
   if ( this->FontFamily == VTK_ARIAL )
     {
-    os << "Arial\n";
+      os << "Arial\n";
     }
   else if ( this->FontFamily == VTK_COURIER )
     {
-    os << "Courier\n";
+      os << "Courier\n";
     }
   else
     {
-    os << "Times\n";
+      os << "Times\n";
     }
 
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
@@ -296,44 +296,45 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   char string[512];
 
   if ( this->GetMTime() < this->BuildTime &&
-  viewport->GetMTime() < this->BuildTime )
+       viewport->GetMTime() < this->BuildTime )
     {
-    return; //already built
+      return; //already built
     }
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() < this->BuildTime &&
-  viewport->GetMTime() > this->BuildTime )
+       viewport->GetMTime() > this->BuildTime )
     { //viewport change may not require rebuild
-    int *lastPoint1=this->Point1Coordinate->GetComputedViewportValue(viewport);
-    int *lastPoint2=this->Point2Coordinate->GetComputedViewportValue(viewport);
-    if ( lastPoint1[0] == this->LastPoint1[0] &&
-    lastPoint1[1] == this->LastPoint1[1] &&
-    lastPoint2[0] == this->LastPoint2[0] &&
-    lastPoint2[1] == this->LastPoint2[1] )
-      {
-      return;
-      }
+      int *lastPoint1=this->Point1Coordinate->GetComputedViewportValue(viewport);
+      int *lastPoint2=this->Point2Coordinate->GetComputedViewportValue(viewport);
+      if ( lastPoint1[0] == this->LastPoint1[0] &&
+	   lastPoint1[1] == this->LastPoint1[1] &&
+	   lastPoint2[0] == this->LastPoint2[0] &&
+	   lastPoint2[1] == this->LastPoint2[1] )
+	{
+	  return;
+	}
     }
 
   vtkDebugMacro(<<"Rebuilding axis");
 
   // Initialize and get important info
+
   this->Axis->Initialize();
   this->AxisActor->SetProperty(this->GetProperty());
   this->TitleActor->SetProperty(this->GetProperty());
-  
+
   // Compute the location of tick marks and labels
   if ( this->AdjustLabels )
     {
-    this->ComputeRange(this->Range, outRange, this->NumberOfLabels, 
-                       numLabels, interval);
+      this->ComputeRange(this->Range, outRange, this->NumberOfLabels, 
+			 numLabels, interval);
     }
   else //compute our own ugly spacing
     {
-    numLabels = this->NumberOfLabels;
-    interval = (this->Range[1] - this->Range[0]) / (numLabels-1);
-    outRange[0] = this->Range[0]; outRange[1] = this->Range[1];
+      numLabels = this->NumberOfLabels;
+      interval = (this->Range[1] - this->Range[0]) / (numLabels-1);
+      outRange[0] = this->Range[0]; outRange[1] = this->Range[1];
     }
   this->NumberOfLabelsBuilt = numLabels;
 
@@ -347,17 +348,17 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   p2[0] = (float)x[0]; p2[1] = (float)x[1]; p2[2] = 0.0;
   this->LastPoint2[0] = x[0]; this->LastPoint2[1] = x[1];
   size = viewport->GetSize();
-  
+
   // See whether fonts have to be rebuilt
   if ( this->LastSize[0] != size[0] || this->LastSize[1] != size[1] )
     {
-    needToBuildFont = 1;
-    this->LastSize[0] = size[0];
-    this->LastSize[1] = size[1];
+      needToBuildFont = 1;
+      this->LastSize[0] = size[0];
+      this->LastSize[1] = size[1];
     }
   else
     {
-    needToBuildFont = 0;
+      needToBuildFont = 0;
     }
 
   vtkPoints *pts = vtkPoints::New();
@@ -373,27 +374,29 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   
   if (deltaX == 0. && deltaY == 0.)
     {
-    theta = 0.;
+      theta = 0.;
     }
   else
     {
-    theta = atan2(deltaY, deltaX);
+      theta = atan2(deltaY, deltaX);
     }
 
   ptIds[0] = pts->InsertNextPoint(p1); //first axis point
   xTick[0] = p1[0] + this->TickLength*sin(theta);
   xTick[1] = p1[1] - this->TickLength*cos(theta);
   xTick[2] = 0.0;
+
   pts->InsertNextPoint(xTick);
   for ( i=1; i < (numLabels-1); i++)
     {
-    xTick[0] = p1[0] + i*(p2[0] - p1[0]) / (numLabels-1);
-    xTick[1] = p1[1] + i*(p2[1] - p1[1]) / (numLabels-1);
-    pts->InsertNextPoint(xTick);
-    xTick[0] = xTick[0] + this->TickLength*sin(theta);
-    xTick[1] = xTick[1] - this->TickLength*cos(theta);
-    pts->InsertNextPoint(xTick);
+      xTick[0] = p1[0] + i*(p2[0] - p1[0]) / (numLabels-1);
+      xTick[1] = p1[1] + i*(p2[1] - p1[1]) / (numLabels-1);
+      pts->InsertNextPoint(xTick);
+      xTick[0] = xTick[0] + this->TickLength*sin(theta);
+      xTick[1] = xTick[1] - this->TickLength*cos(theta);
+      pts->InsertNextPoint(xTick);
     }
+
   ptIds[1] = pts->InsertNextPoint(p2); //last axis point
   xTick[0] = p2[0] + this->TickLength*sin(theta);
   xTick[1] = p2[1] - this->TickLength*cos(theta);
@@ -401,84 +404,84 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   if ( this->AxisVisibility )
     {
-    lines->InsertNextCell(2, ptIds);
+      lines->InsertNextCell(2, ptIds);
     }
-  
+
   if ( this->TickVisibility ) //create points and lines
     {
-    for (i=0; i < numLabels; i++)
-      {
-      ptIds[0] = 2*i;
-      ptIds[1] = 2*i + 1;
-      lines->InsertNextCell(2, ptIds);
-      }
+      for (i=0; i < numLabels; i++)
+	{
+	  ptIds[0] = 2*i;
+	  ptIds[1] = 2*i + 1;
+	  lines->InsertNextCell(2, ptIds);
+	}
     }
-  
+
   // Build the labels
   if ( this->LabelVisibility )
     {
-    for ( i=0; i < numLabels; i++)
-      {
-      val = outRange[0] + i*interval;
-      sprintf(string, this->LabelFormat, val);
-      this->LabelMappers[i]->SetInput(string);
-      this->LabelMappers[i]->SetBold(this->Bold);
-      this->LabelMappers[i]->SetItalic(this->Italic);
-      this->LabelMappers[i]->SetShadow(this->Shadow);
-      this->LabelMappers[i]->SetFontFamily(this->FontFamily);
-      if ( needToBuildFont )
-        {
-        this->LastLabelFontSize = this->SetFontSize(viewport, 
-                                 this->LabelMappers[i], size,
-                                 this->FontFactor*this->LabelFactor,
-                                 stringWidth, stringHeight);
-        }
-      else
-        {
-        this->LabelMappers[i]->SetFontSize(this->LastLabelFontSize);
-        }
-      this->LabelMappers[i]->GetSize(viewport, fontSize);
-      maxWidth = (fontSize[0] > maxWidth ? fontSize[0] : maxWidth);
-      maxHeight = (fontSize[1] > maxHeight ? fontSize[1] : maxHeight);
-      this->LabelActors[i]->SetProperty(this->GetProperty());
-      pts->GetPoint(2*i+1, xTick);
-      this->SetOffsetPosition(xTick, theta, maxWidth, maxHeight, 
-                              this->TickOffset, this->LabelActors[i]);
-      }
+      for ( i=0; i < numLabels; i++)
+	{
+	  val = outRange[0] + i*interval;
+	  sprintf(string, this->LabelFormat, val);
+	  this->LabelMappers[i]->SetInput(string);
+	  this->LabelMappers[i]->SetBold(this->Bold);
+	  this->LabelMappers[i]->SetItalic(this->Italic);
+	  this->LabelMappers[i]->SetShadow(this->Shadow);
+	  this->LabelMappers[i]->SetFontFamily(this->FontFamily);
+	  if ( needToBuildFont )
+	    {
+	      this->LastLabelFontSize = this->SetFontSize(viewport, 
+							  this->LabelMappers[i], size,
+							  this->FontFactor*this->LabelFactor,
+							  stringWidth, stringHeight);
+	    }
+	  else
+	    {
+	      this->LabelMappers[i]->SetFontSize(this->LastLabelFontSize);
+	    }
+	  this->LabelMappers[i]->GetSize(viewport, fontSize);
+	  maxWidth = (fontSize[0] > maxWidth ? fontSize[0] : maxWidth);
+	  maxHeight = (fontSize[1] > maxHeight ? fontSize[1] : maxHeight);
+	  this->LabelActors[i]->SetProperty(this->GetProperty());
+	  pts->GetPoint(2*i+1, xTick);
+	  this->SetOffsetPosition(xTick, theta, maxWidth, maxHeight, 
+				  this->TickOffset, this->LabelActors[i]);
+	}
     }// if labels visible
-  
+
   // Now build the title
   if ( this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility )
     {
-    this->TitleMapper->SetInput(this->Title);
-    this->TitleMapper->SetBold(this->Bold);
-    this->TitleMapper->SetItalic(this->Italic);
-    this->TitleMapper->SetShadow(this->Shadow);
-    this->TitleMapper->SetFontFamily(this->FontFamily);
-    if ( needToBuildFont )
-      {
-      this->LastTitleFontSize = this->SetFontSize(viewport, this->TitleMapper, 
-                                  size, this->FontFactor,
-                                  stringWidth, stringHeight);
-      }
-    else
-      {
-      this->TitleMapper->SetFontSize(this->LastTitleFontSize);
-      }
-    this->TitleMapper->GetSize(viewport, fontSize);
-    xTick[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
-    xTick[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
-    xTick[0] = xTick[0] + (this->TickLength+this->TickOffset)*sin(theta);
-    xTick[1] = xTick[1] - (this->TickLength+this->TickOffset)*cos(theta);
+      this->TitleMapper->SetInput(this->Title);
+      this->TitleMapper->SetBold(this->Bold);
+      this->TitleMapper->SetItalic(this->Italic);
+      this->TitleMapper->SetShadow(this->Shadow);
+      this->TitleMapper->SetFontFamily(this->FontFamily);
+      if ( needToBuildFont )
+	{
+	  this->LastTitleFontSize = this->SetFontSize(viewport, this->TitleMapper, 
+						      size, this->FontFactor,
+						      stringWidth, stringHeight);
+	}
+      else
+	{
+	  this->TitleMapper->SetFontSize(this->LastTitleFontSize);
+	}
+      this->TitleMapper->GetSize(viewport, fontSize);
+      xTick[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
+      xTick[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
+      xTick[0] = xTick[0] + (this->TickLength+this->TickOffset)*sin(theta);
+      xTick[1] = xTick[1] - (this->TickLength+this->TickOffset)*cos(theta);
     
-    offset = 0.0;
-    if ( this->LabelVisibility)
-      {
-      offset = this->ComputeStringOffset(maxWidth, maxHeight, theta);
-      }
+      offset = 0.0;
+      if ( this->LabelVisibility)
+	{
+	  offset = this->ComputeStringOffset(maxWidth, maxHeight, theta);
+	}
 
-    this->SetOffsetPosition(xTick, theta, fontSize[0], fontSize[1], 
-                            offset, this->TitleActor);
+      this->SetOffsetPosition(xTick, theta, fontSize[0], fontSize[1], 
+			      offset, this->TitleActor);
     } //if title visible
 
   this->BuildTime.Modified();
@@ -490,22 +493,43 @@ void vtkAxisActor2D::ComputeRange(float inRange[2], float outRange[2],
                                   float &interval)
 {
   static float divs[VTK_NUM_DIVS] = {10.0, 8.0, 5.0, 4.0, 2.0, 1.0,
-                                      0.5, 0.25, 0.20, 0.125, 0.10};
+				     0.5, 0.25, 0.20, 0.125, 0.10};
   float range = fabs(inRange[1]-inRange[0]), sRange[2];
   float logFactor = (float)pow(10.0, floor(log10(range)));
   float lastInterval;
   int j;
 
   // Handle the range
-  if ( inRange[0] <= inRange[1] )
+  if ( inRange[0] < inRange[1] )
     {
-    sRange[0] = inRange[0];
-    sRange[1] = inRange[1];
+      sRange[0] = inRange[0];
+      sRange[1] = inRange[1];
     }
-  else
+  else if ( inRange[0] > inRange[1] )
     {
-    sRange[1] = inRange[0];
-    sRange[0] = inRange[1];
+      sRange[1] = inRange[0];
+      sRange[0] = inRange[1];
+    }
+  else // they're equal, so perturb them by 1 percent
+    {
+      float perturb = 100.;
+      if (inRange[0] == 0.0)
+	{ // if they are both zero, then just perturb about zero
+	  sRange[0] = -1/perturb;
+	  sRange[1] = 1/perturb;
+	}
+      else
+	{
+	  sRange[0] = inRange[0] - inRange[0]/perturb;
+	  sRange[1] = inRange[0] + inRange[0]/perturb;
+	}
+      //recompute range
+      range = fabs(sRange[1]-sRange[0]);
+      //recompute logfactor
+      logFactor = (float)pow(10.0, floor(log10(range)));
+      //recompute inRange so things get flipped correctly at the end
+      inRange[0] = sRange[0];
+      inRange[1] = sRange[1];
     }
 
   // let's figure out the interval. We'll loop until we find something with the
@@ -513,40 +537,45 @@ void vtkAxisActor2D::ComputeRange(float inRange[2], float outRange[2],
   lastInterval = logFactor * divs[0];
   for ( j=1; j < VTK_NUM_DIVS; j++ )
     {
-    interval = logFactor * divs[j];
-    if ( ((inNumTicks-1)*interval) < range )
-      {
-      break;
-      }
-    lastInterval = interval;
+      interval = logFactor * divs[j];
+      if ( ((inNumTicks-1)*interval) < range )
+	{
+	  break;
+	}
+      lastInterval = interval;
     }
   interval = lastInterval;
+
   numTicks = (int) ceil(range/interval) + 1; //trim number of extra ticks
-  
+
   // Get the start value of the range
   for ( j=0; j < VTK_NUM_DIVS; j++ )
     {
-    outRange[0] = ((int)floor(sRange[0]/(logFactor*divs[j]))) * logFactor*divs[j];
-    if ( (outRange[0] + (numTicks-1)*interval) >= sRange[1] )
-      {
-      break;
-      }
+      outRange[0] = ((int)floor(sRange[0]/(logFactor*divs[j]))) * logFactor*divs[j];
+      if ( (outRange[0] + (numTicks-1)*interval) >= sRange[1] )
+	{
+	  break;
+	}
     }
 
+  // Get the end value of the range
   outRange[1] = outRange[0] + (numTicks-1)*interval;
+
+  // Adust if necessary
   if ( inRange[0] > inRange[1] )
     {
-    sRange[0] = outRange[1];
-    outRange[1] = outRange[0];
-    outRange[0] = sRange[0];
-    interval = -interval;
+      sRange[0] = outRange[1];
+      outRange[1] = outRange[0];
+      outRange[0] = sRange[0];
+      interval = -interval;
     }
+
 }
 #undef VTK_NUM_DIVS
 
 int vtkAxisActor2D::SetFontSize(vtkViewport *viewport, 
-                              vtkTextMapper *textMapper, int *size,
-                              float factor, int &stringWidth, int &stringHeight)
+				vtkTextMapper *textMapper, int *size,
+				float factor, int &stringWidth, int &stringHeight)
 {
   int tempi[2], fontSize, target, length=(size[0]>size[1]?size[0]:size[1]);
 
@@ -558,22 +587,22 @@ int vtkAxisActor2D::SetFontSize(vtkViewport *viewport,
   textMapper->GetSize(viewport,tempi);
   if (tempi[0] <= 0 || tempi[1] <= 0 )
     {
-    stringHeight = 0;
-    stringWidth = 0;
-    return 0;
+      stringHeight = 0;
+      stringWidth = 0;
+      return 0;
     }
   
   while (tempi[1] < target && fontSize < 100)
     {
-    fontSize++;
-    textMapper->SetFontSize(fontSize);
-    textMapper->GetSize(viewport,tempi);
+      fontSize++;
+      textMapper->SetFontSize(fontSize);
+      textMapper->GetSize(viewport,tempi);
     }
   while ((tempi[1] > target || tempi[0] > length) && fontSize > 0)
     {
-    fontSize--;
-    textMapper->SetFontSize(fontSize);
-    textMapper->GetSize(viewport,tempi);
+      fontSize--;
+      textMapper->SetFontSize(fontSize);
+      textMapper->GetSize(viewport,tempi);
     }
   stringWidth = tempi[0];
   stringHeight = tempi[1];
@@ -616,25 +645,25 @@ void vtkAxisActor2D::ShallowCopy(vtkProp *prop)
   vtkAxisActor2D *a = vtkAxisActor2D::SafeDownCast(prop);
   if ( a != NULL )
     {
-    this->SetPoint1(a->GetPoint1());
-    this->SetPoint2(a->GetPoint2());
-    this->SetRange(a->GetRange());
-    this->SetNumberOfLabels(a->GetNumberOfLabels());
-    this->SetLabelFormat(a->GetLabelFormat());
-    this->SetAdjustLabels(a->GetAdjustLabels());
-    this->SetTitle(a->GetTitle());
-    this->SetBold(a->GetBold());
-    this->SetItalic(a->GetItalic());
-    this->SetShadow(a->GetShadow());
-    this->SetFontFamily(a->GetFontFamily());
-    this->SetTickLength(a->GetTickLength());
-    this->SetTickOffset(a->GetTickOffset());
-    this->SetAxisVisibility(a->GetAxisVisibility());
-    this->SetTickVisibility(a->GetTickVisibility());
-    this->SetLabelVisibility(a->GetLabelVisibility());
-    this->SetTitleVisibility(a->GetTitleVisibility());
-    this->SetFontFactor(a->GetFontFactor());
-    this->SetLabelFactor(a->GetLabelFactor());
+      this->SetPoint1(a->GetPoint1());
+      this->SetPoint2(a->GetPoint2());
+      this->SetRange(a->GetRange());
+      this->SetNumberOfLabels(a->GetNumberOfLabels());
+      this->SetLabelFormat(a->GetLabelFormat());
+      this->SetAdjustLabels(a->GetAdjustLabels());
+      this->SetTitle(a->GetTitle());
+      this->SetBold(a->GetBold());
+      this->SetItalic(a->GetItalic());
+      this->SetShadow(a->GetShadow());
+      this->SetFontFamily(a->GetFontFamily());
+      this->SetTickLength(a->GetTickLength());
+      this->SetTickOffset(a->GetTickOffset());
+      this->SetAxisVisibility(a->GetAxisVisibility());
+      this->SetTickVisibility(a->GetTickVisibility());
+      this->SetLabelVisibility(a->GetLabelVisibility());
+      this->SetTitleVisibility(a->GetTitleVisibility());
+      this->SetFontFactor(a->GetFontFactor());
+      this->SetLabelFactor(a->GetLabelFactor());
     }
 
   // Now do superclass
