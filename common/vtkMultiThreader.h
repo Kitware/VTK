@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkMultiThreader.h - A class for performing multithreaded execution
+// .NAME vtkMultiThreader - A class for performing multithreaded execution
 // .SECTION Description
 // vtkMultithreader is a class that provides support for multithreaded
 // execution using sproc() on an SGI, or pthread_create on any platform
