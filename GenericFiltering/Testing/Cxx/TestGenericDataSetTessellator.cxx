@@ -21,7 +21,9 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-#define WRITE_GENERIC_RESULT
+//#define WRITE_GENERIC_RESULT
+
+#define WITH_GEOMETRY_FILTER
 
 #include "vtkActor.h"
 #include "vtkDebugLeaks.h"
@@ -47,6 +49,11 @@
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
 #include "vtkSimpleCellTessellator.h"
+
+#ifdef WITH_GEOMETRY_FILTER
+#include "vtkGeometryFilter.h"
+#include "vtkPolyDataMapper.h"
+#endif
 
 #ifdef WRITE_GENERIC_RESULT
 # include "vtkXMLUnstructuredGridWriter.h"
@@ -154,10 +161,17 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   vtkLookupTable *lut = vtkLookupTable::New(); 
   lut->SetHueRange (0.667, 0.0);
   
+#ifdef WITH_GEOMETRY_FILTER
+  vtkGeometryFilter *geom = vtkGeometryFilter::New();
+  geom->SetInput(tessellator->GetOutput());
+  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  mapper->SetInput( geom->GetOutput() );
+  geom->Delete();
+#else
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetLookupTable(lut);
   mapper->SetInput( tessellator->GetOutput() );
-  
+#endif
+  mapper->SetLookupTable(lut);
   if(tessellator->GetOutput()->GetPointData()!=0)
     {
     if(tessellator->GetOutput()->GetPointData()->GetScalars()!=0)
