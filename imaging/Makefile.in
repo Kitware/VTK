@@ -63,6 +63,7 @@ vtkImageMask \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
+vtkImageNoiseSource \
 vtkImageNonMaximumSuppression \
 vtkImagePermute \
 vtkImager \
@@ -109,7 +110,6 @@ vtkXTextMapper
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageMagnify1D \
-#vtkImageNoiseSource \
 #vtkImageOpenClose3D \
 #vtkImageRange3D \
 #vtkImageShortWriter \

@@ -71,16 +71,16 @@ public:
   vtkGetMacro(Maximum, float);
 
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
-		      int zMin, int zMax, int tMin, int tMax);
+		      int zMin, int zMax);
 
   void UpdateImageInformation();
 
 private:
   float Minimum;
   float Maximum;
-  int WholeExtent[8];
+  int WholeExtent[6];
 
-  void Execute(vtkImageRegion *region);
+  void Execute(vtkImageData *data);
 };
 
 

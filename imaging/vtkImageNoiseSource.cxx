@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include "vtkMath.h"
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageNoiseSource.h"
 
@@ -52,17 +51,13 @@ vtkImageNoiseSource::vtkImageNoiseSource()
   this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
-  this->WholeExtent[6] = 0;  this->WholeExtent[7] = 0;
-  this->SetOutputScalarType(VTK_FLOAT);
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
 void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax, 
 					 int yMin, int yMax,
-					 int zMin, int zMax, 
-					 int tMin, int tMax)
+					 int zMin, int zMax)
 {
   int modified = 0;
   
@@ -96,16 +91,6 @@ void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax,
     modified = 1;
     this->WholeExtent[5] = zMax ;
     }
-  if (this->WholeExtent[6] != tMin)
-    {
-    modified = 1;
-    this->WholeExtent[6] = tMin ;
-    }
-  if (this->WholeExtent[7] != tMax)
-    {
-    modified = 1;
-    this->WholeExtent[7] = tMax ;
-    }
   if (modified)
     {
     this->Modified();
@@ -116,28 +101,51 @@ void vtkImageNoiseSource::UpdateImageInformation()
 {
   this->CheckCache();
   this->Output->SetWholeExtent(this->WholeExtent);
+  this->Output->SetScalarType(VTK_FLOAT);
+  this->Output->SetNumberOfScalarComponents(1);
 }
 
-void vtkImageNoiseSource::Execute(vtkImageRegion *region)
+void vtkImageNoiseSource::Execute(vtkImageData *data)
 {
-  int min, max;
-  float *ptr;
-  int idx, inc;
+  float *outPtr;
+  int idxR, idxY, idxZ;
+  int maxY, maxZ;
+  int outIncX, outIncY, outIncZ;
+  int rowLength;
+  int *outExt;
   
-  if (region->GetScalarType() != VTK_FLOAT)
+  if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");
     }
   
-  region->GetExtent(min, max);
-  region->GetIncrements(inc);
-  ptr = (float *)(region->GetScalarPointer());
+  outExt = data->GetExtent();
   
-  for (idx = min; idx <= max; ++idx)
+  // find the region to loop over
+  rowLength = (outExt[1] - outExt[0]+1);
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  
+  // Get increments to march through data 
+  data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  outPtr = data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  
+
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    *ptr = this->Minimum +
-      (this->Maximum - this->Minimum) * vtkMath::Random();
-    ptr += inc;
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      for (idxR = 0; idxR < rowLength; idxR++)
+	{
+	// Pixel operation
+	*outPtr = this->Minimum +
+	  (this->Maximum - this->Minimum) * vtkMath::Random();
+	outPtr++;
+	}
+      outPtr += outIncY;
+      }
+    outPtr += outIncZ;
     }
 }
 
