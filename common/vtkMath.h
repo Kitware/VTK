@@ -252,26 +252,28 @@ public:
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
   
   // Description:
-  // Orthogonalize a 3x3 matrix and put the result in B.  The result is 
-  // a 3x3 rotation matrix with a positive determinant.  Adapted from a
-  // method by B.K.P. Horn that uses diagonalization of an appropriately
-  // constructed 4x4 matrix.
+  // Orthogonalize a 3x3 matrix and put the result in B.  If matrix A
+  // has a negative determinant, then B will be a rotation plus a flip
+  // i.e. it will have a determinant of -1.
   static void Orthogonalize3x3(const float A[3][3], float B[3][3]);
   static void Orthogonalize3x3(const double A[3][3], double B[3][3]);
 
   // Description:
   // Diagonalize a symmetric 3x3 matrix and return the eigenvalues in
-  // w and the eigenvectors in the columns of V.  The matrix V will have
-  // a positive determinant, and the three eigenvectors will be aligned
-  // as closely as possible with the x, y, and z axes.
+  // w and the eigenvectors in the columns of V.  The matrix V will 
+  // have a positive determinant, and the three eigenvectors will be
+  // aligned as closely as possible with the x, y, and z axes.
   static void Diagonalize3x3(const float A[3][3], float w[3], float V[3][3]);
   static void Diagonalize3x3(const double A[3][3],double w[3],double V[3][3]);
 
   // Description:
   // Perform singular value decomposition on a 3x3 matrix.  This is not
   // done using a conventional SVD algorithm, instead it is done using
-  // Orthogonalize3x3 and Diagonalize3x3.  The determinants of both
-  // matrices are guaranteed to be positive.
+  // Orthogonalize3x3 and Diagonalize3x3.  Both output matrices U and VT
+  // will have positive determinants, and the w values will be arranged
+  // such that the three rows of VT are aligned as closely as possible
+  // with the x, y, and z axes respectively.  If the determinant of A is
+  // negative, then the three w values will be negative.
   static void SingularValueDecomposition3x3(const float A[3][3],
 					    float U[3][3], float w[3],
 					    float VT[3][3]);
