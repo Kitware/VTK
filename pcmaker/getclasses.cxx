@@ -1438,6 +1438,11 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
       for (i = 0; i < NumOfGraphicsLibs ; i++)
         fprintf(fp,"\"$(LIBDIR)/vtkGraphics%d.lib\" ",i);
       }
+    if ( vals->m_Contrib )
+      {
+      fprintf(fp,"\"$(LIBDIR)/vtkContrib.lib\" ");
+      }
+    
     fprintf(fp,"\n");
 
 
