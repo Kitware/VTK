@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.7");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.8");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -593,7 +593,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       }
 
     vtkIdType numSteps = 0;
-    float error = 0, maxPropTime;
+    float error = 0;
     // Integrate until the maximum propagation length is reached, 
     // maximum number of steps is reached or until a boundary is encountered.
     while ( propagation < this->MaximumPropagation.Interval )
@@ -786,6 +786,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       for(i=0; i<numPts; i++)
         {
         normals->GetTuple(i, normal);
+        normals->SetName("Normals");
         vtkDataArray* newVectors = outputPD->GetVectors();
         newVectors->GetTuple(i, velocity);
         // obtain two unit orthogonal vectors on the plane perpendicular to
@@ -804,7 +805,8 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
           }
         normals->SetTuple(i, normal);
         }
-      outputPD->SetNormals(normals);
+      outputPD->AddArray(normals);
+      outputPD->SetActiveAttribute("Normals", vtkDataSetAttributes::VECTORS);
       normals->Delete();
       }
   
