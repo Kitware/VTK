@@ -29,12 +29,12 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE 
   "vtkDataSetToUnstructuredGridFilter" 
-  "vtkDataSetToUnstructuredGridAlgorithm"
+  "vtkUnstructuredGridAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkStructuredPointsToUnstructuredGridFilter" 
-  "vtkStructuredPointsToUnstructuredGridAlgorithm"
+  "vtkUnstructuredGridAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE

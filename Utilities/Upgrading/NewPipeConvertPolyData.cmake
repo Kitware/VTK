@@ -29,22 +29,22 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE 
   "vtkDataSetToPolyDataFilter" 
-  "vtkDataSetToPolyDataAlgorithm" 
+  "vtkPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkStructuredPointsToPolyDataFilter" 
-  "vtkStructuredPointsToPolyDataAlgorithm" 
+  "vtkPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkRectilinearGridToPolyDataFilter" 
-  "vtkRectilinearGridToPolyDataAlgorithm" 
+  "vtkPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkStructuredGridToPolyDataFilter" 
-  "vtkStructuredGridToPolyDataAlgorithm" 
+  "vtkPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE
