@@ -23,6 +23,8 @@ IF (VTK_USE_RENDERING)
       clipPyramid
       clipTet
       clipWedge
+      combColorIso
+      combIso
       coneResolution
       contourCells
       contour2DAll
