@@ -221,7 +221,7 @@ public:
   void Clean();
 
   // Description:
-  // Register a texture name with this render window
+  // Register a texture name with this render window.
   void RegisterTextureResource (GLuint id);
 
   // Description:
