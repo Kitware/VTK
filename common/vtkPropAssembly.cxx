@@ -83,13 +83,18 @@ vtkPropCollection *vtkPropAssembly::GetParts()
 int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
   vtkProp *part;
-  int   renderedSomething=0;
+  float fraction;
+  int renderedSomething=0;
 
+  fraction = this->AllocatedRenderTime / 
+             (float)this->Parts->GetNumberOfItems();
+  
   // render the Paths
   for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
     {
     if ( part->GetVisibility() )
       {
+      part->SetAllocatedRenderTime(fraction);
       renderedSomething |= part->RenderTranslucentGeometry(ren);
       }
     }
@@ -101,13 +106,18 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
   vtkProp *part;
+  float fraction;
   int   renderedSomething=0;
 
+  fraction = this->AllocatedRenderTime / 
+             (float)this->Parts->GetNumberOfItems();
+  
   // render the Paths
   for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
     {
     if ( part->GetVisibility() )
       {
+      part->SetAllocatedRenderTime(fraction);
       renderedSomething |= part->RenderOpaqueGeometry(ren);
       }
     }
@@ -119,13 +129,18 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
 {
   vtkProp *part;
+  float fraction;
   int   renderedSomething=0;
 
+  fraction = this->AllocatedRenderTime / 
+             (float)this->Parts->GetNumberOfItems();
+  
   // render the Paths
   for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
     {
     if ( part->GetVisibility() )
       {
+      part->SetAllocatedRenderTime(fraction);
       renderedSomething |= part->RenderOverlay(ren);
       }
     }
@@ -213,11 +228,14 @@ float *vtkPropAssembly::GetBounds()
     {
     if ( part->GetVisibility() )
       {
-      partVisible = 1;
       bounds = part->GetBounds();
 
       if ( bounds != NULL )
         {
+        //  For the purposes of GetBounds, an object is visisble only if
+        //  its visibility is on and it has visible parts.
+        partVisible = 1;
+
         // fill out vertices of a bounding box
         bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
         bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
