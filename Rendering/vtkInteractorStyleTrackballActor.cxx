@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -29,11 +29,6 @@ vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor()
   this->MotionFactor    = 10.0;
   this->InteractionProp = NULL;
   this->InteractionPicker = vtkCellPicker::New();
-
-  // This prevent vtkInteractorStyle::StartState to fire the timer
-  // that is used to handle joystick mode
-
-  this->UseTimers = 0;
 }
 
 //----------------------------------------------------------------------------

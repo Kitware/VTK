@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.71");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.72");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -39,7 +39,7 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->AnimState           = VTKIS_ANIM_OFF; 
 
   this->HandleObservers     = 1;
-  this->UseTimers           = 1;
+  this->UseTimers           = 0;
 
   this->AutoAdjustCameraClippingRange = 1;
   

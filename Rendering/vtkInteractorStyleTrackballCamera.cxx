@@ -20,18 +20,13 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera() 
 {
   this->MotionFactor   = 10.0;
-
-  // This prevent vtkInteractorStyle::StartState to fire the timer
-  // that is used to handle joystick mode
-
-  this->UseTimers = 0;
 }
 
 //----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -29,6 +29,10 @@ vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor()
   this->MotionFactor    = 10.0;
   this->InteractionProp = NULL;
   this->InteractionPicker = vtkCellPicker::New();
+
+  // Use timers to handle continous interaction
+
+  this->UseTimers = 1;
 }
 
 //----------------------------------------------------------------------------

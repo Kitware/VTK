@@ -20,12 +20,15 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera() 
 {
+  // Use timers to handle continous interaction
+
+  this->UseTimers = 1;
 }
 
 //----------------------------------------------------------------------------
