@@ -22,8 +22,8 @@ vtkPolyDataMapper floorMapper
   floorMapper ScalarVisibilityOff
 vtkActor floorActor
   floorActor SetMapper floorMapper
-  floorActor GetProperty] SetRepresentationToWireframe
-  floorActor GetProperty] SetColor 0 0 0
+  [floorActor GetProperty] SetRepresentationToWireframe
+  [floorActor GetProperty] SetColor 0 0 0
 
 vtkStructuredGridGeometryFilter postComp
   postComp SetExtent 10 10 0 75 0 37
@@ -33,8 +33,8 @@ vtkPolyDataMapper postMapper
   postMapper ScalarVisibilityOff
 vtkActor postActor
   postActor SetMapper postMapper
-  postActor GetProperty] SetColor 0 0 0
-  postActor GetProperty] SetRepresentationToWireframe
+  [postActor GetProperty] SetColor 0 0 0
+  [postActor GetProperty] SetRepresentationToWireframe
 
 vtkStructuredGridGeometryFilter fanComp
   fanComp SetExtent 0 37 38 38 0 37
@@ -43,8 +43,8 @@ vtkPolyDataMapper fanMapper
   fanMapper SetInput [fanComp GetOutput]
 vtkActor fanActor
   fanActor SetMapper fanMapper
-  fanActor GetProperty] SetColor 0 0 0
-  fanActor GetProperty] SetRepresentationToWireframe
+  [fanActor GetProperty] SetColor 0 0 0
+  [fanActor GetProperty] SetRepresentationToWireframe
 
 # outline
 vtkStructuredGridOutlineFilter outline
