@@ -88,6 +88,7 @@ vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
 vtkProperty2D \
+vtkPyramid \
 vtkQuad \
 vtkRectilinearGrid \
 vtkReferenceCount \
@@ -118,6 +119,7 @@ vtkVectors \
 vtkVertex \
 vtkVoidArray \
 vtkVoxel \
+vtkWedge \
 vtkWindowLevelLookupTable \
 vtkWindowToImageFilter
 
