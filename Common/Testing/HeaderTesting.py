@@ -47,13 +47,15 @@ class TestVTKFiles:
         lines = []
         nplines = []
         includere = "^\s*#\s*include\s*[\"<]([^>\"]+)"
+        ignincludere = ".*\/\/.*"
         regx = re.compile(includere)
+        regx1 = re.compile(ignincludere)
         cc = 0
         includeparent = 0
         for a in self.FileLines:
             line = a.strip()
             rm = regx.match(line)
-            if rm:
+            if rm and not regx1.match(line):
                 lines.append(" %4d: %s" % (cc, line))
                 file = rm.group(1)
                 if file == (self.ParentName + ".h"):
@@ -139,7 +141,7 @@ class TestVTKFiles:
             self.Error("Broken type macro")
         if len(oldlines) > 0:
             self.Print( "File: %s has old type macro(s):" % self.FileName )
-            for a in lines:
+            for a in oldlines:
                 self.Print( a )
                 self.Print( "Should be:\n vtkTypeRevisionMacro(%s, %s);" %
                             (self.ClassName, self.ParentName))
@@ -232,10 +234,16 @@ class TestVTKFiles:
 test = TestVTKFiles()
 
 dirname = sys.argv[1]
+exceptions = sys.argv[2:]
+
 for a in os.listdir(dirname):
+    if a in exceptions:
+        continue
     if not a.endswith(".h"):
         continue
     pathname = '%s/%s' % (dirname, a)
+    if pathname in exceptions:
+        continue
     mode = os.stat(pathname)[stat.ST_MODE]
     if stat.S_ISDIR(mode):
         pass
