@@ -190,18 +190,21 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
                                       int &subId, int &cellId,
 				      vtkGenericCell *cell)
-  {
+{
   float origin[3];
+  float direction1[3];
   float direction2[3];
   float direction3[3];
   float hitPosition[3];
+  float hitCellBoundsPosition[3], cellBounds[6];
+  int hitCellBounds;
   float result;
   float *bounds;
   float bounds2[6];
   int i, leafStart, prod, loop;
   int bestCellId = -1;
   int idx, cId;
-  float tMax, dist[3];
+  float tMax, tMax1, dist[3];
   int npos[3];
   int pos[3];
   int bestDir;
@@ -211,20 +214,25 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   bounds = this->DataSet->GetBounds();
   
   // convert the line into i,j,k coordinates
-  tMax = 0;
+  tMax = 0.0;
+  tMax1 = 0.0;
   for (i = 0; i < 3; i++) 
     {
+    direction1[i]   = a1[i] - a0[i];
     origin[i]      = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
     direction2[i]  = (a1[i] - a0[i])/(bounds[2*i+1] - bounds[2*i]);
     bounds2[2*i]   = 0;
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
+    tMax1 += direction1[i]*direction1[i];
     }
   tMax = sqrt(tMax);
+  tMax1 = sqrt(tMax1);
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
     {
     direction3[i] = direction2[i]/tMax;
+    direction1[i] /= tMax1;
     }
   
   if (vtkCell::HitBBox(bounds2, origin, direction2, hitPosition, result))
@@ -283,18 +291,39 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
           if (this->CellHasBeenVisited[cId] != this->QueryNumber)
             {
             this->CellHasBeenVisited[cId] = this->QueryNumber;
+            hitCellBounds = 0;
+	    
+	    // check whether we intersect the cell bounds
+	    if (this->CacheCellBounds)
+	      {
+	      hitCellBounds = vtkCell::HitBBox(this->CellBounds[cId],
+					       a0, direction1,
+					       hitCellBoundsPosition, result);
+	      }
+	    else 
+	      {
+	      this->DataSet->GetCellBounds(cId, cellBounds);
+	      hitCellBounds = vtkCell::HitBBox(cellBounds,
+					       a0, direction1,
+					       hitCellBoundsPosition, result);
+	      }
+
+	    if (hitCellBounds)
+	      {
+	      // now, do the expensive GetCell call and the expensive
+	      // intersect with line call
+	      this->DataSet->GetCell(cId, cell);
             
-            this->DataSet->GetCell(cId, cell);
-            
-            if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId))
-              {
-              if (t < tMax)
-                {
-                tMax = t;
-                bestCellId = cId;
-                }
-              }
-            } // if (!this->CellHasBeenVisited[cId])
+	      if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId))
+		{
+		if (t < tMax)
+		  {
+		  tMax = t;
+		  bestCellId = cId;
+		  }
+		}
+	      } // if (hitCellBounds)
+	    } // if (!this->CellHasBeenVisited[cId])
           }
         }
       
@@ -1309,37 +1338,37 @@ void vtkCellLocator::BuildLocator()
 
 void vtkCellLocator::MarkParents(void* a, int i, int j, int k, 
                                  int ndivs, int level)
-  {
+{
   int offset, prod, ii, parentIdx;
   
-  if ( level <= 0  )
-    {
-    return;
-    }
-  
-  i /= 2;
-  j /= 2;
-  k /= 2;
-  ndivs /= 2;
-  level--;
-  
-  for (offset=0, prod=1, ii=0; ii<level; ii++) 
+  for (offset=0, prod=1, ii=0; ii<level-1; ii++) 
     {
     offset += prod;
-    prod *= 8;
+    prod = prod << 3;
     }
   
-  parentIdx = offset + i + j*ndivs + k*ndivs*ndivs;
-  
-  // if it already matches just return
-  if (a == this->Tree[parentIdx])
+  while ( level > 0  )
     {
-    return;
+    i = i >> 1;
+    j = j >> 1;
+    k = k >> 1;
+    ndivs = ndivs >> 1;
+    level--;
+    
+    parentIdx = offset + i + j*ndivs + k*ndivs*ndivs;
+    
+    // if it already matches just return
+    if (a == this->Tree[parentIdx])
+      {
+      return;
+      }
+    
+    this->Tree[parentIdx] = (vtkIdList *)a;
+    
+    prod = prod >> 3;
+    offset -= prod;
     }
-  
-  this->Tree[parentIdx] = (vtkIdList *)a;
-  this->MarkParents(a, i, j, k, ndivs, level);
-  }
+}
 
 void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   {
