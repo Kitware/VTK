@@ -1,5 +1,12 @@
-# this example lets the user interact with a sphere,
-# while an iso surface is being comp[uted in another thread.
+# This example provides interactive isosurface value selection
+# using a low res data set.  The high res version is computed
+# when the mouse is released.  The computation of the high res
+# surface can be interupted with another mouse selection.  
+# It uses an asynch buffer so the interaction continues 
+# while the high res surface is being computed.
+
+
+
 
 
 catch {load vtktcl}
@@ -25,29 +32,27 @@ vtkImageReader reader
   reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
   reader SetDataMask 0x7fff
   reader SetDataSpacing 1.6 1.6 3.0
+  reader Update
 
 vtkImageShrink3D shrink
   shrink SetInput [reader GetOutput]
   shrink SetShrinkFactors 4 4 4
-  shrink AveragingOn
+  shrink AveragingOff
   shrink Update
+
 
 set IsoValue 1150
 vtkImageMarchingCubes iso
-    iso SetInput [reader GetOutput]
+    iso SetInput [shrink GetOutput]
     iso SetValue 0 $IsoValue
     iso ComputeGradientsOn
     iso ComputeScalarsOff
 
-vtkImageMarchingCubes isoSmall
-    isoSmall SetInput [shrink GetOutput]
-    isoSmall SetValue 0 $IsoValue
-    isoSmall ComputeGradientsOn
-    isoSmall ComputeScalarsOff
-
+vtkAsynchronousBuffer buf
+    buf SetInput [iso GetOutput]
 
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [iso GetOutput]
+    isoMapper SetInput [buf GetOutput]
     isoMapper ScalarVisibilityOff
     isoMapper ImmediateModeRenderingOn
 
@@ -87,41 +92,107 @@ eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
+# low res quick render
 renWin Render
+# start an asynchronous high res render
+buf BlockingOff
+iso SetInput [reader GetOutput]
+renWin Render
+
 iren Initialize
 #renWin SetFileName "headBone.tcl.ppm"
 #renWin SaveImageAsPPM
 
 
+# ----- Set up the slider, and interactive choice stuff. -----
+
+
+# call back of the slider
 proc SetSurfaceValue {val} {
-    iso SetValue 0 $val
-    isoSmall SetValue 0 $val
-	renWin Render
+  # This check may not be needed, but it makes things cleaner.
+  if {[buf GetFinished] == 0} {
+    return
+  }
+
+  iso SetValue 0 $val
 }
 
+# Called when mouse is first pressed over the slider.
 proc StartInteraction {} {
-	global isoProp
-    eval $isoProp SetColor 1 0 0
-    isoMapper SetInput [isoSmall GetOutput]
+  #LogMessage "start interaction"
+  if {[buf GetFinished] == 0} {
+    # abort the iso surface execution
+    iso AbortExecuteOn
+    # wait until the other thread finishes
+    while {[buf GetFinished] == 0} {
+      #LogMessage "waiting for iso to abort"
+      # sleep 1
+    }
+  }
+
+  iso SetInput [shrink GetOutput]
+  buf BlockingOn
 }
 
+
+# Called when mouse is released.  
+# Starts the generatikon of the full res model.
 proc StopInteraction {} {
-	global isoProp
-    eval $isoProp SetColor 1 1 1
-    isoMapper SetInput [iso GetOutput]
-	renWin Render
+  #LogMessage "start interaction"
+  iso SetInput [reader GetOutput]
+  buf BlockingOff
 }
 
+set QUIT_FLAG 0
+proc Quit {} {
+  global QUIT_FLAG
+  # signal loop to exit
+  set QUIT_FLAG 1
+}
 
 # create a slider to set the iso surface value.
-scale .scale -from 0 -to 3000 -orient horizontal \
+toplevel .ui
+scale .ui.scale -from 0 -to 3000 -orient horizontal \
      -command SetSurfaceValue -variable IsoValue
+button .ui.quit -text "Quit" -command Quit
+pack .ui.scale -side top -expand t -fill both
+pack .ui.quit -side top -expand t -fill both
 
-pack .scale -side top -expand t -fill both
-bind .scale <ButtonPress-1> {StartInteraction}
-bind .scale <ButtonRelease-1> {StopInteraction}
+# extra calls to change modes (interactive, full res)
+bind .ui.scale <ButtonPress-1> {StartInteraction}
+bind .ui.scale <ButtonRelease-1> {StopInteraction}
+
+wm withdraw .
 
 
+
+# we need our own little event loop to detect when our input has been changed
+# by another thread
+
+
+set RENDER_TIME 0
+
+while {1} {
+  global QUIT_FLAG
+
+  # tcl handle events
+  #LogMessage "update"
+  update
+
+  if {$QUIT_FLAG} {
+    exit
+  }
+
+  # check if anything has changed.
+  buf UpdateInformation
+  set DATA_TIME [[buf GetOutput] GetPipelineMTime]
+  if {$DATA_TIME > $RENDER_TIME} {
+    renWin Render
+    set RENDER_TIME $DATA_TIME
+  } else {
+    after 10
+  }
+}
 
 
 
