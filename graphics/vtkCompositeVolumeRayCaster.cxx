@@ -1393,7 +1393,6 @@ static void CastRay_TrilinSample_Unshaded(
   int             xinc, yinc, zinc;
   int             voxel[3];
   float           ray_position[3];
-  int             prev_voxel[3];
   float           A, B, C, D, E, F, G, H;
   int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
   T               *dptr;
@@ -1441,24 +1440,6 @@ static void CastRay_TrilinSample_Unshaded(
   Ginc = zinc + yinc;
   Hinc = zinc + xinc + yinc;
   
-  // Compute the values for the first pass through the loop
-  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
-  dptr = data_ptr + offset;
-
-  A = *(dptr);
-  B = *(dptr + Binc);
-  C = *(dptr + Cinc);
-  D = *(dptr + Dinc);
-  E = *(dptr + Einc);
-  F = *(dptr + Finc);
-  G = *(dptr + Ginc);
-  H = *(dptr + Hinc);  
-
-  // Keep track of previous voxel to know when we step into a new one  
-  prev_voxel[0] = voxel[0];
-  prev_voxel[1] = voxel[1];
-  prev_voxel[2] = voxel[2];
-
   // Two cases - we are working with a single color or a color transfer
   // function - break them up to make it more efficient
   if ( mapper->ColorType == VTK_SINGLE_COLOR ) 
@@ -1471,28 +1452,18 @@ static void CastRay_TrilinSample_Unshaded(
       // We've taken another step
       steps_this_ray++;
       
-      // Have we moved into a new voxel? If so we need to recompute A-H
-      if ( prev_voxel[0] != voxel[0] ||
-	   prev_voxel[1] != voxel[1] ||
-	   prev_voxel[2] != voxel[2] )
-	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
-	dptr = data_ptr + offset;
+      offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+      dptr = data_ptr + offset;
 	
-	A = *(dptr);
-	B = *(dptr + Binc);
-	C = *(dptr + Cinc);
-	D = *(dptr + Dinc);
-	E = *(dptr + Einc);
-	F = *(dptr + Finc);
-	G = *(dptr + Ginc);
-	H = *(dptr + Hinc);
+      A = *(dptr);
+      B = *(dptr + Binc);
+      C = *(dptr + Cinc);
+      D = *(dptr + Dinc);
+      E = *(dptr + Einc);
+      F = *(dptr + Finc);
+      G = *(dptr + Ginc);
+      H = *(dptr + Hinc);
 	
-	prev_voxel[0] = voxel[0];
-	prev_voxel[1] = voxel[1];
-	prev_voxel[2] = voxel[2];
-	}
-      
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate the value
       x = ray_position[0] - (float) voxel[0];
@@ -1532,6 +1503,7 @@ static void CastRay_TrilinSample_Unshaded(
       voxel[1] = (int)( ray_position[1] );
       voxel[2] = (int)( ray_position[2] );
       }
+
     accum_red_intensity   = accum_intensity * mapper->SingleColor[0];
     accum_green_intensity = accum_intensity * mapper->SingleColor[1];
     accum_blue_intensity  = accum_intensity * mapper->SingleColor[2];
@@ -1546,27 +1518,17 @@ static void CastRay_TrilinSample_Unshaded(
       // We've taken another step
       steps_this_ray++;
       
-      // Have we moved into a new voxel? If so we need to recompute A-H
-      if ( prev_voxel[0] != voxel[0] ||
-	   prev_voxel[1] != voxel[1] ||
-	   prev_voxel[2] != voxel[2] )
-	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
-	dptr = data_ptr + offset;
+      offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+      dptr = data_ptr + offset;
 	
-	A = *(dptr);
-	B = *(dptr + Binc);
-	C = *(dptr + Cinc);
-	D = *(dptr + Dinc);
-	E = *(dptr + Einc);
-	F = *(dptr + Finc);
-	G = *(dptr + Ginc);
-	H = *(dptr + Hinc);
-	
-	prev_voxel[0] = voxel[0];
-	prev_voxel[1] = voxel[1];
-	prev_voxel[2] = voxel[2];
-	}
+      A = *(dptr);
+      B = *(dptr + Binc);
+      C = *(dptr + Cinc);
+      D = *(dptr + Dinc);
+      E = *(dptr + Einc);
+      F = *(dptr + Finc);
+      G = *(dptr + Ginc);
+      H = *(dptr + Hinc);
       
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate the value
@@ -1659,14 +1621,8 @@ static void CastRay_TrilinSample_Shaded(
   int             xinc, yinc, zinc;
   int             voxel[3];
   float           ray_position[3];
-  int             prev_voxel[3];
   float           A, B, C, D, E, F, G, H;
-  float           A_rd, B_rd, C_rd, D_rd, E_rd, F_rd, G_rd, H_rd;
-  float           A_gd, B_gd, C_gd, D_gd, E_gd, F_gd, G_gd, H_gd;
-  float           A_bd, B_bd, C_bd, D_bd, E_bd, F_bd, G_bd, H_bd;
-  float           A_rs, B_rs, C_rs, D_rs, E_rs, F_rs, G_rs, H_rs;
-  float           A_gs, B_gs, C_gs, D_gs, E_gs, F_gs, G_gs, H_gs;
-  float           A_bs, B_bs, C_bs, D_bs, E_bs, F_bs, G_bs, H_bs;
+  int             A_n, B_n, C_n, D_n, E_n, F_n, G_n, H_n;
   float           final_rd, final_gd, final_bd;
   float           final_rs, final_gs, final_bs;
   int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
@@ -1681,7 +1637,7 @@ static void CastRay_TrilinSample_Shaded(
   float           red_shaded_value, green_shaded_value, blue_shaded_value;
   int             offset;
   int             steps_this_ray = 0;
-  float           scalar_value;
+  int             scalar_value;
   float           r, g, b;
 
   // Get diffuse shading table pointers
@@ -1767,61 +1723,16 @@ static void CastRay_TrilinSample_Shaded(
     F = *(dptr + Finc);
     G = *(dptr + Ginc);
     H = *(dptr + Hinc);
-    
-    A_rd = red_d_shade[ *(nptr) ];
-    B_rd = red_d_shade[ *(nptr + Binc) ];
-    C_rd = red_d_shade[ *(nptr + Cinc) ];
-    D_rd = red_d_shade[ *(nptr + Dinc) ];
-    E_rd = red_d_shade[ *(nptr + Einc) ];
-    F_rd = red_d_shade[ *(nptr + Finc) ];
-    G_rd = red_d_shade[ *(nptr + Ginc) ];
-    H_rd = red_d_shade[ *(nptr + Hinc) ];
-    
-    A_gd = green_d_shade[ *(nptr) ];
-    B_gd = green_d_shade[ *(nptr + Binc) ];
-    C_gd = green_d_shade[ *(nptr + Cinc) ];
-    D_gd = green_d_shade[ *(nptr + Dinc) ];
-    E_gd = green_d_shade[ *(nptr + Einc) ];
-    F_gd = green_d_shade[ *(nptr + Finc) ];
-    G_gd = green_d_shade[ *(nptr + Ginc) ];
-    H_gd = green_d_shade[ *(nptr + Hinc) ];
-    
-    A_bd = blue_d_shade[ *(nptr) ];
-    B_bd = blue_d_shade[ *(nptr + Binc) ];
-    C_bd = blue_d_shade[ *(nptr + Cinc) ];
-    D_bd = blue_d_shade[ *(nptr + Dinc) ];
-    E_bd = blue_d_shade[ *(nptr + Einc) ];
-    F_bd = blue_d_shade[ *(nptr + Finc) ];
-    G_bd = blue_d_shade[ *(nptr + Ginc) ];
-    H_bd = blue_d_shade[ *(nptr + Hinc) ];
-    
-    A_rs = red_s_shade[ *(nptr) ];
-    B_rs = red_s_shade[ *(nptr + Binc) ];
-    C_rs = red_s_shade[ *(nptr + Cinc) ];
-    D_rs = red_s_shade[ *(nptr + Dinc) ];
-    E_rs = red_s_shade[ *(nptr + Einc) ];
-    F_rs = red_s_shade[ *(nptr + Finc) ];
-    G_rs = red_s_shade[ *(nptr + Ginc) ];
-    H_rs = red_s_shade[ *(nptr + Hinc) ];
-    
-    A_gs = green_s_shade[ *(nptr) ];
-    B_gs = green_s_shade[ *(nptr + Binc) ];
-    C_gs = green_s_shade[ *(nptr + Cinc) ];
-    D_gs = green_s_shade[ *(nptr + Dinc) ];
-    E_gs = green_s_shade[ *(nptr + Einc) ];
-    F_gs = green_s_shade[ *(nptr + Finc) ];
-    G_gs = green_s_shade[ *(nptr + Ginc) ];
-    H_gs = green_s_shade[ *(nptr + Hinc) ];
 
-    A_bs = blue_s_shade[ *(nptr) ];
-    B_bs = blue_s_shade[ *(nptr + Binc) ];
-    C_bs = blue_s_shade[ *(nptr + Cinc) ];
-    D_bs = blue_s_shade[ *(nptr + Dinc) ];
-    E_bs = blue_s_shade[ *(nptr + Einc) ];
-    F_bs = blue_s_shade[ *(nptr + Finc) ];
-    G_bs = blue_s_shade[ *(nptr + Ginc) ];
-    H_bs = blue_s_shade[ *(nptr + Hinc) ];
-    
+    A_n = *(nptr);
+    B_n = *(nptr + Binc);
+    C_n = *(nptr + Cinc);
+    D_n = *(nptr + Dinc);
+    E_n = *(nptr + Einc);
+    F_n = *(nptr + Finc);
+    G_n = *(nptr + Ginc);
+    H_n = *(nptr + Hinc);
+
     // Compute our offset in the voxel, and use that to trilinearly
     // interpolate a value
     x = ray_position[0] - (float) voxel[0];
@@ -1841,46 +1752,58 @@ static void CastRay_TrilinSample_Shaded(
     tG = t1 *  y *  z;
     tH =  x *  y *  z;
     
-    scalar_value = 
+    scalar_value = (int) (
       A * tA + B * tB + C * tC + D * tD + 
-      E * tE + F * tF + G * tG + H * tH;
+      E * tE + F * tF + G * tG + H * tH );
     
-    if ( scalar_value < 0.0 ) 
-      scalar_value = 0.0;
+    if ( scalar_value < 0 ) 
+      scalar_value = 0;
     else if ( scalar_value > mapper->OpacityTFArraySize - 1 )
       scalar_value = mapper->OpacityTFArraySize - 1;
     
-    opacity = COTF[(int)scalar_value];
+    opacity = COTF[scalar_value];
     
     final_rd = 
-      A_rd * tA +	B_rd * tB + 	C_rd * tC + 	D_rd * tD + 
-      E_rd * tE +	F_rd * tF +	G_rd * tG + 	H_rd * tH;
-    
-    final_gd = 
-      A_gd * tA +	B_gd * tB + 	C_gd * tC + 	D_gd * tD + 
-      E_gd * tE +	F_gd * tF +	G_gd * tG + 	H_gd * tH;
-    
-    final_bd = 
-      A_bd * tA +	B_bd * tB + 	C_bd * tC + 	D_bd * tD + 
-      E_bd * tE +	F_bd * tF +	G_bd * tG + 	H_bd * tH;
-    
-    final_rs = 
-      A_rs * tA +	B_rs * tB + 	C_rs * tC + 	D_rs * tD + 
-      E_rs * tE +	F_rs * tF +	G_rs * tG + 	H_rs * tH;
-    
-    final_gs = 
-      A_gs * tA +	B_gs * tB + 	C_gs * tC + 	D_gs * tD + 
-      E_gs * tE +	F_gs * tF +	G_gs * tG + 	H_gs * tH;
-    
-    final_bs = 
-      A_bs * tA +	B_bs * tB + 	C_bs * tC + 	D_bs * tD + 
-      E_bs * tE +	F_bs * tF +	G_bs * tG + 	H_bs * tH;
+      red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
+      red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
+      red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
+      red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
 
+    final_gd = 
+      green_d_shade[ A_n ] * tA + green_d_shade[ B_n ] * tB + 	
+      green_d_shade[ C_n ] * tC + green_d_shade[ D_n ] * tD + 
+      green_d_shade[ E_n ] * tE + green_d_shade[ F_n ] * tF +	
+      green_d_shade[ G_n ] * tG + green_d_shade[ H_n ] * tH;
+
+    final_bd = 
+      blue_d_shade[ A_n ] * tA + blue_d_shade[ B_n ] * tB + 	
+      blue_d_shade[ C_n ] * tC + blue_d_shade[ D_n ] * tD + 
+      blue_d_shade[ E_n ] * tE + blue_d_shade[ F_n ] * tF +	
+      blue_d_shade[ G_n ] * tG + blue_d_shade[ H_n ] * tH;
+
+    final_rs = 
+      red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
+      red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
+      red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
+      red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
+
+    final_gs = 
+      green_s_shade[ A_n ] * tA + green_s_shade[ B_n ] * tB + 	
+      green_s_shade[ C_n ] * tC + green_s_shade[ D_n ] * tD + 
+      green_s_shade[ E_n ] * tE + green_s_shade[ F_n ] * tF +	
+      green_s_shade[ G_n ] * tG + green_s_shade[ H_n ] * tH;
+
+    final_bs = 
+      blue_s_shade[ A_n ] * tA + blue_s_shade[ B_n ] * tB + 	
+      blue_s_shade[ C_n ] * tC + blue_s_shade[ D_n ] * tD + 
+      blue_s_shade[ E_n ] * tE + blue_s_shade[ F_n ] * tF +	
+      blue_s_shade[ G_n ] * tG + blue_s_shade[ H_n ] * tH;
+    
     if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
       {
-      r = CTF[((int) scalar_value) * 3    ];
-      g = CTF[((int) scalar_value) * 3 + 1];
-      b = CTF[((int) scalar_value) * 3 + 2];
+      r = CTF[(scalar_value) * 3    ];
+      g = CTF[(scalar_value) * 3 + 1];
+      b = CTF[(scalar_value) * 3 + 2];
       }
 
     // For this sample we have do not yet have any opacity or
