@@ -104,6 +104,20 @@
 #define VTK_OK                 1
 #define VTK_ERROR              2
 
+// These types define different text properties
+#define VTK_ARIAL     0
+#define VTK_COURIER   1
+#define VTK_TIMES     2
+
+#define VTK_TEXT_LEFT     0
+#define VTK_TEXT_CENTERED 1
+#define VTK_TEXT_RIGHT    2
+
+#define VTK_TEXT_BOTTOM 0
+#define VTK_TEXT_TOP    2
+
+// 
+
 // A macro to get the name of a type
 #define vtkImageScalarTypeNameMacro(type) \
 (((type) == VTK_VOID) ? "void" : \

@@ -43,17 +43,6 @@
 #include "vtkActor2D.h"
 #include "vtkProperty2D.h"
 
-#define VTK_ARIAL     0
-#define VTK_COURIER   1
-#define VTK_TIMES     2
-
-#define VTK_TEXT_LEFT     0
-#define VTK_TEXT_CENTERED 1
-#define VTK_TEXT_RIGHT    2
-
-#define VTK_TEXT_BOTTOM 0
-#define VTK_TEXT_TOP    2
-
 class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
