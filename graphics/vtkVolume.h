@@ -237,6 +237,17 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float  GetArraySize () { return this->ArraySize; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  void UpdateTransferFunctions( vtkRenderer *ren );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
+
 //ETX
 
 protected:
@@ -290,16 +301,6 @@ protected:
   float                        GradientOpacityArray[256];
   float                        GradientOpacityConstant;
   vtkTimeStamp                 GradientOpacityArrayMTime;
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  void UpdateTransferFunctions( vtkRenderer *ren );
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
 
   VTKRayCastVolumeInfo *VolumeInfo;
 };
