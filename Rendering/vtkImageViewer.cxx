@@ -22,17 +22,16 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer, "1.49");
+vtkCxxRevisionMacro(vtkImageViewer, "1.50");
 vtkStandardNewMacro(vtkImageViewer);
 
 //----------------------------------------------------------------------------
 vtkImageViewer::vtkImageViewer()
 {
   this->RenderWindow = vtkRenderWindow::New();
-  this->Renderer = vtkRenderer::New();
-  
-  this->ImageMapper = vtkImageMapper::New();
-  this->Actor2D     = vtkActor2D::New();
+  this->Renderer     = vtkRenderer::New();
+  this->ImageMapper  = vtkImageMapper::New();
+  this->Actor2D      = vtkActor2D::New();
 
   // setup the pipeline
   this->Actor2D->SetMapper(this->ImageMapper);
@@ -68,10 +67,14 @@ vtkImageViewer::~vtkImageViewer()
 void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << *this->ImageMapper << endl;
-  os << indent << *this->RenderWindow << endl;
-  os << indent << *this->Renderer << endl;
-  os << indent << *this->Actor2D << endl;
+  os << indent << "ImageMapper:\n";
+  this->ImageMapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "RenderWindow:\n";
+  this->RenderWindow->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Renderer:\n";
+  this->Renderer->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Actor2D:\n";
+  this->Actor2D->PrintSelf(os, indent.GetNextIndent());
 }
 
 
@@ -87,12 +90,11 @@ void vtkImageViewer::SetPosition(int a[2])
   this->SetPosition(a[0],a[1]);
 }
 
-
+//----------------------------------------------------------------------------
 class vtkImageViewerCallback : public vtkCommand
 {
 public:
-  static vtkImageViewerCallback *New() {
-    return new vtkImageViewerCallback; }
+  static vtkImageViewerCallback *New() { return new vtkImageViewerCallback; }
   
   void Execute(vtkObject *caller, 
                unsigned long event, 
@@ -200,7 +202,7 @@ public:
   double InitialLevel;
 };
 
-
+//----------------------------------------------------------------------------
 void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)
 {
   if (this->Interactor && rwi != this->Interactor)
@@ -227,6 +229,7 @@ void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)
   this->Interactor->SetRenderWindow(this->RenderWindow);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer::Render()
 {
   if (this->FirstRender)
@@ -237,7 +240,7 @@ void vtkImageViewer::Render()
       // get the size from the mappers input
       this->ImageMapper->GetInput()->UpdateInformation();
       int *ext = this->ImageMapper->GetInput()->GetWholeExtent();
-      // if it would be smaller than 100 by 100 then limit to 100 by 100
+      // if it would be smaller than 150 by 100 then limit to 150 by 100
       int xs = ext[1] - ext[0] + 1;
       int ys = ext[3] - ext[2] + 1;
       this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
@@ -245,25 +248,28 @@ void vtkImageViewer::Render()
       }
     this->FirstRender = 0;  
     }
-
   this->RenderWindow->Render();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer::SetOffScreenRendering(int i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
+//----------------------------------------------------------------------------
 int vtkImageViewer::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer::OffScreenRenderingOn()
 {
   this->SetOffScreenRendering(1);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer::OffScreenRenderingOff()
 {
   this->SetOffScreenRendering(0);

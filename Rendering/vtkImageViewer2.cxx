@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.26");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.27");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,9 @@ vtkImageViewer2::vtkImageViewer2()
   this->ImageActor->SetInput(this->WindowLevel->GetOutput());
   this->Renderer->AddViewProp(this->ImageActor);
   this->RenderWindow->AddRenderer(this->Renderer);
+
   this->FirstRender = 1;
-  
+ 
   this->Interactor = 0;
   this->InteractorStyle = 0;
   this->AutoResetCameraClippingRange = 1;
@@ -222,12 +223,9 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
     this->InteractorStyle = vtkInteractorStyleImage::New();
     vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
     cbk->IV = this;
-    this->InteractorStyle->AddObserver(
-      vtkCommand::WindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(
-      vtkCommand::StartWindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(
-      vtkCommand::ResetWindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(vtkCommand::WindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(vtkCommand::StartWindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(vtkCommand::ResetWindowLevelEvent, cbk);
     cbk->Delete();
     }
   
@@ -247,13 +245,12 @@ void vtkImageViewer2::Render()
   if (this->FirstRender)
     {
     // initialize the size if not set yet
-    if (this->RenderWindow->GetSize()[0] == 0 && 
-        this->ImageActor->GetInput())
+    if (this->RenderWindow->GetSize()[0] == 0 && this->ImageActor->GetInput())
       {
       // get the size from the mappers input
       this->WindowLevel->GetInput()->UpdateInformation();
       int *ext = this->WindowLevel->GetInput()->GetWholeExtent();
-      // if it would be smaller than 100 by 100 then limit to 100 by 100
+      // if it would be smaller than 150 by 100 then limit to 150 by 100
       int xs = ext[1] - ext[0] + 1;
       int ys = ext[3] - ext[2] + 1;
       this->RenderWindow->SetSize(xs < 150 ? 150 : xs,

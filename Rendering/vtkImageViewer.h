@@ -80,14 +80,22 @@ public:
   // Description:
   // By default this is a color viewer.  GrayScaleHintOn will improve the
   // appearance of gray scale images on some systems.
-  int GetGrayScaleHint() 
+  VTK_LEGACY(int GetGrayScaleHint())
+#ifndef VTK_LEGACY_REMOVE
     {vtkWarningMacro("GetGrayScaleHint deprecated, not required anymore"); return 0;};
-  void SetGrayScaleHint(int vtkNotUsed(a)) 
+#endif
+  VTK_LEGACY(void SetGrayScaleHint(int vtkNotUsed(a)))
+#ifndef VTK_LEGACY_REMOVE
     {vtkWarningMacro("SetGrayScaleHint deprecated, not required anymore");};
-  void GrayScaleHintOn()
+#endif
+  VTK_LEGACY(void GrayScaleHintOn())
+#ifndef VTK_LEGACY_REMOVE
     {vtkWarningMacro("GrayScaleHintOn deprecated, not required anymore");};
-  void GrayScaleHintOff()
+#endif
+  VTK_LEGACY(void GrayScaleHintOff())
+#ifndef VTK_LEGACY_REMOVE
     {vtkWarningMacro("GrayScaleHintOff deprecated, not required anymore");};
+#endif
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
@@ -132,6 +140,7 @@ protected:
   int FirstRender;
   vtkRenderWindowInteractor *Interactor;
   vtkInteractorStyleImage *InteractorStyle;
+
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.
   void operator=(const vtkImageViewer&);  // Not implemented.
