@@ -1056,10 +1056,6 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 	  CastRay_NN_Unshaded( this, (unsigned short *)data_ptr, ray_position, 
 			       ray_increment, num_steps, pixel_value );
 	  break;
-	case 2:
-	  CastRay_NN_Unshaded( this, (short *)data_ptr, ray_position, 
-			       ray_increment, num_steps, pixel_value );
-	  break;
 	}
       }
     else
@@ -1073,10 +1069,6 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 	  break;
 	case 1:
 	  CastRay_NN_Shaded( this, (unsigned short *)data_ptr, ray_position, 
-			     ray_increment, num_steps, pixel_value );
-	  break;
-	case 2:
-	  CastRay_NN_Shaded( this, (short *)data_ptr, ray_position, 
 			     ray_increment, num_steps, pixel_value );
 	  break;
 	}
@@ -1101,12 +1093,6 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 					 ray_increment, num_steps, 
 					 pixel_value );
 	  break;
-	case 2:
-	  CastRay_TrilinSample_Unshaded( this, (short *)data_ptr, 
-					 ray_position, 
-					 ray_increment, num_steps, 
-					 pixel_value );
-	  break;
 	}
       }	
     else
@@ -1122,12 +1108,6 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 	  break;
 	case 1:
 	  CastRay_TrilinSample_Shaded( this, (unsigned short *)data_ptr, 
-				       ray_position, 
-				       ray_increment, num_steps, 
-				       pixel_value );
-	  break;
-	case 2:
-	  CastRay_TrilinSample_Shaded( this, (short *)data_ptr, 
 				       ray_position, 
 				       ray_increment, num_steps, 
 				       pixel_value );
