@@ -80,7 +80,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   int Pop(float &priority, int location=0);
-  float Delete(int id);
+  float DeleteId(int id);
   float GetPriority(int id);
   void Insert(float priority, int id);
   int GetNumberOfItems() {return this->MaxId+1;};
@@ -100,7 +100,7 @@ protected:
 // Description:
 // Delete entry in queue with specified id. Returns priority value
 // associated with that id; or VTK_LARGE_FLOAT if not in queue.
-inline float vtkPriorityQueue::Delete(int id)
+inline float vtkPriorityQueue::DeleteId(int id)
 {
   float priority=VTK_LARGE_FLOAT;
   int loc;
