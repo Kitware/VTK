@@ -160,7 +160,8 @@ INCLUDE (${VTK_BINARY_DIR}/IO/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL)
 
 TARGET_LINK_LIBRARIES (vtkIO vtkFiltering 
-  vtkpng vtkzlib vtkjpeg vtktiff vtkexpat)
+  ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
+  ${VTK_TIFF_LIBRARIES} vtkexpat)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS ${IO_SRCS})

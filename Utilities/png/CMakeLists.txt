@@ -27,7 +27,7 @@ CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/pngDllConfig.h.in
                ${VTKPNG_BINARY_DIR}/pngDllConfig.h)
 
 ADD_LIBRARY(vtkpng ${PNG_SRCS})
-TARGET_LINK_LIBRARIES(vtkpng vtkzlib)
+TARGET_LINK_LIBRARIES(vtkpng ${VTK_ZLIB_LIBRARIES})
 
 INSTALL_TARGETS(/lib/vtk vtkpng)
 INSTALL_FILES(/include/vtk .h png pngconf pngDllConfig)

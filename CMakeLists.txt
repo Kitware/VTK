@@ -248,6 +248,15 @@ IF (VTK_USE_MANGLED_MESA)
   ENDIF(MANGLED_MESA_INCLUDE_DIR)
 ENDIF(VTK_USE_MANGLED_MESA)
 
+#-----------------------------------------------------------------------------
+# Provide options to use system versions of third-party libraries.
+INCLUDE("${VTK_SOURCE_DIR}/vtkThirdParty.cmake")
+VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+VTK_THIRD_PARTY_OPTION(JPEG jpeg)
+VTK_THIRD_PARTY_OPTION(PNG  png)
+VTK_THIRD_PARTY_OPTION(TIFF tiff)
+#-----------------------------------------------------------------------------
+
 IF (VTK_WRAP_TCL)
   INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)

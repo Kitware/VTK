@@ -106,16 +106,8 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
 
 # Give access to a few utilities.
 SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
-  ${VTK_BINARY_DIR}/Utilities/jpeg
-  ${VTK_SOURCE_DIR}/Utilities/jpeg
-  ${VTK_BINARY_DIR}/Utilities/tiff
-  ${VTK_SOURCE_DIR}/Utilities/tiff
   ${VTK_BINARY_DIR}/Utilities/expat
   ${VTK_SOURCE_DIR}/Utilities/expat
-  ${VTK_BINARY_DIR}/Utilities/png
-  ${VTK_SOURCE_DIR}/Utilities/png
-  ${VTK_BINARY_DIR}/Utilities/zlib
-  ${VTK_SOURCE_DIR}/Utilities/zlib
 )
 
 #-----------------------------------------------------------------------------
@@ -145,3 +137,10 @@ IF (VTK_USE_MATROX_IMAGING)
   SET(VTK_INCLUDE_DIRS_BUILD_TREE_CXX ${VTK_INCLUDE_DIRS_BUILD_TREE_CXX}
       ${MIL_INCLUDE_PATH})
 ENDIF (VTK_USE_MATROX_IMAGING)
+
+#-----------------------------------------------------------------------------
+# Include directories for 3rd-party utilities provided by VTK.
+VTK_THIRD_PARTY_INCLUDE(ZLIB zlib)
+VTK_THIRD_PARTY_INCLUDE(JPEG jpeg)
+VTK_THIRD_PARTY_INCLUDE(PNG  png)
+VTK_THIRD_PARTY_INCLUDE(TIFF tiff)
