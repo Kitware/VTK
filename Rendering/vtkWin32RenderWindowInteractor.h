@@ -89,11 +89,11 @@ public:
   // handled.
   virtual void OnMouseMove  (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnNCMouseMove(HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
   virtual void OnRButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
   virtual void OnMButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnLButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnLButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
   virtual void OnLButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnSize       (HWND wnd, UINT nType,  int X, int Y);
   virtual void OnTimer      (HWND wnd, UINT nIDEvent);

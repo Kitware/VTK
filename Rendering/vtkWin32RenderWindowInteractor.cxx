@@ -56,7 +56,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.90");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.91");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -389,7 +389,7 @@ void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags,
 }
 
 void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y) 
+                                                   int X, int Y, int repeat) 
 {
   if (!this->Enabled) 
     {
@@ -399,7 +399,8 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
   this->SetEventInformationFlipY(X, 
                                  Y, 
                                  nFlags & MK_CONTROL, 
-                                 nFlags & MK_SHIFT);
+                                 nFlags & MK_SHIFT,
+                                 0, repeat);
   this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 }
 
@@ -419,7 +420,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
 }
 
 void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y) 
+                                                   int X, int Y, int repeat) 
 {
   if (!this->Enabled) 
     {
@@ -429,7 +430,8 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
   this->SetEventInformationFlipY(X, 
                                  Y, 
                                  nFlags & MK_CONTROL, 
-                                 nFlags & MK_SHIFT);
+                                 nFlags & MK_SHIFT,
+                                 0, repeat);
   this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
 }
 
@@ -449,7 +451,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
 }
 
 void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags, 
-                                                   int X, int Y) 
+                                                   int X, int Y, int repeat) 
 {
   if (!this->Enabled) 
     {
@@ -459,7 +461,8 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
   this->SetEventInformationFlipY(X, 
                                  Y, 
                                  nFlags & MK_CONTROL, 
-                                 nFlags & MK_SHIFT);
+                                 nFlags & MK_SHIFT,
+                                 0, repeat);
   this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 }
 
@@ -632,24 +635,36 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
       break;
       
+    case WM_LBUTTONDBLCLK:
+      me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);
+      break;
+
     case WM_LBUTTONDOWN:
-      me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
       
     case WM_LBUTTONUP:
       me->OnLButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
-      
+
+    case WM_MBUTTONDBLCLK:
+      me->OnMButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);
+      break;
+
     case WM_MBUTTONDOWN:
-      me->OnMButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      me->OnMButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
       
     case WM_MBUTTONUP:
       me->OnMButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
       
+    case WM_RBUTTONDBLCLK:
+      me->OnRButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);
+      break;
+
     case WM_RBUTTONDOWN:
-      me->OnRButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      me->OnRButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 0);
       break;
       
     case WM_RBUTTONUP:
