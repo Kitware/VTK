@@ -30,6 +30,8 @@
 #include "vtkPolyVertex.h"
 #include "vtkPolygon.h"
 #include "vtkPyramid.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkHexagonalPrism.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
@@ -46,7 +48,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.118");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.119");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -65,6 +67,8 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Hexahedron = vtkHexahedron::New();
   this->Wedge = vtkWedge::New();
   this->Pyramid = vtkPyramid::New();
+  this->PentagonalPrism = vtkPentagonalPrism::New();
+  this->HexagonalPrism = vtkHexagonalPrism::New();
   this->QuadraticEdge = vtkQuadraticEdge::New();
   this->QuadraticTriangle = vtkQuadraticTriangle::New();
   this->QuadraticQuad = vtkQuadraticQuad::New();
@@ -141,6 +145,8 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->Hexahedron->Delete();
   this->Wedge->Delete();
   this->Pyramid->Delete();
+  this->PentagonalPrism->Delete();
+  this->HexagonalPrism->Delete();
   this->QuadraticEdge->Delete();
   this->QuadraticTriangle->Delete();
   this->QuadraticQuad->Delete();
@@ -282,6 +288,14 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 
     case VTK_PYRAMID:
       cell = this->Pyramid;
+      break;
+
+    case VTK_PENTAGONAL_PRISM:
+      cell = this->PentagonalPrism;
+      break;
+
+    case VTK_HEXAGONAL_PRISM:
+      cell = this->HexagonalPrism;
       break;
 
     case VTK_QUADRATIC_EDGE:

@@ -37,6 +37,8 @@ class vtkPolyLine;
 class vtkPolyVertex;
 class vtkPolygon;
 class vtkPyramid;
+class vtkPentagonalPrism;
+class vtkHexagonalPrism;
 class vtkQuad;
 class vtkQuadraticEdge;
 class vtkQuadraticHexahedron;
@@ -177,20 +179,22 @@ protected:
   ~vtkUnstructuredGrid();
 
   // used by GetCell method
-  vtkVertex        *Vertex;
-  vtkPolyVertex    *PolyVertex;
-  vtkLine          *Line;
-  vtkPolyLine      *PolyLine;
-  vtkTriangle      *Triangle;
-  vtkTriangleStrip *TriangleStrip;
-  vtkPixel         *Pixel;
-  vtkQuad          *Quad;
-  vtkPolygon       *Polygon;
-  vtkTetra      *Tetra;
-  vtkVoxel      *Voxel;
-  vtkHexahedron *Hexahedron;
-  vtkWedge      *Wedge;
-  vtkPyramid    *Pyramid;
+  vtkVertex              *Vertex;
+  vtkPolyVertex          *PolyVertex;
+  vtkLine                *Line;
+  vtkPolyLine            *PolyLine;
+  vtkTriangle            *Triangle;
+  vtkTriangleStrip       *TriangleStrip;
+  vtkPixel               *Pixel;
+  vtkQuad                *Quad;
+  vtkPolygon             *Polygon;
+  vtkTetra               *Tetra;
+  vtkVoxel               *Voxel;
+  vtkHexahedron          *Hexahedron;
+  vtkWedge               *Wedge;
+  vtkPyramid             *Pyramid;
+  vtkPentagonalPrism     *PentagonalPrism;
+  vtkHexagonalPrism      *HexagonalPrism;
   vtkQuadraticEdge       *QuadraticEdge;
   vtkQuadraticTriangle   *QuadraticTriangle;
   vtkQuadraticQuad       *QuadraticQuad;
@@ -199,7 +203,7 @@ protected:
   vtkQuadraticWedge      *QuadraticWedge;
   vtkQuadraticPyramid    *QuadraticPyramid;
   vtkConvexPointSet      *ConvexPointSet;
-  vtkEmptyCell *EmptyCell;
+  vtkEmptyCell           *EmptyCell;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

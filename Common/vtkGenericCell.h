@@ -98,6 +98,8 @@ public:
   void SetCellTypeToHexahedron() {this->SetCellType(VTK_HEXAHEDRON);}
   void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);}
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);}
+  void SetCellTypeToPentagonalPrism() {this->SetCellType(VTK_PENTAGONAL_PRISM);}
+  void SetCellTypeToHexagonalPrism() {this->SetCellType(VTK_HEXAGONAL_PRISM);}
   void SetCellTypeToConvexPointSet() {this->SetCellType(VTK_CONVEX_POINT_SET);}
   void SetCellTypeToQuadraticEdge() {this->SetCellType(VTK_QUADRATIC_EDGE);}
   void SetCellTypeToQuadraticTriangle() {this->SetCellType(VTK_QUADRATIC_TRIANGLE);}
