@@ -228,6 +228,13 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   this->TimeToDraw = (float)timer->GetElapsedTime();
 
+  // If the timer is not accurate enough, set it to a small
+  // time so that it is not zero
+  if ( this->TimeToDraw == 0.0 )
+    {
+    this->TimeToDraw = 0.0001;
+    }
+
   timer->Delete();
 }
 
