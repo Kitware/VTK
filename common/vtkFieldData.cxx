@@ -126,6 +126,7 @@ vtkFieldData *vtkFieldData::MakeObject()
       {
       data = this->Data[i]->MakeObject();
       f->SetArray(i,data);
+      data->Delete();
       f->SetArrayName(i,this->GetArrayName(i));
       }
     }
@@ -391,6 +392,7 @@ void vtkFieldData::DeepCopy(vtkFieldData& f)
       newData = data->MakeObject(); //instantiate same type of object
       newData->DeepCopy(*data);
       this->SetArray(i, newData);
+      newData->Delete();
       }
     }
 }
