@@ -395,6 +395,7 @@ protected:
   char *FileName;
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
+  unsigned int AccumulationBufferSize;
   int AAFrames;
   int FDFrames;
   int SubFrames;               // number of sub frames

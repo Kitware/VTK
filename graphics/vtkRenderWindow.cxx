@@ -72,6 +72,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->FDFrames = 0;
   this->SubFrames = 0;
   this->AccumulationBuffer = NULL;
+  this->AccumulationBufferSize = 0;
   this->CurrentSubFrame = 0;
   this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = NULL;
@@ -101,6 +102,7 @@ vtkRenderWindow::~vtkRenderWindow()
     {
     delete [] this->AccumulationBuffer;
     this->AccumulationBuffer = NULL;
+    this->AccumulationBufferSize = 0;
     }
   if (this->ResultFrame) 
     {
@@ -271,15 +273,25 @@ void vtkRenderWindow::Render()
     {
     this->Interactor->Initialize();
     }
-
-  if ((!this->AccumulationBuffer)&&
-      (this->SubFrames || this->AAFrames || this->FDFrames))
+  
+  // if there is a reason for an AccumulationBuffer
+  if ( this->SubFrames || this->AAFrames || this->FDFrames)
     {
-    // get the size
+    // check the current size 
     size = this->GetSize();
-
-    this->AccumulationBuffer = new float [3*size[0]*size[1]];
-    memset(this->AccumulationBuffer,0,3*size[0]*size[1]*sizeof(float));
+    int bufferSize = 3*size[0]*size[1];
+    // If there is not a buffer or the size is too small
+    // re-allocate it
+    if( !this->AccumulationBuffer 
+        || bufferSize > this->AccumulationBufferSize)
+      {
+      // it is OK to delete null, no sense in two if's
+      delete [] this->AccumulationBuffer;
+      // Save the size of the buffer
+      this->AccumulationBufferSize = 3*size[0]*size[1];
+      this->AccumulationBuffer = new float [this->AccumulationBufferSize];
+      memset(this->AccumulationBuffer,0,this->AccumulationBufferSize*sizeof(float));
+      }
     }
   
   // handle any sub frames
@@ -736,7 +748,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumLayers << "\n";
-
+  os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
