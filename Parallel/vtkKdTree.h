@@ -104,8 +104,8 @@ public:
   //   a power of two.)  Call this before BuildLocator().  Default
   //   is unset.
 
-  vtkGetMacro(NumRegionsOrLess, int);
-  vtkSetMacro(NumRegionsOrLess, int);
+  vtkGetMacro(NumberOfRegionsOrLess, int);
+  vtkSetMacro(NumberOfRegionsOrLess, int);
 
   // Description:
   //   Set/Get the number of spatial regions you want to get close
@@ -113,8 +113,8 @@ public:
   //   spatial regions is normally a power of two.)   Default
   //   is unset.
 
-  vtkGetMacro(NumRegionsOrMore, int);
-  vtkSetMacro(NumRegionsOrMore, int);
+  vtkGetMacro(NumberOfRegionsOrMore, int);
+  vtkSetMacro(NumberOfRegionsOrMore, int);
   
   // Description:
   //  Some algorithms on k-d trees require a value that is a very
@@ -575,7 +575,7 @@ protected:
   // Description:
   //   Prior to dividing a region at level "level", of size
   //   "numberOfPoints", apply the tests implied by MinCells,
-  //   NumRegionsOrMore and NumRegionsOrLess.  Return 1 if it's
+  //   NumberOfRegionsOrMore and NumberOfRegionsOrLess.  Return 1 if it's
   //   OK to divide the region, 0 if you should not.
 
   int DivideTest(int numberOfPoints, int level);
@@ -754,8 +754,8 @@ private:
 
   int NumDataSetsAllocated;
 
-  int NumRegionsOrLess;
-  int NumRegionsOrMore;
+  int NumberOfRegionsOrLess;
+  int NumberOfRegionsOrMore;
 
   int IncludeRegionBoundaryCells;
   double CellBoundsCache[6];       // to optimize IntersectsCell()

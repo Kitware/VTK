@@ -51,7 +51,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.20");
+vtkCxxRevisionMacro(vtkKdTree, "1.21");
 
 // Timing data ---------------------------------------------
 
@@ -96,10 +96,11 @@ vtkKdTree::vtkKdTree()
 {
   this->FudgeFactor = 0;
   this->MaxWidth = 0.0;
+  this->MaxLevel  = 20;
   this->Level    = 0;
 
-  this->NumRegionsOrLess = 0;
-  this->NumRegionsOrMore = 0;
+  this->NumberOfRegionsOrLess = 0;
+  this->NumberOfRegionsOrMore = 0;
 
   this->ValidDirections =
   (1 << vtkKdTree::XDIM) | (1 << vtkKdTree::YDIM) | (1 << vtkKdTree::ZDIM);
@@ -969,6 +970,8 @@ int vtkKdTree::SelectCutDirection(vtkKdNode *kd)
 //----------------------------------------------------------------------------
 int vtkKdTree::DivideTest(int size, int level)
 {
+  if (level >= this->MaxLevel) return 0;
+
   int minCells = this->GetMinCells();
 
   if ((size < 2) || (minCells && (minCells > (size/2)))) return 0;
@@ -976,8 +979,8 @@ int vtkKdTree::DivideTest(int size, int level)
   int nRegionsNow  = 1 << level;
   int nRegionsNext = nRegionsNow << 1;
 
-  if (this->NumRegionsOrLess && (nRegionsNext > this->NumRegionsOrLess)) return 0;
-  if (this->NumRegionsOrMore && (nRegionsNow >= this->NumRegionsOrMore)) return 0;
+  if (this->NumberOfRegionsOrLess && (nRegionsNext > this->NumberOfRegionsOrLess)) return 0;
+  if (this->NumberOfRegionsOrMore && (nRegionsNow >= this->NumberOfRegionsOrMore)) return 0;
 
   return 1;
 }
@@ -4354,8 +4357,8 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ValidDirections: " << this->ValidDirections << endl;
   os << indent << "MinCells: " << this->MinCells << endl;
-  os << indent << "NumRegionsOrLess: " << this->NumRegionsOrLess << endl;
-  os << indent << "NumRegionsOrMore: " << this->NumRegionsOrMore << endl;
+  os << indent << "NumberOfRegionsOrLess: " << this->NumberOfRegionsOrLess << endl;
+  os << indent << "NumberOfRegionsOrMore: " << this->NumberOfRegionsOrMore << endl;
 
   os << indent << "NumRegions: " << this->NumRegions << endl;
 
