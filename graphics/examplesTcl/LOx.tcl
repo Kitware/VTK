@@ -137,6 +137,7 @@ vtkCamera aCam
     aCam ComputeViewPlaneNormal 
     aCam SetViewPlaneNormal -0.0325936 -0.785725 0.617717
     aCam SetViewUp 0.00653193 0.617865 0.786257
+    aCam SetClippingRange 1 100
 
 ren1 SetBackground .1 .2 .4
 ren1 SetActiveCamera aCam
