@@ -93,7 +93,7 @@ IF (VTK_WRAP_JAVA)
   ENDIF (JAVA_AWT_INCLUDE_PATH)
   # where to write the resulting .java files
   IF (NOT VTK_JAVA_HOME)
-    SET (VTK_JAVA_HOME . CACHE)
+    SET (VTK_JAVA_HOME . CACHE PATH "Path to Java install")
   ENDIF (NOT VTK_JAVA_HOME)
 ENDIF (VTK_WRAP_JAVA)
 
