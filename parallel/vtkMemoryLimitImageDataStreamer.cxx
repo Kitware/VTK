@@ -139,4 +139,6 @@ void vtkMemoryLimitImageDataStreamer::UpdateData(vtkDataObject *out)
   
   // now call the superclass
   this->vtkImageDataStreamer::UpdateData(out);
+
+  sizer->Delete();
 }
