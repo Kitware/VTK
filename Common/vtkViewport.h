@@ -181,6 +181,8 @@ public:
   int *GetSize();
   int *GetOrigin();
   void GetTiledSize(int *width, int *height);
+  void GetTiledSizeAndOrigin(int *width, int *height, 
+                             int *lowerLeftX, int *lowerLeftY);
   
   // The following methods describe the public pick interface for picking
   // Props in a viewport.

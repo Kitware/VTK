@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.204");
+vtkCxxRevisionMacro(vtkRenderer, "1.205");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -965,36 +965,13 @@ double vtkRenderer::GetZ (int x, int y)
 // Convert view point coordinates to world coordinates.
 void vtkRenderer::ViewToWorld()
 {
-  vtkMatrix4x4 *mat = vtkMatrix4x4::New();
   double result[4];
-
-  // get the perspective transformation from the active camera 
-  mat->DeepCopy(
-        this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
-  
-  // use the inverse matrix 
-  mat->Invert();
- 
-  // Transform point to world coordinates 
   result[0] = this->ViewPoint[0];
   result[1] = this->ViewPoint[1];
   result[2] = this->ViewPoint[2];
   result[3] = 1.0;
-
-  mat->MultiplyPoint(result,result);
-  
-  // Get the transformed vector & set WorldPoint 
-  // while we are at it try to keep w at one
-  if (result[3])
-    {
-    result[0] /= result[3];
-    result[1] /= result[3];
-    result[2] /= result[3];
-    result[3] = 1;
-    }
-  
+  this->ViewToWorld(result[0],result[1],result[2]);
   this->SetWorldPoint(result);
-  mat->Delete();
 }
 
 void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
@@ -1002,9 +979,30 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   vtkMatrix4x4 *mat = vtkMatrix4x4::New();
   double result[4];
 
+  int usize, vsize;
+  this->GetTiledSize(&usize,&vsize);
+
+  // some renderer subclasses may have more complicated computations for the
+  // aspect ratio. SO take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is
+  // reporting.
+  double aspect[2];
+  this->ComputeAspect();
+  this->GetAspect(aspect);
+  double aspect2[2];
+  this->vtkViewport::ComputeAspect();
+  this->vtkViewport::GetAspect(aspect2);
+  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  
+  double finalAspect = 1.0;
+  if(vsize)
+    {
+    finalAspect = aspectModification*usize/vsize;
+    }
+  
   // get the perspective transformation from the active camera 
-  mat->DeepCopy(
-    this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
+  mat->DeepCopy(this->ActiveCamera->
+                GetCompositePerspectiveTransformMatrix(finalAspect,0,1));
   
   // use the inverse matrix 
   mat->Invert();
@@ -1031,31 +1029,12 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView()
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  double     view[4];
-  double     *world;
-
-  // get the perspective transformation from the active camera 
-  matrix->DeepCopy(
-           this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
-
-  world = this->WorldPoint;
-  view[0] = world[0]*matrix->Element[0][0] + world[1]*matrix->Element[0][1] +
-    world[2]*matrix->Element[0][2] + world[3]*matrix->Element[0][3];
-  view[1] = world[0]*matrix->Element[1][0] + world[1]*matrix->Element[1][1] +
-    world[2]*matrix->Element[1][2] + world[3]*matrix->Element[1][3];
-  view[2] = world[0]*matrix->Element[2][0] + world[1]*matrix->Element[2][1] +
-    world[2]*matrix->Element[2][2] + world[3]*matrix->Element[2][3];
-  view[3] = world[0]*matrix->Element[3][0] + world[1]*matrix->Element[3][1] +
-    world[2]*matrix->Element[3][2] + world[3]*matrix->Element[3][3];
-
-  if (view[3] != 0.0)
-    {
-    this->SetViewPoint(view[0]/view[3],
-                       view[1]/view[3],
-                       view[2]/view[3]);
-    }
-  matrix->Delete();
+  double result[3];
+  result[0] = this->WorldPoint[0];
+  result[1] = this->WorldPoint[1];
+  result[2] = this->WorldPoint[2];
+  this->WorldToView(result[0], result[1], result[2]);
+  this->SetViewPoint(result[0], result[1], result[2]);
 }
 
 // Convert world point coordinates to view coordinates.
@@ -1064,9 +1043,30 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double     view[4];
 
-  // get the perspective transformation from the active camera
-  matrix->DeepCopy(
-    this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
+  int usize, vsize;
+  this->GetTiledSize(&usize,&vsize);
+
+  // some renderer subclasses may have more complicated computations for the
+  // aspect ratio. SO take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is
+  // reporting.
+  double aspect[2];
+  this->ComputeAspect();
+  this->GetAspect(aspect);
+  double aspect2[2];
+  this->vtkViewport::ComputeAspect();
+  this->vtkViewport::GetAspect(aspect2);
+  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  
+  double finalAspect = 1.0;
+  if(vsize)
+    {
+    finalAspect = aspectModification*usize/vsize;
+    }
+  
+  // get the perspective transformation from the active camera 
+  matrix->DeepCopy(this->ActiveCamera->
+                GetCompositePerspectiveTransformMatrix(finalAspect,0,1));
 
   view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +
     z*matrix->Element[0][2] + matrix->Element[0][3];

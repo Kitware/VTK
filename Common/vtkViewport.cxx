@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.57");
+vtkCxxRevisionMacro(vtkViewport, "1.58");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -175,7 +175,7 @@ void vtkViewport::DisplayToView()
       (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
     vz = this->DisplayPoint[2];
 
-    this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
+    this->SetViewPoint(vx,vy,vz);
     }
 }
 
@@ -193,10 +193,10 @@ void vtkViewport::ViewToDisplay()
     sizex = size[0];
     sizey = size[1];
 
-    dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+    dx = (this->ViewPoint[0] + 1.0) * 
       (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
         sizex*this->Viewport[0];
-    dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+    dy = (this->ViewPoint[1] + 1.0) * 
       (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
         sizey*this->Viewport[1];
 
@@ -220,39 +220,6 @@ void vtkViewport::WorldToView()
 
 }
 
-void vtkViewport::GetTiledSize(int *width, int *height)
-{  
-  double *vport = this->GetViewport();
-  double *tileViewPort = this->VTKWindow->GetTileViewport();
-  int  lowerLeft[2];
-  
-  double vpu, vpv;
-  vpu = (vport[0] < tileViewPort[0]) ? tileViewPort[0] : vport[0];
-  vpu = (vpu > tileViewPort[2]) ? tileViewPort[2] : vpu;
-  vpv = (vport[1] < tileViewPort[1]) ? tileViewPort[1] : vport[1];
-  vpv = (vpv > tileViewPort[3]) ? tileViewPort[3] : vpv;
-  this->NormalizedDisplayToDisplay(vpu,vpv);
-  lowerLeft[0] = (int)(vpu+0.5);
-  lowerLeft[1] = (int)(vpv+0.5);
-  double vpu2, vpv2;
-  vpu2 = (vport[2] > tileViewPort[2]) ? tileViewPort[2] : vport[2];
-  vpu2 = (vpu2 < tileViewPort[0]) ? tileViewPort[0] : vpu2;
-  vpv2 = (vport[3] > tileViewPort[3]) ? tileViewPort[3] : vport[3];
-  vpv2 = (vpv2 < tileViewPort[1]) ? tileViewPort[1] : vpv2;
-  this->NormalizedDisplayToDisplay(vpu2,vpv2);
-  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
-  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-  if (usize < 0)
-    {
-    usize = 0;
-    }
-  if (vsize < 0)
-    {
-    vsize = 0;
-    }
-  *width = usize;
-  *height = vsize;
-}
 
 // Return the size of the viewport in display coordinates.
 int *vtkViewport::GetSize()
@@ -467,8 +434,40 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
 void vtkViewport::NormalizedViewportToView(double &x, double &y, 
                                            double &vtkNotUsed(z))
 {
-  x = (2.0*x - 1.0)*this->Aspect[0];
-  y = (2.0*y - 1.0)*this->Aspect[1];
+  // for tiling we must consider the tiledViewport
+  double *tvport = this->VTKWindow->GetTileViewport();
+
+  // what part of the full viewport is the current tiled viewport?
+  double *vport = this->GetViewport();
+  double nvport[4];
+  this->GetViewport(nvport);
+  
+  // clip the viewport to the tiled viewport
+  if (nvport[0] < tvport[0])
+    {
+    nvport[0] = tvport[0];
+    }
+  if (nvport[1] < tvport[1])
+    {
+    nvport[1] = tvport[1];
+    }
+  if (nvport[2] > tvport[2])
+    {
+    nvport[2] = tvport[2];
+    }
+  if (nvport[3] > tvport[3])
+    {
+    nvport[3] = tvport[3];
+    }
+
+  x = x*(vport[2] - vport[0]) + vport[0];
+  y = y*(vport[3] - vport[1]) + vport[1];
+
+  x = (x - nvport[0])/(nvport[2] - nvport[0]);
+  y = (y - nvport[1])/(nvport[3] - nvport[1]);
+  
+  x = (2.0*x - 1.0);
+  y = (2.0*y - 1.0);
 }
 
 void vtkViewport::NormalizedDisplayToDisplay(double &u, double &v)
@@ -531,8 +530,42 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
 void vtkViewport::ViewToNormalizedViewport(double &x, double &y, 
                                            double &vtkNotUsed(z))
 {
-  x =  (x / this->Aspect[0] + 1.0) / 2.0;
-  y =  (y / this->Aspect[1] + 1.0) / 2.0;
+  // for tiling we must consider the tiledViewport
+  double *tvport = this->VTKWindow->GetTileViewport();
+
+  // what part of the full viewport is the current tiled viewport?
+  double *vport = this->GetViewport();
+  double nvport[4];
+  this->GetViewport(nvport);
+  
+  // clip the viewport to the tiled viewport
+  if (nvport[0] < tvport[0])
+    {
+    nvport[0] = tvport[0];
+    }
+  if (nvport[1] < tvport[1])
+    {
+    nvport[1] = tvport[1];
+    }
+  if (nvport[2] > tvport[2])
+    {
+    nvport[2] = tvport[2];
+    }
+  if (nvport[3] > tvport[3])
+    {
+    nvport[3] = tvport[3];
+    }
+
+  x =  (x + 1.0) / 2.0;
+  y =  (y + 1.0) / 2.0;
+
+  // now x and y are in the normalized viewport of the clipped viewport
+  // we need to convert that to the normalized viewport of the entire
+  // viewport
+  x = nvport[0] + x*(nvport[2] - nvport[0]);
+  y = nvport[1] + y*(nvport[3] - nvport[1]);
+  x = (x - vport[0])/(vport[2] - vport[0]);
+  y = (y - vport[1])/(vport[3] - vport[1]);
 }
 
 void vtkViewport::ComputeAspect()
@@ -571,3 +604,82 @@ vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX,
   return this->PickProp(selectionX, selectionY);
 }
 
+
+
+#define vtkViewportBound(vpu, vpv) \
+{ \
+  if (vpu > 1.0) \
+    { \
+    vpu = 1.0; \
+    } \
+  if (vpu < 0.0) \
+    { \
+    vpu = 0.0; \
+    } \
+  if (vpv > 1.0) \
+    { \
+    vpv = 1.0; \
+    } \
+  if (vpv < 0.0) \
+    { \
+    vpv = 0.0; \
+    }  \
+}
+
+// This complicated method determines the size of the current tile in pixels
+// this is useful in computeing the actual aspcet ration of the current tile
+void vtkViewport::GetTiledSize(int *usize, int *vsize)
+{
+  int llx, lly;
+  this->GetTiledSizeAndOrigin(usize,vsize,&llx,&lly);
+}
+
+void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
+                                        int *lowerLeftU, int *lowerLeftV)
+{
+
+  double *vport;
+
+  // find out if we should stereo render
+  vport = this->GetViewport();
+  double *tileViewPort = this->GetVTKWindow()->GetTileViewport();
+  
+  double vpu, vpv;
+  // find the lower left corner of the viewport, taking into account the
+  // lower left boundary of this tile
+  vpu = (vport[0] - tileViewPort[0]);
+  vpv = (vport[1] - tileViewPort[1]);
+  vtkViewportBound(vpu,vpv);
+  // store the result as a pixel value
+  this->NormalizedDisplayToDisplay(vpu,vpv);
+  *lowerLeftU = (int)(vpu+0.5);
+  *lowerLeftV = (int)(vpv+0.5);
+  double vpu2, vpv2;
+  // find the upper right corner of the viewport, taking into account the
+  // lower left boundary of this tile
+  vpu2 = (vport[2] - tileViewPort[0]);
+  vpv2 = (vport[3] - tileViewPort[1]);
+  vtkViewportBound(vpu2,vpv2);
+  // also watch for the upper right boundary of the tile
+  if (vpu2 > (tileViewPort[2] - tileViewPort[0]))
+    {
+    vpu2 = tileViewPort[2] - tileViewPort[0];
+    }
+  if (vpv2 > (tileViewPort[3] - tileViewPort[1]))
+    {
+    vpv2 = tileViewPort[3] - tileViewPort[1];
+    }  
+  this->NormalizedDisplayToDisplay(vpu2,vpv2);
+  // now compute the size of the intersection of the viewport with the
+  // current tile
+  *usize = (int)(vpu2 + 0.5) - *lowerLeftU;
+  *vsize = (int)(vpv2 + 0.5) - *lowerLeftV;  
+  if (*usize < 0)
+    {
+    *usize = 0;
+    }
+  if (*vsize < 0)
+    {
+    *vsize = 0;
+    }
+}

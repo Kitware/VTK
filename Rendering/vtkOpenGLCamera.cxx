@@ -30,82 +30,21 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.61");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.62");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
-
-#define vtkOpenGLCameraBound(vpu, vpv) \
-{ \
-  if (vpu > 1.0) \
-    { \
-    vpu = 1.0; \
-    } \
-  if (vpu < 0.0) \
-    { \
-    vpu = 0.0; \
-    } \
-  if (vpv > 1.0) \
-    { \
-    vpv = 1.0; \
-    } \
-  if (vpv < 0.0) \
-    { \
-    vpv = 0.0; \
-    }  \
-}
 
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
   double aspect[2];
-  double *vport;
   int  lowerLeft[2];
+  int usize, vsize;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
-  vport = ren->GetViewport();
-
-  double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  
-  double vpu, vpv;
-  // find the lower left corner of the viewport, taking into account the
-  // lower left boundary of this tile
-  vpu = (vport[0] - tileViewPort[0]);
-  vpv = (vport[1] - tileViewPort[1]);
-  vtkOpenGLCameraBound(vpu,vpv);
-  // store the result as a pixel value
-  ren->NormalizedDisplayToDisplay(vpu,vpv);
-  lowerLeft[0] = (int)(vpu+0.5);
-  lowerLeft[1] = (int)(vpv+0.5);
-  double vpu2, vpv2;
-  // find the upper right corner of the viewport, taking into account the
-  // lower left boundary of this tile
-  vpu2 = (vport[2] - tileViewPort[0]);
-  vpv2 = (vport[3] - tileViewPort[1]);
-  vtkOpenGLCameraBound(vpu2,vpv2);
-  // also watch for the upper right boundary of the tile
-  if (vpu2 > (tileViewPort[2] - tileViewPort[0]))
-    {
-    vpu2 = tileViewPort[2] - tileViewPort[0];
-    }
-  if (vpv2 > (tileViewPort[3] - tileViewPort[1]))
-    {
-    vpv2 = tileViewPort[3] - tileViewPort[1];
-    }  
-  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
-  // now compute the size of the intersection of the viewport with the
-  // current tile
-  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
-  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-  if (usize < 0)
-    {
-    usize = 0;
-    }
-  if (vsize < 0)
-    {
-    vsize = 0;
-    }
+  ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
   
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
@@ -213,43 +152,9 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
-  double *vport;
   int  lowerLeft[2];
-
-  vport = ren->GetViewport();
-
-  double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  
-  double vpu, vpv;
-  vpu = (vport[0] - tileViewPort[0]);
-  vpv = (vport[1] - tileViewPort[1]);
-  vtkOpenGLCameraBound(vpu,vpv);
-  ren->NormalizedDisplayToDisplay(vpu,vpv);
-  lowerLeft[0] = (int)(vpu+0.5);
-  lowerLeft[1] = (int)(vpv+0.5);
-  double vpu2, vpv2;
-  vpu2 = (vport[2] - tileViewPort[0]);
-  vpv2 = (vport[3] - tileViewPort[1]);
-  vtkOpenGLCameraBound(vpu2,vpv2);
-  if (vpu2 > tileViewPort[2])
-    {
-    vpu2 = tileViewPort[2];
-    }
-  if (vpv2 > tileViewPort[3])
-    {
-    vpv2 = tileViewPort[3];
-    }  
-  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
-  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
-  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-  if (usize < 0)
-    {
-    usize = 0;
-    }
-  if (vsize < 0)
-    {
-    vsize = 0;
-    }
+  int usize, vsize;
+  ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
 
   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
