@@ -29,7 +29,7 @@
 #include "vtkRenderer.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.14");
 vtkStandardNewMacro(vtkOpenGLVolumeRayCastMapper);
 #endif
 
@@ -246,7 +246,7 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
           vx2 = static_cast<float>(ii+1) / static_cast<float>(xLimit);
         
           px1 = static_cast<int>(vx1 * static_cast<float>(
-                                   this->ImageInUseSize[0]);        
+                                   this->ImageInUseSize[0])); 
           pxSize = static_cast<int>(2 - px1 + vx2 * static_cast<float>(
                                       this->ImageInUseSize[0]-1));
           if ( px1 + pxSize > this->ImageInUseSize[0] )
