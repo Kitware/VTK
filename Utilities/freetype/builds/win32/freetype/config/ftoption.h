@@ -23,6 +23,7 @@
 #ifdef _MSC_VER          // MS dev
  
 #pragma warning( disable : 4244 ) // conversion [...] possible loss of data
+#pragma warning( disable : 4761 ) // integral size mismatch in argument; conversion supplied
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 
@@ -33,7 +34,6 @@
 #pragma warning( disable : 4701 ) // local variable 'node' may be used without having been initialized
 #pragma warning( disable : 4706 ) // assignment within conditional expression
 #pragma warning( disable : 4054 ) // 'type cast' : from function pointer ... to data pointer ...
-#pragma warning( disable : 4761 ) // integral size mismatch in argument; conversion supplied
 
 
 #endif /* _MSC_VER >= 1300 */ 
