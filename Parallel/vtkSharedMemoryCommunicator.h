@@ -34,11 +34,10 @@
 #define __vtkSharedMemoryCommunicator_h
 
 #include "vtkCommunicator.h"
-#include "vtkMultiProcessController.h"
-#include "vtkCriticalSection.h"
 
 class vtkThreadedController;
 class vtkSharedMemoryCommunicatorMessage;
+class vtkSimpleCriticalSection;
 
 class VTK_PARALLEL_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
 {
@@ -158,23 +157,9 @@ protected:
   vtkSimpleCriticalSection* Gate;
 #endif
 
-  void SignalNewMessage(vtkSharedMemoryCommunicator* receiveCommunicator)
-    {
-#ifdef _WIN32
-    SetEvent( receiveCommunicator->MessageSignal );
-#else
-    receiveCommunicator->Gate->Unlock();
-#endif
-    }
+  void SignalNewMessage(vtkSharedMemoryCommunicator* receiveCommunicator);
 
-  void WaitForNewMessage()
-    {
-#ifdef _WIN32
-      WaitForSingleObject( this->MessageSignal, INFINITE );
-#else
-      this->Gate->Lock();
-#endif
-    }
+  void WaitForNewMessage();
 
 private:
   vtkSharedMemoryCommunicator(const vtkSharedMemoryCommunicator&);  // Not implemented.

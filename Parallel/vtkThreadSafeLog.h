@@ -24,8 +24,6 @@
 
 
 #include "vtkObject.h"
-#include "vtkTimerLog.h"
-
 
 #define VTK_THREAD_SAFE_LOG_MAX 1000
 

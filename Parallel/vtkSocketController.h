@@ -37,7 +37,6 @@
  #include <unistd.h>
 #endif
 
-#include "vtkObject.h"
 #include "vtkMultiProcessController.h"
 #include "vtkSocketCommunicator.h"
 

@@ -19,6 +19,8 @@
 #include "vtkSharedMemoryCommunicator.h"
 #include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
+#include "vtkMultiProcessController.h"
+#include "vtkCriticalSection.h"
 
 class vtkSharedMemoryCommunicatorMessage
 {
@@ -33,7 +35,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.14");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.15");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -609,4 +611,25 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* data,
                                          int remoteThreadId, int tag)
 {
   return this->Receive(data, 0, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
+void vtkSharedMemoryCommunicator::WaitForNewMessage()
+{
+#ifdef _WIN32
+  WaitForSingleObject( this->MessageSignal, INFINITE );
+#else
+  this->Gate->Lock();
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkSharedMemoryCommunicator::SignalNewMessage(
+  vtkSharedMemoryCommunicator* receiveCommunicator)
+{
+#ifdef _WIN32
+  SetEvent( receiveCommunicator->MessageSignal );
+#else
+  receiveCommunicator->Gate->Unlock();
+#endif
 }

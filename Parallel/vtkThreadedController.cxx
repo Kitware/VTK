@@ -22,6 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkOutputWindow.h"
 #include "vtkCriticalSection.h"
+#include "vtkSharedMemoryCommunicator.h"
 
 #ifdef VTK_USE_SPROC
 #include <sys/prctl.h>
@@ -68,9 +69,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.14");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.15");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.14");
+vtkCxxRevisionMacro(vtkThreadedController, "1.15");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()

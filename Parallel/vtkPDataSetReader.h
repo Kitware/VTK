@@ -25,9 +25,8 @@
 #define __vtkPDataSetReader_h
 
 #include "vtkSource.h"
-#include "vtkDataSet.h"
-#include "vtkImageData.h"
 
+class vtkDataSet;
 
 class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkSource
 {

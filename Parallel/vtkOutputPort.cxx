@@ -20,9 +20,12 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.5");
+vtkCxxRevisionMacro(vtkOutputPort, "1.6");
 vtkStandardNewMacro(vtkOutputPort);
+
+vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkOutputPort::vtkOutputPort()
@@ -309,3 +312,7 @@ void vtkOutputPort::SetParameterMethodArgDelete(void (*f)(void *))
     this->Modified();
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkOutputPort::WaitForUpdate() 
+{this->Controller->ProcessRMIs();}

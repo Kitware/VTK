@@ -27,8 +27,8 @@
 #define __vtkTransmitUnstructuredGridPiece_h
 
 #include "vtkUnstructuredGridToUnstructuredGridFilter.h"
-#include "vtkMultiProcessController.h"
 
+class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
 {
@@ -40,7 +40,7 @@ public:
   // Description:
   // By defualt this filter uses the global controller,
   // but this method can be used to set another instead.
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:

@@ -30,10 +30,8 @@
 #ifndef __vtkThreadedController_h
 #define __vtkThreadedController_h
 
-#include "vtkObject.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
-#include "vtkSharedMemoryCommunicator.h"
 #include "vtkCriticalSection.h"
 
 class VTK_PARALLEL_EXPORT vtkThreadedController : public vtkMultiProcessController
@@ -78,9 +76,7 @@ public:
   // by the process id.
   virtual void CreateOutputWindow();
 
-
 protected:
-
   vtkThreadedController();
   ~vtkThreadedController();
   

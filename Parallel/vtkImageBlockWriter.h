@@ -27,7 +27,8 @@
 #define __vtkImageBlockWriter_h
 
 #include "vtkProcessObject.h"
-#include "vtkImageData.h"
+
+class vtkImageData;
 
 class VTK_PARALLEL_EXPORT vtkImageBlockWriter : public vtkProcessObject
 {

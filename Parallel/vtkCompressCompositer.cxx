@@ -51,10 +51,11 @@
 #include "vtkToolkits.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkMultiProcessController.h"
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.2");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.3");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 

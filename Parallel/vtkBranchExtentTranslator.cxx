@@ -19,9 +19,12 @@
 #include "vtkBranchExtentTranslator.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
+#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkBranchExtentTranslator, "1.9");
+vtkCxxRevisionMacro(vtkBranchExtentTranslator, "1.10");
 vtkStandardNewMacro(vtkBranchExtentTranslator);
+
+vtkCxxSetObjectMacro(vtkBranchExtentTranslator,OriginalSource,vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkBranchExtentTranslator::vtkBranchExtentTranslator()

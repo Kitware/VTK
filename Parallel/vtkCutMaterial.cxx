@@ -20,8 +20,9 @@
 #include "vtkThreshold.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.8");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.9");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.

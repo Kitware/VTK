@@ -27,8 +27,11 @@
 #define __vtkCompositer_h
 
 #include "vtkObject.h"
-#include "vtkFloatArray.h"
-#include "vtkMultiProcessController.h"
+
+class vtkMultiProcessController;
+class vtkCompositer;
+class vtkDataArray;
+class vtkFloatArray;
 
 class VTK_PARALLEL_EXPORT vtkCompositer : public vtkObject
 {
@@ -45,7 +48,7 @@ public:
 
   // Description:
   // Access to the controller.
-  vtkSetObjectMacro(Controller,vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
 protected:

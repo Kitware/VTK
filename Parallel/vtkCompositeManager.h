@@ -33,15 +33,16 @@
 #define __vtkCompositeManager_h
 
 #include "vtkObject.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkCompositer.h"
-#include "vtkMultiProcessController.h"
 
 class vtkTimerLog;
 class vtkFloatArray;
 class vtkDataArray;
+class vtkRenderWindow;
+class vtkRenderWindowInteractor;
+class vtkMultiProcessController;
+class vtkRenderer;
+class vtkCompositer;
+class vtkUnsignedCharArray;
 
 class VTK_PARALLEL_EXPORT vtkCompositeManager : public vtkObject
 {
@@ -54,7 +55,7 @@ public:
   // Set/Get the RenderWindow to use for compositing.
   // We add a start and end observer to the window.
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  void SetRenderWindow(vtkRenderWindow *renWin);
+  virtual void SetRenderWindow(vtkRenderWindow *renWin);
 
   // Description:
   // This method sets the piece and number of pieces for each
@@ -99,10 +100,11 @@ public:
   vtkBooleanMacro(UseChar, int);
 
   // Description:
-  // This flag tells the compositier to get the color buffer as RGB instead of RGBA.
-  // We do not use the alpha value so it is not important to get.  ATI Radeon
-  // cards / drivers do not properly get the color buffer as RGBA.  This flag turns
-  // the UseChar flag on because VTK does not have methods to get the pixel data as RGB float.
+  // This flag tells the compositier to get the color buffer as RGB 
+  // instead of RGBA. We do not use the alpha value so it is not 
+  // important to get.  ATI Radeon cards / drivers do not properly get 
+  // the color buffer as RGBA.  This flag turns the UseChar flag on 
+  // because VTK does not have methods to get the pixel data as RGB float.
   void SetUseRGB(int useRGB);
   vtkGetMacro(UseRGB, int);
   vtkBooleanMacro(UseRGB, int);
@@ -167,7 +169,7 @@ public:
   // Description:
   // This methods allows the user to select different compositing algorithms.
   // A vtkTreeCompositer is created as a default value.
-  vtkSetObjectMacro(Compositer, vtkCompositer);
+  virtual void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
 
 protected:
@@ -222,8 +224,8 @@ protected:
   // This cause me a head ache while trying to debug a lockup.
   // I am taking it out in retaliation.  I do not think nested
   // RMI's can occur anyway.
-  // This flag stops nested RMIs from occuring.  Some rmis send and receive information.
-  // Nesting them can lock up the processes.
+  // This flag stops nested RMIs from occuring.  Some rmis send 
+  // and receive information. Nesting them can lock up the processes.
   int Lock;
 
   double GetBuffersTime;

@@ -38,15 +38,13 @@
 
 #include "mpi.h"
 #include "vtkCommunicator.h"
-#include "vtkMPIGroup.h"
 
 class vtkMPIController;
+class vtkMPIGroup;
 
 class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
-
 public:
-
   vtkTypeRevisionMacro( vtkMPICommunicator,vtkObject);
   
   // Description:
@@ -75,7 +73,8 @@ public:
   virtual int Send(unsigned long* data, int length, int remoteProcessId,
                    int tag);
   virtual int Send(char* data, int length, int remoteProcessId, int tag);
-  virtual int Send(unsigned char* data, int length, int remoteProcessId, int tag);
+  virtual int Send(unsigned char* data, int length, int remoteProcessId, 
+                   int tag);
   virtual int Send(float* data, int length, int remoteProcessId, 
                    int tag);
   virtual int Send(double* data, int length, int remoteProcessId, 
@@ -84,6 +83,7 @@ public:
   virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
                    int tag);
 #endif
+
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
   virtual int Send(vtkDataArray* data, int remoteProcessId, int tag)
@@ -136,6 +136,7 @@ public:
   virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
                       int tag);
 #endif
+
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
   virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)
@@ -165,8 +166,7 @@ public:
   static void Free(char* ptr);
 
 protected:
-
-  vtkSetObjectMacro(Group, vtkMPIGroup);
+  virtual void SetGroup(vtkMPIGroup*);
 
   // Description:
   // KeepHandle is normally off. This means that the MPI
@@ -209,13 +209,12 @@ protected:
   int Initialized;
   int KeepHandle;
 
+private:
   vtkMPICommunicator();
   ~vtkMPICommunicator();
 
- private:
   static int CheckForMPIError(int err);
 
-private:
   vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
   void operator=(const vtkMPICommunicator&);  // Not implemented.
 };

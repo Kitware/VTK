@@ -16,19 +16,22 @@
 
 =========================================================================*/
 #include "vtkInputPort.h"
-#include "vtkOutputPort.h"
-#include "vtkMultiProcessController.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkImageData.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.10");
+#include "vtkCommand.h"
+#include "vtkImageData.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutputPort.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkInputPort, "1.11");
 vtkStandardNewMacro(vtkInputPort);
+
+vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkInputPort::vtkInputPort()

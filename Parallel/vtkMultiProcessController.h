@@ -40,17 +40,14 @@
 #ifndef __vtkMultiProcessController_h
 #define __vtkMultiProcessController_h
 
-#include "vtkObject.h"
-#include "vtkDataObject.h"
 #include "vtkCommunicator.h"
 
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
 class vtkOutputWindow;
-
+class vtkDataObject;
 class vtkMultiProcessController;
-
 
 //BTX
 // The type of function that gets called when new processes are initiated.

@@ -44,10 +44,9 @@
 #define __vtkMPIController_h
 
 #include "mpi.h"
-
 #include "vtkMultiProcessController.h"
-#include "vtkMPICommunicator.h"
 
+class vtkMPICommunicator;
 
 class VTK_PARALLEL_EXPORT vtkMPIController : public vtkMultiProcessController
 {

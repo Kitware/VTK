@@ -16,6 +16,7 @@
 
 =========================================================================*/
 #include "vtkMPIController.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
@@ -65,9 +66,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.12");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.13");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.12");
+vtkCxxRevisionMacro(vtkMPIController, "1.13");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------

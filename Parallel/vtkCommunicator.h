@@ -33,11 +33,11 @@
 #define __vtkCommunicator_h
 
 #include "vtkObject.h"
-#include "vtkDataObject.h"
-#include "vtkDataArray.h"
 
 class vtkDataSet;
 class vtkImageData;
+class vtkDataObject;
+class vtkDataArray;
 
 class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
 {

@@ -26,8 +26,8 @@
 #define __vtkCollectPolyData_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkMultiProcessController.h"
 
+class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkCollectPolyData : public vtkPolyDataToPolyDataFilter
 {
@@ -39,7 +39,7 @@ public:
   // Description:
   // By defualt this filter uses the global controller,
   // but this method can be used to set another instead.
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:

@@ -23,9 +23,9 @@
 #ifndef __vtkPOPReader_h
 #define __vtkPOPReader_h
 
-#include <stdio.h>
-#include "vtkImageData.h"
 #include "vtkStructuredGridSource.h"
+
+class vtkImageData;
 
 class VTK_PARALLEL_EXPORT vtkPOPReader : public vtkStructuredGridSource 
 {

@@ -27,8 +27,8 @@
 #define __vtkCutMaterial_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkPlane.h"
 
+class vtkPlane;
 
 class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkDataSetToPolyDataFilter
 {

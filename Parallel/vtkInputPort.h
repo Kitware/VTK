@@ -32,15 +32,14 @@
 #define __vtkInputPort_h
 
 #include "vtkSource.h"
-#include "vtkMultiProcessController.h"
+
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkStructuredGrid;
 class vtkRectilinearGrid;
 class vtkStructuredPoints;
 class vtkImageData;
-
-
+class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkInputPort : public vtkSource
 {
@@ -90,7 +89,7 @@ public:
   // Access to the controller used for communication.  By default, the
   // global controller is used.
   vtkMultiProcessController *GetController() {return this->Controller;}
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
   
   // Description:
   // If DoUpdateInformation if false (it is true by default),

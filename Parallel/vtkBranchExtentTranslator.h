@@ -31,8 +31,8 @@
 #define __vtkBranchExtentTranslator_h
 
 #include "vtkExtentTranslator.h"
-#include "vtkImageData.h"
 
+class vtkImageData;
 
 class VTK_PARALLEL_EXPORT vtkBranchExtentTranslator : public vtkExtentTranslator
 {
@@ -44,7 +44,7 @@ public:
 
   // Description:
   // This is the original upstream image source.
-  vtkSetObjectMacro(OriginalSource,vtkImageData);
+  virtual void SetOriginalSource(vtkImageData*);
   vtkGetObjectMacro(OriginalSource,vtkImageData);
 
   // Description:

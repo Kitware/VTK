@@ -43,7 +43,6 @@
  #include <unistd.h>
 #endif
 
-#include "vtkObject.h"
 #include "vtkByteSwap.h"
 #include "vtkCommunicator.h"
 

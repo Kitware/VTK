@@ -22,10 +22,7 @@
 #ifndef __vtkMultiProcessLog_h
 #define __vtkMultiProcessLog_h
 
-
-#include "vtkObject.h"
 #include "vtkThreadSafeLog.h"
-
 
 #define VTK_MULTI_PROCESS_LOG_MAX 1000
 

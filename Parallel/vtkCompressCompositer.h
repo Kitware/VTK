@@ -28,10 +28,10 @@
 #define __vtkCompressCompositer_h
 
 #include "vtkCompositer.h"
-#include "vtkDataArray.h"
-#include "vtkFloatArray.h"
 
 class vtkTimerLog;
+class vtkDataArray;
+class vtkFloatArray;
 
 class VTK_PARALLEL_EXPORT vtkCompressCompositer : public vtkCompositer
 {

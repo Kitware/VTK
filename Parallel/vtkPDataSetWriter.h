@@ -25,10 +25,10 @@
 #define __vtkPDataSetWriter_h
 
 #include "vtkDataSetWriter.h"
-#include "vtkImageData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 
+class vtkImageData;
+class vtkRectilinearGrid;
+class vtkStructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {

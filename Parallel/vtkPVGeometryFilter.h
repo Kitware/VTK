@@ -24,10 +24,11 @@
 #define __vtkPVGeometryFilter_h
 
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkImageData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkUnstructuredGrid.h"
+
+class vtkImageData;
+class vtkStructuredGrid;
+class vtkRectilinearGrid;
+class vtkUnstructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkPVGeometryFilter : public vtkDataSetSurfaceFilter
 {

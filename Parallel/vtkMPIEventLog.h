@@ -34,13 +34,10 @@
 #define __vtkMPIEventLog_h
 
 #include "vtkObject.h"
-#include "vtkMPIController.h"
 
 class VTK_PARALLEL_EXPORT vtkMPIEventLog : public vtkObject
 {
-
 public:
-
   vtkTypeRevisionMacro(vtkMPIEventLog,vtkObject);
   
   // Description:
