@@ -39,8 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#include "vtkConeSource.h"
 #include "vtkSphereSource.h"
-#include "vtkElevationFilter.h"
+#include "vtkPieceScalars.h"
 #include "vtkMultiProcessController.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -48,329 +49,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkMath.h"
-
-
-
-class vtkNodeInfo
-{
-public:  
-  vtkRenderer* Ren;
-  vtkRenderWindow* RenWindow;
-  vtkMultiProcessController* Controller;
-};
-
-
-#define RENDER_HACK_TAG 1234
-
-// A structure to communicate renderer info.
-struct vtkCompositeRenderInfo 
-{
-  float CameraPosition[3];
-  float CameraFocalPoint[3];
-  float CameraViewUp[3];
-  float CameraClippingRange[2];
-  float LightPosition[3];
-  float LightFocalPoint[3];
-  int WindowSize[2];
-};
-
-//-------------------------------------------------------------------------
-// Jim's composite stuff
-//-------------------------------------------------------------------------
-// Results are put in the local data.
-void vtkCompositeImagePair(float *localZdata, float *localPdata, 
-			   float *remoteZdata, float *remotePdata, 
-			   int total_pixels, int flag) 
-{
-  int i,j;
-  int pixel_data_size;
-  float *pEnd;
-
-  if (flag) 
-    {
-    pixel_data_size = 4;
-    for (i = 0; i < total_pixels; i++) 
-      {
-      if (remoteZdata[i] < localZdata[i]) 
-	{
-	localZdata[i] = remoteZdata[i];
-	for (j = 0; j < pixel_data_size; j++) 
-	  {
-	  localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
-	  }
-	}
-      }
-    } 
-  else 
-    {
-    pEnd = remoteZdata + total_pixels;
-    while(remoteZdata != pEnd) 
-      {
-      if (*remoteZdata < *localZdata) 
-	{
-	*localZdata++ = *remoteZdata++;
-	*localPdata++ = *remotePdata++;
-	}
-      else
-	{
-	++localZdata;
-	++remoteZdata;
-	++localPdata;
-	++remotePdata;
-	}
-      }
-    }
-}
-
-
-#define vtkTCPow2(j) (1 << (j))
-
-
-//----------------------------------------------------------------------------
-
-void vtkTreeComposite(vtkRenderWindow *renWin, 
-		      vtkMultiProcessController *controller,
-		      int flag, float *remoteZdata, 
-		      float *remotePdata) 
-{
-  float *localZdata, *localPdata;
-  int *windowSize;
-  int total_pixels;
-  int pdata_size, zdata_size;
-  int myId, numProcs;
-  int i, id;
-  
-
-  myId = controller->GetLocalProcessId();
-  numProcs = controller->GetNumberOfProcesses();
-
-  windowSize = renWin->GetSize();
-  total_pixels = windowSize[0] * windowSize[1];
-
-  // Get the z buffer.
-  localZdata = renWin->GetZbufferData(0,0,windowSize[0]-1, windowSize[1]-1);
-  zdata_size = total_pixels;
-
-  // Get the pixel data.
-  if (flag) 
-    { 
-    localPdata = renWin->GetRGBAPixelData(0,0,windowSize[0]-1, \
-					  windowSize[1]-1,0);
-    pdata_size = 4*total_pixels;
-    } 
-  else 
-    {
-    // Condition is here until we fix the resize bug in vtkMesarenderWindow.
-    localPdata = (float*)renWin->GetRGBACharPixelData(0,0,windowSize[0]-1,windowSize[1]-1,0);    
-    pdata_size = total_pixels;
-    }
-  
-  double doubleLogProcs = log((double)numProcs)/log((double)2);
-  int logProcs = (int)doubleLogProcs;
-
-  // not a power of 2 -- need an additional level
-  if (doubleLogProcs != (double)logProcs) 
-    {
-    logProcs++;
-    }
-
-  for (i = 0; i < logProcs; i++) 
-    {
-    if ((myId % (int)vtkTCPow2(i)) == 0) 
-      { // Find participants
-      if ((myId % (int)vtkTCPow2(i+1)) < vtkTCPow2(i)) 
-        {
-	// receivers
-	id = myId+vtkTCPow2(i);
-	
-	// only send or receive if sender or receiver id is valid
-	// (handles non-power of 2 cases)
-	if (id < numProcs) 
-          {
-	  controller->Receive(remoteZdata, zdata_size, id, 99);
-	  controller->Receive(remotePdata, pdata_size, id, 99);
-	  
-	  // notice the result is stored as the local data
-	  vtkCompositeImagePair(localZdata, localPdata, remoteZdata, remotePdata, 
-				total_pixels, flag);
-	  }
-	}
-      else 
-	{
-	id = myId-vtkTCPow2(i);
-	if (id < numProcs) 
-	  {
-	  controller->Send(localZdata, zdata_size, id, 99);
-	  controller->Send(localPdata, pdata_size, id, 99);
-	  }
-	}
-      }
-    }
-
-  if (myId ==0) 
-    {
-    if (flag) 
-      {
-      renWin->SetRGBAPixelData(0,0,windowSize[0]-1, 
-			       windowSize[1]-1,localPdata,0);
-      } 
-    else 
-      {
-      renWin->SetRGBACharPixelData(0,0, windowSize[0]-1, \
-			     windowSize[1]-1,(unsigned char*)localPdata,0);
-      }
-    }
-}
-
-//-------------------------------------------------------------------------
-void start_render(void* arg)
-{
-  vtkNodeInfo* ri = (vtkNodeInfo*) arg;
-  struct vtkCompositeRenderInfo info;
-  int id, num;
-  int *windowSize;
-
-  vtkRenderer* ren = ri->Ren;
-  vtkRenderWindow* renWin = ri->RenWindow;
-  vtkMultiProcessController *controller = ri->Controller;
-
-  // Get a global (across all processes) clipping range.
-  // ren->ResetCameraClippingRange();
-  
-  // Make sure the satellite renderers have the same camera I do.
-  vtkCamera *cam = ren->GetActiveCamera();
-  vtkLightCollection *lc = ren->GetLights();
-  lc->InitTraversal();
-  vtkLight *light = lc->GetNextItem();
-  cerr << light << endl;
-  cam->GetPosition(info.CameraPosition);
-  cam->GetFocalPoint(info.CameraFocalPoint);
-  cam->GetViewUp(info.CameraViewUp);
-  cam->GetClippingRange(info.CameraClippingRange);
-  light->GetPosition(info.LightPosition);
-  light->GetFocalPoint(info.LightFocalPoint);
-  // Make sure the render slave size matches our size
-  windowSize = renWin->GetSize();
-  info.WindowSize[0] = windowSize[0];
-  info.WindowSize[1] = windowSize[1];
-  num = controller->GetNumberOfProcesses();
-
-  for (id = 1; id < num; ++id)
-    {
-	cout << "Calling trigger rmi" << endl;
-	controller->TriggerRMI(id, NULL, 0, RENDER_HACK_TAG);
-	controller->Send((char*)(&info), 
-			 sizeof(struct vtkCompositeRenderInfo), id, 133);
-    }
-  
-  // Turn swap buffers off before the render so the end render method has a chance
-  // to add to the back buffer.
-  renWin->SwapBuffersOff();
-
-}
-
-void end_render(void* arg)
-{
-  vtkNodeInfo* ri = (vtkNodeInfo*) arg;
-
-  vtkRenderer* ren = ri->Ren;
-  vtkRenderWindow* renWin = ri->RenWindow;
-  vtkMultiProcessController *controller = ri->Controller;
-
-  int *windowSize;
-  int numPixels;
-  int numProcs;
-  float *pdata, *zdata;    
-  
-  windowSize = renWin->GetSize();
-  numProcs = controller->GetNumberOfProcesses();
-  numPixels = (windowSize[0] * windowSize[1]);
-
-  cout << "In end_render, window size is: " << numPixels << endl;
-  if (numProcs > 1)
-    {
-    pdata = new float[numPixels];
-    zdata = new float[numPixels];
-    vtkTreeComposite(renWin, controller, 0, zdata, pdata);
-    
-    delete [] zdata;
-    delete [] pdata;    
-    }
-  
-  // Force swap buffers here.
-  renWin->SwapBuffersOn();  
-  renWin->Frame();
-}
-
-void render_hack(void *arg, void *, int, int remoteId)
-{
-  vtkNodeInfo* ri = (vtkNodeInfo*) arg;
-
-  vtkRenderer* ren = ri->Ren;
-  vtkRenderWindow* renWin = ri->RenWindow;
-  vtkMultiProcessController *controller = ri->Controller;
-
-  cout << "Process : " <<  controller->GetLocalProcessId()
-       << " received a render_hack request." << endl;
-
-  unsigned char *pdata;
-  int *window_size;
-  int length, numPixels;
-  int myId, numProcs;
-  vtkCompositeRenderInfo info;
-  
-  myId = controller->GetLocalProcessId();
-  numProcs = controller->GetNumberOfProcesses();
-  
-  // Makes an assumption about how the tasks are setup (UI id is 0).
-  // Receive the camera information.
-  controller->Receive((char*)(&info), sizeof(struct vtkCompositeRenderInfo), 0, 133);
-  vtkCamera *cam = ren->GetActiveCamera();
-  vtkLightCollection *lc = ren->GetLights();
-  lc->InitTraversal();
-  vtkLight *light = lc->GetNextItem();
-  
-  cam->SetPosition(info.CameraPosition);
-  cam->SetFocalPoint(info.CameraFocalPoint);
-  cam->SetViewUp(info.CameraViewUp);
-  cam->SetClippingRange(info.CameraClippingRange);
-  if (light)
-    {
-    light->SetPosition(info.LightPosition);
-    light->SetFocalPoint(info.LightFocalPoint);
-    }
-  
-  renWin->SetSize(info.WindowSize);
-  
-  renWin->Render();
-
-  window_size = renWin->GetSize();
-  
-  numPixels = (window_size[0] * window_size[1]);
-  
-  if (1)
-    {
-    float *pdata, *zdata;
-    pdata = new float[numPixels];
-    zdata = new float[numPixels];
-    vtkTreeComposite(renWin, controller, 0, zdata, pdata);
-    delete [] zdata;
-    delete [] pdata;
-    }
-  else
-    {
-    length = 3*numPixels;  
-    pdata = renWin->GetPixelData(0,0,window_size[0]-1, window_size[1]-1,1);
-    controller->Send((char*)pdata, length, 0, 99);
-    }
-  
-  return;
-}
+#include "vtkTreeComposite.h"
+#include <unistd.h>
 
 void process(vtkMultiProcessController *controller, void *arg )
 {
   vtkSphereSource *sphere;
-  vtkElevationFilter *elev;
+  vtkConeSource *cone;
+  vtkPieceScalars *color;
+  vtkPolyDataMapper *mapper;
+  vtkActor *actor;
+  vtkCamera *cam;
   int myid, numProcs;
   float val;
   
@@ -380,42 +69,42 @@ void process(vtkMultiProcessController *controller, void *arg )
     
   // Compute a different color for each process.
   sphere = vtkSphereSource::New();
+  sphere->SetPhiResolution(40);
+  sphere->SetThetaResolution(60);
   
-  elev = vtkElevationFilter::New();
-  elev->SetInput(sphere->GetOutput());
-  vtkMath::RandomSeed(myid * 100);
-  val = vtkMath::Random();
-  elev->SetScalarRange(val, val+0.001);
-    
-  int i, j;
+  cone = vtkConeSource::New();
+  cone->SetResolution(40);
+
+  color = vtkPieceScalars::New();
+  color->SetInput(sphere->GetOutput());
+  color->SetInput(cone->GetOutput());
+
+  mapper = vtkPolyDataMapper::New();
+  mapper->SetPiece(myid);
+  mapper->SetNumberOfPieces(numProcs);
+  mapper->SetInput(color->GetOutput());
+  
+  actor = vtkActor::New();
+  actor->SetMapper(mapper);
+  
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  vtkActor *actor = vtkActor::New();
-  vtkCamera *cam = vtkCamera::New();
-
-  vtkNodeInfo* nodeInfo = new vtkNodeInfo();
-  nodeInfo->Ren = ren;
-  nodeInfo->RenWindow = renWindow;
-  nodeInfo->Controller = controller;
- 
   renWindow->AddRenderer(ren);
 
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWindow);
+
+  vtkTreeComposite*  treeComp = vtkTreeComposite::New();
+  treeComp->SetRenderWindow(renWindow); 
+
   ren->SetBackground(0.9, 0.9, 0.9);
   renWindow->SetSize( 400, 400);
   
-  mapper->SetPiece(myid);
-  mapper->SetNumberOfPieces(numProcs);
-  mapper->SetInput(elev->GetPolyDataOutput());
-  actor->SetMapper(mapper);
   
   // assign our actor to the renderer
   ren->AddActor(actor);
- 
   
+  cam = vtkCamera::New();
   cam->SetFocalPoint(0, 0, 0);
   cam->SetPosition(0, 0, 10);
   cam->SetViewUp(0, 1, 0);
@@ -429,19 +118,9 @@ void process(vtkMultiProcessController *controller, void *arg )
   cam->SetClippingRange(5.0, 15.0);
   ren->SetActiveCamera(cam);
   ren->CreateLight();  
-  
-  if ( myid == 0 )
-    {
-    ren->SetStartRenderMethod(start_render, nodeInfo);
-    ren->SetEndRenderMethod(end_render, nodeInfo);
-    //  Begin mouse interaction
-    iren->Start();
-    }
-  else
-    {
-    controller->AddRMI(render_hack, nodeInfo, RENDER_HACK_TAG); 
-    controller->ProcessRMIs();
-    }
+
+  //  Begin mouse interaction (for proc 0, others start rmi loop).
+  iren->Start();
 }
 
 
