@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.57");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.58");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -159,11 +159,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
         originRead = 1;
         }
       
-      else if ( !strncmp(line, "cell_data", 9))
-        {
-        break; //out of this loop
-        }
-
       else if ( ! strncmp(line, "point_data", 10) )
         {
         int npts;
@@ -257,14 +252,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
             }
           }
         break; //out of this loop
-        }
-      
-      else if (strncmp(line, "field", 5))
-        {
-        vtkErrorMacro(<< "Unrecognized keyword: " << line);
-        this->CloseVTKFile ();
-        this->SetErrorCode( vtkErrorCode::FileFormatError );
-        return;
         }
       }
     
