@@ -1,4 +1,5 @@
 PROJECT(VTK)
+OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 
 SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
