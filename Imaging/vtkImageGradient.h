@@ -66,7 +66,7 @@ protected:
   void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *); 
   void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
   vtkImageGradient(const vtkImageGradient&);  // Not implemented.

@@ -33,12 +33,6 @@ FOREACH (FILE_NAME ${H_FILES})
     "vtkPolyDataAlgorithm" 
     H_CONTENTS "${H_CONTENTS}")
 
-  # convert any ThreadedExecutes
-  STRING (REGEX REPLACE  
-    "ThreadedExecute[ \t]*\\([ \t]*vtkImageData \\*[^, ]+,[ \t\n]*vtkImageData \\*[^, ]+,"
-    "ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,"
-    H_CONTENTS "${H_CONTENTS}")
-  
   STRING (REGEX REPLACE  
     "ExecuteInformation[ \t]*\\([^,\)]*,[^\)]*\\)"
     "ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
@@ -70,11 +64,6 @@ FOREACH (FILE_NAME ${CXX_FILES})
   FILE (READ ${FILE_NAME} CXX_CONTENTS)
 
   STRING (REGEX REPLACE  
-    "ThreadedExecute[ \t]*\\([ \t]*vtkImageData \\*[^, a-z]*([a-zA-Z0-9]+),([ \t\n]*)vtkImageData \\*[^, a-z]*([a-zA-Z0-9]+),"
-    "ThreadedExecute (vtkImageData ***\\1,\\2vtkImageData **\\3,"
-    CXX_CONTENTS "${CXX_CONTENTS}")
-
-  STRING (REGEX REPLACE  
     "::ExecuteInformation[ \t]*\\([^{]*{"
     "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)\n{"
     CXX_CONTENTS "${CXX_CONTENTS}")
@@ -101,21 +90,6 @@ FOREACH (FILE_NAME ${CXX_FILES})
       "::ComputeInputUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     this->GetInputConnectionInformation(inputVector,0,0);\n"
       CXX_CONTENTS "${CXX_CONTENTS}")
   ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ComputeInputUpdateExtent[^{]*{\n  // get the info objects.*")
-
-  # do not do these replacements multiple times
-  IF (NOT "${CXX_CONTENTS}" MATCHES ".*inData[0][0]->.*")
-    # adjust the template macro
-    STRING (REGEX REPLACE  
-      "vtkTemplateMacro([^;]*)inData,"
-      "vtkTemplateMacro\\1inData[0][0],"
-      CXX_CONTENTS "${CXX_CONTENTS}")
-    STRING (REGEX REPLACE  
-      "vtkTemplateMacro([^;]*)outData,"
-      "vtkTemplateMacro\\1outData[0],"
-      CXX_CONTENTS "${CXX_CONTENTS}")
-
-  ENDIF (NOT ${CXX_CONTENTS} MATCHES ".*inData[0][0]->.*")
-  
 
   STRING (REGEX REPLACE  
     "this->GetInput\\(\\)->GetWholeExtent\\("

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.29.10.3");
+vtkCxxRevisionMacro(vtkImageLogic, "1.29.10.4");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -210,9 +210,13 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogic::ThreadedExecute (vtkImageData ***inData, 
-                                    vtkImageData **outData,
-                                    int outExt[6], int id)
+void vtkImageLogic::ThreadedExecute (
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   if (inData[0][0] == NULL)
     {

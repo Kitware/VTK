@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMaskBits, "1.16.10.1");
+vtkCxxRevisionMacro(vtkImageMaskBits, "1.16.10.2");
 vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()
@@ -126,52 +126,52 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageMaskBits::ThreadedExecute (vtkImageData ***inData, 
-                                        vtkImageData **outData,
+void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData, 
+                                        vtkImageData *outData,
                                         int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << inData[0][0]->GetScalarType()
+                  << inData->GetScalarType()
                   << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
+                  << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_INT:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<int *>(0));
       break;
     case VTK_UNSIGNED_INT:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<unsigned int *>(0));
       break;
     case VTK_LONG:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<long *>(0));
       break;
     case VTK_UNSIGNED_LONG:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<unsigned long *>(0));
       break;
     case VTK_SHORT:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<short *>(0));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<unsigned short *>(0));
       break;
     case VTK_CHAR:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<char *>(0));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMaskBitsExecute(this, inData[0][0], outData[0], outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
                               static_cast<unsigned char *>(0));
       break;
     default:
@@ -187,7 +187,8 @@ void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
-  os << indent << "Masks: (" << this->Masks[0] << ", " << this->Masks[1] << ", "
+  os << indent << "Masks: (" 
+     << this->Masks[0] << ", " << this->Masks[1] << ", "
      << this->Masks[2] << ", " << this->Masks[3] << ")" << endl;
 }
 

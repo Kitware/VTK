@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.24.10.1");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.24.10.2");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------
@@ -78,24 +78,24 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData ***inData, 
-                                               vtkImageData **outData,
+void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData, 
+                                               vtkImageData *outData,
                                                int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << inData[0][0]->GetScalarType()
+                  << inData->GetScalarType()
                   << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
+                  << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageLogarithmicScaleExecute, this, inData[0][0], 
-                      outData[0], outExt, id,  static_cast<VTK_TT *>(0));
+    vtkTemplateMacro6(vtkImageLogarithmicScaleExecute, this, inData, 
+                      outData, outExt, id,  static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.45.10.1");
+vtkCxxRevisionMacro(vtkImageCast, "1.45.10.2");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -133,14 +133,14 @@ void vtkImageCastExecute(vtkImageCast *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCast::ThreadedExecute (vtkImageData ***inData, 
-                                   vtkImageData **outData,
+void vtkImageCast::ThreadedExecute (vtkImageData *inData, 
+                                   vtkImageData *outData,
                                    int outExt[6], int id)
 {
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageCastExecute, this, inData[0][0], 
-                      outData[0], outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro6(vtkImageCastExecute, this, inData, 
+                      outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

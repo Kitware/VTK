@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.43.10.1");
+vtkCxxRevisionMacro(vtkImageGradient, "1.43.10.2");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -245,32 +245,32 @@ void vtkImageGradientExecute(vtkImageGradient *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageGradient::ThreadedExecute (vtkImageData ***inData, 
-                                       vtkImageData **outData,
+void vtkImageGradient::ThreadedExecute (vtkImageData *inData, 
+                                       vtkImageData *outData,
                                        int outExt[6], int id)
 {
   void *inPtr;
-  double *outPtr = (double *)(outData[0]->GetScalarPointerForExtent(outExt));
-  inPtr = inData[0][0]->GetScalarPointer();
+  double *outPtr = (double *)(outData->GetScalarPointerForExtent(outExt));
+  inPtr = inData->GetScalarPointer();
 
   // this filter expects that input is the same type as output.
-  if (outData[0]->GetScalarType() != VTK_DOUBLE)
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " << outData[0]->GetScalarType()
+    vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
                   << ", must be double\n");
     return;
     }
   
-  if (inData[0][0]->GetNumberOfScalarComponents() != 1)
+  if (inData->GetNumberOfScalarComponents() != 1)
     {
     vtkErrorMacro(<< "Execute: input has more than one components. The input to gradient should be a single component image. Think about it. If you insist on using a color image then run it though RGBToHSV then ExtractComponents to get the V components. That's probably what you want anyhow.");
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageGradientExecute, this, inData[0][0], 
-                      (VTK_TT *)(inPtr), outData[0], outPtr, 
+    vtkTemplateMacro7(vtkImageGradientExecute, this, inData, 
+                      (VTK_TT *)(inPtr), outData, outPtr, 
                       outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

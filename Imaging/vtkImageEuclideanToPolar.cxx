@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26.10.1");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26.10.2");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
@@ -85,34 +85,34 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData ***inData, 
-                                       vtkImageData **outData,
+void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData *inData, 
+                                       vtkImageData *outData,
                                        int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << inData[0][0]->GetScalarType()
+                  << inData->GetScalarType()
                   << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
+                  << outData->GetScalarType());
     return;
     }
   
   // input must have at least two components
-  if (inData[0][0]->GetNumberOfScalarComponents() < 2)
+  if (inData->GetNumberOfScalarComponents() < 2)
     {
     vtkErrorMacro(<< "Execute: input does not have at least two components");
     return;
     }
 
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageEuclideanToPolarExecute, this, 
-                      inData[0][0], outData[0], outExt, id, 
+                      inData, outData, outExt, id, 
                       static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

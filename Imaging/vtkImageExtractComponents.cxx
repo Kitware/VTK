@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.28.10.1");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.28.10.2");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -213,26 +213,26 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 //----------------------------------------------------------------------------
 // This method is passed input and output datas, and executes the
 // ExtractComponents function on each line.  
-void vtkImageExtractComponents::ThreadedExecute (vtkImageData ***inData, 
-                                                vtkImageData **outData,
+void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData, 
+                                                vtkImageData *outData,
                                                 int outExt[6], int id)
 {
   int max, idx;
-  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << inData[0][0]->GetScalarType()
+                  << inData->GetScalarType()
                   << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
+                  << outData->GetScalarType());
     return;
     }
   
   // make sure we can get all of the components.
-  max = inData[0][0]->GetNumberOfScalarComponents();
+  max = inData->GetNumberOfScalarComponents();
   for (idx = 0; idx < this->NumberOfComponents; ++idx)
     {
     if (this->Components[idx] > max)
@@ -244,10 +244,10 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData ***inData,
     }
   
   // choose which templated function to call.
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageExtractComponentsExecute, this, inData[0][0], 
-                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
+    vtkTemplateMacro7(vtkImageExtractComponentsExecute, this, inData, 
+                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
                       outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

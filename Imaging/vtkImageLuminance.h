@@ -35,8 +35,7 @@ protected:
   void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
                            vtkInformationVector *);
 
-  void ThreadedExecute (vtkImageData ***inData, 
-                        vtkImageData **outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                         int outExt[6], int id);
 
 private:

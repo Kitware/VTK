@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.13.10.4");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.13.10.5");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
@@ -104,39 +104,30 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageNormalize::ThreadedExecute (vtkImageData ***inData, 
-                                        vtkImageData **outData,
+void vtkImageNormalize::ThreadedExecute (vtkImageData *inData, 
+                                        vtkImageData *outData,
                                         int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (outData[0]->GetScalarType() != VTK_FLOAT)
+  if (outData->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " << outData[0]->GetScalarType()
+    vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
     << ", must be float");
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageNormalizeExecute, this, inData[0][0],
-                     outData[0], outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro6(vtkImageNormalizeExecute, this, inData,
+                     outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 

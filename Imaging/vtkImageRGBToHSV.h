@@ -46,7 +46,7 @@ protected:
 
   double Maximum;
   
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
   vtkImageRGBToHSV(const vtkImageRGBToHSV&);  // Not implemented.

@@ -76,8 +76,12 @@ protected:
   int Operation;
   double OutputTrueValue;
   
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
-                       int extent[6], int id);
+  void ThreadedExecute (vtkInformation *request, 
+                        vtkInformationVector *inputVector, 
+                        vtkInformationVector *outputVector,
+                        vtkImageData ***inData, vtkImageData **outData,
+                        int extent[6], int id);
+
 private:
   vtkImageLogic(const vtkImageLogic&);  // Not implemented.
   void operator=(const vtkImageLogic&);  // Not implemented.

@@ -47,8 +47,10 @@ public:
                                vtkImageData ***inData, 
                                vtkImageData **outData,
                                int extent[6], int threadId);
-  virtual void ThreadedExecute(vtkImageData ***inData, 
-                               vtkImageData **outData,
+
+  // also support the old signature
+  virtual void ThreadedExecute(vtkImageData *inData, 
+                               vtkImageData *outData,
                                int extent[6], int threadId);
   
   // Description:

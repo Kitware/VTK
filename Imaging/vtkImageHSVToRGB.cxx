@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.29.10.4");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.29.10.5");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
@@ -96,37 +96,37 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageHSVToRGB::ThreadedExecute (vtkImageData ***inData, 
-                                       vtkImageData **outData,
+void vtkImageHSVToRGB::ThreadedExecute (vtkImageData *inData, 
+                                       vtkImageData *outData,
                                        int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
-    << ", must match out ScalarType " << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
   // need three components for input and output
-  if (inData[0][0]->GetNumberOfScalarComponents() < 3)
+  if (inData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  if (outData[0]->GetNumberOfScalarComponents() < 3)
+  if (outData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Output has too few components");
     return;
     }
 
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageHSVToRGBExecute,this, inData[0][0], 
-                      outData[0], outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro6(vtkImageHSVToRGBExecute,this, inData, 
+                      outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

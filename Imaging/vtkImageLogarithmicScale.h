@@ -44,7 +44,7 @@ protected:
 
   double Constant;
   
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
 private:
   vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.

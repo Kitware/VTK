@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.36.4.1");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.36.4.2");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -244,28 +244,28 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData ***inData, 
-                                                 vtkImageData **outData,
+void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData *inData, 
+                                                 vtkImageData *outData,
                                                  int outExt[6], int id)
 {
   void *inPtr;
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  inPtr = inData[0][0]->GetScalarPointer();
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  inPtr = inData->GetScalarPointer();
 
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input data type, " 
-                  << inData[0][0]->GetScalarType()
+                  << inData->GetScalarType()
                   << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
+                  << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageGradientMagnitudeExecute, this, 
-                      inData[0][0], (VTK_TT *)(inPtr), outData[0], 
+                      inData, (VTK_TT *)(inPtr), outData, 
                       (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
