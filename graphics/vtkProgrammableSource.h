@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkProgrammableSource - generate source data via a user-specified function
+// .NAME vtkProgrammableSource - generate source dataset via a user-specified function
 // .SECTION Description
 // vtkProgrammableSource is a source object that is programmable by the
 // user. To use this object, you must specify a function that creates the
-// output.  It is possible to generate output of any type; it is up to the
-// function to properly initialize and define the output. Typically, you use
-// one of the methods to get a concrete output type (e.g.,
-// GetPolyDataOutput() or GetStructuredPointsOutput()), and then manipulate
-// the output in the user-specified function.
+// output.  It is possible to generate an output dataset of any (concrete) 
+// type; it is up to the function to properly initialize and define the 
+// output. Typically, you use one of the methods to get a concrete output 
+// type (e.g., GetPolyDataOutput() or GetStructuredPointsOutput()), and 
+// then manipulate the output in the user-specified function.
 //
 // Example use of this include writing a function to read a data file or
 // interface to another system. (You might want to do this in favor of
@@ -55,7 +55,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // source objects without having to recompile C++ code or generate new
 // libraries.
 // .SECTION See Also
-// vtkProgrammableFilter vtkProgrammablePointDataFilter
+// vtkProgrammableFilter vtkProgrammableAttributeDataFilter
+// vtkProgrammableDataObjectSource
 
 #ifndef __vtkProgrammableSource_h
 #define __vtkProgrammableSource_h
