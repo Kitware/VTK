@@ -51,7 +51,21 @@ class TestVTKFiles:
         self.FileName = ""
         self.ErrorValue = 0;
         self.Errors = {}
-        self.FileLines = []        
+        self.WarningValue = 0;
+        self.Warnings = {}
+        self.FileLines = []
+        self.UnnecessaryIncludes = [
+            "stdio.h",
+            "stdlib.h",
+            "string.h",
+            "iostream",
+            "iostream.h",
+            "strstream",
+            "strstream.h",
+            "fstream",
+            "fstream.h",
+            "windows.h"
+            ]
         pass
     def Print(self, text=""):
         rtext = text
@@ -60,11 +74,21 @@ class TestVTKFiles:
         self.ErrorValue = 1
         self.Errors[error] = 1
         pass
+    def Warning(self, warning):
+        self.WarningValue = 1
+        self.Warnings[warning] = 1
+        pass
     def PrintErrors(self):
         if self.ErrorValue:
             self.Print( )
             self.Print( "There were errors:" )
         for a in self.Errors.keys():
+            self.Print( "* %s" % a )
+    def PrintWarnings(self):
+        if self.WarningValue:
+            self.Print( )
+            self.Print( "There were warnings:" )
+        for a in self.Warnings.keys():
             self.Print( "* %s" % a )
         
     def TestFile(self, filename):
@@ -85,6 +109,7 @@ class TestVTKFiles:
         count = 0
         lines = []
         nplines = []
+        unlines = []
         includere = "^\s*#\s*include\s*[\"<]([^>\"]+)"
         ignincludere = ".*\/\/.*"
         regx = re.compile(includere)
@@ -101,6 +126,8 @@ class TestVTKFiles:
                     includeparent = 1
                 if not StringEndsWith(file, ".h"):
                     nplines.append(" %4d: %s" % (cc, line))
+                if file in self.UnnecessaryIncludes:
+                    unlines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 1:
             self.Print()
@@ -115,6 +142,12 @@ class TestVTKFiles:
             for a in nplines:
                 self.Print( a )
             self.Error("Non-portabile includes")
+        if len(unlines) > 0:
+            self.Print( )
+            self.Print( "File: %s has unnecessary include(s): " % self.FileName )
+            for a in unlines:
+                self.Print( a )
+            self.Error("Unnecessary includes")
         if not includeparent and self.ParentName:
             self.Print()
             self.Print( "File: %s does not include parent \"%s.h\"" %
@@ -141,7 +174,7 @@ class TestVTKFiles:
             self.Print()
             self.Print( "File: %s defines %d classes: " %
                         (self.FileName, len(classlines)) )
-            for a in lines:
+            for a in classlines:
                 self.Print( a )
             self.Error("Multiple classes defined")
         if len(classlines) < 1:
@@ -297,7 +330,7 @@ class TestVTKFiles:
         if not found:
             self.Print( "File: %s does not define PrintSelf method:" %
                         self.FileName )
-            self.Error("No PrintSelf method")
+            self.Warning("No PrintSelf method")
         pass
         
 
@@ -339,6 +372,7 @@ for a in os.listdir(dirname):
         test.CheckPrintSelf()
 
 ## Summarize errors
+test.PrintWarnings()
 test.PrintErrors()
 sys.exit(test.ErrorValue)
     
