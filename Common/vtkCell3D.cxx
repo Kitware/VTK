@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkMarchingCubesCases.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.23");
+vtkCxxRevisionMacro(vtkCell3D, "1.24");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -48,19 +48,21 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   int internalId[VTK_CELL_SIZE];
   float s1, s2, *xPtr, t, p1[3], p2[3], x[3];
   
-  // Create one if necessary
+  // Create a triangulator if necessary.
   if ( ! this->Triangulator )
     {
     this->Triangulator = vtkOrderedTriangulator::New();
+    this->Triangulator->PreSortedOff();
     }
 
-  // Initialize Delaunay insertion process with voxel triangulation.
+  // Initialize Delaunay insertion process.
   // No more than (numPts + numEdges) points can be inserted.
   this->Triangulator->InitTriangulation(this->GetBounds(),
                                         (numPts + numEdges));
 
-  // Inject ordered voxel corner points into triangulation. Recall
-  // that the PreSortedOn() flag was set in the triangulator.
+  // Inject cell points into triangulation. Recall that the PreSortedOff() 
+  // flag was set which means that the triangulator will order the points 
+  // according to point id.
   for (i=0; i<numPts; i++)
     {
     ptId = this->PointIds->GetId(i);
@@ -83,7 +85,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       outPD->CopyData(inPD,ptId, id);
       }
     internalId[i] = this->Triangulator->InsertPoint(id, xPtr, type);
-    }//for eight voxel corner points
+    }//for all points
   
   // For each edge intersection point, insert into triangulation. Edge
   // intersections come from clipping value. Have to be careful of 
