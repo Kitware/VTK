@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkStructuredGridGeometryFilter* vtkStructuredGridGeometryFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkStructuredGridGeometryFilter* vtkStructuredGridGeometryFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkStructuredGridGeometryFilter;
 }
-
-
-
 
 // Construct with initial extent of all the data
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
@@ -103,10 +98,11 @@ void vtkStructuredGridGeometryFilter::Execute()
   cd = input->GetCellData();
   outCD = output->GetCellData();
   dims = input->GetDimensions();
-//
-// Based on the dimensions of the structured data, and the extent of the geometry,
-// compute the combined extent plus the dimensionality of the data
-//
+
+  // Based on the dimensions of the structured data, and the extent of 
+  // the geometry, compute the combined extent plus the dimensionality 
+  // of the data.
+  //
   for (dimension=3, i=0; i<3; i++)
     {
     extent[2*i] = this->Extent[2*i] < 0 ? 0 : this->Extent[2*i];
@@ -121,13 +117,13 @@ void vtkStructuredGridGeometryFilter::Execute()
       dimension--;
       }
     }
-//
-// Now create polygonal data based on dimension of data
-//
-// First compute starting index of the point and cell
+
+  // Now create polygonal data based on dimension of data
+  //
+  // First compute starting index of the point and cell
   startIdx = extent[0] + extent[2]*dims[0] + extent[4]*dims[0]*dims[1];
 
-// The cell index is a bit more complicated at the boundaries
+  // The cell index is a bit more complicated at the boundaries
   if (dims[0] == 1)
     {
     startCellIdx = extent[0];
@@ -196,9 +192,9 @@ void vtkStructuredGridGeometryFilter::Execute()
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,totPoints - 1);
-//
-//  Load data
-//
+
+      //  Load data
+      //
       if ( dir[0] == 0 ) 
         {
         offset[0] = 1;
@@ -235,7 +231,8 @@ void vtkStructuredGridGeometryFilter::Execute()
 
       for (i=0; i<(totPoints-1); i++) 
         {
-        if ( input->IsPointVisible(idx) || input->IsPointVisible(idx+offset[0]) )
+        if ( input->IsPointVisible(idx) &&
+             input->IsPointVisible(idx+offset[0]) )
           {
           idx = startCellIdx + i*offset[0];
           ptIds[0] = i;
@@ -247,9 +244,9 @@ void vtkStructuredGridGeometryFilter::Execute()
       break;
 
     case 2: // --------------------- build plane -----------------------
-//
-//  Create the data objects
-//
+
+      //  Create the data objects
+      //
       for (dir[0]=dir[1]=dir[2]=idx=0,i=0; i<3; i++)
         {
         if ( (diff[i] = extent[2*i+1] - extent[2*i]) != 0 )
@@ -271,9 +268,9 @@ void vtkStructuredGridGeometryFilter::Execute()
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,numPolys);
-//
-//  Create polygons
-//
+
+      //  Create polygons
+      //
       for (i=0; i<2; i++) 
         {
         if ( dir[i] == 0 )
@@ -290,8 +287,8 @@ void vtkStructuredGridGeometryFilter::Execute()
           }
         }
 
-      // create points whether visible or not.  Makes coding easier but generates
-      // extra data.
+      // create points whether visible or not.  Makes coding easier 
+      // but generates extra data.
       for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
         {
         for (i=0; i < (diff[dir[0]]+1); i++) 
@@ -304,8 +301,8 @@ void vtkStructuredGridGeometryFilter::Execute()
         pos += offset[1];
         }
 
-      // create any polygon who has a visible vertex.  To turn off a polygon, all 
-      // vertices have to be blanked.
+      // create any polygon who has a visible vertex.  To turn off 
+      // a polygon, all vertices have to be blanked.
       for (i=0; i<2; i++) 
         {
         if ( dir[i] == 0 )
@@ -327,9 +324,9 @@ void vtkStructuredGridGeometryFilter::Execute()
         for (i=0; i < diff[dir[0]]; i++) 
           {
           if (input->IsPointVisible(pos+i*offset[0])
-          || input->IsPointVisible(pos+(i+1)*offset[0])
-          || input->IsPointVisible(pos+i*offset[0]+offset[1]) 
-          || input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
+          && input->IsPointVisible(pos+(i+1)*offset[0])
+          && input->IsPointVisible(pos+i*offset[0]+offset[1]) 
+          && input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
             {
             idx = pos + i*offset[0];
             ptIds[0] = i + j*(diff[dir[0]]+1);
@@ -346,9 +343,8 @@ void vtkStructuredGridGeometryFilter::Execute()
 
     case 3: // ------------------- grab points in volume  --------------
 
-//
-// Create data objects
-//
+      // Create data objects
+      //
       for (i=0; i<3; i++)
         {
         diff[i] = extent[2*i+1] - extent[2*i];
@@ -362,9 +358,9 @@ void vtkStructuredGridGeometryFilter::Execute()
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,totPoints);
-//
-// Create vertices
-//
+
+      // Create vertices
+      //
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
 
@@ -389,9 +385,9 @@ void vtkStructuredGridGeometryFilter::Execute()
         break; /* end this case */
 
     } // switch
-//
-// Update self and release memory
-//
+
+  // Update self and release memory
+  //
   if (newPts)
     {
     output->SetPoints(newPts);
@@ -464,7 +460,10 @@ void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkStructuredGridToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
-  os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+  os << indent << "  Imin,Imax: (" 
+     << this->Extent[0] << ", " << this->Extent[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" 
+     << this->Extent[2] << ", " << this->Extent[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" 
+     << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }

@@ -44,11 +44,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkStructuredGridGeometryFilter is a filter that extracts geometry from a
 // structured grid. By specifying appropriate i-j-k indices, it is possible
 // to extract a point, a curve, a surface, or a "volume". Depending upon the
-// type of data, the curve and surface may be curved or planar. The volume
-// is actually a (n x m x o) region of points.
+// type of data, the curve and surface may be curved or planar. (The volume
+// is actually a (n x m x o) region of points.)
 //
 // The extent specification is zero-offset. That is, the first k-plane in
 // a 50x50x50 structured grid is given by (0,49, 0,49, 0,0).
+//
+// The output of this filter is affected by the structured grid blanking.
+// If blanking is on, and a blanking array defined, then those cells 
+// attached to blanked points are not output. (Blanking is a property of
+// the input vtkStructuredGrid.)
 
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large
@@ -58,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // automatically be clamped to 49.
 
 // .SECTION See Also
-// vtkGeometryFilter vtkExtractGrid
+// vtkGeometryFilter vtkExtractGrid vtkStructuredGrid
 
 #ifndef __vtkStructuredGridGeometryFilter_h
 #define __vtkStructuredGridGeometryFilter_h
@@ -87,9 +92,9 @@ public:
 
 protected:
   vtkStructuredGridGeometryFilter();
-  ~vtkStructuredGridGeometryFilter() {};
-  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) {};
-  void operator=(const vtkStructuredGridGeometryFilter&) {};
+  ~vtkStructuredGridGeometryFilter() {}
+  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) {}
+  void operator=(const vtkStructuredGridGeometryFilter&) {}
 
   void Execute();
   int Extent[6];
