@@ -111,7 +111,10 @@ void vtkBMPReader::ExecuteInformation()
     }
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  
+  if (this->InternalFileName == NULL)
+    {
+    return;
+    }
   // get the magic number by reading in a file
   fp = fopen(this->InternalFileName,"rb");
   if (!fp)
@@ -489,6 +492,11 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 // are assumed to be the same as the file extent/order.
 void vtkBMPReader::Execute(vtkImageData *data)
 {
+  if (this->InternalFileName == NULL)
+    {
+    vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
+    return;
+    }
   this->ComputeDataIncrements();
   
   // Call the correct templated function for the output

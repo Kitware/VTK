@@ -186,6 +186,12 @@ void vtkTIFFReader::ExecuteInformation()
   int numComp, bpp;
   int numSlices = 1;
   
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
+
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
   if (this->DataExtent[4]==0 && this->DataExtent[5] == 0 &&

@@ -110,6 +110,12 @@ void vtkSTLReader::Execute()
   vtkCellArray *newPolys, *mergedPolys;
   vtkPolyData *output = this->GetOutput();
   
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<<"A FileName must be specified.");
+    return;
+    }
+
   //
   // Initialize
   //

@@ -153,6 +153,12 @@ void vtkImageReader::ComputeInternalFileName(int slice)
     }
 
   
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
+
   // make sure we figure out a filename to open
   if (this->FileName)
     {
@@ -536,6 +542,12 @@ void vtkImageReader::ComputeDataIncrements()
 
 void vtkImageReader::OpenFile()
 {
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
+
   // Close file from any previous image
   if (this->File)
     {
@@ -567,6 +579,11 @@ int vtkImageReader::GetHeaderSize()
 
 int vtkImageReader::GetHeaderSize(int idx)
 {
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return 0;
+    }
   if ( ! this->ManualHeaderSize)
     {
     this->ComputeDataIncrements();
@@ -589,6 +606,11 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
   unsigned long streamStart;
 
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
   this->ComputeInternalFileName(idx);
   this->OpenFile();
 
@@ -843,6 +865,12 @@ void vtkImageReader::Execute(vtkImageData *data)
   void *ptr = NULL;
   int *ext;
   
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
+
   ext = data->GetExtent();
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 

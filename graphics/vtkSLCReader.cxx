@@ -132,6 +132,12 @@ void vtkSLCReader::ExecuteInformation()
 
   vtkStructuredPoints *output = this->GetOutput();
 
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<<"A FileName must be specified.");
+    return;
+    }
+
   // Initialize
   if ((fp = fopen(this->FileName, "rb")) == NULL)
     {
@@ -198,6 +204,12 @@ void vtkSLCReader::Execute()
   unsigned char *sptr = NULL;
 
   vtkStructuredPoints *output = this->GetOutput();
+
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<<"A FileName must be specified.");
+    return;
+    }
 
   // Initialize
   if ((fp = fopen(this->FileName, "rb")) == NULL)

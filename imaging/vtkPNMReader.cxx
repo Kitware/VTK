@@ -127,6 +127,12 @@ void vtkPNMReader::ExecuteInformation()
     this->DataExtent[5] = this->DataVOI[5];
     }
 
+  if (!this->FileName && !this->FilePrefix)
+    {
+    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    return;
+    }
+
   // Allocate the space for the filename
   this->ComputeInternalFileName(this->DataExtent[4]);
   
