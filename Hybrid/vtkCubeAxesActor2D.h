@@ -116,6 +116,24 @@ public:
   void GetBounds(float bounds[6]);
 
   // Description:
+  // Explicitly specify the range of values used on the bounds.
+  // The ranges are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), 
+  // making sure that the min's are less than the max's.
+  vtkSetVector6Macro(Ranges,float);
+  float *GetRanges();
+  void GetRanges(float& xmin, float& xmax, float& ymin, float& ymax, 
+                 float& zmin, float& zmax);
+  void GetRanges(float ranges[6]);  
+
+  // Description:
+  // Set/Get a flag that controls whether the axes use the data ranges
+  // or the ranges set by SetRanges. By default the axes use the data
+  // ranges.
+  vtkSetMacro(UseRanges,int);
+  vtkGetMacro(UseRanges,int);
+  vtkBooleanMacro(UseRanges,int);
+
+  // Description:
   // Set/Get the camera to perform scaling and translation of the 
   // vtkCubeAxesActor2D.
   vtkSetObjectMacro(Camera,vtkCamera);
@@ -241,6 +259,8 @@ protected:
   vtkDataSet *Input;    //Define bounds from input data, or
   vtkProp    *Prop;     //Define bounds from actor/assembly, or
   float      Bounds[6]; //Define bounds explicitly
+  float      Ranges[6]; //Define ranges explicitly
+  int        UseRanges; //Flag to use ranges or not
 
   vtkCamera *Camera;
   int FlyMode;

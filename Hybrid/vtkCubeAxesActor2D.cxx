@@ -66,6 +66,10 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
+  this->Ranges[0] = 0; this->Ranges[1] = 0;
+  this->Ranges[2] = 0; this->Ranges[3] = 0;
+  this->Ranges[4] = 0; this->Ranges[5] = 0;
+
   this->Camera = NULL;
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
   this->Scaling = 1;
@@ -435,6 +439,16 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
                       float xCoords[4], float yCoords[4], float zCoords[4],
                       float xRange[2], float yRange[2], float zRange[2])
 {
+  float *internal_bounds;
+  if ( this->UseRanges )
+  {
+    internal_bounds = this->Ranges;
+  }
+  else 
+  {
+    internal_bounds = bounds;
+  }
+  
   // The x-axis
   xCoords[0] = pts[idx][0];
   xCoords[1] = pts[idx][1];
@@ -442,13 +456,13 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
   xCoords[3] = pts[xIdx][1];
   if ( idx < xIdx )
     {
-    xRange[0] = bounds[2*xAxes];
-    xRange[1] = bounds[2*xAxes+1];
+      xRange[0] = internal_bounds[2*xAxes];
+      xRange[1] = internal_bounds[2*xAxes+1];
     }
   else
     {
-    xRange[0] = bounds[2*xAxes+1];
-    xRange[1] = bounds[2*xAxes];
+      xRange[0] = internal_bounds[2*xAxes+1];
+      xRange[1] = internal_bounds[2*xAxes];
     }
   
   // The y-axis
@@ -458,13 +472,13 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
   yCoords[3] = pts[yIdx][1];
   if ( idx < yIdx )
     {
-    yRange[0] = bounds[2*yAxes];
-    yRange[1] = bounds[2*yAxes+1];
+      yRange[0] = internal_bounds[2*yAxes];
+      yRange[1] = internal_bounds[2*yAxes+1];
     }
   else
     {
-    yRange[0] = bounds[2*yAxes+1];
-    yRange[1] = bounds[2*yAxes];
+      yRange[0] = internal_bounds[2*yAxes+1];
+      yRange[1] = internal_bounds[2*yAxes];
     }
 
   // The z-axis
@@ -480,13 +494,13 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
   zCoords[3] = pts[zIdx2][1];
   if ( zIdx < zIdx2 )
     {
-    zRange[0] = bounds[2*zAxes];
-    zRange[1] = bounds[2*zAxes+1];
+      zRange[0] = internal_bounds[2*zAxes];
+      zRange[1] = internal_bounds[2*zAxes+1];
     }
   else
     {
-    zRange[0] = bounds[2*zAxes+1];
-    zRange[1] = bounds[2*zAxes];
+      zRange[0] = internal_bounds[2*zAxes+1];
+      zRange[1] = internal_bounds[2*zAxes];
     }
   
   // Pull back the corners if specified
@@ -543,6 +557,39 @@ void vtkCubeAxesActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->XAxis->ReleaseGraphicsResources(win);
   this->YAxis->ReleaseGraphicsResources(win);
   this->ZAxis->ReleaseGraphicsResources(win);
+}
+
+// Return the ranges
+void vtkCubeAxesActor2D::GetRanges(float ranges[6])
+{
+  int i;
+  for ( i=0; i<6; i++ )
+    {
+    ranges[i] = this->Ranges[i];
+    }
+}
+
+// Compute the ranges
+void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax, 
+                                     float& ymin, float& ymax,
+                                     float& zmin, float& zmax)
+{
+  float ranges[6];
+  this->GetRanges(ranges);
+  xmin = ranges[0];
+  xmax = ranges[1];
+  ymin = ranges[2];
+  ymax = ranges[3];
+  zmin = ranges[4];
+  zmax = ranges[5];
+}
+
+// Compute the bounds
+float *vtkCubeAxesActor2D::GetRanges()
+{
+  float ranges[6];
+  this->GetRanges(ranges);
+  return this->Ranges;
 }
 
 // Compute the bounds
