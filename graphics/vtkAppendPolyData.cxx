@@ -93,7 +93,7 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inPolys, *newPolys;
   int sizePolys, numPolys, *pPolys;
   vtkCellArray *inStrips, *newStrips;
-  int i, ptId, ptOffset, cellId, cellOffset;
+  int i, ptOffset, cellId, cellOffset;
   int numPts, numCells;
   vtkPointData *pd = NULL;
   vtkCellData *cd = NULL;

@@ -381,7 +381,7 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
 void vtkSource::PreUpdate(vtkDataObject *output)
 {
   int idx;
-  int numDivisions, division;
+  int numDivisions;
 
   // prevent chasing our tail
   if (this->Updating)

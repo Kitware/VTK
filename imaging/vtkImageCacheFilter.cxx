@@ -45,8 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageCacheFilter::vtkImageCacheFilter()
 {
-  int idx;
-
   this->CacheSize = 0;
   this->Data = NULL;
   this->Times = NULL;
