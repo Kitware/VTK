@@ -53,21 +53,57 @@ vtkContainer::~vtkContainer()
 }
 
 int vtkContainerCompareMethod(const char* d1, const char* d2)
-{ return strcmp(d1, d2); }
+{ 
+  if ( !d1 && !d2 ) 
+    { 
+    return 0;
+    }
+  if ( !d1 )
+    {
+    return 1;
+    }
+  if ( !d2 )
+    {
+    return -1;
+    }
+  return strcmp(d1, d2); 
+}
 
 int vtkContainerCompareMethod(char* d1, char* d2)
-{ return strcmp(d1, d2); }
+{ 
+  if ( !d1 && !d2 ) 
+    { 
+    return 0;
+    }
+  if ( !d1 )
+    {
+    return 1;
+    }
+  if ( !d2 )
+    {
+    return -1;
+    }
+  return strcmp(d1, d2); 
+}
 
 const char* vtkContainerCreateMethod(const char* d1)
 { 
+  if ( !d1 )
+    {
+    return 0;
+    }
   char* str = new char[ strlen(d1) + 1];
   strcpy(str, d1);
-  return d1;
+  return str;
 }
 
 char* vtkContainerCreateMethod(char* d1)
 { 
+  if ( !d1 )
+    {
+    return 0;
+    }
   char* str = new char[ strlen(d1) + 1];
   strcpy(str, d1);
-  return d1;
+  return str;
 }
