@@ -83,6 +83,7 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {
   this->vtkProcessObject::RemoveInput(ds);
+  this->vtkProcessObject::SqueezeInputArray();  
 }
 
 //----------------------------------------------------------------------------

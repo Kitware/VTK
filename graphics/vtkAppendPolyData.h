@@ -114,7 +114,8 @@ protected:
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
   void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input); };
+    { this->vtkProcessObject::RemoveInput(input); 
+    this->vtkProcessObject::SqueezeInputArray();};
   
   
 };
