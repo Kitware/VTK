@@ -239,6 +239,9 @@ int Test(ostream& strm)
   tetra->EvaluateLocation(subId, tetraPCoords, tetraPosition, tetraWeights);
   
   // vtkQuadraticHexahedron
+  hexPCoords[0] = 0.25;
+  hexPCoords[1] = 0.33;
+  hexPCoords[2] = 0.75;
   hex->EvaluateLocation(subId, hexPCoords, hexPosition, hexWeights);
   
   strm << "Test vtkCell::EvaluateLocation End" << endl;

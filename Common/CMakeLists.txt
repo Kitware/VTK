@@ -20,6 +20,7 @@ vtkCollection.cxx
 vtkCommand.cxx
 vtkContainer.cxx
 vtkContourValues.cxx
+vtkConvexPointSet.cxx
 vtkCoordinate.cxx
 vtkCriticalSection.cxx
 vtkCylindricalTransform.cxx

@@ -51,6 +51,7 @@ class vtkQuadraticTriangle;
 class vtkQuadraticQuad;
 class vtkQuadraticTetra;
 class vtkQuadraticHexahedron;
+class vtkConvexPointSet;
 
 class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 private:
@@ -195,6 +196,7 @@ protected:
   vtkQuadraticQuad       *QuadraticQuad;
   vtkQuadraticTetra      *QuadraticTetra;
   vtkQuadraticHexahedron *QuadraticHexahedron;
+  vtkConvexPointSet      *ConvexPointSet;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

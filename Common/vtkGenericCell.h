@@ -103,7 +103,7 @@ public:
   void SetCellTypeToQuadraticTriangle() {this->SetCellType(VTK_QUADRATIC_TRIANGLE);}
   void SetCellTypeToQuadraticQuad() {this->SetCellType(VTK_QUADRATIC_QUAD);}
   void SetCellTypeToQuadraticTetra() {this->SetCellType(VTK_QUADRATIC_TETRA);}
-  void SetCellTypeToQuadraticHexahedron () {this->SetCellType(VTK_QUADRATIC_HEXAHEDRON);}
+  void SetCellTypeToQuadraticHexahedron() {this->SetCellType(VTK_QUADRATIC_HEXAHEDRON);}
 
 protected:
   vtkGenericCell();

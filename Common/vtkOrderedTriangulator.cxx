@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.38");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.39");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1179,19 +1179,16 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray *tris)
     tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
     for (i=0; i<4; i++)
       {
-      if ( tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER )
+      if ( tetra->Neighbors[i] &&
+           tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER &&
+           tetra->GetType() != tetra->Neighbors[i]->GetType() )
         {//face not yet visited
         tetra->GetFacePoints(i,&face);
-        if ( face.Points[0]->Type == vtkOTPoint::Boundary &&
-             face.Points[1]->Type == vtkOTPoint::Boundary &&
-             face.Points[2]->Type == vtkOTPoint::Boundary )
-          {
-          numTris++;
-          tris->InsertNextCell(3);
-          tris->InsertCellPoint(face.Points[0]->Id);
-          tris->InsertCellPoint(face.Points[1]->Id);
-          tris->InsertCellPoint(face.Points[2]->Id);
-          }
+        numTris++;
+        tris->InsertNextCell(3);
+        tris->InsertCellPoint(face.Points[0]->Id);
+        tris->InsertCellPoint(face.Points[1]->Id);
+        tris->InsertCellPoint(face.Points[2]->Id);
         }
       }
     }//for all tetras
