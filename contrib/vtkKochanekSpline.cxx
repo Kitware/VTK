@@ -173,7 +173,7 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
       break;
 
     case 2:
-      // desired secord derivative at leftmost point is leftValue
+      // desired second derivative at leftmost point is leftValue
       coefficients[0][1] = (6*(y[1] - y[0]) - 2*coefficients[1][2] - leftValue)
   	    / 4.0;
       break;

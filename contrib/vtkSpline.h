@@ -88,14 +88,26 @@ public:
   // Remove all points from the data.
   void RemoveAllPoints ();
 
-  vtkSetMacro(LeftValue,float);
-  vtkGetMacro(LeftValue,float);
-  vtkSetMacro(RightValue,float);
-  vtkGetMacro(RightValue,float);
+  // Description
+  // Set the type of constraint of the left(right) end points. Three
+  // contraints are available:
+  // 
+  // 1: the first derivative at left(right)most point is set to
+  // Left(Right)Value.
+  // 
+  // 2: the second derivative at left(right)most point is set to
+  // Left(Right)Value.
+  // 
+  // 3: the second derivative at left(right)most points is Left(Right)Value
+  // times second derivative at first interior point.
   vtkSetClampMacro(LeftConstraint,int,1,3);
   vtkGetMacro(LeftConstraint,int);
   vtkSetClampMacro(RightConstraint,int,1,3);
   vtkGetMacro(RightConstraint,int);
+  vtkSetMacro(LeftValue,float);
+  vtkGetMacro(LeftValue,float);
+  vtkSetMacro(RightValue,float);
+  vtkGetMacro(RightValue,float);
 
   unsigned long int GetMTime();
 

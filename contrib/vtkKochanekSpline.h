@@ -38,9 +38,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkKochanekSpline - computes an interpolating spline using a
-// a Kochanek basis.
+// .NAME vtkKochanekSpline - computes an interpolating spline using a Kochanek basis.
 // .SECTION Description
+// Implements the Kochenek interpolating spline described in: Kochanek,
+// D., Bartels, R., "Interpolating Splines with Local Tension,
+// Continuity, and Bias Control," Computer Graphics, vol. 18, no. 3,
+// pp. 33-41, July 1984.
+// These splines give the user more control over the shape of the curve
+// than the cardinal splines implemented in vtkCardinalSpline. Three
+// parameters can be specified. All have a range from -1 to 1.
+// 
+// Tension controls how sharply the curve bends at an input point. A
+// value of -1 produices more slack in the curve. A value of 1 tightens
+// the curve.
+// 
+// Continuity controls the continuity of the first derivative at input
+// points. 
+// 
+// Bias controls the direction os the curve at it passes through an input
+// point. A value of -1 undershoots the point while a value of 1
+// overshoots the point.
+// 
+// These three parameters give the user braod control over the shape of
+// the interpolating spline. The original Kochanek paper describes the
+// effects nicely and is recommened reading.
 // .SECTION See Also
 // vtkSpline
 
