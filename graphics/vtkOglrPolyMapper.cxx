@@ -239,7 +239,7 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	{
 	if (c) 
 	  {
-	  glColor3ubv(c->GetColor(pts[j]));
+	  glColor4ubv(c->GetColor(pts[j]));
 	  }
 	
 	if (t)
@@ -294,7 +294,7 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	  {
 	  if (c) 
 	    {
-	    glColor3ubv(c->GetColor(pts[j]));
+	    glColor4ubv(c->GetColor(pts[j]));
 	    }
 	  
 	  if (n) 
@@ -326,7 +326,7 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	  {
 	  if (c) 
 	    {
-	    glColor3ubv(c->GetColor(pts[j]));
+	    glColor4ubv(c->GetColor(pts[j]));
 	    }
 	  
 	  if (n) 
