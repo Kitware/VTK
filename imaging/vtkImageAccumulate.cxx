@@ -162,15 +162,14 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 	for (idxC = 0; idxC < numC; ++idxC)
 	  {
 	  // compute the index
-	  outIdx = (int)((*inPtrC - origin[idxC]) / spacing[idxC])
-	    - outExtent[idxC*2];
+	  outIdx = (int)((*inPtrC - origin[idxC]) / spacing[idxC]);
 	  if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
 	    {
 	    // Out of bin range
 	    outPtrC = NULL;
 	    break;
 	    }
-	  outPtrC += outIdx * outIncs[idxC];
+	  outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
 	  ++inPtrC;
 	  }
 	if (outPtrC)
