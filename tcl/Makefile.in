@@ -50,19 +50,13 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 	${TK_INCLUDE} ${TCL_INCLUDE} @USE_TKWIDGET_FLAG@ \
 	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
 
-all:  kit_init cpp_parse
-
-kit_init: kit_init.c
-	$(CC) $(C_FLAGS) -o kit_init $(srcdir)/kit_init.c
+all: 
 
 tkAppInit.o: tkAppInit.c Makefile
 	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
 
 vtktcl.o: vtktcl.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtktcl.o $(srcdir)/vtktcl.c
-
-cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
-	$(CC) $(C_FLAGS) -I. -o cpp_parse $(srcdir)/y.tab.c -lm
 
 #------------------------------------------------------------------------------
 # build the vtk executable
