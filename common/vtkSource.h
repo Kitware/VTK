@@ -94,7 +94,7 @@ public:
   // of events.  It provides a mechanism to start a non-blocking update
   // in upstream ports.  A side effect of this method is that the 
   // UpdateExtents are propagated upstream.
-  void PreUpdate(vtkDataObject *output);
+  virtual void PreUpdate(vtkDataObject *output);
   
   // Description:
   // Turn on/off flag to control whether this object's data is released
