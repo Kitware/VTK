@@ -12,8 +12,8 @@ package require vtkinteraction
 set RANGE            150
 set MAX_ITERATIONS_1 $RANGE
 set MAX_ITERATIONS_2 $RANGE
-set XRAD             600
-set YRAD             600
+set XRAD             200
+set YRAD             200
 set sample [expr 1.3 / $XRAD]
 
 # Create a Mandelbrot set of appropriate resolution
@@ -108,17 +108,22 @@ proc MandelbrotUpdate {} {
   renWin Render
 }
 
-proc StartZoom {x y} {
+proc StartZoom {} {
   global X Y
 
-  set X $x
-  set Y $y
+  set xy [iren GetEventPosition]
+  set X [lindex $xy 0]
+  set Y [lindex $xy 1]
 }
 
-# prescision good enough?
-proc EndZoom {x y} {
+# precision good enough?
+proc EndZoom {} {
   global X Y XRAD YRAD
   
+  set xy [iren GetEventPosition]
+  set x [lindex $xy 0]
+  set y [lindex $xy 1]
+
   # Tk origin in uppder left. Flip y axis. Put origin in middle. 
   set y [expr $YRAD - $y]
   set Y [expr $YRAD - $Y]
@@ -165,6 +170,7 @@ proc EndZoom {x y} {
   MandelbrotUpdate
 }
 
+MandelbrotUpdate
 
 
 
