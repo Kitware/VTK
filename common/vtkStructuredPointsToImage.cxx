@@ -168,7 +168,17 @@ int vtkStructuredPointsToImage::ComputeDataType()
 
   
   scalars = (this->Input->GetPointData())->GetScalars();
-  
+  if ( ! scalars)
+    {
+    this->Input->Update();
+    scalars = (this->Input->GetPointData())->GetScalars();
+    }
+  if ( ! scalars)
+    {
+    vtkErrorMacro("ComputeDataType: Could not get scalars from input");
+    return VTK_VOID;
+    }
+    
   type = scalars->GetDataType();
   if (strcmp(type, "float") == 0)
     {
