@@ -65,6 +65,12 @@ public:
   static vtkObject *New() {return new vtkObject;};
   virtual const char *GetClassName() {return "vtkObject";};
 
+#ifdef _WIN32
+  // avoid dll boundary problems
+  void* operator new( size_t tSize );
+  void operator delete( void* p );
+#endif 
+  
   // debugging
   virtual void DebugOn();
   virtual void DebugOff();
