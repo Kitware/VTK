@@ -17,6 +17,9 @@
 =========================================================================*/
 
 #include <ctype.h>
+#include "vtkLight.h"
+#include "vtkCamera.h"
+#include "vtkProperty.h"
 
 typedef float Vector[3];
 

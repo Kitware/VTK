@@ -27,11 +27,9 @@
 #define __vtk3DSImporter_h
 
 #include "vtkImporter.h"
-#include "vtkLight.h"
-#include "vtkCamera.h"
-#include "vtkProperty.h"
 #include "vtk3DS.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_HYBRID_EXPORT vtk3DSImporter : public vtkImporter
 {

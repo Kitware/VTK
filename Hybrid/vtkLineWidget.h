@@ -72,7 +72,7 @@
 #define __vtkLineWidget_h
 
 #include "vtk3DWidget.h"
-#include "vtkLineSource.h"
+#include "vtkLineSource.h" // For passing calls to it
 
 class vtkActor;
 class vtkPolyDataMapper;

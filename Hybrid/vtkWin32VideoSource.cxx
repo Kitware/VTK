@@ -19,13 +19,11 @@
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
 
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.18");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.19");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET

@@ -36,7 +36,6 @@
 #define _VTKVRML_H_
 
 #define DEFAULTINCREMENT        100
-#include <stdlib.h>
 
 #include "vtkConfigure.h"
 

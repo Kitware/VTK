@@ -28,7 +28,6 @@
 #ifndef __vtkRIBProperty_h
 #define __vtkRIBProperty_h
 
-#include <stdio.h>
 #include "vtkProperty.h"
 
 class vtkRIBRenderer;

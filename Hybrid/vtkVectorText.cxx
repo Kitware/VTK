@@ -21,9 +21,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkObjectFactory.h"
 
-#include <stdlib.h>
-
-vtkCxxRevisionMacro(vtkVectorText, "1.29");
+vtkCxxRevisionMacro(vtkVectorText, "1.30");
 vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "

@@ -26,7 +26,6 @@
 #ifndef __vtkRIBLight_h
 #define __vtkRIBLight_h
 
-#include <stdio.h>
 #include "vtkLight.h"
 
 class vtkRIBRenderer;
