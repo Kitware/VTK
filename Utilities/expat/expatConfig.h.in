@@ -1,3 +1,4 @@
+#include "vtk_expat_mangle.h"
 #if defined(_WIN32) || defined(WIN32)
 
 #define WIN32_LEAN_AND_MEAN

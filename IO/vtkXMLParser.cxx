@@ -29,12 +29,17 @@
 
 #include "vtkXMLParser.h"
 #include "vtkObjectFactory.h"
+#include "vtkToolkits.h"
 
-#include "expat.h"
+#ifdef VTK_USE_SYSTEM_EXPAT
+# include <expat.h>
+#else
+# include "vtk_expat.h"
+#endif
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.22");
+vtkCxxRevisionMacro(vtkXMLParser, "1.23");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------

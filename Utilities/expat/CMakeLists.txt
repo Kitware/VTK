@@ -1,5 +1,5 @@
 PROJECT(VTKEXPAT)
-INCLUDE_REGULAR_EXPRESSION("^(expat|xml|ascii|utf|name|iascii|latin).*$")
+INCLUDE_REGULAR_EXPRESSION("^(expat|xml|ascii|utf|name|iascii|latin|vtk).*$")
 
 SET(expat_SRCS
   xmlparse.c
