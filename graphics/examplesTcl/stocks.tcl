@@ -97,7 +97,7 @@ AddStock DEC "DEC" 56 25 27
 #
 ren1 AddActor outlineActor
 ren1 SetBackground 0.1 0.2 0.4
-renWin SetSize 1200 950
+renWin SetSize 600 460
 #renWin SetSize 1200 600
 
 # render the image
@@ -110,7 +110,7 @@ ren1 ResetCamera
 #[ren1 GetActiveCamera] SetViewUp 0 0 -1
 iren Initialize
 
-renWin SetFileName stocks3.tcl.ppm
+renWin SetFileName stocks.tcl.ppm
 renWin SaveImageAsPPM
 
 puts "done"
