@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.7");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.8");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -520,3 +520,8 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   glEnable( GL_LIGHTING);
 }
 
+//----------------------------------------------------------------------------
+void vtkCarbonTextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
