@@ -352,28 +352,27 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     if (fabs(vtkMath::Determinant3x3((double (*)[3]) *A)) < 1e-16)
       {
       double (*M)[3] = (double (*)[3]) *A;
-      double U[3][3];
+      double Y[3][3];
       double VT[3][3];
-      double W[3][3];
-      double w[3];
-      int i;
+      double S[3][3];
+      double s[3];
 
-      // perform decomposition M = VT*W*V*R
-      vtkMath::SingularValueDecomposition3x3(M, U, w, VT);
+      // perform decomposition M = Y*S*VT
+      vtkMath::SingularValueDecomposition3x3(M, Y, s, VT);
 
       // check for singular eigenvalues
       double avg = 1.0;
       int navg = 0;
       for (i = 0; i < 3; i++)
 	{
-	if (fabs(w[i]) >= 1e-16)
+	if (fabs(s[i]) >= 1e-16)
 	  {
-	  avg *= w[i];
+	  avg *= s[i];
 	  navg++;
 	  }
 	else
 	  {
-	  w[i] = 0;
+	  s[i] = 0;
 	  }
 	}
 
@@ -385,24 +384,24 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       // replace singular values
       for (i = 0; i < 3; i++)
 	{
-	if (w[i] == 0)
+	if (s[i] == 0)
 	  {
-	  w[i] = avg;
+	  s[i] = avg;
 	  if (avg < 0) 
 	    { // switch sign to try for positive determinant 
 	    avg = -avg;
 	    }
 	  }
 	// build W matrix
-	W[i][0] = W[i][1] = W[i][2] = 0;
-	W[i][i] = w[i];
+	S[i][0] = S[i][1] = S[i][2] = 0;
+	S[i][i] = s[i];
 	}
 
-      // recompose M = VT*W*V*R
+      // recompose M = Y*S*VT
       vtkMath::Identity3x3(M);
       vtkMath::Multiply3x3(M, VT, M);
-      vtkMath::Multiply3x3(M, W, M);
-      vtkMath::Multiply3x3(M, U, M);
+      vtkMath::Multiply3x3(M, S, M);
+      vtkMath::Multiply3x3(M, Y, M);
       }
     }
   // special cases, I added these to ensure that this class doesn't 
