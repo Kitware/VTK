@@ -119,7 +119,8 @@ public:
   // Set/Get the input data
   void SetInput( vtkStructuredPoints * );
   void SetInput(vtkImageCache *cache)
-    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
 
 
   // Description:
