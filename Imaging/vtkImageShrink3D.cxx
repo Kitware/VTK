@@ -218,7 +218,11 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
 
 
 template <class T>
+#ifdef _WIN32_WCE
+static int __cdecl compare(const T *y1,const T *y2)
+#else
 static int compare(const T *y1,const T *y2)
+#endif
 {
   if ( *y1 <  *y2) 
     {
@@ -256,9 +260,15 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 
   // black magic to force the correct version of the comparison function
   // to be instantiated AND used.
+#ifdef _WIN32_WCE
+  int (__cdecl *compareF1)(const T*, const T*) = compare;
+  int (__cdecl *compareFn)(const void*, const void*)
+    = (int (__cdecl *)(const void*, const void*)) compareF1;
+#else
   int (*compareF1)(const T*, const T*) = compare;
   int (*compareFn)(const void*, const void*)
     = (int (*)(const void*, const void*)) compareF1;
+#endif
 
   self->GetShrinkFactors(factor0, factor1, factor2);
   
