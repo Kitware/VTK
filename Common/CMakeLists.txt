@@ -169,7 +169,7 @@ vtkInitialValueProblemSolver
 ADD_LIBRARY(vtkCommon Common_SRCS)
 
 IF (WIN32)
-  SOURCE_FILES(LIBRARY_SRCS vtkWin32OutputWindow)
+  SOURCE_FILES(Common_SRCS vtkWin32OutputWindow)
 ENDIF (WIN32)
 WRAP_EXCLUDE_FILES(vtkLargeInteger)
 
