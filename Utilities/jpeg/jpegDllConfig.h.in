@@ -1,8 +1,6 @@
 #ifndef _jpegDllConfig_h
 #define _jpegDllConfig_h
 
-#cmakedefine JPEGDLL
-#cmakedefine USE_WINDOWS_MESSAGEBOX
 #cmakedefine JPEGSTATIC
 
 #endif

@@ -10,6 +10,7 @@
  * optimizations.  Most users will not need to touch this file.
  */
 
+#include "jpegDllConfig.h"
 
 /*
  * Define BITS_IN_JSAMPLE as either
