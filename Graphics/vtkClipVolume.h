@@ -166,6 +166,9 @@ protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
   ~vtkClipVolume();
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
   void Execute();
   void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
                 vtkDataArray *cellScalars, vtkIdList *tetraIds, 

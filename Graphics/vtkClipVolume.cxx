@@ -16,6 +16,7 @@
 
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
 #include "vtkMergePoints.h"
@@ -30,7 +31,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.67");
+vtkCxxRevisionMacro(vtkClipVolume, "1.68");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -698,4 +699,28 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Mixed 3D Cell Type: " 
      << (this->Mixed3DCellGeneration ? "On\n" : "Off\n");
+}
+
+//----------------------------------------------------------------------------
+void vtkClipVolume::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // These filters share our input and are therefore involved in a
+  // reference loop.
+  collector->ReportReference(this->ClipFunction, "ClipFunction");
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkClipVolume::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->ClipFunction)
+    {
+    this->ClipFunction->Delete();
+    this->ClipFunction = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
 }

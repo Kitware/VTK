@@ -141,6 +141,9 @@ protected:
   vtkContourFilter();
   ~vtkContourFilter();
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
   void Execute();
 
   vtkContourValues *ContourValues;
