@@ -57,17 +57,8 @@ public:
   static vtkPolyMapper *New();
   char *GetClassName() {return "vtkPolyMapper";};
 
-  virtual void Render(vtkRenderer *ren, vtkActor *a);
+  virtual void Render(vtkRenderer *ren, vtkActor *a) {};
   float *GetBounds();
-
-  // Description:
-  // Build appropriate graphical data representation for the
-  // particular library.
-  virtual void Build(vtkPolyData *, vtkColorScalars *) {};
-
-  // Description:
-  // Load data into a specific graphics library.
-  virtual void Draw(vtkRenderer *, vtkActor *) {};
 
   // Description:
   // Specify the input data to map.
