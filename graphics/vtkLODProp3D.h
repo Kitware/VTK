@@ -70,6 +70,7 @@ typedef struct
   int         Prop3DType;
   int         ID;
   float       EstimatedTime;
+  int         State;
 } vtkLODProp3DEntry;
 
 class VTK_EXPORT vtkLODProp3D : public vtkProp3D
@@ -141,6 +142,13 @@ public:
   void SetLODTexture( int id, vtkTexture *t );
   void GetLODTexture( int id, vtkTexture **t );
 
+  // Description:
+  // Enable / disable a particular LOD. If it is disabled, it will not
+  // be used during automatic selection, but can be selected as the
+  // LOD if automatic LOD selection is off.
+  void EnableLOD( int id );
+  void DisableLOD( int id );
+  
   // Description:
   // Access method that can be used to find out the estimated render time
   // (the thing used to select an LOD) for a given LOD ID or index. 

@@ -163,6 +163,7 @@ int vtkLODProp3D::GetNextEntryIndex()
       newLODs[i].Prop3DType    = this->LODs[i].Prop3DType;
       newLODs[i].ID            = this->LODs[i].ID;
       newLODs[i].EstimatedTime = this->LODs[i].EstimatedTime;
+      newLODs[i].State         = this->LODs[i].State;
       }
 
     // This is the index that we will return - one past the old entries
@@ -354,7 +355,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   this->LODs[index].Prop3DType    = VTK_LOD_ACTOR_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
-
+  this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
   return this->LODs[index].ID;
@@ -392,7 +393,7 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p,
   this->LODs[index].Prop3DType    = VTK_LOD_VOLUME_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
-
+  this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
   return this->LODs[index].ID;
@@ -586,6 +587,30 @@ void vtkLODProp3D::GetLODTexture( int id, vtkTexture **t )
     }
 
   *t = ((vtkActor *)this->LODs[index].Prop3D)->GetTexture();
+}
+
+void vtkLODProp3D::EnableLOD( int id )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
+    {
+    return;
+    }
+  
+  this->LODs[index].State = 1;
+}
+
+void vtkLODProp3D::DisableLOD( int id )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
+    {
+    return;
+    }
+  
+  this->LODs[index].State = 0;
 }
 
 // Release any graphics resources that any of the LODs might be using
@@ -794,7 +819,8 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
 
     for ( i = 0; i < this->NumberOfEntries; i++ )
       {
-      if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
+      if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
+           this->LODs[i].State == 1 )
 	{
 	// Gather some information
 	estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
