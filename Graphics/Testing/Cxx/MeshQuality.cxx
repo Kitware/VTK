@@ -102,7 +102,7 @@ int MeshQuality( int argc, char* argv[] )
   int status=0;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/qualityEx.vtk");
 
-  mr->SetFileName( argc > 1 ? argv[1] : fname );
+  mr->SetFileName( fname );
   mr->Update();
 
   ug = mr->GetOutput();
