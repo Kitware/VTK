@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.25");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.26");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -213,28 +213,17 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
     if (this->ObservingRenderWindow)
       {
       rens = this->RenderWindow->GetRenderers();
-      rens->InitTraversal();
-      ren = rens->GetNextItem();
+      ren = rens->GetFirstRenderer();
       if (ren)
         {
         ren->RemoveObserver(this->StartRenderTag);
         ren->RemoveObserver(this->EndRenderTag);
         }
     
-      // Will make do with first renderer. (Assumes renderer does not change.)
       if (this->ObservingRenderer)
         {
-        rens = this->RenderWindow->GetRenderers();
-        rens->InitTraversal();
-        ren = rens->GetNextItem();
-        if (ren)
-          {
-          //ren->RemoveObserver(this->ResetCameraTag);
-          //ren->RemoveObserver(this->ResetCameraClippingRangeTag);
-          }
         this->ObservingRenderer = 0;
         }
-
       this->ObservingRenderWindow = 0;
       }
     if (this->ObservingAbort)
@@ -270,8 +259,7 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
       if (this->Controller->GetLocalProcessId() == this->RootProcessId)
         {
         rens = this->RenderWindow->GetRenderers();
-        rens->InitTraversal();
-        ren = rens->GetNextItem();
+        ren = rens->GetFirstRenderer();
         if (ren)
           {
           this->ObservingRenderWindow = 1;
@@ -312,8 +300,7 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
       else // LocalProcessId != RootProcessId
         {
         rens = this->RenderWindow->GetRenderers();
-        rens->InitTraversal();
-        ren = rens->GetNextItem();
+        ren = rens->GetFirstRenderer();
         if (ren)
           {
           this->ObservingRenderWindow = 1;
@@ -381,8 +368,9 @@ void vtkParallelRenderManager::InitializePieces()
   numPieces = this->Controller->GetNumberOfProcesses();
 
   rens = this->RenderWindow->GetRenderers();
-  rens->InitTraversal();
-  while ( (ren = rens->GetNextItem()) )
+  vtkCollectionSimpleIterator rsit;
+  rens->InitTraversal(rsit);
+  while ( (ren = rens->GetNextRenderer(rsit)) )
     {
     actors = ren->GetActors();
     actors->InitTraversal();
@@ -595,8 +583,7 @@ void vtkParallelRenderManager::StartRender()
     this->Viewports->SetNumberOfTuples(rens->GetNumberOfItems());
     }
   vtkRenderer *ren;
-  rens->InitTraversal();
-  ren = rens->GetNextItem();
+  ren = rens->GetFirstRenderer();
   
   if (ren)
     {
@@ -648,8 +635,8 @@ void vtkParallelRenderManager::StartRender()
       }
 
     vtkLight *light;
-    vtkCollectionSimpleIterator sit;
-    for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
+    vtkCollectionSimpleIterator lsit;
+    for (lc->InitTraversal(lsit); (light = lc->GetNextLight(lsit)); )
       {
       lightInfoDouble.Type = (double)(light->GetLightType());
       light->GetPosition(lightInfoDouble.Position);
@@ -701,10 +688,8 @@ void vtkParallelRenderManager::EndRender()
   // Restore renderer viewports, if necessary.
   if (this->ImageReductionFactor > 1)
     {
-    vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
     vtkRenderer *ren;
-    rens->InitTraversal();
-    ren = rens->GetNextItem();
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
     ren->SetViewport(this->Viewports->GetPointer(0));
     }
 
@@ -814,10 +799,11 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
     }
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
   vtkRenderer *ren = NULL;
-  rens->InitTraversal();
+  vtkCollectionSimpleIterator rsit;
+  rens->InitTraversal(rsit);
   for (i = 0; i <= renderId; i++)
     {
-    ren = rens->GetNextItem();
+    ren = rens->GetNextRenderer(rsit);
     }
 
   if (ren == NULL)
@@ -825,8 +811,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
     vtkWarningMacro("Client requested invalid renderer in "
             "ComputeVisiblePropBoundsRMI\n"
             "Defaulting to first renderer");
-    rens->InitTraversal();
-    ren = rens->GetNextItem();
+    ren = rens->GetFirstRenderer();
     }
 
   double bounds[6];
@@ -863,11 +848,12 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
       }
 
     vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
-    rens->InitTraversal();
+    vtkCollectionSimpleIterator rsit;
+    rens->InitTraversal(rsit);
     int renderId = 0;
     while (1)
       {
-      vtkRenderer *myren = rens->GetNextItem();
+      vtkRenderer *myren = rens->GetNextRenderer(rsit);
       if (myren == NULL)
         {
         vtkWarningMacro("ComputeVisiblePropBounds called with unregistered renderer " << ren << "\nDefaulting to first renderer.");
@@ -979,7 +965,8 @@ void vtkParallelRenderManager::ResetAllCameras()
   vtkRenderer *ren;
 
   rens = this->RenderWindow->GetRenderers();
-  for (rens->InitTraversal(); (ren = rens->GetNextItem()); )
+  vtkCollectionSimpleIterator rsit;
+  for (rens->InitTraversal(rsit); (ren = rens->GetNextRenderer(rsit)); )
     {
     this->ResetCamera(ren);
     }
@@ -1637,9 +1624,9 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->ReducedImageSize[1] = winInfoInt.ReducedSize[1];
   this->SetRenderWindowSize();
 
-  vtkCollectionSimpleIterator sit;
+  vtkCollectionSimpleIterator rsit;
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
-  rens->InitTraversal();
+  rens->InitTraversal(rsit);
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
     if (!this->Controller->Receive((int *)(&renInfoInt), 
@@ -1658,7 +1645,8 @@ void vtkParallelRenderManager::SatelliteStartRender()
       }
     
     vtkLightCollection *lc = NULL;
-    vtkRenderer *ren = rens->GetNextItem();
+    vtkCollectionSimpleIterator lsit;
+    vtkRenderer *ren = rens->GetNextRenderer(rsit);
     if (ren == NULL)
       {
       vtkErrorMacro("Not enough renderers");
@@ -1685,14 +1673,14 @@ void vtkParallelRenderManager::SatelliteStartRender()
         cam->ParallelProjectionOff();
         }
       lc = ren->GetLights();
-      lc->InitTraversal(sit);
+      lc->InitTraversal(lsit);
       }
 
     for (j = 0; j < renInfoInt.NumberOfLights; j++)
       {
       if (ren != NULL && lc != NULL)
         {
-        vtkLight *light = lc->GetNextLight(sit);
+        vtkLight *light = lc->GetNextLight(lsit);
         if (light == NULL)
           {
           // Not enough lights?  Just create them.
@@ -1715,7 +1703,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
     if (ren != NULL)
       {
       vtkLight *light;
-      while ((light = lc->GetNextLight(sit)))
+      while ((light = lc->GetNextLight(lsit)))
         {
         // To many lights?  Just remove the extras.
         ren->RemoveLight(light);

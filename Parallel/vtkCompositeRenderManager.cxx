@@ -20,12 +20,11 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.3");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.4");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);

@@ -41,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.56");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.57");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -329,8 +329,9 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
       
       // Will make do with first renderer. (Assumes renderer does not change.)
       rens = this->RenderWindow->GetRenderers();
-      rens->InitTraversal();
-      ren = rens->GetNextItem();
+      vtkCollectionSimpleIterator sit;
+      rens->InitTraversal(sit);
+      ren = rens->GetNextRenderer(sit);
       if (ren)
         {
         ren->RemoveObserver(this->ResetCameraTag);
@@ -381,9 +382,10 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         
         // Will make do with first renderer. (Assumes renderer does
         // not change.)
+        vtkCollectionSimpleIterator sit;
         rens = this->RenderWindow->GetRenderers();
-        rens->InitTraversal();
-        ren = rens->GetNextItem();
+        rens->InitTraversal(sit);
+        ren = rens->GetNextRenderer(sit);
         if (ren)
           {
           cbc = vtkCallbackCommand::New();
@@ -594,7 +596,8 @@ void vtkCompositeManager::SatelliteStartRender()
 
   // Synchronize the renderers.
   rens = renWin->GetRenderers();
-  rens->InitTraversal();
+  vtkCollectionSimpleIterator sit;
+  rens->InitTraversal(sit);
   for (i = 0; i < winInfo.NumberOfRenderers; ++i)
     {
     // Receive the camera information.
@@ -602,7 +605,7 @@ void vtkCompositeManager::SatelliteStartRender()
     // We put this before receive because we want the pipeline to be
     // updated the first time if the camera does not exist and we want
     // it to happen before we block in receive
-    ren = rens->GetNextItem();
+    ren = rens->GetNextRenderer(sit);
     if (ren)
       {
       cam = ren->GetActiveCamera();
@@ -811,14 +814,15 @@ void vtkCompositeManager::StartRender()
   // Make sure the satellite renderers have the same camera I do.
   // Note: This will lockup unless every process has the same number
   // of renderers.
-  rens->InitTraversal();
-  while ( (ren = rens->GetNextItem()) )
+  vtkCollectionSimpleIterator sit;
+  rens->InitTraversal(sit);
+  while ( (ren = rens->GetNextRenderer(sit)) )
     {
     cam = ren->GetActiveCamera();
     lc = ren->GetLights();
-    vtkCollectionSimpleIterator sit;
-    lc->InitTraversal(sit);
-    light = lc->GetNextLight(sit);
+    vtkCollectionSimpleIterator sit2;
+    lc->InitTraversal(sit2);
+    light = lc->GetNextLight(sit2);
     cam->GetPosition(renInfo.CameraPosition);
     cam->GetFocalPoint(renInfo.CameraFocalPoint);
     cam->GetViewUp(renInfo.CameraViewUp);
@@ -985,8 +989,9 @@ void vtkCompositeManager::ComputeVisiblePropBoundsRMI()
   double bounds[6];
   
   rens = this->RenderWindow->GetRenderers();
-  rens->InitTraversal();
-  ren = rens->GetNextItem();
+  vtkCollectionSimpleIterator sit;
+  rens->InitTraversal(sit);
+  ren = rens->GetNextRenderer(sit);
 
   ren->ComputeVisiblePropBounds(bounds);
 
@@ -1012,8 +1017,9 @@ void vtkCompositeManager::InitializePieces()
   numPieces = this->Controller->GetNumberOfProcesses();
 
   rens = this->RenderWindow->GetRenderers();
-  rens->InitTraversal();
-  while ( (ren = rens->GetNextItem()) )
+  vtkCollectionSimpleIterator sit;
+  rens->InitTraversal(sit);
+  while ( (ren = rens->GetNextRenderer(sit)) )
     {
     actors = ren->GetActors();
     actors->InitTraversal();

@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.60");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.61");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -96,8 +96,9 @@ void vtkRIBExporter::WriteData()
     }
 
   // get the renderer
-  this->RenderWindow->GetRenderers()->InitTraversal();
-  ren = this->RenderWindow->GetRenderers()->GetNextItem();
+  vtkCollectionSimpleIterator sit;
+  this->RenderWindow->GetRenderers()->InitTraversal(sit);
+  ren = this->RenderWindow->GetRenderers()->GetNextRenderer(sit);
   
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
@@ -168,7 +169,6 @@ void vtkRIBExporter::WriteData()
   //
   // If there is no light defined, create one
   //
-  vtkCollectionSimpleIterator sit;
   lc->InitTraversal(sit);
   if (lc->GetNextLight(sit) == NULL)
     {

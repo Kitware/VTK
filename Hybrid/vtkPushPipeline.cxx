@@ -115,7 +115,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.18");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.19");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -707,7 +707,8 @@ int vtkPushPipeline::IsRenderWindowReady(vtkRenderWindow *win)
   // are all the mappers of this window, that we know about, ready
   vtkRendererCollection *rc = win->GetRenderers();
   vtkRenderer *ren;
-  for (rc->InitTraversal(); (ren = rc->GetNextItem()) != NULL;)
+  vtkCollectionSimpleIterator sit;
+  for (rc->InitTraversal(sit); (ren = rc->GetNextRenderer(sit)) != NULL;)
     {
     if (!this->IsRendererReady(ren))
       {
@@ -767,7 +768,8 @@ void vtkPushPipeline::ConsumeRenderWindowInputs(vtkRenderWindow *win)
   // are all the mappers of this window, that we know about, ready
   vtkRendererCollection *rc = win->GetRenderers();
   vtkRenderer *ren;
-  for (rc->InitTraversal(); (ren = rc->GetNextItem()) != NULL;)
+  vtkCollectionSimpleIterator sit;
+  for (rc->InitTraversal(sit); (ren = rc->GetNextRenderer(sit)) != NULL;)
     {
     this->ConsumeRendererInputs(ren);
     }
@@ -809,7 +811,8 @@ void vtkPushPipeline::SetupRenderWindow(vtkRenderWindow *win)
   // are all the mappers of this window, that we know about, ready
   vtkRendererCollection *rc = win->GetRenderers();
   vtkRenderer *ren;
-  for (rc->InitTraversal(); (ren = rc->GetNextItem()) != NULL;)
+  vtkCollectionSimpleIterator sit;
+  for (rc->InitTraversal(sit); (ren = rc->GetNextRenderer(sit)) != NULL;)
     {
     this->SetupRenderer(ren);
     }
