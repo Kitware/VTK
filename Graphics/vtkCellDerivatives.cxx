@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.25");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.26");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
@@ -103,9 +103,12 @@ void vtkCellDerivatives::Execute()
     vtkGenericCell *cell = vtkGenericCell::New();
     vtkIdType cellId;
     vtkDoubleArray *cellScalars=vtkDoubleArray::New();
-    cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
-    cellScalars->SetName("Scalars");
+    if ( computeScalarDerivs )
+      {
+      cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+      cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+      cellScalars->SetName("Scalars");
+      }
     vtkDoubleArray *cellVectors=vtkDoubleArray::New(); 
     cellVectors->SetNumberOfComponents(3);
     cellVectors->Allocate(3*VTK_CELL_SIZE);
