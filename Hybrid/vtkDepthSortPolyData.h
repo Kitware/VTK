@@ -32,9 +32,6 @@
 #define __vtkDepthSortPolyData_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkCamera.h"
-#include "vtkProp3D.h"
-#include "vtkTransform.h"
 
 #define VTK_DIRECTION_BACK_TO_FRONT 0
 #define VTK_DIRECTION_FRONT_TO_BACK 1
@@ -43,6 +40,10 @@
 #define VTK_SORT_FIRST_POINT 0
 #define VTK_SORT_BOUNDS_CENTER 1
 #define VTK_SORT_PARAMETRIC_CENTER 2
+
+class vtkCamera;
+class vtkProp3D;
+class vtkTransform;
 
 class VTK_HYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataToPolyDataFilter 
 {
@@ -84,7 +85,7 @@ public:
   // Specify a camera that is used to define a view direction along which
   // the cells are sorted. This ivar only has effect if the direction is set
   // to front-to-back or back-to-front, and a camera is specified.
-  vtkSetObjectMacro(Camera,vtkCamera);
+  virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
