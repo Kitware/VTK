@@ -212,8 +212,8 @@ static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
 					      int inExt[6], 
 					      int outExt[6]);
 
-void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
-					       int outExt[6])
+void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
+					               int outExt[6])
 {
   if (this->GetOptimization())
     {

@@ -185,7 +185,7 @@ protected:
   int OutputExtent[6];
   float BackgroundLevel[4];
   void ExecuteInformation();
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   
   vtkMatrix4x4 *IndexMatrix;
 
