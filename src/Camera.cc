@@ -43,6 +43,17 @@ vlCamera::vlCamera()
   this->Switch = 1;
   this->LeftEye = 1;
   this->EyeAngle = 2.0;
+
+  this->Thickness = 1000.0;
+  this->Distance = 1.0;
+
+  this->ViewPlaneNormal[0] = 0.0;
+  this->ViewPlaneNormal[1] = 0.0;
+  this->ViewPlaneNormal[2] = 1.0;
+
+  this->Orientation[0] = 0.0;
+  this->Orientation[1] = 0.0;
+  this->Orientation[2] = 0.0;
 }
 
 // Description:
