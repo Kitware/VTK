@@ -211,38 +211,106 @@ void Test(ostream& strm)
   strm << "DeepCopy(sg3D):" << *dcsg3D;
   
   // Test GetCell
+  vtkIdList *ids = vtkIdList::New();
+  int cellId;
+  int ii;
+  
   i = 10; j = 15; k = 7;
-  vtkCell *cell3D = sg3D->GetCell(k * (19 * 19) + j * 19 + i);
+  cellId = k * (19 * 19) + j * 19 + i;
+  vtkCell *cell3D = sg3D->GetCell(cellId);
   strm << "cell3D: " << *cell3D ;
+  sg3D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
 
   i = 10; j = 15; k = 7;
-  vtkCell *cell2D = sg2Dxy->GetCell(j * 19 + i);
+  cellId = j * 19 + i;
+  vtkCell *cell2D = sg2Dxy->GetCell(cellId);
   strm << "cell2D: " << *cell2D ;
+  sg2Dxy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+
 
   i = 10; j = 15; k = 7;
+  cellId = j * 19 + i;
   cell2D = sg2Dxz->GetCell(j * 19 + i);
   strm << "cell2D: " << *cell2D ;
-
+  sg2Dxz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
   i = 10; j = 15; k = 7;
+  cellId = j * 19 + i;
   cell2D = sg2Dyz->GetCell(j * 19 + i);
   strm << "cell2D: " << *cell2D ;
-
+  sg2Dyz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
   i = 10;
+  cellId = i;
   vtkCell *cell1D = sg1Dx->GetCell(i);
   strm << "cell1D: " << *cell1D;
-
+  sg1Dx->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
   i = 10;
+  cellId = i;
   cell1D = sg1Dy->GetCell(i);
   strm << "cell1D: " << *cell1D;
-
+  sg1Dy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
   i = 10;
+  cellId = i;
   cell1D = sg1Dz->GetCell(i);
   strm << "cell1D: " << *cell1D;
-
-  i = 10;
+  sg1Dz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
+  cellId = 0;
   vtkCell *cell0D = sg0D->GetCell(0);
   strm << "cell0D: " << *cell0D;
-
+  sg0D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+    {
+    strm << ids->GetId(ii) << " ";
+    }
+  strm << endl << endl;
+  
   // Test Thread Safe GetCell
   vtkGenericCell *gcell3D = vtkGenericCell::New();
   vtkGenericCell *gcell2D = vtkGenericCell::New();
