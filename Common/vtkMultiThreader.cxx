@@ -18,7 +18,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.40");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.41");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -30,8 +30,15 @@ vtkStandardNewMacro(vtkMultiThreader);
 #include <errno.h>
 #endif
 
+// Need to define "vtkExternCThreadFunctionType" to avoid warning on some
+// platforms about passing function pointer to an argument expecting an
+// extern "C" function.  Placing the typedef of the function pointer type
+// inside an extern "C" block solves this problem.
 #ifdef VTK_USE_PTHREADS
 #include <pthread.h>
+extern "C" { typedef void *(*vtkExternCThreadFunctionType)(void *); }
+#else
+typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #endif
 
 #ifdef __APPLE__
@@ -334,7 +341,9 @@ void vtkMultiThreader::SingleMethodExecute()
 #else
     int                threadError;
     threadError =
-      pthread_create( &(process_id[thread_loop]), &attr, this->SingleMethod,  
+      pthread_create( &(process_id[thread_loop]), &attr,
+                      reinterpret_cast<vtkExternCThreadFunctionType>(
+                        this->SingleMethod),
                       ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
     if (threadError != 0)
       {
@@ -522,7 +531,9 @@ void vtkMultiThreader::MultipleMethodExecute()
                     ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #else
     pthread_create( &(process_id[thread_loop]),
-                    &attr, this->MultipleMethod[thread_loop],  
+                    &attr,
+                    reinterpret_cast<vtkExternCThreadFunctionType>(
+                      this->MultipleMethod[thread_loop]),
                     ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #endif
     }
@@ -642,7 +653,8 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
                   ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
 #else
   pthread_create( &(this->SpawnedThreadProcessID[id]),
-                  &attr, f,  
+                  &attr,
+                  reinterpret_cast<vtkExternCThreadFunctionType>(f),  
                   ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
 #endif
 
