@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.18");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.19");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -186,8 +186,11 @@ int vtkFunctionParser::Parse()
   // in byte code
   for (i = 0; i < this->ByteCodeSize; i++)
     {
-    if (this->ByteCode[i] >= VTK_PARSER_BEGIN_VARIABLES +
-        this->NumberOfScalarVariables)
+    if ((this->ByteCode[i] >= VTK_PARSER_BEGIN_VARIABLES +
+         this->NumberOfScalarVariables) ||
+        (this->ByteCode[i] == VTK_PARSER_IHAT) ||
+        (this->ByteCode[i] == VTK_PARSER_JHAT) ||
+        (this->ByteCode[i] == VTK_PARSER_KHAT))
       {
       this->StackSize += 2;
       }
@@ -380,6 +383,12 @@ int vtkFunctionParser::DisambiguateOperators()
           vtkErrorMacro("normalize expects a vector, but got a scalar");
           return 0;
           }
+        break;
+      case VTK_PARSER_IHAT:
+      case VTK_PARSER_JHAT:
+      case VTK_PARSER_KHAT:
+        tempStackPtr++;
+        tempStack[tempStackPtr] = 1;
         break;
       default:
         if ((this->ByteCode[i] - VTK_PARSER_BEGIN_VARIABLES) <
@@ -574,6 +583,21 @@ void vtkFunctionParser::Evaluate()
         this->Stack[stackPosition] /= magnitude;
         this->Stack[stackPosition-1] /= magnitude;
         this->Stack[stackPosition-2] /= magnitude;
+        break;
+      case VTK_PARSER_IHAT:
+        this->Stack[++stackPosition] = 1;
+        this->Stack[++stackPosition] = 0;
+        this->Stack[++stackPosition] = 0;
+        break;
+      case VTK_PARSER_JHAT:
+        this->Stack[++stackPosition] = 0;
+        this->Stack[++stackPosition] = 1;
+        this->Stack[++stackPosition] = 0;
+        break;
+      case VTK_PARSER_KHAT:
+        this->Stack[++stackPosition] = 0;
+        this->Stack[++stackPosition] = 0;
+        this->Stack[++stackPosition] = 1;
         break;
       default:
         if ((this->ByteCode[numBytesProcessed] -
@@ -958,7 +982,7 @@ int vtkFunctionParser::CheckSyntax()
 {
   int index = 0, parenthesisCount = 0, currentChar;
   char* ptr;
-  int functionNumber;
+  int functionNumber, constantNumber;
   
   while (1)
     {
@@ -1005,6 +1029,12 @@ int vtkFunctionParser::CheckSyntax()
       {
       strtod(&this->Function[index], &ptr);
       index += int(ptr-&this->Function[index]);
+      currentChar = this->Function[index];
+      }
+    // Check for named constant
+    else if ((constantNumber = this->GetMathConstantNumber(index)))
+      {
+      index += this->GetMathConstantStringLength(constantNumber);
       currentChar = this->Function[index];
       }
     else
@@ -1101,7 +1131,7 @@ int vtkFunctionParser::BuildInternalFunctionStructure()
 void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                                                         int endIndex)
 {
-  int mathFunctionNum, beginIndex2;
+  int mathFunctionNum, mathConstantNum, beginIndex2;
   int opNum, parenthesisCount, i;
   static const char* const elementaryMathOps = "+-.*/^";
   
@@ -1126,6 +1156,13 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
       return;
       }
+    if (this->GetMathConstantNumber(beginIndex+1) > 0 &&
+        this->FindEndOfMathConstant(beginIndex+1) == endIndex)
+      {
+      this->BuildInternalSubstringStructure(beginIndex+1, endIndex);
+      this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
+      return;
+      }
     }
 
   if (isalpha(this->Function[beginIndex]))
@@ -1142,6 +1179,20 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
         {
         this->BuildInternalSubstringStructure(beginIndex2+1, endIndex-1);
         this->AddInternalByte(mathFunctionNum);
+        return;
+        }
+      }
+    else
+      {
+      mathConstantNum = this->GetMathConstantNumber(beginIndex);
+      if(mathConstantNum > 0)
+        {
+        this->AddInternalByte(mathConstantNum);
+        this->StackPointer++;
+        if (this->StackPointer > this->StackSize)
+          {
+          this->StackSize++;
+          }
         return;
         }
       }
@@ -1185,10 +1236,10 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
     {
     beginIndex2++;
     }
-
+  
   this->AddInternalByte(this->GetOperandNumber(beginIndex2));
   this->StackPointer++;
-    
+  
   if (this->StackPointer > this->StackSize)
     {
     this->StackSize++;
@@ -1362,6 +1413,38 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
     }
 }
 
+int vtkFunctionParser::GetMathConstantNumber(int currentIndex)
+{
+  if (strncmp(&this->Function[currentIndex], "iHat", 4) == 0)
+    {
+    return VTK_PARSER_IHAT;
+    }
+  if (strncmp(&this->Function[currentIndex], "jHat", 4) == 0)
+    {
+    return VTK_PARSER_JHAT;
+    }
+  if (strncmp(&this->Function[currentIndex], "kHat", 4) == 0)
+    {
+    return VTK_PARSER_KHAT;
+    }  
+  
+  return 0;
+}
+
+int vtkFunctionParser::GetMathConstantStringLength(int mathConstantNumber)
+{
+  switch (mathConstantNumber)
+    {
+    case VTK_PARSER_IHAT:
+    case VTK_PARSER_JHAT:
+    case VTK_PARSER_KHAT:
+      return 4;
+    default:
+      vtkWarningMacro("Unknown math constant");
+      return 0;
+    }
+}
+
 int vtkFunctionParser::GetVariableNameLength(int variableNumber)
 {
   if (variableNumber < this->NumberOfScalarVariables)
@@ -1391,6 +1474,15 @@ int vtkFunctionParser::FindEndOfMathFunction(int beginIndex)
                          (this->Function[i] == ')' ? -1 : 0));
     }
   return i - 1;
+}
+
+int vtkFunctionParser::FindEndOfMathConstant(int beginIndex)
+{
+  if(int constantNumber = this->GetMathConstantNumber(beginIndex))
+    {
+    return beginIndex+this->GetMathConstantStringLength(constantNumber);
+    }
+  return beginIndex;
 }
 
 int vtkFunctionParser::GetElementaryOperatorNumber(char op)

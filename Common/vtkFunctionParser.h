@@ -60,8 +60,13 @@
 #define VTK_PARSER_MAGNITUDE 28
 #define VTK_PARSER_NORMALIZE 29
 
+// constants involving vectors
+#define VTK_PARSER_IHAT 30
+#define VTK_PARSER_JHAT 31
+#define VTK_PARSER_KHAT 32
+
 // codes for scalar variables come before those for vectors
-#define VTK_PARSER_BEGIN_VARIABLES 30
+#define VTK_PARSER_BEGIN_VARIABLES 33
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
@@ -174,12 +179,15 @@ protected:
   
   int IsSubstringCompletelyEnclosed(int beginIndex, int endIndex);
   int FindEndOfMathFunction(int beginIndex);
+  int FindEndOfMathConstant(int beginIndex);
   
   int IsVariableName(int currentIndex);
   int IsElementaryOperator(int op);
   
   int GetMathFunctionNumber(int currentIndex);
   int GetMathFunctionStringLength(int mathFunctionNumber);
+  int GetMathConstantNumber(int currentIndex);
+  int GetMathConstantStringLength(int mathConstantNumber);
   int GetElementaryOperatorNumber(char op);
   int GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
