@@ -133,10 +133,10 @@ proc OpenFile {} {
 
     set types {
         {{BYU}                                  {.g}          }
-        {{Stereo-Lithography}                   {.stl}        }
-        {{Visualization Toolkit (polygonal)}    {.vtk}        }
         {{Cyberware (Laser Scanner)}            {.cyb}        }
         {{Marching Cubes}                       {.tri}        }
+        {{Stereo-Lithography}                   {.stl}        }
+        {{Visualization Toolkit (polygonal)}    {.vtk}        }
         {{All Files }                           *             }
     }
     set filename [tk_getOpenFile -filetypes $types]
@@ -176,13 +176,16 @@ proc OpenFile {} {
 
 # Procedure saves data to file
 proc SaveFile {} {
-    global PolyData
+    global PolyData RenWin
 
     set types {
         {{BYU}                                  {.g}          }
+        {{Marching Cubes}                       {.tri}        }
+        {{RIB (Renderman)}                      {.rib}        }
         {{Stereo-Lithography}                   {.stl}        }
         {{Visualization Toolkit (polygonal)}    {.vtk}        }
-        {{Marching Cubes}                       {.tri}        }
+        {{VRML}                                 {.wrl}        }
+        {{Wavefront}                            {.obj}        }
         {{All Files }                           *             }
     }
     set filename [tk_getSaveFile -filetypes $types]
@@ -191,21 +194,36 @@ proc SaveFile {} {
         if { [string match *.g $filename] } {
             vtkBYUWriter writer
             writer SetGeometryFileName $filename
+            writer SetInput PolyData
         } elseif { [string match *.stl $filename] } {
             vtkSTLWriter writer
             writer SetFileName $filename
+            writer SetInput PolyData
         } elseif { [string match *.vtk $filename] } {
             vtkPolyDataWriter writer
             writer SetFileName $filename
+            writer SetInput PolyData
         } elseif { [string match *.tri $filename] } {
             vtkMCubesWriter writer
             writer SetFileName $filename
+            writer SetInput PolyData
+        } elseif { [string match *.wrl $filename] } {
+            vtkVRMLExporter writer
+	    writer SetRenderWindow $RenWin
+            writer SetFileName $filename
+        } elseif { [string match *.obj $filename] } {
+            vtkOBJExporter writer
+	    writer SetRenderWindow $RenWin
+            writer SetFilePrefix [file rootname $filename]
+        } elseif { [string match *.rib $filename] } {
+            vtkRIBExporter writer
+	    writer SetRenderWindow $RenWin
+            writer SetFilePrefix [file rootname $filename]
         } else {
             puts "Can't write this file"
             return
         }
         
-        writer SetInput PolyData
         writer Write
     }
 }
