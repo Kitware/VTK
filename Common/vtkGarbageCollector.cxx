@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.18");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.19");
 
 class vtkGarbageCollectorSingleton;
 
@@ -156,6 +156,9 @@ public:
 
   // Internal implementation of vtkGarbageCollector::TakeReference.
   int TakeReference(vtkObjectBase* obj);
+
+  // Called by GiveReference to decide whether to accept a reference.
+  int CheckAccept();
 
   // Push/Pop deferred collection.
   void DeferredCollectionPush();
@@ -813,6 +816,9 @@ void vtkGarbageCollector::ClassFinalize()
 //----------------------------------------------------------------------------
 void vtkGarbageCollector::Collect()
 {
+  // This must be called only from the main thread.
+  assert(vtkGarbageCollectorIsMainThread());
+
   // Keep collecting until no deferred checks exist.
   while(vtkGarbageCollectorSingletonInstance &&
         vtkGarbageCollectorSingletonInstance->TotalNumberOfReferences > 0)
@@ -913,7 +919,7 @@ vtkGarbageCollectorSingleton::~vtkGarbageCollectorSingleton()
 int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
 {
   // Check if we can store a reference to the object in the map.
-  if(this->DeferredCollectionCount > 0)
+  if(this->CheckAccept())
     {
     // Create a reference to the object.
     ReferencesType::iterator i = this->References.find(obj);
@@ -954,6 +960,19 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
 
   // We do not have a reference to the object.
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkGarbageCollectorSingleton::CheckAccept()
+{
+  // Accept the reference only if deferred collection is enabled.  It
+  // is tempting to put a check against TotalNumberOfReferences here
+  // to collect every so many deferred calls, but this will NOT work.
+  // Some objects call UnRegister on other objects during
+  // construction.  We do not want to perform deferred collection
+  // while an object is under construction because the reference walk
+  // might call ReportReferences on a partially constructed object!
+  return this->DeferredCollectionCount > 0;
 }
 
 //----------------------------------------------------------------------------
