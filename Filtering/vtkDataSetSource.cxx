@@ -18,12 +18,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.15");
+vtkCxxRevisionMacro(vtkDataSetSource, "1.16");
 
 vtkDataSetSource::vtkDataSetSource()
 {
   // A source has no inputs by default.
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------

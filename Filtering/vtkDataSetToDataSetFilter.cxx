@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkDataSetToDataSetFilter.h"
 
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.67");
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.68");
 
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
@@ -32,6 +34,51 @@ vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 
 vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
 {
+}
+
+int vtkDataSetToDataSetFilter::CreateOutput(vtkInformation*,
+                                            vtkInformationVector** inputVector,
+                                            vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (input)
+    {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkDataSet *output = vtkDataSet::SafeDownCast(
+      info->Get(vtkDataObject::DATA_OBJECT()));
+    
+    if (!output || !output->IsA(input->GetClassName())) 
+      {
+      output = input->NewInstance();
+      output->SetPipelineInformation(info);
+      output->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+      }
+    return 1;
+    }
+  return 0;
+}
+
+int vtkDataSetToDataSetFilter::ProcessRequest(vtkInformation* request,
+                                              vtkInformationVector** inputVector,
+                                              vtkInformationVector* outputVector)
+{
+  // Handling REQUEST_DATA_OBJECT because if the filter is connected
+  // with SetInputConnection() as opposed to SetInput(), the output
+  // never gets created
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->CreateOutput(request, inputVector, outputVector);
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------

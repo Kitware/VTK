@@ -92,6 +92,15 @@ public:
   // By default copy the output update extent to the input
   virtual void ComputeInputUpdateExtents( vtkDataObject *output );
 
+  // Description:
+  // Transform pipeline requests from executives into old-style
+  // pipeline calls.  This works with the
+  // vtkStreamingDemandDrivenPipeline executive to maintain backward
+  // compatibility for filters written as subclasses of vtkSource.
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkDataSetToDataSetFilter();
   ~vtkDataSetToDataSetFilter();
@@ -99,6 +108,12 @@ protected:
   void ExecuteInformation();
 
   virtual int FillInputPortInformation(int, vtkInformation*);
+
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int CreateOutput(vtkInformation* request, 
+                           vtkInformationVector** inputVector, 
+                           vtkInformationVector* outputVector);
 
 private:
   vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&);  // Not implemented.
