@@ -408,9 +408,9 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
           me->Picker->Pick(((XButtonEvent*)event)->x,
                              me->Size[1] - ((XButtonEvent*)event)->y, 0.0,
                              me->CurrentRenderer);
+          me->HighlightActor(me->Picker->GetActor());
           if ( me->EndPickMethod ) 
             (*me->EndPickMethod)(me->EndPickMethodArg);
-          me->HighlightActor(me->Picker->GetActor());
           }
 	  break;
         }
