@@ -16,9 +16,8 @@ SET(VTK_VERSION
 
 #-----------------------------------------------------------------------------
 # Output directories.
-SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
-SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
-MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
+SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
@@ -35,6 +34,7 @@ INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
 # Platform configuration tests.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 
 SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
 SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
@@ -42,6 +42,7 @@ SET(VTK_SIZEOF_FLOAT  ${CMAKE_SIZEOF_FLOAT})
 SET(VTK_SIZEOF_INT    ${CMAKE_SIZEOF_INT})
 SET(VTK_SIZEOF_LONG   ${CMAKE_SIZEOF_LONG})
 SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
+CHECK_TYPE_SIZE("long long" VTK_SIZEOF_LONG_LONG)
 
 IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   MESSAGE(STATUS "Checking support for C++ type bool")
@@ -90,11 +91,16 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
 
-# Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
+# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
 
 # Compile the extensions into the build tree and load them.
-VTK_LOAD_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake)
+VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
+                             VTK_CMAKE_EXTENSIONS_COMPILED)
+IF(VTK_CMAKE_EXTENSIONS_COMPILED)
+  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
+ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
 
 #-----------------------------------------------------------------------------
 # Choose static or shared libraries.
@@ -341,11 +347,23 @@ VTK_THIRD_PARTY_OPTION(EXPAT expat)
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
 IF(CMAKE_COMPILER_IS_GNUCXX)
+  # A GCC compiler.  Quiet warning about strstream deprecation.
+  SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
   IF(WIN32)
     # The platform is gcc on cygwin.
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
     SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -mwin32")
   ENDIF(WIN32)
+  IF(MINGW)
+    LINK_LIBRARIES(-lgdi32)
+  ENDIF(MINGW)
+  IF(CMAKE_SYSTEM MATCHES "SunOS.*")
+    # Disable warnings that occur in X11 headers.
+    IF(DART_ROOT AND BUILD_TESTING)
+      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-unknown-pragmas")
+      SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")
+    ENDIF(DART_ROOT AND BUILD_TESTING)
+  ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 ELSE(CMAKE_COMPILER_IS_GNUCXX)
   IF(CMAKE_ANSI_CFLAGS)
     SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_ANSI_CFLAGS}")
@@ -354,6 +372,10 @@ ELSE(CMAKE_COMPILER_IS_GNUCXX)
      SET(VTK_REQUIRED_CXX_FLAGS
          "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
   ENDIF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+  #silence duplicate symbol warnings on AIX
+  IF(CMAKE_SYSTEM MATCHES "AIX.*")
+    SET(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -bhalt:5")
+  ENDIF(CMAKE_SYSTEM MATCHES "AIX.*")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(APPLE)
@@ -400,6 +422,13 @@ IF(VTK_OPENGL_HAS_OSMESA)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/FindOSMesa.cmake)
   MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
 ENDIF(VTK_OPENGL_HAS_OSMESA)
+
+# Off-Screen MESA cannot be used with Mangled MESA.
+IF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
+  MESSAGE(SEND_ERROR
+    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
+    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
+ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
 
 #-----------------------------------------------------------------------------
 # Configure VolumePro support.
@@ -668,15 +697,15 @@ IF(VTK_USE_PARALLEL)
   INSTALL_FILES(/include/vtk .h vtkParallelInstantiator)
 ENDIF(VTK_USE_PARALLEL)
 
-# Install cmake extension directory so user projects can build the commands.
+# Install cmake extensions so user projects can load them.
 INSTALL_FILES(/lib/vtk/CMake FILES
-              ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
-              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake
-              ${VTK_SOURCE_DIR}/CMake/cmVTKGenerateJavaDependencies.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
+              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
+            VTK_MAKE_INSTANTIATOR2 VTK_GENERATE_JAVA_DEPENDENCIES)
+  INSTALL_FILES(/lib/vtk/CMake FILES
+    "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}"
+  )
+ENDFOREACH(cmd)
 
 # Save the compiler settings so another project can import them.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
@@ -692,6 +721,9 @@ INCLUDE(${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
+IF(VTK_WRAP_HINTS)
+  INSTALL_FILES(/lib/vtk FILES ${VTK_WRAP_HINTS})
+ENDIF(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be
@@ -699,6 +731,7 @@ INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_FLAGS}")
 
 #-----------------------------------------------------------------------------
 # Allow local additions to this file without CVS conflicts.
