@@ -21,9 +21,10 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.63");
+vtkCxxRevisionMacro(vtkStripper, "1.63.6.1");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -70,6 +71,10 @@ void vtkStripper::Execute()
   // check input
   if ( (numCells=Mesh->GetNumberOfCells()) < 1  && inStrips->GetNumberOfCells() < 1)
     {
+    // pass through verts
+    output->CopyStructure(input);
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
     Mesh->Delete();
     vtkDebugMacro(<<"No data to strip!");
     return;
