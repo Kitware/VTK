@@ -104,7 +104,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    global ERROR_LOG_FD ERROR_STRING DEBUG
 
    # do not duplicate calls
-   set token "$methodClass::$methodName"
+   set token "$methodClass\::$methodName"
    global $token
    if {[info exists $token]} {
       return
