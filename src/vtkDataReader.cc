@@ -1027,7 +1027,7 @@ int vtkDataReader::ReadCells(FILE *fp, int size, int *data)
       {
       if ((retStat=fscanf(fp,"%d",data+i)) == EOF || retStat < 1) 
         {
-        vtkErrorMacro(<<"Error reading texture coordinates!");
+        vtkErrorMacro(<<"Error reading ascii cell data!");
         return 0;
         }
       }
