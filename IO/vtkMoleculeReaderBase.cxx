@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.8");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.8.2.1");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -148,7 +148,6 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->FileName = NULL;
   this->BScale = 1.0;
   this->HBScale = 1.0;
-  this->NumberOfAtoms = 0;
   this->AtomType = NULL;
   this->Points = NULL;
   this->RGB = NULL;
@@ -187,7 +186,6 @@ void vtkMoleculeReaderBase::Execute()
     {
     return;
     }
-  vtkDebugMacro(<<  this->NumberOfAtoms);
 
   if ((fp = fopen(this->FileName, "r")) == NULL) 
     {
@@ -207,7 +205,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
   vtkCellArray *newBonds;
 
   vtkDebugMacro(<< "Scanning the Molecule file");
-
   vtkPolyData *output = this->GetOutput();
 
   if ( !this->AtomType )
@@ -241,8 +238,8 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
   output->SetLines(newBonds);
   newBonds->Delete();
 
-  vtkDebugMacro(<< "read " << this->NumberOfAtoms << " and found " 
-    << newBonds->GetNumberOfCells() << " bonds" << endl);
+  vtkDebugMacro(<< "read " << this->NumberOfAtoms << " atoms and found " 
+                << newBonds->GetNumberOfCells() << " bonds" << endl);
 
   if ( this->RGB )
     {
@@ -253,18 +250,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->RGB = vtkUnsignedCharArray::New();
     }
   this->RGB->SetNumberOfComponents(3);
-  this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
+//  this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
   this->RGB->Allocate(3*this->NumberOfAtoms);
   this->RGB->SetName("rgb_colors");
 
   for(i=0; i < this->NumberOfAtoms; i++)
     {
-    this->RGB->InsertNextTuple(&vtkMoleculeReaderBaseAtomColors[AtomType->GetValue(i)][0]);
+    this->RGB->InsertNextTuple(
+      &vtkMoleculeReaderBaseAtomColors[AtomType->GetValue(i)][0]);
     }
 
   output->GetPointData()->SetScalars(this->RGB);
-
-  vtkDebugMacro(<< "assigned colors: " << NumberOfAtoms << endl);
 
   if ( this->Radii )
     {
@@ -275,16 +271,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->Radii = vtkFloatArray::New();
     }
   this->Radii->SetNumberOfComponents(3);
-  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
+//  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
   this->Radii->SetName("radius");
 
-  // we're obliged here to insert the scalars "radius" 3 times to make it a vector
-  // in order to use Glyph3D to color AND scale at the same time.
+  // We're obliged here to insert the scalars "radius" 3 times to make it a
+  // vector in order to use Glyph3D to color AND scale at the same time.
 
   for(i=0; i < this->NumberOfAtoms; i++)
     {
-    this->Radii->InsertNextTuple3(vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
+    this->Radii->InsertNextTuple3(
+      vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)]);
     }
@@ -295,15 +292,15 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
 }
 
 int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
-  vtkIdTypeArray *atype,
-  vtkCellArray *newBonds)
+                                     vtkIdTypeArray *atype,
+                                     vtkCellArray *newBonds)
 {
   register int i, j;
   register int nbonds;
   register int nbonds_this_atom;     // this is not used for the moment
   register float dx, dy, dz;
   float max, dist;
-  float *X, *Y;
+  float X[3], Y[3];
   vtkIdType bond[2];
 
   nbonds = 0;
@@ -311,7 +308,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
     {
     nbonds_this_atom = 0;
     bond[0] = i;
-    X = newPts->GetPoint(i);
+    newPts->GetPoint(i, X);
     for(j = i - 1; j >= 0 ; j--) 
       {
       /*
@@ -333,15 +330,22 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       max = dist*dist;
 
       if(atype->GetValue(i) == 0 || atype->GetValue(j) == 0)
+        {
         max *= HBScale;
+        }
       else
+        {
         max *= BScale;
+        }
 
-      Y = newPts->GetPoint(j);
+      newPts->GetPoint(j, Y);
       dx = X[0] - Y[0];
       dist = dx * dx;
 
-      if(dist > max ) continue;
+      if(dist > max ) 
+        {
+        continue;
+        }
 
       dy = X[1] - Y[1];
       dist += dy * dy;
