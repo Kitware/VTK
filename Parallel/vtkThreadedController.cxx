@@ -453,7 +453,7 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
 #else
 
   vtkErrorMacro("ThreadedController only works with windows api, pthreads or sproc");
-  return NULL;
+  return this;
   
 #endif  
 }
