@@ -17,10 +17,13 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.17");
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.18");
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -48,29 +51,42 @@ void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataStreamer::ComputeInputUpdateExtents(vtkDataObject *output)
-{  
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
-
-  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+int vtkPolyDataStreamer::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
+{
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // If we are actually streaming, then bypass the normal update process.
   if (this->NumberOfStreamDivisions > 1)
     {
-    this->GetInput()->SetUpdateExtent(-1, 0, 0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), -1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
-void vtkPolyDataStreamer::Execute()
+int vtkPolyDataStreamer::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPolyData *copy;
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   int outPiece, outNumPieces, outGhost;
@@ -119,8 +135,9 @@ void vtkPolyDataStreamer::Execute()
     pieceColors->Delete();
     }
   append->Delete();
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
@@ -130,6 +147,3 @@ void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
   os << indent << "ColorByPiece: " << this->ColorByPiece << endl;
 }
-
-
-

@@ -30,14 +30,14 @@
 #ifndef __vtkPolyDataStreamer_h
 #define __vtkPolyDataStreamer_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPolyDataStreamer *New();
 
-  vtkTypeRevisionMacro(vtkPolyDataStreamer,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataStreamer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,8 +58,8 @@ protected:
   ~vtkPolyDataStreamer();
   
   // Append the pieces.
-  void Execute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int NumberOfStreamDivisions;
   int ColorByPiece;
@@ -69,8 +69,3 @@ private:
 };
 
 #endif
-
-
-
-
-
