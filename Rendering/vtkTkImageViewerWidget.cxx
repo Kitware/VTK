@@ -274,14 +274,12 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
     {
     int netRefCount = 0;
     netRefCount =  self->ImageViewer->GetReferenceCount();
-    /*
     if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
         self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
         self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
       {
       netRefCount = netRefCount - 1;
       }
-    */
     if (netRefCount > 1)
       {
       vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
@@ -291,7 +289,7 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
     self->ImageViewer->SetWindowId ( (void*)NULL );
     self->ImageViewer->UnRegister(NULL);
     self->ImageViewer = NULL;
-    free (self->IV);
+    ckfree (self->IV);
   }
   ckfree((char *) memPtr);
 }
