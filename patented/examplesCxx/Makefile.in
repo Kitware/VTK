@@ -26,7 +26,8 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 EXAMPLES = medical1 \
 	medical2 \
-	medical3
+	medical3 \
+	sweptMac
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
