@@ -236,7 +236,6 @@ protected:
   //methods to read data
   int ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output);
   int ReadBinarySolution(FILE *fp, vtkStructuredGrid *output);
-  int ReadBinaryFunctionFile(FILE *fp);
   vtkFloatPoints *Grid;
   vtkFloatScalars *Density;
   vtkFloatScalars *Energy;

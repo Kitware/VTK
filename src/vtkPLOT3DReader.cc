@@ -167,13 +167,14 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(funcFp) == ASCII )
-      vtkWarningMacro("reading ascii function files currently not supported");
+      vtkWarningMacro("reading function files currently not supported");
     // error = this->ReadASCIIFunctionFile(funcFp);
     else
       {
       fclose(funcFp);
       funcFp = fopen(this->FunctionFilename, "rb");
-      error = this->ReadBinaryFunctionFile(funcFp);
+      vtkWarningMacro("reading function files currently not supported");
+      // error = this->ReadBinaryFunctionFile(funcFp);
       }
     
     if ( error )
