@@ -285,7 +285,8 @@ IF (VTK_WRAP_PYTHON)
         vtkTkRenderWidgetPython
         vtkTkImageViewerWidgetPython
         vtkTkImageWindowWidgetPython)
-     ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
+     ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED 
+                 RenderingPythonTkWidgets_SRCS)
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
