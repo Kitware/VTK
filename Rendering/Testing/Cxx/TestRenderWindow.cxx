@@ -16,7 +16,7 @@
 
 =========================================================================*/
 #include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
@@ -109,8 +109,7 @@ int main( int argc, char *argv[] )
     
   fdata = renWin->GetRGBAPixelData( 0, 0, 99, 99, 1 );
   renWin->SetRGBAPixelData( 100, 100, 199, 199, fdata, 1, 0 );
-  vtkOpenGLRenderWindow *orw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
-  orw->ReleaseRGBAPixelData( fdata );
+  renWin->ReleaseRGBAPixelData( fdata );
   
   renWin->SwapBuffersOff();
   
