@@ -49,7 +49,8 @@ INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkHybrid Hybrid_SRCS VTK_HYBRID_EXPORT
+  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator Hybrid_SRCS Hybrid_SRCS
+                        EXPORT_MACRO VTK_HYBRID_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 

@@ -245,9 +245,19 @@ INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
 IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkRendering Rendering_SRCS VTK_RENDERING_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  IF(HAVE_OPENGL_SRCS)
+    # Setup vtkInstantiator registration for this library's classes.
+    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator Rendering_SRCS
+                          Rendering_SRCS RenderingOpenGL_SRCS
+                          EXPORT_MACRO VTK_RENDERING_EXPORT
+                          HEADER_LOCATION ${VTK_BINARY_DIR})
+  ELSE(HAVE_OPENGL_SRCS)
+    # Setup vtkInstantiator registration for this library's classes.
+    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator Rendering_SRCS
+                          Rendering_SRCS
+                          EXPORT_MACRO VTK_RENDERING_EXPORT
+                          HEADER_LOCATION ${VTK_BINARY_DIR})
+  ENDIF()
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
 IF (VTK_WRAP_TCL)

@@ -84,7 +84,8 @@ INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkFiltering Filtering_SRCS VTK_FILTERING_EXPORT
+  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator Filtering_SRCS Filtering_SRCS
+                        EXPORT_MACRO VTK_FILTERING_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 

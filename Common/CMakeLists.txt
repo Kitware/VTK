@@ -181,7 +181,8 @@ INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkCommon Common_SRCS VTK_COMMON_EXPORT
+  VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator Common_SRCS Common_SRCS
+                        EXPORT_MACRO VTK_COMMON_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 

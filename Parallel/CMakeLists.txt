@@ -62,7 +62,8 @@ INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkParallel Parallel_SRCS VTK_PARALLEL_EXPORT
+  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator Parallel_SRCS Parallel_SRCS
+                        EXPORT_MACRO VTK_PARALLEL_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
