@@ -41,6 +41,9 @@ void vlGlrProperty::Render(vlGlrRenderer *ren)
 {
   int i, method;
 
+  // unbind any textures for starters
+  texbind(TX_TEXTURE_0,0);
+
   lmcolor (LMC_NULL);
   mat[1] = this->Transparency;
   mat[15] = this->SpecularPower;
@@ -75,14 +78,4 @@ void vlGlrProperty::Render(vlGlrRenderer *ren)
     }
   
   shademodel(method);
-
-  if ( this->Texture ) //load texture map
-    {
-    this->Texture->Update();
-    if ( this->Texture->GetMTime() > this->GetMTime() )
-      {
-      //ok Ken, load texture here
-
-      }
-    }
 }
