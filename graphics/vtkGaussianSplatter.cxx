@@ -86,25 +86,24 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->CapValue = 0.0;
 
   this->AccumulationMode = VTK_ACCUMULATION_MODE_MAX;
+  this->NullValue = 0.0;
 }
 
 void vtkGaussianSplatter::Execute()
 {
   int numPts, numNewPts;
-  int ptId, i, j, k;
+  int ptId, i, j, k, idx;
+  int min[3], max[3];
   vtkPointData *pd;
   vtkNormals *inNormals=NULL;
   vtkScalars *inScalars=NULL;
-  int loc[3], ip, jp, kp, idir, jdir, kdir;
+  float loc[3], dist2, cx[3];
   vtkStructuredPoints *output = this->GetOutput();
   vtkDataSet *input= this->GetInput();
+  int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   
   vtkDebugMacro(<< "Splatting data");
 
-  // init a couple variables to prevent compiler warnings
-  jp = 0;
-  kp = 0;
-  
   //  Make sure points are available
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
@@ -125,7 +124,7 @@ void vtkGaussianSplatter::Execute()
   this->NewScalars->SetNumberOfScalars(numNewPts);
   for (i=0; i<numNewPts; i++)
     {
-    this->NewScalars->SetScalar(i,0.0);
+    this->NewScalars->SetScalar(i,this->NullValue);
     }
   this->Visited = new char[numNewPts];
   for (i=0; i < numNewPts; i++)
@@ -136,7 +135,7 @@ void vtkGaussianSplatter::Execute()
   output->SetDimensions(this->GetSampleDimensions());
   this->ComputeModelBounds();
 
-  //  Set up proper function pointers
+  //  Set up function pointers to sample functions
   //
   pd = input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
@@ -159,22 +158,19 @@ void vtkGaussianSplatter::Execute()
                    //but this makes purify happy.
     }
 
-  // Traverse all points - injecting into volume.
-  // For each input point, determine which cell it is in.  Then start
-  // the recursive distribution of sampling function.
+  // Traverse all points - splatting each into the volume.
+  // For each point, determine which voxel it is in.  Then determine
+  // the subvolume that the splat is contained in, and process that.
   //
   int abortExecute=0;
+  int progressInterval = numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abortExecute; ptId++)
     {
-    if ( ! (ptId % 5000) )
+    if ( ! (ptId % progressInterval) )
       {
       vtkDebugMacro(<<"Inserting point #" << ptId);
-      this->UpdateProgress (ptId/numPts);
-      if (this->GetAbortExecute())
-        {
-        abortExecute = 1;
-        break;
-        }
+      this->UpdateProgress ((float)ptId/numPts);
+      abortExecute = this->GetAbortExecute();
       }
 
     this->P = input->GetPoint(ptId);
@@ -187,33 +183,47 @@ void vtkGaussianSplatter::Execute()
       this->S = inScalars->GetScalar(ptId);
       }
 
+    // Determine the voxel that the point is in
     for (i=0; i<3; i++)  
       {
-      loc[i] = (int) ((float)(this->P[i] - this->Origin[i]) / this->Spacing[i]);
+      loc[i] = (this->P[i] - this->Origin[i]) / this->Spacing[i];
       }
 
-    //  For each of the eight corners of the cell, need to evaluate sample
-    //  function and then begin recursive distribution
-    //
-    for (i=0; i < 2; i++) 
+    // Determine splat footprint
+    for (i=0; i<3; i++)
       {
-      for (j=0; j < 2; j++) 
+      min[i] = (int) floor((double)loc[i]-this->SplatDistance[i]);
+      max[i] = (int) ceil((double)loc[i]+this->SplatDistance[i]);
+      if ( min[i] < 0 )
         {
-        for (k=0; k < 2; k++) 
-          {
-          if ( (ip=loc[0]+i) >= 0 && ip < this->SampleDimensions[0] &&
-               (jp=loc[1]+j) >= 0 && jp < this->SampleDimensions[1] &&
-               (kp=loc[2]+k) >= 0 && kp < this->SampleDimensions[2] ) 
-            {
-            idir = (i==0 ? -1 : 1);
-            jdir = (j==0 ? -1 : 1);
-            kdir = (k==0 ? -1 : 1);
-            this->SplitIJK (ip, idir, jp, jdir, kp, kdir);
-            }
-          }
+        min[i] = 0;
+        }
+      if ( max[i] >= this->SampleDimensions[i] )
+        {
+        max[i] = this->SampleDimensions[i] - 1;
         }
       }
-    }
+    
+    // Loop over all sample points in volume within footprint and
+    // evaluate the splat
+    for (k=min[2]; k<=max[2]; k++)
+      {
+      cx[2] = this->Origin[2] + this->Spacing[2]*k;
+      for (j=min[1]; j<=max[1]; j++)
+        {
+        cx[1] = this->Origin[1] + this->Spacing[1]*j;
+        for (i=min[0]; i<=max[0]; i++)
+          {
+          cx[0] = this->Origin[0] + this->Spacing[0]*i;
+          if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
+            {
+            idx = i + j*this->SampleDimensions[0] + k*sliceSize;
+            this->SetScalar(idx,dist2);
+            }//if within splat radius
+          }
+        }
+      }//within splat footprint
+    }//for all input points
 
   // If capping is turned on, set the distances of the outside of the volume
   // to the CapValue.
@@ -284,8 +294,18 @@ void vtkGaussianSplatter::ComputeModelBounds()
     {
     this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
+    if ( this->Spacing[i] <= 0.0 )
+      {
+      this->Spacing[i] = 1.0;
+      }
     }
   output->SetSpacing(this->Spacing);
+  
+  // Determine the splat propagation distance...used later
+  for (i=0; i<3; i++)
+    {
+    this->SplatDistance[i] = maxDist / this->Spacing[i];
+    }
 }
 
 // Set the dimensions of the sampling structured point set.
@@ -401,277 +421,6 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     }
 }
 
-void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir, 
-                                   int k, int kdir)
-{
-  int     idx, ip, jp, kp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2= (this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling on opposite cell vertex, cell walls that emanate
-    //  from this vertex, and cell edges that emanate from this vertex.
-    //
-    ip = i + idir;
-    jp = j + jdir;
-    kp = k + kdir;
-
-    if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-         jp >= 0 && jp < this->SampleDimensions[1] && 
-         kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitIJK (ip, idir, jp, jdir, kp, kdir);
-      }
-
-    //  Don't forget cell walls emanating from this vertex
-    //
-    if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-         jp >= 0 && jp < this->SampleDimensions[1] )
-      {
-      this->SplitIJ (ip, idir, jp, jdir, k);
-      }
-
-    if ( jp >= 0 && jp < this->SampleDimensions[1] && 
-         kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitJK (i, jp, jdir, kp, kdir);
-      }
-
-    if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-         kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitIK (ip, idir, j, kp, kdir);
-      }
-
-    //  Don't forget the cell edges emanating from this vertex
-    //
-    if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      {
-      this->SplitI (ip, idir, j, k);
-      }
-    if ( jp >= 0 && jp < this->SampleDimensions[1] )
-      {
-      this->SplitJ (i, jp, jdir, k);
-      }
-    if ( kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitK (i, j, kp, kdir);
-      }
-    }
-}
-
-void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
-{
-  int     idx, ip, jp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2= (this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling on opposite cell vertex and cell edges that
-    //  emanate from this vertex. 
-    //
-    ip = i + idir;
-    jp = j + jdir;
-
-    if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-    jp >= 0 && jp < this->SampleDimensions[1] )
-      {
-      this->SplitIJ (ip, idir, jp, jdir, k);
-      }
-
-    //  Don't forget the cell edges emanating from this vertex
-    //
-    if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      {
-      this->SplitI (ip, idir, j, k);
-      }
-
-    if ( jp >= 0 && jp < this->SampleDimensions[1] )
-      {
-      this->SplitJ (i, jp, jdir, k);
-      }
-
-    }
-}
-
-void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
-{
-  int     idx, jp, kp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2= (this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling on opposite cell vertex and cell edges that
-    //  emanate from this vertex. 
-    //
-    jp = j + jdir;
-    kp = k + kdir;
-
-    if ( jp >= 0 && jp < this->SampleDimensions[1] && 
-    kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitJK (i, jp, jdir, kp, kdir);
-      }
-
-    //  Don't forget the cell edges emanating from this vertex
-    //
-    if ( jp >= 0 && jp < this->SampleDimensions[1] )
-      {
-     this->SplitJ (i, jp, jdir, k);
-      }
-
-    if ( kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-     this->SplitK (i, j, kp, kdir);
-      }
-    }
-}
-
-void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
-{
-  int     idx, ip, kp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2= (this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling on opposite cell vertex and cell edges that
-    //  emanate from this vertex. 
-    //
-    ip = i + idir;
-    kp = k + kdir;
-
-    if ( ip >= 0 && ip < this->SampleDimensions[0] && kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitIK (ip,idir, j, kp,kdir);
-      }
-
-    //  Don't forget the cell edges emanating from this vertex
-    //
-    if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      {
-      this->SplitI (ip,idir, j, k);
-      }
-
-    if ( kp >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitK (i, j, kp,kdir);
-      }
-    }
-}
-
-void vtkGaussianSplatter::SplitI (int i, int idir, int j, int k)
-{
-  int     idx, ip;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling along this edge.
-    //
-    if ( (ip=i+idir) >= 0 && ip < this->SampleDimensions[0] )
-      {
-      this->SplitI (ip,idir, j, k);
-      }
-    }
-}
-
-void vtkGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
-{
-  int     idx, jp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling along this edge.
-    //
-    if ( (jp=j+jdir) >= 0 && jp < this->SampleDimensions[1] )
-      {
-      this->SplitJ (i, jp,jdir, k);
-      }
-    }
-}
-
-void vtkGaussianSplatter::SplitK (int i, int j, int k, int kdir)
-{
-  int     idx, kp;
-  float   cx[3], dist2;
-
-  cx[0] = this->Origin[0] + this->Spacing[0]*i;
-  cx[1] = this->Origin[1] + this->Spacing[1]*j;
-  cx[2] = this->Origin[2] + this->Spacing[2]*k;
-
-  if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
-    {
-    idx = i + j*this->SampleDimensions[0] + 
-          k*this->SampleDimensions[0]*this->SampleDimensions[1];
-
-    this->SetScalar(idx,dist2);
-
-    //  Continue sampling along this edge.
-    //
-    if ( (kp=k+kdir) >= 0 && kp < this->SampleDimensions[2] )
-      {
-      this->SplitK (i, j, kp,kdir);
-      }
-    }
-}
-
 //
 //  Gaussian sampling
 //
@@ -695,8 +444,8 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
   r2 = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 
   if ( (mag=this->N[0]*this->N[0]+
-	    this->N[1]*this->N[1]+
-	    this->N[2]*this->N[2]) != 1.0  ) 
+            this->N[1]*this->N[1]+
+            this->N[2]*this->N[2]) != 1.0  ) 
     {
     if ( mag == 0.0 )
       {
@@ -765,7 +514,8 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
-  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+  os << indent << "Sample Dimensions: (" 
+               << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";
 
@@ -773,19 +523,27 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Exponent Factor: " << this->ExponentFactor << "\n";
 
   os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] 
+     << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] 
+     << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] 
+     << ", " << this->ModelBounds[5] << ")\n";
 
-  os << indent << "Normal Warping: " << (this->NormalWarping ? "On\n" : "Off\n");
+  os << indent << "Normal Warping: " 
+     << (this->NormalWarping ? "On\n" : "Off\n");
   os << indent << "Eccentricity: " << this->Eccentricity << "\n";
 
-  os << indent << "Scalar Warping: " << (this->ScalarWarping ? "On\n" : "Off\n");
+  os << indent << "Scalar Warping: " 
+     << (this->ScalarWarping ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
 
-  os << indent << "Accumulation Mode: " << this->GetAccumulationModeAsString() << "\n";
+  os << indent << "Accumulation Mode: " 
+     << this->GetAccumulationModeAsString() << "\n";
+
+  os << indent << "Null Value: " << this->NullValue << "\n";
 }
 
