@@ -213,7 +213,6 @@ unsigned long int vtkImageMultipleInputFilter::GetPipelineMTime()
     {
     if ( ! this->Inputs[idx])
       {
-      vtkWarningMacro(<< "GetPipelineMTime: Input " << idx << " not set.");
       time2 = time1;
       }
     else
@@ -293,7 +292,7 @@ void vtkImageMultipleInputFilter::InternalUpdate()
   // We could handle NULLs in our input list, but ...
   if ( ! this->Inputs || ! this->Inputs[0])
     {
-    vtkErrorMacro("Input0 required");
+    vtkErrorMacro("First input is not set.");
     return;
     }
   
@@ -351,37 +350,41 @@ void vtkImageMultipleInputFilter::InternalUpdate()
     }
     
   // Make sure the Inputs have been set.
-  for (idx = 1; idx < this->NumberOfInputs; ++idx)
+  if ( ! this->Inputs[0])
     {
-    if ( ! this->Inputs[idx])
-      {
-      vtkErrorMacro(<< "An input is not set.");
-      this->Updating = 0;
-      return;
-      }
+    vtkErrorMacro(<< "The first input is not set.");
+    this->Updating = 0;
+    return;
     }
     
   // Get the Input Regions
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    this->Inputs[idx]->SetUpdateExtent(this->Output->GetUpdateExtent());
-    this->ComputeRequiredInputUpdateExtent(idx);
-    // ... no streaming implemented yet ...
-    this->Inputs[idx]->Update();
-    this->Regions[idx] = this->Inputs[idx]->GetScalarRegion();
-    this->Regions[idx]->SetAxes(5, this->ExecutionAxes);
-    // Make sure we got the input.
-    if ( ! this->Regions[idx]->AreScalarsAllocated())
+    if (this->Inputs[idx])
       {
-      vtkErrorMacro("Update: Could not get input " << idx);
-      for (idx2 = 0; idx2 <= idx; ++idx2)
+      this->Inputs[idx]->SetUpdateExtent(this->Output->GetUpdateExtent());
+      this->ComputeRequiredInputUpdateExtent(idx);
+      // ... no streaming implemented yet ...
+      this->Inputs[idx]->Update();
+      this->Regions[idx] = this->Inputs[idx]->GetScalarRegion();
+      this->Regions[idx]->SetAxes(5, this->ExecutionAxes);
+      // Make sure we got the input.
+      if ( ! this->Regions[idx]->AreScalarsAllocated())
 	{
-	this->Regions[idx2]->Delete();
-	this->Regions[idx2] = NULL;
-	}
-      this->Updating = 0;
-      return;
-      } 
+	vtkErrorMacro("Update: Could not get input " << idx);
+	for (idx2 = 0; idx2 <= idx; ++idx2)
+	  {
+	  this->Regions[idx2]->Delete();
+	  this->Regions[idx2] = NULL;
+	  }
+	this->Updating = 0;
+	return;
+	} 
+      }
+    else
+      {
+      this->Regions[idx] = NULL;
+      }
     }
 
   // The StartMethod call is placed here to be after updating the input.
@@ -393,11 +396,15 @@ void vtkImageMultipleInputFilter::InternalUpdate()
   // inRegion is just a handle to the data.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    this->Regions[idx]->Delete();
-    this->Regions[idx] = NULL;
+    if (this->Regions[idx])
+      {
+      this->Regions[idx]->Delete();
+      this->Regions[idx] = NULL;
+      }
   
     // Like the graphics pipeline this source releases inputs data.
-    if (this->Inputs[idx]->ShouldIReleaseData())
+    if (this->Inputs && this->Inputs[idx] &&
+	this->Inputs[idx]->ShouldIReleaseData())
       {
       this->Inputs[idx]->ReleaseData();
       }
@@ -418,16 +425,21 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
   int idx;
   
   // Make sure the Input has been set.
+  // we require that input 1 be set.
+  if ( ! this->Inputs[0])
+    {
+    vtkErrorMacro(<< "UpdateImageInformation: Input is not set.");
+    return;
+    }
+  
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    if ( ! this->Inputs[idx])
+    if (this->Inputs[idx])
       {
-      vtkErrorMacro(<< "UpdateImageInformation: Input " << idx 
-        << " is not set.");
-      return;
+      this->Inputs[idx]->UpdateImageInformation();
       }
-    this->Inputs[idx]->UpdateImageInformation();
     }
+  
   // make sure we have an output
   this->CheckCache();
   
@@ -522,7 +534,10 @@ void vtkImageMultipleInputFilter::RecursiveLoopExecute(int dim,
       // set up the lower dimensional regions.
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
 	{
-	inRegions[idx]->SetAxisExtent(axis, coordinate, coordinate);
+	if (inRegions[idx])
+	  {
+	  inRegions[idx]->SetAxisExtent(axis, coordinate, coordinate);
+	  }
 	}
       outRegion->SetAxisExtent(axis, coordinate, coordinate);
       this->RecursiveLoopExecute(dim - 1, inRegions, outRegion);
@@ -530,7 +545,10 @@ void vtkImageMultipleInputFilter::RecursiveLoopExecute(int dim,
     // restore the original extent
     for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
-      inRegions[idx]->SetAxisExtent(axis, inMin, inMax);
+      if (inRegions[idx])
+	{
+	inRegions[idx]->SetAxisExtent(axis, inMin, inMax);
+	}
       }
     outRegion->SetAxisExtent(axis, outMax, outMax);
     }

@@ -215,7 +215,7 @@ void vtkImageClip::ResetOutputWholeExtent()
 //----------------------------------------------------------------------------
 // Description:
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::Update()
+void vtkImageClip::InternalUpdate()
 {
   // Make sure the Input has been set.
   if ( ! this->Input)
@@ -343,6 +343,8 @@ static void vtkImageClipCompute(vtkImageRegion *region, T *ptr)
   int found, best, count = 0;
   int axes[5];
 
+  backGround = 0;
+  
   // Find back ground pixel.
   for (idx = 0; idx < 32; ++idx)
     {

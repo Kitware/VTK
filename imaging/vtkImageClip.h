@@ -81,7 +81,7 @@ public:
   void SetOutputAxisWholeExtent(int axis, int min, int max);
   
   void ResetOutputWholeExtent();
-  void Update();
+  void InternalUpdate();
 
 protected:
   // Time when OutputImageExtent was computed.

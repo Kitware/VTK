@@ -218,7 +218,7 @@ void vtkImageFilter::InternalUpdate()
     {
     this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
     this->Input->Update();
-    this->Output->SetScalarData(this->Input->GetScalarData());
+    this->Output->CacheScalarData(this->Input->GetScalarData());
     this->Output->SetNumberOfScalarComponents(
 		      this->Input->GetNumberOfScalarComponents());
     // release input data

@@ -141,6 +141,3 @@ void vtkImageMagnify::SetFilteredAxes(int num, int *axes)
 
 
 
-
-
-
