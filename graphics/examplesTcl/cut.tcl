@@ -71,6 +71,21 @@ $cam1 SetFocalPoint 9.71821 0.458166 29.3999
 $cam1 SetPosition 2.7439 -37.3196 38.7167
 $cam1 SetViewUp -0.16123 0.264271 0.950876
 
+set lights [ren1 GetLights]
+$lights InitTraversal
+set light [$lights GetNextItem]
+$light SetLightTypeToSceneLight
+
+vtkLight light2
+eval light2 SetFocalPoint [$light GetFocalPoint]
+set pos [$light GetPosition]
+light2 SetPosition [expr [lindex $pos 0] * -1.0] [expr [lindex $pos 1] * -1.0] [expr [lindex $pos 2] * -1.0]
+light2 SetIntensity .7
+
+ren1 AddLight light2
+
+iren LightFollowCameraOff
+
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}

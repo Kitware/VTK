@@ -45,6 +45,8 @@ vtkActor outlineActor
 ren1 AddActor outlineActor
 ren1 AddActor planeActor
 ren1 SetBackground 1 1 1
+ren1 TwoSidedLightingOff
+
 renWin SetSize 500 500
 iren Initialize
 
@@ -55,6 +57,12 @@ set cam1 [ren1 GetActiveCamera]
     $cam1 SetFocalPoint 8.88908 0.595038 29.3342
     $cam1 SetPosition -12.3332 31.7479 41.2387
     $cam1 SetViewUp 0.060772 -0.319905 0.945498
+
+set lights [ren1 GetLights]
+$lights InitTraversal
+set light [$lights GetNextItem]
+$light SetLightTypeToSceneLight
+iren LightFollowCameraOff
 
 # render the image
 #

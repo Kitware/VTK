@@ -38,6 +38,12 @@ $cam1 Zoom 1.4
 iren Initialize
 renWin Render
 
+set lights [ren1 GetLights]
+$lights InitTraversal
+set light [$lights GetNextItem]
+$light SetLightTypeToSceneLight
+iren LightFollowCameraOff
+
 $cam1 Azimuth 30
 $cam1 Elevation -50
 
