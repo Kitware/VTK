@@ -32,6 +32,7 @@ vtkMarchingCubes iso
     iso SetInput [v16 GetOutput]
     iso SetValue 0 1150
     iso ComputeGradientsOn
+    iso ComputeScalarsOff
     iso SetLocator locator
 
 vtkVectorNorm gradient
@@ -41,6 +42,7 @@ vtkDataSetMapper isoMapper
     isoMapper SetInput [gradient GetOutput]
     isoMapper ScalarVisibilityOn
     isoMapper SetScalarRange 0 1200
+    isoMapper ImmediateModeRenderingOn
 
 vtkActor isoActor
     isoActor SetMapper isoMapper
