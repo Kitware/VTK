@@ -45,8 +45,8 @@ set sliceLabel [label $viewerControls.slice \
 		    -text "slice: [expr $CURSOR_Z * $IMAGE_MAG_Z]"]
 pack $downButton $upButton $sliceLabel -side left -expand t -fill both
 
-vtkRenderWindow renWin
-set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264 -rw renWin]
+vtkRenderWindow renWinx
+set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264 -rw renWinx]
 pack $renderWidget -side top
 
 
