@@ -152,22 +152,30 @@ protected:
 
   int Mark;
   int NumFlips;
+
+private:
+  vtkIdList *Wave;
+  vtkIdList *Wave2;
+  vtkIdList *CellIds;
+  vtkIdList *EdgeNeighbors;
+  vtkIdList *Map;
+  vtkPolyData *OldMesh;
+  vtkPolyData *NewMesh;
+  int *Visited;
+
   // Returns 1 if neighbor cells need to be checked, 0 otherwise.
   // edgeNeighbors is temp storage for this routine to use. We do not
   // access its values outside this routine. This is to avoid
   // New/Delete's within the routine.
-  int TraverseAndOrder(int cellId, vtkIdList *edgeNeighbors,
-		       int *Visited,
-		       vtkPolyData *OldMesh, vtkPolyData *NewMesh);
+  int TraverseAndOrder(int cellId);
 
   // edgeNeighbors is temp storage for this routine to use. We do not
   // access its values outside this routine. This is to avoid
   // New/Delete's within the routine.
   void MarkAndReplace(int cellId, int n, int replacement,
-		      vtkNormals *PolyNormals, vtkIdList *edgeNeighbors,
-		      int *Visited, vtkIdList *Map,
-		      vtkPolyData *OldMesh, vtkPolyData *NewMesh,
-		      float CosAngle);
+                      vtkNormals *PolyNormals,
+                      float CosAngle);
+
 };
 
 #endif
