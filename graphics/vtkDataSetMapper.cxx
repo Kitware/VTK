@@ -71,7 +71,7 @@ void vtkDataSetMapper::SetInput(vtkDataSet *in)
     }
 }
 
-void vtkDataSetMapper::ReleaseGraphicsResources( vtkRenderWindow *renWin )
+void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 {
   if (this->PolyDataMapper)
     {

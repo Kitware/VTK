@@ -378,7 +378,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
 
 
 void
-vtkOpenGLProjectedPolyDataRayBounder::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+vtkOpenGLProjectedPolyDataRayBounder::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->DisplayList)
     {

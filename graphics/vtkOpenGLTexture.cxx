@@ -254,7 +254,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
 }
 
 
-void vtkOpenGLTexture::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   GLuint tempIndex;
   

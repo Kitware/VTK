@@ -116,9 +116,9 @@ public:
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkRenderWindow *);
+  void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Methods to traverse the parts of an assembly. Each part (starting from

@@ -89,9 +89,9 @@ class VTK_EXPORT vtkLODActor : public vtkActor
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkRenderWindow *);
+  void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Add another level of detail.  They do not have to be in any order

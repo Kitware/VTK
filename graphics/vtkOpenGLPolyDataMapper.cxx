@@ -86,7 +86,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 
 // Release the graphics resources used by this mapper.  In this case, release
 // the display list if any.
-void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->ListId)
     {

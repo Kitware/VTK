@@ -155,17 +155,18 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   return renderedSomething;
 }
 
-void vtkAssembly::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   vtkActor *actor;
-  
+
+  vtkActor::ReleaseGraphicsResources(renWin);
+
   // broadcast the message down the Paths
   for ( this->InitPartTraversal(); (actor  = this->GetNextPart()); )
     {
     actor->ReleaseGraphicsResources(renWin);
     }
 }
-
 
 void vtkAssembly::InitPartTraversal()
 {

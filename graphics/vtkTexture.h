@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageToStructuredPoints.h"
 
 class vtkRenderer;
-class vtkRenderWindow;
+class vtkWindow;
 
 class VTK_EXPORT vtkTexture : public vtkObject
 {
@@ -92,9 +92,9 @@ public:
 
   // Description:
   // Release any graphics resources that are being consumed by this texture.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkRenderWindow *) {};
+  virtual void ReleaseGraphicsResources(vtkWindow *) {};
 
   // Description:
   // Abstract interface to renderer. Each concrete subclass of 

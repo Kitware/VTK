@@ -110,7 +110,7 @@ void vtkVolumeRayCastMapper::SetGradientEstimator( vtkEncodedGradientEstimator *
 }
 
 
-void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   // pass this information onto the ray bounder
   if (this->RayBounder)

@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkVolumeMapper;
 class vtkVolumeCollection;
-class vtkRenderWindow;
+class vtkWindow;
 
 class VTK_EXPORT vtkVolume : public vtkProp3D
 {
@@ -95,7 +95,7 @@ public:
 
   // Description:
   // Release any graphics resources that are being consumed by this volume.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 

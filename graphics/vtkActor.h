@@ -105,7 +105,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 

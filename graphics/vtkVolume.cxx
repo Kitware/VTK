@@ -306,12 +306,10 @@ void vtkVolume::Render( vtkRenderer *ren )
 
 void vtkVolume::ReleaseGraphicsResources(vtkWindow *win)
 {
-  vtkRenderWindow *renWin = (vtkRenderWindow *)win;
-
   // pass this information onto the mapper
   if (this->VolumeMapper)
     {
-    this->VolumeMapper->ReleaseGraphicsResources(renWin);
+    this->VolumeMapper->ReleaseGraphicsResources(win);
     }
 }
 

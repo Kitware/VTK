@@ -69,9 +69,9 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
-  // The parameter RenderWindow could be used to determine which graphic
+  // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkRenderWindow *);
+  void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Draw method for OpenGL.

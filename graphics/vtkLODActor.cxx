@@ -223,14 +223,11 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
 }
 
 
-void vtkLODActor::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkLODActor::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   vtkMapper *mapper;
 
-  if (this->Mapper)
-    {
-    this->Mapper->ReleaseGraphicsResources(renWin);
-    }
+  vtkActor::ReleaseGraphicsResources(renWin);
   
   // broadcast the message down to the individual LOD mappers
   for ( this->LODMappers->InitTraversal();

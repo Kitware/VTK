@@ -860,7 +860,7 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 	  aProp != NULL;
 	  aProp = this->Props->GetNextItem() )
       {
-	aProp->ReleaseGraphicsResources(this->RenderWindow);
+      aProp->ReleaseGraphicsResources(this->RenderWindow);
       }
     // what about lights?
     // what about cullers?
