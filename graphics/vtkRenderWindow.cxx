@@ -64,7 +64,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->StereoType = VTK_STEREO_RED_BLUE;
   this->StereoStatus = 0;
   this->Interactor = NULL;
-  strcpy(this->Name,"Visualization Toolkit");
+  this->WindowName = strdup( "Visualization Toolkit" );
   this->AAFrames = 0;
   this->FDFrames = 0;
   this->SubFrames = 0;
@@ -99,6 +99,8 @@ vtkRenderWindow::~vtkRenderWindow()
     {
     delete aren;
     }
+  if( WindowName ) 
+    delete [] this->WindowName;
 }
 
 void vtkRenderWindow::SetDesiredUpdateRate(float rate)
@@ -565,7 +567,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
-  os << indent << "Name: " << this->Name << "\n";
+  os << indent << "WindowName: " << this->WindowName << "\n";
   temp = this->GetPosition();
   os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
   temp = this->GetSize();
