@@ -67,10 +67,6 @@ public:
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
 
-  // Description:
-  // Get the output of this filter.
-  vtkDataObject *GetOutput() {return this->Output;};
-
 };
 
 #endif
