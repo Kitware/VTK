@@ -259,6 +259,16 @@ void vtkImageOpenClose3D::SetInput(vtkImageCache *input)
     return;
     }
   
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+  if (input)
+    {
+    input->Register(this);
+    }
+  
   this->Input = input;
   this->Modified();
 
