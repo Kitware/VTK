@@ -298,6 +298,11 @@ void vtkDataObject::UpdateData()
     if (this->Source)
       {
       this->Source->UpdateData(this);
+      // This is here for the unstructured data.
+      // It has no effect on the structured data.
+      // The alternative is to have it in every execute method.
+      this->Piece = this->UpdatePiece;
+      this->NumberOfPieces = this->UpdateNumberOfPieces;
       } 
     } 
 }
@@ -579,44 +584,6 @@ int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
   return 0;
 }
 
-
-//----------------------------------------------------------------------------
-
-void vtkDataObject::ModifyExtentForUpdateExtent()
-{
-  switch ( this->GetExtentType() )
-    {
-    // Release data if the piece and number of pieces does not match the
-    // update piece and update number of pieces
-    case VTK_PIECES_EXTENT:
-      if ( this->UpdatePiece != this->Piece ||
-	   this->UpdateNumberOfPieces != this->NumberOfPieces )
-	{
-	this->ReleaseData();
-	this->Piece = this->UpdatePiece;
-	this->NumberOfPieces = this->UpdateNumberOfPieces;
-	}
-      break;
-
-    case VTK_3D_EXTENT:
-      if ( this->UpdateExtent[0] < this->Extent[0] ||
-	   this->UpdateExtent[1] > this->Extent[1] ||
-	   this->UpdateExtent[2] < this->Extent[2] ||
-	   this->UpdateExtent[3] > this->Extent[3] ||
-	   this->UpdateExtent[4] < this->Extent[4] ||
-	   this->UpdateExtent[5] > this->Extent[5] )
-	{
-	this->ReleaseData();
-	memcpy( this->Extent, this->UpdateExtent, 6*sizeof(int) );
-	}
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-}
 
 //----------------------------------------------------------------------------
 

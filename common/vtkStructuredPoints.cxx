@@ -64,12 +64,6 @@ vtkStructuredPoints::vtkStructuredPoints()
   this->SetScalarType(VTK_FLOAT);
 }
 
-void vtkStructuredPoints::ModifyExtentForUpdateExtent()
-{
-  // Make sure the extent is the whole extent
-  this->SetUpdateExtent( this->WholeExtent );
-}
-
 void vtkStructuredPoints::PropagateUpdateExtent()
 {
   // Make sure the extent is the whole extent

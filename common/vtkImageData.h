@@ -56,6 +56,7 @@ class vtkLine;
 class vtkPixel;
 class vtkVoxel;
 class vtkImageToStructuredPoints;
+class vtkExtentTranslator;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -295,11 +296,6 @@ public:
   void CopyTypeSpecificInformation( vtkDataObject *image );
 
   // Description:
-  // Needs to be overridden from vtkDataObject so that we can call
-  // the correct version of SetExtent rather than just doing a memcpy.
-  virtual void ModifyExtentForUpdateExtent();
-
-  // Description:
   // make the output data ready for new data to be inserted. For most 
   // objects we just call Initialize. But for imagedata we leave the old
   // data in case the memory can be reused.
@@ -314,6 +310,11 @@ public:
   // Shallow and Deep copy.
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
+
+  // Description:
+  // An object that will translate pieces into extents.
+  void SetExtentTranslator(vtkExtentTranslator *translator);
+  vtkExtentTranslator *GetExtentTranslator();
   
 protected:
   vtkImageData();
@@ -322,6 +323,7 @@ protected:
   void operator=(const vtkImageData&) {};
 
   vtkImageToStructuredPoints *ImageToStructuredPoints;
+  vtkExtentTranslator *ExtentTranslator;
 
   // for the GetCell method
   vtkVertex *Vertex;

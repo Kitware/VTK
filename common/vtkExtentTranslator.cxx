@@ -64,13 +64,34 @@ vtkExtentTranslator::vtkExtentTranslator()
 {
   this->MinimumPieceSize[0] = 2;
   this->MinimumPieceSize[1] = 2;
-  this->MinimumPieceSize[2] = 2;  
+  this->MinimumPieceSize[2] = 2; 
+  
+  this->Piece = 0;
+  this->NumberOfPieces = 0;
+  
+  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0; 
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1; 
+  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0; 
+  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1; 
 }
 
 //----------------------------------------------------------------------------
 vtkExtentTranslator::~vtkExtentTranslator()
 {
 }
+
+//----------------------------------------------------------------------------
+void vtkExtentTranslator::PieceToExtent()
+{
+  this->GetWholeExtent(this->Extent);
+  if (this->SplitExtent(this->Piece, this->NumberOfPieces, this->Extent) == 0)
+    {
+    // Nothing in this piece.
+    this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
+    this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+    }
+}
+
 
 //----------------------------------------------------------------------------
 int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext)
@@ -153,6 +174,14 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext)
 void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Piece: " << this->Piece << endl;
+  os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
+
+  os << indent << "Extent: " << this->Extent[0] << ", " 
+     << this->Extent[1] << ", " << this->Extent[2] << ", " 
+     << this->Extent[3] << ", " << this->Extent[4] << ", " 
+     << this->Extent[5] << endl; 
 
   os << indent << "MiniumuPieceSize: " << this->MinimumPieceSize[0] << ", "
      << this->MinimumPieceSize[1] << ", " 

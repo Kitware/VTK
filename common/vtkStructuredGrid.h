@@ -79,12 +79,6 @@ public:
   void CopyStructure(vtkDataSet *ds);
 
   // Description:
-  // If the update extent does not lie within the extent, this method will
-  // release the data and set the extent to be the update extent.
-  // Otherwise, nothing changes. 
-  virtual void ModifyExtentForUpdateExtent();
-
-  // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();};
   float *GetPoint(int ptId) {return this->vtkPointSet::GetPoint(ptId);};

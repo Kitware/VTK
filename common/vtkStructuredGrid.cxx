@@ -172,22 +172,6 @@ void vtkStructuredGrid::Initialize()
   this->Blanking = 0;
 }
 
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::ModifyExtentForUpdateExtent()
-{
-  if ( this->UpdateExtent[0] < this->Extent[0] ||
-       this->UpdateExtent[1] > this->Extent[1] ||
-       this->UpdateExtent[2] < this->Extent[2] ||
-       this->UpdateExtent[3] > this->Extent[3] ||
-       this->UpdateExtent[4] < this->Extent[4] ||
-       this->UpdateExtent[5] > this->Extent[5] )
-    {
-    this->ReleaseData();
-    this->SetExtent( this->UpdateExtent );
-    }
-}
-
 //----------------------------------------------------------------------------
 int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
 {

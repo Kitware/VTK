@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoxel.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkExtentTranslator.h"
 
 
 
@@ -97,6 +98,9 @@ vtkImageData::vtkImageData()
   // for automatic conversion
   this->ImageToStructuredPoints = NULL;
 
+  this->ExtentTranslator = vtkExtentTranslator::New();
+  this->ExtentTranslator->Register(this);
+  this->ExtentTranslator->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1011,38 +1015,53 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->WholeExtent[idx];
     }
   os << ")\n";
+  os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
 }
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetExtentTranslator(vtkExtentTranslator *t)
+{
+  if (this->ExtentTranslator == t)
+    {
+    return;
+    }
+
+  if (this->ExtentTranslator)
+    {
+    this->ExtentTranslator->UnRegister(this);
+    this->ExtentTranslator = NULL;
+    }
+  if (t)
+    {
+    t->Register(this);
+    this->ExtentTranslator = t;
+    }
+
+  this->Modified();
+} 
+
+//----------------------------------------------------------------------------
+vtkExtentTranslator *vtkImageData::GetExtentTranslator()
+{
+  return this->ExtentTranslator;
+}
+
+
 
 //----------------------------------------------------------------------------
 // Should we split up cells, or just points.  It does not matter for now.
 // Extent of structured data assumes points.
 void vtkImageData::SetUpdateExtent(int piece, int numPieces)
 {
-  int ext[6], zdim, min, max;
+  int ext[6];
   
-  // Lets just divide up the z axis.
+  this->UpdateInformation();
   this->GetWholeExtent(ext);
-  zdim = ext[5] - ext[4] + 1;
-  
-  if (piece >= zdim)
-    {
-    // empty
-    this->SetUpdateExtent(0, -1, 0, -1, 0, -1);
-    return;
-    }
-  
-  if (numPieces > zdim)
-    {
-    numPieces = zdim;
-    }
-  
-  min = ext[4] + piece * zdim / numPieces;
-  max = ext[4] + (piece+1) * zdim / numPieces - 1;
-  
-  ext[4] = min;
-  ext[5] = max;
-
-  this->SetUpdateExtent(ext);
+  this->ExtentTranslator->SetWholeExtent(ext);
+  this->ExtentTranslator->SetPiece(piece);
+  this->ExtentTranslator->SetNumberOfPieces(numPieces);
+  this->ExtentTranslator->PieceToExtent();
+  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
 }
 
 //----------------------------------------------------------------------------
@@ -1543,20 +1562,6 @@ void vtkImageData::SetExtent(int *extent)
   this->ComputeIncrements();
 }
 
-//----------------------------------------------------------------------------
-void vtkImageData::ModifyExtentForUpdateExtent()
-{
-  if ( this->UpdateExtent[0] < this->Extent[0] ||
-       this->UpdateExtent[1] > this->Extent[1] ||
-       this->UpdateExtent[2] < this->Extent[2] ||
-       this->UpdateExtent[3] > this->Extent[3] ||
-       this->UpdateExtent[4] < this->Extent[4] ||
-       this->UpdateExtent[5] > this->Extent[5] )
-    {
-    this->ReleaseData();
-    this->SetExtent( this->UpdateExtent );
-    }
-}
 
 //----------------------------------------------------------------------------
 void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)

@@ -71,11 +71,6 @@ public:
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
   // Description:
-  // The update extent is set to the whole extent, since this is required by
-  // vtkStructuredPoints data object.
-  virtual void ModifyExtentForUpdateExtent();
-
-  // Description:
   // Internal method in a class we hope to remove
   virtual void PropagateUpdateExtent();
 
