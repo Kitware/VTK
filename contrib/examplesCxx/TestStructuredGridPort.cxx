@@ -1,6 +1,5 @@
 // This program test the unstructured ports by setting up a simple pipeline.
 
-#include "mpi.h"
 #include "vtkPLOT3DReader.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkOutputPort.h"

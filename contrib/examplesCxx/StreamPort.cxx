@@ -1,6 +1,5 @@
 // This program test streaming through ports.
 
-#include "mpi.h"
 #include "vtkImageReader.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkPolyDataCollector.h"

@@ -24,7 +24,7 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = TestMPI TestController TestPolyDataPort TestStructuredPointsPort \
+EXAMPLES = TestController TestPolyDataPort TestStructuredPointsPort \
            TestImagePort TestStructuredGridPort \
 	   ParallelIso TimeIso StreamPort
 
@@ -37,7 +37,7 @@ CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 VTKLIB = ${VTK_LIB_FILE}
 
 LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} \
-	${THREAD_LIBS} ${CONTROLLER_API_LIBS} -lXext -lXt -lSM -lICE -lX11  -lm
+	${THREAD_LIBS} ${CONTROLLER_API_LIBS} -lXext -lXt -lX11  -lm
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@

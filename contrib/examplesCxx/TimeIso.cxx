@@ -1,6 +1,5 @@
 // This program test the ports by setting up a simple pipeline.
 
-#include "mpi.h"
 #include "vtkImageReader.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkAppendPolyData.h"

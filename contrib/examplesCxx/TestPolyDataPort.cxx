@@ -1,6 +1,5 @@
 // This program test the ports by setting up a simple pipeline.
 
-#include "mpi.h"
 #include "vtkOutputPort.h"
 #include "vtkInputPort.h"
 #include "vtkRenderer.h"

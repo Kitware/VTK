@@ -1,6 +1,5 @@
 // This program test the ports by setting up a simple pipeline.
 
-#include "mpi.h"
 #include "vtkImageReader.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkAppendPolyData.h"
@@ -80,7 +79,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   reader->SetDataExtent(0, 127, 0, 127, 1, 93);
   reader->SetFilePrefix("../../../vtkdata/headsq/half");
   reader->SetDataSpacing(1.6, 1.6, 1.5);
-  reader->SetStartMethod(reader_start_callback, (void*)(reader));
   
   iso = vtkSynchronizedTemplates3D::New();
   iso->SetInput(reader->GetOutput());
