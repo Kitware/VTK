@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.7");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.8");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -386,7 +386,6 @@ int vtkImageAlgorithm::FillOutputPortInformation(
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   
   return 1;
 }

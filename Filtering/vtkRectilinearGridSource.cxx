@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.20");
+vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.20.2.1");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
@@ -65,7 +65,6 @@ int vtkRectilinearGridSource::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   return 1;
 }
 

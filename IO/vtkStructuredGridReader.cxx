@@ -20,7 +20,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridReader, "1.57.10.1");
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.57.10.2");
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()
@@ -344,7 +344,6 @@ int vtkStructuredGridReader::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 

@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.13");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.14");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -222,29 +222,30 @@ void vtkStreamingDemandDrivenPipeline::CopyDefaultDownstreamInformation()
   // Setup default information.
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
-    if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
+    vtkInformation* outInfo = this->GetOutputInformation(i);
+
+    // The data object will exist because UpdateDataObject has already
+    // succeeded.
+    vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    vtkInformation* dataInfo = dataObject->GetInformation();
+    if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
       {
-      vtkInformation* outInfo = this->GetOutputInformation(i);
-      if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
+      if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
         {
-        if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
-          {
-          // Since most unstructured filters in VTK generate all their
-          // data once, set the default maximum number of pieces to 1.
-          outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
-          }
+        // Since most unstructured filters in VTK generate all their
+        // data once, set the default maximum number of pieces to 1.
+        outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
         }
-      else if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      }
+    else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      {
+      if(!outInfo->Has(EXTENT_TRANSLATOR()) ||
+         !outInfo->Get(EXTENT_TRANSLATOR()))
         {
-        if(!outInfo->Has(EXTENT_TRANSLATOR()) ||
-           !outInfo->Get(EXTENT_TRANSLATOR()))
-          {
-          // Create a default extent translator.
-          vtkExtentTranslator* translator = vtkExtentTranslator::New();
-          outInfo->Set(EXTENT_TRANSLATOR(), translator);
-          translator->Delete();
-          }
+        // Create a default extent translator.
+        vtkExtentTranslator* translator = vtkExtentTranslator::New();
+        outInfo->Set(EXTENT_TRANSLATOR(), translator);
+        translator->Delete();
         }
       }
     }

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.67.10.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.67.10.2");
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read
@@ -392,7 +392,6 @@ int vtkUnstructuredGridReader::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 

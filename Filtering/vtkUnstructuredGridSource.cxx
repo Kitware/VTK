@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.29");
+vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.29.2.1");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
@@ -90,7 +90,6 @@ int vtkUnstructuredGridSource::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 

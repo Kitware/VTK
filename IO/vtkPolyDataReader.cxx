@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.25.10.1");
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.25.10.2");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()
@@ -354,7 +354,6 @@ int vtkPolyDataReader::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 

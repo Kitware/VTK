@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.30.10.1");
+vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.30.10.2");
 vtkStandardNewMacro(vtkRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -355,7 +355,6 @@ int vtkRectilinearGridReader::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 
