@@ -47,13 +47,23 @@ public:
   // Description:
   // Is the given file an SLC file?
   int CanReadFile(const char* fname);
+  // Description:
+  // .slc
+  virtual const char* GetFileExensions()
+    {
+      return ".slc";
+    }
 
+  // Description: 
+  // SLC 
+  virtual const char* GetDescriptiveName()
+    {
+      return "SLC";
+    }
+  
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
-
-  // Stores the FileName of the SLC file to read.
-  char *FileName;
 
   // Reads the file name and builds a vtkStructuredPoints dataset.
   virtual void ExecuteData(vtkDataObject*);

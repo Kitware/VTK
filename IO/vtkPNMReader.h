@@ -44,7 +44,21 @@ class VTK_IO_EXPORT vtkPNMReader : public vtkImageReader
 public:
   static vtkPNMReader *New();
   vtkTypeRevisionMacro(vtkPNMReader,vtkImageReader);
-  int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname); 
+  // Description:
+  // .pnm .pgm .ppm
+  virtual const char* GetFileExensions()
+    {
+      return ".pnm .pgm .ppm";
+    }
+
+  // Description: 
+  // PNM 
+  virtual const char* GetDescriptiveName()
+    {
+      return "PNM";
+    }
+  
 protected:
   vtkPNMReader() {};
   ~vtkPNMReader() {};

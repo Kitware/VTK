@@ -41,7 +41,22 @@ protected:
   
   // Description: is the given file name a png file?
   virtual int CanReadFile(const char* fname);
+ // Description:
+  // Get the file extensions for this format.
+  // Returns a string with a space separated list of extensions in 
+  // the format .extension
+  virtual const char* GetFileExensions()
+    {
+      return ".png";
+    }
 
+  // Description: 
+  // Return a descriptive name for the file format that might be useful in a GUI.
+  virtual const char* GetDescriptiveName()
+    {
+      return "PNG";
+    }
+  
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
 private:

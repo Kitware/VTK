@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.40");
+vtkCxxRevisionMacro(vtkSLCReader, "1.41");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -108,7 +108,7 @@ void vtkSLCReader::ExecuteInformation()
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
     }
-
+  this->FileDimensionality = 3;
   fscanf( fp, "%d", &magic_num );
   if( magic_num != 11111 )
     {

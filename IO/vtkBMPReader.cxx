@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.31");
+vtkCxxRevisionMacro(vtkBMPReader, "1.32");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -513,3 +513,20 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+int vtkBMPReader::CanReadFile(const char* fname)
+{
+  // get the magic number by reading in a file
+  FILE* fp = fopen(fname,"rb");
+  if (!fp)
+    {
+    return 0;
+    }
+
+  // compare magic number to determine file type
+  if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
+    {
+    return 0;
+    }
+  fclose(fp);
+  return 1;
+}

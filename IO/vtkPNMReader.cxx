@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.23");
+vtkCxxRevisionMacro(vtkPNMReader, "1.24");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -197,7 +197,7 @@ void vtkPNMReader::ExecuteInformation()
 }
 
 
-static inline int iseol(int c)
+inline int iseol(int c)
 {
   return c == 10 || c == 13;
 }
