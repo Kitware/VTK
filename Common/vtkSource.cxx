@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-
+#include "vtkErrorCode.h"
 
 //----------------------------------------------------------------------------
 vtkSource* vtkSource::New()
@@ -710,6 +710,8 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent <<"No Outputs\n";
     }
+
+  os << indent << "ErrorCode: " << vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
 }
 
 int vtkSource::InRegisterLoop(vtkObject *o)
