@@ -14,6 +14,7 @@ vtkAbstractMapper.cxx
 vtkActor2D.cxx
 vtkActor2DCollection.cxx
 vtkAlgorithm.cxx
+vtkAlgorithmOutput.cxx
 vtkApplyFilterCommand.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
 vtkCardinalSpline.cxx
@@ -26,7 +27,10 @@ vtkCellLinks.cxx
 vtkCellLocator.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
+vtkCompositeDataCommand.cxx
+vtkCompositeDataIterator.cxx
 vtkCompositeDataSet.cxx
+vtkCompositeDataVisitor.cxx
 vtkCone.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -180,7 +184,10 @@ vtkAbstractMapper
 vtkApplyFilterCommand
 vtkCell
 vtkCell3D
+vtkCompositeDataCommand
+vtkCompositeDataIterator
 vtkCompositeDataSet
+vtkCompositeDataVisitor
 vtkDataObjectSource
 vtkDataSet
 vtkDataSetSource

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositeDataCommand.cxx
+  Module:    vtkCompositeDataVisitor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,23 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkCompositeDataVisitor.h"
+
 #include "vtkCompositeDataCommand.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataCommand, "1.2");
+vtkCxxRevisionMacro(vtkCompositeDataVisitor, "1.1");
+
+vtkCxxSetObjectMacro(vtkCompositeDataVisitor,
+                     Command, 
+                     vtkCompositeDataCommand);
 
 //----------------------------------------------------------------------------
-vtkCompositeDataCommand::vtkCompositeDataCommand()
+vtkCompositeDataVisitor::vtkCompositeDataVisitor()
 {
+  this->Command = 0;
+  this->CreateTransitionElements = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataCommand::~vtkCompositeDataCommand()
+vtkCompositeDataVisitor::~vtkCompositeDataVisitor()
 {
+  this->SetCommand(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataCommand::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCompositeDataVisitor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Command: ";
+  if (this->Command)
+    {
+    os << endl;
+    this->Command->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  os << indent << "CreateTransitionElements: " << this->CreateTransitionElements
+     << endl;
 }
 

@@ -24,7 +24,6 @@ ENDIF (UNIX)
 
 SET( Kit_SRCS
 vtkAbstractTransform.cxx
-vtkAlgorithmOutput.cxx
 vtkAmoebaMinimizer.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
@@ -37,9 +36,6 @@ vtkCharArray.cxx
 vtkCollection.cxx
 vtkCollectionIterator.cxx
 vtkCommand.cxx
-vtkCompositeDataIterator.cxx
-vtkCompositeDataVisitor.cxx
-vtkCompositeDataCommand.cxx
 vtkContourValues.cxx
 vtkCriticalSection.cxx
 vtkCylindricalTransform.cxx
@@ -149,9 +145,6 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractTransform
 vtkCallbackCommand
 vtkCommand
-vtkCompositeDataIterator
-vtkCompositeDataVisitor
-vtkCompositeDataCommand
 vtkDataArray
 vtkFunctionSet
 vtkGarbageCollector

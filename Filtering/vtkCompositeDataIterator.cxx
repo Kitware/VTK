@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeDataIterator.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.2");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.1");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
