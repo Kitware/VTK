@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.49");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.50");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -97,7 +97,9 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
     }
 
   // since the input has changed we might need to create a new output
-  if (strcmp(this->GetOutput(0)->GetClassName(),input->GetClassName()))
+  // It seems that output 0 is the correct type as a result of the call to
+  // the superclass's SetInput.  Check the type of output 1 instead.
+  if (strcmp(this->GetOutput(1)->GetClassName(),input->GetClassName()))
     {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);
