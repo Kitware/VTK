@@ -29,6 +29,7 @@
 #include "vtkVolumeTextureMapper2D.h"
 #include "vtkColorTransferFunction.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

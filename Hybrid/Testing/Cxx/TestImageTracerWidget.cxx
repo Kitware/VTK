@@ -35,6 +35,7 @@
 #include "vtkSplineWidget.h"
 #include "vtkVolume16Reader.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

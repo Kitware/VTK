@@ -23,6 +23,7 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkScalarBarActor.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

@@ -29,6 +29,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

@@ -21,6 +21,7 @@
 #include "vtkVolume16Reader.h"
 #include "vtkXYPlotActor.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

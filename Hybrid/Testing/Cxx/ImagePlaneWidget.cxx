@@ -31,6 +31,7 @@
 #include "vtkVolume16Reader.h"
 #include "vtkImageData.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 

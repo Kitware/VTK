@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"

@@ -19,6 +19,7 @@
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNMWriter.h"
 
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
 int ImportExport( int argc, char *argv[] )

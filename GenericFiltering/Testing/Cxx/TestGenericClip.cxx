@@ -25,6 +25,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -59,6 +60,8 @@ int TestGenericClip(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+  
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -73,7 +76,7 @@ int TestGenericClip(int argc, char* argv[])
   // Set the error metric thresholds:
   // 1. for the geometric error metric
   vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
-  geometricError->SetRelativeGeometricTolerance(0.1,ds);
+  geometricError->SetRelativeGeometricTolerance(0.01,ds);
   
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
@@ -87,7 +90,7 @@ int TestGenericClip(int argc, char* argv[])
   
   cout<<"input unstructured grid: "<<ds<<endl;
   
-  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(100);
 
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
