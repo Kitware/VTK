@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.9.4.1");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.9.4.2");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -791,7 +791,12 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
         {
         normals->GetTuple(i, normal);
         normals->SetName("Normals");
-        vtkDataArray* newVectors = outputPD->GetVectors();
+        vtkDataArray* newVectors = outputPD->GetVectors(this->InputVectorsSelection);
+        if (newVectors == NULL)
+          { // This should never happen.
+          vtkErrorMacro("Could not find output array.");
+          return;
+          }
         newVectors->GetTuple(i, velocity);
         // obtain two unit orthogonal vectors on the plane perpendicular to
         // the streamline
