@@ -1093,7 +1093,7 @@ void vtkCamera::SetViewPlaneNormal(double a[3])
 
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
 // the view frustum. 
-void vtkCamera::GetFrustumPlanes( float planes[24] )
+void vtkCamera::GetFrustumPlanes( float aspect, float planes[24] )
 {
   vtkMatrix4x4 *m;
   vtkTransform *transform = vtkTransform::New();
@@ -1102,7 +1102,7 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
   int          which_points[6][3];
   float        v1[3], v2[3], A, B, C, D, t;
 
-  transform->SetMatrix(*(this->GetCompositePerspectiveTransformMatrix(1,0,1)));
+  transform->SetMatrix(*(this->GetCompositePerspectiveTransformMatrix(aspect,0,1)));
   transform->Inverse();
   m = transform->GetMatrixPointer();
 

@@ -90,7 +90,7 @@ public:
 
   // Description:
   // Specify the planes via a camera frustrum definition.
-  void SetFrustumPlanes(vtkCamera *camera);
+  void SetFrustumPlanes(float aspect, vtkCamera *camera);
 
 protected:
   vtkPlanes();

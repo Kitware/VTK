@@ -131,13 +131,13 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
     }
 }
 
-void vtkPlanes::SetFrustumPlanes(vtkCamera *camera)
+void vtkPlanes::SetFrustumPlanes(float aspect, vtkCamera *camera)
 {
   int i;
   float planes[24], *plane, n[3], x[3];
   
   // Get the planes and load them into the implicit function
-  camera->GetFrustumPlanes(planes);
+  camera->GetFrustumPlanes(aspect,planes);
   for (i=0; i<24; i++)
     {
     if ( this->Planes[i] != planes[i] )

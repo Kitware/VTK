@@ -660,9 +660,12 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3],
   float planes[24], x[3];
   float val, maxVal, anchor[3], scale;
   float delX, delY, delZ, bounds2[6], scale2, newScale, origin[3];
+  float aspect[2];
+
+  viewport->GetAspect( aspect );
 
   // Get the 6 planes defining the view frustrum
-  this->Camera->GetFrustumPlanes(planes);
+  this->Camera->GetFrustumPlanes((aspect[0] / aspect[1]), planes);
 
   // Hunt for the point in the bounds furthest inside the frustum
   // Iteratively loop over points in bounding box and evaluate the 

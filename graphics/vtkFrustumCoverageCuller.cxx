@@ -72,6 +72,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   float               *distanceList;
   int                 index1, index2;
   float               tmp;
+  float               aspect[2];
 
   // We will create a center distance entry for each prop in the list
   // If SortingStyle is set to BackToFront or FrontToBack we will then
@@ -83,8 +84,9 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   // normalization.
   total_time  = 0;
 
+  ren->GetAspect( aspect );
   // Get the view frustum planes from the active camera
-  ren->GetActiveCamera()->GetFrustumPlanes( planes );
+  ren->GetActiveCamera()->GetFrustumPlanes( (aspect[0] / aspect[1]), planes );
 
   // Keep a list of allocated times to help with sorting / removing
   // props later
@@ -222,16 +224,17 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 	  }
 	}
       }
-    // This is a 2D prop - keep them at the end of the list in the same
+    // This is a 2D prop - keep them at the beginning of the list in the same
     // order they came in (by giving them all the same distance) and set
     // the coverage to something small so that they won't get much
     // allocated render time (because they aren't LOD it doesn't matter,
     // and they generally do draw fast so you don't want to take too much
     // time away from the 3D prop because you added a title to your
-    // window for example)
+    // window for example) They are put at the beginning of the list so
+    // that when sorted back to front they will be rendered last.
     else
       {
-      distanceList[propLoop] = VTK_LARGE_FLOAT;
+      distanceList[propLoop] = -VTK_LARGE_FLOAT;
       coverage = 0.001;
       }
       
