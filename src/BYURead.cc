@@ -229,7 +229,7 @@ void vlBYUReader::ReadTextureFile(int numPts)
   float t[2];
   vlFloatTCoords *newTCoords;
 
-  if ( this->ReadDisplacement && this->DisplacementFilename )
+  if ( this->ReadTexture && this->TextureFilename )
     {
     if ( !(textureFp = fopen(this->TextureFilename, "r")) )
       {
