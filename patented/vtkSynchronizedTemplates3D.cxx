@@ -710,12 +710,9 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
     }
   else
     {
-    translator->SetWholeExtent(ext);
-    translator->SetPiece(threadId);
-    translator->SetNumberOfPieces(threadCount);
-    if (translator->PieceToExtent())
+    if (translator->PieceToExtentThreadSafe(threadId, threadCount,0,tmp, ext, 
+                                            translator->GetSplitMode(),0))
       {
-      translator->GetExtent(ext);
       self->ThreadedExecute(self->GetInput(), ext, threadId);
       }
     }
