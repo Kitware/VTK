@@ -69,7 +69,7 @@ void vtkConeSource::Execute()
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
   
-  if( this->Resolution ) angle= 2.0*3.141592654/this->Resolution;
+  if ( this->Resolution ) angle = 2.0*3.141592654/this->Resolution;
   //
   // Set things up; allocate memory
   //
@@ -81,6 +81,7 @@ void vtkConeSource::Execute()
     numLines =  1;
     newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(numLines,numPts));
+    break;
   
   case 1: case 2:
     numPts = 2*this->Resolution + 1;
