@@ -92,6 +92,11 @@ iren Initialize
 renWin SetFileName "StructuredGridGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
 
+vtkStructuredGridWriter writer
+  writer SetFileName sgrid.vtk
+  writer SetInput sg3
+  writer Update
+
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
