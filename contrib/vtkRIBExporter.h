@@ -102,12 +102,12 @@ public:
   // Description:
   // Specify the prefix of the files to write out. The resulting file names
   // will have .RIB appended to them.
-  vtkSafeSetStringMacro(FilePrefix);
+  vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
 
   // Description:
   // Specify the prefix of any generated texture files.
-  vtkSafeSetStringMacro(TexturePrefix);
+  vtkSetStringMacro(TexturePrefix);
   vtkGetStringMacro(TexturePrefix);
 
   // Description:

@@ -56,16 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
-vtkSafeSetStringMacro2(FileName,vtkDataWriter);
-vtkSafeSetStringMacro2(Header,vtkDataWriter);
-vtkSafeSetStringMacro2(ScalarsName,vtkDataWriter);
-vtkSafeSetStringMacro2(VectorsName,vtkDataWriter);
-vtkSafeSetStringMacro2(TensorsName,vtkDataWriter);
-vtkSafeSetStringMacro2(NormalsName,vtkDataWriter);
-vtkSafeSetStringMacro2(TCoordsName,vtkDataWriter);
-vtkSafeSetStringMacro2(FieldDataName,vtkDataWriter);
-vtkSafeSetStringMacro2(LookupTableName,vtkDataWriter);
-
 // Created object with default header, ASCII format, and default names for 
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()

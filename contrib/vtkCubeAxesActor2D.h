@@ -138,11 +138,11 @@ public:
   
   // Description:
   // Set/Get the labels for the x, y, and z axes. By default, use "X", "Y" and "Z".
-  vtkSafeSetStringMacro(XLabel);
+  vtkSetStringMacro(XLabel);
   vtkGetStringMacro(XLabel);
-  vtkSafeSetStringMacro(YLabel);
+  vtkSetStringMacro(YLabel);
   vtkGetStringMacro(YLabel);
-  vtkSafeSetStringMacro(ZLabel);
+  vtkSetStringMacro(ZLabel);
   vtkGetStringMacro(ZLabel);
 
   // Description:
@@ -177,7 +177,7 @@ public:
   // Description:
   // Set/Get the format with which to print the labels on each of the
   // x-y-z axes.
-  vtkSafeSetStringMacro(LabelFormat);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   
   // Description:

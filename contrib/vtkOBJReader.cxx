@@ -40,8 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkOBJReader.h"
 
-vtkSafeSetStringMacro2(FileName, vtkOBJReader);
-
 // Description:
 // Instantiate object with NULL filename.
 vtkOBJReader::vtkOBJReader()

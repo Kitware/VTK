@@ -44,11 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkTCoords.h"
 
-vtkSafeSetStringMacro2(GeometryFileName,vtkBYUReader);
-vtkSafeSetStringMacro2(DisplacementFileName,vtkBYUReader);
-vtkSafeSetStringMacro2(ScalarFileName,vtkBYUReader);
-vtkSafeSetStringMacro2(TextureFileName,vtkBYUReader);
-
 vtkBYUReader::vtkBYUReader()
 {
   this->GeometryFileName = NULL;

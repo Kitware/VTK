@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Specify Cyberware file name.
-  vtkSafeSetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
 protected:

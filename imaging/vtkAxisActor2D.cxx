@@ -41,9 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAxisActor2D.h"
 
-vtkSafeSetStringMacro2(LabelFormat,vtkAxisActor2D);
-vtkSafeSetStringMacro2(Title,vtkAxisActor2D);
-
 // Instantiate this object.
 vtkAxisActor2D::vtkAxisActor2D()
 {

@@ -49,8 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_METERS_PER_FEET .305
 #define VTK_METERS_PER_ARC_SECOND 23.111
 
-vtkSafeSetStringMacro2(FileName,vtkDEMReader);
-
 void ConvertDNotationToENotation (char *line);
 
 vtkDEMReader::vtkDEMReader()

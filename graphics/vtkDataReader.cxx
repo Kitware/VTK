@@ -57,17 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
-vtkSafeSetStringMacro2(FileName,vtkDataReader);
-vtkSafeSetStringMacro2(InputString,vtkDataReader);
-vtkSafeSetStringMacro2(ScalarsName,vtkDataReader);
-vtkSafeSetStringMacro2(ScalarLut,vtkDataReader);
-vtkSafeSetStringMacro2(VectorsName,vtkDataReader);
-vtkSafeSetStringMacro2(TensorsName,vtkDataReader);
-vtkSafeSetStringMacro2(NormalsName,vtkDataReader);
-vtkSafeSetStringMacro2(TCoordsName,vtkDataReader);
-vtkSafeSetStringMacro2(FieldDataName,vtkDataReader);
-vtkSafeSetStringMacro2(LookupTableName,vtkDataReader);
-
 // Construct object.
 vtkDataReader::vtkDataReader()
 {

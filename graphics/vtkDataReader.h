@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Specify file name of vtk data file to read.
-  vtkSafeSetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:
@@ -93,7 +93,7 @@ public:
   // Description:
   // Specify the InputString for use when reading from a character array.
   // Optionally include the length for binary strings.
-  vtkSafeSetStringMacro(InputString);
+  vtkSetStringMacro(InputString);
   vtkGetStringMacro(InputString);
   void SetInputString(char *in, int len);
   
@@ -115,43 +115,43 @@ public:
   // Description:
   // Set the name of the scalar data to extract. If not specified, first 
   // scalar data encountered is extracted.
-  vtkSafeSetStringMacro(ScalarsName);
+  vtkSetStringMacro(ScalarsName);
   vtkGetStringMacro(ScalarsName);
 
   // Description:
   // Set the name of the vector data to extract. If not specified, first 
   // vector data encountered is extracted.
-  vtkSafeSetStringMacro(VectorsName);
+  vtkSetStringMacro(VectorsName);
   vtkGetStringMacro(VectorsName);
 
   // Description:
   // Set the name of the tensor data to extract. If not specified, first 
   // tensor data encountered is extracted.
-  vtkSafeSetStringMacro(TensorsName);
+  vtkSetStringMacro(TensorsName);
   vtkGetStringMacro(TensorsName);
 
   // Description:
   // Set the name of the normal data to extract. If not specified, first 
   // normal data encountered is extracted.
-  vtkSafeSetStringMacro(NormalsName);
+  vtkSetStringMacro(NormalsName);
   vtkGetStringMacro(NormalsName);
 
   // Description:
   // Set the name of the texture coordinate data to extract. If not specified,
   // first texture coordinate data encountered is extracted.
-  vtkSafeSetStringMacro(TCoordsName);
+  vtkSetStringMacro(TCoordsName);
   vtkGetStringMacro(TCoordsName);
 
   // Description:
   // Set the name of the lookup table data to extract. If not specified, uses 
   // lookup table named by scalar. Otherwise, this specification supersedes.
-  vtkSafeSetStringMacro(LookupTableName);
+  vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
 
   // Description:
   // Set the name of the field data to extract. If not specified, uses 
   // first field data encountered in file.
-  vtkSafeSetStringMacro(FieldDataName);
+  vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
   //BTX
@@ -258,7 +258,7 @@ protected:
   char *InputString;
   int InputStringPos;
 
-  vtkSafeSetStringMacro(ScalarLut);
+  vtkSetStringMacro(ScalarLut);
   vtkGetStringMacro(ScalarLut);
 
   vtkSource *Source;

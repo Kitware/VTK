@@ -171,7 +171,7 @@ public:
   // id only one value is printed. See also the ivar LabeledComponent which
   // can be used to specify the component to print if you want to only print
   // one of several.
-  vtkSafeSetStringMacro(LabelFormat);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
 
   // Description:

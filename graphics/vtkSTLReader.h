@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Specify file name of stereo lithography file.
-  vtkSafeSetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:

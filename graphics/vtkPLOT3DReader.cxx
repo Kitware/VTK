@@ -51,11 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_PINF ((VTK_RHOINF*VTK_CINF) * (VTK_RHOINF*VTK_CINF) / this->Gamma)
 #define VTK_CV (this->R / (this->Gamma-1.0))
 
-vtkSafeSetStringMacro2(XYZFileName,vtkPLOT3DReader);
-vtkSafeSetStringMacro2(QFileName,vtkPLOT3DReader);
-vtkSafeSetStringMacro2(FunctionFileName,vtkPLOT3DReader);
-vtkSafeSetStringMacro2(VectorFunctionFileName,vtkPLOT3DReader);
-
 vtkPLOT3DReader::vtkPLOT3DReader()
 {
   this->FileFormat = VTK_WHOLE_SINGLE_GRID_NO_IBLANKING;

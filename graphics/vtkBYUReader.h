@@ -62,22 +62,22 @@ public:
 
   // Description:
   // Specify name of geometry FileName.
-  vtkSafeSetStringMacro(GeometryFileName);
+  vtkSetStringMacro(GeometryFileName);
   vtkGetStringMacro(GeometryFileName);
 
   // Description:
   // Specify name of displacement FileName.
-  vtkSafeSetStringMacro(DisplacementFileName);
+  vtkSetStringMacro(DisplacementFileName);
   vtkGetStringMacro(DisplacementFileName);
 
   // Description:
   // Specify name of scalar FileName.
-  vtkSafeSetStringMacro(ScalarFileName);
+  vtkSetStringMacro(ScalarFileName);
   vtkGetStringMacro(ScalarFileName);
 
   // Description:
   // Specify name of texture coordinates FileName.
-  vtkSafeSetStringMacro(TextureFileName);
+  vtkSetStringMacro(TextureFileName);
   vtkGetStringMacro(TextureFileName);
 
   // Description:

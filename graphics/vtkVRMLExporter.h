@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Specify the name of the VRML file to write.
-  vtkSafeSetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:

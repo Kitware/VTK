@@ -121,22 +121,22 @@ public:
 
   // Description:
   // Set/Get the PLOT3D geometry FileName.
-  vtkSafeSetStringMacro(XYZFileName);
+  vtkSetStringMacro(XYZFileName);
   vtkGetStringMacro(XYZFileName);
 
   // Description:
   // Set/Get the PLOT3D solution FileName.
-  vtkSafeSetStringMacro(QFileName);
+  vtkSetStringMacro(QFileName);
   vtkGetStringMacro(QFileName);
 
   // Description:
   // Set/Get the PLOT3D function FileName.
-  vtkSafeSetStringMacro(FunctionFileName);
+  vtkSetStringMacro(FunctionFileName);
   vtkGetStringMacro(FunctionFileName);
 
   // Description:
   // Set/Get the PLOT3D vector FileName.
-  vtkSafeSetStringMacro(VectorFunctionFileName);
+  vtkSetStringMacro(VectorFunctionFileName);
   vtkGetStringMacro(VectorFunctionFileName);
 
   // Description:

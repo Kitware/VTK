@@ -42,8 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
 
-vtkSafeSetStringMacro2(FileName,vtkUGFacetReader);
-
 // Construct object to extract all parts, and with point merging
 // turned on.
 vtkUGFacetReader::vtkUGFacetReader()

@@ -41,8 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 #include "vtkNormals.h"
 
-vtkSafeSetStringMacro2(LimitsFileName,vtkMCubesWriter);
-
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {

@@ -67,22 +67,22 @@ public:
 
   // Description:
   // Specify the name of the geometry file to write.
-  vtkSafeSetStringMacro(GeometryFileName);
+  vtkSetStringMacro(GeometryFileName);
   vtkGetStringMacro(GeometryFileName);
 
   // Description:
   // Specify the name of the displacement file to write.
-  vtkSafeSetStringMacro(DisplacementFileName);
+  vtkSetStringMacro(DisplacementFileName);
   vtkGetStringMacro(DisplacementFileName);
 
   // Description:
   // Specify the name of the scalar file to write.
-  vtkSafeSetStringMacro(ScalarFileName);
+  vtkSetStringMacro(ScalarFileName);
   vtkGetStringMacro(ScalarFileName);
 
   // Description:
   // Specify the name of the texture file to write.
-  vtkSafeSetStringMacro(TextureFileName);
+  vtkSetStringMacro(TextureFileName);
   vtkGetStringMacro(TextureFileName);
 
   // Description:

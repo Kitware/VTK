@@ -41,8 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageWindow.h"
 
-vtkSafeSetStringMacro2(FileName,vtkImageWindow);
-
 #ifdef _WIN32
   #include "vtkWin32OpenGLImageWindow.h"
   #include "vtkWin32ImageWindow.h"

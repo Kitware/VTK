@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Set/Get the text to be drawn.
-  vtkSafeSetStringMacro(Text);
+  vtkSetStringMacro(Text);
   vtkGetStringMacro(Text);
 
 protected:

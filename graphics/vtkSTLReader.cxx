@@ -46,8 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ASCII 0
 #define VTK_BINARY 1
 
-vtkSafeSetStringMacro2(FileName,vtkSTLReader);
-
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
 {

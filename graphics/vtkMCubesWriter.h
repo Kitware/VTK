@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Set/get file name of marching cubes limits file.
-  vtkSafeSetStringMacro(LimitsFileName);
+  vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
 
 protected:

@@ -42,8 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImporter.h"
 #include "vtkRendererCollection.h"
 
-vtkSafeSetStringMacro2(FileName,vtkImporter);
-
 vtkImporter::vtkImporter ()
 {
   this->FileName = NULL;

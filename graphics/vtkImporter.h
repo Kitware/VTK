@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Specify the name of the file to read.
-  vtkSafeSetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description
