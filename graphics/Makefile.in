@@ -101,7 +101,6 @@ vtkContourFilter \
 vtkCubeSource \
 vtkCursor3D \
 vtkCutter \
-vtkCyberReader \
 vtkCylinder \
 vtkCylinderSource \
 vtkDashedStreamLine \
