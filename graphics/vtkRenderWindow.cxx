@@ -142,7 +142,7 @@ char *vtkRenderWindow::GetRenderLibrary()
     {
     if (!strcmp("sbr",temp)) temp = "Starbase";
     else if (!strcmp("glr",temp)) temp = "GL";
-    else if (!strcmp("oglrx",temp)) temp = "OpenGL";
+    else if (!strcmp("oglr",temp)) temp = "OpenGL";
     else if (!strcmp("woglr",temp)) temp = "Win32OpenGL";
     else if (!strcmp("xglr",temp)) temp = "XGL";
     else if ( strcmp("Starbase",temp) && strcmp("GL",temp) && 
