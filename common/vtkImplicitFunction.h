@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTransform
 // vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane vtkPlanes
 // vtkQuadric vtkImplicitVolume
-// vtkSampleFunction vtkCutter vtkClipper
+// vtkSampleFunction vtkCutter vtkClipPolyData
 
 #ifndef __vtkImplicitFunction_h
 #define __vtkImplicitFunction_h
