@@ -106,8 +106,13 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
     this->CachedData->Delete();
     this->CachedData = NULL;
     }
+  
   // Generate a new region
   this->GenerateUnCachedRegionData(region);
+  
+  // Now the cached data should be OK.
+  region->SetScalarType(this->ScalarType);
+  region->SetData(this->CachedData);
 }
 
 

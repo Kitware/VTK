@@ -209,8 +209,6 @@ public:
   // the data memory may be deleted also.
   void ImportMemory(void *ptr);
   void *ExportMemory();
-
-  int GetMemorySize();
   
   void AllocateScalars();
   void AllocateVectors();
