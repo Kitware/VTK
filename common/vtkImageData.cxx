@@ -161,6 +161,9 @@ void vtkImageData::SetExtent(int *extent)
 			this->Extent[5] - this->Extent[4] + 1);
     this->Modified();
     this->ComputeIncrements();
+    // if the extent has changed and we have scalars we should free them
+    // because they are invalid
+    this->PointData.Initialize();
     }
 }
 
@@ -289,15 +292,40 @@ void *vtkImageData::GetScalarPointer()
   return this->PointData.GetScalars()->GetVoidPointer(0);
 }
 
-static int vtkGetScalarType(vtkImageData *self)
+int vtkImageData::GetScalarType()
 {
   vtkScalars *tmp;
   
-  tmp = self->GetPointData()->GetScalars();
-  if (!tmp) return VTK_VOID;
+  // if we have scalars make sure the type matches our ivar
+  tmp = this->GetPointData()->GetScalars();
+  if (tmp && tmp->GetDataType() != this->ScalarType)
+    {
+    vtkWarningMacro("ScalarType does not match current scalars!");
+    }
   
-  return tmp->GetDataType();
+  return this->ScalarType;
 }
+
+void vtkImageData::SetScalarType(int t)
+{
+  vtkScalars *tmp;
+
+  // if we have scalars make sure they match
+  tmp = this->GetPointData()->GetScalars();
+  if (tmp && tmp->GetDataType() != t)
+    {
+    // free old scalars
+    this->PointData.Initialize();
+    }
+  
+  if (t != this->ScalarType)
+    {
+    this->Modified();
+    this->ScalarType = t;
+    vtkDebugMacro("Setting ScalarType to " << t << " !");
+    }
+}
+
 
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars()
@@ -311,24 +339,14 @@ void vtkImageData::AllocateScalars()
     return;
     }
   
-  // if the current type matches the new type then ignore
-  if (vtkGetScalarType(this) == this->ScalarType) 
+  // if we currently have scalars then just adjust the size
+  if (this->PointData.GetScalars()) 
     {
-    if (this->ScalarType == VTK_UNSIGNED_CHAR)
-      {
-      this->PointData.GetScalars()->
-	SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-			   (this->Extent[3] - this->Extent[2] + 1)*
-			   (this->Extent[5] - this->Extent[4] + 1));
-      }
-    else
-      {
-      this->PointData.GetScalars()->
-	SetNumberOfScalars(this->NumberOfScalarComponents*
-			   (this->Extent[1] - this->Extent[0] + 1)*
-			   (this->Extent[3] - this->Extent[2] + 1)*
-			   (this->Extent[5] - this->Extent[4] + 1));
-      }
+    this->PointData.GetScalars()->SetNumberOfComponents(this->NumberOfScalarComponents);
+    this->PointData.GetScalars()->
+      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+			 (this->Extent[3] - this->Extent[2] + 1)*
+			 (this->Extent[5] - this->Extent[4] + 1));
     return;
     }
   
@@ -346,22 +364,12 @@ void vtkImageData::AllocateScalars()
   scalars->Delete();
   
   // allocate enough memory
-  if (this->ScalarType == VTK_UNSIGNED_CHAR)
-    {
-    this->PointData.GetScalars()->
-      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-			 (this->Extent[3] - this->Extent[2] + 1)*
-			 (this->Extent[5] - this->Extent[4] + 1));
-    }
-  else
-    {
-    this->PointData.GetScalars()->
-      SetNumberOfScalars(this->NumberOfScalarComponents*
-			 (this->Extent[1] - this->Extent[0] + 1)*
-			 (this->Extent[3] - this->Extent[2] + 1)*
-			 (this->Extent[5] - this->Extent[4] + 1));
-    }
+  this->PointData.GetScalars()->
+    SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+		       (this->Extent[3] - this->Extent[2] + 1)*
+		       (this->Extent[5] - this->Extent[4] + 1));
 }
+
 
 int vtkImageData::GetScalarSize()
 {

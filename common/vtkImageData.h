@@ -74,8 +74,8 @@ public:
   
   // Description:
   // Set the data scalar type of the regions created by this cache.
-  vtkSetMacro(ScalarType,int);
-  vtkGetMacro(ScalarType,int);
+  void SetScalarType(int);
+  int GetScalarType();
 
   // Description:
   // Set the size of the scalar type in bytes.
