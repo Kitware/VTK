@@ -53,24 +53,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitFunctionCollection.h"
 #include "vtkFloatArray.h"
 
-#ifndef VTK_FILTERING_EXPORT
-#define VTK_FILTERING_EXPORT VTK_EXPORT
-#endif
-
 class VTK_FILTERING_EXPORT vtkImplicitSum : public vtkImplicitFunction
 {
 public:
-//BTX
-#ifdef vtkTypeRevisionMacro
-  vtkTypeRevisionMacro(vtkImplicitSum,vtkImplicitFunction);
-#else
-  vtkTypeMacro(vtkImplicitSum,vtkImplicitFunction);
-#endif
-//ETX
-
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   static vtkImplicitSum *New();
+
+  vtkTypeRevisionMacro(vtkImplicitSum,vtkImplicitFunction);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Evaluate implicit function using current functions and weights.
