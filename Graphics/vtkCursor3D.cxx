@@ -15,12 +15,14 @@
 #include "vtkCursor3D.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.43");
+vtkCxxRevisionMacro(vtkCursor3D, "1.44");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -54,6 +56,8 @@ vtkCursor3D::vtkCursor3D()
   this->ZShadows = 1;
   this->Wrap = 0;
   this->TranslationMode = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkCursor3D::~vtkCursor3D()
@@ -61,17 +65,24 @@ vtkCursor3D::~vtkCursor3D()
   this->Focus->Delete();
 }
 
-void vtkCursor3D::Execute()
+int vtkCursor3D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i;
   int numPts=0, numLines=0;
   vtkPoints *newPts;
   vtkCellArray *newLines;
   double x[3];
   vtkIdType ptIds[2];
-  vtkPolyData *output = this->GetOutput();
-  
-  vtkDebugMacro(<<"Generating cursor");
 
   // Check bounding box and origin
   //
@@ -140,7 +151,7 @@ void vtkCursor3D::Execute()
     }
   else
     {
-    return;
+    return 0;
     }
 
   // Create axes
@@ -386,6 +397,8 @@ void vtkCursor3D::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
 // Set the boundary of the 3D cursor.

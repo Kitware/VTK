@@ -27,12 +27,12 @@
 #ifndef __vtkCursor3D_h
 #define __vtkCursor3D_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkCursor3D : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCursor3D : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkCursor3D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkCursor3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -121,7 +121,7 @@ protected:
   vtkCursor3D();
   ~vtkCursor3D();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkPolyData *Focus;
   double ModelBounds[6];
@@ -140,5 +140,3 @@ private:
 };
 
 #endif
-
-
