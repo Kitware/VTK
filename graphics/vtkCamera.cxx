@@ -105,12 +105,6 @@ vtkCamera::~vtkCamera()
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLCamera.h"
 #endif
-#ifdef VTK_USE_SBR
-#include "vtkStarbaseCamera.h"
-#endif
-#ifdef VTK_USE_XGLR
-#include "vtkXGLCamera.h"
-#endif
 #ifdef _WIN32
 #include "vtkOpenGLCamera.h"
 #endif
@@ -119,12 +113,6 @@ vtkCamera *vtkCamera::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp))
-    {
-    return vtkStarbaseCamera::New();
-    }
-#endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
@@ -135,12 +123,6 @@ vtkCamera *vtkCamera::New()
   if (!strcmp("Win32OpenGL",temp))
     {
     return vtkOpenGLCamera::New();
-    }
-#endif
-#ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp))
-    {
-    return vtkXGLCamera::New();
     }
 #endif
   

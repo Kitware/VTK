@@ -44,12 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLPolyDataMapper.h"
 #endif
-#ifdef VTK_USE_SBR
-#include "vtkStarbasePolyDataMapper.h"
-#endif
-#ifdef VTK_USE_XGLR
-#include "vtkXGLPolyDataMapper.h"
-#endif
 #ifdef _WIN32
 #include "vtkOpenGLPolyDataMapper.h"
 #endif
@@ -58,12 +52,6 @@ vtkPolyDataMapper *vtkPolyDataMapper::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp))
-    {
-    return vtkStarbasePolyDataMapper::New();
-    }
-#endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
@@ -74,12 +62,6 @@ vtkPolyDataMapper *vtkPolyDataMapper::New()
   if (!strcmp("Win32OpenGL",temp))
     {
     return vtkOpenGLPolyDataMapper::New();
-    }
-#endif
-#ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp))
-    {
-    return vtkXGLPolyDataMapper::New();
     }
 #endif
   

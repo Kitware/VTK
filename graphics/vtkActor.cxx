@@ -103,12 +103,6 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLActor.h"
 #endif
-#ifdef VTK_USE_SBR
-#include "vtkStarbaseActor.h"
-#endif
-#ifdef VTK_USE_XGLR
-#include "vtkXGLActor.h"
-#endif
 #ifdef _WIN32
 #include "vtkOpenGLActor.h"
 #endif
@@ -117,12 +111,6 @@ vtkActor *vtkActor::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp))
-    {
-    return vtkStarbaseActor::New();
-    }
-#endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
@@ -133,12 +121,6 @@ vtkActor *vtkActor::New()
   if (!strcmp("Win32OpenGL",temp))
     {
     return vtkOpenGLActor::New();
-    }
-#endif
-#ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp))
-    {
-    return vtkXGLActor::New();
     }
 #endif
   

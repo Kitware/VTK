@@ -119,12 +119,6 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLProperty.h"
 #endif
-#ifdef VTK_USE_SBR
-#include "vtkStarbaseProperty.h"
-#endif
-#ifdef VTK_USE_XGLR
-#include "vtkXGLProperty.h"
-#endif
 #ifdef _WIN32
 #include "vtkOpenGLProperty.h"
 #endif
@@ -133,12 +127,6 @@ vtkProperty *vtkProperty::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp))
-    {
-    return vtkStarbaseProperty::New();
-    }
-#endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
@@ -149,12 +137,6 @@ vtkProperty *vtkProperty::New()
   if (!strcmp("Win32OpenGL",temp))
     {
     return vtkOpenGLProperty::New();
-    }
-#endif
-#ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp))
-    {
-    return vtkXGLProperty::New();
     }
 #endif
   
