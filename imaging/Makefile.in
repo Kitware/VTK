@@ -102,9 +102,11 @@ vtkImageViewer \
 vtkImageWindow \
 vtkImageWrapPad \
 vtkImageWriter \
+vtkLabeledDataMapper \
 vtkPNMReader \
 vtkPNMWriter \
 vtkPolyDataMapper2D \
+vtkScalarBarActor \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \
