@@ -39,14 +39,24 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkDataSetTriangleFilter - triangulate an input data set
+// .NAME vtkDataSetTriangleFilter - triangulate any type of dataset
 // .SECTION Description
-// vtkDataSetTriangleFilter generates triangles from an input data set.
+// vtkTriangulateDataSet generates n-dimensional simplices from any input
+// dataset. That is, 3D cells are converted to tetrahedral meshes, 2D cells
+// to triangles, and so on. The triangulation is guaranteed compatible as
+// long as the dataset is either zero-, one- or two-dimensional; or if
+// a three-dimensional dataset, all cells in the 3D dataset are convex 
+// with planar facets.
+//
+// .SECTION See Also
+// vtkOrderedTriangulator vtkTriangleFilter
 
 #ifndef __vtkDataSetTriangleFilter_h
 #define __vtkDataSetTriangleFilter_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
+
+class vtkOrderedTriangulator;
 
 class VTK_EXPORT vtkDataSetTriangleFilter : public vtkDataSetToUnstructuredGridFilter
 {
@@ -56,16 +66,19 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkDataSetTriangleFilter();
+  vtkDataSetTriangleFilter():Triangulator(NULL) {}
   ~vtkDataSetTriangleFilter();
-  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) {};
-  void operator=(const vtkDataSetTriangleFilter&) {};
+  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) {}
+  void operator=(const vtkDataSetTriangleFilter&) {}
 
   // Usual data generation method
   void Execute();
+
   // different execute methods depending on whether input is structured
   void StructuredExecute();
   void UnstructuredExecute();
+  
+  vtkOrderedTriangulator *Triangulator;
 };
 
 #endif
