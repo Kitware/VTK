@@ -261,6 +261,66 @@ void vtkMatrix4x4::PointMultiply(double Elements[16], double in[4],
   
 }
 
+// Multiplies matrices a and b and stores the result in c.
+void vtkMatrix4x4::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
+			       vtkMatrix4x4 *c)
+{
+  int i, k;
+  double Accum[4][4];
+
+  for (i = 0; i < 4; i++) 
+    {
+    for (k = 0; k < 4; k++) 
+      {
+      Accum[i][k] = a->Element[i][0] * b->Element[0][k] +
+        a->Element[i][1] * b->Element[1][k] +
+        a->Element[i][2] * b->Element[2][k] +
+        a->Element[i][3] * b->Element[3][k];
+      }
+    }
+
+  // Copy to final dest
+  for (i = 0; i < 4; i++)
+    {
+    c->Element[i][0] = Accum[i][0];
+    c->Element[i][1] = Accum[i][1];
+    c->Element[i][2] = Accum[i][2];
+    c->Element[i][3] = Accum[i][3];
+    }
+  c->Modified();
+}
+
+// Multiplies matrices a and b and stores the result in c.
+void vtkMatrix4x4::Multiply4x4(double a[16], double b[16], double c[16])
+{
+  SqMatPtr aMat = (SqMatPtr) a;
+  SqMatPtr bMat = (SqMatPtr) b;
+  SqMatPtr cMat = (SqMatPtr) c;
+  int i, k;
+  double Accum[4][4];
+
+  for (i = 0; i < 4; i++) 
+    {
+    for (k = 0; k < 4; k++) 
+      {
+      Accum[i][k] = aMat[i][0] * bMat[0][k] +
+                    aMat[i][1] * bMat[1][k] +
+                    aMat[i][2] * bMat[2][k] +
+                    aMat[i][3] * bMat[3][k];
+      }
+    }
+
+  // Copy to final dest
+  for (i = 0; i < 4; i++)
+    {
+    cMat[i][0] = Accum[i][0];
+    cMat[i][1] = Accum[i][1];
+    cMat[i][2] = Accum[i][2];
+    cMat[i][3] = Accum[i][3];
+    }
+
+}
+
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
 void vtkMatrix4x4::Invert (vtkMatrix4x4 *in,vtkMatrix4x4 *out)

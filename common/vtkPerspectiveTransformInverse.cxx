@@ -1,73 +1,71 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeneralTransformInverse.cxx
+  Module:    vtkPerspectiveTransformInverse.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class.
 
-Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
 
- * Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
 
- * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
-   of any contributors may be used to endorse or promote products derived
-   from this software without specific prior written permission.
-
- * Modified source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-#include "vtkGeneralTransformInverse.h"
+#include "vtkPerspectiveTransformInverse.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformInverse* vtkGeneralTransformInverse::New()
+vtkPerspectiveTransformInverse* vtkPerspectiveTransformInverse::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGeneralTransformInverse");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPerspectiveTransformInverse");
   if(ret)
     {
-    return (vtkGeneralTransformInverse*)ret;
+    return (vtkPerspectiveTransformInverse*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkGeneralTransformInverse;
+  return new vtkPerspectiveTransformInverse;
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformInverse::vtkGeneralTransformInverse()
+vtkPerspectiveTransformInverse::vtkPerspectiveTransformInverse()
 {
-  this->TransformType = VTK_INVERSE_TRANSFORM;
+  this->TransformType = VTK_INVERSE_TRANSFORM | VTK_PERSPECTIVE_TRANSFORM;
 
   this->Transform = NULL;
   this->UpdateRequired = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformInverse::~vtkGeneralTransformInverse()
+vtkPerspectiveTransformInverse::~vtkPerspectiveTransformInverse()
 {
   if (this->Transform)
     {
@@ -76,9 +74,9 @@ vtkGeneralTransformInverse::~vtkGeneralTransformInverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPerspectiveTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os,indent);
+  vtkPerspectiveTransform::PrintSelf(os,indent);
 
   os << indent << "Transform: " << this->Transform << "\n";
   if (this->Transform)
@@ -88,7 +86,7 @@ void vtkGeneralTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::SetInverse(vtkGeneralTransform *trans)
+void vtkPerspectiveTransformInverse::SetInverse(vtkPerspectiveTransform *trans)
 {
   if (this == trans)
     {
@@ -106,41 +104,25 @@ void vtkGeneralTransformInverse::SetInverse(vtkGeneralTransform *trans)
     }
   this->MyInverse = trans;
   trans->Register(this);
-  this->Transform = trans->MakeTransform();
+  this->Transform = (vtkPerspectiveTransform *)trans->MakeTransform();
   this->UpdateRequired = 1;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::InternalTransformPoint(const float in[3], 
-							float out[3])
+vtkGeneralTransform *vtkPerspectiveTransformInverse::GetInverse()
 {
-  this->Transform->InternalTransformPoint(in,out);
+  return (vtkPerspectiveTransform *)this->MyInverse;
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::InternalTransformDerivative(
-						      const float in[3],
-						      float out[3],
-						      float derivative[3][3])
-{
-  this->Transform->InternalTransformDerivative(in,out,derivative);
-}
-
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransformInverse::GetInverse()
-{
-  return this->MyInverse;
-}
-
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransformInverse::GetTransform()
+vtkPerspectiveTransform *vtkPerspectiveTransformInverse::GetTransform()
 {
   return this->Transform;
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::Identity()
+void vtkPerspectiveTransformInverse::Identity()
 {
   if (this->MyInverse == NULL)
     {
@@ -151,7 +133,7 @@ void vtkGeneralTransformInverse::Identity()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::Inverse()
+void vtkPerspectiveTransformInverse::Inverse()
 {
   if (this->MyInverse == NULL)
     {
@@ -162,7 +144,7 @@ void vtkGeneralTransformInverse::Inverse()
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransformInverse::MakeTransform()
+vtkGeneralTransform *vtkPerspectiveTransformInverse::MakeTransform()
 {
   if (this->MyInverse == NULL)
     {
@@ -173,7 +155,7 @@ vtkGeneralTransform *vtkGeneralTransformInverse::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::DeepCopy(vtkGeneralTransform *transform)
+void vtkPerspectiveTransformInverse::DeepCopy(vtkGeneralTransform *transform)
 {
   if (this->MyInverse == NULL)
     {
@@ -185,13 +167,15 @@ void vtkGeneralTransformInverse::DeepCopy(vtkGeneralTransform *transform)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::Update()
+void vtkPerspectiveTransformInverse::Update()
 {
   if (this->MyInverse == NULL)
     {
     vtkErrorMacro(<< "Update: Inverse has not been set");
     return;
     }
+
+  this->MyInverse->Update();
 
   if (this->MyInverse->GetMTime() > 
       this->Transform->GetMTime() || this->UpdateRequired)
@@ -202,12 +186,13 @@ void vtkGeneralTransformInverse::Update()
     }
 
   this->Transform->Update();
+  this->Matrix->DeepCopy(this->Transform->GetMatrixPointer());
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGeneralTransformInverse::GetMTime()
+unsigned long vtkPerspectiveTransformInverse::GetMTime()
 {
-  unsigned long result = this->vtkGeneralTransform::GetMTime();
+  unsigned long result = this->vtkPerspectiveTransform::GetMTime();
   unsigned long mtime;
 
   if (this->MyInverse)
@@ -220,3 +205,6 @@ unsigned long vtkGeneralTransformInverse::GetMTime()
     }
   return result;
 }
+
+
+

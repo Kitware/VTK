@@ -123,87 +123,41 @@ void vtkTransformPolyDataFilter::Execute()
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts);
     }
-  if ( inCellVectors ) 
-    {
-    newCellVectors = vtkVectors::New();
-    newCellVectors->Allocate(numCells);
-    }
-  if ( inCellNormals ) 
-    {
-    newCellNormals = vtkNormals::New();
-    newCellNormals->Allocate(numCells);
-    }
 
+  this->UpdateProgress (.2);
   // Loop over all points, updating position
   //
-  this->Transform->TransformPoints(inPts,newPts);
-  this->UpdateProgress (.2);
 
-  // Ditto for vectors and normals
-  //
-  if ( inVectors )
+  if ( inVectors || inNormals )
     {
-    this->Transform->TransformVectors(inPts,newPts,
-				      inVectors,newVectors);
+    this->Transform->TransformPointsNormalsVectors(inPts,newPts,
+						   inNormals,newNormals,
+						   inVectors,newVectors);
     }
-
-  this->UpdateProgress (.4);
-
-  if ( inNormals )
+  else
     {
-    this->Transform->TransformNormals(inPts,newPts,
-				      inNormals,newNormals);
-    }
+    this->Transform->TransformPoints(inPts,newPts);
+    }  
 
   this->UpdateProgress (.6);
 
-  if ( (inCellVectors || inCellNormals) )
+  // Can only transform cell normals/vectors if the transform
+  // is linear.
+  if (this->Transform->IsA("vtkLinearTransform"))
     {
-    vtkPoints *inCellPts = NULL;
-    vtkPoints *outCellPts = NULL;
-
-    // We have to create a set of cell points (consisting of the
-    // first point in each cell) to calculate the transformation 
-    // for the normals if the transform is nonlinear.
-    
-    // This treatment is accurate for perspective transformations,
-    // and a fair approximation for other nonlinear transformations.
-
-    if ( this->Transform->GetTransformType() & VTK_LINEAR_TRANSFORM
-	!= VTK_LINEAR_TRANSFORM )
+    if ( inCellVectors ) 
       {
-      inCellPts = vtkPoints::New();
-      inCellPts->Allocate(numCells);
-      outCellPts = vtkPoints::New();
-      outCellPts->Allocate(numCells);
-
-      int i, pointId;
-      for (i = 0; i < numCells; i++)
-	{
-	pointId = input->GetCell(i)->GetPointId(0);
-	inCellPts->SetPoint(i,inPts->GetPoint(pointId));
-	outCellPts->SetPoint(i,newPts->GetPoint(pointId));
-	}
+      newCellVectors = vtkVectors::New();
+      newCellVectors->Allocate(numCells);
+      ((vtkLinearTransform *)this->Transform)->
+	TransformNormals(inCellNormals,newCellNormals);
       }
-
-    if ( inCellVectors )
+    if ( inCellNormals ) 
       {
-      this->Transform->TransformVectors(inCellPts,outCellPts,
-					inCellVectors,newCellVectors);
-      }
-
-    this->UpdateProgress (.7);
-
-    if ( inCellNormals )
-      {
-      this->Transform->TransformNormals(inCellPts,outCellPts,
-					inCellNormals,newCellNormals);
-      }
-
-    if (inCellPts)
-      {
-      inCellPts->Delete();
-      outCellPts->Delete();
+      newCellNormals = vtkNormals::New();
+      newCellNormals->Allocate(numCells);
+      ((vtkLinearTransform *)this->Transform)->
+       TransformVectors(inCellVectors,newCellVectors);
       }
     }
 

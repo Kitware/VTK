@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeneralTransformConcatenation.h
+  Module:    vtkLinearTransformConcatenation.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,33 +39,32 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGeneralTransformConcatenation - concatenation of general transforms
+// .NAME vtkLinearTransformConcatenation - concatenation of linear transforms
 // .SECTION Description
-// vtkGeneralTransformConcatenation is a special GeneralTransform which
-// allows concatenation of heterogenous transform types.  The transforms
-// are not actually concatenated, but this is simulated by passing each
-// input point through each transform in turn.
+// vtkLinearTransformConcatenation is a special LinearTransform which
+// allows concatenation of linear transformations in a pipelined manner.
 // .SECTION see also
-// vtkGeneralTransform
+// vtkLinearTransform
 
 
-#ifndef __vtkGeneralTransformConcatenation_h
-#define __vtkGeneralTransformConcatenation_h
+#ifndef __vtkLinearTransformConcatenation_h
+#define __vtkLinearTransformConcatenation_h
 
-#include "vtkGeneralTransform.h"
+#include "vtkLinearTransform.h"
+#include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkGeneralTransformConcatenation : public vtkGeneralTransform
+class VTK_EXPORT vtkLinearTransformConcatenation : public vtkLinearTransform
 {
 public:
-  static vtkGeneralTransformConcatenation *New();
+  static vtkLinearTransformConcatenation *New();
 
-  vtkTypeMacro(vtkGeneralTransformConcatenation,vtkGeneralTransform);
+  vtkTypeMacro(vtkLinearTransformConcatenation,vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Concatenate the current transform with the specified transform,
   // taking the PreMultiply flag into consideration.
-  void Concatenate(vtkGeneralTransform *transform);
+  void Concatenate(vtkLinearTransform *transform);
 
   // Description:
   // Set the order in which subsequent concatenations will be
@@ -97,36 +96,25 @@ public:
   // Update the concatenated transform.
   void Update();
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
-  void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
-
 protected:
-  vtkGeneralTransformConcatenation();
-  ~vtkGeneralTransformConcatenation();
-  vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
-  void operator=(const vtkGeneralTransformConcatenation&) {};
+  vtkLinearTransformConcatenation();
+  ~vtkLinearTransformConcatenation();
+  vtkLinearTransformConcatenation(const vtkLinearTransformConcatenation&) {};
+  void operator=(const vtkLinearTransformConcatenation&) {};
 
   int InverseFlag;
   int PreMultiplyFlag;
 
   int NumberOfTransforms;
   int MaxNumberOfTransforms;
-  vtkGeneralTransform **TransformList;
-  vtkGeneralTransform **InverseList;
+  vtkLinearTransform **TransformList;
+  vtkLinearTransform **InverseList;
+  vtkMutexLock *UpdateMutex;
 };
 
 //BTX
 //----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PreMultiply()
+inline void vtkLinearTransformConcatenation::PreMultiply()
 {
   if (this->PreMultiplyFlag)
     {
@@ -137,7 +125,7 @@ inline void vtkGeneralTransformConcatenation::PreMultiply()
 }
 
 //----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PostMultiply()
+inline void vtkLinearTransformConcatenation::PostMultiply()
 {
   if (!this->PreMultiplyFlag)
     {

@@ -142,6 +142,13 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 //ETX
 
   // Description:
+  // Multiplies matrices a and b and stores the result in c.
+  static void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
+//BTX
+  static void Multiply4x4(double a[16], double b[16], double c[16]);
+//ETX
+
+  // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
 //BTX

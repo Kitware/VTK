@@ -41,8 +41,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkThinPlateSplineTransform.h"
 #include "vtkGeneralTransformInverse.h"
+#include "vtkThinPlateSplineTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -117,9 +117,8 @@ static inline void MatrixMultiply(double** a, double** b, double** c,
       }
     }
 }
-
-/* useful little debugging tool
-static inline void PrintMatrix(double **m, int x, int y)
+/*
+static void PrintMatrix(double **m, int x, int y)
 {
   int i,j; 
   for(i = 0; i < x; i++) 
@@ -148,9 +147,11 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   // The ApproximateInverse is a vtkThinPlateSlineTransform with
   // source & target landmarks swapped.  It provides the first
   // approximation in the iterative method.
-  this->InverseFlag = 0;
   this->InverseTolerance = 0.001;
   this->ApproximateInverse = NULL;
+
+  this->Basis = -1;
+  this->SetBasisToR();
 
   this->UpdateRequired = 0;
   this->NumberOfPoints = 0;
@@ -223,161 +224,6 @@ void vtkThinPlateSplineTransform::SetTargetLandmarks(vtkPoints *target)
 }
 
 //------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::TransformPoint(const float input[3],
-						 float output[3])
-{
-  if (this->AutoUpdate)
-    {
-    this->Update();
-    }
-
-  if (this->NumberOfPoints != 0)
-    {
-    if (this->InverseFlag)
-      {
-      this->InverseTransformPoint(input,output);
-      }
-    else
-      {
-      this->ForwardTransformPoint(input,output);
-      }
-    }
-  else
-    {
-    output[0] = input[0];
-    output[0] = input[0];
-    output[0] = input[0];
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::TransformPoints(vtkPoints *in, 
-						  vtkPoints *out)
-{
-  if (this->AutoUpdate)
-    {
-    this->Update();
-    }
-
-  float outPoint[3];
-
-  int i;
-  int n = in->GetNumberOfPoints();
-
-  if (this->NumberOfPoints == 0)
-    {
-    for (i = 0; i < n; i++)
-      {
-      out->InsertNextPoint(in->GetPoint(i));
-      }
-    return;
-    }      
-
-  if (this->InverseFlag)
-    {
-    for (i = 0; i < n; i++)
-      {
-      this->InverseTransformPoint(in->GetPoint(i),outPoint);
-      out->InsertNextPoint(outPoint);
-      }
-    }
-  else
-    {
-    for (i = 0; i < n; i++)
-      {
-      this->ForwardTransformPoint(in->GetPoint(i),outPoint);
-      out->InsertNextPoint(outPoint);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-// transform the normals using the derivative of the transformation
-
-static void LinearSolve3x3(float A[3][3], float x[3]);
-static void Multiply3x3(float A[3][3], float x[3]);
-static void Transpose3x3(float A[3][3]);
-
-void vtkThinPlateSplineTransform::TransformNormals(vtkPoints *inPts,
-					     vtkPoints *vtkNotUsed(outPts),
-						   vtkNormals *inNms, 
-						   vtkNormals *outNms)
-{
-  if (this->AutoUpdate)
-    {
-    this->Update();
-    }
-
-  float matrix[3][3];
-  float point[3];
-  float normal[3];
-
-  int i;
-  int n = inNms->GetNumberOfNormals();
-
-  for (i = 0; i < n; i++)
-    {
-    inNms->GetNormal(i,normal);
-    inPts->GetPoint(i,point);
-
-    this->TransformDerivatives(point,point,matrix);
-    Transpose3x3(matrix);
-
-    if (this->InverseFlag)
-      {
-      Multiply3x3(matrix,normal);
-      }
-    else
-      {
-      LinearSolve3x3(matrix,normal);
-      }
-
-    vtkMath::Normalize(normal);
-    outNms->InsertNextNormal(normal);
-    }
-}
-
-//----------------------------------------------------------------------------
-// transform vectors using the derivative of the transformation
-
-void vtkThinPlateSplineTransform::TransformVectors(vtkPoints *inPts,
-					     vtkPoints *vtkNotUsed(outPts),
-						   vtkVectors *inVrs, 
-						   vtkVectors *outVrs)
-{
-  if (this->AutoUpdate)
-    {
-    this->Update();
-    }
-
-  float matrix[3][3];
-  float vect[3];
-  float point[3];
-
-  int i;
-  int n = inVrs->GetNumberOfVectors();
-
-  for (i = 0; i < n; i++)
-    {
-    inVrs->GetVector(i,vect);
-    inPts->GetPoint(i,point);
-
-    this->TransformDerivatives(point,point,matrix);
-
-    if (this->InverseFlag)
-      {
-      LinearSolve3x3(matrix,vect);
-      }
-    else
-      {
-      Multiply3x3(matrix,vect);
-      }
-
-    outVrs->InsertNextVector(vect);
-    }
-}
-
-//------------------------------------------------------------------------
 unsigned long vtkThinPlateSplineTransform::GetMTime()
 {
   unsigned long result = this->vtkGeneralTransform::GetMTime();
@@ -412,7 +258,6 @@ void vtkThinPlateSplineTransform::Update()
 
   if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
     {
-    // gotta ensure thread safety with those instance variables...
     if (this->MatrixW)
       {
       DeleteMatrix(this->MatrixW,this->NumberOfPoints+3+1,3);
@@ -438,20 +283,14 @@ void vtkThinPlateSplineTransform::Update()
     return;
     }
 
-  // If we are calculating inverse transforms, then update 
-  // ApproximateInverse
-  if (this->InverseFlag)
+  // update ApproximateInverse
+  if (this->ApproximateInverse == NULL)
     {
-    if (this->ApproximateInverse == NULL)
-      {
-      this->ApproximateInverse = vtkThinPlateSplineTransform::New();
-      }
-    this->ApproximateInverse->SetSourceLandmarks(this->TargetLandmarks);
-    this->ApproximateInverse->SetTargetLandmarks(this->SourceLandmarks);
-    this->ApproximateInverse->SetSigma(this->Sigma);
-    this->ApproximateInverse->Update();
-    this->ApproximateInverse->AutoUpdateOff();
+    this->ApproximateInverse = vtkThinPlateSplineTransform::New();
     }
+  this->ApproximateInverse->SetSourceLandmarks(this->TargetLandmarks);
+  this->ApproximateInverse->SetTargetLandmarks(this->SourceLandmarks);
+  this->ApproximateInverse->SetSigma(this->Sigma);
 
   // Notation and inspiration from:
   // Fred L. Bookstein (1997) "Shape and the Information in Medical Images: 
@@ -471,34 +310,39 @@ void vtkThinPlateSplineTransform::Update()
   // build L
   // will leave the bottom-right corner with zeros
   FillMatrixWithZeros(L,N+D+1,N+D+1);
-  int r,c;
+
+  int q,c;
   float p[3],p2[3];
   float dx,dy,dz;
-  for(r = 0; r < N; r++)
+  double r;
+  double (*phi)(double) = this->RadialBasisFunction;
+
+  for(q = 0; q < N; q++)
     {
-    this->SourceLandmarks->GetPoint(r,p);
+    this->SourceLandmarks->GetPoint(q,p);
     // fill in the top-right and bottom-left corners of L (Q)
-    L[N][r] = L[r][N] = 1.0;
-    L[N+1][r] = L[r][N+1] = p[0];
-    L[N+2][r] = L[r][N+2] = p[1];
-    L[N+3][r] = L[r][N+3] = p[2];
+    L[N][q] = L[q][N] = 1.0;
+    L[N+1][q] = L[q][N+1] = p[0];
+    L[N+2][q] = L[q][N+2] = p[1];
+    L[N+3][q] = L[q][N+3] = p[2];
     // fill in the top-left corner of L (K), using symmetry
-    for(c = 0; c < r; c++)
+    for(c = 0; c < q; c++)
       {
       this->SourceLandmarks->GetPoint(c,p2);
       dx = p[0]-p2[0]; dy = p[1]-p2[1]; dz = p[2]-p2[2];
-      L[r][c] = L[c][r] = sqrt(dx*dx + dy*dy + dz*dz)/this->Sigma;
+      r = sqrt(dx*dx + dy*dy + dz*dz);
+      L[q][c] = L[c][q] = phi(r/this->Sigma);
       }
     }
 
   // build X
   FillMatrixWithZeros(X,N+D+1,D);
-  for(r = 0; r < N; r++)
+  for(q = 0; q < N; q++)
     {
-    this->TargetLandmarks->GetPoint(r,p);
-    X[r][0] = p[0];
-    X[r][1] = p[1];
-    X[r][2] = p[2];
+    this->TargetLandmarks->GetPoint(q,p);
+    X[q][0] = p[0];
+    X[q][1] = p[1];
+    X[q][2] = p[2];
     }
 
   // solve for W, where W = Inverse(L)*X; 
@@ -538,13 +382,25 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 							float output[3])
 {
   int N = this->NumberOfPoints;
+
+  if (N == 0)
+    {
+    output[0] = point[0];
+    output[1] = point[1];
+    output[2] = point[2];
+    return;
+    }
+
   double **W = this->MatrixW;
   double *C = this->MatrixW[N]; 
   double **A = &this->MatrixW[N+1];
 
   float dx,dy,dz;
   float p[3];
-  double U;
+  double U,r;
+  double invSigma = 1.0/this->Sigma;
+
+  double (*phi)(double) = this->RadialBasisFunction;
 
   double x = 0, y = 0, z = 0; 
 
@@ -553,7 +409,8 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
     {
     this->SourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
-    U = sqrt(dx*dx + dy*dy + dz*dz)/this->Sigma;
+    r = sqrt(dx*dx + dy*dy + dz*dz);
+    U = phi(r*invSigma);
     x += U*W[i][0];
     y += U*W[i][1];
     z += U*W[i][2];
@@ -570,24 +427,40 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 }
 
 //----------------------------------------------------------------------------
-// calculate the thin plate spline as well as the derivatives
-void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
+// calculate the thin plate spline as well as the derivative
+void vtkThinPlateSplineTransform::ForwardTransformDerivative(
+						       const float point[3],
 						       float output[3],
-						       float derivatives[3][3])
+						       float derivative[3][3])
 {
   int N = this->NumberOfPoints;
+
+  if (N == 0)
+    {
+    for (int i = 0; i < 3; i++)
+      {
+      output[i] = point[i];
+      derivative[i][0] = derivative[i][1] = derivative[i][2] = 0.0;
+      derivative[i][i] = 1.0;
+      }
+    return;
+    }
+
   double **W = this->MatrixW;
   double *C = this->MatrixW[N]; 
   double **A = &this->MatrixW[N+1];
 
   float dx,dy,dz;
   float p[3];
-  double r, f, U, Ux, Uy, Uz;
+  double r, U, f, Ux, Uy, Uz;
   double x = 0, y = 0, z = 0; 
+  double invSigma = 1.0/this->Sigma;
 
-  derivatives[0][0] = derivatives[0][1] = derivatives[0][2] = 0;
-  derivatives[1][0] = derivatives[1][1] = derivatives[1][2] = 0;
-  derivatives[2][0] = derivatives[2][1] = derivatives[2][2] = 0;
+  double (*phi)(double, double&) = this->RadialBasisDerivative;
+
+  derivative[0][0] = derivative[0][1] = derivative[0][2] = 0;
+  derivative[1][0] = derivative[1][1] = derivative[1][2] = 0;
+  derivative[2][0] = derivative[2][1] = derivative[2][2] = 0;
 
   // do the nonlinear stuff
   for(int i = 0; i < N; i++)
@@ -595,13 +468,15 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
     this->SourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
     r = sqrt(dx*dx + dy*dy + dz*dz);
+
+    // get both U and its derivative and do the sigma-mangling
+    U = 0;
     f = 0;
     if (r != 0)
       {
-      f = 1.0/(r*this->Sigma);
+      U = phi(r*invSigma,f);
+      f *= invSigma/r;
       }
-
-    U = r/this->Sigma;
 
     Ux = f*dx;
     Uy = f*dy;
@@ -611,15 +486,15 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
     y += U*W[i][1];
     z += U*W[i][2];
 
-    derivatives[0][0] += Ux*W[i][0];
-    derivatives[0][1] += Uy*W[i][0];
-    derivatives[0][2] += Uz*W[i][0];
-    derivatives[1][0] += Ux*W[i][1];
-    derivatives[1][1] += Uy*W[i][1];
-    derivatives[1][2] += Uz*W[i][1];
-    derivatives[2][0] += Ux*W[i][2];
-    derivatives[2][1] += Uy*W[i][2];
-    derivatives[2][2] += Uz*W[i][2];
+    derivative[0][0] += Ux*W[i][0];
+    derivative[0][1] += Uy*W[i][0];
+    derivative[0][2] += Uz*W[i][0];
+    derivative[1][0] += Ux*W[i][1];
+    derivative[1][1] += Uy*W[i][1];
+    derivative[1][2] += Uz*W[i][1];
+    derivative[2][0] += Ux*W[i][2];
+    derivative[2][1] += Uy*W[i][2];
+    derivative[2][2] += Uz*W[i][2];
     }
 
   // finish with the affine transformation
@@ -631,178 +506,35 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
   output[1] = y;
   output[2] = z;
 
-  derivatives[0][0] += A[0][0];
-  derivatives[0][1] += A[1][0];
-  derivatives[0][2] += A[2][0];
-  derivatives[1][0] += A[0][1];
-  derivatives[1][1] += A[1][1];
-  derivatives[1][2] += A[2][1];
-  derivatives[2][0] += A[0][2];
-  derivatives[2][1] += A[1][2];
-  derivatives[2][2] += A[2][2];
+  derivative[0][0] += A[0][0];
+  derivative[0][1] += A[1][0];
+  derivative[0][2] += A[2][0];
+  derivative[1][0] += A[0][1];
+  derivative[1][1] += A[1][1];
+  derivative[1][2] += A[2][1];
+  derivative[2][0] += A[0][2];
+  derivative[2][1] += A[1][2];
+  derivative[2][2] += A[2][2];
 }  
-
-//----------------------------------------------------------------------------
-// helper function, swap two 3-vectors
-template <class T>
-static inline void SwapVectors(T v1[3], T v2[3])
-{
-  T tmpvec[3];
-  memcpy(tmpvec,v1,3*sizeof(T));
-  memcpy(v1,v2,3*sizeof(T));
-  memcpy(v2,tmpvec,3*sizeof(T));
-}
-
-//----------------------------------------------------------------------------
-// Unrolled LU factorization of a 3x3 matrix with pivoting.
-// This decomposition is non-standard in that the diagonal
-// elements are inverted, to convert a division to a multiplication
-// in the backsubstitution.
-static void LUFactor3x3(float A[3][3], int index[3])
-{
-  int i,maxI;
-  float tmp,largest;
-  float scale[3];
-
-  // Loop over rows to get implicit scaling information
-
-  for ( i = 0; i < 3; i++ ) 
-    {
-    largest =  fabs(A[i][0]);
-    if ((tmp = fabs(A[i][1])) > largest)
-      {
-      largest = tmp;
-      }
-    if ((tmp = fabs(A[i][2])) > largest)
-      {
-      largest = tmp;
-      }
-    scale[i] = 1.0/largest;
-    }
-  
-  // Loop over all columns using Crout's method
-
-  // first column
-  largest = scale[0]*fabs(A[0][0]);
-  maxI = 0;
-  if ((tmp = scale[1]*fabs(A[1][0])) >= largest) 
-    {
-    largest = tmp;
-    maxI = 1;
-    }
-  if ((tmp = scale[2]*fabs(A[2][0])) >= largest) 
-    {
-    maxI = 2;
-    }
-  if (maxI != 0) 
-    {
-    SwapVectors(A[maxI],A[0]);
-    scale[maxI] = scale[0];
-    }
-  index[0] = maxI;
-
-  A[0][0] = 1.0/A[0][0];
-  A[1][0] *= A[0][0];
-  A[2][0] *= A[0][0];
-    
-  // second column
-  A[1][1] -= A[1][0]*A[0][1];
-  A[2][1] -= A[2][0]*A[0][1];
-  largest = scale[1]*fabs(A[1][1]);
-  maxI = 1;
-  if ((tmp = scale[2]*fabs(A[2][1])) >= largest) 
-    {
-    maxI = 2;
-    SwapVectors(A[2],A[1]);
-    scale[2] = scale[1];
-    }
-  index[1] = maxI;
-  A[1][1] = 1.0/A[1][1];
-  A[2][1] *= A[1][1];
-
-  // third column
-  A[1][2] -= A[1][0]*A[0][2];
-  A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
-  largest = scale[2]*fabs(A[2][2]);
-  index[2] = 2;
-  A[2][2] = 1.0/A[2][2];
-}
-
-//----------------------------------------------------------------------------
-// Backsubsitution with an LU-decomposed matrix.  This is the standard
-// LU decomposition, except that the diagonals elements have been inverted.
-static void LUSolve3x3(float A[3][3], int index[3], float x[3])
-{
-  float sum;
-
-  // forward substitution
-  
-  sum = x[index[0]];
-  x[index[0]] = x[0];
-  x[0] = sum;
-
-  sum = x[index[1]];
-  x[index[1]] = x[1];
-  x[1] = sum - A[1][0]*x[0];
-
-  sum = x[index[2]];
-  x[index[2]] = x[2];
-  x[2] = sum - A[2][0]*x[0] - A[2][1]*x[1];
-
-  // back substitution
-  
-  x[2] = x[2]*A[2][2];
-  x[1] = (x[1] - A[1][2]*x[2])*A[1][1];
-  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
-}  
-
-//----------------------------------------------------------------------------
-// helper function for newton's method: solves Ay = x for y, 
-// the result is placed in x, the matrix A is destroyed
-static void LinearSolve3x3(float A[3][3], float x[3])
-{
-  int index[3];
-
-  LUFactor3x3(A,index);
-  LUSolve3x3(A,index,x);
-}
-
-//----------------------------------------------------------------------------
-static void Multiply3x3(float A[3][3], float v[3])
-{
-  float x,y,z;
-  x = v[0]; y = v[1]; z = v[2];
-
-  v[0] = A[0][0]*x + A[0][1]*y + A[0][2]*z;
-  v[1] = A[1][0]*x + A[1][1]*y + A[1][2]*z;
-  v[2] = A[2][0]*x + A[2][1]*y + A[2][2]*z;
-}
-
-//----------------------------------------------------------------------------
-static void Transpose3x3(float A[3][3])
-{
-  float tmp;
-  tmp = A[0][1];
-  A[1][0] = A[0][1];
-  A[0][1] = tmp;
-  tmp = A[0][2];
-  A[2][0] = A[0][2];
-  A[0][2] = tmp;
-  tmp = A[1][2];
-  A[2][1] = A[1][2];
-  A[1][2] = tmp;
-}
 
 //----------------------------------------------------------------------------
 // Simply switching the input & output landmarks will not invert the 
 // transform, so instead we use Newton's method to iteratively invert
 // the transformation.
 void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3], 
-							float outPoint[3])
+							float output[3])
 {
+  if (this->NumberOfPoints == 0)
+    {
+    output[0] = point[0];
+    output[1] = point[1];
+    output[2] = point[2];
+    return;
+    }
+
   float inverse[3];
   float delta[3];
-  float derivatives[3][3];
+  float derivative[3][3];
 
   double errorSquared;
   double toleranceSquared = this->InverseTolerance*this->InverseTolerance;
@@ -816,7 +548,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
   for (i = 0; i < n; i++)
     {    
     // put the inverse point back through the transform
-    this->TransformDerivatives(inverse,delta,derivatives);
+    this->ForwardTransformDerivative(inverse,delta,derivative);
 
     // how far off are we?
     delta[0] -= point[0];
@@ -824,7 +556,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
     delta[2] -= point[2];
 
     // here is the critical step in Newton's method
-    LinearSolve3x3(derivatives,delta);
+    vtkGeneralTransform::LinearSolve3x3(derivative,delta);
 
     inverse[0] -= delta[0];
     inverse[1] -= delta[1];
@@ -845,19 +577,20 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
     this->ApproximateInverse->TransformPoint(point,inverse);
     vtkWarningMacro(<< "InverseTransformPoint: no convergence");
     }    
-  outPoint[0] = inverse[0];
-  outPoint[1] = inverse[1];
-  outPoint[2] = inverse[2];
+
+  output[0] = inverse[0];
+  output[1] = inverse[1];
+  output[2] = inverse[2];
 }
 
 //------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os,indent);
+  vtkWarpTransform::PrintSelf(os,indent);
   
-  os << indent << "InverseFlag: " << this->InverseFlag << "\n";
   os << indent << "InverseTolerance: " << this->InverseTolerance << "\n";
   os << indent << "Sigma: " << this->Sigma << "\n";
+  os << indent << "Basis: " << this->GetBasisAsString() << "\n";
   os << indent << "Source Landmarks: " << this->SourceLandmarks << "\n";
   if (this->SourceLandmarks)
     {
@@ -878,13 +611,6 @@ void vtkThinPlateSplineTransform::Identity()
 }
 
 //----------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::Inverse()
-{
-  this->InverseFlag = !this->InverseFlag;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
 vtkGeneralTransform *vtkThinPlateSplineTransform::MakeTransform()
 {
   return vtkThinPlateSplineTransform::New(); 
@@ -893,15 +619,15 @@ vtkGeneralTransform *vtkThinPlateSplineTransform::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = 
-      ((vtkGeneralTransformInverse *)transform)->GetInverseTransform(); 
-    }	
-  if (this->TransformType != transform->GetTransformType())
+  if (this->TransformType != transform->GetTransformType() &&
+      this->TransformType != transform->GetInverse()->GetTransformType())
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
     }
+  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
+    {
+    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform(); 
+    }	
   vtkThinPlateSplineTransform *t = (vtkThinPlateSplineTransform *)transform;
 
   if (t == this)
@@ -909,14 +635,92 @@ void vtkThinPlateSplineTransform::DeepCopy(vtkGeneralTransform *transform)
     return;
     }
 
-  if (this->InverseFlag != t->InverseFlag)
-    {
-    this->Inverse();
-    }
   this->SetInverseTolerance(t->InverseTolerance);
   this->SetSigma(t->Sigma);
+  this->SetBasis(t->GetBasis());
   this->SetSourceLandmarks(t->SourceLandmarks);
   this->SetTargetLandmarks(t->TargetLandmarks);
+
+  if (this->InverseFlag != t->InverseFlag)
+    {
+    this->InverseFlag = t->InverseFlag;
+    this->Modified();
+    }
 }
+
+//------------------------------------------------------------------------
+// a very basic radial basis function
+static double RBFr(double r)
+{
+  return r;
+}
+
+// calculate both phi(r) its derivative wrt r
+static double RBFDRr(double r, double &dUdr)
+{
+  dUdr = 1;
+  return r;
+}
+
+//------------------------------------------------------------------------
+// the standard 2D thin plate spline basis function
+static double RBFr2logr(double r)
+{
+  return r*r*log(r);
+}
+
+// calculate both phi(r) its derivative wrt r
+static double RBFDRr2logr(double r, double &dUdr)
+{
+  double tmp = log(r);
+  dUdr = r*(1+2*tmp);
+  return r*r*tmp;
+}
+
+//------------------------------------------------------------------------
+void vtkThinPlateSplineTransform::SetBasis(int basis)
+{
+  if (basis == this->Basis)
+    {
+    return;
+    }
+
+  switch (basis)
+    {
+    case VTK_RBF_R:
+      this->RadialBasisFunction = &RBFr;
+      this->RadialBasisDerivative = &RBFDRr;
+      break;
+    case VTK_RBF_R2LOGR:
+      this->RadialBasisFunction = &RBFr2logr;
+      this->RadialBasisDerivative = &RBFDRr2logr;
+      break;
+    default:
+      vtkErrorMacro(<< "SetBasisFunction: Unrecognized basis function");
+      break;
+    }
+
+  this->Basis = basis;
+  this->Modified();
+}  
+
+//------------------------------------------------------------------------
+const char *vtkThinPlateSplineTransform::GetBasisAsString()
+{
+  switch (this->Basis)
+    {
+    case VTK_RBF_R:
+      return "R";
+    case VTK_RBF_R2LOGR:
+      return "R2LogR";
+     }
+  return "Unknown";
+}
+
+
+
+
+
+
 
 

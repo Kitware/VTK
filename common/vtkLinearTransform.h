@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeneralTransformConcatenation.h
+  Module:    vtkLinearTransform.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,63 +39,60 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGeneralTransformConcatenation - concatenation of general transforms
+// .NAME vtkLinearTransform - superclass for linear geometric transformations
 // .SECTION Description
-// vtkGeneralTransformConcatenation is a special GeneralTransform which
-// allows concatenation of heterogenous transform types.  The transforms
-// are not actually concatenated, but this is simulated by passing each
-// input point through each transform in turn.
+// vtkLinearTransform provides a generic interface for linear transformations. 
 // .SECTION see also
-// vtkGeneralTransform
+// vtkGeneralTransform vtkTransform vtkLinearTransformConcatenation
 
 
-#ifndef __vtkGeneralTransformConcatenation_h
-#define __vtkGeneralTransformConcatenation_h
+#ifndef __vtkLinearTransform_h
+#define __vtkLinearTransform_h
 
-#include "vtkGeneralTransform.h"
+#include "vtkPerspectiveTransform.h"
 
-class VTK_EXPORT vtkGeneralTransformConcatenation : public vtkGeneralTransform
+class VTK_EXPORT vtkLinearTransform : public vtkPerspectiveTransform
 {
 public:
-  static vtkGeneralTransformConcatenation *New();
 
-  vtkTypeMacro(vtkGeneralTransformConcatenation,vtkGeneralTransform);
+  vtkTypeMacro(vtkLinearTransform,vtkPerspectiveTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Concatenate the current transform with the specified transform,
-  // taking the PreMultiply flag into consideration.
-  void Concatenate(vtkGeneralTransform *transform);
 
   // Description:
-  // Set the order in which subsequent concatenations will be
-  // applied.
-  void PreMultiply();
-  void PostMultiply();
+  // Apply the transformation to a coordinate.  You can use the same 
+  // array to store both the input and output point.
+  void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3]);
 
   // Description:
-  // Invert the transformation. 
-  void Inverse();
+  // Apply the transformation to a series of points, and append the
+  // results to outPts.  
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
 
   // Description:
-  // Create an identity transformation.
-  void Identity();
+  // Apply the transformation to a series of normals, and append the
+  // results to outNms.  
+  virtual void TransformNormals(vtkNormals *inNms, vtkNormals *outNms);
 
   // Description:
-  // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  // Apply the transformation to a series of vectors, and append the
+  // results to outVrs.  
+  virtual void TransformVectors(vtkVectors *inVrs, vtkVectors *outVrs);
 
   // Description:
-  // Copy another transformation into this one.
-  void DeepCopy(vtkGeneralTransform *transform);
+  // Apply the transformation to a combination of points, normals
+  // and vectors.  
+  void TransformPointsNormalsVectors(vtkPoints *inPts, 
+				     vtkPoints *outPts, 
+				     vtkNormals *inNms, 
+				     vtkNormals *outNms,
+				     vtkVectors *inVrs, 
+				     vtkVectors *outVrs);
 
   // Description:
-  // Return modified time of transformation.
-  unsigned long GetMTime();
-
-  // Description:
-  // Update the concatenated transform.
-  void Update();
+  // Get the inverse of this transform.  If you modify this transform,
+  // the returned inverse transform will automatically update.
+  vtkGeneralTransform *GetInverse();
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -110,43 +107,11 @@ public:
 				   float derivative[3][3]);
 
 protected:
-  vtkGeneralTransformConcatenation();
-  ~vtkGeneralTransformConcatenation();
-  vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
-  void operator=(const vtkGeneralTransformConcatenation&) {};
-
-  int InverseFlag;
-  int PreMultiplyFlag;
-
-  int NumberOfTransforms;
-  int MaxNumberOfTransforms;
-  vtkGeneralTransform **TransformList;
-  vtkGeneralTransform **InverseList;
+  vtkLinearTransform() {};
+  ~vtkLinearTransform() {};
+  vtkLinearTransform(const vtkLinearTransform&) {};
+  void operator=(const vtkLinearTransform&) {};
 };
-
-//BTX
-//----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PreMultiply()
-{
-  if (this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PostMultiply()
-{
-  if (!this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 0;
-  this->Modified();
-}
-//ETX
 
 #endif
 

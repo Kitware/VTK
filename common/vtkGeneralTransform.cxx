@@ -50,34 +50,37 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os, indent);
 
   os << indent << "TransformType: " << this->TransformType << "\n";
-  os << indent << "AutoUpdate: " << (this->AutoUpdate ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
-vtkGeneralTransform::~vtkGeneralTransform()
+//------------------------------------------------------------------------
+// Default TransformPoint:  Call Update(), then call the appropriate
+// 
+void vtkGeneralTransform::TransformPoint(const float input[3],
+					 float output[3])
 {
-  if (this->MyInverse)
-    {
-    this->MyInverse->Delete();
-    }
+  this->Update();
+  this->InternalTransformPoint(input,output);
 }
 
 //----------------------------------------------------------------------------
-// If the subclass has not defined a 'double' transform method, then
-// use the 'float' transform method instead.  
-void vtkGeneralTransform::TransformPoint(const double in[3], double out[3])
+// Convert double to float, then do the transformation.  A subclass
+// can override this method to provide true double-precision transformations.
+void vtkGeneralTransform::TransformPoint(const double input[3], 
+					 double output[3])
 {
   float point[3];
-  point[0] = in[0];
-  point[1] = in[1];
-  point[2] = in[2];
+  point[0] = input[0];
+  point[1] = input[1];
+  point[2] = input[2];
   this->TransformPoint(point,point);
-  out[0] = point[0];
-  out[1] = point[1];
-  out[2] = point[2];
+  output[0] = point[0];
+  output[1] = point[1];
+  output[2] = point[2];
 }
 
 //----------------------------------------------------------------------------
+// These two functions are definitely not thread safe, and should
+// really only be called from python or tcl.
 float *vtkGeneralTransform::TransformFloatPoint(float x, 
 						float y, 
 						float z)
@@ -102,200 +105,102 @@ double *vtkGeneralTransform::TransformDoublePoint(double x,
 }
 
 //----------------------------------------------------------------------------
-// If the subclass has not defined a TransformPoints method, then
-// call the TransformPoint method for each point.
-void vtkGeneralTransform::TransformPoints(vtkPoints *in, vtkPoints *out)
+// Transform a series of points.
+void vtkGeneralTransform::TransformPoints(vtkPoints *in, 
+					  vtkPoints *out)
 {
+  this->Update();
+
+  float point[3];
   int i;
   int n = in->GetNumberOfPoints();
-  float outPnt[3];
-  float *inPnt;
 
   for (i = 0; i < n; i++)
     {
-    inPnt = in->GetPoint(i);
-    this->TransformPoint(inPnt,outPnt);
-    out->InsertNextPoint(outPnt);
+    in->GetPoint(i,point);
+    this->InternalTransformPoint(point,point);
+    out->InsertNextPoint(point);
     }
 }
 
 //----------------------------------------------------------------------------
-// If the subclass has not defined a TransformNormals method, then
-// this method attempts to approximate the normals. This is only
-// a second-order approximation and it is quite expensive, so if you can 
-// override this with a precise analytic calculation, you should.
-void vtkGeneralTransform::TransformNormals(vtkPoints *inPts, 
-					   vtkPoints *outPts,
-					   vtkNormals *inNms, 
-					   vtkNormals *outNms)
+// Transform the normals and vectors using the derivative of the 
+// transformation.  Either inNms or inVrs can be set to NULL.
+// Normals are multiplied by the inverse transpose of the transform
+// derivative, while vectors are simply multiplied by the derivative.
+// Note that the derivative of the inverse transform is simply the
+// inverse of the derivative of the forward transform. 
+void vtkGeneralTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
+							vtkPoints *outPts,
+							vtkNormals *inNms, 
+							vtkNormals *outNms,
+							vtkVectors *inVrs,
+							vtkVectors *outVrs)
 {
+  this->Update();
+
+  float matrix[3][3];
+  float coord[3];
+  float vec1[3],vec2[3];
+
   int i;
   int n = inPts->GetNumberOfPoints();
-  float offset1[3];
-  float offset2[3];
-  float point1[3];
-  float point2[3];
-  float point3[3];
-  float point4[3];
-  float outNormal[3];
-  float outNormalP[3];
-  float outNormalN[3];
-  float *inPoint,*outPoint,*inNormal;
-  float r,f;
 
   for (i = 0; i < n; i++)
     {
-    inNormal = inNms->GetNormal(i);
-    inPoint = inPts->GetPoint(i);
-    outPoint = outPts->GetPoint(i);
-
-    // Set the scale to use in the
-    // calculation of the output normal.
-    f = 0.1;
-
-    // find two vectors which are perpendicular to the normal
-    vtkMath::Perpendiculars(inNormal,offset1,offset2,0);
+    inPts->GetPoint(i,coord);
+    this->InternalTransformDerivative(coord,coord,matrix);
+    outPts->InsertNextPoint(coord);
     
-    // use these vectors to find the four vertices of a
-    // square which is perpendicular to the normal
-    point1[0] = inPoint[0] + f*offset1[0]; 
-    point1[1] = inPoint[1] + f*offset1[1]; 
-    point1[2] = inPoint[2] + f*offset1[2]; 
-
-    point2[0] = inPoint[0] + f*offset2[0]; 
-    point2[1] = inPoint[1] + f*offset2[1]; 
-    point2[2] = inPoint[2] + f*offset2[2];
-
-    point3[0] = inPoint[0] - f*offset1[0]; 
-    point3[1] = inPoint[1] - f*offset1[1]; 
-    point3[2] = inPoint[2] - f*offset1[2]; 
-
-    point4[0] = inPoint[0] - f*offset2[0]; 
-    point4[1] = inPoint[1] - f*offset2[1]; 
-    point4[2] = inPoint[2] - f*offset2[2];
-
-    // transform the square
-    this->TransformPoint(point1,point1);
-    this->TransformPoint(point2,point2);
-    this->TransformPoint(point3,point3);
-    this->TransformPoint(point4,point4);
-
-    // find new offsets
-    offset1[0] = point1[0] - outPoint[0];
-    offset1[1] = point1[1] - outPoint[1];
-    offset1[2] = point1[2] - outPoint[2];
-
-    offset2[0] = point2[0] - outPoint[0];
-    offset2[1] = point2[1] - outPoint[1];
-    offset2[2] = point2[2] - outPoint[2];
-
-    // find the new normal from positive offsets
-    vtkMath::Cross(offset1,offset2,outNormalP);
-    r = sqrt(outNormalP[0]*outNormalP[0] + 
-	     outNormalP[1]*outNormalP[1] + 
-	     outNormalP[2]*outNormalP[2]);
-    outNormalP[0] /= r;
-    outNormalP[1] /= r;
-    outNormalP[2] /= r;
-
-    // find negative offsets
-    offset1[0] = point3[0] - outPoint[0];
-    offset1[1] = point3[1] - outPoint[1];
-    offset1[2] = point3[2] - outPoint[2];
-
-    offset2[0] = point4[0] - outPoint[0];
-    offset2[1] = point4[1] - outPoint[1];
-    offset2[2] = point4[2] - outPoint[2];
-
-    // find the new normal from negative offsets
-    vtkMath::Cross(offset1,offset2,outNormalN);
-    r = sqrt(outNormalN[0]*outNormalN[0] + 
-	     outNormalN[1]*outNormalN[1] + 
-	     outNormalN[2]*outNormalN[2]);
-    outNormalN[0] /= r;
-    outNormalN[1] /= r;
-    outNormalN[2] /= r;
+    if (inVrs)
+      {
+      inVrs->GetVector(i,coord);
+      vtkGeneralTransform::Multiply3x3(matrix,coord);
+      outVrs->InsertNextVector(coord);
+      }
     
-    // Take the average (this is equivalent to spherical interpolation)
-    outNormal[0] = outNormalP[0] + outNormalN[0];
-    outNormal[1] = outNormalP[1] + outNormalN[1];
-    outNormal[2] = outNormalP[2] + outNormalN[2];
-    
-    r = sqrt(outNormal[0]*outNormal[0] + 
-	     outNormal[1]*outNormal[1] + 
-	     outNormal[2]*outNormal[2]);
-
-    outNormal[0] /= r;
-    outNormal[1] /= r;
-    outNormal[2] /= r;
-    
-    outNms->InsertNextNormal(outNormal);
+    if (inNms)
+      {
+      inNms->GetNormal(i,coord);
+      vtkGeneralTransform::Transpose3x3(matrix);
+      vtkGeneralTransform::LinearSolve3x3(matrix,coord);
+      vtkMath::Normalize(coord);
+      outNms->InsertNextNormal(coord);
+      }
     }
 }
 
 //----------------------------------------------------------------------------
-// If the subclass has not defined a TransformVectors method, then
-// transform the vectors by transforming the two end points.
-void vtkGeneralTransform::TransformVectors(vtkPoints *inPts, 
-					   vtkPoints *outPts,
-					   vtkVectors *inVrs, 
-					   vtkVectors *outVrs)
-{
-  int i;
-  int n = inPts->GetNumberOfPoints();
-  float tmp[3];
-  float *point,*vec;
-
-  for (i = 0; i < n; i++)
-    {
-    vec = inVrs->GetVector(i);
-    point = inPts->GetPoint(i);
-    tmp[0] = vec[0] + point[0];
-    tmp[1] = vec[1] + point[1];
-    tmp[2] = vec[2] + point[2];
-    this->TransformPoint(tmp,tmp);
-    point = outPts->GetPoint(i);
-    tmp[0] -= point[0];
-    tmp[1] -= point[1];
-    tmp[2] -= point[2];
-    outVrs->InsertNextVector(tmp);
-    }
-}
-
-//----------------------------------------------------------------------------
+// The vtkGeneralTransformInverse is a special-purpose class.
+// See vtkGeneralTransformInverse.h for more details.
 vtkGeneralTransform *vtkGeneralTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {
-    this->MyInverse = vtkGeneralTransformInverse::New();
-    // we create a circular reference here, it is dealt
+    vtkGeneralTransformInverse *inverse = vtkGeneralTransformInverse::New();
+    inverse->SetInverse(this);
+    // we create a circular reference here, it is dealt with
     // in UnRegister
-    this->MyInverse->SetOriginalTransform(this);
+    this->MyInverse = inverse;
     }
   return this->MyInverse;
 }
 
 //----------------------------------------------------------------------------
-// update: do nothing in base class
-void vtkGeneralTransform::Update()
-{
-}
-
-//----------------------------------------------------------------------------
-// need to handle the circular reference between a transform and its
-// inverse
+// We need to handle the circular reference between a transform and its
+// inverse.
 void vtkGeneralTransform::UnRegister(vtkObject *o)
 {
   if (this->InUnRegister)
-    {
+    { // we don't want to go into infinite recursion...
     this->ReferenceCount--;
     return;
     }
 
-  // 'this' is reference by this->MyInverse
-  if (this->ReferenceCount == 2 && this->MyInverse &&
-      this->MyInverse->GetReferenceCount() == 1 &&
-      this->MyInverse->GetOriginalTransform() == this)
+  // see if 'this' is referenced by this->MyInverse
+  if (this->MyInverse && this->MyInverse->GetInverse() == this &&
+      this->ReferenceCount == 2 &&
+      this->MyInverse->GetReferenceCount() == 1)
     { // break the cycle
     this->InUnRegister = 1;
     this->MyInverse->Delete();
@@ -305,6 +210,207 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
 
   this->vtkObject::UnRegister(o);
 }
+
+//----------------------------------------------------------------------------
+// helper function, swap two 3-vectors
+static inline void SwapVectors(float v1[3], float v2[3])
+{
+  float tmpvec[3];
+  memcpy(tmpvec,v1,3*sizeof(float));
+  memcpy(v1,v2,3*sizeof(float));
+  memcpy(v2,tmpvec,3*sizeof(float));
+}
+
+//----------------------------------------------------------------------------
+// Unrolled LU factorization of a 3x3 matrix with pivoting.
+// This decomposition is non-standard in that the diagonal
+// elements are inverted, to convert a division to a multiplication
+// in the backsubstitution.
+void vtkGeneralTransform::LUFactor3x3(float A[3][3], int index[3])
+{
+  int i,maxI;
+  float tmp,largest;
+  float scale[3];
+
+  // Loop over rows to get implicit scaling information
+
+  for ( i = 0; i < 3; i++ ) 
+    {
+    largest =  fabs(A[i][0]);
+    if ((tmp = fabs(A[i][1])) > largest)
+      {
+      largest = tmp;
+      }
+    if ((tmp = fabs(A[i][2])) > largest)
+      {
+      largest = tmp;
+      }
+    scale[i] = 1.0/largest;
+    }
+  
+  // Loop over all columns using Crout's method
+
+  // first column
+  largest = scale[0]*fabs(A[0][0]);
+  maxI = 0;
+  if ((tmp = scale[1]*fabs(A[1][0])) >= largest) 
+    {
+    largest = tmp;
+    maxI = 1;
+    }
+  if ((tmp = scale[2]*fabs(A[2][0])) >= largest) 
+    {
+    maxI = 2;
+    }
+  if (maxI != 0) 
+    {
+    SwapVectors(A[maxI],A[0]);
+    scale[maxI] = scale[0];
+    }
+  index[0] = maxI;
+
+  A[0][0] = 1.0/A[0][0];
+  A[1][0] *= A[0][0];
+  A[2][0] *= A[0][0];
+    
+  // second column
+  A[1][1] -= A[1][0]*A[0][1];
+  A[2][1] -= A[2][0]*A[0][1];
+  largest = scale[1]*fabs(A[1][1]);
+  maxI = 1;
+  if ((tmp = scale[2]*fabs(A[2][1])) >= largest) 
+    {
+    maxI = 2;
+    SwapVectors(A[2],A[1]);
+    scale[2] = scale[1];
+    }
+  index[1] = maxI;
+  A[1][1] = 1.0/A[1][1];
+  A[2][1] *= A[1][1];
+
+  // third column
+  A[1][2] -= A[1][0]*A[0][2];
+  A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
+  largest = scale[2]*fabs(A[2][2]);
+  index[2] = 2;
+  A[2][2] = 1.0/A[2][2];
+}
+
+//----------------------------------------------------------------------------
+// Backsubsitution with an LU-decomposed matrix.  This is the standard
+// LU decomposition, except that the diagonals elements have been inverted.
+void vtkGeneralTransform::LUSolve3x3(const float A[3][3], const int index[3], 
+				     float x[3])
+{
+  float sum;
+
+  // forward substitution
+  
+  sum = x[index[0]];
+  x[index[0]] = x[0];
+  x[0] = sum;
+
+  sum = x[index[1]];
+  x[index[1]] = x[1];
+  x[1] = sum - A[1][0]*x[0];
+
+  sum = x[index[2]];
+  x[index[2]] = x[2];
+  x[2] = sum - A[2][0]*x[0] - A[2][1]*x[1];
+
+  // back substitution
+  
+  x[2] = x[2]*A[2][2];
+  x[1] = (x[1] - A[1][2]*x[2])*A[1][1];
+  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
+}  
+
+//----------------------------------------------------------------------------
+// helper function for newton's method: solves Ay = x for y, 
+// the result is placed in x, the matrix A is destroyed
+void vtkGeneralTransform::LinearSolve3x3(float A[3][3], float x[3])
+{
+  int index[3];
+
+  LUFactor3x3(A,index);
+  LUSolve3x3(A,index,x);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Multiply3x3(const float A[3][3], float v[3])
+{
+  float x,y,z;
+  x = v[0]; y = v[1]; z = v[2];
+
+  v[0] = A[0][0]*x + A[0][1]*y + A[0][2]*z;
+  v[1] = A[1][0]*x + A[1][1]*y + A[1][2]*z;
+  v[2] = A[2][0]*x + A[2][1]*y + A[2][2]*z;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Multiply3x3(const float A[3][3], float B[3][3])
+{
+  float C[3][3];
+  memcpy(C,B,9*sizeof(float));
+
+  for (int i = 0; i < 3; i++)
+    {
+    B[0][i] = A[0][0]*C[0][i] + A[0][1]*C[1][i] + A[0][2]*C[2][i];
+    B[1][i] = A[1][0]*C[0][i] + A[1][1]*C[1][i] + A[1][2]*C[2][i];
+    B[2][i] = A[2][0]*C[0][i] + A[2][1]*C[1][i] + A[2][2]*C[2][i];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Transpose3x3(float A[3][3])
+{
+  float tmp;
+  tmp = A[0][1];
+  A[1][0] = A[0][1];
+  A[0][1] = tmp;
+  tmp = A[0][2];
+  A[2][0] = A[0][2];
+  A[0][2] = tmp;
+  tmp = A[1][2];
+  A[2][1] = A[1][2];
+  A[1][2] = tmp;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Invert3x3(float A[3][3])
+{
+  int index[3];
+  float C[3][3];
+
+  // transpose
+  for (int i = 0; i < 3; i++)
+    {
+    C[i][0] = A[0][i];
+    C[i][1] = A[1][i];
+    C[i][2] = A[2][i];
+    A[0][i] = 0.0;
+    A[1][i] = 0.0;
+    A[2][i] = 0.0;
+    A[i][i] = 1.0;
+    }
+
+  // invert one row at a time
+  LUFactor3x3(C,index);
+  LUSolve3x3(C,index,A[0]);
+  LUSolve3x3(C,index,A[1]);
+  LUSolve3x3(C,index,A[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeneralTransform::Identity3x3(float A[3][3])
+{
+  memset(A,0,9*sizeof(float));
+  A[0][0] = A[1][1] = A[2][2] = 1.0;
+}
+
+
+
+
 
 
 

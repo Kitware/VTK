@@ -62,44 +62,13 @@ public:
 
   // Description:
   // Set the transform that you want this to be an inverse of.
-  virtual void SetOriginalTransform(vtkGeneralTransform *transform);
-  vtkGetObjectMacro(OriginalTransform, vtkGeneralTransform);
+  virtual void SetInverse(vtkGeneralTransform *transform);
+  vtkGeneralTransform *GetInverse();
  
   // Description:
-  // Get the internal copy of the inverse transform, which will
-  // be of the same type as the OriginalTransform.
-  vtkGetObjectMacro(InverseTransform, vtkGeneralTransform);
-
-  // Description:
-  // Apply the transformation to a coordinate.  You can use the same 
-  // array to store both the input and output point.
-  void TransformPoint(const float in[3], float out[3]);
-  void TransformPoint(const double in[3], double out[3]);
-
-  // Description:
-  // Apply the transformation to a series of points, and append the
-  // results to outPts.  
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
-
-  // Description:
-  // Apply the transformation to a series of normals, and append the
-  // results to outNms.  The outPts must have been calculated beforehand.
-  // The inPts and outPts are required in order for nonlinear transformations
-  // to be properly supported.
-  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts, 
-			vtkNormals *inNms, vtkNormals *outNms);
-
-  // Description:
-  // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.  The outPts must have been calculated beforehand.
-  // The inPts and outPts are required in order for nonlinear transformations
-  // to be properly supported.
-  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts, 
-			vtkVectors *inVrs, vtkVectors *outVrs);
-
-  // Description:
-  // Get the inverse of this transform (this returns the OriginalTransform).
-  vtkGeneralTransform *GetInverse();
+  // Get the cached copy of the forward transform (i.e. the inverse
+  // of the Inverse transform).  
+  vtkGeneralTransform *GetTransform();
 
   // Description:
   // Set this transform to the identity transform.  Warning: this modifies
@@ -117,7 +86,7 @@ public:
   void DeepCopy(vtkGeneralTransform *transform);
 
   // Description:
-  // Make another transform of the same type as the OriginalTransform.
+  // Make another transform of the same type as the stored transform.
   vtkGeneralTransform *MakeTransform();
 
   // Description:
@@ -129,9 +98,16 @@ public:
   void Update();
 
   // Description:
-  // Needs a special UnRegister() implementation to avoid
-  // circular references.
-  void UnRegister(vtkObject * o);
+  // This will calculate the transformation without calling Update.
+  // Meant for use only within other VTK classes.
+  void InternalTransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // This will calculate the transformation as well as its derivative
+  // without calling Update.  Meant for use only within other VTK
+  // classes.
+  void InternalTransformDerivative(const float in[3], float out[3],
+				   float derivative[3][3]);
 
 protected:
   vtkGeneralTransformInverse();
@@ -140,8 +116,7 @@ protected:
   void operator=(const vtkGeneralTransformInverse&) {};
 
   int UpdateRequired;
-  vtkGeneralTransform *OriginalTransform;
-  vtkGeneralTransform *InverseTransform;
+  vtkGeneralTransform *Transform;
 };
 
 #endif

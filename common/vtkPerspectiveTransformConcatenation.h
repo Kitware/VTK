@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeneralTransformConcatenation.h
+  Module:    vtkPerspectiveTransformConcatenation.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,33 +39,34 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGeneralTransformConcatenation - concatenation of general transforms
+// .NAME vtkPerspectiveTransformConcatenation - concatenation of perspective 
+// transformations
 // .SECTION Description
-// vtkGeneralTransformConcatenation is a special GeneralTransform which
-// allows concatenation of heterogenous transform types.  The transforms
-// are not actually concatenated, but this is simulated by passing each
-// input point through each transform in turn.
+// vtkPerspectiveTransformConcatenation is a special PerspectiveTransform 
+// which allows concatenation of 4x4 matrices in a pipelined manner.
 // .SECTION see also
-// vtkGeneralTransform
+// vtkPerspectiveTransform
 
 
-#ifndef __vtkGeneralTransformConcatenation_h
-#define __vtkGeneralTransformConcatenation_h
+#ifndef __vtkPerspectiveTransformConcatenation_h
+#define __vtkPerspectiveTransformConcatenation_h
 
-#include "vtkGeneralTransform.h"
+#include "vtkPerspectiveTransform.h"
+#include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkGeneralTransformConcatenation : public vtkGeneralTransform
+class VTK_EXPORT vtkPerspectiveTransformConcatenation : 
+  public vtkPerspectiveTransform
 {
 public:
-  static vtkGeneralTransformConcatenation *New();
+  static vtkPerspectiveTransformConcatenation *New();
 
-  vtkTypeMacro(vtkGeneralTransformConcatenation,vtkGeneralTransform);
+  vtkTypeMacro(vtkPerspectiveTransformConcatenation,vtkPerspectiveTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Concatenate the current transform with the specified transform,
   // taking the PreMultiply flag into consideration.
-  void Concatenate(vtkGeneralTransform *transform);
+  void Concatenate(vtkPerspectiveTransform *transform);
 
   // Description:
   // Set the order in which subsequent concatenations will be
@@ -97,36 +98,26 @@ public:
   // Update the concatenated transform.
   void Update();
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
-  void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
-
 protected:
-  vtkGeneralTransformConcatenation();
-  ~vtkGeneralTransformConcatenation();
-  vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
-  void operator=(const vtkGeneralTransformConcatenation&) {};
+  vtkPerspectiveTransformConcatenation();
+  ~vtkPerspectiveTransformConcatenation();
+  vtkPerspectiveTransformConcatenation(
+	  const vtkPerspectiveTransformConcatenation&) {};
+  void operator=(const vtkPerspectiveTransformConcatenation&) {};
 
   int InverseFlag;
   int PreMultiplyFlag;
 
   int NumberOfTransforms;
   int MaxNumberOfTransforms;
-  vtkGeneralTransform **TransformList;
-  vtkGeneralTransform **InverseList;
+  vtkPerspectiveTransform **TransformList;
+  vtkPerspectiveTransform **InverseList;
+  vtkMutexLock *UpdateMutex;
 };
 
 //BTX
 //----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PreMultiply()
+inline void vtkPerspectiveTransformConcatenation::PreMultiply()
 {
   if (this->PreMultiplyFlag)
     {
@@ -137,7 +128,7 @@ inline void vtkGeneralTransformConcatenation::PreMultiply()
 }
 
 //----------------------------------------------------------------------------
-inline void vtkGeneralTransformConcatenation::PostMultiply()
+inline void vtkPerspectiveTransformConcatenation::PostMultiply()
 {
   if (!this->PreMultiplyFlag)
     {

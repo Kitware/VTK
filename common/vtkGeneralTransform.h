@@ -44,7 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkGeneralTransform provides a generic interface for linear, 
 // perspective, and nonlinear warp transformations.
 // .SECTION see also
-// vtkTransform
+// vtkPerspectiveTransform vtkLinearTransform vtkWarpTransform 
+// vtkIdentityTransform vtkGeneralTransformConcatenation 
+// vtkTransformPolyDataFilter vtkImageReslice
 
 
 #ifndef __vtkGeneralTransform_h
@@ -59,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_LINEAR_TRANSFORM              0x00000003
 #define VTK_SIMILARITY_TRANSFORM          0x00000007
 #define VTK_RIGIDBODY_TRANSFORM           0x0000000f
+#define VTK_IDENTITY_TRANSFORM            0x000000ff
 
 #define VTK_MATRIX4X4_TRANSFORM           0x00000101
 #define VTK_MATRIX4X3_TRANSFORM           0x00000203
@@ -70,8 +73,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_INVERSE_TRANSFORM             0x01000000
 #define VTK_CONCATENATION_TRANSFORM       0x02000000
-
-class vtkGeneralTransformInverse;
 
 class VTK_EXPORT vtkGeneralTransform : public vtkObject
 {
@@ -93,7 +94,7 @@ public:
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
-  virtual void TransformPoint(const float in[3], float out[3]) = 0;
+  virtual void TransformPoint(const float in[3], float out[3]);
   virtual void TransformPoint(const double in[3], double out[3]);
 
   // Description:
@@ -102,28 +103,20 @@ public:
   virtual void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
 
   // Description:
-  // Apply the transformation to a series of normals, and append the
-  // results to outNms.  The outPts must have been calculated beforehand.
-  // The inPts and outPts are required in order for nonlinear transformations
-  // to be properly supported.
-  virtual void TransformNormals(vtkPoints *inPts, vtkPoints *outPts, 
-				vtkNormals *inNms, vtkNormals *outNms);
-
-  // Description:
-  // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.  The outPts must have been calculated beforehand.
-  // The inPts and outPts are required in order for nonlinear transformations
-  // to be properly supported.
-  virtual void TransformVectors(vtkPoints *inPts, vtkPoints *outPts, 
-				vtkVectors *inVrs, vtkVectors *outVrs);
-
+  // Apply the transformation to a combination of points, normals
+  // and vectors.  
+  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
+					     vtkPoints *outPts, 
+					     vtkNormals *inNms, 
+					     vtkNormals *outNms,
+					     vtkVectors *inVrs, 
+					     vtkVectors *outVrs);
   // Description:
   // Create an identity transformation.
-  virtual void Identity() {};
+  virtual void Identity() = 0;
 
-  // Description:
   // Invert the transformation.
-  virtual void Inverse() {};
+  virtual void Inverse() = 0;
 
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
@@ -132,17 +125,29 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  virtual vtkGeneralTransform *MakeTransform() { return NULL; };
+  virtual vtkGeneralTransform *MakeTransform() = 0;
 
   // Description:
   // Copy this transform from another of the same type.
-  virtual void DeepCopy(vtkGeneralTransform *) {};
+  virtual void DeepCopy(vtkGeneralTransform *) = 0;
 
   // Description:
   // Update the transform to account for any changes which
   // have been made.  This is called automatically when
   // TransformPoint etc. is called.
-  virtual void Update();
+  virtual void Update() {};
+
+  // Description:
+  // This will calculate the transformation without calling Update.
+  // Meant for use only within other VTK classes.
+  virtual void InternalTransformPoint(const float in[3], float out[3]) = 0;
+
+  // Description:
+  // This will calculate the transformation as well as its derivative
+  // without calling Update.  Meant for use only within other VTK
+  // classes.
+  virtual void InternalTransformDerivative(const float in[3], float out[3],
+					   float derivative[3][3]) = 0;
 
   // Description:
   // Needs a special UnRegister() implementation to avoid
@@ -150,28 +155,34 @@ public:
   void UnRegister(vtkObject * o);
 
 protected:
-  vtkGeneralTransform() { this->AutoUpdate = 1; 
-                          this->MyInverse = NULL; 
-                          this->InUnRegister = 0; };
-
-  ~vtkGeneralTransform();
+  vtkGeneralTransform() { this->MyInverse = NULL;
+			  this->InUnRegister = 0; };
+  ~vtkGeneralTransform() { if (this->MyInverse) 
+                          { this->MyInverse->Delete(); } }; 
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
-//BTX
-  vtkSetMacro(AutoUpdate,int);
-  vtkBooleanMacro(AutoUpdate,int);
-  vtkGetMacro(AutoUpdate,int);
-//ETX
-
   int TransformType;
-  int AutoUpdate;
-  vtkGeneralTransformInverse *MyInverse;
-  
+  vtkGeneralTransform *MyInverse;
+  int InverseFlag;
+
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
-
+  
   int InUnRegister;
+
+  // Description:
+  // Static methods which are useful for nonlinear transforms.
+  // Miscellaneous linear algebra on 3x3 matrices.  
+  // Caveat: LinearSolve3x3 destroys the original matrix.
+  static void LUFactor3x3(float A[3][3], int index[3]);
+  static void LUSolve3x3(const float A[3][3], const int index[3], float x[3]);
+  static void LinearSolve3x3(float A[3][3], float x[3]);
+  static void Multiply3x3(const float A[3][3], float x[3]);
+  static void Multiply3x3(const float A[3][3], float B[3][3]);
+  static void Transpose3x3(float A[3][3]);
+  static void Invert3x3(float A[3][3]);
+  static void Identity3x3(float A[3][3]);
 };
 
 #endif

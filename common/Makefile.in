@@ -23,9 +23,11 @@ vtkCell \
 vtkDataArray \
 vtkDataSet \
 vtkGeneralTransform \
+vtkLinearTransform \
 vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
+vtkPerspectiveTransform \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
@@ -65,6 +67,7 @@ vtkGeneralTransformConcatenation \
 vtkGeneralTransformInverse \
 vtkGenericCell \
 vtkHexahedron \
+vtkIdentityTransform \
 vtkIdList \
 vtkImageData \
 vtkImageSource \
@@ -73,6 +76,8 @@ vtkImplicitFunctionCollection \
 vtkIndent \
 vtkIntArray \
 vtkLine \
+vtkLinearTransformConcatenation \
+vtkLinearTransformInverse \
 vtkLogLookupTable \
 vtkLongArray \
 vtkLookupTable \
@@ -85,6 +90,8 @@ vtkMutexLock \
 vtkNormals \
 vtkObject \
 vtkOutputWindow \
+vtkPerspectiveTransformConcatenation \
+vtkPerspectiveTransformInverse \
 vtkPixel \
 vtkPlane \
 vtkPlaneCollection \
@@ -98,6 +105,7 @@ vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
+vtkProjectionTransform \
 vtkProp \
 vtkPropAssembly \
 vtkPropCollection \

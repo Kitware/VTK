@@ -48,7 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // source landmark will be moved to a place close to the corresponding target
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
-//
+// The inverse grid transform is calculated using an iterative method,
+// and is several times more expensive than the forward transform.
 // .SECTION see also
 // vtkGeneralTransform
 
@@ -56,10 +57,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkThinPlateSplineTransform_h
 #define __vtkThinPlateSplineTransform_h
 
-#include "vtkGeneralTransform.h"
+#include "vtkWarpTransform.h"
 #include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkThinPlateSplineTransform : public vtkGeneralTransform
+#define VTK_RBF_R      0
+#define VTK_RBF_R2LOGR 1
+
+class VTK_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkGeneralTransform);
@@ -76,6 +80,14 @@ public:
   vtkSetMacro(Sigma,float);
 
   // Description:
+  // Specify the radial basis function to use.
+  void SetBasis(int basis);
+  vtkGetMacro(Basis,int);
+  void SetBasisToR() { this->SetBasis(VTK_RBF_R); };
+  void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); };
+  const char *GetBasisAsString();
+
+  // Description:
   // Set the source landmarks for the warp.
   void SetSourceLandmarks(vtkPoints *source);
   vtkGetObjectMacro(SourceLandmarks,vtkPoints);
@@ -86,36 +98,9 @@ public:
   vtkGetObjectMacro(TargetLandmarks,vtkPoints);
 
   // Description:
-  // Apply the transformation.
-  void TransformPoint(const float in[3], float out[3]);
-  void TransformPoint(const double in[3], double out[3]) {
-    vtkGeneralTransform::TransformPoint(in, out); };
-
-  // Description:
-  // Apply the transform to a series of points.
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
-
-  // Description:
-  // Apply the transform to a series of normals (you must call
-  // TransformPoints first to get the outPts).
-  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts,
-			vtkNormals *inNms, vtkNormals *outNms);
-
-  // Description:
-  // Apply the transform to a series of vectors (you must call
-  // TransformPoints first to get the outPts).
-  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts,
-			vtkVectors *inVrs, vtkVectors *outVrs);
-
-  // Description:
   // Create an identity transformation.  This simply calls
   // SetSourceLandmarks(NULL), SetTargetLandmarks(NULL).
   void Identity();
-
-  // Description:
-  // Invert the transformation.  The inverse transform is
-  // calculated using an iterative method.
-  void Inverse();
 
   // Description:
   // Set the tolerance for inverse transformation.
@@ -145,11 +130,15 @@ protected:
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) {};
   void operator=(const vtkThinPlateSplineTransform&) {};
 
-//BTX
+  // Description:
+  // The inverse of a warp transformation is calculated using
+  // Newton's method.  The InverseFlag specifies whether we should 
+  // calculate the inverse transformation instead of providing the 
+  // forward transformation.
   void ForwardTransformPoint(const float in[3], float out[3]);
-  void TransformDerivatives(const float in[3], float out[3], float der[3][3]);
+  void ForwardTransformDerivative(const float in[3], float out[3],
+					  float derivative[3][3]);
   void InverseTransformPoint(const float in[3], float out[3]);
-//ETX
 
   vtkThinPlateSplineTransform *ApproximateInverse;
 
@@ -157,7 +146,13 @@ protected:
   vtkPoints *SourceLandmarks;
   vtkPoints *TargetLandmarks;
 
-  int InverseFlag;
+//BTX
+  // the radial basis function to use
+  double (*RadialBasisFunction)(double r);
+  double (*RadialBasisDerivative)(double r, double& dUdr);
+//ETX
+  int Basis;
+
   float InverseTolerance;
 
   int UpdateRequired;

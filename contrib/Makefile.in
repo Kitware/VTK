@@ -18,8 +18,8 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT = 
-
+ABSTRACT = \
+vtkWarpTransform
 
 CONCRETE = \
 vtkDEMReader \
@@ -29,6 +29,7 @@ vtkIVWriter \
 vtkMassProperties \
 vtkOBJReader \
 vtkProjectedTexture \
+vtkQuaternionTransform \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
