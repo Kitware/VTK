@@ -30,7 +30,6 @@ vtkThinPlateSplineTransform
 vtkTransformToGrid 
 vtkVideoSource 
 vtkVolumeProMapper 
-vtkVRML
 vtkVRMLImporter 
 vtkXYPlotActor 
 vtkWeightedTransformFilter 
