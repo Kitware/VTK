@@ -88,7 +88,7 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
   int scalarSize = inData->GetScalarSize();
   int numberOfComponents;
   int rowLength;
-  vtkLookupTable *lookupTable = self->GetLookupTable();
+  vtkScalarsToColors *lookupTable = self->GetLookupTable();
   unsigned char *outPtr1;
   void *inPtr1;
 
@@ -121,7 +121,7 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
 	  }
 	count++;
 	}
-      lookupTable->MapScalarsThroughTable(inPtr1,(unsigned char *)outPtr1,
+      lookupTable->MapScalarsThroughTable2(inPtr1,(unsigned char *)outPtr1,
 					  dataType,extX,numberOfComponents);
       outPtr1 += outIncY + extX*4;
       inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);

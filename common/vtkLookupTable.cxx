@@ -51,14 +51,14 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table->SetNumberOfComponents(4);
   this->Table->Allocate(4*sze,4*ext);
 
-  this->TableRange[0] = 0.0;
-  this->TableRange[1] = 1.0;
-
   this->HueRange[0] = 0.0;
   this->HueRange[1] = 0.66667;
 
   this->SaturationRange[0] = 1.0;
   this->SaturationRange[1] = 1.0;
+
+  this->TableRange[0] = 0.0;
+  this->TableRange[1] = 1.0;
 
   this->ValueRange[0] = 1.0;
   this->ValueRange[1] = 1.0;
@@ -74,16 +74,6 @@ vtkLookupTable::~vtkLookupTable()
 }
 
 
-// Allocate a color table of specified size.
-int vtkLookupTable::Allocate(int sz, int ext) 
-{
-  this->Modified();
-  this->NumberOfColors = sz;
-  return this->Table->Allocate(4*this->NumberOfColors,4*ext);
-}
-
-// Set the minimum/maximum scalar values for scalar mapping. Scalar values
-// less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
 // range value.
 void  vtkLookupTable::SetTableRange(float r[2])
@@ -95,7 +85,8 @@ void  vtkLookupTable::SetTableRange(float r[2])
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
 // range value.
-void  vtkLookupTable::SetTableRange(float min, float max)
+void  vtkLookupTable
+::SetTableRange(float min, float max)
 {
   if ( min >= max )
     {
@@ -106,6 +97,15 @@ void  vtkLookupTable::SetTableRange(float min, float max)
   this->TableRange[0] = min;
   this->TableRange[1] = max;
 }
+
+// Allocate a color table of specified size.
+int vtkLookupTable::Allocate(int sz, int ext) 
+{
+  this->Modified();
+  this->NumberOfColors = sz;
+  return this->Table->Allocate(4*this->NumberOfColors,4*ext);
+}
+
 
 // Generate lookup table from hue, saturation, value, alpha min/max values. 
 // Table is built from linear ramp of each value.
@@ -248,7 +248,7 @@ static void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input,
     }
 }
 
-void vtkLookupTable::MapScalarsThroughTable(void *input, 
+void vtkLookupTable::MapScalarsThroughTable2(void *input, 
 					    unsigned char *output,
 					    int inputDataType, 
 					    int numberOfValues,
@@ -301,17 +301,6 @@ void vtkLookupTable::MapScalarsThroughTable(void *input,
       return;
     }
 }  
-
-// Map a set of scalar values through the table
-void vtkLookupTable::MapScalarsThroughTable(vtkScalars *scalars, 
-					    unsigned char *output)
-{
-  this->MapScalarsThroughTable(scalars->GetVoidPointer(0),
-			       output,
-			       scalars->GetDataType(),
-			       scalars->GetNumberOfScalars(),
-			       scalars->GetNumberOfComponents());
-}
 
 // Specify the number of values (i.e., colors) in the lookup
 // table. This method simply allocates memory and prepares the table
@@ -385,17 +374,17 @@ void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkScalarsToColors::PrintSelf(os,indent);
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
+  os << indent << "Table Range: (" << this->TableRange[0] << ", "
+     << this->TableRange[1] << ")\n";
   os << indent << "Hue Range: (" << this->HueRange[0] << ", "
      << this->HueRange[1] << ")\n";
   os << indent << "Insert Time: " <<this->InsertTime.GetMTime() << "\n";
   os << indent << "Number Of Colors: " << this->GetNumberOfColors() << "\n";
   os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
      << this->SaturationRange[1] << ")\n";
-  os << indent << "Table Range: (" << this->TableRange[0] << ", "
-     << this->TableRange[1] << ")\n";
   os << indent << "Value Range: (" << this->ValueRange[0] << ", "
      << this->ValueRange[1] << ")\n";
   os << indent << "Alpha Range: (" << this->AlphaRange[0] << ", "

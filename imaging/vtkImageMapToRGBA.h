@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageFilter.h"
-#include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
 
 class VTK_EXPORT vtkImageMapToRGBA : public vtkImageFilter
 {
@@ -63,11 +63,11 @@ public:
   const char *GetClassName() {return "vtkImageMapToRGBA";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkSetObjectMacro(LookupTable,vtkLookupTable);
-  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
 protected:
-  vtkLookupTable *LookupTable;
+  vtkScalarsToColors *LookupTable;
   
   void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

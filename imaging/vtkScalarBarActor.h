@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkScalarBarActor is a subclass of vtkActor2D, it is drawn in the image 
 // plane (i.e., in the renderer's viewport) on top of the 3D graphics window.
 //
-// To use vtkScalarBarActor you must associate a vtkLookupTable (or
+// To use vtkScalarBarActor you must associate a vtkScalarsToColors (or
 // subclass) with it. The lookup table defines the colors and the
 // range of scalar values used to map scalar data.  Typically, the
 // number of colors shown in the scalar bar is not equal to the number
@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkScalarBarActor_h
 
 #include "vtkActor2D.h"
-#include "vtkLookupTable.h"
+#include "vtkScalarsToColors.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 
@@ -117,8 +117,8 @@ public:
   // Set/Get the vtkLookupTable to use. The lookup table specifies the number
   // of colors to use in the table (if not overridden), as well as the scalar
   // range.
-  vtkSetObjectMacro(LookupTable,vtkLookupTable);
-  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
   // Description:
   // Set/Get the height and width of the scalar bar. The value is expressed
@@ -190,7 +190,7 @@ public:
   vtkGetStringMacro(Title);
 
 protected:
-  vtkLookupTable *LookupTable;
+  vtkScalarsToColors *LookupTable;
   int   MaximumNumberOfColors;
   int   NumberOfLabels;
   int   NumberOfLabelsBuilt;

@@ -225,7 +225,7 @@ double vtkScalars::GetDataTypeMax()
     }
 }
 
-int vtkScalars::InitColorTraversal(float alpha, vtkLookupTable *lut,
+int vtkScalars::InitColorTraversal(float alpha, vtkScalarsToColors *lut,
                                    int colorMode)
 {
   int numComp=this->GetNumberOfComponents();

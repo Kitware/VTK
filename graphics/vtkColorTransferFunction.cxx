@@ -201,6 +201,19 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
 }
 
 // Returns the RGB color evaluated at the specified location
+unsigned char *vtkColorTransferFunction::MapValue( float x )
+{
+  this->ColorValue2[0] = (unsigned char)
+    (255.0*this->Red->GetValue( x ));
+  this->ColorValue2[1] = (unsigned char)
+    (255.0*this->Green->GetValue( x ));
+  this->ColorValue2[2] = (unsigned char)
+    (255.0*this->Blue->GetValue( x ));
+  this->ColorValue2[3] = 1.0;
+  return( this->ColorValue2 );
+}
+
+// Returns the RGB color evaluated at the specified location
 float *vtkColorTransferFunction::GetValue( float x )
 {
   this->ColorValue[0] = this->Red->GetValue( x );
@@ -293,7 +306,7 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  vtkScalarsToColors::PrintSelf(os, indent);
 
   os << indent << "Color Transfer Function Total Points: " << this->GetTotalSize() << "\n";
 
@@ -330,3 +343,96 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
   this->Clamping     = f->Clamping;
   this->UpdateRange();
 }
+
+// accelerate the mapping by copying the data in 32-bit chunks instead
+// of 8-bit chunks
+template<class T>
+static void 
+vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self, 
+                                      T *input, 
+                                      unsigned char *output, 
+                                      int length, int incr)
+{
+  float findx;
+  int i = length;
+  vtkPiecewiseFunction *R, *G, *B;
+  R = self->GetRedFunction();
+  G = self->GetGreenFunction();
+  B = self->GetBlueFunction();
+  
+  while (--i >= 0) 
+    {
+    findx = *input;
+    *output++ = R->GetValue(findx);
+    *output++ = G->GetValue(findx);
+    *output++ = B->GetValue(findx);
+    *output++ = 255;
+    input += incr;
+    }
+}
+
+void vtkColorTransferFunction::MapScalarsThroughTable2(void *input, 
+                                                       unsigned char *output,
+                                                       int inputDataType, 
+                                                       int numberOfValues,
+                                                       int inputIncrement)
+{
+  switch (inputDataType)
+    {
+    case VTK_CHAR:
+      vtkColorTransferFunctionMapDataToRGBA(this,(char *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_CHAR:
+      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned char *)input,
+                                            output,numberOfValues,
+                                            inputIncrement);
+      break;
+      
+    case VTK_SHORT:
+      vtkColorTransferFunctionMapDataToRGBA(this,(short *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_SHORT:
+      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned short *)input,
+                                            output,numberOfValues,
+                                            inputIncrement);
+      break;
+      
+    case VTK_INT:
+      vtkColorTransferFunctionMapDataToRGBA(this,(int *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_INT:
+      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned int *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_LONG:
+      vtkColorTransferFunctionMapDataToRGBA(this,(long *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_LONG:
+      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned long *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_FLOAT:
+      vtkColorTransferFunctionMapDataToRGBA(this,(float *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_DOUBLE:
+      vtkColorTransferFunctionMapDataToRGBA(this,(double *)input,output,
+                                            numberOfValues,inputIncrement);
+      break;
+      
+    default:
+      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+      return;
+    }
+}  

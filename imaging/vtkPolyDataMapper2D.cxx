@@ -50,6 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   #include "vtkXPolyDataMapper2D.h"
 #endif
 
+#include "vtkLookupTable.h"
+
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
   this->Input = NULL;
@@ -160,7 +162,7 @@ vtkScalars *vtkPolyDataMapper2D::GetColors()
       }
 
     // Setup mapper/scalar object for color generation
-    this->LookupTable->SetTableRange(this->ScalarRange);
+    this->LookupTable->SetRange(this->ScalarRange[0], this->ScalarRange[1]);
     if (this->Colors)
       {
       this->Colors->Delete();
@@ -183,7 +185,7 @@ vtkScalars *vtkPolyDataMapper2D::GetColors()
 }
 
 // Specify a lookup table for the mapper to use.
-void vtkPolyDataMapper2D::SetLookupTable(vtkLookupTable *lut)
+void vtkPolyDataMapper2D::SetLookupTable(vtkScalarsToColors *lut)
 {
   if ( this->LookupTable != lut ) 
     {
@@ -200,7 +202,7 @@ void vtkPolyDataMapper2D::SetLookupTable(vtkLookupTable *lut)
     }
 }
 
-vtkLookupTable *vtkPolyDataMapper2D::GetLookupTable()
+vtkScalarsToColors *vtkPolyDataMapper2D::GetLookupTable()
 {
   if ( this->LookupTable == NULL )
     {

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMapper.h"
+#include "vtkLookupTable.h"
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -169,7 +170,7 @@ vtkScalars *vtkMapper::GetColors()
       }
 
     // Setup mapper/scalar object for color generation
-    this->LookupTable->SetTableRange(this->ScalarRange);
+    this->LookupTable->SetRange(this->ScalarRange);
     if (this->Colors)
       {
       this->Colors->Delete();
@@ -192,7 +193,7 @@ vtkScalars *vtkMapper::GetColors()
 }
 
 // Specify a lookup table for the mapper to use.
-void vtkMapper::SetLookupTable(vtkLookupTable *lut)
+void vtkMapper::SetLookupTable(vtkScalarsToColors *lut)
 {
   if ( this->LookupTable != lut ) 
     {
@@ -209,7 +210,7 @@ void vtkMapper::SetLookupTable(vtkLookupTable *lut)
     }
 }
 
-vtkLookupTable *vtkMapper::GetLookupTable()
+vtkScalarsToColors *vtkMapper::GetLookupTable()
 {
   if ( this->LookupTable == NULL )
     {

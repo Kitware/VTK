@@ -73,6 +73,7 @@ class vtkIdList;
 class vtkScalars;
 class vtkLookupTable;
 class vtkUnsignedCharArray;
+class vtkScalarsToColors;
 
 class VTK_EXPORT vtkScalars : public vtkAttributeData
 {
@@ -185,7 +186,7 @@ public:
   // blending will occur. Also takes a lookup table used to map the 
   // scalar data. The color mode parameter controls how the scalar data 
   // is mapped to colors (see vtkMapper::ColorMode methods for a definition).
-  int InitColorTraversal(float alpha, vtkLookupTable *lut, 
+  int InitColorTraversal(float alpha, vtkScalarsToColors *lut, 
 			 int colorMode=VTK_COLOR_MODE_DEFAULT);
   
   // Description:
@@ -210,7 +211,7 @@ protected:
 
   // following stuff is used for converting scalars to colors
   float CurrentAlpha;
-  vtkLookupTable *CurrentLookupTable;
+  vtkScalarsToColors *CurrentLookupTable;
   //BTX
   unsigned char *(vtkScalars::*CurrentColorFunction)(int id);
   unsigned char *PassRGBA(int id);

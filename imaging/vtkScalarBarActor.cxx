@@ -249,11 +249,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // Build scalar bar object
     //
-    vtkLookupTable *lut = this->LookupTable;
-    int numLutColors = lut->GetNumberOfColors();
-    int numColors = (numLutColors > this->MaximumNumberOfColors ? 
-		     this->MaximumNumberOfColors : numLutColors);
-    float *range = lut->GetTableRange();
+    vtkScalarsToColors *lut = this->LookupTable;
+    // we hard code how many steps to display
+    int numColors = this->MaximumNumberOfColors;
+    float *range = lut->GetRange();
 
     int numPts = 2*(numColors + 1);
     vtkPoints *pts = vtkPoints::New();
@@ -404,7 +403,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       ptIds[3] = ptIds[0] + 2;
       polys->InsertNextCell(4,ptIds);
 
-      rgba = lut->GetPointer((int)((float)numLutColors*i/numColors));
+      rgba = lut->MapValue(range[0] + (range[1] - range[0])*
+                           ((float)i /(numColors-1.0)));
       rgb = colorData->GetPointer(3*i); //write into array directly
       rgb[0] = rgba[0];
       rgb[1] = rgba[1];
