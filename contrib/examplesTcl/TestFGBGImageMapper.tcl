@@ -74,11 +74,10 @@ ren1 AddProp defaultActor
 ren1 AddProp sphereActor
 ren1 SetBackground 1 1 1
 
-renWin SetSize 500 500
+renWin SetSize 512 512
+renWin Render
 
-iren Initialize
-
-renWin SetFileName "TestFGBGImageMapper.tcl.ppm"
+#renWin SetFileName "TestFGBGImageMapper.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # render the image
