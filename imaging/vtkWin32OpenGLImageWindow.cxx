@@ -242,11 +242,12 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
 
     DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
 
-    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
-        MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-                MB_ICONERROR | MB_OK);
-        exit(1);
-    }
+    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
+      {
+      MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
+                 MB_ICONERROR | MB_OK);
+      exit(1);
+      }
 }
 
 void vtkWin32OpenGLImageWindow::SetupPalette(HDC hDC)
@@ -723,6 +724,13 @@ void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
   this->ScreenDoubleBuffer = this->DoubleBuffer;
   this->ScreenContextId = this->ContextId;
   
+  // we need to release resources
+  vtkImager *ren;
+  for (this->Imagers->InitTraversal(); (ren = this->Imagers->GetNextItem());)
+    {
+    ren->SetImageWindow(NULL);
+    }
+
   // adjust settings for ImageWindow
   this->Mapped =0;
   this->Size[0] = xsize;
@@ -732,10 +740,15 @@ void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
   this->DoubleBuffer = 0;
   this->SetupPixelFormat(this->DeviceContext, 
 		PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
-		this->GetDebug(), 32, 32);
+		this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
   wglMakeCurrent(this->DeviceContext, this->ContextId);
+
+  for (this->Imagers->InitTraversal(); (ren = this->Imagers->GetNextItem());)
+    {
+    ren->SetImageWindow(this);
+    }
   this->OpenGLInit();
 }
 
@@ -751,6 +764,13 @@ void vtkWin32OpenGLImageWindow::ResumeScreenRendering()
   DeleteDC(this->MemoryHdc); 
   DeleteObject(this->MemoryBuffer);
   
+  // we need to release resources
+  vtkImager *ren;
+  for (this->Imagers->InitTraversal(); (ren = this->Imagers->GetNextItem());)
+    {
+    ren->SetImageWindow(NULL);
+    }
+
   this->Mapped = this->ScreenMapped;
   this->Size[0] = this->ScreenWindowSize[0];
   this->Size[1] = this->ScreenWindowSize[1];
@@ -758,6 +778,11 @@ void vtkWin32OpenGLImageWindow::ResumeScreenRendering()
   this->DoubleBuffer = this->ScreenDoubleBuffer;
   this->ContextId = this->ScreenContextId;
   wglMakeCurrent(this->DeviceContext, this->ContextId);
+
+  for (this->Imagers->InitTraversal(); (ren = this->Imagers->GetNextItem());)
+    {
+    ren->SetImageWindow(this);
+    }
 }
 
 void vtkWin32OpenGLImageWindow::SetContextId(HGLRC arg) // hsr
