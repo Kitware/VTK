@@ -45,6 +45,7 @@ class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
+class vtkSourceToDataSetFriendship;
 
 class VTK_COMMON_EXPORT vtkDataSet : public vtkDataObject
 {
@@ -323,8 +324,12 @@ protected:
   double ScalarRange[2];
   double Center[3];
 
+  virtual void GenerateGhostLevelArray();
 private:
   void InternalDataSetCopy(vtkDataSet *src);  
+  //BTX
+  friend class vtkSourceToDataSetFriendship;
+  //ETX
 private:
   vtkDataSet(const vtkDataSet&);  // Not implemented.
   void operator=(const vtkDataSet&);    // Not implemented.

@@ -144,11 +144,6 @@ public:
   void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // This method calls the superclass then 
-  // generates ghost levels if necessary.
-  virtual void UpdateData();
-
-  // Description:
   // The extent type is a 3D extent
   int GetExtentType() { return VTK_3D_EXTENT; }
 

@@ -24,7 +24,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.123");
+#include "vtkImageData.h"
+
+vtkCxxRevisionMacro(vtkSource, "1.124");
 
 #ifndef NULL
 #define NULL 0
@@ -56,6 +58,19 @@ public:
                                                  vtkInformation* info)
     {
     obj->CopyDownstreamIVarsFromInformation(info);
+    }
+  static void Crop(vtkDataObject* obj)
+    {
+    obj->Crop();
+    }
+};
+
+class vtkSourceToDataSetFriendship
+{
+public:
+  static void GenerateGhostLevelArray(vtkDataSet* ds)
+    {
+    ds->GenerateGhostLevelArray();
     }
 };
 
@@ -581,7 +596,19 @@ void vtkSource::UpdateData(vtkDataObject* output)
     }
 
   this->Updating = 0;
-  
+
+  // Cleanup the outputs.
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if(this->Outputs[idx] && this->Outputs[idx]->GetRequestExactExtent())
+      {
+      vtkSourceToDataObjectFriendship::Crop(this->Outputs[idx]);
+      }
+    if(vtkDataSet* ds = vtkDataSet::SafeDownCast(this->Outputs[idx]))
+      {
+      vtkSourceToDataSetFriendship::GenerateGhostLevelArray(ds);
+      }
+    }
 #endif
 }
 
@@ -1271,6 +1298,19 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       if(this->Inputs[i] && this->Inputs[i]->ShouldIReleaseData())
         {
         this->Inputs[i]->ReleaseData();
+        }
+      }
+
+    // Cleanup the outputs.
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i] && this->Outputs[i]->GetRequestExactExtent())
+        {
+        vtkSourceToDataObjectFriendship::Crop(this->Outputs[i]);
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(this->Outputs[i]))
+        {
+        vtkSourceToDataSetFriendship::GenerateGhostLevelArray(ds);
         }
       }
     return 1;
