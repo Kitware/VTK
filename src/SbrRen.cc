@@ -28,13 +28,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #define MAX_LIGHTS 16
 
-static float z_ref_matrix[4][4] = {
-  1.0,  0.0,  0.0,  0.0,
-  0.0,  1.0,  0.0,  0.0,
-  0.0,  0.0, -1.0,  0.0,
-  0.0,  0.0,  0.0,  1.0
-  };
-
 /* stereo definitions : also in starbase_camera.cls */
 static char *lights[MAX_LIGHTS] =
 {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -66,8 +59,6 @@ int vlSbrRenderer::UpdateActors()
       anActor->GetMatrix(matrix);
       matrix.Transpose();
  
-      concat_transformation3d(this->Fd, z_ref_matrix, PRE, PUSH);
-
       // insert model transformation 
       concat_transformation3d(this->Fd,(float (*)[4])(matrix[0]), PRE, PUSH);
 
