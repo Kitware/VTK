@@ -640,6 +640,7 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
 #endif
 
   this->SpawnedThreadActiveFlagLock[ThreadID]->Delete();
+  this->SpawnedThreadActiveFlagLock[ThreadID] = NULL;
 
 }
 
