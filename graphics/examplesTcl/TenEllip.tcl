@@ -36,11 +36,14 @@ vtkTensorGlyph ellipsoids
     ellipsoids SetScaleFactor 10
     ellipsoids ClampScalingOn
   
+vtkPolyDataNormals ellipNormals
+  ellipNormals SetInput [ellipsoids GetOutput]
+
 # Map contour
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
 vtkPolyDataMapper ellipMapper
-    ellipMapper SetInput [ellipsoids GetOutput]
+    ellipMapper SetInput [ellipNormals GetOutput]
     ellipMapper SetLookupTable lut
     plane Update;#force update for scalar range
     eval ellipMapper SetScalarRange [[plane GetOutput] GetScalarRange]
