@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.10");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.11");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -103,14 +103,16 @@ const char *vtkAVSucdReader::GetByteOrderAsString()
 
 void vtkAVSucdReader::Execute()
 {
+  vtkDebugMacro( << "Reading AVS UCD file");
+
+  // If ExecuteInformation() failed the fs will be NULL and
+  // ExecuteInformation() will have spit out an error.
   if ( this->fs == NULL )
     {
-    vtkErrorMacro(<< "No file specified!");
     return;
     }
 
   this->ReadFile();
-  vtkDebugMacro( << "End of Execute\n");
 
   return;
 }
@@ -165,8 +167,18 @@ void vtkAVSucdReader::ExecuteInformation()
   long TrueFileLength, CalculatedFileLength;
   int i, k, *ncomp_list;
 
-  // first open file in binary mod to check the first byte.
-
+  // first open file in binary mode to check the first byte.
+  if ( !this->FileName )
+    {
+    this->NumberOfNodes = 0;
+    this->NumberOfCells = 0;
+    this->NumberOfNodeFields = 0;
+    this->NumberOfCellFields = 0;
+    this->NumberOfFields = 0;
+    vtkErrorMacro("No filename specified");
+    return;
+    }
+  
 #ifdef _WIN32
     this->fs = new ifstream(this->FileName, ios::in | ios::binary);
 #else
@@ -177,6 +189,7 @@ void vtkAVSucdReader::ExecuteInformation()
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     delete this->fs;
     this->fs = NULL;
+    vtkErrorMacro("Specified filename not found");
     return;
     }
 
@@ -211,7 +224,6 @@ void vtkAVSucdReader::ExecuteInformation()
     // the class constructor. If TrueFileLength does not match
     // CalculatedFileLength, then we will toggle the endian-ness and re-swap
     // the variables
-
     this->fs->seekg(0L, ios::end);
     TrueFileLength = this->fs->tellg();
     CalculatedFileLength = 0; // unknown yet
