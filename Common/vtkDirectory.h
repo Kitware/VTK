@@ -69,6 +69,9 @@ public:
   static int CreateDirectory(const char* dir);
 
 protected:
+  // delete the Files and Path ivars and set
+  // NumberOfFiles to 0
+  void CleanUpFilesAndPath();
   vtkDirectory();
   ~vtkDirectory() ;
 private:

@@ -21,7 +21,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.19");
+vtkCxxRevisionMacro(vtkDirectory, "1.20");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -42,8 +42,7 @@ vtkDirectory::vtkDirectory()
 }
 
 
-
-vtkDirectory::~vtkDirectory() 
+void vtkDirectory::CleanUpFilesAndPath()
 {
   for(int i =0; i < this->NumberOfFiles; i++)
     {
@@ -51,6 +50,14 @@ vtkDirectory::~vtkDirectory()
     }
   delete [] this->Files;
   delete [] this->Path;
+  this->Files = 0;
+  this->Path = 0;
+  this->NumberOfFiles = 0;
+}
+
+vtkDirectory::~vtkDirectory() 
+{
+  this->CleanUpFilesAndPath();
 }
 
 
@@ -89,6 +96,8 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkDirectory::Open(const char* name)
 {
+  // clean up from any previous open
+  this->CleanUpFilesAndPath();
   char* buf=0;
   int n = static_cast<int>(strlen(name));
   if (name[n - 1] == '/') 
@@ -160,6 +169,9 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 
 int vtkDirectory::Open(const char* name)
 {
+  // clean up from any previous open
+  this->CleanUpFilesAndPath();
+
   DIR* dir = opendir(name);
   if (!dir) 
     {
