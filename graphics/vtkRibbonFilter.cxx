@@ -84,6 +84,7 @@ void vtkRibbonFilter::Execute()
   vtkPoints *inPts;
   vtkNormals *inNormals;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
   vtkCellArray *inLines;
   int numPts = 0;
   int numNewPts = 0;
@@ -118,13 +119,19 @@ void vtkRibbonFilter::Execute()
 
   numPts = inPts->GetNumberOfPoints();
   
-  // copy scalars, vectors, tcoords. Normals may be computed here.
+  // copy point scalars, vectors, tcoords. Normals may be computed here.
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd,numNewPts);
 
-  output->GetPointData()->CopyAllocate(pd,numNewPts);
+  // copy point scalars, vectors, tcoords.
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
+  outCD->CopyNormalsOff();
+  outCD->CopyAllocate(cd, inLines->GetNumberOfCells());
+  int inCellId, outCellId;
+
 
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
@@ -136,18 +143,18 @@ void vtkRibbonFilter::Execute()
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
-	{
-	inNormals->SetNormal(i,this->DefaultNormal);
-	}
+        {
+        inNormals->SetNormal(i,this->DefaultNormal);
+        }
       }
     else
       {
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,(vtkNormals*)inNormals) )
-	{
-	vtkErrorMacro(<< "No normals for line!\n");
-	inNormals->Delete();
-	return;
-	}
+        {
+        vtkErrorMacro(<< "No normals for line!\n");
+        inNormals->Delete();
+        return;
+        }
       }
     lineNormalGenerator->Delete();
     }
@@ -169,7 +176,8 @@ void vtkRibbonFilter::Execute()
   //  Create pairs of points along the line that are later connected into a 
   //  triangle strip.
   //
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
+  inCellId = 0;
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); ++inCellId)
     {
     //
     // Use "averaged" segment to create beveled effect. Watch out for first and 
@@ -201,9 +209,9 @@ void vtkRibbonFilter::Execute()
       else
         {
         for (i=0; i<3; i++)
-	  {
-	  p[i] = pNext[i];
-	  }
+          {
+          p[i] = pNext[i];
+          }
         inPts->GetPoint(pts[j+1],pNext);
         for (i=0; i<3; i++)
           {
@@ -221,24 +229,24 @@ void vtkRibbonFilter::Execute()
         }
 
       for (i=0; i<3; i++)
-	{
-	s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-	}
+        {
+        s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+        }
       vtkMath::Normalize(s);
       
       if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
-	{
-	BevelAngle = 1.0;
-	}
+        {
+        BevelAngle = 1.0;
+        }
       if ( BevelAngle < -1.0 )
-	{
-	BevelAngle = -1.0;
-	}
+        {
+        BevelAngle = -1.0;
+        }
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
       if ( (BevelAngle = cos(BevelAngle)) == 0.0 )
-	{
-	BevelAngle = 1.0;
-	}
+        {
+        BevelAngle = 1.0;
+        }
 
       BevelAngle = this->Width / BevelAngle;
 
@@ -250,22 +258,22 @@ void vtkRibbonFilter::Execute()
         }
       
       if ( inScalars )
-	{
+        {
         sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
               (inScalars->GetScalar(pts[j]) - range[0]) / (range[1]-range[0]));
-	}
+        }
       for (i=0; i<3; i++)
-	{
-	s[i] = p[i] + w[i] * BevelAngle * sFactor;
-	}
+        {
+        s[i] = p[i] + w[i] * BevelAngle * sFactor;
+        }
       ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
 
       for (i=0; i<3; i++)
-	{
-	s[i] = p[i] - w[i] * BevelAngle * sFactor;
-	}
+        {
+        s[i] = p[i] - w[i] * BevelAngle * sFactor;
+        }
       ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
@@ -273,12 +281,14 @@ void vtkRibbonFilter::Execute()
     //
     // Generate the strip topology
     //
-    newStrips->InsertNextCell(npts*2);
+    outCellId = newStrips->InsertNextCell(npts*2);
     for (i=0; i < npts; i++) 
       {//order important for consistent normals
       newStrips->InsertCellPoint(ptOffset+2*i+1);
       newStrips->InsertCellPoint(ptOffset+2*i);
       }
+    outCD->CopyData(cd,inCellId,outCellId);
+
     
     ptOffset += npts*2;
     } //for this line
