@@ -139,5 +139,5 @@ inline const char *vtkLandmarkTransform::GetModeAsString()
       return "Unrecognized";
     }
 }
-
+//ETX
 #endif
