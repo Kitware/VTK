@@ -86,10 +86,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_SCALAR_MODE_DEFAULT 0
 #define VTK_SCALAR_MODE_USE_POINT_DATA 1
 #define VTK_SCALAR_MODE_USE_CELL_DATA 2
+#define VTK_SCALAR_MODE_USE_POINT_FIELD_DATA 3
+#define VTK_SCALAR_MODE_USE_CELL_FIELD_DATA 4
 
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
 #define VTK_RESOLVE_SHIFT_ZBUFFER 2
+
+#define VTK_GET_ARRAY_BY_ID 0
+#define VTK_GET_ARRAY_BY_NAME 1
 
 class vtkWindow;
 class vtkRenderer;
@@ -207,6 +212,11 @@ public:
   // and if no point data is available, then cell data is used. Alternatively
   // you can explicitly set the filter to use point data
   // (ScalarModeToUsePointData) or cell data (ScalarModeToUseCellData).
+  // You can also choose to get the scalars from an array in point field
+  // data (ScalarModeToUsePointFieldData) or cell field data
+  // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
+  // data array, you must call ColorByArrayComponent before you call
+  // GetColors.
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
   void SetScalarModeToDefault() {
@@ -215,7 +225,16 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
   void SetScalarModeToUseCellData() {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
-
+  void SetScalarModeToUsePointFieldData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
+  void SetScalarModeToUseCellFieldData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
+  
+  // Description:
+  // Choose which component of which field data array to color by.
+  void ColorByArrayComponent(int arrayNum, int component);
+  void ColorByArrayComponent(char* arrayName, int component);
+  
   // Description:
   // Return the method for obtaining scalar data.
   const char *GetScalarModeAsString();
@@ -292,8 +311,11 @@ protected:
 
   float RenderTime;
 
+  // for coloring by a component of a field data array
+  int ArrayId;
+  char ArrayName[256];
+  int ArrayComponent;
+  int ArrayAccessMode;
 };
 
 #endif
-
-

@@ -2428,8 +2428,9 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     {
     c = this->Colors;
     c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
-    if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
-    !input->GetPointData()->GetScalars() )       
+    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+          !input->GetPointData()->GetScalars()) &&
+         this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
       {
       cellScalars = 1;
       }

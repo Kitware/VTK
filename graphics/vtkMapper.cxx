@@ -69,6 +69,11 @@ vtkMapper::vtkMapper()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->RenderTime = 0.0;
+  
+  strcpy(this->ArrayName, "");
+  this->ArrayId = -1;
+  this->ArrayComponent = -1;
+  this->ArrayAccessMode = -1;
 }
 
 vtkMapper::~vtkMapper()
@@ -190,6 +195,8 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
 vtkScalars *vtkMapper::GetColors()
 {
   vtkScalars *scalars;
+  vtkDataArray *dataArray;
+  int i, numScalars;
   
   // make sure we have an input
   if (!this->GetInput())
@@ -210,9 +217,61 @@ vtkScalars *vtkMapper::GetColors()
     {
     scalars = this->GetInput()->GetPointData()->GetScalars();
     }
-  else
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
     {
     scalars = this->GetInput()->GetCellData()->GetScalars();
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
+    {
+    if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+      dataArray = this->GetInput()->GetPointData()->GetFieldData()->
+        GetArray(this->ArrayId);
+      }
+    else
+      {
+      dataArray = this->GetInput()->GetPointData()->GetFieldData()->
+        GetArray(this->ArrayName);
+      }
+    
+    if (dataArray &&
+        (this->ArrayComponent < dataArray->GetNumberOfComponents()))
+      {
+      scalars = vtkScalars::New();
+      numScalars = dataArray->GetNumberOfTuples();
+      scalars->SetNumberOfScalars(numScalars);
+      for (i = 0; i < numScalars; i++)
+        {
+        scalars->
+          InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+        }
+      }
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+      dataArray = this->GetInput()->GetCellData()->GetFieldData()->
+        GetArray(this->ArrayId);
+      }
+    else
+      {
+      dataArray = this->GetInput()->GetCellData()->GetFieldData()->
+        GetArray(this->ArrayName);
+      }
+
+    if (dataArray &&
+        (this->ArrayComponent < dataArray->GetNumberOfComponents()))
+      {
+      scalars = vtkScalars::New();
+      numScalars = dataArray->GetNumberOfTuples();
+      scalars->SetNumberOfScalars(numScalars);
+      for (i = 0; i < numScalars; i++)
+        {
+        scalars->
+          InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+        }
+      }
     }
   
   // do we have any scalars ?
@@ -253,7 +312,28 @@ vtkScalars *vtkMapper::GetColors()
     this->Colors = NULL;
     }
   
+  if (((this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA) ||
+       (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)) &&
+      scalars)
+    {
+    scalars->Delete();
+    }
+  
   return this->Colors;
+}
+
+void vtkMapper::ColorByArrayComponent(int arrayNum, int component)
+{
+  this->ArrayId = arrayNum;
+  this->ArrayComponent = component;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
+}
+
+void vtkMapper::ColorByArrayComponent(char* arrayName, int component)
+{
+  strcpy(this->ArrayName, arrayName);
+  this->ArrayComponent = component;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }
 
 // Specify a lookup table for the mapper to use.
