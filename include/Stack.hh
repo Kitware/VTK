@@ -24,6 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
+//BTX begin tcl exclude
 class vlStackElement //;prevents pick-up by man page generator
 {
  public:
@@ -31,6 +32,7 @@ class vlStackElement //;prevents pick-up by man page generator
   vlObject *Item;
   vlStackElement *Next;
 };
+//ETX end tcl exclude
 
 class vlStack : public vlObject
 {

@@ -94,6 +94,8 @@ typedef struct _vlLocalTri
 //
 // Special classes for manipulating data
 //
+//BTX - begin tcl exclude
+//
 class vlVertexArray { //;prevent man page generation
 public:
   vlVertexArray(const int sz) 
@@ -123,6 +125,8 @@ public:
   vlLocalTri *Array;  // pointer to data
   int MaxId;            // maximum index inserted thus far
 };
+//ETX - end tcl exclude
+//
 
 //
 //  Static variables used by object

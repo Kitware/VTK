@@ -53,7 +53,7 @@ class vlTransform : public vlObject
   void Scale ( float x, float y, float z);
   void Translate ( float x, float y, float z);
   void Transpose ();
-  void GetTranspose (vlMatrix4x4& (transpose));
+  void GetTranspose (vlMatrix4x4& transpose);
   void Inverse ();
   void GetInverse ( vlMatrix4x4& inverse);
   float *GetOrientation();
