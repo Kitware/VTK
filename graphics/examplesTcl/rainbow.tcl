@@ -87,7 +87,7 @@ ren1 AddActor planeActor
 #ren1 SetBackground 1 1 1
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 500 500
-renWin DoubleBufferOff
+renWin DoubleBufferOn
 iren Initialize
 
 set cam1 [ren1 GetActiveCamera]
