@@ -59,6 +59,9 @@ void Test(ostream& strm)
   vtkCellTypes *ct1 = vtkCellTypes::New();
   ct1->DeepCopy(ct);
 
+  ct->Reset();
+  ct->Squeeze();
+
   ct1->Delete();
   ct->Delete();
   cellLocations->Delete();
