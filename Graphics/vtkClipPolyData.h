@@ -56,15 +56,15 @@
 #ifndef __vtkClipPolyData_h
 #define __vtkClipPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkImplicitFunction;
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkClipPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -136,7 +136,7 @@ protected:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
   ~vtkClipPolyData();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkImplicitFunction *ClipFunction;
   
   vtkPointLocator *Locator;

@@ -16,9 +16,12 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
@@ -28,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipPolyData, "1.53");
+vtkCxxRevisionMacro(vtkClipPolyData, "1.54");
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData,ClipFunction,vtkImplicitFunction);
 
@@ -43,9 +46,12 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
 
+  this->SetNumberOfOutputPorts(2);
+
   this->GenerateClippedOutput = 0;
-  this->vtkSource::SetNthOutput(1,vtkPolyData::New());
-  this->Outputs[1]->Delete();
+  vtkPolyData *output2 = vtkPolyData::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -64,7 +70,7 @@ vtkClipPolyData::~vtkClipPolyData()
 // then this object is modified as well.
 unsigned long vtkClipPolyData::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->ClipFunction != NULL )
@@ -83,12 +89,13 @@ unsigned long vtkClipPolyData::GetMTime()
 
 vtkPolyData *vtkClipPolyData::GetClippedOutput()
 {
-  if (this->NumberOfOutputs < 2)
+  if (this->GetNumberOfOutputPorts() < 2)
     {
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Outputs[1]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 
@@ -96,14 +103,21 @@ vtkPolyData *vtkClipPolyData::GetClippedOutput()
 //
 // Clip through data generating surface.
 //
-void vtkClipPolyData::Execute()
+int vtkClipPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  if (!input || !output)
-    {
-    return;
-    }
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, i, updateTime;
   vtkPoints *cellPts;
   vtkDataArray *clipScalars;
@@ -130,13 +144,13 @@ void vtkClipPolyData::Execute()
   if ( numPts < 1 || inPts == NULL )
     {
     //vtkErrorMacro(<<"No data to clip");
-    return;
+    return 0;
     }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
-    return;
+    return 0;
     }
 
   // Create objects to hold output of clip operation
@@ -189,7 +203,7 @@ void vtkClipPolyData::Execute()
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
-      return;
+      return 0;
       }
     }
     
@@ -348,6 +362,8 @@ void vtkClipPolyData::Execute()
   
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+
+  return 1;
 }
 
 
