@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.51");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.52");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -167,7 +167,7 @@ vtkHyperStreamline::vtkHyperStreamline()
   this->NumberOfSides = 6;
   this->Radius = 0.5;
   this->LogScaling = 0;
-  this->IntegrationEigenvector = 0; //Major eigenvector
+  this->IntegrationEigenvector = VTK_INTEGRATE_MAJOR_EIGENVECTOR;
 }
 
 vtkHyperStreamline::~vtkHyperStreamline()
@@ -257,42 +257,6 @@ void vtkHyperStreamline::SetStartPosition(float x, float y, float z)
 float *vtkHyperStreamline::GetStartPosition()
 {
   return this->StartPosition;
-}
-
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is closest to positive infinity.
-void vtkHyperStreamline::IntegrateMajorEigenvector()
-{
-  if ( this->IntegrationEigenvector != 0 )
-    {
-    this->Modified();
-    this->IntegrationEigenvector = 0;
-  }
-}
-
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is between the major and minor eigenvalues.
-void vtkHyperStreamline::IntegrateMediumEigenvector()
-{
-  if ( this->IntegrationEigenvector != 1 )
-    {
-    this->Modified();
-    this->IntegrationEigenvector = 1;
-  }
-}
-
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is closest to negative infinity.
-void vtkHyperStreamline::IntegrateMinorEigenvector()
-{
-  if ( this->IntegrationEigenvector != 2 )
-    {
-    this->Modified();
-    this->IntegrationEigenvector = 2;
-  }
 }
 
 // Make sure coordinate systems are consistent

@@ -54,6 +54,11 @@
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
+#define VTK_INTEGRATE_MAJOR_EIGENVECTOR 0
+#define VTK_INTEGRATE_MEDIUM_EIGENVECTOR 1
+#define VTK_INTEGRATE_MINOR_EIGENVECTOR 2
+
+
 class vtkHyperArray;
 
 class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
@@ -108,22 +113,46 @@ public:
   vtkGetMacro(MaximumPropagationDistance,float);
 
   // Description:
-  // Use the major eigenvector field as the vector field through which to 
-  // integrate. The major eigenvector is the eigenvector whose corresponding
-  // eigenvalue is closest to positive infinity.
-  void IntegrateMajorEigenvector();
+  // Set / get the eigenvector field through which to ingrate. It is
+  // possible to integrate using the major, medium or minor
+  // eigenvector field.  The major eigenvector is the eigenvector
+  // whose corresponding eigenvalue is closest to positive infinity.
+  // The minor eigenvector is the eigenvector whose corresponding
+  // eigenvalue is closest to negative infinity.  The medium
+  // eigenvector is the eigenvector whose corresponding eigenvalue is
+  // between the major and minor eigenvalues.
+  vtkSetClampMacro(IntegrationEigenvector,int,
+                   VTK_INTEGRATE_MAJOR_EIGENVECTOR,
+                   VTK_INTEGRATE_MINOR_EIGENVECTOR);
+  vtkGetMacro(IntegrationEigenvector,int);
+  void SetIntegrationEigenvectorToMajor()
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MAJOR_EIGENVECTOR);};
+  void SetIntegrationEigenvectorToMedium()
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MEDIUM_EIGENVECTOR);};
+  void SetIntegrationEigenvectorToMinor()
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MINOR_EIGENVECTOR);};
 
   // Description:
-  // Use the major eigenvector field as the vector field through which to 
-  // integrate. The major eigenvector is the eigenvector whose corresponding
-  // eigenvalue is between the major and minor eigenvalues.
-  void IntegrateMediumEigenvector();
+  // Use the major eigenvector field as the vector field through which
+  // to integrate.  The major eigenvector is the eigenvector whose
+  // corresponding eigenvalue is closest to positive infinity.  
+  void IntegrateMajorEigenvector()
+    {this->SetIntegrationEigenvectorToMajor();};
 
   // Description:
-  // Use the major eigenvector field as the vector field through which to 
-  // integrate. The major eigenvector is the eigenvector whose corresponding
-  // eigenvalue is closest to negative infinity.
-  void IntegrateMinorEigenvector();
+  // Use the medium eigenvector field as the vector field through which
+  // to integrate. The medium eigenvector is the eigenvector whose
+  // corresponding eigenvalue is between the major and minor
+  // eigenvalues.
+  void IntegrateMediumEigenvector()
+    {this->SetIntegrationEigenvectorToMedium();};
+
+  // Description:
+  // Use the minor eigenvector field as the vector field through which
+  // to integrate. The minor eigenvector is the eigenvector whose
+  // corresponding eigenvalue is closest to negative infinity.
+  void IntegrateMinorEigenvector()
+    {this->SetIntegrationEigenvectorToMinor();};
 
   // Description:
   // Set / get a nominal integration step size (expressed as a fraction of
@@ -132,9 +161,9 @@ public:
   vtkGetMacro(IntegrationStepLength,float);
 
   // Description:
-  // Set / get the length of a tube segment composing the hyperstreamline. The
-  // length is specified as a fraction of the diagonal length of the input
-  // bounding box.
+  // Set / get the length of a tube segment composing the
+  // hyperstreamline. The length is specified as a fraction of the
+  // diagonal length of the input bounding box.
   vtkSetClampMacro(StepLength,float,0.000001,1.0);
   vtkGetMacro(StepLength,float);
 
