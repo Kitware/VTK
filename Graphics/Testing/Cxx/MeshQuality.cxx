@@ -48,10 +48,13 @@ struct vtkMeshQualityTestRec
     {  5, VTK_QUALITY_ASPECT_RATIO, 1.84043,  5 },
     {  6, VTK_QUALITY_ASPECT_RATIO, 1.     ,  5 },
     {  7, VTK_QUALITY_ASPECT_RATIO, 1.     ,  5 },
-    {  8, VTK_QUALITY_ASPECT_RATIO, 1.     ,  5 } ,
+    {  8, VTK_QUALITY_ASPECT_RATIO, 1.     ,  5 },
     {  9, VTK_QUALITY_ASPECT_RATIO, 1.50778,  5 },
     { 10, VTK_QUALITY_ASPECT_RATIO, 1.68296,  5 },
-    { 11, VTK_QUALITY_ASPECT_RATIO, 1.42328,  5 }
+    { 11, VTK_QUALITY_ASPECT_RATIO, 1.42328,  5 },
+
+    {  3, VTK_QUALITY_EDGE_RATIO,   1.     ,  5 },
+    {  4, VTK_QUALITY_EDGE_RATIO,   1.26066,  5 }
 };
 
 struct vtkMeshQualitySummaryRec
