@@ -105,15 +105,12 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 // Begin processing keyboard strokes.
 void vtkXRenderWindowInteractor::Initialize()
 {
-  static int any_initialized = 0;
-  static XtAppContext app;
   vtkXRenderWindow *ren;
   int depth;
   Colormap cmap;
   Visual  *vis;
   int *size;
   int *position;
-  int argc = 0;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -230,8 +227,10 @@ void  vtkXRenderWindowInteractor::EndPan()
   this->RenderWindow->Render();
 }
 
-void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
-				    XEvent *event, Boolean *ctd)
+void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
+					XtPointer client_data, 
+					XEvent *event, 
+					Boolean *vtkNotUsed(ctd))
 {
   vtkXRenderWindowInteractor *me;
   XEvent marker;
@@ -354,7 +353,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart());)
               {
               aPart->GetProperty()->SetWireframe();
               }
@@ -374,7 +373,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
               aPart->GetProperty()->SetSurface();
               }
@@ -435,7 +434,8 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
     }
 }
 
-void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
+void vtkXRenderWindowInteractorTimer(XtPointer client_data,
+				     XtIntervalId *vtkNotUsed(id))
 {
   vtkXRenderWindowInteractor *me;
   Window root,child;

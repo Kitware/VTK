@@ -82,7 +82,7 @@ void vtkGlrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
 
 // Description:
 // Load poly data into gl graphics library.
-void vtkGlrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
+void vtkGlrPolyMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
 {
   int npts, idx[3], rep, j, interpolation;
   float fclr[4], polyNorm[3], tran;

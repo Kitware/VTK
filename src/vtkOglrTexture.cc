@@ -71,7 +71,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
 // Actual Texture load method.
 void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
 {
-  GLenum format = 0;
+  GLenum format = GL_LUMINANCE;
 
   // need to reload the texture
   if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime())

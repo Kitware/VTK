@@ -90,14 +90,12 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     int *size;
     vtkScalars *scalars;
     unsigned char *dataPtr;
-    int rowLength;
-    unsigned char *resultData;
     Xgl_usgn32 xsize, ysize;
     Xgl_object setRas;
     Xgl_usgn32 *input, *bptr;
     Xgl_texture_boundary uBound, vBound;
     Xgl_render_component_desc *rDesc;
-    int yloop, xloop;
+    unsigned int yloop, xloop;
     
     // get some info
     size = txt->GetInput()->GetDimensions();

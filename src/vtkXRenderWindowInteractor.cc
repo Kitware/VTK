@@ -295,8 +295,10 @@ void  vtkXRenderWindowInteractor::EndPan()
   this->State = VTKXI_START;
 }
 
-void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
-				    XEvent *event, Boolean *ctd)
+void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
+					XtPointer client_data, 
+					XEvent *event, 
+					Boolean *vtkNotUsed(ctd))
 {
   XEvent marker;
   vtkXRenderWindowInteractor *me;
@@ -419,7 +421,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
               aPart->GetProperty()->SetWireframe();
               }
@@ -439,7 +441,8 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+            for (anActor->InitPartTraversal(); 
+		 (aPart=anActor->GetNextPart()); )
               {
               aPart->GetProperty()->SetSurface();
               }
@@ -500,7 +503,8 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
     }
 }
 
-void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
+void vtkXRenderWindowInteractorTimer(XtPointer client_data,
+				     XtIntervalId *vtkNotUsed(id))
 {
   vtkXRenderWindowInteractor *me;
   Window root,child;

@@ -66,5 +66,5 @@ void vtkSbrTexture::Load(vtkTexture *vtkNotUsed(txt),
 			 vtkSbrRenderer *vtkNotUsed(ren))
 {
   // currently a nop
-  vtkWaringMacro("texturemaps not supported on Starbase right now.");
+  vtkWarningMacro("texturemaps not supported on Starbase right now.");
 }
