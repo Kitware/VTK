@@ -182,7 +182,7 @@ public:
 
   // Description:
   // Set / Get the cut plane falloff value for intensities
-  vtkSetClampMacro( CutPlaneFallOffDistance, int, 0.0, 16 );
+  vtkSetClampMacro( CutPlaneFallOffDistance, int, 0, 16 );
   vtkGetMacro( CutPlaneFallOffDistance, int );
 
   // Description:
