@@ -33,7 +33,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.64");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.65");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -360,7 +360,21 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       outExt[2] < inExt[2] || outExt[3] > inExt[3] ||
       outExt[4] < inExt[4] || outExt[5] > inExt[5])
     {
-    vtkErrorMacro("Output must be a sub extent of input.");
+    vtkErrorMacro("Output must be a sub extent of input." << endl
+                  << "    inExt: "
+                  << inExt[0] << ", "
+                  << inExt[1] << ", "
+                  << inExt[2] << ", "
+                  << inExt[3] << ", "
+                  << inExt[4] << ", "
+                  << inExt[5] << endl
+                  << "    outExt: "
+                  << outExt[0] << ", "
+                  << outExt[1] << ", "
+                  << outExt[2] << ", "
+                  << outExt[3] << ", "
+                  << outExt[4] << ", "
+                  << outExt[5]);
     return;
     }
 
