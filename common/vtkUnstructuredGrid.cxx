@@ -885,15 +885,6 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
     }//for all candidate cells attached to point
 }
 
-// fills types with list of unique cell types
-void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes *types)
-{
-
-  types->Allocate(this->GetNumberOfCells(),1000);
-  vtkDataSet::GetCellTypes(types);
-
-}
-
 // Fills uniqueTypes with list of unique cell types (same as above).
 void vtkUnstructuredGrid::GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes)
 {

@@ -170,13 +170,6 @@ public:
   void GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes);
 
   // Description:
-  // Fill vtkCellTypes container with list of unique cell types (uses vtkDataSet interface).
-  // This method traverses all cells and, for each unique cell type it encounters,
-  // inserts the type into the container.  Memory is allocated for the container prior
-  // to calling vtkDataSet::GetCellTypes
-  virtual void GetCellTypes(vtkCellTypes *types);
-
-  // Description:
   // Fill vtkIntArray container with list of cell Ids.  This
   // method traverses all cells and, for a particular cell type,
   // inserts the cell Id into the container.
