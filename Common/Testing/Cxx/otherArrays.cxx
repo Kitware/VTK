@@ -16,11 +16,12 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 
 #define SIZE 1000
 
-template <class T, class A>
-static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
+template <class T, class A, class V>
+static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 {
   T *ptr2;
   float tuple1[SIZE/100];
@@ -29,8 +30,20 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
   int i;
   vtkIdType maxId;
   
-  strm << "\tSetVoidArray...";
-  ptr->SetVoidArray(array, size, 1); 
+  strm << "\tResize(0)...";
+  ptr->Resize(0); 
+  strm << "OK" << endl;
+
+  strm << "\tResize(10)...";
+  ptr->Resize(10); 
+  strm << "OK" << endl;
+
+  strm << "\tResize(5)...";
+  ptr->Resize(5); 
+  strm << "OK" << endl;
+
+  strm << "\tResize(size)...";
+  ptr->Resize(size); 
   strm << "OK" << endl;
 
   strm << "\tSetNumberOfTuples...";
@@ -42,6 +55,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
   ptr->SetNumberOfComponents (10);
   if (ptr->GetNumberOfComponents() == 10) strm << "OK" << endl;
   else strm << "FAILED" << endl;
+
+  strm << "\tSetVoidArray...";
+  ptr->SetVoidArray(array, size, 1); 
+  strm << "OK" << endl;
 
   strm << "\tMakeObject...";
   if (ptr2 = ptr->SafeDownCast(ptr->MakeObject()))
@@ -58,13 +75,16 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
   strm << "\tGetTuple(i)...";
   tuple2 = ptr->GetTuple (2);
   int passed = 1;
-  for (i = 0; i < 10; i++)
+  if (tuple2)
     {
-    strm << *(tuple2 + i) << " ";
-    if (*(tuple2 + i) != (20 + i))
+    for (i = 0; i < 10; i++)
       {
-      passed = 0;
-      break;
+      strm << *(tuple2 + i) << " ";
+      if (*(tuple2 + i) != (20 + i))
+	{
+	passed = 0;
+	break;
+	}
       }
     }
   if (passed) strm << "OK" << endl;
@@ -121,8 +141,8 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
   else strm << "FAILED" << endl;
 
   strm << "\tInsertValue(i, value)...";
-  ptr->InsertValue (50, value);
-  if (ptr->GetValue (50) == value) strm << "OK" << endl;
+  ptr->InsertValue (500, value);
+  if (ptr->GetValue (500) == value) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
   strm << "\tInsertNextValue(i, value)...";
@@ -419,6 +439,16 @@ void Test(ostream& strm)
   delete []array;
   }
 
+  {
+  strm << "Test IdTypeArray" << endl;
+  vtkIdTypeArray *ptr = vtkIdTypeArray::New();
+  vtkIdType *array = new vtkIdType[SIZE];
+  vtkIdType value = static_cast<vtkIdType>(1);
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, value, SIZE);
+  ptr->Delete();
+  delete []array;
+  }
 }
 
 int main(int argc, char* argv[])
