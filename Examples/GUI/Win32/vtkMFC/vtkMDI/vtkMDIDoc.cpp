@@ -1,17 +1,5 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMDIDoc.cpp
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+// vtkMDIDoc.cpp : implementation of the CvtkMDIDoc class
+//
 
 #include "stdafx.h"
 #include "vtkMDI.h"
@@ -20,36 +8,30 @@
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIDoc
 
-IMPLEMENT_DYNCREATE(CVtkMDIDoc, CDocument)
+// CvtkMDIDoc
 
-BEGIN_MESSAGE_MAP(CVtkMDIDoc, CDocument)
-  //{{AFX_MSG_MAP(CVtkMDIDoc)
-    // NOTE - the ClassWizard will add and remove mapping macros here.
-    //    DO NOT EDIT what you see in these blocks of generated code!
-  //}}AFX_MSG_MAP
+IMPLEMENT_DYNCREATE(CvtkMDIDoc, CDocument)
+
+BEGIN_MESSAGE_MAP(CvtkMDIDoc, CDocument)
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIDoc construction/destruction
 
-CVtkMDIDoc::CVtkMDIDoc(): HasAFile(false)
+// CvtkMDIDoc construction/destruction
+
+CvtkMDIDoc::CvtkMDIDoc()
 {
-  this->Reader = vtkDataSetReader::New();
+  // TODO: add one-time construction code here
+  this->pvtkDataSetReader = NULL;
 }
 
-CVtkMDIDoc::~CVtkMDIDoc()
+CvtkMDIDoc::~CvtkMDIDoc()
 {
-  this->Reader->Delete();
 }
 
-BOOL CVtkMDIDoc::OnNewDocument()
+BOOL CvtkMDIDoc::OnNewDocument()
 {
   if (!CDocument::OnNewDocument())
     return FALSE;
@@ -62,10 +44,10 @@ BOOL CVtkMDIDoc::OnNewDocument()
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIDoc serialization
 
-void CVtkMDIDoc::Serialize(CArchive& ar)
+// CvtkMDIDoc serialization
+
+void CvtkMDIDoc::Serialize(CArchive& ar)
 {
   if (ar.IsStoring())
   {
@@ -77,31 +59,39 @@ void CVtkMDIDoc::Serialize(CArchive& ar)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIDoc diagnostics
+
+// CvtkMDIDoc diagnostics
 
 #ifdef _DEBUG
-void CVtkMDIDoc::AssertValid() const
+void CvtkMDIDoc::AssertValid() const
 {
   CDocument::AssertValid();
 }
 
-void CVtkMDIDoc::Dump(CDumpContext& dc) const
+void CvtkMDIDoc::Dump(CDumpContext& dc) const
 {
   CDocument::Dump(dc);
 }
 #endif //_DEBUG
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIDoc commands
 
-BOOL CVtkMDIDoc::OnOpenDocument(LPCTSTR lpszPathName) 
+// CvtkMDIDoc commands
+
+BOOL CvtkMDIDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
   if (!CDocument::OnOpenDocument(lpszPathName))
     return FALSE;
-  
-  this->Reader->SetFileName(strdup(lpszPathName));
-  this->HasAFile = true;
-  
+
+  this->pvtkDataSetReader = vtkDataSetReader::New();
+  this->pvtkDataSetReader->SetFileName(lpszPathName);
+
   return TRUE;
+}
+
+void CvtkMDIDoc::OnCloseDocument()
+{
+  // delete data
+  if (this->pvtkDataSetReader)  this->pvtkDataSetReader->Delete();
+
+  CDocument::OnCloseDocument();
 }

@@ -1,280 +1,187 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkMDIView.cpp
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
 #include "stdafx.h"
 #include "vtkMDI.h"
 
-#include "vtkMFCWindow.h"
-#include "vtkWin32OpenGLRenderWindow.h"
-
 #include "vtkMDIDoc.h"
 #include "vtkMDIView.h"
-#include "vtkTextProperty.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView
 
-IMPLEMENT_DYNCREATE(CVtkMDIView, CView)
+IMPLEMENT_DYNCREATE(CvtkMDIView, CView)
 
-BEGIN_MESSAGE_MAP(CVtkMDIView, CView)
-  //{{AFX_MSG_MAP(CVtkMDIView)
-  ON_WM_SIZE()
-  ON_WM_ERASEBKGND()
-  ON_WM_CREATE()
-  //}}AFX_MSG_MAP
-  // Standard printing commands
+BEGIN_MESSAGE_MAP(CvtkMDIView, CView)
   ON_COMMAND(ID_FILE_PRINT, CView::OnFilePrint)
   ON_COMMAND(ID_FILE_PRINT_DIRECT, CView::OnFilePrint)
   ON_COMMAND(ID_FILE_PRINT_PREVIEW, CView::OnFilePrintPreview)
+  ON_WM_DESTROY()
+  ON_WM_CREATE()
+  ON_WM_LBUTTONDBLCLK()
+  ON_WM_SIZE()
+  ON_WM_ERASEBKGND()
+  ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView construction/destruction
 
-CVtkMDIView::CVtkMDIView()
+CvtkMDIView::CvtkMDIView()
 {
+  this->pvtkMFCWindow     = NULL;
+
   // Create the the renderer, window and interactor objects.
-  this->ren = vtkRenderer::New();
-  
-  vtkWindow = new vtkMFCWindow;
-  
+  this->pvtkRenderer    = vtkRenderer::New();
+
   // Create the the objects used to form the visualisation.
-  this->Mapper = vtkDataSetMapper::New();
-  this->Actor = vtkActor::New();
-
-  this->txtActor = vtkActor2D::New();
-  this->txtMapper = vtkTextMapper::New();
-
+  this->pvtkDataSetMapper  = vtkDataSetMapper::New();
+  this->pvtkActor      = vtkActor::New();
+  this->pvtkActor2D    = vtkActor2D::New();
+  this->pvtkTextMapper  = vtkTextMapper::New();
 }
 
-CVtkMDIView::~CVtkMDIView()
+CvtkMDIView::~CvtkMDIView()
 {
-  // Delete the the renderer, window and interactor objects.
-  this->ren->Delete();
-
-  delete vtkWindow;
-
-  // Delete the the objects used to form the visualisation.
-  this->Mapper->Delete();
-  this->Actor->Delete();
-
-  this->txtActor->Delete();
-  this->txtMapper->Delete();
+  // delete generic vtk window
+  if (this->pvtkMFCWindow) delete this->pvtkMFCWindow;
 }
 
-BOOL CVtkMDIView::PreCreateWindow(CREATESTRUCT& cs)
+// CvtkMDIView drawing
+void CvtkMDIView::OnDraw(CDC* pDC)
 {
-  // TODO: Modify the Window class or styles here by modifying
-  //  the CREATESTRUCT cs
-
-  return CView::PreCreateWindow(cs);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView drawing
-
-/*!
- * Based on a comment from Klaus Nowikow in vtkusers list. 
- * <http://public.kitware.com/pipermail/vtkusers/1999-August/001852.html>
- *
- * Here we intialise the interactor and set up for printing and displaying.
- *
- * @param pDC : 
- *
- * @return void  : 
- */
-void CVtkMDIView::OnDraw(CDC* pDC)
-{
-  CVtkMDIDoc* pDoc = GetDocument();
+  CvtkMDIDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
-  Pipeline();
-
-  if ( pDC->IsPrinting() )
+  if (this->pvtkMFCWindow)
   {
-    this->BeginWaitCursor();
-
-    // Obtain the size of the printer page in pixels.
-    int cxPage = pDC->GetDeviceCaps(HORZRES);
-    int cyPage = pDC->GetDeviceCaps(VERTRES);
-
-    // Get the size of the window in pixels.
-    int *size = this->vtkWindow->GetRenderWindow()->GetSize();
-    int cxWindow = size[0];
-    int cyWindow = size[1];
-    float fx = float(cxPage) / float(cxWindow);
-    float fy = float(cyPage) / float(cyWindow);
-    float scale = min(fx,fy);
-    int x = int(scale * float(cxWindow));
-    int y = int(scale * float(cyWindow));
-    this->vtkWindow->GetRenderWindow()->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
-    this->vtkWindow->GetRenderWindow()->Render();
-    HDC memDC = this->vtkWindow->GetRenderWindow()->GetMemoryDC();
-    StretchBlt(pDC->GetSafeHdc(),0,0,x,y,memDC,0,0,cxWindow,cyWindow,SRCCOPY);
-    this->vtkWindow->GetRenderWindow()->ResumeScreenRendering();
-
-    this->EndWaitCursor();
-
+    if (pDC->IsPrinting())
+      this->pvtkMFCWindow->DrawDC(pDC);
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView printing
 
-BOOL CVtkMDIView::OnPreparePrinting(CPrintInfo* pInfo)
+// CvtkMDIView printing
+
+BOOL CvtkMDIView::OnPreparePrinting(CPrintInfo* pInfo)
 {
   // default preparation
   return DoPreparePrinting(pInfo);
 }
 
-void CVtkMDIView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CvtkMDIView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
   // TODO: add extra initialization before printing
 }
 
-void CVtkMDIView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CvtkMDIView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
   // TODO: add cleanup after printing
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView diagnostics
+
+// CvtkMDIView diagnostics
 
 #ifdef _DEBUG
-void CVtkMDIView::AssertValid() const
+void CvtkMDIView::AssertValid() const
 {
   CView::AssertValid();
 }
 
-void CVtkMDIView::Dump(CDumpContext& dc) const
+void CvtkMDIView::Dump(CDumpContext& dc) const
 {
   CView::Dump(dc);
 }
 
-CVtkMDIDoc* CVtkMDIView::GetDocument() // non-debug version is inline
+CvtkMDIDoc* CvtkMDIView::GetDocument() const // non-debug version is inline
 {
-  ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CVtkMDIDoc)));
-  return (CVtkMDIDoc*)m_pDocument;
+  ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CvtkMDIDoc)));
+  return (CvtkMDIDoc*)m_pDocument;
 }
 #endif //_DEBUG
 
-/////////////////////////////////////////////////////////////////////////////
-// CVtkMDIView message handlers
 
-/*!
- * Resize the render window to that of the view window.
- *
- * @param nType : 
- * @param cx : 
- * @param cy : 
- *
- * @return void  : 
- */
-void CVtkMDIView::OnSize(UINT nType, int cx, int cy) 
+// CvtkMDIView message handlers
+
+void CvtkMDIView::ExecutePipeline()
 {
-  CView::OnSize(nType, cx, cy);
+  CvtkMDIDoc* pDoc = GetDocument();
+  ASSERT_VALID(pDoc);
+  if (!pDoc)
+    return;
 
-  CRect rect;
-  this->GetClientRect(&rect);
-  this->vtkWindow->MoveWindow(&rect);
+  if (pDoc->pvtkDataSetReader)  // have file
+  {
+    this->pvtkDataSetMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetOutput());
+    this->pvtkActor->SetMapper(this->pvtkDataSetMapper);
 
+    this->pvtkTextMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetFileName());
+    this->pvtkTextMapper->GetTextProperty()->SetFontSize(12);
+    this->pvtkActor2D->SetMapper(this->pvtkTextMapper);
+
+    this->pvtkRenderer->SetBackground(0.0,0.0,0.4);
+    this->pvtkRenderer->AddActor(this->pvtkActor);
+    this->pvtkRenderer->AddActor(this->pvtkActor2D);
+  }
+  else  // have no file
+  {
+    this->pvtkTextMapper->SetInput("Hello World");
+    this->pvtkTextMapper->GetTextProperty()->SetFontSize(24);
+    this->pvtkActor2D->SetMapper(this->pvtkTextMapper);
+
+    this->pvtkRenderer->SetBackground(0.0,0.0,0.4);
+    this->pvtkRenderer->AddActor(this->pvtkActor2D);
+  }
 }
 
-/*! 
- * Based on a comment from Nigel Nunn in vtkusers list. 
- * <http://public.kitware.com/pipermail/vtkusers/2001-May/006371.html>
- *
- * Overriding OnEraseBkgnd() stops that horrible 
- * flickering on resizing.  The Renderer likes to do 
- * such things itself! 
- *
- * @param pDC : 
- *
- * @return BOOL  : 
- */
-BOOL CVtkMDIView::OnEraseBkgnd(CDC*) 
+void CvtkMDIView::OnInitialUpdate()
 {
-  return TRUE;
+  CView::OnInitialUpdate();
+
+  this->pvtkMFCWindow = new vtkMFCWindow(this);
+
+  this->pvtkMFCWindow->GetRenderWindow()->AddRenderer(this->pvtkRenderer);
+
+  // execute object pipeline
+  ExecutePipeline();
 }
 
-/*!
- * Add the renderer to the vtk window and link the wiew to the vtk window.
- * We assume that the objects have been already 
- * created in the constructor.
- *
- * @param lpCreateStruct : 
- *
- * @return int  : 
- */
-int CVtkMDIView::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+void CvtkMDIView::OnDestroy()
+{
+  // Delete the the renderer, window and interactor objects.
+  if (this->pvtkRenderer)      this->pvtkRenderer->Delete();
+
+  // Delete the the objects used to form the visualisation.
+  if (this->pvtkDataSetMapper)  this->pvtkDataSetMapper->Delete();
+  if (this->pvtkActor)      this->pvtkActor->Delete();
+  if (this->pvtkActor2D)      this->pvtkActor2D->Delete();
+  if (this->pvtkTextMapper)    this->pvtkTextMapper->Delete();
+
+  // destroy base
+  CView::OnDestroy();
+}
+
+int CvtkMDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
   if (CView::OnCreate(lpCreateStruct) == -1)
     return -1;
-  
-  this->vtkWindow->GetRenderWindow()->AddRenderer(this->ren);
-
-  // create vtk child window
-  this->vtkWindow->Create(0, _T("VTK window"), 
-                          WS_CHILD | WS_VISIBLE, 
-                          CRect(), this, 0);
-  
 
   return 0;
 }
 
-/*!
- * This is the pipeline that creates the object for 
- * rendering on the screen.
- * Here is where we create the pipeline.
- * We assume that the objects have been already 
- * created in the constructor and that the 
- * renderer, window and interactor have been already
- * initialised in OnCreate()
- *
- * @param none
- *
- * @return void  : 
- */
-void CVtkMDIView::Pipeline()
+BOOL CvtkMDIView::OnEraseBkgnd(CDC*) 
 {
-  if ( this->GetDocument()->HasAFile )
-  {
-    this->Mapper->SetInput(this->GetDocument()->Reader->GetOutput());
-    this->Actor->SetMapper(this->Mapper);
-
-    this->txtMapper->SetInput(this->GetDocument()->Reader->GetFileName());
-    this->txtMapper->GetTextProperty()->SetFontSize(12);
-    this->txtActor->SetMapper(this->txtMapper);
-
-    this->ren->SetBackground(0.2,0.5,0.3);
-    this->ren->AddActor(this->Actor);
-    this->ren->AddActor(this->txtActor);
-  }
-  else
-  {
-    this->txtMapper->SetInput("Hello World");
-    this->txtMapper->GetTextProperty()->SetFontSize(24);
-    this->txtActor->SetMapper(this->txtMapper);
-
-    this->ren->SetBackground(0.2,0.5,0.3);
-    this->ren->AddActor(this->txtActor);
-  }
+  return TRUE;
 }
 
+void CvtkMDIView::OnSize(UINT nType, int cx, int cy) 
+{
+  CView::OnSize(nType, cx, cy);
+
+  if (this->pvtkMFCWindow)
+    this->pvtkMFCWindow->MoveWindow(0, 0, cx, cy);
+}
+
+void CvtkMDIView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+  AfxMessageBox("You made a double click");
+
+  CView::OnLButtonDblClk(nFlags, point);
+}
