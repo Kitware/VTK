@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
 
@@ -62,8 +63,8 @@ float vtkPlanes::EvaluateFunction(float x[3])
 {
   static vtkPlane plane;
   int numPlanes, i;
-  float val, minVal;
-
+  float val, maxVal;
+  
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
@@ -76,13 +77,14 @@ float vtkPlanes::EvaluateFunction(float x[3])
     return VTK_LARGE_FLOAT;
     }
 
-  for (minVal=VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
+  for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
-    val = plane.Evaluate(this->Normals->GetNormal(i),this->Points->GetPoint(i), x);
-    if ( val < minVal ) minVal = val;
+    val = plane.Evaluate(this->Normals->GetNormal(i),
+			 this->Points->GetPoint(i), x);
+    if (val > maxVal ) maxVal = val;
     }
 
-  return minVal;
+  return maxVal;
 }
 
 // Description
@@ -91,7 +93,7 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
 {
   static vtkPlane plane;
   int numPlanes, i;
-  float val, minVal, *nTemp;
+  float val, maxVal, *nTemp;
 
   if ( !this->Points || ! this->Normals )
     {
@@ -105,13 +107,13 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
     return;
     }
 
-  for (minVal=VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
+  for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
     nTemp = this->Normals->GetNormal(i);
     val = plane.Evaluate(nTemp,this->Points->GetPoint(i), x);
-    if ( val < minVal )
+    if ( val > maxVal )
       {
-      minVal = val;
+      maxVal = val;
       n[0] = nTemp[0];
       n[1] = nTemp[1];
       n[2] = nTemp[2];
