@@ -91,6 +91,7 @@ vtkImageWrapPad
 vtkPointLoad
 vtkSampleFunction
 vtkShepardMethod
+vtkSimpleImageFilterExample
 vtkSurfaceReconstructionFilter 
 vtkTriangularTexture
 vtkVoxelModeller
