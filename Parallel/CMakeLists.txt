@@ -65,7 +65,7 @@ IF (VTK_WRAP_TCL)
 
   IF (VTK_USE_MPI)
 
-    ADD_EXECUTABLE(pvtk tkAppInit)
+    ADD_EXECUTABLE(pvtk paraTkAppInit)
     TARGET_LINK_LIBRARIES (pvtk
 			 vtkParallelTCL
                          vtkRenderingTCL
