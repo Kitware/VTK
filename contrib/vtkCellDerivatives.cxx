@@ -79,7 +79,7 @@ void vtkCellDerivatives::Execute()
   vtkVectors *outVectors=NULL;
   vtkTensors *outTensors=NULL;
   int numCells=input->GetNumberOfCells();
-  int computeScalarDerivs=1, computeVectorDerivs=1;
+  int computeScalarDerivs=1, computeVectorDerivs=1, subId;
 
   // Initialize
   vtkDebugMacro(<<"Computing cell derivatives");
@@ -136,9 +136,6 @@ void vtkCellDerivatives::Execute()
     cellVectors->Allocate(VTK_CELL_SIZE);
     vtkTensor *tens = vtkTensor::New();
 
-    // Assume that (0.5,0.5,0.5) is the (parametric) center of the cell
-    pcoords[0] = pcoords[1] = pcoords[2] = 0.5; 
-
     // Loop over all cells computing derivatives
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -149,12 +146,13 @@ void vtkCellDerivatives::Execute()
         }
 
       input->GetCell(cellId, cell);
+      subId = cell->GetParametricCenter(pcoords);
       
       if ( computeScalarDerivs )
         {
         inScalars->GetScalars(cell->PointIds, cellScalars);
         scalars = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
-        cell->Derivatives(0, pcoords, scalars, 1, derivs);
+        cell->Derivatives(subId, pcoords, scalars, 1, derivs);
         outVectors->SetVector(cellId, derivs);
         }
 
