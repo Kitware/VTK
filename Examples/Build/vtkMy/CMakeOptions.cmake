@@ -81,6 +81,13 @@ IF (VTK_WRAP_TCL)
 
     ENDIF (NOT VTK_WRAP_TCL_EXE)
   ENDIF (VTKMY_WRAP_TCL)
+
+ELSE (VTK_WRAP_TCL)
+
+  IF (VTKMY_WRAP_TCL)
+    MESSAGE("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have chosen has not support for Tcl (VTK_WRAP_TCL is OFF). Please set VTKMY_WRAP_TCL to OFF.")
+  ENDIF (VTKMY_WRAP_TCL)
+
 ENDIF (VTK_WRAP_TCL)
 
 #
@@ -123,6 +130,13 @@ IF (VTK_WRAP_PYTHON)
 
     ENDIF (NOT VTK_WRAP_PYTHON_EXE)
   ENDIF (VTKMY_WRAP_PYTHON)
+
+ELSE (VTK_WRAP_PYTHON)
+
+  IF (VTKMY_WRAP_PYTHON)
+    MESSAGE("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have chosen has not support for Python (VTK_WRAP_PYTHON is OFF). Please set VTKMY_WRAP_PYTHON to OFF.")
+  ENDIF (VTKMY_WRAP_PYTHON)
+
 ENDIF (VTK_WRAP_PYTHON)
 
 #
@@ -183,5 +197,12 @@ IF (VTK_WRAP_JAVA)
 
     ENDIF (VTK_WRAP_JAVA_EXE AND VTK_PARSE_JAVA_EXE)
   ENDIF (VTKMY_WRAP_JAVA)
+
+ELSE (VTK_WRAP_JAVA)
+
+  IF (VTKMY_WRAP_JAVA)
+    MESSAGE("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have chosen has not support for Java (VTK_WRAP_JAVA is OFF). Please set VTKMY_WRAP_JAVA to OFF.")
+  ENDIF (VTKMY_WRAP_JAVA)
+
 ENDIF (VTK_WRAP_JAVA)
 

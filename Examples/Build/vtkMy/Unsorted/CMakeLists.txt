@@ -21,7 +21,7 @@ ADD_LIBRARY (vtkmyUnsorted Unsorted_SRCS)
 # Create the vtkmyUnsorted Tcl library
 #
 
-IF (VTKMY_WRAP_TCL)
+IF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
   VTK_WRAP_TCL (vtkmyUnsortedTCL UnsortedTCL_SRCS Unsorted_SRCS)
   ADD_LIBRARY (vtkmyUnsortedTCL UnsortedTCL_SRCS)
@@ -50,13 +50,13 @@ IF (VTKMY_WRAP_TCL)
     TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkRenderingTCL)
   ENDIF (VTK_USE_RENDERING)
 
-ENDIF (VTKMY_WRAP_TCL)
+ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 #
 # Create the vtkmyUnsorted Python library
 #
 
-IF (VTKMY_WRAP_PYTHON)
+IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
   VTK_WRAP_PYTHON (vtkmyUnsortedPython UnsortedPython_SRCS Unsorted_SRCS)
 
@@ -105,15 +105,15 @@ IF (VTKMY_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkRenderingPython)
   ENDIF (VTK_USE_RENDERING)
 
-ENDIF (VTKMY_WRAP_PYTHON)
+ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 #
 # Create the vtkmyUnsorted Java library
 #
 
-IF (VTKMY_WRAP_JAVA)
+IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
 
-  VTK_WRAP_TCL (vtkmyUnsortedJava UnsortedJava_SRCS Unsorted_SRCS)
+  VTK_WRAP_JAVA (vtkmyUnsortedJava UnsortedJava_SRCS Unsorted_SRCS)
   ADD_LIBRARY (vtkmyUnsortedJava SHARED UnsortedJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
                          vtkIOJava
@@ -139,7 +139,7 @@ IF (VTKMY_WRAP_JAVA)
     TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkRenderingJava)
   ENDIF (VTK_USE_RENDERING)
 
-ENDIF (VTKMY_WRAP_JAVA)
+ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
 
 #
 # Link to VTK and local
