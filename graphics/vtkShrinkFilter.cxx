@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkShrinkFilter::vtkShrinkFilter(float sf)
 {
+  sf = ( sf < 0.0 ? 0.0 : (sf > 1.0 ? 1.0 : sf));
   this->ShrinkFactor = sf;
 }
 
