@@ -17,7 +17,7 @@
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMPIGroup, "1.4");
+vtkCxxRevisionMacro(vtkMPIGroup, "1.5");
 vtkStandardNewMacro(vtkMPIGroup);
 
 void vtkMPIGroup::PrintSelf(ostream& os, vtkIndent indent)
@@ -108,13 +108,10 @@ int vtkMPIGroup::AddProcessId(int processId)
     vtkWarningMacro("This process id is already in the group.");
     return 0;
     }
-  else
-    {
-    this->ProcessIds[this->CurrentPosition] = processId;
-    return ++this->CurrentPosition;
-    }
-
+  
+  this->ProcessIds[this->CurrentPosition] = processId;
   this->Modified();
+  return ++this->CurrentPosition;
 }
 
 void vtkMPIGroup::RemoveProcessId(int processId)
