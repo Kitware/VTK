@@ -19,7 +19,7 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.41");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.42");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -118,6 +118,10 @@ unsigned long vtkPolyDataMapper2D::GetMTime()
 // to the return value
 vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
 {
+  // Since we are not supporting the texture color option in this mapper,
+  // the cell flag does nothing.
+  int cellFlag = 0;
+  
   // Get rid of old colors
   if ( this->Colors )
     {
@@ -130,7 +134,15 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
     {
     vtkDataArray *scalars = vtkAbstractMapper::
       GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
-                 this->ArrayId, this->ArrayName, this->ArrayComponent);
+                 this->ArrayId, this->ArrayName, cellFlag);
+    // This is for a legacy feature: selection of the array component to color by
+    // from the mapper.  It is now in the lookuptable.  When this feature
+    // is removed, we can remove this condition.
+    if (scalars == NULL || scalars->GetNumberOfComponents() <= this->ArrayComponent)
+      {
+      this->ArrayComponent = 0;
+      }
+
     if ( scalars )
       {
       if ( scalars->GetLookupTable() )

@@ -88,13 +88,14 @@ public:
 
   // Description:
   // Internal helper function for getting the active scalars. The scalar
-  // mode indicates where the scalars come from; the arrayAccessMode
-  // is used to indicate how to retrieve the scalars from field data (if
-  // the scalarMode indicates that). The component is used to indicate which
-  // component in the data array to use as the scalars.
+  // mode indicates where the scalars come from.  The cellFlag is a 
+  // return value that is set when the scalars actually are cell scalars.
+  // the arrayAccessMode is used to indicate how to retrieve the scalars from 
+  // field data (if the scalarMode indicates that). The component is used to 
+  // indicate which component in the data array to use as the scalars.
   static vtkDataArray *GetScalars(vtkDataSet *input, int scalarMode,
                                   int arrayAccessMode, int arrayId, 
-                                  const char *arrayName, int& component);
+                                  const char *arrayName, int& cellFlag);
   // Description:
   // Get the number of consumers
   vtkGetMacro(NumberOfConsumers,int);

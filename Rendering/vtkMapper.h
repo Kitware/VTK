@@ -71,6 +71,8 @@ class vtkWindow;
 class vtkRenderer;
 class vtkActor;
 class vtkDataSet;
+class vtkFloatArray;
+class vtkImageData;
 
 class VTK_RENDERING_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
@@ -132,6 +134,15 @@ public:
   // Description:
   // Return the method of coloring scalar data.
   const char *GetColorModeAsString();
+
+  // Description:
+  // By default, vertex color is used to map colors to a surface.
+  // Colors are interpolated after being mapped.
+  // This option avoids color interpolation by using a one dimensional
+  // texture map for the colors.
+  vtkSetMacro(InterpolateScalarsBeforeMapping,int);
+  vtkGetMacro(InterpolateScalarsBeforeMapping,int);
+  vtkBooleanMacro(InterpolateScalarsBeforeMapping,int);
 
   // Description:
   // Control whether the mapper sets the lookuptable range based on its
@@ -324,6 +335,14 @@ protected:
   ~vtkMapper();
 
   vtkUnsignedCharArray *Colors;
+
+  // Use texture coordinates for coloring.
+  int InterpolateScalarsBeforeMapping;
+  // Coordinate for each point.
+  vtkFloatArray *ColorCoordinates;
+  // 1D ColorMap used for the texture image.
+  vtkImageData* ColorTextureMap;
+  void MapScalarsToTexture(vtkDataArray* scalars);
 
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;

@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.31");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.32");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 
@@ -128,10 +128,10 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
 
 vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
                                             int scalarMode,
-                                                                                        int arrayAccessMode,
+                                            int arrayAccessMode,
                                             int arrayId, 
                                             const char *arrayName,
-                                            int& offset)
+                                            int& cellFlag)
 {
   vtkDataArray *scalars=NULL;
   vtkPointData *pd;
@@ -147,18 +147,22 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
   if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
     scalars = input->GetPointData()->GetScalars();
+    cellFlag = 0;
     if (!scalars)
       {
       scalars = input->GetCellData()->GetScalars();
+      cellFlag = 1;
       }
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
     scalars = input->GetPointData()->GetScalars();
+    cellFlag = 0;
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
     {
     scalars = input->GetCellData()->GetScalars();
+    cellFlag = 1;
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
     {
@@ -171,13 +175,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
       {
       scalars = pd->GetArray(arrayName);
       }
-    
-    if ( !scalars ||
-         !(offset < scalars->GetNumberOfComponents()) )
-      {
-      offset=0;
-      //vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
-      }
+    cellFlag = 0;
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {
@@ -190,13 +188,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
       {
       scalars = cd->GetArray(arrayName);
       }
-
-    if ( !scalars ||
-         !(offset < scalars->GetNumberOfComponents()) )
-      {
-      offset=0;
-      //vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
-      }
+    cellFlag = 1;
     }
   
   return scalars;

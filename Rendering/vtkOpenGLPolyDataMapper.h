@@ -34,6 +34,7 @@ class vtkPoints;
 class vtkProperty;
 class vtkRenderWindow;
 class vtkOpenGLRenderer;
+class vtkOpenGLTexture;
 
 class VTK_RENDERING_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -104,6 +105,8 @@ protected:
     
   vtkIdType TotalCells;
   int ListId;
+  vtkOpenGLTexture* InternalColorTexture;
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper&);  // Not implemented.

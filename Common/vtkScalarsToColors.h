@@ -109,6 +109,14 @@ public:
   void SetVectorModeToMagnitude();
   void SetVectorModeToComponent();
 
+//BTX
+  enum VectorModes {
+    MAGNITUDE=0,
+    COMPONENT=1
+  };
+//ETX
+
+
   // Description:
   // If the mapper does not select which component of a vector
   // to map to colors, you can specify it here.
@@ -156,13 +164,6 @@ protected:
   // I do not want to change the interface to the map scalars methods.
   int UseMagnitude;
   int VectorComponent;
-
-//BTX
-  enum VectorModes {
-    MAGNITUDE=0,
-    COMPONENT=1
-  };
-//ETX
 
 private:
   double RGB[3];

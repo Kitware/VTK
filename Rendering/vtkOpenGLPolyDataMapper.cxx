@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
@@ -30,6 +31,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLTexture.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
   #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
@@ -43,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.94");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.95");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -59,13 +61,15 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #define VTK_PDM_NORMAL_TYPE_DOUBLE 0x100
 #define VTK_PDM_TCOORD_TYPE_FLOAT  0x200
 #define VTK_PDM_TCOORD_TYPE_DOUBLE 0x400
-#define VTK_PDM_OPAQUE_COLORS      0x800
+#define VTK_PDM_TCOORD_1D          0x800
+#define VTK_PDM_OPAQUE_COLORS      0x1000
 
 // Construct empty object.
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->ListId = 0;
   this->TotalCells = 0;
+  this->InternalColorTexture = 0;
 }
 
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
@@ -74,7 +78,12 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   if (this->LastWindow)
     {
     this->ReleaseGraphicsResources(this->LastWindow);
-    }  
+    }
+  if (this->InternalColorTexture)
+    { // Resources released previously.
+    this->InternalColorTexture->Delete();
+    this->InternalColorTexture = 0;
+    }
 }
 
 // Release the graphics resources used by this mapper.  In this case, release
@@ -88,6 +97,11 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
     this->ListId = 0;
     }
   this->LastWindow = NULL; 
+  // We may not want to do this here.
+  if (this->InternalColorTexture)
+    {
+    this->InternalColorTexture->ReleaseGraphicsResources(win);
+    }
 }
 
 //
@@ -211,7 +225,28 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     
     actorMatrix->Delete();  
     }
-  
+
+  // For vertex coloring, this sets this->Colors as side effect.
+  // For texture map coloring, this sets ColorCoordinates
+  // and ColorTextureMap as a side effect.
+  // I moved this out of the conditional because it is fast.
+  // Color arrays are cached. If nothing has changed, 
+  // then the scalars do not have to be regenerted. 
+  this->MapScalars(act->GetProperty()->GetOpacity());
+  // If we are coloring by texture, then load the texture map.
+  if (this->ColorTextureMap)
+    {
+    if (this->InternalColorTexture == 0)
+      {
+      this->InternalColorTexture = vtkOpenGLTexture::New();
+      this->InternalColorTexture->RepeatOff();
+      }
+    this->InternalColorTexture->SetInput(this->ColorTextureMap);
+    // Keep color from interacting with texture.
+    float info[4];
+    info[0] = info[1] = info[2] = info[3] = 1.0;
+    glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, info );
+    }
 
   //
   // if something has changed regenerate colors and display lists
@@ -223,14 +258,18 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
        act->GetProperty()->GetMTime() > this->BuildTime ||
        ren->GetRenderWindow() != this->LastWindow)
     {
-    // sets this->Colors as side effect
-    this->MapScalars(act->GetProperty()->GetOpacity());
-
     if (!this->ImmediateModeRendering && 
         !this->GetGlobalImmediateModeRendering())
       {
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
       this->LastWindow = ren->GetRenderWindow();
+      
+      // If we are coloring by texture, then load the texture map.
+      // Use Map as indicator, because texture hangs around.
+      if (this->ColorTextureMap)
+        {
+        this->InternalColorTexture->Load(ren);
+        }
       
       // get a unique display list id
       this->ListId = glGenLists(1);
@@ -260,6 +299,13 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     if (!this->ImmediateModeRendering && 
         !this->GetGlobalImmediateModeRendering())
       {
+      // If we are coloring by texture, then load the texture map.
+      // Use Map as indicator, because texture hangs around.
+      if (this->ColorTextureMap)
+        {
+        this->InternalColorTexture->Load(ren);
+        }
+
       // Time the actual drawing
       this->Timer->StartTimer();
       glCallList(this->ListId);
@@ -272,7 +318,12 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   if (this->ImmediateModeRendering ||
       this->GetGlobalImmediateModeRendering())
     {
-    this->MapScalars(act->GetProperty()->GetOpacity());
+    // If we are coloring by texture, then load the texture map.
+    // Use Map as indicator, because texture hangs around.
+    if (this->ColorTextureMap)
+      {
+      this->InternalColorTexture->Load(ren);
+      }
     // Time the actual drawing
     this->Timer->StartTimer();
     this->Draw(ren,act);
@@ -874,6 +925,33 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
                         glVertex3fv(points + 3**ptIds);,;, 
                         float *normals = (float *)voidNormals;);
       break;
+    case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | VTK_PDM_NORMALS | 
+         VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawPolysMacro(float, float, float, rep, 
+                        glNormal3fv(normals + 3**ptIds);
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,;,
+                        float *normals = (float *)voidNormals;
+                        float *tcoords = (float *)voidTCoords;);
+      break;
+    case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | VTK_PDM_CELL_NORMALS | 
+         VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawPolysMacro(float, float, float, rep, 
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,
+                        glNormal3fv(normals); normals += 3;,
+                        float *tcoords = (float *)voidTCoords;
+                        float *normals = (float *)voidNormals;
+                        normals += cellNum*3;);
+      break;
+    case VTK_PDM_POINT_TYPE_FLOAT | 
+         VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawPolysMacro(float, float, float, rep, 
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,
+                        PolyNormal;,
+                        float *tcoords = (float *)voidTCoords;);
+      break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
         VTK_PDM_NORMALS | VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORDS:
       vtkDrawPolysMacro(float, float, float, rep, 
@@ -976,7 +1054,14 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
           }
         if (t)
           {
-          glTexCoord2dv(t->GetTuple(pts[j]));
+          if (idx & VTK_PDM_TCOORD_1D)
+            {
+            glTexCoord1dv(t->GetTuple(pts[j]));
+            }
+          else
+            {
+            glTexCoord2dv(t->GetTuple(pts[j]));
+            }
           }
         if (n)
           {
@@ -1114,6 +1199,15 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
                         glVertex3fv(points + 3**ptIds);,;, 
                         float *normals = (float *)voidNormals;);
       break;
+    case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | VTK_PDM_NORMALS |
+        VTK_PDM_TCOORD_1D | VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORDS:
+      vtkDrawPolysMacro(float, float, float, rep, 
+                        glNormal3fv(normals + 3**ptIds);
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,;, 
+                        float *normals = (float *)voidNormals;
+                        float *tcoords = (float *)voidTCoords;);
+      break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
         VTK_PDM_NORMALS | VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORDS:
       vtkDrawPolysMacro(float, float, float, rep, 
@@ -1149,7 +1243,14 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
           }
         if (t)
           {
-          glTexCoord2dv(t->GetTuple(ptIds[j]));
+          if (idx & VTK_PDM_TCOORD_1D)
+            {
+            glTexCoord1dv(t->GetTuple(ptIds[j]));
+            }
+          else
+            {
+            glTexCoord2dv(t->GetTuple(ptIds[j]));
+            }
           }
         if (n)
           {
@@ -1284,6 +1385,15 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
                              glVertex3fv(points + 3**ptIds);,;,
                              float *normals = (float *)voidNormals;);
       break;
+    case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | VTK_PDM_NORMALS | 
+      VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawStripLinesMacro(float, float, float, rep, 
+                             glNormal3fv(normals + 3**ptIds);
+                             glTexCoord1fv(tcoords + *ptIds);
+                             glVertex3fv(points + 3**ptIds);,;,
+                             float *normals = (float *)voidNormals;
+                             float *tcoords = (float *)voidTCoords;);
+      break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
         VTK_PDM_NORMALS | VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORDS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
@@ -1317,7 +1427,14 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
           }
         if (t)
           {
-          glTexCoord2dv(t->GetTuple(ptIds[j]));
+          if (idx & VTK_PDM_TCOORD_1D)
+            {
+            glTexCoord1dv(t->GetTuple(ptIds[j]));
+            }
+          else
+            {
+            glTexCoord2dv(t->GetTuple(ptIds[j]));
+            }
           }
         if (n)
           {
@@ -1464,17 +1581,6 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       }
     }
     
-  t = input->GetPointData()->GetTCoords();
-  if ( t ) 
-    {
-    tDim = t->GetNumberOfComponents();
-    if (tDim != 2)
-      {
-      vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
-      t = NULL;
-      }
-    }
-
   n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT)
     {
@@ -1536,10 +1642,6 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       idx |= VTK_PDM_OPAQUE_COLORS;
       }
     }
-  if (t)
-    {
-    idx |= VTK_PDM_TCOORDS;
-    }
   if (cellScalars)
     {
     idx |= VTK_PDM_CELL_COLORS;
@@ -1569,8 +1671,30 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       idx |= VTK_PDM_NORMAL_TYPE_DOUBLE;
       }
     }
+
+  // Texture and color by texture
+  t = input->GetPointData()->GetTCoords();
+  if ( t ) 
+    {
+    tDim = t->GetNumberOfComponents();
+    if (tDim > 2)
+      {
+      vtkDebugMacro(<< "Currently only 1d and 2d textures are supported.\n");
+      t = NULL;
+      }
+    }
+  // Set the texture if we are going to use texture
+  // for coloring with a point attribute.
+  // fixme ... make the existance of the coordinate array the signal.
+  if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates &&
+      ! (idx & VTK_PDM_CELL_COLORS))
+    {
+    t = this->ColorCoordinates;
+    }
+  // Set the flags
   if (t)
     {
+    idx |= VTK_PDM_TCOORDS;
     if (t->GetDataType() == VTK_FLOAT)
       {
       idx |= VTK_PDM_TCOORD_TYPE_FLOAT;
@@ -1579,6 +1703,11 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       {
       idx |= VTK_PDM_TCOORD_TYPE_DOUBLE;
       }
+    if (t->GetNumberOfComponents() == 1)
+      {
+      idx |= VTK_PDM_TCOORD_1D;
+      }
+    // Not 1D assumes 2D texture coordinates.
     }
     
   if ( this->GetResolveCoincidentTopology() )
