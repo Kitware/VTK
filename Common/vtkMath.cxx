@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.83");
+vtkCxxRevisionMacro(vtkMath, "1.84");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -220,6 +220,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 
     if (det == 0.0)
       {
+      vtkGenericWarningMacro(<<"Unable to solve linear system");
       return 0;
       }
 
@@ -234,6 +235,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
     {
     if (A[0][0] == 0.0)
       {
+      vtkGenericWarningMacro(<<"Unable to solve linear system");
       return 0;
       }
     
@@ -274,15 +276,20 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 
   // Check on allocation of working vectors
   //
-  if ( size < 10 ) 
+  if ( size <= 10 ) 
     {
     index = iScratch;
     column = dScratch;
-    } 
+    }
+  else
+    {
+    index = new int[size];
+    column = new double[size];
+    }
 
   int retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
 
-  if ( size >= 10 ) 
+  if ( size > 10 ) 
     {
     delete [] index;
     delete [] column;
@@ -320,6 +327,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 
     if ( largest == 0.0 )
       {
+      vtkGenericWarningMacro(<<"Unable to factor linear system");
       return 0;
       }
       scale[i] = 1.0 / largest;
@@ -376,6 +384,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 
     if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER )
       {
+      vtkGenericWarningMacro(<<"Unable to factor linear system");
       return 0;
       }
 
@@ -969,6 +978,93 @@ int vtkMath::SolveLinear( double c2, double c3, double *r1, int *num_roots )
   return *num_roots;
 }
 
+// Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
+// Uses the method described on pages 40-41 of Computer Vision by 
+// Forsyth and Ponce, which is that the solution is the eigenvector 
+// associated with the minimum eigenvalue of T(X)X, where T(X) is the
+// transpose of X.
+// The inputs and output are transposed matrices.
+//    Dimensions: X' is numberOfSamples by xOrder,
+//                M' dimension is xOrder by 1.
+// M' should be pre-allocated. All matrices are row major. The resultant
+// matrix M' should be pre-multiplied to X' to get 0', or transposed and
+// then post multiplied to X to get 0
+int vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
+                                double **mt)
+  {
+  // check dimensional consistency
+  if (numberOfSamples < xOrder)
+    {
+    vtkGenericWarningMacro("Insufficient number of samples. Underdetermined.");
+    return 0;
+    }
+
+  int i, j, k;
+
+  // set up intermediate variables
+  // Allocate matrix to hold X times transpose of X
+  double **XXt = new double *[xOrder];     // size x by x
+  // Allocate the array of eigenvalues and eigenvectors
+  double *eigenvals = new double [xOrder];
+  double **eigenvecs = new double *[xOrder];
+
+
+  // Clear the upper triangular region (and btw, allocate the eigenvecs as well)
+  for (i = 0; i < xOrder; i++)
+    {
+    eigenvecs[i] = new double[xOrder];
+    XXt[i] = new double[xOrder];
+    for (j = 0; j < xOrder; j++)
+      {
+      XXt[i][j] = 0.0;
+      }
+    }
+
+  // Calculate XXt upper half only, due to symmetry
+  for (k = 0; k < numberOfSamples; k++)
+    {
+    for (i = 0; i < xOrder; i++)
+      {
+      for (j = i; j < xOrder; j++)
+        {
+        XXt[i][j] += xt[k][i] * xt[k][j];
+        }
+      }
+    }
+
+  // now fill in the lower half of the XXt matrix
+  for (i = 0; i < xOrder; i++)
+    {
+    for (j = 0; j < i; j++)
+      {
+      XXt[i][j] = XXt[j][i];
+      }
+    }
+
+  // Compute the eigenvectors and eigenvalues
+  vtkMath::JacobiN(XXt, xOrder, eigenvals, eigenvecs);
+
+  // Smallest eigenval is at the end of the list (xOrder-1), and solution is
+  // corresponding eigenvec. 
+  for (i=0; i<xOrder; i++)
+    {
+    mt[i][0] = eigenvecs[i][xOrder-1];
+    }
+
+  // Clean up:
+  for (i=0; i<xOrder; i++)
+    {
+    delete [] XXt[i];
+    delete [] eigenvecs[i];
+    }
+  delete [] XXt;
+  delete [] eigenvecs;
+  delete [] eigenvals;
+  
+  return 1;
+  }
+#define VTK_SMALL_NUMBER 1.0e-12
+
 // Solves for the least squares best fit matrix for the equation X'M' = Y'.
 // Uses pseudoinverse to get the ordinary least squares. 
 // The inputs and output are transposed matrices.
@@ -978,8 +1074,11 @@ int vtkMath::SolveLinear( double c2, double c3, double *r1, int *num_roots )
 // M' should be pre-allocated. All matrices are row major. The resultant
 // matrix M' should be pre-multiplied to X' to get Y', or transposed and
 // then post multiplied to X to get Y
+// By default, this method checks for the homogeneous condition where Y==0, and
+// if so, invokes SolveHomogeneousLeastSquares. For better performance when
+// the system is known not to be homogeneous, invoke with checkHomogeneous=0.
 int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
-                               double **yt, int yOrder, double **mt)
+                               double **yt, int yOrder, double **mt, int checkHomogeneous)
 {
   // check dimensional consistency
   if ((numberOfSamples < xOrder) || (numberOfSamples < yOrder))
@@ -989,6 +1088,84 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
     }
 
   int i, j, k;
+
+  int someHomogeneous = 0;
+  int allHomogeneous = 1;
+  double **hmt;
+  int homogRC;
+  int *homogenFlags = new int[yOrder];
+
+  // Ok, first init some flags check and see if all the systems are homogeneous
+  if (checkHomogeneous)
+    {
+    // If Y' is zero, it's a homogeneous system and can't be solved via
+    // the pseudoinverse method. Detect this case, warn the user, and
+    // invoke SolveHomogeneousLeastSquares instead. Note that it doesn't
+    // really make much sense for yOrder to be greater than one in this case,
+    // since that's just yOrder occurrences of a 0 vector on the RHS, but
+    // we allow it anyway. N
+
+
+    // Initialize homogeneous flags on a per-right-hand-side basis
+    for (j=0; j<yOrder; j++)
+      {
+      homogenFlags[j] = 1;
+      }
+    for (i=0; i<numberOfSamples; i++)
+      {
+      for (j=0; j<yOrder; j++)
+        {
+        if (fabs(yt[i][j]) > VTK_SMALL_NUMBER)
+          {
+          allHomogeneous = 0;
+          homogenFlags[j] = 0;
+          }
+        }
+      }
+
+    // If we've got one system, and it's homogeneous, do it and bail out quickly.
+    if (allHomogeneous && yOrder == 1)
+      {
+      vtkGenericWarningMacro("Detected homogeneous system (Y=0), calling SolveHomogeneousLeastSquares()");
+      return vtkMath::SolveHomogeneousLeastSquares(numberOfSamples, xt, xOrder, mt);
+      }
+
+
+    // Ok, we've got more than one system of equations.
+    // Figure out if we need to calculate the homogeneous equation solution for 
+    // any of them.
+    if (allHomogeneous)
+      {
+      someHomogeneous = 1;
+      }
+    else
+      {
+      for (j=0; j<yOrder; j++)
+        {
+        if (homogenFlags[j])
+          {
+          someHomogeneous = 1;
+          }
+        }
+      }
+    }
+
+  // If necessary, solve the homogeneous problem
+  if (someHomogeneous)
+    {
+    // hmt is the homogeneous equation version of mt, the general solution.
+    hmt = new double *[xOrder];
+    for (j=0; j<xOrder; j++)
+      {
+      // Only allocate 1 here, not yOrder, because here we're going to solve
+      // just the one homogeneous equation subset of the entire problem
+      hmt[j] = new double [1]; 
+      }
+
+    // Ok, solve the homogeneous problem
+    homogRC = vtkMath::SolveHomogeneousLeastSquares(numberOfSamples, xt, xOrder, hmt);
+    }
+
 
   // set up intermediate variables
   double **XXt = new double *[xOrder];     // size x by x
@@ -1059,6 +1236,30 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
       }
     }
 
+  // Fix up any of the solutions that correspond to the homogeneous equation
+  // problem.
+  if (someHomogeneous)
+    {
+    for (j=0; j<yOrder; j++)
+      {
+      if (homogenFlags[j])
+        {
+        // Fix this one
+        for (i=0; i<xOrder; i++)
+          {
+          mt[i][j] = hmt[i][0];
+          }
+        }
+      }
+
+    // Clean up
+    for (i=0; i<xOrder; i++)
+      {
+      delete [] hmt[i];
+      }
+    delete [] hmt;
+    }
+
   // clean up:
   // set up intermediate variables
   for (i = 0; i < xOrder; i++)
@@ -1071,8 +1272,16 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   delete [] XXt;
   delete [] XXtI;
   delete [] XYt;
+  delete [] homogenFlags;
   
-  return 1;
+  if (someHomogeneous)
+    {
+    return homogRC;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 //=============================================================================
@@ -1122,7 +1331,6 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
 
 
 
-#define VTK_SMALL_NUMBER 1.0e-12
 
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is 
@@ -1154,6 +1362,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
 
     if ( largest == 0.0 )
       {
+      vtkGenericWarningMacro(<<"Unable to factor linear system");
       return 0;
       }
       tmpSize[i] = 1.0 / largest;
@@ -1210,6 +1419,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
 
     if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER )
       {
+      vtkGenericWarningMacro(<<"Unable to factor linear system");
       return 0;
       }
 

@@ -422,6 +422,21 @@ public:
   // r2 and num_roots.
   static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
 
+  // Description:
+  // Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
+  // Uses the method described on pages 40-41 of Computer Vision by 
+  // Forsyth and Ponce, which is that the solution is the eigenvector 
+  // associated with the minimum eigenvalue of T(X)X, where T(X) is the
+  // transpose of X.
+  // The inputs and output are transposed matrices.
+  //    Dimensions: X' is numberOfSamples by xOrder,
+  //                M' dimension is xOrder by yOrder.
+  // M' should be pre-allocated. All matrices are row major. The resultant
+  // matrix M' should be pre-multiplied to X' to get 0', or transposed and
+  // then post multiplied to X to get 0
+  static int SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
+                                double **mt);
+
 
   // Description:
   // Solves for the least squares best fit matrix for the equation X'M' = Y'.
@@ -433,8 +448,11 @@ public:
   // M' should be pre-allocated. All matrices are row major. The resultant
   // matrix M' should be pre-multiplied to X' to get Y', or transposed and
   // then post multiplied to X to get Y
+  // By default, this method checks for the homogeneous condition where Y==0, and
+  // if so, invokes SolveHomogeneousLeastSquares. For better performance when
+  // the system is known not to be homogeneous, invoke with checkHomogeneous=0.
   static int SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
-                               double **yt, int yOrder, double **mt);
+                               double **yt, int yOrder, double **mt, int checkHomogeneous=1);
 
   // Description:
   // Convert color in RGB format (Red, Green, Blue) to HSV format
