@@ -151,7 +151,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
       vtkWarningMacro(<< "Texture map's width and height must be a power of two in OpenGL\n");
       }
 
-    // format the data so that it can be sent to the gl
+    // format the data so that it can be sent to opengl
     // each row must be a multiple of 4 bytes in length
     // the best idea is to make your size a multiple of 4
     // so that this conversion will never be done.
@@ -180,6 +180,8 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
 	}
       }
 
+    // define a display list for this texture
+    glNewList ((GLuint) this->Index, GL_COMPILE);
     if (txt->GetInterpolate())
       {
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
@@ -213,6 +215,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
 		  xsize, ysize, 0, format, 
 		  GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
 
+    glEndList ();
     // modify the load time to the current time
     this->LoadTime.Modified();
     
@@ -222,6 +225,12 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
       delete [] resultData;
       }
     }
+
+  // execute the display list that uses creates the texture
+  glCallList ((GLuint) this->Index);
+
+  // if we're doing texture, assume blending must be on.
+  glEnable(GL_BLEND);
 
   // now bind it 
   glEnable(GL_TEXTURE_2D);
