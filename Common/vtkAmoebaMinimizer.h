@@ -134,14 +134,6 @@ public:
   // minimization code, but it is provided here as a public method.
   void EvaluateFunction();
 
-//BTX
-  // Description:
-  // Virtual constructor creates an object of the same type as this one.
-  // This method is commented out until someone makes a vtkAbstractMinimizer
-  // base class for the vtkAmoebaMinimizer.
-  // virtual vtkMinimizer *MakeObject() { return vtkAmoebaMinimizer::New(); };
-//ETX
-
 protected:
   vtkAmoebaMinimizer();
   ~vtkAmoebaMinimizer();
