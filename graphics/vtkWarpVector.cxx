@@ -188,5 +188,6 @@ void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

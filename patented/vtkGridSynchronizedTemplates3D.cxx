@@ -1111,6 +1111,7 @@ void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 }
 
 //----------------------------------------------------------------------------

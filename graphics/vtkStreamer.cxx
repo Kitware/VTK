@@ -619,6 +619,7 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Speed Scalars: " << (this->SpeedScalars ? "On\n" : "Off\n");
 
+  os << indent << "Number Of Streamers: " << this->NumberOfStreamers << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 }
 

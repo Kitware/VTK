@@ -871,6 +871,10 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Header: (None)\n";
     }
+  
+  os << indent << "Output String Length: " << this->OutputStringLength << "\n";
+  os << indent << "Output String (addr): " << ((void *)this->OutputString) << "\n";
+  os << indent << "WriteToOutputString: " << (this->WriteToOutputString ? "On\n" : "Off\n");
 
   if ( this->ScalarsName )
     {

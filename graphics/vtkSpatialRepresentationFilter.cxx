@@ -205,7 +205,7 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
 
 void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Level: " << this->Level << "\n";
 

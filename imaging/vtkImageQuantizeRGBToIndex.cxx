@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -686,6 +685,9 @@ void vtkImageQuantizeRGBToIndex::InterceptCacheUpdate()
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
+
+  // Input Type is internal so we dont prit it
+  //os << indent << "InputType: " << this->InputType << endl;
 
   os << indent << "Number Of Colors: " << this->NumberOfColors << endl;
   os << indent << "Lookup Table: " << endl << *this->LookupTable;

@@ -389,7 +389,7 @@ vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 //----------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  vtkDataObjectSource::PrintSelf(os,indent);
 
   os << indent << "Geometry: " << (this->Geometry ? "On\n" : "Off\n");
   os << indent << "Topology: " << (this->Topology ? "On\n" : "Off\n");
