@@ -20,8 +20,8 @@
 
 #cmakedefine VTK_OPENGL_HAS_OSMESA
 
-#cmakedefine VTK_MANGLE_MESA 
-#ifdef VTK_MANGLE_MESA
+#cmakedefine VTK_USE_MANGLED_MESA 
+#ifdef VTK_USE_MANGLED_MESA
  #ifndef _WIN32
    #define VTK_USE_OGLR 
  #endif

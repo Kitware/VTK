@@ -5,14 +5,14 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
 
-    IF (VTK_MANGLE_MESA)
+    IF (VTK_USE_MANGLED_MESA)
       ADD_TEST(MesaCone-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
         -D ${VTK_DATA_ROOT}
         -V Baseline/Graphics/MesaCone.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDIF (VTK_MANGLE_MESA)
+    ENDIF (VTK_USE_MANGLED_MESA)
 
     FOREACH ( tfile
       blankGrid
@@ -172,12 +172,12 @@ IF (VTK_USE_RENDERING)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
-    IF (VTK_MANGLE_MESA)
+    IF (VTK_USE_MANGLED_MESA)
       ADD_TEST(MesaCone ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDIF (VTK_MANGLE_MESA)
+    ENDIF (VTK_USE_MANGLED_MESA)
 
     FOREACH ( tfile
       capSphere

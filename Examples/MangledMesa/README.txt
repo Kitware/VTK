@@ -11,29 +11,27 @@ Here is how to compile VTK with mangled Mesa:
    It also important that you name the Mesa library differently. I
    prefer to name it MesaGL.
 
-2) When configuring VTK, set the following entries in your CMakeCache.txt:
+2) When the VTK build configuring with CMake, set the following options:
 
 //Use mangled Mesa with OpenGL
-VTK_MANGLE_MESA:BOOL=ON
+VTK_USE_MANGLED_MESA:BOOL=ON
+
+//What is the path where the file GL/gl_mangle.h can be found
+MANGLED_MESA_INCLUDE_DIR:PATH=/home/berk/mesa/include
 
 //Where can the MesaGL library be found
-MESA_LIBRARY:FILEPATH=/home/berk/mesa/lib/libMesaGL.a
+MANGLED_MESA_LIBRARY:FILEPATH=/home/berk/mesa/lib/libMGL.a
 
-//Where can the MesaOS library be found
-MESA_OS_LIBRARY:FILEPATH=/home/berk/mesa/lib/libMesaOS.a
-
-//What is the path where the file gl_mangle.h can be found
-MESA_MANGLE_PATH:PATH=/home/berk/mesa/include/GL
-
-
+//Where can the OSMesa library be found
+MANGLED_OSMESA_LIBRARY:FILEPATH=/home/berk/mesalib/libOSMesa.a
 
 Note that the Mesa library is named differently than the OpenGL library
 (which is usually something like libGL.a). MesaOS is the offscreen
 library which exists on some Mesa distributions, it might not be
 needed (in which case, you should leave it as NOTFOUND). 
 
-Note:  The MESA_* variables will not be in the cache until 
-VTK_MANGLE_MESA has been turned on, and cmake has been run again.
+Note:  The MANGLED_* variables will not be in the cache until 
+VTK_USED_MANGLE_MESA has been turned on, and cmake has been run again.
 
 
 3) Compile VTK.

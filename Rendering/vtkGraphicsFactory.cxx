@@ -58,7 +58,7 @@
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
 #include "vtkMesaActor.h"
 #include "vtkMesaCamera.h"
 #include "vtkMesaImageActor.h"
@@ -76,7 +76,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.30");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.31");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -146,7 +146,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkXMesaRenderWindow::New();
@@ -201,7 +201,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaActor::New();
@@ -211,7 +211,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkCamera") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaCamera::New();
@@ -221,7 +221,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkImageActor") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaImageActor::New();
@@ -231,7 +231,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaLight::New();
@@ -241,7 +241,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkProperty") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaProperty::New();
@@ -251,7 +251,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaPolyDataMapper::New();
@@ -261,7 +261,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaRenderer::New();
@@ -271,7 +271,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkTexture") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaTexture::New();
@@ -281,7 +281,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaVolumeTextureMapper2D::New();
@@ -291,7 +291,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
         return vtkMesaVolumeRayCastMapper::New();

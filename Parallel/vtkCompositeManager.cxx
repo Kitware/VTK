@@ -37,15 +37,13 @@
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
-#elif defined(VTK_USE_MESA)
-#include "vtkMesaRenderWindow.h"
 #endif
 
 #ifdef VTK_USE_MPI
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.43");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.44");
 vtkStandardNewMacro(vtkCompositeManager);
 
 

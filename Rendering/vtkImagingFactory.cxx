@@ -27,7 +27,7 @@
 #include "vtkOpenGLFreeTypeTextMapper.h"
 #endif
 
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
 #include "vtkMesaImageMapper.h"
 #include "vtkMesaPolyDataMapper2D.h"
 #include "vtkMesaFreeTypeTextMapper.h"
@@ -62,7 +62,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkImagingFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.28");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.29");
 vtkStandardNewMacro(vtkImagingFactory);
 
 const char *vtkImagingFactoryGetRenderLibrary()
@@ -133,7 +133,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkImagingFactory::UseMesaClasses )
         {
         return vtkMesaFreeTypeTextMapper::New();
@@ -143,7 +143,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkImagingFactory::UseMesaClasses )
         {
         return vtkMesaImageMapper::New();
@@ -153,7 +153,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
       {
-#if defined(VTK_MANGLE_MESA)
+#if defined(VTK_USE_MANGLED_MESA)
       if ( vtkImagingFactory::UseMesaClasses )
         {
         return vtkMesaPolyDataMapper2D::New();

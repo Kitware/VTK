@@ -101,17 +101,16 @@ IF (VTK_USE_PARALLEL)
     ENDIF(BUILD_TESTING)
 ENDIF (VTK_USE_PARALLEL)
 
-OPTION (VTK_MANGLE_MESA "Use mangled Mesa with OpenGL" OFF)
-MARK_AS_ADVANCED(VTK_MANGLE_MESA)
-IF (VTK_MANGLE_MESA)
-  FIND_PATH(MESA_MANGLE_PATH gl_mangle.h )
-  FIND_LIBRARY(MESA_LIBRARY MesaGL
-     /usr/local/lib 
-  )
-  IF(MESA_MANGLE_PATH)
-    USE_MANGLED_MESA(${MESA_MANGLE_PATH} ${VTK_BINARY_DIR}/MangleMesaInclude)
-  ENDIF(MESA_MANGLE_PATH)
-ENDIF(VTK_MANGLE_MESA)
+OPTION (VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL" OFF)
+MARK_AS_ADVANCED(VTK_USE_MANGLED_MESA)
+IF (VTK_USE_MANGLED_MESA)
+  FIND_PATH(MANGLED_MESA_INCLUDE_DIR GL/gl_mangle.h )
+  FIND_LIBRARY(MANGLED_MESA_LIBRARY MesaGL)
+  IF(MANGLED_MESA_INCLUDE_DIR)
+    USE_MANGLED_MESA(${MANGLED_MESA_INCLUDE_DIR}/GL
+                     ${VTK_BINARY_DIR}/MangleMesaInclude)
+  ENDIF(MANGLED_MESA_INCLUDE_DIR)
+ENDIF(VTK_USE_MANGLED_MESA)
 
 OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
 IF (VTK_WRAP_TCL)
@@ -254,12 +253,14 @@ IF (VTK_USE_RENDERING)
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
   IF(UNIX)
-    OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." OFF)
+    OPTION(VTK_OPENGL_HAS_OSMESA 
+           "The opengl library being used supports off screen Mesa calls." 
+           OFF)
     MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA)
   ENDIF(UNIX)
 
-  IF (VTK_OPENGL_HAS_OSMESA OR VTK_MANGLE_MESA)
-    FIND_PATH(OSMESA_INCLUDE_PATH GL/osmesa.h 
+  IF (VTK_OPENGL_HAS_OSMESA)
+    FIND_PATH(OSMESA_INCLUDE_DIR GL/osmesa.h 
       /usr/include 
       /usr/local/include 
       /usr/openwin/share/include 
@@ -267,14 +268,18 @@ IF (VTK_USE_RENDERING)
       /usr/X11R6/include 
     )
 
-    FIND_LIBRARY(MESA_OS_LIBRARY OSMesa
+    FIND_LIBRARY(OSMESA_LIBRARY OSMesa
       /usr/lib 
       /usr/local/lib 
       /opt/graphics/OpenGL/lib 
       /usr/openwin/lib 
       /usr/X11R6/lib
     )
-  ENDIF (VTK_OPENGL_HAS_OSMESA OR VTK_MANGLE_MESA)
+  ENDIF (VTK_OPENGL_HAS_OSMESA)
+
+  IF (VTK_USE_MANGLED_MESA)
+    FIND_LIBRARY(MANGLED_OSMESA_LIBRARY OSMesa)
+  ENDIF (VTK_USE_MANGLED_MESA)
 
   SUBDIRS(Rendering)
   INSTALL_FILES(/include/vtk .h vtkRenderingInstantiator)
