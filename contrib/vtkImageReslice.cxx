@@ -2178,7 +2178,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
     } 
 
   int trunc, inId0, inId1, inExtK, outExtJ, doInterp;
-  float point,f,r;
+  float point,f;
   
   // set up input traversal table for linear interpolation  
   for (j = 0; j < 3; j++)
@@ -2573,8 +2573,6 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
       for (idX = r1; idX <= r2; idX++)
 	{
 	int idX0 = idX*4;
-	int lx = low[0][idX];
-	int hx = high[0][idX];
 	float fX[4];
 	int iX[4];
 
