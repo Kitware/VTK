@@ -82,7 +82,8 @@ class FTGL_EXPORT FTFont
      * @return      <code>true</code> if size was set correctly
      */
     bool FaceSize( const unsigned int size, const unsigned int res = 72);
-                FTSize& GetSize() { return this->charSize; };
+
+    FTSize& GetSize() { return this->charSize; };
     
     /**
      * Set the extrusion distance for the font. Only availbale for
