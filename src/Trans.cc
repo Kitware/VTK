@@ -250,9 +250,9 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
     }
 
   w = cosAngle;
-  x = quat[1];
-  y = quat[2];
-  z = quat[3];
+  x = quat[1] * sinAngle;
+  y = quat[2] * sinAngle;
+  z = quat[3] * sinAngle;
 
   // matrix calculation is taken from Ken Shoemake's
   // "Animation Rotation with Quaternion Curves",
