@@ -135,7 +135,7 @@ void vtkImageIterateFilter::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // Some filters (decomposes, anisotropic difusion ...) have execute 
 // called multiple times per update.
-void vtkImageIterateFilter::ExecuteData(vtkDataObject *out)
+void vtkImageIterateFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
 {
   int idx;
   vtkImageData *inData, *outData;

@@ -140,7 +140,7 @@ void vtkWindowToImageFilter::ExecuteInformation()
 //----------------------------------------------------------------------------
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkWindowToImageFilter::ExecuteData(vtkDataObject *data)
+void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
 {
   vtkImageData *out = this->GetOutput();
   out->SetExtent(out->GetUpdateExtent());

@@ -65,7 +65,6 @@ int main( int argc, char *argv[] )
   // first get the form data
   env = getenv("CONTENT_LENGTH");
   if (!env) return -1;
-  int inputLength = atoi(env);
   cin >> arg1;
   
   isoval = atof(getCGIValue((char *) "isoval=",arg1));
