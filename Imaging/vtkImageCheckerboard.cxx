@@ -77,7 +77,6 @@ static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int minWholeX, minWholeY, minWholeZ;
   int dimWholeX, dimWholeY, dimWholeZ;
   int divX, divY, divZ;
   int nComp;
@@ -100,9 +99,6 @@ static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   
   outData->GetWholeExtent(wholeExt);
   
-  minWholeX = wholeExt[0];
-  minWholeY = wholeExt[2];
-  minWholeZ = wholeExt[4];
   dimWholeX = wholeExt[1] - wholeExt[0] + 1;
   dimWholeY = wholeExt[3] - wholeExt[2] + 1;
   dimWholeZ = wholeExt[5] - wholeExt[4] + 1;
