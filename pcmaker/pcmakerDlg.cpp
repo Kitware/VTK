@@ -114,58 +114,58 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 }
 
 extern void makeMakefile(const char *vtkHome, 
-                         const char *vtkBuild, int useMS,
-						 int useGraphics, int useImaging, int useContrib);
+			 const char *vtkBuild, int useMS, int useGeneric,
+			 int useGraphics, int useImaging, int useContrib);
 
 void CPcmakerDlg::OnOK() 
 {
-	FILE *fp;
-	char fname[128];
+  FILE *fp;
+  char fname[128];
   char msg[256];
   struct _stat statBuff;
 
-	// TODO: Add extra validation here
-	CWnd::UpdateData();
-
-	// make sure we can find vtk
+  // TODO: Add extra validation here
+  CWnd::UpdateData();
+  
+  // make sure we can find vtk
   sprintf(fname,"%s\\targets.c",this->m_WhereVTK);
   fp = fopen(fname,"r");
-	if (!fp)
-	{
-		sprintf(msg, "Unable to find vtk at: %s",this->m_WhereVTK);
-		AfxMessageBox(msg);
-        return;
-	}
+  if (!fp)
+    {
+    sprintf(msg, "Unable to find vtk at: %s",this->m_WhereVTK);
+    AfxMessageBox(msg);
+    return;
+    }
   fclose(fp);
-
-    // make sure only one compile is specified
-	if (this->m_MSComp && this->m_BorlandComp)
-	{
-		AfxMessageBox("Please specify only one compiler.");
-		return;
-	}
-	if (!this->m_MSComp && !this->m_BorlandComp)
-	{
-		AfxMessageBox("Please specify a compiler.");
-		return;
-	}
-
+  
+  // make sure only one compile is specified
+  if (this->m_MSComp && this->m_BorlandComp)
+    {
+    AfxMessageBox("Please specify only one compiler.");
+    return;
+    }
+  if (!this->m_MSComp && !this->m_BorlandComp)
+    {
+    AfxMessageBox("Please specify a compiler.");
+    return;
+    }
+  
   // make sure we can get to build directory
   //does it already exists?
   if (_stat(this->m_WhereBuild,&statBuff) == -1)
-  {
+    {
     // it didn't exist should we create it
     sprintf(msg,"The build directory %s does not exist. Would you like me to create it ?",
             this->m_WhereBuild);
     if (AfxMessageBox(msg,MB_YESNO) == IDNO) return;
     if (_mkdir(this->m_WhereBuild) == -1)
-    {
+      {
       sprintf(msg,"There was an error trying to create the directory %s.",this->m_WhereBuild);
       AfxMessageBox(msg);
       return;
+      }
     }
-  }
-
+  
   // make the subdirectories if they don't exist
   sprintf(fname,"%s\\vtkdll",this->m_WhereBuild);
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
@@ -175,7 +175,8 @@ void CPcmakerDlg::OnOK()
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
   
   makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_MSComp,
-	           this->m_Graphics, this->m_Imaging, this->m_Contrib);
+	       this->m_GenericComp,
+	       this->m_Graphics, this->m_Imaging, this->m_Contrib);
 
   CDialog::OnOK();
 }
