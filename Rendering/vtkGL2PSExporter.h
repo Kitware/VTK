@@ -73,8 +73,8 @@
 //
 // $ gcc -g -O2 -c gl2ps.c; ar crvu libgl2ps.a gl2ps.o; ranlib libgl2ps.a
 //
-// If you are generating a DLL for Windows add a -DGL2PSDLL option at
-// compile time.
+// If you are generating a DLL for Windows add a GL2PSDLL and a
+// GL2PSDLL_EXPORTS preprocessor define at compile time.
 
 // .SECTION Caveats
 // By default (with Write3DPropsAsRasterImage set to Off) exporting
