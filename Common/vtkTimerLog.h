@@ -105,20 +105,20 @@ public:
   // Description:
   // Record a timing event.  The event is represented by a formatted
   // string.
-  static void FormatAndMarkEvent(char *EventString, ...);
+  static void FormatAndMarkEvent(const char *EventString, ...);
 //ETX
   
   // Description:
   // Write the timing table out to a file.  Calculate some helpful
   // statistics (deltas and  percentages) in the process.
-  static void DumpLog(char *filename);
+  static void DumpLog(const char *filename);
 
   // Description:
   // I want to time events, so I am creating this interface to
   // mark events that have a start and an end.  These events can be,
   // nested. The standard Dumplog ignores the indents.
-  static void MarkStartEvent(char *EventString);
-  static void MarkEndEvent(char *EventString);
+  static void MarkStartEvent(const char *EventString);
+  static void MarkEndEvent(const char *EventString);
 //BTX
   static void DumpLogWithIndents(ostream *os, float threshold);
 //ETX
@@ -132,7 +132,7 @@ public:
 
   // Description:
   // Record a timing event and capture wall time and cpu ticks.
-  static void MarkEvent(char *EventString);
+  static void MarkEvent(const char *EventString);
 
   // Description:
   // Clear the timing table.  walltime and cputime will also be set
@@ -202,7 +202,7 @@ protected:
 
   //BTX
   static void DumpEntry(ostream& os, int index, float time, float deltatime,
-                        int tick, int deltatick, char *event);
+                        int tick, int deltatick, const char *event);
   //ETX
 
 private:

@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.31");
+vtkCxxRevisionMacro(vtkTimerLog, "1.32");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -102,7 +102,7 @@ void vtkTimerLog::ResetLog()
 //----------------------------------------------------------------------------
 // Record a timing event.  The event is represented by a formatted
 // string.
-void vtkTimerLog::FormatAndMarkEvent(char *format, ...)
+void vtkTimerLog::FormatAndMarkEvent(const char *format, ...)
 {
   if (! vtkTimerLog::Logging)
     {
@@ -121,7 +121,7 @@ void vtkTimerLog::FormatAndMarkEvent(char *format, ...)
 
 //----------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
-void vtkTimerLog::MarkEvent(char *event)
+void vtkTimerLog::MarkEvent(const char *event)
 {
   if (! vtkTimerLog::Logging)
     {
@@ -219,7 +219,7 @@ void vtkTimerLog::MarkEvent(char *event)
 //----------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
 // Increments indent after mark.
-void vtkTimerLog::MarkStartEvent(char *event)
+void vtkTimerLog::MarkStartEvent(const char *event)
 {
   if (! vtkTimerLog::Logging)
     { // Maybe we should still change the Indent ...
@@ -233,7 +233,7 @@ void vtkTimerLog::MarkStartEvent(char *event)
 //----------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
 // Decrements indent after mark.
-void vtkTimerLog::MarkEndEvent(char *event)
+void vtkTimerLog::MarkEndEvent(const char *event)
 {
   if (! vtkTimerLog::Logging)
     { // Maybe we should still change the Indent ...
@@ -395,7 +395,7 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, float threshold)
 //----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
 // statistics (deltas and  percentages) in the process.
-void vtkTimerLog::DumpLog(char *filename)
+void vtkTimerLog::DumpLog(const char *filename)
 {
 #ifndef _WIN32_WCE
   ofstream os(filename);
@@ -567,7 +567,7 @@ double vtkTimerLog::GetElapsedTime()
 //----------------------------------------------------------------------------
 void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
                             float deltatime,
-                            int tick, int deltatick, char *event)
+                            int tick, int deltatick, const char *event)
 {
   os << index << "   "
      << ttime << "  "
