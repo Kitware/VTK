@@ -178,7 +178,18 @@ public:
 				     vtkNormals *inNms, 
 				     vtkNormals *outNms,
 				     vtkVectors *inVrs, 
-				     vtkVectors *outVrs);
+				     vtkVectors *outVrs)
+    {
+      this->TransformPointsNormalsVectors(inPts, outPts,
+					  inNms->GetData(), outNms->GetData(),
+					  inVrs->GetData(), outVrs->GetData());
+    }
+  void TransformPointsNormalsVectors(vtkPoints *inPts, 
+				     vtkPoints *outPts, 
+				     vtkDataArray *inNms, 
+				     vtkDataArray *outNms,
+				     vtkDataArray *inVrs, 
+				     vtkDataArray *outVrs);
 
   // Description:
   // Just like GetInverse, but it includes a typecast to 
