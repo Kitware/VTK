@@ -24,8 +24,6 @@ ENDIF(VTK_USE_MPI)
 # Some setting for the remote testing
 SET(VTK_MPI_CLIENT_POSTFLAGS_CONFIG ${VTK_MPI_CLIENT_POSTFLAGS})
 SET(VTK_MPI_SERVER_POSTFLAGS_CONFIG ${VTK_MPI_SERVER_POSTFLAGS})
-SET(PV_SSH_FLAGS_CONFIG ${PV_SSH_FLAGS})
-SET(PV_SETUP_SCRIPT_CONFIG ${PV_SETUP_SCRIPT})
 
 #-----------------------------------------------------------------------------
 # Settings specific to the build tree.
