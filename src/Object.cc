@@ -40,15 +40,15 @@ vlObject::~vlObject()
   vlDebugMacro(<< "Destructing!");
 }
 
-void vlObject::Register(void *p)
+void vlObject::Register(vlObject* o)
 {
   this->RefCount++;
-  vlDebugMacro(<< "Registered by " << (void *)p);
+  vlDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o << ")");
 }
 
-void vlObject::UnRegister(void *p)
+void vlObject::UnRegister(vlObject* o)
 {
-  vlDebugMacro(<< "UnRegistered by " << (void *)p);
+  vlDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << 0 << ")");
 
   if (--this->RefCount <= 0) delete this;
 }

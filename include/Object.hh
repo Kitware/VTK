@@ -41,8 +41,8 @@ class vlObject
 public:
   vlObject();
   virtual ~vlObject();
-  void Register(void* p);
-  void UnRegister(void* p);
+  void Register(vlObject* o);
+  void UnRegister(vlObject* o);
   int  GetRefCount() {return this->RefCount;};
   void DebugOn();
   void DebugOff();
