@@ -2063,7 +2063,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	    outPtr += numscalars;
 	    }
 	  }
-	else if (inPoint[3] != 1.0f || xAxis[3] != 0.0f)
+	else if (inPoint1[3] != 1.0f || xAxis[3] != 0.0f)
 	  {  // Nearest-Neighbor, no extent checks, perspective
 	  T *inPtr1;
 
