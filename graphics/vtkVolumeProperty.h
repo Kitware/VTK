@@ -23,10 +23,12 @@
 #define	VTK_NEAREST_INTERPOLATION	0
 #define	VTK_LINEAR_INTERPOLATION	1
 
+/****
 // Constants for ShadeType
 #define	VTK_NO_SHADE			0
 #define	VTK_FAST_SHADE			1 // Fastest shading algorithm avail.
 #define	VTK_BEST_SHADE			2 // Best shading algorithm available
+*****/
 
 class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
@@ -91,17 +93,10 @@ public:
   vtkGetMacro(OpacityTransferFunctionMTime, vtkTimeStamp);
 
   // Description:
-  // Set the shade type of a volume.
-  vtkSetClampMacro( ShadeType, int,
-	VTK_NO_SHADE, VTK_BEST_SHADE);
-  vtkGetMacro(ShadeType,int);
-  void SetShadeTypeToNone() 
-	{this->SetShadeType(VTK_NO_SHADE);};
-  void SetShadeTypeToFast() 
-	{this->SetShadeType(VTK_FAST_SHADE);};
-  void SetShadeTypeToBest() 
-	{this->SetShadeType(VTK_BEST_SHADE);};
-  char *GetShadeTypeAsString(void);
+  // Set/Get the shading of a volume.
+  vtkSetMacro(Shade,int);
+  vtkGetMacro(Shade,int);
+  vtkBooleanMacro(Shade,int);
 
   // Description:
   // Set/Get the ambient lighting coefficient.
@@ -138,7 +133,7 @@ protected:
   vtkPiecewiseFunction		*OpacityTransferFunction;
   vtkTimeStamp			OpacityTransferFunctionMTime;
 
-  int				ShadeType;
+  int				Shade;
   float				Ambient;
   float 			Diffuse;
   float				Specular;
@@ -156,26 +151,6 @@ inline char *vtkVolumeProperty::GetInterpolationTypeAsString(void)
   else if( this->InterpolationType == VTK_LINEAR_INTERPOLATION )
     {
     return "Linear";
-    }
-  else
-    return "Unknown";
-}
-
-// Description:
-// Return the shade type as a descriptive character string.
-inline char *vtkVolumeProperty::GetShadeTypeAsString(void)
-{
-  if( this->ShadeType == VTK_NO_SHADE )
-    {
-    return "No Shade";
-    }
-  else if( this->ShadeType == VTK_FAST_SHADE )
-    {
-    return "Fast Shade";
-    }
-  else if( this->ShadeType == VTK_BEST_SHADE )
-    {
-    return "Best Shade";
     }
   else
     return "Unknown";

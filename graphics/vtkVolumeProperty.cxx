@@ -13,7 +13,7 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->RGBTransferFunction		= NULL;
   this->OpacityTransferFunction		= NULL;
 
-  this->ShadeType			= VTK_NO_SHADE;
+  this->Shade				= 0;  // False
   this->Ambient				= 0.1;
   this->Diffuse				= 0.7;
   this->Specular			= 0.2;
@@ -31,32 +31,41 @@ vtkVolumeProperty::~vtkVolumeProperty()
 // Set the color of a volume to a gray transfer function
 void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 {
-  this->GrayTransferFunction	= function;
-  this->ColorChannels		= 1;
+  if( this->GrayTransferFunction != function )
+    {
+    this->GrayTransferFunction	= function;
+    this->ColorChannels		= 1;
 
-  this->GrayTransferFunctionMTime.Modified();
-  this->Modified();
+    this->GrayTransferFunctionMTime.Modified();
+    this->Modified();
+    }
 }
 
 // Description:
 // Set the color of a volume to an RGB transfer function
 void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 {
-  this->RGBTransferFunction	= function;
-  this->ColorChannels		= 3;
+  if( this->RGBTransferFunction != function )
+    {
+    this->RGBTransferFunction	= function;
+    this->ColorChannels		= 3;
 
-  this->RGBTransferFunctionMTime.Modified();
-  this->Modified();
+    this->RGBTransferFunctionMTime.Modified();
+    this->Modified();
+    }
 }
 
 // Description:
 // Set the opacity of a volume to a transfer function
 void vtkVolumeProperty::SetOpacity( vtkPiecewiseFunction *function )
 {
-  this->OpacityTransferFunction	= function;
+  if( this->OpacityTransferFunction != function )
+    {
+    this->OpacityTransferFunction	= function;
 
-  this->OpacityTransferFunctionMTime.Modified();
-  this->Modified();
+    this->OpacityTransferFunctionMTime.Modified();
+    this->Modified();
+    }
 }
 
 // Description:
@@ -74,29 +83,24 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << indent << "Gray Color Transfer Function: " \
 	 << this->GrayTransferFunction << "\n";
-      os << indent << "Gray Color Transfer Function MTime: " \
-         << this->GrayTransferFunctionMTime << "\n";
     }
   else if( this->ColorChannels == 3 )
     {
       os << indent << "RGB Color Transfer Function: " \
 	 << this->RGBTransferFunction << "\n";
-      os << indent << "RGB Color Transfer Function MTime: " \
-         << this->RGBTransferFunctionMTime << "\n";
     }
 
   os << indent << "Opacity Transfer Function: " \
      << this->OpacityTransferFunction << "\n";
 
-  os << indent << "Opacity Transfer Function MTime: " \
-     << this->OpacityTransferFunctionMTime << "\n";
+  os << indent << "Shade: " << this->Shade << "\n";
 
-  os << indent << "Shade Type: "
-     << this->GetShadeTypeAsString() << "\n";
-
-  os << indent << indent << "Ambient: " << this->Ambient << "\n";
-  os << indent << indent << "Diffuse: " << this->Diffuse << "\n";
-  os << indent << indent << "Specular: " << this->Specular << "\n";
-  os << indent << indent << "SpecularPower: " << this->SpecularPower << "\n";
+  if( this->Shade )
+    {
+    os << indent << indent << "Ambient: " << this->Ambient << "\n";
+    os << indent << indent << "Diffuse: " << this->Diffuse << "\n";
+    os << indent << indent << "Specular: " << this->Specular << "\n";
+    os << indent << indent << "SpecularPower: " << this->SpecularPower << "\n";
+    }
 }
 
