@@ -36,7 +36,7 @@ class vtkDoubleArray;
 class VTK_IO_EXPORT vtkGAMBITReader : public vtkUnstructuredGridSource
 {
 public:
-  static  vtkGAMBITReader *New();
+  static vtkGAMBITReader *New();
   vtkTypeRevisionMacro(vtkGAMBITReader,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -27,17 +27,19 @@
 #include "vtkIntArray.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkGAMBITReader, "1.2");
+vtkCxxRevisionMacro(vtkGAMBITReader, "1.3");
 vtkStandardNewMacro(vtkGAMBITReader);
 
+//----------------------------------------------------------------------------
 vtkGAMBITReader::vtkGAMBITReader()
 {
-  this->FileName  = NULL;
+  this->FileName = NULL;
   this->NumberOfNodeFields = 0;
   this->NumberOfCellFields = 0;
   this->FileStream = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkGAMBITReader::~vtkGAMBITReader()
 {
   if (this->FileName)
@@ -46,6 +48,7 @@ vtkGAMBITReader::~vtkGAMBITReader()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::Execute()
 {
   vtkDebugMacro( << "Reading GAMBIT Neutral file");
@@ -62,6 +65,7 @@ void vtkGAMBITReader::Execute()
   return;
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -78,7 +82,7 @@ void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
      << this->NumberOfCellFields << endl;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadFile()
 {
   this->ReadGeometry();
@@ -100,16 +104,19 @@ void vtkGAMBITReader::ReadFile()
   this->FileStream = NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadNodeData()
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadCellData()
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ExecuteInformation()
 {
   if ( !this->FileName )
@@ -166,6 +173,7 @@ void vtkGAMBITReader::ExecuteInformation()
   << "\nNumberOfVelocityComponents " << this->NumberOfVelocityComponents);
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadGeometry()
 {
   vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
@@ -173,7 +181,7 @@ void vtkGAMBITReader::ReadGeometry()
   vtkDoubleArray *coords = vtkDoubleArray::New();
   coords->SetNumberOfComponents(3);
   // allocate one more pt and store node id=0
-  coords->SetNumberOfTuples(this->NumberOfNodes+1);
+  coords->SetNumberOfTuples(this->NumberOfNodes);
 
   this->ReadXYZCoords(coords);
   this->ReadCellConnectivity();
@@ -193,6 +201,7 @@ void vtkGAMBITReader::ReadGeometry()
   points->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadBoundaryConditionSets()
 {
   int bcs, f, itype, nentry, nvalues;
@@ -206,7 +215,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets()
 
   vtkIntArray *bcscalar = vtkIntArray::New();
   bcscalar->SetNumberOfComponents(1);
-  bcscalar->SetNumberOfTuples(this->NumberOfNodes+1);
+  bcscalar->SetNumberOfTuples(this->NumberOfNodes);
   bcscalar->SetName("Boundary Condition");
   int *ptr = bcscalar->GetPointer(0);
   // initialise with null values. When set later, will set to 1
@@ -265,6 +274,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets()
   bcscalar->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadMaterialTypes()
 {
   int grp, f, flag, id, nbelts, elt, mat, nbflags;
@@ -317,6 +327,7 @@ void vtkGAMBITReader::ReadMaterialTypes()
   materials->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadCellConnectivity()
 {
   int i, k;
@@ -340,6 +351,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 2; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_LINE, 2, list);
       }
@@ -349,6 +361,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 3; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_TRIANGLE, 3, list);
       }
@@ -358,6 +371,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 4; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_QUAD, 4, list);
       }
@@ -367,6 +381,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 4; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_TETRA, 4, list);
       }
@@ -376,6 +391,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 5; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_PYRAMID, 5, list);
       }
@@ -385,6 +401,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 6; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_WEDGE, 6, list);
       }
@@ -394,6 +411,7 @@ void vtkGAMBITReader::ReadCellConnectivity()
       for(k=0; k < 8; k++)
         {
         *(this->FileStream) >> list[k];
+        list[k]--;
         }
       output->InsertNextCell(VTK_HEXAHEDRON, 8, list);
       }
@@ -413,19 +431,19 @@ void vtkGAMBITReader::ReadCellConnectivity()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray *coords)
 {
   int i;
   double *ptr = coords->GetPointer(0);
   char c, buf[64];
-  ptr[0] = ptr[1] = ptr[2] = 0.0;
 
   int id;  // no check is done to see that they are monotonously increasing
   this->FileStream->get(buf, 64, '\n'); this->FileStream->get(c);
 
   if(this->NumberOfCoordinateDirections == 3)
     {
-    for(i=1; i <= this->NumberOfNodes; i++)
+    for(i=0; i < this->NumberOfNodes; i++)
       {
       *(this->FileStream) >> id;
       *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
@@ -433,7 +451,7 @@ void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray *coords)
     }
   else
     {
-    for(i=1; i <= this->NumberOfNodes; i++)
+    for(i=0; i < this->NumberOfNodes; i++)
       {
       *(this->FileStream) >> id;
       *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1];
