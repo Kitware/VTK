@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.33");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.34");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -499,7 +499,7 @@ void vtkSmoothPolyDataFilter::Execute()
   // constrained to the surface of the mesh object).
   if ( source )
     {
-    this->SmoothPoints = new vtkSmoothPoints[numPts];
+    this->SmoothPoints = new vtkSmoothPoints;
     vtkSmoothPoint *sPtr;
     cellLocator = vtkCellLocator::New();
     w = new float[input->GetMaxCellSize()];
@@ -597,7 +597,7 @@ void vtkSmoothPolyDataFilter::Execute()
   if ( source )
     {
     cellLocator->Delete();
-    delete [] this->SmoothPoints;
+    delete this->SmoothPoints;
     delete [] w;
     }
 
