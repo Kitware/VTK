@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.36");
+vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.37");
 vtkStandardNewMacro(vtkXOpenGLTextMapper);
 
 struct vtkFontStruct
@@ -188,6 +188,27 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
+  // Check for input
+  if (this->Input == NULL || this->Input[0] == '\0') 
+    {
+    return;
+    }
+
+  // Check for multi-lines
+  if ( this->NumberOfLines > 1 )
+    {
+    this->RenderOverlayMultipleLines(viewport, actor);
+    return;
+    }
+
+  // Get text property
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<< "Need a text property to render mapper");
+    return;
+    }
+
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
   
@@ -198,27 +219,6 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
     this->ReleaseGraphicsResources(this->LastWindow);
     }
   this->LastWindow = window;
-
-  // Check for input
-  if ( this->NumberOfLines > 1 )
-    {
-    this->RenderOverlayMultipleLines(viewport, actor);
-    return;
-    }
-
-  // Check for input
-  if (this->Input == NULL || this->Input[0] == '\0') 
-    {
-    vtkDebugMacro (<<"Render - No input");
-    return;
-    }
-
-  vtkTextProperty *tprop = this->GetTextProperty();
-  if (!tprop)
-    {
-    vtkErrorMacro(<< "Need a text property to render mapper");
-    return;
-    }
 
   int size[2];
   this->GetSize(viewport, size);

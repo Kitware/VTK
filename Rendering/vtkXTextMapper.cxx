@@ -25,7 +25,7 @@
 //mark this class for future legacy-related changes
 #endif
 
-vtkCxxRevisionMacro(vtkXTextMapper, "1.35");
+vtkCxxRevisionMacro(vtkXTextMapper, "1.36");
 
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
@@ -106,15 +106,9 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *s)
   int *vSize = viewport->GetSize();
   
   vtkTextProperty *tprop = this->GetTextProperty();
-  if (!tprop)
-    {
-    vtkErrorMacro(<< "Need a text property to get size");
-    s[0] = s[1] = 0;
-    return;
-    }
 
   if (this->SizeMTime < this->MTime || 
-      this->SizeMTime < tprop->GetMTime() ||
+      (tprop && this->SizeMTime < tprop->GetMTime()) ||
       vSize[0] != this->ViewportSize[0] || 
       vSize[1] != this->ViewportSize[1])
     {

@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkWin32TextMapper, "1.30");
+vtkCxxRevisionMacro(vtkWin32TextMapper, "1.31");
 
 //--------------------------------------------------------------------------
 vtkWin32TextMapper* vtkWin32TextMapper::New()
@@ -62,7 +62,7 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
     return;
     }
 
-  if (this->Input == NULL)
+  if (this->Input == NULL || this->Input[0] == '\0') 
     {
     size[0] = 0; size[1] = 0;
     return;

@@ -20,7 +20,7 @@
 #include "vtkImagingFactory.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.44");
+vtkCxxRevisionMacro(vtkTextMapper, "1.45");
 
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
@@ -119,6 +119,15 @@ int vtkTextMapper::SetConstrainedFontSize(vtkViewport *viewport,
                                           int targetWidth,
                                           int targetHeight)
 {
+  // If target "empty"
+
+  if (targetWidth == 0 && targetHeight == 0)
+    {
+    return 0;
+    }
+  
+  // Get text property
+
   vtkTextProperty *tprop = this->GetTextProperty();
   if (!tprop)
     {
@@ -150,11 +159,14 @@ int vtkTextMapper::SetConstrainedFontSize(vtkViewport *viewport,
   // I guess the best optim would be to have a look at the shape of the
   // font size growth curve (probably not that linear)
 
-  float fx = (float)targetWidth / (float)tempi[0];
-  float fy = (float)targetHeight / (float)tempi[1] ;
-  fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
-  tprop->SetFontSize(fontSize);
-  this->GetSize(viewport, tempi);
+  if (tempi[0] && tempi[1])
+    {
+    float fx = (float)targetWidth / (float)tempi[0];
+    float fy = (float)targetHeight / (float)tempi[1] ;
+    fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
+    tprop->SetFontSize(fontSize);
+    this->GetSize(viewport, tempi);
+    }
 
 #if VTK_TM_DEBUG
   printf("vtkTextMapper::SetConstrainedFontSize: estimate size: %2d (was: %2d)\n", 
