@@ -58,6 +58,11 @@ libvtkJava$(SHLIB_SUFFIX):
 	-o libvtkJava$(SHLIB_SUFFIX) -L. ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${JAVA_CXX_LIB}
 
+install:
+	@echo "Installing libvtkJava$(SHLIB_SUFFIX)"
+	@${srcdir}/../${INSTALL} libvtkJava$(SHLIB_SUFFIX) $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
+	@chmod 555 $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
+
 #------------------------------------------------------------------------------
 clean: 
 	-rm -f *.o *.a Makefile
