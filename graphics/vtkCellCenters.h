@@ -80,8 +80,8 @@ public:
 protected:
   vtkCellCenters();
   ~vtkCellCenters() {};
-  vtkCellCenters(const vtkCellCenters&) {};
-  void operator=(const vtkCellCenters&) {};
+  vtkCellCenters(const vtkCellCenters&);
+  void operator=(const vtkCellCenters&);
 
   void Execute();
 
