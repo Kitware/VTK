@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.7");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.8");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -390,14 +390,13 @@ void vtkBandedPolyDataContourFilter::Execute()
     float *s = new float [maxCellSize]; //scalars at vertices
     int *isContourValue = new int [maxCellSize];
     int *isOriginalVertex = new int [maxCellSize];
-        vtkIdType *fullPoly = new vtkIdType [maxCellSize];
-
+    vtkIdType *fullPoly = new vtkIdType [maxCellSize];
 
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort; 
           this->GetAbortExecute() )
       {
       //Create a new polygon that includes all the points including the
-      //intersection vertices. This hugely simplifies the login of the
+      //intersection vertices. This hugely simplifies the logic of the
       //code.
       for ( intersectionPoint=0, numFullPts=0, i=0; i<npts; i++)
         {
@@ -410,11 +409,12 @@ void vtkBandedPolyDataContourFilter::Execute()
         isOriginalVertex[numFullPts] = 1;
         fullPoly[numFullPts++] = pts[i];
 
+        //see whether intersection points need to be added.
         if ( (intLoc=edgeTable->IsEdge(pts[i],pts[(i+1)%npts])) != -1 )
           {
           intersectionPoint = 1;
           intList->GetCell(intLoc,numIntPts,intPts);
-          if ( v < vR ) {intsIdx = 0; intsInc=1;}
+          if ( v < vR ) {intsIdx = 0; intsInc=1;} //order of the edge
           else {intsIdx=numIntPts-1; intsIdx=(-1);}
           for ( ; intsIdx >= 0 && intsIdx < numIntPts; intsIdx += intsInc )
             {
@@ -426,7 +426,7 @@ void vtkBandedPolyDataContourFilter::Execute()
           }
         } //for all points and edges
       
-      //Trivial output - completely in a contour band
+      //Trivial output - completely in a contour band or a triangle
       if ( ! intersectionPoint || numFullPts <= 3 )
         {
         newPolys->InsertNextCell(npts,pts);
@@ -436,6 +436,7 @@ void vtkBandedPolyDataContourFilter::Execute()
 
       //Very important: have to find the right starting vertex. The vertex
       //needs to be one where the contour values increase in both directions.
+      //Really should check whether the vertex is convex.
       for ( i=0; i<numFullPts; i++)
         {
         if ( isOriginalVertex[i] )
@@ -455,9 +456,10 @@ void vtkBandedPolyDataContourFilter::Execute()
       //from this vertex
       numPolyPts = 0;
       newPolygon[numPolyPts++] = fullPoly[idx];
-      for ( intersectionPoint=0; !intersectionPoint; )
+      for ( mR=idx, intersectionPoint=0; !intersectionPoint; )
         {
-        mR = id
+        mR = (idx + 1) % numFullPts;
+        
         }
 
       //The first cell is always a triangle clipping the vertex.
