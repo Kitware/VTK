@@ -341,6 +341,12 @@ class VTK_EXPORT vtkCamera : public vtkObject
   void ComputeViewPlaneNormal();
 
   // Description:
+  // Returns a transformation matrix for a coordinate frame attached to
+  // the camera, where the camera is located at (0, 0, 1) looking at the
+  // focal point at (0, 0, 0), with up being (0, 1, 0).
+  vtkMatrix4x4 *GetCameraLightTransformMatrix();  
+
+  // Description:
   // For legacy compatibility. Do not use.
   vtkMatrix4x4 &GetViewTransform(){
     vtkWarningMacro("GetViewTransform: This method is deprecated, use GetViewTransformMatrix instead");
@@ -354,7 +360,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   						 double farz) {
     vtkWarningMacro("GetCompositePerspectiveTransform: This method is deprecated, use GetPerspectiveTransformMatrix instead");
     return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
-  
+
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -368,6 +374,9 @@ protected:
   void ComputePerspectiveTransform(double aspect, double nearz, double farz);
   void ComputeCompositePerspectiveTransform(double aspect, 
 					    double nearz, double farz);
+  void ComputeCameraLightTransform();
+
+
 
   double WindowCenter[2];
   double ObliqueAngles[2];
@@ -389,6 +398,7 @@ protected:
   vtkTransform *ViewTransform;
   vtkPerspectiveTransform *PerspectiveTransform;
   vtkPerspectiveTransform *Transform;
+  vtkTransform *CameraLightTransform;
 
   double FocalDisk;
 

@@ -40,8 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkLight.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
 
 // Create a light with the focal point at the origin and its position
@@ -65,11 +63,13 @@ vtkLight::vtkLight()
 
   this->Intensity = 1.0;
   this->Positional = 0;
-  this->ConeAngle= 30;
+  this->ConeAngle = 30;
   this->AttenuationValues[0] = 1;
   this->AttenuationValues[1] = 0;
   this->AttenuationValues[2] = 0;
   this->Exponent = 1;
+
+  this->TransformMatrix = (vtkMatrix4x4 *)NULL;
 }
 
 // return the correct type of light 
@@ -78,6 +78,74 @@ vtkLight *vtkLight::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkLight");
   return (vtkLight*)ret;
+}
+
+void vtkLight::GetTransformedPosition(float a[3]) 
+{
+  float f[3];
+
+  f[0] = this->Position[0];
+  f[1] = this->Position[1];
+  f[2] = this->Position[2];
+  f[3] = 1.0;
+
+  if(this->TransformMatrix) {
+    this->TransformMatrix->MultiplyPoint(f, f);
+  }
+
+  a[0] = f[0];
+  a[1] = f[1];
+  a[2] = f[2];
+}
+
+void vtkLight::GetTransformedPosition(float &x, float &y, float &z) 
+{
+  float a[3];
+
+  this->GetTransformedPosition(a);
+  x = a[0];
+  y = a[1];
+  z = a[2];
+}
+
+float *vtkLight::GetTransformedPosition() 
+{
+    this->GetTransformedPosition(this->TransformedPositionReturn);
+    return this->TransformedPositionReturn;
+}
+
+void vtkLight::GetTransformedFocalPoint(float a[3]) 
+{
+  float f[3];
+
+  f[0] = this->FocalPoint[0];
+  f[1] = this->FocalPoint[1];
+  f[2] = this->FocalPoint[2];
+  f[3] = 1.0;
+
+  if(this->TransformMatrix) {
+    this->TransformMatrix->MultiplyPoint(f, f);
+  }
+
+  a[0] = f[0];
+  a[1] = f[1];
+  a[2] = f[2];
+}
+
+void vtkLight::GetTransformedFocalPoint(float &x, float &y, float &z)
+{
+  float a[3];
+
+  this->GetTransformedFocalPoint(a);
+  x = a[0];
+  y = a[1];
+  z = a[2];
+}
+
+float *vtkLight::GetTransformedFocalPoint() 
+{
+  this->GetTransformedFocalPoint(this->TransformedFocalPointReturn);
+  return this->TransformedFocalPointReturn;
 }
 
 void vtkLight::DeepCopy(vtkLight *light)
@@ -110,8 +178,17 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Positional: " << (this->Positional ? "On\n" : "Off\n");
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
-}
 
+  os << indent << "TransformMatrix: ";
+  if(this->TransformMatrix != NULL)
+    {
+      os << this->TransformMatrix << "\n";
+    }
+  else
+    {
+      os << "(none)\n";
+    }
+}
 
 void vtkLight::WriteSelf(ostream& os)
 {
@@ -128,6 +205,7 @@ void vtkLight::WriteSelf(ostream& os)
   os << this->ConeAngle << " ";
   os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
      << this->AttenuationValues[2] << " ";
+  // XXX - TransformMatrix ???
 }
 
 void vtkLight::ReadSelf(istream& is)
@@ -142,6 +220,7 @@ void vtkLight::ReadSelf(istream& is)
   is >> this->ConeAngle;
   is >> this->AttenuationValues[0] >> this->AttenuationValues[1] 
      >> this->AttenuationValues[2];
+  // XXX - TransformMatrix ???
 }
 
 

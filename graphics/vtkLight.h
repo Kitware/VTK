@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkLight_h
 
 #include "vtkObject.h"
+#include "vtkMatrix4x4.h"
 
 /* need for virtual function */
 class vtkRenderer;
@@ -131,6 +132,28 @@ public:
   vtkGetVectorMacro(AttenuationValues,float,3);
 
   // Description:
+  // Set/Get the light's transformation matrix.  If a matrix is set for
+  // a light, the light's parameters (position and focal point) are 
+  // transformed by the matrix before being rendered.
+  vtkSetObjectMacro(TransformMatrix,vtkMatrix4x4);
+  vtkGetObjectMacro(TransformMatrix,vtkMatrix4x4);
+
+  // Description:
+  // Get the position of the light, modified by the transformation matrix
+  // (if it exists).
+  void GetTransformedPosition(float &a0, float &a1, float &a2);
+  void GetTransformedPosition(float a[3]);
+  float *GetTransformedPosition();
+
+
+  // Description:
+  // Get the focal point of the light, modified by the transformation matrix
+  // (if it exists).
+  void GetTransformedFocalPoint(float &a0, float &a1, float &a2);
+  void GetTransformedFocalPoint(float a[3]);
+  float *GetTransformedFocalPoint();
+
+  // Description:
   // Perform deep copy of this light.
   void DeepCopy(vtkLight *light);
 
@@ -152,6 +175,9 @@ protected:
   float Exponent;
   float ConeAngle;
   float AttenuationValues[3];
+  vtkMatrix4x4 *TransformMatrix;
+  float TransformedFocalPointReturn[3];
+  float TransformedPositionReturn[3];
 };
 
 #endif

@@ -93,10 +93,12 @@ vtkCamera::vtkCamera()
   this->Transform = vtkPerspectiveTransform::New();
   this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkPerspectiveTransform::New();
+  this->CameraLightTransform = vtkTransform::New();
 
   // initialize the ViewTransform
   this->ComputeViewTransform();
   this->ComputeDistance();
+  this->ComputeCameraLightTransform();
 }
 
 //----------------------------------------------------------------------------
@@ -105,6 +107,7 @@ vtkCamera::~vtkCamera()
   this->Transform->Delete();
   this->ViewTransform->Delete();
   this->PerspectiveTransform->Delete();
+  this->CameraLightTransform->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -145,6 +148,7 @@ void vtkCamera::SetPosition(double x, double y, double z)
   this->ComputeViewTransform();
   // recompute the focal distance
   this->ComputeDistance();
+  this->ComputeCameraLightTransform();
 
   this->Modified();
 }
@@ -168,6 +172,7 @@ void vtkCamera::SetFocalPoint(double x, double y, double z)
   this->ComputeViewTransform();
   // recompute the focal distance
   this->ComputeDistance();
+  this->ComputeCameraLightTransform();
 
   this->Modified();
 }
@@ -205,6 +210,7 @@ void vtkCamera::SetViewUp(double x, double y, double z)
   vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", " << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
   this->ComputeViewTransform();
+  this->ComputeCameraLightTransform();
   this->Modified();
 }
 
@@ -218,6 +224,24 @@ void vtkCamera::ComputeViewTransform()
   this->Transform->Identity();
   this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
   this->ViewTransform->SetMatrix(this->Transform->GetMatrixPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::ComputeCameraLightTransform()
+{
+  vtkTransform *t;
+  double d;
+
+  // assumes a valid view transform and valid camera distance
+
+  t = this->CameraLightTransform;
+  t->Identity();
+  t->SetMatrix(this->ViewTransform->GetMatrix());
+  t->Inverse();
+
+  d = this->Distance;
+  t->Scale(d, d, d);
+  t->Translate(0.0, 0.0, -1.0);
 }
 
 //----------------------------------------------------------------------------
@@ -262,6 +286,7 @@ void vtkCamera::SetDistance(double d)
   vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
 
   this->ComputeViewTransform();
+  this->ComputeCameraLightTransform();
   this->Modified();
 }  
 
@@ -727,6 +752,15 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
   // return the transform 
   return this->Transform->GetMatrixPointer();
 }
+
+//----------------------------------------------------------------------------
+// Return the attached light transform matrix.
+vtkMatrix4x4 *vtkCamera::GetCameraLightTransformMatrix()
+{
+  // return the transform 
+  return this->CameraLightTransform->GetMatrixPointer();
+}
+
 
 //----------------------------------------------------------------------------
 void vtkCamera::ComputeViewPlaneNormal()

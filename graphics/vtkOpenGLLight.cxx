@@ -72,6 +72,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   float	dx, dy, dz;
   float	color[4];
   float Info[4];
+  vtkMatrix4x4 *xform;
 
   // get required info from light
   color[0] = this->Intensity * this->Color[0];
@@ -82,6 +83,16 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   dx = this->FocalPoint[0] - this->Position[0];
   dy = this->FocalPoint[1] - this->Position[1];
   dz = this->FocalPoint[2] - this->Position[2];
+
+  if(this->TransformMatrix != NULL) {
+    xform = vtkMatrix4x4::New();
+    xform->DeepCopy(this->TransformMatrix);
+    xform->Transpose();
+
+    // code assumes that we're already in GL_MODELVIEW matrix mode
+    glPushMatrix();
+    glMultMatrixd(xform->Element[0]);
+  }
 
   glLightfv((GLenum)light_index, GL_DIFFUSE, color);
   glLightfv((GLenum)light_index, GL_SPECULAR, color);
@@ -127,5 +138,9 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
       }
     }
 
+  if(this->TransformMatrix != NULL) {
+    glPopMatrix();
+    xform->Delete();
+  }
 }
 
