@@ -87,6 +87,7 @@ protected:
   ~vtkMetaImageReader();
 
   void ExecuteInformation();
+  int GetFileInformation(const char* fname, int populate);
 
   vtkSetStringMacro(MHDFileName);
   char* MHDFileName;
