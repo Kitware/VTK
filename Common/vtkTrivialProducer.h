@@ -25,6 +25,7 @@
 
 #include "vtkAlgorithm.h"
 
+class vtkCallbackCommand;
 class vtkDataObject;
 
 class VTK_COMMON_EXPORT vtkTrivialProducer : public vtkAlgorithm
@@ -57,7 +58,17 @@ protected:
   virtual int FillOutputPortInformation(int, vtkInformation*);
   virtual vtkExecutive* CreateDefaultExecutive();
 
+  // The real data object.
   vtkDataObject* Output;
+
+  // The observer to report when the internal object is modified.
+  vtkCallbackCommand* ModifiedObserver;
+
+  // Callback registered with the ModifiedObserver.
+  static void ModifiedCallbackFunction(vtkObject*, unsigned long, void*,
+                                       void*);
+  // Modified callback from output data object.
+  virtual void ModifiedCallback();
 
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
