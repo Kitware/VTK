@@ -1,3 +1,4 @@
+
 SOURCE_FILES( Graphics_SRCS
 vtkAppendFilter
 vtkAppendPolyData
@@ -186,3 +187,10 @@ vtkGraphics
 
 INSTALL_TARGETS(/lib vtkGraphics)
 INSTALL_FILES(/include/vtk .h Graphics_SRCS)
+
+# add some testing dependencies
+IF(BUILD_TESTING)
+  IF (DART_ROOT)
+    SUBDIRS(Testing)
+  ENDIF (DART_ROOT)
+ENDIF(BUILD_TESTING)

@@ -1,0 +1,18 @@
+LINK_LIBRARIES (
+vtkCommon 
+vtkFiltering 
+vtkImaging
+vtkGraphics
+vtkIO
+)
+
+IF (VTK_USE_RENDERING)
+  LINK_LIBRARIES (vtkRendering)
+
+  ADD_EXECUTABLE(MaceTest Mace)
+  IF (CMAKE_HAS_X)
+    TARGET_LINK_LIBRARIES(Mace ${CMAKE_X_LIBS})
+  ENDIF (CMAKE_HAS_X)
+ENDIF (VTK_USE_RENDERING)
+
+ADD_TEST(MaceTest ${EXECUTABLE_OUTPUT_PATH}/MaceTest)
