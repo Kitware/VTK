@@ -142,7 +142,8 @@ protected:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkImageData not a vtkDataObject."); };
-
+  void RemoveInput(vtkDataObject *)
+    { vtkErrorMacro( << "RemoveInput() must be called with a vtkImageData not a vtkDataObject."); };
 };
 
 #endif

@@ -219,6 +219,12 @@ protected:
   int NumberOfExpectedInputs;
   int AbortExecute; // We need this ivar because if we abort execute during
                     // Append, we don't want EndAppend to execute either.
+ private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+  void RemoveInput(vtkDataObject *input)
+    { this->vtkProcessObject::RemoveInput(input); };
 };
 
 #endif
