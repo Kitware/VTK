@@ -100,8 +100,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the exception of zoom (Camera only), and scale and dolly (Actor only). The
 // same user events elicit the same responses from the interactor.
 //
-// Actor picking can be accomplished with the "p" key or with a mouse click
-// in actor mode. 
+// When the "p" key is pressed, an actor is selected using the user supplied
+// picker if one exist, or the default picker if one does not.  The picked
+// actor is NOT used for actor mode interactions.  To interact with an actor,
+// click on the actor with the pointer in Actor mode, and an internal picker
+// will select the appropriate actor.  Since the selections of the actors are
+// for different purposes, and handled by two different pickers, the
+// previously selected actor will be unselected when the interaction mode
+// has been switched between Actor mode and Camera mode.
 //
 // Interactors for a particular platform may have additional, specific event
 // bindings.  Please see the documentation for the subclasses.
@@ -235,6 +241,23 @@ public:
   void SetEndPickMethodArgDelete(void (*f)(void *));
 
   // Description:
+  // Specify a method to be executed prior to the pick operation.
+  void SetStartInteractionPickMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetStartInteractionPickMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Specify a method to be executed after the pick operation.
+  void SetEndInteractionPickMethod(void (*f)(void *), void *arg);
+
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
+  void SetEndInteractionPickMethodArgDelete(void (*f)(void *));
+
+  
+  // Description:
   // Set the object used to perform pick operations. You can use this to 
   // control what type of data is picked.
   void SetPicker(vtkPicker *picker);
@@ -242,6 +265,10 @@ public:
   // Description:
   // Get the object used to perform pick operations.
   vtkGetObjectMacro(Picker,vtkPicker);
+
+  //Description:
+  // Get the object used to perform mouse interaction pick operation
+  vtkGetObjectMacro(InteractionPicker, vtkCellPicker);
 
   // Description:
   // Create default picker. Used to create one when none is specified.
@@ -432,6 +459,8 @@ protected:
   vtkActor *CurrentActor;
   
   // used to track picked objects in actor mode
+  // reason for existence: user may use any kind of picker.  Interactor
+  //    need the high precision of cell picker at all time.
   vtkCellPicker *InteractionPicker;
   int ActorPicked;                      // boolean: actor picked?
   vtkActor *InteractionActor;
@@ -474,6 +503,12 @@ protected:
   void (*EndPickMethod)(void *);
   void (*EndPickMethodArgDelete)(void *);
   void *EndPickMethodArg;
+  void (*StartInteractionPickMethod)(void *);
+  void (*StartInteractionPickMethodArgDelete)(void *);
+  void *StartInteractionPickMethodArg;
+  void (*EndInteractionPickMethod)(void *);
+  void (*EndInteractionPickMethodArgDelete)(void *);
+  void *EndInteractionPickMethodArg;
   void (*UserMethod)(void *);
   void (*UserMethodArgDelete)(void *);
   void *UserMethodArg;

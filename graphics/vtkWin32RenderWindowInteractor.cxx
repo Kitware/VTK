@@ -506,25 +506,54 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       
       if (me->ActorMode)
         {
-        if (me->StartPickMethod)
+        if (me->StartInteractionPickMethod)
           {
-	  (*me->StartPickMethod)(me->StartPickMethodArg);
+	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
           }
         
-	me->Picker->Pick(LOWORD(lParam), 
-			 me->Size[1]-HIWORD(lParam)-1,
-			 0.0, me->CurrentRenderer);
-
 	me->InteractionPicker->Pick(LOWORD(lParam), 
                                     me->Size[1]-HIWORD(lParam)-1,
                                     0.0, me->CurrentRenderer);
-	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
+
+        // now go through the actor collection and decide which is closest
+        vtkActor *closestActor = NULL, *actor;
+        vtkActorCollection *actors = me->InteractionPicker->GetActors();
+        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
+        int i = 0;
+        float *pickPoint, d;
+        float distToCamera = VTK_LARGE_FLOAT;
+        if (actors && actors->GetNumberOfItems() > 0)
+          {
+          actors->InitTraversal();
+          me->CurrentCamera->GetPosition(me->ViewPoint);
+          while (i < pickPositions->GetNumberOfPoints())
+            {
+            actor = actors->GetNextItem();
+            if (actor != NULL)
+              {
+              pickPoint = pickPositions->GetPoint(i);
+              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+              if (distToCamera > d)
+                {
+                distToCamera = d;
+                closestActor = actor;
+                }
+              }
+            i++;
+            }
+          }
+
+        me->InteractionActor = closestActor;
+        // refine the answer to whether an actor was picked.  CellPicker()
+        // returns true from Pick() if the bounding box was picked,
+        // but we only want something to be picked if a cell was actually
+        // selected
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
 
-	if (me->EndPickMethod)
+	if (me->EndInteractionPickMethod)
 	  {
-	  (*me->EndPickMethod)(me->EndPickMethodArg);
+	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
 	  }
 
         }
@@ -640,24 +669,54 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 
       if (me->ActorMode)
         {
-	if (me->StartPickMethod)
+	if (me->StartInteractionPickMethod)
 	  {
-	  (*me->StartPickMethod)(me->StartPickMethodArg);
+	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
 	  }
-	me->Picker->Pick(LOWORD(lParam), 
-			 me->Size[1]-HIWORD(lParam)-1,
-			 0.0, me->CurrentRenderer);
 
         (me->InteractionPicker)->Pick(LOWORD(lParam), 
 				      me->Size[1]-HIWORD(lParam)-1,
 				      0.0, me->CurrentRenderer);
-	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
+
+        // now go through the actor collection and decide which is closest
+        vtkActor *closestActor = NULL, *actor;
+        vtkActorCollection *actors = me->InteractionPicker->GetActors();
+        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
+        int i = 0;
+        float *pickPoint, d;
+        float distToCamera = VTK_LARGE_FLOAT;
+        if (actors && actors->GetNumberOfItems() > 0)
+          {
+          actors->InitTraversal();
+          me->CurrentCamera->GetPosition(me->ViewPoint);
+          while (i < pickPositions->GetNumberOfPoints())
+            {
+            actor = actors->GetNextItem();
+            if (actor != NULL)
+              {
+              pickPoint = pickPositions->GetPoint(i);
+              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+              if (distToCamera > d)
+                {
+                distToCamera = d;
+                closestActor = actor;
+                }
+              }
+            i++;
+            }
+          }
+
+        me->InteractionActor = closestActor;
+        // refine the answer to whether an actor was picked.  CellPicker()
+        // returns true from Pick() if the bounding box was picked,
+        // but we only want something to be picked if a cell was actually
+        // selected
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
 
-	if (me->EndPickMethod)
+	if (me->EndInteractionPickMethod)
 	  {
-	  (*me->EndPickMethod)(me->EndPickMethodArg);
+	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
 	  }
         }
 
@@ -730,24 +789,54 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       
       if (me->ActorMode)
         { 
-        if (me->StartPickMethod)
+        if (me->StartInteractionPickMethod)
 	  {
-	  (*me->StartPickMethod)(me->StartPickMethodArg);
+	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
 	  }
-	me->Picker->Pick(LOWORD(lParam), 
-			 me->Size[1]-HIWORD(lParam)-1,
-			 0.0, me->CurrentRenderer);
 
         (me->InteractionPicker)->Pick(LOWORD(lParam), 
 				      me->Size[1]-HIWORD(lParam)-1,
 				      0.0, me->CurrentRenderer);
-	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
+
+        // now go through the actor collection and decide which is closest
+        vtkActor *closestActor = NULL, *actor;
+        vtkActorCollection *actors = me->InteractionPicker->GetActors();
+        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
+        int i = 0;
+        float *pickPoint, d;
+        float distToCamera = VTK_LARGE_FLOAT;
+        if (actors && actors->GetNumberOfItems() > 0)
+          {
+          actors->InitTraversal();
+          me->CurrentCamera->GetPosition(me->ViewPoint);
+          while (i < pickPositions->GetNumberOfPoints())
+            {
+            actor = actors->GetNextItem();
+            if (actor != NULL)
+              {
+              pickPoint = pickPositions->GetPoint(i);
+              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+              if (distToCamera > d)
+                {
+                distToCamera = d;
+                closestActor = actor;
+                }
+              }
+            i++;
+            }
+          }
+
+        me->InteractionActor = closestActor;
+        // refine the answer to whether an actor was picked.  CellPicker()
+        // returns true from Pick() if the bounding box was picked,
+        // but we only want something to be picked if a cell was actually
+        // selected
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
 
-	if (me->EndPickMethod)
+	if (me->EndInteractionPickMethod)
 	  {
-	  (*me->EndPickMethod)(me->EndPickMethodArg);
+	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
 	  }
         }
 
@@ -929,29 +1018,28 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
           
 	case 'p':
 	case 'P':
-	  me->FindPokedRenderer(LOWORD(me->LastPosition),
-                                me->Size[1]-HIWORD(me->LastPosition)-1);
-	  if (me->StartPickMethod)
-	    {
-	    (*me->StartPickMethod)(me->StartPickMethodArg);
-	    }
-	  me->Picker->Pick(LOWORD(me->LastPosition), 
-                           me->Size[1]-HIWORD(me->LastPosition)-1,
-			   0.0, me->CurrentRenderer);
+          if (me->State == VTKXI_START)
+            {
+            me->FindPokedRenderer(LOWORD(me->LastPosition),
+                                  me->Size[1]-HIWORD(me->LastPosition)-1);
+            if (me->StartPickMethod)
+              {
+              (*me->StartPickMethod)(me->StartPickMethodArg);
+              }
+            me->Picker->Pick(LOWORD(me->LastPosition), 
+                             me->Size[1]-HIWORD(me->LastPosition)-1,
+                             0.0, me->CurrentRenderer);
+            
+            me->InteractionActor = NULL;
+            me->ActorPicked = 0;
+            me->HighlightACtor(me->Picker->GetAssembly());
 
-          me->InteractionPicker->Pick(LOWORD(me->LastPosition), 
-                                      me->Size[1]-
-                                      HIWORD(me->LastPosition)-1,
-                                      0.0, me->CurrentRenderer);
-          me->InteractionActor = (me->InteractionPicker)->GetAssembly();
-          me->ActorPicked = (me->InteractionActor != NULL);
-          me->HighlightActor(me->InteractionActor);
-
-	  if (me->EndPickMethod)
-	    {
-	    (*me->EndPickMethod)(me->EndPickMethodArg);
-	    }
-	  break;
+            if (me->EndPickMethod)
+              {
+              (*me->EndPickMethod)(me->EndPickMethodArg);
+              }
+            }
+          break;
           
 	case 'j':
 	case 'J':
@@ -983,12 +1071,20 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         case 'O':
           if (me->State == VTKXI_START) 
 	    {
-            me->ActorMode = VTKXI_ACTOR;
-            //vtkDebugMacro(<<"switch to Actor mode.");
-	    if (me->ActorModeMethod) 
-	      {
-	      (*me->ActorModeMethod)(me->ActorModeMethodArg);
-	      }
+            if (me->ActorMode != VTKXI_ACTOR)
+              {
+              // reset the actor picking variables
+              me->InteractionActor = NULL;
+              me->ActorPicked = 0;
+              me->HighlightActor(NULL);
+
+              me->ActorMode = VTKXI_ACTOR;
+              //vtkDebugMacro(<<"switch to Actor mode.");
+              if (me->ActorModeMethod) 
+                {
+                (*me->ActorModeMethod)(me->ActorModeMethodArg);
+                }
+              }
             }
           break;
           
@@ -996,13 +1092,21 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         case 'C':
           if (me->State == VTKXI_START) 
 	    {
-            me->ActorMode = VTKXI_CAMERA;
-            //vtkDebugMacro(<<"switch to Camera mode.");
-	    if (me->CameraModeMethod) 
-	      {
-	      (*me->CameraModeMethod)(me->CameraModeMethodArg);
-	      }
-	    }
+            if (me->ActorMode != VTKXI_CAMERA)
+              {
+              // reset the actor picking variables
+              me->InteractionActor = NULL;
+              me->ActorPicked = 0;
+              me->HighlightActor(NULL);
+
+              me->ActorMode = VTKXI_CAMERA;
+              //vtkDebugMacro(<<"switch to Camera mode.");
+              if (me->CameraModeMethod) 
+                {
+                (*me->CameraModeMethod)(me->CameraModeMethodArg);
+                }
+              }
+            }
           break;
           
 	}

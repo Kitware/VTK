@@ -508,19 +508,44 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       if (me->ActorMode)
         {
         // Execute start method, if any
-        if ( me->StartPickMethod ) 
-          (*me->StartPickMethod)(me->StartPickMethodArg);
+        if ( me->StartInteractionPickMethod ) 
+          (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
         
-        me->Picker->Pick(((XButtonEvent*)event)->x,
-                         me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
-                         me->CurrentRenderer);
-
         // if in actor mode, select the actor below the mouse pointer
         me->InteractionPicker->Pick(((XButtonEvent*)event)->x,
                                     me->Size[1] -
                                     ((XButtonEvent*)event)->y - 1, 0.0,
                                     me->CurrentRenderer);
-        me->InteractionActor = me->InteractionPicker->GetAssembly();
+        
+        // now go through the actor collection and decide which is closest
+        vtkActor *closestActor = NULL, *actor;
+        vtkActorCollection *actors = me->InteractionPicker->GetActors();
+        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
+        int i = 0;
+        float *pickPoint, d;
+        float distToCamera = VTK_LARGE_FLOAT;
+        if (actors && actors->GetNumberOfItems() > 0)
+          {
+          actors->InitTraversal();
+          me->CurrentCamera->GetPosition(me->ViewPoint);
+          while (i < pickPositions->GetNumberOfPoints())
+            {
+            actor = actors->GetNextItem();
+            if (actor != NULL)
+              {
+              pickPoint = pickPositions->GetPoint(i);
+              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+              if (distToCamera > d)
+                {
+                distToCamera = d;
+                closestActor = actor;
+                }
+              }
+            i++;
+            }
+          }
+
+        me->InteractionActor = closestActor;
         // refine the answer to whether an actor was picked.  CellPicker()
         // returns true from Pick() if the bounding box was picked,
         // but we only want something to be picked if a cell was actually
@@ -528,8 +553,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
         
-        if ( me->EndPickMethod ) 
-          (*me->EndPickMethod)(me->EndPickMethodArg);
+        if ( me->EndInteractionPickMethod ) 
+          (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
         }
 
       switch (((XButtonEvent *)event)->button)
@@ -778,29 +803,30 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
 	case XK_p:
 	case XK_P: //pick actors
-          me->FindPokedRenderer(((XKeyEvent*)event)->x,
-                                me->Size[1] - ((XKeyEvent*)event)->y - 1);
-          // Execute start method, if any
-
-          if ( me->StartPickMethod )
-            {            
-            (*me->StartPickMethod)(me->StartPickMethodArg);
-            }
-          me->Picker->Pick(((XButtonEvent*)event)->x,
-                           me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
-                           me->CurrentRenderer);
-          // set actor in all modes, so when switching, actor still selected
-          me->InteractionPicker->Pick(((XButtonEvent*)event)->x,
-                                      me->Size[1] -
-                                      ((XButtonEvent*)event)->y - 1, 0.0,
-                                      me->CurrentRenderer);
-          me->InteractionActor = (me->InteractionPicker)->GetAssembly();
-          me->ActorPicked = (me->InteractionActor != NULL);
-          me->HighlightActor(me->InteractionActor);	  
-
-          if ( me->EndPickMethod )
+          if (me->State == VTKXI_START)
             {
-            (*me->EndPickMethod)(me->EndPickMethodArg);
+            me->FindPokedRenderer(((XKeyEvent*)event)->x,
+                                  me->Size[1] - ((XKeyEvent*)event)->y - 1);
+            // Execute start method, if any
+
+            if ( me->StartPickMethod )
+              {            
+              (*me->StartPickMethod)(me->StartPickMethodArg);
+              }
+            me->Picker->Pick(((XButtonEvent*)event)->x,
+                             me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
+                             me->CurrentRenderer);
+            
+            // when user picks with their own picker, interaction actor is
+            // reset, the picked item is highlighted.
+            me->InteractionActor = NULL;
+            me->ActorPicked = 0;
+            me->HighlightActor(me->Picker->GetAssembly());
+            
+            if ( me->EndPickMethod )
+              {
+              (*me->EndPickMethod)(me->EndPickMethodArg);
+              }
             }
 	  break;
 
@@ -835,12 +861,21 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_O: //actor interaction
 	  if (me->State == VTKXI_START) 
 	    {
-	    me->ActorMode = VTKXI_ACTOR;
-	    //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
-	    if (me->ActorModeMethod) 
-	      {
-	      (*me->ActorModeMethod)(me->ActorModeMethodArg);
-	      }
+            if (me->ActorMode != VTKXI_ACTOR)
+              {
+              // reset the actor picking variables
+              me->InteractionActor = NULL;
+              me->ActorPicked = 0;
+              me->HighlightActor(NULL);
+
+              me->ActorMode = VTKXI_ACTOR;
+              
+              //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
+              if (me->ActorModeMethod) 
+                {
+                (*me->ActorModeMethod)(me->ActorModeMethodArg);
+                }
+              }
             }
 	  break;
 
@@ -848,18 +883,26 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_C: //camera interaction
 	  if (me->State == VTKXI_START) 
 	    {
-	    me->ActorMode = VTKXI_CAMERA;
-	    // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
-	    if (me->CameraModeMethod) 
-	      {
-	      (*me->CameraModeMethod)(me->CameraModeMethodArg);
-	      }
+            if (me->ActorMode != VTKXI_CAMERA)
+              {
+              // reset the actor picking variables
+              me->InteractionActor = NULL;
+              me->ActorPicked = 0;
+              me->HighlightActor(NULL);
+
+              me->ActorMode = VTKXI_CAMERA;
+              // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
+              if (me->CameraModeMethod) 
+                {
+                (*me->CameraModeMethod)(me->CameraModeMethodArg);
+                }
+              }
             }
 	  break;
         }
       break;
     }
-    }
+}
 
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 				     XtIntervalId *vtkNotUsed(id))
