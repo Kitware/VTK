@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.17");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.18");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -547,7 +547,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
     // if window already up get its values 
     if (this->WindowId)
       {
-      temp = this->GetPosition();      
+      pos = this->GetPosition();      
       this->OldScreen[0] = pos[0];
       this->OldScreen[1] = pos[1];
 
