@@ -221,6 +221,15 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
   // Create space for the tables
   this->IndexTable = new int [(this->OuterSize + this->InnerSize) * 
 			      (this->OuterSize + this->InnerSize)];
+
+  // Initialize the table to -1 -- we'll use this later to determine which
+  // entries are still not filled in
+  for ( i = 0; i < ( (this->OuterSize + this->InnerSize) * 
+		     (this->OuterSize + this->InnerSize) ); i ++ )
+    {
+      this->IndexTable[i] = -1;
+    }
+
   this->DecodedNormal = 
     new float [ 3 * ( 1 + 
 		      2 * this->OuterSize * this->OuterSize +
@@ -368,6 +377,37 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
   // The index table has been initialized for the current recursion
   // depth
   this->IndexTableRecursionDepth = this->RecursionDepth;
+
+
+  // Spread the first index value in each row to the left, and the last to the right.
+  // This is because we have only filled in a diamond of index values within the square
+  // grid, and we need to be careful at the edges due to precision problems. This way
+  // we won't be able to access a table location that does not have a valid index in it.
+  for ( j = 0; j < this->OuterSize + this->InnerSize; j++ )
+    {
+    // Start from the middle going right, copy the value from the left if
+    // this entry is not initialized
+    for ( i = (this->OuterSize+this->InnerSize)/2; 
+	  i < this->OuterSize + this->InnerSize; i++ )
+      {
+      if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
+	{
+	this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
+	  this->IndexTable[j*(this->OuterSize+this->InnerSize)+i-1];
+	}
+      }
+
+    // Start from the middle going left, copy the value from the right if
+    // this entry is not initialized
+    for ( i = (this->OuterSize+this->InnerSize)/2; i >= 0; i-- )
+      {
+      if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
+	{
+	this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
+	  this->IndexTable[j*(this->OuterSize+this->InnerSize)+i+1];
+	}
+      }
+    }
 }
 
 
