@@ -162,6 +162,10 @@ protected:
     { this->AbortFlag = f; }
 
   friend class vtkSubjectHelper;
+//BTX
+  vtkCommand(const vtkCommand&) {}
+  void operator=(const vtkCommand&) {}
+//ETX
 };
 
 #endif /* __vtkCommand_h */

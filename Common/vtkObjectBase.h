@@ -121,8 +121,10 @@ private:
   //ETX
 
 private:
-  vtkObjectBase(const vtkObjectBase&);  // Not implemented.
-  void operator=(const vtkObjectBase&);  // Not implemented.
+//BTX
+  vtkObjectBase(const vtkObjectBase&) {}
+  void operator=(const vtkObjectBase&) {}
+//ETX
 };
 
 #endif
