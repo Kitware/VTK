@@ -61,6 +61,18 @@ vtkPointSet::~vtkPointSet ()
   if ( this->Locator ) this->Locator->Delete();
 }
 
+// Description:
+// Copy the geometric structure of an input point set object.
+void vtkPolyData::CopyStructure(vtkDataSet *ds)
+{
+  vtkPointSet *ps=(vtkPointSet *)ds;
+  this->Initialize();
+
+  this->Points = ps->Points;
+  if (this->Points) this->Points->Register(this);
+}
+
+
 void vtkPointSet::Initialize()
 {
   vtkDataSet::Initialize();

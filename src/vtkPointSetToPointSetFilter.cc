@@ -95,7 +95,7 @@ void vtkPointSetToPointSetFilter::Update()
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear points and point data output 
     ((vtkPointSet *)this->Output)->SetPoints(NULL);
-    this->Output->GetPointData()->Initialize();
+    this->Output->CopyStructure(this->Input);
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

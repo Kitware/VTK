@@ -71,6 +71,22 @@ vtkStructuredPoints::~vtkStructuredPoints()
 {
 }
 
+// Description:
+// Copy the geometric and topological structure of an input structured points 
+// object.
+void vtkStructuredPoints::CopyStructure(vtkDataSet *ds)
+{
+  vtkStructuredPoints *sPts=(vtkStructuredPoints *)ds;
+  this->Initialize();
+
+  for (int i=0; i<3; i++)
+    {
+    this->Dimensions[i] = sPts->Dimensions[i];
+    this->Origin[i] = sPts->Origin[i];
+    this->AspectRatio[i] = sPts->AspectRatio[i];
+    }
+ }
+
 vtkCell *vtkStructuredPoints::GetCell(int cellId)
 {
   static vtkVertex vertex;

@@ -98,7 +98,7 @@ void vtkDataSetToDataSetFilter::Update()
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear just point data output because structure is copied from input
-    this->Output->GetPointData()->Initialize();
+    this->Output->CopyStructure(this->Input);
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

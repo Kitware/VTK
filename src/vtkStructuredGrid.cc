@@ -65,6 +65,19 @@ unsigned long vtkStructuredGrid::GetMtime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+// Description:
+// Copy the geometric and topological structure of an input structured grid.
+void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
+{
+  vtkStructuredGrid *sg=(vtkStructuredGrid *)ds;
+  vtkPointSet::CopyStructure(ds);
+
+  for (int i=0; i<3; i++)
+    {
+    this->Dimensions[i] = sg->Dimensions[i];
+    }
+}
+
 void vtkStructuredGrid::Initialize()
 {
   vtkPointSet::Initialize(); 

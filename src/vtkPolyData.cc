@@ -97,6 +97,26 @@ vtkPolyData::~vtkPolyData()
   vtkPolyData::Initialize();
 }
 
+// Description:
+// Copy the geometric and topological structure of an input poly data object.
+void vtkPolyData::CopyStructure(vtkDataSet *ds)
+{
+  vtkPolyData *pd=(vtkPolyData *)ds;
+  vtkPointSet::CopyStructure(ds);
+
+  this->Verts = pd->Verts;
+  if (this->Verts) this->Verts->Register(this);
+
+  this->Lines = pd->Lines;
+  if (this->Lines) this->Lines->Register(this);
+
+  this->Polys = pd->Polys;
+  if (this->Polys) this->Polys->Register(this);
+
+  this->Strips = pd->Strips;
+  if (this->Strips) this->Strips->Register(this);
+}
+
 int vtkPolyData::GetCellType(int cellId)
 {
   if ( !this->Cells ) this->BuildCells();
