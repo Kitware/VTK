@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// DataSet methods
-//
 #include "PolyData.hh"
 #include "PolyMap.hh"
 #include "Point.hh"
@@ -36,8 +33,6 @@ vlCellArray *vlPolyData::Dummy = 0;
 
 vlPolyData::vlPolyData ()
 {
-  this->Points = 0;
-
   this->Verts = 0;
   this->Lines = 0;
   this->Polys = 0;
@@ -60,10 +55,6 @@ vlPolyData::vlPolyData ()
 
 vlPolyData::vlPolyData(const vlPolyData& pd)
 {
-
-  this->Points = pd.Points;
-  if (this->Points) this->Points->Register((void *)this);
-
   this->Verts = pd.Verts;
   if (this->Verts) this->Verts->Register((void *)this);
 
@@ -84,19 +75,16 @@ vlPolyData::vlPolyData(const vlPolyData& pd)
   this->TriangleMesh = pd.TriangleMesh;
   this->Writable = pd.Writable;
 
-  // these guys are not shared
-  this->Cells = 0;
-  this->Links = 0;
+  this->Cells = pd.Cells;
+  if (this->Cells) this->Cells->Register((void *)this);
+
+  this->Links = pd.Links;
+  if (this->Links) this->Links->Register((void *)this);
 }
 
 vlPolyData::~vlPolyData()
 {
   vlPolyData::Initialize();
-}
-
-vlDataSet* vlPolyData::MakeObject()
-{
-  return new vlPolyData(*this);
 }
 
 vlCell *vlPolyData::GetCell(int cellId)
@@ -236,13 +224,7 @@ vlCellArray* vlPolyData::GetStrips()
 
 void vlPolyData::Initialize()
 {
-  vlDataSet::Initialize();
-
-  if ( this->Points ) 
-  {
-    this->Points->UnRegister((void *)this);
-    this->Points = 0;
-  }
+  vlPointSet::Initialize();
 
   if ( this->Verts ) 
   {
@@ -270,13 +252,13 @@ void vlPolyData::Initialize()
 
   if ( this->Cells )
   {
-    delete this->Cells;
+    this->Cells->UnRegister((void *)this);
     this->Cells = 0;
   }
 
   if ( this->Links )
   {
-    delete this->Links;
+    this->Links->UnRegister((void *)this);
     this->Links = 0;
   }
 
@@ -325,7 +307,7 @@ void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlPolyData::GetClassName()))
     {
-    vlDataSet::PrintSelf(os,indent);
+    vlPointSet::PrintSelf(os,indent);
     
     os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
     os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
@@ -383,12 +365,13 @@ void vlPolyData::BuildCells()
   else
     {
     this->Cells = cells = new vlCellList(numCells,3*numCells);
+    this->Cells->Register((void *)this);
     }
 //
 // If we are just reading the data structure, can use the input data
 // without any copying or allocation.  Otherwise have to allocate
 // working storage that is a copy of the input data. Triangle meshes always
-// require new atorage.
+// require new storage.
 //
   if ( ! this->Writable && ! this->TriangleMesh ) 
     {
@@ -529,6 +512,7 @@ void vlPolyData::BuildLinks()
 {
   if ( ! this->Cells ) this->BuildCells();
   this->Links = new vlLinkList(this->GetNumberOfPoints());
+  this->Links->Register((void *)this);
 
   this->Links->BuildLinks(this);
 }

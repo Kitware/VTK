@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
-  vlDataSet *MakeObject();
+  vlDataSet *MakeObject() {return new vlPolyData(*this);};
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper();

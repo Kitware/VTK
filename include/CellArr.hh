@@ -71,7 +71,8 @@ public:
     this->Ia.InsertValue(id,pts[npts-1]);
     this->Ia[id-npts] = npts;
     for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
-    NumberOfCells++;
+    this->NumberOfCells++;
+    this->Location += npts + 1;
   }
 
   // create cells by specifying count, and then adding points one at a time using
@@ -79,7 +80,7 @@ public:
   void InsertNextCell(int npts)
   {
     this->Location = this->Ia.InsertNextValue(npts) + 1;
-    NumberOfCells++;
+    this->NumberOfCells++;
   }
   void InsertCellPoint(int id) 
     {this->Ia.InsertValue(this->Location++,id);};
@@ -92,7 +93,8 @@ public:
     this->Ia.InsertValue(id,cell->PointIds.GetId(npts-1));
     this->Ia[id-npts] = npts;
     for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = cell->PointIds.GetId(i);
-    NumberOfCells++;
+    this->NumberOfCells++;
+    this->Location += npts + 1;
   }
 
   // access methods for building data structures

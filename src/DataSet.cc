@@ -105,6 +105,8 @@ void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
     
     vlObject::PrintSelf(os,indent);
     
+    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+    os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
     os << indent << "Point Data:\n";
     this->PointData.PrintSelf(os,indent.GetNextIndent());
     bounds = this->GetBounds();

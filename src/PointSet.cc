@@ -21,6 +21,31 @@ vlPointSet::vlPointSet ()
   this->Locator = 0;
 }
 
+vlPointSet::vlPointSet(const vlPointSet& ps)
+{
+  this->Points = ps.Points;
+  if (this->Points) this->Points->Register((void *)this);
+
+  this->Locator = ps.Locator;
+  if (this->Locator) this->Locator->Register((void *)this);
+}
+
+void vlPointSet::Initialize()
+{
+  vlDataSet::Initialize();
+
+  if ( this->Points ) 
+  {
+    this->Points->UnRegister((void *)this);
+    this->Points = 0;
+  }
+
+  if ( this->Locator ) 
+  {
+    this->Locator->UnRegister((void *)this);
+    this->Locator = 0;
+  }
+}
 void vlPointSet::ComputeBounds()
 {
   float *bounds;

@@ -28,10 +28,12 @@ class vlPointSet : virtual public vlDataSet
 {
 public:
   vlPointSet();
+  vlPointSet(const vlPointSet& ps);
   char *GetClassName() {return "vlPointSet";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
+  void Initialize();
   int GetNumberOfPoints()
   {if (this->Points) return this->Points->GetNumberOfPoints();
   else return 0;};
