@@ -42,10 +42,9 @@
 
 #define VTK_FTTM_CACHE_BY_RGBA 1
 
-// Cache by size is actually 20% to 30% slower (or more).
-// Do not use it.
+// Cache by size
 
-#define VTK_FTTM_CACHE_BY_SIZE 0
+#define VTK_FTTM_CACHE_BY_SIZE 1
 
 //----------------------------------------------------------------------------
 // The embedded fonts
@@ -134,7 +133,7 @@ int IsAntiAliasingRequestedByThisProperty(vtkTextProperty *tprop)
 //----------------------------------------------------------------------------
 // A cache
 
-#define FONT_CACHE_CAPACITY 30
+#define FONT_CACHE_CAPACITY 60
 
 class vtkFontCache
 {
@@ -354,6 +353,9 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 
   if (this->NumberOfEntries == FONT_CACHE_CAPACITY)
     {
+#if VTK_FTTM_DEBUG
+    printf("Cache is full, deleting last!\n");
+#endif
     delete this->Entries[FONT_CACHE_CAPACITY - 1]->Font;
     if (this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName)
       {
@@ -422,7 +424,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 vtkFontCache FontCacheSingleton;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.8");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -522,25 +524,6 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     }
   
   float llx, lly, llz, urx, ury, urz;
-
-#if VTK_FTTM_CACHE_BY_RGBA
-  int antialiasing_requested = IsAntiAliasingRequestedByThisProperty(tprop);
-  // Set the color here since computing the BBox might load/render glyphs
-  // on demand and this color has to be consistent for a given pixmap font.
-  // TOFIX: this will be fixed as soon as BBox do not *render* glyphs to
-  // return its result (which should be welcome)
-  if (antialiasing_requested)
-    {
-    float* tpropColor = tprop->GetColor();
-    float opacity = tprop->GetOpacity();
-    unsigned char red, green, blue, alpha;
-    red   = (tpropColor[0] < 0.0) ?   0 : (unsigned char)(tpropColor[0]*255.0);
-    green = (tpropColor[1] < 0.0) ?   0 : (unsigned char)(tpropColor[1]*255.0);
-    blue  = (tpropColor[2] < 0.0) ?   0 : (unsigned char)(tpropColor[2]*255.0);
-    alpha = (opacity       < 0.0) ? 255 : (unsigned char)(opacity      *255.0);
-    glColor4ub(red, green, blue, alpha);
-    }
-#endif
 
   font->BBox(this->Input, llx, lly, llz, urx, ury, urz);
 
