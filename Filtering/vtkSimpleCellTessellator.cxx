@@ -359,7 +359,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.14");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.15");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1734,10 +1734,9 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
     root.SetVertex(i, point);
 
     root.SetPointId(i, tetra[indexTab[i]]);
-
     }
 
-   // Init the edge table
+  // Init the edge table
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
 
   this->PointOffset = internalPd->GetNumberOfComponents() + 6;

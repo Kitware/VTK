@@ -74,16 +74,13 @@ public:
   int CheckEdgeReferenceCount(vtkIdType e1, vtkIdType e2);
 
   // Description:
-  // To specify the starting point id.
+  // To specify the starting point id. It will initialize LastPointId
+  // This is very sensitive the start point should be cautiously chosen
   void Initialize(vtkIdType start);
   
   // Description:
   // Return the last point id inserted.
   vtkIdType GetLastPointId();
-  
-  // Description:
-  // Increment the last point id.
-  void IncrementLastPointId();
   
   // Description:
   // Return the total number of components for the point-centered attributes.
@@ -150,10 +147,10 @@ public:
 
     memcpy(this->Coord,other.Coord,sizeof(double)*3);
 
-    int c=other.numberOfComponents;
-    this->numberOfComponents=c;
-    this->Scalar=new double[c];
-    memcpy(this->Scalar,other.Scalar,sizeof(double)*c);
+    int c = other.numberOfComponents;
+    this->numberOfComponents = c;
+    this->Scalar = new double[c];
+    memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
     this->Reference = other.Reference;
     }
 
@@ -163,17 +160,17 @@ public:
       {
       this->PointId  = other.PointId;
       
-      memcpy(this->Coord,other.Coord,sizeof(double)*3);
+      memcpy(this->Coord, other.Coord, sizeof(double)*3);
       
-      int c=other.numberOfComponents;
+      int c = other.numberOfComponents;
       
       if(this->numberOfComponents!=c)
         {
         delete[] this->Scalar;
-        this->Scalar=new double[c];
-        this->numberOfComponents=c;
+        this->Scalar = new double[c];
+        this->numberOfComponents = c;
         }
-      memcpy(this->Scalar,other.Scalar,sizeof(double)*c);
+      memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
       this->Reference = other.Reference;
       }
     }
@@ -247,10 +244,7 @@ protected:
   vtkIdType HashFunction(vtkIdType ptId);
 
   // Keep track of the last point id we inserted, increment it each time:
-  vtkIdType LastPointId;  //static
-//  vtkGetMacro(LastPointId, vtkIdType);
-  //Use only once !
-//  vtkSetMacro(LastPointId, vtkIdType);
+  vtkIdType LastPointId;
 
   vtkIdType NumberOfComponents;
   
