@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include <iomanip.h>
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.1");
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.2");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -99,9 +99,8 @@ void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
   os << endl;
 }
 
+void vtkThreadSafeLog::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
   
-
-
-
-
-

@@ -25,7 +25,7 @@
 // A log for each process.
 vtkThreadSafeLog *VTK_TIMER_LOGS[VTK_MULTI_PROCESS_LOG_MAX];
 
-vtkCxxRevisionMacro(vtkMultiProcessLog, "1.4.22.1");
+vtkCxxRevisionMacro(vtkMultiProcessLog, "1.4.22.2");
 vtkStandardNewMacro(vtkMultiProcessLog);
 
 //----------------------------------------------------------------------------
@@ -97,8 +97,7 @@ void vtkMultiProcessLog::DumpLog(char *filename)
 }
 
   
-
-
-
-
-
+void vtkMultiProcessLog::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
