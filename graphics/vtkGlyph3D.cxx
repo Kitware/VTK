@@ -180,6 +180,12 @@ void vtkGlyph3D::Execute()
   // Setting up for calls to PolyData::InsertNextCell()
   output->Allocate(numPts*numSourceCells,numPts);
     
+  // Prepare to copy output
+  outputPD->CopyScalarsOff();
+  outputPD->CopyVectorsOff();
+  outputPD->CopyNormalsOff();
+  outputPD->CopyAllocate(pd,numPts*numSourcePts);
+
   //
   // Traverse all Input points, transforming Source points and copying 
   // point attributes.
@@ -301,6 +307,9 @@ void vtkGlyph3D::Execute()
     // multiply points and normals by resulting matrix
     trans.MultiplyPoints(sourcePts,newPts);
     if ( haveNormals ) trans.MultiplyNormals(sourceNormals,newNormals);
+
+    // Copy point data from source
+    for (i=0; i < numSourcePts; i++) outputPD->CopyData(pd,i,ptIncr+i);
     }
 
   //
