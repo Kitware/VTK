@@ -95,6 +95,13 @@ public:
   // is set at the beginning of the list.
   void InitTraversal() { this->Current = this->Top;};
 
+  //BTX
+  // Description:
+  // Less bloated way to iterate through a collection. 
+  // Just pass the same cookie value around each time
+  void InitTraversal(void *&cookie) {cookie = static_cast<void *>(this->Top);};
+  //ETX
+
   // Description:
   // Get the next item in the collection. NULL is returned if the collection
   // is exhausted.
@@ -104,6 +111,12 @@ public:
   // Get the i'th item in the collection. NULL is returned if i is out
   // of range
   vtkObject *GetItemAsObject(int i);
+
+  //BTX
+  // Description: 
+  // Less bloated way to get the next object as a collection. Just pass the
+  // same cookie back and forth. 
+  vtkObject *GetNextItemAsObject(void *&cookie);
   
   // Description:
   // Get an iterator to traverse the objects in this collection.
@@ -136,6 +149,21 @@ inline vtkObject *vtkCollection::GetNextItemAsObject()
   if ( elem != NULL )
     {
     this->Current = elem->Next;
+    return elem->Item;
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+inline vtkObject *vtkCollection::GetNextItemAsObject(void *&cookie)
+{
+  vtkCollectionElement *elem=static_cast<vtkCollectionElement *>(cookie);
+
+  if ( elem != NULL )
+    {
+    cookie = static_cast<void *>(elem->Next);
     return elem->Item;
     }
   else
