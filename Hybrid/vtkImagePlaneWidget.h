@@ -355,6 +355,16 @@ public:
   int GetCursorData(double xyzv[4]);
 
   // Description:
+  // Choose between voxel centered or continuous cursor probing.  With voxel
+  // centered probing, the cursor snaps to the nearest voxel and the reported
+  // cursor coordinates are extent based.  With continuous probing, voxel data
+  // is interpolated using vtkDataSetAttributes' InterpolatePoint method and
+  // the reported coordinates are 3D spacial continuous.  
+  vtkSetMacro(UseContinuousCursor,int);
+  vtkGetMacro(UseContinuousCursor,int);
+  vtkBooleanMacro(UseContinuousCursor,int);
+
+  // Description:
   // Enable/disable mouse interaction so the widget remains on display.
   void SetInteraction(int interact);
   vtkGetMacro(Interaction,int);
@@ -535,11 +545,14 @@ protected:
   vtkPolyData       *CursorPolyData;
   vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
-  int                CurrentCursorPosition[3];
+  double             CurrentCursorPosition[3];
   double             CurrentImageValue; // Set to VTK_DOUBLE_MAX when invalid
   void               GenerateCursor();
   void               UpdateCursor(int,int);
   void               ActivateCursor(int);
+  int                UpdateContinuousCursor(double *q);
+  int                UpdateDiscreteCursor(double *q);
+  int                UseContinuousCursor;
 
   // The text to display W/L, image data
   vtkTextActor *TextActor;

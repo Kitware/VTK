@@ -29,6 +29,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneSource.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -40,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.80");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.81");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -71,6 +72,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CurrentCursorPosition[2] = 0;
   this->CurrentImageValue        = VTK_DOUBLE_MAX;
   this->MarginSelectMode         = 8;
+  this->UseContinuousCursor      = 0;
 
   // Represent the plane's outline
   //
@@ -570,6 +572,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     this->MiddleButtonAutoModifier << endl;
   os << indent << "RightButtonAutoModifier: " << 
     this->RightButtonAutoModifier << endl;
+  os << indent << "UseContinuousCursor: "
+     << (this->UseContinuousCursor ? "On\n" : "Off\n") ;
 }
 
 void vtkImagePlaneWidget::BuildRepresentation()
@@ -1092,10 +1096,8 @@ int vtkImagePlaneWidget::GetCursorData(double xyzv[4])
   xyzv[0] = this->CurrentCursorPosition[0];
   xyzv[1] = this->CurrentCursorPosition[1];
   xyzv[2] = this->CurrentCursorPosition[2];
-  xyzv[3] = this->ImageData->GetScalarComponentAsDouble( \
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],0);
+  xyzv[3] = this->CurrentImageValue;
+  
   return 1;
 }
 
@@ -1119,14 +1121,10 @@ void vtkImagePlaneWidget::ManageTextDisplay()
       }
     else
       {
-      double val = this->ImageData->GetScalarComponentAsDouble( \
+      sprintf(this->TextBuff,"( %g, %g, %g ): %g",
                    this->CurrentCursorPosition[0],
                    this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],0);
-      sprintf(this->TextBuff,"( %3d, %3d, %3d ): %g",
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],val);
+                   this->CurrentCursorPosition[2],this->CurrentImageValue);
       }
     }
 
@@ -1903,6 +1901,13 @@ void vtkImagePlaneWidget::ActivateText(int i)
 
 void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 {
+  this->ImageData = this->Reslice->GetInput();
+  if ( !this->ImageData )
+    {
+    return;
+    }
+  this->ImageData->UpdateInformation();
+
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
@@ -1910,7 +1915,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 
   int found = 0;
   int i;
-  if ( path != 0 )
+  if ( path  )
     {
   // Deal with the possibility that we may be using a shared picker
   //
@@ -1939,50 +1944,30 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   double q[3];
   this->PlanePicker->GetPickPosition(q);
 
-  // vtkImageData will find the nearest implicit point to q
-  //
-  vtkIdType ptId = this->ImageData->FindPoint(q);
+  if(this->UseContinuousCursor)
+    {
+    found = this->UpdateContinuousCursor(q);
+    }
+  else
+    {
+    found = this->UpdateDiscreteCursor(q);
+    }
 
-  if ( ptId == -1 )
+  if(!found)
     {
     this->CursorActor->VisibilityOff();
     return;
     }
 
-  double closestPt[3];
-  this->ImageData->GetPoint(ptId,closestPt);
-
-  double origin[3];
-  this->ImageData->GetOrigin(origin);
-  double spacing[3];
-  this->ImageData->GetSpacing(spacing);
-  int extent[6];
-  this->ImageData->GetExtent(extent);
-
   double o[3];
   this->PlaneSource->GetOrigin(o);
 
-  int iq[3];
-  int iqtemp;
+  // q relative to the plane origin
+  //
   double qro[3];
-  for (i = 0; i < 3; i++)
-    {
-    // compute world to image coords
-    iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
-    
-    // we have a valid pick already, just enforce bounds check
-    iq[i] = 
-      (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
-
-    // compute image to world coords
-    q[i] = iq[i]*spacing[i] + origin[i];
-    
-    // q relative to the plane origin
-    qro[i]= q[i] - o[i];
-    }
-
-  memcpy(this->CurrentCursorPosition,iq,3*sizeof(int));
-  this->CurrentImageValue = 0.0;
+  qro[0]= q[0] - o[0];
+  qro[1]= q[1] - o[1];
+  qro[2]= q[2] - o[2];
 
   double p1o[3];
   double p2o[3];
@@ -2019,6 +2004,89 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   cursorPts->SetPoint(3,d);
 
   this->CursorPolyData->Modified();
+}
+
+int vtkImagePlaneWidget::UpdateContinuousCursor(double *q)
+{
+  double x[3], tol2;
+  vtkCell *cell;
+  vtkPointData *pd;
+  int subId;
+  double pcoords[3], weights[8];
+
+  this->CurrentCursorPosition[0] = q[0];
+  this->CurrentCursorPosition[1] = q[1];
+  this->CurrentCursorPosition[2] = q[2];
+
+  pd = this->ImageData->GetPointData();
+
+  vtkPointData* outPD = vtkPointData::New();
+  outPD->InterpolateAllocate(pd, 1, 1);
+
+  // Use tolerance as a function of size of source data
+  //
+  tol2 = this->ImageData->GetLength();
+  tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
+
+  // Find the cell that contains q and get it
+  //
+  cell = this->ImageData->FindAndGetCell(q,NULL,-1,tol2,subId,pcoords,weights);
+  int found = 0;
+  if (cell)
+    {
+    // Interpolate the point data
+    //
+    outPD->InterpolatePoint(pd,0,cell->PointIds,weights);
+    this->CurrentImageValue = outPD->GetScalars()->GetTuple1(0);
+    found = 1;
+    }
+
+  outPD->Delete();
+  return found;
+}
+
+int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
+{
+  // vtkImageData will find the nearest implicit point to q
+  //
+  vtkIdType ptId = this->ImageData->FindPoint(q);
+
+  if ( ptId == -1 )
+    {
+    return 0;
+    }
+
+  double closestPt[3];
+  this->ImageData->GetPoint(ptId,closestPt);
+
+  double origin[3];
+  this->ImageData->GetOrigin(origin);
+  double spacing[3];
+  this->ImageData->GetSpacing(spacing);
+  int extent[6];
+  this->ImageData->GetExtent(extent);
+
+  int iq[3];
+  int iqtemp;
+  for (int i = 0; i < 3; i++)
+    {
+  // compute world to image coords
+    iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
+
+  // we have a valid pick already, just enforce bounds check
+    iq[i] = (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
+
+  // compute image to world coords
+    q[i] = iq[i]*spacing[i] + origin[i];
+
+    this->CurrentCursorPosition[i] = iq[i];
+    }
+
+  this->CurrentImageValue = this->ImageData->GetScalarComponentAsDouble( \
+                   this->CurrentCursorPosition[0],
+                   this->CurrentCursorPosition[1],
+                   this->CurrentCursorPosition[2],0);
+  return 1;
 }
 
 void vtkImagePlaneWidget::SetOrigin(double x, double y, double z)
