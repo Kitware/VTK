@@ -50,7 +50,7 @@ vtkBrownianPoints::vtkBrownianPoints()
 
 void vtkBrownianPoints::Execute()
 {
-  int i, numPts;
+  int i, j, numPts;
   vtkFloatVectors *newVectors;
   float v[3], norm, speed;
 
@@ -79,13 +79,13 @@ void vtkBrownianPoints::Execute()
     speed = vtkMath::Random(this->MinimumSpeed,this->MaximumSpeed);
     if ( speed != 0.0 )
       {
-      for (i=0; i<3; i++) v[i] = vtkMath::Random(0,speed);
+      for (j=0; j<3; j++) v[j] = vtkMath::Random(0,speed);
       norm = vtkMath::Norm(v);
-      for (i=0; i<3; i++) v[i] *= (speed / norm);
+      for (j=0; j<3; j++) v[j] *= (speed / norm);
       }
     else
       {
-      for (i=0; i<3; i++) v[i] = 0.0;
+      for (j=0; j<3; j++) v[j] = 0.0;
       }
 
     newVectors->InsertNextVector(v);
