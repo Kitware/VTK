@@ -1,0 +1,29 @@
+#
+# This module add the VTK include paths to a project
+# It should be included after the FindVTK module
+#
+IF (USE_INSTALLED_VTK)
+  IF (VTK_INSTALL_DIR)
+    INCLUDE_DIRECTORIES ( ${VTK_INSTALL_DIR}/include ${VTK_INSTALL_DIR}/include/vtk )
+  ENDIF (VTK_INSTALL_DIR)
+ELSE (USE_INSTALLED_VTK)
+  IF (VTK_SOURCE_DIR)
+    LOAD_CACHE(${VTK_BINARY_DIR} 
+      EXCLUDE
+        BUILD_SHARED_LIBS
+        BUILD_TESTING
+        LIBRARY_OUTPUT_PATH
+        EXECUTABLE_OUTPUT_PATH
+        MAKECOMMAND
+      INCLUDE_INTERNALS
+        VTK_BINARY_PATH
+        VTK_LIBRARY_PATH
+      )
+    INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
+    LINK_DIRECTORIES(${VTK_LIBRARY_PATH})
+    IF (UNIX)
+      LINK_LIBRARIES(${THREAD_LIBS} ${DL_LIBS} -lm)
+    ENDIF (UNIX)
+  ENDIF (VTK_SOURCE_DIR)
+ENDIF (USE_INSTALLED_VTK)
+
