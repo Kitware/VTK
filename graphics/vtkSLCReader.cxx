@@ -352,6 +352,7 @@ void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
+  os << indent << "Error: " << this->Error << "\n";
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 }
