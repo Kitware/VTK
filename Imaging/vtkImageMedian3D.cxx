@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.32");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.33");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -445,7 +445,7 @@ void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
   outArray->SetNumberOfTuples(output->GetNumberOfPoints());
   outArray->SetName(inArray->GetName());
   output->GetPointData()->SetScalars(outArray);
-
+  outArray->Delete();
 
   this->MultiThread(this->GetInput(),output);
 }
