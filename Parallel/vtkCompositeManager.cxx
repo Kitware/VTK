@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.12");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.13");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -407,6 +407,7 @@ void vtkCompositeManager::RenderRMI()
     // We put this before receive because we want the pipeline
     // to be updated the first time if the camera does not
     // exist and we want it to happen before we block in receive
+    ren = rens->GetNextItem();
     if (ren)
       {
       cam = ren->GetActiveCamera();
@@ -415,7 +416,6 @@ void vtkCompositeManager::RenderRMI()
     controller->Receive((char*)(&renInfo), 
                         sizeof(struct vtkCompositeRendererInfo), 
                         0, vtkCompositeManager::REN_INFO_TAG);
-    ren = rens->GetNextItem();
     if (ren == NULL)
       {
       vtkErrorMacro("Renderer mismatch.");
