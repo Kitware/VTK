@@ -329,18 +329,26 @@ int vtkImageClippingExtents::GetNextExtent(int &r1, int &r2,
   if (iter == 0)
     {
     int state = 1; // start outside
+    r1 = VTK_INT_MIN;
     for ( ; iter < clistlen; iter++)
       {
-      r1 = rmin;
-      state = -state;
       if (clist[iter] >= rmin)
         {
-        if (state < 0)
+        if (state > 0)
           {
           r1 = clist[iter++];
           }
         break;
         }
+      state = -state;
+      }
+    if (r1 == VTK_INT_MIN)
+      {
+      r1 = rmin;
+      if (state > 0)
+	{
+	r1 = rmax + 1;
+	}
       }
     }
   else
