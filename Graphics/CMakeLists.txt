@@ -57,6 +57,7 @@ vtkEdgePoints.cxx
 vtkElevationFilter.cxx
 vtkEllipticalButtonSource.cxx
 vtkExtractCells.cxx
+vtkExtractDataOverTime.cxx
 vtkExtractEdges.cxx
 vtkExtractGeometry.cxx
 vtkExtractGrid.cxx

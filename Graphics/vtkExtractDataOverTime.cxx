@@ -1,0 +1,160 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkExtractDataOverTime.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkExtractDataOverTime.h"
+
+#include "vtkCommand.h"
+#include "vtkPointSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+
+vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.1");
+vtkStandardNewMacro(vtkExtractDataOverTime);
+
+//----------------------------------------------------------------------------
+vtkExtractDataOverTime::vtkExtractDataOverTime()
+{
+  this->NumberOfTimeSteps = 0;
+  this->CurrentTimeIndex = 0;
+  this->PointIndex = 0;
+  
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractDataOverTime::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Point Index: " << this->PointIndex << endl;
+  os << indent << "NumberOfTimeSteps: " << this->NumberOfTimeSteps << endl;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkExtractDataOverTime::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
+{
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  if ( outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
+    {
+    this->NumberOfTimeSteps = 
+      outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    }
+  else
+    {
+    this->NumberOfTimeSteps = 0;
+    }
+
+  return 1;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
+                                         vtkInformationVector** inputVector,
+                                         vtkInformationVector* outputVector)
+{
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    // get the requested update extent
+    inputVector[0]->GetInformationObject(0)->Set( 
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), this->CurrentTimeIndex );
+
+     return 1;
+    }
+  
+  // generate the data
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    if (this->NumberOfTimeSteps == 0)
+      {
+      vtkErrorMacro("No Time steps in input time data!");
+      return 0;
+      }
+
+    // get the output data object
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    vtkPointSet *output = 
+      vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+    // and input data object
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    vtkPointSet *input = 
+      vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+    // is this the first request
+    if (!this->CurrentTimeIndex)
+      {
+      // Tell the pipeline to start looping.
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      this->AllocateOutputData(input, output);
+      }
+
+    // extract the actual data
+    output->GetPoints()->SetPoint( this->CurrentTimeIndex, 
+      input->GetPoints()->GetPoint(this->PointIndex) );
+    output->GetPointData()->CopyData(input->GetPointData(), this->PointIndex,
+      this->CurrentTimeIndex);
+    
+    // increment the time index
+    this->CurrentTimeIndex++;
+    if (this->CurrentTimeIndex == this->NumberOfTimeSteps)
+      {
+      // Tell the pipeline to stop looping.
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      this->CurrentTimeIndex = 0;
+      }
+    
+    return 1;
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *output)
+{
+  // by default vtkPointSetAlgorithm::RequestDataObject already 
+  // created an output of the same type as the input
+  if (!output)
+    {
+    vtkErrorMacro("Output not created as expected!");
+    return 0;
+    }
+
+  // 1st the points
+  vtkPoints *points = output->GetPoints();
+  if (!points)
+    {
+    points = vtkPoints::New();
+    output->SetPoints( points );
+    points->Delete();
+    }
+  points->SetNumberOfPoints( this->NumberOfTimeSteps );
+
+  // now the point data
+  output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfTimeSteps);
+
+  return 1;
+}
+
+
