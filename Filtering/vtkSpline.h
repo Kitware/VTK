@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkSpline();
-  ~vtkSpline ();
+  ~vtkSpline();
 
   unsigned long ComputeTime;
   int ClampValue;

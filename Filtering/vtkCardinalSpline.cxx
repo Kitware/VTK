@@ -17,14 +17,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.28");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.29");
 vtkStandardNewMacro(vtkCardinalSpline);
 
+//----------------------------------------------------------------------------
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline ()
 {
 }
 
+//----------------------------------------------------------------------------
 // Evaluate a 1D Spline
 double vtkCardinalSpline::Evaluate (double t)
 {
@@ -76,6 +78,7 @@ double vtkCardinalSpline::Evaluate (double t)
                       + *(coefficients + index * 4));
 }
 
+//----------------------------------------------------------------------------
 // Compute Cardinal Splines for each dependent variable
 void vtkCardinalSpline::Compute ()
 {
@@ -192,6 +195,7 @@ void vtkCardinalSpline::Compute ()
 }
 
 
+//----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is open.
 void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
                         double *work, double coefficients[][4],
@@ -330,6 +334,7 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
 
 }
 
+//----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
 // spline is continous in value and derivatives.
@@ -427,6 +432,7 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
   coefficients[N][3] = coefficients[0][3];
 }
 
+//----------------------------------------------------------------------------
 void vtkCardinalSpline::DeepCopy(vtkSpline *s)
 {
   vtkCardinalSpline *spline = vtkCardinalSpline::SafeDownCast(s);
@@ -440,6 +446,7 @@ void vtkCardinalSpline::DeepCopy(vtkSpline *s)
   this->vtkSpline::DeepCopy(s);
 }
 
+//----------------------------------------------------------------------------
 void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

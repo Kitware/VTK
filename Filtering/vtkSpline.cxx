@@ -16,8 +16,9 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.24");
+vtkCxxRevisionMacro(vtkSpline, "1.25");
 
+//----------------------------------------------------------------------------
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
 vtkSpline::vtkSpline ()
@@ -34,6 +35,7 @@ vtkSpline::vtkSpline ()
   this->Closed = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkSpline::~vtkSpline ()
 {
   if (this->PiecewiseFunction)
@@ -50,6 +52,7 @@ vtkSpline::~vtkSpline ()
     }
 }
 
+//----------------------------------------------------------------------------
 double vtkSpline::ComputeLeftDerivative()
 {
   double *dptr = this->PiecewiseFunction->GetDataPointer();
@@ -64,6 +67,7 @@ double vtkSpline::ComputeLeftDerivative()
     }
 }
 
+//----------------------------------------------------------------------------
 double vtkSpline::ComputeRightDerivative()
 {
   double *dptr = this->PiecewiseFunction->GetDataPointer();
@@ -78,24 +82,28 @@ double vtkSpline::ComputeRightDerivative()
     }
 }
 
+//----------------------------------------------------------------------------
 // Add a point to the Piecewise Functions containing the data
 void vtkSpline::AddPoint (double t, double x)
 {
   this->PiecewiseFunction->AddPoint (t, x);
 }
 
+//----------------------------------------------------------------------------
 // Remove a point from the Piecewise Functions.
 void vtkSpline::RemovePoint (double t)
 {
   this->PiecewiseFunction->RemovePoint (t);
 }
 
+//----------------------------------------------------------------------------
 // Remove all points from the Piecewise Functions.
 void vtkSpline::RemoveAllPoints ()
 {
   this->PiecewiseFunction->RemoveAllPoints ();
 }
 
+//----------------------------------------------------------------------------
 void vtkSpline::DeepCopy(vtkSpline *s)
 {
   vtkSpline *spline = vtkSpline::SafeDownCast(s);
@@ -112,6 +120,7 @@ void vtkSpline::DeepCopy(vtkSpline *s)
     }
 }
 
+//----------------------------------------------------------------------------
 // Overload standard modified time function. If data is modified,
 // then this object is modified as well.
 unsigned long vtkSpline::GetMTime()
@@ -128,6 +137,7 @@ unsigned long vtkSpline::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 int vtkSpline::FindIndex(int size, double t)
 {
   int index=0;
@@ -159,6 +169,7 @@ int vtkSpline::FindIndex(int size, double t)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -17,9 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.26");
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.27");
 vtkStandardNewMacro(vtkKochanekSpline);
 
+//----------------------------------------------------------------------------
 // Construct a KochanekSpline wth the following defaults:
 // DefaultBias = 0,
 // DefaultTension = 0,
@@ -31,6 +32,7 @@ vtkKochanekSpline::vtkKochanekSpline ()
   this->DefaultContinuity = 0.0;
 }
 
+//----------------------------------------------------------------------------
 // Evaluate a 1D Spline
 double vtkKochanekSpline::Evaluate (double t)
 {
@@ -82,6 +84,7 @@ double vtkKochanekSpline::Evaluate (double t)
                       + *(coefficients + index * 4));
 }
 
+//----------------------------------------------------------------------------
 // Compute Kochanek Spline coefficients.
 void vtkKochanekSpline::Compute ()
 {
@@ -192,6 +195,7 @@ void vtkKochanekSpline::Compute ()
 
 #define VTK_EPSILON .0001
 
+//----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline
 void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
                                double tension, double bias, double continuity,
@@ -368,6 +372,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkKochanekSpline::DeepCopy(vtkSpline *s)
 {
   vtkKochanekSpline *spline = vtkKochanekSpline::SafeDownCast(s);
@@ -383,6 +388,7 @@ void vtkKochanekSpline::DeepCopy(vtkSpline *s)
   this->vtkSpline::DeepCopy(s);
 }
 
+//----------------------------------------------------------------------------
 void vtkKochanekSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

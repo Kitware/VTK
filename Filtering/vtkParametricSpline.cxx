@@ -18,9 +18,10 @@
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricSpline, "1.4");
+vtkCxxRevisionMacro(vtkParametricSpline, "1.5");
 vtkStandardNewMacro(vtkParametricSpline);
 
+//----------------------------------------------------------------------------
 vtkParametricSpline::vtkParametricSpline()
 {
   this->MinimumU = 0;
@@ -43,6 +44,7 @@ vtkParametricSpline::vtkParametricSpline()
   this->InitializeTime = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricSpline::~vtkParametricSpline()
 {
   if (this->Points)
@@ -63,6 +65,7 @@ vtkParametricSpline::~vtkParametricSpline()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::SetPoints(vtkPoints *pts)
 {
   if ( pts != this->Points )
@@ -80,6 +83,7 @@ void vtkParametricSpline::SetPoints(vtkPoints *pts)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::SetXSpline(vtkSpline *s)
 {
   if ( s != this->XSpline )
@@ -97,6 +101,7 @@ void vtkParametricSpline::SetXSpline(vtkSpline *s)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::SetYSpline(vtkSpline *s)
 {
   if ( s != this->YSpline )
@@ -114,6 +119,7 @@ void vtkParametricSpline::SetYSpline(vtkSpline *s)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::SetZSpline(vtkSpline *s)
 {
   if ( s != this->ZSpline )
@@ -132,6 +138,7 @@ void vtkParametricSpline::SetZSpline(vtkSpline *s)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
 {
   // make sure everything has been set up
@@ -159,6 +166,7 @@ void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
   Pt[2] = this->ZSpline->Evaluate(t);
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricSpline::EvaluateScalar(double u[3], double*, double *)
 {
   // make sure everything has been set up
@@ -173,6 +181,7 @@ double vtkParametricSpline::EvaluateScalar(double u[3], double*, double *)
   return u[0]; //simply parametric value
 }
 
+//----------------------------------------------------------------------------
 // Configure the splines for evaluation
 int vtkParametricSpline::Initialize()
 {
@@ -292,6 +301,7 @@ int vtkParametricSpline::Initialize()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkParametricSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
