@@ -28,9 +28,12 @@
 // Since vtkContainer and vtkAbstractList provide some pure 
 // virtual methods, each object of type container will have
 // v-tabe.
+//
 // For container of strings, use <const char*> as a template 
 // argument. This way you will be able to use string literals
-// as keys or values.
+// as keys or values
+//
+// Key and Value types must be default constructable.
 
 // .SECTION See Also
 // vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
