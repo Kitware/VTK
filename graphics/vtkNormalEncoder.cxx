@@ -64,11 +64,17 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
   unsigned short *nptr;
   float          nx, ny, nz, t;
   float          gvalue;
+  float          normalize_factor;
 
   // Compute steps through the volume in x, y, and z
   xstep = 1;
   ystep = encoder->ScalarInputSize[0];
   zstep = encoder->ScalarInputSize[0] * encoder->ScalarInputSize[1];
+
+  // Multiply by the spacing used for normal estimation
+  xstep *= encoder->SampleSpacingInVoxels;
+  ystep *= encoder->SampleSpacingInVoxels;
+  zstep *= encoder->SampleSpacingInVoxels;
 
   // Compute the size of the normal grid - the large grid size is
   // NORM_SQR_SIZE * NORM_SQR_SIZE and the small grid of vertices
@@ -106,6 +112,12 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
   nptr = encoder->EncodedNormal + offset;
   gptr = encoder->GradientMagnitude + offset;
 
+  // Normalization factor used for magnitude of gradient so that the
+  // magnitude is based on a unit distance normal
+  normalize_factor = 1.0 / ( 2.0 * ( encoder->ScalarInputAspect[0] *
+				     encoder->ScalarInputAspect[1] * 
+				     encoder->ScalarInputAspect[2] ) );
+
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
@@ -117,7 +129,8 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	// we are on the edge
 
 	// Compute the X component
-	if ( x > 0 && x < encoder->ScalarInputSize[0] - 1 )
+	if ( x >= encoder->SampleSpacingInVoxels && 
+	     x < encoder->ScalarInputSize[0] - encoder->SampleSpacingInVoxels )
 	  nx = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
 	else if ( x == 0 )
 	  nx = -((float)*(dptr+xstep));
@@ -125,7 +138,8 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	  nx =  ((float)*(dptr-xstep));
 	
 	// Compute the Y component
-	if ( y > 0 && y < encoder->ScalarInputSize[1] - 1 )
+	if ( y >= encoder->SampleSpacingInVoxels && 
+	     y < encoder->ScalarInputSize[1] - encoder->SampleSpacingInVoxels )
 	  ny = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
 	else if ( y == 0 )
 	  ny = -((float)*(dptr+ystep));
@@ -133,7 +147,8 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	  ny =  ((float)*(dptr-ystep));
 	
 	// Compute the Z component
-	if ( z > 0 && z < encoder->ScalarInputSize[2] - 1 )
+	if ( z >= encoder->SampleSpacingInVoxels && 
+	     z < encoder->ScalarInputSize[2] - encoder->SampleSpacingInVoxels )
 	  nz = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
 	else if ( z == 0 )
 	  nz = -((float)*(dptr+zstep));
@@ -148,14 +163,12 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	nz *= encoder->ScalarInputAspect[0] * encoder->ScalarInputAspect[1];
 	
 	// Compute the gradient magnitude
-	t = sqrt( (double)( nx*nx + ny*ny + nz*nz ) ) / 2.0;
+	t = sqrt( (double)( nx*nx + ny*ny + nz*nz ) ) * normalize_factor;
 	
 	// Encode this into an 8 bit value - this method is changing
 	// in the near future
-	gvalue = 
-	  255.0 * ( t - encoder->GradientMagnitudeRange[0] ) / 
-	  ( encoder->GradientMagnitudeRange[1] - 
-	    encoder->GradientMagnitudeRange[0] );
+	gvalue = t * encoder->GradientMagnitudeScale + 
+	  encoder->GradientMagnitudeBias;
 	  
 	if ( gvalue < 0.0 )
 	  *gptr = 0;
@@ -183,17 +196,21 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	  
 	  nx *= t;
 	  ny *= t;
+	
+	  *nptr = encoder->IndexTable
+	    [(int)((float)(nx+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
+		   (float)(NORM_SQR_SIZE-1))]
+	    [(int)((float)(ny+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
+		   (float)(NORM_SQR_SIZE-1))];
+	
+	  // If the z component is less than 0.0, add norm_size to the
+	  // index 
+	  if ( nz < 0.0 ) *nptr += norm_size;
 	  }
-	
-	*nptr = encoder->IndexTable
-	  [(int)((float)(nx+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
-		 (float)(NORM_SQR_SIZE-1))]
-	  [(int)((float)(ny+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
-		 (float)(NORM_SQR_SIZE-1))];
-	
-	// If the z component is less than 0.0, add norm_size to the
-	// index 
-	if ( nz < 0.0 ) *nptr += norm_size;
+	else
+	  {
+	  *nptr = 2*norm_size;
+	  }
 
 	nptr++;
 	gptr++;
@@ -211,20 +228,15 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 // when magnitude of gradient opacities are included
 vtkNormalEncoder::vtkNormalEncoder()
 {
-  int i;
-
   this->ScalarInput                = NULL;
   this->EncodedNormal              = NULL;
   this->GradientMagnitude          = NULL;
-  this->GradientMagnitudeRange[0]  = 0.0;
-  this->GradientMagnitudeRange[1]  = 256.0;
+  this->GradientMagnitudeScale     = 1.0;
+  this->GradientMagnitudeBias      = 0.0;
   this->IndexTableInitialized      = 0;
   this->NumberOfThreads            = this->Threader.GetNumberOfThreads();
+  this->SampleSpacingInVoxels      = 1;
 
-  for ( i = 0; i < 256; i++ )
-    this->GradientMagnitudeTable[i] = this->GradientMagnitudeRange[0] + 
-	(float)i/ 256.0 * ( this->GradientMagnitudeRange[1] - 
-	  this->GradientMagnitudeRange[0] );
 }
 
 // Description:
@@ -238,21 +250,6 @@ vtkNormalEncoder::~vtkNormalEncoder()
     delete this->GradientMagnitude;
 }
 
-// Description:
-// Set the gradient magnitude range - this will disappear soon
-void vtkNormalEncoder::SetGradientMagnitudeRange( float v1, float v2 )
-{
-  int i;
- 
-  this->GradientMagnitudeRange[0] = v1;
-  this->GradientMagnitudeRange[1] = v2;
-  this->Modified();
-  
-  for ( i = 0; i < 256; i++ )
-    this->GradientMagnitudeTable[i] = this->GradientMagnitudeRange[0] + 
-	(float)i/ 256.0 * ( this->GradientMagnitudeRange[1] - 
-	  this->GradientMagnitudeRange[0] );
-}
 
 // Description:
 // Initialize the index table.  This is a 2*NORM_SQR_SIZE - 1 by
@@ -424,6 +421,8 @@ void vtkNormalEncoder::UpdateNormals( )
     {
     delete this->EncodedNormal;
     this->EncodedNormal = NULL;
+    delete this->GradientMagnitude;
+    this->GradientMagnitude = NULL;
     }
 
   // Allocate space for the encoded normals if necessary
@@ -432,32 +431,14 @@ void vtkNormalEncoder::UpdateNormals( )
     this->EncodedNormal = new unsigned short[ scalar_input_size[0] *
 					      scalar_input_size[1] *
  					      scalar_input_size[2] ];
+    this->GradientMagnitude = new unsigned char[ scalar_input_size[0] *
+					         scalar_input_size[1] *
+ 					         scalar_input_size[2] ];
     this->EncodedNormalSize[0] = scalar_input_size[0];
     this->EncodedNormalSize[1] = scalar_input_size[1];
     this->EncodedNormalSize[2] = scalar_input_size[2];
     }
 
-  // If we previously have allocated space for the gradient magnitudes,
-  // and this space is no longer the right size, delete it
-  if ( this->GradientMagnitude &&
-	( this->GradientMagnitudeSize[0] != scalar_input_size[0] ||
-	  this->GradientMagnitudeSize[1] != scalar_input_size[1] ||
-          this->GradientMagnitudeSize[2] != scalar_input_size[2] ) )
-    {
-    delete this->GradientMagnitude;
-    this->GradientMagnitude = NULL;
-    }
-
-  // Allocate space for the encoded normals if necessary
-  if ( !this->GradientMagnitude )
-    {
-    this->GradientMagnitude = new unsigned char[ scalar_input_size[0] *
-					         scalar_input_size[1] *
- 					         scalar_input_size[2] ];
-    this->GradientMagnitudeSize[0] = scalar_input_size[0];
-    this->GradientMagnitudeSize[1] = scalar_input_size[1];
-    this->GradientMagnitudeSize[2] = scalar_input_size[2];
-    }
 
   // Copy info that multi threaded function will need into temp variables
   memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
@@ -565,6 +546,7 @@ void vtkNormalEncoder::BuildShadingTable( float light_direction[3],
   float    Ka, Es, Kd_intensity, Ks_intensity;
   float    half_x, half_y, half_z;
   float    mag, n_dot_h, specular_value;
+  int      norm_size;
 
   // Move to local variables
   lx = light_direction[0];
@@ -599,11 +581,23 @@ void vtkNormalEncoder::BuildShadingTable( float light_direction[3],
   ssg_ptr = this->ShadingTable[4];
   ssb_ptr = this->ShadingTable[5];
 
+  norm_size = NORM_SQR_SIZE*NORM_SQR_SIZE + (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1);
+
+  // The zero normal has zero light contribution
+  // for the diffuse lighting
+  sdr_ptr[2*norm_size] = 0.0;
+  sdg_ptr[2*norm_size] = 0.0;
+  sdb_ptr[2*norm_size] = 0.0;
+
+  // and for the specular lighting
+  ssr_ptr[2*norm_size] = 0.0;
+  ssg_ptr[2*norm_size] = 0.0;
+  ssb_ptr[2*norm_size] = 0.0;
+
   // For each possible normal, compute the intensity of light at
   // a location with that normal, and the given lighting and
   // material properties
-  for ( i = 0; i < 2*(NORM_SQR_SIZE*NORM_SQR_SIZE + 
-		      (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)); i++ )
+  for ( i = 0; i < 2*norm_size; i++ )
     {
     // The dot product between the normal and the light vector
     n_dot_l = (*(nptr+0) * lx + *(nptr+1) * ly + *(nptr+2) * lz);

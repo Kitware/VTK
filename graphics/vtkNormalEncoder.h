@@ -80,14 +80,19 @@ public:
   // calculated
   vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
   vtkGetObjectMacro( ScalarInput, vtkStructuredPoints );
-  
+
   // Description:
-  // This is temporary and will be replaced with a gradient magnitude
-  // opacity transfer function
-  void SetGradientMagnitudeRange( float values[2] )
-    { SetGradientMagnitudeRange( values[0], values[1] ); };
-  void SetGradientMagnitudeRange( float value1, float value2 );
-  vtkGetVectorMacro(  GradientMagnitudeRange, float, 2 );
+  // Set/Get the spacing between samples for the finite differences
+  // method used to compute the normal. This spacing is in voxel units.
+  vtkSetMacro( SampleSpacingInVoxels, int );
+  vtkGetMacro( SampleSpacingInVoxels, int );
+
+  // Description:
+  // Set/Get the scale and bias for the gradient magnitude
+  vtkSetMacro( GradientMagnitudeScale, float );
+  vtkGetMacro( GradientMagnitudeScale, float );
+  vtkSetMacro( GradientMagnitudeBias, float );
+  vtkGetMacro( GradientMagnitudeBias, float );
 
   // Description:
   // Recompute the encoded normals and gradient magnitudes.
@@ -128,9 +133,8 @@ public:
   int   GetEncodedNormalIndex( int x_index, int y_index, int z_index );
 
   // Description:
-  // Get the magnitude of the gradient at an x,y,z location in the volume
-  float GetGradientMagnitude( int xyz_index ) 
-  {return this->GradientMagnitudeTable[*(this->GradientMagnitude+xyz_index)];};
+  // Get the gradient magnitudes
+  unsigned char *GetGradientMagnitudes(void) {return this->GradientMagnitude;};
 
   // Description:
   // Get/Set the number of threads to create when encoding normals
@@ -151,20 +155,15 @@ public:
 
   // The magnitude of the gradient array and the size of this array
   unsigned char         *GradientMagnitude;
-  int                   GradientMagnitudeSize[3];
-
-  // A mapping from 0-255 to opacity - will be replaced
-  float                 GradientMagnitudeRange[2];
-  float                 GradientMagnitudeTable[256];
 
   // The time at which the normals were last built
   vtkTimeStamp          BuildTime;
 
   // The six shading tables (r diffuse ,g diffuse ,b diffuse, 
   // r specular, g specular, b specular ) - with an entry for each
-  // encoded normal
+  // encoded normal plus one entry at the end for the zero normal
   float                 ShadingTable[6][(2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
-				     (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))];
+				     (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))+1];
 
   // The index table which maps (x,y) position in the rotated grid
   // to an encoded normal 
@@ -178,10 +177,16 @@ public:
   float                 DecodedNormal[3*(2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
 				 (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))];
 
+  float                 GradientMagnitudeScale;
+  float                 GradientMagnitudeBias;
+
   // These are temporary variables used to avoid conflicts with
   // multi threading
   int                   ScalarInputSize[3];
   float                 ScalarInputAspect[3];
+
+  // The sample spacing between samples taken for the normal estimation
+  int                   SampleSpacingInVoxels;
 
 protected:
 
