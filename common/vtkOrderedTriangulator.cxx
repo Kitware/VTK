@@ -353,7 +353,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
   center[0] = (double) (bounds[0]+bounds[1])/2.0;
   center[1] = (double) (bounds[2]+bounds[3])/2.0;
   center[2] = (double) (bounds[4]+bounds[5])/2.0;
-  length = 2.5 * sqrt( (radius2 = (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+  length = 3.0 * sqrt( (radius2 = (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                  (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                  (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) );
   radius2 /= 2.0;
@@ -836,7 +836,7 @@ int vtkOrderedTriangulator::GetTetras(int classification,
   int numTetras=0;
   vtkOTVector<vtkOTPoint>::Iterator p;
   vtkPoints *points = vtkPoints::New();
-  points->SetNumberOfPoints(this->MaximumNumberOfPoints);
+  points->SetNumberOfPoints(this->MaximumNumberOfPoints+6);
   for ( p=this->Mesh->Points.Begin();
         p != this->Mesh->Points.End(); ++p)
     {
