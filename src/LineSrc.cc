@@ -63,7 +63,7 @@ void vlLineSource::Execute()
   for (i=0; i<numPts; i++) 
     {
     tc[0] = ((float)i/this->Resolution);
-    for (j=0; j<3; j++) x[i] = this->Pt1[j] + tc[0]*v[j];
+    for (j=0; j<3; j++) x[j] = this->Pt1[j] + tc[0]*v[j];
     newPoints->InsertPoint(i,x);
     newTCoords->InsertTCoord(i,tc);
     }
