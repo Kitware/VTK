@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.4");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.5");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -226,7 +226,9 @@ int vtkDemandDrivenPipeline::UpdateInformation()
   if(this->InProcessDownstreamRequest)
     {
     vtkErrorMacro("UpdateInformation invoked during a downstream request.  "
-                  "Returning failure from the method.");
+                  "Returning failure to algorithm "
+                  << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm << ").");
     return 0;
     }
 
@@ -282,7 +284,9 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
   if(this->InProcessDownstreamRequest)
     {
     vtkErrorMacro("UpdateData invoked during a downstream request.  "
-                  "Returning failure from the method.");
+                  "Returning failure to algorithm "
+                  << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm << ").");
     return 0;
     }
 
@@ -426,7 +430,9 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
     else
       {
       // There was an error in pipeline connectivity.
-      vtkErrorMacro("Output data for port " << port << " does not exist "
+      vtkErrorMacro("Output data for port " << port << " on algorithm "
+                    << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm << ") does not exist "
                     "and UpdateInformation failed.");
       }
     }

@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.3");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.4");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -129,7 +129,9 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
   if(this->InProcessUpstreamRequest)
     {
     vtkErrorMacro("PropagateUpdateExtent invoked during an upstream request.  "
-                  "Returning failure from the method.");
+                  "Returning failure to algorithm "
+                  << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm << ").");
     return 0;
     }
 
