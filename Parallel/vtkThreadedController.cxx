@@ -68,9 +68,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.13");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.14");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.13");
+vtkCxxRevisionMacro(vtkThreadedController, "1.14");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -232,6 +232,12 @@ void vtkThreadedController::Barrier()
     {
     vtkThreadedController::WaitForPreviousBarrierToEnd();
     }
+#ifdef VTK_USE_WIN32_THREADS
+  else
+    {
+    ResetEvent(vtkThreadedController::BarrierEndedEvent);
+    }
+#endif
 
   // All processes increment the counter (which is initially 0) by 1
   vtkThreadedController::CounterLock.Lock();
@@ -249,8 +255,9 @@ void vtkThreadedController::Barrier()
     // If you are not the last process, wait until someone unlocks 
     // the barrier
     vtkThreadedController::WaitForNextThread();
+    vtkThreadedController::CounterLock.Lock();
     vtkThreadedController::Counter--;
-
+    vtkThreadedController::CounterLock.Unlock();
     if (vtkThreadedController::Counter == 1)
       {
       // If you are the last process to pass the barrier
