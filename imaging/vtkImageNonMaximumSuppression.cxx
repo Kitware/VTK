@@ -179,7 +179,6 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 					    vtkImageRegion *outRegion)
 {
   int idx;
-  float d;
   int *imageExtent, *incs;
   int outIdxs[VTK_IMAGE_DIMENSIONS], *idxs;
   // For looping though output (and input) pixels.
@@ -192,6 +191,8 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
   int in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2Inc4;
   float *in2Ptr0, *in2Ptr1, *in2Ptr2, *in2Ptr3, *in2Ptr4;
   int neighborA, neighborB;
+  float d, ratio[VTK_IMAGE_DIMENSIONS], *thresh;
+
 
   // This filter expects that output and input are type float.
   if (outRegion->GetScalarType() != VTK_FLOAT ||
@@ -204,6 +205,22 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
     return;
     }
 
+  // Gradient is computed with aspect ratio (world coordinates)
+  // Compute how to split up the quadrents into bins.
+  inRegion2->GetAspectRatio(ratio);
+  d = 0.0;
+  for (idx = 0; idx < this->NumberOfAxes; ++idx)
+    {
+    d += ratio[idx];
+    }
+  d = (float)(this->NumberOfAxes) / d;
+  for (idx = 0; idx < this->NumberOfAxes; ++idx)
+    {
+    ratio[idx] = 0.38268343 * ratio[idx] * d;
+    //thresh[idx] = 0.414214 * ratio[idx] 
+    //  / sqrt(d - 0.82842712 * ratio[idx] * ratio[idx]);
+    }
+  
   // Get information to march through data
   inRegion1->GetIncrements(in1Inc0, in1Inc1, in1Inc2, in1Inc3); 
   inRegion2->GetIncrements(in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2Inc4); 
@@ -241,6 +258,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	  // Use vector (in2) to determine which neighbors to use.
 	  in2Ptr4 = in2Ptr0;
 	  idxs = outIdxs;
+	  thresh = ratio;
 	  incs = inRegion1->GetIncrements();
 	  imageExtent = inRegion1->GetImageExtent();
 	  neighborA = neighborB = 0;
@@ -250,7 +268,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	    d = *in2Ptr4 / *in1Ptr0;  
 	    // Vector points positive along this axis?
 	    // (can point along multiple axes)
-	    if (d > 0.38268343)  // sin(22.5 degrees)
+	    if (d > *thresh)  
 	      {
 	      if (*idxs < imageExtent[1])  // max
 		{
@@ -262,7 +280,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 		}
 	      }
 	    // Vector points negative along this axis?
-	    else if (d < -0.38268343)
+	    else if (d < *thresh)
 	      {
 	      if (*idxs < imageExtent[1])  // max
 		{
@@ -277,6 +295,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	    in2Ptr4 += in2Inc4;
 	    ++idxs;
 	    ++incs;
+	    ++thresh;
 	    imageExtent += 2;
 	    }
 	  
