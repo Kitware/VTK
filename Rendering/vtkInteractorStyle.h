@@ -95,9 +95,9 @@
 #define VTKIS_DOLLY        4
 #define VTKIS_ZOOM         5
 #define VTKIS_USCALE       6
-#define VTKIS_FORWARDFLY   7
-#define VTKIS_REVERSEFLY   8
-#define VTKIS_TIMER        9
+#define VTKIS_TIMER        7
+#define VTKIS_FORWARDFLY   8
+#define VTKIS_REVERSEFLY   9
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1
