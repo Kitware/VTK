@@ -148,6 +148,7 @@ vtkCamera camera
     camera ComputeViewPlaneNormal
     camera SetViewAngle 24.4617
     camera SetViewUp 0.17138 0.331163 0.927879
+    camera SetClippingRange 1 100
 
 ren1 AddActor s1Actor
 ren1 AddActor s2Actor
