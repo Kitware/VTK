@@ -214,10 +214,6 @@ class wxVTKRenderWindow(baseClass):
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
         self.__handle = None
-        # Tell the RenderWindow to render inside the wxWindow.
-        if self.GetHandle():
-            self.__handle = self.GetHandle()
-            self._RenderWindow.SetWindowInfo(str(self.__handle))
 
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -452,18 +448,20 @@ class wxVTKRenderWindow(baseClass):
             light.SetPosition(self._CurrentCamera.GetPosition())
             light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
 
-        if self.__handle and self.__handle == self.GetHandle():
-            self._RenderWindow.Render()
+        if((not self.GetUpdateRegion().IsEmpty())or(self.__handle)):
+            if self.__handle and self.__handle == self.GetHandle():
+                self._RenderWindow.Render()
             
-        elif self.GetHandle():
-            # this means the user has reparented us
-            # let's adapt to the new situation by doing the WindowRemap dance
-            self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
-            self._RenderWindow.WindowRemap()
-            # store the new situation
-            self.__handle = self.GetHandle()
+            elif self.GetHandle():
+                # this means the user has reparented us
+                # let's adapt to the new situation by doing the WindowRemap 
+                # dance
+                self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
+                self._RenderWindow.WindowRemap()
+                # store the new situation
+                self.__handle = self.GetHandle()
 
-            self._RenderWindow.Render()
+                self._RenderWindow.Render()
 
     def UpdateRenderer(self,event):
         """
