@@ -19,11 +19,6 @@
 // Aguilera (daniel.aguilera at cea.fr, CEA-DAM, France) who contributed code
 // und advice.  Please address all comments to Jean Favre (jfavre at cscs.ch)
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
 #include <ctype.h>
 
 #include "vtkAVSucdReader.h"
@@ -41,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.8");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.9");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
