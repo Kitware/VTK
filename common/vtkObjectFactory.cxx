@@ -467,12 +467,13 @@ void vtkObjectFactory::SetEnableFlag(int flag,
       if(!subclassName)
         {
         this->OverrideArray[i].EnabledFlag = flag;
-        return;
         }
-      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+      else 
         {
-	this->OverrideArray[i].EnabledFlag = flag;
-	return;
+        if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+          {
+          this->OverrideArray[i].EnabledFlag = flag;
+          }
         }
       }
     }
