@@ -59,9 +59,7 @@ vtkFollower::~vtkFollower()
 // Copy the Follower's composite 4x4 matrix into the matrix provided.
 void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 {
-  float *pos, mag;
-  float direction[3];
-  int i;
+  float *pos;
   vtkMatrix4x4 matrix;
 
   this->GetOrientation();
