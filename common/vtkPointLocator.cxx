@@ -127,6 +127,15 @@ void vtkPointLocator::FreeSearchStructure()
     }
 }
 
+// Given a position x-y-z, return the id of the point closest to it.
+int vtkPointLocator::FindClosestPoint(float x, float y, float z)
+{
+  float xyz[3];
+
+  xyz[0] = x; xyz[1] = y; xyz[2] = z;
+  return this->FindClosestPoint(xyz);
+}
+
 // Given a position x, return the id of the point closest to it.
 int vtkPointLocator::FindClosestPoint(float x[3])
 {
