@@ -43,6 +43,8 @@ class FTGL_EXPORT FTBitmapGlyph : public FTGlyph
      */
     virtual float Render( const FT_Vector& pen);
     
+    virtual void ConvertGlyph();
+
   private:
     /**
      * The width of the glyph 'image'

@@ -39,7 +39,7 @@ class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
      */
     virtual float Render( const FT_Vector& pen);
     
-    // attributes
+    virtual void ConvertGlyph();
 
   private:
     /**
@@ -63,6 +63,5 @@ class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
     unsigned char* data;
     
 };
-
 
 #endif  //  __FTPixmapGlyph__

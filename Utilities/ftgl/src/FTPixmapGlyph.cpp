@@ -4,21 +4,28 @@
 #endif
 
 
-FTPixmapGlyph::FTPixmapGlyph( FT_Glyph glyph)
+FTPixmapGlyph::FTPixmapGlyph( FT_Glyph _glyph)
 :  FTGlyph(),
   destWidth(0),
   destHeight(0),
   numGreys(0),
   data(0)
 {
+  this->glyph = _glyph;
+  bBox = FTBBox(this->glyph);
+  advance = (float)(this->glyph->advance.x >> 16);
+}
+
+void FTPixmapGlyph::ConvertGlyph()
+{
   // This function will always fail if the glyph's format isn't scalable????
-  err = FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1);
-  if( err || ft_glyph_format_bitmap != glyph->format)
+  err = FT_Glyph_To_Bitmap( &this->glyph, ft_render_mode_normal, 0, 1);
+  if( err || ft_glyph_format_bitmap != this->glyph->format)
   {
     return;
   }
 
-  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)glyph;
+  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)this->glyph;
   FT_Bitmap*      source = &bitmap->bitmap;
 
   //check the pixel mode
@@ -102,15 +109,15 @@ FTPixmapGlyph::FTPixmapGlyph( FT_Glyph glyph)
     destHeight = srcHeight;
     }
   
-  bBox = FTBBox( glyph);
   numGreys = source->num_grays;
-  advance = (float)(glyph->advance.x >> 16);
-   pos.x = bitmap->left;
+  pos.x = bitmap->left;
   pos.y = srcHeight - bitmap->top;
   
   // discard glyph image (bitmap or not)
   // Is this the right place to do this?
-  FT_Done_Glyph( glyph );
+  FT_Done_Glyph( this->glyph );
+  
+  this->glyphHasBeenConverted = 1;
 }
 
 
@@ -123,22 +130,20 @@ FTPixmapGlyph::~FTPixmapGlyph()
 
 float FTPixmapGlyph::Render( const FT_Vector& pen)
 {
+  if (!this->glyphHasBeenConverted)
+    {
+    this->ConvertGlyph();
+    }
+
   if( data)
-  {
-    glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT);
-    
+    {
     // Move the glyph origin
     glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0);
 
-    glPixelStorei( GL_UNPACK_ROW_LENGTH, destWidth);
-
     glDrawPixels( destWidth, destHeight, GL_RGBA, GL_UNSIGNED_BYTE, (const GLvoid*)data);
-
 
     // Restore the glyph origin
     glBitmap( 0, 0, 0.0, 0.0, (float)(-pen.x - pos.x), (float)(-pen.y + pos.y), (const GLubyte *)0);
-
-    glPopClientAttrib();
   }
 
   return advance;
