@@ -242,6 +242,13 @@ static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     png_set_tRNS_to_alpha(png_ptr);
     }
 
+  if (bit_depth > 8)
+    {
+#ifndef VTK_WORDS_BIGENDIAN
+    png_set_swap(png_ptr);
+#endif
+    }
+
   // have libpng handle interlacing
   //int number_of_passes = png_set_interlace_handling(png_ptr);
   // update the info now that we have defined the filters
