@@ -227,6 +227,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
         {
         p = points->GetPoint(i);
         fprintf (fp, "%g %g %g ", p[0], p[1], p[2]);
+	if ( !((i+1)%2) ) fprintf (fp,"\n");
         }
       }
     else
