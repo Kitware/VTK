@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.21");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.22");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -252,9 +252,7 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
 
   // this filter expects the output type to be same as input
