@@ -50,11 +50,6 @@ public:
                   int ref, vtkIdType &ptId );
 
   // Description:
-  // Split the edge with the indicated point id.
-  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, 
-                  int ref, int toSplit, vtkIdType &ptId );
-
-  // Description:
   // Insert an edge but do not split it.
   void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, int ref = 1 );
 
@@ -64,8 +59,9 @@ public:
   int RemoveEdge(vtkIdType e1, vtkIdType e2);
 
   // Description:
-  // Method to determine whether an edge is in the table.
-  // It returns if the edge was split, and the point id exists.
+  // Method to determine whether an edge is in the table (0 or 1), or not (-1).
+  // It returns whether the edge was split (1) or not (0),
+  // and the point id exists.
   int CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId);
   
   // Description:
@@ -122,6 +118,11 @@ public:
   // Increment the reference count for the indicated point.
   void IncrementPointReferenceCount(vtkIdType ptId );
 
+  // Description:
+  // For debuggin purposes.
+  void DumpTable();
+  void LoadFactor();
+  
 //BTX
 class PointEntry
 {
@@ -228,9 +229,9 @@ protected:
   ~vtkGenericEdgeTable();
 
   // Description:
-  // For debuggin purposes.
-  void DumpTable();
-  void LoadFactor();
+  // Split the edge with the indicated point id.
+  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, 
+                  int ref, int toSplit, vtkIdType &ptId );
   
   //Hash table that contiain entry based on edges:
   vtkEdgeTableEdge   *EdgeTable;
