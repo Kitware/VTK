@@ -364,7 +364,9 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
     if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
       {
       fromPd->Scalars->GetScalars(*ptIds, *cellScalars);
-      for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+
+      int NumberOfIds = ptIds->GetNumberOfIds();
+      for (s=0.0, i=0; i < NumberOfIds; i++)
         {
         s += cellScalars->GetScalar(i) * weights[i];
         }
