@@ -8,6 +8,7 @@ IF (VTK_USE_RENDERING)
       CamBlur
       cells 
       ImageActor
+      labeledContours
       pickCells
       rotations
       TestStyleJoystickActor
