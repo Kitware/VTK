@@ -2,7 +2,6 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-set VTK_VARY_RADIUS_BY_VECTOR 2
 
 # create pipeline
 #
@@ -10,13 +9,12 @@ vtkDataSetReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
     reader Update
 
-[reader GetOutput] SetUpdateNumberOfPieces 2
-[reader GetOutput] SetUpdatePiece 1
-[reader GetOutput] RequestExactExtentOn
-[reader GetOutput] Update
+# here to force exact extent
+vtkElevationFilter elev
+  elev SetInput [reader GetOutput]
 
 vtkRectilinearGridOutlineFilter outline
-  outline SetInput [reader GetOutput]
+  outline SetInput [elev GetRectilinearGridOutput]
 
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
