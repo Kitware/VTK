@@ -3,6 +3,9 @@
 # it sets up many default parameters and include paths
 #
 
+SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
+SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
+
 OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 IF (VTK_USE_RENDERING)
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
@@ -120,8 +123,6 @@ IF (UNIX)
   LINK_LIBRARIES(${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
 ENDIF (UNIX)
 
-SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/lib/ CACHE PATH "Single output directory for building all libraries.")
-SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
 OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 
