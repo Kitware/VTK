@@ -85,6 +85,10 @@ public:
   // Insert color into next available slot. Returns point id of slot.
   virtual int InsertNextColor(unsigned char rgba[4]) = 0;
 
+  // Description:
+  // Allocate space for color data.
+  virtual int Allocate(const int sz, const int ext=1000) = 0;
+
   void GetColors(vlIdList& ptId, vlAPixmap& ap);
 
   void GetComponentRange(unsigned char range[8]);
