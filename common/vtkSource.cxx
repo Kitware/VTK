@@ -530,7 +530,7 @@ void vtkSource::ComputeEstimatedOutputMemorySize( vtkDataObject *output,
 						  unsigned long size[2] )
 {
   int idx;
-  int tmp;
+  unsigned long tmp;
 
   size[0] = 0;
   size[1] = 0;
