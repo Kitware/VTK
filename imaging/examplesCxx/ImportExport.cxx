@@ -26,18 +26,14 @@ void main( int argc, char *argv[] )
  // get info from exporter and create array to hold data
  int memsize = exporter->GetDataMemorySize();
  int *dimensions = exporter->GetDataDimensions();
- short *data = new short[memsize/sizeof(short)];
 
- // this is just to improve the regression testing,
- // don't use it in a 'real' program
- exporter->GetInput()->SetMemoryLimit(512);
 
  // export the data into the array
+ short *data = new short[memsize/sizeof(short)];
  exporter->Export(data);
-
- /* alternative method for getting data
- short *data = exporter->GetPointerToData();
- */
+ 
+ // alternative method for getting data
+ // short *data = exporter->GetPointerToData(); 
 
  // do a little something to the data
 
@@ -69,7 +65,7 @@ void main( int argc, char *argv[] )
 
  vtkImageViewer *viewer = vtkImageViewer::New();
  viewer->SetInput(importer->GetOutput());
- viewer->SetZSlice(128);
+ viewer->SetZSlice(45);
  viewer->SetColorWindow(2000);
  viewer->SetColorLevel(1000);
 
@@ -77,7 +73,7 @@ void main( int argc, char *argv[] )
 
  SAVEVIEWERIMAGE (viewer);
 
- char *dummy;
+ char dummy = '\0';
  cin >> dummy;
  
  viewer->Delete();
@@ -88,3 +84,7 @@ void main( int argc, char *argv[] )
  delete data;
 
 }
+
+
+
+

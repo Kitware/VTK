@@ -133,11 +133,6 @@ protected:
 
   int ImageLowerLeft;
   int DataDimensions[3];
-
-  void FinalExport(vtkImageData *data, int extent[6],
-		   void **output);
-  void RecursiveExport(int axis, vtkImageData *data,
-		       void **output);
 };
 
 #endif

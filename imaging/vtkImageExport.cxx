@@ -91,38 +91,47 @@ vtkImageData *vtkImageExport::GetInput()
   return (vtkImageData *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+int vtkImageExportGetDataTypeSize(int type)
+{
+  switch (type)
+    {
+    case VTK_VOID:
+      return 0;
+    case VTK_DOUBLE:
+      return sizeof(double);
+    case VTK_FLOAT:
+      return sizeof(float);
+    case VTK_LONG:
+      return sizeof(long);
+    case VTK_UNSIGNED_LONG:
+      return sizeof(unsigned long);
+    case VTK_INT:
+      return sizeof(int);
+    case VTK_UNSIGNED_INT:
+      return sizeof(unsigned int);
+    case VTK_SHORT:
+      return sizeof(short);
+    case VTK_UNSIGNED_SHORT:
+      return sizeof(unsigned short); 
+    case VTK_UNSIGNED_CHAR:
+      return sizeof(unsigned char); 
+    default:
+      return 0; 
+    }
+}
 
 //----------------------------------------------------------------------------
 int vtkImageExport::GetDataMemorySize()
 {
-  int size;
   this->GetInput()->UpdateInformation();
   int *extent = this->GetInput()->GetWholeExtent();
 
-  // take into consideration the scalar type
-  switch (this->GetInput()->GetScalarType())
+  int size = vtkImageExportGetDataTypeSize(this->GetInput()->GetScalarType());
+  if (size == 0)
     {
-    case VTK_DOUBLE:
-      size = sizeof(double);
-      break;
-    case VTK_FLOAT:
-      size = sizeof(float);
-      break;
-    case VTK_INT:
-      size = sizeof(int);
-      break;
-    case VTK_SHORT:
-      size = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      size = sizeof(unsigned short); 
-      break;
-    case VTK_UNSIGNED_CHAR:
-      size = sizeof(unsigned char); 
-      break;
-    default:
-      vtkErrorMacro(<< "GetDataMemorySize: Unknown output ScalarType.");
-      return 0; 
+    vtkErrorMacro(<< "GetDataMemorySize: Illegal ScalarType.");
+    return 0; 
     }
   size *= this->GetInput()->GetNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
@@ -144,173 +153,10 @@ void vtkImageExport::GetDataDimensions(int *dims)
 }
 
 //----------------------------------------------------------------------------
-// Exports a region in a file.  Subclasses can override this method
-// to produce a header. This method only hanldes 3d data (plus components).
-void vtkImageExport::FinalExport(vtkImageData *data, int extent[6],
-				 void **output)
-{
-  int idxY, idxZ;
-  int rowLength; // in bytes
-  void *ptr;
-  
-  // Make sure we actually have data.
-  if ( !data->GetPointData()->GetScalars())
-    {
-    vtkErrorMacro(<< "Could not get data from input.");
-    return;
-    }
-
-  // take into consideration the scalar type
-  switch (data->GetScalarType())
-    {
-    case VTK_DOUBLE:
-      rowLength = sizeof(double);
-      break;
-    case VTK_FLOAT:
-      rowLength = sizeof(float);
-      break;
-    case VTK_INT:
-      rowLength = sizeof(int);
-      break;
-    case VTK_SHORT:
-      rowLength = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      rowLength = sizeof(unsigned short); 
-      break;
-    case VTK_UNSIGNED_CHAR:
-      rowLength = sizeof(unsigned char); 
-      break;
-    default:
-      vtkErrorMacro(<< "Export: Unknown output ScalarType.");
-      return; 
-    }
-  rowLength *= data->GetNumberOfScalarComponents();
-  rowLength *= (extent[1] - extent[0] + 1);
-
-  int *wExtent = this->GetInput()->GetWholeExtent();
-  float area = (float) ((extent[5] - extent[4] + 1)*
-			(extent[3] - extent[2] + 1)*
-			(extent[1] - extent[0] + 1)) / 
-               (float) ((wExtent[5] -wExtent[4] + 1)*
-			(wExtent[3] -wExtent[2] + 1)*
-			(wExtent[1] -wExtent[0] + 1));
-    
-  unsigned long count = 0;
-  unsigned long target = (unsigned long)((extent[5]-extent[4]+1)*
-			   (extent[3]-extent[2]+1)/(50.0*area));
-  target++;
-
-  if (!this->GetImageLowerLeft())
-    { // flip the image
-    for (idxZ = extent[4]; idxZ <= extent[5]; ++idxZ)
-      {
-      for (idxY = extent[3]; idxY >= extent[2]; idxY--)
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(this->GetProgress() + count/(50.0*target));
-	  }
-	count++;
-	ptr = data->GetScalarPointer(extent[0], idxY, idxZ);
-	memcpy(*output,(void *)ptr,rowLength);
-	*output = (void *)(((char *)*output) + rowLength);
-	}
-      }
-    }
-  else
-    { // don't flip the image
-    for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
-      {
-      for (idxY = extent[2]; idxY <= extent[3]; idxY++)
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(this->GetProgress() + count/(50.0*target));
-	  }
-	count++;
-	ptr = data->GetScalarPointer(extent[0], idxY, idxZ);
-	memcpy(*output,(void *)ptr,rowLength);
-	*output = (void *)(((char *)*output) + rowLength);
-	}
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-// Breaks region into pieces with correct dimensionality.
-void vtkImageExport::RecursiveExport(int axis, vtkImageData *data,
-				     void **output)
-{
-  int min, max, mid;
-  
-  if (data->GetUpdateExtentMemorySize() < data->GetMemoryLimit())
-    {
-    data->Update();
-    this->FinalExport(data,data->GetUpdateExtent(),output);
-    return;
-    }
-
-  // if the current request did not fit into memory
-  // the we will split the current axis
-  data->GetAxisUpdateExtent(axis, min, max);
-  if (min == max)
-    {
-    if (axis > 0)
-      {
-      this->RecursiveExport(axis-1, data, output);
-      }
-    else
-      {
-      vtkWarningMacro("Input too small to hold one row of pixels!!");
-      }
-    return;
-    }
-  
-  mid = (min + max) / 2;
-
-  // if it is the y axis then flip by default
-  if (axis == 1 && !this->ImageLowerLeft)
-    {
-    // first half
-    data->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveExport(axis,data,output);
-    
-    // second half
-    data->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveExport(axis,data,output);
-    }
-  else
-    {
-    // first half
-    data->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveExport(axis,data,output);
-    
-    // second half
-    data->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveExport(axis,data,output);
-    }
-    
-  // restore original extent
-  data->SetAxisUpdateExtent(axis, min, max);
-}
-
-//----------------------------------------------------------------------------
 // Exports all the data from the input.
 void vtkImageExport::Export(void *output)
 {
-  // Error checking
-  if ( this->GetInput() == NULL )
-    {
-    vtkErrorMacro(<<"Export: Please specify an input!");
-    return;
-    }
-  
-  // Fill in image information.
-  this->GetInput()->UpdateInformation();
-  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
-  this->UpdateProgress(0.0);
-  this->RecursiveExport(2, this->GetInput(), &output); 
+  memcpy(output,this->GetPointerToData(),this->GetDataMemorySize());
 }
 
 //----------------------------------------------------------------------------
