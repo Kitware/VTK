@@ -118,6 +118,7 @@ vtkStreamer::vtkStreamer()
   this->Vorticity = 0;
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
+  this->NumberOfStreamers = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 }
