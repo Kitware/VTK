@@ -135,7 +135,7 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageResample::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6], 
 						int outExt[6])
 {
   int min, max, axis;
@@ -317,7 +317,7 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
   int inExt[6];
 
   outPtr = outData->GetScalarPointerForExtent(outExt);
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   inPtr = inData->GetScalarPointerForExtent(inExt);
   
   // this filter expects that input is the same type as output.

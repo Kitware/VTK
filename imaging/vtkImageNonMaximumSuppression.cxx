@@ -86,7 +86,7 @@ void vtkImageNonMaximumSuppression::ExecuteInformation()
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageNonMaximumSuppression::
-ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 				 int whichInput)
 {
   int *wholeExtent;

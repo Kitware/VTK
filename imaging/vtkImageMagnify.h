@@ -75,7 +75,7 @@ public:
 protected:
   int MagnificationFactors[3];
   int Interpolate;
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation();
 };
 

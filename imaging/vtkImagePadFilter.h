@@ -77,7 +77,7 @@ protected:
   int OutputNumberOfScalarComponents;
 
   void ExecuteInformation();
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
 };
 
 #endif

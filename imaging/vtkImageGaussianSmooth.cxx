@@ -122,7 +122,7 @@ void vtkImageGaussianSmooth::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageGaussianSmooth::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							      int outExt[6])
 {
   int *wholeExtent;
@@ -472,7 +472,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     }
 
   // Decompose
-  this->ComputeInputUpdateExtent(inExt, outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
   switch (this->Dimensionality)
     {
     case 1:

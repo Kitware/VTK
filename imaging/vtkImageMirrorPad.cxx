@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							 int outExt[6])
 {
   int *wExtent = this->GetInput()->GetWholeExtent();

@@ -109,7 +109,7 @@ void vtkImageAppend::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkImageAppend::ComputeInputUpdateExtent(int inExt[6],
+void vtkImageAppend::ComputeRequiredInputUpdateExtent(int inExt[6],
 					      int outExt[6], int whichInput)
 {
   int min, max, shift, tmp, idx;
@@ -235,7 +235,7 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
       // Get the input extent and output extent
       // the real out extent for this input may be clipped.
       memcpy(inExt, outExt, 6*sizeof(int));
-      this->ComputeInputUpdateExtent(inExt, outExt, idx1);
+      this->ComputeRequiredInputUpdateExtent(inExt, outExt, idx1);
       memcpy(cOutExt, inExt, 6*sizeof(int));
       cOutExt[this->AppendAxis*2] = 
 	inExt[this->AppendAxis*2] + this->Shifts[idx1];

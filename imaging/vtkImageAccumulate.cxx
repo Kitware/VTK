@@ -289,7 +289,7 @@ void vtkImageAccumulate::ExecuteInformation()
 
 //----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageAccumulate::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							  int outExt[6])
 {
   int *wholeExtent;

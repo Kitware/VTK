@@ -115,7 +115,7 @@ protected:
 
   int ComputeDivisionExtents(vtkDataObject *out,
 			     int division, int numDivisions);
-  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
 
   void Execute();

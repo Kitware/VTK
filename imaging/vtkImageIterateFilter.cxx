@@ -221,7 +221,7 @@ int vtkImageIterateFilter::ComputeDivisionExtents(vtkDataObject *output,
     
     /* default value */
     out->GetUpdateExtent(inExt);
-    this->ComputeInputUpdateExtent(inExt, out->GetUpdateExtent());
+    this->ComputeRequiredInputUpdateExtent(inExt, out->GetUpdateExtent());
     in->SetUpdateExtent(inExt);
     out = in;
     }

@@ -53,7 +53,7 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 //----------------------------------------------------------------------------
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
-void vtkImageFourierCenter::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageFourierCenter::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							     int outExt[6])
 {
   int *extent;

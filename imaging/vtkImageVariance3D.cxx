@@ -299,7 +299,7 @@ void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData,
 					 int outExt[6], int id)
 {
   int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;

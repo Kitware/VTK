@@ -229,7 +229,7 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
   void *inPtr, *outPtr;
   int inExt[6];
   
-  this->ComputeInputUpdateExtent(inExt, outExt);  
+  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
   
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);

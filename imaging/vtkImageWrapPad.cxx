@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
+void vtkImageWrapPad::ComputeRequiredInputUpdateExtent(int inExt[6],
 						       int outExt[6])
 {
   int idx;
@@ -222,7 +222,7 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
 
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

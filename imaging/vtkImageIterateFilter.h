@@ -78,7 +78,7 @@ protected:
   // called for each iteration (differs from superclass in arguments).
   virtual void ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData);
   
-  // Ends up calling ComputeInputUpdateExtent(int inExt[6],int outExt[6])
+  // Ends up calling ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6])
   // for each iteration.
   int ComputeDivisionExtents(vtkDataObject *output,
 			     int division, int numDivisions);

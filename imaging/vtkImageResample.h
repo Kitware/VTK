@@ -79,7 +79,7 @@ protected:
   float OutputSpacing[3];
   
   void ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int threadId);
 };

@@ -88,7 +88,7 @@ protected:
   int ComponentExtent[6];
 
   void ExecuteInformation();
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 

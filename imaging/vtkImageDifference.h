@@ -113,7 +113,7 @@ protected:
   int Averaging;
   
   void ExecuteInformation(); 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);  

@@ -158,7 +158,7 @@ void vtkImageInPlaceFilter::RecursiveStreamUpdate(vtkImageData *outData,
   
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
-  this->ComputeInputUpdateExtent(this->GetInput()->GetUpdateExtent(),
+  this->ComputeRequiredInputUpdateExtent(this->GetInput()->GetUpdateExtent(),
 					 this->GetOutput()->GetUpdateExtent());
   
   // determine the amount of memory that will be used by the input region.

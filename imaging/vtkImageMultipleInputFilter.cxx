@@ -133,14 +133,14 @@ int vtkImageMultipleInputFilter::ComputeDivisionExtents(vtkDataObject *out,
   actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
 				   division, numDivisions);
   
-  if (idx < actualSplits)
+  if (division < actualSplits)
     { // yes this is a vaid piece.
     for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
       input = this->GetInput(idx);
       if (input != NULL)
 	{
-	this->ComputeInputUpdateExtent(inExt, this->ExecuteExtent, idx);
+	this->ComputeRequiredInputUpdateExtent(inExt, this->ExecuteExtent, idx);
 	input->SetUpdateExtent(inExt);
 	}
       }
@@ -162,7 +162,7 @@ int vtkImageMultipleInputFilter::ComputeDivisionExtents(vtkDataObject *out,
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageMultipleInputFilter::ComputeInputUpdateExtent(int inExt[6],
+void vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
 							   int outExt[6],
 							   int whichInput)
 {

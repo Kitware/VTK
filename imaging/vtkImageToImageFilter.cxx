@@ -138,7 +138,7 @@ int vtkImageToImageFilter::ComputeDivisionExtents(vtkDataObject *output,
   
   if (idx < actualSplits)
     { // yes this is a valid piece.
-    this->ComputeInputUpdateExtent(inExt, this->ExecuteExtent);
+    this->ComputeRequiredInputUpdateExtent(inExt, this->ExecuteExtent);
     input->SetUpdateExtent(inExt);
     return 1;
     }
@@ -154,7 +154,7 @@ int vtkImageToImageFilter::ComputeDivisionExtents(vtkDataObject *output,
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
 // method is called.
-void vtkImageToImageFilter::ComputeInputUpdateExtent(int inExt[6], 
+void vtkImageToImageFilter::ComputeRequiredInputUpdateExtent(int inExt[6], 
 						     int outExt[6])
 {
   memcpy(inExt,outExt,sizeof(int)*6);

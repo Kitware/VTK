@@ -139,7 +139,7 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6],
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6], 
+void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int extent[6], 
 							     int inExtent[6])
 {
   int idx;

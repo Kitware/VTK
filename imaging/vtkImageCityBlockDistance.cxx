@@ -80,7 +80,7 @@ void vtkImageCityBlockDistance::InterceptCacheUpdate()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
+void vtkImageCityBlockDistance::ComputeRequiredInputUpdateExtent(int inExt[6],
 								 int outExt[6])
 {
   int *wholeExtent;

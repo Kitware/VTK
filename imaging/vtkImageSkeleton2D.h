@@ -78,7 +78,7 @@ public:
 protected:
   int Prune;
 
-  void ComputeInputUpdateExtent(int *extent, int *wholeExtent);
+  void ComputeRequiredInputUpdateExtent(int *extent, int *wholeExtent);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);
 };

@@ -51,8 +51,8 @@ vtkImageDivergence::vtkImageDivergence()
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageDivergence::ComputeInputUpdateExtent(int inExt[6], 
-							    int outExt[6])
+void vtkImageDivergence::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							  int outExt[6])
 {
   int idx;
   int *wholeExtent;

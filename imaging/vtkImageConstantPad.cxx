@@ -179,7 +179,7 @@ void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData,
   
   // need to get the correct pointer for the input data
   int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
 
   switch (inData->GetScalarType())

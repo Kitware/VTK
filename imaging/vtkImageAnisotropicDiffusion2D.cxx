@@ -141,7 +141,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
   int idx;
   vtkImageData *temp;
   
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
