@@ -19,7 +19,7 @@
 #include "vtkDEMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.29");
+vtkCxxRevisionMacro(vtkDEMReader, "1.30");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -162,7 +162,7 @@ int vtkDEMReader::ReadTypeARecord ()
     return -1;
     }
 
-  if ((fp = fopen(this->FileName, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return -1;
@@ -242,10 +242,14 @@ int vtkDEMReader::ReadTypeARecord ()
   sscanf(current, "%6d",
    &this->AccuracyCode);
   current += 6;
-  sscanf(current, "%12g%12g%12g",
-   &this->SpatialResolution[0],
-   &this->SpatialResolution[1],
-   &this->SpatialResolution[2]);
+  char buf[13];
+  buf[12] = 0;
+  strncpy(buf, current, 12);
+  sscanf(buf, "%12g", &this->SpatialResolution[0]);
+  strncpy(buf, current+12, 12);
+  sscanf(buf, "%12g", &this->SpatialResolution[1]);
+  strncpy(buf, current+24, 12);
+  sscanf(buf, "%12g", &this->SpatialResolution[2]);
   current += 36;
   sscanf(current, "%6d%6d",
    &this->ProfileDimension[0],
@@ -360,7 +364,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
 
   this->UpdateInformation ();
 
-  if ((fp = fopen(this->FileName, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return -1;
@@ -380,10 +384,8 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     }
 
   units *= elevationConversion;
-
   // seek to start of profiles
   fseek (fp, this->ProfileSeekOffset, SEEK_SET);
-
   record[120] = '\0';
 
   // initialize output to the lowest elevation
@@ -410,28 +412,23 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
       {
       break;
       }
-
     //
     // read the doubles as strings so we can convert floating point format
     //
     (void) fscanf(fp, "%120c", record);
-
     //
     // convert any D+ or D- to E+ or E-
     //
     ConvertDNotationToENotation (record);
-
     sscanf(record, "%24g%24g%24g%24g%24g",
                    &planCoords[0],      /* 3 */
                    &planCoords[1],      /* 3 */
                    &localElevation,     /* 4 */
                    &elevationExtrema[0],        /* 5 */
                    &elevationExtrema[1]);       /* 5 */
-
     rowId = profileId[0] - 1;
     columnId = profileId[1] - 1;
     lastRow = rowId + profileSize[0] - 1;
-
     // report progress at the start of each column
     if (column % updateInterval == 0)
       {
