@@ -18,7 +18,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkCell.h"
 #include "vtkMath.h"
-#include "vtkVoidArray.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
@@ -33,7 +32,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.68");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.69");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1724,9 +1723,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
       {
       switch (list.FieldTypes[i])
         {
-        case VTK_VOID:
-          newDA = vtkVoidArray::New();
-          break;
         case VTK_BIT:
           newDA = vtkBitArray::New();
           break;
