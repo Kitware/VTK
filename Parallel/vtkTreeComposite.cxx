@@ -123,7 +123,7 @@ vtkTreeComposite::vtkTreeComposite()
 
   this->PData = this->ZData = NULL;
   
-  //this->Lock = 0;
+  this->Lock = 0;
   this->UseChar = 0;
   this->UseCompositing = 1;
   
@@ -142,12 +142,11 @@ vtkTreeComposite::~vtkTreeComposite()
   
   this->SetWindowSize(0,0);
   
-  //if (this->Lock)
-  //  {
-  //  vtkErrorMacro("Destructing while locked!");
-  //  }
+  if (this->Lock)
+    {
+    vtkErrorMacro("Destructing while locked!");
+    }
 }
-
 
 //-------------------------------------------------------------------------
 // We may want to pass the render window as an argument for a sanity check.
@@ -550,13 +549,13 @@ void vtkTreeComposite::StartRender()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
-  if (controller == NULL) // || this->Lock)
+  if (controller == NULL || this->Lock)
     {
     return;
     }
   
   // Lock here, unlock at end render.
-  //this->Lock = 1;
+  this->Lock = 1;
   
   // Trigger the satelite processes to start their render routine.
   rens = this->RenderWindow->GetRenderers();
@@ -639,7 +638,7 @@ void vtkTreeComposite::EndRender()
   // EndRender only happens on root.
   if (this->CheckForAbortComposite())
     {
-    //this->Lock = 0;
+    this->Lock = 0;
     return;
     }
   
@@ -658,7 +657,7 @@ void vtkTreeComposite::EndRender()
   renWin->Frame();
   
   // Release lock.
-  //this->Lock = 0;
+  this->Lock = 0;
 }
 
 
@@ -667,17 +666,17 @@ void vtkTreeComposite::ResetCamera(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL) // || this->Lock)
+  if (this->Controller == NULL || this->Lock)
     {
     return;
     }
 
-  //this->Lock = 1;
+  this->Lock = 1;
   
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCamera(bounds);
   
-  //this->Lock = 0;
+  this->Lock = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -685,17 +684,17 @@ void vtkTreeComposite::ResetCameraClippingRange(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL) // || this->Lock)
+  if (this->Controller == NULL || this->Lock)
     {
     return;
     }
 
-  //this->Lock = 1;
+  this->Lock = 1;
   
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCameraClippingRange(bounds);
 
-  //this->Lock = 0;
+  this->Lock = 0;
 }
 
 //----------------------------------------------------------------------------

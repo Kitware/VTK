@@ -220,7 +220,7 @@ protected:
   // RMI's can occur anyway.
   // This flag stops nested RMIs from occuring.  Some rmis send and receive information.
   // Nesting them can lock up the processes.
-  //int Lock;
+  int Lock;
   
   void SetWindowSize(int x, int y);
   
