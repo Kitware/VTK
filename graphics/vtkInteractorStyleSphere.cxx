@@ -272,7 +272,6 @@ void vtkInteractorStyleSphere::MoveCenterZ(int dx, int dy)
 
   // compute distance from camera position to parts
   cam = this->CurrentRenderer->GetActiveCamera();
-  cam->ComputeViewPlaneNormal();
   cam->GetViewPlaneNormal(v1);
   cam->GetPosition(d);
   center = this->GetCenter();

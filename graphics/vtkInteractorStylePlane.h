@@ -45,10 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkInteractorStylePlane Allows interactive definition of a plane
 // by manipulating a vtkPlaneSources parameters.  
-//
+// The center of the plane and its corners are hot.  The center provides
+// rotation (left mouse button), XY translation relative to camera (middle),
+// and translation along camera's view-plane normal (right).
+// The corners provid varius methods for resizing the plane.
 
-// SetNormal(), SetCenter() and Push()
-//
 
 #ifndef __vtkInteractorStylePlane_h
 #define __vtkInteractorStylePlane_h

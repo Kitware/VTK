@@ -40,17 +40,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkInteractorStyleSphere - provide event driven interface to rendering window
+// .NAME vtkInteractorStyleSphere - Direct manipultion of a vtkSphereSource
 
 // .SECTION Description
-// vtkInteractorStyleSphere is a base class performing the majority of motion control
-// routines and am event driven interface to RenderWindowInteractor which
-// implements platform dependent key/m0ouse routing and timer control.
-//
-// vtkInteractorStyleSphere can be subclassed to provide new interaction styles and
-// a facility to override any of the default mouse/key operations which
-// currently handle trackball or joystick styles is provided
-//
+// vtkInteractorStyleSphere can be used by the render window interactor
+// To controll the parameters of a sphere with the mouse.  
+// The center of the sphere and the "horizon" of the sphere are hot.
+// The center can be translated relative to the XY coordinates of the camera
+// with the left mouse button.  The right mouse button will translate
+// along the camera's view plane normal.  All buttons change the radius of
+// the sphere when the horizon is selected.  
+// The callback mechanism still needs work.
 
 #ifndef __vtkInteractorStyleSphere_h
 #define __vtkInteractorStyleSphere_h
