@@ -59,6 +59,7 @@ vtkImageExport          GetDataDimensions       304 3
 vtkImageExport          GetDataExtent           304 6
 vtkImageExport          GetDataOrigin           301 3
 vtkImageExport          GetDataSpacing          301 3
+vtkImageMandelbrotSource GetSizeCX		307 4
 vtkImagePadFilter       GetOutputWholeExtent    304 6
 vtkImageReslice         GetResliceAxesDirectionCosines 307 9
 vtkImageReslice         GetResliceAxesOrigin    307 3
