@@ -67,7 +67,6 @@ void vtkStripper::Execute()
 
   vtkDebugMacro(<<"Executing triangle strip filter");
 
-
   // build cell structure.  Only operate with polygons and triangle strips.
   Mesh.SetPoints(input->GetPoints());
   Mesh.SetPolys(input->GetPolys());
@@ -93,7 +92,6 @@ void vtkStripper::Execute()
   // array keeps track of data that's been visited
   visited = new char[numCells];
   for (i=0; i < numCells; i++) visited[i] = 0;
-
 //
 //  Loop over all elements and find one that hasn't been visited.
 //  Start a triangle strip and mark as visited, and then find a
@@ -174,12 +172,12 @@ void vtkStripper::Execute()
       } // if not visited
     } // for all elements
 //
-// Update ourselves and release memory
+// Update output and release memory
 //
   delete [] visited;
 
   output->SetPoints(input->GetPoints());
-  *(output->GetPointData()) = *pd; // pass data through as is
+  output->GetPointData()->PassData(pd);
 
   newStrips->Squeeze();
   output->SetStrips(newStrips);
