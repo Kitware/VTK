@@ -40,13 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageReslice - Reslices a volume along the axes specified.
 // .SECTION Description
-// vtkImageReslice will reslice a volume along the axes specified by
+// vtkImageReslice will regrid a volume along the axes specified by
 // the reslicing matrix.  The extent, origin, and sampling
 // density of the output data can also be set.  This class is the
 // swiss-army-knife of image geometry filters:  It can permute, flip,
 // rotate, scale, resample, and pad image data in any combination. 
 // It does the permute and resample operations at close to the 
-// efficency of vtkImagePermute and vtkImageResample. 
+// efficency of vtkImagePermute and vtkImageResample.  It can also
+// extract oblique slices from image volumes, which no other VTK
+// imaging filter can do.
 // .SECTION Caveats
 // This filter is very inefficient if the output X dimension is 1.
 // .SECTION see also
@@ -77,38 +79,39 @@ public:
   // Description:
   // Set the axes of the mesh along which the volume will be resliced. 
   // The axes are extracted from the 4x4 matrix:  The x-axis is the 
-  // first column, the y-axis is the second column, the z-axis is the 
-  // third column, and the origin is the final column.  The bottom
-  // row of the matrix should always be (0,0,0,1).
+  // first column, the y-axis is the second column, the z-axis is the  
+  // third column, and the origin is the final column.  The bottom 
+  // row of the matrix should always be (0,0,0,1). 
   // If you don't set the axes, the axes will default to 
-  // (1,0,0), (0,1,0), (0,0,1) and their origin will be (0,0,0)
+  // (1,0,0), (0,1,0), (0,0,1) and their origin will be (0,0,0). 
+  // Generally, this is a permutation matrix (though it need not be). 
   vtkSetObjectMacro(ResliceAxes,vtkMatrix4x4);
   vtkGetObjectMacro(ResliceAxes,vtkMatrix4x4);
 
   // Description:
   // Set a transform to be applied to the reslicing axes.
   // If you don't set this, it will be treated as the identity transform.
+  // This is often used to obtain oblique slices from the original data,
+  // or to regrid one data set to match another given a linear
+  // registration transformation.
   vtkSetObjectMacro(ResliceTransform,vtkTransform);
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
 
   // Description:
-  // Turn on wrap-pad feature (default: off) 
+  // Turn on wrap-pad feature (default: off). 
   vtkSetMacro(Wrap,int);
   vtkGetMacro(Wrap,int);
   vtkBooleanMacro(Wrap,int);
 
   // Description:
-  // Turn on mirror-pad feature (default: off)
+  // Turn on mirror-pad feature (default: off). 
   // This will override the wrap-pad, if set.
   vtkSetMacro(Mirror,int);
   vtkGetMacro(Mirror,int);
   vtkBooleanMacro(Mirror,int);
 
   // Description:
-  // Set interpolation mode, ignored unless InterpolateOn() has been set.
-  // Default: Linear
-  // Note 1: nearest neighbor is the same as no interpolation
-  // Note 2: Cubic is just cubic, it is not cubic spline 
+  // Set interpolation mode (default: nearest neighbor). 
   vtkSetMacro(InterpolationMode,int);
   vtkGetMacro(InterpolationMode,int);
   void SetInterpolationModeToNearestNeighbor()
@@ -120,8 +123,8 @@ public:
   char *GetInterpolationModeAsString();
 
   // Description:
-  // Convenience method for switching between nearest-neighbor 
-  // and linear interpolation
+  // Obsolete method, but still convenient for switching between 
+  // nearest-neighbor and linear interpolation (default: off). 
   void SetInterpolate(int terp) { this->SetInterpolationMode( \
      (terp ? VTK_RESLICE_LINEAR : VTK_RESLICE_NEAREST)); };
   void InterpolateOn() { this->SetInterpolationModeToLinear(); };
@@ -131,7 +134,7 @@ public:
 
   // Description:
   // Turn on and off optimizations (default on, turn them off only if
-  // they are not stable on your architechture)
+  // they are not stable on your architecture). 
   vtkSetMacro(Optimization,int);
   vtkGetMacro(Optimization,int);
   vtkBooleanMacro(Optimization,int);
@@ -147,8 +150,8 @@ public:
   float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
   // Description:
-  // Spacing, origin, and extent of output data
-  // OutputSpacing default: 1 1 1
+  // Spacing, origin, and extent of output data. 
+  // The OutputSpacing default is (1,1,1). 
   // The OutputOrigin and OutputExtent are set to cover the entire
   // transformed input extent by default.
   vtkSetVector3Macro(OutputSpacing, float);
@@ -164,10 +167,12 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Helper functions not meant to be used outside this class
+  // Helper functions not meant to be used outside this class. 
+//BTX
   vtkMatrix4x4 *GetIndexMatrix();
   int FindExtent(int& r1, int& r2, double *point, double *xAxis,
 		      int *inMin, int *inMax, int *outExt);
+//ETX
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
@@ -176,6 +181,7 @@ protected:
 
   vtkMatrix4x4 *ResliceAxes;
   vtkTransform *ResliceTransform;
+  vtkMatrix4x4 *IndexMatrix;
   int Wrap;
   int Mirror;
   int InterpolationMode;
@@ -188,19 +194,8 @@ protected:
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  
-  vtkMatrix4x4 *IndexMatrix;
-
-  // Description:
-  // This method is passed a input and output region, and executes the filter
-  // algorithm to fill the output from the input.
-  // It just executes a switch statement to call the correct function for
-  // the regions data types.
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
-
-  // Description: 
-  // Methods which are used when the 'Optimized' flag is setd
   void OptimizedComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 				int ext[6], int id);  

@@ -2817,7 +2817,7 @@ static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
     vtkOptimizedPermuteExecuteNearest(self,inData,inPtr,outData,outPtr,
 				      outExt,id,matrix);
     }
-  if (self->GetInterpolationMode() == VTK_RESLICE_LINEAR)
+  else if (self->GetInterpolationMode() == VTK_RESLICE_LINEAR)
     {
     vtkOptimizedPermuteExecuteLinear(self,inData,inPtr,outData,outPtr,
 				     outExt,id,matrix);
