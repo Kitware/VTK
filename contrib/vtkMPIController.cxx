@@ -109,8 +109,8 @@ void vtkMPIController::SingleMethodExecute()
     {
     if (this->SingleMethod)
       {
-      (this->SingleMethod)(this->LocalProcessId, this->NumberOfProcesses,
-                           this, this->SingleData);
+      this->SetGlobalController(this);
+      (this->SingleMethod)(this, this->SingleData);
       }
     else
       {
@@ -138,8 +138,8 @@ void vtkMPIController::MultipleMethodExecute()
     {
     if (this->MultipleMethod[i])
       {
-      (this->MultipleMethod[i])(this->LocalProcessId, this->NumberOfProcesses,
-                                this, this->MultipleData[i]);
+      this->SetGlobalController(this);
+      (this->MultipleMethod[i])(this, this->MultipleData[i]);
       }
     else
       {

@@ -89,6 +89,8 @@ void vtkMultiProcessControllerBreakRMI(void *localArg,
   controller->SetBreakFlag(1);
 }
 
+
+
 //----------------------------------------------------------------------------
 vtkMultiProcessController::vtkMultiProcessController()
 {
@@ -388,6 +390,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
   
   triggerMessage[0] = rmiTag;
   triggerMessage[1] = argLength;
+  
   // It is important for the remote process to know what process invoked it.
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
@@ -642,3 +645,39 @@ int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
 
   return 1;
 }
+
+
+
+
+
+//============================================================================
+// The intent is to give access to a processes controller from a static method.
+
+vtkMultiProcessController *VTK_GLOBAL_MULTI_PROCESS_CONTROLLER = NULL;
+//----------------------------------------------------------------------------
+vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
+{
+  if (VTK_GLOBAL_MULTI_PROCESS_CONTROLLER == NULL)
+    {
+    return NULL;
+    }
+  
+  return VTK_GLOBAL_MULTI_PROCESS_CONTROLLER->GetLocalController();
+}
+//----------------------------------------------------------------------------
+// This can be overridden in the subclass to translate controllers.
+// (Threads have to share a global variable.)
+vtkMultiProcessController *vtkMultiProcessController::GetLocalController()
+{
+  return VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
+}
+//----------------------------------------------------------------------------
+// This can be overridden in the subclass to translate controllers.
+// (Threads have to share a global variable.)
+void vtkMultiProcessController::SetGlobalController(
+                                   vtkMultiProcessController *controller)
+{
+  VTK_GLOBAL_MULTI_PROCESS_CONTROLLER = controller;
+}
+
+

@@ -138,6 +138,14 @@ protected:
   // Each Process/Thread has its own controller.
   vtkThreadedController *Controllers[VTK_MP_CONTROLLER_MAX_PROCESSES];
 
+  // Required only for static access to threadId (GetLocalController).
+#ifdef VTK_USE_PTHREADS
+  pthread_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];
+#endif
+#ifdef VTK_USE_SPROC
+  pid_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];  
+#endif  
+  
   // The id for this objects process.
   int LocalProcessId;
   int WaitingForId;
@@ -169,6 +177,10 @@ protected:
   int Receive(vtkDataObject *object, void *data, int dataLength, 
 	      int remoteProcessId, int tag);
 
+  // For static GetGlobalController.  Translates controller for thread0
+  // to controller for local thread.
+  vtkMultiProcessController *GetLocalController();
+  
 };
 
 

@@ -70,8 +70,7 @@ class vtkMultiProcessController;
 
 //BTX
 // The type of function that gets called when new processes are initiated.
-typedef void (*vtkProcessFunctionType)(int id, int numProcs, 
-                                       vtkMultiProcessController *controller, 
+typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller, 
                                        void *userData);
 
 // The type of function that gets called when an RMI is triggered.
@@ -131,6 +130,11 @@ public:
   // Description:
   // Tells you which process [0, NumProcess) you are in.
   virtual int GetLocalProcessId() { return this->LocalProcessId; }
+
+  // Description:
+  // This convenience method returns the controller associated with the 
+  // local process.  It reutrns NULL until the processes are spawned.
+  static vtkMultiProcessController *GetGlobalController();
   
   //------------------ Communication --------------------
   
@@ -201,9 +205,9 @@ public:
   void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
 
   // Description:
-  // Convenience method when the arg is a string. (Do we need a +1 for the length?)
+  // Convenience method when the arg is a string. 
   void TriggerRMI(int remoteProcessId, char *arg, int tag) 
-    { this->TriggerRMI(remoteProcessId, (void*)arg, strlen(arg), tag); }
+    { this->TriggerRMI(remoteProcessId, (void*)arg, strlen(arg)+1, tag); }
 
   // Description:
   // Convenience method when there is no argument.
@@ -277,6 +281,13 @@ protected:
 
   void ProcessRMI(int remoteProcessId, void *arg, int argLength, int rmiTag);
 
+  // This method implements "GetGlobalController".  
+  // It needs to be virtual and static.
+  virtual vtkMultiProcessController *GetLocalController();
+  // It has to be set by the subclass (SingleMethodExecute ...), 
+  // but I do not want to make the global variable visible in the header file.
+  virtual void SetGlobalController(vtkMultiProcessController *controller);
+  
   float ReadTime;
   float WriteTime;
 

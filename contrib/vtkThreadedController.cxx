@@ -184,12 +184,20 @@ void vtkThreadedController::Start(int threadId)
 {
   vtkThreadedController *localController = this->Controllers[threadId];
 
+    // Store threadId in a table.
+#ifdef VTK_USE_PTHREADS  
+  this->ThreadIds[threadId] = pthread_self();
+#endif
+#ifdef VTK_USE_SPROC
+  this->ThreadIds[threadId] = PRDA->sys_prda.prda_sys.t_pid;
+#endif
+  
   if (this->MultipleMethodFlag)
     {
     if (this->MultipleMethod[threadId])
       {
-      (this->MultipleMethod[threadId])(threadId, this->NumberOfProcesses,
-                           localController, this->MultipleData[threadId]);
+      (this->MultipleMethod[threadId])(localController, 
+				       this->MultipleData[threadId]);
       }
     else
       {
@@ -200,8 +208,7 @@ void vtkThreadedController::Start(int threadId)
     {
     if (this->SingleMethod)
       {
-      (this->SingleMethod)(threadId, this->NumberOfProcesses,
-                           localController, this->SingleData);
+      (this->SingleMethod)(localController, this->SingleData);
       }
     else
       {
@@ -220,6 +227,10 @@ void vtkThreadedController::SingleMethodExecute()
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
 
+  // GLOBAL_CONTROLLER will be from thread0 always.
+  // GetLocalController will translate to the local controller.
+  this->SetGlobalController(this);
+  
   this->MultiThreader->SingleMethodExecute();
 }
 //----------------------------------------------------------------------------
@@ -232,6 +243,10 @@ void vtkThreadedController::MultipleMethodExecute()
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
+
+  // GLOBAL_CONTROLLER will be from thread0 always.
+  // GetLocalController will translate to the local controller.
+  this->SetGlobalController(this);
 
   this->MultiThreader->SingleMethodExecute();
 }
@@ -551,7 +566,43 @@ int vtkThreadedController::Receive(vtkDataObject *data,
 
 
 
+//----------------------------------------------------------------------------
+// Does not work for windows yet.
+vtkMultiProcessController *vtkThreadedController::GetLocalController()
+{
+#ifdef VTK_USE_PTHREADS  
+  int idx;
+  pthread_t pid = pthread_self();
+  for (idx = 0; idx < this->NumberOfProcesses; ++idx)
+    {
+    if (pthread_equal(pid, this->ThreadIds[idx]))
+      {
+      return this->Controllers[idx];
+      }
+    }
+  
+  vtkErrorMacro("Could Not Find my process id.");
+  return NULL;
+#elif defined VTK_USE_SPROC
+  int idx;
+  pid_t pid = PRDA->sys_prda.prda_sys.t_pid;
+  for (idx = 0; idx < this->NumberOfProcesses; ++idx)
+    {
+    if (pid == this->ThreadIds[idx])
+      {
+      return this->Controllers[idx];
+      }
+    }
+  
+  vtkErrorMacro("Could Not Find my process id.");
+  return NULL;
+#else
 
+  vtkErrorMacro("ThreadedController only works with pthreads or sproc");
+  return NULL;
+  
+#endif  
+}
 
 
 
