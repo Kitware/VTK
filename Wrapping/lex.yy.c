@@ -94,7 +94,7 @@ case 3:
                    yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
                    memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
                    yylval.str[yyleng - pos - 1] = '\0';
-		   data.NameComment = strdup(yylval.str);
+		   data.NameComment = vtkstrdup(yylval.str);
                  }
 break;
 case 4:
@@ -433,7 +433,7 @@ case 62:
 
 # line 155 "vtkParse.l"
 {
-		yylval.str =  strdup(yytext + 1);
+		yylval.str =  vtkstrdup(yytext + 1);
 		yylval.str[strlen(yytext)-2] = '\0';
 		return(STRING);
 		}
@@ -4630,7 +4630,6 @@ char yyextra[] = {
 0,0,0,0,0,0,0,1,
 0,0,0,0,0,0,0,0,
 0};
-#ident	"$Revision$"
 
 int yylineno =1;
 # define YYU(x) x

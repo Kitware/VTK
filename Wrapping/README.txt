@@ -12,6 +12,7 @@ FILE *yyin = {stdin}, *yyout = {stdout};
 should be changed to:
 FILE *yyin, *yyout;
 
+and there are a bunch of other changes that must be made by hand. Your best bet is to keep the old version of the file and perform a diff, and then merge in all the changes. Most of the changes are to prevent compiler warnings.
 
 YACC:
 -----
