@@ -88,7 +88,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #else
+#ifdef VTK_USE_QUARTZ
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLImageActor.h"
+#include "vtkOpenGLLight.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkQuartzRenderWindow.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkOpenGLVolumeTextureMapper2D.h"
+#include "vtkOpenGLProjectedPolyDataRayBounder.h"
+#include "vtkQuartzRenderWindowInteractor.h"
+#else
 #include "vtkXRenderWindowInteractor.h"
+#endif
 #endif
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -143,6 +158,9 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
 #ifdef _WIN32
     temp = "Win32OpenGL";
 #endif
+#ifdef VTK_USE_QUARTZ
+    temp = "QuartzOpenGL";
+#endif
     }
   
   return temp;
@@ -187,14 +205,26 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #else
+#ifdef VTK_USE_QUARTZ
+  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+    {
+    return vtkQuartzRenderWindowInteractor::New();
+    }
+  if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
+    {
+    return vtkQuartzRenderWindow::New();
+    }
+
+  #else
   if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
     {
     return vtkXRenderWindowInteractor::New();
     }
+  #endif
 #endif
 
-#if defined(VTK_USE_OGLR) || defined(_WIN32)
-  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl))
+#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_QUARTZ)
+  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("QuartzOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)
       {

@@ -336,10 +336,14 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
     glNewList ((GLuint) this->Index, GL_COMPILE);
 #endif
 
-#ifdef _WIN32
-    ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
+#ifdef VTK_USE_QUARTZ
+    ((vtkQuartzRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
 #else
+  #ifdef _WIN32
+    ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
+  #else
     ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
+  #endif
 #endif
     
     if (this->Interpolate)

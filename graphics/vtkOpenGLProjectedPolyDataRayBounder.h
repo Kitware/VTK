@@ -60,7 +60,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkPolyData.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#include <GL/gl.h>
+  #ifdef VTK_USE_QUARTZ
+    #include <OpenGL/gl.h>
+  #else
+    #include <GL/gl.h>
+  #endif
 #endif
 
 class vtkWindow;
