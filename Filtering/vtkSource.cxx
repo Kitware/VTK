@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.8");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.9");
 
 #ifndef NULL
 #define NULL 0
@@ -323,12 +323,21 @@ void vtkSource::SetNumberOfOutputs(int newNumberOfOutputs)
 
   if(newNumberOfOutputs != this->NumberOfOutputs)
     {
+    // Copy outputs that will still exist.
     vtkDataObject** newOutputs = new vtkDataObject*[newNumberOfOutputs];
-    for(int i=0; i < newNumberOfOutputs; ++i)
+    int i;
+    for(i=0; i < newNumberOfOutputs; ++i)
       {
       newOutputs[i] = (i < this->NumberOfOutputs)? this->Outputs[i] : 0;
       }
 
+    // Delete outputs if number is decreasing.
+    for(;i < this->NumberOfOutputs; ++i)
+      {
+      this->SetNthOutput(i, 0);
+      }
+
+    // Free old outputs array.
     if(this->Outputs)
       {
       delete [] this->Outputs;
@@ -336,6 +345,7 @@ void vtkSource::SetNumberOfOutputs(int newNumberOfOutputs)
       this->NumberOfOutputs = 0;
       }
 
+    // Setup new outputs array.
     this->Outputs = newOutputs;
     this->NumberOfOutputs = newNumberOfOutputs;
     this->SetNumberOfOutputPorts(this->NumberOfOutputs);
