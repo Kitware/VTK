@@ -163,7 +163,7 @@ void vtkGeometryFilter::Execute()
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels;
+  vtkDataArray *levels = NULL;
   unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)
@@ -464,7 +464,7 @@ void vtkGeometryFilter::PolyDataExecute()
   float *x;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels;
+  vtkDataArray *levels = NULL;
   unsigned char  *cellGhostLevels = NULL;
   
   vtkDebugMacro(<<"Executing geometry filter for poly data input");
@@ -591,7 +591,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int PixelConvert[4];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels;
+  vtkDataArray *levels = NULL;
   unsigned char  *cellGhostLevels = NULL;  
   
   PixelConvert[0] = 0;
@@ -911,7 +911,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkCellArray *cells;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels;
+  vtkDataArray *levels = NULL;
   unsigned char  *cellGhostLevels = NULL;
   
   cellIds = vtkIdList::New();
