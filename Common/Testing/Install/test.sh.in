@@ -5,7 +5,6 @@ VTK_SOURCE_DIR="@VTK_SOURCE_DIR@"
 VTK_BINARY_DIR="@VTK_BINARY_DIR@"
 CMAKE_INSTALL_PREFIX="@CMAKE_INSTALL_PREFIX@"
 CMAKE_MAKE_PROGRAM="@CMAKE_MAKE_PROGRAM@"
-VTK_EXE_DIR="@EXECUTABLE_OUTPUT_PATH@"
 
 SOURCE_DIR="${VTK_SOURCE_DIR}/Common/Testing/Install"
 BINARY_DIR="${VTK_BINARY_DIR}/Common/Testing/Install"
@@ -14,9 +13,12 @@ trap cleanup 1 2 3 6
 
 cleanup()
 {
-    if [ -d "${VTK_EXE_DIR}-InstallTestTemp" ]; then
-        mv "${VTK_EXE_DIR}-InstallTestTemp" "${VTK_EXE_DIR}"
-    fi
+    (
+        cd "${VTK_BINARY_DIR}"
+        if [ -d "bin-InstallTestTemp" ]; then
+            mv "bin-InstallTestTemp" "bin"
+        fi
+    )
     exit 1
 }
 
@@ -66,13 +68,19 @@ run_make()
 
 run_test()
 {
-    mv "${VTK_EXE_DIR}" "${VTK_EXE_DIR}-InstallTestTemp"
+    (
+        cd "${VTK_BINARY_DIR}"
+        mv "bin" "bin-InstallTestTemp"
+    )
     echo "Running ${BINARY_DIR}/vit"
     (
     "${BINARY_DIR}/vit"
     )
     result="$?"
-    mv "${VTK_EXE_DIR}-InstallTestTemp" "${VTK_EXE_DIR}/bin"
+    (
+        cd "${VTK_BINARY_DIR}"
+        mv "bin-InstallTestTemp" "bin"
+    )
     return $result
 }
 
