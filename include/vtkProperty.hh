@@ -59,6 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRenderer;
 class vtkPropertyDevice;
+class vtkActor;
 
 class vtkProperty : public vtkObject
 {
@@ -75,6 +76,14 @@ public:
   // its instance variables. This is actually handled by an instance of
   // vtkPropertyDevice, which is created automatically. 
   virtual void Render(vtkRenderer *ren);
+
+  // Description:
+  // This method causes the property to set up whatever is required for
+  // its instance variables. This is actually handled by an instance of
+  // vtkPropertyDevice, which is created automatically. This optional
+  // method include the invoking actor as an argument and can be
+  // implemented by property devices that require the actor.
+  virtual void Render(vtkRenderer *ren, vtkActor *anActor);
 
   // Description:
   // Set the interpolation of this actor. These three are mutually exclusive.
