@@ -11,7 +11,7 @@
 // This is the templated function that actually computes the EncodedNormal
 // and the GradientMagnitude
 template <class T>
-void ComputeGradients( vtkNormalEncoder *encoder,
+static void ComputeGradients( vtkNormalEncoder *encoder,
 		       int scalar_input_size[3],
 		       float scalar_input_aspect[3],
 		       T *data_ptr )

@@ -544,7 +544,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion,
 //----------------------------------------------------------------------------
 // Templated function for copying image into vectors.
 template <class T>
-void vtkImageToStructuredPointsCopyVectors(vtkImageToStructuredPoints *self, 
+static void vtkImageToStructuredPointsCopyVectors(vtkImageToStructuredPoints *self, 
 					   vtkImageRegion *region, T *inPtr,
 					   vtkFloatVectors *vectors)
 
