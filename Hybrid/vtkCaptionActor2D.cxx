@@ -369,7 +369,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     p2[0] = x1[0]; p2[1] = x1[1]; p2[2] = 0.0;
     
     int *sze = viewport->GetSize();
-    float sf = this->LeaderGlyphSize * sqrt(sze[0]*sze[0] + sze[1]*sze[1]) /
+    float sf = this->LeaderGlyphSize * 
+      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1])) /
       (sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) * length);
 
     vtkDebugMacro(<<"Scale factor: " << sf);
