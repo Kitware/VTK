@@ -40,21 +40,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 // .NAME vtkScalarTree - organize data according to scalar values (used to accelerate contouring operations)
+
 // .SECTION Description
-// vtkScalarTree creates a pointerless binary tree that helps search for
-// cells that lie within a particular scalar range. This object is used to
-// accelerate some contouring (and other scalar-based techniques).
-// 
-// The tree consists of an array of (min,max) scalar range pairs per node in
-// the tree. The (min,max) range is determined from looking at the range of
-// the children of the tree node. If the node is a leaf, then the range is
-// determined by scanning the range of scalar data in n cells in the
-// dataset. The n cells are determined by arbitrary selecting cell ids from
-// id(i) to id(i+n), and where n is specified using the BranchingFactor
-// ivar. Note that leaf node i=0 contains the scalar range computed from
-// cell ids (0,n-1); leaf node i=1 contains the range from cell ids (n,2n-1);
-// and so on. The implication is that there are no direct lists of cell ids
-// per leaf node, instead the cell ids are implicitly known.
+// vtkScalarTree is an abstract class that defines the API to concrete
+// scalar tree subclasses. A scalar tree is a data structure that organizes
+// data according to its scalar value. This allows rapid access to data for
+// those algorithms that access the data based on scalar value. For example,
+// isocontouring operates on cells based on the scalar (isocontour) value.
+//
+// To use subclasses of this class, you must specify a dataset to operate on,
+// and then specify a scalar value in the InitTraversal() method. Then
+// calls to GetNextCell() return cells whose scalar data contains the
+// scalar value specified.
+
+// .SECTION See Also
+// vtkSimpleScalarTree vtkBONOScalarTree
 
 #ifndef __vtkScalarTree_h
 #define __vtkScalarTree_h
@@ -62,24 +62,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkDataSet.h"
 
-typedef struct _vtkScalarRange
-{
-  float min;
-  float max;
-} vtkScalarRange;
-
-class vtkFloatArray;
-
 class VTK_FILTERING_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkScalarTree,vtkObject);
+  vtkTypeMacro(vtkScalarTree,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Instantiate scalar tree with maximum level of 20 and branching
-  // factor of 5.
-  static vtkScalarTree *New();
 
   // Description:
   // Build the tree from the points/cells defining this dataset.
@@ -87,67 +74,37 @@ public:
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Set the branching factor for the tree. This is the number of
-  // children per tree node. Smaller values (minimum is 2) mean deeper
-  // trees and more memory overhead. Larger values mean shallower
-  // trees, less memory usage, but worse performance.
-  vtkSetClampMacro(BranchingFactor,int,2,VTK_LARGE_INTEGER);
-  vtkGetMacro(BranchingFactor,int);
-
-  // Description:
-  // Get the level of the locator (determined automatically if Automatic is 
-  // true). The value of this ivar may change each time the locator is built.
-  vtkGetMacro(Level,int);
-
-  // Description:
-  // Set the maximum allowable level for the tree. 
-  vtkSetClampMacro(MaxLevel,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(MaxLevel,int);
-
-  // Description:
   // Construct the scalar tree from the dataset provided. Checks build times
   // and modified time from input and reconstructs the tree if necessary.
-  void BuildTree();
+  virtual void BuildTree() = 0;
   
   // Description:
   // Initialize locator. Frees memory and resets object as appropriate.
-  void Initialize();
+  virtual void Initialize() = 0;
 
   // Description:
   // Begin to traverse the cells based on a scalar value. Returned cells
   // will have scalar values that span the scalar value specified.
-  void InitTraversal(float scalarValue);
+  virtual void InitTraversal(float scalarValue) = 0;
 
   // Description:
   // Return the next cell that may contain scalar value specified to
   // initialize traversal. The value NULL is returned if the list is
   // exhausted. Make sure that InitTraversal() has been invoked first or
   // you'll get erratic behavior.
-  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                       vtkDataArray *cellScalars);
+  virtual vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
+                               vtkDataArray *cellScalars) = 0;
 
 protected:
   vtkScalarTree();
   ~vtkScalarTree();
 
-  vtkDataSet *DataSet;
-  vtkDataArray *Scalars;
-  int MaxLevel;
-  int Level;
-  int BranchingFactor; //number of children per node
+  vtkDataSet   *DataSet;    //the dataset over which the scalar tree is built
+  vtkDataArray *Scalars;    //the scalars of the DataSet
 
-  vtkScalarRange *Tree; //pointerless scalar range tree
-  int TreeSize; //allocated size of tree
   vtkTimeStamp BuildTime; //time at which tree was built
+  float        ScalarValue; //current scalar value for traversal
 
-private:
-  float ScalarValue; //current scalar value for traversal
-  vtkIdType TreeIndex; //traversal location within tree
-  vtkIdType LeafOffset; //offset to leaf nodes of tree
-  int ChildNumber; //current child in traversal
-  vtkIdType CellId; //current cell id being examined
-  int FindStartLeaf(vtkIdType index, int level);
-  int FindNextLeaf(vtkIdType index,int level);
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.
   void operator=(const vtkScalarTree&);  // Not implemented.

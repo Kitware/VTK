@@ -36,6 +36,7 @@ vtkPolyDataToPolyDataFilter
 vtkRectilinearGridSource
 vtkRectilinearGridToPolyDataFilter
 vtkScalarTree
+vtkSimpleScalarTree
 vtkSimpleImageToImageFilter 
 vtkSphere
 vtkSpline
@@ -64,6 +65,7 @@ vtkPointSetToPointSetFilter
 vtkPolyDataToPolyDataFilter
 vtkProp3D
 vtkRectilinearGridToPolyDataFilter
+vtkScalarTree
 vtkSimpleImageToImageFilter 
 vtkSpline
 vtkStructuredGridToPolyDataFilter
