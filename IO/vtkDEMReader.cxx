@@ -107,7 +107,7 @@ vtkDEMReader::vtkDEMReader()
     }
   this->LocalRotation = 0;
   this->AccuracyCode = 0;
-  for (i = 0; i < 2; i++)
+  for (i = 0; i < 3; i++)
     {
     this->SpatialResolution[i] = 0;
     }
