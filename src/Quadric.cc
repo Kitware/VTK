@@ -1,0 +1,69 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Quadric.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+Description:
+---------------------------------------------------------------------------
+This file is part of the Visualization Library. No part of this file
+or its contents may be copied, reproduced or altered in any way
+without the express written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
+
+#include <math.h>
+#include "Quadric.hh"
+
+vlQuadric::vlQuadric()
+{
+  this->Coefficients[0] = 1.0;
+  this->Coefficients[1] = 1.0;
+  this->Coefficients[2] = 1.0;
+  this->Coefficients[3] = 1.0;
+  this->Coefficients[4] = 1.0;
+  this->Coefficients[5] = 1.0;
+  this->Coefficients[6] = 1.0;
+  this->Coefficients[7] = 1.0;
+  this->Coefficients[8] = 1.0;
+  this->Coefficients[9] = 1.0;
+}
+
+float vlQuadric::Evaluate(float x, float y, float z)
+{
+  float *a = this->Coefficients;
+  return ( a[0]*x*x + a[1]*y*y + a[2]*z*z +
+           a[3]*x*y + a[4]*y*z + a[5]*x*z +
+           a[6]*x + a[7]*y + a[8]*z + a[9] );
+}
+
+void vlQuadric::SetCoefficients(float a[10])
+{
+  int i;
+  float *c=this->Coefficients;
+
+  for (i=0; i < 10; i++ )
+    if ( a[i] != c[i] )
+      break;
+
+  if ( i < 10 )
+    {
+    this->Modified();
+    for (int i=0; i < 10; i++ ) c[i] = a[i];
+    }
+}
+
+void vlQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
+                                float a5,float a6,float a7,float a8, float a9)
+{
+  float a[10];
+
+  a[0] = a0; a[1] = a1; a[2] = a2; a[3] = a3; a[4] = a4; 
+  a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9; 
+
+  vlQuadric::SetCoefficients(a);
+}
