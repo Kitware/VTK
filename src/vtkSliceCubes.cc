@@ -122,7 +122,7 @@ void vtkSliceCubes::Execute()
   short *slice0, *slice1, *slice2, *slice3;
   int dims[3], imageRange[2];
   float origin[3], aspectRatio[3];
-  int slice, sliceSize, numTriangles=0;
+  int sliceSize, numTriangles=0;
   short value, s[8];
   vtkMath math;
   int i, j, k, idx, jOffset, ii, index, *vert, jj;
