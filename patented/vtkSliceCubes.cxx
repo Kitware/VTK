@@ -163,7 +163,7 @@ static void ComputePointGradient(int i, int j, int k, int dims[3],
 }
 
 template <class T, class S>
-static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3],
+static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3],
             float Spacing[3], float value, float xmin[3], float xmax[3],
             FILE *outFP, vtkVolumeReader *reader, unsigned char debug)
 {
@@ -179,6 +179,7 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
   EDGE_LIST  *edge;
   float pts[8][3], grad[8][3];
   float t, *x1, *x2, *n1, *n2;
+  float xp, yp, zp;
   float point[6];
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
@@ -269,10 +270,12 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
       }
 
     pts[0][2] = origin[2] + k*Spacing[2];
+    zp = origin[2] + (k+1)*Spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
       jOffset = j*dims[0];
       pts[0][1] = origin[1] + j*Spacing[1];
+      yp = origin[1] + (j+1)*Spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
         {
         //get scalar values
@@ -301,34 +304,35 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
 	  }
         //create voxel points
         pts[0][0] = origin[0] + i*Spacing[0];
+        xp = origin[0] + (i+1)*Spacing[0];
 
-        pts[1][0] = pts[0][0] + Spacing[0];  
+        pts[1][0] = xp;
         pts[1][1] = pts[0][1];
         pts[1][2] = pts[0][2];
 
-        pts[2][0] = pts[0][0] + Spacing[0];  
-        pts[2][1] = pts[0][1] + Spacing[1];
+        pts[2][0] = xp;
+        pts[2][1] = yp;
         pts[2][2] = pts[0][2];
 
         pts[3][0] = pts[0][0];
-        pts[3][1] = pts[0][1] + Spacing[1];
+        pts[3][1] = yp;
         pts[3][2] = pts[0][2];
 
         pts[4][0] = pts[0][0];
         pts[4][1] = pts[0][1];
-        pts[4][2] = pts[0][2] + Spacing[2];
+        pts[4][2] = zp;
 
-        pts[5][0] = pts[0][0] + Spacing[0];  
+        pts[5][0] = xp;
         pts[5][1] = pts[0][1];
-        pts[5][2] = pts[0][2] + Spacing[2];
+        pts[5][2] = zp;
 
-        pts[6][0] = pts[0][0] + Spacing[0];  
-        pts[6][1] = pts[0][1] + Spacing[1];
-        pts[6][2] = pts[0][2] + Spacing[2];
+        pts[6][0] = xp;
+        pts[6][1] = yp;
+        pts[6][2] = zp;
 
         pts[7][0] = pts[0][0];
-        pts[7][1] = pts[0][1] + Spacing[1];
-        pts[7][2] = pts[0][2] + Spacing[2];
+        pts[7][1] = yp;
+        pts[7][2] = zp;
 
         //create gradients
         ComputePointGradient(i,j, k, dims, Spacing, grad[0],
@@ -356,7 +360,7 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
           for (ii=0; ii<3; ii++) //insert triangle
             {
             vert = edges[edge[ii]];
-            t = (float)(value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
+            t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
             x1 = pts[vert[0]];
             x2 = pts[vert[1]];
             n1 = grad[vert[0]];
@@ -469,7 +473,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkCharArray *scalars = (vtkCharArray *)inScalars->GetData();
 	char *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -478,7 +482,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkUnsignedCharArray *scalars = (vtkUnsignedCharArray *)inScalars->GetData();
 	unsigned char *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -487,7 +491,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkShortArray *scalars = (vtkShortArray *)inScalars->GetData();
 	short *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -496,7 +500,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkUnsignedShortArray *scalars = (vtkUnsignedShortArray *)inScalars->GetData();
 	unsigned short *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -505,7 +509,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkIntArray *scalars = (vtkIntArray *)inScalars->GetData();
 	int *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -514,7 +518,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkUnsignedIntArray *scalars = (vtkUnsignedIntArray *)inScalars->GetData();
 	unsigned int *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -523,7 +527,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkLongArray *scalars = (vtkLongArray *)inScalars->GetData();
 	long *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -532,7 +536,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkUnsignedLongArray *scalars = (vtkUnsignedLongArray *)inScalars->GetData();
 	unsigned long *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -541,7 +545,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkFloatArray *scalars = (vtkFloatArray *)inScalars->GetData();
 	float *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -550,7 +554,7 @@ void vtkSliceCubes::Execute()
 	{
 	vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars->GetData();
 	double *s = scalars->GetPointer(0);
-	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			       Spacing,this->Value,
 			       xmin,xmax,outFP,this->Reader,this->Debug);
 	}
@@ -562,7 +566,7 @@ void vtkSliceCubes::Execute()
     {
     vtkFloatArray *scalars = (vtkFloatArray *)inScalars->GetData();
     float *s = NULL; //clue to convert data to float
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,
+    numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
 			   Spacing,this->Value,
 			   xmin,xmax,outFP,this->Reader,this->Debug);
     }
