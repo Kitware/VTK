@@ -2,7 +2,7 @@
 # vtkAppendPolyData filter.
 
 # parameters
-set NUMBER_OF_PIECES 6
+set NUMBER_OF_PIECES 7
 
 
 
@@ -36,24 +36,20 @@ vtkAppendPolyData appa
 vtkAppendPolyData appb
     appb ParallelStreamingOn
 
-for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
-#  vtkContourFilter iso$i
-  vtkSynchronizedTemplates3D iso$i
-    iso$i SetInput [reader GetOutput]
-    iso$i SetValue 0 500
-    iso$i ComputeScalarsOff
-    iso$i ComputeGradientsOff
+vtkSynchronizedTemplates3D iso
+    iso SetInput [reader GetOutput]
+    iso SetValue 0 500
+    iso ComputeScalarsOff
+    iso ComputeGradientsOff
 
+for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
   set val [expr 0.0 + $i / ($NUMBER_OF_PIECES - 1.0)]
   vtkElevationFilter elev$i
-    elev$i SetInput [iso$i GetOutput]
+    elev$i SetInput [iso GetOutput]
     elev$i SetScalarRange $val [expr $val+0.001]
 
-  if { [expr $i % 2] == 0 } {
-      appa AddInput [elev$i GetOutput]
-  } else {
-      appb AddInput [elev$i GetOutput]
-  }
+  appa AddInput [elev$i GetOutput]
+  appb AddInput [elev$i GetOutput]
 }
 
 app AddInput [appa GetOutput]
