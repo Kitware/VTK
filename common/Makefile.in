@@ -59,6 +59,7 @@ vtkDynamicLoader \
 vtkDoubleArray \
 vtkEdgeTable \
 vtkEmptyCell \
+vtkExtentTranslator \
 vtkFieldData \
 vtkFileOutputWindow \
 vtkFloatArray \
