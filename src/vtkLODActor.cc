@@ -45,13 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Creates an actor with the following defaults: origin(0,0,0) 
+// Creates a vtkLODActor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). 
+// orientation=(0,0,0). NumberOfCloudPoints is set to 150.
 vtkLODActor::vtkLODActor()
 {
-  this->LowThreshold = 1.4;
-  this->MediumThreshold = 1.2;
+  this->NumberOfCloudPoints = 150;
   this->Timings[0] = -2; // highest LOD
   this->Timings[1] = -2;
   this->Timings[2] = -2; // lowest LOD
@@ -86,7 +85,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
     this->MediumMapper.SetScalarRange(this->Mapper->GetScalarRange());
     this->MediumMapper.SetScalarsVisible(this->Mapper->GetScalarsVisible());
     this->MaskPoints.SetInput(this->Mapper->GetInput());
-    this->MaskPoints.SetMaximumNumberOfPoints(120);
+    this->MaskPoints.SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
     this->MaskPoints.SetRandomMode(1);
     this->Glyph3D.SetInput(&this->MaskPoints);
     this->Glyph3D.SetSource(&this->PointSource);

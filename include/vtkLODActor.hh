@@ -37,10 +37,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkLODActor - a subclass of actor that supports multiple LOD
+// .NAME vtkLODActor - a subclass of actor that supports Levels Of Detail
 // .SECTION Description
 // vtkLODActor is an actor that stores multiple Levels of Detail and can
-// automatically switch between them.
+// automatically switch between them. It selects which level of detail
+// to use based on how much time it has been allocated to render. 
+// Currently a very simple method of TotalTime/NumberOfActors is used.
+// In the future this should be modified to dynamically allocate the
+// rendering time between different actors based on their needs.
+// There are currently three levels of detail. The top level is just
+// the normal data.  The lowest level of detail is a simple bounding
+// box outline of the actor. The middle level of detail is a point
+// cloud of a fixed number of points that have been randomly sampled
+// from the Mappers input data.  Point attributes are copied over to
+// the point cloud.  These two lover levels of detail are accomplished by
+// creating instances of a vtkOutlineFilter, vtkGlyph3D and vtkPointSource.
+
+// .SECTION see also
+// vtkActor vtkRenderer
 
 #ifndef __vtkLODActor_hh
 #define __vtkLODActor_hh
@@ -63,15 +77,10 @@ class vtkLODActor : public vtkActor
   virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Set/Get the level of detail threshold for the lowest resolution
-  vtkGetMacro(LowThreshold,float);
-  vtkSetMacro(LowThreshold,float);
+  // Set/Get the number of random points for the point cloud.
+  vtkGetMacro(NumberOfCloudPoints,int);
+  vtkSetMacro(NumberOfCloudPoints,int);
 
-  // Description:
-  // Set/Get the level of detail threshold for the medium resolution
-  vtkGetMacro(MediumThreshold,float);
-  vtkSetMacro(MediumThreshold,float);
-  
 protected:
   vtkPointSource      PointSource;
   vtkGlyph3D          Glyph3D;
@@ -81,8 +90,7 @@ protected:
   vtkOutlineFilter    OutlineFilter;
   vtkTimeStamp        BuildTime;
   float               Size;
-  float               LowThreshold;
-  float               MediumThreshold;
+  int                 NumberOfCloudPoints;
   float               Timings[3];
 };
 
