@@ -46,7 +46,7 @@
 // (EndInteractionEvent).
 
 // .SECTION See Also
-// vtkBoxWidget vtkLineWidget
+// vtkBoxWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
 
 #ifndef __vtk3DWidget_h
 #define __vtk3DWidget_h
@@ -64,13 +64,11 @@ public:
   // widget depends on whether a Prop3D or input dataset is provided. If one
   // of these two is provided, they will be used to obtain a bounding box,
   // around which the widget is placed. Otherwise, you can manually specify a
-  // bounds with the PlaceWidget(bounds) method.
-  virtual void PlaceWidget();
-
-  // Description:
-  // Place the widget within the bounding box provided.
-  // Subclasses must provide this method.
+  // bounds with the PlaceWidget(bounds) method. Note: PlaceWidget(bounds)
+  // is required by all subclasses; the other methods are provided as
+  // convenience methods.
   virtual void PlaceWidget(float bounds[6]) = 0;
+  void PlaceWidget();
   void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
                    float zmin, float zmax);
 

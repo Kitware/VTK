@@ -95,6 +95,11 @@ public:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
   virtual void PlaceWidget(float bounds[6]);
+  void PlaceWidget()
+    {this->Superclass::PlaceWidget();}
+  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
+                   float zmin, float zmax)
+    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
   // Set/Get the resolution (number of subdivisions) of the line.
@@ -159,8 +164,8 @@ public:
   // Description:
   // Get the line properties. The properties of the line when selected 
   // and unselected can be manipulated.
-  vtkSetObjectMacro(LineProperty,vtkProperty);
   vtkGetObjectMacro(LineProperty,vtkProperty);
+  vtkGetObjectMacro(SelectedLineProperty,vtkProperty);
   
 protected:
   vtkLineWidget();

@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.6");
+vtkCxxRevisionMacro(vtk3DWidget, "1.7");
 
 vtk3DWidget::vtk3DWidget()
 {
@@ -71,7 +71,7 @@ void vtk3DWidget::PlaceWidget()
 }
 
 void vtk3DWidget::PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                            float zmin, float zmax)
+                              float zmin, float zmax)
 {
   float bounds[6];
 

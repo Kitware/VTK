@@ -17,7 +17,6 @@
 =========================================================================*/
 // .NAME vtkPlaneWidget - 3D widget for manipulating a plane
 // .SECTION Description
-
 // This 3D widget defines a place that can be interactively placed in a
 // scene. The line has four handles (at its corner vertices), a normal
 // vector, and the plane itself. The handles are used to resize the plane;
@@ -70,8 +69,7 @@
 // actors.  This is an intended feature and not a bug.
 
 // .SECTION See Also
-// vtk3DWidget vtkBoxWidget vtkLineWidget
-
+// vtk3DWidget vtkBoxWidget vtkLineWidget vtkSphereWidget
 
 #ifndef __vtkPlaneWidget_h
 #define __vtkPlaneWidget_h
@@ -107,6 +105,11 @@ public:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
   virtual void PlaceWidget(float bounds[6]);
+  void PlaceWidget()
+    {this->Superclass::PlaceWidget();}
+  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
+                   float zmin, float zmax)
+    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
   // Set/Get the resolution (number of subdivisions) of the plane.
