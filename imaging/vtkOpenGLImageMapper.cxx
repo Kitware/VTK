@@ -30,6 +30,23 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
   (x) = (unsigned char)(val); \
 } 
 
+// the bit-shift must be done after the comparison to zero
+// because bit-shift is implemenation dependant for negative numbers
+#define vtkClampIntToUnsignedChar(x,y,shift) \
+{ \
+  val = (y); \
+  if (val < 0) \
+    { \
+    val = 0; \
+    } \
+  val >>= shift; \
+  if (val > 255) \
+    { \
+    val = 255; \
+    } \
+  (x) = (unsigned char)(val); \
+} 
+
 //---------------------------------------------------------------
 // render the image by doing the following:
 // 1) apply shift and scale to pixel values
@@ -183,14 +200,14 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   // find the number of bits to use for the fraction:
   // continue increasing the bits until there is an overflow
   // in the worst case, then decrease by 1.
-  int fixedPoints = 0;
-  while (((long)(1 << fixedPoints)*scale)*USHRT_MAX*2.0 < LONG_MAX)
+  int bitShift = 0;
+  while (((long)(1 << bitShift)*scale)*USHRT_MAX*2.0 < LONG_MAX)
     {
-    fixedPoints++;
+    bitShift++;
     }
-  fixedPoints--;
+  bitShift--;
   
-  long sscale = (long) (scale*(1 << fixedPoints));
+  long sscale = (long) (scale*(1 << bitShift));
   long sshift = (long) (sscale*shift);
   long val;
   unsigned char tmp;
@@ -223,7 +240,7 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
       case 1:
 	while (--i >= 0)
 	  {
-          vtkClampToUnsignedChar(tmp,(*inPtr++*sscale+sshift)>>fixedPoints);
+          vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
 	  *ptr++ = tmp;
 	  *ptr++ = tmp;
 	  *ptr++ = tmp;
@@ -233,9 +250,9 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
       case 2:
 	while (--i >= 0)
 	  {
-	  vtkClampToUnsignedChar(tmp,(*inPtr++*sscale+sshift)>>fixedPoints);
+	  vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
 	  *ptr++;
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
 	  *ptr++ = tmp;
 	  }
 	break;
@@ -243,19 +260,19 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
       case 3:
 	while (--i >= 0)
 	  {
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
 	  }
 	break;
 	
       default:
 	while (--i >= 0)
 	  {
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
-	  vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift)>>fixedPoints);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
 	  inPtr += bpp-4;
 	  }
 	break;
@@ -270,16 +287,12 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 }
 
 //---------------------------------------------------------------
-// Same as above, but uses fixed-point math for shift and scale.
-// The number of bits used for the fraction is determined from the
-// scale.  Enough bits are always left over for the integer that
-// overflow cannot occur.
+// render unsigned char data without any shift/scale
 
 static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, 
 					   vtkImageData *data, 
 					   unsigned char *dataPtr,
 					   int type,
-					   float shift, float scale,
 					   int *actorPos, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
@@ -305,7 +318,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
-  if (bpp == 3 && scale == 1.0 && shift == 0.0)
+  if (bpp == 3)
     { // feed through RGB bytes without reformatting
     if (inInc1 != width*bpp)
       {
@@ -313,7 +326,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
       }
     glDrawPixels(width, height, GL_RGB, type, (void *)dataPtr);
     }
-  else if (bpp == 4 && scale == 1.0 && shift == 0.0)
+  else if (bpp == 4)
     { // feed through RGBA bytes without reformatting
     if (inInc1 != width*bpp)
       {
@@ -321,8 +334,8 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
       }
     glDrawPixels(width, height, GL_RGBA, type, (void *)dataPtr);
     }      
-  else if (scale == 1.0 && shift == 0.0)
-    { // feed through other bytes without window/level
+  else 
+    { // feed through other bytes without reformatting
     unsigned char *inPtr = (unsigned char *)dataPtr;
     unsigned char *inPtr1 = inPtr;
     unsigned char tmp;
@@ -383,86 +396,6 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
 	    *ptr++ = *inPtr++;
 	    *ptr++ = *inPtr++;
 	    *ptr++ = *inPtr++;
-	    inPtr += bpp-4;
-	    }
-	  break;
-	}
-      inPtr1 += inInc1;
-      }
-
-    glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA), 
-		 GL_UNSIGNED_BYTE, (void *)newPtr);
-
-    delete [] newPtr;    
-    }
-  else
-    {
-    long sscale = (long) (scale*(1 << 8));
-    long sshift = (long) (sscale*shift);
-    long val;
-    unsigned char tmp;
-
-    unsigned char *inPtr = (unsigned char *)dataPtr;
-    unsigned char *inPtr1 = inPtr;
-
-    int i = width;
-    int j = height;
-
-    unsigned char *newPtr;
-    if (bpp < 4)
-      {
-      newPtr = new unsigned char[3*width*height + (3*width*height)%4];
-      }
-    else
-      {
-      newPtr = new unsigned char[4*width*height];
-      }
-
-    unsigned char *ptr = newPtr;
-
-    while (--j >= 0)
-      {
-      inPtr = inPtr1;
-      i = width;
-
-      switch (bpp)
-	{
-	case 1:
-	  while (--i >= 0)
-	    {
-	    vtkClampToUnsignedChar(tmp,(*inPtr++*sscale+sshift) >> 8);
-	    *ptr++ = tmp;
-	    *ptr++ = tmp;
-	    *ptr++ = tmp;
-	    }
-	  break;
-
-	case 2:
-	  while (--i >= 0)
-	    {
-	    vtkClampToUnsignedChar(tmp,(*inPtr++*sscale+sshift) >> 8);
-	    *ptr++ = tmp;
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    *ptr++ = tmp;
-	    }
-	  break;
-
-	case 3:
-	  while (--i >= 0)
-	    {
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    }
-	  break;
-
-	default:
-	  while (--i >= 0)
-	    {
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
-	    vtkClampToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift) >> 8);
 	    inPtr += bpp-4;
 	    }
 	  break;
@@ -556,10 +489,20 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     
       break; 
     case VTK_UNSIGNED_CHAR:  
-      vtkOpenGLImageMapperRenderChar(this, data,
-				     (unsigned char *)(ptr0),  
-				     GL_UNSIGNED_BYTE,
-				     shift, scale, actorPos, vsize);
+      if (shift == 0.0 && scale == 1.0)
+	{
+	vtkOpenGLImageMapperRenderChar(this, data,
+				       (unsigned char *)(ptr0),  
+				       GL_UNSIGNED_BYTE,
+				       actorPos, vsize);
+	}
+      else
+	{
+	vtkOpenGLImageMapperRenderShort(this, data,
+					(unsigned char *)(ptr0),  
+					GL_UNSIGNED_BYTE,
+					shift, scale, actorPos, vsize);
+	}
       break;
     }
 
