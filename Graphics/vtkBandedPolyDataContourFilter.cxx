@@ -77,7 +77,7 @@ int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
       return i;
       }
     }
-  return 0;
+  return (this->NumberOfClipValues - 2); //on the end point
 }
 
 int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
@@ -102,6 +102,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
   this->PtIds[idx2-idx1+1] = v2;
   this->T[0] = 0.0;
   this->T[idx2-idx1+1] = 1.0;
+  this->CellScalars[0] = idx1;
   
   for (int i=1; i < (idx2-idx1); i++)
     {
@@ -111,6 +112,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
     x[2] = x1[2] + this->T[i]*(x2[2]-x1[2]);
     ptId = this->PtIds[i] = newPts->InsertNextPoint(x);
     outPD->InterpolateEdge(inPD,ptId,v1,v2,this->T[i]);
+    this->CellScalars[i] = idx1 + i;
     }
 
   return (idx2-idx1+1);
@@ -120,9 +122,18 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 extern "C" {
 int vtkCompareContourValues(const void *val1, const void *val2)
 {
-  if ( *((float*)val1) < *((float*)val2) ) {return (-1);}
-  else if ( *((float*)val1) > *((float*)val2) ) {return (1);}
-  else {return (0);}
+  if ( *((float*)val1) < *((float*)val2) ) 
+    {
+    return (-1);
+    }
+  else if ( *((float*)val1) > *((float*)val2) ) 
+    {
+    return (1);
+    }
+  else 
+    {
+    return (0);
+    }
 }
 }
 
@@ -134,12 +145,11 @@ void vtkBandedPolyDataContourFilter::Execute()
   vtkCellData *cd = input->GetCellData();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD = input->GetPointData();
-  vtkCellData *outCD = input->GetCellData();
+  vtkCellData *outCD = output->GetCellData();
   vtkPoints *inPts = input->GetPoints();
   vtkDataArray *inScalars = pd->GetScalars();
   int numPts, numCells;
   int cellNum, abort;
-  vtkEdgeTable *edgeTable;
   vtkPoints *newPts;
   vtkCellArray *newLines, *newPolys;
   int i, j, idx, npts, cellId=0, ptId=0;
@@ -260,8 +270,10 @@ void vtkBandedPolyDataContourFilter::Execute()
     }
   
   // Polygons are assumed convex and chopped into filled, convex polygons.
+  // Triangle strips are treated similarly.
   //
-  if ( input->GetLines()->GetNumberOfCells() > 0 )
+  if ( input->GetPolys()->GetNumberOfCells() > 0 ||
+       input->GetStrips()->GetNumberOfCells() > 0 )
     {
 
     // Set up processing. We are going to store an ordered list of
@@ -269,35 +281,34 @@ void vtkBandedPolyDataContourFilter::Execute()
     // to largest). These will later be connected into convex polygons
     // which represent a filled region in the cell.
     //
+    vtkEdgeTable *edgeTable;
     edgeTable = vtkEdgeTable::New();
     edgeTable->InitEdgeInsertion(numPts,1); //store attributes on
 
+    edgeTable->Delete();
     }
   
-  // Triangle are assumed convex and chopped into filled, convex polygons.
+  vtkDebugMacro(<<"Created " << output->GetVerts()->GetNumberOfCells() 
+                << " verts\n");
+  vtkDebugMacro(<<"Created " << output->GetLines()->GetNumberOfCells() 
+                << " lines\n");
+  vtkDebugMacro(<<"Created " << output->GetPolys()->GetNumberOfCells() 
+                << " polys\n");
+  vtkDebugMacro(<<"Created " << output->GetStrips()->GetNumberOfCells() 
+                << " strips\n");
+
+  //  Update ourselves and release temporary memory
   //
-  if ( input->GetLines()->GetNumberOfCells() > 0 )
-    {
-    }
+  delete [] this->PtIds;
+  delete [] this->T;
+  delete [] this->CellScalars;
+
+  output->SetPoints(newPts);
+  newPts->Delete();
+
+  outCD->SetScalars(newScalars);
+  newScalars->Delete();
   
-  
-
-  newLines = vtkCellArray::New();
-  newLines->EstimateSize(numPts*4,2);
-
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
-  outPD->CopyAllocate(pd,numPts);
-
-  cd = input->GetCellData();
-  outCD = output->GetCellData();
-  outCD->CopyAllocate(cd,numCells);
-  
-  vtkDebugMacro(<<"Created " << newLines->GetNumberOfCells() << " edges");
-
-  //  Update ourselves.
-  //
-  edgeTable->Delete();
   output->Squeeze();
 }
 
