@@ -684,6 +684,18 @@ proc new {className} {
 
 # do not test certain methods (with no error checking)
 proc CheckException {methodName} {
+   if {$methodName == "SetOutput"} {
+      return 1
+   }
+
+   if {$methodName == "SetReferenceCount"} {
+      return 1
+   }
+
+   if {$methodName == "SetInputMemoryLimit"} {
+      return 1
+   }
+
    if {$methodName == "SetScalar"} {
       return 1
    }
