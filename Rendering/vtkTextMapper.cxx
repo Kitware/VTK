@@ -20,7 +20,7 @@
 #include "vtkImagingFactory.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.41");
+vtkCxxRevisionMacro(vtkTextMapper, "1.42");
 
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
@@ -251,7 +251,7 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
 
   // Assign the smallest size to all text mappers and find the largest area
 
-  int tempi[1];
+  int tempi[2];
   for (i = 0; i < nbOfMappers; i++)
     {
     mappers[i]->GetTextProperty()->SetFontSize(fontSize);
