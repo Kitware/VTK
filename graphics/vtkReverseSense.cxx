@@ -71,10 +71,10 @@ void vtkReverseSense::Execute()
     polys = new vtkCellArray(*(input->GetPolys()));
     strips = new vtkCellArray(*(input->GetStrips()));
 
-    output->SetVerts(verts);  
-    output->SetLines(lines);  
-    output->SetPolys(polys);  
-    output->SetStrips(strips);  
+    output->SetVerts(verts); verts->Delete();
+    output->SetLines(lines); lines->Delete();
+    output->SetPolys(polys);  polys->Delete();
+    output->SetStrips(strips);  strips->Delete();
 
     for ( int cellId=0; cellId < numCells; cellId++ )
       {
