@@ -53,6 +53,22 @@ IF (VTK_DATA_ROOT)
            -D ${VTK_DATA_ROOT}
            -V Baseline/Parallel/TestPDataSetReaderGrid.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  IF(PVTK_EXECUTABLE)
+    ADD_TEST(TestPProbe-image ${MPIRUN} ${MPI_PREFLAGS} ${PVTK_EXECUTABLE}
+             ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
+             ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
+             -D ${VTK_DATA_ROOT}
+             -V Baseline/Parallel/TestPPRobe.png
+             -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
+             ${MPI_POSTFLAGS})
+  ELSE(PVTK_EXECUTABLE)
+    ADD_TEST(TestPProbe-image ${VTK_EXECUTABLE}
+             ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
+             ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
+             -D ${VTK_DATA_ROOT}
+             -V Baseline/Parallel/TestPPRobe.png
+             -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ENDIF(PVTK_EXECUTABLE)
 ELSE (VTK_DATA_ROOT)
   ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
