@@ -30,11 +30,11 @@ set outputtype(12) SetOutputScalarTypeToFloat
 
 set replacein "ReplaceInOn ReplaceInOff"
 set replaceout "ReplaceOutOn ReplaceOutOff"
-set threshold [list "ThresholdByLower 800" "ThresholdByUpper 1200" "ThresholdBetween 800 1200"]
+set thresholds [list "ThresholdByLower 800" "ThresholdByUpper 1200" "ThresholdBetween 800 1200"]
 set k 1
 foreach rin $replacein {
   foreach rout $replaceout {
-    foreach t $threshold {
+    foreach t $thresholds {
       vtkImageThreshold thresh$k
         thresh$k SetInValue 2000
         thresh$k SetOutValue 0
