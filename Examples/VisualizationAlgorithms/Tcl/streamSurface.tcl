@@ -9,7 +9,7 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# create pipeline
+# Read the data and specify which scalars and vectors to read.
 #
 vtkPLOT3DReader pl3d
   pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
@@ -22,6 +22,7 @@ vtkPLOT3DReader pl3d
 # scattered along a line. Each point will generate a streamline. These
 # streamlines are then fed to the vtkRuledSurfaceFilter which stitches
 # the lines together to form a surface.
+#
 vtkLineSource rake
   rake SetPoint1 15 -5 32
   rake SetPoint2 15 5 32
@@ -41,8 +42,11 @@ vtkStreamLine sl
   sl SetIntegrationDirectionToBackward
   sl SetStepLength 0.001 
 
-# Note the SetOnRation method. It turns on every other strip that
+#
+# The ruled surface stiches together lines with triangle strips.
+# Note the SetOnRatio method. It turns on every other strip that
 # the filter generates (only when multiple lines are input).
+#
 vtkRuledSurfaceFilter scalarSurface
   scalarSurface SetInput [sl GetOutput]
   scalarSurface SetOffset 0 
@@ -56,6 +60,8 @@ vtkPolyDataMapper mapper
 vtkActor actor
   actor SetMapper mapper 
 
+# Put an outline around for context.
+#
 vtkStructuredGridOutlineFilter outline
   outline SetInput [pl3d GetOutput]
 vtkPolyDataMapper outlineMapper
