@@ -14,9 +14,14 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT = 
+ABSTRACT = \
+vtkCommunicator 
 
-CONCRETE = 
+CONCRETE = \
+vtkMultiProcessController \
+vtkSharedMemoryCommunicator \
+vtkThreadedController \
+vtkTreeComposite
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
