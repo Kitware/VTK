@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.12");
+vtkCxxRevisionMacro(vtkTextActor, "1.13");
 vtkStandardNewMacro(vtkTextActor);
 
 vtkCxxSetObjectMacro(vtkTextActor,TextProperty,vtkTextProperty);
@@ -56,6 +56,12 @@ vtkTextActor::vtkTextActor()
   this->MaximumLineHeight = 1.0;
   this->ScaledText        = 0;
   this->AlignmentPoint    = 0;
+
+  // IMPORTANT: backward compat: the buildtime is updated here so that the 
+  // TextProperty->GetMTime() is lower than BuildTime. In that case, this
+  // will prevent the TextProperty to override the mapper's TextProperty
+  // when the actor is created after the mapper.
+  this->BuildTime.Modified();
 }
 
 // ----------------------------------------------------------------------------
@@ -254,7 +260,6 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         mapper->GetMTime() > this->BuildTime ||
         tpropmapper->GetMTime() > this->BuildTime)
       {
-      // printf("Rebuilding text\n");
       vtkDebugMacro(<<"Rebuilding text");
 
       this->LastOrigin[0] = point1[0];
