@@ -366,7 +366,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
 template <class T>
 static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image, 
 				      float *drawColor, T *ptr, int a0, int a1,
-				      int b0, int b1, int c0, int c1)
+				      int b0, int b1, int c0, int c1, int z)
 {
   int temp;
   float longT, shortT;  // end points of intersection of trainge and row.
@@ -375,7 +375,6 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
   int idx0, idx1, idxV;
   int min0, max0, min1, max1, min2, max2;
   int  maxV;
-  int z = 0;
   float *pf;
   
   ptr = ptr;
@@ -485,24 +484,24 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
     {
     case VTK_FLOAT:
       vtkImageCanvasSource2DFillTriangle(this->ImageData, this->DrawColor, 
-				(float *)(ptr), a0,a1, b0,b1, c0,c1);
+				(float *)(ptr), a0,a1, b0,b1, c0,c1, this->DefaultZ);
       break;
     case VTK_INT:
       vtkImageCanvasSource2DFillTriangle(this->ImageData, this->DrawColor, 
-				(int *)(ptr), a0,a1, b0,b1, c0,c1);
+				(int *)(ptr), a0,a1, b0,b1, c0,c1, this->DefaultZ);
       break;
     case VTK_SHORT:
       vtkImageCanvasSource2DFillTriangle(this->ImageData, this->DrawColor, 
-				(short *)(ptr), a0,a1, b0,b1, c0,c1);
+				(short *)(ptr), a0,a1, b0,b1, c0,c1, this->DefaultZ);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageCanvasSource2DFillTriangle(this->ImageData, this->DrawColor, 
 				(unsigned short *)(ptr),
-			       a0,a1, b0,b1, c0,c1);
+			       a0,a1, b0,b1, c0,c1, this->DefaultZ);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCanvasSource2DFillTriangle(this->ImageData, this->DrawColor, 
-				(unsigned char *)(ptr), a0,a1, b0,b1, c0,c1);
+				(unsigned char *)(ptr), a0,a1, b0,b1, c0,c1, this->DefaultZ);
       break;
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
@@ -518,12 +517,11 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
 template <class T>
 static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image, 
 				   float *drawColor, T *ptr, 
-				   int p0, int p1)
+				   int p0, int p1, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
   float *pf;
-  int z = 0;
   
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   z = (z < min2) ? min2 : z;
@@ -559,23 +557,23 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
     {
     case VTK_FLOAT:
       vtkImageCanvasSource2DDrawPoint(this->ImageData, this->DrawColor, 
-			     (float *)(ptr), p0, p1);
+			     (float *)(ptr), p0, p1, this->DefaultZ);
       break;
     case VTK_INT:
       vtkImageCanvasSource2DDrawPoint(this->ImageData, this->DrawColor, 
-			     (int *)(ptr), p0, p1);
+			     (int *)(ptr), p0, p1, this->DefaultZ);
       break;
     case VTK_SHORT:
       vtkImageCanvasSource2DDrawPoint(this->ImageData, this->DrawColor, 
-			     (short *)(ptr), p0, p1);
+			     (short *)(ptr), p0, p1, this->DefaultZ);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageCanvasSource2DDrawPoint(this->ImageData, this->DrawColor, 
-			     (unsigned short *)(ptr), p0, p1);
+			     (unsigned short *)(ptr), p0, p1, this->DefaultZ);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCanvasSource2DDrawPoint(this->ImageData, this->DrawColor, 
-			     (unsigned char *)(ptr), p0, p1);
+			     (unsigned char *)(ptr), p0, p1, this->DefaultZ);
       break;
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
@@ -589,7 +587,7 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 template <class T>
 static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image, 
 				    float *drawColor, T *ptr, 
-				    int c0, int c1, float radius)
+				    int c0, int c1, float radius, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
@@ -599,7 +597,6 @@ static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
   double x, y, temp;
   int p0, p1;
   int idx;
-  int z = 0;
 
   radius += 0.1;
   image->GetExtent(min0, max0, min1, max1, min2, max2);
@@ -652,23 +649,23 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
     {
     case VTK_FLOAT:
       vtkImageCanvasSource2DDrawCircle(this->ImageData, this->DrawColor, 
-			      (float *)(ptr), c0, c1, radius);
+			      (float *)(ptr), c0, c1, radius, this->DefaultZ);
       break;
     case VTK_INT:
       vtkImageCanvasSource2DDrawCircle(this->ImageData, this->DrawColor, 
-			      (int *)(ptr), c0, c1, radius);
+			      (int *)(ptr), c0, c1, radius, this->DefaultZ);
       break;
     case VTK_SHORT:
       vtkImageCanvasSource2DDrawCircle(this->ImageData, this->DrawColor, 
-			      (short *)(ptr), c0, c1, radius);
+			      (short *)(ptr), c0, c1, radius, this->DefaultZ);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageCanvasSource2DDrawCircle(this->ImageData, this->DrawColor, 
-			      (unsigned short *)(ptr), c0, c1, radius);
+			      (unsigned short *)(ptr), c0, c1, radius, this->DefaultZ);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCanvasSource2DDrawCircle(this->ImageData, this->DrawColor, 
-			      (unsigned char *)(ptr), c0, c1, radius);
+			      (unsigned char *)(ptr), c0, c1, radius, this->DefaultZ);
       break;
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
