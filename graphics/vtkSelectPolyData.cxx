@@ -81,11 +81,9 @@ void vtkSelectPolyData::Execute()
   float x0[3], x1[3], vec[3], dir[3], neiX[3];
   vtkCellArray *inPolys;
   vtkPoints *inPts;
-  vtkPolygon *poly;
-  int id, id2, pt1, pt2, currentId, nextId, numCells, numNei, neiId;
+  int id, pt1, pt2, currentId, nextId, numCells, numNei, neiId;
   int *cells, npts, *pts, numMeshLoopPts, prevId;
   unsigned short int ncells;
-  vtkCellArray *polys;
   int mark, s1, s2, val;
 
   // Initialize and check data
