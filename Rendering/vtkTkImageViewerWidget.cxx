@@ -544,10 +544,10 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   TkWindow *winPtr = (TkWindow *) self->TkWin;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkImageViewer *ImageViewer;
+  vtkImageViewer *imgViewer;
   TkWinDrawable *twdPtr;
   HWND parentWin;
-  vtkRenderWindow *ImageWindow;
+  vtkRenderWindow *imgWindow;
 
   if (self->ImageViewer)
     {
@@ -564,7 +564,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   if (self->IV[0] == '\0')
     {
     // Make the ImageViewer window.
-    self->ImageViewer = ImageViewer = vtkImageViewer::New();
+    self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);
@@ -581,25 +581,25 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
       {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
-      ImageViewer = (vtkImageViewer *)tmp;
+      imgViewer = (vtkImageViewer *)tmp;
       }
     else
       {
 #ifndef VTK_PYTHON_BUILD
-      ImageViewer = (vtkImageViewer *)
+      imgViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag);
 #else
-      ImageViewer = 0;
+      imgViewer = 0;
 #endif
       }
-    if (ImageViewer != self->ImageViewer)
+    if (imgViewer != self->ImageViewer)
       {
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->UnRegister(NULL);
         }
-      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
+      self->ImageViewer = (vtkImageViewer *)(imgViewer);
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->Register(NULL);
@@ -620,7 +620,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
       }
 
     parentWin = ((TkWinDrawable *)winPtr->parentPtr->window)->window.handle;
-    ImageViewer->SetParentId(parentWin);
+    imgViewer->SetParentId(parentWin);
     }
   
   // Use the same display
@@ -629,20 +629,20 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   /* Make sure Tk knows to switch to the new colormap when the cursor
    * is over this window when running in color index mode.
    */
-  //Tk_SetWindowVisual(self->TkWin, ImageViewer->GetDesiredVisual(), 
+  //Tk_SetWindowVisual(self->TkWin, imgViewer->GetDesiredVisual(), 
   //ImageViewer->GetDesiredDepth(), 
   //ImageViewer->GetDesiredColormap());
   
   self->ImageViewer->Render();  
-  ImageWindow = self->ImageViewer->GetRenderWindow();
+  imgWindow = self->ImageViewer->GetRenderWindow();
 
 #if(TK_MAJOR_VERSION >=  8)
-  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, (HWND)ImageWindow->GetGenericWindowId());
+  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, (HWND)imgWindow->GetGenericWindowId());
 #else
   twdPtr = (TkWinDrawable*) ckalloc(sizeof(TkWinDrawable));
   twdPtr->type = TWD_WINDOW;
   twdPtr->window.winPtr = winPtr;
-  twdPtr->window.handle = (HWND)ImageWindow->GetGenericWindowId();
+  twdPtr->window.handle = (HWND)imgWindow->GetGenericWindowId();
 #endif
   
   self->OldProc = (WNDPROC)vtkGetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
@@ -724,8 +724,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *)self->TkWin;
-  vtkImageViewer *ImageViewer;
-  vtkCarbonRenderWindow *ImageWindow;
+  vtkImageViewer *imgViewer;
+  vtkCarbonRenderWindow *imgWindow;
   WindowPtr parentWin;
   
   if (self->ImageViewer)
@@ -738,8 +738,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   if (self->IV[0] == '\0')
     {
     // Make the ImageViewer window.
-    self->ImageViewer = vtkImageViewer::New();
-    ImageViewer = self->ImageViewer;
+    self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);
@@ -756,24 +755,24 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
-      ImageViewer = (vtkImageViewer *)tmp;
+      imgViewer = (vtkImageViewer *)tmp;
       }
     else
       {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
-      ImageViewer = (vtkImageViewer *)
+      imgViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag);
 #endif
       }
-    if (ImageViewer != self->ImageViewer)
+    if (imgViewer != self->ImageViewer)
       {
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->UnRegister(NULL);
         }
-      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
+      self->ImageViewer = (vtkImageViewer *)(imgViewer);
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->Register(NULL);
@@ -783,15 +782,15 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
         
   // get the window
-  ImageWindow = static_cast<vtkCarbonRenderWindow *>(ImageViewer->GetRenderWindow());
+  imgWindow = static_cast<vtkCarbonRenderWindow *>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( ImageWindow->GetWindowId() != (Window)NULL )
+  if ( imgWindow->GetWindowId() != (Window)NULL )
     {
     return TCL_ERROR;
     }
         
   // Use the same display
-  ImageWindow->SetDisplayId(dpy);
+  imgWindow->SetDisplayId(dpy);
 
   // Set the parent correctly and get the actual OSX window on the screen
   // Window must be up so that the aglContext can be attached to it
@@ -825,8 +824,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       // Carbon does not have 'sub-windows', so the ParentId is used more
       // as a flag to indicate that the renderwindow is being used as a sub-
       // view of its 'parent' window.
-      ImageWindow->SetParentId(parentWin);
-      ImageWindow->SetWindowId(parentWin);
+      imgWindow->SetParentId(parentWin);
+      imgWindow->SetWindowId(parentWin);
     }
 
 
@@ -848,8 +847,8 @@ static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self) 
 {
   Display *dpy;
-  vtkImageViewer *ImageViewer = 0;
-  vtkXOpenGLRenderWindow *ImageWindow;
+  vtkImageViewer *imgViewer = 0;
+  vtkXOpenGLRenderWindow *imgWindow;
   
   if (self->ImageViewer)
     {
@@ -866,8 +865,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   if (self->IV[0] == '\0')
     {
     // Make the ImageViewer window.
-    self->ImageViewer = vtkImageViewer::New();
-    ImageViewer = self->ImageViewer;
+    self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                vtkImageViewerCommand);
@@ -883,24 +881,24 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
-      ImageViewer = (vtkImageViewer *)tmp;
+      imgViewer = (vtkImageViewer *)tmp;
       }
     else
       {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
-      ImageViewer = (vtkImageViewer *)
+      imgViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag);
 #endif
       }
-    if (ImageViewer != self->ImageViewer)
+    if (imgViewer != self->ImageViewer)
       {
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->UnRegister(NULL);
         }
-      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
+      self->ImageViewer = (vtkImageViewer *)(imgViewer);
       if (self->ImageViewer != NULL)
         {
         self->ImageViewer->Register(NULL);
@@ -910,23 +908,23 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
         
   // get the window
-  ImageWindow = static_cast<vtkXOpenGLRenderWindow *>(ImageViewer->GetRenderWindow());
+  imgWindow = static_cast<vtkXOpenGLRenderWindow *>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( ImageWindow->GetWindowId() != (Window)NULL )
+  if ( imgWindow->GetWindowId() != (Window)NULL )
     {
     return TCL_ERROR;
     }
         
   // Use the same display
-  ImageWindow->SetDisplayId(dpy);
+  imgWindow->SetDisplayId(dpy);
   // The visual MUST BE SET BEFORE the window is created.
-  Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
-                     ImageWindow->GetDesiredDepth(), 
-                     ImageWindow->GetDesiredColormap());
+  Tk_SetWindowVisual(self->TkWin, imgWindow->GetDesiredVisual(), 
+                     imgWindow->GetDesiredDepth(), 
+                     imgWindow->GetDesiredColormap());
 
   // Make this window exist, then use that information to make the vtkImageViewer in sync
   Tk_MakeWindowExist ( self->TkWin );
-  ImageViewer->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
+  imgViewer->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
 
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
@@ -935,11 +933,11 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   // Possibly X dependent
   if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
     {
-    ImageWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
+    imgWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
     }
   else 
     {
-    ImageWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
+    imgWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
     }
 
   self->ImageViewer->Render();          
