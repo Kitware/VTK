@@ -82,7 +82,7 @@ public:
   vtkGetVector6Macro(WholeExtent, int);
   vtkSetVector6Macro(Extent, int);
   vtkGetVector6Macro(Extent, int);
-  void PieceToExtent();
+  int PieceToExtent();
   vtkSetMacro(Piece,int);
   vtkGetMacro(Piece,int);
   vtkSetMacro(NumberOfPieces,int);

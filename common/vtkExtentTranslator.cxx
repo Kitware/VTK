@@ -81,7 +81,7 @@ vtkExtentTranslator::~vtkExtentTranslator()
 }
 
 //----------------------------------------------------------------------------
-void vtkExtentTranslator::PieceToExtent()
+int vtkExtentTranslator::PieceToExtent()
 {
   this->GetWholeExtent(this->Extent);
   if (this->SplitExtent(this->Piece, this->NumberOfPieces, this->Extent) == 0)
@@ -89,7 +89,9 @@ void vtkExtentTranslator::PieceToExtent()
     // Nothing in this piece.
     this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
     this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+    return 0;
     }
+  return 1;
 }
 
 
