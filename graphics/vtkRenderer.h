@@ -95,8 +95,8 @@ public:
   // They are here for convinience and backwards compatability.
   void AddActor(vtkProp *p) {this->AddProp(p);};
   void AddVolume(vtkProp *p) {this->AddProp(p);};
-  void RemoveActor(vtkProp *p) {this->RemoveProp(p);};
-  void RemoveVolume(vtkProp *p) {this->RemoveProp(p);};
+  void RemoveActor(vtkProp *p) {this->Actors->RemoveItem((vtkActor *) p);this->RemoveProp(p);};
+  void RemoveVolume(vtkProp *p) {this->Volumes->RemoveItem((vtkVolume *) p);this->RemoveProp(p);};
 
   // Description:
   // Remove a light from the list of lights.
