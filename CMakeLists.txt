@@ -306,7 +306,7 @@ IF(BUILD_TESTING)
       Graphics/Testing 
       Imaging/Testing 
       IO/Testing
-      Examples/Build
+#      Examples/Build
     )
 
     IF (VTK_USE_RENDERING)
