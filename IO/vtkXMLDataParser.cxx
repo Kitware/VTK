@@ -1,4 +1,4 @@
-n/*=========================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkXMLDataParser.cxx
@@ -25,7 +25,7 @@ n/*=========================================================================
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.17");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.18");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
