@@ -54,6 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXRenderWindow.h"
 #include "GL/glx.h"
 
+class vtkIdList;
+
 class VTK_EXPORT vtkOpenGLRenderWindow : public vtkXRenderWindow
 {
 protected:
@@ -153,6 +155,13 @@ public:
   // Description:
   // Make this window the current OpenGL context.
   void MakeCurrent();
+
+  // Description:
+  // Register a texture name with this render window
+  void RegisterTextureResource (GLuint id);
+  
+ protected:
+  vtkIdList *TextureResourceIds;
 };
 
 #endif

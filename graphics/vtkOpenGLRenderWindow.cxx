@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkIdList.h"
 #include "GL/gl.h"
 #include "GL/glu.h"
 
@@ -184,7 +185,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
   this->OwnWindow = 0;
-
+  this->TextureResourceIds = vtkIdList::New();
   if ( this->WindowName ) 
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
@@ -194,6 +195,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 // free up memory & close the window
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
+  GLuint id;
   short cur_light;
   vtkOpenGLRenderer *ren;
   
@@ -206,6 +208,17 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
       {
       glDisable((GLenum)cur_light);
+      }
+
+    /* now delete all textures */
+    glDisable(GL_TEXTURE_2D);
+    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+      {
+      id = (GLuint) this->TextureResourceIds->GetId(i);
+      if (glIsTexture(id))
+	{
+	glDeleteTextures(1, &id);
+	}
       }
 
     // tell each of the renderers that this render window/graphics context
@@ -230,6 +243,8 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
       this->WindowId = (Window)NULL;
       }
     }
+
+  this->TextureResourceIds->Delete();
 }
 
 // Begin the rendering process.
@@ -1106,4 +1121,9 @@ void vtkOpenGLRenderWindow::MakeCurrent()
     {
     glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
     }
+}
+
+void vtkOpenGLRenderWindow::RegisterTextureResource (GLuint id)
+{
+  this->TextureResourceIds->InsertNextId ((int) id);
 }
