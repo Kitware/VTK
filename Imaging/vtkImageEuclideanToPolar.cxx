@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageEuclideanToPolar.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.21");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.22");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
@@ -33,75 +34,52 @@ vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
-                                    vtkImageData *inData, T *inPtr,
-                                    vtkImageData *outData, T *outPtr,
-                                    int outExt[6], int id)
+                                    vtkImageData *inData,
+                                    vtkImageData *outData,
+                                    int outExt[6], int id, T *)
 {
-  int idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float X, Y, Theta, R;
   float thetaMax = self->GetThetaMaximum();
   
   // find the region to loop over
-  maxC = inData->GetNumberOfScalarComponents();
-  maxX = outExt[1] - outExt[0]; 
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
+  int maxC = inData->GetNumberOfScalarComponents();
   
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // Pixel operation
+      X = (float)(*inSI);
+      Y = (float)(inSI[1]);
+      
+      if ((X == 0.0) && (Y == 0.0))
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        Theta = 0.0;
+        R = 0.0;
         }
-      for (idxX = 0; idxX <= maxX; idxX++)
+      else
         {
-        // Pixel operation
-        X = (float)(*inPtr);
-        Y = (float)(inPtr[1]);
-
-        if ((X == 0.0) && (Y == 0.0))
+        Theta = atan2(Y, X) * thetaMax / 6.2831853;
+        if (Theta < 0.0)
           {
-          Theta = 0.0;
-          R = 0.0;
+          Theta += thetaMax;
           }
-        else
-          {
-          Theta = atan2(Y, X) * thetaMax / 6.2831853;
-          if (Theta < 0.0)
-            {
-            Theta += thetaMax;
-            }
-          R = sqrt(X*X + Y*Y);
-          }
-        
-        *outPtr = (T)(Theta);
-        outPtr[1] = (T)(R);
-        inPtr += maxC;
-        outPtr += maxC;
+        R = sqrt(X*X + Y*Y);
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      
+      *outSI = (T)(Theta);
+      outSI[1] = (T)(R);
+      inSI += maxC;
+      outSI += maxC;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -110,9 +88,6 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
@@ -133,9 +108,8 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageEuclideanToPolarExecute, this, 
-                      inData, (VTK_TT *)(inPtr), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro6(vtkImageEuclideanToPolarExecute, this, 
+                      inData, outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
