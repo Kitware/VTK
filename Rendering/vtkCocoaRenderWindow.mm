@@ -1,4 +1,4 @@
-=====================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkCocoaRenderWindow.mm
@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.5");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.6");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -200,7 +200,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
 
 void vtkCocoaRenderWindow::SetForceMakeCurrent()
 {
-  this.ForceMakeCurrent = 1;
+  this->ForceMakeCurrent = 1;
 }
 
 void vtkCocoaRenderWindow::SetPosition(int x, int y)
