@@ -2,6 +2,8 @@ SOURCE_FILES( Filtering_SRCS
 vtkCastToConcrete
 vtkCellLocator
 vtkColorTransferFunction
+vtkCone
+vtkCylinder
 vtkDataObjectSource
 vtkDataObjectToDataSetFilter
 vtkDataSetSource
@@ -18,6 +20,11 @@ vtkImageSource
 vtkImageToImageFilter
 vtkImageToStructuredPoints 
 vtkImageTwoInputFilter
+vtkImplicitBoolean
+vtkImplicitDataSet
+vtkImplicitSelectionLoop
+vtkImplicitVolume
+vtkImplicitWindowFunction
 vtkPiecewiseFunction
 vtkPointSetSource
 vtkPointSetToPointSetFilter
@@ -26,6 +33,7 @@ vtkPolyDataSource
 vtkPolyDataToPolyDataFilter
 vtkRectilinearGridSource
 vtkRectilinearGridToPolyDataFilter
+vtkSphere
 vtkSphereSource
 vtkSpline
 vtkStructuredGridSource

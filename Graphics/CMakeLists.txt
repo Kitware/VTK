@@ -5,12 +5,14 @@ vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
 vtkAttributeDataToFieldDataFilter
 vtkAxes
+vtrkBlankStructuredGridWithImage
 vtkBrownianPoints
 vtkButterflySubdivisionFilter
 vtkCardinalSpline
 vtkCellCenters
 vtkCellDataToPointData
 vtkCleanPolyData
+vtkClipDataSet
 vtkClipPolyData
 vtkClipVolume
 vtkConeSource
@@ -22,6 +24,7 @@ vtkCursor3D
 vtkCutter
 vtkCylinderSource
 vtkDashedStreamLine
+vtkDataSetSurfaceFilter
 vtkDataSetTriangleFilter
 vtkDecimatePro
 vtkDelaunay2D
@@ -46,6 +49,7 @@ vtkHedgeHog
 vtkHyperStreamline
 vtkIdFilter
 vtkImplicitModeller
+vtkImplicitTextureCoords
 vtkInterpolateDataSetAttributes
 vtkInterpolatingSubdivisionFilter
 vtkKochanekSpline
