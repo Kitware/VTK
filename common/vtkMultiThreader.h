@@ -11,53 +11,53 @@
 #include "vtkObject.h"
 
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
 #include <sys/types.h>
 #include <unistd.h>
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
 #include <sys/types.h>
 #include <unistd.h>
 #endif
 
-// If USE_SPROC is defined, then sproc() will be used to create
-// multiple threads on an SGI. If USE_PTHREADS is defined, then
+// If VTK_USE_SPROC is defined, then sproc() will be used to create
+// multiple threads on an SGI. If VTK_USE_PTHREADS is defined, then
 // pthread_create() will be used to create multiple threads (on
 // a sun, for example)
 
 // The maximum number of threads allowed
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
 #define VTK_MAX_THREADS              32
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
 #define VTK_MAX_THREADS              32
 #endif
 
-#ifndef USE_SPROC
-#ifndef USE_PTHREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
 #define VTK_MAX_THREADS              1
 #endif
 #endif
 
 
-// If USE_SPROC is defined, then the multithreaded function is
-// of type void. If USE_PTHREADS is defined, then the multithreaded
+// If VTK_USE_SPROC is defined, then the multithreaded function is
+// of type void. If VTK_USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns NULL
 // If neither are defined, the type is void.
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
 typedef void vtkThreadFunctionType;
 #define VTK_THREAD_RETURN_TYPE
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
 typedef void * vtkThreadFunctionType;
 #define VTK_THREAD_RETURN_TYPE  NULL
 #endif
 
-#ifndef USE_SPROC
-#ifndef USE_PTHREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
 typedef void vtkThreadFunctionType;
 #define VTK_THREAD_RETURN_TYPE
 #endif
