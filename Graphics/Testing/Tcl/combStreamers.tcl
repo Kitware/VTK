@@ -29,6 +29,8 @@ vtkActor psActor
     psActor SetMapper psMapper
     [psActor GetProperty] SetRepresentationToWireframe
 
+vtkRungeKutta4 rk4
+
 vtkStreamLine streamer
     streamer SetInput [pl3d GetOutput]
     streamer SetSource [ps GetOutput]
@@ -38,6 +40,7 @@ vtkStreamLine streamer
     streamer SetNumberOfThreads 1
     streamer SetIntegrationDirectionToForward
     streamer VorticityOn
+    streamer SetIntegrator rk4
 vtkRibbonFilter rf
     rf SetInput [streamer GetOutput]
     rf SetWidth 0.1
