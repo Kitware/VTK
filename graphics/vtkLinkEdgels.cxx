@@ -6,7 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1997 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,107 +37,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
+#include <stdlib.h>
 #include "vtkLinkEdgels.h"
+#include "vtkMath.h"
 
-
-//----------------------------------------------------------------------------
 // Description:
-// Construct instance of vtkImageLinkEdgels with GradientThreshold set to 
+// Construct instance of vtkLinkEdgels with GradientThreshold set to 
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
 vtkLinkEdgels::vtkLinkEdgels()
 {
-  this->Input = NULL;
   this->GradientThreshold = 0.1;
   this->PhiThreshold = 90;
   this->LinkThreshold = 90;
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// This filter executes if it or a previous filter has been modified or
-// if its data has been released and it is forced to update.
-void vtkLinkEdgels::Update()
-{
-  int execute;
-  
-  // make sure input is available
-  if ( !this->Input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  execute = this->Input->GetPipelineMTime() > this->ExecuteTime
-    || this->GetMTime() > this->ExecuteTime 
-    || this->Output->GetDataReleased();
-  
-  if (execute)
-    {
-    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, executeTime = " 
-    << this->ExecuteTime
-    << ", modifiedTime = " << this->GetMTime() 
-    << ", input MTime = " << this->Input->GetPipelineMTime()
-    << ", released = " << this->Output->GetDataReleased());
-    
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->Initialize(); //clear output
-    this->Execute();
-    this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
-    }
-}
-
 void vtkLinkEdgels::Execute()
 {
-  vtkImageRegion *region = new vtkImageRegion;
-  int regionExtent[8];
+  vtkPointData *pd;
   vtkFloatPoints *newPts=0;
   vtkCellArray *newLines=0;
+  vtkFloatScalars *inScalars;
   vtkFloatScalars *outScalars;
+  vtkStructuredPoints *input = this->GetInput();
+  int numPts;
   vtkFloatVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
-  int sliceNum, sliceMin, sliceMax;
+  int *dimensions;
+  float *CurrMap, *inDataPtr;
+  vtkVectors *inVectors;
+  int ptId;
   
-  // error checking
-  if ( this->Input == NULL )
+  vtkDebugMacro(<< "Extracting structured points geometry");
+
+  pd = input->GetPointData();
+  dimensions = input->GetDimensions();
+  inScalars = (vtkFloatScalars *)pd->GetScalars();
+  inVectors = pd->GetVectors();
+  if ((numPts=this->Input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
-    vtkErrorMacro(<<"Execute:Please specify an input!");
+    vtkErrorMacro(<<"No data to transform!");
     return;
     }
 
-  // Fill in image information.
-  this->Input->UpdateImageInformation(region);
-  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
-		  VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
-  
-  // get the input region
-  region->GetImageExtent(4, regionExtent);
-  region->SetExtent(4, regionExtent);
+  // set up the input
+  inDataPtr = inScalars->GetPtr(0);
 
-  this->Input->UpdateRegion(region);
-
-  if ( ! region->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "Execute: Could not get region.");
-    return;
-    }
-
-  // chekc data type for float
-  if (region->GetScalarType() != VTK_FLOAT)
-    {
-    vtkImageRegion *temp = region;
-    
-    vtkWarningMacro(<<"Converting non float image data to float");
-    
-    region = new vtkImageRegion;
-    region->SetScalarType(VTK_FLOAT);
-    region->SetExtent(VTK_IMAGE_DIMENSIONS, temp->GetExtent());
-    region->CopyRegionData(temp);
-    temp->Delete();
-    }
-    
   // Finally do edge following to extract the edge data from the Thin image
   newPts = new vtkFloatPoints;
   newLines = new vtkCellArray;
@@ -146,22 +90,15 @@ void vtkLinkEdgels::Execute()
 
   vtkDebugMacro("doing edge linking\n");
   //
-  // for each slice link edgels
+  // Traverse all points, for each point find Gradient in the Image map.
   //
-  sliceMin = regionExtent[6];
-  sliceMax = regionExtent[7];
-  for (sliceNum = sliceMin; sliceNum <= sliceMax; sliceNum++)
+  for (ptId=0; ptId < dimensions[2]; ptId++)
     {
-    // Set extent to be just one slice.
-    regionExtent[6] = regionExtent[7] = sliceNum;
-    region->SetExtent(4, regionExtent);
-    this->LinkEdgels(region, newLines,newPts,outScalars,outVectors, sliceNum);
+    CurrMap = inDataPtr + dimensions[0]*dimensions[1]*ptId;
+    
+    this->LinkEdgels(dimensions[0],dimensions[1],CurrMap, inVectors,
+		     newLines,newPts,outScalars,outVectors,ptId);
     }
-  // restore original extent.
-  regionExtent[6] = sliceMin;
-  regionExtent[7] = sliceMax;
-  region->SetExtent(4, regionExtent);
-  
   
   output->SetPoints(newPts);
   output->SetLines(newLines);
@@ -175,28 +112,25 @@ void vtkLinkEdgels::Execute()
   newLines->Delete();
   outScalars->Delete();
   outVectors->Delete();
-  region->Delete();
 }
 
 // Description:
 // This method links the edges for one image. 
-void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region, 
-			       vtkCellArray *newLines, 
-			       vtkFloatPoints *newPts,
-			       vtkFloatScalars *outScalars, 
-			       vtkFloatVectors *outVectors,
-			       int z)
+void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image, 
+				    vtkVectors *inVectors,
+				    vtkCellArray *newLines, 
+				    vtkFloatPoints *newPts,
+				    vtkFloatScalars *outScalars, 
+				    vtkFloatVectors *outVectors,
+				    int z)
 {
-  int *extent = region->GetExtent();
-  int xdim = extent[1] - extent[0] + 1;
-  int ydim = extent[3] - extent[2] + 1;
   int **forward;
   int **backward;
   int x,y,ypos,zpos;
   int currX, currY, i;
   int newX, newY;
   int startX, startY;
-  float vec[3], vec1[2], vec2[2];
+  float vec[3], vec1[3], vec2[3];
   float linkThresh, phiThresh;
   // these direction vectors are rotated 90 degrees
   // to convert gradient direction into edgel direction
@@ -208,11 +142,9 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   static int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
   static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
-  int bestDirection = 0;
+  int bestDirection;
   float error, bestError;
-  float *imgPtrX, *imgPtrY, *imgPtrX2;
-  int    imgIncX,  imgIncY, imgIncVec;
-  
+
   forward  = new int *[ydim];
   backward = new int *[ydim];
   for (i = 0; i < ydim; i++)
@@ -227,19 +159,15 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
 
-  imgPtrY = (float *)region->GetScalarPointer();
-  region->GetIncrements(imgIncX,imgIncY,imgIncVec);
-  
   // first find all forward & backwards links
-  for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+  for (y = 0; y < ydim; y++)
     {
     ypos = y*xdim;
-    imgPtrX = imgPtrY;
-    for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+    for (x = 0; x < xdim; x++)
       {
       // find forward and backward neighbor for this pixel
       // if its value is less than threshold then ignore it
-      if ((*imgPtrX) < this->GradientThreshold)
+      if (image[x+ypos] < this->GradientThreshold)
 	{
 	forward[y][x] = -1;
 	backward[y][x] = -1;
@@ -247,8 +175,8 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
       else
 	{
 	// try all neighbors as forward, first try four connected
-	vec1[0] = *(imgPtrX + imgIncVec);
-	vec1[1] = *(imgPtrX + 2*imgIncVec);
+	inVectors->GetVector(x+ypos+zpos,vec1); 
+	vtkMath::Normalize(vec1); 
 	// first eliminate based on phi1 - alpha
 	bestError = 0;
 	for (i = 0; i < 8; i += 2)
@@ -262,13 +190,13 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 	    if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
 		(y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
 		(!backward[y+yoffset[i]][x+xoffset[i]])&&
-		(*(imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY) >=
+		(image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
 		 this->GradientThreshold)) 
 	      {
 	      // satisfied the first test, now check second
-	      imgPtrX2 = imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY;
-	      vec2[0] = *(imgPtrX2 + imgIncVec);
-	      vec2[1] = *(imgPtrX2 + 2*imgIncVec);
+	      inVectors->GetVector(x + xoffset[i] + 
+				   (y + yoffset[i])*xdim + zpos,vec2); 
+	      vtkMath::Normalize(vec2); 
 	      if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
 		{
 		// pased phi - phi test does the forward neighbor
@@ -310,13 +238,13 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 	      if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
 		  (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
 		  (!backward[y+yoffset[i]][x+xoffset[i]])&&
-		  (*(imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY) >=
+		  (image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
 		   this->GradientThreshold)) 
 		{
 		// satisfied the first test, now check second
-		imgPtrX2 = imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY;
-		vec2[0] = *(imgPtrX2 + imgIncVec);
-		vec2[1] = *(imgPtrX2 + 2*imgIncVec);
+		inVectors->GetVector(x + xoffset[i] + 
+				     (y + yoffset[i])*xdim + zpos,vec2); 
+		vtkMath::Normalize(vec2); 
 		if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
 		  {
 		  // pased phi - phi test does the forward neighbor
@@ -351,8 +279,6 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   
 
   // now construct the chains
-  imgPtrX = (float *)region->GetScalarPointer();
-  
   vec[2] = z;
   for (y = 0; y < ydim; y++)
     {
@@ -385,12 +311,10 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 	  {
 	  currX = newX;
 	  currY = newY;
-	  outScalars->InsertNextScalar(*(imgPtrX + currX*imgIncX + 
-				       currY*imgIncY));
-
-	  vec[0] = *(imgPtrX + currX*imgIncX + currY*imgIncY + imgIncVec);
-	  vec[1] = *(imgPtrX + currX*imgIncX + currY*imgIncY + 2*imgIncVec);
-          outVectors->InsertNextVector(vec);
+	  outScalars->InsertNextScalar(image[currX + currY*xdim]);
+	  inVectors->GetVector(currX+currY*xdim+zpos,vec2); 
+	  vtkMath::Normalize(vec2); 
+          outVectors->InsertNextVector(vec2);
 	  vec[0] = currX;
 	  vec[1] = currY;
 	  newPts->InsertNextPoint(vec);
@@ -431,10 +355,9 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "GradientThreshold:" << this->GradientThreshold << "\n";
   os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";
   os << indent << "PhiThreshold:" << this->PhiThreshold << "\n";
 }
-

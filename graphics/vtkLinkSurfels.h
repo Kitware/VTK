@@ -6,7 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -38,26 +37,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkLinkeEdgles - takes a gradient image and links Surfels
+// .NAME vtkLinkSurfels - links edgels together to form digital curves.
+// .SECTION Description
+// vtkLinkSurfels links edgels into surfaces which are then stored 
+// as triangles. The algorithm works one pixel at a time only looking at
+// its immediate neighbors. There is a GradientThreshold that can be set 
+// that eliminates any pixels with a smaller gradient value. This can
+// be used as the lower threshold of a two value edgel thresholding. 
+//
+// For the remaining edgels, links are first tried for the four
+// connected neighbors.  A succesful neighbor will satisfy three
+// tests. First both edgels must be above the gradient
+// threshold. Second, the difference between the orientation between
+// the two edgels (Alpha) and each edgels orientation (Phi) must be
+// less than LinkThreshold. Third, the difference between the two
+// edgels Phi values must be less than PhiThreshold.
+// The most successful link is selected. The meaure is simply the 
+// sum of the three angle differences (actually stored as the sum of
+// the cosines). If none of the four connect neighbors succeds, then
+// the eight connect neighbors are examined using the same method.
+//  
+// This filter requires gradient information so you will need to use
+// a vtkImageGradient at some point prior to this filter.  Typically
+// a vtkNonMaximumSuppression filter is also used. vtkThresholdEdgels
+// can be used to complete the two value edgel thresholding as used
+// in a Canny edge detector. The vtkSubpixelPositionEdgels filter 
+// can also be used after this filter to adjust the edgel locations.
+
+// .SECTION see also
+// vtkImage vtkImageGradient vtkLinkEdgels vtkNonMaximumSuppression
 
 #ifndef __vtkLinkSurfels_h
 #define __vtkLinkSurfels_h
 
-#include "vtkPolySource.h"
-#include "vtkImageSource.h"
-#include "vtkImageRegion.h"
+#include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkLinkSurfels : public vtkPolySource
+class vtkLinkSurfels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkLinkSurfels();
-  char *GetClassName() {return "vtkImageToStructurePoints";};
+  char *GetClassName() {return "vtkLinkSurfels";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set/Get the input object from the image pipline.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
 
   // Description:
   // Set/Get the threshold for Phi vs. Alpha link thresholding.
@@ -74,20 +94,16 @@ public:
   vtkSetMacro(GradientThreshold,float);
   vtkGetMacro(GradientThreshold,float);
 
-  void Update();
-  
 protected:
-  vtkImageSource *Input;
+  void Execute();
+  void LinkSurfels(int xdim, int ydim, int zdim,
+		   float *image, vtkVectors *inVectors,
+		   vtkCellArray *newLines, vtkFloatPoints *newPts,
+		   vtkFloatScalars *outScalars, vtkFloatVectors *outVectors);
   float GradientThreshold;
   float PhiThreshold;
   float LinkThreshold;
-  void  LinkSurfels(vtkImageRegion *region,
-		    vtkCellArray *newLines, vtkFloatPoints *newPts,
-		    vtkFloatScalars *outScalars, 
-		    vtkFloatVectors *outVectors);
-  void Execute();
 };
 
 #endif
-
 

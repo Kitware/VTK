@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -48,97 +48,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
 vtkLinkSurfels::vtkLinkSurfels()
 {
-  this->Input = NULL;
   this->GradientThreshold = 0.1;
   this->PhiThreshold = 90;
   this->LinkThreshold = 90;
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// This filter executes if it or a previous filter has been modified or
-// if its data has been released and it is forced to update.
-void vtkLinkSurfels::Update()
-{
-  int execute;
-  
-  // make sure input is available
-  if ( !this->Input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  execute = this->Input->GetPipelineMTime() > this->ExecuteTime
-    || this->GetMTime() > this->ExecuteTime 
-    || this->Output->GetDataReleased();
-  
-  if (execute)
-    {
-    vtkDebugMacro(<< "Update: Condition satisfied, executeTime = " 
-    << this->ExecuteTime
-    << ", modifiedTime = " << this->GetMTime() 
-    << ", input MTime = " << this->Input->GetPipelineMTime()
-    << ", released = " << this->Output->GetDataReleased());
-    
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->Initialize(); //clear output
-    this->Execute();
-    this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
-    }
-}
-
 void vtkLinkSurfels::Execute()
 {
-  vtkImageRegion *region = new vtkImageRegion;
-  int regionBounds[8];
+  vtkPointData *pd;
   vtkFloatPoints *newPts=0;
   vtkCellArray *newLines=0;
+  vtkFloatScalars *inScalars;
   vtkFloatScalars *outScalars;
+  vtkStructuredPoints *input = this->GetInput();
+  int numPts;
   vtkFloatVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
+  int *dimensions;
+  float *inDataPtr;
+  vtkVectors *inVectors;
+  int ptId;
   
-  // Fill in image information.
-  this->Input->UpdateImageInformation(region);
-  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
-		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-  
-  // get the input region
-  region->GetImageExtent(4,regionBounds);
-  region->SetExtent(4,regionBounds);
+  vtkDebugMacro(<< "Extracting structured points geometry");
 
-  this->Input->UpdateRegion(region);
-
-  if ( !region->AreScalarsAllocated())
+  pd = input->GetPointData();
+  dimensions = input->GetDimensions();
+  inScalars = (vtkFloatScalars *)pd->GetScalars();
+  inVectors = pd->GetVectors();
+  if ((numPts=this->Input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
-    vtkErrorMacro(<< "Execute: Could not get region.");
+    vtkErrorMacro(<<"No data to transform!");
     return;
     }
 
-  // chekc data type for float
-  if (region->GetScalarType() != VTK_FLOAT)
-    {
-    vtkImageRegion *temp = region;
-    vtkWarningMacro(<<"Converting non float image data to float");
-    
-    region = new vtkImageRegion;
-    region->SetScalarType(VTK_FLOAT);
-    region->SetExtent(temp->GetExtent());
-    region->CopyRegionData(temp);
-    temp->Delete();
-    }
-    
+  // set up the input
+  inDataPtr = inScalars->GetPtr(0);
+
   // Finally do edge following to extract the edge data from the Thin image
   newPts = new vtkFloatPoints;
   newLines = new vtkCellArray;
   outScalars = new vtkFloatScalars;
   outVectors = new vtkFloatVectors;
 
-  vtkDebugMacro("doing edge linking\n");
+  vtkDebugMacro("doing surfel linking\n");
 
-  this->LinkSurfels(region, newLines,newPts,outScalars,outVectors);
+  this->LinkSurfels(dimensions[0], dimensions[1], dimensions[2],
+		    inDataPtr, inVectors, 
+		    newLines, newPts, outScalars, outVectors);
   
   output->SetPoints(newPts);
   output->SetLines(newLines);
@@ -152,14 +108,15 @@ void vtkLinkSurfels::Execute()
   newLines->Delete();
   outScalars->Delete();
   outVectors->Delete();
-  region->Delete();
 }
+
+  
 
 #define vtkLinkSurfelsTryPixel() \
 /* make sure it passes the linkThresh test */\
 if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh)) \
     { \
-  imgPtrX2 = imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY + zoffset[i]*imgIncZ; \
+  pos2 = x + xoffset[i] + ypos + yoffset[i]*xdim + zpos + zoffset[i]*xdim*ydim; \
   /* make sure we dont go off the edge and are >= GradientThresh */\
      /* and it hasn't already been set */\
   if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&& \
@@ -167,12 +124,11 @@ if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh)) \
       (z + zoffset[i] >= 0)&&(z + zoffset[i] < zdim)&& \
       ((!PrimaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]]) || \
        (!SecondaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]])) && \
-      (*(imgPtrX2) >= this->GradientThreshold))  \
+      (image[pos2] >= this->GradientThreshold))  \
     { \
 	/* satisfied the first test, now check second */\
-    vec2[0] = *(imgPtrX2 + imgIncVec); \
-    vec2[1] = *(imgPtrX2 + 2*imgIncVec); \
-    vec2[2] = *(imgPtrX2 + 3*imgIncVec); \
+	  inVectors->GetVector(pos2,vec2); \
+	  vtkMath::Normalize(vec2); \
     if (vtkMath::Dot(vec1,vec2) >= phiThresh) \
       { \
 	  /* pased phi - phi test does the forward neighbor */\
@@ -199,7 +155,7 @@ if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh) && \
     (fabs(vtkMath::Dot(directions[i],directions[PrimaryF[z][y][x]-1])) \
      <=linkThresh)) \
 { \
-  imgPtrX2 = imgPtrX + xoffset[i]*imgIncX + yoffset[i]*imgIncY + zoffset[i]*imgIncZ; \
+  pos2 = x + xoffset[i] + ypos + yoffset[i]*xdim + zpos + zoffset[i]*xdim*ydim; \
   /* make sure we dont go off the edge and are >= GradientThresh */\
   /* and it hasn't already been set */\
   if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&& \
@@ -207,12 +163,11 @@ if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh) && \
       (z + zoffset[i] >= 0)&&(z + zoffset[i] < zdim)&& \
       ((!PrimaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]]) || \
        (!SecondaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]])) && \
-      (*(imgPtrX2) >= this->GradientThreshold))  \
+      (image[pos2] >= this->GradientThreshold))  \
     { \
 	/*satisfied the first test, now check second */\
-    vec2[0] = *(imgPtrX2 + imgIncVec); \
-    vec2[1] = *(imgPtrX2 + 2*imgIncVec); \
-    vec2[2] = *(imgPtrX2 + 3*imgIncVec); \
+	  inVectors->GetVector(pos2,vec2); \
+	  vtkMath::Normalize(vec2); \
     if (vtkMath::Dot(vec1,vec2) >= phiThresh) \
 					   { \
 	  /* pased phi - phi test does the forward neighbor */\
@@ -236,7 +191,9 @@ if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh) && \
 
 // Description:
 // This method links the edges for one image. 
-void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region, 
+void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
+				 float *image,
+				 vtkVectors *inVectors,
 				 vtkCellArray *newLines, 
 				 vtkFloatPoints *newPts,
 				 vtkFloatScalars *outScalars, 
@@ -288,16 +245,13 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
 			     17,16,15,14,13,12,11,10,9,8,7,6, 
 			     25,24,23,22,21,20,19,18};
   
-  int *bounds = region->GetExtent();
-  int xdim = bounds[1] - bounds[0] + 1;
-  int ydim = bounds[3] - bounds[2] + 1;
-  int zdim = bounds[5] - bounds[4] + 1;
   char ***SecondaryF;
   char ***SecondaryB;
   char ***PrimaryF;
   char ***PrimaryB;
   unsigned int ***Id;
   int x,y,z;
+  int ypos, zpos, pos2;
   int currX, currY, i;
   int newX, newY;
   int startX, startY;
@@ -307,14 +261,9 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
   int bestDirection = 0;
   int bestSecondaryDirection = 0;
   float error, bestError;
-  float *imgPtrX, *imgPtrY, *imgPtrZ, *imgPtrX2;
-  int    imgIncX,  imgIncY, imgIncZ, imgIncVec;
   
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
-
-  imgPtrZ = (float *)region->GetScalarPointer();
-  region->GetIncrements(imgIncX,imgIncY,imgIncZ,imgIncVec);
 
   PrimaryF  = new char **[zdim];
   PrimaryB  = new char **[zdim];
@@ -343,18 +292,17 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
     }
   
   // first find all PrimaryF face links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if ((*imgPtrX) < this->GradientThreshold)
+	if (image[zpos + ypos + x] < this->GradientThreshold)
 	  {
 	  PrimaryF[z][y][x] = -1;
 	  PrimaryB[z][y][x] = -1;
@@ -364,9 +312,8 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
 	else
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 0; i < 3; i ++)
 	    {
@@ -393,26 +340,24 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
 	}
       }
     }
-  
+    
   // now find all Secondary face links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if (((*imgPtrX) >= this->GradientThreshold)&&
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
 	    (PrimaryF[z][y][x] > 0))
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 0; i < 3; i ++)
 	    {
@@ -445,25 +390,117 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
       }
     }
 
-  // now find all Primary edge links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  // now look for reverse Primary face links
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if (((*imgPtrX) >= this->GradientThreshold)&&
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
 	    (PrimaryF[z][y][x] == 0))
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
+	  bestError = 0;
+	  for (i = 3; i < 6; i ++)
+	    {
+	    vtkLinkSurfelsTryPixel();
+	    }
+	  // record the match if any
+	  if (bestError > 0)
+	    {
+	    PrimaryF[z][y][x] = bestDirection+1;
+	    // was it primary or secondary for link
+	    if (!PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
+		[x+xoffset[bestDirection]])
+	      {
+	      PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
+	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
+	      }
+	    else
+	      {
+	      SecondaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
+	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+  // now find all Secondary reverse face links
+  for (z = 0; z < zdim; z++)
+    {
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
+      {
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
+	{
+	// find PrimaryF and PrimaryB neighbor for this pixel
+	// if its value is less than threshold then ignore it
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
+	    (PrimaryF[z][y][x] > 0))
+	  {
+	  // try all neighbors as PrimaryF, first try face neighbors
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
+	  bestError = 0;
+	  for (i = 3; i < 6; i ++)
+	    {
+	    vtkLinkSurfelsSecondaryTryPixel();
+	    }
+	  // record the match if any
+	  if (bestError > 0)
+	    {
+	    SecondaryF[z][y][x] = bestSecondaryDirection+1;
+	    // was it primary or secondary for link
+	    if (!PrimaryB[z +zoffset[bestSecondaryDirection]]
+		[y+yoffset[bestSecondaryDirection]]
+		[x+xoffset[bestSecondaryDirection]])
+	      {
+	      PrimaryB[z +zoffset[bestSecondaryDirection]]
+		[y+yoffset[bestSecondaryDirection]]
+		[x+xoffset[bestSecondaryDirection]] = 
+		opposite[bestSecondaryDirection]+1;
+	      }
+	    else
+	      {
+	      SecondaryB[z +zoffset[bestSecondaryDirection]]
+		[y+yoffset[bestSecondaryDirection]]
+		[x+xoffset[bestSecondaryDirection]] = 
+		opposite[bestSecondaryDirection]+1;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+  /*
+  // now find all Primary edge links
+  for (z = 0; z < zdim; z++)
+    {
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
+      {
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
+	{
+	// find PrimaryF and PrimaryB neighbor for this pixel
+	// if its value is less than threshold then ignore it
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
+	    (PrimaryF[z][y][x] == 0))
+	  {
+	  // try all neighbors as PrimaryF, first try face neighbors
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 6; i < 12; i++)
 	    {
@@ -492,24 +529,22 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
     }
   
   // now find all Secondary edge links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if (((*imgPtrX) >= this->GradientThreshold)&&
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
 	    (PrimaryF[z][y][x] > 0) && (SecondaryF[z][y][x] == 0))
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 6; i < 12; i++)
 	    {
@@ -543,24 +578,22 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
     }
 
   // now find all Primary vertex links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if (((*imgPtrX) >= this->GradientThreshold)&&
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
 	    (PrimaryF[z][y][x] == 0))
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 18; i < 22; i++)
 	    {
@@ -589,24 +622,22 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
     }
   
   // now find all Secondary vertex links
-  imgPtrZ = (float *)region->GetScalarPointer();
-  for (z = 0; z < zdim; z++, imgPtrZ += imgIncZ)
+  for (z = 0; z < zdim; z++)
     {
-    imgPtrY = imgPtrZ;
-    for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
       {
-      imgPtrX = imgPtrY;
-      for (x = 0; x < xdim; x++, imgPtrX += imgIncX)
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
 	{
 	// find PrimaryF and PrimaryB neighbor for this pixel
 	// if its value is less than threshold then ignore it
-	if (((*imgPtrX) >= this->GradientThreshold)&&
+	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
 	    (PrimaryF[z][y][x] > 0) && (SecondaryF[z][y][x] == 0))
 	  {
 	  // try all neighbors as PrimaryF, first try face neighbors
-	  vec1[0] = *(imgPtrX + imgIncVec);
-	  vec1[1] = *(imgPtrX + 2*imgIncVec);
-	  vec1[2] = *(imgPtrX + 3*imgIncVec);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
 	  bestError = 0;
 	  for (i = 18; i < 22; i++)
 	    {
@@ -638,28 +669,26 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
 	}
       }
     }
-
+    */
   
   // now construct the chains
-  imgPtrX = (float *)region->GetScalarPointer();
   length = 0;
-  
   for (z = 0; z < zdim; z++)
     {
+    zpos = z*ydim*xdim;
     for (y = 0; y < ydim; y++)
       {
+      ypos = y*xdim;
       for (x = 0; x < xdim; x++)
 	{
 	// do we have part of a surfel chain ?
 	// isolated surfels do not qualify
 	if (PrimaryF[z][y][x] > 0)
 	  {
-	  outScalars->InsertNextScalar(*(imgPtrX + x*imgIncX + 
-					 y*imgIncY + z*imgIncZ));
-	  vec[0] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +imgIncVec);
-	  vec[1] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +2*imgIncVec);
-	  vec[2] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +3*imgIncVec);
-	  outVectors->InsertNextVector(vec);
+	  outScalars->InsertNextScalar(image[x+ypos+zpos]);
+	  inVectors->GetVector(x+ypos+zpos,vec1);
+	  vtkMath::Normalize(vec1);
+	  outVectors->InsertNextVector(vec1);
 	  vec[0] = x;
 	  vec[1] = y;
 	  vec[2] = z;
@@ -671,12 +700,10 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
 	  {
 	  if (PrimaryB[z][y][x] > 0)
 	    {
-	    outScalars->InsertNextScalar(*(imgPtrX + x*imgIncX + 
-					   y*imgIncY + z*imgIncZ));
-	    vec[0] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +imgIncVec);
-	    vec[1] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +2*imgIncVec);
-	    vec[2] = *(imgPtrX +x*imgIncX +y*imgIncY +z*imgIncZ +3*imgIncVec);
-	    outVectors->InsertNextVector(vec);
+	    outScalars->InsertNextScalar(image[x+ypos+zpos]);
+	    inVectors->GetVector(x+ypos+zpos,vec1);
+	    vtkMath::Normalize(vec1);
+	    outVectors->InsertNextVector(vec1);
 	    vec[0] = x;
 	    vec[1] = y;
 	    vec[2] = z;
@@ -755,16 +782,16 @@ void vtkLinkSurfels::LinkSurfels(vtkImageRegion *region,
     delete [] SecondaryB[z];
     delete [] Id[z];
     }
-  PrimaryF  = new char **[zdim];
-  PrimaryB  = new char **[zdim];
-  SecondaryF  = new char **[zdim];
-  SecondaryB  = new char **[zdim];
-  Id = new unsigned int **[zdim];
+  delete [] PrimaryF;
+  delete [] PrimaryB;
+  delete [] SecondaryF;
+  delete [] SecondaryB;
+  delete [] Id;
 }
 
 void vtkLinkSurfels::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "GradientThreshold:" << this->GradientThreshold << "\n";
   os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";

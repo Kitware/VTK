@@ -1,13 +1,14 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    %M%
+  Module:    vtkMFCInteractor.h
   Language:  C++
-  Date:      %G%
-  Version:   %I%
+  Date:      $Date$
+  Version:   $Revision$
+  Thanks:    to Horst Schreiber for developing this MFC code
 
   
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -71,47 +72,59 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
-	vtkMFCInteractor();
-	~vtkMFCInteractor();
-	char *GetClassName() {return "vtkMFCInteractor";};
-	void PrintSelf(ostream& os, vtkIndent indent);
+  vtkMFCInteractor();
+  ~vtkMFCInteractor();
+  char *GetClassName() {return "vtkMFCInteractor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  virtual void Initialize();
+  virtual void Start();
 
-	virtual void Initialize();
-	virtual void Start();
-	void OnMouseMove(CWnd *,UINT nFlags, CPoint point);
-	void OnRButtonDown(CWnd *,UINT nFlags, CPoint point);
-	void OnRButtonUp(CWnd *,UINT nFlags, CPoint point);
-	void OnLButtonDown(CWnd *,UINT nFlags, CPoint point);
-	void OnLButtonUp(CWnd *,UINT nFlags, CPoint point);
-	void OnSize(CWnd *,UINT nType, int cx, int cy);
-	void OnTimer(CWnd *,UINT);
-	void OnChar(CWnd *,UINT nChar, UINT nRepCnt, UINT nFlags);
-	void UpdateSize(int cx,int cy);
-	void MakeDirectRenderer(CDC* pDC, CRect *rcBounds,vtkRenderWindow *renw);
-	void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
-	void Update();
-	void Update2(HDC hDC);
-	void BitBlt(CDC *pDC,int x_position,int y_position);
-	void StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width);
-	void DescribePixelFormat(HDC hDC,DWORD,int);
-	HBITMAP GetBitmap();
-	HDIB GetDIB();
-	void GetBitmapInfo(LPBITMAPINFOHEADER);
-	void SetupLogicalPalette(void);
-	void DoPalette(HDC hDC);
+  
+  // Description: 
+  // Various methods that a MFCView class can forward
+  // to this class to be handled. The methods basically
+  // parallel their MFCView counterparts.
+  void OnMouseMove(CWnd *,UINT nFlags, CPoint point);
+  void OnRButtonDown(CWnd *,UINT nFlags, CPoint point);
+  void OnRButtonUp(CWnd *,UINT nFlags, CPoint point);
+  void OnLButtonDown(CWnd *,UINT nFlags, CPoint point);
+  void OnLButtonUp(CWnd *,UINT nFlags, CPoint point);
+  void OnSize(CWnd *,UINT nType, int cx, int cy);
+  void OnTimer(CWnd *,UINT);
+  void OnChar(CWnd *,UINT nChar, UINT nRepCnt, UINT nFlags);
 
+  void UpdateSize(int cx,int cy);
+
+  void MakeDirectRenderer(CDC* pDC, CRect *rcBounds,vtkRenderWindow *renw);
+  void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
+  void Update();
+  void Update2(HDC hDC);
+  void BitBlt(CDC *pDC,int x_position,int y_position);
+  void StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width);
+  void DescribePixelFormat(HDC hDC,DWORD,int);
+  HBITMAP GetBitmap();
+  HDIB GetDIB();
+  void GetBitmapInfo(LPBITMAPINFOHEADER);
+  void SetupLogicalPalette(void);
+  void DoPalette(HDC hDC);
+  
 protected:
-	HWND WindowId;
-	UINT TimerId;
-	int m_left, m_top, m_width, m_height;
-	HGLRC m_hrc;
-	CDC *dcMem;
-	HWND m_hwnd;
-	HDC m_hDC;
-	HBITMAP m_bitmap, pOldBitmap;	
-	CPoint		lastPos;
-	vtkRenderWindow *renWindow;
-	HPALETTE	m_hPalette;
+  HWND  WindowId;
+  UINT  TimerId;
+  int   WindowLeft;
+  int   WindowTop;
+  int   WindowWidth;
+  int   WindowHeight;
+  HGLRC WindowRC;
+  CDC  *MemoryDC;
+  HWND  WindowHandle;
+  HDC   WindowDC;
+  HBITMAP WindowBitmap;
+  HBITMAP OldBitmap;	
+  CPoint  LastPosition;
+  vtkRenderWindow *RenderWindow2; // very confusing to me 
+  HPALETTE WindowPalette;
 };
 
 #endif
