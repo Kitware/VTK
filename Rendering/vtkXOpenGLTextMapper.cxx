@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-
 //--------------------------------------------------------------------------
 vtkXOpenGLTextMapper* vtkXOpenGLTextMapper::New()
 {
@@ -332,6 +331,10 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   int front = 
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
+  float *tileViewport = viewport->GetVTKWindow()->GetTileViewport();
+  int xoff = pos[0] - vsize[0]*(tileViewport[2] + tileViewport[0])/2.0;
+  int yoff = pos[1] - vsize[1]*(tileViewport[3] + tileViewport[1])/2.0;
+  
   // When picking draw the bounds of the text as a rectangle,
   // as text only picks when the pick point is exactly on the
   // origin of the text 
@@ -359,25 +362,26 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   // Set the colors for the shadow
   if (this->Shadow)
     {
-    pos[0]++; pos[1]--;
     // set the colors for the foreground
     glColor4ub(shadowRed, shadowGreen, shadowBlue, alpha);
-    glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
-                  (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
-                  (front)?(-1):(.99999));
-
+    glRasterPos3f(0,0,(front)?(-1):(.99999));
+    
+    // required for clipping to work correctly
+    glBitmap(0, 0, 0, 0, xoff + 1, yoff - 1, NULL);
+    
     // Draw the shadow text
     glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  
-    pos[0]--;  pos[1]++; 
     }
   
   // set the colors for the foreground
   glColor4ub(red, green, blue, alpha);
-
-  glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
-                (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
-                (front)?(-1):(.99999));
-
+  
+  // center the raster pos
+  glRasterPos3f(0,0,(front)?(-1):(.99999));
+  
+  // required for clipping to work correctly
+  glBitmap(0, 0, 0, 0, xoff, yoff, NULL);
+  
   // display a string: // indicate start of glyph display lists 
   glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  
 
