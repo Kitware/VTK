@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.4");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.5");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -501,7 +501,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       for(int i=0;i<npts;i++,point+=3,scalar++)
         {
         outpoints->InsertPoint(pts[i], point );
-        pd->InsertTuple(pts[i], scalar);
         tetsScalars->InsertTuple(pts[i], scalar); //FIXME
         }
       }
