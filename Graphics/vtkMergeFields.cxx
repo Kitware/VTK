@@ -309,6 +309,7 @@ void vtkMergeFields::Execute()
     } 
   while (cur);
   outputFD->AddArray(outputArray);
+  outputArray->Delete();
 }
 
 // fast pointer copy
