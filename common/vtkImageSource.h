@@ -66,6 +66,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate();
+  virtual void InternalUpdate();
   virtual void Update();
   virtual void UpdateWholeExtent();
   virtual void UpdateImageInformation() = 0;

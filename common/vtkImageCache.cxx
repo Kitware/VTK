@@ -303,7 +303,7 @@ void vtkImageCache::Update()
     if (this->Source)
       {
       vtkDebugMacro("Update: We have to update the source.");
-      this->Source->Update();
+      this->Source->InternalUpdate();
       // save the time and extent of the update for test "cache has data?"
       this->ExecuteTime.Modified();
       this->GetUpdateExtent(this->ExecuteExtent);

@@ -122,17 +122,26 @@ void vtkImageSource::InterceptCacheUpdate()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method can be called by the cache or directly.
+// This method can be called directly.
+// It simply forwards the update to the cache.
 void vtkImageSource::Update()
 {
   vtkImageRegion *region;
 
   // Make sure there is an output.
   this->CheckCache();
-  // Duplicated here because user can call this update directly.
-  this->UpdateImageInformation();
-  this->Output->ClipUpdateExtentWithWholeExtent();
+
+  this->Output->Update();
+}
+
   
+//----------------------------------------------------------------------------
+// Description:
+// This method is called by the cache.
+void vtkImageSource::InternalUpdate()
+{
+  vtkImageRegion *region;
+
   // Make sure the subclss has defined the NumberOfExecutionAxes.
   // It is needed to terminate recursion.
   if (this->NumberOfExecutionAxes < 0)
