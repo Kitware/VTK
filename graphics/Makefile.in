@@ -70,7 +70,7 @@ vtkExporter \
 vtkMapper \
 vtkProp \
 vtkVolumeMapper \
-vtkVolumeRayCaster \
+vtkVolumeRayCastFunction \
 vtkVolumeReader \
 vtkWriter \
 vtkXRenderWindow 
@@ -94,7 +94,6 @@ vtkCellPicker \
 vtkCleanPolyData \
 vtkClipPolyData \
 vtkColorTransferFunction \
-vtkCompositeVolumeRayCaster \
 vtkCone \
 vtkConeSource \
 vtkConnectivityFilter \
@@ -146,7 +145,6 @@ vtkImplicitModeller \
 vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
-vtkIsoVolumeRayCaster \
 vtkIVExporter \
 vtkLODActor \
 vtkLight \
@@ -159,7 +157,6 @@ vtkMaskPoints \
 vtkMaskPolyData \
 vtkMergeFilter \
 vtkMergePoints \
-vtkMIPVolumeRayCaster \
 vtkNormalEncoder \
 vtkOBBTree \
 vtkOBJExporter \
@@ -271,6 +268,8 @@ vtkVectorTopology \
 vtkViewRays \
 vtkVolume \
 vtkVolumeProperty \
+vtkVolumeRayCastCompositeFunction \
+vtkVolumeRayCastMapper \
 vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpScalar \
