@@ -237,7 +237,10 @@ protected:
   vtkGenericGlyph3DFilter();
   ~vtkGenericGlyph3DFilter();
 
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   virtual int FillInputPortInformation(int, vtkInformation*);
+#endif
+  
   void Execute();
   void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *output);

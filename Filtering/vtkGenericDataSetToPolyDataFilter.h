@@ -51,7 +51,9 @@ public:
 protected:
   vtkGenericDataSetToPolyDataFilter();
   ~vtkGenericDataSetToPolyDataFilter() {};
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   virtual int FillInputPortInformation(int, vtkInformation*);
+#endif
 
   
 private:

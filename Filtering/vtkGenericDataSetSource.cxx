@@ -16,14 +16,20 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkGenericDataSet.h"
-#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetSource, "1.2");
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+#include "vtkInformation.h"
+#endif
+
+vtkCxxRevisionMacro(vtkGenericDataSetSource, "1.3");
 
 //----------------------------------------------------------------------------
 vtkGenericDataSetSource::vtkGenericDataSetSource()
 {
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   this->SetNumberOfOutputPorts(1);
+#endif
+  
   // We can create abtract data set. to be postpone in the concrete sources.
   //  this->vtkSource::SetNthOutput(0, vtkGenericDataSet::New());
 }
@@ -55,7 +61,7 @@ void vtkGenericDataSetSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 //----------------------------------------------------------------------------
 int vtkGenericDataSetSource::FillOutputPortInformation(int port,
                                                        vtkInformation* info)
@@ -67,3 +73,4 @@ int vtkGenericDataSetSource::FillOutputPortInformation(int port,
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGenericDataSet");
   return 1;
 }
+#endif

@@ -40,7 +40,10 @@ public:
 protected:
   vtkGenericDataSetSource();
   ~vtkGenericDataSetSource() {}
+  
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   virtual int FillOutputPortInformation(int, vtkInformation*);
+#endif
   
 private:
   vtkGenericDataSetSource(const vtkGenericDataSetSource&);  // Not implemented.

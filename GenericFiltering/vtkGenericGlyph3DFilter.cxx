@@ -24,7 +24,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 #include "vtkInformation.h"
+#endif
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -32,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.4");
+vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.5");
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -825,6 +829,7 @@ void vtkGenericGlyph3DFilter::ComputeInputUpdateExtents( vtkDataObject * )
   this->GetInput()->RequestExactExtentOn();
 }
 
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 //----------------------------------------------------------------------------
 int vtkGenericGlyph3DFilter
 ::FillInputPortInformation(int port, vtkInformation* info)
@@ -849,3 +854,4 @@ int vtkGenericGlyph3DFilter
 #endif
   return 1;
 }
+#endif

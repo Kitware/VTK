@@ -15,14 +15,19 @@
 #include "vtkGenericDataSetToUnstructuredGridFilter.h"
 
 #include "vtkGenericDataSet.h"
-#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetToUnstructuredGridFilter, "1.2");
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
+#include "vtkInformation.h"
+#endif
+
+vtkCxxRevisionMacro(vtkGenericDataSetToUnstructuredGridFilter, "1.3");
 
 vtkGenericDataSetToUnstructuredGridFilter
 ::vtkGenericDataSetToUnstructuredGridFilter()
 {
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   this->SetNumberOfInputPorts(1);
+#endif
   this->NumberOfRequiredInputs = 1;
 }
 
@@ -54,6 +59,7 @@ void vtkGenericDataSetToUnstructuredGridFilter::PrintSelf(ostream& os,
   this->Superclass::PrintSelf(os,indent);
 }
 
+#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 //----------------------------------------------------------------------------
 int vtkGenericDataSetToUnstructuredGridFilter
 ::FillInputPortInformation(int port, vtkInformation* info)
@@ -65,3 +71,4 @@ int vtkGenericDataSetToUnstructuredGridFilter
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
+#endif
