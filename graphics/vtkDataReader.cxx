@@ -152,15 +152,21 @@ int vtkDataReader::ReadString(char result[256])
 // Returns zero if there was an error.
 int vtkDataReader::Read(char *result)
 {
-  *this->IS >> *result;
+  int intData;
+  *this->IS >> intData;
   if (this->IS->fail()) return 0;
+
+  *result = (char) intData;
   return 1;
 }
 
 int vtkDataReader::Read(unsigned char *result)
 {
-  *this->IS >> *result;
+  int intData;
+  *this->IS >> intData;
   if (this->IS->fail()) return 0;
+
+  *result = (unsigned char) intData;
   return 1;
 }
 
