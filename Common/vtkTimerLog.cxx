@@ -56,8 +56,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
+#ifndef _WIN32_WCE
 #include <sys/types.h>
 #include <time.h>
+#endif
 #include "vtkObjectFactory.h"
 
 
@@ -96,8 +98,13 @@ int vtkTimerLog::TicksPerSecond = 60;
 
 
 #ifdef _WIN32
+#ifndef _WIN32_WCE
 timeb vtkTimerLog::FirstWallTime;
 timeb vtkTimerLog::CurrentWallTime;
+#else
+FILETIME vtkTimerLog::FirstWallTime;
+FILETIME vtkTimerLog::CurrentWallTime;
+#endif
 #else
 timeval vtkTimerLog::FirstWallTime;
 timeval vtkTimerLog::CurrentWallTime;
@@ -163,7 +170,13 @@ void vtkTimerLog::MarkEvent(char *event)
       }
     
 #ifdef _WIN32
+#ifdef _WIN32_WCE
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    SystemTimeToFileTime(&st, &(vtkTimerLog::FirstWallTime)); 
+#else
     ::ftime( &(vtkTimerLog::FirstWallTime) );
+#endif
 #else
     gettimeofday( &(vtkTimerLog::FirstWallTime), NULL );
     times(&FirstCpuTicks);
@@ -178,12 +191,24 @@ void vtkTimerLog::MarkEvent(char *event)
     }
   
 #ifdef _WIN32
+#ifdef _WIN32_WCE
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    SystemTimeToFileTime(&st, &(vtkTimerLog::CurrentWallTime)); 
+    time_diff = (vtkTimerLog::CurrentWallTime.dwHighDateTime - 
+      vtkTimerLog::FirstWallTime.dwHighDateTime);
+    time_diff = time_diff * 429.4967296;
+    time_diff = time_diff + ((vtkTimerLog::CurrentWallTime.dwLowDateTime - 
+      vtkTimerLog::FirstWallTime.dwLowDateTime) / 10000000.0);
+#else
   static double scale = 1.0/1000.0;
   ::ftime( &(vtkTimerLog::CurrentWallTime) );
-  time_diff  =  vtkTimerLog::CurrentWallTime.time - vtkTimerLog::FirstWallTime.time;
+  time_diff = 
+    vtkTimerLog::CurrentWallTime.time - vtkTimerLog::FirstWallTime.time;
   time_diff += 
     (vtkTimerLog::CurrentWallTime.millitm
      - vtkTimerLog::FirstWallTime.millitm) * scale;
+#endif
   ticks_diff = 0;
 #else
   static double scale = 1.0/1000000.0;
@@ -217,6 +242,7 @@ void vtkTimerLog::MarkEvent(char *event)
 // statistics (deltas and  percentages) in the process.
 void vtkTimerLog::DumpLog(char *filename)
 {
+#ifndef _WIN32_WCE
   ofstream os(filename);
   int i;
   
@@ -278,6 +304,7 @@ void vtkTimerLog::DumpLog(char *filename)
     }
   
   os.close();
+#endif
 }
 
 
@@ -327,10 +354,21 @@ double vtkTimerLog::GetCurrentTime()
   double currentTimeInSeconds;
 
 #ifdef _WIN32
+#ifdef _WIN32_WCE
+  FILETIME CurrentTime;
+  SYSTEMTIME st;
+  GetLocalTime(&st);
+  SystemTimeToFileTime(&st, &CurrentTime); 
+  currentTimeInSeconds = CurrentTime.dwHighDateTime;
+  currentTimeInSeconds *= 429.4967296;
+  currentTimeInSeconds = currentTimeInSeconds + 
+        CurrentTime.dwLowDateTime / 10000000.0;
+#else
   timeb CurrentTime;
   static double scale = 1.0/1000.0;
   ::ftime( &CurrentTime );
   currentTimeInSeconds = CurrentTime.time + scale * CurrentTime.millitm;
+#endif
 #else
   timeval CurrentTime;
   static double scale = 1.0/1000000.0;
@@ -343,10 +381,10 @@ double vtkTimerLog::GetCurrentTime()
 
 double vtkTimerLog::GetCPUTime()
 {
-  double   currentCPUTime;
-
+  double   currentCPUTime = 1.0;
+#ifndef _WIN32_WCE
   currentCPUTime = (double)clock() / (double)CLOCKS_PER_SEC;
-
+#endif
   return currentCPUTime;
 }
 

@@ -52,11 +52,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkTimerLog_h
 #define __vtkTimerLog_h
 
-#include "vtkSystemIncludes.h"
+ #include "vtkSystemIncludes.h"
 
 #ifdef _WIN32
+#ifndef _WIN32_WCE
 #include <sys/types.h>
 #include <sys/timeb.h>
+#endif
 #else
 #include <time.h>
 #include <sys/time.h>
@@ -173,8 +175,13 @@ protected:
   static vtkTimerLogEntry *TimerLog;
 
 #ifdef _WIN32
+#ifndef _WIN32_WCE
   static timeb             FirstWallTime;
   static timeb             CurrentWallTime;
+#else
+  static FILETIME FirstWallTime;
+  static FILETIME CurrentWallTime;
+#endif
 #else
   static timeval           FirstWallTime;
   static timeval           CurrentWallTime;
