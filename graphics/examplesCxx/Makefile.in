@@ -52,6 +52,7 @@ EXAMPLES = VisQuad \
 	Vol \
 	VRMLServer \
 	XMace \
+	XMace2 \
 	alphaFreq \
 	bluntStr \
 	contQuad \
@@ -61,6 +62,7 @@ EXAMPLES = VisQuad \
 	medical1 \
 	medical2 \
 	medical3 \
+	motor \
 	pickCells \
 	pickCells \
 	probe \
@@ -169,6 +171,9 @@ VRMLServer: VRMLServer.o ${VTKLIB}
 XMace: XMace.o ${VTKLIB}
 	${CXX} -o XMace ${CXX_FLAGS} XMace.o ${XLDFLAGS} ${LDLIBS} \
 	-lXm ${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+XMace2: XMace2.o ${VTKLIB}
+	${CXX} -o XMace2 ${CXX_FLAGS} XMace2.o ${XLDFLAGS} ${LDLIBS} \
+	-lXm ${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 alphaFreq: alphaFreq.o ${VTKLIB}
 	${CXX} -o alphaFreq ${CXX_FLAGS} alphaFreq.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
@@ -195,6 +200,9 @@ medical2: medical2.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 medical3: medical3.o ${VTKLIB}
 	${CXX} -o medical3 ${CXX_FLAGS} medical3.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+motor: motor.o ${VTKLIB}
+	${CXX} -o motor ${CXX_FLAGS} motor.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 pickCells: pickCells.o ${VTKLIB}
 	${CXX} -o pickCells ${CXX_FLAGS} pickCells.o ${XLDFLAGS} ${LDLIBS} \
