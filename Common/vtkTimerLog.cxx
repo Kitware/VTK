@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.35");
+vtkCxxRevisionMacro(vtkTimerLog, "1.36");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -86,6 +86,12 @@ void vtkTimerLog::AllocateLog()
   vtkTimerLog::TimerLog = new vtkTimerLogEntry[vtkTimerLog::MaxEntries];
 }
 
+//----------------------------------------------------------------------------
+// Remove timer log.
+void vtkTimerLog::CleanupLog()
+{
+  delete [] vtkTimerLog::TimerLog;
+}
 
 //----------------------------------------------------------------------------
 // Clear the timing table.  walltime and cputime will also be set

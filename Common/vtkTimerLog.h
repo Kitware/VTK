@@ -139,6 +139,10 @@ public:
   static void AllocateLog();
 
   // Description:
+  // Remove timer log.
+  static void CleanupLog();
+
+  // Description:
   // Returns the elapsed number of seconds since January 1, 1970. This
   // is also called Universal Coordinated Time.
   static double GetCurrentTime();
