@@ -43,18 +43,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <math.h>
 
+#include "vtkActor.h"
 #include "vtkCarbonRenderWindow.h"
 #include "vtkCarbonRenderWindowInteractor.h"
-#include "vtkInteractorStyle.h"
-#include "vtkActor.h"
-#include <OpenGL/gl.h>
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkCommand.h"
+#include "vtkInteractorStyle.h"
+#include "vtkObjectFactory.h"
 
+#include <OpenGL/gl.h>
 #import <Carbon/Carbon.h>
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.3");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.4");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
