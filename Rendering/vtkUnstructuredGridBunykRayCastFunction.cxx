@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.9");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.10");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -884,7 +884,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
   int scalarType = input->GetPointData()->GetScalars()->GetDataType();
   
   int i;
-  float tmpArray[3*65536];
+  float *tmpArray = new float[3*65536];
   
   // Find the scalar range
   double *scalarRange = new double [2*components];
@@ -934,7 +934,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
     // Sample the transfer functions between the min and max.
     if ( colorChannels[c] == 1 )
       {
-      float tmpArray2[65536];
+      float *tmpArray2 = new float[65536];
       grayFunc[c]->GetTable( scalarRange[c*2], scalarRange[c*2+1], 
                              this->ColorTableSize[c], tmpArray2 );
       for ( int index = 0; index < this->ColorTableSize[c]; index++ )
@@ -943,6 +943,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
         tmpArray[3*index+1] = tmpArray2[index];
         tmpArray[3*index+2] = tmpArray2[index];
         }
+      delete [] tmpArray2;
       }
     else
       {
@@ -984,6 +985,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
     }
   
   // Clean up the temporary arrays we created
+  delete [] tmpArray;
   delete [] rgbFunc;
   delete [] grayFunc;
   delete [] scalarOpacityFunc;
