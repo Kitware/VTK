@@ -138,7 +138,7 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext)
 {
   int numPiecesInFirstHalf;
   int size[3], splitAxis;
-  unsigned long mid;
+  vtkLargeInteger mid;
   
   // keep splitting until we have only one piece.
   // piece and numPieces will always be relative to the current ext. 
@@ -192,7 +192,7 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext)
         {
         // piece is in the first half
         // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = (int) mid;
+        ext[splitAxis*2+1] = mid.CastToInt();
         // piece must adjust.
         numPieces = numPiecesInFirstHalf;
         }
@@ -200,7 +200,7 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext)
         {
         // piece is in the second half.
         // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = (int) mid;
+        ext[splitAxis*2] = mid.CastToInt();
         // piece must adjust
         numPieces = numPieces - numPiecesInFirstHalf;
         piece -= numPiecesInFirstHalf;
