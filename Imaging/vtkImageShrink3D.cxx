@@ -15,11 +15,14 @@
 #include "vtkImageShrink3D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.61");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.62");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -99,7 +102,6 @@ void vtkImageShrink3D::SetAveraging (int value)
   this->SetMean(value);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -115,15 +117,22 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Minimum: " << (this->Minimum ? "On\n" : "Off\n");
   os << indent << "Maximum: " << (this->Maximum ? "On\n" : "Off\n");
   os << indent << "Median: " << (this->Median ? "On\n" : "Off\n");
-  
-
 }
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6], 
-                                                int outExt[6])
+void vtkImageShrink3D::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  int outExt[6], inExt[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
+
   int idx;
   
   for (idx = 0; idx < 3; ++idx)
@@ -140,21 +149,28 @@ void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6],
       inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
-
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData, 
-                                          vtkImageData *outData)
+void vtkImageShrink3D::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   int idx;
   int wholeExtent[6];
   double spacing[3];
-  
 
-  inData->GetWholeExtent(wholeExtent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   inData->GetSpacing(spacing);
 
   for (idx = 0; idx < 3; ++idx)
@@ -181,11 +197,9 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
     spacing[idx] *= (double)(this->ShrinkFactors[idx]);
     }
 
-  outData->SetWholeExtent(wholeExtent);
-  outData->SetSpacing(spacing);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent,6);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 }
-
-
 
 template <class T>
 #ifdef _WIN32_WCE
@@ -248,8 +262,10 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 #endif
 
   self->GetShrinkFactors(factor0, factor1, factor2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+
   // make sure we don't have a 3D shrinkfactor for a 2D image
-  if (factor2>1 && inData && inData->GetWholeExtent()[5]==0)
+  if (factor2>1 && inData && inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[5]==0)
     {
     factor2=1;
     }
@@ -537,58 +553,48 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       }
     }
 }
-
     
 //----------------------------------------------------------------------------
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.
-void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData, 
-                                       vtkImageData *outData,
-                                       int outExt[6], int id)
+void vtkImageShrink3D::ThreadedRequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector,
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   int inExt[6];
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  this->RequestUpdateExtent(request, inputVector, outputVector);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
   if (!inPtr)
     {
     return;
     }
 
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro("Execute: input ScalarType, "
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageShrink3DExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
+    vtkTemplateMacro7(vtkImageShrink3DExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
                       outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

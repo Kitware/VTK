@@ -21,13 +21,13 @@
 #define __vtkImageShrink3D_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageShrink3D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageShrink3D *New();
-  vtkTypeRevisionMacro(vtkImageShrink3D,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -66,7 +66,6 @@ public:
   vtkGetMacro(Median,int);
   vtkBooleanMacro(Median,int);
   
-  
 protected:
   vtkImageShrink3D();
   ~vtkImageShrink3D() {};
@@ -78,11 +77,15 @@ protected:
   int Maximum;
   int Median;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int ext[6], int id);  
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData, 
+                           int ext[6], int id);
+
 private:
   vtkImageShrink3D(const vtkImageShrink3D&);  // Not implemented.
   void operator=(const vtkImageShrink3D&);  // Not implemented.
