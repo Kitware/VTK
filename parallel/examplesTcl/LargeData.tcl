@@ -35,18 +35,23 @@ probe SetSource [magn GetOutput]
 # To avoid the use of the whole extent in gradient magnitude computation
 probe SpatialMatchOn
 
+
+#probe SetStartMethod {puts "[[probe GetOutput] GetUpdatePiece] of [[probe GetOutput] GetUpdateNumberOfPieces]"}
+
 vtkPolyDataMapper mapper
 mapper SetInput [probe GetOutput]
-mapper SetScalarRange 50 180
+mapper SetScalarRange 80 180
 
 vtkActor actor
 actor SetMapper mapper
 
 vtkRenderWindow renWin
+  renWin SetSize 500 500
 vtkRenderer ren
 renWin AddRenderer ren
 
 ren AddActor actor
+
 
 ren SetBackground 0.5 0.5 0.5 
 
@@ -56,8 +61,10 @@ mapper SetNumberOfSubPieces [psize GetNumberOfSubPieces $MEMORY_LIMIT mapper]
 
 wm withdraw .
 
-mapper SetPiece 8698568
-[ren GetActiveCamera] Zoom 0.6
+mapper SetPiece 8698578
+ren GetActiveCamera
+ren ResetCamera -1.1566 -1.12952 -0.266 -0.25 -0.1878 -0.1566
+[ren GetActiveCamera] Zoom 1.5
 
 for { set i 8698560 } { $i < 8698585 } { incr i 1 } {
     mapper SetPiece $i
