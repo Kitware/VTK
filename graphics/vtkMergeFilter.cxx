@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkMergeFilter::vtkMergeFilter()
 {
+  this->Geometry = NULL;
   this->Scalars = NULL;
   this->Vectors = NULL;
   this->Normals = NULL;
@@ -270,8 +271,13 @@ void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkFilter::PrintSelf(os,indent);
 
-  os << indent << "Geometry: (" << this->Geometry << ")\n";
-  os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
+  if ( this->Geometry )
+    {
+    os << indent << "Geometry: (" << this->Geometry << ")\n";
+    os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
+    }
+  else
+    os << indent << "Geometry: (none)\n";
 
   if ( this->Scalars )
     os << indent << "Scalars: (" << this->Scalars << ")\n";
