@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkLine* vtkLine::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkLine* vtkLine::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkLine;
 }
-
-
-
 
 // Construct the line with two points.
 vtkLine::vtkLine()
@@ -121,7 +116,7 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-			       float x[3], float *weights)
+                               float x[3], float *weights)
 {
   int i;
   float *a1 = this->Points->GetPoint(0);
@@ -191,7 +186,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
 }
 
 int vtkLine::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-			  vtkIdList *pts)
+                          vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
 
@@ -237,9 +232,9 @@ static VERT_CASES vertCases[4]= {
   {{-1,-1}}};
 
 void vtkLine::Contour(float value, vtkScalars *cellScalars, 
-		      vtkPointLocator *locator, vtkCellArray *verts, 
-		      vtkCellArray *vtkNotUsed(lines), 
-		      vtkCellArray *vtkNotUsed(polys), 
+                      vtkPointLocator *locator, vtkCellArray *verts, 
+                      vtkCellArray *vtkNotUsed(lines), 
+                      vtkCellArray *vtkNotUsed(polys), 
                       vtkPointData *inPd, vtkPointData *outPd,
                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
@@ -399,8 +394,8 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     // make sure we are withing tolerance
     for (i=0; i<3; i++)
       {
-	x[i] = a1[i] + pcoords[0]*(a2[i]-a1[i]);
-	projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
+        x[i] = a1[i] + pcoords[0]*(a2[i]-a1[i]);
+        projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
       }
     if ( vtkMath::Distance2BetweenPoints(x,projXYZ) <= tol*tol )
       {
@@ -419,49 +414,49 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       {
       t = 0.0;
       if (vtkLine::DistanceToLine(p1,a1,a2,pcoords[0],x) <= tol*tol)
-	{
-	return 1;
-	}
+        {
+        return 1;
+        }
       else
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     if (t > 1.0)
       {
       t = 1.0;
       if (vtkLine::DistanceToLine(p2,a1,a2,pcoords[0],x) <= tol*tol)
-	{
-	return 1;
-	}
+        {
+        return 1;
+        }
       else
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     if (pcoords[0] < 0.0)
       {
       pcoords[0] = 0.0;
       if (vtkLine::DistanceToLine(a1,p1,p2,t,x) <= tol*tol)
-	{
-	return 1;
-	}
+        {
+        return 1;
+        }
       else
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     if (pcoords[0] > 1.0)
       {
       pcoords[0] = 1.0;
       if (vtkLine::DistanceToLine(a2,p1,p2,t,x) <= tol*tol)
-	{
-	return 1;
-	}
+        {
+        return 1;
+        }
       else
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     }
   return 0;
@@ -482,8 +477,8 @@ int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts
 }
 
 void vtkLine::Derivatives(int vtkNotUsed(subId), 
-			  float vtkNotUsed(pcoords)[3], 
-			  float *values, 
+                          float vtkNotUsed(pcoords)[3], 
+                          float *values, 
                           int dim, float *derivs)
 {
   float *x0, *x1, deltaX[3];
@@ -539,9 +534,9 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
     for ( i=0, index = 0; i < 2; i++)
       {
       if (cellScalars->GetScalar(i) <= value)
-	{
+        {
         index |= CASE_MASK[i];
-	}
+        }
       }
     }    
   else
@@ -549,9 +544,9 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
     for ( i=0, index = 0; i < 2; i++)
       {
       if (cellScalars->GetScalar(i) > value)
-	{
-	index |= CASE_MASK[i];
-	}
+        {
+        index |= CASE_MASK[i];
+        }
       }
     }
 
@@ -567,13 +562,13 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
       // vertex exists, and need not be interpolated
       if (vert[i] >= 100)
         {
-	vertexId = vert[i] - 100;
+        vertexId = vert[i] - 100;
         this->Points->GetPoint(vertexId, x);
         if ( locator->InsertUniquePoint(x, pts[i]) )
           {
           outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
           }
-	}
+        }
 
       else //new vertex, interpolate
         {
@@ -583,9 +578,9 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
         this->Points->GetPoint(0, x1);
         this->Points->GetPoint(1, x2);
         for (j=0; j<3; j++)
-	  {
-	  x[j] = x1[j] + t * (x2[j] - x1[j]);
-	  }
+          {
+          x[j] = x1[j] + t * (x2[j] - x1[j]);
+          }
 
         if ( locator->InsertUniquePoint(x, pts[i]) )
           {
@@ -595,7 +590,7 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
           }
         }
       }
-    // check for degenerate tri's
+    // check for degenerate lines
     if ( pts[0] != pts[1] ) 
       {
       newCellId = lines->InsertNextCell(2,pts);
