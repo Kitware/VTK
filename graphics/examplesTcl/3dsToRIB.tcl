@@ -27,7 +27,6 @@ vtk3DSImporter importer
 #
 [ren1 GetActiveCamera] SetPosition .6 -1 .5
 [ren1 GetActiveCamera] SetFocalPoint 0 0 0
-[ren1 GetActiveCamera] ComputeViewPlaneNormal
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 
 #

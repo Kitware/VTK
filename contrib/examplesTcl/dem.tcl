@@ -97,7 +97,6 @@ renWin SetAbortCheckMethod {TkCheckAbort}
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 [ren1 GetActiveCamera] SetPosition -99900 -21354 131801
 [ren1 GetActiveCamera] SetFocalPoint 41461 41461 2815
-[ren1 GetActiveCamera] ComputeViewPlaneNormal
 ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.2
 ren1 ResetCameraClippingRange

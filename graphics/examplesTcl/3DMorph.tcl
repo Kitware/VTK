@@ -77,7 +77,6 @@ vtkCamera camera
     camera SetClippingRange 0.265 13.2
     camera SetFocalPoint 0.539 0.47464 0
     camera SetPosition 0.539 0.474674 2.644
-    camera ComputeViewPlaneNormal
     camera SetViewUp 0 1 0
 ren1 SetActiveCamera camera
 

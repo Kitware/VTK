@@ -59,7 +59,6 @@ set cam1 [ren1 GetActiveCamera]
 [ren1 GetActiveCamera] SetFocalPoint -0.231198 0.0987853 0.0350584 
 [ren1 GetActiveCamera] SetViewAngle 21.4286
 [ren1 GetActiveCamera] SetViewUp 0.566532 -0.0616892 -0.821728 
-[ren1 GetActiveCamera] SetViewPlaneNormal -0.417987 -0.880899 -0.222046 
 ren1 ResetCameraClippingRange
 
 iren Initialize

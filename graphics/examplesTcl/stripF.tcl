@@ -45,7 +45,6 @@ ren1 SetBackground 1 1 1
 vtkCamera cam1
   cam1 SetFocalPoint 0.0520703 -0.128547 -0.0581083
   cam1 SetPosition 0.419653 -0.120916 -0.321626
-  cam1 ComputeViewPlaneNormal
   cam1 SetViewAngle 21.4286
   cam1 SetViewUp -0.0136986 0.999858 0.00984497
 ren1 SetActiveCamera cam1

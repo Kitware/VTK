@@ -230,7 +230,6 @@ int main(int argc, char *argv[])
   vtkCamera *camera = vtkCamera::New();
     camera->SetFocalPoint(0,0,0); //set up initial view orientation
     camera->SetPosition(1,1,1);
-    camera->ComputeViewPlaneNormal();
     camera->SetViewAngle(5.0);
 
   aren->SetActiveCamera(camera);

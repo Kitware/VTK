@@ -248,7 +248,6 @@ proc Reset {widget x y} {
     if { $RendererFound } {
 	[$CurrentRenderer GetActiveCamera] SetPosition 32.5 32.5 1000
 	[$CurrentRenderer GetActiveCamera] SetViewUp 0 1 0
-	[$CurrentRenderer GetActiveCamera] ComputeViewPlaneNormal
 	$CurrentRenderer ResetCamera
     }
 

@@ -136,7 +136,6 @@ vtkCamera camera
     camera SetClippingRange .274 13.72
     camera SetFocalPoint 0.433816 0.333131 0.449
     camera SetPosition -1.96987 1.15145 1.49053
-    camera ComputeViewPlaneNormal
     camera SetViewUp 0.378927 0.911821 0.158107
 ren1 SetActiveCamera camera
 XActor SetCamera camera

@@ -48,7 +48,6 @@ renWin SetSize 320 240
 [ren1 GetActiveCamera] SetFocalPoint 146.003 22.3839 0.260541 
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp -0.255578 -0.717754 -0.647695 
-[ren1 GetActiveCamera] SetViewPlaneNormal 0.028093 -0.675175 0.737122 
 [ren1 GetActiveCamera] SetClippingRange 79.2526 194.052 
 
 iren Initialize

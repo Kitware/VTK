@@ -3556,7 +3556,6 @@ vtkCamera cam1
     cam1 SetClippingRange 0.0475572 2.37786
     cam1 SetFocalPoint 0.052665 -0.129454 -0.0573973
     cam1 SetPosition 0.327637 -0.116299 -0.256418
-    cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.0225386 0.999137 0.034901
     cam1 Zoom 2
 ren1 SetActiveCamera cam1

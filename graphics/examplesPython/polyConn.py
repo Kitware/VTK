@@ -90,7 +90,6 @@ cam1.SetClippingRange(1.51176,75.5879)
 cam1.SetFocalPoint(2.33749,2.96739,3.61023)
 cam1.SetPosition(10.8787,5.27346,15.8687)
 cam1.SetViewAngle(30)
-cam1.SetViewPlaneNormal(0.564986,0.152542,0.810877)
 cam1.SetViewUp(-0.0610856,0.987798,-0.143262)
 ren.SetActiveCamera(cam1)
 

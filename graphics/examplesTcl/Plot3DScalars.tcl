@@ -74,7 +74,6 @@ foreach scalarFunction $scalarFunctions {
 camera SetViewUp 0 1 0
 camera SetFocalPoint 0 0 0
 camera SetPosition 1 0 0
-camera ComputeViewPlaneNormal
 ren100 ResetCamera
 camera Dolly 1.25
 ren100 ResetCameraClippingRange

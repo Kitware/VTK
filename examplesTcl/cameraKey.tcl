@@ -33,7 +33,6 @@ proc CameraIvars {px py pz fx fy fz ux uy uz ang} {
   $camera SetFocalPoint $fx $fy $fz
   $camera SetViewUp $ux $uy $uz
   $camera SetViewAngle $ang
-  $camera ComputeViewPlaneNormal
 }
 
 #

@@ -13,7 +13,6 @@ proc KeyRender {} {
     [ren1 GetLights] InitTraversal
     set light [[ren1 GetLights] GetNextItem]
     set camera [ren1 GetActiveCamera]
-    $camera ComputeViewPlaneNormal
     $camera SetClippingRange 1 100
     eval $light SetPosition [$camera GetPosition]
     eval $light SetFocalPoint [$camera GetFocalPoint]

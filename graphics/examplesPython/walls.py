@@ -68,7 +68,6 @@ ren.GetActiveCamera().SetViewUp(-0.181457,0.289647,0.939776)
 ren.GetActiveCamera().SetPosition(23.3125,-28.2001,17.5756)
 ren.GetActiveCamera().SetFocalPoint(6,5,4)
 ren.GetActiveCamera().SetViewAngle(30)
-ren.GetActiveCamera().ComputeViewPlaneNormal()
 
 renWin.Render()
 # render the image

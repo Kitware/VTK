@@ -93,7 +93,6 @@ cam1=ren.GetActiveCamera()
 cam1.SetClippingRange(3.95297,50)
 cam1.SetFocalPoint(8.88908,0.595038,29.3342)
 cam1.SetPosition(9.9,-26,41)
-cam1.ComputeViewPlaneNormal()
 cam1.SetViewUp(0.060772,-0.319905,0.945498)
 
 cam2=ren2.GetActiveCamera()

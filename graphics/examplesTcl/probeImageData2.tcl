@@ -262,7 +262,6 @@ $culler SetMinimumCoverage 0
 [ren1 GetActiveCamera] SetFocalPoint 88 88 75 
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp 0 0 1
-[ren1 GetActiveCamera] SetViewPlaneNormal 0.765587 0.541592 0.34721 
 [ren1 GetActiveCamera] SetClippingRange 170.497 496.27 
 
 renWin SetSize 500 500

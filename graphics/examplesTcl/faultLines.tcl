@@ -59,7 +59,6 @@ vtkCamera cam1
     cam1 SetClippingRange 2580 129041
     cam1 SetFocalPoint 461550 6.58e+006 2132
     cam1 SetPosition 463960 6.559e+06 16982
-    cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.321899 0.522244 0.78971
 vtkLight light
     light SetPosition 0 0 1

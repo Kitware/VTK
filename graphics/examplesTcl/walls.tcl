@@ -64,7 +64,6 @@ renWin SetSize 500 500
 [ren1 GetActiveCamera] SetPosition 23.3125 -28.2001 17.5756
 [ren1 GetActiveCamera] SetFocalPoint 6 5 4
 [ren1 GetActiveCamera] SetViewAngle 30
-[ren1 GetActiveCamera] ComputeViewPlaneNormal
 ren1 ResetCameraClippingRange
 
 renWin Render

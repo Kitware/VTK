@@ -86,7 +86,6 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 1.87 3.9
 $cam1 SetFocalPoint 0 0 0.254605
 $cam1 SetPosition 0.571764 2.8232 0.537528
-$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp 0.5188 -0.0194195 -0.854674
 renWin Render
 

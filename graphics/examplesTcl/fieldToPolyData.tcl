@@ -56,7 +56,6 @@ renWin SetSize 300 300
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange .348 17.43
 $cam1 SetPosition 2.92 2.62 -0.836
-$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.436 -0.067 -0.897
 $cam1 Azimuth 90
 # render the image

@@ -87,7 +87,6 @@ acam.SetClippingRange(1.38669,69.3345)
 acam.SetFocalPoint(-0.0368406,0.191581,3.37003)
 acam.SetPosition(13.6548,2.10315,2.28369)
 acam.SetViewAngle(30)
-acam.SetViewPlaneNormal(0.98735,0.13785,-0.0783399)
 acam.SetViewUp(0.157669,-0.801427,0.576936)
 
 ren.SetActiveCamera(acam)

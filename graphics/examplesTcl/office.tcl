@@ -268,7 +268,6 @@ vtkCamera aCamera
     aCamera SetClippingRange 0.726079 36.3039
     aCamera SetFocalPoint 2.43584 2.15046 1.11104
     aCamera SetPosition -4.76183 -10.4426 3.17203
-    aCamera ComputeViewPlaneNormal
     aCamera SetViewUp 0.0511273 0.132773 0.989827
     aCamera SetViewAngle 18.604
     aCamera Zoom 1.2

@@ -138,8 +138,6 @@ ren1 AddActor tubesActor
 vtkCamera aCam
     aCam SetFocalPoint 0.00657892 0 2.41026
     aCam SetPosition -1.94838 -47.1275 39.4607
-    aCam ComputeViewPlaneNormal 
-    aCam SetViewPlaneNormal -0.0325936 -0.785725 0.617717
     aCam SetViewUp 0.00653193 0.617865 0.786257
     aCam SetClippingRange 1 100
 

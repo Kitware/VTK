@@ -51,7 +51,6 @@ void main( int argc, char *argv[] )
     aCamera->SetViewUp (0, 0, -1);
     aCamera->SetPosition (0, 1, 0);
     aCamera->SetFocalPoint (0, 0, 0);
-    aCamera->ComputeViewPlaneNormal();
 
   // now, tell the renderer our actors
   aRenderer->AddActor(outline);

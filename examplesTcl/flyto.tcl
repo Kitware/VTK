@@ -33,7 +33,6 @@ proc flyto {} {
 	set focalY [expr [lindex $flyFrom 1] + ($dy * $i * $delta)]
 	set focalZ [expr [lindex $flyFrom 2] + ($dz * $i * $delta)]
 	[$renderer GetActiveCamera] SetFocalPoint $focalX $focalY $focalZ
-        [$renderer GetActiveCamera] ComputeViewPlaneNormal
         set dolly [expr 30.0 / $numSteps / 100.0 + 1.0]
         [$renderer GetActiveCamera] Dolly $dolly
         $renWin Render

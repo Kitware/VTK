@@ -63,7 +63,6 @@ set camera [ren1 GetActiveCamera]
 $camera SetClippingRange 3.10849 208.252
 $camera SetFocalPoint 3.75439 -0.000334978 -1.27252
 $camera SetPosition -1.18886 10.737 -11.3642
-$camera ComputeViewPlaneNormal
 $camera SetViewUp 0.0828035 -0.662002 -0.744914
 
 

@@ -160,7 +160,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     cam->SetPosition(100, 450, 65);
     cam->SetViewUp(0, 0, -1);
     cam->SetViewAngle(30);
-    cam->ComputeViewPlaneNormal();
     // this was causing an update.
     //ren->ResetCameraClippingRange();
     //{

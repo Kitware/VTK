@@ -46,7 +46,6 @@ vtkCamera camera
 #  camera SetFocalPoint 512 32 0
   camera SetPosition 512 32 118.369
   camera SetViewAngle 30
-  camera SetViewPlaneNormal 0 0 1
   camera SetDistance 118.369
   camera SetViewUp 0 1 0
 ren1 SetActiveCamera camera

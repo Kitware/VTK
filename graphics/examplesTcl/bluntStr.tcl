@@ -89,7 +89,6 @@ renWin SetSize 700 500
 vtkCamera cam1
   cam1 SetFocalPoint 2.87956 4.24691 2.73135
   cam1 SetPosition -3.46307 16.7005 29.7406
-  cam1 ComputeViewPlaneNormal
   cam1 SetViewAngle 30
   cam1 SetViewUp 0.127555 0.911749 -0.390441
   cam1 SetClippingRange 1 50

@@ -51,7 +51,6 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] SetFocalPoint 0.0524175 -0.1268 -0.0565854 
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp 0 1 0 
-[ren1 GetActiveCamera] SetViewPlaneNormal 1 0 1.2168e-008 
 [ren1 GetActiveCamera] SetClippingRange 0.247254 0.491749 
 
 iren Initialize

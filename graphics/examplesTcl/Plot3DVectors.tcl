@@ -77,7 +77,6 @@ foreach vectorFunction $vectorFunctions {
 camera SetViewUp 1 0 0
 camera SetFocalPoint 0 0 0
 camera SetPosition .4 -.5 -.75
-camera ComputeViewPlaneNormal
 ren200 ResetCamera
 camera Dolly 1.25
 ren200 ResetCameraClippingRange

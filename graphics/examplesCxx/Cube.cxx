@@ -51,7 +51,6 @@ void main( int argc, char *argv[] )
   vtkCamera *camera = vtkCamera::New();
       camera->SetPosition(1,1,1);
       camera->SetFocalPoint(0,0,0);
-      camera->ComputeViewPlaneNormal();
   renderer->AddActor(cubeActor);
       renderer->SetActiveCamera(camera);
       renderer->ResetCamera();

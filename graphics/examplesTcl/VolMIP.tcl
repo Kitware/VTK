@@ -77,7 +77,6 @@ ren1 SetBackground 0 0 0
 [ren1 GetActiveCamera] SetPosition 162.764 30.8946 116.029
 [ren1 GetActiveCamera] SetFocalPoint 32.868 31.5566 31.9246
 [ren1 GetActiveCamera] SetViewUp -0.00727828 0.999791 0.0191114
-[ren1 GetActiveCamera] SetViewPlaneNormal 0.839404 -0.00427837 0.543492
 [ren1 GetActiveCamera] SetClippingRange 15.4748 773.74
 
 ren1 AddVolume volume

@@ -68,7 +68,6 @@ ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 [ren1 GetActiveCamera] SetFocalPoint 0 0 0
 [ren1 GetActiveCamera] SetPosition 1 0 0
-[ren1 GetActiveCamera] ComputeViewPlaneNormal
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 20

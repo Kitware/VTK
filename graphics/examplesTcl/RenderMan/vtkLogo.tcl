@@ -115,7 +115,6 @@ logo SetPosition 0 0 0
 vtkCamera aCam
   aCam SetFocalPoint  0.340664 0.470782 0.34374
   aCam SetPosition  0.698674 1.45247 2.89482
-  aCam ComputeViewPlaneNormal  
   aCam SetViewAngle  30
   aCam SetViewUp  0 1 0
 

@@ -96,7 +96,6 @@ renWin.SetSize(200,200)
 ren.GetActiveCamera().SetPosition(-47.5305,-319.315,92.0083)
 ren.GetActiveCamera().SetFocalPoint(78.9121,89.8372,95.1229)
 ren.GetActiveCamera().SetViewUp(-0.00708891,0.00980254,-0.999927)
-ren.GetActiveCamera().SetViewPlaneNormal(-0.29525,-0.955392,-0.0072728)
 ren.GetActiveCamera().SetClippingRange(42.8255,2141.28)
 
 iren.Initialize()

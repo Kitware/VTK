@@ -74,7 +74,6 @@ camera = vtkCamera()
 camera.SetClippingRange(0.576398,28.8199)
 camera.SetFocalPoint(0.0463079,-0.0356571,1.01993)
 camera.SetPosition(-2.47044,2.39516,-3.56066)
-camera.ComputeViewPlaneNormal()
 camera.SetViewUp(0.607296,-0.513537,-0.606195)
 ren.SetActiveCamera(camera)
 

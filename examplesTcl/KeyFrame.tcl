@@ -116,7 +116,6 @@ proc KeyRender {} {
     set light [[ren1 GetLights] GetNextItem]
     set camera [ren1 GetActiveCamera]
     $camera SetViewUp 0 -1 0
-    $camera ComputeViewPlaneNormal
     $camera SetClippingRange 10 5000
     eval $light SetPosition [$camera GetPosition]
     eval $light SetFocalPoint [$camera GetFocalPoint]

@@ -99,7 +99,6 @@ ren1 SetBackground .1 .2 .4
 [ren1 GetActiveCamera] SetPosition -8000 0 23.5
 [ren1 GetActiveCamera] SetFocalPoint 0 0 23.5
 [ren1 GetActiveCamera] SetClippingRange 100 2000
-[ren1 GetActiveCamera] SetViewPlaneNormal -1 0 0
 [ren1 GetActiveCamera] SetViewUp 0 1 0
 
 renWin Render

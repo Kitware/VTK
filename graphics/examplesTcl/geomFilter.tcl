@@ -153,7 +153,6 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 84 174
 $cam1 SetFocalPoint 5.22824 6.09412 35.9813
 $cam1 SetPosition 100.052 62.875 102.818
-$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.307455 -0.464269 0.830617
 iren Initialize
 

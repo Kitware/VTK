@@ -31,7 +31,6 @@ set ren [$renCollection GetNextItem]
 #
 [$ren GetActiveCamera] SetPosition 0 1 0
 [$ren GetActiveCamera] SetFocalPoint 0 0 0
-[$ren GetActiveCamera] ComputeViewPlaneNormal
 [$ren GetActiveCamera] SetViewUp 0 0 1
 
 #

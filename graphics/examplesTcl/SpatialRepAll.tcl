@@ -66,7 +66,6 @@ vtkCamera camera
   camera SetFocalPoint 151.889 86.3178 223.333 
   camera SetViewAngle 30
   camera SetViewUp 0 0 -1
-  camera SetViewPlaneNormal -0.0651119 0.984195 -0.164683 
   camera SetClippingRange 1 100
 ren1 SetActiveCamera camera
 renWin Render

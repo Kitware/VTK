@@ -63,7 +63,6 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.83384 191.692
 $cam1 SetFocalPoint 1.67401 3.99838 7.71124
 $cam1 SetPosition 26.1644 21.623 31.3635
-$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.321615 0.887994 -0.328681
 $cam1 Dolly 1.4
 
