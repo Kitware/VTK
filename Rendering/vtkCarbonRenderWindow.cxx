@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.6");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.7");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -480,9 +480,27 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
     if (this->Mapped)
       {
       if (!resizing)
-{
+        {
         resizing = 1;
-        SizeWindow(this->WindowId, x, y, TRUE);
+        if (this->ParentId)
+          {
+          GLint bufRect[4];
+          Rect windowRect;
+          GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
+
+          bufRect[0] = this->Position[0];
+          bufRect[1] = (int) (windowRect.bottom-windowRect.top)
+            - (this->Position[1]+this->Size[1]);
+          bufRect[2] = this->Size[0];
+          bufRect[3] = this->Size[1];
+          aglEnable(this->ContextId, AGL_BUFFER_RECT);
+          aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufRect);
+          }
+        else
+          {
+          SizeWindow(this->WindowId, x, y, TRUE);
+          }
+
         resizing = 0;
         }
       }
