@@ -1,4 +1,6 @@
-SUBDIRS(Ex1)
+SUBDIRS(
+  Ex1
+)
 
 #
 # Include path(s)
@@ -9,3 +11,31 @@ INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR}/Common)
 INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
 INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Imaging)
 INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Unsorted)
+
+#
+# Link to VTK and local
+#
+
+LINK_LIBRARIES (
+  vtkmyUnsorted
+  vtkIO
+  vtkGraphics
+  vtkmyImaging 
+  vtkImaging 
+  vtkFiltering
+  vtkmyCommon
+  vtkCommon
+)
+
+IF (VTK_USE_HYBRID)
+  LINK_LIBRARIES (vtkHybrid)
+ENDIF (VTK_USE_HYBRID)
+IF (VTK_USE_PARALLEL)
+  LINK_LIBRARIES (vtkParallel)
+ENDIF (VTK_USE_PARALLEL)
+IF (VTK_USE_PATENTED)
+  LINK_LIBRARIES (vtkPatented)
+ENDIF (VTK_USE_PATENTED)
+IF (VTK_USE_RENDERING)
+  LINK_LIBRARIES (vtkRendering)
+ENDIF (VTK_USE_RENDERING)
