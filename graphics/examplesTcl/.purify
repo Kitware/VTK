@@ -202,9 +202,9 @@ suppress mse strlen
 suppress zpr *
 suppress ipr *
 
-suppress umr vtkIntArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
-suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
-suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
+suppress umr vtkIntArray::GetTuple(const long,float*); vtkDataArray::InsertComponent(const int,const int,const float)
+suppress umr vtkUnsignedLongArray::GetTuple(const long,float*); vtkDataArray::InsertComponent(const int,const int,const float)
+suppress umr vtkUnsignedLongArray::GetTuple(const long,float*); vtkDataArray::InsertComponent(const int,const int,const float)
 
 
 suppress umc __glce_EndList; vtkOpenGLPolyDataMapper::Render(vtkRenderer*,vtkActor*)
