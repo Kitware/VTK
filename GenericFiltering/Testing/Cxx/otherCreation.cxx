@@ -1094,7 +1094,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   
   MacroTest(strm,indent,"attribute components",attribute->GetNumberOfComponents()==1);
   MacroTest(strm,indent,"attribute centering",attribute->GetCentering()==vtkPointCentered);
-  MacroTest(strm,indent,"attribute type",attribute->GetType()==VTK_DOUBLE);
+  MacroTest(strm,indent,"attribute type",attribute->GetComponentType()==VTK_DOUBLE);
   MacroTest(strm,indent,"attribute size",attribute->GetSize()==17);
   
   double *range=attribute->GetRange(0);
