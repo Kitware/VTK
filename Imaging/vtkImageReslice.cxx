@@ -2938,7 +2938,7 @@ template <class F>
 static 
 void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
                             const int inExt[6], const int inInc[3],
-                            int clipExt[6], int **traversal, F **constants,
+                            int clipExt[6], int **traversal, F **vtkNotUsed(constants),
                             int useNearestNeighbor[3], F newmat[4][4])
 {
   // set up input traversal table for nearest-neighbor interpolation  
