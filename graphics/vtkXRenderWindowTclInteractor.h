@@ -163,6 +163,9 @@ public:
                                                  XEvent *,Boolean *);
   friend void vtkXRenderWindowTclInteractorTimer(XtPointer,XtIntervalId *);
 
+  vtkGetMacro(BreakLoopFlag, int);
+  vtkSetMacro(BreakLoopFlag, int);
+
 protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();
@@ -177,6 +180,8 @@ protected:
   Widget oldTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
+
+  int BreakLoopFlag;
 };
 
 #endif

@@ -125,6 +125,7 @@ vtkXRenderWindowTclInteractor::vtkXRenderWindowTclInteractor()
   this->App = 0;
   this->top = 0;
   this->TopLevelShell = NULL;
+  this->BreakLoopFlag = 0;
 }
 
 vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
@@ -174,6 +175,11 @@ void vtkXRenderWindowTclInteractor::SetTopLevelShell(Widget topLevel)
 }
 
 
+static void vtkBreakTclLoop(void *iren)
+{
+  ((vtkXRenderWindowTclInteractor*)iren)->SetBreakLoopFlag(1);
+}
+
 void  vtkXRenderWindowTclInteractor::Start()
 {
   // Let the compositing handle the event loop if it wants to.
@@ -183,7 +189,18 @@ void  vtkXRenderWindowTclInteractor::Start()
     return;
     }
 
-  Tk_MainLoop();
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = vtkBreakTclLoop;
+  cbc->ClientData = this;
+  this->RemoveObserver(this->ExitTag);
+
+  this->ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc);
+  this->BreakLoopFlag = 0;
+  while(this->BreakLoopFlag == 0)
+    {
+    Tk_DoOneEvent(0);
+    }
+  this->RemoveObserver(this->ExitTag);
 }
 
 // Initializes the event handlers
