@@ -281,7 +281,7 @@ float vtkLookupTable::GetOpacity(float v)
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-static void vtkLookupTableLogRange(const float range[2], float logRange[2])
+static void vtkLookupTableLogRange(float range[2], float logRange[2])
 {
   float rmin = range[0];
   float rmax = range[1];
@@ -315,8 +315,8 @@ static void vtkLookupTableLogRange(const float range[2], float logRange[2])
 }
 
 // Apply log to value, with appropriate constraints.
-static inline float vtkApplyLogScale(float v, const float range[2], 
-				     const float logRange[2])
+static inline float vtkApplyLogScale(float v, float range[2], 
+				     float logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
