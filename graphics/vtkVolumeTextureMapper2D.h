@@ -61,6 +61,15 @@ public:
 
   static vtkVolumeTextureMapper2D *New();
   
+  // Description:
+  // Target size in pixels of each size of the texture for downloading. Default is
+  // 512x512 - so a 512x512 texture will be tiled with as many slices of the volume
+  // as possible, then all the quads will be rendered. This can be set to optimize
+  // for a particular architecture. This must be set with numbers that are a power
+  // of two.
+  vtkSetVector2Macro( TargetTextureSize, int );
+  vtkGetVector2Macro( TargetTextureSize, int );
+  
 //BTX
 
   // Description:
@@ -69,13 +78,10 @@ public:
   // Render the volume
   virtual void Render(vtkRenderer *, vtkVolume *) {};
 
-  virtual void RenderRectangle( float vtkNotUsed(v)[12], float vtkNotUsed(t)[8],
-				unsigned char *vtkNotUsed(texture),
-				int vtkNotUsed(size)[2]) {};
-
-  void ApplyProperties( unsigned char *texture,
-			int size[2], int tsize[2] ); 
-
+  virtual void RenderQuads( int vtkNotUsed(count),
+                            float *vtkNotUsed(v), float *vtkNotUsed(t),
+                            unsigned char *vtkNotUsed(texture),
+                            int vtkNotUsed(size)[2]) {};
 //ETX
 
 
@@ -87,9 +93,11 @@ protected:
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
-  void GenerateTexturesAndRenderRectangles();
+  void GenerateTexturesAndRenderQuads();
 
   int  MajorDirection;
+  int  TargetTextureSize[2];
+  
 };
 
 

@@ -146,7 +146,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
       }
     }
 
-  this->GenerateTexturesAndRenderRectangles(); 
+  this->GenerateTexturesAndRenderQuads(); 
     
   // pop transformation matrix
   glMatrixMode( GL_MODELVIEW );
@@ -186,10 +186,11 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   timer->Delete();
 }
 
-void vtkOpenGLVolumeTextureMapper2D::RenderRectangle( float v[12], 
-						      float t[8],
-						      unsigned char *texture,
-						      int size[2])
+void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
+                                                  float *v, 
+                                                  float *t,
+                                                  unsigned char *texture,
+                                                  int size[2])
 {
 #ifdef GL_VERSION_1_1
   glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1], 
@@ -199,20 +200,19 @@ void vtkOpenGLVolumeTextureMapper2D::RenderRectangle( float v[12],
 		0, GL_RGBA, GL_UNSIGNED_BYTE, texture );
 #endif
 
-  glBegin( GL_POLYGON );
+  glBegin( GL_QUADS );
 
-  glTexCoord2fv( t );
-  glVertex3fv( v ); 
+  float *tptr = t, *vptr = v;
   
-  glTexCoord2fv( t+2 );
-  glVertex3fv( v+3 ); 
+  for ( int i = 0; i < numQuads*4; i++ )
+    {
+    glTexCoord2fv( tptr );
+    glVertex3fv(   vptr );
+    
+    tptr += 2;
+    vptr += 3;
+    }
   
-  glTexCoord2fv( t+4 );
-  glVertex3fv( v+6 ); 
-  
-  glTexCoord2fv( t+6 );
-  glVertex3fv( v+9 ); 
-
   glEnd();
 }
 

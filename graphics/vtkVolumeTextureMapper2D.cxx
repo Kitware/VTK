@@ -50,12 +50,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_PLUS_Z_MAJOR_DIRECTION  4
 #define VTK_MINUS_Z_MAJOR_DIRECTION 5
 
+
 template <class T>
 static void 
 VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 				       int size[3],
-				       unsigned char *texture,
-				       int tsize[2],
 				       int directionFlag,
 				       vtkVolumeTextureMapper2D *me )
 {
@@ -65,7 +64,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   T                *dptr;
   unsigned short   *nptr;
   unsigned char    *gptr;
-  float            v[12], t[8];
+  float            *v, *t;
   unsigned char    *rgbaArray = me->GetRGBAArray();
   float            *gradientOpacityArray;
   unsigned char    *gradientMagnitudes;
@@ -85,12 +84,66 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
   unsigned char    zero[4];
+  unsigned char    *texture;
+  int              targetSize[2];
+  int              textureSize[2];
+  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
+  
+  
+  // How big should the texture be?
+  // Start with the target size
+  me->GetTargetTextureSize( targetSize );
+  
+  // Increase the x dimension of the texture if the y dimension of the data
+  // is bigger than it (because these are y by z textures)
+  if ( size[1] > targetSize[0] )
+    {
+    targetSize[0] = size[1];
+    }
 
+  // Increase the y dimension of the texture if the z dimension of the data
+  // is bigger than it (because these are y by z textures)
+  if ( size[2] > targetSize[1] )
+    {
+    targetSize[1] = size[2];
+    }
+
+  // Make sure the x dimension of the texture is a power of 2
+  textureSize[0] = 32;
+  while( textureSize[0] < targetSize[0] ) 
+    {
+    textureSize[0] *= 2;
+    }
+  
+  // Make sure the y dimension of the texture is a power of 2
+  textureSize[1] = 32;
+  while( textureSize[1] < targetSize[1] )
+    {
+    textureSize[1] *= 2;
+    }
+
+  // Create space for the texture
+  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
+
+  // How many tiles are there in X? in Y? total?
+  xTotal = textureSize[0] / size[1];
+  yTotal = textureSize[1] / size[2];
+  numTiles = xTotal * yTotal;
+  
+  // Create space for the vertices and texture coordinates. You need four vertices with
+  // three components each for each tile, and four texture coordinates with three
+  // components each for each texture coordinate
+  v = new float [12*numTiles];
+  t = new float [ 8*numTiles];
+  
+  // Convenient for filling in the empty regions (due to clipping)
   zero[0] = 0;
   zero[1] = 0;
   zero[2] = 0;
   zero[3] = 0;
 
+  // We need to know the spacing and origin of the data to set up the coordinates
+  // correctly
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
@@ -107,30 +160,38 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     iinc    = -1;
     }
 
+  // Fill in the texture coordinates and most of the vertex information in advance
   float offset[2];
-  offset[0] = 0.5 / (float)tsize[0];
-  offset[1] = 0.5 / (float)tsize[1];
-  t[0] = offset[0];
-  t[1] = offset[1];
-  t[2] = offset[0];
-  t[3] = ((float)size[2] / (float)tsize[1]) - offset[1];
-  t[4] = ((float)size[1] / (float)tsize[0]) - offset[0];
-  t[5] = ((float)size[2] / (float)tsize[1]) - offset[1];
-  t[6] = ((float)size[1] / (float)tsize[0]) - offset[0];
-  t[7] = offset[1];
-
-  v[1] = origin[1];
-  v[2] = origin[2];
-
-  v[4] = origin[1];
-  v[5] = spacing[2] * size[2] + origin[2];
-
-  v[7] = spacing[1] * size[1] + origin[1];
-  v[8] = spacing[2] * size[2] + origin[2];
-
-  v[10] = spacing[1] * size[1] + origin[1];
-  v[11] = origin[2];
-
+  offset[0] = 0.5 / (float)textureSize[0];
+  offset[1] = 0.5 / (float)textureSize[1];
+  
+  for ( i = 0; i < numTiles; i++ )
+    {
+    yTile = i / xTotal;
+    xTile = i % xTotal;
+    
+    t[i*8 + 0] = (float)((size[1]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 1] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 2] = (float)((size[1]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 3] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 4] = (float)((size[1]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 5] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 6] = (float)((size[1]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 7] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    
+    v[i*12 + 1] = origin[1];
+    v[i*12 + 2] = origin[2];
+    
+    v[i*12 + 4] = origin[1];
+    v[i*12 + 5] = spacing[2] * (float)(size[2]-1) + origin[2];
+    
+    v[i*12 + 7] = spacing[1] * (float)(size[1]-1) + origin[1];
+    v[i*12 + 8] = spacing[2] * (float)(size[2]-1) + origin[2];
+    
+    v[i*12 + 10] = spacing[1] * (float)(size[1]-1) + origin[1];
+    v[i*12 + 11] = origin[2];
+    }
+  
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
   croppingBounds = me->GetCroppingRegionPlanes();
@@ -163,11 +224,19 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 
   renWin = me->GetRenderWindow();
 
+  tile = 0;
+  
   for ( i = istart; i != iend; i+=iinc )
     {
+    yTile = tile / xTotal;
+    xTile = tile % xTotal;
+    
     for ( k = 0; k < size[2]; k++ )
       {
-      tptr = texture + k*4*tsize[0];
+      tptr = texture + 4 * ( yTile*size[2]*textureSize[0]+
+                             k*textureSize[0] +
+                             xTile*size[1] );
+                         
       dptr = data_ptr + k*size[0]*size[1] + i;
 
       // Given an X and Z value, what are the cropping bounds
@@ -310,20 +379,33 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 
     if ( renWin->CheckAbortStatus() )
       {
-      return;
+      break;
       }
 
-    v[0] = v[3] = v[6] = v[9] = (float)i * spacing[0] + origin[0];
-    me->RenderRectangle( v, t, texture, tsize);
+    v[12*tile + 0] = 
+      v[12*tile + 3] = 
+      v[12*tile + 6] = 
+      v[12*tile + 9] = (float)i * spacing[0] + origin[0];
+    
+    tile++;
+    
+    if ( tile == numTiles  || (i+iinc == iend) )
+      { 
+      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      tile = 0;
+      }
+    
     }
+  
+  delete [] texture;
+  delete [] v;
+  delete [] t;
 }
 
 template <class T>
 static void 
 VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 				       int size[3],
-				       unsigned char *texture,
-				       int tsize[2],
 				       int directionFlag,
 				       vtkVolumeTextureMapper2D *me )
 {
@@ -333,7 +415,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   T              *dptr;
   unsigned short *nptr;
   unsigned char  *gptr;
-  float          v[12], t[8];
+  float          *v, *t;
   unsigned char  *rgbaArray = me->GetRGBAArray();
   unsigned short *encodedNormals;
   float          *gradientOpacityArray;
@@ -353,12 +435,65 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
   unsigned char    zero[4];
+  unsigned char    *texture;
+  int              targetSize[2];
+  int              textureSize[2];
+  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
 
+  // How big should the texture be?
+  // Start with the target size
+  me->GetTargetTextureSize( targetSize );
+  
+  // Increase the x dimension of the texture if the x dimension of the data
+  // is bigger than it (because these are x by z textures)
+  if ( size[0] > targetSize[0] )
+    {
+    targetSize[0] = size[0];
+    }
+
+  // Increase the y dimension of the texture if the z dimension of the data
+  // is bigger than it (because these are x by z textures)
+  if ( size[2] > targetSize[1] )
+    {
+    targetSize[1] = size[2];
+    }
+
+  // Make sure the x dimension of the texture is a power of 2
+  textureSize[0] = 32;
+  while( textureSize[0] < targetSize[0] ) 
+    {
+    textureSize[0] *= 2;
+    }
+  
+  // Make sure the y dimension of the texture is a power of 2
+  textureSize[1] = 32;
+  while( textureSize[1] < targetSize[1] )
+    {
+    textureSize[1] *= 2;
+    }
+
+  // Create space for the texture
+  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
+
+  // How many tiles are there in X? in Y? total?
+  xTotal = textureSize[0] / size[0];
+  yTotal = textureSize[1] / size[2];
+  numTiles = xTotal * yTotal;
+  
+  // Create space for the vertices and texture coordinates. You need four vertices with
+  // three components each for each tile, and four texture coordinates with three
+  // components each for each texture coordinate
+  v = new float [12*numTiles];
+  t = new float [ 8*numTiles];
+  
+  // Convenient for filling in the empty regions (due to clipping)
   zero[0] = 0;
   zero[1] = 0;
   zero[2] = 0;
   zero[3] = 0;
 
+  // We need to know the spacing and origin of the data to set up the coordinates
+  // correctly
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
@@ -375,31 +510,38 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
     jinc    = -1;
     }
 
+  // Fill in the texture coordinates and most of the vertex information in advance
   float offset[2];
-  offset[0] = 0.5 / (float)tsize[0];
-  offset[1] = 0.5 / (float)tsize[1];
-
-  t[0] = offset[0];
-  t[1] = offset[1];
-  t[2] = ((float)size[0] / (float)tsize[0]) - offset[0];
-  t[3] = offset[1];
-  t[4] = ((float)size[0] / (float)tsize[0]) - offset[0];
-  t[5] = ((float)size[2] / (float)tsize[1]) - offset[1];
-  t[6] = offset[0];
-  t[7] = ((float)size[2] / (float)tsize[1]) - offset[1];
-
-  v[0] = origin[0];
-  v[2] = origin[2];
-
-  v[3] = spacing[0] * size[0] + origin[0];
-  v[5] = origin[2];
-
-  v[6] = spacing[0] * size[0] + origin[0];
-  v[8] = spacing[2] * size[2] + origin[2];
-
-  v[9] = origin[0];
-  v[11] = spacing[2] * size[2] + origin[2];
-
+  offset[0] = 0.5 / (float)textureSize[0];
+  offset[1] = 0.5 / (float)textureSize[1];
+  
+  for ( i = 0; i < numTiles; i++ )
+    {
+    yTile = i / xTotal;
+    xTile = i % xTotal;
+    
+    t[i*8 + 0] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 1] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 2] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 3] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 4] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 5] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 6] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 7] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    
+    v[i*12 + 0] = origin[0];
+    v[i*12 + 2] = origin[2];
+    
+    v[i*12 + 3] = origin[0];
+    v[i*12 + 5] = spacing[2] * (float)(size[2]-1) + origin[2];
+    
+    v[i*12 + 6] = spacing[0] * (float)(size[0]-1) + origin[0];
+    v[i*12 + 8] = spacing[2] * (float)(size[2]-1) + origin[2];
+    
+    v[i*12 +  9] = spacing[0] * (float)(size[0]-1) + origin[0];
+    v[i*12 + 11] = origin[2];
+    }
+  
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
   croppingBounds = me->GetCroppingRegionPlanes();
@@ -430,11 +572,19 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   gradientMagnitudes = me->GetGradientMagnitudes();
   gradientOpacityArray = me->GetGradientOpacityArray();
   
+  tile = 0;
+  
   for ( j = jstart; j != jend; j+=jinc )
     {
+    yTile = tile / xTotal;
+    xTile = tile % xTotal;
+
     for ( k = 0; k < size[2]; k++ )
       {
-      tptr = texture + k*4*tsize[0];
+      tptr = texture + 4 * ( yTile*size[2]*textureSize[0]+
+                             k*textureSize[0] +
+                             xTile*size[0] );
+      
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
       // Given a Y and Z value, what are the cropping bounds
@@ -574,22 +724,36 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	  }
 	}
       }
+    
     if ( renWin->CheckAbortStatus() )
       {
-      return;
+      break;
       }
 
-    v[1] = v[4] = v[7] = v[10] = spacing[1] * (float)j + origin[1];
-    me->RenderRectangle( v, t, texture, tsize);
+    v[12*tile + 1] = 
+      v[12*tile +4] = 
+      v[12*tile +7] = 
+      v[12*tile +10] = spacing[1] * (float)j + origin[1];
+
+    tile++;
+    
+    if ( tile == numTiles  || (j+jinc == jend) )
+      { 
+      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      tile = 0;
+      }
+    
     }
+  
+  delete [] texture;
+  delete [] v;
+  delete [] t;
 }
 
 template <class T>
 static void 
 VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 				       int size[3],
-				       unsigned char *texture,
-				       int tsize[2],
 				       int directionFlag,
 				       vtkVolumeTextureMapper2D *me )
 {
@@ -599,7 +763,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   T              *dptr;
   unsigned short *nptr;
   unsigned char  *gptr;
-  float          v[12], t[8];
+  float          *v, *t;
   unsigned char  *rgbaArray = me->GetRGBAArray();
   unsigned short *encodedNormals;
   float          *gradientOpacityArray;
@@ -619,12 +783,66 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
   unsigned char    zero[4];
+  unsigned char    *texture;
+  int              targetSize[2];
+  int              textureSize[2];
+  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
+  
+  
+  // How big should the texture be?
+  // Start with the target size
+  me->GetTargetTextureSize( targetSize );
+  
+  // Increase the x dimension of the texture if the x dimension of the data
+  // is bigger than it (because these are x by y textures)
+  if ( size[0] > targetSize[0] )
+    {
+    targetSize[0] = size[0];
+    }
 
+  // Increase the y dimension of the texture if the y dimension of the data
+  // is bigger than it (because these are x by y textures)
+  if ( size[1] > targetSize[1] )
+    {
+    targetSize[1] = size[1];
+    }
+
+  // Make sure the x dimension of the texture is a power of 2
+  textureSize[0] = 32;
+  while( textureSize[0] < targetSize[0] ) 
+    {
+    textureSize[0] *= 2;
+    }
+  
+  // Make sure the y dimension of the texture is a power of 2
+  textureSize[1] = 32;
+  while( textureSize[1] < targetSize[1] )
+    {
+    textureSize[1] *= 2;
+    }
+
+  // Create space for the texture
+  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
+
+  // How many tiles are there in X? in Y? total?
+  xTotal = textureSize[0] / size[0];
+  yTotal = textureSize[1] / size[1];
+  numTiles = xTotal * yTotal;
+  
+  // Create space for the vertices and texture coordinates. You need four vertices with
+  // three components each for each tile, and four texture coordinates with three
+  // components each for each texture coordinate
+  v = new float [12*numTiles];
+  t = new float [ 8*numTiles];
+  
+  // Convenient for filling in the empty regions (due to clipping)
   zero[0] = 0;
   zero[1] = 0;
   zero[2] = 0;
   zero[3] = 0;
 
+  // We need to know the spacing and origin of the data to set up the coordinates
+  // correctly
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
@@ -641,30 +859,37 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     kinc    = -1;
     }
 
+  // Fill in the texture coordinates and most of the vertex information in advance
   float offset[2];
-  offset[0] = 0.5 / (float)tsize[0];
-  offset[1] = 0.5 / (float)tsize[1];
-
-  t[0] = offset[0];
-  t[1] = offset[1];
-  t[2] = ((float)size[0] / (float)tsize[0]) - offset[0];
-  t[3] = offset[1];
-  t[4] = ((float)size[0] / (float)tsize[0]) - offset[0];
-  t[5] = ((float)size[1] / (float)tsize[1]) - offset[1];
-  t[6] = offset[0];
-  t[7] = ((float)size[1] / (float)tsize[1]) - offset[1];
-
-  v[0] = origin[0];
-  v[1] = origin[1];
-
-  v[3] = spacing[0] * size[0] + origin[0];
-  v[4] = origin[1];
-
-  v[6] = spacing[0] * size[0] + origin[0];
-  v[7] = spacing[1] * size[1] + origin[1];
-
-  v[9] = origin[0];
-  v[10] = spacing[1] * size[1] + origin[1];
+  offset[0] = 0.5 / (float)textureSize[0];
+  offset[1] = 0.5 / (float)textureSize[1];
+  
+  for ( i = 0; i < numTiles; i++ )
+    {
+    yTile = i / xTotal;
+    xTile = i % xTotal;
+    
+    t[i*8 + 0] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 1] = (float)((size[1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 2] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 3] = (float)((size[1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 4] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 5] = (float)((size[1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 6] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 7] = (float)((size[1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    
+    v[i*12 + 0] = origin[0];
+    v[i*12 + 1] = origin[1];
+    
+    v[i*12 + 3] = origin[0];
+    v[i*12 + 4] = spacing[1] * (float)(size[1]-1) + origin[1];
+    
+    v[i*12 + 6] = spacing[0] * (float)(size[0]-1) + origin[0];
+    v[i*12 + 7] = spacing[1] * (float)(size[1]-1) + origin[1];
+    
+    v[i*12 +  9] = spacing[0] * (float)(size[0]-1) + origin[0];
+    v[i*12 + 10] = origin[1];
+    }
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
@@ -696,11 +921,19 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   gradientMagnitudes = me->GetGradientMagnitudes();
   gradientOpacityArray = me->GetGradientOpacityArray();
 
+  tile = 0; 
+  
   for ( k = kstart; k != kend; k+=kinc )
     {
+    yTile = tile / xTotal;
+    xTile = tile % xTotal;
+
     for ( j = 0; j < size[1]; j++ )
       {
-      tptr = texture + j*4*tsize[0];
+      tptr = texture + 4 * ( yTile*size[1]*textureSize[0]+
+                             j*textureSize[0] +
+                             xTile*size[0] );
+
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
       // Given a Y and Z value, what are the cropping bounds
@@ -843,16 +1076,34 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 
     if ( renWin->CheckAbortStatus() )
       {
-      return;
+      break;
       }
 
-    v[2] = v[5] = v[8] = v[11] = spacing[2] * (float)k + origin[2];
-    me->RenderRectangle( v, t, texture, tsize);
+    v[12*tile + 2] = 
+      v[12*tile +5] = 
+      v[12*tile +8] = 
+      v[12*tile +11] = spacing[2] * (float)k + origin[2];
+
+    tile++;
+    
+    if ( tile == numTiles  || (k+kinc == kend) )
+      { 
+      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      tile = 0;
+      }
+    
     }
+  
+  delete [] texture;
+  delete [] v;
+  delete [] t;
+
 }
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
+  this->TargetTextureSize[0] = 512;
+  this->TargetTextureSize[1] = 512;
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
@@ -869,13 +1120,10 @@ vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
 }
 
 
-void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderRectangles()
+void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 {
   vtkStructuredPoints    *input = this->GetInput();
   int                    size[3];
-  int                    tsize[2];
-  int                    targetsize[2];
-  unsigned char          *texture;
   void                   *inputPointer;
   int                    inputType;
 
@@ -886,40 +1134,6 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderRectangles()
 
   input->GetDimensions( size );
 
-  switch ( this->MajorDirection )
-    {
-    case VTK_PLUS_X_MAJOR_DIRECTION:
-    case VTK_MINUS_X_MAJOR_DIRECTION:
-      targetsize[0] = size[1];
-      targetsize[1] = size[2];
-      break;     
-
-    case VTK_PLUS_Y_MAJOR_DIRECTION:
-    case VTK_MINUS_Y_MAJOR_DIRECTION:
-      targetsize[0] = size[0];
-      targetsize[1] = size[2];
-      break;     
-
-    case VTK_PLUS_Z_MAJOR_DIRECTION:
-    case VTK_MINUS_Z_MAJOR_DIRECTION:
-      targetsize[0] = size[0];
-      targetsize[1] = size[1];
-      break;     
-    }
-
-  tsize[0] = 32;
-  while( tsize[0] < targetsize[0] ) 
-    {
-    tsize[0] *= 2;
-    }
-  
-  tsize[1] = 32;
-  while( tsize[1] < targetsize[1] )
-    {
-    tsize[1] *= 2;
-    }
-
-  texture = new unsigned char[4*tsize[0]*tsize[1]];
 
   switch ( inputType )
     {
@@ -928,32 +1142,32 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderRectangles()
 	{
 	case VTK_PLUS_X_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned char *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_X_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned char *)inputPointer, size, 0, this );
 	  break;
 
 	case VTK_PLUS_Y_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned char *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_Y_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned char *)inputPointer, size, 0, this );
 	  break;
 
 	case VTK_PLUS_Z_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned char *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_Z_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned char *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned char *)inputPointer, size, 0, this );
 	  break;
 	}
       break;
@@ -962,38 +1176,37 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderRectangles()
 	{
 	case VTK_PLUS_X_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned short *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_X_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned short *)inputPointer, size, 0, this );
 	  break;
 
 	case VTK_PLUS_Y_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned short *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_Y_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned short *)inputPointer, size, 0, this );
 	  break;
 
 	case VTK_PLUS_Z_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 1, this );
+	    ( (unsigned short *)inputPointer, size, 1, this );
 	  break;
 
 	case VTK_MINUS_Z_MAJOR_DIRECTION:
 	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned short *)inputPointer, size, texture, tsize, 0, this );
+	    ( (unsigned short *)inputPointer, size, 0, this );
 	  break;
 	}
       break;
     }
 
-  delete texture;
 }
 
 void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
