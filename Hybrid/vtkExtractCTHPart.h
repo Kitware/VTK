@@ -30,7 +30,7 @@ class vtkFloatArray;
 
 class vtkExtractCTHPartInternal;
 
-class VTK_EXPORT vtkExtractCTHPart : public vtkRectilinearGridToPolyDataFilter
+class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkRectilinearGridToPolyDataFilter
 {
 public:
   vtkTypeRevisionMacro(vtkExtractCTHPart,vtkRectilinearGridToPolyDataFilter);
