@@ -102,6 +102,11 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   // All the mappers for differnt LODs are stored here.
   // The order is not important.
   vtkGetObjectMacro(LODMappers, vtkMapperCollection);
+
+  // Description:
+  // When this objects gets modified, this method also modifies the object.
+  void Modified();
+  
   
 protected:
   vtkActor            *Device;

@@ -347,3 +347,12 @@ void vtkLODActor::DeleteOwnLODs()
   this->MediumMapper = NULL;
 }
 
+
+
+//----------------------------------------------------------------------------
+void vtkLODActor::Modified()
+{
+  this->Device->Modified();
+  this->vtkActor::Modified();
+}
+
