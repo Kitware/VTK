@@ -72,6 +72,5 @@ foreach operator $mathematics {
 
 imgWin SetSize 600 300
 imgWin Render
-imgWin SetFileName TestAllMathematics.tcl.ppm
 
 wm withdraw .
