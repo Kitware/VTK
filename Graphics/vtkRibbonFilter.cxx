@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.57");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.58");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -158,7 +158,6 @@ void vtkRibbonFilter::Execute()
     //
     for (j=0; j < npts; j++)
       {
-
       if ( j == 0 ) //first point
         {
         inPts->GetPoint(pts[0],p);
@@ -168,6 +167,7 @@ void vtkRibbonFilter::Execute()
           sNext[i] = pNext[i] - p[i];
           sPrev[i] = sNext[i];
           }
+        vtkMath::Normalize(sPrev);
         }
 
       else if ( j == (npts-1) ) //last point
