@@ -173,7 +173,6 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   unsigned int width, height;
   width = uExtent[1] - uExtent[0] + 1;
   height = uExtent[3] - uExtent[2] + 1;  
-  int bit_depth = 8;
 
   cinfo.image_width = width; 	/* image width and height, in pixels */
   cinfo.image_height = height;
