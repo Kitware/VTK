@@ -25,8 +25,8 @@ vtkActor outline
 
   # create cursor
 vtkCursor3D cursor
-  eval cursor SetFocalPoint [[reader GetOutput] GetCenter]
   eval cursor SetModelBounds [[reader GetOutput] GetBounds]
+  eval cursor SetFocalPoint [[reader GetOutput] GetCenter]
   cursor AllOff
   cursor AxesOn
   cursor OutlineOn
