@@ -93,7 +93,7 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 
   // Find out where the center of the volume is in camera coordinates
   t = vtkTransform::New();
-  t->SetMatrix( ren->GetActiveCamera()->GetViewTransform() );
+  t->SetMatrix( ren->GetActiveCamera()->GetViewTransformMatrix() );
   center = vol->GetCenter();
   in[0] = center[0];
   in[1] = center[1];
@@ -107,13 +107,15 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   // Remove the view transform from the OpenGL modelview matrix stack
   //t->GetMatrix(matrix);
   t->Inverse();
-  t->Transpose();
+  vtkMatrix4x4 *m = vtkMatrix4x4::New();
+  t->GetTranspose(m);
   
   //vtkMatrix4x4::Invert(matrix,matrix);
   //vtkMatrix4x4::Transpose(matrix,matrix);
-  glMultMatrixd(t->GetMatrix()->Element[0]);
+  glMultMatrixd(m->Element[0]);
+  m->Delete();
   t->Delete();
-
+  
   // Specify the texture
   glColor3f(1.0,1.0,1.0);
 #ifdef GL_VERSION_1_1

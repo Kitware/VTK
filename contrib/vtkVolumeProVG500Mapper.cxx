@@ -401,11 +401,23 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     }
   else
     {
+    switch ( this->VolumeDataType )
+      {
+      case VTK_VOLUME_8BIT:
+        scale = sqrt(3.0)*255.0;
+        break;
+      case VTK_VOLUME_12BIT_LOWER:
+        scale = sqrt(3.0)*4095;
+        break;
+      case VTK_VOLUME_12BIT_UPPER:
+        scale = sqrt(3.0)*65535;
+      }
+
     gradientTable = new double [this->GradientTableSize];
     for ( i = 0; i < this->GradientTableSize; i++ )
       {
       gradientTable[i] =
-	goFunc->GetValue( ((float)(i)/(this->GradientTableSize-1)) * 255.0 );
+	goFunc->GetValue( ((float)(i)/(this->GradientTableSize-1)) * scale );
       }
     
     this->Context->SetGradientOpacityModulation( VLItrue );
