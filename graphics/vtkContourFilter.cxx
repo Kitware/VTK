@@ -136,7 +136,7 @@ void vtkContourFilter::Execute()
 
   // If structured points, use more efficient algorithms
 #ifdef VTK_USE_PATENTED
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
+  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS) && 0)
     {
     if (inScalars->GetDataType() != VTK_BIT)
       {
@@ -150,7 +150,7 @@ void vtkContourFilter::Execute()
       }
     }
   
-  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA)) 
+  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA) && 0) 
     {
     if (inScalars->GetDataType() != VTK_BIT)
       {
@@ -347,7 +347,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 }
 void vtkContourFilter::ImageContour(int dim)
 {
-  vtkPolyData *output;
+  vtkPolyData *output = this->GetOutput();
   vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
@@ -359,6 +359,7 @@ void vtkContourFilter::ImageContour(int dim)
     
     msquares = vtkMarchingSquares::New();
     msquares->SetInput((vtkImageData *)this->GetInput());
+    msquares->SetOutput(output);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -367,8 +368,7 @@ void vtkContourFilter::ImageContour(int dim)
       }
          
     msquares->Update();
-    output = msquares->GetOutput();
-    output->Register(this);
+    this->SetOutput(output);
     msquares->Delete();
     }
 
@@ -379,6 +379,7 @@ void vtkContourFilter::ImageContour(int dim)
     
     mcubes = vtkImageMarchingCubes::New();
     mcubes->SetInput((vtkImageData *)this->GetInput());
+    mcubes->SetOutput(output);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);
@@ -390,14 +391,9 @@ void vtkContourFilter::ImageContour(int dim)
       }
 
     mcubes->Update();
-    output = mcubes->GetOutput();
-    output->Register(this);
+    this->SetOutput(output);
     mcubes->Delete();
     }
-  
-  thisOutput->CopyStructure(output);
-  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
-  output->UnRegister(this);
 }
 #endif
 
