@@ -140,6 +140,15 @@ public:
   vtkBooleanMacro(Tubing,int);
 
   // Description:
+  // Enable/disable the drawing of the plane. In some cases the plane
+  // interferes with the object that it is operating on (i.e., the
+  // plane interferes with the cut surface it produces producing
+  // z-buffer artifacts.)
+  void SetDrawPlane(int plane);
+  vtkGetMacro(DrawPlane,int);
+  vtkBooleanMacro(DrawPlane,int);
+
+  // Description:
   // Turn on/off the ability to translate the bounding box by grabbing it
   // with the left mouse button.
   vtkSetMacro(OutlineTranslation,int);
@@ -242,6 +251,7 @@ protected:
   vtkCutter         *Cutter;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
+  int               DrawPlane;
   void HighlightPlane(int highlight);
   
   // Optional tubes are represented by extracting boundary edges and tubing

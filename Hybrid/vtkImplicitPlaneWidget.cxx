@@ -37,7 +37,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.7");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.8");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -72,6 +72,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->CutMapper->SetInput(this->Cutter->GetOutput());
   this->CutActor = vtkActor::New();
   this->CutActor->SetMapper(this->CutMapper);
+  this->DrawPlane = 1;
   
   this->Edges = vtkFeatureEdges::New();
   this->Edges->SetInput(this->Cutter->GetOutput());
@@ -304,9 +305,12 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->CurrentRenderer->AddActor(this->SphereActor);
     this->SphereActor->SetProperty(this->NormalProperty);
 
-    // add the plane
-    this->CurrentRenderer->AddActor(this->CutActor);
-    this->ConeActor->SetProperty(this->PlaneProperty);
+    // add the plane (if desired)
+    if ( this->DrawPlane )
+      {
+      this->CurrentRenderer->AddActor(this->CutActor);
+      }
+    this->CutActor->SetProperty(this->PlaneProperty);
 
     this->UpdateRepresentation();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
@@ -454,6 +458,7 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: " 
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
+  os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
 }
 
 
@@ -1068,6 +1073,29 @@ float* vtkImplicitPlaneWidget::GetNormal()
 void vtkImplicitPlaneWidget::GetNormal(float xyz[3]) 
 {
   this->Plane->GetNormal(xyz);
+}
+
+void vtkImplicitPlaneWidget::SetDrawPlane(int drawPlane)
+{
+  if ( drawPlane == this->DrawPlane )
+    {
+    return;
+    }
+
+  this->Modified();
+  this->DrawPlane = drawPlane;
+  if ( this->Enabled )
+    {
+    if ( drawPlane )
+      {
+      this->CurrentRenderer->AddActor(this->CutActor);
+      }
+    else
+      {
+      this->CurrentRenderer->RemoveActor(this->CutActor);
+      }
+    this->Interactor->Render();
+    }
 }
 
 void vtkImplicitPlaneWidget::GetPolyData(vtkPolyData *pd)
