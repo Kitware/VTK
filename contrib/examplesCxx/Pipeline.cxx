@@ -1,8 +1,4 @@
-// This program tests pipeline parallism.
-// I can only run with two processors (because of communication lockup).
-// To extend to three processes,  connect
-// process C's port to process B's port.
-// You will also have to prime process B's port somehow.
+// This program test the ports by setting up a simple pipeline.
 
 #include "mpi.h"
 #include "vtkImageGaussianSource.h"
@@ -18,16 +14,16 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-#define ID_A 1
-#define ID_B 2
-#define ID_C 0
+#define ID_A 0
+#define ID_B 1
+#define ID_C 2
 
 // Used to change the source (to get a series of images for the pipeline)
 void callback1(void *arg, int id)
 {
   vtkImageGaussianSource *source = (vtkImageGaussianSource *)arg;
   float max = source->GetMaximum();
-  source->SetMaximum(max + 10.0);
+  source->SetMaximum(max + 100.0);
 }
 
 // End Execute methods of filters so we can examine values of
@@ -65,7 +61,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   // Set up the pipeline source.
   vtkImageGaussianSource *source = vtkImageGaussianSource::New();
   source->SetCenter(128.0, 128.0, 0.0);
-  source->SetMaximum(10.0);
+  source->SetMaximum(100.0);
   source->SetStandardDeviation(50.0);
   source->SetEndMethod(report, source->GetOutput());
 
@@ -80,6 +76,11 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   controller->AddRMI(callback1, source, 300);
   controller->UnRegister(NULL);
   
+  // Prime the pipeline
+  upStreamPort->GetInput()->Update();
+  controller->TriggerRMI(ID_A, 300);
+  cerr << "----------------------\n";
+  
   // wait for the call back to execute.
   upStreamPort->WaitForUpdate();
   
@@ -92,6 +93,9 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 
 VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 {
+  vtkMultiProcessController *controller;
+  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  
   vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
   downStreamPort->SetUpStreamProcessId(ID_A);
   downStreamPort->SetTag(888);
@@ -104,13 +108,19 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();  
   upStreamPort->SetInput(scale->GetOutput());
   upStreamPort->SetTag(999);
+  upStreamPort->PipelineFlagOn();
   
-  // wait for the call back to execute.
+  // Prime the pipeline
+  upStreamPort->GetInput()->Update();
+  controller->TriggerRMI(ID_A, 300);  
+  cerr << "----------------------\n";
+  
   upStreamPort->WaitForUpdate();
   
   downStreamPort->Delete();
   scale->Delete();
   upStreamPort->Delete();
+  controller->UnRegister(NULL);
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -125,8 +135,8 @@ VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
   putenv("DISPLAY=:0.0");
 
   vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(ID_A);
-  downStreamPort->SetTag(888);
+  downStreamPort->SetUpStreamProcessId(ID_B);
+  downStreamPort->SetTag(999);
 
   vtkImageShiftScale *scale = vtkImageShiftScale::New();
   scale->SetInput(downStreamPort->GetImageDataOutput());
@@ -154,36 +164,38 @@ VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
   renWindow->AddRenderer(ren);
   renWindow->SetSize( 300, 300 );
 
-  // draw the resulting scene
-  cerr << "----------------------\n";
-  downStreamPort->Update();
-  sleep(5);
+  // Pipeline is all primed, now start processing
+  scale->Update();
   controller->TriggerRMI(ID_A, 300);
+  sleep(1);
   cerr << "----------------------\n";
   scale->Update();
-  sleep(5);
   controller->TriggerRMI(ID_A, 300);
+  sleep(1);
   cerr << "----------------------\n";
   scale->Update();
-  sleep(5);
-  controller->TriggerRMI(ID_A, 300);
-  cerr << "----------------------\n";
-  scale->Update();
-  sleep(5);
   controller->TriggerRMI(ID_A, 300);  
+  sleep(1);
   cerr << "----------------------\n";
-  scale->Update();
-  sleep(5);
-  cerr << "----------------------\n";
-  scale->Update();
-  sleep(5);
   
+  // Now empty the data buffered in the pipeline
+  scale->Update();
+  sleep(1);
+  cerr << "----------------------\n";
+  scale->Update();
+  sleep(1);
+  cerr << "----------------------\n";
+  scale->Update();
+  sleep(1);
+  cerr << "----------------------\n";
+ 
   controller->TriggerRMI(ID_A, VTK_BREAK_RMI_TAG);
   controller->TriggerRMI(ID_B, VTK_BREAK_RMI_TAG);
   
   // Clean up
-  //ren->Delete();
-  //renWindow->Delete();
+  ren->Delete();
+  renWindow->Delete();
+  scale->Delete();
   atext->Delete();
   plane->Delete();
   mapper->Delete();
