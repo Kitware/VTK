@@ -45,7 +45,6 @@
 #include "vtkProcessObject.h"
 
 class vtkDataObject;
-class vtkDistributedExecutive;
 
 class VTK_FILTERING_EXPORT vtkSource : public vtkProcessObject
 {
@@ -182,7 +181,7 @@ protected:
   virtual void SetNumberOfOutputPorts(int n);
 
   //BTX
-  friend class vtkDistributedExecutive;
+  friend class vtkExecutive;
   //ETX
 
 private:

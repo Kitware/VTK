@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.2");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -134,19 +134,6 @@ int vtkCachedStreamingDemandDrivenPipeline::Update(int port)
     return 1;
     }
 }
-
-//----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
-{
-  return this->Superclass::Update(algorithm);
-}
-
-//----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
-{
-  return this->Superclass::Update(algorithm, port);
-}
-
 
 //----------------------------------------------------------------------------
 int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)

@@ -50,7 +50,6 @@ vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
 vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
-vtkDistributedExecutive.cxx
 vtkEmptyCell.cxx
 vtkExecutive.cxx
 vtkExplicitCell.cxx

@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.5");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -101,13 +101,9 @@ static void vtkAlgorithmIgnoreUnused(void*) {}
 class vtkAlgorithmToExecutiveFriendship
 {
 public:
-  static void AddAlgorithm(vtkExecutive* executive, vtkAlgorithm* algorithm)
+  static void SetAlgorithm(vtkExecutive* executive, vtkAlgorithm* algorithm)
     {
-    executive->AddAlgorithm(algorithm);
-    }
-  static void RemoveAlgorithm(vtkExecutive* executive, vtkAlgorithm* algorithm)
-    {
-    executive->RemoveAlgorithm(algorithm);
+    executive->SetAlgorithm(algorithm);
     }
 };
 
@@ -273,14 +269,14 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* executive)
       }
 
     // The old executive is no longer managing this algorithm.
-    vtkAlgorithmToExecutiveFriendship::RemoveAlgorithm(oldExecutive, this);
+    vtkAlgorithmToExecutiveFriendship::SetAlgorithm(oldExecutive, 0);
     }
 
   // The given executive now manages this algorithm.
   this->AlgorithmInternal->Executive = executive;
   if(executive)
     {
-    vtkAlgorithmToExecutiveFriendship::AddAlgorithm(executive, this);
+    vtkAlgorithmToExecutiveFriendship::SetAlgorithm(executive, this);
     }
 }
 
@@ -358,7 +354,7 @@ vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
     {
     return 0;
     }
-  return this->GetExecutive()->GetOutputData(this, port);
+  return this->GetExecutive()->GetOutputData(port);
 }
 
 //----------------------------------------------------------------------------
@@ -674,7 +670,7 @@ int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::Update()
 {
-  this->GetExecutive()->Update(this);
+  this->GetExecutive()->Update();
 }
 
 //----------------------------------------------------------------------------
@@ -695,7 +691,7 @@ void vtkAlgorithm::UpdateWholeExtent()
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (sddp)
     {
-    sddp->UpdateWholeExtent(this);
+    sddp->UpdateWholeExtent();
     }
   else
     {

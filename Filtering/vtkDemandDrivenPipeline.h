@@ -19,7 +19,7 @@
 #ifndef __vtkDemandDrivenPipeline_h
 #define __vtkDemandDrivenPipeline_h
 
-#include "vtkDistributedExecutive.h"
+#include "vtkExecutive.h"
 
 class vtkDataArray;
 class vtkDataSetAttributes;
@@ -30,42 +30,34 @@ class vtkInformationIntegerKey;
 class vtkInformationVector;
 class vtkInformationKeyVectorKey;
 
-class VTK_FILTERING_EXPORT vtkDemandDrivenPipeline : public vtkDistributedExecutive
+class VTK_FILTERING_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
 {
 public:
   static vtkDemandDrivenPipeline* New();
-  vtkTypeRevisionMacro(vtkDemandDrivenPipeline,vtkDistributedExecutive);
+  vtkTypeRevisionMacro(vtkDemandDrivenPipeline,vtkExecutive);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Bring the given algorithm's outputs up-to-date.  The algorithm
-  // must already be managed by this executive.
+  // Bring the algorithm's outputs up-to-date.  Returns 1 for success
+  // and 0 for failure.
   virtual int Update();
   virtual int Update(int port);
-  virtual int Update(vtkAlgorithm* algorithm);
-  virtual int Update(vtkAlgorithm* algorithm, int port);
 
   // Description:
-  // Get the information object for an output port of an algorithm.
+  // Get the information object for an output port of the algorithm.
   virtual vtkInformation* GetOutputInformation(int port);
-  virtual vtkInformation* GetOutputInformation(vtkAlgorithm* algorithm,
-                                               int port);
 
   // Description:
-  // Get the PipelineMTime for this exective
+  // Get the PipelineMTime for this exective.
   vtkGetMacro(PipelineMTime, unsigned long);
-    
+
   // Description:
   // Get/Set the data object storing the output for the given port.
   virtual vtkDataObject* GetOutputData(int port);
-  virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
   virtual void SetOutputData(int port, vtkDataObject*);
-  virtual void SetOutputData(vtkAlgorithm* algorithm, int port, vtkDataObject*);
 
   // Description:
-  // Get the data object for an output port of an algorithm.
-  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
-                                      int port, int connection);
+  // Get the data object for an output port of the algorithm.
   virtual vtkDataObject* GetInputData(int port, int connection);
 
   // Description:

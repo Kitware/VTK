@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.6");
+vtkCxxRevisionMacro(vtkSource, "1.7");
 
 #ifndef NULL
 #define NULL 0
@@ -138,7 +138,7 @@ void vtkSource::Update()
   if(vtkDemandDrivenPipeline* ddp =
      vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
     {
-    ddp->Update(this, 0);
+    ddp->Update(0);
     }
   else
     {
@@ -400,7 +400,7 @@ void vtkSource::SetNthOutput(int index, vtkDataObject* newOutput)
     }
 
   // Ask the executive to setup the new output.
-  this->GetExecutive()->SetOutputData(this, index, newOutput);
+  this->GetExecutive()->SetOutputData(index, newOutput);
 
   // Set vtkSource's extra pointer to the output.
   if(newOutput)
@@ -528,7 +528,7 @@ void vtkSource::SetExecutive(vtkExecutive* executive)
   // executive.
   for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
     {
-    this->GetExecutive()->SetOutputData(this, i, this->Outputs[i]);
+    this->GetExecutive()->SetOutputData(i, this->Outputs[i]);
     }
 }
 
@@ -545,7 +545,7 @@ void vtkSource::SetNumberOfOutputPorts(int n)
 //----------------------------------------------------------------------------
 int vtkSource::ProcessRequest(vtkInformation* request,
                               vtkInformationVector*,
-                                      vtkInformationVector* outputVector)
+                              vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
     {
@@ -560,8 +560,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     int i;
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
       this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
 
@@ -594,8 +593,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     // for image data copy the origin and spacing into the bbox
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
       vtkImageData *id = vtkImageData::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
       if (id)
@@ -614,8 +612,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     int i;
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
       this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
 
@@ -674,8 +671,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     int i;
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
       this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
     int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
@@ -738,8 +734,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
       // for image data copy the origin and spacing into the bbox
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
       vtkImageData *id = vtkImageData::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
       if (id)

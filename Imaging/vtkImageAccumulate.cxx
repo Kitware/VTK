@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.53");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.54");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
     return 0;
     }
   return vtkImageStencilData::SafeDownCast(
-    this->GetExecutive()->GetInputData(this,1,0));
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 

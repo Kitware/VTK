@@ -35,13 +35,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Bring the given algorithm's outputs up-to-date.  The algorithm
-  // must already be managed by this executive.
+  // Bring the algorithm's outputs up-to-date.
   virtual int Update();
   virtual int Update(int port);
-  virtual int Update(vtkAlgorithm* algorithm);
-  virtual int UpdateWholeExtent(vtkAlgorithm* algorithm);
-  virtual int Update(vtkAlgorithm* algorithm, int port);
+  virtual int UpdateWholeExtent();
 
   virtual int UpdateData(int outputPort);
 

@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.4");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.5");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -211,14 +211,6 @@ vtkInformation* vtkDemandDrivenPipeline::GetOutputInformation(int port)
 }
 
 //----------------------------------------------------------------------------
-vtkInformation*
-vtkDemandDrivenPipeline::GetOutputInformation(vtkAlgorithm* algorithm,
-                                              int port)
-{
-  return this->Superclass::GetOutputInformation(algorithm, port);
-}
-
-//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
@@ -239,18 +231,6 @@ int vtkDemandDrivenPipeline::Update(int port)
     {
     return 1;
     }
-}
-
-//----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
-{
-  return this->Superclass::Update(algorithm);
-}
-
-//----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
-{
-  return this->Superclass::Update(algorithm, port);
 }
 
 //----------------------------------------------------------------------------
@@ -584,7 +564,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port)
       {
       // Try to create an instance of the correct type.
       data = this->NewDataObject(dt);
-      this->SetOutputData(this->Algorithm, port, data);
+      this->SetOutputData(port, data);
       if(data)
         {
         data->Delete();
@@ -641,21 +621,6 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(vtkAlgorithm* algorithm,
-                                                      int port)
-{
-  return this->Superclass::GetOutputData(algorithm, port);
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject* vtkDemandDrivenPipeline::GetInputData(vtkAlgorithm* algorithm,
-                                                     int port, int connection)
-{
-  return this->Superclass::GetInputData(algorithm, port, connection);
-}
-
-
-//----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::SetOutputData(int newPort,
                                             vtkDataObject* newOutput)
 {
@@ -680,13 +645,6 @@ void vtkDemandDrivenPipeline::SetOutputData(int newPort,
     {
     vtkErrorMacro("Could not set output on port " << newPort << ".");
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::SetOutputData(vtkAlgorithm* algorithm, int port,
-                                            vtkDataObject* newOutput)
-{
-  this->Superclass::SetOutputData(algorithm, port, newOutput);
 }
 
 //----------------------------------------------------------------------------

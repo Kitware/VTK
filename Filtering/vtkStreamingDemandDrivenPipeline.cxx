@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.4");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.5");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -103,15 +103,9 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
+int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
-  return this->Superclass::Update(algorithm);
-}
-
-int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent(
-  vtkAlgorithm* algorithm)
-{
-  return this->Update(algorithm);
+  return this->Update();
 
 #if 0
   if(algorithm != this->GetAlgorithm())
@@ -129,12 +123,6 @@ int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent(
   
   // set the output UpdateExtent to the WholeExtent
 #endif
-}
-
-//----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
-{
-  return this->Superclass::Update(algorithm, port);
 }
 
 //----------------------------------------------------------------------------

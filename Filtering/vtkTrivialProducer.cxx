@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.2");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.3");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
       newOutput->Register(this);
       }
     this->Output = newOutput;
-    this->GetExecutive()->SetOutputData(this, 0, newOutput);
+    this->GetExecutive()->SetOutputData(0, newOutput);
     if(oldOutput)
       {
       oldOutput->UnRegister(this);
