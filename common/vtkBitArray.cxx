@@ -99,7 +99,7 @@ int vtkBitArray::Allocate(const int sz, const int ext)
 {
   if ( sz > this->Size )
     {
-    if (( this->Array == NULL ) && (!this->SaveUserArray))
+    if (( this->Array != NULL ) && (!this->SaveUserArray))
       {
       delete [] this->Array;
       }
