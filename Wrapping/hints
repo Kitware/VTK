@@ -34,6 +34,7 @@ vtkDataSet              GetCenter               301 3
 vtkDataSet              GetPoint                301 3
 vtkDataSet              GetScalarRange          301 2
 vtkExtractUnstructuredGrid GetExtent            301 6
+vtkExtentSplitter       GetSubExtent            304 6
 vtkFunctionParser       GetVectorResult         307 3
 vtkFunctionParser       GetVectorVariableValue  307 3
 vtkFunctionParser       GetVectorVariableValue  307 3
