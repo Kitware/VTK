@@ -44,9 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // rendering window. A rendering window is a window in a graphical user
 // interface where renderers draw their images. Methods are provided to 
 // synchronize the rendering process, set window size, and control double
-// buffering. Another set of important methods allow the creation of
-// device dependent actors, lights, and cameras. These objects are created
-// depending upon the value of the environment variable "VTK_RENDERER".
+// buffering. 
+
+// .SECTION see also
+// vtkRenderer vtkRenderMaster vtkRenderWindowInteractor
 
 #ifndef __vtkRenderWindow_hh
 #define __vtkRenderWindow_hh
@@ -79,59 +80,64 @@ public:
   virtual void Render();
 
   // Description:
-  // Initialize rendering process.
+  // Initialize the rendering process.
   virtual void Start() = 0;
 
   // Description:
-  // Performed at the end of the rendering process to generate image.
-  virtual void Frame() = 0;
-
+  // Performed at the end of the rendering process to swap buffers
+  // if neccessary etc.
+  virtual void Frame() = 0
+  
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *) = 0;
 
   // Description:
   // Performed at the end of the rendering process to generate image.
+  // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();
 
   // Description:
-  // Create a device specific renderer.
+  // Create a device specific renderer. This is the only way to create
+  // a renderer that will work. This method is implimented in the
+  // subclasses of vtkRenderWindow so that each subclass will return
+  // the correct renderer for its graphics library.
   virtual vtkRenderer  *MakeRenderer() = 0;
 
   // Description:
-  // Create a device specific light.
+  // Create a device specific light. This is used by vtkLight to create
+  // the correct type of vtkLightDevice.
   virtual vtkLightDevice *MakeLight() = 0;
 
   // Description:
-  // Create a device specific camera.
+  // Create a device specific camera. This is used by vtkCamera to create
+  // the correct type of vtkCameraDevice.
   virtual vtkCameraDevice    *MakeCamera() = 0;
 
   // Description:
-  // Create a device specific property.
+  // Create a device specific property. This is used by vtkProperty to create
+  // the correct type of vtkPropertyDevice.
   virtual vtkPropertyDevice    *MakeProperty() = 0;
 
   // Description:
-  // Create a device specific texture.
+  // Create a device specific texture. This is used by vtkTexture to create
+  // the correct type of vtkTextureDevice
   virtual vtkTextureDevice     *MakeTexture() = 0;
 
   // Description:
-  // Create an interactor to control renderers in this window.
+  // Create an interactor to control renderers in this window. We need
+  // to know what type of interactor to create because we might be in
+  // X windows or MS windows. 
   virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
 
   // Description:
-  // Get the position in screen coordinates of the rendering window.
+  // Set/Get the position in screen coordinates of the rendering window.
   virtual int *GetPosition() = 0;
-
-  // Description:
-  // Set the position of the window in screen coordinates.
   virtual void SetPosition(int,int);
   virtual void SetPosition(int a[2]);
 
   // Description:
-  // Get the size of the window in screen coordinates.
+  // Set/Get the size of the window in screen coordinates.
   virtual int *GetSize() = 0;
-
-  // Description:
-  // Set the size of the window in screen coordinates.
   virtual void SetSize(int,int) = 0;
   virtual void SetSize(int a[2]);
 
@@ -142,13 +148,15 @@ public:
   vtkBooleanMacro(FullScreen,int);
 
   // Description:
-  // Turn on/off window manager borders.
+  // Turn on/off window manager borders. Typically you shouldn't turn the 
+  // borders off because that bypasses the window manager and can cause
+  // undesirable behaviour.
   vtkSetMacro(Borders,int);
   vtkGetMacro(Borders,int);
   vtkBooleanMacro(Borders,int);
 
   // Description:
-  // Keep track of whether rendering window has been mapped to screen.
+  // Keep track of whether the rendering window has been mapped to screen.
   vtkSetMacro(Mapped,int);
   vtkGetMacro(Mapped,int);
   vtkBooleanMacro(Mapped,int);
@@ -166,7 +174,7 @@ public:
   vtkBooleanMacro(StereoRender,int);
 
   // Description:
-  // Set what type of stereo rendering to use.
+  // Set/Get what type of stereo rendering to use.
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
 
@@ -178,8 +186,10 @@ public:
   virtual void WindowRemap() {};
   
   // Description:
-  // Turn on/off erasing the screen between images. Allows multiple exposure
-  // sequences if turned on.
+  // Turn on/off erasing the screen between images. This allows multiple 
+  // exposure sequences if turned on. You will need to turn double 
+  // buffering off or make use of the SwapBuffers methods to prevent
+  // you from swapping buffers between exposures.
   vtkSetMacro(Erase,int);
   vtkGetMacro(Erase,int);
   vtkBooleanMacro(Erase,int);
@@ -195,7 +205,8 @@ public:
   vtkGetStringMacro(Name);
 
   // Description:
-  // Set/Get the filename used for saving images.
+  // Set/Get the filename used for saving images. See the SaveImageAsPPM 
+  // method.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
@@ -206,27 +217,49 @@ public:
 
 
   // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
+  // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
+  // front argument indicates if the front buffer should be used or the back 
+  // buffer. It is the callers responsibility to delete the resulting 
+  // array. It is very important to realize that the memory in this array
+  // is organized from the bottom of the window to the top. The origin
+  // of the screen is in the lower left corner. The y axis increases as
+  // you go up the screen. So the storage of pixels is from left to right
+  // and from bottom to top.
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front) = 0;
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
 
   // Description:
-  // Set the number of frames for doing anti aliasing, default is zero.
+  // Set the number of frames for doing anti aliasing. The defualt is
+  // zero. Typically five or six will yield reasonable results without
+  // taking too long.
   vtkGetMacro(AAFrames,int);
   vtkSetMacro(AAFrames,int);
 
   // Description:
-  // Set the number of frames for doing focal depth, default is zero.
+  // Set the number of frames for doing focal depth. The default is zero.
+  // Depending on how your scene is organized you can get away with as
+  // few as for frames for focal depth or you might need thirty.
+  // One thing to note is that if you are using focal depth frames
+  // then you will not need many (if any) frames for antialiasing. 
   vtkGetMacro(FDFrames,int);
   vtkSetMacro(FDFrames,int);
 
   // Description:
-  // Set the number of sub frames for doing motion blur.
+  // Set the number of sub frames for doing motion blur. The default is zero.
+  // Once this is set greater than one, you will no longer see a new frame
+  // for every Render().  If you set this to five you will need to do 
+  // five Render() invocations before seeing the result. This isn't
+  // very impressive unless something is changing between the Renders.
   vtkGetMacro(SubFrames,int);
   vtkSetMacro(SubFrames,int);
 
   // Description:
-  // Set/Get the desired update rate.
+  // Set/Get the desired update rate. This is used in conjuntion with
+  // the vtkLODActor class. When using level of detail actors you
+  // need to specify what update rate you require. The LODActors then
+  // will pick the correct resolution to meet your desired update rate
+  // in frames per second. A value of zero indicates that they can use
+  // all the time they want to.
   void SetDesiredUpdateRate(float);
   vtkGetMacro(DesiredUpdateRate,float);
 

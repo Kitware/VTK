@@ -45,8 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindowInteractor.hh"
 
 // Description:
-// Construct object with screen size 300x300, borders turned on, position
-// at (0,0), and double buffering turned on.
+// Construct an instance of  vtkRenderWindow with its screen size 
+// set to 300x300, borders turned on, positioned at (0,0), double 
+// buffering turned on.
 vtkRenderWindow::vtkRenderWindow()
 {
   this->Size[0] = this->Size[1] = 300;
@@ -75,8 +76,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->SwapBuffers = 1;
 }
 
-// Description:
-// free the memory used by this object
 vtkRenderWindow::~vtkRenderWindow()
 {
   if (this->AccumulationBuffer) 
@@ -110,7 +109,8 @@ void vtkRenderWindow::SetDesiredUpdateRate(float rate)
 
 
 // Description:
-// Ask each renderer to render an image. Synchronize this process.
+// Ask each renderer owned by this RenderWindow to render its image and 
+// synchronize this process.
 void vtkRenderWindow::Render()
 {
   int *size;
@@ -246,7 +246,7 @@ void vtkRenderWindow::Render()
 }
 
 // Description:
-// Ask each renderer to render an aa image. Synchronize this process.
+// Handle rendering any anti-aliased frames.
 void vtkRenderWindow::DoAARender()
 {
   int i;
@@ -374,7 +374,7 @@ void vtkRenderWindow::DoAARender()
 
 
 // Description:
-// Ask each renderer to render an image. Synchronize this process.
+// Handle rendering any focal depth frames.
 void vtkRenderWindow::DoFDRender()
 {
   int i;
@@ -482,7 +482,7 @@ void vtkRenderWindow::DoFDRender()
 
 
 // Description:
-// Ask each renderer to render an image.
+// Handle rendering the two different views for stereo rendering.
 void vtkRenderWindow::DoStereoRender()
 {
   this->Start();
@@ -513,21 +513,15 @@ void vtkRenderWindow::RemoveRenderers(vtkRenderer *ren)
   this->Renderers.RemoveItem(ren);
 }
 
-// Description:
-// Set the size of the window in screen coordinates.
 void vtkRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0],a[1]);
 }
 
-// Description:
-// Set the size of the window in screen coordinates.
 void vtkRenderWindow::SetPosition(int a[2])
 {
   this->SetPosition(a[0],a[1]);
 }
-// Description:
-// Set the size of the window in screen coordinates.
 void vtkRenderWindow::SetPosition(int x, int y)
 {
   // if we arent mappen then just set the ivars 
@@ -608,7 +602,8 @@ void vtkRenderWindow::SaveImageAsPPM()
 
 
 // Description:
-// Update system if needed due to stereo rendering.
+// Update the system if needed due to stereo rendering. For some stereo 
+// methods subclasses might need to switch some hardware settings here.
 void vtkRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
@@ -652,7 +647,8 @@ void vtkRenderWindow::StereoMidpoint(void)
 }
 
 // Description:
-// Handles work required between the left and right eye renders.
+// Handles work required once both views have been rendered when using
+// stereo rendering.
 void vtkRenderWindow::StereoRenderComplete(void)
 {
   switch (this->StereoType) 
@@ -707,8 +703,6 @@ void vtkRenderWindow::StereoRenderComplete(void)
 }
 
 
-// Description:
-// Handles work required at end of render cycle
 void vtkRenderWindow::CopyResultFrame(void)
 {
   if (this->ResultFrame)
@@ -724,7 +718,9 @@ void vtkRenderWindow::CopyResultFrame(void)
 }
 
 // Description:
-// Indicates if a StereoOn will require the window to be remapped.
+// This method indicates if a StereoOn/Off will require the window to 
+// be remapped. Soe types of stereo rendering require a new window
+// to be created.
 int vtkRenderWindow::GetRemapWindow(void)
 {
   switch (this->StereoType) 
