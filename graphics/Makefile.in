@@ -251,6 +251,7 @@ vtkRendererSource \
 vtkReverseSense \
 vtkRibbonFilter \
 vtkRotationalExtrusionFilter \
+vtkRuledSurfaceFilter \
 vtkSLCReader \
 vtkSTLReader \
 vtkSTLWriter \
