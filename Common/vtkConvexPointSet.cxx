@@ -28,7 +28,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.19");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.20");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -44,6 +44,7 @@ vtkConvexPointSet::vtkConvexPointSet()
   this->Triangle = vtkTriangle::New();
   this->Triangulator = vtkOrderedTriangulator::New();
   this->Triangulator->PreSortedOff();
+  this->Triangulator->UseTemplatesOff();
 }
 
 vtkConvexPointSet::~vtkConvexPointSet()

@@ -80,8 +80,12 @@ class  vtkCellArray;
 class  vtkHeap;
 class  vtkIdList;
 class  vtkPoints;
+class  vtkTetra;
+class  vtkDataArray;
+class  vtkFloatArray;
 struct vtkOTMesh;
 struct vtkOTTemplates;
+
 
 // Template ID's must be 32-bits. See .cxx file for more information.
 #if VTK_SIZEOF_SHORT == 4
@@ -216,6 +220,13 @@ public:
   // specified point id to the connectivity list provided. (The id is the
   // same as that specified in InsertPoint().)  
   vtkIdType AddTriangles(vtkIdType id, vtkCellArray *connectivity);
+  
+  // Description:
+  // Methods to get one tetra at a time. Start with InitTetraTraversal()
+  // and then invoke GetNextTetra() until the method returns 0.
+  void InitTetraTraversal();
+  int  GetNextTetra(int classification, vtkTetra *tet,
+                    vtkDataArray *cellScalars, vtkFloatArray *tetScalars);
   
 protected:
   vtkOrderedTriangulator();

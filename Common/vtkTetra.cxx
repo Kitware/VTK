@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.79");
+vtkCxxRevisionMacro(vtkTetra, "1.80");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -309,8 +309,8 @@ void vtkTetra::Contour(float value, vtkDataArray *cellScalars,
         {
         if ( outPd ) 
           {
-          int p1 = this->PointIds->GetId(v1);
-          int p2 = this->PointIds->GetId(v2);
+          vtkIdType p1 = this->PointIds->GetId(v1);
+          vtkIdType p2 = this->PointIds->GetId(v2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -762,59 +762,136 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
-// Overload vtkCell3D::Clip() because there are cases when we want to
-// insert just ourselves into the output (i.e., a case that we want to
-// template).
+// The clip table produces either a single tetrahedron or a single wedge as output.
+// The format of the case table is #pts, ptids. Points >= 100 are existing vertices;
+// otherwise the number is an edge number and an intersection is produced.
+
+// support tetra clipping
+typedef int TETRA_EDGE_LIST;
+typedef struct {
+       TETRA_EDGE_LIST edges[7];
+} TETRA_CASES;
+ 
+static TETRA_CASES tetraCases[] = { 
+  {{ 0,   0,   0,   0,   0,   0,   0}},   // 0
+  {{ 4,   0,   3,   2, 100,   0,   0}},   // 1
+  {{ 4,   0,   1,   4, 101,   0,   0}},   // 2
+  {{ 6, 101,   1,   4, 100,   2,   3}},   // 3
+  {{ 4,   1,   2,   5, 102,   0,   0}},   // 4
+  {{ 6, 102,   5,   1, 100,   3,   0}},   // 5
+  {{ 6, 102,   2,   5, 101,   0,   4}},   // 6
+  {{ 6,   3,   4,   5, 100, 101, 102}},   // 7
+  {{ 4,   3,   4,   5, 103,   0,   0}},   // 8
+  {{ 6, 103,   4,   5, 100,   0,   2}},   // 9
+  {{ 6, 103,   5,   3, 101,   1,   0}},   // 10
+  {{ 6, 100, 101, 103,   2,   1,   5}},   // 11
+  {{ 6,   2, 102,   1,   3, 103,   4}},   // 12
+  {{ 6,   0,   1,   4, 100, 102, 103}},   // 13
+  {{ 6,   0,   3,   2, 101, 103, 102}},   // 14
+  {{ 4, 100, 101, 102, 103,   0,   0}}    // 15
+};
+
+// Clip this tetra using scalar value provided. Like contouring, except
+// that it cuts the tetra to produce other 3D cells.
 void vtkTetra::Clip(float value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
                     vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                     int insideOut)
 {
-  int inject;
+  static int CASE_MASK[4] = {1,2,4,8};
+  TETRA_CASES *tetraCase;
+  TETRA_EDGE_LIST  *edge;
+  int i, j, index, *vert, newCellId;
+  int pts[6];
+  int vertexId;
+  float t, *x1, *x2, x[3];
 
+  // Build the case table
   if ( insideOut )
     {    
-    for (inject=0; inject<4; inject++)
+    for ( i=0, index=0; i < 4; i++)
       {
-      if ( cellScalars->GetComponent(inject,0) > value )
+      if (cellScalars->GetComponent(i,0) <= value)
         {
-        break;
+        index |= CASE_MASK[i];
         }
       }
-    }
+    }    
   else
     {
-    for (inject=0; inject<4; inject++)
+    for ( i=0, index=0; i < 4; i++)
       {
-      if ( cellScalars->GetComponent(inject,0) <= value )
+      if (cellScalars->GetComponent(i,0) > value)
         {
-        break;
+        index |= CASE_MASK[i];
         }
       }
     }
-  
-  if ( inject >= 4 ) //all points are above/below
+
+  // Select the case based on the index and get the list of edges for this case
+  tetraCase = tetraCases + index;
+  edge = tetraCase->edges;
+
+  // produce the clipped cell
+  for (i=1; i<=edge[0]; i++) // insert tetra
     {
-    vtkIdType pts[4];
-    float x[3];
-    for (inject=0; inject < 4; inject++)
+    // vertex exists, and need not be interpolated
+    if (edge[i] >= 100)
       {
-      this->Points->GetPoint(inject, x);
-      if ( locator->InsertUniquePoint(x, pts[inject]) )
+      vertexId = edge[i] - 100;
+      this->Points->GetPoint(vertexId, x);
+      if ( locator->InsertUniquePoint(x, pts[i-1]) )
         {
-        outPD->CopyData(inPD,this->PointIds->GetId(inject),pts[inject]);
+        outPD->CopyData(inPD,this->PointIds->GetId(vertexId),pts[i-1]);
         }
       }
-    int newCellId = tets->InsertNextCell(4,pts);
+
+    else //new vertex, interpolate
+      {
+      int v1, v2;
+      vert = edges[edge[i]];
+
+      // calculate a preferred interpolation direction
+      float deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+                           - cellScalars->GetComponent(vert[0],0));
+      if (deltaScalar > 0)
+        {
+        v1 = vert[0]; v2 = vert[1];
+        }
+      else
+        {
+        v1 = vert[1]; v2 = vert[0];
+        deltaScalar = -deltaScalar;
+        }
+
+      // linear interpolation across edge
+      t = ( deltaScalar == 0.0 ? 0.0 :
+            (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
+
+      x1 = this->Points->GetPoint(v1);
+      x2 = this->Points->GetPoint(v2);
+      for (j=0; j<3; j++)
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
+
+      if ( locator->InsertUniquePoint(x, pts[i-1]) )
+        {
+        vtkIdType p1 = this->PointIds->GetId(v1);
+        vtkIdType p2 = this->PointIds->GetId(v2);
+        outPD->InterpolateEdge(inPD,pts[i-1],p1,p2,t);
+        }
+      }
+    }
+
+  if ( edge[0] > 0 )
+    {
+    newCellId = tets->InsertNextCell(edge[0],pts);
     outCD->CopyData(inCD,cellId,newCellId);
     }
-  else //defer to superclass
-    {
-    vtkCell3D::Clip(value, cellScalars, locator, tets, inPD, outPD,
-                    inCD, cellId, outCD, insideOut);
-    }
 }
+
 static float vtkTetraCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                         0.0,1.0,0.0, 0.0,0.0,1.0};
 

@@ -21,14 +21,19 @@
 #include "vtkPointLocator.h"
 #include "vtkMarchingCubesCases.h"
 #include "vtkPointData.h"
+#include "vtkTetra.h"
 #include "vtkPoints.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.35");
+vtkCxxRevisionMacro(vtkCell3D, "1.36");
 
 vtkCell3D::vtkCell3D()
 {
   this->Triangulator = NULL;
   this->MergeTolerance = 0.01;
+  this->ClipTetra = NULL;
+  this->ClipScalars = NULL;
 }
 
 vtkCell3D::~vtkCell3D()
@@ -37,6 +42,13 @@ vtkCell3D::~vtkCell3D()
     {
     this->Triangulator->Delete();
     this->Triangulator = NULL;
+    }
+  if ( this->ClipTetra )
+    {
+    this->ClipTetra->Delete();
+    this->ClipTetra = NULL;
+    this->ClipScalars->Delete();
+    this->ClipScalars = NULL;
     }
 }
 
@@ -49,9 +61,8 @@ float *vtkCell3D::GetParametricCoords()
 void vtkCell3D::Clip(float value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *tets,
                      vtkPointData *inPD, vtkPointData *outPD,
-                     vtkCellData *vtkNotUsed(inCD),
-                     vtkIdType vtkNotUsed(cellId),
-                     vtkCellData *vtkNotUsed(outCD), int insideOut)
+                     vtkCellData *inCD, vtkIdType cellId,
+                     vtkCellData *outCD, int insideOut)
 {
   vtkCell3D *cell3D = (vtkCell3D *)this; //has to be to be in this method
   int numPts=this->GetNumberOfPoints();
@@ -70,6 +81,9 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     this->Triangulator = vtkOrderedTriangulator::New();
     this->Triangulator->PreSortedOff();
     this->Triangulator->UseTemplatesOn();
+    this->ClipTetra = vtkTetra::New();
+    this->ClipScalars = vtkFloatArray::New();
+    this->ClipScalars->SetNumberOfTuples(4);
     }
 
   // Make sure it's worth continuing by treating the interior and exterior
@@ -97,12 +111,12 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0,
                                         (numPts + numEdges));
 
-  // Interior cells use templates
-  if ( allInside && this->HasFixedTopology() )
+  // Cells with fixed topology are triangulated with templates.
+  float *p, *pPtr = this->GetParametricCoords();
+  if ( this->HasFixedTopology() )
     {
     // Some cell types support templates for interior clipping. Templates
     // are a heck of a lot faster.
-    float *p, *pPtr = this->GetParametricCoords();
     type = 0; //inside
     for (p=pPtr, i=0; i<numPts; i++, p+=3)
       {
@@ -113,19 +127,37 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
         outPD->CopyData(inPD,ptId, id);
         }
       this->Triangulator->InsertPoint(id, xPtr, p, type);
-      }//for all points
+      }//for all cell points of fixed topology
 
     this->Triangulator->TemplateTriangulate(this->GetCellType(),
                                             numPts,numEdges);
-    this->Triangulator->AddTetras(0,tets);
+    // If the cell is interior we are done.
+    if ( allInside )
+      {
+      this->Triangulator->AddTetras(0,tets);
+      }
+    // Otherwise we have produced tetrahedra and now clip these using
+    // the faster vtkTetra::Clip() method.
+    else 
+      {
+      for ( this->Triangulator->InitTetraTraversal(); 
+            this->Triangulator->GetNextTetra(0,this->ClipTetra,
+                                             cellScalars,this->ClipScalars);)
+        {
+        // VERY IMPORTANT: Notice that the outPD is used twice. This is because the
+        // tetra has been defined in terms of point ids that are defined in the
+        // output (because of the templates).
+        this->ClipTetra->Clip(value, this->ClipScalars, locator, tets, outPD,
+                              outPD, inCD, cellId, outCD, insideOut);
+        }
+      }//if boundary cell
     return;
-    }
-
-  // We're left with a boundary cell (i.e., the clip surface passes through it).
+    } //if we are clipping fixed topology
+  
+  // If here we're left with a non-fixed topology cell (e.g. convex point set).
   // Inject cell points into triangulation. Recall that the PreSortedOff() 
   // flag was set which means that the triangulator will order the points 
   // according to point id.
-  float *p, *pPtr = this->GetParametricCoords();
   for (p=pPtr, i=0; i<numPts; i++, p+=3)
     {
     ptId = this->PointIds->GetId(i);

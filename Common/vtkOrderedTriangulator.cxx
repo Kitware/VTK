@@ -24,13 +24,15 @@
 #include "vtkTetra.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkHeap.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 
 #include <vtkstd/list>
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.61");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.62");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -227,6 +229,7 @@ struct vtkOTMesh
 
   int             NumberOfTetrasClassifiedInside;
   int             NumberOfTemplates;
+  TetraListIterator CurrentTetra;
   
   void Reset()
     {
@@ -1269,6 +1272,50 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
     }//for all tetras
 
   return numTetras;
+}
+
+
+//------------------------------------------------------------------------
+// Initialize tetra traversal. Used in conjunction with GetNextTetra().
+void vtkOrderedTriangulator::InitTetraTraversal()
+{
+  this->Mesh->CurrentTetra = this->Mesh->Tetras.begin();
+}
+
+//------------------------------------------------------------------------
+// Retrieve a single tetra. Used in conjunction with InitTetraTraversal().
+// Returns 0 when the list is exhausted.
+int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
+                            vtkDataArray *cellScalars,vtkFloatArray *tetScalars)
+{
+  OTTetra *tetra;
+  int i;
+
+  // Find the next tetra with the right classification
+  while ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() &&
+          (*this->Mesh->CurrentTetra)->Type != classification &&
+          (*this->Mesh->CurrentTetra)->Type != OTTetra::All )
+    {
+    tetra = *(this->Mesh->CurrentTetra);
+    ++this->Mesh->CurrentTetra;
+    }
+  
+  if ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() )
+    {
+    tetra = *(this->Mesh->CurrentTetra);
+    for (i=0; i<4; i++)
+      {
+      tet->PointIds->SetId(i,tetra->Points[i]->Id);
+      tet->Points->SetPoint(i,tetra->Points[i]->X);
+      tetScalars->SetTuple(i,cellScalars->GetTuple(tetra->Points[i]->OriginalId));
+      }
+    ++this->Mesh->CurrentTetra;
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //------------------------------------------------------------------------
