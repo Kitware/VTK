@@ -6,7 +6,7 @@ catch {load vtktcl}
 #vtkCommand DebugOn
 
 # first find all the examples
-set files [lsort [glob {[A-z]*.tcl}]]
+set files [lsort [glob {[e-z]*.tcl}]]
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "rt.tcl"]] != -1} {
@@ -28,6 +28,9 @@ if {[set pos [lsearch $files "RenderWidget.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "covExamples.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "polyViewer.tcl"]] != -1} {

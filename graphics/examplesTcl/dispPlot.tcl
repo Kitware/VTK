@@ -14,8 +14,7 @@ vtkRenderWindowInteractor iren
 # read a vtk file
 #
 vtkPolyDataReader plate
-#    plate SetFileName "../../../vtkdata/plate.vtk"
-    plate SetFileName "H:/vtkData/plate.vtk"
+    plate SetFileName "../../../vtkdata/plate.vtk"
     plate SetVectorsName "mode8"
 vtkWarpVector warp
     warp SetInput [plate GetOutput]
