@@ -26,6 +26,7 @@ class vlCubeSource : public vlPolySource
 public:
   vlCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
   char *GetClassName() {return "vlCubeSource";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
   vlGetMacro(XLength,float);

@@ -29,6 +29,8 @@ public:
   vlPolyMapper();
   ~vlPolyMapper();
   char *GetClassName() {return "vlPolyMapper";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
   void Render(vlRenderer *ren);
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();

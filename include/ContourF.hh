@@ -19,10 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlContourFilter_h
 #define __vlContourFilter_h
 
-#include "DataSetF.hh"
-#include "PolyData.hh"
+#include "DS2PolyF.hh"
 
-class vlContourFilter : public vlDataSetFilter, public vlPolyData 
+class vlContourFilter : public vlDataSetToPolyFilter
 {
 public:
   vlContourFilter(float value=0.0) {this->Value = value;};

@@ -26,6 +26,7 @@ class vlElevationFilter : public vlDataSetToDataSetFilter
 public:
   vlElevationFilter();
   char *GetClassName() {return "vlElevationFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetVector3Macro(LowPoint,float);
   vlGetVectorMacro(LowPoint,float);

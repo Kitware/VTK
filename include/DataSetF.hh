@@ -28,6 +28,7 @@ public:
   vlDataSetFilter();
   ~vlDataSetFilter();
   char *GetClassName() {return "vlDataSetFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
   vlSetObjectMacro(Input,vlDataSet);

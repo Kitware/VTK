@@ -147,3 +147,23 @@ void vlConeSource::Execute()
     this->SetLines(newLines);
     }
 }
+
+void vlConeSource::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlConeSource::GetClassName()))
+    {
+    vlPolySource::PrintSelf(os,indent);
+
+    os << indent << "Resolution: " << this->Resolution << "\n";
+    os << indent << "Height: " << this->Height << "\n";
+    os << indent << "Radius: " << this->Radius << "\n";
+    if ( this->Capping )
+      {
+      os << indent << "Capping is on.\n";
+       }
+    else
+      {
+      os << indent << "Capping is off.\n";
+       }
+    }
+}

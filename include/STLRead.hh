@@ -27,6 +27,7 @@ class vlSTLReader : public vlPolySource
 public:
   vlSTLReader(char *fname=0);
   char *GetClassName() {return "vlSTLReader";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);

@@ -31,6 +31,7 @@ void vlShrinkFilter::Execute()
 // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
 // then create new vertices shrunk towards center.
 //
+/*
   for (i=0; i<this->Input->NumCells(); i++)
     {
     // get the center of the cell
@@ -53,5 +54,15 @@ void vlShrinkFilter::Execute()
         }
       }
     }
+*/
 }
 
+void vlShrinkFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlShrinkFilter::GetClassName()))
+    {
+    vlDataSetFilter::PrintSelf(os,indent);
+
+    os << indent << "ShrinkFactor: " << this->ShrinkFactor << "\n";
+    }
+}

@@ -77,10 +77,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
   if ( ! this->Polys )
     {
     forceBuild = 1;
-//    this->Verts = ren->GetPrimitive("points");
-//    this->Lines = ren->GetPrimitive("lines");
+    this->Verts = ren->GetPrimitive("points");
+    this->Lines = ren->GetPrimitive("lines");
     this->Polys = ren->GetPrimitive("polygons");
-//    this->Strips = ren->GetPrimitive("triangle_strips");
+    this->Strips = ren->GetPrimitive("triangle_strips");
     }
 //
 // Now send data down to primitives and draw it
@@ -110,17 +110,69 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //
 //  Cause primitives to build themselves
 //
-//    this->Verts->Build(this->Input,colors);
-//    this->Lines->Build(this->Input,colors);
+    this->Verts->Build(this->Input,colors);
+    this->Lines->Build(this->Input,colors);
     this->Polys->Build(this->Input,colors);
-//    this->Strips->Build(this->Input,colors);
+    this->Strips->Build(this->Input,colors);
     this->BuildTime.Modified();
     }
 
-//  if ( this->VertsVisibility ) this->Verts->Draw(ren);
-//  if ( this->LinesVisibility ) this->Lines->Draw(ren);
+  if ( this->VertsVisibility ) this->Verts->Draw(ren);
+  if ( this->LinesVisibility ) this->Lines->Draw(ren);
   if ( this->PolysVisibility ) this->Polys->Draw(ren);
-//  if ( this->StripsVisibility ) this->Strips->Draw(ren);
+  if ( this->StripsVisibility ) this->Strips->Draw(ren);
 
 }
 
+void vlPolyMapper::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlPolyMapper::GetClassName()))
+    {
+    vlMapper::PrintSelf(os,indent);
+
+    if ( this->Input )
+      {
+      os << indent << "Input: (" << this->Input << ")\n";
+      }
+    else
+      {
+      os << indent << "Input: (none)\n";
+      }
+
+    if ( this->VertsVisibility )
+      {
+      os << indent << "Verts are visible.\n";
+      }
+    else
+      {
+      os << indent << "Verts are not visible.\n";
+      }
+
+    if ( this->LinesVisibility )
+      {
+      os << indent << "Lines are visible.\n";
+      }
+    else
+      {
+      os << indent << "Lines are not visible.\n";
+      }
+
+    if ( this->PolysVisibility )
+      {
+      os << indent << "Polygons are visible.\n";
+      }
+    else
+      {
+      os << indent << "Polygons are not visible.\n";
+      }
+
+    if ( this->StripsVisibility )
+      {
+      os << indent << "Triangle strips are visible.\n";
+      }
+    else
+      {
+      os << indent << "Triangle strips are not visible.\n";
+      }
+   }
+}

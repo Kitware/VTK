@@ -34,3 +34,13 @@ int vlSTLReader::GetSTLFileType(FILE *fp)
 {
   return 1;
 }
+
+void vlSTLReader::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlSTLReader::GetClassName()))
+    {
+    vlPolySource::PrintSelf(os,indent);
+
+    os << indent << "Filename: " << this->Filename << "\n";
+    }
+}

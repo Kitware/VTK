@@ -30,6 +30,7 @@ class vlConeSource : public vlPolySource
 public:
   vlConeSource(int res=6);
   char *GetClassName() {return "vlConeSource";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(Height,float,0.0,LARGE_FLOAT)
   vlGetMacro(Height,float);

@@ -30,8 +30,11 @@ void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 
 void vlTCoords::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  if (this->ShouldIPrint(vlTCoords::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
 
-  os << indent << "Number texture coords: " << this->NumTCoords() << "\n";
-  os << indent << "Texture dimension: " << this->Dimension << "\n";
+    os << indent << "Number texture coords: " << this->NumTCoords() << "\n";
+    os << indent << "Texture dimension: " << this->Dimension << "\n";
+    }
 }

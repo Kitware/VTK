@@ -111,3 +111,15 @@ void vlCubeSource::Execute()
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   this->SetPolys(newPolys);
 }
+
+void vlCubeSource::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlCubeSource::GetClassName()))
+    {
+    vlPolySource::PrintSelf(os,indent);
+
+    os << indent << "XLength: " << this->XLength << "\n";
+    os << indent << "YLength: " << this->YLength << "\n";
+    os << indent << "ZLength: " << this->ZLength << "\n";
+    }
+}

@@ -159,3 +159,23 @@ void vlCylinderSource::Execute()
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   this->SetPolys(newPolys);
 }
+
+void vlCylinderSource::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlCylinderSource::GetClassName()))
+    {
+    vlPolySource::PrintSelf(os,indent);
+
+    os << indent << "Resolution: " << this->Resolution << "\n";
+    os << indent << "Height: " << this->Height << "\n";
+    os << indent << "Radius: " << this->Radius << "\n";
+    if ( this->Capping )
+      {
+      os << indent << "Capping is on.\n";
+       }
+    else
+      {
+      os << indent << "Capping is off.\n";
+       }
+    }
+}

@@ -29,6 +29,7 @@ public:
   vlDataSetMapper();
   ~vlDataSetMapper();
   char *GetClassName() {return "vlDataSetMapper";};
+  void PrintSelf(ostream& os, vlIndent indent);
   void Render(vlRenderer *ren);
   virtual void SetInput(vlDataSet *in);
   virtual vlDataSet* GetInput();

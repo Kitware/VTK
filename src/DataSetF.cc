@@ -56,4 +56,19 @@ void vlDataSetFilter::Update()
     }
 }
 
+void vlDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlDataSetFilter::GetClassName()))
+    {
+    vlFilter::PrintSelf(os,indent);
 
+    if ( this->Input )
+      {
+      os << indent << "Input: (" << this->Input << ")\n";
+      }
+    else
+      {
+      os << indent << "Input: (none)\n";
+      }
+   }
+}

@@ -32,3 +32,31 @@ void vlFilter::SetEndMethod(void (*f)())
     this->Modified();
     }
 }
+
+void vlFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlFilter::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+
+    if ( this->StartMethod )
+      {
+      os << indent << "StartMethod: (" << this->StartMethod << ")\n";
+      }
+    else
+      {
+      os << indent << "StartMethod: (none)\n";
+      }
+
+    if ( this->EndMethod )
+      {
+      os << indent << "EndMethod: (" << this->EndMethod << ")\n";
+      }
+    else
+      {
+      os << indent << "EndMethod: (none)\n";
+      }
+
+    os << indent << "Execute time: " <<this->ExecuteTime.GetMtime() << "\n";
+   }
+}

@@ -30,3 +30,14 @@ void vlSphereSource::Execute()
 {
 
 }
+
+void vlSphereSource::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlSphereSource::GetClassName()))
+    {
+    vlPolySource::PrintSelf(os,indent);
+
+    os << indent << "Resolution: " << this->Resolution << "\n";
+    os << indent << "Radius: " << this->Radius << "\n";
+    }
+}

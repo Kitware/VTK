@@ -27,6 +27,7 @@ public:
   vlPolyFilter() : Input(0) {};
   ~vlPolyFilter();
   char *GetClassName() {return "vlPolyFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
   vlSetObjectMacro(Input,vlPolyData);

@@ -22,12 +22,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSetF.hh"
 #include "PolyData.hh"
 
-class vlShrinkFilter : public vlDataSetFilter, public vlPolyData 
+class vlShrinkFilter : public vlDataSetFilter
 {
 public:
   vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
   ~vlShrinkFilter() {};
   char *GetClassName() {return "vlShrinkFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
 protected:
   void Execute();
   float ShrinkFactor;

@@ -185,3 +185,13 @@ void vlShrinkPolyData::Execute()
   this->SetPolys(newPolys);
 }
 
+
+void vlShrinkPolyData::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlShrinkPolyData::GetClassName()))
+    {
+    vlPolyToPolyFilter::PrintSelf(os,indent);
+
+    os << indent << "ShrinkFactor: " << this->ShrinkFactor << "\n";
+    }
+}

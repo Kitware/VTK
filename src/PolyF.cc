@@ -32,3 +32,20 @@ void vlPolyFilter::Update()
     if ( this->EndMethod ) (*this->EndMethod)();
     }
 }
+
+void vlPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlPolyFilter::GetClassName()))
+    {
+    vlFilter::PrintSelf(os,indent);
+
+    if ( this->Input )
+      {
+      os << indent << "Input: (" << this->Input << ")\n";
+      }
+    else
+      {
+      os << indent << "Input: (none)\n";
+      }
+   }
+}

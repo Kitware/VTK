@@ -28,6 +28,7 @@ public:
   vlFilter() : StartMethod(0), EndMethod(0), Updating(0) {};
   ~vlFilter() {};
   char *GetClassName() {return "vlFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
   virtual void Update() = 0;
   void SetStartMethod(void (*f)());
   void SetEndMethod(void (*f)());

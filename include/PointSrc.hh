@@ -26,6 +26,7 @@ class vlPointSource : public vlPolySource
 public:
   vlPointSource(int numPts=10);
   char *GetClassName() {return "vlPointSource";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(NumPoints,int,1,LARGE_INTEGER);
   vlGetMacro(NumPoints,int);

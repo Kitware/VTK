@@ -27,6 +27,7 @@ public:
   vlShrinkPolyData() {this->ShrinkFactor = 0.5;};
   ~vlShrinkPolyData() {};
   char *GetClassName() {return "vlShrinkPolyData";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetMacro(ShrinkFactor,float);
   vlGetMacro(ShrinkFactor,float);

@@ -88,3 +88,19 @@ void vlElevationFilter::Execute()
   this->PointData.SetScalars(newScalars);
 }
 
+void vlElevationFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlElevationFilter::GetClassName()))
+    {
+    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+
+    os << indent << "LowPoint: (" << this->LowPoint[0] << ", "
+                                  << this->LowPoint[1] << ", "
+                                  << this->LowPoint[2] << ")\n";
+    os << indent << "HighPoint: (" << this->HighPoint[0] << ", "
+                                  << this->HighPoint[1] << ", "
+                                  << this->HighPoint[2] << ")\n";
+    os << indent << "ScalarRange: (" << this->ScalarRange[0] << ", "
+                                  << this->ScalarRange[1] << ")\n";
+    }
+}

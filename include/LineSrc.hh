@@ -28,6 +28,7 @@ class vlLineSource : public vlPolySource
 public:
   vlLineSource(int res=1);
   char *GetClassName() {return "vlLineSource";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetVector3Macro(Pt1,float);
   vlGetVectorMacro(Pt1,float);

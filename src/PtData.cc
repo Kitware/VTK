@@ -178,45 +178,48 @@ void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
 
 void vlPointData::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  if (this->ShouldIPrint(vlPointData::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
 
-  if ( this->Scalars )
-    {
-    os << indent << "Scalars data:\n";
-    this->Scalars->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Scalar data: (none)\n";
-    }
+    if ( this->Scalars )
+      {
+      os << indent << "Scalars data:\n";
+      this->Scalars->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Scalar data: (none)\n";
+      }
 
-  if ( this->Vectors )
-    {
-    os << indent << "Vectors data:\n";
-    this->Vectors->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Vector data: (none)\n";
-    }
+    if ( this->Vectors )
+      {
+      os << indent << "Vectors data:\n";
+      this->Vectors->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Vector data: (none)\n";
+      }
 
-  if ( this->Normals )
-    {
-    os << indent << "Normals data:\n";
-    this->Normals->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Normal data: (none)\n";
-    }
+    if ( this->Normals )
+      {
+      os << indent << "Normals data:\n";
+      this->Normals->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Normal data: (none)\n";
+      }
 
-  if ( this->TCoords )
-    {
-    os << indent << "Texture data:\n";
-    this->TCoords->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Texture data: (none)\n";
+    if ( this->TCoords )
+      {
+      os << indent << "Texture data:\n";
+      this->TCoords->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Texture data: (none)\n";
+      }
     }
 }

@@ -29,6 +29,7 @@ public:
   vlDataSetToDataSetFilter();
   ~vlDataSetToDataSetFilter();
   char *GetClassName() {return "vlDataSetToDataSetFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
   vlDataSet *MakeObject() {return this->DataSet->MakeObject();};
   int NumCells() {return this->DataSet->NumCells();}
   int NumPoints() {return this->DataSet->NumPoints();}

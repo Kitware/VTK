@@ -85,3 +85,29 @@ void vlDataSetMapper::Render(vlRenderer *ren)
   this->Mapper->Render(ren);
 }
 
+void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlDataSetMapper::GetClassName()))
+    {
+    vlMapper::PrintSelf(os,indent);
+
+    if ( this->Input )
+      {
+      os << indent << "Input: (" << this->Input << ")\n";
+      }
+    else
+      {
+      os << indent << "Input: (none)\n";
+      }
+
+    if ( this->Mapper )
+      {
+      os << indent << "Mapper: (" << this->Mapper << ")\n";
+      os << indent << "Mapper type: " << this->Mapper->GetClassName() << "\n";
+      }
+    else
+      {
+      os << indent << "Mapper: (none)\n";
+      }
+   }
+}

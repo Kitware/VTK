@@ -27,6 +27,7 @@ class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData
 public:
   void Update();
   char *GetClassName() {return "vlPolyToPolyFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 };
 
 #endif

@@ -61,11 +61,14 @@ float *vlScalars::GetRange()
 
 void vlScalars::PrintSelf(ostream& os, vlIndent indent)
 {
-  float *range;
+  if (this->ShouldIPrint(vlScalars::GetClassName()))
+    {
+    float *range;
 
-  vlObject::PrintSelf(os,indent);
+    vlObject::PrintSelf(os,indent);
 
-  os << indent << "Number Scalars: " << this->NumScalars() << "\n";
-  range = this->GetRange();
-  os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
+    os << indent << "Number Scalars: " << this->NumScalars() << "\n";
+    range = this->GetRange();
+    os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
+    }
 }

@@ -19,3 +19,16 @@ void vlPolyToPolyFilter::Update()
 {
   vlPolyFilter::Update();
 }
+
+void vlPolyToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlPolyToPolyFilter::GetClassName()))
+    {
+    this->PrintWatchOn(); // watch for multiple inheritance
+    
+    vlPolyData::PrintSelf(os,indent);
+    vlPolyFilter::PrintSelf(os,indent);
+    
+    this->PrintWatchOff(); // stop worrying about it now
+    }
+}

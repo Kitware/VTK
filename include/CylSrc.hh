@@ -28,7 +28,7 @@ class vlCylinderSource : public vlPolySource
 public:
   vlCylinderSource(int res=6);
   char *GetClassName() {return "vlCylinderSource";};
-  void Execute();
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(Height,float,0.0,LARGE_FLOAT)
   vlGetMacro(Height,float);
@@ -44,6 +44,7 @@ public:
   vlBooleanMacro(Capping,int);
 
 protected:
+  void Execute();
   float Height;
   float Radius;
   int Resolution;

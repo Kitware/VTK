@@ -73,3 +73,26 @@ vlMapper *vlDataSetToDataSetFilter::MakeMapper()
     }
   return this->Mapper;
 }
+
+void vlDataSetToDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlDataSetToDataSetFilter::GetClassName()))
+    {
+    this->PrintWatchOn(); // watch for multiple inheritance
+
+    vlDataSet::PrintSelf(os,indent);
+    vlDataSetFilter::PrintSelf(os,indent);
+
+    if ( this->DataSet )
+      {
+      os << indent << "DataSet: (" << this->DataSet << ")\n";
+      os << indent << "DataSet type: " << this->DataSet->GetClassName() << "\n";
+      }
+    else
+      {
+      os << indent << "DataSet: (none)\n";
+      }
+
+    this->PrintWatchOff(); // stop worrying about it now
+   }
+}

@@ -29,6 +29,7 @@ class vlSphereSource : public vlPolySource
 public:
   vlSphereSource(int res=2);
   char *GetClassName() {return "vlSphereSource";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(Radius,float,0.0,LARGE_FLOAT)
   vlGetMacro(Radius,float);
