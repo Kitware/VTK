@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.5");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.6");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -79,26 +79,38 @@ vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::Update()
+{
+  return this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::Update(int port)
+{
+  if(!this->UpdateInformation())
+    {
+    return 0;
+    }
+  if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
+    {
+    return this->PropagateUpdateExtent(port) && this->UpdateData(port);
+    }
+  else
+    {
+    return 1;
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
 {
   return this->Superclass::Update(algorithm);
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update()
+int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 {
-  if(!this->UpdateInformation())
-    {
-    return 0;
-    }
-  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
-    {
-    return this->PropagateUpdateExtent(0) && this->UpdateData(0);
-    }
-  else
-    {
-    return 1;
-    }
+  return this->Superclass::Update(algorithm, port);
 }
 
 //----------------------------------------------------------------------------

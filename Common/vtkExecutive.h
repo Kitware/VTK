@@ -44,6 +44,12 @@ public:
   virtual int Update(vtkAlgorithm* algorithm)=0;
 
   // Description:
+  // Bring the given algorithm's output on the given port up-to-date.
+  // The algorithm must already be managed by this executive.  Returns
+  // 1 for success and 0 for failure.
+  virtual int Update(vtkAlgorithm* algorithm, int port)=0;
+
+  // Description:
   // Get the information object for an output port of an algorithm.
   virtual vtkInformation* GetOutputInformation(vtkAlgorithm* algorithm,
                                                int port)=0;

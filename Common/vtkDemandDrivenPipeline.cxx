@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.6");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.7");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -200,26 +200,38 @@ vtkDemandDrivenPipeline::GetOutputInformation(vtkAlgorithm* algorithm,
 }
 
 //----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::Update()
+{
+  return this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::Update(int port)
+{
+  if(!this->UpdateInformation())
+    {
+    return 0;
+    }
+  if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
+    {
+    return this->UpdateData(port);
+    }
+  else
+    {
+    return 1;
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
 {
   return this->Superclass::Update(algorithm);
 }
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::Update()
+int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 {
-  if(!this->UpdateInformation())
-    {
-    return 0;
-    }
-  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
-    {
-    return this->UpdateData(0);
-    }
-  else
-    {
-    return 1;
-    }
+  return this->Superclass::Update(algorithm, port);
 }
 
 //----------------------------------------------------------------------------

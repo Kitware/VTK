@@ -40,7 +40,9 @@ public:
   // Bring the given algorithm's outputs up-to-date.  The algorithm
   // must already be managed by this executive.
   virtual int Update();
+  virtual int Update(int port);
   virtual int Update(vtkAlgorithm* algorithm);
+  virtual int Update(vtkAlgorithm* algorithm, int port);
 
   // Description:
   // Get the information object for an output port of an algorithm.

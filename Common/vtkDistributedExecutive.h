@@ -43,7 +43,9 @@ public:
   // must already be managed by this executive.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();
+  virtual int Update(int port);
   virtual int Update(vtkAlgorithm* algorithm);
+  virtual int Update(vtkAlgorithm* algorithm, int port);
 
   // Description:
   // Get the information object for an output port of an algorithm.

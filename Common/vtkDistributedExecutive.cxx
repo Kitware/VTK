@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.9");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.10");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -98,6 +98,19 @@ void vtkDistributedExecutive::RemoveReferences()
 }
 
 //----------------------------------------------------------------------------
+int vtkDistributedExecutive::Update()
+{
+  return this->Update(0);
+}
+
+//----------------------------------------------------------------------------
+int vtkDistributedExecutive::Update(int port)
+{
+  vtkErrorMacro("This class does not implement Update.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
 {
   if(algorithm != this->GetAlgorithm())
@@ -106,13 +119,19 @@ int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
                   "executive: " << algorithm);
     return 0;
     }
-  return this->Update();
+  return this->Update(0);
 }
 
 //----------------------------------------------------------------------------
-int vtkDistributedExecutive::Update()
+int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm, int port)
 {
-  return 0;
+  if(algorithm != this->GetAlgorithm())
+    {
+    vtkErrorMacro("Request to update algorithm not managed by this "
+                  "executive: " << algorithm);
+    return 0;
+    }
+  return this->Update(port);
 }
 
 //----------------------------------------------------------------------------
