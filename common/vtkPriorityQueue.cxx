@@ -129,6 +129,14 @@ void vtkPriorityQueue::Insert(float priority, int id)
     this->Array[idx] = temp;
     }
 }
+
+// Simplified call for easier wrapping for Tcl.
+int vtkPriorityQueue::Pop(int location)
+{
+  float priority;
+  return this->Pop(priority, location);
+}
+
 // Removes item at specified location from tree; then reorders and
 // balances tree. The location == 0 is the root of the tree.
 int vtkPriorityQueue::Pop(float &priority, int location)

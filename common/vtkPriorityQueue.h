@@ -93,6 +93,10 @@ public:
   int Pop(float &priority, int location=0);
   
   // Description:
+  // Same as above but simplified for easier wrapping for Tcl.
+  int Pop(int location=0);
+  
+  // Description:
   // Delete entry in queue with specified id. Returns priority value
   // associated with that id; or VTK_LARGE_FLOAT if not in queue.
   float DeleteId(int id);
