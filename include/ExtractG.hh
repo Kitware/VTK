@@ -13,40 +13,49 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlExtractGeomtry - extract cells that lie entirely within a specified sphere
+// .NAME vlExtractGeomtry - extract cells that lie either entirely in or outside of a specified implicit function
 // .SECTION Description
-// vlExtractGeometry extracts from its input dataset all cells that are
-// entirely within a specified sphere.
+// vlExtractGeometry extracts from its input dataset all cells that are either
+// completely inside or outside of a specified implicit function. Any type of
+// dataset can be input to this filter. On output the filter generates an
+// unstructured grid.
 
 #ifndef __vlExtractGeometry_h
 #define __vlExtractGeometry_h
 
 #include "DS2UGrid.hh"
+#include "ImpFunc.hh"
 
 class vlExtractGeometry : public vlDataSetToUnstructuredGridFilter
 {
 public:
-  vlExtractGeometry();
+  vlExtractGeometry(vlImplicitFunction *f=NULL);
   ~vlExtractGeometry() {};
   char *GetClassName() {return "vlExtractGeometry";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Description:
-  // Set the radius of the sphere.
-  vlSetClampMacro(Radius,float, 0.0, LARGE_FLOAT);
-  vlGetMacro(Radius,float);
+  // take into account changes to the implicit function
+  unsigned long int GetMTime();
 
   // Description:
-  // Set the center of the sphere.
-  vlSetVector3Macro(Center,float);
-  vlGetVectorMacro(Center,float,3);
+  // Specify the implicit function for inside/outside checks.
+  vlSetObjectMacro(ImplicitFunction,vlImplicitFunction);
+  vlGetObjectMacro(ImplicitFunction,vlImplicitFunction);
+
+  // Description:
+  // Boolean controls whether to extract cells that are inside of implicit 
+  // function (ExtractInside == 1) or outside of implicit function 
+  // (ExtractInside == 0).
+  vlSetMacro(ExtractInside,int);
+  vlGetMacro(ExtractInside,int);
+  vlBooleanMacro(ExtractInside,int);
 
 protected:
   // Usual data generation method
   void Execute();
 
-  float Radius;
-  float Center[3];
+  vlImplicitFunction *ImplicitFunction;
+  int ExtractInside;
 };
 
 #endif

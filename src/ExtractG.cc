@@ -17,13 +17,29 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 
 // Description:
-// Construct with selection sphere centered at (0,0,0) with radius 0.5.
-vlExtractGeometry::vlExtractGeometry()
+// Construct with ExtractInside turned on.
+vlExtractGeometry::vlExtractGeometry(vlImplicitFunction *f)
 {
-  this->Radius = 0.5;
-  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+  this->ImplicitFunction = f;
+  this->ExtractInside = 1;
 }
 
+// Description:
+// Overload standard modified time function. If cut functions is modified,
+// then we are modified as well.
+unsigned long vlExtractGeometry::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long impFuncMTime;
+
+  if ( this->ImplicitFunction != NULL )
+    {
+    impFuncMTime = this->ImplicitFunction->GetMTime();
+    mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
+    }
+
+  return mTime;
+}
 
 void vlExtractGeometry::Execute()
 {
@@ -34,12 +50,21 @@ void vlExtractGeometry::Execute()
   int numCellPts, newId;
   vlPointData *pd;
   float *x;
-  float r2=this->Radius*this->Radius;
+  float multiplier;
   vlFloatPoints *newPts;
   vlIdList newCellPts(MAX_CELL_SIZE);
 
-  vlDebugMacro(<< "Extracting geometry in sphere");
+  vlDebugMacro(<< "Extracting geometry");
   this->Initialize();
+
+  if ( ! this->ImplicitFunction )
+    {
+    vlErrorMacro(<<"No implicit function specified");
+    return;
+    }
+
+  if ( this->ExtractInside ) multiplier = 1.0;
+  else multiplier = -1.0;
 //
 // Loop over all points determining whether they are inside sphere. Copy if
 // they are.
@@ -55,7 +80,7 @@ void vlExtractGeometry::Execute()
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = this->Input->GetPoint(ptId);
-    if ( math.Distance2BetweenPoints(x,this->Center) <= r2 )
+    if ( (this->ImplicitFunction->Evaluate(x[0],x[1],x[2])*multiplier) > 0.0 )
       {
       newId = newPts->InsertNextPoint(x);
       pointMap->SetId(ptId,newId);
@@ -97,7 +122,6 @@ void vlExtractGeometry::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-  os << indent << "Radius: " << this->Radius << "\n";
-  os << indent << "Center: (" << this->Center[0] << ", "
-     << this->Center[1] << ", " << this->Center[2] << ")\n";
+  os << indent << "Implicit Function: " << (void *)this->ImplicitFunction << "\n";
+  os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");
 }
