@@ -64,7 +64,7 @@ public:
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  char *GetDataType() {return "int";};
+  int GetDataType() {return VTK_INT;};
   void GetDataTypeRange (float* range) { range[0] = VTK_INT_MIN;
   range[1] = VTK_INT_MAX; return;}
   float GetDataTypeMin() { return VTK_INT_MIN; }

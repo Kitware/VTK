@@ -64,7 +64,7 @@ public:
 
   // vtkPoint interface
   vtkPoints *MakeObject(int sze, int ext=1000);
-  char *GetDataType() {return "float";};
+  int GetDataType() {return VTK_FLOAT;};
   int GetNumberOfPoints() {return (P->GetMaxId()+1)/3;};
   void Squeeze() {this->P->Squeeze();};
   float *GetPoint(int id) {return this->P->GetPointer(3*id);};

@@ -64,7 +64,7 @@ public:
 
   // vtkVector interface
   vtkVectors *MakeObject(int sze, int ext=1000);
-  char *GetDataType() {return "float";};
+  int GetDataType() {return VTK_FLOAT;};
   int GetNumberOfVectors() {return (V->GetMaxId()+1)/3;};
   void Squeeze() {this->V->Squeeze();};
   float *GetVector(int i) {return this->V->GetPointer(3*i);};

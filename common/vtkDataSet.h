@@ -192,10 +192,10 @@ public:
   // Description:
   // Turn on/off flag to control whether every object releases its data
   // after being used by a filter.
-  void SetGlobalReleaseDataFlag(int val);
+  static void SetGlobalReleaseDataFlag(int val);
   void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
   void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
-  int  GetGlobalReleaseDataFlag();
+  static int  GetGlobalReleaseDataFlag();
 
   // return pointer to this dataset's point data
   vtkPointData *GetPointData() {return &this->PointData;};

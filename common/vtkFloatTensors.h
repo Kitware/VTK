@@ -64,7 +64,7 @@ public:
 
   // vtkTensors interface
   vtkTensors *MakeObject(int sze, int d=3, int ext=1000);
-  char *GetDataType() {return "float";};
+  int GetDataType() {return VTK_FLOAT;};
   int GetNumberOfTensors();
   void Squeeze() {this->T->Squeeze();};
   vtkTensor *GetTensor(int i);

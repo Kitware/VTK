@@ -38,8 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
-#include "vtkImageCache.h"
+#include "vtkImageSimpleCache.h"
 #include "vtkImageSource.h"
 
 #include <stdio.h>
@@ -48,13 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageSource::vtkImageSource()
 {
   this->Output = NULL;
-  this->NumberOfExecutionAxes = -1; // default to 4?
-  this->ExecutionAxes[0] = VTK_IMAGE_X_AXIS;
-  this->ExecutionAxes[1] = VTK_IMAGE_Y_AXIS;
-  this->ExecutionAxes[2] = VTK_IMAGE_Z_AXIS;
-  this->ExecutionAxes[3] = VTK_IMAGE_TIME_AXIS;
-  this->ExecutionAxes[4] = VTK_IMAGE_COMPONENT_AXIS;
-  
+
   this->StartMethod = NULL;
   this->StartMethodArgDelete = NULL;
   this->StartMethodArg = NULL;
@@ -89,19 +82,6 @@ void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
  
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "NumberOfExecutionAxes: " 
-     << this->NumberOfExecutionAxes << "\n";
-  if (this->NumberOfExecutionAxes > 0)
-    {
-    os << indent << "ExecutionAxes: (" 
-       << vtkImageAxisNameMacro(this->ExecutionAxes[0]);
-    for (idx = 1; idx < this->NumberOfExecutionAxes; ++idx)
-      {
-      os << ", " << vtkImageAxisNameMacro(this->ExecutionAxes[idx]);
-      }
-    os << ")\n";
-    }
-
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
   os << indent << "Progress: " << this->Progress << "\n";
 
@@ -134,8 +114,6 @@ void vtkImageSource::InterceptCacheUpdate()
 // It simply forwards the update to the cache.
 void vtkImageSource::Update()
 {
-  vtkImageRegion *region;
-
   // Make sure there is an output.
   this->CheckCache();
 
@@ -146,60 +124,11 @@ void vtkImageSource::Update()
 //----------------------------------------------------------------------------
 // Description:
 // This method is called by the cache.
-void vtkImageSource::InternalUpdate()
+void vtkImageSource::InternalUpdate(vtkImageData *data)
 {
-  vtkImageRegion *region;
-
-  // Make sure the subclss has defined the NumberOfExecutionAxes.
-  // It is needed to terminate recursion.
-  if (this->NumberOfExecutionAxes < 0)
-    {
-    vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
-    return;
-    }
-  region = this->GetOutput()->GetScalarRegion();
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->ExecutionAxes);
-  
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);  
-  // Call a recursive method that will loop over the extra axes.
-  this->RecursiveLoopUpdate(VTK_IMAGE_DIMENSIONS, region);
+  this->Execute(data);
   if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);  
-
-  region->Delete();
-}
-
-  
-//----------------------------------------------------------------------------
-// Description:
-// This is a recursive method that loops over "extra" axes.
-// The recursion stops when the dimensionality of the regions
-// are equal to "NumberOfExecutionAxes"
-void 
-vtkImageSource::RecursiveLoopUpdate(int dim, vtkImageRegion *region)
-{
-  // Terminate recursion?
-  if (dim == this->NumberOfExecutionAxes)
-    {
-    this->Execute(region);
-    return;
-    }
-  else
-    {
-    int coordinate;
-    int min, max;
-    int axis = this->ExecutionAxes[dim - 1];
-    
-    region->GetAxisExtent(axis, min, max);
-    for (coordinate = min; coordinate <= max; ++coordinate)
-      {
-      // colapse one dimension.
-      region->SetAxisExtent(axis, coordinate, coordinate);
-      // Continue recursion.
-      this->vtkImageSource::RecursiveLoopUpdate(dim - 1, region);
-      }
-    // restore original extent
-    region->SetAxisExtent(axis, min, max);  
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -216,10 +145,9 @@ void vtkImageSource::UpdateWholeExtent()
 // Description:
 // This function can be defined in a subclass to generate the data
 // for a region.
-void vtkImageSource::Execute(vtkImageRegion *region)
+void vtkImageSource::Execute(vtkImageData *)
 {
-  region = region;
-  vtkErrorMacro(<< "Execute(region): Method not defined.");
+  vtkErrorMacro(<< "Execute(): Method not defined.");
 }
 
 //----------------------------------------------------------------------------
@@ -272,130 +200,12 @@ void vtkImageSource::SetCache(vtkImageCache *cache)
   
   if (this->Output)
     {
-    if (cache)
-      {
-      cache->SetScalarType(this->Output->GetScalarType());
-      }
-    vtkDebugMacro("SetCache: Delete the cache I have. Note: The application "
-		  << "must make sure that nothing references this cache.");
     this->Output->Delete();
     }
 
   this->Output = cache;
   this->Modified();
 }
-
-//----------------------------------------------------------------------------
-// Also contains logic to determine the superclass loop axes.
-void vtkImageSource::SetExecutionAxes(int dim, int *axes)
-{
-  int allAxes[VTK_IMAGE_DIMENSIONS];
-  int idx1, idx2;
-  int modified = 0;
-
-  // We do not check number for modifiation, because it may be different.
-  this->NumberOfExecutionAxes = dim;
-  
-  // Copy axes
-  for (idx1 = 0; idx1 < dim; ++idx1)
-    {
-    if (this->ExecutionAxes[idx1] != axes[idx1])
-      {
-      modified = 1;
-      }
-    allAxes[idx1] = axes[idx1];
-    }
-  
-  // choose the rest of the axes
-  // look through original axes to find ones not taken.
-  // By this point scalars, vectors, .. would be separe, 
-  // so consider components
-  for (idx1 = 0; idx1 < 5 && dim < 5; ++idx1)
-    {
-    for (idx2 = 0; idx2 < dim; ++idx2)
-      {
-      if (allAxes[idx2] == this->ExecutionAxes[idx1])
-	{
-	break;
-	}
-      }
-    if (idx2 == dim)
-      {
-      allAxes[dim] = this->ExecutionAxes[idx1];
-      ++dim;
-      }
-    }
-  
-  // Sanity check
-  if (dim != VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetExecutionAxes: Could not complete unspecified axes.");
-    return;
-    }
-  
-  // Actuall set the axes.
-  for (idx1 = 0; idx1 < VTK_IMAGE_DIMENSIONS; ++idx1)
-    {
-    this->ExecutionAxes[idx1] = allAxes[idx1];
-    }
-  
-  if (modified)
-    {
-    this->Modified();
-    }
-}
-//----------------------------------------------------------------------------
-void vtkImageSource::SetExecutionAxes(int axis)
-{
-  int axes[1];
-  axes[0] = axis;
-  this->SetExecutionAxes(1, axes);
-}
-//----------------------------------------------------------------------------
-void vtkImageSource::SetExecutionAxes(int axis0, int axis1)
-{
-  int axes[2];
-  axes[0] = axis0;
-  axes[1] = axis1;
-  this->SetExecutionAxes(2, axes);
-}
-//----------------------------------------------------------------------------
-void vtkImageSource::SetExecutionAxes(int axis0, int axis1, int axis2)
-{
-  int axes[3];
-  axes[0] = axis0;
-  axes[1] = axis1;
-  axes[2] = axis2;
-  this->SetExecutionAxes(3, axes);
-}
-//----------------------------------------------------------------------------
-void vtkImageSource::SetExecutionAxes(int axis0, int axis1, 
-					    int axis2, int axis3)
-{
-  int axes[4];
-  axes[0] = axis0;  axes[1] = axis1;
-  axes[2] = axis2;  axes[3] = axis3;
-  this->SetExecutionAxes(4, axes);
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageSource::GetExecutionAxes(int dim, int *axes)
-{
-  int idx;
-
-  // Copy axes
-  for (idx = 0; idx < dim; ++idx)
-    {
-    axes[idx] = this->ExecutionAxes[idx];
-    }
-}
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -409,7 +219,6 @@ void vtkImageSource::SetReleaseDataFlag(int value)
 }
 
 
-
 //----------------------------------------------------------------------------
 // Description:
 // This method gets the value of the caches ReleaseDataFlag.
@@ -418,30 +227,6 @@ int vtkImageSource::GetReleaseDataFlag()
   this->CheckCache();
   return this->Output->GetReleaseDataFlag();
 }
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets the value of the caches ScalarType.
-void vtkImageSource::SetOutputScalarType(int value)
-{
-  this->CheckCache();
-  this->Output->SetScalarType(value);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns the caches ScalarType.
-int vtkImageSource::GetOutputScalarType()
-{
-  this->CheckCache();
-  return this->Output->GetScalarType();
-}
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -452,7 +237,7 @@ void vtkImageSource::CheckCache()
   // create a default cache if one has not been set
   if ( ! this->Output)
     {
-    this->Output = vtkImageCache::New();
+    this->Output = vtkImageSimpleCache::New();
     this->Output->ReleaseDataFlagOn();
     this->Output->SetSource(this);
     this->Modified();

@@ -78,6 +78,7 @@ public:
   void Reset() {this->S->Reset();};
   unsigned char *GetPointer(const int id);
   unsigned char *WritePointer(const int id, const int number);
+  void *GetVoidPtr(const int id);
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
@@ -94,6 +95,13 @@ public:
 protected:
   vtkUnsignedCharArray *S;
 };
+
+// Description:
+// Get a void pointer to array of data starting at data position "id".
+inline void *vtkAPixmap::GetVoidPtr(const int id)
+{
+  return (void *)(this->S->GetPointer(id));
+}
 
 // Description:
 // Return a rgba color at array location i.

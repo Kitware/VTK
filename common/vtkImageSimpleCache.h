@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSimpleCache_h
 
 #include "vtkImageCache.h"
-#include "vtkImageRegion.h"
 
 class VTK_EXPORT vtkImageSimpleCache : public vtkImageCache
 {
@@ -62,14 +61,14 @@ public:
   const char *GetClassName() {return "vtkImageSimpleCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  void Update();
+  vtkImageData *UpdateAndReturnData();
   void ReleaseData();
-  void CacheRegion(vtkImageRegion *region);
-
+  void AllocateData();
+  
 protected:
   vtkImageData *CachedData;
   vtkTimeStamp GenerateTime;
-
-  void GenerateCachedRegionData(vtkImageRegion *region); 
 };
 
 #endif

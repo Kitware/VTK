@@ -64,7 +64,7 @@ public:
 
   // vtkTCoords interface
   vtkTCoords *MakeObject(int sze, int d=2, int ext=1000);
-  char *GetDataType() {return "float";};
+  int GetDataType() {return VTK_FLOAT;};
   int GetNumberOfTCoords() {return (this->TC->GetMaxId()+1)/this->Dimension;};
   void Squeeze() {this->TC->Squeeze();};
   float *GetTCoord(int i) {return this->TC->GetPointer(this->Dimension*i);};

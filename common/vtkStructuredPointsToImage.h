@@ -41,10 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkStructuredPointsToImage - Convert structured points to an image.
 // .SECTION Description
 // vtkStructuredPointsToImage connects the VTK pipeline to the image pipeline.
-// Structured points are used dirrectly with no copying, unless they
-// are RGB strucutred points.  Then they are converted to unsigned char
-// structured points with an extra dimension for components.
-
+// Structured points are used dirrectly with no copying.
 
 #ifndef __vtkStructuredPointsToImage_h
 #define __vtkStructuredPointsToImage_h
@@ -65,7 +62,7 @@ public:
   const char *GetClassName() {return "vtkStructuredPointsToImage";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
-  void InternalUpdate();
+  void InternalUpdate(vtkImageData *);
   void UpdateImageInformation();
   unsigned long GetPipelineMTime();
   
@@ -79,7 +76,7 @@ protected:
   vtkStructuredPoints *Input;
   
   void UpdateInput();
-  void Execute();
+  void Execute(vtkImageData *);
   int ComputeDataType();
 };
 

@@ -39,8 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <string.h>
 #include "vtkColorScalars.h"
-#include "vtkImageRegion.h"
-#include "vtkImageCache.h"
+#include "vtkImageSimpleCache.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
@@ -90,17 +89,13 @@ void vtkStructuredPointsToImage::UpdateInput()
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::InternalUpdate()
+void vtkStructuredPointsToImage::InternalUpdate(vtkImageData *data)
 {
-  // Make sure we have an output
-  this->CheckCache();
-  this->UpdateImageInformation();
-  
   // Make sure input is up to date
   this->UpdateInput();
   
   // Create the data for the region.
-  this->Execute();
+  this->Execute(data);
 
   // Release the inputs data, if that is what it wants.
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
@@ -110,9 +105,7 @@ void vtkStructuredPointsToImage::InternalUpdate()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::UpdateImageInformation()
 {
-  int size[4];
-  float spacing[4];
-  float origin[4];
+  int size[3];
   vtkScalars *scalars;
 
   if ( ! this->Input)
@@ -123,27 +116,21 @@ void vtkStructuredPointsToImage::UpdateImageInformation()
   
   // Make sure input is up to date
   this->UpdateInput();
-  
   this->Input->GetDimensions(size);
-  size[3] = 1;
-  this->Input->GetSpacing(spacing);
-  spacing[3] = 1.0;
-  this->Input->GetOrigin(origin);
-  origin[3] = 0.0;
-  
+
   this->CheckCache();
-  this->Output->SetSpacing(spacing);
-  this->Output->SetOrigin(origin);
+  this->Output->SetSpacing(this->Input->GetSpacing());
+  this->Output->SetOrigin(this->Input->GetOrigin());
   // If the Scalar type has not been set previously, compute it.
   if (this->Output->GetScalarType() == VTK_VOID)
     {
     this->Output->SetScalarType(this->ComputeDataType());
     }
   
-  this->Output->SetWholeExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0);
-  
   // Get scalars to find out if we need to add components
   scalars = this->Input->GetPointData()->GetScalars();
+  this->Output->SetWholeExtent(0, size[0]-1, 
+			       0, size[1]-1, 0, size[2]-1);
   if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
     {
     int bpp;
@@ -185,9 +172,7 @@ unsigned long vtkStructuredPointsToImage::GetPipelineMTime()
 //----------------------------------------------------------------------------
 int vtkStructuredPointsToImage::ComputeDataType()
 {
-  char *type;
   vtkScalars *scalars;
-
   
   scalars = (this->Input->GetPointData())->GetScalars();
   if ( ! scalars)
@@ -201,39 +186,12 @@ int vtkStructuredPointsToImage::ComputeDataType()
     return VTK_VOID;
     }
     
-  type = scalars->GetDataType();
-  if (strcmp(type, "float") == 0)
-    {
-    return VTK_FLOAT;
-    }
-  if (strcmp(type, "int") == 0)
-    {
-    return VTK_INT;
-    }
-  if (strcmp(type, "short") == 0)
-    {
-    return VTK_SHORT;
-    }
-  if (strcmp(type, "unsigned short") == 0)
-    {
-    return VTK_UNSIGNED_SHORT;
-    }
-  if (strcmp(type, "unsigned char") == 0)
-    {
-    return VTK_UNSIGNED_CHAR;
-    }
-  
-  vtkErrorMacro(<< "GetDataType: Can not handle type " << type);
-  return VTK_VOID;
+  return scalars->GetDataType();
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::Execute()
+void vtkStructuredPointsToImage::Execute(vtkImageData *data)
 {
-  char *type;
-  int *size;
-  int dataExtent[10];
-  vtkImageData *data;
   vtkScalars *scalars;
   
   if ( ! this->Input)
@@ -250,69 +208,10 @@ void vtkStructuredPointsToImage::Execute()
     return;
     }
   
-  // Determine the extent of the data
-  size = this->Input->GetDimensions();
-  dataExtent[0] = dataExtent[2] = dataExtent[4] = 0;
-  dataExtent[1] = size[0] - 1;
-  dataExtent[3] = size[1] - 1;
-  dataExtent[5] = size[2] - 1;
-  dataExtent[6] = dataExtent[7] = dataExtent[8] = 0;
-  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
-    {
-    dataExtent[9]=((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar()-1;
-    }
-  else
-    {
-    dataExtent[9] = 0;
-    }
+  data->SetExtent(this->Output->GetWholeExtent());
 
-  // Convert the scalars array into vtkImageData
-  data = vtkImageData::New();
-  data->SetExtent(5, dataExtent);
-  type = scalars->GetDataType();
-  if (strcmp(type, "unsigned char") == 0)
-    {
-    vtkUnsignedCharScalars *dataScalars = vtkUnsignedCharScalars::New();
-    if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
-      {
-      dataScalars->SetS(((vtkColorScalars *)scalars)->GetS());
-      }
-    else
-      {
-      dataScalars->SetS(((vtkUnsignedCharScalars *)scalars)->GetS());
-      }
-    data->SetScalarType(VTK_UNSIGNED_CHAR);
-    data->SetScalars(dataScalars);
-    dataScalars->UnRegister(this);
-    }
-  else if (strcmp(type, "unsigned short") == 0)
-    {
-    // Since we know the scalars are not color scalars, just copy scalars.
-    data->SetScalarType(VTK_UNSIGNED_SHORT);
-    data->SetScalars(scalars);
-    }
-  else if (strcmp(type, "short") == 0)
-    {
-    // Since we know the scalars are not color scalars, just copy scalars.
-    data->SetScalarType(VTK_SHORT);
-    data->SetScalars(scalars);
-    }
-  else if (strcmp(type, "float") == 0)
-    {
-    // Since we know the scalars are not color scalars, just copy scalars.
-    data->SetScalarType(VTK_FLOAT);
-    data->SetScalars(scalars);
-    }
-  else if (strcmp(type, "int") == 0)
-    {
-    // Since we know the scalars are not color scalars, just copy scalars.
-    data->SetScalarType(VTK_INT);
-    data->SetScalars(scalars);
-    }
-  
-  this->Output->SetScalarData(data);
-  // Get rid of our ref count.
-  data->Delete();
+  // just pass the data 
+  data->GetPointData()->PassData(this->Input->GetPointData());
 }
 
 

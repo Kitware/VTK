@@ -58,6 +58,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_LARGE_FLOAT 1.0e29
 #define VTK_LARGE_INTEGER 2147483647 // 2^31 - 1
 
+// Some constant required for correct template performance
+#define VTK_FLOAT_MIN -1.0e+38F
+#define VTK_FLOAT_MAX 1.0e+38F
+#define VTK_INT_MIN (-2147483647-1)
+#define VTK_INT_MAX 2147483647
+#define VTK_SHORT_MIN -32768
+#define VTK_SHORT_MAX 32767
+#define VTK_UNSIGNED_SHORT_MIN 0
+#define VTK_UNSIGNED_SHORT_MAX 65535
+#define VTK_UNSIGNED_CHAR_MIN 0
+#define VTK_UNSIGNED_CHAR_MAX 255
+
+// These types are returned by GetScalarType to indicate pixel type.
+#define VTK_VOID            0
+#define VTK_FLOAT           1
+#define VTK_INT             2
+#define VTK_SHORT           3
+#define VTK_UNSIGNED_SHORT  4
+#define VTK_UNSIGNED_CHAR   5
+#define VTK_BIT             6 
+
+// A macro to get the name of a type
+#define vtkImageScalarTypeNameMacro(type) \
+(((type) == VTK_VOID) ? "void" : \
+(((type) == VTK_FLOAT) ? "float" : \
+(((type) == VTK_INT) ? "int" : \
+(((type) == VTK_SHORT) ? "short" : \
+(((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" : \
+(((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" : \
+"Undefined"))))))
+  
+  
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //

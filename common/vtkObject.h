@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimeStamp.h"
 #include "vtkSetGet.h"
 
+
 class VTK_EXPORT vtkObject 
 {
 public:

@@ -51,9 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageSource_h
 #define __vtkImageSource_h
 
-#include "vtkObject.h"
 #include "vtkImageData.h"
-class vtkImageRegion;
 class vtkImageCache;
 
 
@@ -66,7 +64,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate();
-  virtual void InternalUpdate();
+  virtual void InternalUpdate(vtkImageData *data);
   virtual void Update();
   virtual void UpdateWholeExtent();
   virtual void UpdateImageInformation() = 0;
@@ -80,16 +78,6 @@ public:
   virtual void SetReleaseDataFlag(int value);
   int  GetReleaseDataFlag();
   vtkBooleanMacro(ReleaseDataFlag, int);
-  
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
-  void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
-  void SetOutputScalarType(int type);
-  int  GetOutputScalarType();
   
   // Description:
   // Set/Get the AbortExecute flag for the filter. It's up to the filter writer
@@ -111,20 +99,12 @@ public:
   virtual void SetEndMethodArgDelete(void (*f)(void *));
   
   // Description:
-  // Update the progress of a filter. If a ProgressMEthod, exists, executes it. Then sets
-  // the Progress ivar to amount.
+  // Update the progress of a filter. If a ProgressMEthod, exists, 
+  // executes it. Then sets the Progress ivar to amount.
   void UpdateProgress(float amount);
 
 protected:
   vtkImageCache *Output;
-  // The number of dimensions expected/handled by the execute method
-  // It helps determine which axes the supper classes should loop over.
-  // It should be set in the constructor, (and propbably should not change).
-  int NumberOfExecutionAxes; 
-  int ExecutionAxes[5]; 
-
-  int ExecuteScalars;
-  int ExecuteVectors;
 
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);
@@ -138,20 +118,8 @@ protected:
   float Progress;
   int AbortExecute;
   
-  virtual void RecursiveLoopUpdate(int dim, vtkImageRegion *region); 
-  virtual void Execute(vtkImageRegion *region); 
+  virtual void Execute(vtkImageData *data); 
   virtual void CheckCache();
-
-  // ExecutionAxes define the subspace handled by the subclasses
-  // execute method.  For now, the array also indicates the superclass
-  // loop axes stored in array above the "NumberOfExecutionAxes" index.
-  virtual void SetExecutionAxes(int dim, int *axes);
-  virtual void SetExecutionAxes(int axis);
-  virtual void SetExecutionAxes(int axis0, int axis1);
-  virtual void SetExecutionAxes(int axis0, int axis1, int axis2);
-  virtual void SetExecutionAxes(int axis0, int axis1, int axis2, int axis3);
-  virtual void GetExecutionAxes(int dim, int *axes);
-  virtual int *GetExecutionAxes() {return this->ExecutionAxes;};
 };
 
 

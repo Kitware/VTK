@@ -70,18 +70,7 @@ class vtkFloatScalars;
 class vtkShortScalars;
 class vtkLookupTable;
 
-// Some constant required for correct template performance
-#define VTK_FLOAT_MIN -1.0e+38F
-#define VTK_FLOAT_MAX 1.0e+38F
-#define VTK_INT_MIN (-2147483647-1)
-#define VTK_INT_MAX 2147483647
-#define VTK_SHORT_MIN -32768
-#define VTK_SHORT_MAX 32767
-#define VTK_UNSIGNED_SHORT_MIN 0
-#define VTK_UNSIGNED_SHORT_MAX 65535
-#define VTK_UNSIGNED_CHAR_MIN 0
-#define VTK_UNSIGNED_CHAR_MAX 255
-
+  
 class VTK_EXPORT vtkScalars : public vtkReferenceCount 
 {
 public:
@@ -99,12 +88,14 @@ public:
   virtual vtkScalars *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
-  // Return data type. One of "bit", "unsigned char", "short", "int", "float", or
-  // "double".
-  virtual char *GetDataType() = 0;
+  // Return data type. An integer data type as follows:
+  // VTK_FLOAT = 1 VTK_INT = 2 VTK_SHORT = 3 VTK_UNSIGNED_SHORT = 4
+  // VTK_UNSIGNED_CHAR = 5 VTK_BIT = 6
+  virtual int GetDataType() = 0;
 
   // Description:
-  // Return data type range (min and max values) in the array provided by the client.
+  // Return data type range (min and max values) in the array provided 
+  // by the client.
   virtual void GetDataTypeRange(float*) = 0;
   // Description:
   // Return data type min value.

@@ -53,14 +53,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageToStructuredPoints_h
 
 #include "vtkStructuredPointsSource.h"
-#include "vtkImageSetGet.h"
-class vtkImageRegion;
 class vtkImageCache;
 class vtkColorScalars;
 class vtkFloatVectors;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
-{
+  {
 public:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
@@ -74,52 +72,17 @@ public:
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
 
-  // Description:
-  // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(VectorInput,vtkImageCache);
-  vtkGetObjectMacro(VectorInput,vtkImageCache);
-
   // Set/Get the extent to translate explicitely.
   void SetExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(Extent);
   void GetExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(Extent);
 
-  // Description:
-  // Set/Get the order of the axes to split while streaming.
-  void SetSplitOrder(int dim, int *axes);
-  vtkImageSetMacro(SplitOrder,int);
-  void GetSplitOrder(int dim, int *axes);
-  vtkImageGetMacro(SplitOrder,int);
-  int *GetSplitOrder() {return this->SplitOrder;};  
-
-  // Description:
-  // This object will stream to keep the input regions below this limit.
-  vtkSetMacro(InputMemoryLimit,int);
-  vtkGetMacro(InputMemoryLimit,int);
-
-  // Description:
-  // Which coordinate to use for the fourth dimension. (slice)
-  vtkSetMacro(TimeSlice,int);
-  vtkGetMacro(TimeSlice,int);
-  
   void Update();
   
 protected:
   vtkImageCache *Input;
-  vtkImageCache *VectorInput;
-  int TimeSlice;
   int Extent[6];
-  int NumberOfSplitAxes;
-  int SplitOrder[4];
-  int InputMemoryLimit;
 
   void Execute();
-  vtkFloatVectors *GetVectorsFromRegion(vtkImageRegion *region);
-  vtkScalars *GetScalarsFromRegion(vtkImageRegion *region);
-  void InputSplitUpdate(int splitAxisIdx);
-  vtkScalars *ReformatRegionData(vtkImageRegion *region, int flag);
-  vtkColorScalars *CreateColorScalars(vtkScalars *scalars, int dim);
 };
 
 

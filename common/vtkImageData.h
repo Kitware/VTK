@@ -55,58 +55,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageData_h
 
 
-#include "vtkReferenceCount.h"
-#include "vtkImageSetGet.h"
-#include "vtkPointData.h"
+#include "vtkStructuredPoints.h"
 
-
-// It would be nice to get rid of this hard coding of dimensionality.
-// Could each region/filter have its own dimensionality? (Dimensionality).
-#define VTK_IMAGE_DIMENSIONS 5
-#define VTK_IMAGE_EXTENT_DIMENSIONS 10
-
-
-// These types are returned by GetScalarType to indicate pixel type.
-#define VTK_VOID            0
-#define VTK_FLOAT           1
-#define VTK_INT             2
-#define VTK_SHORT           3
-#define VTK_UNSIGNED_SHORT  4
-#define VTK_UNSIGNED_CHAR   5
-
-// A macro to get the name of a type
-#define vtkImageScalarTypeNameMacro(type) \
-(((type) == VTK_VOID) ? "void" : \
-(((type) == VTK_FLOAT) ? "float" : \
-(((type) == VTK_INT) ? "int" : \
-(((type) == VTK_SHORT) ? "short" : \
-(((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" : \
-(((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" : \
-"Undefined"))))))
-
-
-// These definitions give semantics to the abstract implementation of axes.
-#define VTK_IMAGE_X_AXIS 0
-#define VTK_IMAGE_Y_AXIS 1
-#define VTK_IMAGE_Z_AXIS 2
-#define VTK_IMAGE_TIME_AXIS 3
-#define VTK_IMAGE_COMPONENT_AXIS 4
-#define VTK_IMAGE_USER_DEFINED_AXIS 5
-
-
-// A macro to get the name of an axis
-#define vtkImageAxisNameMacro(axis) \
-(((axis) == VTK_IMAGE_X_AXIS) ? "X" : \
-(((axis) == VTK_IMAGE_Y_AXIS) ? "Y" : \
-(((axis) == VTK_IMAGE_Z_AXIS) ? "Z" : \
-(((axis) == VTK_IMAGE_TIME_AXIS) ? "Time" : \
-(((axis) == VTK_IMAGE_COMPONENT_AXIS) ? "Component" : \
-(((axis) == VTK_IMAGE_USER_DEFINED_AXIS) ? "UserDefined" : \
-"Undefined"))))))
-
-
-
-class VTK_EXPORT vtkImageData : public vtkReferenceCount
+  
+class VTK_EXPORT vtkImageData : public vtkStructuredPoints
 {
 public:
   vtkImageData();
@@ -117,91 +69,51 @@ public:
   // Description:
   // Different ways to set the extent of the data array.  The extent
   // should be set before the "Scalars" are set or allocated.
-  // The Extent is stored  in the order (X, Y, Z, Time, Components).
-  void SetExtent(int num, int *extent);
-  void SetAxisExtent(int axis, int min, int max);
-  int *GetExtent() {return this->Extent;}
-  void GetAxisExtent(int axis, int &min, int &max);
+  // The Extent is stored  in the order (X, Y, Z).
+  void SetExtent(int *extent);
+  vtkGetVectorMacro(Extent,int,6);
   
   // Description:
-  // The Axes instance variable is fixed to (X, Y, Z, Time, Components).  
-  // The access method is supplied for compatablilty.
-  void GetAxes(int num, int *axes);
-  vtkImageGetMacro(Axes, int);
-  int *GetAxes(){return this->Axes;}
-  
-  // Description:
-  // The MemoryOrder instance variable specifies how the axes are arranged
-  // in memory.  It is currently fixed to (COMPONENTS X, Y, Z, Time),
-  // but might be arbitrary in the future.
-  void GetMemoryOrder(int num, int *axes);
-  int *GetMemoryOrder(){return this->MemoryOrder;}
-  
-  // Description:
-  // The ScalarType determines the contents of the underlying memory.
-  // The ScalarType cannot be changed after the data has been allocated.
-  void SetScalarType(int type);
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
-  void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
-  void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
+  // Set the data scalar type of the regions created by this cache.
+  vtkSetMacro(ScalarType,int);
   vtkGetMacro(ScalarType,int);
 
   // Description:
   // Different ways to get the increments for moving around the data.
-  // They are store (X, Y, Z, Time, Components).
-  void GetIncrements(int dim, int *incs);
-  void GetAxisIncrement(int axis, int &inc);
-  int *GetIncrements(){return this->Increments;}
-  
-  int AreScalarsAllocated();
-  void MakeScalarsWritable();
-  void SetScalars(vtkScalars *scalars);
-  void *GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
-  void *GetScalarPointer();
-  vtkScalars *GetScalars(){return this->PointData.GetScalars();};
+  vtkGetVectorMacro(Increments,int,3);
   
   // Description:
-  // A flag that determines wheter to print the data or not.
-  vtkSetMacro(PrintScalars,int);
-  vtkGetMacro(PrintScalars,int);
-  vtkBooleanMacro(PrintScalars,int);
+  // Different ways to get the increments for moving around the data.
+  // They are store (Component, X, Y, Z). This method returns
+  // increments that are suited for continuous incrementing of the
+  // pointer in a Z, Y, X, C nested for loop.
+  void GetContinuousIncrements(int extent[6], int &incX, int &incY,
+			       int &incZ);
   
+  // Description:
+  // Access the native pointer for the scalar data
+  void *GetScalarPointerForExtent(int coordinates[6]);
+  void *GetScalarPointer(int coordinates[3]);
+  void *GetScalarPointer(int x, int y, int z);
+  void *GetScalarPointer();
 
+  // Description:
+  // Allocate the vtkScalars object associated with this object.
+  void AllocateScalars();
+  
+  // Description:
+  // Set/Get the number of scalar components
+  void SetNumberOfScalarComponents(int num);
+  vtkGetMacro(NumberOfScalarComponents,int);
+  
 protected:
-  vtkPointData PointData;
-  // The order of the dimesnions for access method (GetExtent ...)
-  // Constant (X, Y, Z, Time, Components).
-  int Axes[VTK_IMAGE_DIMENSIONS];
-  // The underlying data is stored in this order (MemoryOrder[0] is colocated).
-  int MemoryOrder[VTK_IMAGE_DIMENSIONS];
-  // The underlying data is stored in one of: float, int ...
+  int Extent[6];
+  int Increments[3];
   int ScalarType;
-  // Extent stored absolutely for each axis (as if Axes = {0, 1, 2, 3, 4}).
-  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  // Increments  stored absolutely for each axis (as if Axes = {0, 1, 2, 3, 4})
-  int Increments[VTK_IMAGE_DIMENSIONS];
-
-  int NumberOfScalars;
-  int ScalarsAllocated;
-  // For debuging
-  int PrintScalars;   
+  int NumberOfScalarComponents;
   
   void ComputeIncrements();
-  int AllocateScalars();
 };
-
-
-
-// Avoid including these in vtkImageData.cc .
-#include "vtkScalars.h"
-#include "vtkFloatScalars.h"
-#include "vtkIntScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkUnsignedShortScalars.h"
-#include "vtkUnsignedCharScalars.h"
-
 
 #endif
 

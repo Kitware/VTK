@@ -78,81 +78,6 @@ void vtkImageSimpleCache::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// This Method allocates a region and generates the data.
-void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
-{
-  // Check Data to see if the region already exists
-  if (this->CachedData)
-    {
-    int saveAxes[VTK_IMAGE_DIMENSIONS];
-    int *cacheExtent, regionExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-    cacheExtent = this->CachedData->GetExtent();
-
-    region->GetAxes(saveAxes);
-    region->SetAxes(this->CachedData->GetAxes());
-    region->GetExtent(regionExtent);
-    region->SetAxes(saveAxes);
-    // Is the new region contained in the cache?
-    if (regionExtent[0] >= cacheExtent[0] &&
-	regionExtent[1] <= cacheExtent[1] &&
-	regionExtent[2] >= cacheExtent[2] &&
-	regionExtent[3] <= cacheExtent[3] &&
-	regionExtent[4] >= cacheExtent[4] &&
-	regionExtent[5] <= cacheExtent[5] &&
-	regionExtent[6] >= cacheExtent[6] &&
-	regionExtent[7] <= cacheExtent[7] &&
-	regionExtent[8] >= cacheExtent[8] &&
-	regionExtent[9] <= cacheExtent[9])
-      {
-      // check the gtime of cache to see if it is more recent than mtime */
-      if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())
-	{
-	/* use the cache data (automatically registered by region) */
-	vtkDebugMacro(<< "GenerateCachedRegionData: " 
-	              << "Using cache to fill region.");
-	region->SetScalarType(this->ScalarType);
-	region->SetData(this->CachedData);
-	return;
-	}
-      }
-    }
-  
-  // Region not entirely in cache
-  // Get rid of the old cached data
-  if (this->CachedData)
-    {
-    this->CachedData->Delete();
-    this->CachedData = NULL;
-    }
-  
-  // Generate a new region
-  this->GenerateUnCachedRegionData(region);
-
-  if ( ! this->CachedData)
-    {
-    vtkErrorMacro("Source did not cache data");
-    }
-  
-  // Now the cached data should be OK.
-  region->SetData(this->CachedData);
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This Method saves a region in cache.
-void vtkImageSimpleCache::CacheRegion(vtkImageRegion *region)
-{
-  // Save the data in cache
-  this->CachedData = region->GetData();
-  this->CachedData->Register(this);
-  // Mark when this data was generated
-  this->GenerateTime.Modified();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
 // This Method deletes any data in cache.
 void vtkImageSimpleCache::ReleaseData()
 {
@@ -162,3 +87,79 @@ void vtkImageSimpleCache::ReleaseData()
     this->CachedData = NULL;
     }
 }
+
+void vtkImageSimpleCache::AllocateData()
+{
+  int dim[3];
+  if (this->CachedData) this->ReleaseData();
+  
+  this->CachedData = vtkImageData::New();
+  this->CachedData->SetExtent(this->UpdateExtent);
+  this->CachedData->SetOrigin(this->GetOrigin());
+  this->CachedData->SetSpacing(this->GetSpacing());
+  this->GetDimensions(dim);
+  this->CachedData->SetDimensions(dim);
+  this->CachedData->SetScalarType(this->ScalarType);
+  this->CachedData->
+    SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+}
+
+vtkImageData *vtkImageSimpleCache::UpdateAndReturnData()
+{
+  this->Update(); 
+  return this->CachedData;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the region specified by "UpdateExtent".  
+void vtkImageSimpleCache::Update()
+{
+  int updateExtentSave[6];
+  unsigned long pipelineMTime = this->GetPipelineMTime();
+  int *cachedExtent;
+  
+  // Make sure image information is upto date
+  this->UpdateImageInformation();
+  this->ClipUpdateExtentWithWholeExtent();
+  
+  // Let the cache modify the update extent, but save the old one.
+  this->GetUpdateExtent(updateExtentSave);
+  this->Source->InterceptCacheUpdate();
+  
+  if (this->CachedData) cachedExtent = this->CachedData->GetExtent();
+  
+  // if cache doesn't have the necessary data.
+  if (pipelineMTime > this->ExecuteTime || this->DataReleased ||
+      !this->CachedData || 
+      (cachedExtent[0] > this->UpdateExtent[0] ||
+       cachedExtent[1] < this->UpdateExtent[1] ||
+       cachedExtent[2] > this->UpdateExtent[2] ||
+       cachedExtent[3] < this->UpdateExtent[3] ||
+       cachedExtent[4] > this->UpdateExtent[4] ||
+       cachedExtent[5] < this->UpdateExtent[5]))
+    {
+    if (this->Source)
+      {
+      vtkDebugMacro("Update: We have to update the source.");
+      // release the old data and setup the new
+      this->AllocateData();
+      this->Source->InternalUpdate(this->CachedData);
+      // save the time and extent of the update for test "cache has data?"
+      this->ExecuteTime.Modified();
+      this->DataReleased = 0;
+      }
+    }
+  else
+    {
+    vtkDebugMacro("Update: UpdateRegion already in cache.");
+    }
+  
+  // Restore the old update extent
+  this->SetUpdateExtent(updateExtentSave);
+}
+
+
+
+
