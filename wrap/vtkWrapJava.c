@@ -104,7 +104,7 @@ void output_proto_vars(FILE *fp, int i)
 void use_hints(FILE *fp)
 {
   /* use the hint */
-  switch (currentFunction->ReturnType)
+  switch (currentFunction->ReturnType%1000)
     {
     case 301:
       fprintf(fp,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp%i,%i);\n",
