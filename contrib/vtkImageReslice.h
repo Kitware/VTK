@@ -192,7 +192,8 @@ public:
 #ifndef VTK_REMOVE_LEGACY_CODE
   void SetOutputAlwaysCenteredOnInput(int yesno) {
     vtkWarningMacro("method will be eliminated in a future version of VTK");
-    this->OutputAlwaysCenteredOnInput = 1; };
+    if (this->OutputAlwaysCenteredOnInput == yesno) { return; }
+    this->OutputAlwaysCenteredOnInput = yesno; this->Modified(); };
   vtkGetMacro(OutputAlwaysCenteredOnInput, int);
   vtkBooleanMacro(OutputAlwaysCenteredOnInput, int);
 #endif  
