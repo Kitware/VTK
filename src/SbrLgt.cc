@@ -14,8 +14,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
-#include "SbrLgt.hh"
 #include "SbrRen.hh"
+#include "SbrLgt.hh"
 
 // typecast if neccessary 
 void vlSbrLight::Render(vlRenderer *ren,int light_index)
