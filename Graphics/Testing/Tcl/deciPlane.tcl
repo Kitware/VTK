@@ -57,7 +57,7 @@ proc adjustPointsProc {} {
     [adjustPoints GetPolyDataOutput] CopyStructure $input
     [adjustPoints GetPolyDataOutput] SetPoints newPts
 
-#    newPts Delete; #reference counting - it's ok
+    newPts Delete; #reference counting - it's ok
 }
 
 # Now remove the extreme peak in the center
