@@ -211,6 +211,12 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 }
 
 // Initialize all of the object's data to NULL
+void vtkDataSetAttributes::InitializeFields()
+{
+  this->vtkFieldData::InitializeFields();
+}
+
+// Initialize all of the object's data to NULL
 void vtkDataSetAttributes::Initialize()
 {
 //
@@ -378,7 +384,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
   // If we are not copying on self
   if ( pd != this )
     {
-    this->Initialize();
+    this->InitializeFields();
     }
 
   // Create various point data depending upon input

@@ -234,7 +234,7 @@ vtkFieldData::~vtkFieldData()
 }
 
 // Release all data but do not delete object.
-void vtkFieldData::Initialize()
+void vtkFieldData::InitializeFields()
 {
   int i;
 
@@ -252,6 +252,13 @@ void vtkFieldData::Initialize()
   this->NumberOfArrays = 0;
   this->NumberOfActiveArrays = 0;
 
+}
+
+// Release all data but do not delete object.
+// Also initialize copy flags.
+void vtkFieldData::Initialize()
+{
+  this->InitializeFields();
   this->CopyAllOn();
   this->ClearFieldFlags();
 }

@@ -66,6 +66,7 @@ public:
 
   // Description:
   // Initialize all of the object's data to NULL
+  // Also, clear the copy flags.
   virtual void Initialize();
 
   // Description:
@@ -433,6 +434,10 @@ protected:
                         vtkIdType toId, vtkIdType id1, vtkIdType id2, float t);
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
                         vtkDataArray *toData, vtkIdType id, float t);
+
+  // Description:
+  // Initialize all of the object's data to NULL
+  virtual void InitializeFields();
 
   int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
   int CopyAttributeFlags[NUM_ATTRIBUTES]; //copy flag for attribute data
