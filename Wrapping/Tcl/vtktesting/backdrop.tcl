@@ -1,5 +1,3 @@
-package provide vtktesting 4.0
-
 proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
     if { [info command basePlane] == "" } {vtkCubeSource basePlane;}
     basePlane SetCenter [expr ($maxX + $minX) / 2.0] $minY [expr ($maxZ + $minZ) / 2.0] 

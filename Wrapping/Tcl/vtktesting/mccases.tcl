@@ -1,17 +1,14 @@
 # Used for setting vertex values for clipping, cutting, and contouring tests
 
-
-package provide vtktesting 4.0
-
 proc case1 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 1 - 00000001"
     } else {
@@ -20,14 +17,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case2 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 2 - 00000011"
     } else {
@@ -36,14 +33,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case3 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $IN
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $IN
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 3 - 00000101"
     } else {
@@ -52,14 +49,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case4 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 4 - 01000001"
     } else {
@@ -68,14 +65,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case5 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $OUT
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $OUT
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 5 - 00110010"
     } else {
@@ -84,14 +81,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case6 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $OUT
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT
+$scalars InsertValue 0 $OUT
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 6 - 00011010"
     } else {
@@ -100,14 +97,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case7 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 7 - 01000011"
     } else {
@@ -116,14 +113,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case8 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 8 - 00110011"
     } else {
@@ -132,14 +129,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case9 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $OUT
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $IN
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $OUT
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $IN
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 9 - 01001110"
     } else {
@@ -148,14 +145,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 # 27 -> 1b -> 00011011
 proc case9 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 9 - 00011011"
     } else {
@@ -164,14 +161,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case10 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 10 - 01101001"
     } else {
@@ -180,14 +177,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case11 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $OUT
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $OUT
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 11 - 01110001"
     } else {
@@ -196,14 +193,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case12 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $OUT
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $OUT
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $OUT
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $OUT
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 12 - 00111010"
     } else {
@@ -212,14 +209,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case13 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $OUT
-$scalars InsertComponent 1 0 $IN
-$scalars InsertComponent 2 0 $OUT
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $IN
-$scalars InsertComponent 5 0 $OUT
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $OUT	
+$scalars InsertValue 0 $OUT
+$scalars InsertValue 1 $IN
+$scalars InsertValue 2 $OUT
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $IN
+$scalars InsertValue 5 $OUT
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $OUT	
     if {$IN == 1} {
 	caseLabel SetText "Case 13 - 01011010"
     } else {
@@ -228,14 +225,14 @@ $scalars InsertComponent 7 0 $OUT
 }
 
 proc case14 { scalars IN OUT } {
-$scalars InsertComponent 0 0 $IN
-$scalars InsertComponent 1 0 $OUT
-$scalars InsertComponent 2 0 $IN
-$scalars InsertComponent 3 0 $IN
-$scalars InsertComponent 4 0 $OUT
-$scalars InsertComponent 5 0 $IN
-$scalars InsertComponent 6 0 $IN
-$scalars InsertComponent 7 0 $IN
+$scalars InsertValue 0 $IN
+$scalars InsertValue 1 $OUT
+$scalars InsertValue 2 $IN
+$scalars InsertValue 3 $IN
+$scalars InsertValue 4 $OUT
+$scalars InsertValue 5 $IN
+$scalars InsertValue 6 $IN
+$scalars InsertValue 7 $IN
     if {$IN == 1} {
 	caseLabel SetText "Case 14 - 11101101"
     } else {

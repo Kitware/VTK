@@ -1,5 +1,5 @@
-package require vtkgraphics
-package require vtkimaging
+package require -exact vtkgraphics 4.1
+package require -exact vtkimaging 4.1
 
 catch {
     unset __tk_error
@@ -15,22 +15,33 @@ if {[catch {
     }
 }
 
-if {![info exists __tk_error] && \
-        ([info commands vtkAxisActor2D] != "" || \
-        [::vtk::load_component vtkRenderingTCL] == "")} {
-
+namespace eval ::vtk::rendering {
+  proc SetWin32ExitCallback {} {
     # Set the default exit method of vtkWin32RenderWindowInteractor to
     # call the Tcl 'exit' command
-
     if {[info commands vtkWin32RenderWindowInteractor] != ""} {
-        if {[catch {
-            vtkWin32RenderWindowInteractor __temp_vtkwin32iren__
-            __temp_vtkwin32iren__ SetClassExitMethod exit
-            __temp_vtkwin32iren__ Delete
-        } errormsg]} {
-            puts $errormsg
-        }
+      if {[catch {
+        vtkWin32RenderWindowInteractor __temp_vtkwin32iren__
+        __temp_vtkwin32iren__ SetClassExitMethod exit
+        __temp_vtkwin32iren__ Delete
+      } errormsg]} {
+        puts $errormsg
+      }
     }
+  }
+}
 
-    package provide vtkrendering 4.0
+if {[info commands ::vtk::init::load_source_package] != ""} {
+  if {![info exists __tk_error] && \
+       [::vtk::init::require_package vtkRenderingTCL 4.1]} {
+    ::vtk::rendering::SetWin32ExitCallback
+    package provide vtkrendering 4.1
+  }
+} else {
+  if {![info exists __tk_error] && \
+        ([info commands vtkAxisActor2D] != "" || \
+        [::vtk::load_component vtkRenderingTCL] == "")} {
+    ::vtk::rendering::SetWin32ExitCallback
+    package provide vtkrendering 4.1
+  }
 }

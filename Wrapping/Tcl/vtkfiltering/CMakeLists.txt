@@ -1,1 +1,3 @@
-INSTALL_FILES(/lib/vtk/tcl/vtkfiltering "\\.tcl$")
+INSTALL_FILES(/lib/vtk/tcl/vtkfiltering .tcl
+  vtkfiltering
+)

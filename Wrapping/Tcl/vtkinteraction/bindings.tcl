@@ -1,7 +1,3 @@
-package provide vtkinteraction 4.0
-
-package provide vtkrendering
-
 namespace eval ::vtk {
 
     namespace export *
@@ -315,4 +311,3 @@ namespace eval ::vtk {
         add_iren_observers [$renwin GetInteractor]
     }
 }
-

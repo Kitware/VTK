@@ -513,6 +513,11 @@ INCLUDE_DIRECTORIES(
 )
 
 #-----------------------------------------------------------------------------
+# Put "." in the rpath of all VTK shared libraries.
+
+LINK_DIRECTORIES(.)
+
+#-----------------------------------------------------------------------------
 # Help other projects use VTK.
 
 # Save the compiler settings so another project can import them.

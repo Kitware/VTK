@@ -1,4 +1,4 @@
-package provide vtkbase 4.0
+package provide vtkbase 4.1
 
 namespace eval ::vtk {
 
@@ -104,5 +104,3 @@ namespace eval ::vtk {
 }
 
 set VTK_DATA_ROOT $::vtk::VTK_DATA_ROOT
-
-

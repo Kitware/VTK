@@ -1,5 +1,3 @@
-package provide vtkinteraction 4.0
-
 namespace eval ::vtk {
 
     namespace export *
@@ -77,4 +75,3 @@ proc NewWidgetObject {widget type varName} {
     puts stderr "NewWidgetObject is deprecated. Please use ::vtk::new_widget_object instead"
     return [::vtk::new_widget_object $widget $type $varName]
 }
-

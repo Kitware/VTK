@@ -1,6 +1,4 @@
-package provide vtktesting 4.0
-
-package require vtkrendering
+package require -exact vtkrendering 4.1
 
 namespace eval ::vtk {
 

@@ -1,8 +1,13 @@
-package require vtkio
-package require vtkrendering
+package require -exact vtkio 4.1
+package require -exact vtkrendering 4.1
 
-if {[info commands vtkThreadedController] != "" ||
+if {[info commands ::vtk::init::load_source_package] != ""} {
+  if {[::vtk::init::require_package vtkParallelTCL 4.1]} {
+    package provide vtkparallel 4.1
+  }
+} else {
+  if {[info commands vtkThreadedController] != "" ||
     [::vtk::load_component vtkParallelTCL] == ""} {
-    package provide vtkparallel 4.0
+    package provide vtkparallel 4.1
+  }
 }
-

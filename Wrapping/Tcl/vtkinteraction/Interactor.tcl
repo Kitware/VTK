@@ -1,8 +1,6 @@
 # a generic interactor for tcl and vtk
 #
 
-package provide vtkinteraction 4.0
-
 catch {unset vtkInteract.bold}
 catch {unset vtkInteract.normal}
 catch {unset vtkInteract.tagcount}

@@ -1,1 +1,3 @@
-INSTALL_FILES(/lib/vtk/tcl/vtkbase "\\.tcl$")
+INSTALL_FILES(/lib/vtk/tcl/vtkbase .tcl
+  vtkbase
+)

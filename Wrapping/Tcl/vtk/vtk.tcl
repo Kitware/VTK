@@ -1,9 +1,9 @@
-package require vtkbase
-package require vtkcommon
-package require vtkfiltering
-package require vtkgraphics
-package require vtkimaging
-package require vtkio
+package require -exact vtkbase 4.1
+package require -exact vtkcommon 4.1
+package require -exact vtkfiltering 4.1
+package require -exact vtkgraphics 4.1
+package require -exact vtkimaging 4.1
+package require -exact vtkio 4.1
 
 # Catched because of pkg_mkIndex
 catch {
@@ -12,16 +12,16 @@ catch {
 }
 
 catch {
-    package require vtkhybrid
+    package require -exact vtkhybrid 4.1
 }
 catch {
-    package require vtkparallel
+    package require -exact vtkparallel 4.1
 }
 catch {
-    package require vtkpatented
+    package require -exact vtkpatented 4.1
 }
 catch {
-    package require vtkrendering
+    package require -exact vtkrendering 4.1
 }
 
 catch {
@@ -29,5 +29,4 @@ catch {
     unset ::vtk::__temp_complain_on_loading
 }
 
-package provide vtk 4.0
-
+package provide vtk 4.1

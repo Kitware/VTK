@@ -1,6 +1,8 @@
-package require vtkcommon
+package require -exact vtkcommon 4.1
 
-package provide vtktesting 4.0
+foreach s {colors mccases backdrop grab} {
+  source [file join [file dirname [info script]] "${s}.tcl"]
+}
 
 # Invoke DeleteAllObjects on exit
 
@@ -9,3 +11,5 @@ proc ::exit {{returnCode 0}} {
     vtkCommand DeleteAllObjects
     return [::vtk::exit $returnCode]
 }
+
+package provide vtktesting 4.1

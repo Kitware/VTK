@@ -1,7 +1,5 @@
 # Standard colors used by many vtk scripts
 
-package provide vtktesting 4.0
-
 set antique_white "0.9804 0.9216 0.8431"
 set azure "0.9412 1.0000 1.0000"
 set bisque "1.0000 0.8941 0.7686"

@@ -1,3 +1,9 @@
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(VTK_TCL_PACKAGE_DIR "${VTK_BINARY_DIR}/Wrapping/Tcl")
+ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(VTK_TCL_PACKAGE_DIR "${VTK_SOURCE_DIR}/Wrapping/Tcl")
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+SET(VTK_TCL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/vtk/tcl")
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
@@ -63,21 +69,62 @@ SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction
 INSTALL_FILES(/lib/vtk/tcl "" README)
 INSTALL_FILES(/lib/vtk/tcl .c vtktcl)
 
+SET(VTK_TCL_RENDERING_CONFIG "")
+SET(VTK_TCL_HYBRID_CONFIG "")
+SET(VTK_TCL_PATENTED_CONFIG "")
+SET(VTK_TCL_PARALLEL_CONFIG "")
+
 IF (VTK_USE_HYBRID)
+  SET(VTK_TCL_HYBRID_CONFIG "Hybrid")
   SUBDIRS(vtkhybrid)
 ENDIF (VTK_USE_HYBRID)
 
 IF (VTK_USE_PARALLEL)
+  SET(VTK_TCL_PARALLEL_CONFIG "Parallel")
   SUBDIRS(vtkparallel)
 ENDIF (VTK_USE_PARALLEL)
 
 IF (VTK_USE_PATENTED)
+  SET(VTK_TCL_PATENTED_CONFIG "Patented")
   SUBDIRS(vtkpatented)
 ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_RENDERING)
+  SET(VTK_TCL_RENDERING_CONFIG "Rendering")
   SUBDIRS(vtkrendering)
 ENDIF (VTK_USE_RENDERING)
+
+IF(CMAKE_GENERATOR MATCHES "^Visual Studio")
+  SET(VTK_TCL_CONFIGURATION_TYPES Debug Release MinSizeRel RelWithDebInfo)
+ENDIF(CMAKE_GENERATOR MATCHES "^Visual Studio")
+
+# Configure the Tcl package index files for the build tree.
+SET(VTK_TCL_SCRIPT_DIR "${VTK_SOURCE_DIR}/Wrapping/Tcl")
+SET(VTK_TCL_LIBNAME_PREFIX "${CMAKE_SHARED_LIBRARY_PREFIX}")
+IF(VTK_TCL_CONFIGURATION_TYPES)
+  FOREACH(config ${VTK_TCL_CONFIGURATION_TYPES})
+    SET(VTK_TCL_LIBRARY_DIR "${VTK_LIBRARY_PATH}/${config}")
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
+                   ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
+                   @ONLY IMMEDIATE)
+  ENDFOREACH(config)
+ELSE(VTK_TCL_CONFIGURATION_TYPES)
+  SET(VTK_TCL_LIBRARY_DIR "${VTK_LIBRARY_PATH}")
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
+                 ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
+                 @ONLY IMMEDIATE)
+ENDIF(VTK_TCL_CONFIGURATION_TYPES)
+
+# Configure the Tcl package index file for the install tree.
+SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
+SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [info script]]]")
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
+               ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
+               @ONLY IMMEDIATE)
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  INSTALL_FILES(/lib/vtk/tcl FILES
+                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 # Allow the user to customize their build with some local options
 #

@@ -1,5 +1,3 @@
-package provide vtkinteraction 4.0
-
 namespace eval ::vtk {
 
     namespace export *
