@@ -81,43 +81,29 @@ vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->ListId = 0;
-  this->RenderWindow = 0;
 }
 
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
-  if (this->RenderWindow)
+  if (this->Window)
     {
-    // This renderwindow should be a valid pointer (even though we do not
-    // increase the renderwindow's reference count).  If the renderwindow
-    // had been deleted before the mapper,  then ReleaseGraphicsResources()
-    // would have been called on the mapper and these resources would
-    // have been released already.
-    this->RenderWindow->MakeCurrent();
-  
-    // free any old display lists
-    if (this->ListId)
-      {
-      glDeleteLists(this->ListId,1);
-      this->ListId = 0;
-      }
-    }
-
-  this->RenderWindow = NULL;
+    this->ReleaseGraphicsResources(this->Window);
+    }  
 }
 
 
 // Release the graphics resources used by this mapper.  In this case, release
 // the display list if any.
-void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(renWin))
+void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->ListId)
+  if (this->ListId && win)
     {
+    win->MakeCurrent();
     glDeleteLists(this->ListId,1);
     this->ListId = 0;
     }
-  this->RenderWindow = NULL; 
+  this->Window = NULL; 
 }
 
 
@@ -251,7 +237,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime ||
        act->GetProperty()->GetMTime() > this->BuildTime ||
-       ren->GetRenderWindow() != this->RenderWindow)
+       ren->GetRenderWindow() != this->Window)
     {
     // sets this->Colors as side effect
     this->GetColors();
@@ -260,7 +246,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 	!this->GetGlobalImmediateModeRendering())
       {
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
-      this->RenderWindow = ren->GetRenderWindow();
+      this->Window = ren->GetRenderWindow();
       
       // get a unique display list id
       this->ListId = glGenLists(1);
@@ -276,7 +262,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     else
       {
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
-      this->RenderWindow = ren->GetRenderWindow();
+      this->Window = ren->GetRenderWindow();
       }
     this->BuildTime.Modified();
     }

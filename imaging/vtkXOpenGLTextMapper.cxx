@@ -184,16 +184,33 @@ void vtkXOpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       cache[numCached] = NULL;
       }
     }
+  this->Window = NULL;
 }
 
 vtkXOpenGLTextMapper::vtkXOpenGLTextMapper()
 {
 }
 
+vtkXOpenGLTextMapper::~vtkXOpenGLTextMapper()
+{
+  if (this->Window)
+    {
+    this->ReleaseGraphicsResources(this->Window);
+    }  
+}
+
 void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
 						vtkActor2D* actor)
 {
   vtkDebugMacro (<< "RenderOpaqueGeometry");
+
+  // Get the window information for display
+  vtkWindow*  window = viewport->GetVTKWindow();
+  if (this->Window && this->Window != window)
+    {
+    this->ReleaseGraphicsResources(this->Window);
+    }
+  this->Window = window;
 
   // Check for input
   if ( this->NumberOfLines > 1 )

@@ -95,7 +95,6 @@ protected:
   void operator=(const vtkOpenGLPolyDataMapper&) {};
 
   int ListId;
-  vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
 };
 
 #endif

@@ -94,7 +94,7 @@ public:
   virtual float GetPickedZ();
 protected:
   vtkImager();
-  ~vtkImager() {};
+  ~vtkImager();
   vtkImager(const vtkImager&) {};
   void operator=(const vtkImager&) {};
 

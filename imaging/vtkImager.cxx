@@ -67,6 +67,11 @@ vtkImager::vtkImager()
   this->Viewport[3] = 1.0; // max y
 }
 
+vtkImager::~vtkImager()
+{
+  this->SetImageWindow( NULL );
+}
+
 int vtkImager::RenderOpaqueGeometry()
 {
   int       renderedSomething = 0;
