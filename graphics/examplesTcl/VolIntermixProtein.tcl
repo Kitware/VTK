@@ -35,7 +35,7 @@ vtkVolumeProperty volumeProperty
 
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
-vtkMultiThreadVolumeRayCastMapper volumeMapper
+vtkVolumeRayCastMapper volumeMapper
     volumeMapper SetScalarInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
     volumeMapper SetSampleDistance 0.25

@@ -36,7 +36,7 @@ vol_prop ShadeOn
 
 vtkVolumeRayCastCompositeFunction comp_func
 
-vtkMultiThreadVolumeRayCastMapper  volmap
+vtkVolumeRayCastMapper  volmap
 volmap SetVolumeRayCastFunction comp_func
 volmap SetScalarInput [reader GetOutput]
 volmap SetSampleDistance 1.0
