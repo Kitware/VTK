@@ -385,12 +385,13 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
   int idx0, idx1;
   T   lower, upper;
   int rowAdder;
+  int hit;
   
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
-  lower = -shift;
-  upper = lower + 255.0/scale;
+  clamps ( region, self->GetColorWindow(), self->GetColorLevel(), 
+	   lower, upper, hit );
 
   // Loop through in regions pixels
   redPtr1 = redPtr;
