@@ -268,13 +268,29 @@ void vtkImageSimpleCache::GetScalarRange(float range[2])
   ptr = this->CachedData->GetScalarPointerForExtent(ext);
   switch (this->CachedData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
+				      (double *) ptr);
+      break;
     case VTK_FLOAT:
       vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
 				      (float *) ptr);
       break;
+    case VTK_LONG:
+      vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
+				      (long *) ptr);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
+				      (unsigned long *) ptr);
+      break;
     case VTK_INT:
       vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
 				      (int *) ptr);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
+				      (unsigned int *) ptr);
       break;
     case VTK_SHORT:
       vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
@@ -283,6 +299,10 @@ void vtkImageSimpleCache::GetScalarRange(float range[2])
     case VTK_UNSIGNED_SHORT:
       vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
 				      (unsigned short *) ptr);
+      break;
+    case VTK_CHAR:
+      vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
+				      (char *) ptr);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageSimpleCacheComputeRange(this->CachedData, ext, range,
