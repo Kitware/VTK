@@ -1,12 +1,7 @@
                    VTK-Python Package Documentation
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This documents the new Python package structure for the VTK-Python
-modules.
-
-Every effort has been taken to keep the changes backwards compatible
-so your old code should work without any problems.  However, we
-recommend that you use the new package structure.
+This file documents the VTK-Python modules.
 
 The file README_WRAP.txt provides a detailed description of how VTK
 objects are accessed and modified through Python.
@@ -25,6 +20,8 @@ Contents
 
   Backwards compatibility
 
+  Writing and running VTK-Python tests
+
   Information for packagers
 
   Common problems
@@ -34,6 +31,16 @@ Contents
 
 Installation
 ^^^^^^^^^^^^
+
+  VTK can be built either from inside the source directory (an
+  in-source build) or in another directory separate from the source
+  directory (called an out-of-source build).  The VTK source directory
+  is called VTK_SOURCE_DIR and the directory in which VTK is built is
+  called VTK_BINARY_DIR.  Note that VTK_BINARY_DIR is identical to
+  VTK_SOURCE_DIR when an in-source build is performed.  Both these
+  variables are defined in CMakeCache.txt.  The following instructions
+  apply to both in-source or out-of-source builds.  The variable
+  VTK_ROOT used in the following refers to VTK_BINARY_DIR.
 
   There are primarily three ways of using the VTK-Python wrappers and
   modules.
@@ -51,7 +58,7 @@ Installation
     (2) Using the package from the source build without installing it
     system wide and without using vtkpython.  This is most useful when
     you build VTK off a CVS checkout and do not want to install it
-    system wide and still want to use the usual Python interpreter.
+    system wide and still want to use the vanilla Python interpreter.
     This is also useful if you are not the administrator of the
     machine you are using/building VTK on.
 
@@ -64,29 +71,32 @@ Installation
       Wrapping/Python directory.  Under bash/sh something like so
       needs to be done::
     
-        $ export LD_LIBRARY_PATH=$VTK_ROOT/lib
-        $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:$VTK_ROOT/lib
+        $ export LD_LIBRARY_PATH=$LIBRARY_OUTPUT_PATH
+        $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:${LIBRARY_OUTPUT_PATH}
 
       and under csh::
 
-        $ setenv LD_LIBRARY_PATH ${VTK_ROOT}/lib
-        $ setenv PYTHONPATH ${VTK_ROOT}/Wrapping/Python:${VTK_ROOT}/lib
+        $ setenv LD_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH}
+        $ setenv PYTHONPATH ${VTK_ROOT}/Wrapping/Python:${LIBRARY_OUTPUT_PATH}
 
-      where VTK_ROOT is the directory where your VTK sources are and
-      VTK_ROOT/lib is where the libraries are built.  Change this to
-      suit your configuration.
+      where VTK_ROOT is the directory where VTK is being built
+      (VTK_BINARY_DIR) and LIBRARY_OUTPUT_PATH (this variable is set
+      in CMakeCache.txt) is where the libraries are built.  Change
+      this to suit your configuration.
 
      Win32:
 
       Similar to the Unix approach, set your PATH to point to the
       directory that contains the VTK DLL's and the PYTHONPATH to the
       directory that contains the Wrapping/Python directory and the
-      DLL's.
+      DLL's.  Note that under Win32 the directory containing the DLL's
+      is in a sub-directory of LIBRARY_OUTPUT_PATH.  The sub-directory
+      is one of Release, Debug, MinSizeRel or RelWithDebInfo.
 
 
     (3) Installation via distutils to a directory different from the
-    build directory.  The file VTK_ROOT/Wrapping/Python/setup.py is a
-    distutils script that should install VTK-Python correctly.  It
+    VTK_ROOT directory.  The file VTK_ROOT/Wrapping/Python/setup.py is
+    a distutils script that should install VTK-Python correctly.  It
     should work under *nix, Win32 and possibly other platforms.
 
     Under *nix please note that you must first run 'make install' to
@@ -239,7 +249,7 @@ Backwards compatibility
 ^^^^^^^^^^^^^^^^^^^^^^^
 
   All the older modules like vtkpython etc. are still available.  This
-  means that all your old code should still run ok.  However, new
+  means that all your old code should still run fine.  However, new
   additions like the pyGTK widget will only be available via the new
   package structure.  To illustrate the point consider the
   wxVTKRenderWindow.py module.  To import this you can do either
@@ -250,6 +260,28 @@ Backwards compatibility
 
   The wxVTKRenderWindow and other older modules have been suitably
   modified to use the new structure.
+
+
+Writing and running VTK-Python tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ The vtk.test package provides a module called Testing that contains
+ useful utility functions and a vtkTest class.  These ease creation of
+ VTK-Python unittests.  The file Wrapping/Python/vtk/test/Testing.py
+ is well documented and provides more detailed information including
+ pointers to examples.  VTK-Python test writers are encouraged to use
+ this module.
+
+ When you need to run a VTK-Python unittest that uses the
+ vtk.test.Testing module run the example with a -h (or --help)
+ argument to see all the supported options.  Typically you will need
+ to do something like the following::
+
+   python TestTkRenderWidget.py -B $VTK_DATA_ROOT/Baseline/Rendering
+
+ To see the options available use this::
+
+   python TestTkRenderWidget.py -h
 
 
 Information for packagers
@@ -288,8 +320,8 @@ Information for packagers
       with the single entry '/usr/lib/vtk/python' (without the
       quotes).
 
-    Alternatively, the following approach might be preffered (this is
-    infact exactly what the setup.py script does):
+    Alternatively, the following approach might be preferred (this is
+    in fact exactly what the setup.py script does):
 
      Method 2:
 
@@ -314,7 +346,7 @@ Information for packagers
 Common problems
 ^^^^^^^^^^^^^^^
 
- Most common problems are described in the VTK FAQ available here:
+ Some common problems are described in the VTK FAQ available here:
 
    http://public.kitware.com/cgi-bin/vtkfaq?req=home
 
