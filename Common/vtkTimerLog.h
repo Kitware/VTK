@@ -167,7 +167,7 @@ public:
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  virtual ~vtkTimerLog() { CleanupLog(); };
+  virtual ~vtkTimerLog() { };
 
   static vtkTimerLogEntry* GetEvent(int i);
 
