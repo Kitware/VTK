@@ -40,6 +40,61 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageWin32Viewer.h"
 
 //----------------------------------------------------------------------------
+/* 
+ * This templated routine calculates effective lover and upper limits 
+ * for a window of values of type T, lower and upper. 
+ * It also returns in variable hit the flag with value 1, if the 
+ * interval [f_lower, f_upper) is above the type range, -1,  if the 
+ * interval [f_lower, f_upper) is below the type range, and 0, if 
+ * there is intersection between this interval and the type range.
+ */
+template <class T>
+static void clamps ( vtkImageRegion *region, float w, float l, T& lower, T& upper, int& hit)
+{
+  float f_lower, f_upper;
+  float range[2];
+
+  region->GetData()->GetScalars()->GetDataTypeRange( range );
+  
+  f_lower = l - fabs(w) / 2.0;
+  f_upper = f_lower + fabs(w);
+
+  // Look if we above the type range
+  if ( f_lower > range[1] )
+    {
+      hit = 1;
+      return;
+    }
+  // Look if we below the type range
+  if ( f_upper <= range[0] )
+    {
+      hit = -1;
+      return;
+    }
+
+  // Set the correct lower value
+   if ( f_lower >= range[0] )
+    {
+      lower = (T) f_lower;
+    }
+  else
+    {
+      lower = (T) range[0];
+    }
+
+  // Set the correct upper value
+  if ( f_upper <= range[1] )
+    {
+      upper = (T) f_upper;
+    }
+  else
+    {
+      upper = (T) range[1];
+    }
+
+  hit = 0;
+}
+
 vtkImageWin32Viewer::vtkImageWin32Viewer()
 {
   this->ApplicationInstance = NULL;
@@ -113,73 +168,6 @@ void vtkImageWin32Viewer::SetPosition(int x, int y)
     }
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// A templated function that handles gray scale images.
-template <class T>
-static void vtkImageWin32ViewerRenderShortGray(vtkImageWin32Viewer *self, 
-					  vtkImageRegion *region,
-					  T *inPtr, unsigned char *outPtr,
-					  float shift, float scale)
-{
-  unsigned char colorIdx;
-  T *inPtr0, *inPtr1, *endPtr;
-  int inMin0, inMax0, inMin1, inMax1;
-  int inInc0, inInc1;
-  int idx1;
-  T   lower, upper;
-  int sscale;
-  int rowAdder;
-
-  lower = -shift;
-  upper = lower + 255.0/scale;
-  sscale = scale*4096.0;
-
-  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  region->GetIncrements(inInc0, inInc1);
-  
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
-    }  
-  
-  // Loop through in regions pixels
-  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
-  inPtr1 = inPtr;
-  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
-    {
-    inPtr0 = inPtr1;
-    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    while (inPtr0 != endPtr)
-      {
-      if (*inPtr0 <= lower) 
-        {
-        *outPtr++ = 0;
-        *outPtr++ = 0;
-        *outPtr++ = 0;
-        }
-      else if (*inPtr0 >= upper)
-        {
-        *outPtr++ = 255;
-        *outPtr++ = 255;
-        *outPtr++ = 255;
-        }
-      else
-        {
-        colorIdx = ((*inPtr0 - lower) * sscale) >> 12;
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        }
-      inPtr0 += inInc0;
-      }
-    // rows must be a multiple of four bytes
-    // so pad it if neccessary
-    outPtr += rowAdder;
-    inPtr1 += inInc1;
-    }
-}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -197,13 +185,33 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
   int idx1;
   T   lower, upper;
   int rowAdder;
+  int *Size;
+  int hit;
+  int sscale;
+  int i_lower;
 
-  lower = -shift;
-  upper = lower + 255.0/scale;
+  clamps ( region, self->GetColorWindow(), self->GetColorLevel(), 
+	   lower, upper, hit );
+  i_lower = -shift;
+
+  // Selection of the constant 4096.0 may be changed in the future
+  // or may be type dependent
+  sscale = scale*4096.0;
 
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
-  
+
+  // crop to current window size
+  Size = self->GetSize();
+  if ((inMax0 - inMin0) >= Size[0])
+  {
+	  inMax0 =  inMin0 - 1 + Size[0];
+  }
+  if ((inMax1 - inMin1) >= Size[1])
+  {
+	  inMax1 =  inMin1 - 1 + Size[1];
+  }
+
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
     inInc1 = -inInc1;
@@ -213,40 +221,162 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
   // Loop through in regions pixels
   rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   inPtr1 = inPtr;
-  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+  if ( hit == 1 ) 
     {
-    inPtr0 = inPtr1;
-    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    while (inPtr0 != endPtr)
-      {
-      if (*inPtr0 <= lower) 
-        {
-        *outPtr++ = 0;
-        *outPtr++ = 0;
-        *outPtr++ = 0;
-        }
-      else if (*inPtr0 >= upper)
-        {
-        *outPtr++ = 255;
-        *outPtr++ = 255;
-        *outPtr++ = 255;
-        }
-      else
-        {
-        colorIdx = ((*inPtr0 - lower) * scale);
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        }
-      inPtr0 += inInc0;
-      }
-    // rows must be a multiple of four bytes
-    // so pad it if neccessary
-    outPtr += rowAdder;
-    inPtr1 += inInc1;
+      // type range is to the left of the window
+      for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+	{
+	  inPtr0 = inPtr1;
+	  endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+	  while (inPtr0 != endPtr)
+	    {
+	      *outPtr++ = 0;
+	      *outPtr++ = 0;
+	      *outPtr++ = 0;
+	    }
+	  inPtr0 += inInc0;
+	  // rows must be a multiple of four bytes
+	  // so pad it if neccessary
+	  outPtr += rowAdder;
+	  inPtr1 += inInc1;
+	} 
+    }
+  else if ( hit == -1 ) 
+    {
+      // type range is to the right of the window
+      for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+	{
+	  inPtr0 = inPtr1;
+	  endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+	  while (inPtr0 != endPtr)
+	    {
+	      *outPtr++ = 255;
+	      *outPtr++ = 255;
+	      *outPtr++ = 255;
+	    }
+	  inPtr0 += inInc0;
+	  // rows must be a multiple of four bytes
+	  // so pad it if neccessary
+	  outPtr += rowAdder;
+	  inPtr1 += inInc1;
+	} 
+    }
+  else // type range intersects with the window
+    {
+      for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+	{
+	  inPtr0 = inPtr1;
+	  endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+	  while (inPtr0 != endPtr)
+	    {
+	      if (*inPtr0 < lower) 
+		{
+		  *outPtr++ = 0;
+		  *outPtr++ = 0;
+		  *outPtr++ = 0;
+		}
+	      else if (*inPtr0 >= upper)
+		{
+		  *outPtr++ = 255;
+		  *outPtr++ = 255;
+		  *outPtr++ = 255;
+		}
+	      else
+		{
+		  // Because i_lower and sscale are of integer type
+		  // this is fast for all types used by this
+		  // template (float is treated separately).
+                  colorIdx = (*inPtr0 - i_lower) * sscale >> 12;
+		  *outPtr++ = colorIdx;
+		  *outPtr++ = colorIdx;
+		  *outPtr++ = colorIdx;
+		}
+	      inPtr0 += inInc0;
+	    }
+	  // rows must be a multiple of four bytes
+	  // so pad it if neccessary
+	  outPtr += rowAdder;
+	  inPtr1 += inInc1;
+	}
     }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// A function that handles gray scale images with float data.
+static void vtkImageWin32ViewerRenderFloatGray(vtkImageWin32Viewer *self, 
+					  vtkImageRegion *region,
+					  float *inPtr, unsigned char *outPtr,
+					  float shift, float scale)
+{
+  unsigned char colorIdx;
+  float *inPtr0, *inPtr1, *endPtr;
+  int inMin0, inMax0, inMin1, inMax1;
+  int inInc0, inInc1;
+  int idx1;
+  float  lower, upper;
+  int rowAdder;
+  int *Size;
+
+  lower = -shift;
+  upper = lower + 255.0/scale;
+
+  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
+  region->GetIncrements(inInc0, inInc1);
+
+  // crop to current window size
+  Size = self->GetSize();
+  if ((inMax0 - inMin0) >= Size[0])
+  {
+	  inMax0 =  inMin0 - 1 + Size[0];
+  }
+  if ((inMax1 - inMin1) >= Size[1])
+  {
+	  inMax1 =  inMin1 - 1 + Size[1];
+  }
+
+  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
+    {
+    inInc1 = -inInc1;
+    inPtr = (float *)(region->GetScalarPointer(inMin0, inMax1));
+    }  
+  
+  // Loop through in regions pixels
+  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+  inPtr1 = inPtr;
+  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+    {
+      inPtr0 = inPtr1;
+      endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+      while (inPtr0 != endPtr)
+	{
+	  if (*inPtr0 < lower) 
+	    {
+	      *outPtr++ = 0;
+	      *outPtr++ = 0;
+	      *outPtr++ = 0;
+	    }
+	  else if (*inPtr0 >= upper)
+	    {
+	      *outPtr++ = 255;
+	      *outPtr++ = 255;
+	      *outPtr++ = 255;
+	    }
+	  else
+	    {
+	      colorIdx = (*inPtr0 - lower) * scale ;
+	      *outPtr++ = colorIdx;
+	      *outPtr++ = colorIdx;
+	      *outPtr++ = colorIdx;
+	    }
+	  inPtr0 += inInc0;
+	}
+      // rows must be a multiple of four bytes
+      // so pad it if neccessary
+      outPtr += rowAdder;
+      inPtr1 += inInc1;
+    }
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -529,19 +659,18 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
     switch (region->GetScalarType())
       {
       case VTK_FLOAT:
- 	      vtkImageWin32ViewerRenderGray(this, region, (float *)(ptr0), this->DataOut,
-				                              shift, scale);
+	      vtkImageWin32ViewerRenderFloatGray(this, region, (float *)(ptr0), this->DataOut, shift, scale);
 	      break;
       case VTK_INT:
 	      vtkImageWin32ViewerRenderGray(this, region, (int *)(ptr0), this->DataOut,
 				                              shift, scale);
 	      break;
       case VTK_SHORT:
-	      vtkImageWin32ViewerRenderShortGray(this, region, (short *)(ptr0), this->DataOut,
+	      vtkImageWin32ViewerRenderGray(this, region, (short *)(ptr0), this->DataOut,
 				                                   shift, scale);
 	      break;
       case VTK_UNSIGNED_SHORT:
-	      vtkImageWin32ViewerRenderShortGray(this, region, (unsigned short *)(ptr0), 
+	      vtkImageWin32ViewerRenderGray(this, region, (unsigned short *)(ptr0), 
 				                                   this->DataOut, shift, scale);
 	      break;
       case VTK_UNSIGNED_CHAR:
