@@ -361,7 +361,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != min0 && idx1 != min1 && idx2 != min2)
 	  {
 	  diff = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -370,7 +370,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != max0 && idx1 != min1 && idx2 != min2)
 	  {
 	  diff = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -379,7 +379,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != min0 && idx1 != max1 && idx2 != min2)
 	  {
 	  diff = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -388,7 +388,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != max0 && idx1 != max1 && idx2 != min2)
 	  {
 	  diff = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -397,7 +397,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != min0 && idx1 != min1 && idx2 != max2)
 	  {
 	  diff = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -406,7 +406,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != max0 && idx1 != min1 && idx2 != max2)
 	  {
 	  diff = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -415,7 +415,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != min0 && idx1 != max1 && idx2 != max2)
 	  {
 	  diff = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
@@ -424,7 +424,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	if (idx0 != max0 && idx1 != max1 && idx2 != max2)
 	  {
 	  diff = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar123)
+	  if (fabs(diff) < ar012)
 	    {
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
