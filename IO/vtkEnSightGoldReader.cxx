@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.39");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.40");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -1720,7 +1720,6 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   output->SetPoints(points);
   if (iblanked)
     {
-    output->BlankingOn();
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);

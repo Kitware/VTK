@@ -19,6 +19,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnsignedCharArray.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -26,7 +27,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.36");
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.37");
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -93,7 +94,7 @@ void vtkStructuredGridWriter::WriteData()
     }
   
   // If blanking, write that information out
-  if ( input->GetBlanking() )
+  if ( input->GetPointBlanking() )
     {
     if (!this->WriteBlanking(fp, input))
       {
@@ -125,7 +126,7 @@ void vtkStructuredGridWriter::WriteData()
 
 int vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
 {
-  vtkUnsignedCharArray *blanking=grid->GetPointVisibility();
+  vtkUnsignedCharArray *blanking=grid->GetPointVisibilityArray();
   
   int numPts = grid->GetNumberOfPoints();
   *fp << "BLANKING " << numPts;

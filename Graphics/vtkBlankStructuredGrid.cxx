@@ -21,8 +21,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.8");
+vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.9");
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -125,9 +126,8 @@ void vtkBlankStructuredGrid::Execute()
     }
 
   // Clean up and get out
-  output->SetPointVisibility(blanking);
+  output->SetPointVisibilityArray(blanking);
   blanking->Delete();
-  output->BlankingOn();
 }
 
 

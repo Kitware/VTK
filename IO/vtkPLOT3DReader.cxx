@@ -27,7 +27,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.76");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.77");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -284,6 +284,7 @@ int vtkPLOT3DReader::GetNumberOfOutputs()
     {
     return 0;
     }
+  this->CalculateFileSize(xyzFp);
   int numOutputs = this->GetNumberOfOutputsInternal(xyzFp, 1);
   fclose(xyzFp);
   if (numOutputs != 0)
@@ -291,6 +292,111 @@ int vtkPLOT3DReader::GetNumberOfOutputs()
     return numOutputs;
     }
   return 1;
+}
+
+int vtkPLOT3DReader::GenerateDefaultConfiguration()
+{
+  FILE* xyzFp;
+  
+  if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
+    {
+    return 0;
+    }
+  char buf[1024];
+  fread(buf, 1, 1024, xyzFp);
+  int retVal = this->VerifySettings(buf, 1024);
+  fclose(xyzFp);
+  return retVal;
+}
+
+void vtkPLOT3DReader::ReadIntBlockV(char** buf, int n, int* block)
+{
+  memcpy(block, *buf, sizeof(int)*n);
+
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+    {
+    vtkByteSwap::Swap4LERange(block, n);
+    }
+  else
+    {
+    vtkByteSwap::Swap4BERange(block, n);
+    }
+  *buf += sizeof(int);
+}
+
+void vtkPLOT3DReader::SkipByteCountV(char** buf)
+{
+  if (this->HasByteCount)
+    {
+    *buf += sizeof(int);
+    }
+}
+
+int vtkPLOT3DReader::VerifySettings(char* buf, int bufSize)
+{
+  int numGrid=0;
+
+  if ( this->MultiGrid )
+    {
+    this->SkipByteCountV(&buf);
+    this->ReadIntBlockV(&buf, 1, &numGrid);
+    this->SkipByteCountV(&buf);
+    }
+  else
+    {
+    numGrid=1;
+    }
+  cout << "Num. grids: " << numGrid << endl;
+
+  int retVal=1;
+
+  long fileSize = 0;
+  // Size of number of grids information.
+  if ( this->MultiGrid )
+    {
+    fileSize += 4; // numGrids
+    if (this->HasByteCount)
+      {
+      fileSize += 4*4; // byte counts for the header
+      }
+    }
+
+  // Add the size of each grid.
+  this->SkipByteCountV(&buf);
+  for(int i=0; i<numGrid; i++)
+    {
+    int ni, nj, nk;
+    this->ReadIntBlockV(&buf, 1, &ni);
+    cout << "Grid " << i << " ni " << ni << endl;
+    this->ReadIntBlockV(&buf, 1, &nj);
+    cout << "Grid " << i << " nj " << nj << endl;
+    if (!this->TwoDimensionalGeometry)
+      {
+      this->ReadIntBlockV(&buf, 1, &nk);
+      cout << "Grid " << i << " nk " << nk << endl;
+      }
+    else
+      {
+      nk = 1;
+      }
+    fileSize += this->EstimateSize(ni, nj, nk);
+    // If this number is larger than the file size, there
+    // is something wrong.
+    if ( fileSize > this->FileSize )
+      {
+      retVal = 0;
+      break;
+      }
+    }
+  this->SkipByteCountV(&buf);
+  // If this number is different than the file size, there
+  // is something wrong.
+  if ( fileSize != this->FileSize )
+    {
+    retVal = 0;
+    }
+
+  return retVal;
 }
 
 // Read the header and return the number of grids.
@@ -711,11 +817,10 @@ void vtkPLOT3DReader::Execute()
           ib2[ipts] = ib[ipts];
           }
         delete[] ib;
-        nthOutput->SetPointVisibility(this->IBlankCache[i]);
+        nthOutput->SetPointVisibilityArray(this->IBlankCache[i]);
         this->IBlankCache[i]->Register( this );
         this->IBlankCache[i]->Delete();
         }
-
       this->SkipByteCount(xyzFp);
       }
 
@@ -739,7 +844,7 @@ void vtkPLOT3DReader::Execute()
 
       if (this->IBlanking)
         {
-        nthOutput->SetPointVisibility(this->IBlankCache[i]);
+        nthOutput->SetPointVisibilityArray(this->IBlankCache[i]);
         }
       }
  }

@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.42");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.43");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2568,7 +2568,6 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
   output->SetPoints(points);
   if (iblanked)
     {
-    ((vtkStructuredGrid*)this->GetOutput(partId))->BlankingOn();
     int *iblanks = new int[numPts];
     this->ReadIntArray(iblanks, numPts);
     

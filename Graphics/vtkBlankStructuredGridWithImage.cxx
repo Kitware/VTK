@@ -23,8 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.7");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.8");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //----------------------------------------------------------------------------
@@ -80,8 +81,7 @@ void vtkBlankStructuredGridWithImage::Execute()
   output->CopyStructure(grid);
   output->GetPointData()->PassData(grid->GetPointData());
   output->GetCellData()->PassData(grid->GetCellData());
-  output->SetPointVisibility(dataArray);
-  output->BlankingOn();
+  output->SetPointVisibilityArray(dataArray);
   
   dataArray->Delete();
 }

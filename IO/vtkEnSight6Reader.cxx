@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.42");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.43");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -2084,7 +2084,6 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   output->SetPoints(points);
   if (iblanked)
     {
-    output->BlankingOn();
     for (i = 0; i < numLines; i++)
       {
       this->ReadNextDataLine(line);
