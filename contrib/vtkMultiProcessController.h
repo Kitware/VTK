@@ -61,6 +61,11 @@ class vtkCollection;
 #define VTK_MP_CONTROLLER_ANY_SOURCE -1
 #define VTK_MP_CONTROLLER_INVALID_SOURCE -2
 
+// The special tag used for RMI communication.
+#define VTK_MP_CONTROLLER_RMI_TAG 315167
+#define VTK_MP_CONTROLLER_RMI_ARG_TAG 315168
+
+
 // Internally implemented RMI to break the process loop.
 #define VTK_BREAK_RMI_TAG           239954
 

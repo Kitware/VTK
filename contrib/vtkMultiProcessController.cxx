@@ -57,10 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-// The special tag used for RMI communication.
-#define VTK_MP_CONTROLLER_RMI_TAG 315167
-#define VTK_MP_CONTROLLER_RMI_ARG_TAG 315168
-
 
 // Helper class to contain the RMI information.  
 // A subclass of vtkObject so that I can keep them in a collection.
@@ -409,8 +405,11 @@ void vtkMultiProcessController::ProcessRMIs()
   
   while (1)
     {
-    this->Receive(triggerMessage, 3, 
-		  VTK_MP_CONTROLLER_ANY_SOURCE, VTK_MP_CONTROLLER_RMI_TAG);
+    if (!this->Receive(triggerMessage, 3, VTK_MP_CONTROLLER_ANY_SOURCE, 
+		       VTK_MP_CONTROLLER_RMI_TAG))
+      {
+      break;
+      }
     if (triggerMessage[1] > 0)
       {
       arg = new unsigned char[triggerMessage[1]];
@@ -433,6 +432,7 @@ void vtkMultiProcessController::ProcessRMIs()
       }
     }
 }
+
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::ProcessRMI(int remoteProcessId, 
