@@ -60,7 +60,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
   renWin->SetSize(400, 300);
-  renWin->SetPosition(410*myId, 0);
+  renWin->SetPosition(0, 350 * myId);
 
   //camera parameters
   vtkCamera* camera = ren->GetActiveCamera();
