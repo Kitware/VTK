@@ -178,7 +178,13 @@ public:
   
 //ETX
 
-
+  // Description:
+  // The default behaviour is to use a vtkImageClip on the input to ensure it is 
+  // the right size. Allow the user to turn that behaviour off.
+  virtual void SetUseImageClipper(int);
+  vtkGetMacro(UseImageClipper, int );
+  vtkBooleanMacro(UseImageClipper, int );
+  
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
@@ -200,6 +206,7 @@ protected:
   vtkTimeStamp         BuildTime;
 
   // Clipper used on input to ensure it is the right size
+  int UseImageClipper;
   vtkImageClip        *ImageClipper;
   
   
