@@ -39,17 +39,18 @@
 #ifndef __vtkGridSynchronizedTemplates3D_h
 #define __vtkGridSynchronizedTemplates3D_h
 
-#include "vtkStructuredGridToPolyDataFilter.h"
+#include "vtkStructuredGridToPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Because it passes all the calls to it
 
 class vtkKitwareContourFilter;
 class vtkMultiThreader;
+class vtkStructuredGrid;
 
-class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataAlgorithm
 {
 public:
   static vtkGridSynchronizedTemplates3D *New();
-  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -130,7 +131,8 @@ public:
   // Description:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
-  void ThreadedExecute(int *exExt, int threadId);
+  void ThreadedExecute(int *exExt, int threadId, vtkStructuredGrid *input,
+                       vtkInformation *outInfo);
 
   // Description:
   // Get/Set the number of threads to create when rendering
@@ -153,10 +155,8 @@ protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
 
-  void Execute();
-  void ExecuteInformation();
-
-  void ComputeInputUpdateExtents( vtkDataObject *output );
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int ComputeNormals;
   int ComputeGradients;

@@ -32,7 +32,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.8");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.9");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -85,7 +85,7 @@ int vtkKitwareCutter::RequestData(
       // only do 3D structured grids (to be extended in the future)
       if (dim >= 3)
         {
-        this->StructuredGridCutter(input, output, outInfo);
+        this->StructuredGridCutter(input, output);
         return 1;
         }
       }
@@ -165,8 +165,7 @@ void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
 }
 
 void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
-                                            vtkPolyData *thisOutput,
-                                            vtkInformation *outInfo)
+                                            vtkPolyData *thisOutput)
 {
   vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(dataSetInput);
   vtkPolyData *output;
@@ -212,12 +211,6 @@ void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   contour->ComputeScalarsOff();
   contour->ComputeNormalsOff();
   output = contour->GetOutput();
-  output->SetUpdateNumberOfPieces(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-  output->SetUpdatePiece(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  output->SetUpdateGhostLevel(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   contour->Update();
   output->Register(this);
   contour->Delete();

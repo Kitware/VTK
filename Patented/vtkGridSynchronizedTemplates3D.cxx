@@ -33,6 +33,8 @@
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
@@ -41,6 +43,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
@@ -50,8 +53,16 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.76");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.77");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
+
+struct vtkGridSynchronizedTemplates3DThreadStruct
+{
+  vtkGridSynchronizedTemplates3D *Filter;
+  vtkInformationVector **InputVector;
+  vtkInformationVector *OutputVector;
+  vtkStructuredGrid *Input;
+};
 
 //----------------------------------------------------------------------------
 // Description:
@@ -107,7 +118,7 @@ void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(
 // then this object is modified as well.
 unsigned long vtkGridSynchronizedTemplates3D::GetMTime()
 {
-  unsigned long mTime=this->vtkStructuredGridToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -354,10 +365,10 @@ if (ComputeScalars) \
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images
 template <class T, class PointsType>
-void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
-                 int *exExt, T *scalars, vtkPolyData *output, PointsType*)
+void ContourGrid(vtkGridSynchronizedTemplates3D *self,
+                 int *exExt, T *scalars,
+                 vtkStructuredGrid *input, vtkPolyData *output, PointsType*)
 {
-  vtkStructuredGrid *input = (vtkStructuredGrid *)self->GetInput();
   int *inExt = input->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
@@ -416,7 +427,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkGridSynchronizedTemplates3DInitializeOutput(self, exExt, self->GetInput(), output, 
+  vtkGridSynchronizedTemplates3DInitializeOutput(self, exExt, input, output, 
                                             newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
@@ -673,31 +684,30 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
 }
 
 template <class T>
-void ContourGrid(vtkGridSynchronizedTemplates3D *self, int threadId,
-                 int *exExt, T *scalars, vtkPolyData *output)
+void ContourGrid(vtkGridSynchronizedTemplates3D *self,
+                 int *exExt, T *scalars, vtkStructuredGrid *input,
+                 vtkPolyData *output)
 {
-  switch(self->GetInput()->GetPoints()->GetData()->GetDataType())
+  switch(input->GetPoints()->GetData()->GetDataType())
     {
-    vtkTemplateMacro6(ContourGrid, self, threadId, exExt, scalars, output,
-                      (VTK_TT*)0);
+    vtkTemplateMacro6(ContourGrid, self, exExt, scalars,
+                      input, output, (VTK_TT*)0);
     }
 }
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
-void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
+void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId,
+                                                     vtkStructuredGrid *input,
+                                                     vtkInformation *outInfo)
 {
-  vtkStructuredGrid *input= this->GetInput();
   vtkPointData *pd = input->GetPointData();
   vtkDataArray *inScalars = pd->GetScalars(this->InputScalarsSelection);
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   long dataSize;
   
-  if (this->NumberOfThreads <= 1)
-    { // Special case when only one thread (fast, no copy).
-    output = this->GetOutput();
-    }
-  else
+  if (this->NumberOfThreads > 1)
     { // For thread saftey, each writes into a separate output which are merged later.
     output = vtkPolyData::New();
     this->Threads[threadId] = output;
@@ -731,8 +741,8 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
     void *scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
       {
-      vtkTemplateMacro5(ContourGrid, this, threadId, exExt, (VTK_TT *)scalars, 
-                        output);
+      vtkTemplateMacro5(ContourGrid, this, exExt, (VTK_TT *)scalars, 
+                        input, output);
       }//switch
     }
   else //multiple components - have to convert
@@ -742,7 +752,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
     image->Allocate(dataSize*image->GetNumberOfComponents());
     inScalars->GetTuples(0,dataSize,image);
     double *scalars = image->GetPointer(0);
-    ContourGrid(this, threadId, exExt, scalars, output);
+    ContourGrid(this, exExt, scalars, input, output);
     image->Delete();
     }
 
@@ -755,83 +765,33 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::ExecuteInformation()
+int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  // Most of this code is for estimating the whole size - this
-  // needs to be changed to update size and moved to another method
-  // Just the last line which sets the outputs maximum number of 
-  // pieces is still needed here.
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  //  vtkStructuredGrid *input = this->GetInput();
-  //  int *ext, dims[3];
-  //  long numPts, numTris;
-  //  long sizePt, sizeTri;
-
-  //  // swag at the output memory size
-  //  // Outside surface.
-  //  ext = input->GetWholeExtent();
-  //  dims[0] = ext[1]-ext[0]+1;
-  //  dims[1] = ext[3]-ext[2]+1;
-  // dims[2] = ext[5]-ext[4]+1;  
-  //  numPts = 2 * (dims[0]*dims[1] + dims[0]*dims[2] + dims[1]*dims[2]);
-  //  numTris = numPts * 2;
-  // Determine the memory for each point and triangle.
-  //  sizeTri = 4 * sizeof(int);
-  //  sizePt = 3 * sizeof(double);
-  //  if (this->ComputeNormals)
-  //    {
-  //    sizePt += 3 * sizeof(double);
-  //    }
-  //  if (this->ComputeGradients)
-  //    {
-  //    sizePt += 3 * sizeof(double);
-  //    }
-  //  if (this->ComputeScalars)
-  //    {
-  //    sizePt += sizeof(double);
-  //    }
-  //  // Set the whole output estimated memory size in kBytes.
-  //  // be careful not to overflow.
-  //  numTris = numTris / 1000;
-  //  if (numTris == 0)
-  //   {
-  //    numTris = 1;
-  //    }
-  //  numPts = numPts / 1000;
-  //  if (numPts == 0)
-  //    {
-  //    numPts = 1;
-  //    }
-  //  this->GetOutput()->SetEstimatedWholeMemorySize(
-  //                    numTris*sizeTri + numPts*sizePt);
-}
-
-//----------------------------------------------------------------------------
-
-void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *out )
-
-{
-  vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = (vtkPolyData *)out;
   int piece, numPieces, ghostLevel;
   int *wholeExt;
   int ext[6];
-  vtkExtentTranslator *translator;
 
-  if (!input)
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
-
-  translator = input->GetExtentTranslator();  
-  wholeExt = input->GetWholeExtent();
+  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Get request from output
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   // Start with the whole grid.
-  input->GetWholeExtent(ext);  
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
 
   // get the extent associated with the piece.
   if (translator == NULL)
@@ -899,7 +859,8 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
     }
 
   // Set the update extent of the input.
-  input->SetUpdateExtent(ext);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -923,18 +884,20 @@ void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
 {
-  vtkGridSynchronizedTemplates3D *self;
+  vtkGridSynchronizedTemplates3DThreadStruct *str;
   int threadId, threadCount;
   int ext[6], *tmp;
   
   threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
   threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  self = (vtkGridSynchronizedTemplates3D *)
-            (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  str = (vtkGridSynchronizedTemplates3DThreadStruct*)
+    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
+  vtkInformation *inInfo = str->InputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = str->OutputVector->GetInformationObject(0);
 
   // we need to breakup the ExecuteExtent based on the threadId/Count
-  tmp = self->GetExecuteExtent();
+  tmp = str->Filter->GetExecuteExtent();
   ext[0] = tmp[0];
   ext[1] = tmp[1];
   ext[2] = tmp[2];
@@ -942,13 +905,15 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
   ext[4] = tmp[4];
   ext[5] = tmp[5];
   
-  vtkExtentTranslator *translator = self->GetInput()->GetExtentTranslator();
+  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+
   if (translator == NULL)
     {
     // No translator means only do one thread.
     if (threadId == 0)
       {
-      self->ThreadedExecute(ext, threadId);
+      str->Filter->ThreadedExecute(ext, threadId, str->Input, outInfo);
       }
     }
   else
@@ -956,7 +921,7 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
     if (translator->PieceToExtentThreadSafe(threadId, threadCount,0,tmp, ext, 
                                             translator->GetSplitMode(),0))
       {
-      self->ThreadedExecute(ext, threadId);
+      str->Filter->ThreadedExecute(ext, threadId, str->Input, outInfo);
       }
     }
   
@@ -964,12 +929,24 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::Execute()
+int vtkGridSynchronizedTemplates3D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int idx;
   vtkIdType numCellPts=0, inId, outId, offset, num, ptIdx, newIdx;
   vtkIdType newCellPts[3], *cellPts = 0;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
   vtkCellData *outCD;
   vtkPolyData *threadOut = NULL;
@@ -977,22 +954,16 @@ void vtkGridSynchronizedTemplates3D::Execute()
   vtkCellData *threadCD;
   vtkCellArray *threadTris;
   
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("No input.");
-    return;
-    }
-
   // Make sure the attributes match the geometry.
-  if (this->GetInput()->CheckAttributes())
+  if (input->CheckAttributes())
     {
-    return;
+    return 1;
     }
 
   if (this->NumberOfThreads <= 1)
     {
     // just call the threaded execute directly.
-    this->ThreadedExecute(this->GetExecuteExtent(), 0);
+    this->ThreadedExecute(this->GetExecuteExtent(), 0, input, outInfo);
     }
   else
     {
@@ -1002,7 +973,12 @@ void vtkGridSynchronizedTemplates3D::Execute()
     
     this->Threader->SetNumberOfThreads(this->NumberOfThreads);
     // Setup threading and the invoke threadedExecute
-    this->Threader->SetSingleMethod(vtkGridSyncTempThreadedExecute, this);
+    vtkGridSynchronizedTemplates3DThreadStruct str;
+    str.Filter = this;
+    str.InputVector = inputVector;
+    str.OutputVector = outputVector;
+    str.Input = input;
+    this->Threader->SetSingleMethod(vtkGridSyncTempThreadedExecute, &str);
     this->Threader->SingleMethodExecute();
     
     // Collect all the data into the output.  Now I cannot use append filter
@@ -1123,5 +1099,6 @@ void vtkGridSynchronizedTemplates3D::Execute()
     }
   
   output->Squeeze();
-}
 
+  return 1;
+}

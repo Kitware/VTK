@@ -55,7 +55,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void StructuredPointsCutter(vtkDataSet *, vtkPolyData *);
-  void StructuredGridCutter(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
   void RectilinearGridCutter(vtkDataSet *, vtkPolyData *, vtkInformation *);
   
 private:
