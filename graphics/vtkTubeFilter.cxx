@@ -179,13 +179,13 @@ void vtkTubeFilter::Execute()
     {
     // if necessary calculate normals, each polyline calculates it's
     // normals independently, avoiding conflicts at shared vertices
-    vtkCellArray *single_polyline = vtkCellArray::New();
+    vtkCellArray *singlePolyline = vtkCellArray::New();
     if (generate_normals) 
       {
-      single_polyline->InsertNextCell( npts, pts );
+      singlePolyline->InsertNextCell( npts, pts );
     
-      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,single_polyline,
-					  (vtkNormals*)inNormals) )
+      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
+                                          (vtkNormals*)inNormals) )
         {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals)
@@ -195,11 +195,10 @@ void vtkTubeFilter::Execute()
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
-	single_polyline->Delete();
+        singlePolyline->Delete();
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
-	single_polyline->Delete();
         return;
         }
       }
@@ -256,17 +255,17 @@ void vtkTubeFilter::Execute()
       if ( vtkMath::Normalize(sNext) == 0.0 )
         {
         vtkErrorMacro(<<"Coincident points!");
-	if (deleteNormals)
-	  {
-	  inNormals->Delete();
-	  }
+        if (deleteNormals)
+          {
+          inNormals->Delete();
+          }
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
-	single_polyline->Delete();
+        singlePolyline->Delete();
         return;
         }
 
@@ -316,7 +315,7 @@ void vtkTubeFilter::Execute()
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
-	single_polyline->Delete();
+        singlePolyline->Delete();
         return;
         }
       
@@ -377,7 +376,7 @@ void vtkTubeFilter::Execute()
       } //for each side of the tube
 
     ptOffset += this->NumberOfSides*npts;
-    single_polyline->Delete();
+    singlePolyline->Delete();
     }//for each polyline
 
   // Take care of capping
