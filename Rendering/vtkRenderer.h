@@ -345,6 +345,13 @@ public:
   // vtkIceTRenderer in ParaView.
   virtual void StereoMidpoint() { return; };
 
+  // Description:
+  // Compute the aspect ratio of this renderer for the current tile. When
+  // tiled displays are used the aspect ratio of the renderer for a given
+  // tile may be diferent that the aspect ratio of the renderer when rendered
+  // in it entirity
+  double GetTiledAspectRatio();
+  
 protected:
   vtkRenderer();
   ~vtkRenderer();

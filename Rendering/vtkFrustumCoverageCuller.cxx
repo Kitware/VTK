@@ -20,7 +20,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.31");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.32");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -54,7 +54,6 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   double               *distanceList;
   int                 index1, index2;
   double               tmp;
-  double              aspect[2];
 
   // We will create a center distance entry for each prop in the list
   // If SortingStyle is set to BackToFront or FrontToBack we will then
@@ -66,10 +65,10 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   // normalization.
   total_time  = 0;
 
-  ren->GetAspect( aspect );
   // Get the view frustum planes from the active camera
-  ren->GetActiveCamera()->GetFrustumPlanes( (aspect[0] / aspect[1]), planes );
-
+  ren->GetActiveCamera()->GetFrustumPlanes(
+    ren->GetTiledAspectRatio(), planes );
+  
   // Keep a list of allocated times to help with sorting / removing
   // props later
   allocatedTimeList = new double[listLength];

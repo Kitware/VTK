@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.206");
+vtkCxxRevisionMacro(vtkRenderer, "1.207");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -993,30 +993,10 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   vtkMatrix4x4 *mat = vtkMatrix4x4::New();
   double result[4];
 
-  int usize, vsize;
-  this->GetTiledSize(&usize,&vsize);
-
-  // some renderer subclasses may have more complicated computations for the
-  // aspect ratio. SO take that into account by computing the difference
-  // between our simple aspect ratio and what the actual renderer is
-  // reporting.
-  double aspect[2];
-  this->ComputeAspect();
-  this->GetAspect(aspect);
-  double aspect2[2];
-  this->vtkViewport::ComputeAspect();
-  this->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
-  
-  double finalAspect = 1.0;
-  if(vsize)
-    {
-    finalAspect = aspectModification*usize/vsize;
-    }
-  
   // get the perspective transformation from the active camera 
   mat->DeepCopy(this->ActiveCamera->
-                GetCompositePerspectiveTransformMatrix(finalAspect,0,1));
+                GetCompositePerspectiveTransformMatrix(
+                  this->GetTiledAspectRatio(),0,1));
   
   // use the inverse matrix 
   mat->Invert();
@@ -1057,30 +1037,10 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double     view[4];
 
-  int usize, vsize;
-  this->GetTiledSize(&usize,&vsize);
-
-  // some renderer subclasses may have more complicated computations for the
-  // aspect ratio. SO take that into account by computing the difference
-  // between our simple aspect ratio and what the actual renderer is
-  // reporting.
-  double aspect[2];
-  this->ComputeAspect();
-  this->GetAspect(aspect);
-  double aspect2[2];
-  this->vtkViewport::ComputeAspect();
-  this->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
-  
-  double finalAspect = 1.0;
-  if(vsize)
-    {
-    finalAspect = aspectModification*usize/vsize;
-    }
-  
   // get the perspective transformation from the active camera 
   matrix->DeepCopy(this->ActiveCamera->
-                GetCompositePerspectiveTransformMatrix(finalAspect,0,1));
+                GetCompositePerspectiveTransformMatrix(
+                  this->GetTiledAspectRatio(),0,1));
 
   view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +
     z*matrix->Element[0][2] + matrix->Element[0][3];
@@ -1418,4 +1378,27 @@ int  vtkRenderer::Transparent()
   return (this->Layer == 0 ? 0 : 1);
 }
 
+double vtkRenderer::GetTiledAspectRatio()
+{
+  int usize, vsize;
+  this->GetTiledSize(&usize,&vsize);
 
+  // some renderer subclasses may have more complicated computations for the
+  // aspect ratio. SO take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is
+  // reporting.
+  double aspect[2];
+  this->ComputeAspect();
+  this->GetAspect(aspect);
+  double aspect2[2];
+  this->vtkViewport::ComputeAspect();
+  this->vtkViewport::GetAspect(aspect2);
+  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  
+  double finalAspect = 1.0;
+  if(vsize)
+    {
+    finalAspect = aspectModification*usize/vsize;
+    }
+  return finalAspect;
+}
