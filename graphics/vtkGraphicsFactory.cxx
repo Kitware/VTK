@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
+#include "stdlib.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLActor.h"
@@ -281,8 +282,8 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-
-  
+ vtkGenericWarningMacro("Attempting to create an OpenGL or Mesa based object with a VTK that is not linked/configured with Mesa/OpenGL.");
+  abort();
   return 0;
 }
 

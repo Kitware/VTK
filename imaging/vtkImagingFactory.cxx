@@ -278,7 +278,9 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-#endif  
+#endif 
+  vtkGenericWarningMacro("Attempting to create an OpenGL or Mesa based object with a VTK that is not linked/configured with Mesa/OpenGL.");
+  abort();
   return 0;
 }
 
