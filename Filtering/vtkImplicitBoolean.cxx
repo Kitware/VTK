@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitBoolean, "1.34");
+vtkCxxRevisionMacro(vtkImplicitBoolean, "1.35");
 vtkStandardNewMacro(vtkImplicitBoolean);
 
 // Construct with union operation.
@@ -79,6 +79,10 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
   double v;
   vtkImplicitFunction *f;
 
+  if (this->FunctionList->GetNumberOfItems() == 0)
+    {
+    return value;
+    }
   
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
@@ -147,6 +151,12 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
   double value = 0;
   double v;
   vtkImplicitFunction *f;
+
+  if (this->FunctionList->GetNumberOfItems() == 0)
+    {
+    g[0] = 0; g[1] = 0; g[2] = 0;
+    return;
+    }
 
   if ( this->OperationType == VTK_UNION )
     { //take minimum value

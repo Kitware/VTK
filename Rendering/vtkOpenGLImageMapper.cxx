@@ -31,7 +31,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.56");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.57");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -96,7 +96,7 @@ inline int vtkPadToFour(int n)
 
 template <class T>
 void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data, 
-                                T *dataPtr, float shift, float scale,
+                                T *dataPtr, double shift, double scale,
                                 int *actorPos, int *actorPos2, int front, int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
@@ -140,7 +140,7 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
     }
 
   unsigned char *ptr = newPtr;
-  float val;
+  double val;
   unsigned char tmp;
 
   while (--j >= 0)
@@ -220,7 +220,7 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
 
 template <class T>
 void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data, 
-                                     T *dataPtr, float shift, float scale,
+                                     T *dataPtr, double shift, double scale,
                                      int *actorPos, int *actorPos2, int front, 
                                      int *vsize)
 {
@@ -506,7 +506,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
                                      vtkImageData *data, vtkActor2D *actor)
 {
   void *ptr0;
-  float shift, scale;
+  double shift, scale;
 
   vtkWindow* window = (vtkWindow *) viewport->GetVTKWindow();
   if (!window)

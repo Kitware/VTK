@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.29");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.30");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -111,7 +111,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *vtkNotUsed(out))
       input->UpdateData();
       // copy the resulting data into the output buffer
       output->CopyAndCastFrom(input, translator->GetExtent());    
-      this->UpdateProgress((float)piece/(this->NumberOfStreamDivisions - 1.0));
+      this->UpdateProgress((float)(piece+1.0)/(float)this->NumberOfStreamDivisions);
       }
     }
   
