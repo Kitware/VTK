@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStructuredPointsReader.h"
 #include "vtkObjectFactory.h"
+#include "vtkErrorCode.h"
 
 //--------------------------------------------------------------------------
 vtkStructuredPointsReader* vtkStructuredPointsReader::New()
@@ -91,6 +92,7 @@ vtkStructuredPoints *vtkStructuredPointsReader::GetOutput()
 // structured points sources compute information
 void vtkStructuredPointsReader::ExecuteInformation()
 {
+  this->SetErrorCode( vtkErrorCode::NoError );
   vtkStructuredPoints *output = this->GetOutput();
   vtkDataArray *scalars;
   int saveRequestFlag;
@@ -117,6 +119,7 @@ void vtkStructuredPointsReader::ExecuteInformation()
 
 void vtkStructuredPointsReader::Execute()
 {
+  this->SetErrorCode( vtkErrorCode::NoError );
   int numPts=0, numCells=0;
   char line[256];
   int npts, ncells;
@@ -140,6 +143,7 @@ void vtkStructuredPointsReader::Execute()
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();
+    this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
     return;
     }
 
@@ -151,6 +155,7 @@ void vtkStructuredPointsReader::Execute()
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
+      this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
       return;
       } 
 
@@ -158,6 +163,7 @@ void vtkStructuredPointsReader::Execute()
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile ();
+      this->SetErrorCode( vtkErrorCode::UnrecognizedFileTypeError );
       return;
       }
 
@@ -186,6 +192,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
 
@@ -204,6 +211,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Error reading spacing!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
 
@@ -220,6 +228,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Error reading origin!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
 
@@ -233,6 +242,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Cannot read cell data!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
         
@@ -240,6 +250,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Number of cells don't match data values!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
 
@@ -253,6 +264,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
         
@@ -260,6 +272,7 @@ void vtkStructuredPointsReader::Execute()
           {
           vtkErrorMacro(<<"Number of points don't match data values!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return;
           }
 
@@ -271,6 +284,7 @@ void vtkStructuredPointsReader::Execute()
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
         this->CloseVTKFile ();
+        this->SetErrorCode( vtkErrorCode::FileFormatError );
         return;
         }
       }
@@ -287,6 +301,7 @@ void vtkStructuredPointsReader::Execute()
       {
       vtkErrorMacro(<<"Cannot read cell data!");
       this->CloseVTKFile ();
+      this->SetErrorCode( vtkErrorCode::FileFormatError );
       return;
       }
     this->ReadCellData(output, numCells);
@@ -299,6 +314,7 @@ void vtkStructuredPointsReader::Execute()
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->CloseVTKFile ();
+      this->SetErrorCode( vtkErrorCode::FileFormatError );
       return;
       }
     this->ReadPointData(output, numPts);
