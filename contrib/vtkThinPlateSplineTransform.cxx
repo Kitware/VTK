@@ -140,7 +140,7 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   // The InverseTolerance sets the precision to which we want to 
   // calculate the inverse.
   // The ApproximateInverse is a vtkThinPlateSlineTransform with
-  // source & target lanmarks swapped.  It provides the first
+  // source & target landmarks swapped.  It provides the first
   // approximation in the iterative method.
   this->InverseFlag = 0;
   this->InverseTolerance = 0.001;
@@ -648,6 +648,7 @@ void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
   vtkGeneralTransform::PrintSelf(os,indent);
   
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
+  os << indent << "InverseTolerance: " << this->InverseTolerance << "\n";
   os << indent << "Sigma: " << this->Sigma << "\n";
   os << indent << "Source Landmarks: " << this->SourceLandmarks << "\n";
   if (this->SourceLandmarks)
