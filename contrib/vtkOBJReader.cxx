@@ -205,8 +205,8 @@ void vtkOBJReader::Execute()
             else 
               {
               sscanf (ptr, "%d", &objTCoordId);
-              blank = (char *) strchr (line, (int) ' ');
-              slash = (char *) strchr (line, (int) '/');
+              blank = (char *) strchr (ptr, (int) ' ');
+              slash = (char *) strchr (ptr, (int) '/');
               if (blank && slash && (slash < blank)) 
                 {
                 ptr = slash + 1;
