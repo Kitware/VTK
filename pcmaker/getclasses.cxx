@@ -645,6 +645,15 @@ void ReadMakefiles(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkWin32ImageMapper");
     concrete_lib[num_concrete] = strdup("imaging");
     num_concrete++;
+    concrete[num_concrete] = strdup("vtkOpenGLPolyDataMapper2D");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+    concrete[num_concrete] = strdup("vtkOpenGLImager");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+    concrete[num_concrete] = strdup("vtkWin32OpenGLImageWindow");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
     concrete[num_concrete] = strdup("vtkWin32ImageWindow");
     concrete_lib[num_concrete] = strdup("imaging");
     num_concrete++;
