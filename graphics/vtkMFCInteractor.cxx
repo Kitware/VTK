@@ -538,10 +538,19 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
       float zoomFactor;
       float *clippingRange;
       yf = ((Size[1] - this->LastPosition.y) - Center[1])/(float)Center[1];
-      zoomFactor = pow(1.1,(double) yf);
-      clippingRange = CurrentCamera->GetClippingRange();
-      CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,			  clippingRange[1]/zoomFactor);
-      CurrentCamera->Zoom(zoomFactor);
+      zoomFactor = pow((double)1.1,(double)yf);
+      if (this->CurrentCamera->GetParallelProjection())
+	{
+	this->CurrentCamera->
+	  SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
+	}
+      else
+	{
+	clippingRange = this->CurrentCamera->GetClippingRange();
+	this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
+					    clippingRange[1]/zoomFactor);
+	this->CurrentCamera->Dolly(zoomFactor);
+	}
       Update();
       }
       break;
