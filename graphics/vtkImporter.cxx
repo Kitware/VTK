@@ -45,11 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 vtkImporter::vtkImporter ()
 {
-  this->FileName = NULL;
-  this->FileFD = NULL;
   this->Renderer = NULL;
   this->RenderWindow = NULL;
-  this->ComputeNormals = 0;
 }
 
 vtkImporter::~vtkImporter ()
@@ -62,10 +59,15 @@ vtkImporter::~vtkImporter ()
     this->Renderer = NULL;
     }
   
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+}
+
+void vtkImporter::ReadData()
+{
+  // this->Import actors, cameras, lights and properties
+  this->ImportActors (this->Renderer);
+  this->ImportCameras (this->Renderer);
+  this->ImportLights (this->Renderer);
+  this->ImportProperties (this->Renderer);
 }
 
 void vtkImporter::Read ()
@@ -95,52 +97,11 @@ void vtkImporter::Read ()
     this->Renderer->Register( this );
     }
 
-  // Open the import file
-  if (this->OpenImportFile ())
+  if (this->ImportBegin ())
     {
-
-    if (this->ImportBegin ())
-      {
-      // this->Import actors, cameras, lights and properties
-      this->ImportActors (renderer);
-      this->ImportCameras (renderer);
-      this->ImportLights (renderer);
-      this->ImportProperties (renderer);
-      }
-	this->ImportEnd();
-    // Close the import file
-    this->CloseImportFile ();
+    this->ReadData();
+    this->ImportEnd();
     }
-}
-
-// Open an import file. Returns zero if error.
-int vtkImporter::OpenImportFile ()
-{
-  vtkDebugMacro(<< "Opening import file");
-
-  if ( !this->FileName )
-    {
-    vtkErrorMacro(<< "No file specified!");
-    return 0;
-    }
-  this->FileFD = fopen (this->FileName, "r");
-  if (this->FileFD == NULL)
-    {
-    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
-    return 0;
-    }
-  return 1;
-}
-
-// Close an import file.
-void vtkImporter::CloseImportFile()
-{
-  vtkDebugMacro(<<"Closing import file");
-  if ( this->FileFD != NULL )
-    {
-    fclose (this->FileFD);
-    }
-  this->FileFD = NULL;
 }
 
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -167,11 +128,6 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
 
-  os << indent << "File Name: " 
-     << (this->FileName ? this->FileName : "(none)") << "\n";
-
-  os << indent << "Compute Normals: " 
-     << (this->ComputeNormals ? "On\n" : "Off\n");
 }
 
 

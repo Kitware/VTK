@@ -76,14 +76,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkSystemIncludes.h"
+#include "vtkObjectFactory.h"
 
 // Provide isatty prototype for Cygwin. 
 #ifdef __CYGWIN__
 #include <unistd.h>
 #endif
-
-// Used later to get the current VRMLImporter
-static vtkVRMLImporter *CurrentImporter;
 
 // Used during the parsing
 static int creatingDEF = 0;
@@ -461,7 +459,7 @@ static void inScript();
 static void expect(int type);
 
 void yyerror(const char *);
-int  yylex(void);
+int  yylex(vtkVRMLImporter* self);
 
 
 typedef union {
@@ -746,7 +744,7 @@ char *alloca ();
 #endif /* not HAVE_ALLOCA_H */
 #endif /* not __GNUC__ */
 
-extern int yylex();
+extern int yylex(vtkVRMLImporter* self);
 extern void yyerror();
 
 #ifndef alloca
@@ -876,7 +874,7 @@ int yydebug;                    /*  nonzero means print parse trace     */
 
 /* Prevent warning if -Wstrict-prototypes.  */
 #ifdef __GNUC__
-int yyparse (void);
+int yyparse (vtkVRMLImporter*);
 #endif
 
 #if __GNUC__ > 1                /* GNU C and GNU C++ define this.  */
@@ -920,22 +918,8 @@ __yy_memcpy (char *from, char *to, int count)
 
 
 
-/* The user can define YYPARSE_PARAM as the name of an argument to be passed
-   into yyparse.  The argument should have type void *.
-   It should actually point to an object.
-   Grammar actions can access the variable by casting it
-   to the proper pointer type.  */
-
-#ifdef YYPARSE_PARAM
-#define YYPARSE_PARAM_DECL void *YYPARSE_PARAM;
-#else
-#define YYPARSE_PARAM
-#define YYPARSE_PARAM_DECL
-#endif
-
 int
-yyparse(YYPARSE_PARAM)
-  YYPARSE_PARAM_DECL
+yyparse(vtkVRMLImporter* self)
 {
   register int yystate;
   register int yyn;
@@ -1104,7 +1088,7 @@ yyparse(YYPARSE_PARAM)
     if (yydebug)
       fprintf(stderr, "Reading a token: ");
 #endif
-    yychar = YYLEX;
+    yychar = yylex(self);
     }
 
   /* Convert token to internal form (in yychar1) for indexing tables with */
@@ -1228,7 +1212,7 @@ yyparse(YYPARSE_PARAM)
     { creatingDEF = 0; ;
     break;}
   case 11:
-    { CurrentImporter->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
+    { self->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
     break;}
   case 14:
     { beginProto(yyvsp[0].string); ;
@@ -1287,16 +1271,16 @@ yyparse(YYPARSE_PARAM)
     { free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
     break;}
   case 34:
-    { CurrentImporter->enterNode(yyvsp[0].string); ;
+    { self->enterNode(yyvsp[0].string); ;
     break;}
   case 35:
-    { CurrentImporter->exitNode(); free(yyvsp[-4].string);;
+    { self->exitNode(); free(yyvsp[-4].string);;
     break;}
   case 38:
-    { CurrentImporter->enterField(yyvsp[0].string); ;
+    { self->enterField(yyvsp[0].string); ;
     break;}
   case 39:
-    { CurrentImporter->exitField(); free(yyvsp[-2].string); ;
+    { self->exitField(); free(yyvsp[-2].string); ;
     break;}
   case 42:
     { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
@@ -4186,7 +4170,7 @@ YY_MALLOC_DECL
  * easily add parameters.
  */
 #ifndef YY_DECL
-#define YY_DECL int yylex YY_PROTO(( void ))
+#define YY_DECL int yylex ( vtkVRMLImporter* self )
 #endif
 
 /* Code executed at the beginning of each rule, after yytext and yyleng
@@ -4201,7 +4185,45 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-YY_DECL
+vtkVRMLImporter* vtkVRMLImporter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVRMLImporter");
+  if(ret)
+    {
+    return (vtkVRMLImporter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVRMLImporter;
+}
+
+vtkPoints* vtkVRMLImporter::PointsNew()
+{
+  vtkPoints* pts = vtkPoints::New();
+  this->Heap.Push(pts);
+  return pts;
+}
+
+vtkIntArray* vtkVRMLImporter::IntArrayNew()
+{
+  vtkIntArray* array = vtkIntArray::New();
+  this->Heap.Push(array);
+  return array;
+}
+
+void vtkVRMLImporter::DeleteObject(vtkObject* obj)
+{
+  for(int i=0; i<this->Heap.Count(); i++)
+    {
+    if (obj == this->Heap[i])
+      {
+      this->Heap[i] = 0;
+      }
+    }
+  obj->Delete();
+}
+
+int yylex ( vtkVRMLImporter* self )
 {
   register yy_state_type yy_current_state;
   register char *yy_cp, *yy_bp;
@@ -4425,14 +4447,14 @@ YY_DECL
 	    YY_USER_ACTION
 	  { if (parsing_mf) yyerror("Double [");
 	  parsing_mf = 1;
-	  yylval.mfint32 = vtkIntArray::New();
+	  yylval.mfint32 = self->IntArrayNew();
 	  }
         YY_BREAK
 	  case 19:
 	    YY_USER_ACTION
 	  { if (parsing_mf) yyerror("Double [");
 	  parsing_mf = 1;
-	  yylval.vec3f = vtkPoints::New();
+	  yylval.vec3f = self->PointsNew();
 	  }
         YY_BREAK
 	  case 20:
@@ -4499,7 +4521,7 @@ YY_DECL
 	YY_USER_ACTION
 	  {   BEGIN NODE; expectToken = 0;
 	  float num[3];
-	  yylval.vec3f = vtkPoints::New();
+	  yylval.vec3f = self->PointsNew();
 	  num[0] = atof(strtok(yytext, " "));
 	  num[1] = atof(strtok(NULL, " "));
 	  num[2] = atof(strtok(NULL, " "));
@@ -4538,7 +4560,7 @@ YY_DECL
 	    YY_USER_ACTION
 	  { BEGIN NODE; expectToken = 0;
 	  float num[3];
-	  yylval.vec3f = vtkPoints::New();
+	  yylval.vec3f = self->PointsNew();
 	  num[0] = atof(strtok(yytext, " "));
 	  num[1] = atof(strtok(NULL, " "));
 	  num[2] = atof(strtok(NULL, " "));
@@ -5302,10 +5324,37 @@ vtkVRMLImporter::vtkVRMLImporter ()
   this->CurrentMapper = NULL;
   this->CurrentLut = NULL;
   this->CurrentTransform = vtkTransform::New();
+  this->FileName = NULL;
+  this->FileFD = NULL;
+}
+
+// Open an import file. Returns zero if error.
+int vtkVRMLImporter::OpenImportFile ()
+{
+  vtkDebugMacro(<< "Opening import file");
+
+  if ( !this->FileName )
+    {
+    vtkErrorMacro(<< "No file specified!");
+    return 0;
+    }
+  this->FileFD = fopen (this->FileName, "r");
+  if (this->FileFD == NULL)
+    {
+    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    return 0;
+    }
+  return 1;
 }
 
 int vtkVRMLImporter::ImportBegin ()
 {
+
+  if (!this->OpenImportFile())
+    {
+    return 0;
+    }
+
   // This is acrually where it all takes place, Since VRML is a SG
   // And is state based, I need to create actors, cameras, and lights
   // as I go. The ImportXXXXXX rotuines are not used.
@@ -5314,7 +5363,6 @@ int vtkVRMLImporter::ImportBegin ()
   // Lets redefine the YY_INPUT macro on Flex and get chars from memory
   theyyInput = memyyInput;
   // Crank up the yacc parser...
-  CurrentImporter = this;
   yydebug = 0;
   yy_flex_debug = 0;
   /*FILE *standardNodes = fopen("standardNodes.wrl", "r");
@@ -5323,7 +5371,7 @@ int vtkVRMLImporter::ImportBegin ()
         return 0;
     }
     yyin = standardNodes;*/
-  yyparse();
+  yyparse(this);
   yyin = NULL;
   yyResetLineNumber();
   //fclose(standardNodes);
@@ -5342,7 +5390,7 @@ int vtkVRMLImporter::ImportBegin ()
   // in the spec), and pushing/popping the namespace when reading each
   // file is a good habit to get into:
   VrmlNodeType::pushNameSpace();
-  yyparse();
+  yyparse(this);
   VrmlNodeType::popNameSpace();
 
   fclose(yyin);
@@ -5399,11 +5447,36 @@ vtkVRMLImporter::~vtkVRMLImporter()
     this->CurrentLut->Delete();
     }
   this->CurrentTransform->Delete();
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  while(this->Heap.Count() > 0)
+    {
+    vtkObject* obj = this->Heap.Pop();
+    if (obj)
+      {
+      obj->Delete();
+      }
+    }
+}
+
+void vtkVRMLImporter::ImportEnd ()
+{
+  vtkDebugMacro(<<"Closing import file");
+  if ( this->FileFD != NULL )
+    {
+    fclose (this->FileFD);
+    }
+  this->FileFD = NULL;
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImporter::PrintSelf(os,indent);
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
+
   os << "Defined names in File:" << endl;
   for (int i = 0;i < useList.Count();i++) 
     {
@@ -5725,13 +5798,13 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "diffuseColor") == 0) 
     {
     this->CurrentProperty->SetDiffuseColor(yylval.vec3f->GetPoint(0));
-    yylval.vec3f->Reset();yylval.vec3f->Delete();yylval.vec3f = NULL;
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For emissiveColor field, only in material node
   else if (strcmp(fr->fieldName, "emissiveColor") == 0) 
     {
     this->CurrentProperty->SetAmbientColor(yylval.vec3f->GetPoint(0));
-    yylval.vec3f->Reset();yylval.vec3f->Delete();yylval.vec3f = NULL;
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For shininess field, only in material node
   else if (strcmp(fr->fieldName, "shininess") == 0) 
@@ -5742,7 +5815,7 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "specularColor") == 0) 
     {
     this->CurrentProperty->SetSpecularColor(yylval.vec3f->GetPoint(0));
-    yylval.vec3f->Reset();yylval.vec3f->Delete();yylval.vec3f = NULL;
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For transparency field, only in material node
   else if (strcmp(fr->fieldName, "transparency") == 0) 
@@ -5757,7 +5830,7 @@ vtkVRMLImporter::exitField()
       {
       yylval.vec3f->GetPoint(0, vals);
       this->CurrentTransform->Translate(vals[0],vals[1],vals[2]);
-      yylval.vec3f->Reset();yylval.vec3f->Delete(); yylval.vec3f = NULL;
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
       }
     }
   // For the scale field
@@ -5768,7 +5841,7 @@ vtkVRMLImporter::exitField()
       {
       yylval.vec3f->GetPoint(0, vals);
       this->CurrentTransform->Scale(vals[0],vals[1],vals[2]);
-      yylval.vec3f->Reset();yylval.vec3f->Delete(); yylval.vec3f = NULL;
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
       }
     }
   // For the size field
@@ -5781,7 +5854,7 @@ vtkVRMLImporter::exitField()
       ((vtkCubeSource *)this->CurrentSource)->SetXLength(vals[0]);
       ((vtkCubeSource *)this->CurrentSource)->SetYLength(vals[1]);
       ((vtkCubeSource *)this->CurrentSource)->SetZLength(vals[2]);
-      yylval.vec3f->Reset();yylval.vec3f->Delete(); yylval.vec3f = NULL;
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
       }
     }
   // For the height field
@@ -5848,7 +5921,7 @@ vtkVRMLImporter::exitField()
     this->CurrentMapper->SetInput(pd);
     pd->Delete();
     cells->Delete();
-    yylval.mfint32->Reset();yylval.mfint32->Delete();
+    yylval.mfint32->Reset();this->DeleteObject(yylval.mfint32);
     }
   // Handle point field
   else if (strcmp(fr->fieldName, "point") == 0) 
@@ -5878,6 +5951,7 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "coord") == 0) 
     {
     this->CurrentPoints = yylval.vec3f;
+    this->CurrentPoints->Register(this);
     if (creatingDEF) 
       {
       useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
@@ -5891,7 +5965,7 @@ vtkVRMLImporter::exitField()
     if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
       {
       this->CurrentLight->SetColor(yylval.vec3f->GetPoint(0));
-      yylval.vec3f->Reset();yylval.vec3f->Delete();yylval.vec3f = NULL;
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
       }
     // For the Color node, Insert colors into lookup table
     // These are associated with the points in the coord field
@@ -5956,7 +6030,7 @@ vtkVRMLImporter::exitField()
     // For Directional light.
     if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) {
     this->CurrentLight->SetFocalPoint(yylval.vec3f->GetPoint(0));
-    yylval.vec3f->Reset();yylval.vec3f->Delete();yylval.vec3f = NULL;
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
     // For 
     }
@@ -6002,19 +6076,19 @@ vtkVRMLImporter::exitField()
       yylval.vec3f->GetPoint(i, vals3);
       this->CurrentNormals->InsertNormal(i, vals3);
       }
-    yylval.vec3f->Reset();yylval.vec3f->Delete();
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
   else if (strcmp(fr->fieldName, "location") == 0) 
     {
-    yylval.vec3f->Reset();yylval.vec3f->Delete();
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
   else if (strcmp(fr->fieldName, "position") == 0) 
     {
-    yylval.vec3f->Reset();yylval.vec3f->Delete();
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
   else if (strcmp(fr->fieldName, "center") == 0) 
     {
-    yylval.vec3f->Reset();yylval.vec3f->Delete();
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
   else
     {

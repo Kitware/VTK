@@ -134,12 +134,14 @@ vtk3DSImporter::vtk3DSImporter ()
   this->MeshList = NULL;
   this->MaterialList = NULL;
   this->MatPropList = NULL;
+  this->FileName = NULL;
+  this->FileFD = NULL;
+  this->ComputeNormals = 0;
 }
 
 int vtk3DSImporter::ImportBegin ()
 {
   vtkDebugMacro(<< "Opening import file as binary");
-  fclose (this->FileFD);
   this->FileFD = fopen (this->FileName, "rb");
   if (this->FileFD == NULL)
     {
@@ -147,6 +149,16 @@ int vtk3DSImporter::ImportBegin ()
     return 0;
     }
   return this->Read3DS ();
+}
+
+void vtk3DSImporter::ImportEnd ()
+{
+  vtkDebugMacro(<<"Closing import file");
+  if ( this->FileFD != NULL )
+    {
+    fclose (this->FileFD);
+    }
+  this->FileFD = NULL;
 }
 
 int vtk3DSImporter::Read3DS ()
@@ -1259,11 +1271,21 @@ vtk3DSImporter::~vtk3DSImporter()
 
   // then delete the list structure
   VTK_LIST_KILL (this->MatPropList);
+
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
 }
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImporter::PrintSelf(os,indent);
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
+
+  os << indent << "Compute Normals: " 
+     << (this->ComputeNormals ? "On\n" : "Off\n");
 }
 
 

@@ -93,17 +93,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Includes for the yacc/lex parser
 #include "vtkVRML.h"
 
-#include <stdio.h>
-
 #include "vtkImporter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkNormals.h"
-#include "vtkPoints.h"
+class  vtkActor;
+class  vtkProperty;
+class  vtkCamera;
+class  vtkLight;
+class  vtkTransform;
+class  vtkSource;
+class  vtkLookupTable;
+class  vtkScalars;
+class  vtkPolyDataMapper;
+class vtkNormals;
+class vtkPoints;
 
 class VTK_EXPORT vtkVRMLImporter : public vtkImporter
 {
 public:
-  static vtkVRMLImporter *New() {return new vtkVRMLImporter;};
+  static vtkVRMLImporter *New();
 
   vtkTypeMacro(vtkVRMLImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -125,17 +131,37 @@ public:
   void exitField();
   void useNode(const char *);
 
+  // Description:
+  // Specify the name of the file to read.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Return the file pointer to the open file.
+  FILE *GetFileFD() {return this->FileFD;};
+
+//BTX
+
+  friend int yylex ( vtkVRMLImporter* );
+
+//ETX
+
 protected:
   vtkVRMLImporter();
   ~vtkVRMLImporter();
   vtkVRMLImporter(const vtkVRMLImporter&) {};
   void operator=(const vtkVRMLImporter&) {};
 
-  int ImportBegin ();
-  void ImportActors (vtkRenderer *) {};
-  void ImportCameras (vtkRenderer *) {};
-  void ImportLights (vtkRenderer *) {};
-  void ImportProperties (vtkRenderer *) {};
+  virtual int ImportBegin ();
+  virtual void ImportEnd ();
+  virtual void ImportActors (vtkRenderer *) {};
+  virtual void ImportCameras (vtkRenderer *) {};
+  virtual void ImportLights (vtkRenderer *) {};
+  virtual void ImportProperties (vtkRenderer *) {};
+
+  int OpenImportFile();
+  char *FileName;
+  FILE *FileFD;
 
 private:
   vtkActor             *CurrentActor;
@@ -149,6 +175,18 @@ private:
   vtkLookupTable       *CurrentLut;
   vtkScalars           *CurrentScalars;
   vtkPolyDataMapper    *CurrentMapper;
+
+  vtkPoints* PointsNew();
+  vtkIntArray* IntArrayNew();
+
+  void DeleteObject(vtkObject*);
+
+//BTX
+
+  VectorType<vtkObject*> Heap;
+
+//ETX
+
 };
 
 #endif

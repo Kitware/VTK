@@ -45,15 +45,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // importing actors, cameras, lights and properties into a
 // vtkRenderWindow. The following takes place:
 // 1) Create a RenderWindow and Renderer if none is provided.
-// 2) Open the import file
-// 3) Import the Actors
-// 4) Import the cameras
-// 5) Import the lights
-// 6) Import the Properties
-// 7) Close the import file
+// 2) Call ImportBegin, if ImportBegin returns False, return
+// 3) Call ReadData, which calls:
+//  a) Import the Actors
+//  b) Import the cameras
+//  c) Import the lights
+//  d) Import the Properties
+// 7) Call ImportEnd
 //
 // Subclasses optionally implement the ImportActors, ImportCameras,
-// ImportLights and ImportProperties methods. An ImportBegin and
+// ImportLights and ImportProperties or ReadData methods. An ImportBegin and
 // ImportEnd can optionally be provided to perform Importer-specific
 // initialization and termination.  The Read method initiates the import
 // process. If a RenderWindow is provided, its Renderer will contained
@@ -82,10 +83,6 @@ public:
   vtkTypeMacro(vtkImporter,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the file to read.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
 
   // Description
   // Get the renderer that contains the imported actors, cameras and
@@ -102,21 +99,12 @@ public:
   vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
 
-  // Description:
-  // Set/Get the computation of normals. If on, imported geometry will
-  // be run through vtkPolyDataNormals.
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
 
   // Description
   // Import the actors, cameras, lights and properties into a vtkRenderWindow.
   void Read();
   void Update() {this->Read();};
   
-  // Description:
-  // Return the file pointer to the open file.
-  FILE *GetFileFD() {return this->FileFD;};
 
 protected:
   vtkImporter();
@@ -124,20 +112,17 @@ protected:
   vtkImporter(const vtkImporter&) {};
   void operator=(const vtkImporter&) {};
 
-  int OpenImportFile();
-  void CloseImportFile();
   virtual int ImportBegin () {return 1;};
+  virtual void ImportEnd () {};
   virtual void ImportActors (vtkRenderer *vtkNotUsed(renderer)) {};
   virtual void ImportCameras (vtkRenderer *vtkNotUsed(renderer)) {};
   virtual void ImportLights (vtkRenderer *vtkNotUsed(renderer)) {};
   virtual void ImportProperties (vtkRenderer *vtkNotUsed(renderer)) {};
-  virtual void ImportEnd () {};
 
-  char *FileName;
-  FILE *FileFD;
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
-  int ComputeNormals;
+
+  virtual void ReadData();
 
 };
 
