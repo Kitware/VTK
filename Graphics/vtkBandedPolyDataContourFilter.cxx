@@ -26,7 +26,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.42");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.43");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -111,7 +111,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
       x[2] = x1[2] + t*(x2[2]-x1[2]);
       ptId = newPts->InsertNextPoint(x);
       outPD->InterpolateEdge(inPD,ptId,v1,v2,t);
-      sNew = s1 + t*(s2-s1);
+      // We cannot use directly s1 + t*(s2-s1) as is causes rounding error
+      sNew = this->ClipValues[idx1+i];
       outScalars->InsertTuple1(ptId,sNew);
       }
     return reverse;
@@ -129,7 +130,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
       x[2] = x1[2] + t*(x2[2]-x1[2]);
       ptId = newPts->InsertNextPoint(x);
       outPD->InterpolateEdge(inPD,ptId,v1,v2,t);
-      sNew = s1 + t*(s2-s1);
+      // We cannot use directly s1 + t*(s2-s1) as is causes rounding error
+      sNew = this->ClipValues[idx2+i];
       outScalars->InsertTuple1(ptId,sNew);
       }
     return ((reverse+1) % 2);
@@ -621,7 +623,7 @@ void vtkBandedPolyDataContourFilter::Execute()
         {
         numPointsToAdd++;
         mR = (mR + 1) % numFullPts;
-        if ( isContourValue[mR] ) intersectionPoint = 1;
+        if ( isContourValue[mR] && s[mR] != s[idx] ) intersectionPoint = 1;
         }
       for ( mL=idx, intersectionPoint=0; !intersectionPoint; )
         {
@@ -672,14 +674,14 @@ void vtkBandedPolyDataContourFilter::Execute()
             {
             numRightPointsToAdd++;
             m2R = (m2R + 1) % numFullPts;
-            if ( isContourValue[m2R] ) intersectionPoint = 1;
+            if ( isContourValue[m2R] && s[m2R] != s[mR] ) intersectionPoint = 1;
             }
           for ( intersectionPoint=0; 
                 !intersectionPoint && ((m2L+numFullPts-1)%numFullPts) != m2R; )
             {
             numLeftPointsToAdd++;
             m2L = (m2L + numFullPts - 1) % numFullPts;
-            if ( isContourValue[m2L] ) intersectionPoint = 1;
+            if ( isContourValue[m2L] && s[m2L] != s[mL] ) intersectionPoint = 1;
             }
 
           //specify the polygon vertices. From m2L to mL, then mR to m2R.
