@@ -49,17 +49,19 @@ vtkImageDifference::vtkImageDifference()
   this->ThresholdedError = 0.0;
   this->Threshold = 16;
   this->AllowShift = 1;
+  this->Averaging = 1;
 }
 
 
 
-// simple macro for calculating error
+// not so simple macro for calculating error
 #define vtkImageDifferenceComputeError(c1,c2) \
   r1 = abs(((int)(c1)[0] - (int)(c2)[0])); \
   g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
   b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
-  if ((idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
+  if (this->Averaging && \
+      (idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
       (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
     {\
   ar1 = (int)(c1)[0]; \
@@ -331,6 +333,7 @@ void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ThresholdedError: " << this->ThresholdedError << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";
   os << indent << "AllowShift: " << this->AllowShift << "\n";
+  os << indent << "Averaging: " << this->Averaging << "\n";
 }
 
 
