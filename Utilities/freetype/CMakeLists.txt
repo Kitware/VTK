@@ -45,6 +45,9 @@ ELSE (WIN32)
 ENDIF (WIN32)
 
 IF (UNIX)
+  # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+    ADD_DEFINITIONS(-D_HPUX_SOURCE)
+  # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
   SOURCE_FILES (FREETYPE_SRCS builds/unix/ftsystem.c)
   CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
                   ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
