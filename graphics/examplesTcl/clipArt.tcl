@@ -86,6 +86,9 @@ vtkStructuredPointsGeometryFilter geometry
 
 vtkTextureMapToPlane geometryTexture
   geometryTexture SetInput [geometry GetOutput]
+  geometryTexture SetOrigin 0 0 0
+  geometryTexture SetPoint1 [expr $padX - 1] 0 0
+  geometryTexture SetPoint2 0 [expr $padY - 1] 0
 
 vtkCastToConcrete geometryPD
   geometryPD SetInput [geometryTexture GetOutput]
@@ -130,6 +133,7 @@ vtkStripper strip
 
 vtkPolyDataMapper map
   map SetInput [strip GetOutput]
+  map SetInput [texturePD GetPolyDataOutput]
   map ScalarVisibilityOff
 
 vtkTexture imageTexture
