@@ -360,17 +360,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Update the viewport
   virtual void UpdateViewport(vtkRenderer *vtkNotUsed(ren)) {}
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  vtkMatrix4x4 &GetViewTransform()
-    {VTK_LEGACY_METHOD(GetViewTransformMatrix,"3.2"); return *this->GetViewTransformMatrix();}
-  vtkMatrix4x4 &GetPerspectiveTransform(double aspect,double nearz,double farz) 
-    {VTK_LEGACY_METHOD(GetPerspectiveTransformMatrix,"3.2"); return *this->GetPerspectiveTransformMatrix(aspect, nearz, farz);}
-  vtkMatrix4x4 &GetCompositePerspectiveTransform(double aspect, double nearz, double farz) 
-    {VTK_LEGACY_METHOD(GetCompositePerspectiveTransformMatrix,"3.2"); return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
-#endif
-
   vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
   
 protected:
