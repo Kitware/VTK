@@ -190,7 +190,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
     if (aVolume->GetVisibility() == 1.0)
       {
       bounds = aVolume->GetBounds();
-      if ((bounds[0] - position[0])*VPN[0] > (bounds[1] - position[0])*VPN[0])
+      if ((bounds[0] - position[0])*VPN[0] < (bounds[1] - position[0])*VPN[0])
 	{
 	xmax = (bounds[0] - position[0])*VPN[0];
 	xmin = (bounds[1] - position[0])*VPN[0];
@@ -200,7 +200,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 	xmin = (bounds[0] - position[0])*VPN[0];
 	xmax = (bounds[1] - position[0])*VPN[0];
 	}
-      if ((bounds[2] - position[1])*VPN[1] > (bounds[3] - position[1])*VPN[1])
+      if ((bounds[2] - position[1])*VPN[1] < (bounds[3] - position[1])*VPN[1])
 	{
 	ymax = (bounds[2] - position[1])*VPN[1];
 	ymin = (bounds[3] - position[1])*VPN[1];
@@ -210,7 +210,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 	ymin = (bounds[2] - position[1])*VPN[1];
 	ymax = (bounds[3] - position[1])*VPN[1];
 	}
-      if ((bounds[4] - position[2])*VPN[2] > (bounds[5] - position[2])*VPN[2])
+      if ((bounds[4] - position[2])*VPN[2] < (bounds[5] - position[2])*VPN[2])
 	{
 	zmax = (bounds[4] - position[2])*VPN[2];
 	zmin = (bounds[5] - position[2])*VPN[2];
