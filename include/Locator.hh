@@ -36,10 +36,10 @@ class vlLocator : public vlObject
 {
 public:
   vlLocator();
-  ~vlLocator();
+  virtual ~vlLocator();
   char *GetClassName() {return "vlLocator";};
   void Initialize();
-  void FreeHashTable();
+  virtual void FreeSearchStructure();
 
   // Description:
   // Set list of points to insert into locator.
@@ -69,8 +69,10 @@ public:
   vlSetClampMacro(Tolerance,float,0.0,LARGE_FLOAT);
   vlGetMacro(Tolerance,float);
 
-  int FindClosestPoint(float x[3]);
-  int *MergePoints(); // dimensioned Points->NumberOfPoints long
+  virtual int FindClosestPoint(float x[3]);
+  virtual int *MergePoints();
+  virtual int InitPointInsertion(vlPoints *newPts, float bounds[6]);
+  virtual int InsertPoint(float x[3]);
 
 protected:
   // place points in appropriate cells
@@ -87,6 +89,9 @@ protected:
   int NumberOfCells; // total size of hash table
   float H[3]; // width of each cell in x-y-z directions
   vlTimeStamp SubDivideTime;  
+
+  float InsertionTol2;
+  int InsertionPointId;
 };
 
 #endif

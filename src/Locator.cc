@@ -46,17 +46,19 @@ static vlNeighborPoints Cells(26,50);
 
 // Description:
 // Construct with automatic computation of divisions, averaging
-// 40 points per cell.
+// 25 points per cell.
 vlLocator::vlLocator()
 {
   this->Points = NULL;
-  this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 10;
+  this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->Automatic = 1;
-  this->NumberOfPointsInCell = 40;
+  this->NumberOfPointsInCell = 25;
   this->Tolerance = 0.01;
   this->HashTable = NULL;
   this->NumberOfCells = 0;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
+  this->InsertionPointId = 0;
+  this->InsertionTol2 = 0.0001;
 }
 
 vlLocator::~vlLocator()
@@ -70,10 +72,10 @@ void vlLocator::Initialize()
   this->Points = NULL;
 
   // free up hash table
-  this->FreeHashTable();
+  this->FreeSearchStructure();
 }
 
-void vlLocator::FreeHashTable()
+void vlLocator::FreeSearchStructure()
 {
   vlIdList *ptIds;
   int i;
@@ -318,7 +320,7 @@ void vlLocator::SubDivide()
 //
 //  Make sure the appropriate data is available
 //
-  if ( this->HashTable ) this->FreeHashTable();
+  if ( this->HashTable ) this->FreeSearchStructure();
 //
 //  Size the root cell.  Initialize cell data structure, compute 
 //  level and divisions.
@@ -345,6 +347,7 @@ void vlLocator::SubDivide()
 
   this->NumberOfCells = numCells = ndivs[0]*ndivs[1]*ndivs[2];
   this->HashTable = new vlIdListPtr[numCells];
+  memset (this->HashTable, (int)NULL, numCells*sizeof(vlIdListPtr));
 //
 //  Compute width of cell in three directions
 //
@@ -424,4 +427,125 @@ void vlLocator::GetCellNeighbors(int ijk[3], int ndivs[3], int level)
     }
 
   return;
+  }
+
+// specifically for point insertion
+static float InsertionLevel;
+
+// Description:
+// Initialize the point insertion process. The newPts are an array of 
+// points that points will be inserted into, and bounds are the box
+// that the points lie in.
+int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
+{
+  int i, ndivs[3];
+  int maxDivs;
+  typedef vlIdList *vlIdListPtr;
+  float hmin;
+
+  this->InsertionPointId = 0;
+  if ( this->HashTable ) this->FreeSearchStructure();
+  if ( this->Points ) this->Points->UnRegister(this);
+  this->SetPoints(newPts);
+
+  for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
+
+  for (this->NumberOfCells=1, i=0; i<3; i++) 
+    this->NumberOfCells *= this->Divisions[i];
+
+  this->HashTable = new vlIdListPtr[this->NumberOfCells];
+  memset (this->HashTable, (int)NULL, this->NumberOfCells*sizeof(vlIdListPtr));
+//
+//  Compute width of cell in three directions
+//
+  for (i=0; i<3; i++) 
+    this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
+
+  this->InsertionTol2 = this->Tolerance * this->Tolerance;
+
+  for (maxDivs=0, hmin=LARGE_FLOAT, i=0; i<3; i++) 
+    {
+    hmin = (this->H[i] < hmin ? this->H[i] : hmin);
+    maxDivs = (maxDivs > this->Divisions[i] ? maxDivs : this->Divisions[i]);
+    }
+  InsertionLevel = ceil ((double) this->Tolerance / hmin);
+  InsertionLevel = (InsertionLevel > maxDivs ? maxDivs : InsertionLevel);
+  
+  return 1;
 }
+
+
+// Description:
+// Incrementally insert a point into search structure, merging the point
+// with pre-inserted point (if within tolerance). If point is merged with
+// pre-inserted point, pre-inserted point id is returned. Otherwise, new 
+// point id is returned. Before using this method you must make sure that
+// newPts have been supplied, the bounds has been set properly, and that 
+// divs are properly set. (See InitPointInsertion()).
+int vlLocator::InsertPoint(float x[3])
+{
+  int i, j, ijk[3];
+  int idx;
+  vlIdList *cell;
+//
+//  Locate cell that point is in.
+//
+  for (i=0; i<3; i++) 
+    {
+    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    }
+  idx = ijk[0] + ijk[1]*this->Divisions[0] + 
+        ijk[2]*this->Divisions[0]*this->Divisions[1];
+
+  cell = this->HashTable[idx];
+  if ( ! cell )
+    {
+    cell = new vlIdList(this->NumberOfPointsInCell/2);
+    this->HashTable[idx] = cell;
+    }
+  else // see whether we've got duplicate point
+    {
+//
+// Check the list of points in that cell for merging.  Also need to 
+// search all neighboring cells within the tolerance.  The number 
+// and level of neighbors to search depends upon the tolerance and 
+// the cell width.
+//
+    int *nei, lvl, cno, ptId;
+    vlIdList *ptIds;
+    vlMath math;
+    float *pt;
+
+    for (lvl=0; lvl <= InsertionLevel; lvl++)
+      {
+      this->GetCellNeighbors (ijk, this->Divisions, lvl);
+
+      for ( i=0; i < Cells.GetNumberOfNeighbors(); i++ ) 
+        {
+        nei = Cells.GetPoint(i);
+        cno = nei[0] + nei[1]*this->Divisions[0] + 
+              nei[2]*this->Divisions[0]*this->Divisions[1];
+
+        if ( (ptIds = this->HashTable[cno]) != NULL )
+          {
+          for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+            {
+            ptId = ptIds->GetId(j);
+            pt = this->Points->GetPoint(ptId);
+
+            if ( math.Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
+              {
+              return ptId;
+              }
+            }
+          } //if points in cell
+        } //for each neighbor
+      } //for neighbors at this level
+    } // else check duplicate point
+
+  cell->InsertNextId(this->InsertionPointId);
+  this->Points->InsertPoint(this->InsertionPointId,x);
+  return this->InsertionPointId++;
+}
+
