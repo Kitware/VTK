@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.13");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.14");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -189,15 +189,6 @@ int vtkXMLDataParser::ParsingComplete()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataParser::ClearStreamEOF()
-{
-  // Clear the fail bit on the input stream.  This allows code to go
-  // back to read more data after the end-of-file has been reached.
-  this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
-  this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
-} 
-
-//----------------------------------------------------------------------------
 int vtkXMLDataParser::CheckPrimaryAttributes()
 {
   const char* byte_order = this->RootElement->GetAttribute("byte_order");
@@ -226,7 +217,6 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   // Scan for the start of the actual appended data.
   char c=0;
   unsigned long returnPosition = this->Stream->tellg();
-  this->ClearStreamEOF();
   this->Stream->seekg(this->GetXMLByteIndex());
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
@@ -254,7 +244,6 @@ unsigned long vtkXMLDataParser::FindInlineDataPosition(unsigned long start)
   // Scan for the start of the actual inline data.
   char c=0;
   this->Stream->seekg(start);
-  this->ClearStreamEOF();
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
   
@@ -722,7 +711,6 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
   
   // Make sure our streams are setup correctly.
   this->DataStream->SetStream(this->Stream);
-  this->ClearStreamEOF();
   
   // Read the data.
   unsigned char* d = reinterpret_cast<unsigned char*>(buffer);

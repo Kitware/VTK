@@ -124,7 +124,6 @@ protected:
   void StartElement(const char* name, const char** atts);
   void EndElement(const char*);
   int ParsingComplete();
-  void ClearStreamEOF();
   int CheckPrimaryAttributes();
   void FindAppendedDataPosition();
   unsigned long FindInlineDataPosition(unsigned long start);
