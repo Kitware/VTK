@@ -41,9 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageShiftScale - shift and scale an input image
 // .SECTION Description
 // With vtkImageShiftScale Pixels are shifted and then scaled. As
-// a convinience this class allows you to set the output scalar type
-// similar to vtkImageCast. This is because frequently shift scale
-// operations are associated with converting data types.
+// a convenience, this class allows you to set the output scalar type
+// similar to vtkImageCast. This is because shift scale operations
+// frequently convert data types.
 
 
 #ifndef __vtkImageShiftScale_h
@@ -61,17 +61,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the Shift
+  // Set/Get the shift value.
   vtkSetMacro(Shift,float);
   vtkGetMacro(Shift,float);
 
   // Description:
-  // Set/Get the scale Value;
+  // Set/Get the scale value.
   vtkSetMacro(Scale,float);
   vtkGetMacro(Scale,float);
 
   // Description:
-  // Set the desired output scalar type to cast to
+  // Set the desired output scalar type. The result of the shift 
+  // and scale operations is cast to the type specified.
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);};
@@ -84,8 +85,8 @@ public:
 
   // Description:
   // When the ClampOverflow flag is on, the data is thresholded so that
-  // the output value does not exceed the amx or min of the data type.
-  // By defualt ClampOverflow is off.
+  // the output value does not exceed the max or min of the data type.
+  // By defualt, ClampOverflow is off.
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);
