@@ -18,7 +18,7 @@
 #include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.4");
+vtkCxxRevisionMacro(vtkTextActor, "1.5");
 vtkStandardNewMacro(vtkTextActor);
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -94,8 +94,7 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
   // Everything is built in RenderOpaqueGeometry, just have to render
-  this->vtkActor2D::RenderOverlay(viewport);
-  return 1;
+  return this->vtkActor2D::RenderOverlay(viewport);
 }
 // ----------------------------------------------------------------------------
 int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
