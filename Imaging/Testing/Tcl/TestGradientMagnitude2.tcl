@@ -22,7 +22,6 @@ slide SetInput [gradient GetOutput]
 slide SetExtentTranslation -100 -100 0
 
 vtkImageViewer viewer
-viewer DebugOn
 viewer SetInput [slide GetOutput]
 viewer SetColorWindow -1000
 viewer SetColorLevel 500
