@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Mapper.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // Methods for abstract class mapper
 //
@@ -54,5 +69,51 @@ void vlMapper::SetEndRender(void (*f)())
     }
 }
 
+void vlMapper::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlMapper::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
 
+    if ( this->StartRender )
+      {
+      os << indent << "StartRender method defined.\n";
+      }
+    else
+      {
+      os << indent << "No StartRender method.\n";
+      }
 
+    if ( this->EndRender )
+      {
+      os << indent << "EndRender method defined.\n";
+      }
+    else
+      {
+      os << indent << "No EndRender method.\n";
+      }
+
+    if ( this->LookupTable )
+      {
+      os << indent << "Lookup table:\n";
+      this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "LookupTable: (none)\n";
+      }
+
+    if ( this->ScalarsVisible )
+      {
+      os << indent << "Scalar data is visible.\n";
+      }
+    else
+      {
+      os << indent << "Scalar data is not visible.\n";
+      }
+
+    float *range = this->GetScalarRange();
+    os << indent << "Scalar range: (" << range[0] << ", " << range[1] << ")\n";
+    os << indent << "Build time: " <<this->BuildTime.GetMtime() << "\n";
+   }
+}

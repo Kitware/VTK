@@ -97,14 +97,18 @@ vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
 
   return *this;
 }
+
 void vlFloatArray::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  if (this->ShouldIPrint(vlFloatArray::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
 
-  os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
+    os << indent << "Array: " << this->Array << "\n";
+    os << indent << "Size: " << this->Size << "\n";
+    os << indent << "MaxId: " << this->MaxId << "\n";
+    os << indent << "Extend size: " << this->Extend << "\n";
+  }
 }
 
 //

@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Lut.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // LookupTable takes PolyData as input
 //
@@ -10,10 +25,11 @@
 class vlLookupTable : public vlObject 
 {
 public:
-  char *GetClassName() {return "vlLookupTable";};
   vlLookupTable(int sze=256, int ext=256);
   int Initialize(int sz=256, int ext=256);
   void Build();
+  char *GetClassName() {return "vlLookupTable";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   vlSetClampMacro(NumColors,int,8, 65536);
   vlGetMacro(NumColors,int);

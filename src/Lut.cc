@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Lut.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // Methods for lookup table
 //
@@ -149,3 +164,24 @@ float *vlLookupTable::GetTableValue (int indx)
   
 }
 
+void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlLookupTable::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+
+    os << indent << "Number colors: " << this->GetNumColors() << "\n";
+    os << indent << "Hue Range: (" << this->HueRange[0] << ", "
+       << this->HueRange[1] << ")\n";
+    os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
+       << this->SaturationRange[1] << ")\n";
+    os << indent << "Value Range: (" << this->ValueRange[0] << ", "
+       << this->ValueRange[1] << ")\n";
+
+    os << indent << "Table Range: (" << this->TableRange[0] << ", "
+       << this->TableRange[1] << ")\n";
+
+    os << indent << "Build time: " <<this->BuildTime.GetMtime() << "\n";
+    os << indent << "Insert time: " <<this->InsertTime.GetMtime() << "\n";
+   }
+}
