@@ -25,12 +25,14 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.35");
+vtkCxxRevisionMacro(vtkPyramid, "1.36");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
-
+//----------------------------------------------------------------------------
+//
 // Construct the pyramid with five points.
+//
 vtkPyramid::vtkPyramid()
 {
   int i;
@@ -50,6 +52,7 @@ vtkPyramid::vtkPyramid()
   this->Quad = vtkQuad::New();
 }
 
+//----------------------------------------------------------------------------
 vtkPyramid::~vtkPyramid()
 {
   this->Line->Delete();
@@ -59,9 +62,10 @@ vtkPyramid::~vtkPyramid()
 
 static const int VTK_MAX_ITERATION=10;
 static const double VTK_CONVERGED=1.e-03;
+//----------------------------------------------------------------------------
 int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
-                              int& subId, double pcoords[3], 
-                              double& dist2, double *weights)
+                                 int& subId, double pcoords[3], 
+                                 double& dist2, double *weights)
 {
   int iteration, converged;
   double  params[3];
@@ -186,6 +190,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPyramid::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
                                 double x[3], double *weights)
 {
@@ -205,6 +210,7 @@ void vtkPyramid::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
 int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
@@ -281,6 +287,7 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Marching pyramids (contouring)
 //
 static int edges[8][2] = { {0,1}, {1,2}, {2,3}, 
@@ -329,6 +336,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}  //31
 };
 
+//----------------------------------------------------------------------------
 void vtkPyramid::Contour(double value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator,
                          vtkCellArray *vtkNotUsed(verts), 
@@ -407,11 +415,13 @@ void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 int *vtkPyramid::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkPyramid::GetEdge(int edgeId)
 {
   int *verts;
@@ -429,11 +439,13 @@ vtkCell *vtkPyramid::GetEdge(int edgeId)
   return this->Line;
 }
 
+//----------------------------------------------------------------------------
 int *vtkPyramid::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkPyramid::GetFace(int faceId)
 {
   int *verts;
@@ -472,6 +484,7 @@ vtkCell *vtkPyramid::GetFace(int faceId)
     }
 }
 
+//----------------------------------------------------------------------------
 // Intersect faces against line.
 //
 int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -534,6 +547,7 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
   return intersection;
 }
 
+//----------------------------------------------------------------------------
 int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
   ptIds->Reset();
@@ -548,7 +562,7 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkPyramid::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                              double *values, int dim, double *derivs)
 {
@@ -579,6 +593,7 @@ void vtkPyramid::Derivatives(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute iso-parametrix interpolation functions for pyramid
 //
 void vtkPyramid::InterpolationFunctions(double pcoords[3], double sf[5])
@@ -596,6 +611,7 @@ void vtkPyramid::InterpolationFunctions(double pcoords[3], double sf[5])
   sf[4] = pcoords[2];
 }
 
+//----------------------------------------------------------------------------
 void vtkPyramid::InterpolationDerivs(double pcoords[3], double derivs[15])
 { 
   double rm, sm, tm;
@@ -626,9 +642,11 @@ void vtkPyramid::InterpolationDerivs(double pcoords[3], double derivs[15])
   derivs[14] = 1.0;
 }
 
+//----------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives. Returns 0 if no inverse exists.
+// Note for pyramid: the inverse Jacobian is undefined at the apex.
 int vtkPyramid::JacobianInverse(double pcoords[3], double **inverse, double derivs[15])
 {
   int i, j;
@@ -674,20 +692,23 @@ int vtkPyramid::JacobianInverse(double pcoords[3], double **inverse, double deri
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkPyramid::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
+//----------------------------------------------------------------------------
 void vtkPyramid::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }
 
 static double vtkPyramidCellPCoords[15] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                          1.0,1.0,0.0, 0.0,1.0,0.0, 
-                                          0.0,0.0,1.0};
+                                           1.0,1.0,0.0, 0.0,1.0,0.0, 
+                                           0.0,0.0,1.0};
 
+//----------------------------------------------------------------------------
 double *vtkPyramid::GetParametricCoords()
 {
   return vtkPyramidCellPCoords;
