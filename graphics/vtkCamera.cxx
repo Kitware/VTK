@@ -91,6 +91,9 @@ vtkCamera::vtkCamera()
   this->Transform = vtkProjectionTransform::New();
   this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkProjectionTransform::New();
+
+  // initialize the ViewTransform
+  this->ComputeViewTransform();
 }
 
 //----------------------------------------------------------------------------
