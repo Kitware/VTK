@@ -346,7 +346,7 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
-      // Tcl_EventuallyFree((ClientData) self, vtkTkRenderWidget_Destroy );
+      Tcl_EventuallyFree((ClientData) self, vtkTkRenderWidget_Destroy );
       break;
     default:
       // nothing
