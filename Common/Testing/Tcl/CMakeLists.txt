@@ -24,3 +24,26 @@ ADD_TEST(TestSetObjectMacro-Common ${TCL_TCLSH}
          "vtkSetObjectMacro"
          ${VTK_SOURCE_DIR}/Common/vtkSetGet.h
          )
+
+IF (VTK_USE_RENDERING)
+
+#
+# Add tests, with the data
+#
+  IF (VTK_DATA_ROOT)
+
+    FOREACH ( tfile
+      TestParametricFunctions
+      )
+      ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/${tfile}.tcl
+        -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -V Baseline/Common/${tfile}.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDFOREACH ( tfile )
+  ENDIF (VTK_DATA_ROOT)
+
+ENDIF (VTK_USE_RENDERING)
+
