@@ -16,6 +16,7 @@
 
 #include "vtkObject.h"
 #include "vtkStructuredPoints.h"
+#include "vtkMultiThreader.h"
 
 // With a recursion depth of 7, you will have 65 vertices on each
 // original edge of the octahedron. This leads to a 65x65 grid of
@@ -91,6 +92,11 @@ public:
   float GetGradientMagnitude( int xyz_index ) 
   {return this->GradientMagnitudeTable[*(this->GradientMagnitude+xyz_index)];};
 
+  // Description:
+  // Get/Set the number of threads to create when encoding normals
+  vtkSetClampMacro( ThreadCount, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( ThreadCount, int );
+
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
   // We used to have the templated function as a friend, but
@@ -132,10 +138,21 @@ public:
   float                 DecodedNormal[3*(2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
 				 (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))];
 
+  // These are temporary variables used to avoid conflicts with
+  // multi threading
+  int                   ScalarInputSize[3];
+  float                 ScalarInputAspect[3];
+
 protected:
 
   // Method to initialize the index table
   void                  InitializeIndexTable( void );
+
+  // The number of threads to use when encoding normals
+  int                        ThreadCount;
+
+  vtkMultiThreader                Threader;
+  friend VTK_THREAD_RETURN_TYPE   SwitchOnDataType( void *arg );
 
 }; 
 

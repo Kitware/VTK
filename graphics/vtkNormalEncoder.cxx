@@ -11,14 +11,14 @@
 // This is the templated function that actually computes the EncodedNormal
 // and the GradientMagnitude
 template <class T>
-static void ComputeGradients( vtkNormalEncoder *encoder,
-		       int scalar_input_size[3],
-		       float scalar_input_aspect[3],
-		       T *data_ptr )
+static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
+			      int thread_id, int thread_count )
 {
   int            xstep, ystep, zstep;
   int            x, y, z;
   int            norm_size;
+  int            offset;
+  int            z_start, z_limit;
   T              *dptr;
   unsigned char  *gptr;
   unsigned short *nptr;
@@ -27,8 +27,8 @@ static void ComputeGradients( vtkNormalEncoder *encoder,
 
   // Compute steps through the volume in x, y, and z
   xstep = 1;
-  ystep = scalar_input_size[0];
-  zstep = scalar_input_size[0] * scalar_input_size[1];
+  ystep = encoder->ScalarInputSize[0];
+  zstep = encoder->ScalarInputSize[0] * encoder->ScalarInputSize[1];
 
   // Compute the size of the normal grid - the large grid size is
   // NORM_SQR_SIZE * NORM_SQR_SIZE and the small grid of vertices
@@ -42,105 +42,124 @@ static void ComputeGradients( vtkNormalEncoder *encoder,
   norm_size = NORM_SQR_SIZE * NORM_SQR_SIZE + 
 	( NORM_SQR_SIZE - 1 ) * ( NORM_SQR_SIZE - 1 );
 
+  // Compute an offset based on the thread_id. The volume will
+  // be broken into large slabs (thread_count slabs). For this thread
+  // we need to access the correct slab. Also compute the z plane that
+  // this slab starts on, and the z limit of this slab (one past the
+  // end of the slab)
+  z_start = (int)(( (float)thread_id / (float)thread_count ) *
+		  encoder->ScalarInputSize[2] );
+  offset = z_start * encoder->ScalarInputSize[0] * encoder->ScalarInputSize[1];
+  z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
+		  encoder->ScalarInputSize[2] );
+
+  // Make sure out z_limit didn't get too big - it shouldn't so print an
+  // error message if this happens and return
+  if ( z_limit > encoder->ScalarInputSize[2] )
+    {
+    return;
+    }
+
+
   // Set some pointers
-  dptr = data_ptr;
-  nptr = encoder->EncodedNormal;
-  gptr = encoder->GradientMagnitude;
+  dptr = data_ptr + offset;
+  nptr = encoder->EncodedNormal + offset;
+  gptr = encoder->GradientMagnitude + offset;
 
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
-  for ( z = 0; z < scalar_input_size[2]; z++ )
-    for ( y = 0; y < scalar_input_size[1]; y++ )
-      for ( x = 0; x < scalar_input_size[0]; x++ )
-        {
+  for ( z = z_start; z < z_limit; z++ )
+    for ( y = 0; y < encoder->ScalarInputSize[1]; y++ )
+      for ( x = 0; x < encoder->ScalarInputSize[0]; x++ )
+	{
 	// Use a central difference method if possible,
 	// otherwise use a forward or backward difference if
 	// we are on the edge
 
 	// Compute the X component
-	if ( x > 0 && x < scalar_input_size[0] - 1 )
+	if ( x > 0 && x < encoder->ScalarInputSize[0] - 1 )
 	  nx = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
 	else if ( x == 0 )
-	  nx = 2.0 * ((float)*(dptr) - (float)*(dptr+xstep));
+	  nx = -((float)*(dptr+xstep));
 	else
-	  nx = 2.0 * ((float)*(dptr-xstep) - (float)*(dptr));
-
+	  nx =  ((float)*(dptr-xstep));
+	
 	// Compute the Y component
-	if ( y > 0 && y < scalar_input_size[1] - 1 )
+	if ( y > 0 && y < encoder->ScalarInputSize[1] - 1 )
 	  ny = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
 	else if ( y == 0 )
-	  ny = 2.0 * ((float)*(dptr) - (float)*(dptr+ystep));
+	  ny = -((float)*(dptr+ystep));
 	else
-	  ny = 2.0 * ((float)*(dptr-ystep) - (float)*(dptr));
-
+	  ny =  ((float)*(dptr-ystep));
+	
 	// Compute the Z component
-	if ( z > 0 && z < scalar_input_size[2] - 1 )
+	if ( z > 0 && z < encoder->ScalarInputSize[2] - 1 )
 	  nz = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
 	else if ( z == 0 )
-	  nz = 2.0 * ((float)*(dptr) - (float)*(dptr+zstep));
+	  nz = -((float)*(dptr+zstep));
 	else
-	  nz = 2.0 * ((float)*(dptr-zstep) - (float)*(dptr));
+	  nz =  ((float)*(dptr-zstep));
 
 	// Take care of the aspect ratio of the data
 	// Scaling in the vtkVolume is isotropic, so this is the
 	// only place we have to worry about non-isotropic scaling.
-	nx *= scalar_input_aspect[1] * scalar_input_aspect[2];
-	ny *= scalar_input_aspect[0] * scalar_input_aspect[2];
-	nz *= scalar_input_aspect[0] * scalar_input_aspect[1];
-
+	nx *= encoder->ScalarInputAspect[1] * encoder->ScalarInputAspect[2];
+	ny *= encoder->ScalarInputAspect[0] * encoder->ScalarInputAspect[2];
+	nz *= encoder->ScalarInputAspect[0] * encoder->ScalarInputAspect[1];
+	
 	// Compute the gradient magnitude
 	t = sqrt( (double)( nx*nx + ny*ny + nz*nz ) ) / 2.0;
-
+	
 	// Encode this into an 8 bit value - this method is changing
 	// in the near future
 	gvalue = 
 	  255.0 * ( t - encoder->GradientMagnitudeRange[0] ) / 
 	  ( encoder->GradientMagnitudeRange[1] - 
 	    encoder->GradientMagnitudeRange[0] );
-	
+	  
 	if ( gvalue < 0.0 )
 	  *gptr = 0;
 	else if ( gvalue > 255.0 )
 	  *gptr = 255;
 	else 
 	  *gptr = (unsigned char) gvalue;
-
+	
 	// Normalize the gradient direction
 	if ( t )
 	  {
-          nx /= t;
-          ny /= t;
-          nz /= t;
-          }
+	  nx /= t;
+	  ny /= t;
+	  nz /= t;
+	  }
 
 	// Convert the gradient direction into an encoded index value
 	// This is done by computing the (x,y) grid position of this 
 	// normal in the 2*NORM_SQR_SIZE - 1 grid, then passing this
 	// through the IndexTable to look up the 16 bit index value
-        if (  fabs((double)nz) + fabs((double)nx) + fabs((double)ny) )
-          {
+	if (  fabs((double)nz) + fabs((double)nx) + fabs((double)ny) )
+	  {
 	  t = 1.0 / ( fabs((double)nz) + fabs((double)nx) + 
 		      fabs((double)ny) );
-
-          nx *= t;
-          ny *= t;
-          }
-
-        *nptr = encoder->IndexTable
+	  
+	  nx *= t;
+	  ny *= t;
+	  }
+	
+	*nptr = encoder->IndexTable
 	  [(int)((float)(nx+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
 		 (float)(NORM_SQR_SIZE-1))]
 	  [(int)((float)(ny+1 + 1.0 / (float)(2*(NORM_SQR_SIZE-1))) * 
 		 (float)(NORM_SQR_SIZE-1))];
-
+	
 	// If the z component is less than 0.0, add norm_size to the
 	// index 
-        if ( nz < 0.0 ) *nptr += norm_size;
+	if ( nz < 0.0 ) *nptr += norm_size;
 
 	nptr++;
 	gptr++;
 	dptr++;
 
-        }
+	}
 }
 
 // Description:
@@ -160,6 +179,7 @@ vtkNormalEncoder::vtkNormalEncoder()
   this->GradientMagnitudeRange[0]  = 0.0;
   this->GradientMagnitudeRange[1]  = 256.0;
   this->IndexTableInitialized      = 0;
+  this->ThreadCount                = this->Threader.GetThreadCount();
 
   for ( i = 0; i < 256; i++ )
     this->GradientMagnitudeTable[i] = this->GradientMagnitudeRange[0] + 
@@ -346,12 +366,6 @@ void vtkNormalEncoder::UpdateNormals( )
 {
   int                scalar_input_size[3];
   float              scalar_input_aspect[3];
-  unsigned char      *uc_data_ptr;
-  unsigned short     *us_data_ptr;
-  short              *s_data_ptr;
-  int                *i_data_ptr;
-  float              *f_data_ptr;
-  char               *data_type;
 
   // If we haven't initialized the index table yet, we should do that now
   if ( !this->IndexTableInitialized )
@@ -405,44 +419,72 @@ void vtkNormalEncoder::UpdateNormals( )
     this->GradientMagnitudeSize[2] = scalar_input_size[2];
     }
 
+  // Copy info that multi threaded function will need into temp variables
+  memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
+  memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
+
+  this->Threader.SetThreadCount( this->ThreadCount );
+
+  this->Threader.SetSingleMethod( SwitchOnDataType,
+				  (vtkObject *)this );
+
+  this->Threader.SingleMethodExecute();
+
+}
+
+VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
+{
+  vtkNormalEncoder   *encoder;
+  int                thread_count;
+  int                thread_id;
+  unsigned char      *uc_data_ptr;
+  unsigned short     *us_data_ptr;
+  short              *s_data_ptr;
+  int                *i_data_ptr;
+  float              *f_data_ptr;
+  char               *data_type;
+
+  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
+  thread_count = ((ThreadInfoStruct *)(arg))->ThreadCount;
+  encoder = (vtkNormalEncoder *)(((ThreadInfoStruct *)(arg))->UserData);
+
   // Find the data type of the ScalarInput and call the correct 
   // templated function to actually compute the normals and magnitudes
-  data_type = this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
+  data_type = 
+    encoder->ScalarInput->GetPointData()->GetScalars()->GetDataType();
+
   if ( strcmp( data_type, "unsigned char" ) == 0 )
     {
     uc_data_ptr = ((vtkUnsignedCharScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
-    ComputeGradients( this, scalar_input_size, 
-				  scalar_input_aspect, uc_data_ptr );
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+    ComputeGradients( encoder, uc_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "unsigned short" ) == 0 )
     {
     us_data_ptr = ((vtkUnsignedShortScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
-    ComputeGradients( this, scalar_input_size, 
-				  scalar_input_aspect, us_data_ptr );
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+    ComputeGradients( encoder, us_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "short" ) == 0 )
     {
     s_data_ptr = ((vtkShortScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
-    ComputeGradients( this, scalar_input_size, 
-				  scalar_input_aspect, s_data_ptr );
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+    ComputeGradients( encoder, s_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "int" ) == 0 )
     {
     i_data_ptr = ((vtkIntScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
-    ComputeGradients( this, scalar_input_size, 
-				  scalar_input_aspect, i_data_ptr );
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+    ComputeGradients( encoder, i_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "float" ) == 0 )
     {
     f_data_ptr = ((vtkFloatScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
-    ComputeGradients( this, scalar_input_size, 
-				  scalar_input_aspect, f_data_ptr );
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+    ComputeGradients( encoder, f_data_ptr, thread_id, thread_count );
     }
+
+  return VTK_THREAD_RETURN_VALUE;
 }
 
 // Description:
