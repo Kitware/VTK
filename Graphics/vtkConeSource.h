@@ -88,7 +88,7 @@ protected:
   ~vtkConeSource() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int ExecuteInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Height;
   double Radius;

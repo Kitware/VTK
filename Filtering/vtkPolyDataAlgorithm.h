@@ -81,7 +81,7 @@ protected:
   ~vtkPolyDataAlgorithm();
 
   // convinience method
-  virtual int ExecuteInformation(vtkInformation* request,
+  virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
 
