@@ -21,7 +21,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkDataObject.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.30");
+vtkCxxRevisionMacro(vtkProcessObject, "1.31");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -99,16 +99,15 @@ void vtkProcessObject::SetNumberOfInputs(int num)
     }
   
   // delete the previous arrays
-  if (this->Inputs)
-    {
-    delete [] this->Inputs;
-    this->Inputs = NULL;
-    this->NumberOfInputs = 0;
-    delete [] this->SortedInputs;
-    this->SortedInputs = NULL;
-    delete [] this->SortedInputs2;
-    this->SortedInputs2 = NULL;
-    }
+  delete [] this->Inputs;
+  this->Inputs = NULL;
+  this->NumberOfInputs = 0;
+
+  delete [] this->SortedInputs;
+  this->SortedInputs = NULL;
+
+  delete [] this->SortedInputs2;
+  this->SortedInputs2 = NULL;
   
   // Set the new arrays
   this->Inputs = inputs;
