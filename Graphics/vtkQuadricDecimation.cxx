@@ -57,7 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVoidArray.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.24");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.25");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -417,9 +417,8 @@ void vtkQuadricDecimation::InitializeQuadrics(void)
     }
   
   polys = input->GetPolys();
-  polys->InitTraversal();
   // compute the QEM for each face
-  while (polys->GetNextCell(npts, pts)) 
+  for (polys->InitTraversal(); polys->GetNextCell(npts, pts); ) 
     {
     point0 = input->GetPoint(pts[0]);
     point1 = input->GetPoint(pts[1]);
@@ -538,7 +537,7 @@ void vtkQuadricDecimation::InitializeQuadrics(void)
         this->ErrorQuadrics[pts[i]].Quadric[j] += QEM[j] * triArea2;
         }
       }
-    }
+    }//for all triangles
 
   delete [] QEM;
 }
@@ -1116,7 +1115,10 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 // triangle t0, t1, t2 and point x
 // determins if t0 and x are on the same side of the plane defined by 
 // t1 and t2, and parallel to the normal of the triangle
-bool vtkQuadricDecimation::TrianglePlaneCheck(const float t0[3], const float t1[3], const float t2[3],  const double *x) {
+int vtkQuadricDecimation::TrianglePlaneCheck(const float t0[3], 
+                                             const float t1[3], 
+                                             const float t2[3],  
+                                             const double *x) {
   float e0[3], e1[3], n[3], e2[3];
   float c;
   int i;
@@ -1146,15 +1148,16 @@ bool vtkQuadricDecimation::TrianglePlaneCheck(const float t0[3], const float t1[
   vtkMath::Normalize(e2);
   if (vtkMath::Dot(n, e2) > 1e-5)
     {
-    return true;
+    return 1;
     }
   else 
     {
-    return false;
+    return 0;
     }
 }
 
-bool vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x) 
+int vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, 
+const double *x) 
 {
   unsigned short ncells, i;
   vtkIdType npts, *pts,  ptId, *cells;
@@ -1172,7 +1175,7 @@ bool vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, con
                                      this->Mesh->GetPoint(pts[(ptId+1)%3]), 
                                      this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
         {
-        return false;
+        return 0;
         }
       }
     }
@@ -1192,13 +1195,13 @@ bool vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, con
                                      this->Mesh->GetPoint(pts[(ptId+1)%3]), 
                                      this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
           {
-          return false;
+          return 0;
           }
         }
       }
     }
   
-  return true;
+  return 1;
 }
 
 

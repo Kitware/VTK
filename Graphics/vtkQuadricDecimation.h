@@ -172,9 +172,9 @@ protected:
   // Find a cell that uses this edge.
   vtkIdType GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id);
 
-  bool IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x);
-  bool TrianglePlaneCheck(const float t0[3], const float t1[3], 
-                          const float t2[3],  const double *x);
+  int IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x);
+  int TrianglePlaneCheck(const float t0[3], const float t1[3], 
+                         const float t2[3],  const double *x);
   void ComputeNumberOfComponents(void);
   void UpdateEdgeData(vtkIdType ptoId, vtkIdType pt1Id);
   
