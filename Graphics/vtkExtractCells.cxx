@@ -29,9 +29,11 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.1");
+vtkCxxRevisionMacro(vtkExtractCells, "1.2");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -100,15 +102,25 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 
   return;
 }
-void vtkExtractCells::Execute()
+int vtkExtractCells::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output= this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->InputIsUgrid =
     ((vtkUnstructuredGrid::SafeDownCast(input)) != NULL);
 
-  vtkModelMetadata *extractMetadata = this->ExtractMetadata();
+  vtkModelMetadata *extractMetadata = this->ExtractMetadata(input);
 
   int numCellsInput = input->GetNumberOfCells();
 
@@ -117,7 +129,7 @@ void vtkExtractCells::Execute()
   if (numCells == numCellsInput)  
     {
     #if 0
-    this->Copy();
+    this->Copy(input, output);
 
     if (extractMetadata)
       {
@@ -158,7 +170,7 @@ void vtkExtractCells::Execute()
       extractMetadata->Delete();
       }
 
-    return;
+    return 1;
     }
   vtkPointData *newPD = output->GetPointData();
   vtkCellData *newCD  = output->GetCellData();
@@ -188,11 +200,11 @@ void vtkExtractCells::Execute()
 
   if (this->InputIsUgrid)  
     {
-    this->CopyCellsUnstructuredGrid(ptIdMap);
+    this->CopyCellsUnstructuredGrid(ptIdMap, input, output);
     }
   else  
     {
-    this->CopyCellsDataSet(ptIdMap);
+    this->CopyCellsDataSet(ptIdMap, input, output);
     }
 
   ptIdMap->Delete();
@@ -206,13 +218,12 @@ void vtkExtractCells::Execute()
     extractMetadata->Delete();
     }
 
-  return;
+  return 1;
 }
-vtkModelMetadata *vtkExtractCells::ExtractMetadata()
+vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
 {
   vtkModelMetadata *extractedMD = NULL;
   int numCells = this->CellList->IdTypeSet.size();
-  vtkDataSet *input = this->GetInput();
 
   if (vtkModelMetadata::HasMetadata(input))
     {
@@ -273,12 +284,9 @@ vtkModelMetadata *vtkExtractCells::ExtractMetadata()
   return extractedMD;
 }
 
-void vtkExtractCells::Copy()
+void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
   int i;
-
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output= this->GetOutput();
 
   if (this->InputIsUgrid)  
     {         
@@ -472,11 +480,9 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 
   return ptIds;
 }
-void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap)
+void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
+                                       vtkUnstructuredGrid *output)
 { 
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output= this->GetOutput();                
-  
   output->Allocate(this->CellList->IdTypeSet.size());
 
   vtkCellData *oldCD = input->GetCellData();
@@ -511,19 +517,17 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap)
 
   return;
 }
-void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap)
+void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
+                                                vtkDataSet *input,
+                                                vtkUnstructuredGrid *output)
 {
-  vtkDataSet *input = this->GetInput();
-
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(input);
 
   if (ugrid == NULL)  
     {
-    this->CopyCellsDataSet(ptMap);
+    this->CopyCellsDataSet(ptMap, input, output);
     return;
     }
-
-  vtkUnstructuredGrid *output= this->GetOutput();
 
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();
@@ -589,6 +593,12 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap)
   cellArray->Delete();
 
   return;
+}
+
+int vtkExtractCells::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)

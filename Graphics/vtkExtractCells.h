@@ -28,16 +28,16 @@
 #ifndef __vtkExtractCells_h
 #define __vtkExtractCells_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkIdList;
 class vtkExtractCellsSTLCloak;
 class vtkModelMetadata;
 
-class VTK_GRAPHICS_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractCells : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCells, vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkExtractCells, vtkUnstructuredGridAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkExtractCells *New();
@@ -63,21 +63,24 @@ public:
 
 protected:
 
-  virtual void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkExtractCells();
   ~vtkExtractCells();
 
 private:
 
-  void Copy();
+  void Copy(vtkDataSet *input, vtkUnstructuredGrid *output);
   static vtkIdType findInSortedList(vtkIdList *idList, vtkIdType id);
   vtkIdList *reMapPointIds(vtkDataSet *grid);
 
-  vtkModelMetadata *ExtractMetadata();
+  vtkModelMetadata *ExtractMetadata(vtkDataSet *input);
 
-  void CopyCellsDataSet(vtkIdList *ptMap);
-  void CopyCellsUnstructuredGrid(vtkIdList *ptMap);
+  void CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
+                        vtkUnstructuredGrid *output);
+  void CopyCellsUnstructuredGrid(vtkIdList *ptMap, vtkDataSet *input,
+                                 vtkUnstructuredGrid *output);
 
   vtkExtractCellsSTLCloak *CellList;
 
