@@ -17,28 +17,30 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-//.NAME vtkBoxClipDataSet - clip an unstructured grid
-//Clipping means that is actually 'cuts' through the cells of the dataset,
-//returning tetrahedral cells inside of the box.
-//The output of this filter is an unstructured grid.
+// .NAME vtkBoxClipDataSet - clip an unstructured grid
+// 
+// .SECTION Description
+// Clipping means that is actually 'cuts' through the cells of the dataset,
+// returning tetrahedral cells inside of the box.
+// The output of this filter is an unstructured grid.
 //
 // This filter can be configured to compute a second output. The
 // second output is the part of the cell that is clipped away. Set the
 // GenerateClippedData boolean on if you wish to access this output data.
 //
-//The vtkBoxClipDataSet will triangulate all types of 3D cells (i.e, create tetrahedra).
-//This is necessary to preserve compatibility across face neighbors.
+// The vtkBoxClipDataSet will triangulate all types of 3D cells (i.e, create tetrahedra).
+// This is necessary to preserve compatibility across face neighbors.
 //
-//To use this filter,you can decide if you will be clipping with a box or a hexahedral box.
-//1) Set orientation 
-//   if(SetOrientation(0)): box (parallel with coordinate axis)
-//      SetBoxClip(xmin,xmax,ymin,ymax,zmin,zmax)  
-//   if(SetOrientation(1)): hexahedral box (Default)
-//      SetBoxClip(n[0],o[0],n[1],o[1],n[2],o[2],n[3],o[3],n[4],o[4],n[5],o[5])  
-//      n[] normal of each plane
-//      o[] point on the plane 
-//2) Apply the GenerateClipScalarsOn() 
-//3) Execute clipping  Update();
+// To use this filter,you can decide if you will be clipping with a box or a hexahedral box.
+// 1) Set orientation 
+//    if(SetOrientation(0)): box (parallel with coordinate axis)
+//       SetBoxClip(xmin,xmax,ymin,ymax,zmin,zmax)  
+//    if(SetOrientation(1)): hexahedral box (Default)
+//       SetBoxClip(n[0],o[0],n[1],o[1],n[2],o[2],n[3],o[3],n[4],o[4],n[5],o[5])  
+//       n[] normal of each plane
+//       o[] point on the plane 
+// 2) Apply the GenerateClipScalarsOn() 
+// 3) Execute clipping  Update();
 
 #ifndef __vtkBoxClipDataSet_h
 #define __vtkBoxClipDataSet_h

@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.3");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.4");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1699,7 +1699,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
         continue;
       }
 
-    float  pc[3];
+    //float  pc[3];
     float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
@@ -1833,7 +1833,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               //p_inter[num_inter][j] = x[j];
               }
       
@@ -2109,7 +2109,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
 
   vtkIdType i,j;
   unsigned allInside, k;
-  unsigned ind[3];
+  //unsigned ind[3];
   unsigned planes;
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0}, 
@@ -2243,7 +2243,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
       for (planes = 0; planes < 6; planes++) 
       {
-      switch(planes) 
+      /*switch(planes) 
         {
         case 0:
         case 1:
@@ -2263,7 +2263,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
           ind[1] = 0;
           ind[2] = 1;
           break;
-        }
+        }*/
       
       vtkIdType totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -3266,7 +3266,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
       continue;
       }
 
-    float  pc[3];
+    //float  pc[3];
     float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
@@ -3409,7 +3409,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
           for (j=0; j<3; j++)
             {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               //p_inter[num_inter][j] = x[j];
             }
           
@@ -3815,7 +3815,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
       continue;
       }
     
-    float  pc[3];
+    //float  pc[3];
     float *pc1  , *pc2;
     double *pedg1,*pedg2;
     
@@ -3917,7 +3917,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               //p_inter[num_inter][j] = x[j];
               }
 
@@ -4166,7 +4166,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       continue;
       }
 
-    float  pc[3];
+    //float  pc[3];
     float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
@@ -4268,7 +4268,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               //p_inter[num_inter][j] = x[j];
               }
       
@@ -4468,7 +4468,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
 
   int i,j,k;
   unsigned allInside;
-  unsigned ind[3];
+  //unsigned ind[3];
   unsigned idtrianglenew;
   unsigned idcellnew;
   unsigned planes;
@@ -4546,7 +4546,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
         continue;
         }
 
-      float  pc[3];
+      //float  pc[3];
       float *pc1  , *pc2;
       double *pedg1,*pedg2;
 
@@ -4563,7 +4563,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
       // Test Cell intersection with each plane of box
       for (planes = 0; planes < 6; planes++) 
         {
-        switch(planes) 
+        /*switch(planes) 
           {
           case 0:
           case 1:
@@ -4584,7 +4584,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
             ind[2] = 1;
             break;
           }
-        
+        */
         
         unsigned totalnewcells = cellarray->GetNumberOfCells();
         vtkCellArray *newcellArray = vtkCellArray::New();
@@ -4656,7 +4656,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
               for (j=0; j<3; j++)
                 {
                 x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-                pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+                //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
                 //p_inter[num_inter][j] = x[j];
                 }
         
@@ -4818,7 +4818,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   unsigned idtrianglenew;
   unsigned idcellnew;
   unsigned planes;
-  unsigned ind[3];
+  //unsigned ind[3];
 
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}}; /* Edges Triangle */
   double deltaScalar;
@@ -4902,7 +4902,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       continue;
       }
 
-    float  pc[3];
+    //float  pc[3];
     float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
@@ -4920,7 +4920,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      switch(planes) 
+      /*switch(planes) 
         {
         case 0:
         case 1:
@@ -4941,7 +4941,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
           ind[2] = 1;
           break;
         }
-      
+      */
       unsigned totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       
@@ -5012,7 +5012,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
+              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               //p_inter[num_inter][j] = x[j];
               }
       
