@@ -56,7 +56,8 @@ float vtkColorScalars::GetScalar(int i)
 }
 
 // Description:
-// Map through lookup table to set the color.
+// Map through lookup table to set the color. Make sure that you've
+// used the method SetNumberOfScalars() to allocate storage.
 void vtkColorScalars::SetScalar(int i, float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();

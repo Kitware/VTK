@@ -201,7 +201,7 @@ void vtkConnectivityFilter::Execute()
     {
     if ( PointMap[i] > -1 )
       {
-      newPts->SetPoint(PointMap[i],this->Input->GetPoint(i));
+      newPts->InsertPoint(PointMap[i],this->Input->GetPoint(i));
       outputPD->CopyData(pd,i,PointMap[i]);
       }
     }

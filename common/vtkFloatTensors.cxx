@@ -70,7 +70,7 @@ void vtkFloatTensors::SetTensor(int id, vtkTensor *t)
   
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T[id+i+t->GetDimension()*j] = t->GetComponent(i,j);
+      this->T.SetValue(id+i+t->GetDimension()*j, t->GetComponent(i,j));
 }
 
 void vtkFloatTensors::InsertTensor(int id, vtkTensor *t) 

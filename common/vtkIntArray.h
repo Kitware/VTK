@@ -74,7 +74,6 @@ public:
   vtkIntArray &operator=(const vtkIntArray& ia);
   void operator+=(const vtkIntArray& ia);
   void operator+=(const int i);
-  int& operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -97,7 +96,7 @@ inline int vtkIntArray::GetValue(const int id) {return this->Array[id];};
 // Description:
 // Specify the number of values for this object to hold. Does an
 // allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetValue() (or operator []) method for fast insertion.
+// SetValue() method for fast insertion.
 inline void vtkIntArray::SetNumberOfValues(const int number) 
 {
   this->Allocate(number);
@@ -148,15 +147,6 @@ inline int vtkIntArray::InsertNextValue(const int i)
 inline void vtkIntArray::operator+=(const int i) 
 {
   this->InsertNextValue(i);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline int& vtkIntArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

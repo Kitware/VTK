@@ -224,9 +224,9 @@ void vtkExtractVectorComponents::Execute()
     return;
     }
 
-  vx = new vtkFloatScalars(numVectors);  
-  vy = new vtkFloatScalars(numVectors);  
-  vz = new vtkFloatScalars(numVectors);  
+  vx = new vtkFloatScalars(numVectors); vx->SetNumberOfScalars(numVectors);
+  vy = new vtkFloatScalars(numVectors); vy->SetNumberOfScalars(numVectors);
+  vz = new vtkFloatScalars(numVectors); vz->SetNumberOfScalars(numVectors);
 
   for (i=0; i<numVectors; i++)
     {

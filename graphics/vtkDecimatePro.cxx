@@ -174,7 +174,7 @@ void vtkDecimatePro::Execute()
     inPts = input->GetPoints();
     inPolys = input->GetPolys();
     Mesh = new vtkPolyData;
-    newPts = new vtkFloatPoints(numPts);
+    newPts = new vtkFloatPoints(numPts); newPts->SetNumberOfPoints(numPts);
     for ( i=0; i < numPts; i++ ) newPts->SetPoint(i,inPts->GetPoint(i));
     newPolys = new vtkCellArray(*(inPolys));
     Mesh->SetPoints(newPts);
@@ -849,7 +849,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
   int numVerts=V->MaxId+1;
   static vtkPriorityQueue EdgeLengths(VTK_MAX_TRIS_PER_VERTEX);
 
-  CollapseTris.Reset();
+  CollapseTris.SetNumberOfIds(2);
   EdgeLengths.Reset();
 
   switch (type)
@@ -901,6 +901,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 
 
     case VTK_BOUNDARY_VERTEX: //--------------------------------------------
+      CollapseTris.SetNumberOfIds(1);
       // Compute the edge lengths
       dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[0].x);
       e2dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[V->MaxId].x);
@@ -1156,7 +1157,7 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
 
   for (i=0; i < this->GetNumberOfInflectionPoints(); i++)
     {
-    inflectionPoints[i] = this->InflectionPoints[i];
+    inflectionPoints[i] = this->InflectionPoints.GetValue(i);
     }
 }
 

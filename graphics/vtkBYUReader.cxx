@@ -191,7 +191,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
 //
 // Allocate and read data
 //
-  newVectors = new vtkFloatVectors(numPts);
+  newVectors = new vtkFloatVectors(numPts); newVectors->SetNumberOfVectors(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -225,7 +225,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
 //
 // Allocate and read data
 //
-  newScalars = new vtkFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts); newScalars->SetNumberOfScalars(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -260,6 +260,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 // Allocate and read data
 //
   newTCoords = new vtkFloatTCoords(numPts,2);
+  newTCoords->SetNumberOfTCoords(numPts);
 
   for (i=0; i<numPts; i++)
     {

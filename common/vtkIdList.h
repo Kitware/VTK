@@ -59,11 +59,13 @@ class VTK_EXPORT vtkIdList : public vtkObject
 
   int GetNumberOfIds();
   int GetId(const int i);
+  void SetNumberOfIds(const int number);
   void SetId(const int i, const int id);
   void InsertId(const int i, const int id);
   int InsertNextId(const int id);
   int InsertUniqueId(const int id);
-  int getChunk(const int sz);
+  int *GetPtr(const int id);
+  int *WritePtr(const int id, const int number);
   void Reset() {this->Ia.Reset();};
 
   // special set operations
@@ -90,10 +92,21 @@ inline int vtkIdList::GetId(const int i)
 }
 
 // Description:
-// Set the id at location i. Doesn't do range checking.
+// Specify the number of ids for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction 
+// with SetValue() method for fast insertion.
+inline void vtkIdList::SetNumberOfIds(const int number) 
+{
+  this->Ia.SetNumberOfValues(number);
+}
+
+// Description:
+// Set the id at location i. Doesn't do range checking so it's a bit
+// faster than InsertId. Make sure you use SetNumberOfIds() to allocate
+// memory prior to using SetId().
 inline void vtkIdList::SetId(const int i, const int id) 
 {
-  this->Ia[i]=id;
+  this->Ia.SetValue(i, id);
 }
 
 // Description:
@@ -112,15 +125,6 @@ inline int vtkIdList::InsertNextId(const int id)
 }
 
 // Description:
-// Get a piece of memory to write into. Allocates memory as necessary.
-inline int vtkIdList::getChunk(const int sz) 
-{ // get chunk of memory
-  int pos = this->Ia.GetMaxId()+1;
-  this->Ia.InsertValue(pos+sz-1,0);
-  return pos;
-}
-
-// Description:
 // If id is not already in list, insert it and return location in
 // list. Otherwise return just location in list.
 inline int vtkIdList::InsertUniqueId(const int id)
@@ -129,6 +133,19 @@ inline int vtkIdList::InsertUniqueId(const int id)
     if (id == this->GetId(i)) return i;
 
   return this->Ia.InsertNextValue(id);
+}
+
+// Description:
+// Get a pointer to a particular data index.
+inline int *vtkIdList::GetPtr(const int i) {return this->Ia.GetPtr(i);};
+
+// Description:
+// Get a pointer to a particular data index. Make sure data is allocated
+// for the number of items requested. Set MaxId according to the number of
+// data values requested.
+inline int *vtkIdList::WritePtr(const int i, const int number)
+{
+  return this->Ia.WritePtr(i,number);
 }
 
 // Description:

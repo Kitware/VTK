@@ -117,7 +117,7 @@ void vtkExtractGrid::Execute()
 //
 // Allocate necessary objects
 //
-  newPts = (vtkPoints *) inPts->MakeObject(outSize);
+  newPts = (vtkPoints *) inPts->MakeObject(outSize); newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
 //
 // Traverse input data and copy point attributes to output

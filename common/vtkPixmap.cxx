@@ -68,6 +68,11 @@ unsigned char *vtkPixmap::GetColor(int i)
   return rgba;
 }
 
+void vtkPixmap::SetNumberOfColors(int number)
+{
+  this->S.SetNumberOfValues(number*3);
+}
+
 // Description:
 // Copy rgba components into user provided array rgb[4] for specified
 // point id. 

@@ -46,6 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.h"
 
 // Description:
+// Construct the voxel with eight points.
+vtkVoxel::vtkVoxel()
+{
+  this->Points.SetNumberOfPoints(8);
+  this->PointIds.SetNumberOfIds(8);
+}
+
+// Description:
 // Deep copy of cell.
 vtkVoxel::vtkVoxel(const vtkVoxel& b)
 {
@@ -192,7 +200,7 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t5=pcoords[2]-pcoords[0];
   float t6=1.0-pcoords[2]-pcoords[0];
 
-  pts.Reset();
+  pts.SetNumberOfIds(4);
 
   // compare against six planes in parametric space that divide element
   // into six pieces.

@@ -80,6 +80,7 @@ void vtkVoxelReader::Execute()
 
   numPts = ti[0] * ti[1] * ti[2];
   newScalars = new vtkBitScalars(numPts);
+  newScalars->SetNumberOfScalars(numPts);
 
   bitcount = 0;
   for (i=0; i<numPts;) 

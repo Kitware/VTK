@@ -211,7 +211,6 @@ void vtkUnstructuredGridReader::Execute()
 
         cells = new vtkCellArray;
         if (!this->Reader.ReadCells(size, cells->WritePtr(ncells,size)) ) return;
-        cells->WrotePtr();
         if (cells && types) output->SetCells(types, cells);
         }
 

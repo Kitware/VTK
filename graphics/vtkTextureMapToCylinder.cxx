@@ -80,7 +80,7 @@ void vtkTextureMapToCylinder::Execute()
 
   if ( this->AutomaticCylinderGeneration )
     {
-    vtkFloatPoints *pts=new vtkFloatPoints(numPts);
+    vtkFloatPoints *pts=new vtkFloatPoints(numPts); pts->SetNumberOfPoints(numPts);
     float corner[3], max[3], mid[3], min[3], size[3], l;
     vtkOBBTree OBB;
 

@@ -441,7 +441,7 @@ void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 
 int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
-  pts.Reset();
+  pts.SetNumberOfIds(1);
 
   if ( pcoords[0] >= 0.5 )
     {
@@ -465,6 +465,8 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
   int i;
   vtkFloatScalars lineScalars(2); lineScalars.ReferenceCountingOff();
   static vtkLine line;
+
+  lineScalars.SetNumberOfScalars(2);
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
@@ -528,6 +530,7 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
                               int dim, float *derivs)
 {
   static vtkLine line;
+  line.PointIds.SetNumberOfIds(2);
 
   line.Points.SetPoint(0,this->Points.GetPoint(subId));
   line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
@@ -543,6 +546,8 @@ void vtkPolyLine::Clip(float value, vtkFloatScalars *cellScalars,
   int i;
   vtkFloatScalars lineScalars(2); lineScalars.ReferenceCountingOff();
   static vtkLine line;
+
+  lineScalars.SetNumberOfScalars(2);
 
   for ( i=0; i < this->Points.GetNumberOfPoints()-1; i++)
     {

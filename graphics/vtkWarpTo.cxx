@@ -46,7 +46,7 @@ void vtkWarpTo::Execute()
   vtkPoints *inPts;
   vtkFloatPoints *newPts;
   vtkPointData *pd;
-  int i, ptId;
+  int i, ptId, numPts;
   float *x, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
@@ -56,6 +56,7 @@ void vtkWarpTo::Execute()
   vtkDebugMacro(<<"Warping data to a point");
 
   inPts = input->GetPoints();
+  numPts = inPts->GetNumberOfPoints();
   pd = input->GetPointData();
 
   if (!inPts )
@@ -64,12 +65,12 @@ void vtkWarpTo::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
+  newPts = new vtkFloatPoints(numPts); newPts->SetNumberOfPoints(numPts);
 
   if (this->Absolute)
     {
     minMag = 1.0e10;
-    for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
+    for (ptId=0; ptId < numPts; ptId++)
       {
       x = inPts->GetPoint(ptId);
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
@@ -80,7 +81,7 @@ void vtkWarpTo::Execute()
   //
   // Loop over all points, adjusting locations
   //
-  for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < numPts; ptId++)
     {
     x = inPts->GetPoint(ptId);
     if (this->Absolute)

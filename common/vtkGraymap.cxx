@@ -59,7 +59,7 @@ vtkGraymap& vtkGraymap::operator=(const vtkGraymap& fs)
 unsigned char *vtkGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];
-  rgba[0] = rgba[1] = rgba[2] = this->S[id];
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
   rgba[3] = 255;
   return rgba;
 }
@@ -69,8 +69,17 @@ unsigned char *vtkGraymap::GetColor(int id)
 // point id. (Note: gray value converted into full rgba color value.)
 void vtkGraymap::GetColor(int id, unsigned char rgba[4])
 {
-  rgba[0] = rgba[1] = rgba[2] = this->S[id];
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
   rgba[3] = 255;
+}
+
+// Description:
+// Specify the number of colors for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetColor() method for fast insertion.
+void vtkGraymap::SetNumberOfColors(int number)
+{
+  this->S.SetNumberOfValues(number);
 }
 
 // Description:
@@ -81,7 +90,16 @@ void vtkGraymap::SetColor(int id, unsigned char rgba[4])
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   g = (g > 255.0 ? 255.0 : g);
 
-  this->S[id] = (unsigned char)g;
+  this->S.SetValue(id, (unsigned char)g);
+}
+
+// Description:
+// Insert gray value into object. No range checking performed (fast!).
+// Make sure you use SetNumberOfColors() to allocate memory prior
+// to using SetColor().
+void vtkGraymap::SetGrayValue(int id, unsigned char g)
+{
+  this->S.SetValue(id,g);
 }
 
 // Description:
@@ -112,14 +130,7 @@ int vtkGraymap::InsertNextColor(unsigned char rgba[4])
 // Return a gray value for a particular point id.
 unsigned char vtkGraymap::GetGrayValue(int id)
 {
-  return this->S[id];
-}
-
-// Description:
-// Insert gray value into object. No range checking performed (fast!).
-void vtkGraymap::SetGrayValue(int id, unsigned char g)
-{
-  this->S[id] = g;
+  return this->S.GetValue(id);
 }
 
 // Description:

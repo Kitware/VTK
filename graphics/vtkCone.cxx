@@ -63,7 +63,7 @@ void vtkCone::EvaluateGradient(float x[3], float g[3])
 {
   float tanTheta = (float) 
     tan((double)this->Angle*vtkMath::DegreesToRadians());
-  g[0] = -2.0*tanTheta*tanTheta;
+  g[0] = -2.0*x[0]*tanTheta*tanTheta;
   g[1] = 2.0*x[1];
   g[2] = 2.0*x[2];
 }

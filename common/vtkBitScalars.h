@@ -66,6 +66,7 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
   float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  void SetNumberOfScalars(int number);
   void SetScalar(int i, int s) {this->S.SetValue(i,s);};
   void SetScalar(int i, float s) {this->S.SetValue(i,(int)s);};
   void InsertScalar(int i, float s) {S.InsertValue(i,(int)s);};
@@ -77,7 +78,6 @@ public:
   // miscellaneous
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkBitScalars &operator=(const vtkBitScalars& cs);
   void operator+=(const vtkBitScalars& cs) {this->S += cs.S;};
   void Reset() {this->S.Reset();};
@@ -85,6 +85,11 @@ public:
 protected:
   vtkBitArray S;
 };
+
+inline void vtkBitScalars::SetNumberOfScalars(int number)
+{
+  this->S.SetNumberOfValues(number);
+}
 
 // Description:
 // Get pointer to array of data starting at data position "id".
@@ -97,15 +102,10 @@ inline unsigned char *vtkBitScalars::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline unsigned char *vtkBitScalars::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkBitScalars::WrotePtr() {}
 
 #endif

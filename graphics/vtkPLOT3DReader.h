@@ -134,27 +134,26 @@ public:
   vtkGetStringMacro(FunctionFilename);
 
   // Description:
+  // Set/Get the PLOT3D vector filename.
+  vtkSetStringMacro(VectorFunctionFilename);
+  vtkGetStringMacro(VectorFunctionFilename);
+
+  // Description:
   // Specify the grid to read.
   vtkSetMacro(GridNumber,int);
   vtkGetMacro(GridNumber,int);
 
   // Description:
-  // Specify the scalar function to extract. If =-1, then no scalar 
+  // Specify the scalar function to extract. If ==(-1), then no scalar 
   // function is extracted.
   vtkSetMacro(ScalarFunctionNumber,int);
   vtkGetMacro(ScalarFunctionNumber,int);
 
   // Description:
-  // Specify the vector function to extract. If =-1, then no vector
+  // Specify the vector function to extract. If ==(-1), then no vector
   // function is extracted.
   vtkSetMacro(VectorFunctionNumber,int);
   vtkGetMacro(VectorFunctionNumber,int);
-
-  // Description:
-  // Specify which function to extract from the function file. If =-1, 
-  // then no function is extracted.
-  vtkSetMacro(FunctionFileFunctionNumber,int);
-  vtkGetMacro(FunctionFileFunctionNumber,int);
 
   // these are read from PLOT3D file
   // Description:
@@ -207,6 +206,7 @@ protected:
   char *XYZFilename;
   char *QFilename;
   char *FunctionFilename;
+  char *VectorFunctionFilename;
 
   //flags describing data to be read
   int GridNumber; //for multi-grid files, the one we're interested in
@@ -236,6 +236,9 @@ protected:
   //methods to read data
   int ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output);
   int ReadBinarySolution(FILE *fp, vtkStructuredGrid *output);
+  int ReadBinaryFunctionFile(FILE *fp, vtkStructuredGrid *output);
+  int ReadBinaryVectorFunctionFile(FILE *fp, vtkStructuredGrid *output);
+
   vtkFloatPoints *Grid;
   vtkFloatScalars *Density;
   vtkFloatScalars *Energy;

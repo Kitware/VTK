@@ -63,6 +63,8 @@ public:
 
   // access/insertion methods
   double GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, const double value);
   vtkDoubleArray &InsertValue(const int id, const double f);
   int InsertNextValue(const double f);
   double *GetPtr(const int id);
@@ -72,7 +74,6 @@ public:
   vtkDoubleArray &operator=(const vtkDoubleArray& fa);
   void operator+=(const vtkDoubleArray& fa);
   void operator+=(const double f);
-  double& operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -91,6 +92,24 @@ private:
 // Description:
 // Get the data at a particular index.
 inline double vtkDoubleArray::GetValue(const int id) {return this->Array[id];};
+
+// Description:
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkDoubleArray::SetNumberOfValues(const int number) 
+{
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkDoubleArray::SetValue(const int id, const double value) 
+{
+  this->Array[id] = value;
+}
 
 // Description:
 // Get the address of a particular data index.
@@ -128,15 +147,6 @@ inline int vtkDoubleArray::InsertNextValue(const double f)
 inline void vtkDoubleArray::operator+=(const double f) 
 {
   this->InsertNextValue(f);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline double& vtkDoubleArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

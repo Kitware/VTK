@@ -53,7 +53,7 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
-  vtkTetra() {};
+  vtkTetra();
   vtkTetra(const vtkTetra& t);
   char *GetClassName() {return "vtkTetra";};
 

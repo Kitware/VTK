@@ -64,8 +64,8 @@ void vtkDividingCubes::Execute()
 {
   int i, j, k, idx;
   vtkScalars *inScalars;
-  vtkIdList voxelPts(8);
-  vtkFloatScalars voxelScalars(8);
+  vtkIdList voxelPts(8); voxelPts.SetNumberOfIds(8);
+  vtkFloatScalars voxelScalars(8); voxelScalars.SetNumberOfScalars(8);
   float origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
@@ -111,9 +111,13 @@ void vtkDividingCubes::Execute()
     n[i] = ((int) ceil((double)ar[i]/this->Distance)) + 1;
     h[i] = (float)ar[i]/(n[i]-1);
     }
+
   SubSliceSize = n[0] * n[1];
-  SubNormals = new vtkFloatNormals(n[0]*n[1]*n[2]);
-  SubScalars = new vtkFloatScalars(n[0]*n[1]*n[2]);
+  SubNormals = new vtkFloatNormals(SubSliceSize*n[2]);
+  SubNormals->SetNumberOfNormals(SubSliceSize*n[2]);
+
+  SubScalars = new vtkFloatScalars(SubSliceSize*n[2]);
+  SubScalars->SetNumberOfScalars(SubSliceSize*n[2]);
 
   for ( k=0; k < (dim[2]-1); k++)
     {
@@ -198,10 +202,10 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   float s;
   int kOffset, jOffset, idx, above, below;
   float p[3], w[8], n[3], *normal, offset[3];
-  static vtkIdList subVoxelPts(8);
+  static vtkIdList subVoxelPts(8); subVoxelPts.SetNumberOfIds(8);
   static vtkVoxel subVoxel;
-  static vtkFloatScalars subVoxelScalars(8);
-  static vtkFloatNormals subVoxelNormals(8);
+  static vtkFloatScalars subVoxelScalars(8); subVoxelScalars.SetNumberOfScalars(8);
+  static vtkFloatNormals subVoxelNormals(8); subVoxelNormals.SetNumberOfNormals(8);
   subVoxelScalars.ReferenceCountingOff();
   subVoxelScalars.Reset();
   subVoxelNormals.ReferenceCountingOff();

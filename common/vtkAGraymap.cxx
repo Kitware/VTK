@@ -47,7 +47,7 @@ vtkScalars *vtkAGraymap::MakeObject(int sze, int ext)
 
 float vtkAGraymap::GetScalar(int i)
 {
-  return (float)(this->S[2*i]);
+  return (float)(this->S.GetValue(2*i));
 }
 
 // Description:
@@ -55,8 +55,8 @@ float vtkAGraymap::GetScalar(int i)
 unsigned char *vtkAGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];
-  rgba[0] = rgba[1] = rgba[2] = this->S[2*id];
-  rgba[3] = this->S[2*id+1];
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(2*id);
+  rgba[3] = this->S.GetValue(2*id+1);
   
   return rgba;
 }
@@ -66,8 +66,8 @@ unsigned char *vtkAGraymap::GetColor(int id)
 // point id.
 void vtkAGraymap::GetColor(int id, unsigned char rgba[4])
 {
-  rgba[0] = rgba[1] = rgba[2] = this->S[2*id];
-  rgba[3] = this->S[2*id+1];
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(2*id);
+  rgba[3] = this->S.GetValue(2*id+1);
 }
 
 // Description:
@@ -83,8 +83,8 @@ vtkAGraymap& vtkAGraymap::operator=(const vtkAGraymap& fs)
 unsigned char *vtkAGraymap::GetAGrayValue(int id)
 {
   static unsigned char ga[2];
-  ga[0] = this->S[2*id];
-  ga[1] = this->S[2*id+1];
+  ga[0] = this->S.GetValue(2*id);
+  ga[1] = this->S.GetValue(2*id+1);
   
   return ga;
 }
@@ -94,18 +94,25 @@ unsigned char *vtkAGraymap::GetAGrayValue(int id)
 // point id.
 void vtkAGraymap::GetAGrayValue(int id, unsigned char ga[2])
 {
-  ga[0] = this->S[2*id];
-  ga[1] = this->S[2*id+1];
+  id *= 2;
+  ga[0] = this->S.GetValue(id);
+  ga[1] = this->S.GetValue(id+1);
+}
+
+void vtkAGraymap::SetNumberOfColors(int number)
+{
+  this->S.SetNumberOfValues(number*2);
 }
 
 // Description:
 // Set a gray-alpha value at a particular array location. Does not do 
-// range checking.
+// range checking. Make sure you use SetNumberOfColors() to allocate
+// memory prior to using this method.
 void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2]) 
 {
   i *= 2; 
-  this->S[i] = ga[0];
-  this->S[i+1] = ga[1]; 
+  this->S.SetValue(i, ga[0]);
+  this->S.SetValue(i+1, ga[1]); 
 }
 
 // Description:
@@ -113,8 +120,9 @@ void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2])
 // checking and will allocate additional memory if necessary.
 void vtkAGraymap::InsertAGrayValue(int i, unsigned char ga[2]) 
 {
-  this->S.InsertValue(2*i+1, ga[1]);
-  this->S[2*i] = ga[0];
+  i *= 2;
+  this->S.InsertValue(i+1, ga[1]);
+  this->S.SetValue(i, ga[0]);
 }
 
 // Description:

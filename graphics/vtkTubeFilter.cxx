@@ -107,7 +107,8 @@ void vtkTubeFilter::Execute()
     {
     vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
-    inNormals = new vtkFloatNormals(numNewPts);
+    inNormals = new vtkFloatNormals(numNewPts); 
+    inNormals->SetNumberOfNormals(numNewPts);
 
     if ( this->UseDefaultNormal )
       {

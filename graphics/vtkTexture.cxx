@@ -131,12 +131,12 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   // map the scalars to colors
   mappedScalars = (vtkAPixmap *) this->MappedScalars;
   
-  // insert the last entry to allocate ensure there is enough memory
-  mappedScalars->InsertColor(numPts-1, this->LookupTable->MapValue(scalars->GetScalar(numPts-1)));
+  mappedScalars->SetNumberOfColors(numPts);
   for (int i = 0; i < numPts; i++)
     {
-      mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
+    mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
     }
+
   return this->MappedScalars->GetPtr(0);
 }
 

@@ -63,6 +63,8 @@ public:
 
   // access/insertion methods
   float GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, const float value);
   vtkFloatArray &InsertValue(const int id, const float f);
   int InsertNextValue(const float f);
   float *GetPtr(const int id);
@@ -72,7 +74,6 @@ public:
   vtkFloatArray &operator=(const vtkFloatArray& fa);
   void operator+=(const vtkFloatArray& fa);
   void operator+=(const float f);
-  float& operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -81,16 +82,34 @@ public:
   void Reset();
 
 private:
-  float *Array;   // pointer to data
-  int Size;       // allocated size of data
+  float *Array;  // pointer to data
+  int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
+  int Extend;    // grow array by this point
   float *Resize(const int sz);  // function to resize data
 };
 
 // Description:
 // Get the data at a particular index.
 inline float vtkFloatArray::GetValue(const int id) {return this->Array[id];};
+
+// Description:
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkFloatArray::SetNumberOfValues(const int number) 
+{
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkFloatArray::SetValue(const int id, const float value) 
+{
+  this->Array[id] = value;
+}
 
 // Description:
 // Get the address of a particular data index.
@@ -128,15 +147,6 @@ inline int vtkFloatArray::InsertNextValue(const float f)
 inline void vtkFloatArray::operator+=(const float f) 
 {
   this->InsertNextValue(f);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline float& vtkFloatArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

@@ -47,6 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGrid.h"
 
 // Description:
+// Construct the tetra with four points.
+vtkTetra::vtkTetra()
+{
+  this->Points.SetNumberOfPoints(4);
+  this->PointIds.SetNumberOfIds(4);
+}
+
+// Description:
 // Deep copy of cell.
 vtkTetra::vtkTetra(const vtkTetra& t)
 {
@@ -160,7 +168,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t5 = pcoords[0] + 2.0*pcoords[1] + pcoords[2] - 1.3333333;
   float t6 = 2.0*pcoords[0] + pcoords[1] + pcoords[2] - 1.3333333;
 
-  pts.Reset();
+  pts.SetNumberOfIds(3);
 
   // compare against three lines in parametric space that divide element
   // into three pieces

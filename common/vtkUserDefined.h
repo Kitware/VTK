@@ -66,8 +66,9 @@ public:
   vtkUserDefined *MakeObject(int sze, int ext=1000);
   int GetNumberOfUserDefined() {return (this->UD.GetMaxId()+1);};
   void Squeeze() {this->UD.Squeeze();};
-  void* GetUserDefined(int i) {return this->UD[i];};
-  void SetUserDefined(int i, void *ud) {this->UD[i] = ud;};
+  void* GetUserDefined(int i) {return this->UD.GetValue(i);};
+  void SetNumberOfUserDefined(int number);
+  void SetUserDefined(int i, void *ud) {this->UD.SetValue(i,ud);};
   void InsertUserDefined(int i, void *ud) {UD.InsertValue(i,ud);};
   int InsertNextUserDefined(void *ud) {return UD.InsertNextValue(ud);};
   void GetUserDefined(vtkIdList& ptId, vtkUserDefined& ud);
@@ -79,10 +80,15 @@ public:
   // Description:
   // Interpolate user defined data. Method must be supplied by user. Return
   // value must be non-static void* pointer to data.
-  virtual void* Interpolate(float *weights) { if (weights) return NULL; return NULL;};
+  virtual void* Interpolate(float *weights) {if (weights) return NULL; return NULL;};
 
 protected:
   vtkVoidArray UD;
 };
+
+inline void vtkUserDefined::SetNumberOfUserDefined(int number)
+{
+  this->UD.SetNumberOfValues(number);
+}
 
 #endif

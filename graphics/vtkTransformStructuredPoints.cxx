@@ -169,6 +169,7 @@ void vtkTransformStructuredPoints::Execute()
   // Allocate data.  Scalar type is same as input.
   numOutPts = dim[0] * dim[1] * dim[2];
   outScalars = inScalars->MakeObject(numOutPts);
+  outScalars->SetNumberOfScalars(numOutPts);
   for (i = 0; i < numOutPts; i++) outScalars->SetScalar(i,this->FillValue);
 
   // Loop over all output voxels, transforming and then resampling from input.

@@ -155,9 +155,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_POLY_VERTEX:
-      pvertex.Points.Reset(); pvertex.PointIds.Reset(); //reset number of cells
       cell = &pvertex;
       this->Verts->GetCell(loc,numPts,pts);
+      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
+      cell->Points.SetNumberOfPoints(numPts);
       break;
 
     case VTK_LINE: 
@@ -166,9 +167,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_POLY_LINE:
-      pline.Points.Reset(); pline.PointIds.Reset(); //reset number of points
       cell = &pline;
       this->Lines->GetCell(loc,numPts,pts);
+      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
+      cell->Points.SetNumberOfPoints(numPts);
       break;
 
     case VTK_TRIANGLE:
@@ -182,29 +184,27 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_POLYGON:
-      poly.Points.Reset(); poly.PointIds.Reset(); //reset number of points
       cell = &poly;
       this->Polys->GetCell(loc,numPts,pts);
+      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
+      cell->Points.SetNumberOfPoints(numPts);
       break;
 
     case VTK_TRIANGLE_STRIP:
-      strip.Points.Reset(); strip.PointIds.Reset(); //reset number of points
       cell = &strip;
       this->Strips->GetCell(loc,numPts,pts);
+      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
+      cell->Points.SetNumberOfPoints(numPts);
       break;
 
     default:
       return &EmptyCell;
     }
 
-  int last = numPts - 1;
-  cell->PointIds.InsertId(last,pts[last]);
-  cell->Points.InsertPoint(last,this->Points->GetPoint(pts[last]));
-  int *pt = &pts[0];
-  for (i=0; i < last; i++, pt++)
+  for (i=0; i < numPts; i++)
     {
-    cell->PointIds.SetId(i,*pt);
-    cell->Points.SetPoint(i,this->Points->GetPoint(*pt));
+    cell->PointIds.SetId(i,pts[i]);
+    cell->Points.SetPoint(i,this->Points->GetPoint(pts[i]));
     }
 
   return cell;

@@ -167,6 +167,8 @@ void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars,
   vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
   static vtkTriangle tri;
 
+  triScalars.SetNumberOfScalars(3);
+
   for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
@@ -315,6 +317,8 @@ void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars,
   int id1, id2, id3;
   vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
   static vtkTriangle tri;
+
+  triScalars.SetNumberOfScalars(3);
 
   for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
     {

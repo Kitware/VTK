@@ -72,7 +72,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the number of colors in the lookup table.
+  // Set the number of colors in the lookup table. Use this method before
+  // building the lookup table. Use SetNumberOfTableValues() to change the
+  // table size after the lookup table has been built.
   vtkSetClampMacro(NumberOfColors,int,8, 65536);
   vtkGetMacro(NumberOfColors,int);
 
@@ -106,6 +108,7 @@ public:
 
   virtual unsigned char *MapValue(float v);
 
+  void SetNumberOfTableValues(int number);
   void SetTableValue (int indx, float rgba[4]);
   void SetTableValue (int indx, float r, float g, float b, float a=1.0);
 
@@ -114,7 +117,6 @@ public:
 
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
-  void WrotePtr();
 
 protected:
   int NumberOfColors;
@@ -139,16 +141,10 @@ inline unsigned char *vtkLookupTable::GetPtr(const int id)
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the location you 
 // wish to write into; number is the number of rgba values to write.
-// Use the method WrotePtr() to mark completion of write.
 inline unsigned char *vtkLookupTable::WritePtr(const int id, const int number)
 {
   return this->Table.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkLookupTable::WrotePtr() {}
 
 #endif
 

@@ -75,7 +75,7 @@ void vtkWarpScalar::Execute()
   vtkScalars *inScalars;
   vtkFloatPoints *newPts;
   vtkPointData *pd;
-  int i, ptId;
+  int i, ptId, numPts;
   float *x, *n, s, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
@@ -83,6 +83,7 @@ void vtkWarpScalar::Execute()
   vtkDebugMacro(<<"Warping data with scalars");
 
   inPts = input->GetPoints();
+  numPts = inPts->GetNumberOfPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();
   inScalars = pd->GetScalars();
@@ -109,11 +110,12 @@ void vtkWarpScalar::Execute()
     vtkDebugMacro(<<"Using Normal instance variable");
     }
 
-  newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
+  newPts = new vtkFloatPoints(numPts); 
+  newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations
 //
-  for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < numPts; ptId++)
     {
     x = inPts->GetPoint(ptId);
     n = (this->*(PointNormal))(ptId,inNormals);

@@ -74,6 +74,7 @@ public:
   char *GetScalarType() {return "ColorScalar";};
   char *GetDataType() {return "unsigned char";};
   float GetScalar(int i);
+  void SetNumberOfScalars(int number) {this->SetNumberOfColors(number);};
   void SetScalar(int i, float s);
   void InsertScalar(int i, float s);
   int InsertNextScalar(float s);
@@ -100,7 +101,15 @@ public:
   virtual void GetColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:
+  // Specify the number of colors for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetColor() method for fast insertion.
+  virtual void SetNumberOfColors(int number) = 0;
+
+  // Description:
   // Insert color into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfColors() to allocate memory prior
+  // to using SetColor().
   virtual void SetColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:

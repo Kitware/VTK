@@ -65,7 +65,8 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
   float GetScalar(int i) {return this->S.GetValue(i);};
-  void SetScalar(int i, float s) {this->S[i] = s;};
+  void SetNumberOfScalars(int number);
+  void SetScalar(int i, float s) {this->S.SetValue(i,s);};
   void InsertScalar(int i, float s) {S.InsertValue(i,s);};
   int InsertNextScalar(float s) {return S.InsertNextValue(s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
@@ -75,7 +76,6 @@ public:
   float *GetPtr(const int id);
   void *GetVoidPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatScalars &operator=(const vtkFloatScalars& fs);
   void operator+=(const vtkFloatScalars& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
@@ -83,6 +83,11 @@ public:
 protected:
   vtkFloatArray S;
 };
+
+inline void vtkFloatScalars::SetNumberOfScalars(int number)
+{
+  this->S.SetNumberOfValues(number);
+}
 
 // Description:
 // Get pointer to array of data starting at data position "id".
@@ -103,15 +108,10 @@ inline void *vtkFloatScalars::GetVoidPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline float *vtkFloatScalars::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatScalars::WrotePtr() {}
 
 #endif

@@ -66,6 +66,7 @@ public:
   void Squeeze() {this->V.Squeeze();};
   float *GetVector(int i) {return this->V.GetPtr(3*i);};
   void GetVector(int i,float v[3]) {this->vtkVectors::GetVector(i,v);};
+  void SetNumberOfVectors(int number);
   void SetVector(int i, float v[3]);
   void InsertVector(int i, float v[3]);
   int InsertNextVector(float v[3]);
@@ -73,7 +74,6 @@ public:
   // miscellaneous
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatVectors &operator=(const vtkFloatVectors& fv);
   void operator+=(const vtkFloatVectors& fv){this->V += fv.V;};
   void Reset() {this->V.Reset();};
@@ -93,25 +93,23 @@ inline float *vtkFloatVectors::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of vectors to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline float *vtkFloatVectors::WritePtr(const int id, const int number)
 {
   return this->V.WritePtr(id,3*number);
 }
 
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatVectors::WrotePtr() {}
-
-
-inline void vtkFloatVectors::SetVector(int i, float v[3]) 
+inline void vtkFloatVectors::SetNumberOfVectors(int number)
 {
-  float *ptr = this->V.WritePtr(i*3,3);
+  this->V.SetNumberOfValues(3*number);
+}
 
-  *ptr++ = v[0];
-  *ptr++ = v[1];
-  *ptr   = v[2];
+inline void vtkFloatVectors::SetVector(int id, float v[3]) 
+{
+  id *= 3;
+  this->V.SetValue(id++, v[0]);
+  this->V.SetValue(id++, v[1]);
+  this->V.SetValue(id,   v[2]);
 }
 
 inline void vtkFloatVectors::InsertVector(int i, float v[3]) 

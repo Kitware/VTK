@@ -85,7 +85,15 @@ public:
   virtual void GetTCoord(int id, float tc[3]);
 
   // Description:
+  // Specify the number of texture coords for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetTCoord() method for fast insertion.
+  virtual void SetNumberOfTCoords(int number) = 0;
+
+  // Description:
   // Insert texture coordinate into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfPoints() to allocate memory prior
+  // to using SetPoint().
   virtual void SetTCoord(int id, float *tc) = 0;
 
   // Description:

@@ -46,7 +46,7 @@ void vtkWarpVector::Execute()
   vtkFloatPoints *newPts;
   vtkPointData *pd;
   vtkVectors *inVectors;
-  int i, ptId;
+  int i, ptId, numPts;
   float *x, *v, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
@@ -54,6 +54,7 @@ void vtkWarpVector::Execute()
   vtkDebugMacro(<<"Warping data with vectors");
 
   inPts = input->GetPoints();
+  numPts = inPts->GetNumberOfPoints();
   pd = input->GetPointData();
   inVectors = pd->GetVectors();
 
@@ -63,11 +64,12 @@ void vtkWarpVector::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
+  newPts = new vtkFloatPoints(numPts);
+  newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations
 //
-  for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < numPts; ptId++)
     {
     x = inPts->GetPoint(ptId);
     v = inVectors->GetVector(ptId);

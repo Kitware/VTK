@@ -83,6 +83,7 @@ void vtkTextureMapToBox::Execute()
     }
 
   newTCoords = new vtkFloatTCoords(numPts,3);
+  newTCoords->SetNumberOfTCoords(numPts);
 
   if ( this->AutomaticBoxGeneration ) 
     box = this->Input->GetBounds();

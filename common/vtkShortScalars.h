@@ -64,9 +64,10 @@ public:
   char *GetDataType() {return "short";};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return (float)this->S[i];};
-  void SetScalar(int i, short s) {this->S[i] = s;};
-  void SetScalar(int i, float s) {this->S[i] = (short)s;};
+  float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  void SetNumberOfScalars(int number);
+  void SetScalar(int i, short s) {this->S.SetValue(i,s);};
+  void SetScalar(int i, float s) {this->S.SetValue(i,(short)s);};
   void InsertScalar(int i, float s) {S.InsertValue(i,(short)s);};
   void InsertScalar(int i, short s) {S.InsertValue(i,s);};
   int InsertNextScalar(short s) {return S.InsertNextValue(s);};
@@ -78,7 +79,6 @@ public:
   short *GetPtr(const int id);
   void *GetVoidPtr(const int id);
   short *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkShortScalars &operator=(const vtkShortScalars& ss);
   void operator+=(const vtkShortScalars& ss) {this->S += ss.S;};
   void Reset() {this->S.Reset();};
@@ -86,6 +86,11 @@ public:
 protected:
   vtkShortArray S;
 };
+
+inline void vtkShortScalars::SetNumberOfScalars(int number)
+{
+  this->S.SetNumberOfValues(number);
+}
 
 // Description:
 // Get pointer to array of data starting at data position "id".
@@ -105,15 +110,10 @@ inline void *vtkShortScalars::GetVoidPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline short *vtkShortScalars::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkShortScalars::WrotePtr() {}
 
 #endif

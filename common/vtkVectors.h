@@ -83,7 +83,15 @@ public:
   virtual void GetVector(int id, float v[3]);
 
   // Description:
+  // Specify the number of vectors for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetVector() method for fast insertion.
+  virtual void SetNumberOfVectors(int number) = 0;
+
+  // Description:
   // Insert vector into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfVectors() to allocate memory prior
+  // to using SetVector().
   virtual void SetVector(int id, float v[3]) = 0;
 
   // Description:

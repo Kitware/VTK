@@ -269,7 +269,7 @@ void vtkDelaunay2D::Execute()
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
 //
-  points = new vtkFloatPoints(numPoints+8);
+  points = new vtkFloatPoints(numPoints+8); points->SetNumberOfPoints(numPoints+8);
   for (ptId=0; ptId < numPoints; ptId++)
     {
     points->SetPoint(ptId,inPoints->GetPoint(ptId));

@@ -410,6 +410,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     }
   outputPD->CopyAllocate(pd,numNewPts);
   newPts = new vtkFloatPoints(numNewPts);
+  newPts->SetNumberOfPoints(numNewPts);
 
   for (ptId=0; ptId < numPts; ptId++)
     {

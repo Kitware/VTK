@@ -183,6 +183,7 @@ void vtkSmoothPolyFilter::Execute()
           {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
           Verts[pts[j]].edges = new vtkIdList(2,2);
+          Verts[pts[j]].edges->SetNumberOfIds(2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
           }
@@ -382,6 +383,7 @@ void vtkSmoothPolyFilter::Execute()
   vtkDebugMacro(<<"Beginning smoothing iterations...");
 
   newPts = new vtkFloatPoints(numPts);
+  newPts->SetNumberOfPoints(numPts);
   for (i=0; i<numPts; i++) //initialize to old coordinates
     {
     newPts->SetPoint(i,inPts->GetPoint(i));
@@ -436,6 +438,7 @@ void vtkSmoothPolyFilter::Execute()
   if ( this->GenerateErrorScalars )
     {
     vtkFloatScalars *newScalars = new vtkFloatScalars(numPts);
+    newScalars->SetNumberOfScalars(numPts);
     for (i=0; i<numPts; i++)
       {
       inPts->GetPoint(i,x1);
@@ -449,6 +452,7 @@ void vtkSmoothPolyFilter::Execute()
   if ( this->GenerateErrorVectors )
     {
     vtkFloatVectors *newVectors = new vtkFloatVectors(numPts);
+    newVectors->SetNumberOfVectors(numPts);
     for (i=0; i<numPts; i++)
       {
       inPts->GetPoint(i,x1);

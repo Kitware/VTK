@@ -54,7 +54,7 @@ class VTK_EXPORT vtkBitArray : public vtkObject
 {
 public:
   vtkBitArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
-  int Allocate(const int sz, const int ext);
+  int Allocate(const int sz, const int ext=1000);
   void Initialize();
   vtkBitArray(const int sz, const int ext=1000);
   vtkBitArray(const vtkBitArray& ia);
@@ -64,6 +64,8 @@ public:
 
   // access/insertion methods
   int GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, const int value);
   vtkBitArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
   unsigned char *GetPtr(const int id);
@@ -73,7 +75,6 @@ public:
   vtkBitArray &operator=(const vtkBitArray& ia);
   vtkBitArray &operator+=(const vtkBitArray& ia);
   void operator+=(const char i);
-  vtkBitArray &SetValue(const int id, const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -109,15 +110,22 @@ inline unsigned char *vtkBitArray::WritePtr(const int id, const int number)
 }
 
 // Description:
-// Insert data at a specified position in the array. Does not perform
-// range checking.
-inline vtkBitArray& vtkBitArray::SetValue(const int id, const int i)
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkBitArray::SetNumberOfValues(const int number) 
 {
-  if (i) this->Array[id/8] |= (0x80 >> id%8);
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkBitArray::SetValue(const int id, const int value) 
+{
+  if (value) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
-  if ( id > this->MaxId ) this->MaxId = id;
- 
-  return *this;
 }
 
 // Description:

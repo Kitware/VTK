@@ -203,8 +203,20 @@ unsigned char *vtkLookupTable::MapValue(float v)
 }
 
 // Description:
+// Specify the number of values (i.e., colors) in the lookup
+// table. This method simply allocates memory and prepares the table
+// for use with SetTableValue(). It differs from Build() method in
+// that the allocated memory is not initialized according to HSVA ramps.
+void vtkLookupTable::SetNumberOfTableValues(int number)
+{
+  number = (number < 0 ? 1 : (number > 65536 ? 65536 : number));
+  this->Table.SetNumberOfColors(number);
+}
+
+// Description:
 // Directly load color into lookup table. Use [0,1] float values for color
-// component specification.
+// component specification. Make sure that you've either used the
+// Build() method or used SetNumberOfTableValues() prior to using this method.
 void vtkLookupTable::SetTableValue (int indx, float rgba[4])
 {
   unsigned char _rgba[4];

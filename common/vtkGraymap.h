@@ -72,11 +72,11 @@ public:
   unsigned char *GetPtr(const int id);
   void *GetVoidPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
-  void WrotePtr();
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
+  void SetNumberOfColors(int number);
   void SetColor(int id, unsigned char rgba[4]);
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
@@ -110,15 +110,10 @@ inline void *vtkGraymap::GetVoidPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline unsigned char *vtkGraymap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkGraymap::WrotePtr() {}
 
 #endif

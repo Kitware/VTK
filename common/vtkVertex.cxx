@@ -44,6 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.h"
 
 // Description:
+// Construct the vertex with a single point.
+vtkVertex::vtkVertex()
+{
+  this->Points.SetNumberOfPoints(1);
+  this->PointIds.SetNumberOfIds(1);
+}
+
+// Description:
 // Deep copy of cell.
 vtkVertex::vtkVertex(const vtkVertex& p)
 {
@@ -94,7 +102,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 			    vtkIdList& pts)
 {
 
-  pts.Reset();
+  pts.SetNumberOfIds(1);
   pts.SetId(0,this->PointIds.GetId(0));
 
   if ( pcoords[0] != 0.0 )  

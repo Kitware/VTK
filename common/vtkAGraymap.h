@@ -80,11 +80,11 @@ public:
   void Reset() {this->S.Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
-  void WrotePtr();
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
+  void SetNumberOfColors(int number);
   void SetColor(int id, unsigned char rgba[4]);
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
@@ -102,15 +102,16 @@ protected:
 
 // Description:
 // Set a rgba color value at a particular array location. Does not do 
-// range checking.
+// range checking. Make sure you use SetNumberOfColors() to allocate 
+// memory prior to using SetColor().
 inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4]) 
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   g = (g > 255.0 ? 255.0 : g);
 
   i *= 2; 
-  this->S[i] = (unsigned char)g;
-  this->S[i+1] = rgba[3]; 
+  this->S.SetValue(i, (unsigned char)g);
+  this->S.SetValue(i+1, rgba[3]); 
 }
 
 // Description:
@@ -122,7 +123,7 @@ inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4])
   g = (g > 255.0 ? 255.0 : g);
 
   this->S.InsertValue(2*i+1, rgba[3]);
-  this->S[2*i] = (unsigned char)g;
+  this->S.SetValue(2*i, (unsigned char)g);
 }
 
 // Description:
@@ -152,16 +153,10 @@ inline unsigned char *vtkAGraymap::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline unsigned char *vtkAGraymap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(2*id,2*number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkAGraymap::WrotePtr() {}
-
 
 #endif

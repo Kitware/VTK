@@ -84,6 +84,12 @@ public:
   virtual void GetTensor(int id, vtkTensor& t);
 
   // Description:
+  // Specify the number of tensors for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetTensor() method for fast insertion.
+  virtual void SetNumberOfTensors(int number) = 0;
+
+  // Description:
   // Insert tensor into object. No range checking performed (fast!).
   virtual void SetTensor(int id, vtkTensor *t) = 0;
 

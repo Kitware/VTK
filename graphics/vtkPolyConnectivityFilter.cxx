@@ -214,7 +214,7 @@ void vtkPolyConnectivityFilter::Execute()
     {
     if ( PointMap[i] > -1 )
       {
-      newPts->SetPoint(PointMap[i],inPts->GetPoint(i));
+      newPts->InsertPoint(PointMap[i],inPts->GetPoint(i));
       outputPD->CopyData(pd,i,PointMap[i]);
       }
     }

@@ -61,7 +61,7 @@ void vtkRecursiveDividingCubes::Execute()
 {
   int i, j, k, idx;
   vtkScalars *inScalars;
-  vtkIdList voxelPts(8);
+  vtkIdList voxelPts(8); voxelPts.SetNumberOfIds(8);
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;

@@ -139,6 +139,7 @@ void vtkSweptSurface::Execute()
   numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
               this->SampleDimensions[2];
   newScalars = inScalars->MakeObject(numOutPts);
+  newScalars->SetNumberOfScalars(numOutPts);
   for (i = 0; i < numOutPts; i++) newScalars->SetScalar(i,this->FillValue);
 //
 // Sample data at each point in path
@@ -217,8 +218,8 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   float x[4], loc[3], newScalar, scalar;
   static vtkVoxel voxel;
-  static vtkIdList idList(8);
-  static vtkFloatScalars voxelScalars(8);
+  static vtkIdList idList(8); idList.SetNumberOfIds(8);
+  static vtkFloatScalars voxelScalars(8); voxelScalars.SetNumberOfScalars(8);
   int kOffset, jOffset, ijk[3], idx;
   float xTrans[4], weights[8];
   static vtkTransform t;

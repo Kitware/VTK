@@ -150,8 +150,8 @@ void vtkDicer::Execute()
   //
   // Create list of points
   //
-  ptIds = new vtkIdList(numPts);
   this->PointsList = new vtkFloatPoints(numPts);
+  ptIds = new vtkIdList(numPts); ptIds->SetNumberOfIds(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     ptIds->SetId(ptId,ptId);
@@ -164,7 +164,7 @@ void vtkDicer::Execute()
   // Generate scalar values
   //
   this->PointsList->Delete(); this->PointsList = NULL;
-  groupIds = new vtkShortScalars(numPts);
+  groupIds = new vtkShortScalars(numPts); groupIds->SetNumberOfScalars(numPts);
   this->NumberOfPieces = 0;
   this->MarkPoints(root,groupIds);
   this->DeleteTree(root);

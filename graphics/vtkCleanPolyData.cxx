@@ -111,7 +111,7 @@ void vtkCleanPolyData::Execute()
     {
     if ( Index[i] == numNewPts ) 
       {
-      newPts->SetPoint(numNewPts,inPts->GetPoint(i));
+      newPts->InsertPoint(numNewPts,inPts->GetPoint(i));
       outputPD->CopyData(pd,i,numNewPts);
       numNewPts++;
       }

@@ -85,7 +85,15 @@ public:
   virtual void GetNormal(int id, float n[3]);
 
   // Description:
+  // Specify the number of normals for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetNormal() method for fast insertion.
+  virtual void SetNumberOfNormals(int number) = 0;
+
+  // Description:
   // Insert normal into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfNormals() to allocate memory prior
+  // to using SetNormal().
   virtual void SetNormal(int id, float n[3]) = 0;
 
   // Description:

@@ -63,6 +63,8 @@ public:
 
   // access/insertion methods
   unsigned short GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, const unsigned short value);
   vtkUnsignedShortArray &InsertValue(const int id, const unsigned short i);
   int InsertNextValue(const unsigned short);
   unsigned short *GetPtr(const int id);
@@ -72,7 +74,6 @@ public:
   vtkUnsignedShortArray &operator=(const vtkUnsignedShortArray& ia);
   void operator+=(const vtkUnsignedShortArray& ia);
   void operator+=(const unsigned short i);
-  unsigned short& operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -92,6 +93,24 @@ private:
 // Description:
 // Get the data at a particular index.
 inline unsigned short vtkUnsignedShortArray::GetValue(const int id) {return this->Array[id];};
+
+// Description:
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkUnsignedShortArray::SetNumberOfValues(const int number) 
+{
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkUnsignedShortArray::SetValue(const int id, const unsigned short value) 
+{
+  this->Array[id] = value;
+}
 
 // Description:
 // Get the address of a particular data index.
@@ -129,15 +148,6 @@ inline int vtkUnsignedShortArray::InsertNextValue(const unsigned short i)
 inline void vtkUnsignedShortArray::operator+=(const unsigned short i) 
 {
   this->InsertNextValue(i);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline unsigned short& vtkUnsignedShortArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

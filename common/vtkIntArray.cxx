@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIntArray.h"
 
 // Description:
-// Allocate memory for this array. Delete old storage if present.
+// Allocate memory for this array. Delete old storage only if necessary.
 int vtkIntArray::Allocate(const int sz, const int ext)
 {
   if ( sz > this->Size || this->Array == NULL )

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
-  vtkTriangle() {};
+  vtkTriangle();
   vtkTriangle(const vtkTriangle& t);
   char *GetClassName() {return "vtkTriangle";};
 

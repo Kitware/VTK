@@ -72,11 +72,11 @@ public:
   void Reset() {this->S.Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
-  void WrotePtr();
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
+  void SetNumberOfColors(int number);
   void SetColor(int id, unsigned char rgba[4]);
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
@@ -86,14 +86,13 @@ protected:
 };
 
 // Description:
-// Set a rgba color value at a particular array location. Does not do range 
-// checking.
+// Set a rgba color value at a particular array location. Does not do 
+// range checking. Make sure you use SetNumberOfColors() to allocate 
+// memory prior to using SetColor().
 inline void vtkPixmap::SetColor(int i, unsigned char rgba[4]) 
 {
   i *= 3; 
-  this->S[i] = rgba[0]; 
-  this->S[i+1] = rgba[1]; 
-  this->S[i+2] = rgba[2];
+  memcpy (this->S.GetPtr(i), rgba, 3);
 }
 
 // Description:
@@ -101,9 +100,10 @@ inline void vtkPixmap::SetColor(int i, unsigned char rgba[4])
 // checking and will allocate additional memory if necessary.
 inline void vtkPixmap::InsertColor(int i, unsigned char rgba[4]) 
 {
-  this->S.InsertValue(3*i+2, rgba[2]);
-  this->S[3*i] = rgba[0];
-  this->S[3*i+1] = rgba[1];
+  i *= 3;
+  this->S.InsertValue(i+2, rgba[2]);
+  this->S.SetValue(i, rgba[0]);
+  this->S.SetValue(i+1, rgba[1]);
 }
 
 // Description:
@@ -113,8 +113,8 @@ inline int vtkPixmap::InsertNextColor(unsigned char *rgba)
 {
   int id = this->S.GetMaxId() + 3;
   this->S.InsertValue(id,rgba[2]);
-  this->S[id-2] = rgba[0];
-  this->S[id-1] = rgba[1];
+  this->S.SetValue(id-2, rgba[0]);
+  this->S.SetValue(id-1, rgba[1]);
   return id/3;
 }
 
@@ -129,15 +129,10 @@ inline unsigned char *vtkPixmap::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline unsigned char *vtkPixmap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(3*id,3*number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkPixmap::WrotePtr() {}
 
 #endif

@@ -301,10 +301,10 @@ void vtkUnstructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
   int i, loc, numPts, *pts;
 
-  ptIds.Reset();
   loc = this->Cells->GetCellLocation(cellId);
   this->Connectivity->GetCell(loc,numPts,pts); 
 
+  ptIds.SetNumberOfIds(numPts);
   for (i=0; i<numPts; i++) ptIds.SetId(i,pts[i]);
 }
 

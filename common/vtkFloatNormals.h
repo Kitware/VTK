@@ -66,14 +66,14 @@ public:
   void Squeeze() {this->N.Squeeze();};
   float *GetNormal(int i) {return this->N.GetPtr(3*i);};
   void GetNormal(int i,float n[3]) {this->vtkNormals::GetNormal(i,n);};
-  void SetNormal(int i, float n[3]);
+  void SetNumberOfNormals(int number);
+  void SetNormal(int id, float n[3]);
   void InsertNormal(int i, float n[3]);
   int InsertNextNormal(float n[3]);
 
   // miscellaneous
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatNormals &operator=(const vtkFloatNormals& fn);
   void operator+=(const vtkFloatNormals& fn);
   void Reset() {this->N.Reset();};
@@ -93,25 +93,23 @@ inline float *vtkFloatNormals::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of normals to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline float *vtkFloatNormals::WritePtr(const int id, const int number)
 {
   return this->N.WritePtr(id,3*number);
 }
 
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatNormals::WrotePtr() {}
-
-
-inline void vtkFloatNormals::SetNormal(int i, float n[3]) 
+inline void vtkFloatNormals::SetNumberOfNormals(int number)
 {
-  float *ptr = this->N.WritePtr(i*3,3);
+  this->N.SetNumberOfValues(3*number);
+}
 
-  *ptr++ = n[0];
-  *ptr++ = n[1];
-  *ptr   = n[2];
+inline void vtkFloatNormals::SetNormal(int id, float n[3]) 
+{
+  id *= 3;
+  this->N.SetValue(id++, n[0]);
+  this->N.SetValue(id++, n[1]);
+  this->N.SetValue(id,   n[2]);
 }
 
 inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 

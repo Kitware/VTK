@@ -93,7 +93,7 @@ void vtkCutter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input=this->GetInput();
   int estimatedSize, numCells=input->GetNumberOfCells();
-  int numPts=input->GetNumberOfPoints();
+  int numPts=input->GetNumberOfPoints(), numCellPts;
   vtkPointData *inPD, *outPD;
   vtkIdList *cellIds;
   
@@ -164,7 +164,9 @@ void vtkCutter::Execute()
     cellPts = cell->GetPoints();
     cellIds = cell->GetPointIds();
 
-    for (i=0; i<cellPts->GetNumberOfPoints(); i++)
+    numCellPts = cellPts->GetNumberOfPoints();
+    cellScalars.SetNumberOfScalars(numCellPts);
+    for (i=0; i < numCellPts; i++)
       {
       s = cutScalars->GetScalar(cellIds->GetId(i));
       cellScalars.SetScalar(i,s);

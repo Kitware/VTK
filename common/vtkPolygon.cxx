@@ -839,6 +839,8 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   static vtkFloatScalars triScalars(3);
   int *polyVerts = new int[numVerts], p1, p2, p3;
 
+  triScalars.SetNumberOfScalars(3);
+
   bounds = this->GetBounds();
   
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -1093,12 +1095,14 @@ void vtkPolygon::Clip(float value, vtkFloatScalars *cellScalars,
   static vtkFloatScalars triScalars(3);
   int *polyVerts = new int[numVerts], p1, p2, p3;
 
+  triScalars.SetNumberOfScalars(3);
+
   bounds = this->GetBounds();
-  
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   Tolerance = TOLERANCE * d;
+
   SuccessfulTriangulation = 1;
   this->ComputeNormal(&this->Points, Normal);
 

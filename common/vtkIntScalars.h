@@ -64,9 +64,10 @@ public:
   char *GetDataType() {return "int";};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return (float)this->S[i];};
-  void SetScalar(int i, int s) {this->S[i] = s;};
-  void SetScalar(int i, float s) {this->S[i] = (int)s;};
+  float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  void SetNumberOfScalars(int number);
+  void SetScalar(int i, int s) {this->S.SetValue(i,s);};
+  void SetScalar(int i, float s) {this->S.SetValue(i,(int)s);};
   void InsertScalar(int i, float s) {S.InsertValue(i,(int)s);};
   void InsertScalar(int i, int s) {S.InsertValue(i,s);};
   int InsertNextScalar(int s) {return S.InsertNextValue(s);};
@@ -78,7 +79,6 @@ public:
   int *GetPtr(const int id);
   void *GetVoidPtr(const int id);
   int *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkIntScalars &operator=(const vtkIntScalars& is);
   void operator+=(const vtkIntScalars& is) {this->S += is.S;};
   void Reset() {this->S.Reset();};
@@ -86,6 +86,11 @@ public:
 protected:
   vtkIntArray S;
 };
+
+inline void vtkIntScalars::SetNumberOfScalars(int number)
+{
+  this->S.SetNumberOfValues(number);
+}
 
 // Description:
 // Get pointer to array of data starting at data position "id".
@@ -105,15 +110,10 @@ inline void *vtkIntScalars::GetVoidPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline int *vtkIntScalars::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkIntScalars::WrotePtr() {}
 
 #endif

@@ -117,7 +117,8 @@ void vtkThreshold::Execute()
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
 
-  pointMap = new vtkIdList(numPts); // maps old point ids into new
+  pointMap = new vtkIdList(numPts); //maps old point ids into new
+  pointMap->SetNumberOfIds(numPts);
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
 
   // Check that the scalars of each cell satisfy the threshold criterion

@@ -67,12 +67,17 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
   rgba[3] = _rgba[3];
 }
 
+void vtkAPixmap::SetNumberOfColors(int number)
+{
+  this->S.SetNumberOfValues(number*4);
+}
+
 // Description:
 // Insert color into object. No range checking performed (fast!).
 void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 {
   id *= 4;
-  memcpy (&(this->S[id]), rgba, 4);
+  memcpy (this->S.GetPtr(id), rgba, 4);
 }
 
 // Description:

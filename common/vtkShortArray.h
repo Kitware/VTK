@@ -63,6 +63,8 @@ public:
 
   // access/insertion methods
   short GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, const short value);
   vtkShortArray &InsertValue(const int id, const short i);
   int InsertNextValue(const int short);
   short *GetPtr(const int id);
@@ -72,7 +74,6 @@ public:
   vtkShortArray &operator=(const vtkShortArray& ia);
   void operator+=(const vtkShortArray& ia);
   void operator+=(const short i);
-  short& operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -92,6 +93,24 @@ private:
 // Description:
 // Get the data at a particular index.
 inline short vtkShortArray::GetValue(const int id) {return this->Array[id];};
+
+// Description:
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkShortArray::SetNumberOfValues(const int number) 
+{
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkShortArray::SetValue(const int id, const short value) 
+{
+  this->Array[id] = value;
+}
 
 // Description:
 // Get the address of a particular data index.
@@ -129,15 +148,6 @@ inline int vtkShortArray::InsertNextValue(const short i)
 inline void vtkShortArray::operator+=(const short i) 
 {
   this->InsertNextValue(i);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline short& vtkShortArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

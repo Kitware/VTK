@@ -193,12 +193,11 @@ void vtkMergeFilter::Execute()
   
   vtkDebugMacro(<<"Merging data!");
 
-  // geometry is created
-
+  // geometry needs to be copied
+  this->Output->CopyStructure(this->Geometry);
   if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
     {
-    vtkErrorMacro(<<"Nothing to merge!");
-    return;
+    vtkWarningMacro(<<"Nothing to merge!");
     }
   
   if ( this->Scalars ) 

@@ -47,6 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 
 // Description:
+// Construct the quad with four points.
+vtkQuad::vtkQuad()
+{
+  this->Points.SetNumberOfPoints(4);
+  this->PointIds.SetNumberOfIds(4);
+}
+
+// Description:
 // Deep copy of cell.
 vtkQuad::vtkQuad(const vtkQuad& q)
 {
@@ -273,7 +281,7 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
 
-  pts.Reset();
+  pts.SetNumberOfIds(2);
 
   // compare against two lines in parametric space that divide element
   // into four pieces.

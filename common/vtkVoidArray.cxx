@@ -42,13 +42,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 typedef void *voidPtr;
 // Description:
-// Allocate memory for this array. Delete old storage if present.
+// Allocate memory for this array. Delete old storage only if necessary.
 int vtkVoidArray::Allocate(const int sz, const int ext)
 {
-  if ( this->Array ) delete [] this->Array;
+  if ( sz > this->Size || this->Array == NULL )
+    {
+    delete [] this->Array;
 
-  this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new voidPtr[sz]) == NULL ) return 0;
+    this->Size = ( sz > 0 ? sz : 1);
+    if ( (this->Array = new voidPtr[this->Size]) == NULL ) return 0;
+    }
+
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 

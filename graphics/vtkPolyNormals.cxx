@@ -214,6 +214,7 @@ void vtkPolyNormals::Execute()
 //  new points into old points.
 //
     Map = new vtkIdList(numPts,numPts/2);
+    Map->SetNumberOfIds(numPts);
     for (i=0; i < numPts; i++) Map->SetId(i,i);
 
     for (ptId=0; ptId < OldMesh->GetNumberOfPoints(); ptId++)
@@ -240,7 +241,7 @@ void vtkPolyNormals::Execute()
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
-    newPts = new vtkFloatPoints(numNewPts);
+    newPts = new vtkFloatPoints(numNewPts); newPts->SetNumberOfPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = Map->GetId(ptId);
@@ -264,6 +265,7 @@ void vtkPolyNormals::Execute()
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
 
   newNormals = new vtkFloatNormals(numNewPts);
+  newNormals->SetNumberOfNormals(numNewPts);
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++) newNormals->SetNormal(i,n);
 

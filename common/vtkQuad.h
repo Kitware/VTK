@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuad : public vtkCell
 {
 public:
-  vtkQuad() {};
+  vtkQuad();
   vtkQuad(const vtkQuad& q);
   char *GetClassName() {return "vtkQuad";};
 

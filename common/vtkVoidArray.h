@@ -63,6 +63,8 @@ public:
 
   // access/insertion methods
   void* GetValue(const int id);
+  void SetNumberOfValues(const int number);
+  void SetValue(const int id, void *value);
   vtkVoidArray &InsertValue(const int id, void* p);
   int InsertNextValue(void* v);
   void** GetPtr(const int id);
@@ -72,7 +74,6 @@ public:
   vtkVoidArray &operator=(const vtkVoidArray& fa);
   void operator+=(const vtkVoidArray& fa);
   void operator+=(void* p);
-  void* &operator[](const int i);
 
   // miscellaneous methods
   void Squeeze();
@@ -81,16 +82,34 @@ public:
   void Reset();
 
 private:
-  void** Array;   // pointer to data
-  int Size;       // allocated size of data
+  void** Array;  // pointer to data
+  int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
+  int Extend;    // grow array by this point
   void** Resize(const int sz);  // function to resize data
 };
 
 // Description:
 // Get the data at a particular index.
 inline void* vtkVoidArray::GetValue(const int id) {return this->Array[id];};
+
+// Description:
+// Specify the number of values for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetValue() method for fast insertion.
+inline void vtkVoidArray::SetNumberOfValues(const int number) 
+{
+  this->Allocate(number);
+  this->MaxId = number - 1;
+}
+
+// Description:
+// Set the data at a particular index. Does not do range checking. Make sure
+// you use the method SetNumberOfValues() before inserting data.
+inline void vtkVoidArray::SetValue(const int id, void *value) 
+{
+  this->Array[id] = value;
+}
 
 // Description:
 // Get the address of a particular data index.
@@ -128,15 +147,6 @@ inline int vtkVoidArray::InsertNextValue(void* p)
 inline void vtkVoidArray::operator+=(void* p) 
 {
   this->InsertNextValue(p);
-}
-
-// Description:
-// Does insert or get (depending on location on lhs or rhs of statement). Does
-// not do automatic resizing - user's responsibility to range check.
-inline void* &vtkVoidArray::operator[](const int i)
-{
-  if (i > this->MaxId) this->MaxId = i; 
-  return this->Array[i];
 }
 
 // Description:

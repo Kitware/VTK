@@ -122,7 +122,7 @@ void vtkRotationalExtrusionFilter::Execute()
   // copy points
   for (ptId=0; ptId < numPts; ptId++) //base level
     {
-    newPts->SetPoint(ptId,inPts->GetPoint(ptId));
+    newPts->InsertPoint(ptId,inPts->GetPoint(ptId));
     outPD->CopyData(pd,ptId,ptId);
     }
 
@@ -150,7 +150,7 @@ void vtkRotationalExtrusionFilter::Execute()
       newX[1] = radius * sin (i*angleIncr + theta);
       newX[2] = x[2] + i * transIncr;
 
-      newPts->SetPoint(ptId+i*numPts,newX);
+      newPts->InsertPoint(ptId+i*numPts,newX);
       outPD->CopyData(pd,ptId,ptId+i*numPts);
       }
     }

@@ -134,7 +134,7 @@ void vtkSampleFunction::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = new vtkFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts); newScalars->SetNumberOfScalars(numPts);
 
   // Compute origin and aspect ratio
   output->SetDimensions(this->GetSampleDimensions());
@@ -168,17 +168,12 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = new vtkFloatNormals(numPts);
+    newNormals = new vtkFloatNormals(numPts); 
+    newNormals->SetNumberOfNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {
       p = output->GetPoint(ptId);
       this->ImplicitFunction->FunctionGradient(p, n);
-//
-// The normal is the negative of the gradient
-//
-      n[0] = -n[0];
-      n[1] = -n[1];
-      n[2] = -n[2];
       vtkMath::Normalize(n);
       newNormals->SetNormal(ptId,n);
       }

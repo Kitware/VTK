@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
-  vtkHexahedron() {};
+  vtkHexahedron();
   vtkHexahedron(const vtkHexahedron& h);
   char *GetClassName() {return "vtkHexahedron";};
 

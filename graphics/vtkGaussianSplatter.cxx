@@ -131,7 +131,7 @@ void vtkGaussianSplatter::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  NewScalars = new vtkFloatScalars(numPts);
+  NewScalars = new vtkFloatScalars(numPts); NewScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) NewScalars->SetScalar(i,0.0);
 
   Visited = new char[numPts];

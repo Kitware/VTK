@@ -66,8 +66,9 @@ public:
   void Squeeze() {this->P.Squeeze();};
   float *GetPoint(int i);
   void GetPoint(int id, float x[3]);
-  void SetPoint(int i, int x[3]);
-  void SetPoint(int i, float x[3]);
+  void SetNumberOfPoints(int number);
+  void SetPoint(int id, int x[3]);
+  void SetPoint(int id, float x[3]);
   void InsertPoint(int i, int x[3]);
   void InsertPoint(int i, float x[3]);
   int InsertNextPoint(int x[3]);
@@ -77,7 +78,6 @@ public:
   // miscellaneous
   int *GetPtr(const int id);
   int *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkIntPoints &operator=(const vtkIntPoints& fp);
   void operator+=(const vtkIntPoints& fp) {this->P += fp.P;};
   void Reset() {this->P.Reset();};
@@ -97,16 +97,11 @@ inline int *vtkIntPoints::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of points to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline int *vtkIntPoints::WritePtr(const int id, const int number)
 {
   return this->P.WritePtr(id,3*number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkIntPoints::WrotePtr() {}
 
 inline void vtkIntPoints::GetPoint(int id, float x[3])
 {
@@ -114,22 +109,25 @@ inline void vtkIntPoints::GetPoint(int id, float x[3])
   x[0] = (float)p[0]; x[1] = (float)p[1]; x[2] = (float)p[2];
 }
 
-inline void vtkIntPoints::SetPoint(int i, float x[3]) 
+inline void vtkIntPoints::SetNumberOfPoints(int number)
 {
-  int *ptr = this->P.WritePtr(i*3,3);
-
-  *ptr++ = (int) x[0];
-  *ptr++ = (int) x[1];
-  *ptr   = (int) x[2];
+  this->P.SetNumberOfValues(3*number);
 }
 
-inline void vtkIntPoints::SetPoint(int i, int x[3]) 
+inline void vtkIntPoints::SetPoint(int id, float x[3]) 
 {
-  int *ptr = this->P.WritePtr(i*3,3);
+  id *= 3;
+  this->P.SetValue(id++, (int)x[0]);
+  this->P.SetValue(id++, (int)x[1]);
+  this->P.SetValue(id,   (int)x[2]);
+}
 
-  *ptr++ = x[0];
-  *ptr++ = x[1];
-  *ptr   = x[2];
+inline void vtkIntPoints::SetPoint(int id, int x[3]) 
+{
+  id *= 3;
+  this->P.SetValue(id++, x[0]);
+  this->P.SetValue(id++, x[1]);
+  this->P.SetValue(id,   x[2]);
 }
 
 inline void vtkIntPoints::InsertPoint(int i, int x[3]) 

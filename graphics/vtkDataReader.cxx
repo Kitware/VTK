@@ -372,7 +372,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "int", 3) )
     {
-    vtkIntPoints *points = new vtkIntPoints(numPts);
+    vtkIntPoints *points = new vtkIntPoints(numPts); 
     int *ptr = points->WritePtr(0,numPts);
     if (this->FileType == VTK_BINARY)
       {
@@ -385,7 +385,6 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,3*numPts);
-      points->WrotePtr();
       }
     else // ascii
       {
@@ -419,7 +418,6 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,3*numPts);
-      points->WrotePtr();
       }
     else // ascii
       {
@@ -494,7 +492,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary bit scalars!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -527,7 +524,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary char scalars!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -561,7 +557,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap2BERange(ptr,numPts);
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -595,7 +590,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,numPts);
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -629,7 +623,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,numPts);
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -695,7 +688,6 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,3*numPts);
-      vectors->WrotePtr();
       }
     else // ascii
       {
@@ -761,7 +753,6 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,3*numPts);
-      normals->WrotePtr();
       }
     else // ascii
       {
@@ -828,7 +819,6 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,3*numPts);
-      tensors->WrotePtr();
       }
     else // ascii
       {
@@ -898,7 +888,6 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary graymap!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -933,7 +922,6 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary alpha-graymap!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -969,7 +957,6 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary pixmap!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -1008,7 +995,6 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary alpha-pixmap!");
         return 0;
         }
-      scalars->WrotePtr();
       }
     else // ascii
       {
@@ -1089,7 +1075,6 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
         return 0;
         }
       vtkByteSwap::Swap4BERange(ptr,dim*numPts);
-      tcoords->WrotePtr();
       }
     else // ascii
       {
@@ -1156,7 +1141,6 @@ int vtkDataReader::ReadLutData(vtkDataSet *ds)
       vtkErrorMacro(<<"Error reading binary lookup table!");
       return 0;
       }
-    lut->WrotePtr();
     }
   else // ascii
     {

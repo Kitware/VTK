@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPixel : public vtkCell
 {
 public:
-  vtkPixel() {};
+  vtkPixel();
   vtkPixel(const vtkPixel& r);
   char *GetClassName() {return "vtkPixel";};
 

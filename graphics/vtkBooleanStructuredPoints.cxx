@@ -204,6 +204,7 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
     {
     newScalars = new vtkFloatScalars(numPts);
     }
+  newScalars->SetNumberOfScalars(numPts);
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }

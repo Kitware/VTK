@@ -66,6 +66,7 @@ public:
   void Squeeze() {this->P.Squeeze();};
   float *GetPoint(int id) {return this->P.GetPtr(3*id);};
   void GetPoint(int id, float x[3]);
+  void SetNumberOfPoints(int number);
   void SetPoint(int id, float x[3]);
   void InsertPoint(int id, float x[3]);
   int InsertNextPoint(float x[3]);
@@ -74,7 +75,6 @@ public:
   // miscellaneous
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatPoints &operator=(const vtkFloatPoints& fp);
   void operator+=(const vtkFloatPoints& fp) {this->P += fp.P;};
   void Reset() {this->P.Reset();};
@@ -94,16 +94,11 @@ inline float *vtkFloatPoints::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 inline float *vtkFloatPoints::WritePtr(const int id, const int number)
 {
   return this->P.WritePtr(id,3*number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatPoints::WrotePtr() {}
 
 inline void vtkFloatPoints::GetPoint(int id, float x[3])
 {
@@ -111,13 +106,17 @@ inline void vtkFloatPoints::GetPoint(int id, float x[3])
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
 }
 
+inline void vtkFloatPoints::SetNumberOfPoints(int number)
+{
+  this->P.SetNumberOfValues(3*number);
+}
+
 inline void vtkFloatPoints::SetPoint(int id, float x[3]) 
 {
-  float *ptr = this->P.WritePtr(id*3,3);
-
-  *ptr++ = x[0];
-  *ptr++ = x[1];
-  *ptr   = x[2];
+  id *= 3;
+  this->P.SetValue(id++, x[0]);
+  this->P.SetValue(id++, x[1]);
+  this->P.SetValue(id,   x[2]);
 }
 
 inline void vtkFloatPoints::InsertPoint(int id, float x[3])

@@ -160,7 +160,10 @@ void vtkShepardMethod::Execute()
 //
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
-  newScalars = new vtkFloatScalars(numNewPts);
+
+  newScalars = new vtkFloatScalars(numNewPts); 
+  newScalars->SetNumberOfScalars(numNewPts);
+
   sum = new float[numNewPts];
   for (i=0; i<numNewPts; i++) 
     {

@@ -172,6 +172,7 @@ void vtkAppendPolyData::Execute()
   outputPD->CopyAllocate(pd,numPts);
 
   newPts = new vtkFloatPoints(numPts);
+  newPts->SetNumberOfPoints(numPts);
 
   newVerts = new vtkCellArray;
   newVerts->Allocate(numCells*4);

@@ -79,6 +79,7 @@ public:
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
+  void SetNumberOfColors(int number);
   void SetColor(int id, unsigned char rgba[4]);
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
@@ -86,6 +87,11 @@ public:
 protected:
   vtkBitArray S;
 };
+
+inline void vtkBitmap::SetNumberOfColors(int number)
+{
+  this->S.SetNumberOfValues(number);
+}
 
 // Description:
 // Get pointer to byte containing bit in question. You will have to decompose

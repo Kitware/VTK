@@ -380,7 +380,7 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float mag;
   float calcSteps;
   unsigned char temp_col[4];
-  static vtkIdList ptIds(8);
+  static vtkIdList ptIds(8); ptIds.SetNumberOfIds(8);
   static vtkFloatScalars voxelValues(8);
   int kOffset, ptId, newVoxel, idx;
   float value;

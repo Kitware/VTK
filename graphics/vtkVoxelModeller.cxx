@@ -111,6 +111,7 @@ void vtkVoxelModeller::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
   newScalars = new vtkBitScalars(numPts);
+  newScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
 
   output->SetDimensions(this->GetSampleDimensions());

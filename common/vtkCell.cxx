@@ -59,7 +59,7 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
   for (int i=0; i<npts; i++)
     {
     this->PointIds.InsertId(i,pts[i]);
-    this->Points.SetPoint(i,p->GetPoint(pts[i]));
+    this->Points.InsertPoint(i,p->GetPoint(pts[i]));
     }
 }
  
@@ -216,23 +216,28 @@ float vtkCell::GetLength2 ()
 
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
-  float *bounds;
-  int i;
+  int numIds=this->PointIds.GetNumberOfIds();
 
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Number Of Points: " << this->PointIds.GetNumberOfIds() << "\n";
-  bounds = this->GetBounds();
-  os << indent << "Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
+  os << indent << "Number Of Points: " << numIds << "\n";
 
-  os << indent << "  Point ids are: ";
-  for (i=0; this->PointIds.GetNumberOfIds(); i++)
+  if ( numIds > 0 )
     {
-    os << ", " << this->PointIds.GetId(i);
-    if ( i && !(i % 12) ) os << "\n\t";
+    float *bounds=this->GetBounds();
+
+    os << indent << "Bounds: \n";
+    os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
+
+    os << indent << "  Point ids are: ";
+    for (int i=0; i < numIds; i++)
+      {
+      os << this->PointIds.GetId(i);
+      if ( i && !(i % 12) ) os << "\n\t";
+      else if ( i != (numIds-1) ) os << ", ";
+      }
+    os << indent << "\n";
     }
-  os << indent << "\n";
 }

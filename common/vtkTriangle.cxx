@@ -47,6 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.h"
 
 // Description:
+// Construct the triangle with three points.
+vtkTriangle::vtkTriangle()
+{
+  this->Points.SetNumberOfPoints(3);
+  this->PointIds.SetNumberOfIds(3);
+}
+
+// Description:
 // Deep copy of cell.
 vtkTriangle::vtkTriangle(const vtkTriangle& t)
 {
@@ -241,7 +249,7 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t2=0.5*(1.0-pcoords[0])-pcoords[1];
   float t3=2.0*pcoords[0]+pcoords[1]-1.0;
 
-  pts.Reset();
+  pts.SetNumberOfIds(2);
 
   // compare against three lines in parametric space that divide element
   // into three pieces

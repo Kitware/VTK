@@ -66,6 +66,7 @@ public:
   void Squeeze() {this->TC.Squeeze();};
   float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
   void GetTCoord(int i,float tc[3]) {this->vtkTCoords::GetTCoord(i,tc);};
+  void SetNumberOfTCoords(int number);
   void SetTCoord(int i, float *tc);
   void InsertTCoord(int i, float *tc);
   int InsertNextTCoord(float *tc);
@@ -73,7 +74,6 @@ public:
   // miscellaneous
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatTCoords &operator=(const vtkFloatTCoords& ftc);
   void operator+=(const vtkFloatTCoords& ftc) {this->TC += ftc.TC;};
   void Reset() {this->TC.Reset();};
@@ -94,24 +94,22 @@ inline float *vtkFloatTCoords::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of texture coordinates to 
-// write. Use the method WrotePtr() to mark completion of write.
-// Make sure the dimension of the texture coordinate is set prior to issuing 
+// write. Make sure the dimension of the texture coordinate is set prior to issuing 
 // this call.
 inline float *vtkFloatTCoords::WritePtr(const int id, const int number)
 {
   return this->TC.WritePtr(id,this->Dimension*number);
 }
 
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatTCoords::WrotePtr() {}
-
+inline void vtkFloatTCoords::SetNumberOfTCoords(int number)
+{
+  this->TC.SetNumberOfValues(number*this->Dimension);
+}
 
 inline void vtkFloatTCoords::SetTCoord(int i, float *tc) 
 {
   i*=this->Dimension; 
-  for(int j=0;j<this->Dimension;j++) this->TC[i+j]=tc[j];
+  for(int j=0;j<this->Dimension;j++) this->TC.SetValue(i+j,tc[j]);
 }
 
 inline void vtkFloatTCoords::InsertTCoord(int i, float *tc) 

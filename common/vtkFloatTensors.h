@@ -66,6 +66,7 @@ public:
   void Squeeze() {this->T.Squeeze();};
   vtkTensor *GetTensor(int i);
   void GetTensor(int i,vtkTensor &t) {this->vtkTensors::GetTensor(i,t);};
+  void SetNumberOfTensors(int number);
   void SetTensor(int i, vtkTensor *t);
   void InsertTensor(int i, vtkTensor *t);
   int InsertNextTensor(vtkTensor *t);
@@ -73,7 +74,6 @@ public:
   // miscellaneous
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
-  void WrotePtr();
   vtkFloatTensors &operator=(const vtkFloatTensors& ft);
   void operator+=(const vtkFloatTensors& ft) {this->T += ft.T;};
   void Reset() {this->T.Reset();};
@@ -93,18 +93,12 @@ inline float *vtkFloatTensors::GetPtr(const int id)
 // Get pointer to data array. Useful for direct writes of data. MaxId is 
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of tensors to 
-// write. Use the method WrotePtr() to mark completion of write.
+// write. 
 // Make sure the dimension of the tensor is set prior to issuing this call.
 inline float *vtkFloatTensors::WritePtr(const int id, const int number)
 {
   return this->T.WritePtr(id,this->Dimension*this->Dimension*number);
 }
-
-// Description:
-// Terminate direct write of data. Although dummy routine now, reserved for
-// future use.
-inline void vtkFloatTensors::WrotePtr() {}
-
 
 inline vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft) 
 {
@@ -114,7 +108,7 @@ inline vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft)
 inline vtkFloatTensors::vtkFloatTensors(int sz, int d, int ext):
 T(d*d*sz,d*d*ext) 
 {
-  this->Dimension=d;
+  this->Dimension = d;
 }
 
 inline int vtkFloatTensors::Allocate(const int sz, const int dim,const int ext) 
@@ -125,6 +119,11 @@ inline int vtkFloatTensors::Allocate(const int sz, const int dim,const int ext)
 inline int vtkFloatTensors::GetNumberOfTensors() 
 {
   return (this->T.GetMaxId()+1)/(this->Dimension*this->Dimension);
+}
+
+inline void vtkFloatTensors::SetNumberOfTensors(int number)
+{
+  this->T.SetNumberOfValues(this->Dimension*this->Dimension*number);
 }
 
 
