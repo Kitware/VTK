@@ -322,7 +322,7 @@ protected:
   void MovePoint2(double *p1, double *p2);
   void MovePoint3(double *p1, double *p2);
   void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
-  void Spin(double *p1, double *p2);
+  void Spin(double *p1, double *p2, double *vpn);
   void Scale(double *p1, double *p2, int X, int Y);
   void Translate(double *p1, double *p2);
   void Push(double *p1, double *p2);

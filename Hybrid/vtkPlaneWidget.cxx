@@ -41,7 +41,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.34");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.35");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -410,7 +410,7 @@ void vtkPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Normal To X Axis: " 
      << (this->NormalToXAxis ? "On" : "Off") << "\n";
-  os << indent << "Normal To Y Axis: " 
+  os << indent << "Normal To Y Axis: "
      << (this->NormalToYAxis ? "On" : "Off") << "\n";
   os << indent << "Normal To Z Axis: " 
      << (this->NormalToZAxis ? "On" : "Off") << "\n";
@@ -837,7 +837,8 @@ void vtkPlaneWidget::OnMouseMove()
     }
   else if ( this->State == vtkPlaneWidget::Spinning )
     {
-      this->Spin(prevPickPoint, pickPoint);
+    camera->GetViewPlaneNormal(vpn);
+    this->Spin(prevPickPoint, pickPoint, vpn);
     }
 
 
@@ -1094,43 +1095,56 @@ void vtkPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
   this->PositionHandles();
 }
 
-void vtkPlaneWidget::Spin(double *p1, double *p2)
+void vtkPlaneWidget::Spin(double *p1, double *p2, double *vpn)
 {
+  // Mouse motion vector in world space
+  double v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  float* normal = this->PlaneSource->GetNormal();
+  // Axis of rotation
+  double axis[3] = { normal[0], normal[1], normal[2] };
+  vtkMath::Normalize(axis);
+
   float *o = this->PlaneSource->GetOrigin();
   float *pt1 = this->PlaneSource->GetPoint1();
   float *pt2 = this->PlaneSource->GetPoint2();
   float *center = this->PlaneSource->GetCenter();
 
-  float *c1 = center;
-  
-  double newAngle = 
-    atan2((double)p1[1] - (double)c1[1],
-          (double)p1[0] - (double)c1[0]);
-  
-  double oldAngle = 
-   atan2((double)p2[1] - (double)c1[1],
-         (double)p2[0] - (double)c1[0]);
-    
-  newAngle *= vtkMath::RadiansToDegrees();
-  oldAngle *= vtkMath::RadiansToDegrees();
-    
-  //Manipulate the transform to reflect the rotation
+  // Radius vector (from center to cursor position)
+  double rv[3] = {p2[0] - center[0],
+                  p2[1] - center[1],
+                  p2[2] - center[2]};
+
+  // Distance between center and cursor location
+  float rs = vtkMath::Normalize(rv);
+
+  // Spin direction
+  double ax_cross_rv[3];
+  vtkMath::Cross(axis,rv,ax_cross_rv);
+
+  // Spin angle
+  double theta = vtkMath::RadiansToDegrees() * vtkMath::Dot(v,ax_cross_rv)  / rs;
+
+  // Manipulate the transform to reflect the rotation
   this->Transform->Identity();
   this->Transform->Translate(center[0],center[1],center[2]);
-  this->Transform->RotateWXYZ(oldAngle-newAngle,this->GetNormal());
+  this->Transform->RotateWXYZ(theta,axis);
   this->Transform->Translate(-center[0],-center[1],-center[2]);
-    
+
   //Set the corners
-  float oNew[3], pt1New[3], pt2New[3];   
+  float oNew[3], pt1New[3], pt2New[3];
   this->Transform->TransformPoint(o,oNew);
   this->Transform->TransformPoint(pt1,pt1New);
   this->Transform->TransformPoint(pt2,pt2New);
-    
+
   this->PlaneSource->SetOrigin(oNew);
   this->PlaneSource->SetPoint1(pt1New);
   this->PlaneSource->SetPoint2(pt2New);
   this->PlaneSource->Update();
-  
+
   this->PositionHandles();
 }
 
