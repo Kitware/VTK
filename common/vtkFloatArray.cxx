@@ -55,6 +55,13 @@ vtkFloatArray::~vtkFloatArray()
 
 }
 
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
 void vtkFloatArray::SetArray(float* array, int size, int save)
 {
   if ((this->Array) && (!this->SaveUserArray))
