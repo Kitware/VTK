@@ -356,7 +356,7 @@ get_args(int i)
   switch (arg_types[i]%1000)
     {
     case 3:
-      fprintf(yyout,"  temp%i = *(argv[%i]);\n",i,i+2);
+      fprintf(yyout,"  temp%i = (char)(0xff & id%i);\n",i,i);
       break;
     case 303:
       fprintf(yyout,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
