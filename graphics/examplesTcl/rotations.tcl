@@ -69,7 +69,6 @@ proc RotateX {} {
   renWin EraseOff
    for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateX 60
-        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -83,7 +82,6 @@ proc RotateY {} {
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateY 60 
-        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -97,7 +95,6 @@ proc RotateZ {} {
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateZ 60
-        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -112,7 +109,6 @@ proc RotateXY {} {
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateY 60
-        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }

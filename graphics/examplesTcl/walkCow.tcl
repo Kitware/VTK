@@ -75,7 +75,6 @@ proc walk {} {
   cowTransform RotateY [expr $i * 60]
   cowTransform Translate 0 0 5
         cowActor SetUserMatrix [cowTransform GetMatrix]
-  ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -95,7 +94,6 @@ proc walk2 {} {
   cowActor SetUserMatrix [cowTransform GetMatrix]
   for {set i 1} {$i <= 6} {incr i} {
     cowActor RotateY 60
-    ren1 ResetCameraClippingRange
     renWin Render
     renWin Render
   }
@@ -114,7 +112,6 @@ proc walk3 {} {
   cowActor SetUserMatrix [cowTransform GetMatrix]
   for {set i 1} {$i <= 6} {incr i} {
     cowActor RotateY 60
-    ren1 ResetCameraClippingRange
     renWin Render
     renWin Render
   }
@@ -134,7 +131,6 @@ proc walk4 {} {
   cowActor SetUserMatrix [cowTransform GetMatrix]
   for {set i 1} {$i <= 6} {incr i} {
     cowActor RotateWXYZ 60 2.19574 -1.42455 -.0331036
-    ren1 ResetCameraClippingRange
     renWin Render
     renWin Render
   }
