@@ -2953,7 +2953,7 @@ done
 
 if test "$use_sproc" = "yes"; then
 case $system in
-    IRIX64-6.5 | IRIX-6.5)
+    Linux* | IRIX64-6.5 | IRIX-6.5)
 	use_sproc=no
 	;;
     IRIX*)
