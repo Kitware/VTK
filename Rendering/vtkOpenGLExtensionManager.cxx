@@ -51,7 +51,7 @@ extern "C" __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.2");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -77,6 +77,8 @@ void vtkOpenGLExtensionManager::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "RenderWindow: (" << this->RenderWindow << ")" << endl;
   os << indent << "BuildTime: " << this->BuildTime << endl;
+  os << indent << "ExtensionsString: "
+     << (this->ExtensionsString ? this->ExtensionsString : "(NULL)") << endl;
 }
 
 void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
