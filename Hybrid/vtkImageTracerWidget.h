@@ -17,7 +17,7 @@
 // vtkImageTracerWidget is different from other widgets in three distinct ways:
 // 1) any sub-class of vtkProp can be input rather than just vtkProp3D, so that
 // vtkImageActor can be set as the prop and then traced over, 2) the widget fires
-// picks at the input prop to decide where to move its handles, 3) the
+// pick events at the input prop to decide where to move its handles, 3) the
 // widget has 2D glyphs for handles instead of 3D spheres as is done in other
 // sub-classes of vtk3DWidget. This widget is primarily designed for manually
 // tracing over image data.
@@ -33,7 +33,7 @@
 // a closed loop.
 // 5) right button clicking and holding on any handle that is part of a snap
 // drawn line allows handle dragging: existing line segments are updated
-// accordingly.  If the path is open and AutoClose is set to on, the path can
+// accordingly.  If the path is open and AutoClose is set to On, the path can
 // be closed by repositioning the first and last points over one another.
 // 6) ctrl key + right button down on any handle will erase it: existing
 // snap drawn line segments are updated accordingly.  If the line was formed by
@@ -205,7 +205,7 @@ public:
 
   // Description:
   // Is the path closed or open?
-  vtkGetMacro(IsClosed,int);
+  int IsClosed();
 
 protected:
   vtkImageTracerWidget();
@@ -221,6 +221,7 @@ protected:
     Erasing,
     Inserting,
     Moving,
+    Translating,
     Outside
   };
 //ETX
@@ -242,7 +243,7 @@ protected:
 
   void AddObservers();
 
-  // Controlling vars
+  // Controlling ivars
   int    Interaction;
   int    ProjectionNormal;
   double ProjectionPosition;
@@ -251,14 +252,15 @@ protected:
   int    SnapToImage;
   double CaptureRadius; // tolerance for auto path close
   int    AutoClose;
+  int    IsSnapping;
+  int    LastX;
+  int    LastY;
 
-  int   IsSnapping;
-  int   MouseMoved;
-  void  Trace(int X, int Y);
-  void  Snap(double*);
-  void  MovePoint(double *p1, double *p2);
+  void  Trace(int , int );
+  void  Snap(double* );
+  void  MovePoint(const double* , const double* );
+  void  Translate(const double* , const double* );
   void  ClosePath();
-  int   IsClosed;
 
   // 2D glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
@@ -273,12 +275,12 @@ protected:
 
   void AppendHandles(double*);
   void ResetHandles();
-  void AllocateHandles(int nhandles);
-  void AdjustHandlePosition(int, double*);
-  int  HighlightHandle(vtkProp *prop); // returns handle index or -1 on fail
-  void EraseHandle(int);
+  void AllocateHandles(const int& );
+  void AdjustHandlePosition(const int& , double*);
+  int  HighlightHandle(vtkProp* ); // returns handle index or -1 on fail
+  void EraseHandle(const int& );
   virtual void SizeHandles();
-  void InsertHandleOnLine(double*);
+  void InsertHandleOnLine(double* );
 
   int NumberOfHandles;
   vtkActor *CurrentHandle;
@@ -295,10 +297,10 @@ protected:
   vtkPolyData       *LineData;
   vtkIdType          CurrentPoints[2];
 
-  void HighlightLine(int);
+  void HighlightLine(const int& );
   void BuildLinesFromHandles();
-  void ResetLine(double*);
-  void AppendLine(double*);
+  void ResetLine(double* );
+  void AppendLine(double* );
   int  PickCount;
 
   // Do the picking of the handles and the lines
