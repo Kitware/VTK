@@ -44,6 +44,10 @@ public:
   // Get/Set the reader's output.
   void SetOutput(vtkStructuredGrid *output);
   vtkStructuredGrid *GetOutput();
+
+  // Description:
+  // Needed for ParaView
+  vtkStructuredGrid* GetOutput(int idx);
   
 protected:
   vtkXMLPStructuredGridReader();
