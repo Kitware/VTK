@@ -22,7 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkStructuredGridAlgorithm, "1.2");
 vtkStandardNewMacro(vtkStructuredGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -187,44 +187,6 @@ void vtkStructuredGridAlgorithm::ExecuteData(vtkDataObject *output)
 void vtkStructuredGridAlgorithm::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
-}
-
-//----------------------------------------------------------------------------
-int vtkStructuredGridAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
-{
-  if (output == NULL)
-    {
-    return 1;
-    }
-
-  int *ext = output->GetUpdateExtent();
-  switch ( output->GetExtentType() )
-    {
-    case VTK_PIECES_EXTENT:
-      // Special way of asking for no input.
-      if ( output->GetUpdateNumberOfPieces() == 0 )
-        {
-        return 1;
-        }
-      break;
-
-    case VTK_3D_EXTENT:
-      // Special way of asking for no input. (zero volume)
-      if (ext[0] == (ext[1] + 1) ||
-          ext[2] == (ext[3] + 1) ||
-          ext[4] == (ext[5] + 1))
-      {
-      return 1;
-      }
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-
-  return 0;
 }
 
 

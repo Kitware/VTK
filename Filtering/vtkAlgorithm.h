@@ -229,6 +229,14 @@ public:
 
   //========================================================================
   
+  // Description:
+  // This detects when the UpdateExtent will generate no data
+  // This condition is satisfied when the UpdateExtent has 
+  // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
+  // The source uses this call to determine whether to call Execute.
+  int UpdateExtentIsEmpty(vtkDataObject *output);
+  int UpdateExtentIsEmpty(vtkInformation *pinfo, int extentType);
+
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

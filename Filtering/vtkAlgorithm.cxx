@@ -31,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.14");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -824,5 +824,61 @@ int vtkAlgorithm::GetReleaseDataFlag()
     {
     return ddp->GetReleaseDataFlag(0);
     }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
+{
+  if (output == NULL)
+    {
+    return 1;
+    }
+
+  // get the pinfo object then call the info signature
+  return this->UpdateExtentIsEmpty(
+    output->GetPipelineInformation(),
+    output->GetInformation()->Get(vtkDataObject::DATA_EXTENT_TYPE()));
+}
+
+  
+//----------------------------------------------------------------------------
+int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *info, int extentType)
+{
+  if (!info)
+    {
+    return 1;
+    }
+  
+  int *ext;
+  
+  switch (extentType)
+    {
+    case VTK_PIECES_EXTENT:
+      // Special way of asking for no input.
+      if (info->Get(
+            vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()) == 0 )
+        {
+        return 1;
+        }
+      break;
+      
+    case VTK_3D_EXTENT:
+      ext = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+      // Special way of asking for no input. (zero volume)
+      if (ext[0] == (ext[1] + 1) ||
+          ext[2] == (ext[3] + 1) ||
+          ext[4] == (ext[5] + 1))
+        {
+        return 1;
+        }
+      break;
+
+      // We should never have this case occur
+    default:
+      vtkErrorMacro( << "Internal error - invalid extent type!" );
+      break;
+    }
+
   return 0;
 }
