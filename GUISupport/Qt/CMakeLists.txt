@@ -56,16 +56,24 @@ TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
 )
 
 # install rules
-INSTALL_TARGETS( /plugins/designer QVTKWidgetPlugin )
+# install at /plugins/designer allows one to set their designer plugin path
+# in the designer preferences to the vtk-install/plugins directory.
+IF(NOT VTK_INSTALL_QT_DIR)
+  SET(VTK_INSTALL_QT_DIR /plugins/designer)
+ENDIF(NOT VTK_INSTALL_QT_DIR)
+IF(NOT VTK_INSTALL_NO_RUNTIME)
+  INSTALL_TARGETS( ${VTK_INSTALL_QT_DIR} QVTKWidgetPlugin )
+ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 
 IF ( UNIX )
   ADD_CUSTOM_TARGET( install-qtplugin
-                     install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/plugins/designer
+                     install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/${VTK_INSTALL_QT_DIR}
                      DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
 ENDIF ( UNIX )
 
-
-
-INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} QVTKWidget.h)
-INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
-
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL_FILES( ${VTK_INSTALL_INCLUDE_DIR} .h QVTKWidget)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
+ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)

@@ -18,6 +18,10 @@ ENDIF(VTK_USE_RENDERING)
 
 # This is the installed VTKConfig.cmake file configured at the top
 # level.
-INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKConfig)
-INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-              vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKConfig)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
+                vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

@@ -1,3 +1,3 @@
-INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl/vtkpatented .tcl
-  vtkpatented
-)
+IF(NOT VTK_INSTALL_NO_RUNTIME)
+  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl/vtkpatented .tcl vtkpatented )
+ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
