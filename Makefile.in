@@ -28,6 +28,18 @@ CLEAN_VOLUME      = @CLEAN_VOLUME@
 BUILD_BORESCOPE   = @BUILD_BORESCOPE@
 DEPEND_BORESCOPE  = @DEPEND_BORESCOPE@
 CLEAN_BORESCOPE   = @CLEAN_BORESCOPE@
+BUILD_CONTRIB     = @BUILD_CONTRIB@
+DEPEND_CONTRIB    = @DEPEND_CONTRIB@
+CLEAN_CONTRIB     = @CLEAN_CONTRIB@
+BUILD_GEAE        = @BUILD_GEAE@
+DEPEND_GEAE       = @DEPEND_GEAE@
+CLEAN_GEAE        = @CLEAN_GEAE@
+BUILD_GEMSIP      = @BUILD_GEMSIP@
+DEPEND_GEMSIP     = @DEPEND_GEMSIP@
+CLEAN_GEMSIP      = @CLEAN_GEMSIP@
+BUILD_GEMSIO      = @BUILD_GEMSIO@
+DEPEND_GEMSIO     = @DEPEND_GEMSIO@
+CLEAN_GEMSIO      = @CLEAN_GEMSIO@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -38,6 +50,7 @@ CLEAN_BORESCOPE   = @CLEAN_BORESCOPE@
 
 all: ${BUILD_TCL} build_common \
 	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
+	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_TCL}${BUILD_TCL}
 
 build_common:
@@ -65,7 +78,9 @@ build_tclbuild_tcl:
 #------------------------------------------------------------------------------
 # generate dpend.make files
 
-depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} ${DEPEND_BORESCOPE} ${DEPEND_VOLUME}
+depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} \
+	${DEPEND_BORESCOPE} ${DEPEND_VOLUME} \
+	${DEPEND_CONTRIB} ${DEPEND_GEAE} ${DEPEND_GEMSIP} ${DEPEND_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} depend
 
 depend_tcl:
@@ -83,9 +98,23 @@ depend_volume:
 depend_borescope:
 	cd borescope; ${MAKE} -${MAKEFLAGS} depend
 
+depend_contrib:
+	cd contrib; ${MAKE} -${MAKEFLAGS} depend
+
+depend_geae:
+	cd geae; ${MAKE} -${MAKEFLAGS} depend
+
+depend_gemsip:
+	cd gemsip; ${MAKE} -${MAKEFLAGS} depend
+
+depend_gemsio:
+	cd gemsio; ${MAKE} -${MAKEFLAGS} depend
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} ${CLEAN_BORESCOPE} ${CLEAN_VOLUME}
+clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
+	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} \
+	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
 
@@ -103,4 +132,16 @@ clean_volume:
 
 clean_borescope:
 	cd borescope; ${MAKE} -${MAKEFLAGS} clean
+
+clean_contrib:
+	cd contrib;   ${MAKE} -${MAKEFLAGS} clean
+
+clean_geae:
+	cd geae; ${MAKE} -${MAKEFLAGS} clean
+
+clean_gemsip:
+	cd gemsip; ${MAKE} -${MAKEFLAGS} clean
+
+clean_gemsio:
+	cd gemsio; ${MAKE} -${MAKEFLAGS} clean
 

@@ -22,9 +22,17 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
-  --without-volume       do not include the volume classes"
+  --without-volume        do not include the volume classes"
 ac_help="$ac_help
   --with-borescope        include the borescope classes"
+ac_help="$ac_help
+  --with-contrib          include the contrib classes"
+ac_help="$ac_help
+  --with-geae             include the geae classes"
+ac_help="$ac_help
+  --with-gemsip           include the gemsip classes"
+ac_help="$ac_help
+  --with-gemsio           include the gemsio classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -618,6 +626,62 @@ fi
 
 
 
+# Check whether --with-contrib or --without-contrib was given.
+if test "${with_contrib+set}" = set; then
+  withval="$with_contrib"
+  contribdir=contrib
+         BUILD_CONTRIB=build_contrib
+         DEPEND_CONTRIB=depend_contrib
+         CLEAN_CONTRIB=clean_contrib
+fi
+
+
+
+
+
+
+# Check whether --with-geae or --without-geae was given.
+if test "${with_geae+set}" = set; then
+  withval="$with_geae"
+  geaedir=geae
+         BUILD_GEAE=build_geae
+         DEPEND_GEAE=depend_geae
+         CLEAN_GEAE=clean_geae
+fi
+
+
+
+
+
+
+# Check whether --with-gemsip or --without-gemsip was given.
+if test "${with_gemsip+set}" = set; then
+  withval="$with_gemsip"
+  gemsipdir=gemsip
+         BUILD_GEMSIP=build_gemsip
+         DEPEND_GEMSIP=depend_gemsip
+         CLEAN_GEMSIP=clean_gemsip
+fi
+
+
+
+
+
+
+# Check whether --with-gemsio or --without-gemsio was given.
+if test "${with_gemsio+set}" = set; then
+  withval="$with_gemsio"
+  gemsiodir=gemsio
+         BUILD_GEMSIO=build_gemsio
+         DEPEND_GEMSIO=depend_gemsio
+         CLEAN_GEMSIO=clean_gemsio
+fi
+
+
+
+
+
+
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -637,7 +701,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir"
+subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir"
 
 
 #------------------------------------------------------------------------------
@@ -685,7 +749,7 @@ fi
 if test -r Kits.make
 then
     echo "Removing Kits.make prior to copying it over (normal)."
-    rm -f Kits.make
+    /bin/rm -f Kits.make
 fi
 cp $srcdir/Kits.make Kits.make || exit 1
 
@@ -831,6 +895,18 @@ s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
 s%@BUILD_BORESCOPE@%$BUILD_BORESCOPE%g
 s%@DEPEND_BORESCOPE@%$DEPEND_BORESCOPE%g
 s%@CLEAN_BORESCOPE@%$CLEAN_BORESCOPE%g
+s%@BUILD_CONTRIB@%$BUILD_CONTRIB%g
+s%@DEPEND_CONTRIB@%$DEPEND_CONTRIB%g
+s%@CLEAN_CONTRIB@%$CLEAN_CONTRIB%g
+s%@BUILD_GEAE@%$BUILD_GEAE%g
+s%@DEPEND_GEAE@%$DEPEND_GEAE%g
+s%@CLEAN_GEAE@%$CLEAN_GEAE%g
+s%@BUILD_GEMSIP@%$BUILD_GEMSIP%g
+s%@DEPEND_GEMSIP@%$DEPEND_GEMSIP%g
+s%@CLEAN_GEMSIP@%$CLEAN_GEMSIP%g
+s%@BUILD_GEMSIO@%$BUILD_GEMSIO%g
+s%@DEPEND_GEMSIO@%$DEPEND_GEMSIO%g
+s%@CLEAN_GEMSIO@%$CLEAN_GEMSIO%g
 s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
@@ -923,7 +999,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.

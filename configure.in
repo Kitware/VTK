@@ -42,7 +42,7 @@ AC_SUBST(DEPEND_IMAGING)
 AC_SUBST(CLEAN_IMAGING)
 
 AC_ARG_WITH(volume,
-         [  --without-volume       do not include the volume classes],,
+         [  --without-volume        do not include the volume classes],,
          volumedir=volume
          BUILD_VOLUME=build_volume
          DEPEND_VOLUME=depend_volume
@@ -63,7 +63,51 @@ AC_SUBST(BUILD_BORESCOPE)
 AC_SUBST(DEPEND_BORESCOPE)
 AC_SUBST(CLEAN_BORESCOPE)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir)
+AC_ARG_WITH(contrib,
+         [  --with-contrib          include the contrib classes],
+         contribdir=contrib
+         BUILD_CONTRIB=build_contrib
+         DEPEND_CONTRIB=depend_contrib
+         CLEAN_CONTRIB=clean_contrib,)
+
+AC_SUBST(BUILD_CONTRIB)
+AC_SUBST(DEPEND_CONTRIB)
+AC_SUBST(CLEAN_CONTRIB)
+
+AC_ARG_WITH(geae,
+         [  --with-geae             include the geae classes],
+         geaedir=geae
+         BUILD_GEAE=build_geae
+         DEPEND_GEAE=depend_geae
+         CLEAN_GEAE=clean_geae,)
+
+AC_SUBST(BUILD_GEAE)
+AC_SUBST(DEPEND_GEAE)
+AC_SUBST(CLEAN_GEAE)
+
+AC_ARG_WITH(gemsip,
+         [  --with-gemsip           include the gemsip classes],
+         gemsipdir=gemsip
+         BUILD_GEMSIP=build_gemsip
+         DEPEND_GEMSIP=depend_gemsip
+         CLEAN_GEMSIP=clean_gemsip,)
+
+AC_SUBST(BUILD_GEMSIP)
+AC_SUBST(DEPEND_GEMSIP)
+AC_SUBST(CLEAN_GEMSIP)
+
+AC_ARG_WITH(gemsio,
+         [  --with-gemsio           include the gemsio classes],
+         gemsiodir=gemsio
+         BUILD_GEMSIO=build_gemsio
+         DEPEND_GEMSIO=depend_gemsio
+         CLEAN_GEMSIO=clean_gemsio,)
+
+AC_SUBST(BUILD_GEMSIO)
+AC_SUBST(DEPEND_GEMSIO)
+AC_SUBST(CLEAN_GEMSIO)
+
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 
@@ -110,7 +154,7 @@ fi
 if test -r Kits.make
 then
     echo "Removing Kits.make prior to copying it over (normal)."
-    rm -f Kits.make
+    /bin/rm -f Kits.make
 fi
 cp $srcdir/Kits.make Kits.make || exit 1
 
