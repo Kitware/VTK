@@ -21,7 +21,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.8");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.9");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -30,6 +30,7 @@ vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
 vtkPProbeFilter::vtkPProbeFilter()
 {
   this->Controller = 0;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
