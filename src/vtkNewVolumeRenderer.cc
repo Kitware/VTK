@@ -1,4 +1,5 @@
 /*=========================================================================*/
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,7 +24,8 @@ vtkNewVolumeRenderer::~vtkNewVolumeRenderer()
 // Main routine to do the volume rendering.
 void vtkNewVolumeRenderer::Render(vtkRenderer *ren)
 {
-
+  if( 0 )
+    ren->GetClassName();
 }
 
 
