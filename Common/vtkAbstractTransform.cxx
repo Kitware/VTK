@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
 #include "vtkDebugLeaks.h"
-#include "vtkMutexLock.h"
+#include "vtkCriticalSection.h"
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -52,8 +52,8 @@ vtkAbstractTransform::vtkAbstractTransform()
   this->MyInverse = NULL;
   this->DependsOnInverse = 0;
   this->InUnRegister = 0;
-  this->UpdateMutex = vtkSimpleMutexLock::New();
-  this->InverseMutex = vtkSimpleMutexLock::New();
+  this->UpdateMutex = vtkSimpleCriticalSection::New();
+  this->InverseMutex = vtkSimpleCriticalSection::New();
 }
 
 //----------------------------------------------------------------------------
