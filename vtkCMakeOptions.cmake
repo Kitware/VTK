@@ -167,5 +167,5 @@ ENDIF (BUILD_TESTING)
 #
 # try to find the data files for VTKData
 #
-FIND_PATH(VTK_DATA_ROOT README.txt ${VTK_SOURCE_DIR}/../VTKData)
+FIND_PATH(VTK_DATA_ROOT ReadMe.txt ${VTK_SOURCE_DIR}/../VTKData)
 
