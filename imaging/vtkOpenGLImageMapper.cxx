@@ -295,9 +295,9 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
 	{
 	blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
 	}
-      *outPtr++ = blue;
-      *outPtr++ = green;
       *outPtr++ = red;
+      *outPtr++ = green;
+      *outPtr++ = blue;
 
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
@@ -433,7 +433,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 
   // Get the position of the text actor
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedDisplayValue(viewport);
+    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   // negative positions will already be clipped to viewport
   actorPos[0] += this->PositionAdjustment[0]; 
   actorPos[1] += this->PositionAdjustment[1];
