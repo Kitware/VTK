@@ -20,16 +20,17 @@
 #define SIZE 1000
 
 template <class T, class A>
-static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
+static int doArrayTest (ostream& strm, T *ptr, A *array, A value, int size)
 {
   T *ptr2;
   float tuple1[SIZE/100];
   double tuple3[SIZE/100];
   float *tuple2;
   int i;
+  vtkIdType maxId;
   
-  strm << "\tSetArray...";
-  ptr->SetArray(array, size, 1); 
+  strm << "\tSetVoidArray...";
+  ptr->SetVoidArray(array, size, 1); 
   strm << "OK" << endl;
 
   strm << "\tSetNumberOfTuples...";
@@ -112,6 +113,21 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
       }
     }
   if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tSetValue(i, value)...";
+  ptr->SetValue (99, value);
+  if (ptr->GetValue (99) == value) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tInsertValue(i, value)...";
+  ptr->InsertValue (50, value);
+  if (ptr->GetValue (50) == value) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tInsertNextValue(i, value)...";
+  maxId = ptr->InsertNextValue (value);
+  if (ptr->GetValue (maxId) == value) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
   strm << "\tSetTuple(i, float *tuple)...";
@@ -297,8 +313,9 @@ void Test(ostream& strm)
   strm << "Test CharArray" << endl;
   vtkCharArray *ptr = vtkCharArray::New();
   char *array = new char[SIZE];
+  char value = static_cast<char>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -307,8 +324,9 @@ void Test(ostream& strm)
   strm << "Test UnsignedCharArray" << endl;
   vtkUnsignedCharArray *ptr = vtkUnsignedCharArray::New();
   unsigned char *array = new unsigned char[SIZE];
+  unsigned char value = static_cast<unsigned char>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -317,8 +335,9 @@ void Test(ostream& strm)
   strm << "Test IntArray" << endl;
   vtkIntArray *ptr = vtkIntArray::New();
   int *array = new int[SIZE];
+  int value = static_cast<int>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -327,8 +346,9 @@ void Test(ostream& strm)
   strm << "Test UnsignedIntArray" << endl;
   vtkUnsignedIntArray *ptr = vtkUnsignedIntArray::New();
   unsigned int *array = new unsigned int[SIZE];
+  unsigned int value = static_cast<unsigned int>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -337,8 +357,9 @@ void Test(ostream& strm)
   strm << "Test LongArray" << endl;
   vtkLongArray *ptr = vtkLongArray::New();
   long *array = new long[SIZE];
+  long value = static_cast<long>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -347,8 +368,9 @@ void Test(ostream& strm)
   strm << "Test UnsignedLongArray" << endl;
   vtkUnsignedLongArray *ptr = vtkUnsignedLongArray::New();
   unsigned long *array = new unsigned long[SIZE];
+  unsigned long value = static_cast<unsigned long>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -357,8 +379,9 @@ void Test(ostream& strm)
   strm << "Test ShortArray" << endl;
   vtkShortArray *ptr = vtkShortArray::New();
   short *array = new short[SIZE];
+  short value = static_cast<short>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -367,8 +390,9 @@ void Test(ostream& strm)
   strm << "Test UnsignedShortArray" << endl;
   vtkUnsignedShortArray *ptr = vtkUnsignedShortArray::New();
   unsigned short *array = new unsigned short[SIZE];
+  unsigned short value = static_cast<unsigned short>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -377,8 +401,9 @@ void Test(ostream& strm)
   strm << "Test FloatArray" << endl;
   vtkFloatArray *ptr = vtkFloatArray::New();
   float *array = new float[SIZE];
+  float value = static_cast<float>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -387,8 +412,9 @@ void Test(ostream& strm)
   strm << "Test DoubleArray" << endl;
   vtkDoubleArray *ptr = vtkDoubleArray::New();
   double *array = new double[SIZE];
+  double value = static_cast<double>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, SIZE);
+  doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
   }
