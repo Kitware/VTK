@@ -26,6 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 #include "RenderW.hh"
+#include "Interact.hh"
 
 class vlRenderMaster : public vlObject
 {
@@ -36,6 +37,7 @@ class vlRenderMaster : public vlObject
 
   vlRenderWindow *MakeRenderWindow(char *ren);
   vlRenderWindow *MakeRenderWindow(void);
+  vlInteractiveRenderer *MakeInteractiveRenderer(void);
 };
 
 #endif
