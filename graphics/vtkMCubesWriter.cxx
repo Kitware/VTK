@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMCubesWriter.h"
 #include "vtkByteSwap.h"
+#include "vtkNormals.h"
 
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
