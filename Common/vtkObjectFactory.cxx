@@ -366,8 +366,11 @@ void vtkObjectFactory::UnRegisterAllFactories()
   while((factory =
 	 vtkObjectFactory::RegisteredFactories->GetNextItem()))
     {
-    vtkObjectFactory::UnRegisterFactory(factory);
-    vtkObjectFactory::RegisteredFactories->InitTraversal();
+    void* lib = factory->LibraryHandle;
+    if(lib)
+      {
+      vtkDynamicLoader::CloseLibrary((vtkLibHandle)lib);
+      }
     }
   vtkObjectFactory::RegisteredFactories->Delete();
   vtkObjectFactory::RegisteredFactories = 0;
