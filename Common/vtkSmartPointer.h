@@ -92,7 +92,7 @@ public:
     {
     return vtkSmartPointer<T>(T::New(), NoReference());
     }
-protected:
+
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
 
