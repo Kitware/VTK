@@ -190,7 +190,10 @@ void do_return(FILE *fp)
   
   switch (currentFunction->ReturnType%1000)
     {
-    case 303: 
+    case 303:
+      fprintf(fp,"      if (temp%i == NULL) {\n",MAX_ARGS);
+      fprintf(fp,"        Py_INCREF(Py_None);\n");
+      fprintf(fp,"        return Py_None;\n        }\n");
       fprintf(fp,"      return PyString_FromString(temp%i);\n",MAX_ARGS);
     break;
     case 109:
