@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING)
       rotations
       ScalarBar
       TestFlyTo
+      TestOnePoint
       TestParallelCoordinates
       TestStyleJoystickActor
       TestStyleJoystickCamera

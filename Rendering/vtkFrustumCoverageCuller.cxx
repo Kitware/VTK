@@ -20,13 +20,13 @@
 #include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.25");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.26");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
 vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 {
-  this->MinimumCoverage = 0.0001;
+  this->MinimumCoverage = 0.0;
   this->MaximumCoverage = 1.0;
   this->SortingStyle    = VTK_CULLER_SORT_NONE;
 }
@@ -186,8 +186,15 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
           part_h -= screen_bounds[3];
           }
 
+        // Prevent a single point from being culled if we
+        // are not culling based on screen coverage
+        if ( ((full_w*full_h == 0.0) ||
+              (part_w*part_h/(full_w*full_h) <= 0.0)) && this->MinimumCoverage == 0.0 )
+          {
+          coverage = 0.0001;
+          }        
         // Compute the fraction of coverage
-        if ((full_w * full_h)!=0.0)
+        else if ((full_w * full_h)!=0.0)
           {
           coverage = (part_w * part_h) / (full_w * full_h);
           }
@@ -209,7 +216,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
         else
           {
           coverage = (coverage-this->MinimumCoverage) /
-          this->MaximumCoverage;
+            this->MaximumCoverage;
           }
         }
       }
@@ -229,7 +236,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     // Multiply the new allocated time by the previous allocated time
     coverage *= previous_time;
     prop->SetRenderTimeMultiplier( coverage );
-
+    
     // Save this in our array of allocated times which matches the
     // prop array. Also save the center distance
     allocatedTimeList[propLoop] = coverage;
