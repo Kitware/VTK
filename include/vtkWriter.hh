@@ -53,6 +53,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.hh"
 #include "vtkDataSet.hh"
 
+#define VTK_ASCII 1
+#define VTK_BINARY 2
+
 class vtkWriter : public vtkObject 
 {
 public:
