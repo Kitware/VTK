@@ -59,6 +59,10 @@ public:
   void SingularValueBackSubstitution(double **u, double *w, double **v,
                                      int m, int n, double *b, double *x);
 
+  // Eigenvalue/vector extraction
+  int Jacobi(float **a, int n, float *d, float **v, int *nrot);
+  void Eigsrt(float *d, float **v, int n);
+
 protected:
   static long Seed;
 };
