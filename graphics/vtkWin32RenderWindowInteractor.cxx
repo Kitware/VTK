@@ -46,10 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 // states
-#define VTKXI_START  0
-#define VTKXI_ROTATE 1
-#define VTKXI_ZOOM   2
-#define VTKXI_PAN    3
+#define VTKXI_START   0
+#define VTKXI_ROTATE  1
+#define VTKXI_ZOOM    2
+#define VTKXI_PAN     3
+#define VTKXI_ANIMATE 4
 
 // Description:
 // Construct object so that light follows camera motion.
@@ -58,6 +59,7 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   static timerId = 1;
   
   this->State = VTKXI_START;
+  this->AnimationState = VTKXI_START;
   this->WindowId = 0;
   this->TimerId = timerId++;
 }
@@ -172,6 +174,7 @@ void  vtkWin32RenderWindowInteractor::StartRotate()
 {
   if (this->State != VTKXI_START) return;
   this->State = VTKXI_ROTATE;
+  if (this->AnimationState != VTKXI_START) return;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
     {
@@ -182,8 +185,11 @@ void  vtkWin32RenderWindowInteractor::EndRotate()
 {
   if (this->State != VTKXI_ROTATE) return;
   this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  KillTimer(this->WindowId,this->TimerId);
+  if (this->AnimationState == VTKXI_START)
+	{
+	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+	KillTimer(this->WindowId,this->TimerId);
+	}
   this->RenderWindow->Render();
 }
 
@@ -192,14 +198,18 @@ void  vtkWin32RenderWindowInteractor::StartZoom()
   if (this->State != VTKXI_START) return;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   this->State = VTKXI_ZOOM;
+  if (this->AnimationState != VTKXI_START) return;
   SetTimer(this->WindowId,this->TimerId,10,NULL);
 }
 void  vtkWin32RenderWindowInteractor::EndZoom()
 {
   if (this->State != VTKXI_ZOOM) return;
   this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  KillTimer(this->WindowId,this->TimerId);
+  if (this->AnimationState == VTKXI_START)
+	{
+	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+	KillTimer(this->WindowId,this->TimerId);
+	}
   this->RenderWindow->Render();
 }
 
@@ -221,14 +231,39 @@ void  vtkWin32RenderWindowInteractor::StartPan()
   Result = this->CurrentRenderer->GetDisplayPoint();
   this->FocalDepth = Result[2];
 
+  if (this->AnimationState != VTKXI_START) return;
   SetTimer(this->WindowId,this->TimerId,10,NULL);
 }
 void  vtkWin32RenderWindowInteractor::EndPan()
 {
   if (this->State != VTKXI_PAN) return;
   this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  KillTimer(this->WindowId,this->TimerId);
+  if (this->AnimationState == VTKXI_START)
+	{
+	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+	KillTimer(this->WindowId,this->TimerId);
+	}
+  this->RenderWindow->Render();
+}
+
+void  vtkWin32RenderWindowInteractor::StartAnimation()
+{
+  if (this->AnimationState != VTKXI_START) return;
+  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
+  this->AnimationState = VTKXI_ANIMATE;
+  if (this->State != VTKXI_START) return;
+
+  SetTimer(this->WindowId,this->TimerId,10,NULL);
+}
+
+void  vtkWin32RenderWindowInteractor::EndAnimation()
+{
+  this->AnimationState = VTKXI_START;
+  if (this->State == VTKXI_START) 
+	{
+	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+	KillTimer(this->WindowId,this->TimerId);
+	}
   this->RenderWindow->Render();
 }
 
@@ -345,6 +380,16 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_CHAR:
       switch (wParam)
 	{
+    case 'a':
+	  if (me->AnimationState != VTKXI_ANIMATE) 
+		{
+		me->StartAnimation();
+		}
+      else
+		{
+		me->EndAnimation();
+		}
+	  break;	
 	case 'e': 
 	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
 	  else exit(0);  //PostQuitMessage(0);
@@ -434,6 +479,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       
       switch (me->State)
 	{
+	case VTKXI_START :
+	  me->RenderWindow->Render();
+	  break;
 	case VTKXI_ROTATE :
 	  xf = (LOWORD(lastPos) - me->Center[0]) * me->DeltaAzimuth;
 	  yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1]) * me->DeltaElevation;

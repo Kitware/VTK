@@ -186,6 +186,7 @@ protected:
   float DeltaElevation;
   int   Size[2];
   int   State;
+  int   AnimationState;
   float FocalDepth;
   int   Initialized;
   float DesiredUpdateRate;
