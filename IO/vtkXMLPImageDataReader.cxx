@@ -24,7 +24,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLImageDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -63,6 +63,12 @@ vtkImageData* vtkXMLPImageDataReader::GetOutput()
     return 0;
     }
   return static_cast<vtkImageData*>(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkXMLPImageDataReader::GetOutput(int idx)
+{
+  return static_cast<vtkImageData*>(this->Superclass::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------

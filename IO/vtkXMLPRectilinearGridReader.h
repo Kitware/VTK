@@ -44,6 +44,7 @@ public:
   // Get/Set the reader's output.
   void SetOutput(vtkRectilinearGrid *output);
   vtkRectilinearGrid *GetOutput();
+  vtkRectilinearGrid *GetOutput(int idx);
   
 protected:
   vtkXMLPRectilinearGridReader();

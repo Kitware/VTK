@@ -44,6 +44,7 @@ public:
   // Get/Set the reader's output.
   void SetOutput(vtkUnstructuredGrid *output);
   vtkUnstructuredGrid *GetOutput();
+  vtkUnstructuredGrid *GetOutput(int idx);
   
 protected:
   vtkXMLPUnstructuredGridReader();

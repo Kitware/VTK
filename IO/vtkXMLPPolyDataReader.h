@@ -44,6 +44,7 @@ public:
   // Get/Set the reader's output.
   void SetOutput(vtkPolyData *output);
   vtkPolyData *GetOutput();
+  vtkPolyData *GetOutput(int idx);
   
 protected:
   vtkXMLPPolyDataReader();

@@ -25,7 +25,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.3");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -64,6 +64,12 @@ vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput()
     return 0;
     }
   return static_cast<vtkUnstructuredGrid*>(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput(int idx)
+{
+  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------
