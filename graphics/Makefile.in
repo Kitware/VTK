@@ -19,7 +19,8 @@ vtkOpenGLProjectedPolyDataRayBounder \
 vtkOpenGLProperty \
 vtkOpenGLRenderWindow \
 vtkOpenGLRenderer \
-vtkOpenGLTexture 
+vtkOpenGLTexture  \
+vtkOpenGLVolumeTextureMapper2D
 
 ABSTRACT_H = \
 vtkCuller \
@@ -47,6 +48,7 @@ vtkSpline \
 vtkVolumeMapper \
 vtkVolumeRayCastFunction \
 vtkVolumeReader \
+vtkVolumeTextureMapper \
 vtkWriter \
 vtkXRenderWindow 
 
@@ -267,6 +269,7 @@ vtkVolumeRayCastCompositeFunction \
 vtkVolumeRayCastIsosurfaceFunction \
 vtkVolumeRayCastMapper \
 vtkVolumeRayCastMIPFunction \
+vtkVolumeTextureMapper2D \
 vtkVolume16Reader \
 vtkVoxelContoursToSurfaceFilter \
 vtkVoxelModeller \
