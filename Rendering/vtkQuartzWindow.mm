@@ -57,21 +57,4 @@
     [myvtkQuartzGLView setNeedsDisplay:YES];
     return YES;
 }
-
-
-- (void)startTimer {
-    if(MyNSTimer != nil) return;
-    else {
-        MyNSTimer = [[NSTimer scheduledTimerWithTimeInterval:0.510 target:self selector:@selector(timerEvent) userInfo:nil repeats:YES] retain];
-    }
-}
-
-- (void)stopTimer {
-    if(MyNSTimer != nil) {
-        [MyNSTimer invalidate];
-        [MyNSTimer release];
-        MyNSTimer = nil;
-    }
-}
-
 @end

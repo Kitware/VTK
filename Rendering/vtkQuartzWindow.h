@@ -5,7 +5,6 @@
 @interface vtkQuartzWindow : NSWindow
 {
     @private
-    NSTimer *MyNSTimer;
     IBOutlet vtkQuartzGLView *myvtkQuartzGLView;
     void *myVTKRenderWindow;
     void *myVTKRenderWindowInteractor;
@@ -27,6 +26,5 @@
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize;
 - (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame;
 - (void)close; //close your face!
-
 
 @end

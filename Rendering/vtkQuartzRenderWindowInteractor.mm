@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define id Id
 
-vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.7");
+vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.8");
 vtkStandardNewMacro(vtkQuartzRenderWindowInteractor);
 
 void (*vtkQuartzRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
@@ -66,10 +66,8 @@ void (*vtkQuartzRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (voi
 // Construct object so that light follows camera motion.
 vtkQuartzRenderWindowInteractor::vtkQuartzRenderWindowInteractor() 
 {
-  static int timerId           = 1;
   this->WindowId           = 0;
   this->ApplicationId		=0;
-  this->TimerId            = timerId++;
   this->InstallMessageProc = 1;
 }
 
@@ -114,9 +112,6 @@ void vtkQuartzRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-//  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
-//  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
-//  ren->Render();
 }
 
 void vtkQuartzRenderWindowInteractor::Enable() 
@@ -127,7 +122,6 @@ void vtkQuartzRenderWindowInteractor::Enable()
     {
     return;
     }
-//DOQUARTZ stuff to connect windows to interactors
   [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
   [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
   this->Enabled = 1;
@@ -156,13 +150,14 @@ void vtkQuartzRenderWindowInteractor::TerminateApp(void)
 
 int vtkQuartzRenderWindowInteractor::CreateTimer(int notUsed) 
 {
+    [NSEvent stopPeriodicEvents];
     [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
     return 1;
 }
 
 int vtkQuartzRenderWindowInteractor::DestroyTimer(void) 
 {
-  //Timers die automatically
+    [NSEvent stopPeriodicEvents];
   return 1;
 }
 
