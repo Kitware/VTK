@@ -369,7 +369,10 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     gridSize = dim[0] * dim[1] * dim[2];
 
     if ( i < this->GridNumber ) 
+      {
+      offset += 4; // skip condition values for grid, fix from Tom Johnson
       offset += 5*gridSize;
+      }
     else if ( i == this->GridNumber ) 
       {
       gridFound = 1;
@@ -835,7 +838,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.)*(e - 0.5*d*v2);
-    s = CV * log( pow((double)(p/PINF)/d/RHOINF,(double)this->Gamma) );
+    s = CV * log((p/PINF)/pow((double)d/RHOINF,(double)this->Gamma));
     entropy->SetScalar(i, s);
   }
   outputPD->SetScalars(entropy);
