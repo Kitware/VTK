@@ -35,7 +35,7 @@ int main( int argc, char *argv[] )
   pts->InsertNextPoint(x);
   n[0] = 0.707; n[1] = 0.707; n[2] = 0.0;
   norms->InsertNextNormal(n);
-  scalars->InsertNextScalar(2.5);
+  scalars->InsertNextScalar(1.0);
   verts->InsertNextCell(1);
   verts->InsertCellPoint(0);
   vtkPolyData *pData = vtkPolyData::New();
@@ -49,8 +49,9 @@ int main( int argc, char *argv[] )
       splat->SetInput(pData);
       splat->SetModelBounds(-1.0,1.0, -1.0,1.0, -1.0,1.0);
       splat->SetSampleDimensions(75,75,75);
-      splat->SetRadius(0.20);
+      splat->SetRadius(0.5);
       splat->SetEccentricity(5.0);
+	  splat->SetExponentFactor(-3.25);
   vtkContourFilter *contour = vtkContourFilter::New();
       contour->SetInput(splat->GetOutput());
       contour->SetValue(0, 0.9);
