@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING)
       pickCells
       rotations
       TestStyleJoystickActor
+      TestStyleJoystickCamera
       TestStyleTrackballActor
       TestStyleTrackballCamera
     )
