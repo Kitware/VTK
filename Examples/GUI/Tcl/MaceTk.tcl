@@ -1,4 +1,3 @@
-package require vtktcl
 package require vtktcl_widgets
 
 vtkRenderer renderer

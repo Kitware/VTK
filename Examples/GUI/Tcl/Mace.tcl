@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtktcl_interactor
 
 vtkRenderer renderer
 
@@ -40,6 +40,7 @@ renderer SetBackground 1 1 1
 renWin SetSize 300 300
 
 # interact with data
+iren SetUserMethod {wm deiconify .vtkInteract}
 renWin Render 
 
 wm withdraw .
