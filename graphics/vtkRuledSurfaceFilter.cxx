@@ -309,6 +309,11 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       }
 
     // compute the point at s on the first polyline
+    if (i01 > (npts - 1))
+      {
+      i00--;
+      i01--;
+      }
     this->Ids->SetId(0,pts[i00]);
     this->Ids->SetId(1,pts[i01]);
     if (d0 == 0.0)
@@ -352,6 +357,11 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
         }
       }
     // compute the point at t on the second polyline
+    if (i11 > npts2 - 1)
+      {
+      i10--;
+      i11--;
+      }
     this->Ids->SetId(2,pts2[i10]);
     this->Ids->SetId(3,pts2[i11]);
     if (d1 == 0.0)
