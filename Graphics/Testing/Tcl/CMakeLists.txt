@@ -15,7 +15,6 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
-      3DMorph
       blankGrid
       Canny
       capCow
@@ -23,11 +22,7 @@ IF (VTK_USE_RENDERING)
       cellCenters
       CellDataToPointData
       clipArt
-      clipHex
-      clipPyramid
-      clipTet
       clipVolume
-      clipWedge
       combColorIso
       combIso
       coneResolution
@@ -60,7 +55,6 @@ IF (VTK_USE_RENDERING)
       Hyper
       KlineBottle
       motor
-      MassProperties
       MatrixToTransform
       MultidimensionalSolution
       nacaBinary
@@ -96,7 +90,6 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       testQuadricDecimation
-      text
       TransformConcatenation
       TransformCoverage
       TransformPolyData
@@ -126,8 +119,45 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
+      capSphere
+      cellCenters
+      CellDataToPointData
+      clipVolume
+      coneResolution
+      constrainedDelaunay
+      contourCells
+      contoursToSurface
+      cutLoop
       Delaunay2D
+      Delaunay2DAlpha
+      Delaunay2DTransform
+      Disk
+      extractPolyData
+      glyph2D
+      Hyper
+      KlineBottle
+      MatrixToTransform
+      OBBCylinder
+      progGlyphs
+      progGlypsBySource
+      quadricCut
+      scalarConn
       schwarz
+      shepards
+      smoothCyl
+      smoothCyl2
+      subdividePointData
+      subDivideTetra
+      TenAxes
+      TestGraphLayoutFilter
+      testQuadricDecimation
+      triangularTCoords
+      triangularTexture
+      warplens
+      TestGraphLayoutFilter
+      TransformConcatenation
+      TransformCoverage
+      TransformPolyData
       )
       ADD_TEST(${tfile} ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
