@@ -38,7 +38,7 @@ void vlStructuredDataSetFilter::Update()
   // make sure input is available
   if ( !this->Input )
     {
-    vlErrorMacro(<< "No input!\n");
+    vlErrorMacro(<< "No input!");
     return;
     }
 
