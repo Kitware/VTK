@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.36");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.37");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -345,6 +345,12 @@ void vtkBoxWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  float *bounds=this->InitialBounds;
+  os << indent << "Initial Bounds: "
+     << "(" << bounds[0] << "," << bounds[1] << ") "
+     << "(" << bounds[2] << "," << bounds[3] << ") " 
+     << "(" << bounds[4] << "," << bounds[5] << ")\n";
 
   if ( this->HandleProperty )
     {
@@ -1203,21 +1209,9 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
       (this->InitialBounds[2*i+1]+this->InitialBounds[2*i]) / 2.0;
     center[i] = p14[i] - InitialCenter[i];
     }
-  if ( this->Prop3D ) //add in 
-    {
-    // the InitialCenter coincides with the initial prop GetCenter(), which
-    // is handy since we don't have to store the initial prop GetCenter()
-    translate[0] = center[0] + InitialCenter[0];
-    translate[1] = center[1] + InitialCenter[1];
-    translate[2] = center[2] + InitialCenter[2];
-    }
-  else
-    {
-    translate[0] = center[0];
-    translate[1] = center[1];
-    translate[2] = center[2];
-    }
-
+  translate[0] = center[0] + InitialCenter[0];
+  translate[1] = center[1] + InitialCenter[1];
+  translate[2] = center[2] + InitialCenter[2];
   t->Translate(translate[0], translate[1], translate[2]);
   
   // Orientation
@@ -1249,15 +1243,9 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     (this->InitialBounds[5]-this->InitialBounds[4]);
   t->Scale(scale[0],scale[1],scale[2]);
   
-  if ( this->Prop3D ) //add in 
-    {
-    // At the very beginning, remove translation due to prop position and
-    // center of rotation imposed by the box itself (the initial box center
-    // coincides with the prop center)
-    t->Translate(- InitialCenter[0],
-                 - InitialCenter[1],
-                 - InitialCenter[2]);
-    }
+  // Add back in the contribution due to non-origin center
+  t->Translate(-InitialCenter[0], -InitialCenter[1], -InitialCenter[2]);
+
 }
 
 void vtkBoxWidget::SetTransform(vtkTransform* t)
