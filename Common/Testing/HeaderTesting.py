@@ -12,16 +12,21 @@ class TestVTKFiles:
         self.Errors = {}
         self.FileLines = []        
         pass
+    def Print(self, text=""):
+        rtext = text
+        rtext = rtext.replace("<", "&lt;")
+        rtext = rtext.replace(">", "&gt;")
+        print rtext
     def Error(self, error):
         self.ErrorValue = 1
         self.Errors[error] = 1
         pass
     def PrintErrors(self):
         if self.ErrorValue:
-            print
-            print "There were errors:"
+            self.Print( )
+            self.Print( "There were errors:" )
         for a in self.Errors.keys():
-            print "* %s" % a
+            self.Print( "* %s" % a )
         
     def TestFile(self, filename):
         self.FileName = filename
@@ -33,7 +38,7 @@ class TestVTKFiles:
             self.FileLines = file.readlines()
             file.close()
         except:
-            print "Problem reading file: " + filename
+            self.Print( "Problem reading file: %s" % filename )
             sys.exit(1)
         pass
             
@@ -57,21 +62,22 @@ class TestVTKFiles:
                     nplines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 1:
-            print
-            print "File: %s has %d includes: " % ( self.FileName, len(lines))
+            self.Print()
+            self.Print( "File: %s has %d includes: " %
+                        ( self.FileName, len(lines)) )
             for a in lines:
-                print a
+                self.Print( a )
             self.Error("Multiple includes")
         if len(nplines) > 0:
-            print
-            print "File: %s has non-portable include(s): " % self.FileName
+            self.Print( )
+            self.Print( "File: %s has non-portable include(s): " % self.FileName )
             for a in nplines:
-                print a
+                self.Print( a )
             self.Error("Non-portabile includes")
         if not includeparent and self.ParentName:
-            print
-            print ("File: %s does not include parent \"%s.h\"" %
-                   ( self.FileName, self.ParentName ) )
+            self.Print()
+            self.Print( "File: %s does not include parent \"%s.h\"" %
+                        ( self.FileName, self.ParentName ) )
             self.Error("Does not include parent")
         pass
     
@@ -91,18 +97,18 @@ class TestVTKFiles:
                 classlines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(classlines) > 1:
-            print
-            print "File: %s defines %d classes: " % (self.FileName,
-                                                     len(classlines))
+            self.Print()
+            self.Print( "File: %s defines %d classes: " %
+                        (self.FileName, len(classlines)) )
             for a in lines:
-                print a
+                self.Print( a )
             self.Error("Multiple classes defined")
         if len(classlines) < 1:
-            print
-            print "File: %s does not define any classes" % self.FileName
+            self.Print()
+            self.Print( "File: %s does not define any classes" % self.FileName )
             self.Error("No class defined")
             return
-        #print "Classname: %s ParentName: %s" % (cname, pname)
+        #self.Print( "Classname: %s ParentName: %s" % (cname, pname)
         self.ClassName = cname
         self.ParentName = pname
         pass
@@ -125,18 +131,18 @@ class TestVTKFiles:
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 0:
-            print "File: %s has broken type macro(s):" % self.FileName
+            self.Print( "File: %s has broken type macro(s):" % self.FileName )
             for a in lines:
-                print a
-            print ("Should be: vtkTypeRevisionMacro(%s, %s)" %
-                   (self.ClassName, self.ParentName))
+                self.Print( a )
+            self.Print( "Should be: vtkTypeRevisionMacro(%s, %s)" %
+                        (self.ClassName, self.ParentName) )
             self.Error("Broken type macro")
         if len(oldlines) > 0:
-            print "File: %s has old type macro(s):" % self.FileName
+            self.Print( "File: %s has old type macro(s):" % self.FileName )
             for a in lines:
-                print a
-            print ("Should be:\n vtkTypeRevisionMacro(%s, %s);" %
-                   (self.ClassName, self.ParentName))
+                self.Print( a )
+                self.Print( "Should be:\n vtkTypeRevisionMacro(%s, %s);" %
+                            (self.ClassName, self.ParentName))
             self.Error("Old style type macro")
         pass
     def CheckForCopyAndAssignment(self):
@@ -147,7 +153,7 @@ class TestVTKFiles:
         oldlines = []
         copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*implemented(\.)*" % ( self.ClassName, self.ClassName)
         asgnoperator = "^\s*void\s*operator=\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*implemented(\.)*" % self.ClassName
-        #print copyoperator
+        #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
         foundcopy = 0
@@ -160,22 +166,24 @@ class TestVTKFiles:
                 foundasgn = foundasgn + 1
             
         if foundcopy < 1:
-            print "File: %s does not define copy constructor" % self.FileName
-            print ("Should be:\n%s(const %s&); // Not implemented" %
-                   (self.ClassName, self.ClassName))
+            self.Print( "File: %s does not define copy constructor" %
+                        self.FileName )
+            self.Print( "Should be:\n%s(const %s&); // Not implemented" %
+                        (self.ClassName, self.ClassName) )
             self.Error("No copy constructor")
         if foundcopy > 1:
-            print "File: %s defines multiple copy constructors" % self.FileName
+            self.Print( "File: %s defines multiple copy constructors" %
+                        self.FileName )
             self.Error("Multiple copy constructor")
         if foundasgn < 1:
-            print ("File: %s does not define assignment operator" %
-                   self.FileName )
-            print ("Should be:\nvoid operator=(const %s&); // Not implemented"
-                   % self.ClassName)
+            self.Print( "File: %s does not define assignment operator" %
+                        self.FileName )
+            self.Print( "Should be:\nvoid operator=(const %s&); // Not implemented"
+                        % self.ClassName )
             self.Error("No assignment operator")
         if foundcopy > 1:
-            print ("File: %s defines multiple assignment operators" %
-                   self.FileName)
+            self.Print( "File: %s defines multiple assignment operators" %
+                        self.FileName )
             self.Error("Multiple assignment operators")
         pass
     def CheckWeirdConstructors(self):
@@ -196,10 +204,10 @@ class TestVTKFiles:
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 0:
-            print "File: %s has weird constructor(s):" % self.FileName
+            self.Print( "File: %s has weird constructor(s):" % self.FileName )
             for a in lines:
-                print a
-            print "There should be only:\n %s();" % self.ClassName
+                self.Print( a )
+            self.Print( "There should be only:\n %s();" % self.ClassName )
             self.Error("Wierd constructor")
         pass
     
@@ -214,7 +222,8 @@ class TestVTKFiles:
             if regx.match(line):
                 found = 1;
         if not found:
-            print "File: %s does not define PrintSelf method:" % self.FileName
+            self.Print( "File: %s does not define PrintSelf method:" %
+                        self.FileName )
             self.Error("No PrintSelf method")
         pass
         
