@@ -44,6 +44,21 @@ public:
   virtual vtkImageReader2* MakeObject() { return vtkGESignaReader::New();}
   // Description: is the given file name a GESigna file?
   virtual int CanReadFile(const char* fname);
+
+  // Description:
+  // Valid extentsions
+  virtual const char* GetFileExensions()
+    {
+      return ".MR .CT";
+    }
+
+  // Description: 
+  // A descriptive name for this format
+  virtual const char* GetDescriptiveName()
+    {
+      return "GESigna";
+    }
+
 protected:
   vtkGESignaReader() {};
   ~vtkGESignaReader() {};

@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.10");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.11");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -89,11 +89,41 @@ void vtkGESignaReader::ExecuteInformation()
   fread(&compression, 4, 1, fp);
   vtkByteSwap::Swap4BE(&compression);
 
-  // seek to the image header offsets
+  // seek to the exam series and image header offsets
+  fseek(fp, 132, SEEK_SET);
+  int examHdrOffset;
+  fread(&examHdrOffset, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&examHdrOffset);
+  fseek(fp, 140, SEEK_SET);
+  int seriesHdrOffset;
+  fread(&seriesHdrOffset, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&seriesHdrOffset);
   fseek(fp, 148, SEEK_SET);
   int imgHdrOffset;
   fread(&imgHdrOffset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&imgHdrOffset);
+
+  // seek to the exam and read some info
+  fseek(fp, examHdrOffset + 84, SEEK_SET);
+  char tmpStr[1024];
+  fread(tmpStr,13,1,fp);
+  tmpStr[13] = 0;
+  this->SetPatientID(tmpStr);
+  fread(tmpStr,25,1,fp);
+  tmpStr[25] = 0;
+  this->SetPatientName(tmpStr);
+  
+  // seek to the series and read some info
+  fseek(fp, seriesHdrOffset + 10, SEEK_SET);
+  short series;
+  fread(&series,2,1,fp);
+  vtkByteSwap::Swap2BE(&series);
+  sprintf(tmpStr,"%d",series);
+  this->SetSeries(tmpStr);
+  fseek(fp, seriesHdrOffset + 92, SEEK_SET);
+  fread(tmpStr,25,1,fp);
+  tmpStr[25] = 0;
+  this->SetStudy(tmpStr);
 
   // now seek to the image header and read some values
   float tmpX, tmpY, tmpZ;
