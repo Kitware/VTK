@@ -318,7 +318,7 @@ static void vtkMesaImageMapperRenderShort(vtkMesaImageMapper *self,
 	while (--i >= 0)
 	  {
 	  vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
-	  *ptr++;
+	  *ptr++ = tmp;
 	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
 	  *ptr++ = tmp;
 	  }
@@ -356,9 +356,10 @@ static void vtkMesaImageMapperRenderShort(vtkMesaImageMapper *self,
 //---------------------------------------------------------------
 // render unsigned char data without any shift/scale
 
+template <class T>
 static void vtkMesaImageMapperRenderChar(vtkMesaImageMapper *self, 
 					   vtkImageData *data, 
-					   unsigned char *dataPtr,
+					   T *dataPtr,
 					   int *actorPos, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
@@ -401,8 +402,8 @@ static void vtkMesaImageMapperRenderChar(vtkMesaImageMapper *self,
     }      
   else 
     { // feed through other bytes without reformatting
-    unsigned char *inPtr = (unsigned char *)dataPtr;
-    unsigned char *inPtr1 = inPtr;
+    T *inPtr = (T *)dataPtr;
+    T *inPtr1 = inPtr;
     unsigned char tmp;
 
     int i = width;
@@ -530,6 +531,16 @@ void vtkMesaImageMapper::RenderData(vtkViewport* viewport,
 				 (float *)(ptr0), 
 				 shift, scale, actorPos, vsize);
       break;
+    case VTK_LONG:    
+      vtkMesaImageMapperRender(this, data,
+				 (long *)(ptr0),
+				 shift, scale, actorPos, vsize);
+      break;
+    case VTK_UNSIGNED_LONG:    
+      vtkMesaImageMapperRender(this, data,
+				 (unsigned long *)(ptr0),
+				 shift, scale, actorPos, vsize);
+      break;
     case VTK_INT:    
       vtkMesaImageMapperRender(this, data,
 				 (int *)(ptr0),
@@ -562,11 +573,29 @@ void vtkMesaImageMapper::RenderData(vtkViewport* viewport,
 	}
       else
 	{
+	// RenderShort is Templated, so we can pass unsigned char
 	vtkMesaImageMapperRenderShort(this, data,
 					(unsigned char *)(ptr0),  
 					shift, scale, actorPos, vsize);
 	}
       break;
+    case VTK_CHAR:
+      if (shift == 0.0 && scale == 1.0)
+	{
+	vtkMesaImageMapperRenderChar(this, data,
+				       (char *)(ptr0),  
+				       actorPos, vsize);
+	}
+      else
+	{
+	// RenderShort is Templated, so we can pass unsigned char
+	vtkMesaImageMapperRenderShort(this, data,
+					(char *)(ptr0),  
+					shift, scale, actorPos, vsize);
+	}
+      break;
+    default:
+      vtkErrorMacro ( << "Unsupported image type: " << data->GetScalarType());
     }
 
   glMatrixMode( GL_PROJECTION);
