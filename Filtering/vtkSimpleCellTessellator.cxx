@@ -93,134 +93,134 @@ static int TETRA_EDGES_TABLE[6][2] = {{0, 1}, {1, 2}, {2, 0}, {0, 3}, {1, 3},
 
 // [case][tetra][vertex]
 static signed char vtkTessellatorTetraCasesRight[65][8][4] = {
-// Case no edge is split:  -> 0
-{ NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 is split:  -> 1
+// Index = 0, Case were no edges are split
+{{0,1,2,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 1, Case were edges: 4 are split
 {{0,2,3,4},{1,2,4,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 is split:  -> 2
-{{0,2,3,5},{0,1,5,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 5 are split:  -> 3
+// Index = 2, Case were edges: 5 are split
+{{0,1,5,3},{0,2,3,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 3, Case were edges: 4,5 are split
 {{0,2,3,5},{0,3,4,5},{1,3,5,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 is split:  -> 4
+// Index = 4, Case were edges: 6 are split
 {{0,1,6,3},{1,2,6,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 6 are split:  -> 5
+// Index = 5, Case were edges: 4,6 are split
 {{0,3,4,6},{1,2,6,3},{1,3,6,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 6 are split:  -> 6
+// Index = 6, Case were edges: 5,6 are split
 {{0,1,5,3},{0,3,5,6},{2,3,6,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 6 are split:  -> 7
+// Index = 7, Case were edges: 4,5,6 are split
 {{0,3,4,6},{1,3,5,4},{2,3,6,5},{3,4,6,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 7 is split:  -> 8
-{{1,2,7,3},{0,1,2,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 7 are split:  -> 9
-{{1,2,7,3},{0,2,7,4},{1,2,4,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 7 are split:  -> 10
-{{2,3,7,5},{1,3,5,7},{0,2,7,5},{0,1,5,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 7 are split:  -> 11
-{{2,3,7,5},{1,3,5,7},{0,2,7,5},{1,4,7,5},{0,4,5,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 7 are split:  -> 12
-{{1,2,7,3},{1,2,6,7},{0,1,6,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 7 are split:  -> 13
-{{1,2,7,3},{1,2,6,7},{1,4,7,6},{0,4,6,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 7 are split:  -> 14
-{{2,3,7,5},{1,3,5,7},{2,5,7,6},{0,1,5,7},{0,5,6,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 7 are split:   -> 15
-{{2,3,7,5},{1,3,5,7},{2,5,7,6},{1,4,7,5},{0,4,6,7},{4,5,6,7}, NO_TETRA, NO_TETRA},
-// Case edge 8 is split:  -> 16
-{{0,2,3,8},{0,1,2,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 8 are split:  -> 17
+// Index = 8, Case were edges: 7 are split
+{{0,1,2,7},{1,2,7,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 9, Case were edges: 4,7 are split
+{{0,2,7,4},{1,2,4,7},{1,2,7,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 10, Case were edges: 5,7 are split
+{{0,1,5,7},{0,2,7,5},{1,3,5,7},{2,3,7,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 11, Case were edges: 4,5,7 are split
+{{0,2,7,5},{0,4,5,7},{1,3,5,7},{1,4,7,5},{2,3,7,5}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 12, Case were edges: 6,7 are split
+{{0,1,6,7},{1,2,6,7},{1,2,7,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 13, Case were edges: 4,6,7 are split
+{{0,4,6,7},{1,2,6,7},{1,2,7,3},{1,4,7,6}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 14, Case were edges: 5,6,7 are split
+{{0,1,5,7},{0,5,6,7},{1,3,5,7},{2,3,7,5},{2,5,7,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 15, Case were edges: 4,5,6,7 are split
+{{0,4,6,7},{1,3,5,7},{1,4,7,5},{2,3,7,5},{2,5,7,6},{4,5,6,7}, NO_TETRA, NO_TETRA},
+// Index = 16, Case were edges: 8 are split
+{{0,1,2,8},{0,2,3,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 17, Case were edges: 4,8 are split
 {{0,2,3,8},{0,2,8,4},{1,2,4,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 8 are split:  -> 18
-{{0,2,3,8},{0,2,8,5},{0,1,5,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 8 are split:  -> 19
-{{0,2,3,8},{0,2,8,5},{1,4,8,5},{0,4,5,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 8 are split:  -> 20
-{{2,3,6,8},{0,3,8,6},{1,2,6,8},{0,1,6,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 8 are split:  -> 21
-{{2,3,6,8},{0,3,8,6},{1,2,6,8},{1,4,8,6},{0,4,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 8 are split:  -> 22
-{{2,3,6,8},{0,3,8,6},{2,5,8,6},{0,1,5,8},{0,5,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 8 are split:  -> 23
-{{2,3,6,8},{0,3,8,6},{2,5,8,6},{1,4,8,5},{0,4,6,8},{4,5,6,8}, NO_TETRA, NO_TETRA},
-// Case edge 7 & 8 are split:  -> 24
-{{2,3,7,8},{0,1,2,8},{0,2,7,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7 & 8 are split:  -> 25
-{{2,3,7,8},{0,2,7,4},{2,4,8,7},{1,2,4,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 7 & 8 are split:  -> 26
-{{2,3,7,8},{2,5,8,7},{0,2,7,5},{0,1,5,8},{0,5,7,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7 & 8 are split:  -> 27
-{{2,3,7,8},{2,5,8,7},{0,2,7,5},{1,4,8,5},{0,4,5,7},{4,5,7,8}, NO_TETRA, NO_TETRA},
-// Case edges 6, 7 & 8 are split:  -> 28
-{{2,3,7,8},{2,6,8,7},{1,2,6,8},{0,1,6,8},{0,6,7,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7 & 8 are split:  -> 29
-{{2,3,7,8},{2,6,8,7},{1,2,6,8},{1,4,8,6},{0,4,6,7},{4,6,7,8}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 7 & 8 are split:  -> 30
-{{2,3,7,8},{2,5,8,7},{2,5,7,6},{0,1,5,8},{0,5,7,8},{0,5,6,7}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 7 & 8 are split:  -> 31
-{{2,3,7,8},{2,5,8,7},{2,5,7,6},{1,4,8,5},{0,4,6,7},{4,5,7,8},{4,5,6,7}, NO_TETRA},
-// Case edge 9 is split:  -> 32
-{{0,1,9,3},{0,1,2,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 9 are split:  -> 33
-{{1,3,9,4},{0,3,4,9},{1,2,4,9},{0,2,9,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 9 are split:  -> 34
-{{0,1,9,3},{0,2,9,5},{0,1,5,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 9 are split:  -> 35
-{{1,3,9,4},{0,3,4,9},{0,2,9,5},{1,4,9,5},{0,4,5,9}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 9 are split:  -> 36
-{{0,1,9,3},{1,2,6,9},{0,1,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 9 are split:  -> 37
-{{1,3,9,4},{0,3,4,9},{1,2,6,9},{1,4,9,6},{0,4,6,9}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 9 are split:  -> 38
-{{0,1,9,3},{2,5,9,6},{0,1,5,9},{0,5,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 9 are split:  -> 39
-{{1,3,9,4},{0,3,4,9},{2,5,9,6},{1,4,9,5},{0,4,6,9},{4,5,6,9}, NO_TETRA, NO_TETRA},
-// Case edge 7 & 9 are split:  -> 40
-{{1,3,9,7},{0,1,2,9},{0,1,9,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7 & 9 are split:  -> 41
-{{1,3,9,7},{1,2,4,9},{0,2,9,4},{1,4,7,9},{0,4,9,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 7 & 9 are split:  -> 42
-{{1,3,9,7},{0,2,9,5},{1,5,7,9},{0,1,5,7},{0,5,9,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7 & 9 are split:  -> 43
-{{1,3,9,7},{0,2,9,5},{1,5,7,9},{1,4,7,5},{0,5,9,7},{0,4,5,7}, NO_TETRA, NO_TETRA},
-// Case edges 6, 7 & 9 are split:  -> 44
-{{1,3,9,7},{1,2,6,9},{0,1,6,7},{1,6,7,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7 & 9 are split:  -> 45
-{{1,3,9,7},{1,2,6,9},{1,4,9,6},{1,4,7,9},{0,4,6,7},{4,6,7,9}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 7 & 9 are split:  -> 46
-{{1,3,9,7},{2,5,9,6},{1,5,7,9},{0,1,5,7},{0,5,6,7},{5,6,7,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 7 & 9 are split:  -> 47
-{{1,3,9,7},{2,5,9,6},{1,5,7,9},{1,4,7,5},{0,4,6,7},{5,6,7,9},{4,5,6,7}, NO_TETRA},
-// Case edge 8 & 9 are split:  -> 48
-{{0,3,8,9},{0,1,2,9},{0,1,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 8 & 9 are split:  -> 49
-{{0,3,8,9},{1,2,4,9},{0,2,9,4},{1,4,8,9},{0,4,9,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 8 & 9 are split:  -> 50
-{{0,3,8,9},{0,2,9,5},{0,1,5,8},{0,5,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 8 & 9 are split:  -> 51
-{{0,3,8,9},{0,2,9,5},{1,4,8,5},{0,4,9,8},{0,4,5,9},{4,5,9,8}, NO_TETRA, NO_TETRA},
-// Case edges 6, 8 & 9 are split:  -> 52
-{{0,3,8,9},{1,2,6,9},{1,6,8,9},{0,1,6,8},{0,6,9,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 8 & 9 are split:  -> 53
-{{0,3,8,9},{1,2,6,9},{1,6,8,9},{1,4,8,6},{0,6,9,8},{0,4,6,8}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 8 & 9 are split:  -> 54
-{{0,3,8,9},{2,5,9,6},{0,1,5,8},{0,5,6,8},{0,6,9,8},{5,6,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 8 & 9 are split:  -> 55
-{{0,3,8,9},{2,5,9,6},{1,4,8,5},{0,6,9,8},{0,4,6,8},{5,6,8,9},{4,5,6,8}, NO_TETRA},
-// Case edges 7, 8 & 9 are split:  -> 56
-{{3,7,9,8},{0,1,2,9},{0,1,9,8},{0,7,8,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7, 8 & 9 are split:  -> 57
-{{3,7,9,8},{1,2,4,9},{0,2,9,4},{1,4,8,9},{0,4,9,7},{4,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 5, 7, 8 & 9 are split:  -> 58
-{{3,7,9,8},{0,2,9,5},{0,1,5,8},{0,5,7,8},{0,5,9,7},{5,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7, 8 & 9 are split:  -> 59
-{{3,7,9,8},{0,2,9,5},{1,4,8,5},{0,5,9,7},{0,4,5,7},{5,7,8,9},{4,5,7,8}, NO_TETRA},
-// Case edges 6, 7, 8 & 9 are split:  -> 60
-{{3,7,9,8},{1,2,6,9},{1,6,8,9},{0,1,6,8},{0,6,7,8},{6,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7, 8 & 9 are split:  -> 61
-{{3,7,9,8},{1,2,6,9},{1,6,8,9},{1,4,8,6},{0,4,6,7},{6,7,8,9},{4,6,7,8}, NO_TETRA},
-// Case edges 5, 6, 7, 8 & 9 are split:  -> 62
-{{3,7,9,8},{2,5,9,6},{0,1,5,8},{0,5,7,8},{0,5,6,7},{5,6,7,9},{5,7,8,9}, NO_TETRA},
-// Case were all 6 edges are subdivided -> 8 sub tetra / 1 possibility:  -> 63
-{{3,7,9,8},{2,5,9,6},{1,4,8,5},{0,4,6,7},{5,6,7,9},{5,7,8,9},{4,5,7,8},{4,5,6,7}},
+// Index = 18, Case were edges: 5,8 are split
+{{0,1,5,8},{0,2,3,8},{0,2,8,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 19, Case were edges: 4,5,8 are split
+{{0,2,3,8},{0,2,8,5},{0,4,5,8},{1,4,8,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 20, Case were edges: 6,8 are split
+{{0,1,6,8},{0,3,8,6},{1,2,6,8},{2,3,6,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 21, Case were edges: 4,6,8 are split
+{{0,3,8,6},{0,4,6,8},{1,2,6,8},{1,4,8,6},{2,3,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 22, Case were edges: 5,6,8 are split
+{{0,1,5,8},{0,3,8,6},{0,5,6,8},{2,3,6,8},{2,5,8,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 23, Case were edges: 4,5,6,8 are split
+{{0,3,8,6},{0,4,6,8},{1,4,8,5},{2,3,6,8},{2,5,8,6},{4,5,6,8}, NO_TETRA, NO_TETRA},
+// Index = 24, Case were edges: 7,8 are split
+{{0,1,2,8},{0,2,7,8},{2,3,7,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 25, Case were edges: 4,7,8 are split
+{{0,2,7,4},{1,2,4,8},{2,3,7,8},{2,4,8,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 26, Case were edges: 5,7,8 are split
+{{0,1,5,8},{0,2,7,5},{0,5,7,8},{2,3,7,8},{2,5,8,7}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 27, Case were edges: 4,5,7,8 are split
+{{0,2,7,5},{0,4,5,7},{1,4,8,5},{2,3,7,8},{2,5,8,7},{4,5,7,8}, NO_TETRA, NO_TETRA},
+// Index = 28, Case were edges: 6,7,8 are split
+{{0,1,6,8},{0,6,7,8},{1,2,6,8},{2,3,7,8},{2,6,8,7}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 29, Case were edges: 4,6,7,8 are split
+{{0,4,6,7},{1,2,6,8},{1,4,8,6},{2,3,7,8},{2,6,8,7},{4,6,7,8}, NO_TETRA, NO_TETRA},
+// Index = 30, Case were edges: 5,6,7,8 are split
+{{0,1,5,8},{0,5,6,7},{0,5,7,8},{2,3,7,8},{2,5,7,6},{2,5,8,7}, NO_TETRA, NO_TETRA},
+// Index = 31, Case were edges: 4,5,6,7,8 are split
+{{0,4,6,7},{1,4,8,5},{2,3,7,8},{2,5,7,6},{2,5,8,7},{4,5,6,7},{4,5,7,8}, NO_TETRA},
+// Index = 32, Case were edges: are split
+{{0,1,2,9},{0,1,9,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 33, Case were edges: 4 are split
+{{0,2,9,4},{0,3,4,9},{1,2,4,9},{1,3,9,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 34, Case were edges: 5 are split
+{{0,1,5,9},{0,1,9,3},{0,2,9,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 35, Case were edges: 4,5 are split
+{{0,2,9,5},{0,3,4,9},{0,4,5,9},{1,3,9,4},{1,4,9,5}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 36, Case were edges: 6 are split
+{{0,1,6,9},{0,1,9,3},{1,2,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 37, Case were edges: 4,6 are split
+{{0,3,4,9},{0,4,6,9},{1,2,6,9},{1,3,9,4},{1,4,9,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 38, Case were edges: 5,6 are split
+{{0,1,5,9},{0,1,9,3},{0,5,6,9},{2,5,9,6}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 39, Case were edges: 4,5,6 are split
+{{0,3,4,9},{0,4,6,9},{1,3,9,4},{1,4,9,5},{2,5,9,6},{4,5,6,9}, NO_TETRA, NO_TETRA},
+// Index = 40, Case were edges: 7 are split
+{{0,1,2,9},{0,1,9,7},{1,3,9,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 41, Case were edges: 4,7 are split
+{{0,2,9,4},{0,4,9,7},{1,2,4,9},{1,3,9,7},{1,4,7,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 42, Case were edges: 5,7 are split
+{{0,1,5,7},{0,2,9,5},{0,5,9,7},{1,3,9,7},{1,5,7,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 43, Case were edges: 4,5,7 are split
+{{0,2,9,5},{0,4,5,7},{0,5,9,7},{1,3,9,7},{1,4,7,5},{1,5,7,9}, NO_TETRA, NO_TETRA},
+// Index = 44, Case were edges: 6,7 are split
+{{0,1,6,7},{1,2,6,9},{1,3,9,7},{1,6,7,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 45, Case were edges: 4,6,7 are split
+{{0,4,6,7},{1,2,6,9},{1,3,9,7},{1,4,7,9},{1,4,9,6},{4,6,7,9}, NO_TETRA, NO_TETRA},
+// Index = 46, Case were edges: 5,6,7 are split
+{{0,1,5,7},{0,5,6,7},{1,3,9,7},{1,5,7,9},{2,5,9,6},{5,6,7,9}, NO_TETRA, NO_TETRA},
+// Index = 47, Case were edges: 4,5,6,7 are split
+{{0,4,6,7},{1,3,9,7},{1,4,7,5},{1,5,7,9},{2,5,9,6},{4,5,6,7},{5,6,7,9}, NO_TETRA},
+// Index = 48, Case were edges: 8 are split
+{{0,1,2,9},{0,1,9,8},{0,3,8,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 49, Case were edges: 4,8 are split
+{{0,2,9,4},{0,3,8,9},{0,4,9,8},{1,2,4,9},{1,4,8,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 50, Case were edges: 5,8 are split
+{{0,1,5,8},{0,2,9,5},{0,3,8,9},{0,5,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 51, Case were edges: 4,5,8 are split
+{{0,2,9,5},{0,3,8,9},{0,4,5,9},{0,4,9,8},{1,4,8,5},{4,5,9,8}, NO_TETRA, NO_TETRA},
+// Index = 52, Case were edges: 6,8 are split
+{{0,1,6,8},{0,3,8,9},{0,6,9,8},{1,2,6,9},{1,6,8,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 53, Case were edges: 4,6,8 are split
+{{0,3,8,9},{0,4,6,8},{0,6,9,8},{1,2,6,9},{1,4,8,6},{1,6,8,9}, NO_TETRA, NO_TETRA},
+// Index = 54, Case were edges: 5,6,8 are split
+{{0,1,5,8},{0,3,8,9},{0,5,6,8},{0,6,9,8},{2,5,9,6},{5,6,8,9}, NO_TETRA, NO_TETRA},
+// Index = 55, Case were edges: 4,5,6,8 are split
+{{0,3,8,9},{0,4,6,8},{0,6,9,8},{1,4,8,5},{2,5,9,6},{4,5,6,8},{5,6,8,9}, NO_TETRA},
+// Index = 56, Case were edges: 7,8 are split
+{{0,1,2,9},{0,1,9,8},{0,7,8,9},{3,7,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 57, Case were edges: 4,7,8 are split
+{{0,2,9,4},{0,4,9,7},{1,2,4,9},{1,4,8,9},{3,7,9,8},{4,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 58, Case were edges: 5,7,8 are split
+{{0,1,5,8},{0,2,9,5},{0,5,7,8},{0,5,9,7},{3,7,9,8},{5,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 59, Case were edges: 4,5,7,8 are split
+{{0,2,9,5},{0,4,5,7},{0,5,9,7},{1,4,8,5},{3,7,9,8},{4,5,7,8},{5,7,8,9}, NO_TETRA},
+// Index = 60, Case were edges: 6,7,8 are split
+{{0,1,6,8},{0,6,7,8},{1,2,6,9},{1,6,8,9},{3,7,9,8},{6,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 61, Case were edges: 4,6,7,8 are split
+{{0,4,6,7},{1,2,6,9},{1,4,8,6},{1,6,8,9},{3,7,9,8},{4,6,7,8},{6,7,8,9}, NO_TETRA},
+// Index = 62, Case were edges: 5,6,7,8 are split
+{{0,1,5,8},{0,5,6,7},{0,5,7,8},{2,5,9,6},{3,7,9,8},{5,6,7,9},{5,7,8,9}, NO_TETRA},
+// Index = 63, Case were edges: 4,5,6,7,8 are split
+{{0,4,6,7},{1,4,8,5},{2,5,9,6},{3,7,9,8},{4,5,6,7},{4,5,7,8},{5,6,7,9},{5,7,8,9}},
 //In case we reach outside the table
 { NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA}
 };
@@ -231,140 +231,140 @@ static signed char vtkTessellatorTetraCasesRight[65][8][4] = {
 // properly, then we need a different case table
 //
 static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
-// Case no edge is split:  -> 0
-{ NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 is split:  -> 1
+// Index = 0, Case were no edges are split
+{{0,1,2,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 1, Case were edges: 4 are split
 {{0,2,3,4},{1,2,4,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 is split:  -> 2
-{{0,2,3,5},{0,1,5,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 5 are split:  -> 3
+// Index = 2, Case were edges: 5 are split
+{{0,1,5,3},{0,2,3,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 3, Case were edges: 4,5 are split
 {{0,2,3,5},{0,3,4,5},{1,3,5,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 is split:  -> 4
-{{1,2,6,3},{0,1,6,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 6 are split:  -> 5
-{{1,2,6,3},{0,3,4,6},{1,3,6,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 6 are split:  -> 6
-{{2,3,6,5},{0,1,5,3},{0,3,5,6}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 6 are split:  -> 7
-{{2,3,6,5},{0,3,4,6},{1,3,5,4},{3,4,6,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 7 is split:  -> 8
+// Index = 4, Case were edges: 6 are split
+{{0,1,6,3},{1,2,6,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 5, Case were edges: 4,6 are split
+{{0,3,4,6},{1,2,6,3},{1,3,6,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 6, Case were edges: 5,6 are split
+{{0,1,5,3},{0,3,5,6},{2,3,6,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 7, Case were edges: 4,5,6 are split
+{{0,3,4,6},{1,3,5,4},{2,3,6,5},{3,4,6,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 8, Case were edges: 7 are split
 {{0,1,2,7},{1,2,7,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 7 are split:  -> 9
-{{0,2,7,4},{1,2,7,3},{1,2,4,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 7 are split:  -> 10
-{{2,3,7,5},{0,2,7,5},{1,3,5,7},{0,1,5,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 7 are split:  -> 11
-{{2,3,7,5},{0,2,7,5},{1,3,5,7},{1,4,7,5},{0,4,5,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 7 are split:  -> 12
-{{1,2,6,3},{1,3,6,7},{0,1,6,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 7 are split:  -> 13
-{{1,2,6,3},{1,3,6,7},{1,4,7,6},{0,4,6,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 7 are split:  -> 14
-{{2,3,6,5},{3,5,7,6},{1,3,5,7},{0,1,5,7},{0,5,6,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 7 are split:   -> 15
-{{2,3,6,5},{3,5,7,6},{1,3,5,7},{1,4,7,5},{0,4,6,7},{4,5,6,7}, NO_TETRA, NO_TETRA},
-// Case edge 8 is split:  -> 16
+// Index = 9, Case were edges: 4,7 are split
+{{0,2,7,4},{1,2,4,7},{1,2,7,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 10, Case were edges: 5,7 are split
+{{0,1,5,7},{0,2,7,5},{1,3,5,7},{2,3,7,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 11, Case were edges: 4,5,7 are split
+{{0,2,7,5},{0,4,5,7},{1,3,5,7},{1,4,7,5},{2,3,7,5}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 12, Case were edges: 6,7 are split
+{{0,1,6,7},{1,2,6,3},{1,3,6,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 13, Case were edges: 4,6,7 are split
+{{0,4,6,7},{1,2,6,3},{1,3,6,7},{1,4,7,6}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 14, Case were edges: 5,6,7 are split
+{{0,1,5,7},{0,5,6,7},{1,3,5,7},{2,3,6,5},{3,5,7,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 15, Case were edges: 4,5,6,7 are split
+{{0,4,6,7},{1,3,5,7},{1,4,7,5},{2,3,6,5},{3,5,7,6},{4,5,6,7}, NO_TETRA, NO_TETRA},
+// Index = 16, Case were edges: 8 are split
 {{0,1,2,8},{0,2,3,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 8 are split:  -> 17
+// Index = 17, Case were edges: 4,8 are split
 {{0,2,3,8},{0,2,8,4},{1,2,4,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 8 are split:  -> 18
-{{0,2,3,5},{0,3,8,5},{0,1,5,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 8 are split:  -> 19
-{{0,2,3,5},{0,3,8,5},{1,4,8,5},{0,4,5,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 8 are split:  -> 20
-{{2,3,6,8},{1,2,6,8},{0,3,8,6},{0,1,6,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 8 are split:  -> 21
-{{2,3,6,8},{1,2,6,8},{0,3,8,6},{1,4,8,6},{0,4,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 8 are split:  -> 22
-{{2,3,6,5},{3,5,8,6},{0,3,8,6},{0,1,5,8},{0,5,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 8 are split:  -> 23
-{{2,3,6,5},{3,5,8,6},{0,3,8,6},{1,4,8,5},{0,4,6,8},{4,5,6,8}, NO_TETRA, NO_TETRA},
-// Case edge 7 & 8 are split:  -> 24
+// Index = 18, Case were edges: 5,8 are split
+{{0,1,5,8},{0,2,3,5},{0,3,8,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 19, Case were edges: 4,5,8 are split
+{{0,2,3,5},{0,3,8,5},{0,4,5,8},{1,4,8,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 20, Case were edges: 6,8 are split
+{{0,1,6,8},{0,3,8,6},{1,2,6,8},{2,3,6,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 21, Case were edges: 4,6,8 are split
+{{0,3,8,6},{0,4,6,8},{1,2,6,8},{1,4,8,6},{2,3,6,8}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 22, Case were edges: 5,6,8 are split
+{{0,1,5,8},{0,3,8,6},{0,5,6,8},{2,3,6,5},{3,5,8,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 23, Case were edges: 4,5,6,8 are split
+{{0,3,8,6},{0,4,6,8},{1,4,8,5},{2,3,6,5},{3,5,8,6},{4,5,6,8}, NO_TETRA, NO_TETRA},
+// Index = 24, Case were edges: 7,8 are split
 {{0,1,2,8},{0,2,7,8},{2,3,7,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7 & 8 are split:  -> 25
-{{0,2,7,4},{2,3,7,8},{2,4,8,7},{1,2,4,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 7 & 8 are split:  -> 26
-{{2,3,7,5},{0,2,7,5},{3,5,8,7},{0,1,5,8},{0,5,7,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7 & 8 are split:  -> 27
-{{2,3,7,5},{0,2,7,5},{3,5,8,7},{1,4,8,5},{0,4,5,7},{4,5,7,8}, NO_TETRA, NO_TETRA},
-// Case edges 6, 7 & 8 are split:  -> 28
-{{2,3,6,8},{1,2,6,8},{3,6,8,7},{0,1,6,8},{0,6,7,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7 & 8 are split:  -> 29
-{{2,3,6,8},{1,2,6,8},{3,6,8,7},{1,4,8,6},{0,4,6,7},{4,6,7,8}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 7 & 8 are split:  -> 30
-{{2,3,6,5},{3,5,7,6},{3,5,8,7},{0,1,5,8},{0,5,7,8},{0,5,6,7}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 7 & 8 are split:  -> 31
-{{2,3,6,5},{3,5,7,6},{3,5,8,7},{1,4,8,5},{0,4,6,7},{4,5,7,8},{4,5,6,7}, NO_TETRA},
-// Case edge 9 is split:  -> 32
+// Index = 25, Case were edges: 4,7,8 are split
+{{0,2,7,4},{1,2,4,8},{2,3,7,8},{2,4,8,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 26, Case were edges: 5,7,8 are split
+{{0,1,5,8},{0,2,7,5},{0,5,7,8},{2,3,7,5},{3,5,8,7}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 27, Case were edges: 4,5,7,8 are split
+{{0,2,7,5},{0,4,5,7},{1,4,8,5},{2,3,7,5},{3,5,8,7},{4,5,7,8}, NO_TETRA, NO_TETRA},
+// Index = 28, Case were edges: 6,7,8 are split
+{{0,1,6,8},{0,6,7,8},{1,2,6,8},{2,3,6,8},{3,6,8,7}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 29, Case were edges: 4,6,7,8 are split
+{{0,4,6,7},{1,2,6,8},{1,4,8,6},{2,3,6,8},{3,6,8,7},{4,6,7,8}, NO_TETRA, NO_TETRA},
+// Index = 30, Case were edges: 5,6,7,8 are split
+{{0,1,5,8},{0,5,6,7},{0,5,7,8},{2,3,6,5},{3,5,7,6},{3,5,8,7}, NO_TETRA, NO_TETRA},
+// Index = 31, Case were edges: 4,5,6,7,8 are split
+{{0,4,6,7},{1,4,8,5},{2,3,6,5},{3,5,7,6},{3,5,8,7},{4,5,6,7},{4,5,7,8}, NO_TETRA},
+// Index = 32, Case were edges: are split
 {{0,1,2,9},{0,1,9,3}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 4 & 9 are split:  -> 33
-{{1,2,4,9},{0,2,9,4},{1,3,9,4},{0,3,4,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 5 & 9 are split:  -> 34
-{{0,2,9,5},{0,1,9,3},{0,1,5,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5 & 9 are split:  -> 35
-{{0,2,9,5},{1,3,9,4},{0,3,4,9},{1,4,9,5},{0,4,5,9}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edge 6 & 9 are split:  -> 36
-{{1,2,6,9},{0,1,9,3},{0,1,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6 & 9 are split:  -> 37
-{{1,2,6,9},{1,3,9,4},{0,3,4,9},{1,4,9,6},{0,4,6,9}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 6 & 9 are split:  -> 38
-{{2,5,9,6},{0,1,9,3},{0,1,5,9},{0,5,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6 & 9 are split:  -> 39
-{{2,5,9,6},{1,3,9,4},{0,3,4,9},{1,4,9,5},{0,4,6,9},{4,5,6,9}, NO_TETRA, NO_TETRA},
-// Case edge 7 & 9 are split:  -> 40
-{{0,1,2,9},{1,3,9,7},{0,1,9,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7 & 9 are split:  -> 41
-{{1,2,4,9},{0,2,9,4},{1,3,9,7},{1,4,7,9},{0,4,9,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 7 & 9 are split:  -> 42
-{{0,2,9,5},{1,3,9,7},{1,5,7,9},{0,1,5,7},{0,5,9,7}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7 & 9 are split:  -> 43
-{{0,2,9,5},{1,3,9,7},{1,5,7,9},{1,4,7,5},{0,5,9,7},{0,4,5,7}, NO_TETRA, NO_TETRA},
-// Case edges 6, 7 & 9 are split:  -> 44
-{{1,2,6,9},{1,3,9,7},{0,1,6,7},{1,6,7,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7 & 9 are split:  -> 45
-{{1,2,6,9},{1,3,9,7},{1,4,9,6},{1,4,7,9},{0,4,6,7},{4,6,7,9}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 7 & 9 are split:  -> 46
-{{2,5,9,6},{1,3,9,7},{1,5,7,9},{0,1,5,7},{0,5,6,7},{5,6,7,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 7 & 9 are split:  -> 47
-{{2,5,9,6},{1,3,9,7},{1,5,7,9},{1,4,7,5},{0,4,6,7},{5,6,7,9},{4,5,6,7}, NO_TETRA},
-// Case edge 8 & 9 are split:  -> 48
-{{0,1,2,9},{0,3,8,9},{0,1,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 8 & 9 are split:  -> 49
-{{1,2,4,9},{0,2,9,4},{0,3,8,9},{1,4,8,9},{0,4,9,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 5, 8 & 9 are split:  -> 50
-{{0,2,9,5},{0,3,8,9},{0,1,5,8},{0,5,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 8 & 9 are split:  -> 51
-{{0,2,9,5},{0,3,8,9},{1,4,8,5},{0,4,9,8},{0,4,5,9},{4,5,9,8}, NO_TETRA, NO_TETRA},
-// Case edges 6, 8 & 9 are split:  -> 52
-{{1,2,6,9},{0,3,8,9},{1,6,8,9},{0,1,6,8},{0,6,9,8}, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 8 & 9 are split:  -> 53
-{{1,2,6,9},{0,3,8,9},{1,6,8,9},{1,4,8,6},{0,6,9,8},{0,4,6,8}, NO_TETRA, NO_TETRA},
-// Case edges 5, 6, 8 & 9 are split:  -> 54
-{{2,5,9,6},{0,3,8,9},{0,1,5,8},{0,5,6,8},{0,6,9,8},{5,6,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 6, 8 & 9 are split:  -> 55
-{{2,5,9,6},{0,3,8,9},{1,4,8,5},{0,6,9,8},{0,4,6,8},{5,6,8,9},{4,5,6,8}, NO_TETRA},
-// Case edges 7, 8 & 9 are split:  -> 56
-{{0,1,2,9},{3,7,9,8},{0,1,9,8},{0,7,8,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
-// Case edges 4, 7, 8 & 9 are split:  -> 57
-{{1,2,4,9},{0,2,9,4},{3,7,9,8},{1,4,8,9},{0,4,9,7},{4,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 5, 7, 8 & 9 are split:  -> 58
-{{0,2,9,5},{3,7,9,8},{0,1,5,8},{0,5,7,8},{0,5,9,7},{5,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 5, 7, 8 & 9 are split:  -> 59
-{{0,2,9,5},{3,7,9,8},{1,4,8,5},{0,5,9,7},{0,4,5,7},{5,7,8,9},{4,5,7,8}, NO_TETRA},
-// Case edges 6, 7, 8 & 9 are split:  -> 60
-{{1,2,6,9},{3,7,9,8},{1,6,8,9},{0,1,6,8},{0,6,7,8},{6,7,8,9}, NO_TETRA, NO_TETRA},
-// Case edges 4, 6, 7, 8 & 9 are split:  -> 61
-{{1,2,6,9},{3,7,9,8},{1,6,8,9},{1,4,8,6},{0,4,6,7},{6,7,8,9},{4,6,7,8}, NO_TETRA},
-// Case edges 5, 6, 7, 8 & 9 are split:  -> 62
-{{2,5,9,6},{3,7,9,8},{0,1,5,8},{0,5,7,8},{0,5,6,7},{5,6,7,9},{5,7,8,9}, NO_TETRA},
-// Case were all 6 edges are subdivided -> 8 sub tetra / 1 possibility:  -> 63
-{{2,5,9,6},{3,7,9,8},{1,4,8,5},{0,4,6,7},{5,6,7,9},{5,7,8,9},{4,5,7,8},{4,5,6,7}},
+// Index = 33, Case were edges: 4 are split
+{{0,2,9,4},{0,3,4,9},{1,2,4,9},{1,3,9,4}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 34, Case were edges: 5 are split
+{{0,1,5,9},{0,1,9,3},{0,2,9,5}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 35, Case were edges: 4,5 are split
+{{0,2,9,5},{0,3,4,9},{0,4,5,9},{1,3,9,4},{1,4,9,5}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 36, Case were edges: 6 are split
+{{0,1,6,9},{0,1,9,3},{1,2,6,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 37, Case were edges: 4,6 are split
+{{0,3,4,9},{0,4,6,9},{1,2,6,9},{1,3,9,4},{1,4,9,6}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 38, Case were edges: 5,6 are split
+{{0,1,5,9},{0,1,9,3},{0,5,6,9},{2,5,9,6}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 39, Case were edges: 4,5,6 are split
+{{0,3,4,9},{0,4,6,9},{1,3,9,4},{1,4,9,5},{2,5,9,6},{4,5,6,9}, NO_TETRA, NO_TETRA},
+// Index = 40, Case were edges: 7 are split
+{{0,1,2,9},{0,1,9,7},{1,3,9,7}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 41, Case were edges: 4,7 are split
+{{0,2,9,4},{0,4,9,7},{1,2,4,9},{1,3,9,7},{1,4,7,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 42, Case were edges: 5,7 are split
+{{0,1,5,7},{0,2,9,5},{0,5,9,7},{1,3,9,7},{1,5,7,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 43, Case were edges: 4,5,7 are split
+{{0,2,9,5},{0,4,5,7},{0,5,9,7},{1,3,9,7},{1,4,7,5},{1,5,7,9}, NO_TETRA, NO_TETRA},
+// Index = 44, Case were edges: 6,7 are split
+{{0,1,6,7},{1,2,6,9},{1,3,9,7},{1,6,7,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 45, Case were edges: 4,6,7 are split
+{{0,4,6,7},{1,2,6,9},{1,3,9,7},{1,4,7,9},{1,4,9,6},{4,6,7,9}, NO_TETRA, NO_TETRA},
+// Index = 46, Case were edges: 5,6,7 are split
+{{0,1,5,7},{0,5,6,7},{1,3,9,7},{1,5,7,9},{2,5,9,6},{5,6,7,9}, NO_TETRA, NO_TETRA},
+// Index = 47, Case were edges: 4,5,6,7 are split
+{{0,4,6,7},{1,3,9,7},{1,4,7,5},{1,5,7,9},{2,5,9,6},{4,5,6,7},{5,6,7,9}, NO_TETRA},
+// Index = 48, Case were edges: 8 are split
+{{0,1,2,9},{0,1,9,8},{0,3,8,9}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 49, Case were edges: 4,8 are split
+{{0,2,9,4},{0,3,8,9},{0,4,9,8},{1,2,4,9},{1,4,8,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 50, Case were edges: 5,8 are split
+{{0,1,5,8},{0,2,9,5},{0,3,8,9},{0,5,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 51, Case were edges: 4,5,8 are split
+{{0,2,9,5},{0,3,8,9},{0,4,5,9},{0,4,9,8},{1,4,8,5},{4,5,9,8}, NO_TETRA, NO_TETRA},
+// Index = 52, Case were edges: 6,8 are split
+{{0,1,6,8},{0,3,8,9},{0,6,9,8},{1,2,6,9},{1,6,8,9}, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 53, Case were edges: 4,6,8 are split
+{{0,3,8,9},{0,4,6,8},{0,6,9,8},{1,2,6,9},{1,4,8,6},{1,6,8,9}, NO_TETRA, NO_TETRA},
+// Index = 54, Case were edges: 5,6,8 are split
+{{0,1,5,8},{0,3,8,9},{0,5,6,8},{0,6,9,8},{2,5,9,6},{5,6,8,9}, NO_TETRA, NO_TETRA},
+// Index = 55, Case were edges: 4,5,6,8 are split
+{{0,3,8,9},{0,4,6,8},{0,6,9,8},{1,4,8,5},{2,5,9,6},{4,5,6,8},{5,6,8,9}, NO_TETRA},
+// Index = 56, Case were edges: 7,8 are split
+{{0,1,2,9},{0,1,9,8},{0,7,8,9},{3,7,9,8}, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
+// Index = 57, Case were edges: 4,7,8 are split
+{{0,2,9,4},{0,4,9,7},{1,2,4,9},{1,4,8,9},{3,7,9,8},{4,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 58, Case were edges: 5,7,8 are split
+{{0,1,5,8},{0,2,9,5},{0,5,7,8},{0,5,9,7},{3,7,9,8},{5,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 59, Case were edges: 4,5,7,8 are split
+{{0,2,9,5},{0,4,5,7},{0,5,9,7},{1,4,8,5},{3,7,9,8},{4,5,7,8},{5,7,8,9}, NO_TETRA},
+// Index = 60, Case were edges: 6,7,8 are split
+{{0,1,6,8},{0,6,7,8},{1,2,6,9},{1,6,8,9},{3,7,9,8},{6,7,8,9}, NO_TETRA, NO_TETRA},
+// Index = 61, Case were edges: 4,6,7,8 are split
+{{0,4,6,7},{1,2,6,9},{1,4,8,6},{1,6,8,9},{3,7,9,8},{4,6,7,8},{6,7,8,9}, NO_TETRA},
+// Index = 62, Case were edges: 5,6,7,8 are split
+{{0,1,5,8},{0,5,6,7},{0,5,7,8},{2,5,9,6},{3,7,9,8},{5,6,7,9},{5,7,8,9}, NO_TETRA},
+// Index = 63, Case were edges: 4,5,6,7,8 are split
+{{0,4,6,7},{1,4,8,5},{2,5,9,6},{3,7,9,8},{4,5,6,7},{4,5,7,8},{5,6,7,9},{5,7,8,9}},
 //In case we reach outside the table
 { NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.8");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.9");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
