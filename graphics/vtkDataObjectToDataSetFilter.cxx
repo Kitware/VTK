@@ -473,7 +473,7 @@ int vtkDataObjectToDataSetFilter::GetPointComponentNormailzeFlag(int comp)
 
 int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
 {
-  int i;
+  int i, updated=0;
   vtkDataArray *fieldArray[3];
   int npts;
   vtkFieldData *fd=this->GetInput()->GetFieldData();
@@ -488,7 +488,7 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
       vtkErrorMacro(<<"Can't find array requested");
       return 0;
       }
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], 
+    updated |= vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], 
                                                             this->PointComponentRange[i]);
     }
 
@@ -530,13 +530,20 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
 
   ps->SetPoints(newPts);
   newPts->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < 3; i++)
+      {
+      this->PointComponentRange[i][0] = this->PointComponentRange[i][1] = -1;
+      }
+    }
   
   return npts;
 }
 
 int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
 {
-  int i, nXpts, nYpts, nZpts, npts;
+  int i, nXpts, nYpts, nZpts, npts, updated=0;
   vtkDataArray *fieldArray[3];
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 
@@ -554,7 +561,7 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
   
   for (i=0; i<3; i++)
     {
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], 
+    updated |= vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], 
                                                             this->PointComponentRange[i]);
     }
 
@@ -646,6 +653,14 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
   rg->SetZCoordinates(ZPts);
   XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
   
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < 3; i++)
+      {
+      this->PointComponentRange[i][0] = this->PointComponentRange[i][1] = -1;
+      }
+    }
+
   return npts;
 }
 
@@ -901,7 +916,7 @@ int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMaxRange()
 
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 {
-  int i, ncells=0;
+  int i, ncells=0, updated;
   vtkDataArray *fieldArray[4];
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 
@@ -939,7 +954,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 
   if ( fieldArray[0] )
     {
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], 
                                                             this->VertsComponentRange);
     vtkCellArray *verts = this->ConstructCellArray(fieldArray[0], this->VertsArrayComponent,
                                                    this->VertsComponentRange);
@@ -949,11 +964,12 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
       ncells += verts->GetNumberOfCells();
       verts->Delete();
       }
+    this->VertsComponentRange[0] = this->VertsComponentRange[1] = -1;
     }
   
   if ( fieldArray[1] )
     {
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], 
                                                             this->LinesComponentRange);
     vtkCellArray *lines = this->ConstructCellArray(fieldArray[1], this->LinesArrayComponent,
                                                    this->LinesComponentRange);
@@ -963,11 +979,12 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
       ncells += lines->GetNumberOfCells();
       lines->Delete();
       }
+    this->LinesComponentRange[0] = this->LinesComponentRange[1] = -1;
     }
   
   if ( fieldArray[2] )
     {
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[2], 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[2], 
                                                             this->PolysComponentRange);
     vtkCellArray *polys = this->ConstructCellArray(fieldArray[2], this->PolysArrayComponent,
                                                    this->PolysComponentRange);
@@ -977,11 +994,12 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
       ncells += polys->GetNumberOfCells();
       polys->Delete();
       }
+    this->PolysComponentRange[0] = this->PolysComponentRange[1] = -1;
     }
   
   if ( fieldArray[3] )
     {
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[3], 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[3], 
                                                             this->StripsComponentRange);
     vtkCellArray *triStrips = this->ConstructCellArray(fieldArray[3],
                        this->StripsArrayComponent, this->StripsComponentRange);
@@ -991,6 +1009,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
       ncells += triStrips->GetNumberOfCells();
       triStrips->Delete();
       }
+    this->StripsComponentRange[0] = this->StripsComponentRange[1] = -1;
     }
 
   return ncells;
@@ -998,7 +1017,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
 {
-  int i, *types, typesAllocated=0;
+  int i, *types, typesAllocated=0, updated;
   vtkDataArray *fieldArray[2];
   int ncells;
   vtkFieldData *fd=this->GetInput()->GetFieldData();
@@ -1012,7 +1031,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
     return 0;
     }
   
-  vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], 
+  updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], 
                                                           this->CellTypeComponentRange);
   ncells = this->CellTypeComponentRange[1] - this->CellTypeComponentRange[0] + 1;
 
@@ -1047,11 +1066,12 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
         types[i] = (int) da->GetComponent(i,this->CellTypeArrayComponent);
         }
       }
+    this->CellTypeComponentRange[0] = this->CellTypeComponentRange[1] = -1;
 
     // create connectivity
     if ( fieldArray[1] ) //cell connectivity defined
       {
-      vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], 
+      updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], 
                                          this->CellConnectivityComponentRange);
       vtkCellArray *carray = this->ConstructCellArray(fieldArray[1],
                this->CellConnectivityArrayComponent, this->CellConnectivityComponentRange);
@@ -1060,6 +1080,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
         ug->SetCells(types,carray);
         carray->Delete();
         }
+      this->CellConnectivityComponentRange[0] = this->CellConnectivityComponentRange[1] = -1;
       }
     if ( typesAllocated )
       {
@@ -1201,6 +1222,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions()
     }
   else
     {
+    int updated;
     vtkFieldData *fd=this->GetInput()->GetFieldData();
     vtkDataArray *fieldArray = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd,
                                           this->DimensionsArray, this->DimensionsArrayComponent);
@@ -1210,7 +1232,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions()
       return;
       }
 
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
                                                             this->DimensionsComponentRange);
     
     for (int i=0; i<3; i++)
@@ -1219,6 +1241,8 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions()
                                                      this->DimensionsArrayComponent);
       }
     }
+
+  this->DimensionsComponentRange[0] = this->DimensionsComponentRange[1] = -1;
 }
 
 void vtkDataObjectToDataSetFilter::ConstructSpacing()
@@ -1229,6 +1253,7 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing()
     }
   else
     {
+    int updated;
     vtkFieldData *fd=this->GetInput()->GetFieldData();
     vtkDataArray *fieldArray = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd,
                                           this->SpacingArray, this->SpacingArrayComponent);
@@ -1238,7 +1263,7 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing()
       return;
       }
 
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
                                                             this->SpacingComponentRange);
     
     for (int i=0; i<3; i++)
@@ -1247,6 +1272,7 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing()
                                                      this->SpacingArrayComponent);
       }
     }
+  this->SpacingComponentRange[0] = this->SpacingComponentRange[1] = -1;
 }
 
 void vtkDataObjectToDataSetFilter::ConstructOrigin()
@@ -1257,6 +1283,7 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
     }
   else
     {
+    int updated;
     vtkFieldData *fd=this->GetInput()->GetFieldData();
     vtkDataArray *fieldArray = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd,
                                           this->OriginArray, this->OriginArrayComponent);
@@ -1266,7 +1293,7 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
       return;
       }
 
-    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
+    updated = vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray, 
                                                             this->OriginComponentRange);
     
     for (int i=0; i<3; i++)
@@ -1275,6 +1302,8 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
                                                      this->OriginArrayComponent);
       }
     }
+
+  this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
 }
 
 

@@ -209,9 +209,9 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   this->ConstructFieldData(num, attr);
   
   ((vtkDataSet *)this->Output)->GetPointData()->PassNoReplaceData(
-	  ((vtkDataSet *)this->Input)->GetPointData());
+          ((vtkDataSet *)this->Input)->GetPointData());
   ((vtkDataSet *)this->Output)->GetCellData()->PassNoReplaceData(
-	  ((vtkDataSet *)this->Input)->GetCellData());
+          ((vtkDataSet *)this->Input)->GetCellData());
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
@@ -321,7 +321,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
                                                          char *arrays[4], int arrayComp[4],
                                                          int normalize[4], int numComp)
 {
-  int i, normalizeAny;
+  int i, normalizeAny, updated=0;
   vtkDataArray *fieldArray[4];
   
   if ( numComp < 1 )
@@ -349,7 +349,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   
   for (normalizeAny=i=0; i < numComp; i++)
     {
-    this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
       {
       vtkErrorMacro(<<"Number of scalars not consistent");
@@ -393,6 +393,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   
   attr->SetScalars(newScalars);
   newScalars->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < numComp; i++)
+      {
+      componentRange[i][0] = componentRange[i][1] = -1;
+      }
+    }
 }
 
 // Stuff related to vectors --------------------------------------------
@@ -465,7 +472,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
                                                          char *arrays[3],
                                                          int arrayComp[3], int normalize[3])
 {
-  int i;
+  int i, updated;
   vtkDataArray *fieldArray[3];
 
   for (i=0; i<3; i++)
@@ -487,9 +494,9 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
       }
     }
   
-  this->UpdateComponentRange(fieldArray[0], componentRange[0]);
-  this->UpdateComponentRange(fieldArray[1], componentRange[1]);
-  this->UpdateComponentRange(fieldArray[2], componentRange[2]);
+  updated = this->UpdateComponentRange(fieldArray[0], componentRange[0]);
+  updated |= this->UpdateComponentRange(fieldArray[1], componentRange[1]);
+  updated |= this->UpdateComponentRange(fieldArray[2], componentRange[2]);
 
   if ( num != (componentRange[0][1] - componentRange[0][0] + 1) ||
        num != (componentRange[1][1] - componentRange[1][0] + 1) ||
@@ -526,6 +533,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
   
   attr->SetVectors(newVectors);
   newVectors->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < 3; i++)
+      {
+      componentRange[i][0] = componentRange[i][1] = -1;
+      }
+    }
 }
 
 // Stuff related to normals --------------------------------------------
@@ -598,7 +612,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
                                                          char *arrays[3], int arrayComp[3], 
                                                          int normalize[3])
 {
-  int i;
+  int i, updated;
   vtkDataArray *fieldArray[3];
 
   for (i=0; i<3; i++)
@@ -620,9 +634,9 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
       }
     }
   
-  this->UpdateComponentRange(fieldArray[0], componentRange[0]);
-  this->UpdateComponentRange(fieldArray[1], componentRange[1]);
-  this->UpdateComponentRange(fieldArray[2], componentRange[2]);
+  updated = this->UpdateComponentRange(fieldArray[0], componentRange[0]);
+  updated |= this->UpdateComponentRange(fieldArray[1], componentRange[1]);
+  updated |= this->UpdateComponentRange(fieldArray[2], componentRange[2]);
 
   if ( num != (componentRange[0][1] - componentRange[0][0] + 1) ||
        num != (componentRange[1][1] - componentRange[1][0] + 1) ||
@@ -659,6 +673,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
   
   attr->SetNormals(newNormals);
   newNormals->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < 3; i++)
+      {
+      componentRange[i][0] = componentRange[i][1] = -1;
+      }
+    }
 }
 
 // Stuff related to texture coords --------------------------------------------
@@ -735,7 +756,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
                                                          char *arrays[3], int arrayComp[3], 
                                                          int normalize[3], int numComp)
 {
-  int i, normalizeAny;
+  int i, normalizeAny, updated=0;
   vtkDataArray *fieldArray[3];
   
   if ( numComp < 1 )
@@ -764,7 +785,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   
   for (i=0; i < numComp; i++)
     {
-    this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
       {
       vtkErrorMacro(<<"Number of texture coords not consistent");
@@ -807,6 +828,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   
   attr->SetTCoords(newTCoords);
   newTCoords->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < numComp; i++)
+      {
+      componentRange[i][0] = componentRange[i][1] = -1;
+      }
+    }
 }
 
 // Stuff related to tensors --------------------------------------------
@@ -879,7 +907,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
                                                          char *arrays[9], int arrayComp[9], 
                                                          int normalize[9])
 {
-  int i, normalizeAny;
+  int i, normalizeAny, updated=0;
   vtkDataArray *fieldArray[9];
 
   for (i=0; i<9; i++)
@@ -903,7 +931,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   
   for (normalizeAny=i=0; i < 9; i++)
     {
-    this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
       {
       vtkErrorMacro(<<"Number of tensors not consistent");
@@ -946,6 +974,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   
   attr->SetTensors(newTensors);
   newTensors->Delete();
+  if ( updated ) //reset for next execution pass
+    {
+    for (i=0; i < 9; i++)
+      {
+      componentRange[i][0] = componentRange[i][1] = -1;
+      }
+    }
 }
 
 // Stuff related to fields --------------------------------------------
@@ -1066,13 +1101,18 @@ void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &nam
   self->Modified();
 }
 
-void vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da, 
-                                                             int compRange[2])
+int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da, 
+                                                            int compRange[2])
 {
   if ( compRange[0] == -1 )
     {
     compRange[0] = 0;
     compRange[1] = da->GetNumberOfTuples() - 1;
+    return 1;
+    }
+  else
+    {
+    return 0;
     }
 }
 

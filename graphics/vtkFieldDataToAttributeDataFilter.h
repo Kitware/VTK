@@ -236,8 +236,9 @@ public:
   static void SetArrayName(vtkObject *self, char* &name, char *newName);
   
   // Description:
-  // Update the maximum and minimum component range values.
-  static void UpdateComponentRange(vtkDataArray *da, int compRange[2]);
+  // Update the maximum and minimum component range values. Returns a flag
+  // indicating whether the range was updated.
+  static int UpdateComponentRange(vtkDataArray *da, int compRange[2]);
 
 protected:
   void Execute(); //generate output data
