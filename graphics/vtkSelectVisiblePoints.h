@@ -86,8 +86,15 @@ public:
   // Description:
   // Specify the renderer in which the visibility computation is to be
   // performed.
-  vtkSetObjectMacro(Renderer,vtkRenderer);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  void SetRenderer(vtkRenderer* ren)
+    {
+      if (this->Renderer != ren)
+	{
+	this->Renderer = ren;
+	this->Modified();
+	}
+    }
+  vtkRenderer* GetRenderer() { return this->Renderer; }
 
   // Description:
   // Set/Get the flag which enables selection in a rectangular display
