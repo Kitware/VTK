@@ -8,6 +8,7 @@
 
 #ifdef _WIN32
 #include "vtkWin32ImageWindow.h"
+#pragma warning ( disable : 4273 )
 #else
 #include "vtkXImageWindow.h"
 #endif
