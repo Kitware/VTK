@@ -40,7 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.11");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.12");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -284,6 +284,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->CutActor->SetProperty(this->PlaneProperty);
 
     this->UpdateRepresentation();
+    this->SizeHandles();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
   
@@ -502,6 +503,8 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     }
 
   vtkProp *prop = path->GetFirstNode()->GetProp();
+  this->ValidPick = 1;
+  this->Picker->GetPickPosition(this->LastPickPosition);
   if ( prop == this->ConeActor || prop == this->LineActor ||
        prop == this->ConeActor2 || prop == this->LineActor2 )
     {
@@ -545,6 +548,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonUp()
   this->HighlightPlane(0);
   this->HighlightOutline(0);
   this->HighlightNormal(0);
+  this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -569,6 +573,8 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
     return;
     }
 
+  this->ValidPick = 1;
+  this->Picker->GetPickPosition(this->LastPickPosition);
   this->State = vtkImplicitPlaneWidget::MovingPlane;
   this->HighlightNormal(1);
   this->HighlightPlane(1);
@@ -590,6 +596,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonUp()
   this->HighlightPlane(0);
   this->HighlightOutline(0);
   this->HighlightNormal(0);
+  this->SizeHandles();
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -616,6 +623,8 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
     return;
     }
 
+  this->ValidPick = 1;
+  this->Picker->GetPickPosition(this->LastPickPosition);
   this->HighlightPlane(1);
   this->HighlightOutline(1);
   this->HighlightNormal(1);
@@ -637,6 +646,7 @@ void vtkImplicitPlaneWidget::OnRightButtonUp()
   this->HighlightPlane(0);
   this->HighlightOutline(0);
   this->HighlightNormal(0);
+  this->SizeHandles();
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -669,11 +679,11 @@ void vtkImplicitPlaneWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  camera->GetFocalPoint(focalPoint);
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -1115,20 +1125,13 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   this->ConeSource2->SetCenter(p2);
   this->ConeSource2->SetDirection(normal);
 
-  this->ConeSource->SetHeight(0.060*this->InitialLength);
-  this->ConeSource->SetRadius(0.025*this->InitialLength);  
-  this->ConeSource2->SetHeight(0.060*this->InitialLength);
-  this->ConeSource2->SetRadius(0.025*this->InitialLength);  
-  
   // Set up the position handle
-  this->Sphere->SetRadius(0.025*this->InitialLength);
   this->Sphere->SetCenter(origin);
 
   // Control the look of the edges
   if ( this->Tubing )
     {
     this->EdgesMapper->SetInput(this->EdgesTuber->GetOutput());
-    this->EdgesTuber->SetRadius(0.005*this->InitialLength);
     }
   else 
     {
@@ -1136,3 +1139,16 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
     }
 }
 
+void vtkImplicitPlaneWidget::SizeHandles()
+{
+  float radius = this->vtk3DWidget::SizeHandles(1.35);
+
+  this->ConeSource->SetHeight(2.0*radius);
+  this->ConeSource->SetRadius(radius);
+  this->ConeSource2->SetHeight(2.0*radius);
+  this->ConeSource2->SetRadius(radius);
+  
+  this->Sphere->SetRadius(radius);
+
+  this->EdgesTuber->SetRadius(0.25*radius);
+}

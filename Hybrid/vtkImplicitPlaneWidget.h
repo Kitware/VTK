@@ -314,6 +314,7 @@ protected:
   void CreateDefaultProperties();
   
   void GeneratePlane();
+  virtual void SizeHandles();
   
 private:
   vtkImplicitPlaneWidget(const vtkImplicitPlaneWidget&);  //Not implemented
