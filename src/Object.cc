@@ -61,11 +61,8 @@ void vlObject::PrintHeader(ostream& os, vlIndent indent)
 // superclasses.
 void vlObject::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlObject::GetClassName()))
-    {
-    os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
-    os << indent << "Modified Time: " << this->GetMTime() << "\n";
-    }
+  os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
+  os << indent << "Modified Time: " << this->GetMTime() << "\n";
 }
 
 void vlObject::PrintTrailer(ostream& os, vlIndent indent)

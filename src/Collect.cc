@@ -150,10 +150,7 @@ int vlCollection::GetNumberOfItems()
 
 void vlCollection::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCollection::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
-    }
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
 }

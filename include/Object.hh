@@ -26,7 +26,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "TimeSt.hh"
 #include "SetGet.hh"
 #include "Indent.hh"
-#include "PrintLst.hh"
 
 class vlObject 
 {
@@ -46,9 +45,6 @@ public:
 
   // printing
   virtual void PrintSelf(ostream& os, vlIndent indent);
-  void PrintWatchOn();
-  void PrintWatchOff();
-  int ShouldIPrint(char *a);
   void Print(ostream& os);
   virtual void PrintHeader(ostream& os, vlIndent indent);
   virtual void PrintTrailer(ostream& os, vlIndent indent);
@@ -58,8 +54,6 @@ protected:
   vlTimeStamp MTime; // Keep track of modification time
 
 private:
-  vlPrintList PrintList;
-
   friend ostream& operator<<(ostream& os, vlObject& o);
 };
 
@@ -69,28 +63,6 @@ inline void vlObject::Modified()
 {
   this->MTime.Modified();
 }
-
-// Description:
-// Start printing an object with multiple inheritance.
-inline void vlObject::PrintWatchOn() 
-{
-  this->PrintList.ActiveOn();
-}
-
-// Description:
-// Stop printing an object with multiple inheritance.
-inline void vlObject::PrintWatchOff() 
-{
-  this->PrintList.ActiveOff();
-}
-
-// Description:
-// Determine whether this object should print.
-inline int vlObject::ShouldIPrint(char *a) 
-{ 
-  return this->PrintList.ShouldIPrint(a);
-};
-
 
 #endif
 

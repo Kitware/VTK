@@ -111,15 +111,12 @@ void vlIntArray::operator+=(const vlIntArray& ia)
 
 void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlIntArray::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Array: " << this->Array << "\n";
-    os << indent << "Size: " << this->Size << "\n";
-    os << indent << "MaxId: " << this->MaxId << "\n";
-    os << indent << "Extend size: " << this->Extend << "\n";
-    }
+  os << indent << "Array: " << this->Array << "\n";
+  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "MaxId: " << this->MaxId << "\n";
+  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 //
