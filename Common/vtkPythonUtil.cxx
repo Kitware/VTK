@@ -15,10 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-#include "vtkPythonUtil.h"
+#include "vtkString.h"
+
+#if defined ( _MSC_VER )
+#  define vtkConvertPtrToLong(x) ((long)(PtrToUlong(x)))
+#else
+#  define vtkConvertPtrToLong(x) ((long)(x))
+#endif
 
 //#define VTKPYTHONDEBUG
 
@@ -770,7 +777,7 @@ static PyObject *vtkBuildDocString(char *docstring[])
 
   for (i = 0; i < n; i++)
     {
-    m[i] = strlen(docstring[i]);
+    m[i] = vtkString::Length(docstring[i]);
     total += m[i];
     }
 
@@ -1200,8 +1207,8 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 #endif  
 
   ((PyVTKObject *)obj)->vtk_ptr = ptr;
-  PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
-  PyObject *pyPtr2 = PyInt_FromLong((long)obj);
+  PyObject *pyPtr1 = PyInt_FromLong(vtkConvertPtrToLong(ptr));
+  PyObject *pyPtr2 = PyInt_FromLong(vtkConvertPtrToLong(obj));
   PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr1,pyPtr2);
   Py_DECREF(pyPtr1);
   Py_DECREF(pyPtr2);
@@ -1221,7 +1228,7 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 #endif  
 
   void *ptr = (void *)((PyVTKObject *)obj)->vtk_ptr;
-  PyObject *pyPtr = PyInt_FromLong((long)ptr);
+  PyObject *pyPtr = PyInt_FromLong(vtkConvertPtrToLong(ptr));
   PyDict_DelItem(vtkPythonHash->PointerDict, pyPtr);
   Py_DECREF(pyPtr);  
 }
@@ -1239,7 +1246,7 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
   
   if (ptr)
     {
-    PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
+    PyObject *pyPtr1 = PyInt_FromLong(vtkConvertPtrToLong(ptr));
     PyObject *pyPtr2 = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr1);
     Py_DECREF(pyPtr1);
 
@@ -1446,7 +1453,7 @@ char *vtkPythonManglePointer(void *ptr, const char *type)
 {
   static char ptrText[128];
   sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          (long)ptr,type);
+          vtkConvertPtrToLong(ptr),type);
   return ptrText;
 }
 
