@@ -57,11 +57,11 @@ vtkPolygon::vtkPolygon(const vtkPolygon& p)
   this->PointIds = p.PointIds;
 }
 
-#define FAILURE 0
+#define FAILURE -1
+#define OUTSIDE 0
+#define INSIDE 1
 #define INTERSECTION 2
-#define OUTSIDE 3
-#define INSIDE 4
-#define ON_LINE 6
+#define ON_LINE 3
 
 //
 // In many of the functions that follow, the Points and PointIds members 
@@ -345,9 +345,10 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 #endif
 
 // Description:
-// Determine whether point is inside polygon.
-// Function uses ray-casting to determine if point is inside polygon.
-// Works for arbitrary polygon shape (e.g., non-convex).
+// Determine whether point is inside polygon. Function uses ray-casting
+// to determine if point is inside polygon. Works for arbitrary polygon shape
+// (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
+// Can also return -1 to indicate degenerate polygon.
 int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts, 
                                 float bounds[6], float *n)
 {
@@ -1194,12 +1195,16 @@ void vtkPolygon::Clip(float value, vtkFloatScalars *cellScalars,
 // Description:
 // Method intersects two polygons. You must supply the number of points and
 // point coordinates (npts, *pts) and the bounding box (bounds) of the two
-// polygons. Also supply a tolerance squared for controlling error.
+// polygons. Also supply a tolerance squared for controlling
+// error. The method returns 1 if there is an intersection, and 0 if
+// not. A single point of intersection x[3] is also returned if there
+// is an intersection.
 int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6],
                                             int npts2, float *pts2, 
-                                            float bounds2[6], float tol2)
+                                            float bounds2[6], float tol2,
+                                            float x[3])
 {
-  float n[3], x[3], coords[3];
+  float n[3], coords[3];
   int i, j, retStat;
   float *p1, *p2, ray[3];
   float t;

@@ -110,7 +110,8 @@ public:
 
   static int IntersectPolygonWithPolygon(int npts, float *pts, float bounds[6],
                                          int npts2, float *pts2, 
-                                         float bounds2[3], float tol);
+                                         float bounds2[3], float tol,
+                                         float x[3]);
 
 };
 

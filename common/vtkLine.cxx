@@ -59,9 +59,9 @@ vtkLine::vtkLine(const vtkLine& l)
   this->PointIds = l.PointIds;
 }
 
-#define NO_INTERSECTION 1
+#define NO_INTERSECTION 0
 #define INTERSECTION 2
-#define ON_LINE 6
+#define ON_LINE 3
 
 int vtkLine::EvaluatePosition(float x[3], float closestPoint[3], 
                              int& subId, float pcoords[3],
