@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.82");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.83");
 
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
@@ -374,8 +374,8 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
     // Do we need to capture the z buffer to intermix intersecting
     // geometry? If so, do it here
-    if ( this->IntermixIntersectingGeometry &&
-         ren->GetNumberOfPropsRenderedAsGeometry() )
+    if ( this->IntermixIntersectingGeometry && 
+         ren->GetNumberOfPropsRendered() )
       {
       int x1, x2, y1, y2;
       

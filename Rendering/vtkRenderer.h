@@ -42,7 +42,6 @@
 #include "vtkViewport.h"
 #include "vtkActorCollection.h"
 
-class vtkRayCaster;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkCuller;
@@ -300,7 +299,7 @@ public:
   // Get the number of props that were rendered using a
   // RenderOpaqueGeometry or RenderTranslucentGeometry call.
   // This is used to know if something is in the frame buffer.
-  vtkGetMacro( NumberOfPropsRenderedAsGeometry, int );
+  vtkGetMacro( NumberOfPropsRendered, int );
 
   // Description:
   // Return the prop (via a vtkAssemblyPath) that has the highest z value 
@@ -310,9 +309,6 @@ public:
   // the renderers Prop list.
   vtkAssemblyPath* PickProp(float selectionX, float selectionY);
 
-  vtkRayCaster *GetRayCaster() 
-    {VTK_LEGACY_METHOD(GetRayCaster,"4.0");return this->RayCaster;};
-  
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -348,9 +344,7 @@ protected:
 
   // Internal variables indicating the number of props
   // that have been or will be rendered in each category.
-  int                NumberOfPropsRenderedAsGeometry;
-  int                NumberOfPropsToRayCast;
-  int                NumberOfPropsToRenderIntoImage;
+  int                NumberOfPropsRendered;
 
   // A temporary list of props used for culling, and traversal
   // of all props when rendering
@@ -390,7 +384,6 @@ protected:
   // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) {return 0;};
   
-  vtkRayCaster *RayCaster;
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.

@@ -27,12 +27,11 @@
 #include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
 #include "vtkCommand.h"
-#include "vtkRayCaster.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkRenderer, "1.180");
+vtkCxxRevisionMacro(vtkRenderer, "1.181");
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -63,9 +62,7 @@ vtkRenderer::vtkRenderer()
 
   this->LightFollowCamera = 1;
 
-  this->NumberOfPropsToRayCast         = 0;
-  this->NumberOfPropsRenderedAsGeometry = 0;
-  this->NumberOfPropsToRenderIntoImage = 0;
+  this->NumberOfPropsRendered = 0;
 
   this->PropArray                = NULL;
 
@@ -74,9 +71,7 @@ vtkRenderer::vtkRenderer()
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
-  cull->Delete();
-  
-  this->RayCaster = vtkRayCaster::New();
+  cull->Delete();  
 }
 
 vtkRenderer::~vtkRenderer()
@@ -108,8 +103,6 @@ vtkRenderer::~vtkRenderer()
   this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
-  
-  this->RayCaster->Delete();
 }
 
 // return the correct type of Renderer 
@@ -213,8 +206,6 @@ void vtkRenderer::Render(void)
   if ( this->PropArrayCount == 0 )
     {
     vtkDebugMacro( << "There are no visible props!" );
-    this->NumberOfPropsToRayCast = 0;
-    this->NumberOfPropsToRenderIntoImage = 0;
     }
   else
     {
@@ -425,7 +416,7 @@ int vtkRenderer::UpdateGeometry()
 {
   int        i;
   
-  this->NumberOfPropsRenderedAsGeometry = 0;
+  this->NumberOfPropsRendered = 0;
 
   if ( this->PropArrayCount == 0 ) 
     {
@@ -443,7 +434,7 @@ int vtkRenderer::UpdateGeometry()
   for ( i = 0; i < this->PropArrayCount; i++ )
     {
     
-    this->NumberOfPropsRenderedAsGeometry += 
+    this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
  
@@ -452,7 +443,7 @@ int vtkRenderer::UpdateGeometry()
   // render themselves as translucent geometry
   for ( i = 0; i < this->PropArrayCount; i++ )
     {
-    this->NumberOfPropsRenderedAsGeometry += 
+    this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderTranslucentGeometry(this);
     }
 
@@ -460,7 +451,7 @@ int vtkRenderer::UpdateGeometry()
   // render themselves as an overlay (or underlay)
   for ( i = 0; i < this->PropArrayCount; i++ )
     {
-    this->NumberOfPropsRenderedAsGeometry += 
+    this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderOverlay(this);
     }
 
@@ -468,9 +459,9 @@ int vtkRenderer::UpdateGeometry()
   this->RenderTime.Modified();
 
   vtkDebugMacro( << "Rendered " << 
-                    this->NumberOfPropsRenderedAsGeometry << " actors" );
+                    this->NumberOfPropsRendered << " actors" );
 
-  return  this->NumberOfPropsRenderedAsGeometry;
+  return  this->NumberOfPropsRendered;
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()
@@ -1090,7 +1081,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeFactor: " << this->TimeFactor << endl;
 
   // I don't want to print this since it is used just internally
-  // os << indent << this->NumberOfPropsRenderedAsGeometry;
+  // os << indent << this->NumberOfPropsRendered;
 
 }
 
@@ -1287,8 +1278,6 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   if ( this->PathArrayCount == 0 )
     {
     vtkDebugMacro( << "There are no visible props!" );
-    this->NumberOfPropsToRayCast = 0;
-    this->NumberOfPropsToRenderIntoImage = 0;
     return;
     }
 
@@ -1300,7 +1289,7 @@ void vtkRenderer::PickGeometry()
 {  
   int        i;
   
-  this->NumberOfPropsRenderedAsGeometry = 0;
+  this->NumberOfPropsRendered = 0;
 
   if ( this->PathArrayCount == 0 ) 
     {
@@ -1323,7 +1312,7 @@ void vtkRenderer::PickGeometry()
     prop = this->PathArray[i]->GetLastNode()->GetProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
-    this->NumberOfPropsRenderedAsGeometry += prop->RenderOpaqueGeometry(this);
+    this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
     prop->PokeMatrix(NULL);
     }
  
@@ -1335,7 +1324,7 @@ void vtkRenderer::PickGeometry()
     prop = this->PathArray[i]->GetLastNode()->GetProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
-    this->NumberOfPropsRenderedAsGeometry += 
+    this->NumberOfPropsRendered += 
       prop->RenderTranslucentGeometry(this);
     prop->PokeMatrix(NULL);
     }
@@ -1346,13 +1335,13 @@ void vtkRenderer::PickGeometry()
     prop = this->PathArray[i]->GetLastNode()->GetProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
-    this->NumberOfPropsRenderedAsGeometry += 
+    this->NumberOfPropsRendered += 
       prop->RenderOverlay(this);
     prop->PokeMatrix(NULL);
     }
 
   vtkDebugMacro( << "Pick Rendered " << 
-                    this->NumberOfPropsRenderedAsGeometry << " actors" );
+                    this->NumberOfPropsRendered << " actors" );
 
 }
 
