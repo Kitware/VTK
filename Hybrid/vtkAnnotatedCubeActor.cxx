@@ -30,14 +30,14 @@
 #include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
-vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.1");
+vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.2");
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
 {
-  this->CubeVisibility      = 1;
-  this->TextEdgesVisibility = 1;
-  this->FaceTextVisibility  = 1;
+  this->Cube      = 1;
+  this->TextEdges = 1;
+  this->FaceText  = 1;
   this->FaceTextScale  = 0.5;
   this->XPlusFaceText  = NULL;
   this->XMinusFaceText = NULL;
@@ -192,44 +192,6 @@ vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
   this->Transform->Delete();
 }
 
-void vtkAnnotatedCubeActor::SetCubeVisibility(int vis)
-{
-  if (this->CubeVisibility == vis)
-    {
-    return;
-    }
-  this->CubeActor->SetVisibility( vis );
-  this->CubeVisibility = vis;
-  this->Modified();
-}
-
-void vtkAnnotatedCubeActor::SetTextEdgesVisibility(int vis)
-{
-  if (this->TextEdgesVisibility == vis)
-    {
-    return;
-    }
-  this->TextEdgesActor->SetVisibility( vis );
-  this->TextEdgesVisibility = vis;
-  this->Modified();
-}
-
-void vtkAnnotatedCubeActor::SetFaceTextVisibility(int vis)
-{
-  if (this->FaceTextVisibility == vis)
-    {
-    return;
-    }
-  this->XPlusFaceActor-> SetVisibility( vis );
-  this->XMinusFaceActor->SetVisibility( vis );
-  this->YPlusFaceActor-> SetVisibility( vis );
-  this->YMinusFaceActor->SetVisibility( vis );
-  this->ZPlusFaceActor-> SetVisibility( vis );
-  this->ZMinusFaceActor->SetVisibility( vis );
-  this->FaceTextVisibility = vis;
-  this->Modified();
-}
-
 // Shallow copy of an actor.
 void vtkAnnotatedCubeActor::ShallowCopy(vtkProp *prop)
 {
@@ -243,9 +205,9 @@ void vtkAnnotatedCubeActor::ShallowCopy(vtkProp *prop)
     this->SetZPlusFaceText( a->GetZPlusFaceText() );
     this->SetZMinusFaceText( a->GetZMinusFaceText() );
     this->SetFaceTextScale( a->GetFaceTextScale() );
-    this->SetTextEdgesVisibility( a->GetTextEdgesVisibility() );
-    this->SetCubeVisibility( a->GetCubeVisibility() );
-    this->SetFaceTextVisibility( a->GetFaceTextVisibility() );
+    this->SetTextEdges( a->GetTextEdges() );
+    this->SetCube( a->GetCube() );
+    this->SetFaceText( a->GetFaceText() );
     }
 
   // Now do superclass
@@ -269,14 +231,23 @@ int vtkAnnotatedCubeActor::RenderOpaqueGeometry(vtkViewport *vp)
   this->UpdateProps();
   int renderedSomething = 0;
 
-  renderedSomething += this->CubeActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->XPlusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->XMinusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->YPlusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->YMinusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->ZPlusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->ZMinusFaceActor->RenderOpaqueGeometry( vp );
-  renderedSomething += this->TextEdgesActor->RenderOpaqueGeometry( vp );
+  if ( this->Cube )
+    {
+    renderedSomething += this->CubeActor->RenderOpaqueGeometry( vp );
+    }
+  if ( this->FaceText )
+    {
+    renderedSomething += this->XPlusFaceActor->RenderOpaqueGeometry( vp );
+    renderedSomething += this->XMinusFaceActor->RenderOpaqueGeometry( vp );
+    renderedSomething += this->YPlusFaceActor->RenderOpaqueGeometry( vp );
+    renderedSomething += this->YMinusFaceActor->RenderOpaqueGeometry( vp );
+    renderedSomething += this->ZPlusFaceActor->RenderOpaqueGeometry( vp );
+    renderedSomething += this->ZMinusFaceActor->RenderOpaqueGeometry( vp );
+    }
+  if ( this->TextEdges )
+    {
+    renderedSomething += this->TextEdgesActor->RenderOpaqueGeometry( vp );
+    }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
@@ -287,14 +258,23 @@ int vtkAnnotatedCubeActor::RenderTranslucentGeometry(vtkViewport *vp)
   this->UpdateProps();
   int renderedSomething = 0;
 
-  renderedSomething += this->CubeActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->XPlusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->XMinusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->YPlusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->YMinusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->ZPlusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->ZMinusFaceActor->RenderTranslucentGeometry( vp );
-  renderedSomething += this->TextEdgesActor->RenderTranslucentGeometry( vp );
+  if ( this->Cube )
+    {
+    renderedSomething += this->CubeActor->RenderTranslucentGeometry( vp );
+    }
+  if ( this->FaceText )
+    {
+    renderedSomething += this->XPlusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->XMinusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->YPlusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->YMinusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->ZPlusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->ZMinusFaceActor->RenderTranslucentGeometry( vp );
+    }
+  if ( this->TextEdges )
+    {
+    renderedSomething += this->TextEdgesActor->RenderTranslucentGeometry( vp );
+    }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
@@ -587,13 +567,9 @@ void vtkAnnotatedCubeActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FaceTextScale: " << this->FaceTextScale << endl;
 
-  os << indent << "TextEdgesVisibility: " << (this->TextEdgesVisibility ?
-                                              "On\n" : "Off\n");
+  os << indent << "TextEdges: " << (this->TextEdges ? "On\n" : "Off\n");
 
-  os << indent << "FaceTextVisibility: " << (this->FaceTextVisibility ?
-                                              "On\n" : "Off\n");
+  os << indent << "FaceText: " << (this->FaceText ? "On\n" : "Off\n");
 
-  os << indent << "CubeVisibility: " << (this->CubeVisibility ?
-                                              "On\n" : "Off\n");  
-
+  os << indent << "Cube: " << (this->Cube ? "On\n" : "Off\n");
 }

@@ -132,23 +132,22 @@ public:
   vtkGetStringMacro( ZMinusFaceText );
 
   // Description:
-  // Set/Get the visibility of vector text edges.
-  void SetTextEdgesVisibility(int vis);
-  vtkGetMacro(TextEdgesVisibility,int);
-  vtkBooleanMacro(TextEdgesVisibility,int);
+  // Enable/disable drawing the vector text edges.
+  vtkSetMacro(TextEdges, int);
+  vtkGetMacro(TextEdges, int);
+  vtkBooleanMacro(TextEdges, int);
 
   // Description:
-  // Set/Get the visibility of the cube.
-  void SetCubeVisibility(int vis);
-  vtkGetMacro(CubeVisibility,int);
-  vtkBooleanMacro(CubeVisibility,int);
+  // Enable/disable drawing the cube.
+  vtkSetMacro(Cube, int);
+  vtkGetMacro(Cube, int);
+  vtkBooleanMacro(Cube, int);
 
   // Description:
-  // Set/Get the visibility of the vector text.
-  void SetFaceTextVisibility(int vis);
-  vtkGetMacro(FaceTextVisibility,int);
-  vtkBooleanMacro(FaceTextVisibility,int);
-
+  // Enable/disable drawing the vector text.
+  vtkSetMacro(FaceText, int);
+  vtkGetMacro(FaceText, int);
+  vtkBooleanMacro(FaceText, int);    
 
 protected:
   vtkAnnotatedCubeActor();
@@ -156,12 +155,12 @@ protected:
 
   vtkCubeSource      *CubeSource;
   vtkActor           *CubeActor;
-  int                 CubeVisibility;
+  int                 Cube;
 
   vtkAppendPolyData  *AppendTextEdges;
   vtkFeatureEdges    *ExtractTextEdges;
   vtkActor           *TextEdgesActor;
-  int                 TextEdgesVisibility;
+  int                 TextEdges;
 
   void                UpdateProps();
 
@@ -173,6 +172,7 @@ protected:
   char               *ZMinusFaceText;
 
   double              FaceTextScale;
+  int                 FaceText;
 
   vtkVectorText      *XPlusFaceVectorText;
   vtkVectorText      *XMinusFaceVectorText;
@@ -180,8 +180,6 @@ protected:
   vtkVectorText      *YMinusFaceVectorText;
   vtkVectorText      *ZPlusFaceVectorText;
   vtkVectorText      *ZMinusFaceVectorText;
-
-  int                 FaceTextVisibility;
 
   vtkActor           *XPlusFaceActor;
   vtkActor           *XMinusFaceActor;
