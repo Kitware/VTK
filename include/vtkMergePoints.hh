@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkMergePoints - merge exactly coincident points
 // .SECTION Description
-// vtkMergePoints is a locator object to quickly locate points in 3-D.
+// vtkMergePoints is a locator object to quickly locate points in 3D.
 // The primary difference between vtkMergePoints and its superclass
 // vtkLocator is that vtkMergePoints merges precisely coincident points
 // and is therefor much faster.
