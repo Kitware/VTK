@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.98");
+vtkCxxRevisionMacro(vtkDataObject, "1.99");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -33,6 +33,7 @@ static int vtkDataObjectGlobalReleaseDataFlag = 0;
 vtkDataObject::vtkDataObject()
 {
   this->Source = NULL;
+  this->ProducerPort = 0;
 
   // We have to assume that if a user is creating the data on their own,
   // then they will fill it with valid data.
@@ -90,6 +91,7 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
+  this->SetProducerPort(0);
   this->SetFieldData(NULL);
 
   this->SetExtentTranslator(NULL);
@@ -403,6 +405,11 @@ void vtkDataObject::SetRequestExactExtent( int flag )
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObject::SetProducerPort(vtkAlgorithmOutput*)
+{
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::SetSource(vtkSource *arg)
 {
   vtkDebugMacro( << this->GetClassName() << " (" 
@@ -704,6 +711,11 @@ vtkExtentTranslator *vtkDataObject::GetExtentTranslator()
 //----------------------------------------------------------------------------
 // This should be a pure virutal method.
 void vtkDataObject::Crop()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetupProducer()
 {
 }
 

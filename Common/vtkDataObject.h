@@ -34,9 +34,11 @@
 
 #include "vtkObject.h"
 
+class vtkAlgorithmOutput;
 class vtkFieldData;
 class vtkProcessObject;
 class vtkSource;
+class vtkSourceToDataObjectFriendship;
 class vtkExtentTranslator;
 
 #define VTK_PIECES_EXTENT   0
@@ -54,7 +56,12 @@ public:
   // Set/Get the source object creating this data object.
   vtkGetObjectMacro(Source,vtkSource);
   void SetSource(vtkSource *s);
-  
+
+  // Description:
+  // Set/Get the algorithm output port producing this data object.
+  vtkGetObjectMacro(ProducerPort, vtkAlgorithmOutput);
+  virtual void SetProducerPort(vtkAlgorithmOutput*);
+
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
   // The information object also needs to be considered.
@@ -304,7 +311,7 @@ public:
   // and vtkStructuredGrid. The default is the have an extent in pieces,
   // with only one piece (no streaming possible).
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
-  
+
 protected:
 
   vtkDataObject();
@@ -315,6 +322,8 @@ protected:
 
   // Who generated this data as output?
   vtkSource     *Source;     
+
+  vtkAlgorithmOutput* ProducerPort;
 
   // Keep track of data release during network execution
   int DataReleased; 
@@ -389,10 +398,15 @@ protected:
   // 0.5 : the next upstream filter is a port ...
   double Locality;  
 
+  void SetupProducer();
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
+
+  //BTX
+  friend class vtkSourceToDataObjectFriendship;
+  //ETX
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);
