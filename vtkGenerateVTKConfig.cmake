@@ -95,6 +95,17 @@ SET(VTK_LIBRARY_DEPENDS_FILE "${VTK_BINARY_DIR}/VTKLibraryDepends.cmake")
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
+               ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
+
+# Workaround a problem in VTK: 
+# I need to CONFIGURE this file in non-immediate mode so that it can pick
+# the variable that are set in SUBDIRS.
+# On the other hand, CMake's FindVTK is looking for VTKConfig.cmake to
+# find VTK. In an app like ParaViewComplete, VTK is accessed through
+# SUBDIRS(), Xdmf too. If we are in non-immediate mode, at the time
+# we go into the Xdmf subdir, VTKConfig.cmake has not been created, hence
+# VTK is not found.
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY)
 
 # Hack to give source tree access for a build tree configuration.
@@ -202,5 +213,16 @@ SET(VTK_LIBRARY_DEPENDS_FILE "${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the install tree.
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
+               ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
+
+# Workaround a problem in VTK: 
+# I need to CONFIGURE this file in non-immediate mode so that it can pick
+# the variable that are set in SUBDIRS.
+# On the other hand, CMake's FindVTK is looking for VTKConfig.cmake to
+# find VTK. In an app like ParaViewComplete, VTK is accessed through
+# SUBDIRS(), Xdmf too. If we are in non-immediate mode, at the time
+# we go into the Xdmf subdir, VTKConfig.cmake has not been created, hence
+# VTK is not found.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY)
