@@ -35,7 +35,11 @@ def get_libs():
         libs = glob.glob(os.path.abspath(os.path.join(install_lib_dir,
                                                       'libvtk*Python*.so')))
     else:
-        libs = glob.glob(os.path.join(build_lib_dir, 'vtk*Python*.dll'))
+        d = os.path.normpath(build_lib_dir)
+        if not os.path.isfile(os.path.join(d, 'vtkCommonPython.dll')):
+            d = os.path.normpath(os.path.join(build_lib_dir, 'release'))
+            
+        libs = glob.glob(os.path.join(d, 'vtk*Python.dll'))
 
     return libs
 
@@ -107,5 +111,5 @@ setup (name              = "VTK",
                             'vtk_python.vtk.wx'],
 #       scripts           = [get_vtkpython()],
        package_dir       = {'vtk_python': '.'},
-       data_files        = [('vtk_python', get_libs()), ('', ['vtk.pth'])]
+       data_files        = [('vtk_python', get_libs()), ('.', ['vtk.pth'])]
        )
