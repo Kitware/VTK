@@ -123,6 +123,11 @@ void vlSbrRenderWindow::StereoUpdate(void)
         this->StereoStatus = 1;
 	this->FullScreenOn();
 	}
+	break;
+      case VL_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 1;
+	}
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -138,15 +143,13 @@ void vlSbrRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
 	this->FullScreenOff();
 	}
+	break;
+      case VL_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 0;
+	}
       }
     }
-}
-
-// Description:
-// Handles any post rendering stereo operations.
-void vlSbrRenderWindow::StereoRenderComplete(void)
-{
-  // Does nothing right now
 }
 
 // Description:
@@ -793,6 +796,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
   shade_mode(this->Fd, CMAP_FULL | INIT, TRUE); 
   
   // set Fd update state - reset viewport and buffer commands
+  this->NumPlanes = depth;
   if (this->DoubleBuffer > 0.0) 
     {
     if ((planes = double_buffer(this->Fd, 
@@ -801,6 +805,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
       {
       vlDebugMacro(<< "Only " << planes <<
       " planes available for double buffering\n");
+      this->NumPlanes = planes;
       }
     dbuffer_switch(this->Fd,this->Buffer); 
     buffer_mode(this->Fd, TRUE);
@@ -974,3 +979,399 @@ void vlSbrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 
   os << indent << "Fd: " << this->Fd << "\n";
 }
+
+#define RGB_TO_332( r, g, b ) ( (  r       & 0xe0 ) + \
+				( (g >> 3) & 0x1c ) + \
+				( (b >> 6) & 0x03 ) )
+#define RGB_TO_666_FACTOR 0.0196078
+#define RGB_TO_666( r, g, b ) ( 40 + \
+(unsigned char)(r * RGB_TO_666_FACTOR) * 36 + \
+(unsigned char)(g * RGB_TO_666_FACTOR) * 6 + \
+(unsigned char)(b * RGB_TO_666_FACTOR) )
+#define RED_FROM_332(p) ((p & 0xe0))
+#define GREEN_FROM_332(p) ((p & 0x1c) << 3)
+#define BLUE_FROM_332(p) ((p & 0x03) << 6)
+#define RED_FROM_666(p) ((p/36)*51)
+#define GREEN_FROM_666(p) ((p%36)/6*51)
+#define BLUE_FROM_666(p) ((p%6)*51)
+
+unsigned char *vlSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+{
+  long     xloop,yloop;
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  unsigned char   *buff1;
+  unsigned char   *buff2;
+  unsigned char   *buff3;
+  unsigned char   *data = NULL;
+  unsigned char   *p_data = NULL;
+
+  buff1 = new unsigned char[abs(x2 - x1)+1];
+  buff2 = new unsigned char[abs(x2 - x1)+1];
+  buff3 = new unsigned char[abs(x2 - x1)+1];
+  data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  /* We'll turn off clipping so that we can do the block write anywhere */
+  clip_indicator(this->Fd, CLIP_OFF );
+
+  /* now read the binary info one row at a time */
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    if (this->NumPlanes == 24)
+      {
+      /* No conversion is needed if we're working with a 24-bit frame
+	 buffer.  However, the bank_switch() calls are needed to
+	 let Starbase know which of the 3 frame buffer banks (red, green,
+	 or blue) we wish to write to.  Bank 2 is red, bank 1 is green,
+	 and bank 0 is blue. */
+      bank_switch( this->Fd, 2, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      bank_switch( this->Fd, 1, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff2,FALSE );
+      bank_switch( this->Fd, 0, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff3,FALSE );
+      for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	{
+	*p_data = buff1[xloop]; p_data++; 
+	*p_data = buff2[xloop]; p_data++; 
+	*p_data = buff3[xloop]; p_data++; 
+	}
+      }
+    if (this->NumPlanes == 12)
+      {
+      /*
+	If the frame buffer depth is 12, we still have the red, green, and blue
+	banks.  Again, each bank can be considered an array of 8-bit data.  In
+	this case, however, there are only 4 bits of meaningful information per
+	pixel. Whether this information is contained in the most significant or
+	least significant 4 bits of the 8-bit data depends upon a variety of
+	factors.  So, when preparing an 8-bit value to be written it is best to
+	ensure that the most significant 4 bits are duplicated in the least
+	significant 4 bits. When the read occurs Starbase will ensure that 
+	the appropriate half of the actual frame buffer data will be modified.
+	*/
+      
+      /* In this case, we will duplicate the most significant nibble
+	 (4 bits) of each red, green, and blue value into the least
+	 significant nibble. */
+      bank_switch( this->Fd, 2, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      bank_switch( this->Fd, 1, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff2,FALSE );
+      bank_switch( this->Fd, 0, 0 );
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff3,FALSE );
+
+      if (this->Buffer)
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  *p_data = (buff1[xloop] & 0xf0) | ((buff1[xloop] & 0xf0) >> 4); 
+	  p_data++; 
+	  *p_data = (buff2[xloop] & 0xf0) | ((buff2[xloop] & 0xf0) >> 4); 
+	  p_data++; 
+	  *p_data = (buff3[xloop] & 0xf0) | ((buff3[xloop] & 0xf0) >> 4); 
+	  p_data++; 
+	  }
+	}
+      else
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  *p_data = ((buff1[xloop] & 0x0f) << 4) | (buff1[xloop] & 0x0f); 
+	  p_data++; 
+	  *p_data = ((buff2[xloop] & 0x0f) << 4) | (buff2[xloop] & 0x0f); 
+	  p_data++; 
+	  *p_data = ((buff3[xloop] & 0x0f) << 4) | (buff3[xloop] & 0x0f); 
+	  p_data++; 
+	  }
+	}
+      }
+    if (this->NumPlanes == 8)
+      {
+      /*
+	If the frame buffer depth is 8, we have a single bank of 8-bit data.
+	This case is a bit more complicated because, for each pixel, we need to
+	"pack" the 24 bits of red, green, and blue data into a single 8-bit
+	value.  If the SB_X_SHARED_CMAP environment variable is set, we pack
+	the data using a 6|6|6 scheme. Otherwise, we must pack the data using a
+	3:3:2 scheme.  See the "CRX Family of Device Drivers" chapter of the
+	Starbase Device Drivers manual for detailed information about the 6|6|6
+	and 3:3:2 schemes. In our example, we will define a couple of macros to
+	simplify conversion to 6|6|6 and 3:3:2.
+	*/
+      /* There are two possible 8-bit formats, commonly known as 3:3:2 and
+	 6|6|6.  If the SB_X_SHARED_CMAP environment variable is set, we
+	 will use the 6|6|6 format.  Otherwise, we use the 3:3:2 format.
+	 We'll define some macros to make this easier. */
+
+      dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      if (getenv("SB_X_SHARED_CMAP"))
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  *p_data = RED_FROM_666(buff1[xloop]); p_data++;
+	  *p_data = GREEN_FROM_666(buff1[xloop]); p_data++;
+	  *p_data = BLUE_FROM_666(buff1[xloop]); p_data++;
+	  }
+	}
+      else
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  *p_data = RED_FROM_332(buff1[xloop]); p_data++;
+	  *p_data = GREEN_FROM_332(buff1[xloop]); p_data++;
+	  *p_data = BLUE_FROM_332(buff1[xloop]); p_data++;
+	  }
+	}
+      }
+    }
+  
+  /* Restore the clip_indicator() back to its default value */
+  clip_indicator( this->Fd, CLIP_TO_VIEWPORT);
+
+  delete buff1;
+  delete buff2;
+  delete buff3;
+
+  return data;
+}
+
+void vlSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+				     unsigned char *data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     xloop,yloop;
+  unsigned char   *buff1;
+  unsigned char   *buff2;
+  unsigned char   *buff3;
+  unsigned char   *p_data = NULL;
+
+  /* We'll turn off clipping so that we can do the block write anywhere */
+  clip_indicator(this->Fd, CLIP_OFF );
+
+ 
+  if (this->DoubleBuffer)
+    {
+/*    double_buffer(this->Fd, TRUE | DFRONT | INIT, this->NumPlanes);*/
+    }
+
+  buff1 = new unsigned char[abs(x2 - x1)+1];
+  buff2 = new unsigned char[abs(x2 - x1)+1];
+  buff3 = new unsigned char[abs(x2 - x1)+1];
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  /* now write the binary info one row at a time */
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    if (this->NumPlanes == 24)
+      {
+      for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	{
+	buff1[xloop] = *p_data; p_data++; 
+	buff2[xloop] = *p_data; p_data++;
+	buff3[xloop] = *p_data; p_data++;
+	}
+      /* No conversion is needed if we're working with a 24-bit frame
+	 buffer.  However, the bank_switch() calls are needed to
+	 let Starbase know which of the 3 frame buffer banks (red, green,
+	 or blue) we wish to write to.  Bank 2 is red, bank 1 is green,
+	 and bank 0 is blue. */
+      bank_switch( this->Fd, 2, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      bank_switch( this->Fd, 1, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff2,FALSE );
+      bank_switch( this->Fd, 0, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff3,FALSE );
+      }
+    if (this->NumPlanes == 12)
+      {
+      /*
+	If the frame buffer depth is 12, we still have the red, green, and blue
+	banks.  Again, each bank can be considered an array of 8-bit data.  In
+	this case, however, there are only 4 bits of meaningful information per
+	pixel. Whether this information is contained in the most significant or
+	least significant 4 bits of the 8-bit data depends upon a variety of
+	factors.  So, when preparing an 8-bit value to be written it is best to
+	ensure that the most significant 4 bits are duplicated in the least
+	significant 4 bits. When the write occurs Starbase will ensure that 
+	the appropriate half of the actual frame buffer data will be modified.
+	*/
+      
+      /* In this case, we will duplicate the most significant nibble
+	 (4 bits) of each red, green, and blue value into the least
+	 significant nibble. */
+      for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	{
+	buff1[xloop] = (*p_data & 0xf0) | (*p_data >> 4); p_data++; 
+	buff2[xloop] = (*p_data & 0xf0) | (*p_data >> 4); p_data++; 
+	buff3[xloop] = (*p_data & 0xf0) | (*p_data >> 4); p_data++; 
+	}
+      bank_switch( this->Fd, 2, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      bank_switch( this->Fd, 1, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff2,FALSE );
+      bank_switch( this->Fd, 0, 0 );
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff3,FALSE );
+      }
+    if (this->NumPlanes == 8)
+      {
+      /*
+	If the frame buffer depth is 8, we have a single bank of 8-bit data.
+	This case is a bit more complicated because, for each pixel, we need to
+	"pack" the 24 bits of red, green, and blue data into a single 8-bit
+	value.  If the SB_X_SHARED_CMAP environment variable is set, we pack
+	the data using a 6|6|6 scheme. Otherwise, we must pack the data using a
+	3:3:2 scheme.  See the "CRX Family of Device Drivers" chapter of the
+	Starbase Device Drivers manual for detailed information about the 6|6|6
+	and 3:3:2 schemes. In our example, we will define a couple of macros to
+	simplify conversion to 6|6|6 and 3:3:2.
+	*/
+      /* There are two possible 8-bit formats, commonly known as 3:3:2 and
+	 6|6|6.  If the SB_X_SHARED_CMAP environment variable is set, we
+	 will use the 6|6|6 format.  Otherwise, we use the 3:3:2 format.
+	 We'll define some macros to make this easier. */
+
+      if (getenv("SB_X_SHARED_CMAP"))
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  buff1[xloop] = RGB_TO_666(p_data[0], p_data[1], p_data[2]);
+          p_data += 3; 
+	  }
+	}
+      else
+	{
+	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+	  {
+	  buff1[xloop] = RGB_TO_332(p_data[0], p_data[1], p_data[2]);
+          p_data += 3; 
+	  }
+	}
+      /* Now that the data has been converted, we will write the 8-bit
+	 values into the window.  There is no need for a bank_switch()
+	 since we know that the appropriate 8-bit bank is already
+	 enabled for writing. */
+      dcblock_write( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff1,FALSE );
+      }
+    }
+  
+  delete buff1;
+  delete buff2;
+  delete buff3;
+
+  if (this->DoubleBuffer)
+    {
+/*    double_buffer(this->Fd, TRUE | INIT | SUPPRESS_CLEAR, this->NumPlanes);*/
+    }
+
+  /* Restore the clip_indicator() back to its default value */
+  clip_indicator( this->Fd, CLIP_TO_VIEWPORT);
+}
+ 
+
+// Description:
+// Handles work required between the left and right eye renders.
+void vlSbrRenderWindow::StereoRenderComplete(void)
+{
+  switch (this->StereoType) 
+    {
+    case VL_STEREO_RED_BLUE:
+      {
+      unsigned char *buff;
+      unsigned char *p1, *p2, *p3;
+      unsigned char* result;
+      int *size;
+      int x,y;
+      int res;
+
+      // get the size
+      size = this->GetSize();
+      // get the data
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+      p1 = this->temp_buffer;
+      p2 = buff;
+
+      // allocate the result
+      result = new unsigned char [size[0]*size[1]*3];
+      if (!result)
+	{
+	vlErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
+	return;
+	}
+      p3 = result;
+
+      // now merge the two images 
+      for (x = 0; x < size[0]; x++)
+	{
+	for (y = 0; y < size[1]; y++)
+	  {
+	  res = p1[0] + p1[1] + p1[2];
+	  p3[0] = res/3;
+	  res = p2[0] + p2[1] + p2[2];
+	  p3[2] = res/3;
+	  p3[1] = 0;
+	  p1 += 3;
+	  p2 += 3;
+	  p3 += 3;
+	  }
+	}
+      this->SetPixelData(0,0,size[0]-1,size[1]-1,result);
+      delete result;
+      delete this->temp_buffer;
+      this->temp_buffer = NULL;
+      delete buff;
+      }
+      this->Frame();
+      break;
+    default:
+      this->Frame();
+    }
+}
+ 
+ 
