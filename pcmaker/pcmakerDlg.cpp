@@ -181,15 +181,18 @@ void CPcmakerDlg::OnOK()
    }
 
   // make sure we can find JDK
-  sprintf(fname,"%s\\include\\jni.h",this->m_WhereJDK);
-  fp = fopen(fname,"r");
-  if (!fp)
+  if (strlen(this->m_WhereJDK) > 1)
     {
-    sprintf(msg, "Unable to find JDK1.1 at: %s",this->m_WhereJDK);
-    AfxMessageBox(msg);
-    return;
+    sprintf(fname,"%s\\include\\jni.h",this->m_WhereJDK);
+    fp = fopen(fname,"r");
+    if (!fp)
+      {
+      sprintf(msg, "Unable to find JDK1.1 at: %s",this->m_WhereJDK);
+      AfxMessageBox(msg);
+      return;
+      }
+    fclose(fp);
     }
-  fclose(fp);
   // make sure only one compile is specified
   if ((this->m_MSComp + this->m_BorlandComp) > 1)
     {
