@@ -173,6 +173,10 @@ foreach afile $files {
 	    if {[info commands imgWin] == "imgWin"} {
 		w2if SetInput imgWin
 		imgWin Render
+	    } else {
+	       if {[info exists viewer]} {
+		  w2if SetInput [$viewer GetImageWindow]
+	       }
 	    }
 	}
     }
