@@ -560,7 +560,6 @@ void vtkHyperStreamline::BuildTube()
   newPts  = new vtkFloatPoints(2500);
   if ( this->Input->GetPointData()->GetScalars() )
     newScalars = new vtkFloatScalars(2500);
-  newScalars  = new vtkFloatScalars(2500);
   newVectors  = new vtkFloatVectors(2500);
   newNormals  = new vtkFloatNormals(2500);
   newStrips = new vtkCellArray;
