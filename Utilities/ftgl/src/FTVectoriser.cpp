@@ -188,7 +188,7 @@ bool FTVectoriser::Process()
     }
     
     contourList.push_back( contour);
-    first = last + 1;
+    first = (short)(last + 1);
   }
   
   return true;

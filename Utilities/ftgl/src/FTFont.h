@@ -90,7 +90,7 @@ class FTGL_EXPORT FTFont
      *
      * @param d   The extrusion distance.
      */
-    virtual void Depth( float d){}
+    virtual void Depth( float ){}
 
     
     /**

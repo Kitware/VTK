@@ -106,6 +106,15 @@ class FTGL_EXPORT FTContour
     }
 
     /**
+     *  Assignment
+     */
+    FTContour& operator =(const FTContour& v)
+    {
+      this->pointList = v.pointList;
+      return *this;
+    }
+
+    /**
      * Add a point to the end of this contour.
      *
      * Doesn't add the point if it's already on the end or the start
@@ -261,6 +270,14 @@ class FTGL_EXPORT FTVectoriser
      *  Destructor
      */
     virtual ~FTVectoriser();
+
+    /**
+     *  Assignment (just to remove warnings, ideally it should never use it)
+     */
+    FTVectoriser& operator =(const FTVectoriser&)
+    {
+      return *this;
+    }
 
     /**
      * Process the freetype outline data into contours of points
