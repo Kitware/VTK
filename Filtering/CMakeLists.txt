@@ -28,7 +28,6 @@ vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
 vtkKochanekSpline.cxx
 vtkMergePoints.cxx
-vtkMergePoints2D.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx
 vtkPiecewiseFunctionSource.cxx
