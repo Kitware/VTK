@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Create object with black background, ambient light white, backlighting 
-// turned on, erasing turned on, and viewport (0,0,1,1).
+// Create a vtkRenderer with a black background, a white ambient light, 
+// backlighting turned on, a viewport of (0,0,1,1).
 vtkRenderer::vtkRenderer()
 {
   this->ActiveCamera = NULL;
@@ -105,7 +105,7 @@ vtkRenderer::~vtkRenderer()
 }
 
 // Description:
-// Specify the camera to use.
+// Specify the camera to use for this renderer.
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
   if ( this->ActiveCamera != cam ) 
@@ -132,7 +132,8 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 }
 
 // Description:
-// Specify a volume renderer to use.
+// Specify a volume renderer to use. If this is set then volume rendering
+// will be done.It isn't a very good volume renderer but it works.
 void vtkRenderer::SetVolumeRenderer(vtkVolumeRenderer *vol)
 {
   this->VolumeRenderer = vol;
@@ -174,7 +175,9 @@ void vtkRenderer::RemoveActors(vtkActor *actor)
 }
 
 // Description:
-// Process the list of lights during the rendering process.
+// Process the list of lights during the rendering process. If no lights are 
+// currently on or defined then one will be generated automatically and
+// placed at the same location and direction as the active camera.
 void vtkRenderer::DoLights()
 {
   if (!this->UpdateLights())
@@ -190,7 +193,8 @@ void vtkRenderer::DoLights()
 }
 
 // Description:
-// Process the list of cameras during the rendering process.
+// Process the list of cameras during the rendering process. If a camera 
+// hasn't been specified then one is created and correctly positioned.
 void vtkRenderer::DoCameras()
 {
   if (!this->UpdateCameras())
@@ -216,9 +220,9 @@ void vtkRenderer::DoActors()
 
 // Description:
 // Automatically set up the camera based on the visible actors.
-// Camera will reposition itself to view the center point of the actors,
+// The camera will reposition itself to view the center point of the actors,
 // and move along its initial view plane normal (i.e., vector defined from 
-// camera position to focal point).
+// camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
   vtkVolume *aVolume;
@@ -323,7 +327,9 @@ void vtkRenderer::ResetCamera(float bounds[6])
 }
   
 // Description:
-// Specify the rendering window in which to draw.
+// Specify the rendering window in which to draw. This is automatically set
+// when the renderer is created by MakeRenderer.  The user probably
+// shouldn't ever need to call this method.
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
   this->RenderWindow = renwin;
@@ -439,7 +445,7 @@ void vtkRenderer::WorldToView()
 }
 
 // Description:
-// Return center of renderer in display coordinates.
+// Return the center of this renderer in display coordinates.
 float *vtkRenderer::GetCenter()
 {
   int *size;

@@ -48,6 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // graphics rendering coordinate system), and display coordinates (the 
 // actual screen coordinates on the display device).
 
+// .SECTION see also
+// vtkRenderWindow vtkActor vtkCamera vtkLight
+
 #ifndef __vtkRenderer_hh
 #define __vtkRenderer_hh
 
@@ -81,18 +84,19 @@ public:
   vtkVolumeRenderer *GetVolumeRenderer();
 
   // Description:
-  // Set the background color of the rendering screen using an rgb color
+  // Set/Get the background color of the rendering screen using an rgb color
   // specification.
   vtkSetVector3Macro(Background,float);
   vtkGetVectorMacro(Background,float,3);
 
   // Description:
-  // Set the aspect ratio of the rendered image.
+  // Set the aspect ratio of the rendered image. This is computed 
+  // automatically and should not be set by the user.
   vtkSetVector2Macro(Aspect,float);
   vtkGetVectorMacro(Aspect,float,2);
 
   // Description:
-  // Set the level of ambient lighting.
+  // Set the intensity of ambient lighting.
   vtkSetVector3Macro(Ambient,float);
   vtkGetVectorMacro(Ambient,float,3);
 
@@ -105,17 +109,22 @@ public:
   vtkBooleanMacro(BackLight,int);
 
   // Description:
-  // Set/Get the amoun of time this renderer is allowed to spend
+  // Set/Get the amount of time this renderer is allowed to spend
   // rendering its scene. Zero indicates an infinite amount of time.
+  // This is used by vtkLODActors.
   vtkSetMacro(AllocatedRenderTime,float);
   vtkGetMacro(AllocatedRenderTime,float);
 
   // Description:
-  // Create an image.
+  // Create an image. Subclasses of vtkRenderer must implement this method.
   virtual void Render() = 0;
 
   // Description:
-  // Get a device specific geometry representation.
+  // Get a device specific geometry representation. vtkMapper and its
+  // subclasses need to get device specific GeometryPrimitives to
+  // render their polygons, lines, triangle strips and verticies.
+  // This method which must be supplied by subclasses of vtkRenderer
+  // takes a string indicating what type of primitive to create.
   virtual vtkGeometryPrimitive *GetPrimitive(char *) = 0;
   
   // Description:
@@ -123,11 +132,14 @@ public:
   virtual int UpdateActors(void) = 0;
 
   // Description:
-  // Ask the camera to load its view matrix.
+  // Ask the active camera to do whatever it needs to do to.
+  // This method returns one if there was an active camera and it 
+  // was on. It returns zero otherwise.
   virtual int UpdateCameras(void) = 0;
 
   // Description:
   // Ask all lights to load themselves into rendering pipeline.
+  // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) = 0;
 
   void DoCameras();
@@ -140,22 +152,27 @@ public:
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
   
   // Description:
-  // Specify a point location in display (or screen) coordinates.
+  // Set/get a point location in display (or screen) coordinates.
+  // The lower left corner of the window is the origin and y increases
+  // as you go up the screen.
   vtkSetVector3Macro(DisplayPoint,float);
   vtkGetVectorMacro(DisplayPoint,float,3);
 
   // Description:
-  // Specify a point location in view coordinates.
+  // Specify a point location in view coordinates. The origin is in the 
+  // middle of the viewport and it extends from -1 to 1 in all three
+  // dimensions
   vtkSetVector3Macro(ViewPoint,float);
   vtkGetVectorMacro(ViewPoint,float,3);
 
   // Description:
-  // Specify a point location in world coordinates.
+  // Specify a point location in world coordinates. This method takes 
+  // homogeneus coordinates. 
   vtkSetVector4Macro(WorldPoint,float);
   vtkGetVectorMacro(WorldPoint,float,4);
 
   // Description:
-  // Specify the area for the renderer to draw in the rendering window. 
+  // Specify the viewport for the renderer to draw in the rendering window. 
   // Coordinates are expressed as (xmin,ymin,xmax,ymax) where each
   // coordinate is 0 <= coordinate <= 1.0.
   vtkSetVector4Macro(Viewport,float);
