@@ -21,4 +21,9 @@ else:
       os.kill(pid, 15)
     except:
       pass
-    sys.exit(os.WEXITSTATUS(retVal))
+    try:
+      status = os.WEXITSTATUS(retVal)
+    except:
+      status = 0
+      print "Cannot get exit status"
+    sys.exit(status)
