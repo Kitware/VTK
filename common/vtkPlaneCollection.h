@@ -43,15 +43,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPlaneCollection is an object that creates and manipulates
 // lists of objects of type vtkPlane. 
 // .SECTION See Also
-// vtkImplicitFunctionCollection
+// vtkCollection
 
 #ifndef __vtkPlaneCollection_h
 #define __vtkPlaneCollection_h
 
-#include "vtkImplicitFunctionCollection.h"
+#include "vtkCollection.h"
 #include "vtkPlane.h"
 
-class VTK_EXPORT vtkPlaneCollection : public vtkImplicitFunctionCollection
+class VTK_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
   const char *GetClassName() {return "vtkPlaneCollection";};
