@@ -105,18 +105,37 @@ public:
   static vtkQuadricClustering *New();
 
   // Description:
+  // By default, this flag is off.  When MatchBoundaries is on, then quadrics
+  // are computed for boundary edges.  Points along boundary edges in different
+  // pieces are gaurenteed to match.
+  vtkSetMacro(MatchBoundaries, int);
+  vtkGetMacro(MatchBoundaries, int);
+  vtkBooleanMacro(MatchBoundaries, int);
+ 
+  // Description:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
   // NumberOfZDivisions.
-  vtkSetClampMacro(NumberOfXDivisions, int, 2, VTK_LARGE_INTEGER);
-  vtkSetClampMacro(NumberOfYDivisions, int, 2, VTK_LARGE_INTEGER);
-  vtkSetClampMacro(NumberOfZDivisions, int, 2, VTK_LARGE_INTEGER);
+  void SetNumberOfXDivisions(int num);
+  void SetNumberOfYDivisions(int num);
+  void SetNumberOfZDivisions(int num);
   vtkGetMacro(NumberOfXDivisions, int);
   vtkGetMacro(NumberOfYDivisions, int);
   vtkGetMacro(NumberOfZDivisions, int);
   void SetNumberOfDivisions(int div[3]);
   int *GetNumberOfDivisions();
   void GetNumberOfDivisions(int div[3]);
+
+  // Description:
+  // This is an alternative way to set up the bins.  If you are using the
+  // MatchBoundary option, then you should use these methods rather than
+  // SetNumberOfDivisions.
+  void SetDivisionOrigin(float x, float y, float z);
+  void SetDivisionOrigin(float o[3]) {this->SetDivisionOrigin(o[0],o[1],o[2]);}
+  vtkGetVector3Macro(DivisionOrigin, float);
+  void SetDivisionSpacing(float x, float y, float z);
+  void SetDivisionSpacing(float s[3]) {this->SetDivisionSpacing(s[0],s[1],s[2]);}
+  vtkGetVector3Macro(DivisionSpacing, float);
 
   // Description:
   // Normally the point that minimizes the quadric error function 
@@ -171,10 +190,24 @@ protected:
   void EndAppendUsingPoints(vtkPolyData *input);
   int UseInputPoints;
 
+  // Unfinished option to handle boundary edges differently.
+  void MatchBoundary(vtkPolyData *pd);
+  void AddBoundaryEdge(int binId, float *pt0, float *pt1);
+  void ComputeBestEdgePoint(vtkPoints *points, int ptId, float *coef);
+  int MatchBoundaries;
+
   int NumberOfXDivisions;
   int NumberOfYDivisions;
   int NumberOfZDivisions;
- 
+
+  // Since there are two was of specifing the grid, we have this flag
+  // to indicate which the user has set.  When this flag is on, 
+  // the bin sizes are computed from the DivisionOrigin and DivisionSpacing. 
+  int ComputeNumberOfDivisions;
+
+  float DivisionOrigin[3];
+  float DivisionSpacing[3];
+
   float Bounds[6];
   float XBinSize;
   float YBinSize;

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
+#include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
 //----------------------------------------------------------------------------
@@ -69,6 +70,14 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->QuadricArray = NULL;
   this->NumberOfBinsUsed = 0;
   this->AbortExecute = 0;
+
+  this->ComputeNumberOfDivisions = 0;
+  this->DivisionOrigin[0] = 0.0;
+  this->DivisionOrigin[1] = 0.0;
+  this->DivisionOrigin[2] = 0.0;
+  this->DivisionSpacing[0] = 1.0;
+  this->DivisionSpacing[1] = 1.0;
+  this->DivisionSpacing[2] = 1.0;
 
   this->UseInputPoints = 0;
 
@@ -124,7 +133,46 @@ void vtkQuadricClustering::Execute()
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::StartAppend(float *bounds)
 {
-  int i;
+  int i, numBins;
+
+  // Copy over the bounds.
+  for (i = 0; i < 6; ++i)
+    {
+    this->Bounds[i]= bounds[i];
+    }
+
+  if (this->ComputeNumberOfDivisions)
+    {
+    // extend the bounds so that it will not produce fractions of bins.
+    int x, y, z;
+    x = floor((bounds[0]-this->DivisionOrigin[0])/this->DivisionSpacing[0]);
+    y = floor((bounds[2]-this->DivisionOrigin[1])/this->DivisionSpacing[1]);
+    z = floor((bounds[4]-this->DivisionOrigin[2])/this->DivisionSpacing[2]);
+    this->Bounds[0] = this->DivisionOrigin[0] 
+                        + ((float)x * this->DivisionSpacing[0]);
+    this->Bounds[2] = this->DivisionOrigin[1] 
+                        + ((float)y * this->DivisionSpacing[1]);
+    this->Bounds[4] = this->DivisionOrigin[2] 
+                        + ((float)z * this->DivisionSpacing[2]);
+    x = ceil((bounds[1]-this->Bounds[0])/this->DivisionSpacing[0]);
+    y = ceil((bounds[3]-this->Bounds[2])/this->DivisionSpacing[1]);
+    z = ceil((bounds[5]-this->Bounds[4])/this->DivisionSpacing[2]);
+    this->Bounds[1] = this->Bounds[0] + ((float)x * this->DivisionSpacing[0]);
+    this->Bounds[3] = this->Bounds[2] + ((float)y * this->DivisionSpacing[1]);
+    this->Bounds[5] = this->Bounds[4] + ((float)z * this->DivisionSpacing[2]);
+    this->NumberOfXDivisions = x;
+    this->NumberOfYDivisions = y;
+    this->NumberOfZDivisions = z;
+    }
+  else
+    {
+    this->DivisionOrigin[0] = bounds[0];
+    this->DivisionOrigin[1] = bounds[2];
+    this->DivisionOrigin[2] = bounds[4];
+    this->DivisionSpacing[0] = (bounds[1]-bounds[0])/this->NumberOfXDivisions;
+    this->DivisionSpacing[1] = (bounds[3]-bounds[2])/this->NumberOfYDivisions;
+    this->DivisionSpacing[2] = (bounds[5]-bounds[4])/this->NumberOfZDivisions;
+    }
 
   // Check for conditions that can occur if the Append methods 
   // are not called in the correct order.
@@ -136,12 +184,6 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     }
 
   this->OutputTriangleArray = vtkCellArray::New();
-
-  // Copy over the bounds.
-  for (i = 0; i < 6; ++i)
-    {
-    this->Bounds[i]= bounds[i];
-    }
 
   this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfXDivisions;
   this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfYDivisions;
@@ -156,8 +198,9 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     vtkErrorMacro("Could not allocate quadric grid.");
     return;
     }
-  for (i = 0; i < this->NumberOfXDivisions * 
-         this->NumberOfYDivisions * this->NumberOfZDivisions; i++)
+  numBins = this->NumberOfXDivisions 
+              * this->NumberOfYDivisions * this->NumberOfZDivisions;
+  for (i = 0; i < numBins; i++)
     {
     this->QuadricArray[i].VertexId = -1;
     }
@@ -446,12 +489,64 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::SetNumberOfDivisions(int divs[3])
+void vtkQuadricClustering::SetNumberOfDivisions(int div[3])
 {
-  this->SetNumberOfXDivisions(divs[0]);
-  this->SetNumberOfYDivisions(divs[1]);
-  this->SetNumberOfZDivisions(divs[2]);
+  this->SetNumberOfXDivisions(div[0]);
+  this->SetNumberOfYDivisions(div[1]);
+  this->SetNumberOfZDivisions(div[2]);
 }
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetNumberOfXDivisions(int num)
+{
+  if (this->NumberOfXDivisions == num && this->ComputeNumberOfDivisions == 0)
+    {
+    return;
+    }
+  if (num < 2)
+    {
+    vtkErrorMacro("You cannot use less than two divisions.");
+    return;
+    }
+  this->Modified();
+  this->NumberOfXDivisions = num;
+  this->ComputeNumberOfDivisions = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetNumberOfYDivisions(int num)
+{
+  if (this->NumberOfYDivisions == num && this->ComputeNumberOfDivisions == 0)
+    {
+    return;
+    }
+  if (num < 2)
+    {
+    vtkErrorMacro("You cannot use less than two divisions.");
+    return;
+    }
+  this->Modified();
+  this->NumberOfYDivisions = num;
+  this->ComputeNumberOfDivisions = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetNumberOfZDivisions(int num)
+{
+  if (this->NumberOfZDivisions == num && this->ComputeNumberOfDivisions == 0)
+    {
+    return;
+    }
+  if (num < 2)
+    {
+    vtkErrorMacro("You cannot use less than two divisions.");
+    return;
+    }
+  this->Modified();
+  this->NumberOfZDivisions = num;
+  this->ComputeNumberOfDivisions = 0;
+}
+
 
 //----------------------------------------------------------------------------
 int *vtkQuadricClustering::GetNumberOfDivisions()
@@ -470,18 +565,58 @@ void vtkQuadricClustering::GetNumberOfDivisions(int divs[3])
 }
 
 
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetDivisionOrigin(float x, float y, float z)
+{
+  if (this->ComputeNumberOfDivisions && this->DivisionOrigin[0] == x &&
+      this->DivisionOrigin[1] == y && this->DivisionOrigin[2] == z)
+    {
+    return;
+    }
+  this->Modified();
+  this->DivisionOrigin[0] = x;
+  this->DivisionOrigin[1] = y;
+  this->DivisionOrigin[2] = z;
+  this->ComputeNumberOfDivisions = 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetDivisionSpacing(float x, float y, float z)
+{
+  if (this->ComputeNumberOfDivisions && this->DivisionSpacing[0] == x &&
+      this->DivisionSpacing[1] == y && this->DivisionSpacing[2] == z)
+    {
+    return;
+    }
+  this->Modified();
+  this->DivisionSpacing[0] = x;
+  this->DivisionSpacing[1] = y;
+  this->DivisionSpacing[2] = z;
+  this->ComputeNumberOfDivisions = 1;
+}
+
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 {
   int         i, outPtId;
-  vtkPoints   *inputPoints = input->GetPoints();
+  vtkPoints   *inputPoints;
   vtkPoints   *outputPoints = vtkPoints::New();
   vtkPolyData *output = this->GetOutput();
   int         numPoints, numBins, binId;
   float       *minError, e, pt[3];
   float       *q;
 
-  
+  if (input == NULL || output == NULL)
+    {
+    return;
+    }
+  inputPoints = input->GetPoints();
+  if (inputPoints == NULL)
+    {
+    return;
+    }
+
   // Check for mis use of the Append methods.
   if (this->OutputTriangleArray == NULL)
     {
@@ -546,6 +681,93 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 }
 
 //----------------------------------------------------------------------------
+// This method is called after the execution, but before the vertex array
+// is deleted. It changes some points to be based on the boundary edges.
+void vtkQuadricClustering::MatchBoundary(vtkPolyData *pd)
+{
+  vtkFeatureEdges *edgeFilter = vtkFeatureEdges::New();
+  vtkPolyData *input = vtkPolyData::New();
+  vtkPoints *outputPts;
+  vtkPoints *edgePts;
+  vtkCellArray *edges;
+  int numCells, numBins, i, j, numPts, *ptIds;
+  float *pt0, *pt1;
+  int binId0, binId1;
+
+  // Initialize the error Coefficients.
+  // We need some way to make the bins as occupied by a boundary edge.
+  // We still need the vertexId, but not the triangle quadrics.
+  numBins = this->NumberOfXDivisions 
+              * this->NumberOfYDivisions * this->NumberOfZDivisions;
+  for (i = 0; i < numBins; i++)
+    {
+    this->QuadricArray[i].Quadric[0] = VTK_LARGE_FLOAT;
+    }
+
+  // Find the boundary edges.
+  input->ShallowCopy(pd);
+  edgeFilter->SetInput(input);
+  edgeFilter->FeatureEdgesOff();
+  edgeFilter->BoundaryEdgesOn();
+  edgeFilter->Update();
+  edgePts = edgeFilter->GetOutput()->GetPoints();
+  edges = edgeFilter->GetOutput()->GetLines();
+
+  // Add the edges to the error fuction.
+  numCells = edges->GetNumberOfCells();
+  for (i = 0; i < numCells; ++i)
+    {
+    edges->GetNextCell(numPts, ptIds);
+    pt0 = edgePts->GetPoint(ptIds[0]);
+    binId0 = this->HashPoint(pt0);
+    for (j = 1; j < numPts; ++j)
+      {
+      pt1 = edgePts->GetPoint(ptIds[j]);
+      binId1 = this->HashPoint(pt1);
+      this->AddBoundaryEdge(binId0, pt0, pt1);
+      if (binId1 != binId0)
+        { // If edge crosses bins, add it to both.
+        this->AddBoundaryEdge(binId1, pt0, pt1);
+        }
+      pt0 = pt1;
+      binId0 = binId1;
+      }
+    }
+
+  // Now we use the edge error functions to recompute the points.
+  outputPts = this->GetOutput()->GetPoints();
+  for (i = 0; i < numBins; i++)
+    {
+    if (this->QuadricArray[i].Quadric[0] != VTK_LARGE_FLOAT)
+      { // This bin has a boundary edge.
+      //this->ComputeBestEdgePoint(outputPts, this->QuadricArray[i].VertexId,
+      //                           this->QuadricArray.Quadric);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddBoundaryEdge(int binId, float *pt0, float *pt1)
+{
+  //if (this->Quadrics[binId].Quadric[0] == VTK_LARGE_FLOAT)
+    { // Initialize the coeff
+  //  this->InitializeQuadric(this->Quadrics[binId].Quadric);
+    }
+  pt0 = pt1;
+
+  // ...
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::ComputeBestEdgePoint(vtkPoints *points, int ptId,
+                                                float *coef)
+{
+  points = points;
+  ptId = ptId;
+  coef = coef;
+}
+
+//----------------------------------------------------------------------------
 void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
@@ -554,6 +776,20 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->Bounds[2] << " " << this->Bounds[3] << " "
      << this->Bounds[4] << " " << this->Bounds[5] << "\n";
   os << indent << "UseInputPoints " << this->UseInputPoints << "\n";
+
+  if (this->ComputeNumberOfDivisions)
+    {
+    os << indent << "Using Spacing and Origin to setup bins\n";
+    }
+  else
+    {
+    os << indent << "Using input bounds and NumberOfDivisions to set up bins\n";
+    }
+  os << indent << "DivisionSpacing: " << this->DivisionSpacing[0] << ", " 
+     << this->DivisionSpacing[1] << ", " << this->DivisionSpacing[2] << endl;
+  os << indent << "DivisionOrigin: " << this->DivisionOrigin[0] << ", " 
+     << this->DivisionOrigin[1] << ", " << this->DivisionOrigin[2] << endl;
+
   os << indent << "Number of X Divisions: " << this->NumberOfXDivisions
      << "\n";
   os << indent << "Number of Y Divisions: " << this->NumberOfYDivisions
