@@ -583,6 +583,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"Get address of vtkObject in format 'Addr=%%p'\"},\n", data->ClassName);
+    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"Add a callback for an event type\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
@@ -692,7 +693,29 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   if (!strcmp("vtkObject",data->ClassName))
     {
-    /* while we are at it spit out the GetStringFromObject method */
+    fprintf(fp,"static PyObject *PyvtkObject_AddObserver(PyObject *self, PyObject *args)\n");
+    fprintf(fp,"{\n");
+    fprintf(fp,"  vtkObject *op;\n");
+    fprintf(fp,"  char *temp0;\n");
+    fprintf(fp,"  PyObject *temp1;\n");
+    fprintf(fp,"  unsigned long     temp20 = 0;\n");
+    fprintf(fp,"  if ((op = (vtkObject *)PyArg_VTKParseTuple(self, args, \"zO\", &temp0, &temp1)))\n");
+    fprintf(fp,"    {\n");
+    fprintf(fp,"    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n");
+    fprintf(fp,"      {\n");
+    fprintf(fp,"      PyErr_SetString(PyExc_ValueError,\"vtk callback method passed to AddObserver was not callable.\");\n");
+    fprintf(fp,"      return NULL;\n");
+    fprintf(fp,"      }\n");
+    fprintf(fp,"    Py_INCREF(temp1);\n");
+    fprintf(fp,"    vtkPythonCommand *cbc = new vtkPythonCommand;\n");
+    fprintf(fp,"    cbc->SetObject(temp1);\n");
+    fprintf(fp,"    temp20 = op->AddObserver(temp0,cbc);\n");
+    fprintf(fp,"    return PyInt_FromLong((long)temp20);\n");
+    fprintf(fp,"    }\n");
+    fprintf(fp,"  return NULL;\n");
+    fprintf(fp,"}\n\n");
+ 
+/* while we are at it spit out the GetStringFromObject method */
     fprintf(fp,"PyObject *PyvtkObject_GetAddressAsString(PyObject *self, PyObject *args)\n");
     fprintf(fp,"{\n");
 

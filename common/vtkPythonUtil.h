@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkTimeStamp.h"
 #include "Python.h"
+#include "vtkCommand.h"
 
 // This is the VTK/Python 'class,' it contains the method list and a pointer
 // to the superclass
@@ -116,4 +117,44 @@ extern void *vtkPythonUnmanglePointer(char *ptrText, int *len,
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);
 
+class vtkPythonCommand : public vtkCommand
+{
+public:
+  vtkPythonCommand() { this->obj = NULL;};
+  ~vtkPythonCommand() 
+    { 
+      if (this->obj)
+        {
+        Py_DECREF(this->obj);
+        }
+      this->obj = NULL;
+    };
+  void SetObject(PyObject *o) { this->obj = o; };
+  
+  void Execute(vtkObject *, void *)
+    {
+      PyObject *arglist, *result;
+
+      arglist = Py_BuildValue("()");
+
+      result = PyEval_CallObject(this->obj, arglist);
+      Py_DECREF(arglist);
+      
+      if (result)
+        {
+        Py_XDECREF(result);
+        }
+      else
+        {
+        if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
+          {
+          cerr << "Caught a Ctrl-C within python, exiting program.\n";
+          Py_Exit(1);
+          }
+        PyErr_Print();
+        }
+    };
+  
+  PyObject *obj;
+};
 
