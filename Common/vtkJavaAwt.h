@@ -1,13 +1,8 @@
 // only do this when JAWT is to be used
-#ifdef VTK_USE_JAWT
 #include "jawt_md.h"
-#endif
 
-#ifdef VTK_USE_JAWT
 extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, 
-				   jobject canvas,
-				   jobject id0)
+    Java_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -80,9 +75,7 @@ extern "C" JNIEXPORT void  JNICALL
 }
 
 extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_RenderInternal(JNIEnv *env, 
-				     jobject canvas,
-				     jobject id0)
+    Java_vtkPanel_RenderInternal(JNIEnv *env, jobject canvas, jobject id0)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -127,9 +120,9 @@ extern "C" JNIEXPORT void  JNICALL
 }
 
 extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_SetSizeInternal(JNIEnv *env, 
-				      jobject canvas,
-				      jobject id0, jint id1,jint id2)
+    Java_vtkPanel_SetSizeInternal(JNIEnv *env, 
+				  jobject canvas,
+				  jobject id0, jint id1,jint id2)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -177,31 +170,4 @@ extern "C" JNIEXPORT void  JNICALL
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
 }
-
-
-#else
-
-extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_RenderCreate(JNIEnv *vtkNotUsed(env), 
-				   jobject vtkNotUsed(canvas),
-				   jobject vtkNotUsed(id0))
-{
-}
-extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_RenderInternal(JNIEnv *vtkNotUsed(env), 
-				     jobject vtkNotUsed(canvas),
-				     jobject vtkNotUsed(id0)) 
-{
-}
-extern "C" JNIEXPORT void  JNICALL 
-    Java_vtk_vtkPanel_SetSizeInternal(JNIEnv *vtkNotUsed(env), 
-				      jobject vtkNotUsed(canvas),
-				      jobject vtkNotUsed(id0),
-				      jint vtkNotUsed(id1), 
-				      jint vtkNotUsed(id2))
-{
-}
-#endif
-
-
 
