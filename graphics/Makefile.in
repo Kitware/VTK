@@ -139,6 +139,7 @@ vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkInteractorStyle \
 vtkInteractorStyleTrackball \
+vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
 vtkKochanekSpline \
@@ -301,6 +302,7 @@ vtkWarpVector  ${GRAPHICS_API_OBJ}
 
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
+PYTHON_LIB_FILE = libVTK${ME}Python${VTK_LIB_EXT}
 
 # add in any extra libraies here
 KIT_LIBS = @TKWIDGET@
