@@ -1356,7 +1356,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
 
   fprintf(fp,"vtkdll.dll : $(DEF_FILE) $(COMMON_OBJS) $(PATENTED_OBJS) ");
-  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS)");
+  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS) ");
   for (i = 0; i < NumOfGraphicsLibs; i++)
     fprintf(fp,"$(GRAPHICS_OBJS%d) ",i);
   fprintf(fp,"\n");
@@ -1364,7 +1364,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(ALL_FLAGS) $(COMMON_OBJS) $(PATENTED_OBJS) ");
-  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS)");
+  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS) ");
   for (i = 0; i < NumOfGraphicsLibs; i++)
     fprintf(fp,"$(GRAPHICS_OBJS%d) ",i);
   fprintf(fp,"\n");
