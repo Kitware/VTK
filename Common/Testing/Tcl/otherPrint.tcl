@@ -45,6 +45,10 @@ proc rtOtherTest { fileid } {
            b Delete
            c Delete
         }
+	catch {
+           b Delete
+           c Delete
+        }
     }
 }
 
