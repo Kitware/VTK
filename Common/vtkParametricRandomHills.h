@@ -50,7 +50,8 @@ public:
   // Scaling factor for the variances 1/3 in both x- and y- directions, 
   // Amplitude of each hill = 1, 
   // Scaling factor for the amplitude = 1/3, 
-  // RandomSeed = 1.
+  // RandomSeed = 1,
+  // AllowRandomGeneration = 1.
   static vtkParametricRandomHills *New();
 
   // Description:
@@ -84,6 +85,17 @@ public:
   // Default is 1.
   vtkSetMacro(RandomSeed,int);
   vtkGetMacro(RandomSeed,int);
+
+  // Description:
+  // Set/Get the random generation flag. 
+  // A value of 0 will disable the generation of random hills on the surface. 
+  // This allows a reproducible shape to be generated.
+  // Any other value means that the generation of the hills will be done
+  // randomly.
+  // Default is 1.
+  vtkSetMacro(AllowRandomGeneration,int);
+  vtkGetMacro(AllowRandomGeneration,int);
+  vtkBooleanMacro(AllowRandomGeneration,int);
 
   // Description:
   // Set/Get the scaling factor for the variance in the x-direction. 
@@ -154,6 +166,7 @@ protected:
   double XVarianceScaleFactor;
   double YVarianceScaleFactor;
   double AmplitudeScaleFactor;
+  int AllowRandomGeneration;
 
 private:
   vtkParametricRandomHills(const vtkParametricRandomHills&);  // Not implemented.

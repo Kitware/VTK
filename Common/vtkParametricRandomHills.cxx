@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.5");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.6");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 vtkParametricRandomHills::vtkParametricRandomHills() :
@@ -31,6 +31,7 @@ vtkParametricRandomHills::vtkParametricRandomHills() :
   , XVarianceScaleFactor(1.0/3.0)
   , YVarianceScaleFactor(1.0/3.0)
   , AmplitudeScaleFactor(1.0/3.0)
+  , AllowRandomGeneration(1)
 {
   // Preset triangulation parameters
   this->MinimumU = -10;
@@ -73,15 +74,13 @@ double vtkParametricRandomHills::Rand ( void )
 
 void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
-  int i;
-
   double u = uvw[0];
   double v = uvw[1];
   double *Du = Duvw;
   double *Dv = Duvw + 3;
 
   // Zero out the point and derivatives.
-  for ( i = 0; i < 3; ++i )
+  for ( int i = 0; i < 3; ++i )
     Pt[i] = Du[i] = Dv[i] = 0;
 
   // The point
@@ -90,9 +89,9 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[0] = u;
   Pt[1] = this->MaximumV - v; // Texturing is oriented OK if we do this.
   double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
-  for ( i = 0; i < NumberOfHills; ++i )
+  for ( int j = 0; j < NumberOfHills; ++j )
     {
-    this->hillData->GetTuple(i,hillTuple);
+    this->hillData->GetTuple(j,hillTuple);
     double x = (u - hillTuple[0])/hillTuple[2];
     double y = (v - hillTuple[1])/hillTuple[3];
     Pt[2] += hillTuple[4] * exp( -(x*x+y*y) / 2.0 );
@@ -108,27 +107,63 @@ double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(uv[3]),
 
 void vtkParametricRandomHills::GenerateTheHills( void )
 {
-  double min_x = (MaximumU>MinimumU)?MinimumU:MaximumU;
-  double min_y = (MaximumV>MinimumV)?MinimumV:MaximumV;
-
   this->hillData->Initialize();
   this->hillData->SetNumberOfComponents(5);
   this->hillData->SetNumberOfTuples(NumberOfHills);
 
   double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
-
   // Generate the centers of the Hills, standard deviations and amplitudes.
-  InitSeed(this->RandomSeed);
-  int i;
-  for ( i = 0; i < this->NumberOfHills; ++ i )
+  if ( AllowRandomGeneration != 0 )
+  {
+    InitSeed(this->RandomSeed);
+    for ( int i = 0; i < this->NumberOfHills; ++ i )
+      {
+      hillTuple[0] = MinimumU + Rand() * (MaximumU - MinimumU);
+      hillTuple[1] = MinimumV + Rand() * (MaximumV - MinimumV);
+      hillTuple[2] = this->HillXVariance * Rand() + this->HillXVariance * this->XVarianceScaleFactor;
+      hillTuple[3] = this->HillYVariance * Rand() + this->HillYVariance * this->YVarianceScaleFactor;
+      hillTuple[4] = this->HillAmplitude * Rand() + this->HillAmplitude * this->AmplitudeScaleFactor;
+      this->hillData->SetTuple(i,hillTuple);
+      }
+  }
+  else
     {
-    hillTuple[0] = min_x + Rand() * (MaximumU - MinimumU);
-    hillTuple[1] = min_y + Rand() * (MaximumV - MinimumV);
-    hillTuple[2] = this->HillXVariance * Rand() + this->HillXVariance * this->XVarianceScaleFactor;
-    hillTuple[3] = this->HillYVariance * Rand() + this->HillYVariance * this->YVarianceScaleFactor;
-    hillTuple[4] = this->HillAmplitude * Rand() + this->HillAmplitude * this->AmplitudeScaleFactor;
-    this->hillData->SetTuple(i,hillTuple);
+    // Here the generation is nonrandom.
+    // We put hills in a regular grid over the whole surface.
+    double randVal = 0.1;
+    double gridMax = sqrt((double)this->NumberOfHills);
+    int counter = 0;
+
+    double midU = (MaximumU - MinimumU)/2.0;
+    double shiftU = midU / gridMax;
+    double midV = (MaximumV - MinimumV)/2.0;
+    double shiftV = midV / gridMax;
+
+    hillTuple[2] = this->HillXVariance * randVal + this->HillXVariance * this->XVarianceScaleFactor;
+    hillTuple[3] = this->HillYVariance * randVal + this->HillYVariance * this->YVarianceScaleFactor;
+    hillTuple[4] = this->HillAmplitude * randVal * 2.0 + this->HillAmplitude * this->AmplitudeScaleFactor;
+
+    for ( int i = 0; i < (int)gridMax; ++i )
+      {
+      hillTuple[0] = MinimumU + shiftU + (i / gridMax) * (MaximumU - MinimumU);
+      for ( int j = 0; j < (int)gridMax; ++j )
+        {
+        hillTuple[1] = MinimumV + shiftV + (j / gridMax) * (MaximumV - MinimumV);
+        this->hillData->SetTuple(counter,hillTuple);
+        ++counter;
+       }
+      }
+    // If the number of hills is not a perfect square, set the amplitude contribution 
+    // from the rest of the hills to zero.
+    hillTuple[4] = 0;
+    for ( int k = counter; k < this->NumberOfHills; ++ k )
+      {
+      hillTuple[0] = MinimumU + midU;
+      hillTuple[1] = MinimumV + midV;
+      this->hillData->SetTuple(k,hillTuple);
+      }
     }
+
   this->Modified();
 }
 
@@ -144,4 +179,5 @@ void vtkParametricRandomHills::PrintSelf(ostream& os, vtkIndent indent)
    os << indent << "Hill amplitude (height): " << this->HillAmplitude << "\n";
    os << indent << "Amplitude scaling factor: " << this->AmplitudeScaleFactor << "\n";
    os << indent << "Random number generator seed: " << this->RandomSeed << "\n";
+   os << indent << "Allow random generation: " << this->AllowRandomGeneration << "\n";
 }
