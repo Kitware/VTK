@@ -15,7 +15,6 @@ reader SetDataMask 0x7fff
 
 vtkImageSobel3D sobel
 sobel SetInput [reader GetOutput]
-sobel SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 sobel ReleaseDataFlagOff
 
 vtkImageViewer viewer

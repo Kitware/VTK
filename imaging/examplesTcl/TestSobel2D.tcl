@@ -13,12 +13,8 @@ reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
-vtkImageCast cast
-cast SetInput [reader GetOutput]
-cast SetOutputScalarType $VTK_FLOAT
-
 vtkImageSobel2D sobel
-sobel SetInput [cast GetOutput]
+sobel SetInput [reader GetOutput]
 sobel ReleaseDataFlagOff
 
 vtkImageViewer viewer
