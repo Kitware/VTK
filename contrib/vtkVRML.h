@@ -142,7 +142,10 @@ public:
 
   static void Initialize()
     {
-      Heap = new vrmlPointerList;
+      if (!Heap)
+	{
+	Heap = new vrmlPointerList;
+	}
     }
   static void CleanUp()
     {
@@ -183,15 +186,36 @@ protected:
   int Allocated;
   int Used;
 public:
+  void Init()
+    {
+      Allocated=DEFAULTINCREMENT;
+      if (!this->UseNew)
+	{
+	vrmlPointerList::Initialize();
+	void* mem = vrmlPointerList::AllocateMemory(Allocated*sizeof(T));
+	Data=new(mem) T[Allocated];
+	}
+      else
+	{
+	Data = new T[Allocated];
+	}
+      Used=0;
+    }
   VectorType()
     { 
-      Allocated=DEFAULTINCREMENT;
-      Data=new T[Allocated];
-      Used=0;
+      this->UseNew = 0;
+      this->Init();
+    }
+  VectorType(int usenew) : UseNew(usenew)
+    { 
+      this->Init();
     }
   ~VectorType(void)
     {
-      delete[] Data;
+      if (this->UseNew)
+	{
+	delete[] Data;
+	}
     }
   void Reserve(int newSize);
   void Demand(int newSize)
@@ -250,6 +274,8 @@ public:
   void operator delete(void *ptr)
     {
     }
+
+  int UseNew;
 };
 
 template <class T> 
@@ -262,13 +288,24 @@ void VectorType<T>::Reserve(int newSize)
     oldSize=Allocated;
     Allocated=newSize+DEFAULTINCREMENT;
     temp=Data;
-    Data=new T[Allocated];
+    if (!this->UseNew)
+      {
+      void* mem = vrmlPointerList::AllocateMemory(Allocated*sizeof(T));
+      Data=new(mem) T[Allocated];
+      }
+    else
+      {
+      Data=new T[Allocated];
+      }
     if(Data==(T *)'\0')
       {
       return;
       }
     memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
-    delete[] temp;
+    if (this->UseNew)
+      {
+      delete[] temp;
+      }
     }
 }
 

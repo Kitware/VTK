@@ -5338,7 +5338,7 @@ class vtkVRMLUseStruct {
 
 VectorType<vtkVRMLUseStruct *> useList;
 
-vtkVRMLImporter::vtkVRMLImporter ()
+vtkVRMLImporter::vtkVRMLImporter () : Heap(1)
 {
   this->CurrentActor = NULL;
   this->CurrentLight = NULL;
