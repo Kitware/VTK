@@ -233,7 +233,7 @@ void get_args(FILE *fp, int i)
   /* handle VAR FUNCTIONS */
   if (currentFunction->ArgTypes[i] == 5000)
     {
-    fprintf(fp,"  temp%i->uenv = env;\n",i);
+    fprintf(fp,"  env->GetJavaVM(&(temp%i->vm));\n",i);
     fprintf(fp,"  temp%i->uobj = env->NewGlobalRef(id0);\n",i);
     fprintf(fp,"  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),vtkJavaUTFToChar(env,id1),\"()V\");\n",i);
     return;
