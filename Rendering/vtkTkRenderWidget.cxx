@@ -875,6 +875,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       renderWindow = (vtkWin32OpenGLRenderWindow *)
         vtkTclGetPointerFromObject(self->RW, "vtkRenderWindow", self->Interp,
                                    new_flag);
+#else
+      renderWindow = 0;
 #endif
       }
     if (renderWindow != self->RenderWindow)

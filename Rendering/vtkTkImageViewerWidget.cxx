@@ -589,6 +589,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
       ImageViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag);
+#else
+      ImageViewer = 0;
 #endif
       }
     if (ImageViewer != self->ImageViewer)
