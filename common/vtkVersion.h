@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_MAJOR_VERSION 2
 #define VTK_MINOR_VERSION 2
 #define VTK_BUILD_VERSION 2
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.29 $, $Date: 1998-12-08 03:04:28 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.30 $, $Date: 1998-12-09 03:04:13 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
