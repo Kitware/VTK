@@ -1,0 +1,77 @@
+package require vtktcl_interactor
+::vtktcl::load_script colors
+
+# Generate implicit model of a sphere
+#
+
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
+
+# pipeline stuff
+#
+
+vtkSphereSource sphere
+  sphere SetPhiResolution 150
+  sphere SetThetaResolution 150
+
+vtkPoints pts
+  pts InsertNextPoint 0 0 0
+  pts InsertNextPoint 1 0 0
+  pts InsertNextPoint 0 1 0
+  pts InsertNextPoint 0 0 1
+
+vtkCellArray tris
+  tris InsertNextCell 3
+  tris InsertCellPoint 0
+  tris InsertCellPoint 1
+  tris InsertCellPoint 2
+  tris InsertNextCell 3
+  tris InsertCellPoint 0
+  tris InsertCellPoint 2
+  tris InsertCellPoint 3
+  tris InsertNextCell 3
+  tris InsertCellPoint 0
+  tris InsertCellPoint 3
+  tris InsertCellPoint 1
+  tris InsertNextCell 3
+  tris InsertCellPoint 1
+  tris InsertCellPoint 2
+  tris InsertCellPoint 3
+
+vtkPolyData polys
+  polys SetPoints pts
+  polys SetPolys tris
+
+vtkQuadricClustering mesh
+  mesh SetInput [sphere GetOutput]
+  mesh SetNumberOfXDivisions 10
+  mesh SetNumberOfYDivisions 10
+  mesh SetNumberOfZDivisions 10
+
+vtkPolyDataMapper mapper
+  mapper SetInput [mesh GetOutput]
+vtkActor actor
+  actor SetMapper mapper
+eval [actor GetProperty] SetDiffuseColor $tomato
+[actor GetProperty] SetDiffuse .8
+[actor GetProperty] SetSpecular .4
+[actor GetProperty] SetSpecularPower 30
+
+# Add the actors to the renderer, set the background and size
+#
+ren1 AddActor actor
+ren1 SetBackground 1 1 1
+
+renWin SetSize 300 300
+iren Initialize
+
+# render the image
+#
+iren SetUserMethod {wm deiconify .vtkInteract}
+
+
+# prevent the tk window from showing up then start the event loop
+wm withdraw .
