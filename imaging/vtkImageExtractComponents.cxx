@@ -93,12 +93,9 @@ void vtkImageExtractComponents::SetComponents(int num, int *components)
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that only one component will remain.
-void vtkImageExtractComponents::ExecuteImageInformation(vtkImageCache *in,
-							vtkImageCache *out)
+void vtkImageExtractComponents::ExecuteImageInformation()
 {
-  // Avoid compiler warnings.
-  in = in;
-  out->SetNumberOfScalarComponents(this->NumberOfComponents);
+  this->Output->SetNumberOfScalarComponents(this->NumberOfComponents);
 }
 
 //----------------------------------------------------------------------------

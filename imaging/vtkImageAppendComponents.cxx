@@ -54,12 +54,11 @@ vtkImageAppendComponents::vtkImageAppendComponents()
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the ouput it will have more components
-void vtkImageAppendComponents::ExecuteImageInformation(vtkImageCache *in1,
-						       vtkImageCache *in2,
-						       vtkImageCache *out)
+void vtkImageAppendComponents::ExecuteImageInformation()
 {
-  out->SetNumberOfScalarComponents(in1->GetNumberOfScalarComponents() +
-				   in2->GetNumberOfScalarComponents());
+  this->Output->SetNumberOfScalarComponents(
+	    this->Inputs[0]->GetNumberOfScalarComponents() 
+	    + this->Inputs[1]->GetNumberOfScalarComponents());
 }
 
 

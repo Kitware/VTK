@@ -74,13 +74,12 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							vtkImageCache *in)
+void vtkImageShrink3D::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int idx;
   
-  out->GetUpdateExtent(extent);
+  this->Output->GetUpdateExtent(extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -97,7 +96,7 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       }
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 
@@ -105,15 +104,14 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
 // Description:
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ExecuteImageInformation(vtkImageCache *in, 
-					       vtkImageCache *out)
+void vtkImageShrink3D::ExecuteImageInformation()
 {
   int idx;
   int wholeExtent[8];
   float spacing[4];
 
-  in->GetWholeExtent(wholeExtent);
-  in->GetSpacing(spacing);
+  this->Input->GetWholeExtent(wholeExtent);
+  this->Input->GetSpacing(spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -128,8 +126,8 @@ void vtkImageShrink3D::ExecuteImageInformation(vtkImageCache *in,
     spacing[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  out->SetWholeExtent(wholeExtent);
-  out->SetSpacing(spacing);
+  this->Output->SetWholeExtent(wholeExtent);
+  this->Output->SetSpacing(spacing);
 }
 
 

@@ -57,12 +57,12 @@ public:
   static vtkImageDistance1D *New() {return new vtkImageDistance1D;};
   const char *GetClassName() {return "vtkImageDistance1D";};
   
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  void SetFilteredAxis(int axis);
+  void InterceptCacheUpdate();
   
 protected:
   
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  void ComputeRequiredInputUpdateExtent();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

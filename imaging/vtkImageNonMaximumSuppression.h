@@ -50,6 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageNonMaximumSuppression_h
 #define __vtkImageNonMaximumSuppression_h
 
+#define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_MAGNITUDE_INPUT 0
+#define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1
 
 #include "vtkImageTwoInputFilter.h"
 
@@ -60,10 +62,7 @@ public:
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   
-  // Description:
-  // These method add VTK_IMAGE_COMPONENT_AXIS as the last axis.
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
+  void SetNumberOfFilteredAxes(int num);
 
   // Description:
   // Rename the inputs.
@@ -82,12 +81,9 @@ public:
   
 protected:
   int HandleBoundaries;
-  int Dimensionality;
 
-  void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *in2,
-			       vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in1,
-					vtkImageCache *in2);
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent(int whichInput);
   void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
 	       vtkImageRegion *outRegion);
 

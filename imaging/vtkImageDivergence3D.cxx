@@ -54,24 +54,21 @@ vtkImageDivergence3D::vtkImageDivergence3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDivergence3D::UpdateImageInformation(vtkImageCache *in, 
-						vtkImageCache *out)
+void vtkImageDivergence3D::ExecuteImageInformation()
 {
-  in = in;
-  out->SetNumberOfScalarComponents(1);
+  this->Output->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDivergence3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							    vtkImageCache *in)
+void vtkImageDivergence3D::ComputeRequiredInputUpdateExtent()
 {
   int extent[4];
   int *wholeExtent;
   int idx;
 
   // Expand all but the time axis
-  wholeExtent = in->GetWholeExtent();
-  out->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
   // Expand rest
   for (idx = 0; idx < 3; ++idx)
     {
@@ -84,7 +81,7 @@ void vtkImageDivergence3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       ++extent[2*idx + 1];
       }
     }
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 //----------------------------------------------------------------------------

@@ -83,7 +83,7 @@ public:
   vtkSetMacro(OutputUnconnectedValue, int);
   vtkGetMacro(OutputUnconnectedValue, int);
   
-  void InterceptCacheUpdate(vtkImageCache *out);
+  void InterceptCacheUpdate();
 
   vtkGetObjectMacro(Connector,vtkImageConnector);
   

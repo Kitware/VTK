@@ -55,12 +55,9 @@ vtkImageMagnitude::vtkImageMagnitude()
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ExecuteImageInformation(vtkImageCache *in,
-						vtkImageCache *out)
+void vtkImageMagnitude::ExecuteImageInformation()
 {
-  // Avoid compiler warnings.
-  in = in;
-  out->SetNumberOfScalarComponents(1);
+  this->Output->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------

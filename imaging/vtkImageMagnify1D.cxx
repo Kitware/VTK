@@ -77,12 +77,11 @@ void vtkImageMagnify1D::SetFilteredAxis(int axis)
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							 vtkImageCache *in)
+void vtkImageMagnify1D::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
   
-  out->GetAxisUpdateExtent(this->FilteredAxes[0], min, max);
+  this->Output->GetAxisUpdateExtent(this->FilteredAxes[0], min, max);
   
   // For Min. Round Down
   min = (int)(floor((float)(min) / (float)(this->MagnificationFactor)));
@@ -97,21 +96,20 @@ void vtkImageMagnify1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
     max = (int)(floor((float)(max) / (float)(this->MagnificationFactor)));
     }
   
-  in->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Computes any global image information associated with regions.
-void vtkImageMagnify1D::ExecuteImageInformation(vtkImageCache *in, 
-						vtkImageCache *out)
+void vtkImageMagnify1D::ExecuteImageInformation()
 {
   int wholeMin, wholeMax;
   float spacing;
 
-  in->GetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
-  in->GetAxisSpacing(this->FilteredAxes[0], spacing);
+  this->Input->GetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
+  this->Input->GetAxisSpacing(this->FilteredAxes[0], spacing);
 
   // Scale the output extent
   wholeMin *= this->MagnificationFactor;
@@ -127,8 +125,8 @@ void vtkImageMagnify1D::ExecuteImageInformation(vtkImageCache *in,
   // Change the data spacing
   spacing /= (float)(this->MagnificationFactor);
 
-  out->SetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
-  out->SetAxisSpacing(this->FilteredAxes[0], spacing);
+  this->Output->SetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
+  this->Output->SetAxisSpacing(this->FilteredAxes[0], spacing);
 }
 
 

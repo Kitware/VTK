@@ -90,8 +90,7 @@ protected:
   int Initialized; // Set the OutputImageExtent for the first time.
   int OutputWholeExtent[8];
   
-  void ExecuteImageInformation(vtkImageCache *in, 
-			       vtkImageCache *out);
+  void ExecuteImageInformation();
   void ComputeOutputWholeExtent();
 };
 

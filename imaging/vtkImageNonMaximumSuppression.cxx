@@ -49,18 +49,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageNonMaximumSuppression fitler.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
-  this->SetFilteredAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-  this->NumberOfExecutionAxes = 5;
+  this->NumberOfFilteredAxes = 3;
+
+  // execute methods operates of component axis too.
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS,
+			 VTK_IMAGE_COMPONENT_AXIS);
   
   this->SetOutputScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageNonMaximumSuppression::SetFilteredAxes(int num, int *axes)
+// Options do not include YZ ...
+void vtkImageNonMaximumSuppression::SetNumberOfFilteredAxes(int num)
 {
-  this->vtkImageTwoInputFilter::SetFilteredAxes(num, axes);
-  // We assume that this puts the Component axis as #4.
-  this->NumberOfExecutionAxes = 5;
+  if (this->NumberOfFilteredAxes != num)
+    {
+    this->NumberOfFilteredAxes = num;
+    this->Modified();
+    }
 }
 
 
@@ -70,16 +76,12 @@ void vtkImageNonMaximumSuppression::SetFilteredAxes(int num, int *axes)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageNonMaximumSuppression::ExecuteImageInformation(vtkImageCache *in1,
-							    vtkImageCache *in2,
-							    vtkImageCache *out)
+void vtkImageNonMaximumSuppression::ExecuteImageInformation()
 {
   int extent[8];
   int idx, axis;
 
-  in1->GetWholeExtent(extent);
-  // To avoid compiler warnings
-  in2 = in2;
+  this->Inputs[0]->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -91,8 +93,8 @@ void vtkImageNonMaximumSuppression::ExecuteImageInformation(vtkImageCache *in1,
       }
     }
   
-  out->SetNumberOfScalarComponents(1);
-  out->SetWholeExtent(extent);
+  this->Output->SetNumberOfScalarComponents(1);
+  this->Output->SetWholeExtent(extent);
 }
 
 
@@ -100,14 +102,14 @@ void vtkImageNonMaximumSuppression::ExecuteImageInformation(vtkImageCache *in1,
 // Description:
 // This method computes the input extent necessary to generate the output.
 void vtkImageNonMaximumSuppression::ComputeRequiredInputUpdateExtent(
-		vtkImageCache *out, vtkImageCache *in1, vtkImageCache *in2)
+						     int whichInput)
 {
   int extent[8];
   int *wholeExtent;
   int idx, axis;
 
-  wholeExtent = in1->GetWholeExtent();
-  out->GetUpdateExtent(extent);
+  wholeExtent = this->Inputs[0]->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
   
   // grow input image extent.
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
@@ -129,10 +131,16 @@ void vtkImageNonMaximumSuppression::ComputeRequiredInputUpdateExtent(
       }
     }
   
-  in1->SetUpdateExtent(extent);
-  in1->SetNumberOfScalarComponents(1);
-  in2->SetUpdateExtent(extent);
-  in2->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
+  this->Inputs[whichInput]->SetUpdateExtent(extent);
+  // different components
+  if (whichInput == 0)
+    {
+    this->Inputs[0]->SetNumberOfScalarComponents(1);
+    }
+  else
+    {
+    this->Inputs[1]->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
+    }
 }
 
 
@@ -154,8 +162,8 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
   float *outPtr0, *outPtr1, *outPtr2, *outPtr3;
   int in1Inc0, in1Inc1, in1Inc2, in1Inc3;
   float *in1Ptr0, *in1Ptr1, *in1Ptr2, *in1Ptr3;
-  int in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2Inc4;
-  float *in2Ptr0, *in2Ptr1, *in2Ptr2, *in2Ptr3, *in2Ptr4;
+  int in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2IncV;
+  float *in2Ptr0, *in2Ptr1, *in2Ptr2, *in2Ptr3, *in2PtrV;
   int neighborA, neighborB;
   float d, normalizeFactor, vector[VTK_IMAGE_DIMENSIONS], *ratio;
 
@@ -176,7 +184,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
   
   // Get information to march through data
   inRegion1->GetIncrements(in1Inc0, in1Inc1, in1Inc2, in1Inc3); 
-  inRegion2->GetIncrements(in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2Inc4); 
+  inRegion2->GetIncrements(in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2IncV); 
   outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
   outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
   
@@ -209,22 +217,22 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	  outIdxs[0] = outIdx0;
 	  
 	  // Use vector (in2) to determine which neighbors to use.
-	  in2Ptr4 = in2Ptr0;
+	  in2PtrV = in2Ptr0;
 	  idxs = outIdxs;
 	  incs = inRegion1->GetIncrements();
 	  wholeExtent = inRegion1->GetWholeExtent();
 	  neighborA = neighborB = 0;
 	  // Convert vector to pixel units and normalize.
 	  normalizeFactor = 0.0;
-	  for (idx = 0; idx < this->Dimensionality; ++idx)
+	  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
 	    {
 	    // d units dI/world  -> dI
-	    d = vector[idx] = *in2Ptr4 * ratio[idx];
+	    d = vector[idx] = *in2PtrV * ratio[idx];
 	    normalizeFactor += d * d;
-	    in2Ptr4 += in2Inc4;
+	    in2PtrV += in2IncV;
 	    }
 	  normalizeFactor = 1.0 / sqrt(normalizeFactor);
-	  for (idx = 0; idx < this->Dimensionality; ++idx)
+	  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
 	    {
 	    d = vector[idx] * normalizeFactor;  
 	    // Vector points positive along this axis?

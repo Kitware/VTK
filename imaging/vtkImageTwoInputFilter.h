@@ -41,30 +41,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageTwoInputFilter - Generic superclass for filter that have
 // two inputs.
 // .SECTION Description
-// vtkImageTwoInputFilter handles two input.  It can loop over extra axes,
-// but does not support an input memory limit for streaming.  If bypass
-// is on,  the data from the first input (input0) is passed along.
-// The extents required from the inputs, do not have to be the same 
-// (see vtkImageTwoOutputFilter).
+// vtkImageTwoInputFilter handles two input.  
+// It is just a subclass of vtkImageMultipleInputFilter with some
+// methods that are specific to two inputs.  Although the inputs are labels
+// input1 and input2, they are stored in an array indexed starting at 0.
 
 #ifndef __vtkImageTwoInputFilter_h
 #define __vtkImageTwoInputFilter_h
 
 
-#include "vtkImageSource.h"
+#include "vtkImageMultipleInputFilter.h"
 #include "vtkStructuredPointsToImage.h"
 #include "vtkStructuredPoints.h"
 class vtkImageRegion;
 class vtkImageCache;
 
 
-class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageSource
+class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
 {
 public:
   vtkImageTwoInputFilter();
   static vtkImageTwoInputFilter *New() {return new vtkImageTwoInputFilter;};
   const char *GetClassName() {return "vtkImageTwoInputFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput1(vtkImageCache *input);
   void SetInput1(vtkStructuredPoints *spts)
@@ -73,47 +71,16 @@ public:
   void SetInput2(vtkStructuredPoints *spts)
     {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
 
-  void Update();
-  void UpdateImageInformation();
-  unsigned long int GetPipelineMTime();
-  
   // Description:
   // Get input to this filter.
-  vtkGetObjectMacro(Input1,vtkImageCache);
-  vtkGetObjectMacro(Input2,vtkImageCache);
-
-  // Description:
-  // Turning bypass on will causse the filter to turn off and
-  // simply pass the data from the first input (input0) through.  
-  // It is implemented for consitancy with vtkImageFilter.
-  vtkSetMacro(Bypass,int);
-  vtkGetMacro(Bypass,int);
-  vtkBooleanMacro(Bypass,int);
-
-  // Description:
-  // Filtered axes specify the axes which will be operated on.
-  vtkGetMacro(NumberOfFilteredAxes, int);
+  vtkImageCache *GetInput1() {return this->Inputs[0];}
+  vtkImageCache *GetInput2() {return this->Inputs[1];}
 
 protected:
-  int FilteredAxes[4];
-  int NumberOfFilteredAxes;
-  vtkImageCache *Input1;     // One of the inputs to the filter
-  vtkImageCache *Input2;     // One of the inputs to the filter
-  int Bypass;
-  int Updating;
 
-  virtual void SetFilteredAxes(int num, int *axes);
-  virtual void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *in2,
-				       vtkImageCache *out);
-  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-						vtkImageCache *in1,
-						vtkImageCache *in2);
-  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion1,
-		       vtkImageRegion *inRegion2, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion **inRegions, vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-		       vtkImageRegion *outRegion);
-  
-  
+		       vtkImageRegion *outRegion);  
 };
 
 #endif

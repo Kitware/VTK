@@ -94,15 +94,12 @@ void vtkImageFourierCenter1D::SetFilteredAxis(int axis)
 // Description:
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
-void 
-vtkImageFourierCenter1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-							  vtkImageCache *in)
+void vtkImageFourierCenter1D::ComputeRequiredInputUpdateExtent()
 {
   int minWhole, maxWhole;
 
-  out = out;
-  in->GetAxisWholeExtent(this->FilteredAxis, minWhole, maxWhole);
-  in->SetAxisUpdateExtent(this->FilteredAxis, minWhole, maxWhole);
+  this->Input->GetAxisWholeExtent(this->FilteredAxis, minWhole, maxWhole);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxis, minWhole, maxWhole);
 }
 
 //----------------------------------------------------------------------------

@@ -280,7 +280,7 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageRegion *outRegion)
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-  this->ComputeRequiredInputUpdateExtent(this->Output, this->Input);
+  this->ComputeRequiredInputUpdateExtent();
     
   // determine the amount of memory that will be used by the input region.
   memory = this->Input->GetUpdateExtentMemorySize();
@@ -382,7 +382,7 @@ void vtkImageFilter::UpdateImageInformation()
   if ( ! this->Bypass)
     {
     // Let the subclass modify the default.
-    this->ExecuteImageInformation(this->Input, this->Output);
+    this->ExecuteImageInformation();
     }
   
   // If the ScalarType of the output has not been set yet,
@@ -399,15 +399,9 @@ void vtkImageFilter::UpdateImageInformation()
 // Description:
 // This method can be overriden in a subclass to compute the output
 // ImageInformation: WholeExtent, Spacing and Origin.
-void vtkImageFilter::ExecuteImageInformation(vtkImageCache *in,
-					     vtkImageCache *out)
+void vtkImageFilter::ExecuteImageInformation()
 {
-  // Default: Image information does not change (do nothing).
-  // Avoid warnings
-  in = in;
-  out = out;
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -416,14 +410,9 @@ void vtkImageFilter::ExecuteImageInformation(vtkImageCache *in,
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
 // method is called.
-void vtkImageFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-						      vtkImageCache *in)
+void vtkImageFilter::ComputeRequiredInputUpdateExtent()
 {
-  // avoid warnings
-  in = in;
-  out = out;
 }
-
 
 
 //----------------------------------------------------------------------------

@@ -81,13 +81,12 @@ void vtkImageSubsample3D::SetFilteredAxes(int axis0, int axis1, int axis2)
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageSubsample3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							   vtkImageCache *in)
+void vtkImageSubsample3D::ComputeRequiredInputUpdateExtent()
 {
   int extent[4];
   int idx, axis;
   
-  out->GetUpdateExtent(extent);
+  this->Output->GetUpdateExtent(extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -100,20 +99,19 @@ void vtkImageSubsample3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       + this->Shift[axis];
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageSubsample3D::ExecuteImageInformation(vtkImageCache *in, 
-						  vtkImageCache *out)
+void vtkImageSubsample3D::ExecuteImageInformation()
 {
   int idx, axis;
   int wholeExtent[8];
   float Spacing[4];
 
-  in->GetWholeExtent(wholeExtent);
-  in->GetSpacing(Spacing);
+  this->Input->GetWholeExtent(wholeExtent);
+  this->Input->GetSpacing(Spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -130,8 +128,8 @@ void vtkImageSubsample3D::ExecuteImageInformation(vtkImageCache *in,
     Spacing[axis] *= (float)(this->ShrinkFactors[axis]);
     }
 
-  out->SetWholeExtent(wholeExtent);
-  out->SetSpacing(Spacing);
+  this->Output->SetWholeExtent(wholeExtent);
+  this->Output->SetSpacing(Spacing);
 }
 
 

@@ -161,12 +161,11 @@ void vtkImageClip::GetOutputWholeExtent(int dim, int *extent)
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::ExecuteImageInformation(vtkImageCache *in, 
-					   vtkImageCache *out)
+void vtkImageClip::ExecuteImageInformation()
 {
   int idx, extent[8];
   
-  in->GetWholeExtent(extent);
+  this->Input->GetWholeExtent(extent);
   if ( ! this->Initialized)
     {
     this->SetOutputWholeExtent(4, extent);
@@ -192,7 +191,7 @@ void vtkImageClip::ExecuteImageInformation(vtkImageCache *in,
       }
     }
   
-  out->SetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
 }
 
 

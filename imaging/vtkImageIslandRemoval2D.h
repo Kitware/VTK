@@ -97,7 +97,7 @@ public:
   vtkSetMacro(ReplaceValue, float);
   vtkGetMacro(ReplaceValue, float);
   
-  void InterceptCacheUpdate(vtkImageCache *out);
+  void InterceptCacheUpdate();
   
 protected:
   int AreaThreshold;

@@ -57,8 +57,7 @@ vtkImageMirrorPad::vtkImageMirrorPad()
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							 vtkImageCache *in)
+void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent()
 {
   int idx;
   int extent[8];
@@ -66,8 +65,8 @@ void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
   int minCycle, maxCycle, minRemainder, maxRemainder, minMirror, maxMirror;
   int *wholeExtent;
   
-  out->GetUpdateExtent(extent);
-  wholeExtent = in->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
 
   // determine input extent
   for (idx = 0; idx < 4; ++idx)
@@ -139,7 +138,7 @@ void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
     extent[idx * 2 + 1] = max;
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 

@@ -57,15 +57,14 @@ public:
   static vtkImageHistogram *New() {return new vtkImageHistogram;};
   const char *GetClassName() {return "vtkImageHistogram";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  void InterceptCacheUpdate(vtkImageCache *cache);
 
+  void InterceptCacheUpdate();
 
   // Description:
   // Set/Get - scale data to number of bins or levels.
   vtkSetMacro(NumberOfBins,int);
   vtkGetMacro(NumberOfBins,int);
   
-
   // Description:
   // Set/Get OffsetLevel
   vtkSetMacro(OffsetLevel,int);
@@ -83,8 +82,8 @@ protected:
   int OffsetLevel;
   int Offset;
 
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

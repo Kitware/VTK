@@ -98,14 +98,14 @@ void vtkImageIslandRemoval2D::SetFilteredAxes(int axis0, int axis1)
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // The whole image is generated when any region is requested.
-void vtkImageIslandRemoval2D::InterceptCacheUpdate(vtkImageCache *out)
+void vtkImageIslandRemoval2D::InterceptCacheUpdate()
 {
   int min, max;
 
-  out->GetAxisWholeExtent(this->FilteredAxes[0], min ,max);
-  out->SetAxisUpdateExtent(this->FilteredAxes[0], min ,max);
-  out->GetAxisWholeExtent(this->FilteredAxes[1], min ,max);
-  out->SetAxisUpdateExtent(this->FilteredAxes[1], min ,max);
+  this->Output->GetAxisWholeExtent(this->FilteredAxes[0], min ,max);
+  this->Output->SetAxisUpdateExtent(this->FilteredAxes[0], min ,max);
+  this->Output->GetAxisWholeExtent(this->FilteredAxes[1], min ,max);
+  this->Output->SetAxisUpdateExtent(this->FilteredAxes[1], min ,max);
 }
 
 

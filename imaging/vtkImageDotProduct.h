@@ -61,12 +61,7 @@ public:
   const char *GetClassName() {return "vtkImageDotProduct";};
 
 protected:
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
-				     vtkImageRegion *inRegion2,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion1,
-					vtkImageRegion *inRegion2);
+  void ExecuteImageInformation();
   void Execute(vtkImageRegion *inRegion1, 
 	       vtkImageRegion *inRegion2, 
 	       vtkImageRegion *outRegion);

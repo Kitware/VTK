@@ -101,18 +101,17 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageSpatialFilter::ExecuteImageInformation(vtkImageCache *in, 
-						    vtkImageCache *out)
+void vtkImageSpatialFilter::ExecuteImageInformation()
 {
   int extent[8];
   float spacing[4];
   int idx, axis;
   
-  in->GetWholeExtent(extent);
-  in->GetSpacing(spacing);
+  this->Input->GetWholeExtent(extent);
+  this->Input->GetSpacing(spacing);
 
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
-  out->SetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
   
   for(idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
@@ -120,7 +119,7 @@ void vtkImageSpatialFilter::ExecuteImageInformation(vtkImageCache *in,
     // Change the data spacing.
     spacing[axis] *= (float)(this->Strides[axis]);
     }
-  out->SetSpacing(spacing);
+  this->Output->SetSpacing(spacing);
 }
 
 //----------------------------------------------------------------------------
@@ -164,16 +163,15 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent,
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
 void 
-vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							vtkImageCache *in)
+vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int wholeExtent[8];
   
-  out->GetUpdateExtent(extent);
-  in->GetWholeExtent(wholeExtent);
+  this->Output->GetUpdateExtent(extent);
+  this->Input->GetWholeExtent(wholeExtent);
   this->ComputeRequiredInputExtent(extent, wholeExtent);
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 //----------------------------------------------------------------------------

@@ -256,12 +256,12 @@ void vtkImageHistogram::Execute(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void vtkImageHistogram::ExecuteImageInformation(vtkImageCache *in,
-						vtkImageCache *out)
+void vtkImageHistogram::ExecuteImageInformation()
 {
   int extent[8];
-  in->GetWholeExtent(extent);
-  out->SetWholeExtent(extent);
+  
+  this->Input->GetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -270,25 +270,24 @@ void vtkImageHistogram::ExecuteImageInformation(vtkImageCache *in,
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageHistogram::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							 vtkImageCache *in)
+void vtkImageHistogram::ComputeRequiredInputUpdateExtent()
 {
   int wholeExtent[8];
   
-  out->GetWholeExtent(wholeExtent);
-  in->SetUpdateExtent(wholeExtent);
+  this->Output->GetWholeExtent(wholeExtent);
+  this->Input->SetUpdateExtent(wholeExtent);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // We might as well create both real and imaginary components.
-void vtkImageHistogram::InterceptCacheUpdate(vtkImageCache *cache)
+void vtkImageHistogram::InterceptCacheUpdate()
 {
   int wholeExtent[8];
   
-  cache->GetWholeExtent(wholeExtent);
-  cache->SetUpdateExtent(wholeExtent);
+  this->Output->GetWholeExtent(wholeExtent);
+  this->Output->SetUpdateExtent(wholeExtent);
 }
 
 

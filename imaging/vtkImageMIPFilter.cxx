@@ -419,15 +419,14 @@ void vtkImageMIPFilter::Execute(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void vtkImageMIPFilter::ExecuteImageInformation(vtkImageCache *in, 
-						vtkImageCache *out)
+void vtkImageMIPFilter::ExecuteImageInformation()
 {
   int extent[8];
 
   // reduce extent from 3 to 2 D.
-  in->GetWholeExtent(extent);
+  this->Input->GetWholeExtent(extent);
   extent[4] = 0; extent[5] =0;
-  out->SetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
 }
 
 
@@ -440,20 +439,19 @@ void vtkImageMIPFilter::ExecuteImageInformation(vtkImageCache *in,
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageMIPFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-							 vtkImageCache *in)
+void vtkImageMIPFilter::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int imageExtent[8];
   
-  out->GetUpdateExtent(extent);
+  this->Output->GetUpdateExtent(extent);
   
-  in->GetWholeExtent(imageExtent);
+  this->Input->GetWholeExtent(imageExtent);
 
   extent[4] = this->ProjectionRange[0];
   extent[5] = this->ProjectionRange[1];
 
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 //----------------------------------------------------------------------------

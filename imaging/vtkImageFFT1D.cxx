@@ -93,25 +93,21 @@ void vtkImageFFT1D::SetFilteredAxis(int axis)
 //----------------------------------------------------------------------------
 // Description:
 // This extent of the components changes to real and imaginary values.
-void vtkImageFFT1D::ExecuteImageInformation(vtkImageCache *in, 
-					    vtkImageCache *out)
+void vtkImageFFT1D::ExecuteImageInformation()
 {
-  in = in;
-  out->SetNumberOfScalarComponents(2);
+  this->Output->SetNumberOfScalarComponents(2);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageFFT1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-						     vtkImageCache *in)
+void vtkImageFFT1D::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
   
-  out = out;
-  in->GetAxisWholeExtent(this->FilteredAxis, min, max);
-  in->SetAxisUpdateExtent(this->FilteredAxis, min, max);
+  this->Input->GetAxisWholeExtent(this->FilteredAxis, min, max);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxis, min, max);
 }
 
 //----------------------------------------------------------------------------

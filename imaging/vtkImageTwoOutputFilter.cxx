@@ -247,8 +247,7 @@ void vtkImageTwoOutputFilter::Update()
   // Fill in image information (ComputeRequiredInputExtent may need it)
   this->Input->UpdateImageInformation();
   this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-  this->ComputeRequiredInputUpdateExtent(this->Output, this->Output2, 
-					 this->Input);  
+  this->ComputeRequiredInputUpdateExtent();
   
   // ... no streaming implemented yet ...
 
@@ -382,7 +381,7 @@ void vtkImageTwoOutputFilter::UpdateImageInformation()
   if ( ! this->Bypass)
     {
     // Let the subclass modify the default.
-    this->ExecuteImageInformation(this->Input, this->Output, this->Output2);
+    this->ExecuteImageInformation();
     }
 
   // If the ScalarType of the outputs have not been set yet,
@@ -403,14 +402,8 @@ void vtkImageTwoOutputFilter::UpdateImageInformation()
 // Description:
 // Given a region with input image info, compute output image info.
 // Image info should be the same for both outputs!
-void vtkImageTwoOutputFilter::ExecuteImageInformation(
-	    vtkImageCache *in, vtkImageCache *out1, vtkImageCache *out2)
+void vtkImageTwoOutputFilter::ExecuteImageInformation()
 {
-  // Default: Image information does not change (do nothing).
-  // Avoid warnings
-  in = in;
-  out1 = out1;
-  out2 = out2;
 }
 
 
@@ -421,13 +414,8 @@ void vtkImageTwoOutputFilter::ExecuteImageInformation(
 // an output region.  Before this method is called "input" should have the 
 // UpdateExtent of output0.  After this method finishes, "input" should 
 // have the UpdateExtent of the required input extent.
-void vtkImageTwoOutputFilter::ComputeRequiredInputUpdateExtent(
-	       vtkImageCache *out1, vtkImageCache *out2, vtkImageCache *in)
+void vtkImageTwoOutputFilter::ComputeRequiredInputUpdateExtent()
 {
-  // Previous method set defaults.
-  in = in;
-  out1 = out1;
-  out2 = out2;
 }
 
 

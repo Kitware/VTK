@@ -80,26 +80,23 @@ void vtkImageSobel3D::SetFilteredAxes(int axis0, int axis1, int axis2)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::ExecuteImageInformation(vtkImageCache *in,
-					      vtkImageCache *out)
+void vtkImageSobel3D::ExecuteImageInformation()
 {
-  in = in;
-  out->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
+  this->Output->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageSobel3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-						       vtkImageCache *in)
+void vtkImageSobel3D::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int *wholeExtent;
   int idx, axis;
 
-  wholeExtent = in->GetWholeExtent();
-  out->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
   
   // grow input extent.
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
@@ -118,7 +115,7 @@ void vtkImageSobel3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       }
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 

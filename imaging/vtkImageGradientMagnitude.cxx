@@ -82,13 +82,12 @@ void vtkImageGradientMagnitude::SetFilteredAxes(int num, int *axes)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageGradientMagnitude::ExecuteImageInformation(vtkImageCache *in, 
-							vtkImageCache *out)
+void vtkImageGradientMagnitude::ExecuteImageInformation()
 {  
   int extent[8];
   int idx, axis;
 
-  in->GetWholeExtent(extent);
+  this->Input->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -100,22 +99,21 @@ void vtkImageGradientMagnitude::ExecuteImageInformation(vtkImageCache *in,
       }
     }
   
-  out->SetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(
-			vtkImageCache *out, vtkImageCache *in)
+void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int *wholeExtent;
   int idx, axis;
 
-  wholeExtent = in->GetWholeExtent();
-  out->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
   
   // grow input whole extent.
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
@@ -137,7 +135,7 @@ void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(
       }
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 

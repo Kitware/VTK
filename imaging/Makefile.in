@@ -42,6 +42,7 @@ vtkImageContinuousErode3D \
 vtkImageConvolution1D \
 vtkImageDilateErode3D \
 vtkImageDivergence3D \
+vtkImageDotProduct \
 vtkImageElipsoidSource \
 vtkImageEuclideanToPolar \
 vtkImageExtractComponents \

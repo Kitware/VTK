@@ -75,9 +75,8 @@ protected:
   int OutputWholeExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int OutputNumberOfScalarComponents;
 
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-					vtkImageCache *in);
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent();
 };
 
 #endif

@@ -70,7 +70,7 @@ public:
   vtkGetMacro(NumberOfFilteredAxes,int);
   
 protected:
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  void ComputeRequiredInputUpdateExtent();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

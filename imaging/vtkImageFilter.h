@@ -119,10 +119,9 @@ protected:
   int Updating;
   
   virtual void SetFilteredAxes(int num, int *axes);
-  virtual void ExecuteImageInformation(vtkImageCache *in,
-				       vtkImageCache *out);
-  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-						vtkImageCache *in);
+  virtual void ExecuteImageInformation();
+  virtual void ComputeRequiredInputUpdateExtent();
+
   void RecursiveStreamUpdate(vtkImageRegion *outRegion);
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion);

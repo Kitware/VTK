@@ -61,14 +61,13 @@ void vtkImageFlip::SetFilteredAxes(int num, int *axes)
 //----------------------------------------------------------------------------
 // Description:
 // Image extent is modified by this filter.
-void vtkImageFlip::ExecuteImageInformation(vtkImageCache *in,
-					   vtkImageCache *out)
+void vtkImageFlip::ExecuteImageInformation()
 {
   int idx, axis, extent[8], temp;
 
   if ( ! this->PreserveImageExtent)
     {
-    in->GetWholeExtent(extent);
+    this->Input->GetWholeExtent(extent);
     for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
       {
       axis = this->FilteredAxes[idx];
@@ -76,23 +75,20 @@ void vtkImageFlip::ExecuteImageInformation(vtkImageCache *in,
       extent[axis*2] = -extent[axis*2+1];
       extent[axis*2+1] = -temp;
       }
-    out->SetWholeExtent(extent);
+    this->Output->SetWholeExtent(extent);
     }
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // What input should be requested.
-void vtkImageFlip::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-						    vtkImageCache *in)
+void vtkImageFlip::ComputeRequiredInputUpdateExtent()
 {
   int idx, axis, extent[8], temp, sum;
   int *wholeExtent;
   
-  in = in;
-  
-  out->GetUpdateExtent(extent);
-  wholeExtent = out->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
+  wholeExtent = this->Output->GetWholeExtent();
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     axis = this->FilteredAxes[idx];

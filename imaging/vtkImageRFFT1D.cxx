@@ -83,11 +83,9 @@ void vtkImageRFFT1D::SetFilteredAxis(int axis)
 //----------------------------------------------------------------------------
 // Description:
 // Real or Complex numbers can be output.
-void vtkImageRFFT1D::ExecuteImageInformation(vtkImageCache *in, 
-					     vtkImageCache *out)
+void vtkImageRFFT1D::ExecuteImageInformation() 
 {
-  in = in;
-  out->SetNumberOfScalarComponents(2);
+  this->Output->SetNumberOfScalarComponents(2);
 }
 
 
@@ -95,14 +93,12 @@ void vtkImageRFFT1D::ExecuteImageInformation(vtkImageCache *in,
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageRFFT1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-						      vtkImageCache *in)
+void vtkImageRFFT1D::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
   
-  out = out;
-  in->GetAxisWholeExtent(this->FilteredAxis, min, max);
-  in->SetAxisUpdateExtent(this->FilteredAxis, min, max);
+  this->Input->GetAxisWholeExtent(this->FilteredAxis, min, max);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxis, min, max);
 }
 
 //----------------------------------------------------------------------------

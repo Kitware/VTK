@@ -114,13 +114,9 @@ protected:
   void SetReleaseDataFlag(int value);
   
   virtual void SetFilteredAxes(int num, int *axes);
-  virtual void ExecuteImageInformation(vtkImageCache *in,
-				       vtkImageCache *out1,
-				       vtkImageCache *out2);
-  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out1,
-						vtkImageCache *out2,
-						vtkImageCache *in);
-
+  virtual void ExecuteImageInformation();
+  virtual void ComputeRequiredInputUpdateExtent();
+  
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion1, 
 				    vtkImageRegion *outRegion2);

@@ -110,26 +110,24 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[8])
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::ExecuteImageInformation(vtkImageCache *in,
-						vtkImageCache *out)
+void vtkImagePadFilter::ExecuteImageInformation()
 {
-  in = in;
-  out->SetWholeExtent(this->OutputWholeExtent);
-  out->SetNumberOfScalarComponents(this->OutputNumberOfScalarComponents);
+  this->Output->SetWholeExtent(this->OutputWholeExtent);
+  this->Output->SetNumberOfScalarComponents(
+			    this->OutputNumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							 vtkImageCache *in)
+void vtkImagePadFilter::ComputeRequiredInputUpdateExtent()
 {
   int idx;
   int extent[8];
   int *wholeExtent;
   
   // handle XYZT
-  out->GetUpdateExtent(extent);
-  wholeExtent = in->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
   // Clip
   for (idx = 0; idx < 4; ++idx)
     {
@@ -142,7 +140,7 @@ void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       extent[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
   
   // Components are handled automatically (see ExecuteImageInformation)
 }

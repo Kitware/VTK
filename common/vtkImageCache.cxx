@@ -284,7 +284,7 @@ void vtkImageCache::Update()
   
   // Let the cache modify the update extent, but save the old one.
   this->GetUpdateExtent(updateExtentSave);
-  this->Source->InterceptCacheUpdate(this);
+  this->Source->InterceptCacheUpdate();
   
   // if cache doesn't have the necessary data.
   if (pipelineMTime > this->ExecuteTime || this->DataReleased ||

@@ -52,10 +52,17 @@ vtkImageDistance1D::vtkImageDistance1D()
 
 
 //----------------------------------------------------------------------------
+void vtkImageDistance1D::SetFilteredAxis(int axis)
+{
+  this->SetFilteredAxes(1, &axis);
+}
+  
+  
+//----------------------------------------------------------------------------
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // Create the whole output array.
-void vtkImageDistance1D::InterceptCacheUpdate(vtkImageRegion *region)
+void vtkImageDistance1D::InterceptCacheUpdate()
 {
   int min, max;
   
@@ -65,26 +72,21 @@ void vtkImageDistance1D::InterceptCacheUpdate(vtkImageRegion *region)
     return;
     }
 
-  this->Input->UpdateImageInformation(region);
-  region->GetImageExtent(min, max);
-  region->SetExtent(min, max);
+  this->Output->GetAxisWholeExtent(this->FilteredAxes[0], min, max);
+  this->Output->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageDistance1D::ComputeRequiredInputRegionExtent(
-		   vtkImageRegion *outRegion, vtkImageRegion *inRegion)
+void vtkImageDistance1D::ComputeRequiredInputUpdateExtent()
 {
-  int extent[2];
+  int min, max;
 
-  // Avoid a warning message.
-  outRegion = outRegion;
-  inRegion->GetImageExtent(1, extent);
-  inRegion->SetExtent(1, extent);
+  this->Input->GetAxisWholeExtent(this->FilteredAxes[0], min, max);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
 }
-
 
 
 //----------------------------------------------------------------------------

@@ -62,8 +62,7 @@ public:
 
 protected:
   
-  void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *in2,
-			       vtkImageCache *out);
+  void ExecuteImageInformation();
   void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
 	       vtkImageRegion *outRegion);
 };

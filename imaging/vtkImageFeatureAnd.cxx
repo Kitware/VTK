@@ -73,7 +73,7 @@ void vtkImageFeatureAnd::SetFilteredAxes(int num, int *axes)
 //----------------------------------------------------------------------------
 // Update the whole image in cache because we will be generating the whole
 // image anyway.
-void vtkImageFeatureAnd::InterceptCacheUpdate(vtkImageCache *out)
+void vtkImageFeatureAnd::InterceptCacheUpdate()
 {
   int idx, axis;
   int min, max;
@@ -81,8 +81,8 @@ void vtkImageFeatureAnd::InterceptCacheUpdate(vtkImageCache *out)
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    out->GetAxisWholeExtent(axis, min, max);
-    out->SetAxisUpdateExtent(axis, min, max);
+    this->Output->GetAxisWholeExtent(axis, min, max);
+    this->Output->SetAxisUpdateExtent(axis, min, max);
     }    
 }
 

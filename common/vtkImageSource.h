@@ -65,7 +65,7 @@ public:
   const char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void InterceptCacheUpdate(vtkImageCache *cache);
+  virtual void InterceptCacheUpdate();
   virtual void Update();
   virtual void UpdateWholeExtent();
   virtual void UpdateImageInformation() = 0;

@@ -237,7 +237,7 @@ void vtkImageInPlaceFilter::Update()
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-  this->ComputeRequiredInputUpdateExtent(this->Output, this->Input);
+  this->ComputeRequiredInputUpdateExtent();
 
   // ... no streaming implemented yet ...
 
@@ -317,7 +317,7 @@ void vtkImageInPlaceFilter::UpdateImageInformation()
   if ( ! this->Bypass)
     {
     // Let the subclass modify the default.
-    this->ExecuteImageInformation(this->Input, this->Output);
+    this->ExecuteImageInformation();
     }
 
   // If the ScalarType of the output has not been set yet,
@@ -337,13 +337,8 @@ void vtkImageInPlaceFilter::UpdateImageInformation()
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
-void vtkImageInPlaceFilter::ExecuteImageInformation(vtkImageCache *in,
-						    vtkImageCache *out)
+void vtkImageInPlaceFilter::ExecuteImageInformation()
 {
-  // Default: Image information does not change (do nothing).
-  // Avoid warnings
-  in = in;
-  out = out;
 }
 
 
@@ -356,11 +351,8 @@ void vtkImageInPlaceFilter::ExecuteImageInformation(vtkImageCache *in,
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void 
-vtkImageInPlaceFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							vtkImageCache *in)
+void vtkImageInPlaceFilter::ComputeRequiredInputUpdateExtent()
 {
-  in->SetUpdateExtent(out->GetUpdateExtent());
 }
 
 

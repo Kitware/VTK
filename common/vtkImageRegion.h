@@ -228,6 +228,12 @@ public:
 					   int *extentOut, int *axesOut);
   static void CompleteUnspecifiedAxes(int num, int *axesIn, int *axesOut);
   
+  // Description:
+  // These methods make sure that the data has only one reference count.
+  void MakeDataWritable();
+  void MakeScalarsWritable()
+  {this->MakeDataWritable(); this->Data->MakeScalarsWritable();};
+
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int ScalarType;         // Remember the pixel type of this region.
@@ -245,10 +251,6 @@ protected:
   float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
 
-  // Helper methods.
-  void MakeDataWritable();
-  void MakeScalarsWritable()
-  {this->MakeDataWritable(); this->Data->MakeScalarsWritable();};
 };
 
 

@@ -115,9 +115,8 @@ void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
 // This method can be used to intercept a generate call made to a cache.
 // It allows a source to generate a larger region than was originally 
 // specified.  The default method does not alter the specified region extent.
-void vtkImageSource::InterceptCacheUpdate(vtkImageCache *cache)
+void vtkImageSource::InterceptCacheUpdate()
 {
-  cache = cache;
 }
 
 

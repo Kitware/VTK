@@ -91,15 +91,14 @@ void vtkImageLaplacian::SetFilteredAxes(int num, int *axes)
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-							 vtkImageCache *in)
+void vtkImageLaplacian::ComputeRequiredInputUpdateExtent()
 {
   int extent[8];
   int *wholeExtent;
   int idx, axis;
 
-  wholeExtent = in->GetWholeExtent();
-  out->GetUpdateExtent(extent);
+  wholeExtent = this->Input->GetWholeExtent();
+  this->Output->GetUpdateExtent(extent);
   
   // grow input image extent.
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
@@ -118,7 +117,7 @@ void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
       }
     }
   
-  in->SetUpdateExtent(extent);
+  this->Input->SetUpdateExtent(extent);
 }
 
 

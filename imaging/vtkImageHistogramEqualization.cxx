@@ -242,12 +242,12 @@ void vtkImageHistogramEqualization::Execute(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void vtkImageHistogramEqualization::ExecuteImageInformation(vtkImageCache *in,
-							    vtkImageCache *out)
+void vtkImageHistogramEqualization::ExecuteImageInformation()
 {
   int extent[8];
-  in->GetWholeExtent(extent);
-  out->SetWholeExtent(extent);
+
+  this->Input->GetWholeExtent(extent);
+  this->Output->SetWholeExtent(extent);
 }
 
 
@@ -257,14 +257,12 @@ void vtkImageHistogramEqualization::ExecuteImageInformation(vtkImageCache *in,
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageHistogramEqualization::ComputeRequiredInputUpdateExtent(
-						    vtkImageCache *out,
-			                            vtkImageCache *in)
+void vtkImageHistogramEqualization::ComputeRequiredInputUpdateExtent()
 {
   int wholeExtent[8];
   
-  out->GetWholeExtent(wholeExtent);
-  in->SetWholeExtent(wholeExtent);
+  this->Output->GetWholeExtent(wholeExtent);
+  this->Input->SetWholeExtent(wholeExtent);
 }
 
 //----------------------------------------------------------------------------

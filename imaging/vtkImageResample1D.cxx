@@ -129,31 +129,29 @@ float vtkImageResample1D::GetMagnificationFactor()
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageResample1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-							  vtkImageCache *in)
+void vtkImageResample1D::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
  
-  out->GetAxisUpdateExtent(this->FilteredAxis, min, max);
+  this->Output->GetAxisUpdateExtent(this->FilteredAxis, min, max);
   
   min = (int)(floor((float)(min) / this->GetMagnificationFactor()));
   max = (int)(ceil((float)(max) / this->GetMagnificationFactor()));
 
-  in->SetAxisUpdateExtent(this->FilteredAxis, min, max);
+  this->Input->SetAxisUpdateExtent(this->FilteredAxis, min, max);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Computes any global image information associated with regions.
-void vtkImageResample1D::ExecuteImageInformation(vtkImageCache *in, 
-						 vtkImageCache *out)
+void vtkImageResample1D::ExecuteImageInformation() 
 {
   int wholeMin, wholeMax;
   float spacing;
 
-  in->GetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
-  in->GetAxisSpacing(this->FilteredAxis,spacing);
+  this->Input->GetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
+  this->Input->GetAxisSpacing(this->FilteredAxis,spacing);
 
   // Scale the output extent
   wholeMin = (int)(ceil((float)(wholeMin) * this->GetMagnificationFactor()));
@@ -162,8 +160,8 @@ void vtkImageResample1D::ExecuteImageInformation(vtkImageCache *in,
   // Change the data spacing
   spacing /= this->GetMagnificationFactor();
 
-  out->SetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
-  out->SetAxisSpacing(this->FilteredAxis, spacing);
+  this->Output->SetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
+  this->Output->SetAxisSpacing(this->FilteredAxis, spacing);
   
   // just in case  the input spacing has changed.
   if (this->OutputSpacing != 0.0)

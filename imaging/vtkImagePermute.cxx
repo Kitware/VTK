@@ -60,8 +60,7 @@ void vtkImagePermute::SetFilteredAxes(int num, int *axes)
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ExecuteImageInformation(vtkImageCache *in, 
-					      vtkImageCache *out)
+void vtkImagePermute::ExecuteImageInformation() 
 {
   int min, max;
   float spacing;
@@ -71,19 +70,18 @@ void vtkImagePermute::ExecuteImageInformation(vtkImageCache *in,
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    in->GetAxisWholeExtent(axis, min, max);
-    out->SetAxisWholeExtent(idx, min, max);
-    in->GetAxisSpacing(axis, spacing);
-    out->SetAxisSpacing(idx, spacing);
-    in->GetAxisOrigin(axis, origin);
-    out->SetAxisOrigin(idx, origin);
+    this->Input->GetAxisWholeExtent(axis, min, max);
+    this->Output->SetAxisWholeExtent(idx, min, max);
+    this->Input->GetAxisSpacing(axis, spacing);
+    this->Output->SetAxisSpacing(idx, spacing);
+    this->Input->GetAxisOrigin(axis, origin);
+    this->Output->SetAxisOrigin(idx, origin);
     }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
-						       vtkImageCache *in)
+void vtkImagePermute::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
   int idx, axis;
@@ -91,8 +89,8 @@ void vtkImagePermute::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    out->GetAxisUpdateExtent(idx, min, max);
-    in->SetAxisUpdateExtent(axis, min, max);
+    this->Output->GetAxisUpdateExtent(idx, min, max);
+    this->Input->SetAxisUpdateExtent(axis, min, max);
     }
 }
 

@@ -60,8 +60,7 @@ public:
   const char *GetClassName() {return "vtkImageWrapPad";};
 
 protected:
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-					vtkImageCache *in);
+  void ComputeRequiredInputUpdateExtent();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -58,8 +58,7 @@ public:
   const char *GetClassName() {return "vtkImageMirrorPad";};
 
 protected:
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-					vtkImageCache *in);
+  void ComputeRequiredInputUpdateExtent();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

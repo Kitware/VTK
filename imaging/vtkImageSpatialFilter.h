@@ -99,9 +99,9 @@ protected:
   void SetExecuteTypeToPixel()
     {this->SetExecuteType(VTK_IMAGE_SPATIAL_PIXEL);}
   
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ExecuteImageInformation();
   void ComputeOutputWholeExtent(int *extent, int handleBoundaries);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  void ComputeRequiredInputUpdateExtent();
   void ComputeRequiredInputRegionExtent(vtkImageRegion *out, 
 					vtkImageRegion *in);
   void ComputeRequiredInputExtent(int *extent, int *wholeExtent);
