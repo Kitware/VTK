@@ -137,16 +137,16 @@ int TIFFInternal::Initialize()
 
 int TIFFInternal::CanRead()
 {
-  return 0 && ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
-                ( this->SamplesPerPixel > 0 ) && 
-                ( this->Compression == COMPRESSION_NONE ) &&
-                ( this->Photometrics == PHOTOMETRIC_RGB ||
-                  this->Photometrics == PHOTOMETRIC_MINISWHITE ||
-                  this->Photometrics == PHOTOMETRIC_MINISBLACK ||
-                  this->Photometrics == PHOTOMETRIC_PALETTE ) &&
-                this->PlanarConfig == PLANARCONFIG_CONTIG &&
-                ( !this->TileDepth ) &&
-                ( this->BitsPerSample == 8 ) );
+  return ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
+           ( this->SamplesPerPixel > 0 ) && 
+           ( this->Compression == COMPRESSION_NONE ) &&
+           ( this->Photometrics == PHOTOMETRIC_RGB ||
+             this->Photometrics == PHOTOMETRIC_MINISWHITE ||
+             this->Photometrics == PHOTOMETRIC_MINISBLACK ||
+             this->Photometrics == PHOTOMETRIC_PALETTE ) &&
+           this->PlanarConfig == PLANARCONFIG_CONTIG &&
+           ( !this->TileDepth ) &&
+           ( this->BitsPerSample == 8 ) );
 }
 
 //-------------------------------------------------------------------------
@@ -484,7 +484,6 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
           *(fimage+1) = green;//green;
           *(fimage+2) = blue;//blue;
           *(fimage+3) = alpha;//alpha;
-
           fimage += 4;
           }
         simage += 4;
@@ -604,7 +603,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
       if ( this->GetInternalImage()->SamplesPerPixel == 4 )
         {
         alpha = *(source+3);
-        *(image+3) = alpha;       
+        *(image+3) = 255-alpha;       
         }
       increment = this->GetInternalImage()->SamplesPerPixel;
       break;
