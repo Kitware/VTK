@@ -600,7 +600,6 @@ int vtkRenderWindow::OpenPPMImageFile()
       vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
       return 0;
       }
-    return 0;
   }
   return 1;
 }
