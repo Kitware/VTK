@@ -17,14 +17,14 @@ MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 #USER_CXXFLAGS = 
 
 # if you want to try the java support you'll need to set the following
-# variables to match your environment
+# variables to match your environment and uncomment them
 #
-JDKHOME=/home/calvin/content/ITL/java-packages/dev-kits/JDK/jdk1.1
-JAVAC=${JDKHOME}/bin/javac
-JAVA_CLASS_HOME=/home/martink/java
-JAVAH=${JDKHOME}/bin/javah
-JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/solaris
-JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
+#JDKHOME=/home/calvin/content/ITL/java-packages/dev-kits/JDK/jdk1.1
+#JAVAC=${JDKHOME}/bin/javac
+#JAVA_CLASS_HOME=/home/martink/java
+#JAVAH=${JDKHOME}/bin/javah
+#JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/solaris
+#JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
 
 
 
