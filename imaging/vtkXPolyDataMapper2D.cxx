@@ -181,13 +181,15 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
     { 
     if (c) 
       {
+      // if cell scalars are present, color poly with those, otherwise
+      // use the color of the first point
       if (cellScalars) 
 	{
 	rgba = c->GetColor(cellNum);
 	}
       else
 	{
-	rgba = c->GetColor(pts[j]);
+	rgba = c->GetColor(pts[0]);
 	}
       aColor.red = (unsigned short) (rgba[0] * 256);
       aColor.green = (unsigned short) (rgba[1] * 256);
