@@ -215,6 +215,7 @@ void vtkGetPolyDataGhostCells::Execute()
   points->Delete();
   ghostLevels->Delete();
   free(locators);
+  cell->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -227,9 +228,7 @@ void vtkGetPolyDataGhostCells::AddGhostLevel(vtkPolyData *output,
 {
   int i, j, k, l;
   vtkPoints *cellPoints = vtkPoints::New();
-  vtkPoints *newCellPoints = vtkPoints::New();
-  vtkPoints *newCellPoints2 = vtkPoints::New();
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkPoints *newCellPoints;
   vtkGenericCell *newCell = vtkGenericCell::New();
   int pointId, newPointId, *pointIds, numNewCellPoints;
   float point[3], newPoint[3];
@@ -263,7 +262,6 @@ void vtkGetPolyDataGhostCells::AddGhostLevel(vtkPolyData *output,
 	      {
 	      pointIds[l] = newPointId;
 	      } // end else
-	    newCellPoints2->InsertPoint(pointIds[l], newPoint);
 	    } // end for num points in cell
 	  
 	  output->InsertNextCell(newCell->GetCellType(), numNewCellPoints,
@@ -275,9 +273,8 @@ void vtkGetPolyDataGhostCells::AddGhostLevel(vtkPolyData *output,
       } // end for input > 0
     } // end for each point
   
+  newCell->Delete();
   cellPoints->Delete();
-  newCellPoints->Delete();
-  newCellPoints2->Delete();
   cellIds->Delete();
 }
 

@@ -214,6 +214,7 @@ void vtkGetGhostCells::Execute()
   points->Delete();
   ghostLevels->Delete();
   free(locators);
+  cell->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -225,9 +226,7 @@ void vtkGetGhostCells::AddGhostLevel(vtkUnstructuredGrid *output,
 {
   int i, j, k, l;
   vtkPoints *cellPoints = vtkPoints::New();
-  vtkPoints *newCellPoints = vtkPoints::New();
-  vtkPoints *newCellPoints2 = vtkPoints::New();
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkPoints *newCellPoints;
   vtkGenericCell *newCell = vtkGenericCell::New();
   int pointId, newPointId, *pointIds, numNewCellPoints;
   float point[3], newPoint[3];
@@ -240,42 +239,40 @@ void vtkGetGhostCells::AddGhostLevel(vtkUnstructuredGrid *output,
     for (j = 1; j < numInputs; j++)
       {
       if ((pointId = locators[j]->IsInsertedPoint(point)) != -1)
-	{
-	this->GetInput(j)->GetPointCells(pointId, cellIds);
-	for (k = 0; k < cellIds->GetNumberOfIds(); k++)
-	  {
-	  this->GetInput(j)->GetCell(cellIds->GetId(k), newCell);
-	  newCellPoints = newCell->GetPoints();
-	  numNewCellPoints = newCellPoints->GetNumberOfPoints();
-	  pointIds = (int*)malloc(numNewCellPoints * sizeof(int));
-	  for (l = 0; l < numNewCellPoints; l++)
-	    {
-	    newCellPoints->GetPoint(l, newPoint);
-	    if ((newPointId = locators[0]->IsInsertedPoint(newPoint)) == -1)
-	      {
-	      pointIds[l] = points->InsertNextPoint(newPoint);
-	      locators[0]->InsertPoint(pointIds[l], newPoint);
-	      output->SetPoints(points);
-	      } // end if point not found
-	    else
-	      {
-	      pointIds[l] = newPointId;
-	      } // end else
-	    newCellPoints2->InsertPoint(pointIds[l], newPoint);
-	    } // end for num points in cell
-	  
-	  output->InsertNextCell(newCell->GetCellType(), numNewCellPoints,
-				 pointIds);
-	  ghostLevels->InsertNextGhostLevel(ghostLevel);
-	  free(pointIds);
-	  } // end for num cells using this point
-	} // end if point located
+        {
+        this->GetInput(j)->GetPointCells(pointId, cellIds);
+        for (k = 0; k < cellIds->GetNumberOfIds(); k++)
+          {
+          this->GetInput(j)->GetCell(cellIds->GetId(k), newCell);
+          newCellPoints = newCell->GetPoints();
+          numNewCellPoints = newCellPoints->GetNumberOfPoints();
+          pointIds = (int*)malloc(numNewCellPoints * sizeof(int));
+          for (l = 0; l < numNewCellPoints; l++)
+            {
+            newCellPoints->GetPoint(l, newPoint);
+            if ((newPointId = locators[0]->IsInsertedPoint(newPoint)) == -1)
+              {
+              pointIds[l] = points->InsertNextPoint(newPoint);
+              locators[0]->InsertPoint(pointIds[l], newPoint);
+              output->SetPoints(points);
+              } // end if point not found
+            else
+              {
+              pointIds[l] = newPointId;
+              } // end else
+            } // end for num points in cell
+          output->InsertNextCell(newCell->GetCellType(), numNewCellPoints,
+                                 pointIds);
+          ghostLevels->InsertNextGhostLevel(ghostLevel);
+          free(pointIds);
+          } // end for num cells using this point
+        } // end if point located
       } // end for input > 0
     } // end for each point
   
+  newCell->Delete();
+  newCell = NULL;
   cellPoints->Delete();
-  newCellPoints->Delete();
-  newCellPoints2->Delete();
   cellIds->Delete();
 }
 
