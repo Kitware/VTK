@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricKlein - generate a "classical" representation of a Klein bottle
+// .NAME vtkParametricKlein - a "classical" representation of a Klein bottle
 // .SECTION Description
-// vtkParametricKlein generates a "classical" representation of a Klein
+// vtkParametricKlein is a "classical" representation of a Klein
 // bottle.  A Klein bottle is a closed surface with no interior and only one
 // surface.  It is unrealisable in 3 dimensions without intersecting
 // surfaces.  It can be realised in 4 dimensions by considering the map
