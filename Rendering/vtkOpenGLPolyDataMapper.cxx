@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.97");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.98");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -588,6 +588,10 @@ void vtkOpenGLPolyDataMapper::DrawPoints(int idx,
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
   unsigned char *colors = 0;
+  if (ca->GetNumberOfCells() == 0)
+    {
+    return;
+    }
   if (n)
     {
     voidNormals = n->GetVoidPointer(0);
@@ -722,10 +726,19 @@ void vtkOpenGLPolyDataMapper::DrawLines(int idx,
 {
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
+  void *voidTCoords = 0;
   unsigned char *colors = 0;
+  if (ca->GetNumberOfCells() == 0)
+    {
+    return;
+    }
   if (n)
     {
     voidNormals = n->GetVoidPointer(0);
+    }
+  if (t)
+    {
+    voidTCoords = t->GetVoidPointer(0);
     }
   if (c)
     {
@@ -777,6 +790,25 @@ void vtkOpenGLPolyDataMapper::DrawLines(int idx,
                         glNormal3fv(normals + 3**ptIds);
                         glColor3ubv(colors + 4**ptIds);
                         glVertex3fv(points + 3**ptIds);,
+                        float *normals = (float *)voidNormals;
+        );
+    break;
+    case VTK_PDM_POINT_TYPE_FLOAT | 
+      VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawPrimsMacro(float, float, GL_LINE_STRIP, 
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,
+                        float *tcoords = (float *)voidTCoords;
+        );
+    break;
+    case VTK_PDM_POINT_TYPE_FLOAT | 
+      VTK_PDM_NORMAL_TYPE_FLOAT | VTK_PDM_NORMALS |
+      VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
+      vtkDrawPrimsMacro(float, float, GL_LINE_STRIP, 
+                        glNormal3fv(normals + 3**ptIds);
+                        glTexCoord1fv(tcoords + *ptIds);
+                        glVertex3fv(points + 3**ptIds);,
+                        float *tcoords = (float *)voidTCoords;
                         float *normals = (float *)voidNormals;
         );
     break;
@@ -872,6 +904,10 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
   void *voidNormals = 0;
   void *voidTCoords = 0;
   unsigned char *colors = 0;
+  if (ca->GetNumberOfCells() == 0)
+    {
+    return;
+    }
   if (n)
     {
     voidNormals = n->GetVoidPointer(0);
@@ -1149,6 +1185,10 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
   double polyNorm[3];
   vtkIdType normIdx[3];
   
+  if (ca->GetNumberOfCells() == 0)
+    {
+    return;
+    }
   if (n)
     {
     voidNormals = n->GetVoidPointer(0);
