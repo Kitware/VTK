@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.5");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.6");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -480,11 +480,11 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
     if (this->Mapped)
       {
       if (!resizing)
- {
- resizing = 1;
- SizeWindow(this->WindowId, x, y, TRUE);
- resizing = 0;
- }
+{
+        resizing = 1;
+        SizeWindow(this->WindowId, x, y, TRUE);
+        resizing = 0;
+        }
       }
     }
 }
@@ -502,11 +502,30 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
     if (this->Mapped)
       {
       if (!resizing)
- {
- resizing = 1;
- MoveWindow(this->WindowId, x, y, FALSE);
- resizing = 0;
- }
+        {
+        resizing = 1;
+
+        if (this->ParentId)
+          {
+          GLint bufRect[4];
+          Rect windowRect;
+          GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
+
+          bufRect[0] = this->Position[0];
+          bufRect[1] = (int) (windowRect.bottom-windowRect.top) 
+            - (this->Position[1]+this->Size[1]);
+          bufRect[2] = this->Size[0];
+          bufRect[3] = this->Size[1];
+          aglEnable(this->ContextId, AGL_BUFFER_RECT);
+          aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufRect);
+          }
+        else
+          {
+          MoveWindow(this->WindowId, x, y, FALSE);
+          }
+
+        resizing = 0;
+        }
       }
     }
 }
@@ -533,14 +552,14 @@ void vtkCarbonRenderWindow::StereoUpdate(void)
     switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
- {
- this->StereoStatus = 1;
- }
- break;
+        {
+        this->StereoStatus = 1;
+        }
+        break;
       case VTK_STEREO_RED_BLUE:
- {
- this->StereoStatus = 1;
- }
+        {
+        this->StereoStatus = 1;
+        }
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -548,14 +567,14 @@ void vtkCarbonRenderWindow::StereoUpdate(void)
     switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
- {
- this->StereoStatus = 0;
- }
- break;
+        {
+        this->StereoStatus = 0;
+        }
+        break;
       case VTK_STEREO_RED_BLUE:
- {
- this->StereoStatus = 0;
- }
+        {
+        this->StereoStatus = 0;
+        }
       }
     }
 }
@@ -569,8 +588,8 @@ void vtkCarbonRenderWindow::WindowConfigure()
 
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetupPixelFormat(void *hDC, void *dwFlags,
-          int debug, int bpp,
-          int zbpp)
+    int debug, int bpp,
+    int zbpp)
 {
   cout << "vtkCarbonRenderWindow::SetupPixelFormat - IMPLEMENT\n";
 }
@@ -586,12 +605,12 @@ void vtkCarbonRenderWindow::InitializeApplication()
 {
   if (!this->ApplicationInitialized)
     {
-      if (!this->ParentId)
- { // Initialize the Toolbox managers if we are running the show
- InitCursor();
- DrawMenuBar();
- this->ApplicationInitialized=1;
- }
+    if (!this->ParentId)
+      { // Initialize the Toolbox managers if we are running the show
+      InitCursor();
+      DrawMenuBar();
+      this->ApplicationInitialized=1;
+      }
     }
 }
 
@@ -623,8 +642,8 @@ void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
 
   // Rect is defined as {top, left, bottom, right} (really)
   Rect rectWin = {this->Position[1], this->Position[0],
-    this->Position[1]+this->Size[1],
-    this->Position[0]+this->Size[0]};
+                  this->Position[1]+this->Size[1],
+                  this->Position[0]+this->Size[0]};
   
   if (!this->WindowId)
     {
@@ -635,14 +654,14 @@ void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
     else
       {
       if (noErr != CreateNewWindow (kDocumentWindowClass, windowAttrs,
-        &rectWin, &(this->WindowId)))
- {
- vtkErrorMacro("Could not create window, serious error!");
- return;
- }
-      int len = strlen("vtkX - Carbon #")
- + (int)ceil( (double) log10( (double)(count+1) ) )
- + 1;
+  &rectWin, &(this->WindowId)))
+        {
+        vtkErrorMacro("Could not create window, serious error!");
+        return;
+        }
+      int len = (strlen("vtkX - Carbon #")
+                 + (int) ceil((double)log10((double)(count+1)))
+                 + 1);
       windowName = new char [ len ];
       sprintf(windowName,"vtkX - Carbon #%i",count++);
       this->SetWindowName(windowName);
@@ -675,25 +694,25 @@ void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
       // software renderer
       // infinite VRAM, infinite textureRAM, not accelerated
       if (this->fAcceleratedMust)
- {
- vtkErrorMacro ("Window spans multiple devices-no HW accel");
- return;
- }
+        {
+        vtkErrorMacro ("Window spans multiple devices-no HW accel");
+        return;
+        }
       }
     else // not draggable on single device
       {
       if (!CheckRenderer (hGD, &(this->VRAM), &(this->textureRAM),
-     &depthSizeSupport, this->fAcceleratedMust))
- {
- vtkErrorMacro ("Renderer check failed");
- return;
- }
+                          &depthSizeSupport, this->fAcceleratedMust))
+        {
+        vtkErrorMacro ("Renderer check failed");
+        return;
+        }
       }
     }
   // else if draggable - must check all devices for presence of
   // at least one renderer that meets the requirements
   else if(!CheckAllDeviceRenderers(&(this->VRAM), &(this->textureRAM),
-                                   &depthSizeSupport, this->fAcceleratedMust))
+   &depthSizeSupport, this->fAcceleratedMust))
     {
     vtkErrorMacro ("Renderer check failed");
     return;
@@ -708,10 +727,13 @@ void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
   // we successfully passed the renderer checks!
   
   if ((!this->draggable && (numDevices == 1)))
-    // not draggable on a single device
+    {// not draggable on a single device
     this->fmt = aglChoosePixelFormat (&hGD, 1, this->aglAttributes);
+    }
   else
+    {
     this->fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
+    }  
   aglReportError (); // cough up any errors encountered
   if (NULL == this->fmt)
     {
@@ -808,11 +830,15 @@ int *vtkCarbonRenderWindow::GetSize(void)
     return this->Size;
     }
 
-  Rect windowRect;
-  GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
   //  Find the current window size
-  this->Size[0] = (int) windowRect.right-windowRect.left;
-  this->Size[1] = (int) windowRect.bottom-windowRect.top;
+  if (!(this->ParentId))
+    { // if we are a child we'll need to do something smarter
+    Rect windowRect;
+    GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
+    this->Size[0] = (int) windowRect.right-windowRect.left;
+    this->Size[1] = (int) windowRect.bottom-windowRect.top;
+    }
+
   return this->Size;
 }
 
