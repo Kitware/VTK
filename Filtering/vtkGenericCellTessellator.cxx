@@ -22,33 +22,32 @@
 #include "vtkDoubleArray.h"
 #include "vtkMergePoints.h"
 #include "vtkCellArray.h"
-#include "vtkGenericEdgeTable.h"
+#include "vtkCollection.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellIterator.h"
 
-#include <vtkstd/queue>
-#include <vtkstd/stack>
+
 #include <assert.h>
 
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.7");
-vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.8");
+vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //-----------------------------------------------------------------------------
 // Create the tessellator helper with a default of 0.25 for threshold
 //
 vtkGenericCellTessellator::vtkGenericCellTessellator()
 {
-  this->ErrorMetric = vtkGenericSubdivisionErrorMetric::New();
+  this->ErrorMetrics = vtkCollection::New();
 }
 
 //-----------------------------------------------------------------------------
 vtkGenericCellTessellator::~vtkGenericCellTessellator()
 {
-  this->SetErrorMetric( 0 );
+  this->SetErrorMetrics( 0 );
 }
 
 
@@ -57,6 +56,80 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ErrorMetric: " 
-     << this->ErrorMetric << endl;
+  os << indent << "ErrorMetrics: " 
+     << this->ErrorMetrics << endl;
+  
+}
+ 
+//-----------------------------------------------------------------------------
+// Description:
+// Does the edge need to be subdivided according to at least one error
+// metric? The edge is defined by its `leftPoint' and its `rightPoint'.
+// `leftPoint', `midPoint' and `rightPoint' have to be initialized before
+// calling NeedEdgeSubdivision().
+// Their format is global coordinates, parametric coordinates and
+// point centered attributes: xyx rst abc de...
+// \pre leftPoint_exists: leftPoint!=0
+// \pre midPoint_exists: midPoint!=0
+// \pre rightPoint_exists: rightPoint!=0
+// \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+//          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+int vtkGenericCellTessellator::NeedEdgeSubdivision(double *leftPoint,
+                                                   double *midPoint,
+                                                   double *rightPoint)
+{
+  assert("pre: leftPoint_exists" && leftPoint!=0);
+  assert("pre: midPoint_exists" && midPoint!=0);
+  assert("pre: rightPoint_exists" && rightPoint!=0);
+  
+  int result=0;
+  this->ErrorMetrics->InitTraversal();
+  vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+  
+  // Once we found at least one error metric that need subdivision,
+  // the subdivision has to be done and there is no need to check for other
+  // error metrics.
+  while(!result&&(e!=0))
+    {
+    result=e->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint);
+    e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+    }
+  
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Init the error metric with the dataset. Should be called in each filter
+// before any tessellation of any cell.
+void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
+{
+  this->ErrorMetrics->InitTraversal();
+  vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+  
+  while(e!=0)
+    {
+    e->SetDataSet(ds);
+    e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Send the current cell to error metrics. Should be called at the beginning
+// of the implementation of Tessellate(), Triangulate()
+// or TessellateTriangleFace()
+// \pre cell_exists: cell!=0
+void vtkGenericCellTessellator::SetGenericCell(vtkGenericAdaptorCell *cell)
+{
+  assert("pre: cell_exists" && cell!=0);
+  
+  this->ErrorMetrics->InitTraversal();
+  vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+  
+  while(e!=0)
+    {
+    e->SetGenericCell(cell);
+    e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+    }
 }

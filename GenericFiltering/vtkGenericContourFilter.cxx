@@ -31,8 +31,9 @@
 #include "vtkGenericDataSet.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
+#include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.5");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.6");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -212,6 +213,9 @@ void vtkGenericContourFilter::Execute()
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
   int abortExecute=0;
+  
+  input->GetTessellator()->InitErrorMetrics(input);
+  
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
     {
     if ( !(count % updateCount) )

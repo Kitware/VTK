@@ -68,6 +68,8 @@ vtkGenericDataSetToUnstructuredGridFilter.cxx
 vtkGenericEdgeTable.cxx
 vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
+vtkGeometricErrorMetric.cxx
+vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxApplyFilterCommand.cxx
@@ -218,6 +220,7 @@ vtkGenericDataSetSource
 vtkGenericDataSetToUnstructuredGridFilter
 vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
+vtkGenericSubdivisionErrorMetric
 vtkHierarchicalBoxSource
 vtkHierarchicalBoxToHierarchicalBoxFilter
 vtkHierarchicalBoxToPolyDataFilter

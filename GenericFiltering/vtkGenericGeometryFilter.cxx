@@ -35,8 +35,9 @@
 #include "vtkGenericDataSet.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
+#include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.3");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.4");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -282,6 +283,8 @@ void vtkGenericGeometryFilter::Execute()
   vtkIdList *faceList = vtkIdList::New();
   faceList->SetNumberOfIds(3);
 
+  input->GetTessellator()->InitErrorMetrics(input);
+  
   for (cellId = 0, cellIt->Begin(); !cellIt->IsAtEnd() && !abort; 
     cellIt->Next(), cellId++)
     {

@@ -33,10 +33,11 @@
 #include "vtkGenericDataSet.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
+#include "vtkGenericCellTessellator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.5");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.6");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
 
@@ -286,6 +287,9 @@ void vtkGenericCutter::Execute()
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
   int abortExecute=0;
+  
+  input->GetTessellator()->InitErrorMetrics(input);
+  
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
     {
     if ( !(count % updateCount) )

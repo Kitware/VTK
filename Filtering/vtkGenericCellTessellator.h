@@ -42,7 +42,7 @@
 
 class vtkCellArray;
 class vtkDoubleArray;
-class vtkGenericSubdivisionErrorMetric;
+class vtkCollection;
 class vtkGenericAttributeCollection;
 class vtkGenericAdaptorCell;
 class vtkGenericCellIterator;
@@ -99,21 +99,50 @@ public:
                            vtkPointData *internalPd)=0;
 
   // Description:
-  // Specify the object to use to compute the error metric.
-  virtual void SetErrorMetric(vtkGenericSubdivisionErrorMetric *anErrorMetric);
-  vtkGetObjectMacro(ErrorMetric,vtkGenericSubdivisionErrorMetric);
+  // Specify the list of error metrics used to decide if an edge has to be
+  // splitted or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
+  virtual void SetErrorMetrics(vtkCollection *someErrorMetrics);
+  vtkGetObjectMacro(ErrorMetrics,vtkCollection);
   
   // Description:
   // Initialize the tessellator with a data set `ds'.
   virtual void Initialize(vtkGenericDataSet *ds)=0;
+  
+  // Description:
+  // Init the error metric with the dataset. Should be called in each filter
+  // before any tessellation of any cell.
+  void InitErrorMetrics(vtkGenericDataSet *ds);
   
 protected:
   vtkGenericCellTessellator();
   ~vtkGenericCellTessellator();
   
   // Description:
-  // Contains the error metric
-  vtkGenericSubdivisionErrorMetric *ErrorMetric;
+  // Does the edge need to be subdivided according to at least one error
+  // metric? The edge is defined by its `leftPoint' and its `rightPoint'.
+  // `leftPoint', `midPoint' and `rightPoint' have to be initialized before
+  // calling NeedEdgeSubdivision().
+  // Their format is global coordinates, parametric coordinates and
+  // point centered attributes: xyx rst abc de...
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  int NeedEdgeSubdivision(double *left, double *mid, double *right);
+  
+  // Description:
+  // List of error metrics. Collection of vtkGenericSubdivisionErrorMetric
+  vtkCollection *ErrorMetrics;
+  
+  // Description:
+  // Send the current cell to error metrics. Should be called at the beginning
+  // of the implementation of Tessellate(), Triangulate()
+  // or TessellateTriangleFace()
+  // \pre cell_exists: cell!=0
+  void SetGenericCell(vtkGenericAdaptorCell *cell);
+  
+  vtkGenericDataSet *DataSet;
   
 private:
   vtkGenericCellTessellator(const vtkGenericCellTessellator&);  // Not implemented.

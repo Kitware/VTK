@@ -40,6 +40,11 @@
 #include <assert.h>
 #include "vtkLookupTable.h"
 #include "vtkDataSetMapper.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkActor2D.h"
+#include "vtkCommand.h"
+#include "vtkGeometricErrorMetric.h"
+#include "vtkAttributesErrorMetric.h"
 
 #ifdef WRITE_GENERIC_RESULT
 # include "vtkXMLUnstructuredGridWriter.h"
@@ -53,6 +58,29 @@
 // minimal attributes, the GenericGeometryFilter just need to tessellate the
 // face of the tetra, for which the values at points are not minimal.
 
+vtkLabeledDataMapper *labeledDataMapper;
+vtkRenderWindow *renWin;
+
+class SwitchLabelsCallback
+  : public vtkCommand
+{
+public:
+  static SwitchLabelsCallback *New()
+    { return new SwitchLabelsCallback; }
+  virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
+    { 
+      if(labeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
+        {
+        labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
+        }
+      else
+        {
+        labeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
+        }
+      renWin->Render();
+    }
+};
+
 int TestGenericDataSetTessellator(int argc, char* argv[])
 {
   // Disable for testing
@@ -60,7 +88,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   // Standard rendering classes
   vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
@@ -68,7 +96,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-  
+  //char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -82,9 +110,18 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   
   // Set the error metric thresholds:
   // 1. for the geometric error metric
-  ds->GetTessellator()->GetErrorMetric()->SetRelativeGeometricTolerance(0.1,ds);
+  vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
+  geometricError->SetRelativeGeometricTolerance(0.1,ds);
+  
+  ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
+  geometricError->Delete();
+  
   // 2. for the attribute error metric
-  ds->GetTessellator()->GetErrorMetric()->SetAttributeTolerance(0.01);
+  vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
+  attributesError->SetAttributeTolerance(0.01);
+  
+  ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
+  attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
 
   vtkIndent indent;
@@ -128,14 +165,30 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   writer->Write();
   writer->Delete();
 #endif // #ifdef WRITE_GENERIC_RESULT
+
+  vtkActor2D *actorLabel=vtkActor2D::New();
+  labeledDataMapper=vtkLabeledDataMapper::New();
+  labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
+  labeledDataMapper->SetInput(tessellator->GetOutput());
+  actorLabel->SetMapper(labeledDataMapper);
+  labeledDataMapper->Delete();
+  renderer->AddActor(actorLabel);
+  actorLabel->SetVisibility(0);
+  actorLabel->Delete();
   
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
   renWin->SetSize(300,300);
   renWin->Render();
+  
+  tessellator->GetOutput()->PrintSelf(cout,indent);
+  
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
+    SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
+    iren->AddObserver(vtkCommand::UserEvent,switchLabels);
+    switchLabels->Delete();
     iren->Start();
     }
 

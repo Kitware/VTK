@@ -39,6 +39,8 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
+#include "vtkGeometricErrorMetric.h"
+#include "vtkAttributesErrorMetric.h"
 
 int TestGenericContourFilter(int argc, char* argv[])
 {
@@ -55,6 +57,7 @@ int TestGenericContourFilter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+ 
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -68,9 +71,19 @@ int TestGenericContourFilter(int argc, char* argv[])
   
   // Set the error metric thresholds:
   // 1. for the geometric error metric
-  ds->GetTessellator()->GetErrorMetric()->SetRelativeGeometricTolerance(0.1,ds);
+  vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
+  geometricError->SetRelativeGeometricTolerance(0.1,ds);
+  
+  ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
+  geometricError->Delete();
+  
   // 2. for the attribute error metric
-  ds->GetTessellator()->GetErrorMetric()->SetAttributeTolerance(0.01);
+  vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
+  attributesError->SetAttributeTolerance(0.01);
+  
+  ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
+  attributesError->Delete();
+  
   cout<<"input unstructured grid: "<<ds<<endl;
 
   vtkIndent indent;
