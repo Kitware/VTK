@@ -499,7 +499,6 @@ HBITMAP vtkWin32ImageMapper::CreateBitmapObject(
 {
   // make sure width is 4 byte aligned
   int dataWidth = ((width*3+3)/4)*4;
-  // Allow 8 bit palette bmp if desired
   //
   if (!oldBitmap)
     {
@@ -710,18 +709,18 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   actorPos[0] += this->PositionAdjustment[0];
   actorPos[1] -= this->PositionAdjustment[1];
   //
-  actorPos[1] = actorPos[1] - height + 1;
-  //
   if (!this->RenderToRectangle)
     {
+    actorPos[1] = actorPos[1] - height + 1; // y axis is reversed!
     StretchBlt(windowDC,actorPos[0],actorPos[1],width, height, compatDC, 0,
       0,width,height,SRCCOPY);
     }
   else
     {
     int *topright = actor->GetPosition2Coordinate()->GetComputedLocalDisplayValue(viewport);
-    int rectwidth  = topright[0] - actorPos[0];
-    int rectheight = topright[1] - actorPos[1];
+    int rectwidth  = (topright[0] - actorPos[0]) + 1;
+    int rectheight = (actorPos[1] - topright[1]) + 1; // y axis is reversed!
+    actorPos[1] = actorPos[1] - rectheight + 1;
     StretchBlt(windowDC,actorPos[0],actorPos[1],rectwidth, rectheight, compatDC, 0,
       0,width,height,SRCCOPY);
     }
