@@ -176,14 +176,14 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 wm withdraw .
 
 vtkImageMaskBits mask
-  mask SetOperationToXor
-  mask SetInput [imagePowerOf2 GetOutput]
+mask SetOperationToXor
+mask SetInput [imagePowerOf2 GetOutput]
+mask SetEndMethod switchit
 
 vtkImageDataStreamer imageStreamer
 imageStreamer SetInput [mask GetOutput]
-imageStreamer SetSplitModeToXSlab
-imageStreamer SetMemoryLimit 25
-imageStreamer SetEndMethod switchit
+[imageStreamer GetExtentTranslator] SetSplitModeToXSlab
+imageStreamer SetNumberOfStreamDivisions 5
 
 set current 0
 proc switchit { } {
@@ -203,17 +203,6 @@ imageTexture SetInput [imageStreamer GetOutput]
 
 clipart SetTexture imageTexture
 renWin Render
-
-imageStreamer IncrementalUpdateOn
-
-
-## Render 5 times so that we show something
-renWin Render
-renWin Render
-renWin Render
-renWin Render
-renWin Render
-
 
 ## Uncomment this out to cause continual pipeline updates
 #while {1} {
