@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.23")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.24")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -3217,15 +3217,15 @@ vtkIntArray **vtkDistributedDataFilter::FindGlobalPointIds(
      int &numUniqueMissingPoints)
 {
   int nprocs = this->NumProcesses;
+  vtkIntArray **gids = new vtkIntArray * [nprocs];
 
   if (grid->GetNumberOfCells() == 0)
     {
     // There are no cells in my assigned region
 
-    vtkIntArray **ids = new vtkIntArray * [nprocs];
-    memset(ids, 0, sizeof(vtkIntArray *) * nprocs);
+    memset(gids, 0, sizeof(vtkIntArray *) * nprocs);
 
-    return ids;
+    return gids;
     }
 
   vtkKdTree *kd = vtkKdTree::New();
@@ -3234,8 +3234,6 @@ vtkIntArray **vtkDistributedDataFilter::FindGlobalPointIds(
 
   int procId;
   int ptId, localId;
-
-  vtkIntArray **gids = new vtkIntArray * [nprocs];
 
   vtkPointLocator *pl = NULL;
   vtkPoints *missingPoints = NULL;
