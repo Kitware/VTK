@@ -67,6 +67,7 @@ vtkImageOpenClose3D
 vtkImagePadFilter
 vtkImagePermute
 vtkImageQuantizeRGBToIndex
+vtkImageReslice
 vtkImageRFFT
 vtkImageRGBToHSV
 vtkImageRange3D

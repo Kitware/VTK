@@ -9,7 +9,6 @@ vtkEarthSource
 vtkGridTransform 
 vtkIVWriter 
 vtkImageToPolyDataFilter 
-vtkImageReslice 
 vtkLandmarkTransform 
 vtkLegendBoxActor 
 vtkLightKit 
