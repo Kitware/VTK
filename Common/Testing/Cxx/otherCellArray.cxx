@@ -58,7 +58,7 @@ void Test(ostream& strm)
   vtkIdTypeArray *cells = vtkIdTypeArray::New();
   cells->SetNumberOfTuples(12);
   vtkIdType idT[12] = {3, 0, 1, 2, 3, 1, 2, 3, 3, 3, 4, 5};
-  cells->SetVoidArray(idT,12,0);
+  cells->SetVoidArray(idT,12,1);
   ca->Allocate(10000);
   ca->SetCells (3, cells);
   strm << "ca->GetNumberOfCells() = " << ca->GetNumberOfCells() << endl;
