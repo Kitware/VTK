@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.80");
+vtkCxxRevisionMacro(vtkHexahedron, "1.81");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -375,7 +375,7 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
   VTK_TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int e1, e2, newCellId;
+  int v1, v2, newCellId;
   vtkIdType pts[3];
   float t, x1[3], x2[3], x[3], deltaScalar;
 
@@ -396,31 +396,26 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
+
       // calculate a preferred interpolation direction
       deltaScalar = (cellScalars->GetComponent(vert[1],0) 
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
-        e1 = vert[0]; e2 = vert[1];
+        v1 = vert[0]; v2 = vert[1];
         }
       else
         {
-        e1 = vert[1]; e2 = vert[0];
+        v1 = vert[1]; v2 = vert[0];
         deltaScalar = -deltaScalar;
         }
 
       // linear interpolation
-      if (deltaScalar == 0.0)
-        {
-        t = 0.0;
-        }
-      else
-        {
-        t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
-        }
+      t = ( deltaScalar == 0.0 ? 0.0 :
+            (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
 
-      this->Points->GetPoint(e1, x1);
-      this->Points->GetPoint(e2, x2);
+      this->Points->GetPoint(v1, x1);
+      this->Points->GetPoint(v2, x2);
 
       for (j=0; j<3; j++)
         {
@@ -430,16 +425,15 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
         {
         if ( outPd ) 
           {
-          int p1 = this->PointIds->GetId(e1);
-          int p2 = this->PointIds->GetId(e2);
+          int p1 = this->PointIds->GetId(v1);
+          int p2 = this->PointIds->GetId(v2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
       }
+
     // check for degenerate triangle
-    if ( pts[0] != pts[1] &&
-         pts[0] != pts[2] &&
-         pts[1] != pts[2] )
+    if ( pts[0] != pts[1] && pts[0] != pts[2] && pts[1] != pts[2] )
       {
       newCellId = polys->InsertNextCell(3,pts);
       outCd->CopyData(inCd,cellId,newCellId);

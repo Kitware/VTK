@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.25");
+vtkCxxRevisionMacro(vtkPyramid, "1.26");
 vtkStandardNewMacro(vtkPyramid);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -345,9 +345,9 @@ void vtkPyramid::Contour(float value, vtkDataArray *cellScalars,
   static int CASE_MASK[5] = {1,2,4,8,16};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
-  int i, j, index, *vert, newCellId;
+  int i, j, index, *vert, v1, v2, newCellId;
   vtkIdType pts[3];
-  float t, *x1, *x2, x[3];
+  float t, *x1, *x2, x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 5; i++)
@@ -366,30 +366,44 @@ void vtkPyramid::Contour(float value, vtkDataArray *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
-      t = (value - cellScalars->GetComponent(vert[0],0)) /
-          (cellScalars->GetComponent(vert[1],0) 
-           - cellScalars->GetComponent(vert[0],0));
-      x1 = this->Points->GetPoint(vert[0]);
-      x2 = this->Points->GetPoint(vert[1]);
-      for (j=0; j<3; j++) 
+
+      // calculate a preferred interpolation direction
+      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+                     - cellScalars->GetComponent(vert[0],0));
+      if (deltaScalar > 0)
+        {
+        v1 = vert[0]; v2 = vert[1];
+        }
+      else
+        {
+        v1 = vert[1]; v2 = vert[0];
+        deltaScalar = -deltaScalar;
+        }
+
+      // linear interpolation
+      t = ( deltaScalar == 0.0 ? 0.0 :
+            (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
+
+      x1 = this->Points->GetPoint(v1);
+      x2 = this->Points->GetPoint(v2);
+
+      for (j=0; j<3; j++)
         {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
         }
-      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+      if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds->GetId(vert[0]);
-          int p2 = this->PointIds->GetId(vert[1]);
+          int p1 = this->PointIds->GetId(v1);
+          int p2 = this->PointIds->GetId(v2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
       }
+
     // check for degenerate triangle
-    if ( pts[0] != pts[1] &&
-         pts[0] != pts[2] &&
-         pts[1] != pts[2] )
+    if ( pts[0] != pts[1] && pts[0] != pts[2] && pts[1] != pts[2] )
       {
       newCellId = polys->InsertNextCell(3,pts);
       outCd->CopyData(inCd,cellId,newCellId);
