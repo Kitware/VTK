@@ -643,39 +643,41 @@ static inline void vtkCubicHelper(float displacement[3],
     for (int k = kl; k < km; k++)
       {
       T *gridPtr2 = gridPtr1 + factY[k];
-      T *gridPtr3 = gridPtr2 + factX[0];
-      vY[0] = gridPtr3[0] * fX[0];
-      vY[1] = gridPtr3[1] * fX[0];
-      vY[2] = gridPtr3[2] * fX[0];
-      gridPtr3 = gridPtr2 + factX[1];
-      vY[0] += gridPtr3[0] * fX[1];
-      vY[1] += gridPtr3[1] * fX[1];
-      vY[2] += gridPtr3[2] * fX[1];
-      gridPtr3 = gridPtr2 + factX[2];
-      vY[0] += gridPtr3[0] * fX[2];
-      vY[1] += gridPtr3[1] * fX[2];
-      vY[2] += gridPtr3[2] * fX[2];
-      gridPtr3 = gridPtr2 + factX[3];
-      vY[0] += gridPtr3[0] * fX[3];
-      vY[1] += gridPtr3[1] * fX[3];
-      vY[2] += gridPtr3[2] * fX[3];
-      if (derivatives)
+      vY[0] = 0;
+      vY[1] = 0;
+      vY[2] = 0;
+      if (!derivatives)
 	{
 	for (int l = ll; l < lm; l++)
 	  {
-	  gridPtr3 = gridPtr2 + factX[l];
+	  T *gridPtr3 = gridPtr2 + factX[l];
+	  float fx = fX[l];
+	  vY[0] += gridPtr3[0] * fx;
+	  vY[1] += gridPtr3[1] * fx;
+	  vY[2] += gridPtr3[2] * fx;
+	  }
+	}
+      else
+	{
+	for (int l = ll; l < lm; l++)
+	  {
+	  T *gridPtr3 = gridPtr2 + factX[l];
+	  float fx = fX[l];
 	  float gff = gX[l]*fY[k]*fZ[j];
 	  float fgf = fX[l]*gY[k]*fZ[j];
 	  float ffg = fX[l]*fY[k]*gZ[j];
 	  float inVal = gridPtr3[0];
+	  vY[0] += inVal * fx;
 	  derivatives[0][0] += inVal * gff;
 	  derivatives[0][1] += inVal * fgf;
 	  derivatives[0][2] += inVal * ffg;
 	  inVal = gridPtr3[1];
+	  vY[1] += inVal * fx;
 	  derivatives[1][0] += inVal * gff;
 	  derivatives[1][1] += inVal * fgf;
 	  derivatives[1][2] += inVal * ffg;
 	  inVal = gridPtr3[2];
+	  vY[2] += inVal * fx;
 	  derivatives[2][0] += inVal * gff;
 	  derivatives[2][1] += inVal * fgf;
 	  derivatives[2][2] += inVal * ffg;
@@ -817,8 +819,8 @@ vtkGridTransform::vtkGridTransform()
   this->DisplacementGrid = NULL;
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
+  // the grid warp has a fairly large tolerance
   this->InverseTolerance = 0.01;
-  this->InverseIterations = 1000;
 }
 
 //----------------------------------------------------------------------------
