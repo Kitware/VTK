@@ -22,6 +22,8 @@ void vlOutlineFilter::Execute()
   float *bounds;
   float x[3];
   int pts[2];
+  vlFloatPoints *newPts;
+  vlCellArray *newLines;
 
   vlDebugMacro(<< "Creating dataset outline");
 //
