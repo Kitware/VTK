@@ -76,6 +76,10 @@ protected:
   vtkIdType ReferenceCount;   
   vtkContainer();
   virtual ~vtkContainer();
+
+private:
+  vtkContainer(const vtkContainer&); // Not implemented
+  void operator=(const vtkContainer&); // Not implemented
 };
 
 template<class DType>

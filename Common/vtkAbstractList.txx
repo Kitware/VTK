@@ -25,4 +25,11 @@
 template<class DataType>
 vtkAbstractList<DataType>::vtkAbstractList() {}
 
+#if defined ( _MSC_VER )
+template <class DType>
+vtkAbstractList<DType>::vtkAbstractList(const vtkAbstractList<DType>&){}
+template <class DType>
+void vtkAbstractList<DType>::operator=(const vtkAbstractList<DType>&){}
+#endif
+
 #endif

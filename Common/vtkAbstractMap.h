@@ -100,6 +100,10 @@ public:
 
 protected:
   vtkAbstractMap();
+
+private:
+  vtkAbstractMap(const vtkAbstractMap&); // Not implemented
+  void operator=(const vtkAbstractMap&); // Not implemented
 };
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION

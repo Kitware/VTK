@@ -19,6 +19,7 @@
 #include "vtkObject.h"
 #include "vtkAbstractList.h"
 #include "vtkAbstractMap.h"
+#include "vtkAbstractIterator.h"
 
 int main(int argc, char** vtkNotUsed(argv))
 {
@@ -27,10 +28,11 @@ int main(int argc, char** vtkNotUsed(argv))
   vtkContainer *cnt = 0;
   vtkAbstractList<int> *alist = 0;
   vtkAbstractMap<char*, char*> *amap= 0;
+  vtkAbstractIterator<int,int> *iter = 0;
 
   // This is here so that it does not complain about 
   // pointers not being used
-  if ( cnt && alist && amap || (argc > 1) )
+  if ( cnt && alist && amap && iter || (argc > 1) )
     {
     return 1;
     }

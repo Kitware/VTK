@@ -94,4 +94,11 @@ void vtkAbstractIterator<KeyType,DataType>::SetContainer(vtkContainer* container
 }
 
 
+#if defined ( _MSC_VER )
+template <class KeyType,class DataType>
+vtkAbstractIterator<KeyType,DataType>::vtkAbstractIterator(const vtkAbstractIterator<KeyType,DataType>&){}
+template <class KeyType,class DataType>
+void vtkAbstractIterator<KeyType,DataType>::operator=(const vtkAbstractIterator<KeyType,DataType>&){}
+#endif
+
 #endif

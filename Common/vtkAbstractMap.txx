@@ -25,5 +25,11 @@
 template<class KeyType, class DataType>
 vtkAbstractMap<KeyType,DataType>::vtkAbstractMap() {}
 
+#if defined ( _MSC_VER )
+template <class KeyType,class DataType>
+vtkAbstractMap<KeyType,DataType>::vtkAbstractMap(const vtkAbstractMap<KeyType,DataType>&){}
+template <class KeyType,class DataType>
+void vtkAbstractMap<KeyType,DataType>::operator=(const vtkAbstractMap<KeyType,DataType>&){}
+#endif
 
 #endif
