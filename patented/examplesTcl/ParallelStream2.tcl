@@ -27,14 +27,14 @@ vtkImageReader reader
     reader SetFilePrefix "../../../vtkdata/headsq/half"
     reader SetDataSpacing 1.6 1.6 1.5
 
-vtkAppendPolyData append
-    append ParallelStreamingOn
+vtkAppendPolyData app
+    app ParallelStreamingOn
 
-vtkAppendPolyData appenda
-    appenda ParallelStreamingOn
+vtkAppendPolyData appa
+    appa ParallelStreamingOn
 
-vtkAppendPolyData appendb
-    appendb ParallelStreamingOn
+vtkAppendPolyData appb
+    appb ParallelStreamingOn
 
 for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
 #  vtkContourFilter iso$i
@@ -50,18 +50,18 @@ for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
     elev$i SetScalarRange $val [expr $val+0.001]
 
   if { [expr $i % 2] == 0 } {
-      appenda AddInput [elev$i GetOutput]
+      appa AddInput [elev$i GetOutput]
   } else {
-      appendb AddInput [elev$i GetOutput]
+      appb AddInput [elev$i GetOutput]
   }
 }
 
-append AddInput [appenda GetOutput]
-append AddInput [appendb GetOutput]
+app AddInput [appa GetOutput]
+app AddInput [appb GetOutput]
 
 
 vtkPolyDataMapper mapper
-  mapper SetInput [append GetOutput]
+  mapper SetInput [app GetOutput]
   mapper ImmediateModeRenderingOn
 
 vtkActor actor
@@ -98,7 +98,7 @@ iren Initialize
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-renWin SetFileName "contour3DAll.tcl.ppm"
+renWin SetFileName "ParallelStream2.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
