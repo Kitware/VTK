@@ -51,7 +51,9 @@ vtkRenderWindowInteractor iren
 ren1 AddProp foheActor
 ren1 AddProp outlineActor
 ren2 AddProp foheActor
-ren2 AddProp outlineActor
+if { [info command rtExMath] == ""} {
+  ren2 AddProp outlineActor
+}
 
 ren1 SetBackground 0.1 0.2 0.4
 ren2 SetBackground 0.1 0.2 0.4
@@ -77,7 +79,6 @@ vtkCubeAxesActor2D axes2
     axes2 ScalingOff
 ren2 AddProp axes2 
 
-camera Dolly -2
 renWin Render
 
 # render the image
