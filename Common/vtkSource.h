@@ -72,6 +72,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkDataObject.h"
 
+class vtkErrorCode;
+
 class VTK_COMMON_EXPORT vtkSource : public vtkProcessObject
 {
 public:
@@ -151,7 +153,13 @@ public:
   // method and allocate your own data.
   virtual void EnlargeOutputUpdateExtents(vtkDataObject *output);
   int LegacyHack;
-  
+
+  // Description:
+  // The reader should set this code at the end of the update.
+  // The error code contains a possible error that occured while
+  // reading the file.
+  vtkGetMacro( ErrorCode, unsigned long );
+
 protected:
   vtkSource();
   ~vtkSource();
@@ -186,9 +194,17 @@ protected:
   int Updating;
   // Time when ExecuteInformation was last called.
   vtkTimeStamp InformationTime;
+
+  // Description:
+  // The reader should set this code at the end of the update.
+  // The error code contains a possible error that occured while
+  // reading the file.
+  vtkSetMacro( ErrorCode, unsigned long );
 private:
   vtkSource(const vtkSource&);  // Not implemented.
   void operator=(const vtkSource&);  // Not implemented.
+
+  unsigned long ErrorCode;
 };
 
 #endif

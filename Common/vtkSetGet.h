@@ -479,26 +479,67 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 // This macro is used to print out warning messages.
 // vtkWarningMacro(<< "Warning message" << variable);
 //
-#define vtkWarningMacro(x) \
-{ if (vtkObject::GetGlobalWarningDisplay()) { \
-      char *vtkmsgbuff; \
-      ostrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
-      vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayWarningText(vtkmsgbuff);\
-      vtkmsg.rdbuf()->freeze(0);}}
+#define vtkWarningMacro(x)                      \
+   vtkWarningMacroWithObject(this,x)
 
 //
 // This macro is used to print out errors
 // vtkErrorMacro(<< "Error message" << variable);
 //
-#define vtkErrorMacro(x) \
-{ if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; \
-      ostrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
-      vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayErrorText(vtkmsgbuff);\
-      vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}}
+#define vtkErrorMacro(x)                        \
+   vtkErrorMacroWithObject(this,x)
+
+//
+// This macro is used to print out errors
+// vtkErrorMacroWithObject(self, << "Error message" << variable);
+//
+#define vtkErrorMacroWithObject(self, x)                        \
+   {                                                            \
+   if (vtkObject::GetGlobalWarningDisplay())                    \
+     {                                                          \
+     char *vtkmsgbuff;                                          \
+     ostrstream vtkmsg;                                         \
+     vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__      \
+            << "\n" << self->GetClassName() << " (" << self     \
+            << "): " x << "\n\n" << ends;                       \
+     vtkmsgbuff = vtkmsg.str();                                 \
+     if ( self->HasObserver("ErrorEvent") )                     \
+       {                                                        \
+       self->InvokeEvent("ErrorEvent", vtkmsg.str());           \
+       }                                                        \
+     else                                                       \
+       {                                                        \
+       vtkOutputWindowDisplayErrorText(vtkmsgbuff);             \
+       }                                                        \
+     vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();      \
+     }                                                          \
+   }
+
+//
+// This macro is used to print out warnings
+// vtkWarningMacroWithObject(self, << "Warning message" << variable);
+//
+#define vtkWarningMacroWithObject(self, x)                      \
+   {                                                            \
+   if (vtkObject::GetGlobalWarningDisplay())                    \
+     {                                                          \
+     char *vtkmsgbuff;                                          \
+     ostrstream vtkmsg;                                         \
+     vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__    \
+            << "\n" << self->GetClassName() << " (" << self     \
+            << "): " x << "\n\n" << ends;                       \
+     vtkmsgbuff = vtkmsg.str();                                 \
+     if ( self->HasObserver("WarningEvent") )                   \
+       {                                                        \
+       self->InvokeEvent("WarningEvent", vtkmsg.str());         \
+       }                                                        \
+     else                                                       \
+       {                                                        \
+       vtkOutputWindowDisplayWarningText(vtkmsgbuff);           \
+       }                                                        \
+     vtkmsg.rdbuf()->freeze(0);                                 \
+     }                                                          \
+   }
 
 
 

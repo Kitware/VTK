@@ -71,6 +71,7 @@ vtkSource::vtkSource()
   this->NumberOfOutputs = 0;
   this->Outputs = NULL;
   this->Updating = 0;
+  this->ErrorCode = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -171,6 +172,10 @@ void vtkSource::Update()
   if (this->GetOutput(0))
     {
     this->GetOutput(0)->Update();
+    if ( this->GetOutput(0)->GetSource() )
+      {
+      this->SetErrorCode( this->GetOutput(0)->GetSource()->GetErrorCode() );
+      }
     }
 }
 

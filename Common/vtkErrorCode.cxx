@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCommand.cxx
+  Module:    vtkErrorCode.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -41,104 +41,66 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 #include <ctype.h>
-#include "vtkCommand.h"
+#include "vtkErrorCode.h"
 
 // this list should only contain the initial, contiguous
-// set of events and should not include UserEvent
-static const char *vtkCommandEventStrings[] = {
-  "NoEvent", 
-  "AnyEvent",
-  "DeleteEvent",
-  "StartEvent",
-  "EndEvent",
-  "ProgressEvent",
-  "PickEvent",
-  "StartPickEvent",
-  "EndPickEvent",
-  "AbortCheckEvent",
-  "ExitEvent", 
-  "LeftButtonPressEvent",
-  "LeftButtonReleaseEvent",
-  "MiddleButtonPressEvent",
-  "MiddleButtonReleaseEvent",
-  "RightButtonPressEvent",
-  "RightButtonReleaseEvent",
-  "EnterEvent",
-  "LeaveEvent",
-  "KeyPressEvent",
-  "KeyReleaseEvent",
-  "CharEvent",
-  "ConfigureEvent",
-  "TimerEvent",
-  "MouseMoveEvent",
-  "ResetCameraEvent",
-  "ResetCameraClippingRangeEvent",
-  "ModifiedEvent",
-  "WindowLevelEvent",
-  "NextDataEvent",
-  "PushDataStartEvent",
-  "EndOfDataEvent",
-  "ErrorEvent",
+// set of error codes and should not include UserError
+static const char *vtkErrorCodeErrorStrings[] = {
+  "NoError", 
+  "FileNotFoundError",
+  "CannotOpenFileError",
+  "UnrecognizedFileTypeError",
+  "PrematureEndOfFileError",
+  "FileFormatError",
+  "NoFileNameError",
+  "UnknownError",
+  "UserError",
   NULL
 };
 
-//----------------------------------------------------------------
-void vtkCommand::Register()
+const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
 {
-  this->ReferenceCount++;
-}
-
-void vtkCommand::UnRegister()
-{
-  if (--this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
-}
-
-const char *vtkCommand::GetStringFromEventId(unsigned long event)
-{
-  static unsigned long numevents = 0;
+  static unsigned long numerrors = 0;
   
   // find length of table
-  if (!numevents)
+  if (!numerrors)
     {
-    while (vtkCommandEventStrings[numevents] != NULL)
+    while (vtkErrorCodeErrorStrings[numerrors] != NULL)
       {
-      numevents++;
+      numerrors++;
       }
     }
 
-  if (event < numevents)
+  if (error < numerrors)
     {
-    return vtkCommandEventStrings[event];
+    return vtkErrorCodeErrorStrings[error];
     }
-  else if (event == vtkCommand::UserEvent)
+  else if (error == vtkErrorCode::UserError)
     {
-    return "UserEvent";
+    return "UserError";
     }
   else
     {
-    return "NoEvent";
+    return "NoError";
     }
 }
   
-unsigned long vtkCommand::GetEventIdFromString(const char *event)
+unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
 {  
   unsigned long i;
 
-  for (i = 0; vtkCommandEventStrings[i] != NULL; i++)
+  for (i = 0; vtkErrorCodeErrorStrings[i] != NULL; i++)
     { 
-    if (!strcmp(vtkCommandEventStrings[i],event))
+    if (!strcmp(vtkErrorCodeErrorStrings[i],error))
       {
       return i;
       }
     }
-  if (!strcmp("UserEvent",event))
+  if (!strcmp("UserError",error))
     {
-    return vtkCommand::UserEvent;
+    return vtkErrorCode::UserError;
     }
-  return vtkCommand::NoEvent;
+  return vtkErrorCode::NoError;
 }
 
   

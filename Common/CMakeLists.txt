@@ -133,6 +133,7 @@ vtkInterpolatedVelocityField
 vtkRungeKutta2 
 vtkRungeKutta4 
 vtkXMLFileOutputWindow 
+vtkErrorCode
 )
 
 ABSTRACT_FILES(
@@ -170,6 +171,7 @@ WRAP_EXCLUDE_FILES(
   vtkCommand 
   vtkCallbackCommand 
   vtkOldStyleCallbackCommand
+  vtkErrorCode
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
