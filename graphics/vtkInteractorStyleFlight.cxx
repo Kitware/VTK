@@ -74,6 +74,12 @@ vtkInteractorStyleFlight::vtkInteractorStyleFlight()
   this->AngleAccelerationFactor  = 5.0;
   this->OldX = 0.0;
   this->OldY = 0.0;
+  this->AzimuthScanning = 0;
+  this->DisableMotion   = 0;
+  this->FixUpVector     = 0;
+  this->FixedUpVector[0] = 0;
+  this->FixedUpVector[1] = 0;
+  this->FixedUpVector[2] = 1;
 }
 //---------------------------------------------------------------------------
 vtkInteractorStyleFlight::~vtkInteractorStyleFlight() {
@@ -98,6 +104,7 @@ void vtkInteractorStyleFlight::DoTimerStop(void) {
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnLeftButtonDown(int ctrl, int shift, int X, int Y) {
   this->UpdateInternalState(ctrl, shift, X, Y);
+  if (this->AzimuthScanning) return;
   if (!this->Reversing) {
       this->OldX        = this->x2 = X;
       this->OldY        = this->y2 = Y;
@@ -115,6 +122,7 @@ void vtkInteractorStyleFlight::OnLeftButtonUp(int ctrl, int shift, int X, int Y)
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnRightButtonDown(int ctrl, int shift, int X, int Y) {
   this->UpdateInternalState(ctrl, shift, X, Y);
+  if (this->AzimuthScanning) return;
   if (!this->Flying) {
       this->OldX        = this->x2 = X;
       this->OldY        = this->y2 = Y;
@@ -132,6 +140,7 @@ void vtkInteractorStyleFlight::OnRightButtonUp(int ctrl, int shift, int X, int Y
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMiddleButtonDown(int ctrl, int shift, int X, int Y) {
   this->UpdateInternalState(ctrl, shift, X, Y);
+  if (this->AzimuthScanning) return;
   // want to add some more functions???
   // I've got no middle mouse button :(
 }
@@ -142,6 +151,7 @@ void vtkInteractorStyleFlight::OnMiddleButtonUp(int ctrl, int shift, int X, int 
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMouseMove(int ctrl, int shift, int X, int Y) {
   this->UpdateInternalState(ctrl, shift, X, Y);
+  if (this->AzimuthScanning) return;
   if (Flying || Reversing) UpdateMouseSteering(X, Y);
 }
 //---------------------------------------------------------------------------
@@ -173,6 +183,10 @@ void vtkInteractorStyleFlight::OnChar(int ctrl, int shift,
     case '-' :
         this->MotionUserScale *= 0.5;
         break;
+    case 'L' :
+    case 'l' :
+        this->PerformAzimuthalScan(360);
+        break;
     }
 }
 //---------------------------------------------------------------------------
@@ -181,6 +195,7 @@ void vtkInteractorStyleFlight::OnKeyDown(int ctrl, int shift,
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
+  if (this->AzimuthScanning) return;
   // New Flight mode behaviour
   // Note that we'll need #defines for ARROW key defs under non win32 OS
 #ifdef _WIN32
@@ -235,21 +250,69 @@ void vtkInteractorStyleFlight::OnKeyUp(int ctrl, int shift,
 #endif
 }
 //---------------------------------------------------------------------------
+void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3]) {
+    this->CurrentCamera->SetPosition(campos);
+    this->CurrentCamera->SetFocalPoint(focpos);
+    // Tidy up Camera stuff
+    this->CurrentCamera->OrthogonalizeViewUp();
+    if (this->FixUpVector) {
+        this->CurrentCamera->SetViewUp(this->FixedUpVector);
+    }
+    this->CurrentRenderer->ResetCameraClippingRange();
+    // Make sure light follows camera if desired
+    vtkRenderWindowInteractor *rwi = this->Interactor;
+    if (rwi->GetLightFollowCamera()) {
+        this->CurrentLight->SetPosition(campos);
+        this->CurrentLight->SetFocalPoint(focpos);
+    }
+    rwi->Render();
+}
+//---------------------------------------------------------------------------
+void vtkInteractorStyleFlight::PerformAzimuthalScan(int numsteps) {
+    this->AzimuthScanning = numsteps;
+	this->Flying          = 0;
+    this->Reversing       = 0;
+    this->KeysDown        = 0;
+    this->AzimuthStepSize = 360.0/numsteps;
+    this->DoTimerStart();
+}
+//---------------------------------------------------------------------------
+void vtkInteractorStyleFlight::AzimuthScan(void) {
+    this->AzimuthScanning -= 1;
+    this->CurrentCamera->SetViewUp(0,0,1);
+    this->CurrentCamera->Yaw(this->AzimuthStepSize);
+    //
+    if (this->AzimuthScanning == 0) {
+        this->DoTimerStop();
+    }
+}
+//---------------------------------------------------------------------------
 // All actual motion is performed in the timer
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnTimer(void) {
     vtkRenderWindowInteractor *rwi = this->Interactor;
     // if we get a timer message we weren't expecting, just shut it down
-	if (!Flying && !Reversing && !KeysDown) this->DoTimerStop();
+	if (!this->Flying && !this->Reversing
+        && !this->KeysDown && !AzimuthScanning) {
+        //
+        this->DoTimerStop();
+    }
 	else {
         // Make sure CurrentCamera variable is initialized
         this->FindPokedCamera(this->OldX, this->OldY);
         this->SetupMotionVars();
-        // Are we moving
-        if (Flying || Reversing) FlyByMouse();
-		if (KeysDown)            FlyByKey();
+        // What sort of motion do we want
+        if (this->AzimuthScanning) {
+            AzimuthScan();
+        } else {
+            if (this->Flying || this->Reversing) FlyByMouse();
+            if (this->KeysDown)                  FlyByKey();
+        }
         // Tidy up Camera stuff
         this->CurrentCamera->OrthogonalizeViewUp();
+        if (this->FixUpVector) {
+            this->CurrentCamera->SetViewUp(this->FixedUpVector);
+        }
         this->CurrentRenderer->ResetCameraClippingRange();
         // Make sure light follows camera if desired
         if (rwi->GetLightFollowCamera()) {
@@ -328,7 +391,10 @@ void vtkInteractorStyleFlight::FlyByMouse(void) {
     double a_vector[3];
     double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
     speed = speed * ( this->ShiftKey ? this->MotionAccelerationFactor : 1.0);
-    // Sidestep (convert steering angles to left right movement
+    if (this->DisableMotion) {
+        speed = 0;
+    }
+    // Sidestep (convert steering angles to left right movement :
     // only because I added this after doing the angles earlier
     if (this->CtrlKey) {
         if (this->YawAngle!=0.0) {
@@ -361,14 +427,17 @@ void vtkInteractorStyleFlight::FlyByKey(void) {
 
     double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
     speed = speed * ( this->ShiftKey ? this->MotionAccelerationFactor : 1.0);
-
-	double aspeed = AngleStepSize* (this->ShiftKey ? AngleAccelerationFactor : 1.0);
+    if (this->DisableMotion) {
+        speed = 0;
+    }
+	//
+    double aspeed = AngleStepSize* (this->ShiftKey ? AngleAccelerationFactor : 1.0);
     double a_vector[3];
     // Left and right
 	if (this->CtrlKey) { // Sidestep
         ComputeLRVector(a_vector);
-		if (KeysDown & 1) MotionAlongVector(a_vector,-speed);
-		if (KeysDown & 2) MotionAlongVector(a_vector, speed);
+        if (KeysDown & 1) MotionAlongVector(a_vector,-speed);
+        if (KeysDown & 2) MotionAlongVector(a_vector, speed);
 	} else {
 		if (KeysDown & 1) this->CurrentCamera->Yaw( aspeed);
 		if (KeysDown & 2) this->CurrentCamera->Yaw(-aspeed);
@@ -402,6 +471,14 @@ void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) {
      << this->AngleAccelerationFactor << "\n";
   os << indent << "MotionUserScale: "
      << this->MotionUserScale << "\n";
+  os << indent << "DisableMotion: "
+     << this->DisableMotion << "\n";
+  os << indent << "FixUpVector: "
+     << this->FixUpVector << "\n";
+  os << indent << "FixedUpVector: "
+     << this->FixedUpVector[0] << " "
+     << this->FixedUpVector[1] << " "
+     << this->FixedUpVector[2] << "\n";
 }
 
 

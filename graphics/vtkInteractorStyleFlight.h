@@ -96,6 +96,18 @@ public:
   virtual void OnTimer(void);
 
   // Description:
+  // Move the Eye/Camera to a specific location (no intermediate
+  // steps are taken
+  void JumpTo(double campos[3], double focpos[3]);
+
+  // Description:
+  // rotate the camera round z axis by 360 degrees for viewing scene
+  // this routine starts a timer and disables key/mouse events preventing
+  // user interaction until finished (not fully implemented yet)
+  // the number of steps can be supplied.
+  void PerformAzimuthalScan(int numsteps);
+
+  // Description:
   // Set the basic unit step size : by default 1/250 of bounding diagonal
   vtkSetMacro(MotionStepSize,double);
   vtkGetMacro(MotionStepSize,double);
@@ -115,6 +127,21 @@ public:
   vtkSetMacro(AngleAccelerationFactor,double);
   vtkGetMacro(AngleAccelerationFactor,double);
 
+  // Description:
+  // Disable motion (temporarily - for viewing etc)
+  vtkSetMacro(DisableMotion,int);
+  vtkGetMacro(DisableMotion,int);
+  vtkBooleanMacro(DisableMotion,int);
+
+  // Description:
+  // Fix the "up" vector: also use FixedUpVector
+  vtkSetMacro(FixUpVector,int);
+  vtkGetMacro(FixUpVector,int);
+  vtkBooleanMacro(FixUpVector,int);
+
+  // Specify fixed "up"
+  vtkGetVectorMacro(FixedUpVector,double,3);
+  vtkSetVectorMacro(FixedUpVector,double,3);
 
 protected:
   vtkInteractorStyleFlight();
@@ -132,12 +159,16 @@ protected:
   void ComputeLRVector(double vector[3]);
   void MotionAlongVector(double vector[3], double amount);
   void SetupMotionVars(void);
+  void AzimuthScan(void);
   //
   //
   unsigned char KeysDown;
   int           Flying;
   int           Reversing;
   int           TimerRunning;
+  int           AzimuthScanning;
+  int           DisableMotion;
+  int           FixUpVector;
   double        OldX;
   double        OldY;
   double        x2;
@@ -150,6 +181,8 @@ protected:
   double        AngleAccelerationFactor;
   double        YawAngle;
   double        PitchAngle;
+  double        FixedUpVector[3];
+  double        AzimuthStepSize;
 };
 
 #endif
