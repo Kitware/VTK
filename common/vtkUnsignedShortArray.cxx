@@ -108,7 +108,7 @@ void vtkUnsignedShortArray::SetArray(unsigned short* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkUnsignedShortArray::Allocate(const int sz, const int ext)
+int vtkUnsignedShortArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {

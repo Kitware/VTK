@@ -80,7 +80,7 @@ vtkVoidArray::~vtkVoidArray()
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkVoidArray::Allocate(const int sz, const int ext)
+int vtkVoidArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array != NULL )
     {
