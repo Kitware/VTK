@@ -13,7 +13,7 @@
 // 1. Implementation for HPUX  machines
 #ifdef __hpux
 #define VTKDYNAMICLOADER_DEFINED 1
-#include <dlfcn.h>
+#include <dl.h>
 
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 {
