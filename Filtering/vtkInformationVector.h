@@ -52,16 +52,9 @@ public:
   vtkInformation* GetInformationObject(int index);
 
   // Description:
-  // Copy the set of vtkInformation objects from the given vector.
-  // All data in the information objects will be duplicated and stored
-  // in new instances.  Any existing vector contents are removed.
-  void DeepCopy(vtkInformationVector* from);
-
-  // Description:
-  // Copy the set of vtkInformation objects from the given vector.
-  // The same instances of vtkInformation will be referenced.  Any
-  // existing vector contents are removed.
-  void ShallowCopy(vtkInformationVector* from);
+  // Append/Remove an information object.
+  void Append(vtkInformation* info);
+  void Remove(vtkInformation* info);
 
   // Description:
   // Initiate garbage collection when a reference is removed.

@@ -17,19 +17,33 @@
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.4");
+vtkCxxRevisionMacro(vtkInformationVector, "1.5");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
 {
 public:
-  typedef vtkstd::vector< vtkSmartPointer<vtkInformation> > VectorType;
-  VectorType Vector;
+  vtkstd::vector<vtkInformation*> Vector;
+
+  ~vtkInformationVectorInternals();
 };
+
+//----------------------------------------------------------------------------
+vtkInformationVectorInternals::~vtkInformationVectorInternals()
+{
+  // Delete all the information objects.
+  for(vtkstd::vector<vtkInformation*>::iterator i = this->Vector.begin();
+      i != this->Vector.end(); ++i)
+    {
+    if(vtkInformation* info = *i)
+      {
+      info->Delete();
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 vtkInformationVector::vtkInformationVector()
@@ -56,45 +70,78 @@ int vtkInformationVector::GetNumberOfInformationObjects()
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationVector::SetNumberOfInformationObjects(int n)
+void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
 {
-  if(n < 0)
+  // Adjust the number of objects.
+  int oldNumber = static_cast<int>(this->Internal->Vector.size());
+  if(newNumber > oldNumber)
     {
-    vtkErrorMacro("SetNumberOfInformationObjects called with n < 0.");
-    return;
-    }
-  if(n != this->GetNumberOfInformationObjects())
-    {
-    this->Internal->Vector.resize(n);
-    for(int i=0; i < n; ++i)
+    // Create new information objects.
+    this->Internal->Vector.resize(newNumber, 0);
+    for(int i=oldNumber; i < newNumber; ++i)
       {
-      if(!this->Internal->Vector[i].GetPointer())
+      this->Internal->Vector[i] = vtkInformation::New();
+      }
+    }
+  else if(newNumber < oldNumber)
+    {
+    // Delete old information objects.
+    for(int i=newNumber; i < oldNumber; ++i)
+      {
+      if(vtkInformation* info = this->Internal->Vector[i])
         {
-        vtkInformation* info = vtkInformation::New();
-        this->Internal->Vector[i] = info;
+        // Set the pointer to NULL first to avoid reporting of the
+        // entry if deleting the information object causes a garbage
+        // collection reference walk.
+        this->Internal->Vector[i] = 0;
         info->Delete();
         }
       }
+    this->Internal->Vector.resize(newNumber);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationVector::SetInformationObject(int index,
-                                                vtkInformation* info)
+                                                vtkInformation* newInfo)
 {
-  vtkInformation* newInfo = info? 0:vtkInformation::New();
+  // We do not allow NULL information objects.  If one is not given,
+  // create an empty one.
+  vtkInformation* info = 0;
+  if(!newInfo)
+    {
+    newInfo = vtkInformation::New();
+    info = newInfo;
+    }
+
   if(index >= 0 && index < this->GetNumberOfInformationObjects())
     {
-    this->Internal->Vector[index] = info?info:newInfo;
+    // Replace an existing information object.
+    vtkInformation* oldInfo = this->Internal->Vector[index];
+    if(oldInfo != newInfo)
+      {
+      newInfo->Register(this);
+      this->Internal->Vector[index] = newInfo;
+      oldInfo->UnRegister(this);
+      }
     }
   else if(index >= 0)
     {
-    this->SetNumberOfInformationObjects(index+1);
-    this->Internal->Vector[index] = info?info:newInfo;
+    // If a hole will be created fill it with empty objects.
+    if(index > this->GetNumberOfInformationObjects())
+      {
+      this->SetNumberOfInformationObjects(index);
+      }
+
+    // Store the information object in a new entry.
+    newInfo->Register(this);
+    this->Internal->Vector.push_back(newInfo);
     }
-  if(newInfo)
+
+  // Delete the artifically created empty information object.
+  if(info)
     {
-    newInfo->Delete();
+    info->Delete();
     }
 }
 
@@ -103,45 +150,29 @@ vtkInformation* vtkInformationVector::GetInformationObject(int index)
 {
   if(index >= 0 && index < this->GetNumberOfInformationObjects())
     {
-    return this->Internal->Vector[index].GetPointer();
+    return this->Internal->Vector[index];
     }
   return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationVector::ShallowCopy(vtkInformationVector* from)
+void vtkInformationVector::Append(vtkInformation* info)
 {
-  if(from)
-    {
-    this->Internal->Vector = from->Internal->Vector;
-    }
-  else
-    {
-    this->Internal->Vector.clear();
-    }
+  // Setting an entry beyond the end will automatically append.
+  this->SetInformationObject(this->GetNumberOfInformationObjects(), info);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationVector::DeepCopy(vtkInformationVector* from)
+void vtkInformationVector::Remove(vtkInformation* info)
 {
-  if(from)
+  // Search for the information object and remove it.
+  for(unsigned int i=0; i < this->Internal->Vector.size(); ++i)
     {
-    this->Internal->Vector.resize(from->Internal->Vector.size());
-    for(vtkInformationVectorInternals::VectorType::size_type i = 0;
-        i < this->Internal->Vector.size(); ++i)
+    if(this->Internal->Vector[i] == info)
       {
-      if(!this->Internal->Vector[i].GetPointer())
-        {
-        vtkInformation* info = vtkInformation::New();
-        this->Internal->Vector[i] = info;
-        info->Delete();
-        }
-      this->Internal->Vector[i]->Copy(from->Internal->Vector[i].GetPointer());
+      this->Internal->Vector.erase(this->Internal->Vector.begin()+i);
+      info->UnRegister(this);
       }
-    }
-  else
-    {
-    this->Internal->Vector.clear();
     }
 }
 
@@ -161,9 +192,8 @@ void vtkInformationVector::UnRegister(vtkObjectBase* o)
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkInformationVectorInternals::VectorType::iterator i;
-  for(i=this->Internal->Vector.begin(); i != this->Internal->Vector.end(); ++i)
+  for(unsigned int i=0; i < this->Internal->Vector.size(); ++i)
     {
-    vtkGarbageCollectorReport(collector, *i, "Entry");
+    vtkGarbageCollectorReport(collector, this->Internal->Vector[i], "Entry");
     }
 }
