@@ -53,6 +53,8 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 }
 
 //----------------------------------------------------------------------------
+// The trickiest part of the whole filter.  Place Component Axis as number 4.
+// The supper class and the execute method will not loop over it.
 void vtkImageNonMaximumSuppression::SetAxes(int num, int *axes)
 {
   int idx, count;
@@ -150,7 +152,7 @@ void vtkImageNonMaximumSuppression::ComputeRequiredInputRegionExtent(
     extent[idx*2+1] += 1;
     if (this->HandleBoundaries)
       {
-      // we must clip extent with image extent is we hanlde boundaries.
+      // we must clip extent with image extent if we hanlde boundaries.
       if (extent[idx*2] < imageExtent[idx*2])
 	{
 	extent[idx*2] = imageExtent[idx*2];
