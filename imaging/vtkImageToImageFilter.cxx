@@ -209,7 +209,7 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
 
   str = (vtkImageThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
-  output = str->Filter->GetOutput();
+  output = str->Output;
   output->GetUpdateExtent( ext );
 
   // execute the actual method with appropriate extent

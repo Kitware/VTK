@@ -176,7 +176,7 @@ static void vtkImageRFFTExecute(vtkImageRFFT *self,
 
       // copy into output
       outPtr0 = outPtr1;
-      pComplex = outComplex + (inMin0 - outMin0);
+      pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
 	{
 	*outPtr0 = (float)pComplex->Real;
