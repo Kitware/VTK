@@ -33,7 +33,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.55");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.56");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -90,13 +90,13 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vpv2 = (vport[3] - tileViewPort[1]);
   vtkOpenGLCameraBound(vpu2,vpv2);
   // also watch for the upper right boundary of the tile
-  if (vpu2 > tileViewPort[2])
+  if (vpu2 > (tileViewPort[2] - tileViewPort[0]))
     {
-    vpu2 = tileViewPort[2];
+    vpu2 = tileViewPort[2] - tileViewPort[0];
     }
-  if (vpv2 > tileViewPort[3])
+  if (vpv2 > (tileViewPort[3] - tileViewPort[1]))
     {
-    vpv2 = tileViewPort[3];
+    vpv2 = tileViewPort[3] - tileViewPort[1];
     }  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
   // now compute the size of the intersection of the viewport with the
