@@ -34,7 +34,7 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 	${TK_INCLUDE} ${TCL_INCLUDE} \
 	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
 
-all:  vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit vtkPrint
+all:  vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit vtkPrint vtkHTML
 
 vtkWrapPythonInit: vtkWrapPythonInit.c	
 	$(CC) $(C_FLAGS) -o vtkWrapPythonInit $(srcdir)/vtkWrapPythonInit.c
@@ -53,6 +53,9 @@ vtkWrapPython: vtkParse.o $(srcdir)/vtkWrapPython.c
 
 vtkWrapTcl: vtkParse.o $(srcdir)/vtkWrapTcl.c
 	$(CC) $(C_FLAGS) -I. -o vtkWrapTcl $(srcdir)/vtkWrapTcl.c vtkParse.o -lm
+
+vtkHTML: vtkParse.o $(srcdir)/vtkHTML.c
+	$(CC) $(C_FLAGS) -I. -o vtkHTML $(srcdir)/vtkHTML.c vtkParse.o -lm
 
 vtkParseJava: vtkParse.o $(srcdir)/vtkParseJava.c
 	$(CC) $(C_FLAGS) -I. -o vtkParseJava $(srcdir)/vtkParseJava.c vtkParse.o -lm
