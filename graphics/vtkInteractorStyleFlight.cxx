@@ -342,8 +342,14 @@ void vtkInteractorStyleFlight::OnTimer(void) {
 	      } 
 	    else 
 	      {
-		if (this->Flying || this->Reversing) FlyByMouse();
-		if (this->KeysDown)                  FlyByKey();
+		if (this->Flying || this->Reversing)
+		  {
+		    this->FlyByMouse();
+		  }
+		if (this->KeysDown) 
+		  {
+		    this->FlyByKey();
+		  }
 	      }
 	    // Tidy up Camera stuff
 	    this->CurrentCamera->OrthogonalizeViewUp();
@@ -445,12 +451,12 @@ void vtkInteractorStyleFlight::FlyByMouse(void) {
         if (this->YawAngle!=0.0) 
 	  {
             this->ComputeLRVector(a_vector);
-	    this->MotionAlongVector(a_vector,-YawAngle*speed/4.0);
+	    this->MotionAlongVector(a_vector,-this->YawAngle*speed/4.0);
 	  }
         if (this->PitchAngle!=0.0) 
 	  {
 	    this->CurrentCamera->GetViewUp(a_vector);
-	    this->MotionAlongVector(a_vector,-PitchAngle*speed/4.0);
+	    this->MotionAlongVector(a_vector,-this->PitchAngle*speed/4.0);
 	  }
       } 
     else 
@@ -466,8 +472,14 @@ void vtkInteractorStyleFlight::FlyByMouse(void) {
     if (!this->CtrlKey) 
       {
         this->CurrentCamera->GetViewPlaneNormal(a_vector);
-        if (this->Flying)    MotionAlongVector(a_vector, speed);
-        if (this->Reversing) MotionAlongVector(a_vector,-speed);
+        if (this->Flying) 
+	  {
+	    this->MotionAlongVector(a_vector, speed);
+	  }
+        if (this->Reversing)
+	  {
+	    this->MotionAlongVector(a_vector,-speed);
+	  }
       }
 }
 //---------------------------------------------------------------------------
@@ -482,7 +494,7 @@ void vtkInteractorStyleFlight::FlyByKey(void) {
         speed = 0;
       }
     //
-    double aspeed = AngleStepSize* (this->ShiftKey ? AngleAccelerationFactor : 1.0);
+    double aspeed = this->AngleStepSize* (this->ShiftKey ? this->AngleAccelerationFactor : 1.0);
     double a_vector[3];
     // Left and right
 	if (this->CtrlKey) 
