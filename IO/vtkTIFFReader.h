@@ -63,7 +63,8 @@ public:
   vtkTypeRevisionMacro(vtkTIFFReader,vtkImageReader2);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description: is the given file name a png file?
+  // Description:
+  // Is the given file name a tiff file file?
   virtual int CanReadFile(const char* fname);
 
   // Description:
