@@ -91,11 +91,13 @@ public:
   float GetValue(int i) {return this->Values[i];};
 
   // Description:
-  // Return array of contour values (size of numContours).
+  // Retrieve an array of contour values (NumberOfContours values will be returned).
   vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
 
   // Description:
-  // Return the number of contour values.
+  // Set/get the number of contour values. The number of values set (using SetValue)
+  // should match the NumberOfContours ivar value.
+  vtkSetMacro(NumberOfContours,int);
   vtkGetMacro(NumberOfContours,int);
 
   void GenerateValues(int numContours, float range[2]);

@@ -79,7 +79,9 @@ public:
   vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
 
   // Description:
-  // Return the number of contour values.
+  // Set/get the number of contour values. The number of values set (using SetValue)
+  // should match the NumberOfContours ivar value.
+  vtkSetMacro(NumberOfContours,int);
   vtkGetMacro(NumberOfContours,int);
 
   // Description:
