@@ -145,7 +145,7 @@ inline void vtkPoints::SetPoint(int id, float x, float y, float z)
   p[1] = y;
   p[2] = z;
   this->Data->SetTuple(id,p);
-};
+}
 
 inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
 {

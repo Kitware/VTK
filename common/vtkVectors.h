@@ -144,7 +144,7 @@ inline void vtkVectors::SetVector(int id, float vx, float vy, float vz)
   v[1] = vy;
   v[2] = vz;
   this->Data->SetTuple(id,v);
-};
+}
 
 inline void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
 {

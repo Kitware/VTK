@@ -143,7 +143,7 @@ inline void vtkTCoords::SetTCoord(int id, float tx, float ty, float tz)
   tc[1] = ty;
   tc[2] = tz;
   this->Data->SetTuple(id,tc);
-};
+}
 
 inline void vtkTCoords::InsertTCoord(int id, float tx, float ty, float tz)
 {
