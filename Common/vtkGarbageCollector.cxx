@@ -17,7 +17,7 @@
 #include <vtkstd/set>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.3");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.4");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorQueue: public vtkstd::queue<vtkObjectBase*> {};
@@ -66,6 +66,10 @@ void vtkGarbageCollector::Check(vtkObjectBase* root)
   vtkGarbageCollectorQueue objectQueue;
   vtkGarbageCollectorQueued objectQueued;
   vtkGarbageCollector collector(&objectQueue, &objectQueued);
+  if(vtkObject* obj = vtkObject::SafeDownCast(root))
+    {
+    collector.SetDebug(obj->GetDebug());
+    }
   collector.CheckReferenceLoops(root);
 }
 
@@ -91,6 +95,11 @@ void vtkGarbageCollector::CheckReferenceLoops(vtkObjectBase* root)
     // Get the next object from the queue.
     this->Current = this->Queue->front();
     this->Queue->pop();
+
+    vtkDebugMacro("Requesting references from "
+                  << this->Current->GetClassName() << "("
+                  << this->Current << ") with reference count "
+                  << this->Current->GetReferenceCount());
 
     // Tell the object to report its references to us.
     this->Current->ReportReferences(this);
