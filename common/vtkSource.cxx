@@ -718,11 +718,17 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkSource::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass");
 }
+
+//----------------------------------------------------------------------------
+vtkDataObject **vtkSource::GetOutputs()
+{
+  return this->Outputs;
+}
+
 
 //----------------------------------------------------------------------------
 
