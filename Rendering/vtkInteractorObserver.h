@@ -17,8 +17,10 @@
 =========================================================================*/
 // .NAME vtkInteractorObserver - an abstract superclass for classes observing events invoked by vtkRenderWindowInteractor
 // .SECTION Description
-// vtkInteractorObserver is an abstract superclass for classes that observe events
-// invoked by vtkRenderWindowInteractor.
+// vtkInteractorObserver is an abstract superclass for subclasses that observe
+// events invoked by vtkRenderWindowInteractor. These subclasses are 
+// typically things like 3D widgets; objects that interact with actors
+// in the scene, or interactively probe the scene for information.
 //
 // vtkInteractorObserver defines the method SetInteractor() and enables and
 // disables the processing of events by the vtkInteractorObserver. Use the
@@ -27,13 +29,14 @@
 //
 // To support interactive manipulation of objects, this class (and
 // subclasses) invoke the events StartInteractionEvent, InteractionEvent, and
-// EndInteractionEvent.  These events are invoked when the vtkInteractorObserver enters
-// a state where rapid response is desired: mouse motion, etc. The events can
-// be used, for example, to set the desired update frame rate
-// (StartInteractionEvent), operate on data or update a pipeline (InteractionEvent), 
-// and set the desired frame rate back to normal values (EndInteractionEvent). Two 
-// other events, EnableEvent and DisableEvent, are invoked when the interactor 
-// observer is enabled or disabled.
+// EndInteractionEvent.  These events are invoked when the
+// vtkInteractorObserver enters a state where rapid response is desired:
+// mouse motion, etc. The events can be used, for example, to set the desired
+// update frame rate (StartInteractionEvent), operate on data or update a
+// pipeline (InteractionEvent), and set the desired frame rate back to normal
+// values (EndInteractionEvent). Two other events, EnableEvent and
+// DisableEvent, are invoked when the interactor observer is enabled or
+// disabled.
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget
@@ -55,9 +58,10 @@ public:
   // Description:
   // Methods for turning the interactor observer on and off, and determining
   // its state. All subclasses must provide the SetEnabled() method.
-  // Enabling a vtkInteractorObserver has the side effect of adding observers;
-  // disabling it removes the observers. Prior to enabling the vtkInteractorObserver
-  // you must set the render window interactor (via SetInteractor()).
+  // Enabling a vtkInteractorObserver has the side effect of adding
+  // observers; disabling it removes the observers. Prior to enabling the
+  // vtkInteractorObserver you must set the render window interactor (via
+  // SetInteractor()).
   virtual void SetEnabled(int) = 0;
   int GetEnabled() {return this->Enabled;}
   void EnabledOn() {this->SetEnabled(1);}
@@ -76,27 +80,31 @@ public:
 
   // Description:
   // Set/Get the priority at which events are processed. This is used when
-  // multiple interactor observers are used simultaneously. The default value is 1.0
-  // (highest priority.) Note that when multiple interactor observer have
-  // the same priority, then the last observer added will process the event
-  // first.
+  // multiple interactor observers are used simultaneously. The default value
+  // is 1.0 (highest priority.) Note that when multiple interactor observer
+  // have the same priority, then the last observer added will process the
+  // event first. (Note: once the SetInteractor() method has been called,
+  // changing the priority does not effect event processing. You will have
+  // to SetInteractor(NULL), change priority, and then SetInteractor(iren)
+  // to have the priority take effect.)
   vtkSetClampMacro(Priority,float,0.0,1.0);
   vtkGetMacro(Priority,float);
 
   // Description:
   // Enable/Disable of the use of a keypress to turn on and off the
-  // interactor observer. (By default, the keypress is 'i' for "interactor observer".)
-  // Set the KeyPressActivationValue to change which key activates the widget.)
+  // interactor observer. (By default, the keypress is 'i' for "interactor
+  // observer".)  Set the KeyPressActivationValue to change which key
+  // activates the widget.)
   vtkSetMacro(KeyPressActivation,int);
   vtkGetMacro(KeyPressActivation,int);
   vtkBooleanMacro(KeyPressActivation,int);
   
   // Description:
-  // Specify which key press value to use to activate the interactor observer 
-  // (if key press activation is enabled). By default, the key press activation 
-  // value is 'i'. Note: once the SetInteractor() method is invoked, changing the key press
-  // activation value will not affect the key press until SetInteractor is 
-  // called again.
+  // Specify which key press value to use to activate the interactor observer
+  // (if key press activation is enabled). By default, the key press
+  // activation value is 'i'. Note: once the SetInteractor() method is
+  // invoked, changing the key press activation value will not affect the key
+  // press until SetInteractor(NULL)/SetInteractor(iren) is called.
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
 
@@ -104,12 +112,11 @@ protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
 
-  //handles the char widget activation event
+  //handles the char widget activation event. Also handles the delete event.
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
 
-  // Sets up the keypress-W event. 
-  // Should be invoked by subclass' ProcessEvents()
+  // Sets up the keypress-i event. 
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
   // helper method for subclasses
@@ -120,7 +127,7 @@ protected:
   int Enabled;
   
   // Used to process events
-  vtkCallbackCommand* EventCallbackCommand;
+  vtkCallbackCommand* EventCallbackCommand; //subclasses use one
   vtkCallbackCommand* KeypressCallbackCommand; //listens to key activation
 
   // Priority at which events are processed
@@ -136,8 +143,10 @@ protected:
   // Internal ivars for processing events
   vtkRenderer *CurrentRenderer;
   vtkCamera *CurrentCamera;
-  float OldX;
-  float OldY;
+
+  // Keep track of previous state: mouse position in display coordinates
+  int OldX;
+  int OldY;
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
