@@ -77,10 +77,15 @@ vtkGlyph3D::vtkGlyph3D()
   this->IndexMode = VTK_INDEXING_OFF;
   this->NumberOfRequiredInputs = 1;
   this->GeneratePointIds = 0;
+  this->SetPointIdsName("InputPointIds");
 }
 
 vtkGlyph3D::~vtkGlyph3D()
 {
+  if (this->PointIdsName)
+    {
+    delete []PointIdsName;
+    }
 }
 
 void vtkGlyph3D::Execute()
@@ -255,7 +260,7 @@ void vtkGlyph3D::Execute()
   if ( this->GeneratePointIds )
     {
     pointIds = vtkIdTypeArray::New();
-    pointIds->SetName("InputPointIds");
+    pointIds->SetName(this->PointIdsName);
     pointIds->Allocate(numPts*numSourcePts);
     outputPD->AddArray(pointIds);
     }
@@ -622,9 +627,12 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Generate Point Ids " 
+  os << indent << "Generate Point Ids "
      << (this->GeneratePointIds ? "On\n" : "Off\n");
-  
+
+  os << indent << "PointIdsName: " << (this->PointIdsName ? this->PointIdsName
+       : "(none)") << "\n";
+
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if ( this->GetNumberOfSources() < 2 )
@@ -663,7 +671,7 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Clamping: " << (this->Clamping ? "On\n" : "Off\n");
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
   os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
-  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ? 
+  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ?
                                        "Orient by vector\n" : "Orient by normal\n");
   os << indent << "Index Mode: ";
   if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
@@ -696,7 +704,7 @@ void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
     {
     this->GetSource()->SetUpdateExtent(0, 1, 0);
     }
-  this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
+  this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(),
                                     outPd->GetUpdateNumberOfPieces(),
                                     outPd->GetUpdateGhostLevel());
   this->GetInput()->RequestExactExtentOn();

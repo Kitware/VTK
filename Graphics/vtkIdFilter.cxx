@@ -68,6 +68,15 @@ vtkIdFilter::vtkIdFilter()
   this->PointIds = 1;
   this->CellIds = 1;
   this->FieldData = 0;
+  this->SetIdsArrayName("vtkIdFilter_Ids");
+}
+
+vtkIdFilter::~vtkIdFilter()
+{
+  if (this->IdsArrayName)
+    {
+    delete []IdsArrayName;
+    }
 }
 
 // 
@@ -112,9 +121,9 @@ void vtkIdFilter::Execute()
       }
     else
       {
-      ptIds->SetName("vtkIdFilter_Ids");
+      ptIds->SetName(this->IdsArrayName);
       outPD->AddArray(ptIds);
-      outPD->CopyFieldOff("vtkIdFilter_Ids");
+      outPD->CopyFieldOff(this->IdsArrayName);
       }
     ptIds->Delete();
     }
@@ -138,9 +147,9 @@ void vtkIdFilter::Execute()
       }
     else
       {
-      cellIds->SetName("vtkIdFilter_Ids");
+      cellIds->SetName(this->IdsArrayName);
       outCD->AddArray(cellIds);
-      outCD->CopyFieldOff("vtkIdFilter_Ids");
+      outCD->CopyFieldOff(this->IdsArrayName);
       }
     cellIds->Delete();
     }
@@ -153,7 +162,9 @@ void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
-  os << indent << "Point Ids: " << (this->PointIds ? "On\n" : "Off\n");
-  os << indent << "Cell Ids: " << (this->CellIds ? "On\n" : "Off\n");
-  os << indent << "Field Data: " << (this->FieldData ? "On\n" : "Off\n");
+  os << indent << "Point Ids: "    << (this->PointIds ? "On\n" : "Off\n");
+  os << indent << "Cell Ids: "     << (this->CellIds ? "On\n" : "Off\n");
+  os << indent << "Field Data: "   << (this->FieldData ? "On\n" : "Off\n");
+  os << indent << "IdsArrayName: " << (this->IdsArrayName ? this->IdsArrayName
+       : "(none)") << "\n";
 }

@@ -87,9 +87,15 @@ public:
   vtkGetMacro(FieldData,int);
   vtkBooleanMacro(FieldData,int);
 
+  // Description:
+  // Set/Get the name of the Ids array if generated. By default the Ids
+  // are named "vtkIdFilter_Ids", but this can be changed with this function.
+  vtkSetStringMacro(IdsArrayName);
+  vtkGetStringMacro(IdsArrayName);
+
 protected:
   vtkIdFilter();
-  ~vtkIdFilter() {};
+  ~vtkIdFilter();
   vtkIdFilter(const vtkIdFilter&);
   void operator=(const vtkIdFilter&);
 
@@ -98,6 +104,7 @@ protected:
   int PointIds;
   int CellIds;
   int FieldData;
+  char *IdsArrayName;
 
 };
 
