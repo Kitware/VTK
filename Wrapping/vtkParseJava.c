@@ -202,6 +202,65 @@ void HandleDataReader(FILE *fp, FileInfo *data)
     data = 0;
 }
 
+void HandleDataArray(FILE *fp, FileInfo *data)
+{
+  char* type = 0;
+
+  if (!strcmp("vtkCharArray",data->ClassName) )
+    {
+    type = "char";
+    }
+  else if (!strcmp("vtkDoubleArray",data->ClassName) )
+    {
+    type = "double";
+    }
+  else if (!strcmp("vtkFloatArray",data->ClassName) )
+    {
+    type = "float";
+    }
+  else if (!strcmp("vtkIntArray",data->ClassName) )
+    {
+    type = "int";
+    }
+  else if (!strcmp("vtkLongArray",data->ClassName) )
+    {
+    type = "long";
+    }
+  else if (!strcmp("vtkShortArray",data->ClassName) )
+    {
+    type = "short";
+    }
+  else if (!strcmp("vtkUnsignedCharArray",data->ClassName) )
+    {
+    type = "byte";
+    }
+  else if (!strcmp("vtkUnsignedIntArray",data->ClassName) )
+    {
+    type = "int";
+    }
+  else if (!strcmp("vtkUnsignedLongArray",data->ClassName) )
+    {
+    type = "long";
+    }
+  else if (!strcmp("vtkUnsignedShortrray",data->ClassName) )
+    {
+    type = "short";
+    }
+  else
+    {
+    return;
+    }
+
+  fprintf(fp,"\n");
+  fprintf(fp,"  private native %s[] GetJavaArray_0();\n", type);
+  fprintf(fp,"  public %s[] GetJavaArray()\n", type);
+  fprintf(fp,"    { return GetJavaArray_0(); }\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"  private native void SetJavaArray_0(%s[] arr);\n", type);
+  fprintf(fp,"  public void SetJavaArray(%s[] arr)\n", type);
+  fprintf(fp,"    { SetJavaArray_0(arr); }\n");
+}
+
 void outputFunction(FILE *fp, FileInfo *data)
 {
   int i;
@@ -387,6 +446,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     currentFunction = data->Functions + i;
     outputFunction(fp, data);
     }
+
+  HandleDataArray(fp, data);
 
   if (!data->NumberOfSuperClasses)
     {

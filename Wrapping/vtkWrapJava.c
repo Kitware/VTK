@@ -465,6 +465,123 @@ void HandleDataReader(FILE *fp, FileInfo *data)
     fprintf(fp,"}\n");
 }
 
+void HandleDataArray(FILE *fp, FileInfo *data)
+{
+  char* type = 0;
+  char* jtype = 0;
+  char* fromtype = 0;
+  char* jfromtype = 0;
+
+  if (!strcmp("vtkCharArray",data->ClassName) )
+    {
+    type = "char";
+    fromtype = "Char";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkDoubleArray",data->ClassName) )
+    {
+    type = "double";
+    fromtype = "Double";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkFloatArray",data->ClassName) )
+    {
+    type = "float";
+    fromtype = "Float";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkIntArray",data->ClassName) )
+    {
+    type = "int";
+    fromtype = "Int";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkLongArray",data->ClassName) )
+    {
+    type = "long";
+    fromtype = "Long";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkShortArray",data->ClassName) )
+    {
+    type = "short";
+    fromtype = "Short";
+    jtype = type;
+    jfromtype = fromtype;
+    }
+  else if (!strcmp("vtkUnsignedCharArray",data->ClassName) )
+    {
+    type = "unsigned char";
+    fromtype = "UnsignedChar";
+    jtype = "byte";
+    jfromtype = "Byte";
+    }
+  else if (!strcmp("vtkUnsignedIntArray",data->ClassName) )
+    {
+    type = "unsigned int";
+    fromtype = "UnsignedInt";
+    jtype = "int";
+    jfromtype = "Int";
+    }
+  else if (!strcmp("vtkUnsignedLongArray",data->ClassName) )
+    {
+    type = "unsigned long";
+    fromtype = "UnsignedLong";
+    jtype = "long";
+    jfromtype = "Long";
+    }
+  else if (!strcmp("vtkUnsignedShortrray",data->ClassName) )
+    {
+    type = "unsigned short";
+    fromtype = "UnsignedShort";
+    jtype = "short";
+    jfromtype = "Short";
+    }
+  else
+    {
+    return;
+    }
+
+  fprintf(fp,"// Array conversion routines\n");
+  fprintf(fp,"extern \"C\" JNIEXPORT jarray JNICALL Java_vtk_%s_GetJavaArray_10("
+    "JNIEnv *env, jobject obj)\n", 
+    data->ClassName);
+  fprintf(fp,"{\n");
+  fprintf(fp,"  %s *op;\n", data->ClassName);
+  fprintf(fp,"  %s  *temp20;\n", type);
+  fprintf(fp,"  vtkIdType size;\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n", 
+    data->ClassName, data->ClassName);
+  fprintf(fp,"  temp20 = static_cast<%s*>(op->GetVoidPointer(0));\n", type);
+  fprintf(fp,"  size = op->GetMaxId()+1;\n");
+  fprintf(fp,"  return vtkJavaMakeJArrayOf%sFrom%s(env,temp20,size);\n", fromtype, fromtype);
+  fprintf(fp,"}\n");
+
+  fprintf(fp,"extern \"C\" JNIEXPORT void  JNICALL Java_vtk_%s_SetJavaArray_10("
+    "JNIEnv *env, jobject obj,j%sArray id0)\n", data->ClassName, jtype);
+  fprintf(fp,"{\n");
+  fprintf(fp,"  %s *op;\n", data->ClassName);
+  fprintf(fp,"  %s *tempArray0;\n", type);
+  fprintf(fp,"  int length;\n");
+  fprintf(fp,"  tempArray0 = (%s *)(env->Get%sArrayElements(id0,NULL));\n", type, jfromtype);
+  fprintf(fp,"  length = env->GetArrayLength(id0);\n");
+  fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n", 
+    data->ClassName, data->ClassName);
+  fprintf(fp,"  op->SetNumberOfComponents(1);\n");
+  fprintf(fp,"  op->SetNumberOfTuples(length);\n");
+  fprintf(fp,"  memcpy(op->GetVoidPointer(0), tempArray0, length*sizeof(%s));\n", type);
+  fprintf(fp,"  env->Release%sArrayElements(id0,(j%s *)tempArray0,0);\n", jfromtype, jtype);
+  fprintf(fp,"}\n");
+
+
+}
+
 
 void outputFunction(FILE *fp, FileInfo *data)
 {
@@ -694,6 +811,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"  return NULL;\n");
   fprintf(fp,"}\n\n");
+
+  HandleDataArray(fp, data);
 
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
