@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkMarchingCubesCases.hh"
 #include "vtkMath.hh"
+#include "vtkShortScalars.hh"
 
 // Description:
 // Construct with NULL reader, output filename specification, and limits 
@@ -117,6 +118,7 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
 void vtkSliceCubes::Execute() 
 {
   FILE *outFP;
+  vtkStructuredPoints *tempStructPts;
   vtkShortScalars *slice0scalars=NULL, *slice1scalars;
   vtkShortScalars *slice2scalars, *slice3scalars;
   short *slice0, *slice1, *slice2, *slice3;
@@ -157,10 +159,13 @@ void vtkSliceCubes::Execute()
    return;
    }
 
-  this->Reader->GetDataDimensions((int *)dims);  
-  this->Reader->GetDataOrigin(origin);  
-  this->Reader->GetDataAspectRatio(aspectRatio);
+  // get image dimensions from the readers first slice
   this->Reader->GetImageRange(imageRange);
+  tempStructPts = this->Reader->GetImage(imageRange[0]);
+  tempStructPts->GetDimensions(dims);
+  tempStructPts->GetOrigin(origin);
+  tempStructPts->GetAspectRatio(aspectRatio);
+  
   dims[2] = (imageRange[1] - imageRange[0] + 1);
 
   if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
@@ -175,11 +180,12 @@ void vtkSliceCubes::Execute()
   xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
 
   slice1scalars = NULL;
-  slice2scalars = this->Reader->ReadImage(imageRange[0],(int *)dims);
+  slice2scalars = tempStructPts->GetPointData()->GetScalars()->GetAllShortScalars();
   vtkDebugMacro(<<"slice# " << imageRange[0]);
   if ( slice2scalars == NULL ) return;
   slice1 = slice2 = slice2scalars->GetPtr(0);
-  slice3scalars = this->Reader->ReadImage(imageRange[0]+1,(int *)dims);
+  slice3scalars = 
+    this->Reader->GetImage(imageRange[0]+1)->GetPointData()->GetScalars()->GetAllShortScalars();
   vtkDebugMacro(<<"slice# " << imageRange[0]+1);
   slice3 = slice3scalars->GetPtr(0);
 
@@ -204,7 +210,8 @@ void vtkSliceCubes::Execute()
     if ( k < (dims[2]-2) )
       {
       vtkDebugMacro(<<"slice# " << imageRange[0]+k+2);
-      slice3scalars = this->Reader->ReadImage(imageRange[0]+k+2, (int *)dims);
+      slice3scalars = 
+	this->Reader->GetImage(imageRange[0]+k+2)->GetPointData()->GetScalars()->GetAllShortScalars();
       if ( slice3scalars == NULL )
         {
         vtkErrorMacro(<<"Can't read all the requested slices");

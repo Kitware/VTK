@@ -110,6 +110,10 @@ void vtkPNMReader::Execute()
   vtkStructuredPoints *output = this->GetOutput();
   
 
+  if (this->FilePrefix)
+    {
+    this->Filename = strdup(this->FilePrefix);
+    }
   if ( this->Filename == NULL )
     {
     vtkErrorMacro(<<"Please specify a filename!");
@@ -118,7 +122,9 @@ void vtkPNMReader::Execute()
 
   if ( this->ImageRange[0] < 0 )
     {
+    dim[2] = 0;
     newScalars = this->ReadImage(dim);
+    dim[2] = 1;
     }
   else
     {
@@ -134,18 +140,56 @@ void vtkPNMReader::Execute()
   newScalars->Delete();
 }
 
-vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
+vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 {
-  FILE *fp;
-  int type;
+  vtkColorScalars *newScalars;
+  vtkStructuredPoints *result = new vtkStructuredPoints();
+  int dim[3];
 
-  dim[2] = 1;
-
-  if ( !(fp = fopen(this->Filename,"rb")) )
+  if (this->FilePrefix)
     {
-    vtkErrorMacro(<<"Can't find file: " << this->Filename);
+    this->Filename = strdup(this->FilePrefix);
+    }
+  if ( this->Filename == NULL )
+    {
+    vtkErrorMacro(<<"Please specify a filename!");
     return NULL;
     }
+
+  dim[2] = ImageNum;
+  newScalars = this->ReadImage(dim);
+  if ( ! newScalars ) return NULL;
+
+  dim[2] = 1;
+  result->SetDimensions(dim);
+  result->SetAspectRatio(this->DataAspectRatio);
+  result->SetOrigin(this->DataOrigin);
+  result->GetPointData()->SetScalars(newScalars);
+  newScalars->Delete();
+  return result;
+}
+
+vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
+{
+  vtkScalars *newScalars;
+  int type;
+  char filename[1024];
+  FILE *fp;
+
+  if (dim[2] > 0)
+    {
+    sprintf (filename, this->FilePattern, this->Filename, dim[2]);
+    }
+  else
+    {
+    sprintf (filename, "%s",this->Filename);
+    }
+
+  if ( !(fp = fopen(filename,"rb")) )
+    {
+      vtkErrorMacro(<<"Can't open file: " << filename);
+      return NULL;
+    }                                                                          
 
   type = VTK_UNKNOWN_TYPE;
   return this->ReadBinaryPNM(fp, NULL, type, 0, dim[0], dim[1]);
@@ -159,8 +203,7 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
   char filename[1024];
   FILE *fp;
 
-  dim[2] = numImages;
-  sprintf (filename, "%s.%d", this->Filename, this->ImageRange[0]);
+  sprintf (filename, this->FilePattern, this->Filename, this->ImageRange[0]);
 
   if ( !(fp = fopen(filename,"rb")) )
     {
@@ -185,7 +228,7 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
   //loop over remaining images; read them; assemble into volume
   for (imageNum=1; imageNum < numImages; imageNum++)
     {
-    sprintf (filename, "%s.%d", this->Filename, this->ImageRange[0]+imageNum);
+    sprintf (filename, this->FilePattern, this->Filename, this->ImageRange[0]+imageNum);
     if ( !(fp = fopen(filename,"rb")) ||
     ! this->ReadBinaryPNM(fp, s, type, imageNum*imageSize, dim[0], dim[1]) )
       {
@@ -195,6 +238,7 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
       }
     }
 
+  dim[2] = numImages;
   return s;
 }
 
@@ -395,16 +439,8 @@ int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int offset,
 
 void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  vtkVolumeReader::PrintSelf(os,indent);
 
   os << indent << "Filename: " 
      << (this->Filename ? this->Filename : "(none)") << "\n";
-  os << indent << "Image Range: (" << this->ImageRange[0] << ", " 
-     << this->ImageRange[1] << ")\n";
-  os << indent << "Data Origin: (" << this->DataOrigin[0] << ", "
-                                   << this->DataOrigin[1] << ", "
-                                   << this->DataOrigin[2] << ")\n";
-  os << indent << "AspectRatio: (" << this->DataAspectRatio[0] << ", "
-                                   << this->DataAspectRatio[1] << ", "
-                                   << this->DataAspectRatio[2] << ")\n";
 }

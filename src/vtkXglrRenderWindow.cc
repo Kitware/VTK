@@ -604,10 +604,10 @@ void vtkXglrRenderWindow::WindowInitialize (void)
 		      XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_OFF,
 		      XGL_CTX_DEFERRAL_MODE, XGL_DEFER_ASAP,
 		      XGL_3D_CTX_LIGHT_NUM, VTK_MAX_LIGHTS,
-		      XGL_3D_CTX_SURF_TRANSP_METHOD, XGL_TRANSP_SCREEN_DOOR,
-/*		      XGL_3D_CTX_SURF_TRANSP_METHOD, XGL_TRANSP_BLENDED,
+		      //		      XGL_3D_CTX_SURF_TRANSP_METHOD, XGL_TRANSP_SCREEN_DOOR,
+		      XGL_3D_CTX_SURF_TRANSP_METHOD, XGL_TRANSP_BLENDED,
 		      XGL_3D_CTX_SURF_TRANSP_BLEND_EQ, XGL_BLEND_ARBITRARY_BG,
-*/		      0);
+		      0);
   
   // clear canvas area to default background color of black 
   xgl_context_new_frame (this->Context);

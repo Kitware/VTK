@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkScalars.hh"
 #include "vtkFloatScalars.hh"
+#include "vtkShortScalars.hh"
 #include "vtkIdList.hh"
 #include "vtkLookupTable.hh"
 
@@ -64,6 +65,25 @@ void vtkScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
     {
     fs.InsertScalar(i,this->GetScalar(ptId.GetId(i)));
     }
+}
+
+
+// Description:
+// Return all the scalar values as a short scalar
+vtkShortScalars *vtkScalars::GetAllShortScalars()
+{
+  int num = this->GetNumberOfScalars();
+  vtkShortScalars *result = new vtkShortScalars(num);
+  short *arr;
+  
+  arr = result->WritePtr(0,num);
+    
+  for (int i=0; i< num; i++)
+    {
+    arr[i] = (short)(256.0*this->GetScalar(i));
+    }
+  
+  return result;
 }
 
 // Description:

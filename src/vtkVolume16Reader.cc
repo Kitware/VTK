@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkVolume16Reader.hh"
+#include "vtkShortScalars.hh"
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
@@ -46,13 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // header size 0; and byte swapping turned off.
 vtkVolume16Reader::vtkVolume16Reader()
 {
-  this->FilePrefix = NULL;
-  this->FilePattern = "%s.%d";
-  this->ImageRange[0] = this->ImageRange[1] = 1;
-
-  this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
-  this->DataAspectRatio[0] = this->DataAspectRatio[1] = this->DataAspectRatio[2] = 1.0;
-
   this->DataMask = 0x0000;
   this->HeaderSize = 0;
   this->SwapBytes = 0;
@@ -60,7 +54,7 @@ vtkVolume16Reader::vtkVolume16Reader()
 
 void vtkVolume16Reader::Execute()
 {
-  vtkShortScalars *newScalars;
+  vtkScalars *newScalars;
   int first, last;
   int numberSlices;
   int *dim;
@@ -92,14 +86,14 @@ void vtkVolume16Reader::Execute()
   if ( (this->ImageRange[1]-this->ImageRange[0]) <= 0 )
     {
     numberSlices = 1;
-    newScalars = this->ReadImage(this->ImageRange[0], dim);
+    newScalars = this->ReadImage(this->ImageRange[0]);
     }
   else
     {
     first = this->ImageRange[0];
     last = this->ImageRange[1];
     numberSlices = last - first + 1;
-    newScalars = this->ReadVolume(first, last, dim);
+    newScalars = this->ReadVolume(first, last);
     }
 
   dimensions[0] = dim[0]; dimensions[1] = dim[1];
@@ -114,9 +108,54 @@ void vtkVolume16Reader::Execute()
     }
 }
 
+vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
+{
+  vtkScalars *newScalars;
+  int numberSlices;
+  int *dim;
+  int dimensions[3];
+  vtkStructuredPoints *result;
+
+  // Validate instance variables
+  if (this->FilePrefix == NULL) 
+    {
+    vtkErrorMacro(<< "FilePrefix is NULL");
+    return NULL;
+    }
+
+  if (this->HeaderSize < 0) 
+    {
+    vtkErrorMacro(<< "HeaderSize " << this->HeaderSize << " must be >= 0");
+    return NULL;
+    }
+
+  dim = this->DataDimensions;
+
+  if (dim[0] <= 0 || dim[1] <= 0) 
+    {
+    vtkErrorMacro(<< "x, y dimensions " << dim[0] << ", " << dim[1] 
+                  << "must be greater than 0.");
+    return NULL;
+    } 
+  
+  result = new vtkStructuredPoints();
+  newScalars = this->ReadImage(this->ImageRange[0]);
+  dimensions[0] = dim[0]; dimensions[1] = dim[1];
+  dimensions[2] = 1;
+  result->SetDimensions(dimensions);
+  result->SetAspectRatio(this->DataAspectRatio);
+  result->SetOrigin(this->DataOrigin);
+  if ( newScalars ) 
+    {
+    result->GetPointData()->SetScalars(newScalars);
+    newScalars->Delete();
+    }
+  return result;
+}
+
 // Description:
 // Read a slice of volume data.
-vtkShortScalars *vtkVolume16Reader::ReadImage(int sliceNumber, int dim[2])
+vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 {
   vtkShortScalars *scalars = NULL;
   short *pixels;
@@ -133,7 +172,7 @@ vtkShortScalars *vtkVolume16Reader::ReadImage(int sliceNumber, int dim[2])
     return NULL;
     }
 
-  numPts = dim[0] * dim[1];
+  numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars
   scalars = new vtkShortScalars(numPts);
@@ -142,7 +181,7 @@ vtkShortScalars *vtkVolume16Reader::ReadImage(int sliceNumber, int dim[2])
   pixels = scalars->WritePtr(0, numPts);
 
   // read the image data
-  status = Read16BitImage (fp, pixels, dim[0], dim[1], this->HeaderSize, this->SwapBytes);
+  status = Read16BitImage (fp, pixels, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
 
   // close the file
   fclose (fp);
@@ -159,7 +198,7 @@ vtkShortScalars *vtkVolume16Reader::ReadImage(int sliceNumber, int dim[2])
 
 // Description:
 // Read a volume of data.
-vtkShortScalars *vtkVolume16Reader::ReadVolume(int first, int last, int dim[2])
+vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
 {
   vtkShortScalars *scalars = NULL;
   short *pixels;
@@ -171,7 +210,7 @@ vtkShortScalars *vtkVolume16Reader::ReadVolume(int first, int last, int dim[2])
   char filename[1024];
 
   // calculate the number of points per image
-  numPts = dim[0] * dim[1];
+  numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars for all of the images
   scalars = new vtkShortScalars(numPts * numberSlices);
@@ -192,7 +231,7 @@ vtkShortScalars *vtkVolume16Reader::ReadVolume(int first, int last, int dim[2])
     pixels = scalars->WritePtr((fileNumber - first) * numPts, numPts);
 
     // read the image data
-    status = Read16BitImage (fp, pixels, dim[0], dim[1], this->HeaderSize, this->SwapBytes);
+    status = Read16BitImage (fp, pixels, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
 
     fclose (fp);
 
@@ -244,20 +283,10 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, short *pixels, int xsize,
 
 void vtkVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  vtkVolumeReader::PrintSelf(os,indent);
 
-  os << indent << "FilePrefix: " << this->FilePrefix << "\n";
-  os << indent << "FilePattern: " << this->FilePattern << "\n";
   os << indent << "HeaderSize: " << this->HeaderSize << "\n";
   os << indent << "SwapBytes: " << this->SwapBytes << "\n";
-  os << indent << "Image Range: (" << this->ImageRange[0] << ", " 
-     << this->ImageRange[1] << ")\n";
   os << indent << "Data Dimensions: (" << this->DataDimensions[0] << ", "
                                    << this->DataDimensions[1] << ")\n";
-  os << indent << "Data Origin: (" << this->DataOrigin[0] << ", "
-                                   << this->DataOrigin[1] << ", "
-                                   << this->DataOrigin[2] << ")\n";
-  os << indent << "Data Aspect Ratio: (" << this->DataAspectRatio[0] << ", "
-                                         << this->DataAspectRatio[1] << ", "
-                                         << this->DataAspectRatio[2] << ")\n";
 }

@@ -60,6 +60,18 @@ vtkXglrTexture::vtkXglrTexture()
   this->Switch = 1;
 }
 
+vtkXglrTexture::~vtkXglrTexture()
+{
+  if (this->MipMap)
+    {
+    xgl_object_destroy(this->MipMap);
+    }
+  if (this->TMap)
+    {
+    xgl_object_destroy(this->TMap);
+    }
+}
+
 // Description:
 // Implement base class method.
 void vtkXglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
@@ -108,11 +120,6 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       return;
       }
 
-    if (bytesPerPixel < 3)
-      {
-      vtkWarningMacro(<<"XGL only supports RGB or RGBA textures right now.");
-      }
-    
     dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
 
     // we only support 2d texture maps right now
@@ -157,7 +164,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       }
     this->MipMap = xgl_object_create(xglr_sys_state, XGL_MIPMAP_TEXTURE, 
 				     NULL, 0);
-    xgl_object_set(this->MipMap,XGL_MIPMAP_TEXTURE_LEVELS, 3, NULL);
+    xgl_object_set(this->MipMap,XGL_MIPMAP_TEXTURE_LEVELS, 1, NULL);
 
     setRas = xgl_object_create (xglr_sys_state, 
 				XGL_MEM_RAS, 0,
@@ -179,10 +186,19 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       
       for (xloop = 0; xloop < xsize; xloop++)
 	{
-	*(bptr)  = *(dataPtr++);
-	*(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<8;
-	*(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
-	if (bytesPerPixel == 4)
+	if (bytesPerPixel < 3)
+	  {
+	  *(bptr)  = *(dataPtr);
+	  *(bptr) += ((Xgl_usgn32)(*(dataPtr)))<<8;
+	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
+	  }
+	else
+	  {
+	  *(bptr)  = *(dataPtr++);
+	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<8;
+	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
+	  }
+	if ((bytesPerPixel == 4)||(bytesPerPixel == 2))
 	  {
 	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<24;
 	  }
@@ -207,7 +223,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     if (txt->GetInterpolate())
       {
       this->TDesc.texture_info.mipmap.interp_info.filter1 = 
-	XGL_TEXTURE_INTERP_MIPMAP_BILINEAR;
+	XGL_TEXTURE_INTERP_MIPMAP_TRILINEAR;
       this->TDesc.texture_info.mipmap.interp_info.filter2 = 
 	XGL_TEXTURE_INTERP_BILINEAR;
       }
@@ -230,10 +246,29 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     this->TDesc.texture_info.mipmap.orientation_matrix[2][0] = 0.0;
     this->TDesc.texture_info.mipmap.orientation_matrix[2][1] = 0.0;
 
-    this->TDesc.comp_info.color_info.num_render_comp_desc = 1;
+    this->TDesc.comp_info.color_info.channel_number[0] = 0;
     rDesc = &(this->TDesc.comp_info.color_info.render_component_desc[0]);
     rDesc->comp = XGL_RENDER_COMP_DIFFUSE_COLOR;
-    rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+    if ((bytesPerPixel == 3)||(bytesPerPixel == 1))
+      {
+      this->TDesc.comp_info.color_info.num_render_comp_desc = 1;
+      this->TDesc.comp_info.color_info.num_channels[0] = 3;
+      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
+      //      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+      }
+    else
+      {
+      this->TDesc.comp_info.color_info.num_render_comp_desc = 2;
+      this->TDesc.comp_info.color_info.num_channels[0] = 3;
+      this->TDesc.comp_info.color_info.num_channels[1] = 1;
+      this->TDesc.comp_info.color_info.channel_number[1] = 3;
+      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
+      //      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+      //      rDesc->texture_op = XGL_TEXTURE_OP_DECAL_INTRINSIC;
+      rDesc = &(this->TDesc.comp_info.color_info.render_component_desc[1]);
+      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
+      }
     
     xgl_object_set(this->TMap, XGL_TMAP_DESCRIPTOR, &this->TDesc, 0);
     
