@@ -29,16 +29,16 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.5");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.6");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
-  NumberOfUPoints(50)
+  ParametricFunction(NULL)
+  , NumberOfUPoints(50)
   , NumberOfVPoints(50)
   , NumberOfWPoints(50)
   , ScalarMode(vtkParametricFunctionSource::SCALAR_NONE)
-  , ParametricFunction(NULL)
 {
   this->SetNumberOfInputPorts(0);
 }
