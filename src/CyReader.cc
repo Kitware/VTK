@@ -15,16 +15,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "CyReader.hh"
 
-extern "C" {
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 #include <malloc.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <errno.h>
-}
 
 
 vlCyberReader::vlCyberReader()
@@ -407,7 +404,6 @@ void vlCyberReader::PrintSelf(ostream& os, vlIndent indent)
 // Following changes were made to incorporate Cyberware code into vl:
 //    - directly included cyfile.h into this .cc file
 //    - directly included strings.h into this .cc file
-//    - use extern "C" to handle prototypes, variables
 //    - remove extra write functions
 
 //
@@ -418,19 +414,16 @@ void vlCyberReader::PrintSelf(ostream& os, vlIndent indent)
 /* Header */
 
 /* declare message strings */
-
-extern "C" {
-  char *STR026;
-  char *STR027;
-  char *STR082;
-  char *STR106;
-  char *STR107;
-  char *STR108;
-  char *STR109;
-  char *STR110;
-  char *STR111;
-  char *STR112;
-};
+char *STR026;
+char *STR027;
+char *STR082;
+char *STR106;
+char *STR107;
+char *STR108;
+char *STR109;
+char *STR110;
+char *STR111;
+char *STR112;
 
 //
 // Following is cyfile.c
