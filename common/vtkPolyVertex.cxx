@@ -155,7 +155,7 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
     }
 }
 
-void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars, 
+void vtkPolyVertex::Contour(float value, vtkDataArray *cellScalars, 
 			    vtkPointLocator *locator, vtkCellArray *verts,
 			    vtkCellArray *vtkNotUsed(lines), 
 			    vtkCellArray *vtkNotUsed(polys), 
@@ -168,7 +168,7 @@ void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars,
   
   for (i=0; i < numPts; i++)
     {
-    if ( value == cellScalars->GetScalar(i) )
+    if ( value == cellScalars->GetComponent(i,0) )
       {
       pts[0] = locator->InsertNextPoint(this->Points->GetPoint(i));
       if ( outPd )
@@ -234,7 +234,7 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars, 
+void vtkPolyVertex::Clip(float value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, vtkIdType cellId,
@@ -246,7 +246,7 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
   
   for ( i=0; i < numPts; i++ )
     {
-    s = cellScalars->GetScalar(i);
+    s = cellScalars->GetComponent(i, 0);
 
     if ( (!insideOut && s > value) || (insideOut && s <= value) )
       {

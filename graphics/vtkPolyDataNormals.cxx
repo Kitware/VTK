@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPolyDataNormals.h"
 #include "vtkMath.h"
-#include "vtkNormals.h"
+#include "vtkFloatArray.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
@@ -92,7 +92,7 @@ void vtkPolyDataNormals::Execute()
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
   vtkPoints *newPts = NULL;
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkPointData *pd, *outPD;
   vtkCellData *outCD;
   float n[3];
@@ -228,10 +228,11 @@ void vtkPolyDataNormals::Execute()
 
   //  Initial pass to compute polygon normals without effects of neighbors
   //
-  this->PolyNormals = vtkNormals::New();
-  this->PolyNormals->Allocate(numPolys);
-  this->PolyNormals->GetData()->SetName("Normals");
-  this->PolyNormals->SetNumberOfNormals(numPolys);
+  this->PolyNormals = vtkFloatArray::New();
+  this->PolyNormals->SetNumberOfComponents(3);
+  this->PolyNormals->Allocate(3*numPolys);
+  this->PolyNormals->SetName("Normals");
+  this->PolyNormals->SetNumberOfTuples(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
        cellId++ )
@@ -245,7 +246,7 @@ void vtkPolyDataNormals::Execute()
         }
       }
     vtkPolygon::ComputeNormal(inPts, npts, pts, n);
-    this->PolyNormals->SetNormal(cellId,n);
+    this->PolyNormals->SetTuple(cellId,n);
     }
 
   // Split mesh if sharp features
@@ -314,13 +315,14 @@ void vtkPolyDataNormals::Execute()
     flipDirection = -1.0;
     }
 
-  newNormals = vtkNormals::New();
-  newNormals->SetNumberOfNormals(numNewPts);
-  newNormals->GetData()->SetName("Normals");
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->SetNumberOfTuples(numNewPts);
+  newNormals->SetName("Normals");
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++)
     {
-    newNormals->SetNormal(i,n);
+    newNormals->SetTuple(i,n);
     }
 
   if (this->ComputePointNormals)
@@ -328,22 +330,22 @@ void vtkPolyDataNormals::Execute()
     for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
           cellId++ )
       {
-      polyNormal = this->PolyNormals->GetNormal(cellId);
+      polyNormal = this->PolyNormals->GetTuple(cellId);
 
       for (i=0; i < npts; i++) 
         {
-        vertNormal = newNormals->GetNormal(pts[i]);
+        vertNormal = newNormals->GetTuple(pts[i]);
         for (j=0; j < 3; j++)
           {
           n[j] = vertNormal[j] + polyNormal[j];
           }
-        newNormals->SetNormal(pts[i],n);
+        newNormals->SetTuple(pts[i],n);
         }
       }
 
     for (i=0; i < numNewPts; i++) 
       {
-      vertNormal = newNormals->GetNormal(i);
+      vertNormal = newNormals->GetTuple(i);
       length = vtkMath::Norm(vertNormal);
       if (length != 0.0) 
         {
@@ -352,7 +354,7 @@ void vtkPolyDataNormals::Execute()
           n[j] = vertNormal[j] / length * flipDirection;
           }
         }
-      newNormals->SetNormal(i,n);
+      newNormals->SetTuple(i,n);
       }
     }
 
@@ -543,8 +545,8 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
           if ( this->CellIds->GetNumberOfIds() == 1 && 
                this->Visited[(neiCellId=this->CellIds->GetId(0))] < 0 )
             {
-            thisNormal = this->PolyNormals->GetNormal(cellId);
-            neiNormal =  this->PolyNormals->GetNormal(neiCellId);
+            thisNormal = this->PolyNormals->GetTuple(cellId);
+            neiNormal =  this->PolyNormals->GetTuple(neiCellId);
 
             if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
               {

@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoxel.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //------------------------------------------------------------------------
 vtkClipVolume* vtkClipVolume::New()
@@ -145,8 +146,8 @@ void vtkClipVolume::Execute()
   vtkIdType cellId, newCellId, i;
   int j, k, flip, iflip, jflip, kflip;
   vtkPoints *cellPts;
-  vtkScalars *clipScalars;
-  vtkScalars *cellScalars; 
+  vtkDataArray *clipScalars;
+  vtkFloatArray *cellScalars; 
   vtkCell *cell;
   vtkPoints *newPoints;
   vtkIdList *cellIds;
@@ -214,7 +215,7 @@ void vtkClipVolume::Execute()
   // and do necessary setup.
   if ( this->ClipFunction )
     {
-    vtkScalars *tmpScalars = vtkScalars::New();
+    vtkFloatArray *tmpScalars = vtkFloatArray::New();
     tmpScalars->Allocate(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());
@@ -226,13 +227,13 @@ void vtkClipVolume::Execute()
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(input->GetPoint(i));
-      tmpScalars->InsertScalar(i,s);
+      tmpScalars->InsertTuple(i,&s);
       }
-    clipScalars = (vtkScalars *)tmpScalars;
+    clipScalars = tmpScalars;
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetScalars();
+    clipScalars = inPD->GetActiveScalars();
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
@@ -266,7 +267,7 @@ void vtkClipVolume::Execute()
   sliceSize = numICells * numJCells;
   
   tetraIds = vtkIdList::New(); tetraIds->Allocate(20);
-  cellScalars = vtkScalars::New(); cellScalars->Allocate(8);
+  cellScalars = vtkFloatArray::New(); cellScalars->Allocate(8);
   tetraPts = vtkPoints::New(); tetraPts->Allocate(20); 
   
   // Loop over i-j-k directions so that we can control the direction of
@@ -307,8 +308,8 @@ void vtkClipVolume::Execute()
         // gather scalar values for the cell and keep
         for ( above=below=0, ii=0; ii < 8; ii++ )
           {
-          s = clipScalars->GetScalar(cellIds->GetId(ii));
-          cellScalars->SetScalar(ii, s);
+          s = clipScalars->GetComponent(cellIds->GetId(ii),0);
+          cellScalars->SetTuple(ii, &s);
           if ( s >= value )
             {
             above = 1;
@@ -412,7 +413,7 @@ void vtkClipVolume::Execute()
 // intersection points are injected into triangulation. Because of convex,
 // regular spacing of voxel points, we don't have to worry about constrained
 // Delaunay problems.
-void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars, 
+void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
                               int flip, float vtkNotUsed(origin)[3],
                               float spacing[3], 
                               vtkIdList *cellIds, vtkPoints *cellPts,
@@ -456,7 +457,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
       
     // Currently all points are injected because of the possibility 
     // of intersection point merging.
-    s1 = cellScalars->GetScalar(ptId);
+    s1 = cellScalars->GetComponent(ptId,0);
     if ( (s1 >= value && !this->InsideOut) || (s1 < value && this->InsideOut) )
       {
       type = 0; //inside
@@ -479,8 +480,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
   // intersections near exisiting points (causes bad Delaunay behavior).
   for (edgeNum=0; edgeNum < 12; edgeNum++)
     {
-    s1 = cellScalars->GetScalar(edges[edgeNum][0]);
-    s2 = cellScalars->GetScalar(edges[edgeNum][1]);
+    s1 = cellScalars->GetComponent(edges[edgeNum][0],0);
+    s2 = cellScalars->GetComponent(edges[edgeNum][1],0);
     if ( (s1 < value && s2 >= value) || (s1 >= value && s2 < value) )
       {
       t = (value - s1) / (s2 - s1);

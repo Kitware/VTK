@@ -41,13 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkContourGrid.h"
-#include "vtkScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
 #include "vtkContourValues.h"
 #include "vtkScalarTree.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkFloatArray.h"
 
 //---------------------------------------------------------------------------
 vtkContourGrid* vtkContourGrid::New()
@@ -112,7 +112,7 @@ unsigned long vtkContourGrid::GetMTime()
 template <class T>
 static void vtkContourGridExecute(vtkContourGrid *self,
                                   vtkDataSet *input,
-                                  vtkScalars *inScalars, T *scalarArrayPtr,
+                                  vtkDataArray *inScalars, T *scalarArrayPtr,
                                   int numContours, float *values, 
                                   vtkPointLocator *locator, int computeScalars,
                                   int useScalarTree,vtkScalarTree *&scalarTree)
@@ -128,7 +128,7 @@ static void vtkContourGridExecute(vtkContourGrid *self,
   vtkIdType numCells, estimatedSize;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
-  vtkScalars *cellScalars;
+  vtkDataArray *cellScalars;
   vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
   //In this case, we know that the input is an unstructured grid.
   vtkIdType numPoints, cellArrayIt = 0;
@@ -158,8 +158,8 @@ static void vtkContourGridExecute(vtkContourGrid *self,
   newLines->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize);
-  cellScalars = vtkScalars::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  cellScalars = inScalars->MakeObject();
+  cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
   
    // locator used to merge potentially duplicate points
   locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
@@ -224,7 +224,7 @@ static void vtkContourGridExecute(vtkContourGrid *self,
         {
         cell = input->GetCell(cellId);
         cellPts = cell->GetPointIds();
-        inScalars->GetScalars(cellPts,cellScalars);
+        inScalars->GetTuples(cellPts,cellScalars);
         
         for (i=0; i < numContours; i++)
           {
@@ -298,7 +298,7 @@ static void vtkContourGridExecute(vtkContourGrid *self,
 //
 void vtkContourGrid::Execute()
 {
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkDataSet *input=this->GetInput();
   void *scalarArrayPtr;
   vtkIdType numCells;
@@ -316,7 +316,7 @@ void vtkContourGrid::Execute()
     }
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetScalars();
+  inScalars = input->GetPointData()->GetActiveScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");

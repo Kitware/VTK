@@ -498,6 +498,28 @@ void vtkDataArray::CopyComponent(const int j, vtkDataArray *from,
     }
 }
 
+void vtkDataArray::GetRange(float range[2], int comp)
+{
+  float s;
+  vtkIdType numTuples=this->GetNumberOfTuples();
+
+  range[0] =  VTK_LARGE_FLOAT;
+  range[1] =  -VTK_LARGE_FLOAT;
+  for (vtkIdType i=0; i<numTuples; i++)
+    {
+    s = this->GetComponent(i,comp);
+    if ( s < range[0] )
+      {
+      range[0] = s;
+      }
+    if ( s > range[1] )
+      {
+      range[1] = s;
+      }
+    }
+
+}
+
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

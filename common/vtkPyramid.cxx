@@ -363,7 +363,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}  //31
 };
 
-void vtkPyramid::Contour(float value, vtkScalars *cellScalars, 
+void vtkPyramid::Contour(float value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator,
                          vtkCellArray *vtkNotUsed(verts), 
                          vtkCellArray *vtkNotUsed(lines), 
@@ -382,7 +382,7 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
   // Build the case table
   for ( i=0, index = 0; i < 5; i++)
     {
-    if (cellScalars->GetScalar(i) >= value)
+    if (cellScalars->GetComponent(i,0) >= value)
       {
       index |= CASE_MASK[i];
       }
@@ -396,8 +396,9 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
-      t = (value - cellScalars->GetScalar(vert[0])) /
-          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      t = (value - cellScalars->GetComponent(vert[0],0)) /
+          (cellScalars->GetComponent(vert[1],0) 
+	   - cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++) 

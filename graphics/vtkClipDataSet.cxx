@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkClipDataSet.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkClipDataSet* vtkClipDataSet::New()
@@ -132,8 +133,8 @@ void vtkClipDataSet::Execute()
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD[2];
   vtkPoints *newPoints;
-  vtkScalars *cellScalars; 
-  vtkScalars *clipScalars;
+  vtkFloatArray *cellScalars; 
+  vtkDataArray *clipScalars;
   vtkPoints *cellPts;
   vtkIdList *cellIds;
   float s;
@@ -170,7 +171,7 @@ void vtkClipDataSet::Execute()
     {
     estimatedSize = 1024;
     }
-  cellScalars = vtkScalars::New();
+  cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   vtkCellArray *conn[2];
   conn[0] = vtkCellArray::New();
@@ -205,8 +206,8 @@ void vtkClipDataSet::Execute()
   // and do necessary setup.
   if ( this->ClipFunction )
     {
-    vtkScalars *tmpScalars = vtkScalars::New();
-    tmpScalars->SetNumberOfScalars(numPts);
+    vtkFloatArray *tmpScalars = vtkFloatArray::New();
+    tmpScalars->SetNumberOfTuples(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());//copies original
     if ( this->GenerateClipScalars )
@@ -216,13 +217,13 @@ void vtkClipDataSet::Execute()
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(input->GetPoint(i));
-      tmpScalars->SetScalar(i,s);
+      tmpScalars->SetTuple(i,&s);
       }
-    clipScalars = (vtkScalars *)tmpScalars;
+    clipScalars = tmpScalars;
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetScalars();
+    clipScalars = inPD->GetActiveScalars();
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
@@ -270,8 +271,8 @@ void vtkClipDataSet::Execute()
     // evaluate implicit cutting function
     for ( i=0; i < npts; i++ )
       {
-      s = clipScalars->GetScalar(cellIds->GetId(i));
-      cellScalars->InsertScalar(i, s);
+      s = clipScalars->GetComponent(cellIds->GetId(i), 0);
+      cellScalars->InsertTuple(i, &s);
       }
 
     // perform the clipping

@@ -77,6 +77,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_EXTRACT_ALL_REGIONS 5
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
+class vtkDataArray;
+
 class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -184,15 +186,15 @@ protected:
 
 private:
   // used to support algorithm execution
-  vtkScalars *CellScalars;
+  vtkDataArray *CellScalars;
   vtkIdList *NeighborCellPointIds;
   int *Visited;
   vtkIdType *PointMap;
-  vtkScalars *NewScalars;
+  vtkDataArray *NewScalars;
   int RegionNumber;
   vtkIdType PointNumber;    
   vtkIdType NumCellsInRegion;
-  vtkScalars *InScalars;
+  vtkDataArray *InScalars;
   vtkPolyData *Mesh;
   vtkIdList *Wave;
   vtkIdList *Wave2;

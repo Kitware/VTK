@@ -74,10 +74,10 @@ void vtkCellDerivatives::Execute()
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkScalars *inScalars=pd->GetScalars();
-  vtkVectors *inVectors=pd->GetVectors();
-  vtkVectors *outVectors=NULL;
-  vtkTensors *outTensors=NULL;
+  vtkDataArray *inScalars=pd->GetActiveScalars();
+  vtkDataArray *inVectors=pd->GetActiveVectors();
+  vtkFloatArray *outVectors=NULL;
+  vtkFloatArray *outTensors=NULL;
   vtkIdType numCells=input->GetNumberOfCells();
   int computeScalarDerivs=1, computeVectorDerivs=1, subId;
 
@@ -105,9 +105,10 @@ void vtkCellDerivatives::Execute()
       {
       computeScalarDerivs = 0;
       }
-    outVectors = vtkVectors::New();
-    outVectors->SetNumberOfVectors(numCells);
-    outVectors->GetData()->SetName("Vorticity");
+    outVectors = vtkFloatArray::New();
+    outVectors->SetNumberOfComponents(3);
+    outVectors->SetNumberOfTuples(numCells);
+    outVectors->SetName("Vorticity");
     outCD->SetVectors(outVectors);
     outVectors->Delete(); //okay reference counted
     outCD->CopyVectorsOff();
@@ -120,9 +121,10 @@ void vtkCellDerivatives::Execute()
     }
   else
     {
-    outTensors = vtkTensors::New();
-    outTensors->SetNumberOfTensors(numCells);
-    outTensors->GetData()->SetName("Tensors");
+    outTensors = vtkFloatArray::New();
+    outTensors->SetNumberOfComponents(9);
+    outTensors->SetNumberOfTuples(numCells);
+    outTensors->SetName("Tensors");
     outCD->SetTensors(outTensors);
     outTensors->Delete(); //okay reference counted
     outCD->CopyTensorsOff();
@@ -134,13 +136,15 @@ void vtkCellDerivatives::Execute()
     float pcoords[3], derivs[9], w[3], *scalars, *vectors;
     vtkGenericCell *cell = vtkGenericCell::New();
     vtkIdType cellId;
-    vtkScalars *cellScalars=vtkScalars::New(); 
-    cellScalars->Allocate(VTK_CELL_SIZE);
-    cellScalars->GetData()->SetName("Scalars");
-    vtkVectors *cellVectors=vtkVectors::New(); 
-    cellVectors->Allocate(VTK_CELL_SIZE);
-    cellVectors->GetData()->SetName("Vectors");
-    vtkTensor *tens = vtkTensor::New();
+    vtkFloatArray *cellScalars=vtkFloatArray::New();
+    cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+    cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+    cellScalars->SetName("Scalars");
+    vtkFloatArray *cellVectors=vtkFloatArray::New(); 
+    cellVectors->SetNumberOfComponents(3);
+    cellVectors->Allocate(3*VTK_CELL_SIZE);
+    cellVectors->SetName("Vectors");
+    vtkTensor* tens = vtkTensor::New();
 
     // Loop over all cells computing derivatives
     vtkIdType progressInterval = numCells/20 + 1;
@@ -157,16 +161,16 @@ void vtkCellDerivatives::Execute()
       
       if ( computeScalarDerivs )
         {
-        inScalars->GetScalars(cell->PointIds, cellScalars);
-        scalars = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
+        inScalars->GetTuples(cell->PointIds, cellScalars);
+        scalars = cellScalars->GetPointer(0);
         cell->Derivatives(subId, pcoords, scalars, 1, derivs);
-        outVectors->SetVector(cellId, derivs);
+        outVectors->SetTuple(cellId, derivs);
         }
 
       if ( computeVectorDerivs )
         {
-        inVectors->GetVectors(cell->PointIds, cellVectors);
-        vectors = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
+        inVectors->GetTuples(cell->PointIds, cellVectors);
+        vectors = cellVectors->GetPointer(0);
         cell->Derivatives(0, pcoords, vectors, 3, derivs);
 
         // Insert appropriate tensor
@@ -182,7 +186,7 @@ void vtkCellDerivatives::Execute()
           tens->SetComponent(2,1, derivs[7]);
           tens->SetComponent(2,2, derivs[8]);
           
-          outTensors->InsertTensor(cellId, tens);
+          outTensors->InsertTuple(cellId, tens->T);
           }
         else // this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN
           {
@@ -196,7 +200,7 @@ void vtkCellDerivatives::Execute()
           tens->SetComponent(2,1, 0.5*(derivs[5]+derivs[7]));
           tens->SetComponent(2,2, derivs[8]);
           
-          outTensors->InsertTensor(cellId, tens);
+          outTensors->InsertTuple(cellId, tens->T);
           }
 
         if ( this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
@@ -204,7 +208,7 @@ void vtkCellDerivatives::Execute()
           w[0] = derivs[7] - derivs[5];
           w[1] = derivs[2] - derivs[6];
           w[2] = derivs[3] - derivs[1];
-          outVectors->SetVector(cellId, w);
+          outVectors->SetTuple(cellId, w);
           }
         }
       }//for all cells

@@ -380,7 +380,7 @@ static LINE_CASES lineCases[] = {
 
 static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
 
-void vtkTriangle::Contour(float value, vtkScalars *cellScalars, 
+void vtkTriangle::Contour(float value, vtkDataArray *cellScalars, 
 			  vtkPointLocator *locator,
 			  vtkCellArray *vtkNotUsed(verts), 
 			  vtkCellArray *lines, 
@@ -400,7 +400,7 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
     {
-    if (cellScalars->GetScalar(i) >= value)
+    if (cellScalars->GetComponent(i,0) >= value)
       {
       index |= CASE_MASK[i];
       }
@@ -415,7 +415,8 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
       {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+		     - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
         e1 = vert[0]; e2 = vert[1];
@@ -433,7 +434,7 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
 	}
       else
 	{
-	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
 	}
 
       this->Points->GetPoint(e1, x1);
@@ -838,7 +839,7 @@ static TRIANGLE_CASES triangleCases[] = {
 
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
-void vtkTriangle::Clip(float value, vtkScalars *cellScalars, 
+void vtkTriangle::Clip(float value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *tris,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -858,7 +859,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
     {    
     for ( i=0, index = 0; i < 3; i++)
       {
-      if (cellScalars->GetScalar(i) <= value)
+      if (cellScalars->GetComponent(i,0) <= value)
 	{
 	index |= CASE_MASK[i];
 	}
@@ -868,7 +869,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
     {
     for ( i=0, index = 0; i < 3; i++)
       {
-      if (cellScalars->GetScalar(i) > value)
+      if (cellScalars->GetComponent(i,0) > value)
 	{
         index |= CASE_MASK[i];
 	}
@@ -900,7 +901,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
         vert = edges[edge[i]];
 
         // calculate a preferred interpolation direction
-        deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+        deltaScalar = (cellScalars->GetComponent(vert[1],0) - cellScalars->GetComponent(vert[0],0));
         if (deltaScalar > 0)
           {
 	  e1 = vert[0]; e2 = vert[1];
@@ -918,7 +919,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
 	  }
         else
 	  {
-	  t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	  t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
 	  }
 
         this->Points->GetPoint(e1, x1);

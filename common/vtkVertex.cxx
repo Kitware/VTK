@@ -156,7 +156,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 // scalar values at each cell point. The point locator is essentially a 
 // points list that merges points as they are inserted (i.e., prevents 
 // duplicates). 
-void vtkVertex::Contour(float value, vtkScalars *cellScalars, 
+void vtkVertex::Contour(float value, vtkDataArray *cellScalars, 
 			vtkPointLocator *locator,
 			vtkCellArray *verts, 
 			vtkCellArray *vtkNotUsed(lines), 
@@ -164,7 +164,7 @@ void vtkVertex::Contour(float value, vtkScalars *cellScalars,
                         vtkPointData *inPd, vtkPointData *outPd,
                         vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
-  if ( value == cellScalars->GetScalar(0) )
+  if ( value == cellScalars->GetComponent(0,0) )
     {
     int newCellId;
     vtkIdType pts[1];
@@ -260,7 +260,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkVertex::Clip(float value, vtkScalars *cellScalars, 
+void vtkVertex::Clip(float value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPd, vtkPointData *outPd,
                      vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -270,7 +270,7 @@ void vtkVertex::Clip(float value, vtkScalars *cellScalars,
   int newCellId;
   vtkIdType pts[1];
   
-  s = cellScalars->GetScalar(0);
+  s = cellScalars->GetComponent(0,0);
 
   if ( ( !insideOut && s > value) || (insideOut && s <= value) )
     {

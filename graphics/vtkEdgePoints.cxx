@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkEdgePoints.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ vtkEdgePoints::~vtkEdgePoints()
 //
 void vtkEdgePoints::Execute()
 {
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
   vtkIdType cellId, ptId, edgeId, newCellId;
@@ -93,7 +93,7 @@ void vtkEdgePoints::Execute()
   vtkIdType numCells, estimatedSize;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  vtkScalars *cellScalars;
+  vtkDataArray *cellScalars;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
 
@@ -101,13 +101,13 @@ void vtkEdgePoints::Execute()
 
   // Initialize and check input
   //
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;
     }
 
-  inScalars->GetRange(range);
+  inScalars->GetRange(range,0);
   if ( this->Value < range[0] || this->Value > range[1] )
     {
     vtkWarningMacro(<<"Value lies outside of scalar range");
@@ -126,8 +126,8 @@ void vtkEdgePoints::Execute()
   newPts->Allocate(estimatedSize, estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize, estimatedSize/2);
-  cellScalars = vtkScalars::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  cellScalars = inScalars->MakeObject();
+  cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
   
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
@@ -153,16 +153,16 @@ void vtkEdgePoints::Execute()
       }
 
     input->GetCell(cellId,cell);
-    inScalars->GetScalars(cell->PointIds, cellScalars);
+    inScalars->GetTuples(cell->PointIds, cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
-      if ( cellScalars->GetScalar(ptId) >= this->Value )
+      if ( cellScalars->GetComponent(ptId,0) >= this->Value )
 	{
         above = 1;
 	}
-      else if ( cellScalars->GetScalar(ptId) < this->Value )
+      else if ( cellScalars->GetComponent(ptId,0) < this->Value )
 	{
         below = 1;
 	}
@@ -182,10 +182,10 @@ void vtkEdgePoints::Execute()
         for (edgeId=0; edgeId < numEdges; edgeId++)
           {
           edge = cell->GetEdge(edgeId);
-          inScalars->GetScalars(edge->PointIds, cellScalars);
+          inScalars->GetTuples(edge->PointIds, cellScalars);
 
-          s0 = cellScalars->GetScalar(0);
-          s1 = cellScalars->GetScalar(1);
+          s0 = cellScalars->GetComponent(0,0);
+          s1 = cellScalars->GetComponent(1,0);
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {

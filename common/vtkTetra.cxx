@@ -286,7 +286,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1}}
 };
 
-void vtkTetra::Contour(float value, vtkScalars *cellScalars, 
+void vtkTetra::Contour(float value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator,
                        vtkCellArray *vtkNotUsed(verts), 
                        vtkCellArray *vtkNotUsed(lines), 
@@ -304,7 +304,7 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
     {
-    if (cellScalars->GetScalar(i) >= value)
+    if (cellScalars->GetComponent(i,0) >= value)
       {
       index |= CASE_MASK[i];
       }
@@ -318,8 +318,9 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
-      t = (value - cellScalars->GetScalar(vert[0])) /
-          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      t = (value - cellScalars->GetComponent(vert[0],0)) /
+          (cellScalars->GetComponent(vert[1],0) 
+	   - cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
@@ -718,7 +719,7 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
 // Overload vtkCell3D::Clip() because there are cases when we want to
 // insert just ourselves into the output (i.e., a case that we want to
 // template).
-void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
+void vtkTetra::Clip(float value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
                     vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
@@ -730,7 +731,7 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
     {    
     for (inject=0; inject<4; inject++)
       {
-      if ( cellScalars->GetScalar(inject) > value )
+      if ( cellScalars->GetComponent(inject,0) > value )
         {
         break;
         }
@@ -740,7 +741,7 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
     {
     for (inject=0; inject<4; inject++)
       {
-      if ( cellScalars->GetScalar(inject) <= value )
+      if ( cellScalars->GetComponent(inject,0) <= value )
         {
         break;
         }

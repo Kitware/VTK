@@ -64,11 +64,22 @@ public:
   vtkCell *GetEdge(int) {return 0;};
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  void Contour(float value, vtkScalars *cellScalars, 
+  void Contour(float value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+  virtual void Contour(float value, vtkScalars *cellScalars, 
+                       vtkPointLocator *locator, vtkCellArray *verts, 
+                       vtkCellArray *lines, vtkCellArray *polys, 
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, vtkIdType cellId,
+                       vtkCellData *outCd)
+    {
+      VTK_LEGACY_METHOD("Contour", "4.0");
+      this->Contour(value, cellScalars->GetData(), locator, verts, 
+		    lines, polys, inPd, outPd, inCd, cellId, outCd);
+    }
   int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3], 
                        float& dist2, float *weights);
@@ -81,11 +92,21 @@ public:
   // Description:
   // Clip this line using scalar value provided. Like contouring, except
   // that it cuts the line to produce other lines.
-  void Clip(float value, vtkScalars *cellScalars, 
+  void Clip(float value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
+  virtual void Clip(float value, vtkScalars *cellScalars, 
+                    vtkPointLocator *locator, vtkCellArray *connectivity,
+                    vtkPointData *inPd, vtkPointData *outPd,
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+                    int insideOut)
+    {
+      vtkWarningMacro("The use of this method has been deprecated.You should use vtkGenericCell::Clip(float, vtkDataArray*, vtkPointLocator*, vtkCellArray*, vtkPointData*, vtkPointData*, vtkCellData*, vtkIdType, vtkCellData*, int) instead.");
+      this->Clip(value, cellScalars->GetData(), locator, connectivity, 
+		 inPd, outPd, inCd, cellId, outCd, insideOut);
+    }
 
   // Description:
   // Line-line intersection. Intersection has to occur within [0,1] parametric

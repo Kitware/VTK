@@ -265,6 +265,12 @@ public:
   const char* GetName();
 
   // Description:
+  // Return the range of the array values for the given component. 
+  // Note that the range is computed every time GetRange() is called.
+  // Range copied into array provided.
+  void GetRange(float range[2], int comp);
+
+  // Description:
   // Creates an array for dataType where dataType is one of
   // VTK_BIT, VTK_CHAR, VTK_UNSIGNED_CHAR, VTK_SHORT,
   // VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG,

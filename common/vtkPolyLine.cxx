@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -363,7 +363,7 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
     }
 }
 
-void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
+void vtkPolyLine::Contour(float value, vtkDataArray *cellScalars,
                           vtkPointLocator *locator, vtkCellArray *verts, 
                           vtkCellArray *lines, vtkCellArray *polys, 
                           vtkPointData *inPd, vtkPointData *outPd,
@@ -371,8 +371,8 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
                           vtkCellData *outCd)
 {
   int i, numLines=this->Points->GetNumberOfPoints() - 1;
-  vtkScalars *lineScalars=vtkScalars::New();
-  lineScalars->SetNumberOfScalars(2);
+  vtkDataArray *lineScalars=cellScalars->MakeObject();
+  lineScalars->SetNumberOfTuples(2);
 
   for ( i=0; i < numLines; i++)
     {
@@ -385,8 +385,8 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
       this->Line->PointIds->SetId(1,this->PointIds->GetId(i+1));
       }
 
-    lineScalars->SetScalar(0,cellScalars->GetScalar(i));
-    lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
+    lineScalars->SetTuple(0,cellScalars->GetTuple(i));
+    lineScalars->SetTuple(1,cellScalars->GetTuple(i+1));
 
     this->Line->Contour(value, lineScalars, locator, verts,
                        lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -445,15 +445,15 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
   this->Line->Derivatives(0, pcoords, values+dim*subId, dim, derivs);
 }
 
-void vtkPolyLine::Clip(float value, vtkScalars *cellScalars, 
+void vtkPolyLine::Clip(float value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                        int insideOut)
 {
   int i, numLines=this->Points->GetNumberOfPoints() - 1;
-  vtkScalars *lineScalars=vtkScalars::New();
-  lineScalars->SetNumberOfScalars(2);
+  vtkFloatArray *lineScalars=vtkFloatArray::New();
+  lineScalars->SetNumberOfTuples(2);
 
   for ( i=0; i < numLines; i++)
     {
@@ -463,8 +463,8 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
     this->Line->PointIds->SetId(0,this->PointIds->GetId(i));
     this->Line->PointIds->SetId(1,this->PointIds->GetId(i+1));
 
-    lineScalars->SetScalar(0,cellScalars->GetScalar(i));
-    lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
+    lineScalars->SetComponent(0,0,cellScalars->GetComponent(i,0));
+    lineScalars->SetComponent(1,0,cellScalars->GetComponent(i+1,0));
 
     this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
                     inCd, cellId, outCd, insideOut);

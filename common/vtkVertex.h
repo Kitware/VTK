@@ -66,11 +66,21 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int) {return 0;};
   vtkCell *GetFace(int) {return 0;};
-  void Clip(float value, vtkScalars *cellScalars, 
+  void Clip(float value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
+  virtual void Clip(float value, vtkScalars *cellScalars, 
+                    vtkPointLocator *locator, vtkCellArray *connectivity,
+                    vtkPointData *inPd, vtkPointData *outPd,
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+                    int insideOut)
+    {
+      vtkWarningMacro("The use of this method has been deprecated.You should use vtkGenericCell::Clip(float, vtkDataArray*, vtkPointLocator*, vtkCellArray*, vtkPointData*, vtkPointData*, vtkCellData*, vtkIdType, vtkCellData*, int) instead.");
+      this->Clip(value, cellScalars->GetData(), locator, connectivity, 
+		 inPd, outPd, inCd, cellId, outCd, insideOut);
+    }
   int EvaluatePosition(float x[3], float* closestPoint, 
                        int& subId, float pcoords[3], 
                        float& dist2, float *weights);
@@ -90,11 +100,22 @@ public:
   // scalar values at each cell point. The point locator is essentially a 
   // points list that merges points as they are inserted (i.e., prevents 
   // duplicates). 
-  void Contour(float value, vtkScalars *cellScalars, 
+  void Contour(float value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts1, 
                vtkCellArray *lines, vtkCellArray *verts2, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+  virtual void Contour(float value, vtkScalars *cellScalars, 
+                       vtkPointLocator *locator, vtkCellArray *verts, 
+                       vtkCellArray *lines, vtkCellArray *polys, 
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, vtkIdType cellId,
+                       vtkCellData *outCd)
+    {
+      VTK_LEGACY_METHOD("Contour", "4.0");
+      this->Contour(value, cellScalars->GetData(), locator, verts, 
+		    lines, polys, inPd, outPd, inCd, cellId, outCd);
+    }
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)

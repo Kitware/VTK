@@ -83,7 +83,7 @@ int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId),
 }
 
 void vtkEmptyCell::Contour(float vtkNotUsed(value), 
-			   vtkScalars *vtkNotUsed(cellScalars), 
+			   vtkDataArray *vtkNotUsed(cellScalars), 
 			   vtkPointLocator *vtkNotUsed(locator),
 			   vtkCellArray *vtkNotUsed(verts), 
 			   vtkCellArray *vtkNotUsed(lines), 
@@ -128,7 +128,7 @@ void vtkEmptyCell::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkEmptyCell::Clip(float vtkNotUsed(value), 
-			vtkScalars *vtkNotUsed(cellScalars), 
+			vtkDataArray *vtkNotUsed(cellScalars), 
 			vtkPointLocator *vtkNotUsed(locator), 
 			vtkCellArray *vtkNotUsed(verts),    
 			vtkPointData *vtkNotUsed(inPD),

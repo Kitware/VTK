@@ -254,7 +254,7 @@ vtkPixel* vtkPixel::New()
 
 static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 
-void vtkPixel::Contour(float value, vtkScalars *cellScalars,
+void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
 		       vtkPointLocator *locator, 
 		       vtkCellArray *vtkNotUsed(verts),
 		       vtkCellArray *lines, 
@@ -273,7 +273,7 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
     {
-    if (cellScalars->GetScalar(i) >= value)
+    if (cellScalars->GetComponent(i,0) >= value)
       {
       index |= CASE_MASK[i];
       }
@@ -287,8 +287,9 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
     for (i=0; i<2; i++) // insert line
       {
       vert = edges[edge[i]];
-      t = (value - cellScalars->GetScalar(vert[0])) /
-          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      t = (value - cellScalars->GetComponent(vert[0],0)) /
+          (cellScalars->GetComponent(vert[1],0) - 
+	   cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
@@ -527,7 +528,7 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkPixel::Clip(float vtkNotUsed(value), 
-		    vtkScalars *vtkNotUsed(cellScalars), 
+		    vtkDataArray *vtkNotUsed(cellScalars), 
 		    vtkPointLocator *vtkNotUsed(locator), 
 		    vtkCellArray *vtkNotUsed(tetras),
 		    vtkPointData *vtkNotUsed(inPd),

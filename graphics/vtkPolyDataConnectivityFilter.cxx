@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataConnectivityFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkPolyDataConnectivityFilter* vtkPolyDataConnectivityFilter::New()
@@ -69,7 +70,7 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
 
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
 
-  this->CellScalars = vtkScalars::New(); 
+  this->CellScalars = vtkFloatArray::New(); 
   this->CellScalars->Allocate(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
@@ -127,7 +128,7 @@ void vtkPolyDataConnectivityFilter::Execute()
 
   // See whether to consider scalar connectivity
   //
-  this->InScalars = input->GetPointData()->GetScalars();
+  this->InScalars = input->GetPointData()->GetActiveScalars();
   if ( !this->ScalarConnectivity ) 
     {
     this->InScalars = NULL;
@@ -161,8 +162,8 @@ void vtkPolyDataConnectivityFilter::Execute()
     this->PointMap[i] = -1;
     }
 
-  this->NewScalars = vtkScalars::New();
-  this->NewScalars->SetNumberOfScalars(numPts);
+  this->NewScalars = vtkFloatArray::New();
+  this->NewScalars->SetNumberOfTuples(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
 
@@ -458,8 +459,8 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
           if ( this->PointMap[ptId=pts[j]] < 0 )
             {
             this->PointMap[ptId] = this->PointNumber++;
-            this->NewScalars->SetScalar(this->PointMap[ptId], 
-                                        this->RegionNumber);
+            this->NewScalars->SetComponent(this->PointMap[ptId], 0,
+					   this->RegionNumber);
             }
 
           this->Mesh->GetPointCells(ptId,ncells,cells);
@@ -474,13 +475,14 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
               float s, range[2];
 
               this->Mesh->GetCellPoints(cellId, this->NeighborCellPointIds);
-              this->InScalars->GetScalars(this->NeighborCellPointIds,
-                                          this->CellScalars);
-              numScalars = this->CellScalars->GetNumberOfScalars();
+	      numScalars = this->NeighborCellPointIds->GetNumberOfIds();
+	      this->CellScalars->SetNumberOfTuples(numScalars);
+              this->InScalars->GetTuples(this->NeighborCellPointIds,
+					 this->CellScalars);
               range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
               for (ii=0; ii < numScalars;  ii++)
                 {
-                s = this->CellScalars->GetScalar(ii);
+                s = this->CellScalars->GetComponent(ii, 0);
                 if ( s < range[0] )
                   {
                   range[0] = s;
