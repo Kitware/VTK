@@ -40,7 +40,7 @@ vtkVoxel aVoxel
   [aVoxel GetPointIds] SetId 7 7
 
 set bVoxel [aVoxel NewInstance]
-bVoxel DeepCopy aVoxel
+$bVoxel DeepCopy aVoxel
 
 vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid Allocate 1 1
@@ -76,7 +76,7 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 7 7
   
 set bHexahedron [aHexahedron NewInstance]
-bHexahedron DeepCopy aHexahedron
+$bHexahedron DeepCopy aHexahedron
   
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
@@ -106,7 +106,7 @@ vtkTetra aTetra
   [aTetra GetPointIds] SetId 3 3
 
 set bTetra [aTetra NewInstance]
-bTetra DeepCopy aTetra
+$bTetra DeepCopy aTetra
 
 vtkUnstructuredGrid aTetraGrid
   aTetraGrid Allocate 1 1
@@ -143,7 +143,7 @@ vtkWedge aWedge
   [aWedge GetPointIds] SetId 5 5
 
 set bWedge [aWedge NewInstance]
-bWedge DeepCopy aWedge
+$bWedge DeepCopy aWedge
 
 vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid Allocate 1 1
@@ -178,7 +178,7 @@ vtkPyramid aPyramid
   [aPyramid GetPointIds] SetId 4 4
 
 set bPyramid [aPyramid NewInstance]
-bPyramid DeepCopy aPyramid
+$bPyramid DeepCopy aPyramid
 
 vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid Allocate 1 1
@@ -208,7 +208,7 @@ vtkPixel aPixel
   [aPixel GetPointIds] SetId 3 3
 
 set bPixel [aPixel NewInstance]
-bPixel DeepCopy aPixel
+$bPixel DeepCopy aPixel
 
 vtkUnstructuredGrid aPixelGrid
   aPixelGrid Allocate 1 1
@@ -238,7 +238,7 @@ vtkQuad aQuad
   [aQuad GetPointIds] SetId 3 3
 
 set bQuad [aQuad NewInstance]
-bQuad DeepCopy aQuad
+$bQuad DeepCopy aQuad
 
 vtkUnstructuredGrid aQuadGrid
   aQuadGrid Allocate 1 1
@@ -273,7 +273,7 @@ vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 2 2
 
 set bTriangle [aTriangle NewInstance]
-bTriangle DeepCopy aTriangle
+$bTriangle DeepCopy aTriangle
 
 vtkUnstructuredGrid aTriangleGrid
   aTriangleGrid Allocate 1 1
@@ -305,7 +305,7 @@ vtkPolygon aPolygon
   [aPolygon GetPointIds] SetId 3 3
 
 set bPolygon [aPolygon NewInstance]
-bPolygon DeepCopy aPolygon
+$bPolygon DeepCopy aPolygon
 
 vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid Allocate 1 1
@@ -347,7 +347,7 @@ vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetId 4 4
 
 set bTriangleStrip [aTriangleStrip NewInstance]
-bTriangleStrip DeepCopy aTriangleStrip
+$bTriangleStrip DeepCopy aTriangleStrip
 
 vtkUnstructuredGrid aTriangleStripGrid
   aTriangleStripGrid Allocate 1 1
@@ -374,7 +374,7 @@ vtkLine aLine
   [aLine GetPointIds] SetId 1 1
 
 set bLine [aLine NewInstance]
-bLine DeepCopy aLine
+$bLine DeepCopy aLine
 
 vtkUnstructuredGrid aLineGrid
   aLineGrid Allocate 1 1
@@ -403,7 +403,7 @@ vtkPolyLine aPolyLine
   [aPolyLine GetPointIds] SetId 2 2
 
 set bPolyLine [aPolyLine NewInstance]
-bPolyLine DeepCopy aPolyLine
+$bPolyLine DeepCopy aPolyLine
 
 vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid Allocate 1 1
@@ -427,7 +427,7 @@ vtkVertex aVertex
   [aVertex GetPointIds] SetId 0 0
 
 set bVertex [aVertex NewInstance]
-bVertex DeepCopy aVertex
+$bVertex DeepCopy aVertex
 
 vtkUnstructuredGrid aVertexGrid
   aVertexGrid Allocate 1 1
@@ -456,7 +456,7 @@ vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetId 2 2
 
 set bPolyVertex [aPolyVertex NewInstance]
-bPolyVertex DeepCopy aPolyVertex
+$bPolyVertex DeepCopy aPolyVertex
 
 vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
