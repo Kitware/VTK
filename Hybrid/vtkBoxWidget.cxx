@@ -32,11 +32,12 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.15");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.16");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
 {
+  this->State = vtkBoxWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkBoxWidget::ProcessEvents);
   
   // Enable/disable the translation, rotation, and scaling of the widget
