@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.45");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.46");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1366,7 +1366,7 @@ vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
 {
   if ( ! this->Reslice )
     {
-      return 0;
+    return 0;
     }
   return this->Reslice->GetOutput();
 }
@@ -1416,7 +1416,6 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
     this->Reslice->SetInterpolationModeToCubic();
     }
   this->Texture->SetInterpolate(this->TextureInterpolate);
-  this->Reslice->Update();
 }
 
 void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
@@ -1549,8 +1548,9 @@ float vtkImagePlaneWidget::GetSlicePosition()
   else
     {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-    } 
-   return 0.0f;
+    }
+
+  return 0.0f;
 }
 
 void vtkImagePlaneWidget::SetSliceIndex(int index)
@@ -1612,7 +1612,7 @@ int vtkImagePlaneWidget::GetSliceIndex()
 {
   if ( ! this->Reslice )
     {
-      return 0;
+    return 0;
     }
   this->ImageData = this->Reslice->GetInput();
   if ( ! this->ImageData )
@@ -1786,7 +1786,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   qro[2]= q[2] - o[2];
   qro[3]= 1.0;
 
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(this->Reslice->GetResliceAxes());
   matrix->SetElement(0,3,0);
   matrix->SetElement(1,3,0);
@@ -1816,6 +1816,8 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 
   matrix->Transpose();
   matrix->MultiplyPoint(qr,qro);
+  matrix->Delete();
+
   q[0] = qro[0] + o[0];
   q[1] = qro[1] + o[1];
   q[2] = qro[2] + o[2];
@@ -1878,8 +1880,6 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   this->CursorPoints->SetPoint(3,d);
 
   this->CursorMapper->Modified();
-
-  matrix->Delete();
 }
 
 void vtkImagePlaneWidget::ComputeWorldToImageCoords(float* in, float* out)
@@ -2294,8 +2294,8 @@ void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
   //
   float rd_dot_vpn = rd[0]*vpn[0] + rd[1]*vpn[1] + rd[2]*vpn[2];
 
-  // 'push' plane edge when mouse movee away from plane center
-  // 'pull' plane edge when mouse movee toward plane center
+  // 'push' plane edge when mouse moves away from plane center
+  // 'pull' plane edge when mouse moves toward plane center
   //
   float dw = 57.28578 * (vtkMath::Dot(this->RadiusVector,v))/radius * (-rd_dot_vpn);
 
