@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome);
 
@@ -14,7 +16,7 @@ int main (int argc, char *argv[])
   FILE *fp;
   char *vtkLocal = argv[1];
   char vtkHome[256];
-  char filename[80];
+  char filename[1024];
   
   sprintf(vtkHome,"%s/..",vtkLocal);
   
