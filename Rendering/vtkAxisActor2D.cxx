@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.28");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.29");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -302,8 +302,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   int i, *x, viewportSizeHasChanged;
   vtkIdType ptIds[2];
   float p1[3], p2[3], offset, maxWidth=0.0, maxHeight=0.0;
-  int numLabels;
-  float outRange[2], interval, deltaX, deltaY, xTick[3];
+  float interval, deltaX, deltaY, xTick[3];
   float theta, val;
   int *size, stringSize[2];
   char string[512];
