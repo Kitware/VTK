@@ -7,7 +7,7 @@
  *                       Schenectady, NY 12301
  *
  * Created:       Mon Feb  1 17:10:45 1999 by Tony Chi-shao Pan
- * Last Modified: Tue Dec 21 10:29:47 1999 by tony c pan
+ * Last Modified: Wed Dec 22 14:15:49 1999 by Tony Chi-shao Pan
  *
  * < General description goes here > 
  *
@@ -19,14 +19,19 @@
 // all tests need: the following 3 includes, code to parse the args
 // call to Test, and clean up code at the end
 #include <iostream.h>
-#include <string.h>
-#include <fstream.h>
+#include "rtOtherTestBase.h"
 
-void outputObj(vtkObject *obj, char *name, ostream& os) {
-  os << name << ": " << endl;
-  os << *obj;
+void FilterCommand(ostream& strm) {
+  strm << "cat";
 }
 
+void ComparatorCommand(ostream& strm) {
+  strm << "diff";
+}
+
+void TypeCommand(ostream& strm) {
+  strm << "rtr";
+}
 
 void Test(ostream& strm) {
   // actual test
@@ -145,72 +150,8 @@ void Test(ostream& strm) {
 
 int main(int argc, char* argv[])
 {
+  rtOtherTestBase::RunTest(argc, argv, FilterCommand, ComparatorCommand,
+                           TypeCommand, Test);
 
-  // first process the arguments.  this is where the test result path is 
-  // specified to the test, and where the test type, selector and comparator
-  // are specified to the testing script.  
-  ostream *out = NULL;
-  int fileout = 0;
-  if (argc <= 1) 
-    {
-    cout << "outputting to stdout.  -h for options" << endl;
-    out = &cout;
-    fileout = 0;
-    }
-  else 
-    {
-    if (strcmp(argv[1], "-S") == 0)
-      {
-      if (argc >= 3)
-        {
-        out = new ofstream(argv[2]);
-        fileout = 1;
-        }
-      else 
-        {
-        cout << "outputting to stdout.  -h for options" << endl;
-        out = &cout;
-        fileout = 0;
-        }
-      }
-    else if (strcmp(argv[1], "-f") == 0)
-      {
-      cout << "cat";
-      return 0;
-      }
-    else if (strcmp(argv[1], "-c") == 0)
-      {
-      cout << "diff";
-      return 0;
-      }
-    else if (strcmp(argv[1], "-e") == 0)
-      {
-      cout << "rtr";
-      return 0;
-      }
-    else
-      {
-      cout << "optional parameters are" << endl;
-      cout << "       -S file    path and filename" << endl;
-      cout << "       -f         print filter command string" << endl;
-      cout << "       -c         print comparator command string" << endl;
-      cout << "       -e         type and extension of result file" << endl;
-      return 0;
-      }
-    }
-
-  // single precision
-  (*out).precision(6);
-  Test(*out);
-
-  // Clean up
-  *out << flush;
-  if (fileout == 1) 
-    {
-    ((ofstream *)out)->close();
-    delete out;
-    }
-  
-  return 0;  
-}
-
+  return 0;
+} 

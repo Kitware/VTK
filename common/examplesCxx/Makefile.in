@@ -44,12 +44,15 @@ LDLIBS = ${VTK_LIB_FILE} ${DL_LIBS} ${THREAD_LIBS}
 
 all: ${EXAMPLES}
 
-otherJacobi: otherJacobi.o ${VTKLIB}
-	${CXX} -o otherJacobi ${CXX_FLAGS} otherJacobi.o ${LDLIBS} -lm
-otherMath: otherMath.o ${VTKLIB}
-	${CXX} -o otherMath ${CXX_FLAGS} otherMath.o ${LDLIBS} -lm
-otherMatrix4x4: otherMatrix4x4.o ${VTKLIB}
-	${CXX} -o otherMatrix4x4 ${CXX_FLAGS} otherMatrix4x4.o ${LDLIBS} -lm
+otherJacobi: otherJacobi.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherJacobi ${CXX_FLAGS} otherJacobi.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherMath: otherMath.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherMath ${CXX_FLAGS} otherMath.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherMatrix4x4: otherMatrix4x4.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherMatrix4x4 ${CXX_FLAGS} otherMatrix4x4.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
 # ${XLDFLAGS}
 #------------------------------------------------------------------------------
 
