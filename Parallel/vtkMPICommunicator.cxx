@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.20");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.21");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -579,8 +579,8 @@ int vtkMPICommunicator::Send(vtkIdType* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(reinterpret_cast<char*>(data), length, 
                                sizeof(vtkIdType), remoteProcessId, tag, 
-                               GetMPIType(), this->Comm->Handle,
-                               vtkCommunicator::UseCopy));
+                               vtkMPICommunicatorGetMPIType(), 
+                               this->Comm->Handle, vtkCommunicator::UseCopy));
 
 }
 #endif
@@ -718,8 +718,8 @@ int vtkMPICommunicator::Receive(vtkIdType* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(reinterpret_cast<char*>(data), length, 
                                   sizeof(vtkIdType), remoteProcessId, tag, 
-                                  GetMPIType(), this->Comm->Handle,
-                                  vtkCommunicator::UseCopy));
+                                  vtkMPICommunicatorGetMPIType(), 
+                                  this->Comm->Handle, vtkCommunicator::UseCopy));
 }
 #endif
 
