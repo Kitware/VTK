@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.92");
+vtkCxxRevisionMacro(vtkObject, "1.93");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -139,14 +139,6 @@ vtkObject::~vtkObject()
   delete this->SubjectHelper;
   this->SubjectHelper = NULL;
 }
-
-// Delete a vtk object. This method should always be used to delete an object 
-// when the new operator was used to create it. Using the C++ delete method
-// will not work with reference counting.
-//void vtkObject::Delete() 
-//{
-//  this->UnRegister((vtkObject *)NULL);
-//}
 
 // Return the modification for this object.
 unsigned long int vtkObject::GetMTime() 
@@ -660,10 +652,10 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, int check)
                   << (this->ReferenceCount-1));
     }
 
-  // If the reference count is one the object is about to be deleted.
-  // Invoke the delete event.
   if(this->ReferenceCount == 1)
     {
+    // The reference count is 1, so the object is about to be deleted.
+    // Invoke the delete event.
     this->InvokeEvent(vtkCommand::DeleteEvent, 0);
     }
 
