@@ -86,6 +86,7 @@ vtkRenderer::vtkRenderer()
   this->LightFollowCamera = 1;
 
   this->NumberOfPropsToRayCast         = 0;
+  this->NumberOfPropsRenderedAsGeometry = 0;
   this->NumberOfPropsToRenderIntoImage = 0;
 
   this->PropArray                = NULL;
