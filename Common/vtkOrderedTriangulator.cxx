@@ -30,7 +30,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.56");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.57");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -256,9 +256,30 @@ struct vtkOTMesh
 // Two lists are kept. The first is a list of lists of templates for 
 // each cell type. The second is a list of templates for each cell.
 // 
-// Typedefs for a list of templates for a particular cell
-typedef vtkstd::map<TemplateIDType,vtkIdType*>           TemplateList;
-typedef vtkstd::map<TemplateIDType,vtkIdType*>::iterator TemplateListIterator;
+// A specific template. The number of tetras and the tetra connectivity.
+struct OTTemplate
+{
+  vtkIdType  NumberOfTetras;
+  vtkIdType *Tetras;
+
+  OTTemplate(vtkIdType numberOfTetras, vtkHeap *heap)
+    {
+      this->NumberOfTetras = numberOfTetras;
+      this->Tetras = static_cast<vtkIdType*>(
+        heap->AllocateMemory(sizeof(vtkIdType)*numberOfTetras*4) );
+    }
+  void *operator new(size_t size, vtkHeap *heap)
+    {return heap->AllocateMemory(size);}
+#if !defined(VTK_NO_EXCEPTION_OPERATOR_DELETE)
+  void operator delete(void*,vtkHeap*) {}
+#endif
+};
+
+// Typedefs for a list of templates for a particular cell. Key is the
+// template index.
+typedef vtkstd::map<TemplateIDType,OTTemplate*>           TemplateList;
+typedef vtkstd::map<TemplateIDType,OTTemplate*>::iterator TemplateListIterator;
+
 //
 // Typedefs for a list of lists of templates keyed on cell type
 struct vtkOTTemplates : public vtkstd::map<int,TemplateList*> //key is cell type
@@ -280,6 +301,8 @@ vtkOrderedTriangulator::vtkOrderedTriangulator()
   this->UseTwoSortIds = 0;
 
   this->UseTemplates = 0;
+  this->NumberOfCellPoints = 0;
+  this->NumberOfCellEdges = 0;
   this->Templates = new vtkOTTemplates;
   this->TemplateHeap = vtkHeap::New();
   this->TemplateHeap->SetBlockSize(250000);
@@ -1054,7 +1077,7 @@ void vtkOrderedTriangulator::Triangulate()
   // Depending on whether templates are being used and whether the template
   // has been defined; the points are triangulated using templates or
   // using an ordered Delaunay approach.
-  if ( this->UseTemplates && this->NumberOfCellPoints == this->NumberOfPoints )
+  if (0 && this->UseTemplates && this->NumberOfCellPoints == this->NumberOfPoints )
     {
     templateUsePossible = 1;
     if ( this->TemplateTriangulation() )
@@ -1366,7 +1389,7 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray *tris)
 //------------------------------------------------------------------------
 // Given the results of the sorting, compute an index used to specify
 // a template id.
-TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
+inline TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
 {
   static TemplateIDType mask[8]={0xF0000000,0x0F000000,0x00F00000,0x000F0000,
                                  0x0000F000,0x00000F00,0x000000F0,0x0000000F};
@@ -1377,7 +1400,7 @@ TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
 
   for (p=this->Mesh->Points.begin(), i=0; i<this->NumberOfCellPoints; ++i, ++p)
     {
-    templateID = (templateID & mask[i]) | (p->OriginalId << (32-4*(i+1)));
+    templateID |= ((templateID & mask[i]) | (p->OriginalId << (32-4*(i+1))));
     }
 
   return templateID;
@@ -1388,11 +1411,6 @@ TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
 // If a template is missing, add it to the list of templates.
 void vtkOrderedTriangulator::AddTemplate()
 {
-  if ( ! this->Templates ) //no templates yet created; create a list
-    {
-    this->Templates = new vtkOTTemplates;
-    }
-
   // Find the template list for the given cell type
   int templateMayBeAvailable;
   TemplateList *tlist;
@@ -1424,16 +1442,15 @@ void vtkOrderedTriangulator::AddTemplate()
     
     // The tetras have been classified previously. So allocate space
     // and add it as a template list.
-    vtkIdType *idList = new(this->TemplateHeap) 
-      vtkIdType[this->Mesh->NumberOfTetrasClassifiedInside*4+1];
-    (*tlist)[index] = idList;
-    idList[0] = this->Mesh->NumberOfTetrasClassifiedInside;
+    OTTemplate *tplate = new(this->TemplateHeap) 
+      OTTemplate(this->Mesh->NumberOfTetrasClassifiedInside,this->TemplateHeap);
+    (*tlist)[index] = tplate;
     
     // Now fill in the connectivity list
     int i;
     TetraListIterator t;
     vtkOTTetra *tetra;
-    vtkIdType *clist=idList+1;
+    vtkIdType *clist=tplate->Tetras;
     for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
       {
       if ( (*t)->Type == vtkOTTetra::Inside )
@@ -1462,8 +1479,9 @@ int vtkOrderedTriangulator::TemplateTriangulation()
     if (  tlistIter != tlist->end() ) //something found
       {
       int i, j;
-      vtkIdType *tets = (*tlistIter).second;
-      vtkIdType numTets = *tets++;
+      OTTemplate *tets = (*tlistIter).second;
+      vtkIdType numTets = tets->NumberOfTetras;
+      vtkIdType *clist = tets->Tetras;
       vtkOTTetra *tetra;
       for (i=0; i<numTets; i++)
         {
@@ -1472,11 +1490,12 @@ int vtkOrderedTriangulator::TemplateTriangulation()
         tetra->Type = vtkOTTetra::Inside;
         for (j=0; j<4; j++)
           {
-          tetra->Points[j] = this->Mesh->Points.GetPointer(*tets++);
+          tetra->Points[j] = this->Mesh->Points.GetPointer(*clist++);
           }
         }//for all tetras in template
+      return 1;
       }//if a template found
-    }//if templates for this cell type found
+    }//if a template list for this cell type found
   
   return 0;
 }
