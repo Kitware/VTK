@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.27");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.28");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -79,7 +79,7 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->ObservingRenderer = 0;
   this->ObservingAbort = 0;
 
-  this->Controller = NULL;
+  this->Controller = vtkMultiProcessController::GetGlobalController();
   this->RootProcessId = 0;
 
   this->Lock = 0;
