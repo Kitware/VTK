@@ -65,6 +65,7 @@ EXAMPLES = VisQuad \
 	medical3 \
 	pickCells \
 	pickCells \
+	pdb \
 	probe \
 	quadricCut \
 	singleSplat \
@@ -103,6 +104,9 @@ VisQuad: VisQuad.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 spCellData: spCellData.o ${VTKLIB}
 	${CXX} -o spCellData ${CXX_FLAGS} spCellData.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+pdb: pdb.o ${VTKLIB}
+	${CXX} -o pdb ${CXX_FLAGS} pdb.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 CamBlur: CamBlur.o ${VTKLIB}
 	${CXX} -o CamBlur ${CXX_FLAGS} CamBlur.o ${XLDFLAGS} ${LDLIBS} \
