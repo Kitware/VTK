@@ -32,6 +32,9 @@
 #include "vtkProperty.h"
 #include "vtkInteractorEventRecorder.h"
 
+#include "vtkRegressionTestImage.h"
+#include "vtkDebugLeaks.h"
+
 char eventLog[] =
 "# StreamVersion 1\n"
 "CharEvent 108 202 0 0 105 1 i\n"
@@ -521,6 +524,12 @@ int main( int argc, char *argv[] )
   renWin->Render();
   recorder->Play();
 
+  int retVal = vtkRegressionTestImage( renWin );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
   sphere->Delete();
   cone->Delete();
   glyph->Delete();
@@ -537,5 +546,5 @@ int main( int argc, char *argv[] )
   ren1->Delete();
   myCallback->Delete();
   
-  return 0;
+  return !retVal;
 }

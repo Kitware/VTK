@@ -23,12 +23,15 @@ IF (VTK_USE_RENDERING)
                 -D ${VTK_DATA_ROOT}
                 -V Baseline/Hybrid/ImagePlaneWidget.png)
     ADD_TEST(AmoebaMinimizer ${CXX_TEST_PATH}/AmoebaMinimizer)
-    ADD_TEST(TestImplicitPlaneWidget ${CXX_TEST_PATH}/TestImagePlaneWidget)
+    ADD_TEST(TestImplicitPlaneWidget-image 
+             ${CXX_TEST_PATH}/TestImplicitPlaneWidget
+             -D ${VTK_DATA_ROOT}
+             -V Baseline/Hybrid/TestImplicitPlaneWidget.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(BoxWidget ${CXX_TEST_PATH}/BoxWidget)
     ADD_TEST(ImagePlaneWidget ${CXX_TEST_PATH}/ImagePlaneWidget)
     ADD_TEST(AmoebaMinimizer ${CXX_TEST_PATH}/AmoebaMinimizer)
-    ADD_TEST(TestImplicitPlaneWidget ${CXX_TEST_PATH}/TestImagePlaneWidget)
+    ADD_TEST(TestImplicitPlaneWidget ${CXX_TEST_PATH}/TestImplicitPlaneWidget)
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
