@@ -819,7 +819,6 @@ void vtkTreeComposite::SetWindowSize(int x, int y)
 
 float vtkTreeComposite::GetZ(int x, int y)
 {
-  float val;
   int idx;
   
   if (this->Controller == NULL || this->Controller->GetNumberOfProcesses() == 1)

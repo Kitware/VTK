@@ -425,9 +425,6 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   int          inId, outId;
   int          ib, ic;
   int          aA2, bA2, cA2;
-  int          rotatedFlag;
-  int          *stripArray;
-  int          stripArrayIdx;
 
   output = this->GetOutput();
   outPts = output->GetPoints();
@@ -730,7 +727,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   int progressCount;
   int cellId, i, j, newCellId;
   int *cellPointer;
-  int numCellPts;
   int cellType;
   vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(this->GetInput());
   int numPts=input->GetNumberOfPoints();
