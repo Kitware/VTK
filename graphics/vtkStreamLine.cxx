@@ -108,7 +108,8 @@ void vtkStreamLine::Execute()
     rotation->Allocate(1000);
     }
 
-  if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars
+    || this->OrientationScalars)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
