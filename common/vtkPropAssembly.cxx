@@ -381,7 +381,7 @@ void vtkPropAssembly::UpdatePaths()
           (prop = this->Parts->GetNextProp()); )
       {
       // add a matrix, if any
-      path->AddNode(prop,prop->GetMatrixPointer());
+      path->AddNode(prop,prop->GetMatrix());
 
       // dive into the hierarchy
       prop->BuildPaths(this->Paths,path);
