@@ -38,6 +38,7 @@ public:
   int GetNumberOfCells() {return this->Geometry->GetNumberOfCells();};
   int GetNumberOfPoints() {return this->Geometry->GetNumberOfPoints();};
   float *GetPoint(int i) {return this->Geometry->GetPoint(i);};
+  void GetPoint(int i, float x[3]) {this->Geometry->GetPoint(i,x);};
   vlCell *GetCell(int cellId) {return this->Geometry->GetCell(cellId);};
   int GetCellType(int cellId) {return this->Geometry->GetCellType(cellId);};
   void Initialize();
