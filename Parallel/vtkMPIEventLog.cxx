@@ -83,10 +83,6 @@ void vtkMPIEventLog::FinalizeLogging(const char* fname)
 
 int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
 {
-  // Trying to make sure that the object is created on all
-  // processes
-  MPI_Barrier(MPI_COMM_WORLD);
-
   int err, processId;
   if ( (err = MPI_Comm_rank(MPI_COMM_WORLD,&processId)) 
        != MPI_SUCCESS)
