@@ -29,6 +29,7 @@ vtkCylindricalTransform.cxx
 vtkDataArray.cxx
 vtkDataArrayCollection.cxx
 vtkDataArrayCollectionIterator.cxx
+vtkDataArraySelection.cxx
 vtkDataObject.cxx
 vtkDataObjectCollection.cxx
 vtkDataSet.cxx
