@@ -63,40 +63,78 @@ vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
   this->OnRatio = 1;
   this->Offset = 0;
   this->CloseSurface = 0;
+  this->RuledMode = VTK_RULED_MODE_RESAMPLE;
+  this->Resolution[0] = 1;
+  this->Resolution[1] = 1;
   this->PassLines = 0;
+  
+  this->Ids = vtkIdList::New();
+  this->Ids->SetNumberOfIds(4);
+}
+
+vtkRuledSurfaceFilter::~vtkRuledSurfaceFilter()
+{
+  this->Ids->Delete();
 }
 
 void vtkRuledSurfaceFilter::Execute()
 {
-  vtkPoints *inPts;
+  vtkPoints *inPts, *newPts;
   int i, numPts, numLines;
-  vtkCellArray *inLines;
-  vtkCellArray *newPolys;
+  vtkCellArray *inLines, *newPolys, *newStrips;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int npts, *pts;
-  int npts2, *pts2;
-  int loc, loc2;
+  int npts, *pts, npts2, *pts2;
+  vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
 
-  // Check input
+  // Check input, pass data if requested
   //
   vtkDebugMacro(<<"Creating a ruled surface");
 
-  if ( !(inPts=input->GetPoints()) || 
-      (numPts = inPts->GetNumberOfPoints()) < 1 ||
-      !(inLines = input->GetLines()) || 
-       (numLines=inLines->GetNumberOfCells()) < 2 )
+  inPts = input->GetPoints();
+  numPts = inPts->GetNumberOfPoints();
+  inLines = input->GetLines();
+  numLines=inLines->GetNumberOfCells();
+
+  if ( !inPts || numPts < 1 || !inLines || numLines < 2 )
     {
     vtkDebugMacro(<< "No input data!\n");
     return;
     }
   
-  // Allocate memory for surface...we're gonna pass the points through
-  //
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numLines,numPts/numLines));
-  output->SetPoints(inPts);
-  output->GetPointData()->PassData(input->GetPointData());
+  if ( this->PassLines )
+    {
+    output->SetLines(inLines);
+    }
+
+  if ( this->RuledMode == VTK_RULED_MODE_RESAMPLE ) //generating new points
+    {
+    newPts = vtkPoints::New();
+    output->SetPoints(newPts);
+    outPD->InterpolateAllocate(inPD,numPts);
+    if ( this->PassLines ) //need to copy input points
+      {
+      newPts->DeepCopy(inPts);
+      for (i=0; i<numPts; i++)
+        {
+        outPD->CopyData(inPD,i,i);
+        }
+      }
+    newStrips = vtkCellArray::New();
+    newStrips->Allocate(
+      2*(this->Resolution[1]+1)*this->Resolution[0]*(numLines-1));
+    output->SetStrips(newStrips);
+    newStrips->Delete();
+    }
+  else //using original points
+    {
+    output->SetPoints(inPts);
+    output->GetPointData()->PassData(input->GetPointData());
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(2*numPts);
+    output->SetPolys(newPolys);
+    newPolys->Delete();
+    }
 
   // For each pair of lines (as selected by Offset and OnRatio), create a
   // stripe (a ruled surfac between two lines). 
@@ -108,20 +146,24 @@ void vtkRuledSurfaceFilter::Execute()
     inLines->GetNextCell(npts2,pts2); //get the next edge
 
     // Determine whether this stripe should be generated
-    if ( (i-this->Offset) >= 0 && !((i - this->Offset ) % this->OnRatio) )
+    if ( (i-this->Offset) >= 0 && !((i - this->Offset ) % this->OnRatio) &&
+      npts >= 2 && npts2 >= 2)
       {
-      // Walk "edge" along the two lines maintaining closest distance
-      // and generating triangles as we go.
-      loc = loc2 = 0;
-      while ( loc<npts && loc2<npts2 )
+      switch (this->RuledMode)
         {
-        }//while still building the stripe
+        case VTK_RULED_MODE_RESAMPLE:
+          this->Resample(output, inPts, newPts, npts, pts, npts2, pts2);
+          break;
+        case VTK_RULED_MODE_POINT_WALK:
+          this->PointWalk(output, inPts, npts, pts, npts2, pts2);
+          break;
+        }//switch
       }//generate this stripe
     
     //Get the next line for generating the next stripe
     npts = npts2;
     pts = pts2;
-    if ( i == (numLines-1) )
+    if ( i == (numLines-2) )
       {
       if ( this->CloseSurface )
         {
@@ -134,15 +176,241 @@ void vtkRuledSurfaceFilter::Execute()
       }//add far boundary of surface
     }//for all selected line pairs
 
-  // Update the output
-  //
-  if ( this->PassLines )
+}
+
+void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts, 
+                                      vtkPoints *newPts, 
+                                      int npts, int *pts, 
+                                      int npts2, int *pts2)
+{
+  int i, j, id, offset;
+  float length, length2;
+  vtkCellArray *newStrips;
+  vtkPointData *inPD=this->GetInput()->GetPointData();
+  vtkPointData *outPD=output->GetPointData();
+  float v = 0.0, uu, vv;
+  float s = 0.0, t = 0.0;
+  float deltaV;
+  float deltaS, deltaT;
+  float d0, d1, l0, l1;
+  float pt[3], pt0[3], pt1[3], pt00[3], pt01[3], pt10[3], pt11[3];
+  int i00, i01, i10, i11;
+  
+  if (this->Resolution[0] < 1)
     {
-    output->SetLines(inLines);
+    vtkErrorMacro(<< "Resolution[0] must be greater than 0");
+    return;
     }
-  newPolys->Squeeze();
-  output->SetPolys(newPolys);
-  newPolys->Delete();
+  if (this->Resolution[1] < 1)
+    {
+    vtkErrorMacro(<< "Resolution[1] must be greater than 0");
+    return;
+    }
+
+  // Measure the length of each boundary line
+  //
+  // first line
+  length = 0.0;
+  for (i=0; i < npts-1; i++)
+    {
+    inPts->GetPoint(pts[i], pt00);
+    inPts->GetPoint(pts[i+1], pt01);
+    length += sqrt(vtkMath::Distance2BetweenPoints(pt00, pt01));
+    }
+
+  // second line
+  length2 = 0.0;
+  for (i=0; i < npts2-1; i++)
+    {
+    inPts->GetPoint(pts2[i], pt00);
+    inPts->GetPoint(pts2[i+1], pt01);
+    length2 += sqrt(vtkMath::Distance2BetweenPoints(pt00, pt01));
+    }
+
+  // Create the ruled surface as a set of triangle strips. Allocate
+  // additional memory for new points.
+  //
+  // forces allocation so that SetPoint() can be safely used
+  offset = newPts->GetNumberOfPoints();
+  newPts->InsertPoint(offset+(this->Resolution[0]+1)*(this->Resolution[1]+1)-1,
+                      0.0, 0.0, 0.0); 
+  newStrips = output->GetStrips();
+
+  // We'll construct the points for the ruled surface in column major order,
+  // i.e. all the points between the first point of the two polylines.
+  for (i=0; i < this->Resolution[0]; i++)
+    {
+    newStrips->InsertNextCell( 2*(this->Resolution[1]+1) );
+    for (j=0; j < this->Resolution[1] + 1; j++)
+      {
+      newStrips->InsertCellPoint(offset + i*(this->Resolution[1]+1)+j);
+      newStrips->InsertCellPoint(offset + (i+1)*(this->Resolution[1]+1)+j);
+      }
+    }
+
+  // Now, compute all the points.
+  //
+  // parametric delta
+  deltaV = 1.0 / (float) (this->Resolution[1]);
+
+  // arc-length deltas
+  deltaS = length / (float) (this->Resolution[0]);
+  deltaT = length2 / (float) (this->Resolution[0]);
+
+  s = t = 0.0;
+  d0 = d1 = 0.0;
+  l0 = l1 = 0.0;
+  i00 = 0;
+  i01 = 1;
+  i10 = 0;
+  i11 = 1;
+
+  inPts->GetPoint(pts[0], pt00);
+  inPts->GetPoint(pts[1], pt01);
+  inPts->GetPoint(pts2[0], pt10);
+  inPts->GetPoint(pts2[1], pt11);
+  
+  for (i=0; i < this->Resolution[0]+1; i++)
+    {
+    // compute the end points a rule, one point from the first polyline,
+    // one point from the second line
+    s = i*deltaS;
+    t = i*deltaT;
+
+    // find for the interval containing s
+    while (s > l0 && i00 < (npts - 1))
+      {
+      inPts->GetPoint(pts[i00], pt00);
+      inPts->GetPoint(pts[i01], pt01);
+      d0 = sqrt(vtkMath::Distance2BetweenPoints(pt00, pt01));
+      // floating point discrepancy: sgi needs the following test to be
+      // s <= length while win32 needs it to be s < length.  We account
+      // for this by using the <= test here and adjusting the maximum parameter
+      // value below (see #1)
+      if ((s > l0 + d0) && (s <= length))
+        {
+        // s's interval is still to the right
+        l0 += d0;
+        i00++;
+        i01++;
+        }
+      else
+        {
+        // found the correct interval
+        break;
+        }
+      }
+
+    // compute the point at s on the first polyline
+    this->Ids->SetId(0,pts[i00]);
+    this->Ids->SetId(1,pts[i01]);
+    if (d0 == 0.0)
+      {
+      uu = 0.0;
+      }
+    else
+      {
+      uu = (s - l0) / d0;
+      }
+    // #1: fix to address the win32/sgi floating point differences
+    if (s >= length)
+      {
+      uu = 1.0;
+      }
+    pt0[0] = (1.0-uu) * pt00[0] + uu * pt01[0];
+    pt0[1] = (1.0-uu) * pt00[1] + uu * pt01[1];
+    pt0[2] = (1.0-uu) * pt00[2] + uu * pt01[2];
+
+    // find for the interval containing t
+    while (t > l1 && i10 < (npts2 - 1))
+      {
+      inPts->GetPoint(pts2[i10], pt10);
+      inPts->GetPoint(pts2[i11], pt11);
+      d1 = sqrt(vtkMath::Distance2BetweenPoints(pt10, pt11));
+      // floating point discrepancy: sgi needs the following test to be
+      // t <= length2 while win32 needs it to be t < length2.  We account
+      // for this by using the <= test here and adjusting the maximum parameter
+      // value below (see #1)
+      if ((t > l1 + d1) && (t <= length2))
+        {
+        // t's interval is still to the right
+        l1 += d1;
+        i10++;
+        i11++;
+        }
+      else
+        {
+        // found the correct interval
+        break;
+        }
+      }
+    // compute the point at t on the second polyline
+    this->Ids->SetId(3,pts2[i10]);
+    this->Ids->SetId(2,pts2[i11]);
+    if (d1 == 0.0)
+      {
+      vv = 0.0;
+      }
+    else
+      {
+      vv = (t - l1) / d1;
+      }
+    // #1: fix to address the win32/sgi floating point differences
+    if (t >= length2)
+      {
+      vv = 1.0;
+      }
+    pt1[0] = (1.0-vv) * pt10[0] + vv * pt11[0];
+    pt1[1] = (1.0-vv) * pt10[1] + vv * pt11[1];
+    pt1[2] = (1.0-vv) * pt10[2] + vv * pt11[2];
+
+    // Now, compute the points along the rule
+    for (j=0; j < this->Resolution[1]+1; j++)
+      {
+      v = j*deltaV;
+      pt[0] = (1.0 - v) * pt0[0] + v * pt1[0];
+      pt[1] = (1.0 - v) * pt0[1] + v * pt1[1];
+      pt[2] = (1.0 - v) * pt0[2] + v * pt1[2];
+
+      id = offset + i*(this->Resolution[1] + 1) + j;
+      newPts->SetPoint(id, pt);
+      this->Weights[0] = 1.0 - uu;
+      this->Weights[1] = uu;
+      this->Weights[2] = 1.0 - vv;
+      this->Weights[3] = vv;
+      outPD->InterpolatePoint(inPD, id, this->Ids, this->Weights);
+      }
+    }
+}
+
+void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts, 
+                                       int npts, int *pts,
+                                       int npts2, int *pts2)
+{
+  int loc, loc2;
+      
+  // Allocate memory for surface...we're gonna pass the points through
+  //
+
+  // Walk "edge" along the two lines maintaining closest distance
+  // and generating triangles as we go.
+  loc = loc2 = 0;
+  while ( loc<npts && loc2<npts2 )
+    {
+    }//while still building the stripe
+  
+}
+  
+const char *vtkRuledSurfaceFilter::GetRuledModeAsString(void)
+{
+  if ( this->RuledMode == VTK_RULED_MODE_RESAMPLE )
+    {
+    return "Resample";
+    }
+  else //if ( this->RuledMode == VTK_RULED_MODE_POINT_WALK ) 
+    {
+    return "PointWalk";
+    }
 }
 
 void vtkRuledSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -153,6 +421,9 @@ void vtkRuledSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Close Surface: " << (this->CloseSurface ? "On\n" : "Off\n");
+  os << indent << "Ruled Mode: " << this->GetRuledModeAsString() << "\n";
+  os << indent << "Resolution: (" << this->Resolution[0]
+     << ", " << this->Resolution[1] << ")" << endl;
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 }
 

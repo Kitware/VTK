@@ -48,6 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // straight lines. This creates a strip for each pair of lines (i.e., a
 // triangulation is created from two generating lines). The filter can handle
 // an arbitrary number of lines, with lines i and i+1 assumed connected.
+// Note that there are several different approaches for creating the ruled
+// surface, the method for creating the surface can either use the input
+// points or resample from the polylines (using a user-specified resolution).
 //
 // This filter offers some other important features. A DistanceFactor ivar is
 // used to decide when two lines are too far apart to connect. (The factor is
@@ -76,6 +79,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkRuledSurfaceFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
+
+#define VTK_RULED_MODE_RESAMPLE 0
+#define VTK_RULED_MODE_POINT_WALK 1
 
 class VTK_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataToPolyDataFilter
 {
@@ -118,6 +124,29 @@ public:
   vtkBooleanMacro(CloseSurface,int);
 
   // Description:
+  // Set the mode by which to create the ruled surface. (Dramatically
+  // different results are possible depending on the chosen mode.) The
+  // resample mode evenly resamples the polylines (based on length) and 
+  // generates triangle strips. The
+  vtkSetClampMacro(RuledMode,int,
+                   VTK_RULED_MODE_RESAMPLE,VTK_RULED_MODE_POINT_WALK);
+  vtkGetMacro(RuledMode,int);
+  void SetRuledModeToResample()
+    {this->SetRuledMode(VTK_RULED_MODE_RESAMPLE);}
+  void SetRuledModeToPointWalk()
+    {this->SetRuledMode(VTK_RULED_MODE_POINT_WALK);}
+  const char *GetRuledModeAsString();
+
+  // Description:
+  // If the ruled surface generation mode is RESAMPLE, then these parameters
+  // are used to determine the resample rate. Resolution[0] defines the
+  // resolution in the direction of the polylines; Resolution[1] defines
+  // the resolution across the polylines (i.e., direction orthogonal to
+  // Resolution[0]).
+  vtkSetVector2Macro(Resolution, int);
+  vtkGetVectorMacro(Resolution, int, 2);
+
+  // Description:
   // Indicate whether the generating lines are to be passed to the output.
   // By defualt lines are not passed to the output.
   vtkSetMacro(PassLines,int);
@@ -126,7 +155,7 @@ public:
 
 protected:
   vtkRuledSurfaceFilter();
-  ~vtkRuledSurfaceFilter() {};
+  ~vtkRuledSurfaceFilter();
   vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) {};
   void operator=(const vtkRuledSurfaceFilter&) {};
 
@@ -137,7 +166,18 @@ protected:
   int   OnRatio;
   int   Offset;
   int   CloseSurface;
+  int   RuledMode;
+  int   Resolution[2];
   int   PassLines;
+  
+private:
+  vtkIdList *Ids;
+  float     Weights[4];
+
+  void  Resample(vtkPolyData *output, vtkPoints *inPts, vtkPoints *newPts, 
+                 int npts, int *pts, int npts2, int *pts2);
+  void  PointWalk(vtkPolyData *output, vtkPoints *inPts, 
+                  int npts, int *pts, int npts2, int *pts2);
   
 };
 
