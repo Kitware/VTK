@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVolumeCollection - a list of new volumes
+// .NAME vtkVolumeCollection - a list of volumes
 // .SECTION Description
 // vtkVolumeCollection represents and provides methods to manipulate a 
 // list of volumes (i.e., vtkVolume and subclasses). The list is unsorted 

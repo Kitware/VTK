@@ -38,6 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// .NAME vtkVolumeRayCastCompositeFunction - a ray function for compositing
+
+// .SECTION Description
+// vtkVolumeRayCastCompositeFunction is a ray function that can be used
+// within a vtkVolumeRayCastMapper. This function performs compositing along
+// the ray according to the properties stored in the vtkVolumeProperty for
+// the volume. 
+
+// .SECTION See Also
+// vtkVolumeRayCastMapper vtkVolumeProperty vtkVolume
 
 #ifndef __vtkVolumeRayCastCompositeFunction_h
 #define __vtkVolumeRayCastCompositeFunction_h

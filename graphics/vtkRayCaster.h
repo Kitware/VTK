@@ -38,12 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRayCaster - 
-//
+// .NAME vtkRayCaster - A helper object for the renderer that controls ray casting
+
 // .SECTION Description
+// vtkRayCaster is an automatically created object within vtkRenderer. It is used
+// for ray casting operations. It stores variables such as the view rays, and
+// information on multiresolution image rendering which are queried by the 
+// specific ray casters.
 
 // .SECTION see also
-
+// vtkRenderer vtkViewRays
 
 #ifndef __vtkRayCaster_h
 #define __vtkRayCaster_h

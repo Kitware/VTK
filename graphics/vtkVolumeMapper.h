@@ -42,16 +42,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION Description
 // vtkVolumeMapper is the abstract definition of a volume mapper.
-// All volume mappers must answer DestroyHardwareBuffer which indicates
-// whether or not the hardware color and z buffers will be destroyed
-// during the volume's render method, and ImageLocatedInHardware which
-// indicates if the image will be in the hardware color and z buffers or
-// should be obtained through the GetZbufferData and GetRGBAPixelData
-// methods. In addition, every mapper must supply the bounds of its
-// data.
+// Several basic types of volume mappers are supported. There are
+// ray casters, which produce an image that must be merged with
+// geometry, there are hardware methods that blend with geometry,
+// and some combinations of these.
 
 // .SECTION see also
-// vtkDepthPARCMapper vtkMIPDPARCMapper
+// vtkVolumeRayCastMapper
 
 #ifndef __vtkVolumeMapper_h
 #define __vtkVolumeMapper_h

@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkVolume is used to represent a volumetric entity in a rendering scene.
 // It inherits functions related to the volume's position, orientation and
-// origin from vtkProp. The volume also maintains a reference to the
+// origin from vtkProp. The volume maintains a reference to the
 // volumetric data (i.e., the volume mapper). The volume also contains a
 // reference to a volume property which contains all common volume rendering 
 // parameters.

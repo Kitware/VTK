@@ -39,6 +39,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
+// .NAME vtkVolumeRayCastFunction - a superclass for ray casting functions
+
+// .SECTION Description
+// vtkVolumeRayCastFunction is a superclass for ray casting functions that 
+// can be used within a vtkVolumeRayCastMapper. This includes for example,
+// vtkVolumeRayCastCompositeFunction, vtkVolumeRayCastMIPFunction, and
+// vtkVolumeRayCastIsosurfaceFunction.
+
+// .SECTION See Also
+// vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
+// vtkVolumeRayCastIsosurfaceFunction vtkVolumeRayCastMapper
+
 #ifndef __vtkVolumeRayCastFunction_h
 #define __vtkVolumeRayCastFunction_h
 
