@@ -41,6 +41,10 @@ public:
   static TestFactory* New() { return new TestFactory;}
   virtual const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
   const char* GetDescription() { return "A fine Test Factory"; }
+  
+protected:
+  TestFactory(const TestFactory&);
+  void operator=(const TestFactory&);
 };
 
 
