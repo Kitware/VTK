@@ -70,6 +70,12 @@ class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
   static vtkFollower *New();
 
   // Description:
+  // Set/Get the camera to follow. If this is not set, then the follower
+  // won't know who to follow.
+  vtkSetObjectMacro(Camera,vtkCamera);
+  vtkGetObjectMacro(Camera,vtkCamera);
+
+  // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. 
@@ -84,12 +90,6 @@ class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
     {this->GetMatrix(this->Matrix); vtkMatrix4x4::DeepCopy(m,this->Matrix);};
   virtual vtkMatrix4x4* GetMatrix()
     {return this->vtkActor::GetMatrix();}
-
-  // Description:
-  // Set/Get the camera to follow. If this is not set, then the follower
-  // won't know who to follow.
-  vtkSetObjectMacro(Camera,vtkCamera);
-  vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
   // Shallow copy of a follower. Overloads the virtual vtkProp method.
