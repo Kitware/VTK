@@ -72,11 +72,13 @@ void vtkReverseSense::Execute()
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
   vtkNormals *normals=input->GetPointData()->GetNormals();
+  vtkNormals *cellNormals=input->GetPointData()->GetNormals();
 
   vtkDebugMacro(<<"Reversing sense of poly data");
 
   output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   //If specified, traverse all cells and reverse them
   if ( this->ReverseCells )
@@ -109,6 +111,7 @@ void vtkReverseSense::Execute()
   // Using MakeObject() creates normals of the same data type.
   if ( this->ReverseNormals && normals )
     {
+    //first do point normals
     int numPoints=input->GetNumberOfPoints();
     vtkNormals *outNormals=(vtkNormals *)normals->MakeObject();
     outNormals->SetNumberOfNormals(numPoints);
@@ -122,6 +125,25 @@ void vtkReverseSense::Execute()
       }
 
     output->GetPointData()->SetNormals(outNormals);
+    outNormals->Delete();
+    }
+  
+  //now do cell normals
+  if ( this->ReverseNormals && cellNormals )
+    {
+    int numCells=input->GetNumberOfCells();
+    vtkNormals *outNormals=(vtkNormals *)normals->MakeObject();
+    outNormals->SetNumberOfNormals(numCells);
+    float n[3];
+
+    for ( int cellId=0; cellId < numCells; cellId++ )
+      {
+      normals->GetNormal(cellId,n);
+      n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
+      outNormals->SetNormal(cellId,n);
+      }
+
+    output->GetCellData()->SetNormals(outNormals);
     outNormals->Delete();
     }
 }

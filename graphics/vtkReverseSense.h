@@ -40,11 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkReverseSense - reverse the ordering of polygonal cells and/or vertex normals
 // .SECTION Description
+// 
 // vtkReverseSense is a filter that reverses the order of polygonal cells
-// and/or reverses the direction of vertex normals. Two flags are used to
-// control these operations. Cell reversal means reversing the order of 
-// indices in the cell connectivity list. Normal reversal means multiplying
-// the normal vector by -1.
+// and/or reverses the direction of point and cell normals. Two flags are
+// used to control these operations. Cell reversal means reversing the order
+// of indices in the cell connectivity list. Normal reversal means
+// multiplying the normal vector by -1 (both point and cell normals, 
+// if present).
 
 // .SECTION Caveats
 // Normals can be operated on only if they are present in the data.
