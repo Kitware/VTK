@@ -520,8 +520,12 @@ case $system in
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	VTK_SHLIB_BUILD_FLAGS='-Wl,-G'
-	VTK_SHLIB_LINK_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
+	VTK_SHLIB_BUILD_FLAGS='-G'
+	VTK_SHLIB_LINK_FLAGS='-R ${LIB_RUNTIME_DIR}'
+        if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+	  VTK_SHLIB_BUILD_FLAGS='-Wl,-G'
+	  VTK_SHLIB_LINK_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
+        fi
 	;;
     ULTRIX-4.*)
 	SHLIB_CFLAGS="-G 0"
