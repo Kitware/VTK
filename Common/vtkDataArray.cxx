@@ -33,14 +33,13 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.55");
+vtkCxxRevisionMacro(vtkDataArray, "1.56");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
 {
   this->Range[0] = 0;
   this->Range[1] = 1;
-  this->ComponentForLastRange = -1;
 
   this->Size = 0;
   this->MaxId = -1;
@@ -889,8 +888,10 @@ void vtkDataArray::ComputeRange(int comp)
     comp = 0;
     }
 
-  if ( (this->GetMTime() > this->ComputeTimeForLastRange) ||
-       (comp != this->ComponentForLastRange))
+  int idx = comp;
+  idx = (idx<0)?(4):(idx);
+  
+  if ( (this->GetMTime() > this->ComponentRangeComputeTime[idx]) )
     {
     numTuples=this->GetNumberOfTuples();
     this->Range[0] =  VTK_LARGE_FLOAT;
@@ -921,10 +922,15 @@ void vtkDataArray::ComputeRange(int comp)
         this->Range[1] = s;
         }
       }
-    this->ComputeTimeForLastRange.Modified();
-    this->ComponentForLastRange = comp;
+    this->ComponentRangeComputeTime[idx].Modified();
+    this->ComponentRange[idx][0] = this->Range[0];
+    this->ComponentRange[idx][1] = this->Range[1];
     }
-
+  else
+    {
+    this->Range[0] = this->ComponentRange[idx][0];
+    this->Range[1] = this->ComponentRange[idx][1];    
+    }
 }
 
 void vtkDataArray::GetDataTypeRange(double range[2])

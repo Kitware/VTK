@@ -366,9 +366,13 @@ protected:
 
 private:
   float Range[2];
-  int ComponentForLastRange;
-  vtkTimeStamp ComputeTimeForLastRange;
 
+  // 5 components since you can compute the range of components
+  // less than 0 to get a magnitude range. ComponentRange[4] is 
+  // this magnitude range
+  vtkTimeStamp ComponentRangeComputeTime[5];
+  float ComponentRange[5][2];
+  
   float* GetTupleN(const vtkIdType i, int n);
   
 private:
