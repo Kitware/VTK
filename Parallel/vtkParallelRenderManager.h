@@ -420,6 +420,7 @@ protected:
     double CameraFocalPoint[3];
     double CameraViewUp[3];
     double CameraClippingRange[2];
+    double CameraViewAngle;
     double Background[3];
     double ParallelScale;
   };
