@@ -43,11 +43,19 @@ void vlVectorDot::Execute()
   vlDebugMacro(<<"Generating vector/normal dot product!");
   this->Initialize();
 
-  if ( ((numPts=input->GetNumberOfPoints()) < 1) ||
-  ((inVectors=pd->GetVectors()) == NULL) ||
-  ((inNormals=pd->GetNormals()) == NULL ) )
+  if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<< "No input!");
+    vlErrorMacro(<< "No points!");
+    return;
+    }
+  if ( (inVectors=pd->GetVectors()) == NULL )
+    {
+    vlErrorMacro(<< "No vectors defined!");
+    return;
+    }
+  if ( (inNormals=pd->GetNormals()) == NULL )
+    {
+    vlErrorMacro(<< "No normals defined!");
     return;
     }
 //
