@@ -83,6 +83,7 @@ vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageShrink3D \
 vtkImageSinusoidSource \
+vtkImageSobel2D \
 vtkImageStaticCache \
 vtkImageThreshold \
 vtkImageViewer \
@@ -99,6 +100,7 @@ vtkXImageMapper \
 vtkXImageWindow \
 vtkXTextMapper 
 
+#vtkImageSobel3D \
 
 
 #vtkImageContinuousDilate3D \
@@ -114,8 +116,6 @@ vtkXTextMapper
 #vtkImageOpenClose3D \
 #vtkImageRange3D \
 #vtkImageSkeleton2D \
-#vtkImageSobel2D \
-#vtkImageSobel3D \
 #vtkImageSubsample3D \
 #vtkImageVariance3D \
 
