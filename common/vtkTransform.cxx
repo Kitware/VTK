@@ -321,25 +321,8 @@ void vtkTransform::Scale ( float x, float y, float z)
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ctm.Element[0][0] = x;
-    if (ctm.Element[0][0] == 0.0) 
-      {
-      vtkErrorMacro(<< "scale: x scale is 0.0, reset to 1.0\n");
-      ctm.Element[0][0] = 1.0;
-      }
-
     ctm.Element[1][1] = y;
-    if (ctm.Element[1][1] == 0.0) 
-      {
-      vtkErrorMacro(<<  "scale: y scale is 0.0, reset to 1.0\n");
-      ctm.Element[1][1] = 1.0;
-      }
-
     ctm.Element[2][2] = z;
-    if (ctm.Element[2][2] == 0.0) 
-      {
-      vtkErrorMacro(<< "scale: z scale is 0.0, reset to 1.0\n");
-      ctm.Element[2][2] = 1.0;
-      }
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
