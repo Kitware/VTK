@@ -93,7 +93,7 @@ XVisualInfo *vtkMesaRenderWindowTryForVisual(Display *DisplayId,
     }
   attributes[index++] = None;
 
-  return glXChooseVisual(this->DisplayId,DefaultScreen(DisplayId),attributes);
+  return glXChooseVisual(DisplayId,DefaultScreen(DisplayId),attributes);
 }
 
 XVisualInfo *vtkMesaRenderWindow::GetDesiredVisualInfo()
