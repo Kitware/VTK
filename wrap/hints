@@ -23,6 +23,10 @@ vtkFloatTCoords		GetTCoord	301 3
 vtkFloatVectors		GetVector	301 3
 vtkGeneralTransform	TransformFloatPoint 301 3
 vtkGeneralTransform	TransformDoublePoint 307 3
+vtkLinearTransform	TransformFloatNormal 301 3
+vtkLinearTransform	TransformDoubleNormal 307 3
+vtkLinearTransform	TransformFloatVector 301 3
+vtkLinearTransform	TransformDoubleVector 307 3
 vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4
 vtkImageData            GetUpdateExtent 304 6
