@@ -162,7 +162,7 @@ void vtkCylinderSource::Execute()
 //
     for (i=0; i<this->Resolution; i++)
       {
-      pts[i] = 2*this->Resolution + i;
+      pts[this->Resolution-i-1] = 2*this->Resolution + i;
       }
     newPolys->InsertNextCell(this->Resolution,pts);
     for (i=0; i<this->Resolution; i++)

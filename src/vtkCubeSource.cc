@@ -95,7 +95,7 @@ void vtkCubeSource::Execute()
     }
   pts[0] = 0; pts[1] = 1; pts[2] = 3; pts[3] = 2; 
   newPolys->InsertNextCell(4,pts);
-  pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
+  pts[0] = 4; pts[1] = 6; pts[2] = 7; pts[3] = 5; 
   newPolys->InsertNextCell(4,pts);
 
   for (x[1]=Center[1]-this->YLength/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0; 
@@ -112,9 +112,9 @@ void vtkCubeSource::Execute()
         }
       }
     }
-  pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
+  pts[0] = 8; pts[1] = 10; pts[2] = 11; pts[3] = 9; 
   newPolys->InsertNextCell(4,pts);
-  pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
+  pts[0] = 12; pts[1] = 13; pts[2] = 15; pts[3] = 14; 
   newPolys->InsertNextCell(4,pts);
 
   for (x[2]=Center[2]-this->ZLength/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0; 
@@ -131,9 +131,9 @@ void vtkCubeSource::Execute()
         }
       }
     }
-  pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
+  pts[0] = 16; pts[1] = 18; pts[2] = 19; pts[3] = 17; 
   newPolys->InsertNextCell(4,pts);
-  pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
+  pts[0] = 20; pts[1] = 21; pts[2] = 23; pts[3] = 22; 
   newPolys->InsertNextCell(4,pts);
 //
 // Update ourselves and release memory
