@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDecimatePro - reduce the number of triangles in a triangle mesh (and generate progressive meshes)
+// .NAME vtkDecimatePro - reduce the number of triangles in a mesh
 // .SECTION Description
 // vtkDecimatePro is a filter to reduce the number of triangles in a triangle 
 // mesh, forming a good approximation to the original geometry. The input to 
@@ -46,62 +46,144 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // you desire to decimate polygonal meshes, first triangulate the polygons
 // with vtkTriangleFilter object.
 // 
-// The implementation of vtkDecimatePro is similar to vtkDecimate,
-// with three major differences. First, this algorithm does not
-// necessarily preserve the topology of the mesh. Second, it is
-// guaranteed to give the a mesh reduction factor specified by the
-// user (if Splitting is on). Third, it is set up generate progressive
+// The implementation of vtkDecimatePro is similar to the algorithm originally
+// described in "Decimation of Triangle Meshes", Proc Siggraph `92, with
+// three major differences. First, this algorithm does not necessarily
+// preserve the topology of the mesh. Second, it is guaranteed to give the a
+// mesh reduction factor specified by the user (as long as certain
+// contraints are not set - see Caveats). Third, it is set up generate progressive
 // meshes, that is a stream of operations that can be easily transmitted and
 // incrementally updated (see Hugues Hoppe's Siggraph '96 paper on
 // progressive meshes).
 // 
-// The algorithm proceeds as follows. Each vertex in the mesh is classified and
-// inserted into a priority queue. The priority is based on the error to
+// The algorithm proceeds as follows. Each vertex in the mesh is classified
+// and inserted into a priority queue. The priority is based on the error to
 // delete the vertex and retriangulate the hole. Vertices that cannot be
-// deleted or triangulated at this point are skipped. Then, each vertex in
-// the priority queue is processed (i.e., deleted followed by hole
-// triangulation). This continues until the priority queue is empty. Next,
-// all vertices are processed, and the mesh is split into separate
-// pieces. The vertices are then again reinserted into the priority queue,
-// but this time as they are processed, vertices that cannot be triangulated
-// are split (possibly recursively). This continues until the requested
-// reduction level is achieved.
+// deleted or triangulated (at this point in the algorithm) are
+// skipped. Then, each vertex in the priority queue is processed (i.e.,
+// deleted followed by hole triangulation using edge collapse). This
+// continues until the priority queue is empty. Next, all remaining vertices
+// are processed, and the mesh is split into separate pieces along sharp
+// edges or at non-manifold attachment points and reinserted into the
+// priority queue. Again, the priority queue is processed until empty. If
+// the desired reduction is still not achieved, the remaining vertices are
+// split as necessary (in a recursive fashion) so that it is possible to
+// eliminate every triangle as necessary.
 // 
-// To use this object, at a minimum you need to specify the ivar Reduction. The
-// algorithm is guaranteed to generate a reduced mesh at this level, unless
-// the ivar Splitting is turned off. (Splitting prevents the separation of the mesh
-// into separate pieces, so topological contraints may prevent the algorithm
-// from realizing the requested reduction.) You may also wish to adjust the
-// FeatureAngle and SplitAngle ivars, since these can impact the quality of
-// the final mesh.
+// To use this object, at a minimum you need to specify the ivar
+// TargetReduction. The algorithm is guaranteed to generate a reduced mesh
+// at this level as long as the following four conditions are met: 1)
+// topology modification is allowed (i.e., the ivar PreserveTopology is on);
+// 2) mesh splitting is enabled (i.e., the ivar Splitting is on); 3) the
+// algorithm is allowed to modify the boundary of the mesh (i.e., the ivar
+// BoundaryVertexDeletion is on); and 4) the maximum allowable error (i.e.,
+// the ivar MaximumError) is set to VTK_LARGE_FLOAT.  Other important
+// parameters to adjust include the FeatureAngle and SplitAngle ivars, since
+// these can impact the quality of the final mesh. Also, you can set the
+// ivar AccumulateError to force incremental error update and distribution
+// to surrounding vertices as each vertex is deleted. The accumulated error
+// is a conservative global error bounds and decimation error, but requires
+// additional memory and time to compute.
 
 // .SECTION Caveats
-// Do not use this class if you need to preserve the topology of the
-// mesh. Even with splitting turned off, holes may be closed or non-manifold
-// attachments may be formed. Use vtkDecimate instead.
+// To guarantee a given level of reduction, the ivar PreserveTopology must
+// be off; the ivar Splitting is on; the ivar BoundaryVertexDeletion is on;
+// and the ivar MaximumError is set to vTK_LARGE_FLOAT.
+//
+// If PreserveTopology is off, and SplitEdges is off; the mesh topology may
+// be modified by closing holes.
+//
+// Once mesh splitting begins, the feature angle is set to the split angle.
 
 // .SECTION See Also
-// vtkDecimate vtkProgressiveMeshReader
+// vtkDecimate
+
 
 #ifndef __vtkDecimatePro_h
 #define __vtkDecimatePro_h
 
-// This file is included to grab structure definitions and include files
-#include "vtkDecimate.h"
+#include "vtkPolyToPolyFilter.h"
+#include "vtkPriorityQueue.h"
+
+// Special structures for building loops
+typedef struct _vtkLocalVertex 
+  {
+  int     id;
+  float   x[3];
+  float   FAngle;
+  } vtkLocalVertex, *vtkLocalVertexPtr;
+    
+typedef struct _vtkLocalTri
+  {
+  int     id;
+  float   area;
+  float   n[3];
+  int     verts[3];
+  } vtkLocalTri, *vtkLocalTriPtr;
+
+//
+// Special classes for manipulating data
+//
+//BTX - begin tcl exclude
+//
+class vtkVertexArray { //;prevent man page generation
+public:
+  vtkVertexArray(const int sz) 
+    {this->MaxId = -1; this->Array = new vtkLocalVertex[sz];};
+  ~vtkVertexArray() {if (this->Array) delete [] this->Array;};
+  int GetNumberOfVertices() {return this->MaxId + 1;};
+  void InsertNextVertex(vtkLocalVertex& v) 
+    {this->MaxId++; this->Array[this->MaxId] = v;};
+  vtkLocalVertex& GetVertex(int i) {return this->Array[i];};
+  void Reset() {this->MaxId = -1;};
+
+  vtkLocalVertex *Array; // pointer to data
+  int MaxId;             // maximum index inserted thus far
+};
+
+class vtkTriArray { //;prevent man page generation
+public:
+  vtkTriArray(const int sz) 
+    {this->MaxId = -1; this->Array = new vtkLocalTri[sz];};
+  ~vtkTriArray() {if (this->Array) delete [] this->Array;};
+  int GetNumberOfTriangles() {return this->MaxId + 1;};
+  void InsertNextTriangle(vtkLocalTri& t) 
+    {this->MaxId++; this->Array[this->MaxId] = t;};
+  vtkLocalTri& GetTriangle(int i) {return this->Array[i];};
+  void Reset() {this->MaxId = -1;};
+
+  vtkLocalTri *Array;  // pointer to data
+  int MaxId;           // maximum index inserted thus far
+};
+//ETX - end tcl exclude
+//
+
 
 class VTK_EXPORT vtkDecimatePro : public vtkPolyToPolyFilter
 {
 public:
   vtkDecimatePro();
+  ~vtkDecimatePro();
   char *GetClassName() {return "vtkDecimatePro";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the desired reduction as a fraction of the original number of triangles.
-  // The algorithm is guaranteed to give this reduction factor (or greater)
-  // if the Splitting ivar is turned on.
-  vtkSetClampMacro(Reduction,float,0.0,1.0);
-  vtkGetMacro(Reduction,float);
+  // Specify the desired reduction in the total number of polygons. Because
+  // of various constraints, this level of reduction may not be realized. If
+  // you want to guarantee a particular reduction, you must turn off 
+  // PreserveTopology and BoundaryVertexDeletion, turn on SplitEdges,
+  // and set the MaximumError to VTK_LARGE_FLOAT (these ivars are initialized 
+  // this way when the object is instantiated).
+  vtkSetClampMacro(TargetReduction,float,0.0,1.0);
+  vtkGetMacro(TargetReduction,float);
+
+  // Description:
+  // Turn on/off whether to preserve the topology of the original mesh. If
+  // on, mesh splitting and hole elimination will not occur. This may limit
+  // the maximumm reduction that may be achieved.
+  vtkSetMacro(PreserveTopology,int);
+  vtkGetMacro(PreserveTopology,int);
+  vtkBooleanMacro(PreserveTopology,int);
 
   // Description:
   // Specify the mesh feature angle. This angle is used to define what
@@ -127,62 +209,104 @@ public:
   vtkGetMacro(SplitAngle,float);
 
   // Description:
-  // Force the algorithm to defer splitting the mesh as long as possible.
-  vtkSetMacro(DeferSplitting,int);
-  vtkGetMacro(DeferSplitting,int);
-  vtkBooleanMacro(DeferSplitting,int);
+  // In some cases you may wish to split the mesh prior to algorithm
+  // execution. This separates the mesh into semi-planar patches, which are
+  // disconnected from each other. This can give superior results in some
+  // cases. If the ivar PreSplitMesh ivar is enabled, the mesh is split with
+  // the specified SplitAngle. Otherwise mesh splitting is deferred as long
+  // as possible.
+  vtkSetMacro(PreSplitMesh,int);
+  vtkGetMacro(PreSplitMesh,int);
+  vtkBooleanMacro(PreSplitMesh,int);
 
   // Description:
-  // If the number of triangles connected to a vertex exceeds "Degree", then 
-  // the vertex will be split. (NOTE: the complexity of the triangulation algorithm 
-  // is proportional to Degree^2. Setting degree small can improve the
-  // performance of the algorithm.)
+  // Set the largest decimation error that is allowed during the decimation
+  // process. This may limit the maximum reduction that may be achieved. The
+  // maximum error is specified as a fraction of the maximum length of
+  // the input data bounding box.
+  vtkSetClampMacro(MaximumError,float,0.0,10.0);
+  vtkGetMacro(MaximumError,float);
+
+  // Description:
+  // The computed error can either be computed directly from the mesh
+  // or the error may be accumulated as the mesh is modified. If the error
+  // is accumulated, then it represents a global error bounds, and the ivar
+  // MaximumError becomes a global bounds on mesh error. Accumulating the
+  // error requires extra memory proportional to the number of vertices in
+  // the mesh. If AccumulateError is off, then the error is not accumulated.
+  vtkSetMacro(AccumulateError,int);
+  vtkGetMacro(AccumulateError,int);
+  vtkBooleanMacro(AccumulateError,int);
+
+  // Description:
+  // Turn on/off the deletion of vertices on the boundary of a mesh. This
+  // may limit the maximum reduction that may be achieved.
+  vtkSetMacro(BoundaryVertexDeletion,int);
+  vtkGetMacro(BoundaryVertexDeletion,int);
+  vtkBooleanMacro(BoundaryVertexDeletion,int);
+
+  // Description:
+  // If the number of triangles connected to a vertex exceeds "Degree", then
+  // the vertex will be split. (NOTE: the complexity of the triangulation
+  // algorithm is proportional to Degree^2. Setting degree small can improve
+  // the performance of the algorithm.)
   vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
   vtkGetMacro(Degree,int);
   
   // Description:
-  // Get the number of "operations" used to reduce the data to the 
-  // requested reduction value. An operation is something like an edge
-  // collapse or vertex split that modifies the mesh. The number of
-  // operations is valid only after the filter has executed.
-  vtkGetMacro(NumberOfOperations,int);
-
-  // Description:
   // Specify the inflection point ratio. An inflection point occurs
-  // when the ratio of reduction error between two iterations is >=
-  // InflectionPointRatio.
+  // when the ratio of reduction error between two iterations is greaten
+  // than or equal to the InflectionPointRatio.
   vtkSetClampMacro(InflectionPointRatio,float,1.001,VTK_LARGE_FLOAT);
   vtkGetMacro(InflectionPointRatio,float);
 
-  // Get a list of inflection points. These are integer values 
-  // 0 < v <= NumberOfOperations corresponding to operation number. These
-  // methods return a valid result only after the filter has executed.
+  // Get a list of inflection points. The values in the list are mesh
+  // reduction values at each inflection point. Note: the first inflection
+  // point always occurs right before non-planar triangles are decimated
+  // (i.e., as the error becomes non-zero).
   int GetNumberOfInflectionPoints();
-  void GetInflectionPoints(int *inflectionPoints);
-  int *GetInflectionPoints();
-
-  // These are special methods that enable you to get or write output
-  // without changing modified time. This means that you can execute the
-  // filter at a certain reduction level (say 90%), and then grab output
-  // at reduction levels <= 90% without re-execution.
-  // ****Commented out temporarily
-  //***void GetOutput(vtkPolyData &pd, float reduction); //copy data into pd
-  //***void WriteProgressiveMesh(char *filename); //write data
-
-  void ProcessDeferredSplits(int numPops);
+  void GetInflectionPoints(float *inflectionPoints);
+  float *GetInflectionPoints();
 
 protected:
   void Execute();
 
-  float Reduction; 
+  float TargetReduction;
   float FeatureAngle;
+  float MaximumError;
+  int AccumulateError;
   float SplitAngle;
   int Splitting;
-  int DeferSplitting;
+  int PreSplitMesh;
+  int BoundaryVertexDeletion;  
+  int PreserveTopology;
   int Degree;
-  int NumberOfOperations;
   float InflectionPointRatio;
-  vtkIntArray InflectionPoints;
+  vtkFloatArray InflectionPoints;
+
+
+  void SplitMesh();
+  int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
+                     int fedges[2]);
+  int FindSplit(int type, int fedges[2], int& pt1, int& pt2, 
+                vtkIdList& CollapseTris);
+  int IsValidSplit(int index);
+  void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);
+  void SplitVertex(int ptId,int type, unsigned short int numTris, int *tris,
+                   int insert);
+  int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
+                   vtkIdList& CollapseTris);
+
+private:
+  void InitializeQueue(int numPts);
+  void DeleteQueue() {if (this->Queue) delete this->Queue;};
+  void Insert(int id, float error= -1.0);
+  int Pop(float &error);
+  float Delete(int id) {return this->Queue->Delete(id);};
+  void Reset() {this->Queue->Reset();};
+
+  vtkPriorityQueue *Queue;
+
 };
 
 #endif
