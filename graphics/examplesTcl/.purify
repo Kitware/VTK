@@ -1,6 +1,9 @@
 suppress umc vtkDataSet::InternalDataSetCopy
 suppress umc vtkDataObject::InternalDataObjectCopy
+suppress umc memcpy; SetupStacks
 suppress umc memcpy; vtkIntArray::DeepCopy
+suppress umc memcpy; __glXFillImage
+suppress umc memcpy; __glXSendLargeCommand
 suppress umc memcpy; vtkUnsignedCharArray::Resize(const int)
 suppress umc memcpy; vtkIntArray::Resize(const int)
 suppress umc memcpy; vtkFloatArray::Resize(const int)
