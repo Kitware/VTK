@@ -135,8 +135,8 @@ public:
 protected:
   vtkImageEuclideanDistance();
   ~vtkImageEuclideanDistance() {}
-  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) {}
-  void operator=(const vtkImageEuclideanDistance&) {}
+  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);
+  void operator=(const vtkImageEuclideanDistance&);
 
   float MaximumDistance;
   int Initialize;

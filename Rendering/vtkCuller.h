@@ -70,8 +70,8 @@ public:
 protected:
   vtkCuller() {};
   ~vtkCuller() {};
-  vtkCuller(const vtkCuller &) {};
-  void operator=(const vtkCuller &) {};
+  vtkCuller(const vtkCuller &);
+  void operator=(const vtkCuller &);
   
 };
                                          
