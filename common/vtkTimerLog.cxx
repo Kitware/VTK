@@ -58,10 +58,10 @@ int vtkTimerLog::MaxEntries = 100;
 int vtkTimerLog::NextEntry = 0;
 int vtkTimerLog::WrapFlag = 0;
 vtkTimerLogEntry *vtkTimerLog::TimerLog = NULL;
-#ifdef _WIN32
-int vtkTimerLog::TicksPerSecond = 60;
-#else
+#ifdef CLK_TCK
 int vtkTimerLog::TicksPerSecond = CLK_TCK;
+#else
+int vtkTimerLog::TicksPerSecond = 60;
 #endif
 
 #ifdef _WIN32
