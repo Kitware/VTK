@@ -48,6 +48,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
   this->Input = NULL;
   this->Colors = NULL;
+  this->Scalars = NULL;
 
   this->LookupTable = NULL;
 
@@ -56,8 +57,14 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->UseLookupTableScalarRange = 0;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+  this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
   
   this->TransformCoordinate = NULL;
+
+  strcpy(this->ArrayName, "");
+  this->ArrayId = -1;
+  this->ArrayComponent = -1;
+  this->ArrayAccessMode = -1;
 }
 
 void vtkPolyDataMapper2D::ShallowCopy(vtkPolyDataMapper2D *m)
@@ -114,66 +121,101 @@ unsigned long vtkPolyDataMapper2D::GetMTime()
 
 // a side effect of this is that this->Colors is also set
 // to the return value
-vtkScalars *vtkPolyDataMapper2D::GetColors()
+vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(float alpha)
 {
-  vtkScalars *scalars;
-  
-  // make sure we have an input
-  if (!this->Input)
+  // Get rid of old colors
+  if ( this->Colors )
     {
-    return NULL;
-    }
-    
-  // get point data and scalars
-  scalars = this->Input->GetPointData()->GetScalars();
-  // if we don;t have point data scalars, try cell data
-  if (!scalars)
-    {
-    scalars = this->Input->GetCellData()->GetScalars();
-    }
-  
-  // do we have any scalars ?
-  if (scalars && this->ScalarVisibility)
-    {
-    // if the scalars have a lookup table use it instead
-    if (scalars->GetLookupTable())
-      {
-      this->SetLookupTable(scalars->GetLookupTable());
-      }
-    else
-      {
-      // make sure we have a lookup table
-      if ( this->LookupTable == NULL )
-      	{
-      	this->CreateDefaultLookupTable();
-      	}
-      this->LookupTable->Build();
-      }
-
-    if (!this->UseLookupTableScalarRange)
-      {
-      this->LookupTable->SetRange(this->ScalarRange);
-      }
-
-    if (this->Colors)
-      {
-      this->Colors->Delete();
-      }
-    this->Colors = scalars;
-    this->Colors->Register(this);
-    this->Colors->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
-    }
-
-  else //scalars not visible
-    {
-    if ( this->Colors )
-      {
-      this->Colors->Delete();
-      }
+    this->Colors->UnRegister(this);
     this->Colors = NULL;
     }
   
+  // map scalars if necessary
+  if ( this->ScalarVisibility )
+    {
+    vtkDataArray *scalars = vtkAbstractMapper::
+      GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                 this->ArrayId, this->ArrayName, this->ArrayComponent);
+    if ( scalars )
+      {
+      if ( scalars->GetLookupTable() )
+        {
+        this->SetLookupTable(scalars->GetLookupTable());
+        }
+      else
+        {
+        // make sure we have a lookup table
+        if ( this->LookupTable == NULL )
+          {
+          this->CreateDefaultLookupTable();
+          }
+        this->LookupTable->Build();
+        }
+      if ( !this->UseLookupTableScalarRange )
+        {
+        this->LookupTable->SetRange(this->ScalarRange);
+        }
+      this->LookupTable->SetAlpha(alpha);
+      this->Colors = this->LookupTable->
+        MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+      }
+    }
+
   return this->Colors;
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkScalars *vtkPolyDataMapper2D::GetColors()
+{
+  VTK_LEGACY_METHOD("GetColors", "4.0");
+  vtkUnsignedCharArray *scalars = this->MapScalars(1.0);
+
+  if ( scalars == NULL )
+    {
+    return NULL;
+    }
+
+  if ( this->Scalars == NULL )
+    {
+    this->Scalars = vtkScalars::New();
+    }
+  int numScalars = scalars->GetNumberOfTuples();
+  this->Scalars->SetNumberOfScalars(numScalars);
+  this->Scalars->SetNumberOfComponents(4);
+  this->Scalars->SetData(scalars);
+  this->Scalars->InitColorTraversal(1.0,this->LookupTable,this->ColorMode);
+  
+  return this->Scalars;
+}
+
+void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
+{
+  if (this->ArrayId == arrayNum && component == this->ArrayComponent &&
+      this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+    {
+    return;
+    }
+  this->Modified();
+  
+  this->ArrayId = arrayNum;
+  this->ArrayComponent = component;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
+}
+
+void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
+{
+  if (strcmp(this->ArrayName, arrayName) == 0 &&
+      component == this->ArrayComponent &&
+      this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+    {
+    return;
+    }
+  this->Modified();
+  
+  strcpy(this->ArrayName, arrayName);
+  this->ArrayComponent = component;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }
 
 // Specify a lookup table for the mapper to use.
@@ -215,11 +257,7 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 // Return the method of coloring scalar data.
 const char *vtkPolyDataMapper2D::GetColorModeAsString(void)
 {
-  if ( this->ColorMode == VTK_COLOR_MODE_LUMINANCE )
-    {
-    return "Luminance";
-    }
-  else if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
+  if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
     {
     return "MapScalars";
     }

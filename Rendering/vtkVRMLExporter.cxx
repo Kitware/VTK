@@ -270,7 +270,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   float tempf2;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
-  vtkScalars *colors;
+  vtkUnsignedCharArray *colors;
   float *p;
   unsigned char *c;
   vtkTransform *trans;
@@ -324,7 +324,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pntData = pd->GetPointData();
   normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
-  colors  = pm->GetColors();
+  colors  = pm->MapScalars(1.0);
   
   fprintf(fp,"        Shape {\n");
   
@@ -616,7 +616,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 	  fprintf(fp,"              ");
 	  for (i = 0; i < npts; i++)
 	    {
-	    c = colors->GetColor(indx[i]);
+	    c = colors->GetPointer(4*indx[i]);
 	    fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
 		     c[2]/255.0);
 	    }
@@ -641,7 +641,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
 void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 				     vtkTCoords *tcoords, 
-				     vtkScalars *colors, FILE *fp)
+				     vtkUnsignedCharArray *colors, FILE *fp)
 {
   float *p;
   int i;
@@ -691,9 +691,9 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     {
     fprintf(fp,"            color DEF VTKcolors Color {\n");
     fprintf(fp,"              color [\n");
-    for (i = 0; i < colors->GetNumberOfScalars(); i++)
+    for (i = 0; i < colors->GetNumberOfTuples(); i++)
       {
-      c = colors->GetColor(i);
+      c = colors->GetPointer(4*i);
       fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
 	       c[2]/255.0);
       }

@@ -646,11 +646,13 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   if (polyData->GetNumberOfPolys ())
     {
-    this->WritePolygons (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
+    this->WritePolygons (polyData, anActor->GetMapper()->MapScalars(1.0), 
+                         anActor->GetProperty ());
     }
   if (polyData->GetNumberOfStrips ())
     {
-    this->WriteStrips (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
+    this->WriteStrips (polyData, anActor->GetMapper()->MapScalars(1.0), 
+                       anActor->GetProperty ());
     }
   fprintf (this->FilePtr, "TransformEnd\n");
   fprintf (this->FilePtr, "AttributeEnd\n");
@@ -661,7 +663,9 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   matrix->Delete();
 }
 
-void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
+void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, 
+                                    vtkUnsignedCharArray *c, 
+                                    vtkProperty *aProperty)
 {
   float vertexColors[512][3];
   RtFloat *TCoords;
@@ -730,9 +734,9 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     for (j = 0; j < npts; j++) 
       {
       k = j;
-      if (s) 
+      if (c) 
         {
-        colors = s->GetColor(pts[k]);
+        colors = c->GetPointer(4*pts[k]);
         vertexColors[k][0] = colors[0] / 255.0;
         vertexColors[k][1] = colors[1] / 255.0;
         vertexColors[k][2] = colors[2] / 255.0;
@@ -781,7 +785,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     fprintf (this->FilePtr, "] ");
 
 
-    if (s)
+    if (c)
       {
       fprintf (this->FilePtr, "\"Cs\" [");
       for (kk = 0; kk < npts; kk++)
@@ -806,7 +810,9 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
   polygon->Delete();
 }
 
-void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
+void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, 
+                                  vtkUnsignedCharArray *c, 
+                                  vtkProperty *aProperty)
 {
   float vertexColors[512][3];
   RtFloat *TCoords;
@@ -897,9 +903,9 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
       // build colors, texture coordinates and normals for the triangle
       for (k = 0; k < 3; k++)
         {
-        if (s) 
+        if (c) 
           {
-          colors = s->GetColor(idx[k]);
+          colors = c->GetPointer(4*idx[k]);
           vertexColors[k][0] = colors[0] / 255.0;
           vertexColors[k][1] = colors[1] / 255.0;
           vertexColors[k][2] = colors[2] / 255.0;
@@ -916,7 +922,6 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
           normals = n->GetTuple (idx[k]);
           vertexNormals[k][0] = normals[0];
           vertexNormals[k][1] = normals[1];
-
           vertexNormals[k][2] = normals[2];
           }
         else 
@@ -947,7 +952,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
         }
       fprintf (this->FilePtr, "] ");
 
-      if (s)
+      if (c)
         {
         fprintf (this->FilePtr, "\"Cs\" [");
         for (kk = 0; kk < 3; kk++)

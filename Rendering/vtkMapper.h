@@ -83,12 +83,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarsToColors.h"
 #include "vtkDataSet.h"
 
-#define VTK_SCALAR_MODE_DEFAULT 0
-#define VTK_SCALAR_MODE_USE_POINT_DATA 1
-#define VTK_SCALAR_MODE_USE_CELL_DATA 2
-#define VTK_SCALAR_MODE_USE_POINT_FIELD_DATA 3
-#define VTK_SCALAR_MODE_USE_CELL_FIELD_DATA 4
-
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
 #define VTK_RESOLVE_SHIFT_ZBUFFER 2
@@ -144,22 +138,18 @@ public:
 
   // Description:
   // Control how the scalar data is mapped to colors.  By default
-  // (ColorModeToDefault), scalars that are unsigned char types are treated
-  // as colors, and NOT mapped through the lookup table, while everything
-  // else is.  Setting ColorModeToMapScalars means that all scalar data will
-  // be mapped through the lookup table. Setting ColorModeToLuminance means
-  // that scalars will be converted to luminance (gray values) using the
-  // luminance equation . (The ColorMode ivar is used with vtkScalars to map
-  // scalar data to colors. See vtkScalars::InitColorTraversal() for more
-  // information.)
+  // (ColorModeToDefault), unsigned char scalars are treated as colors, and
+  // NOT mapped through the lookup table, while everything else is. Setting
+  // ColorModeToMapScalars means that all scalar data will be mapped through
+  // the lookup table.  (Note that for multi-component scalars, the
+  // particular component to use for mapping can be specified using the
+  // ColorByArrayComponent() method.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToDefault() 
     {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
   void SetColorModeToMapScalars() 
     {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
-  void SetColorModeToLuminance() 
-    {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
 
   // Description:
   // Return the method of coloring scalar data.
@@ -208,16 +198,6 @@ public:
     {vtkMapper::SetGlobalImmediateModeRendering(0);};
   static int  GetGlobalImmediateModeRendering();
 
-  // Description:
-  // Update the input to the Mapper.
-  virtual void Update();
-
-  // Description:
-  // Calculate and return the colors for the input. After invoking this
-  // method, use GetColor() on the scalar to get the scalar values. This
-  // method may return NULL if no color information is available.
-  vtkScalars *GetColors();
-  
   // Description:
   // Control how the filter works with scalar point data and cell attribute
   // data.  By default (ScalarModeToDefault), the filter will use point data,
@@ -316,18 +296,40 @@ public:
   //ETX
 
   // Description:
-  // Get the input as a vtkDataSet, instead of as a more specialized
-  // data type.  This method is provided for use in the wrapper languages,
+  // Get the input to this mapper as a vtkDataSet, instead of as a 
+  // more specialized data type that the subclass may return from
+  // GetInput().  This method is provided for use in the wrapper languages,
   // C++ programmers should use GetInput() instead.
-  vtkDataSet *GetInputAsDataSet() { return this->GetInput(); };
+  vtkDataSet *GetInputAsDataSet() 
+    {return this->GetInput();}
 
+  // Description:
+  // Map the scalars (if there are any scalars and ScalarVisibility is on)
+  // through the lookup table, returning an unsigned char RGBA array. This is
+  // typically done as part of the rendering process. The alpha parameter 
+  // allows the blending of the scalars with an additional alpha (typically
+  // which comes from a vtkActor, etc.)
+  vtkUnsignedCharArray *MapScalars(float alpha);
+  
+  // Description:
+  // Update the input to the Mapper.
+  virtual void Update();
+
+  // Description:
+  // Calculate and return the colors for the input. After invoking this
+  // method, use GetColor() on the scalar to get the scalar values. This
+  // method may return NULL if no color information is available. (This
+  // method is obsolete, use MapScalars() instead.)
+  vtkScalars *GetColors();
+  
 protected:
   vtkMapper();
   ~vtkMapper();
   vtkMapper(const vtkMapper&);
   void operator=(const vtkMapper&);
 
-  vtkScalars *Colors;
+  vtkScalars *Scalars;
+  vtkUnsignedCharArray *Colors;
 
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;

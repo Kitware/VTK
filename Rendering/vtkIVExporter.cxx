@@ -277,7 +277,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkIdType *indx;
   float tempf2;
   vtkPolyDataMapper *pm;
-  vtkScalars *colors;
+  vtkUnsignedCharArray *colors;
   float *p;
   unsigned char *c;
   vtkTransform *trans;
@@ -335,7 +335,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pntData = pd->GetPointData();
   normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
-  colors  = pm->GetColors();
+  colors  = pm->MapScalars(1.0);
   
   fprintf(fp,"%sMaterial {\n", indent);
   VTK_INDENT_MORE;
@@ -587,7 +587,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 	fprintf(fp,"%s", indent);
 	for (i = 0; i < npts; i++)
 	  {
-	  c = (unsigned char *)colors->GetColor(i);
+	  c = colors->GetPointer(4*indx[i]);
 	  fprintf (fp,"%#lx, ", 
 		   ((unsigned long)c[3] << 24) |
 		   (((unsigned long)c[2])<<16) |
@@ -627,7 +627,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 }
 
 void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
-				     vtkTCoords *tcoords, vtkScalars *colors, FILE *fp)
+                                   vtkTCoords *tcoords, 
+                                   vtkUnsignedCharArray *colors, FILE *fp)
 {
   float *p;
   int i;
@@ -695,9 +696,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     fprintf(fp,"%srgba [\n", indent);
 	VTK_INDENT_MORE;
 	fprintf(fp,"%s", indent);
-    for (i = 0; i < colors->GetNumberOfScalars(); i++)
+    for (i = 0; i < colors->GetNumberOfTuples(); i++)
       {
-      c = (unsigned char *)colors->GetColor(i);
+      c = colors->GetPointer(4*i);
       fprintf (fp,"%#lx, ", 
 	       ((unsigned long)c[3] << 24) |
 	       (((unsigned long)c[2])<<16) |

@@ -43,11 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkOpenGLPolyDataMapper2D.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
-  #ifdef __APPLE__
-    #include <OpenGL/gl.h>
-  #else
-    #include <GL/gl.h>
-  #endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
 #endif
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
@@ -77,7 +77,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   int            j;
   vtkPoints      *p, *displayPts;
   vtkCellArray   *aPrim;
-  vtkScalars     *c=NULL;
+  vtkUnsignedCharArray *c=NULL;
   unsigned char  *rgba;
   unsigned char  color[4];
   vtkIdType      *pts, npts;
@@ -112,7 +112,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     this->CreateDefaultLookupTable();
     }
 
-  //
   // if something has changed regenrate colors and display lists
   // if required
   //
@@ -122,7 +121,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
        actor->GetProperty()->GetMTime() > this->BuildTime)
     {
     // sets this->Colors as side effect
-    this->GetColors();
+    this->MapScalars(actor->GetProperty()->GetOpacity());
     this->BuildTime.Modified();
     }
 
@@ -159,8 +158,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   if ( this->Colors )
     {
     c = this->Colors;
-    c->InitColorTraversal(actor->GetProperty()->GetOpacity(), 
-			  this->LookupTable, this->ColorMode);
     if (!input->GetPointData()->GetScalars())
       {
       cellScalars = 1;
@@ -219,7 +216,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 
   for (i = 0; i < numClipPlanes; i++)
     {
-     glEnable((GLenum)(GL_CLIP_PLANE0+i));
+    glEnable((GLenum)(GL_CLIP_PLANE0+i));
     }
 
   for (i = 0; i < numClipPlanes; i++)
@@ -242,17 +239,17 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     for (j = 0; j < npts; j++) 
       {
       if (c) 
-	      {
-	      if (cellScalars)
-	        {
-	        rgba = c->GetColor(cellNum);
-	        }
-	      else
-	        {
-	        rgba = c->GetColor(pts[j]);
-	        }
-	      glColor4ubv(rgba);
-	      }
+        {
+        if (cellScalars)
+          {
+          rgba = c->GetPointer(4*cellNum);
+          }
+        else
+          {
+          rgba = c->GetPointer(4*pts[j]);
+          }
+        glColor4ubv(rgba);
+        }
       glVertex2fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -280,17 +277,17 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     for (j = 0; j < npts; j++)
       {
       if (c)
-	      {
-	      if (cellScalars)
-	        {
-	        rgba = c->GetColor(cellNum);
-	        }
-	      else
-	        {
-	        rgba = c->GetColor(pts[j]);
-	        }
-	      glColor4ubv(rgba);
-	      }
+        {
+        if (cellScalars)
+          {
+          rgba = c->GetPointer(4*cellNum);
+          }
+        else
+          {
+          rgba = c->GetPointer(4*pts[j]);
+          }
+        glColor4ubv(rgba);
+        }
       glVertex2fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -306,17 +303,17 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     for (j = 0; j < npts; j++)
       {
       if (c)
-	      {
-	      if (cellScalars)
-	        {
-	        rgba = c->GetColor(cellNum);
-	        }
-	      else
-	        {
-	        rgba = c->GetColor(pts[j]);
-	        }
-	      glColor4ubv(rgba);
-	      }
+        {
+        if (cellScalars)
+          {
+          rgba = c->GetPointer(4*cellNum);
+          }
+        else
+          {
+          rgba = c->GetPointer(4*pts[j]);
+          }
+        glColor4ubv(rgba);
+        }
       glVertex2fv(p->GetPoint(pts[j]));
       }
     }

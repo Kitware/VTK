@@ -249,6 +249,8 @@ double vtkScalars::GetDataTypeMax()
 int vtkScalars::InitColorTraversal(float alpha, vtkScalarsToColors *lut,
                                    int colorMode)
 {
+  VTK_LEGACY_METHOD("GetColors", "4.0");
+
   int numComp=this->GetNumberOfComponents();
   int blend=0;
 
@@ -303,10 +305,6 @@ int vtkScalars::InitColorTraversal(float alpha, vtkScalarsToColors *lut,
       }
     }
   
-  else if ( colorMode == VTK_COLOR_MODE_LUMINANCE )
-    {
-    this->CurrentColorFunction = &vtkScalars::Luminance;
-    }
   
   else //have to be going through lookup table
     {

@@ -71,7 +71,7 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   int npts, j;
   vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
-  vtkScalars *c=NULL;
+  vtkUnsignedCharArray *c=NULL;
   unsigned char *rgba;
   int *pts;
   float *ftmp;
@@ -110,13 +110,15 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   // if something has changed regenrate colors and display lists
   // if required
   //
+  tran = actor->GetProperty()->GetOpacity();
+
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime || 
        this->LookupTable->GetMTime() > this->BuildTime ||
        actor->GetProperty()->GetMTime() > this->BuildTime)
     {
     // sets this->Colors as side effect
-    this->GetColors();
+    this->MapScalars(tran);
     this->BuildTime.Modified();
     }
 
@@ -146,8 +148,6 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   XSetForeground(displayId, gc, aColor.pixel);
   XSetFillStyle(displayId, gc, FillSolid);
   
-  tran = actor->GetProperty()->GetOpacity();
-
   // Transform the points, if necessary
   p = input->GetPoints();
   if ( this->TransformCoordinate )
@@ -169,7 +169,6 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   if ( this->Colors )
     {
     c = this->Colors;
-    c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
     if (!input->GetPointData()->GetScalars())
       {
       cellScalars = 1;
@@ -186,11 +185,11 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
       // use the color of the first point
       if (cellScalars) 
 	{
-	rgba = c->GetColor(cellNum);
+	rgba = c->GetPointer(4*cellNum);
 	}
       else
 	{
-	rgba = c->GetColor(pts[0]);
+	rgba = c->GetPointer(4*pts[0]);
 	}
       aColor.red = (unsigned short) (rgba[0] * 256);
       aColor.green = (unsigned short) (rgba[1] * 256);
@@ -220,7 +219,7 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
     { 
     if (c && cellScalars) 
       {
-      rgba = c->GetColor(cellNum);
+      rgba = c->GetPointer(4*cellNum);
       aColor.red = (unsigned short) (rgba[0] * 256);
       aColor.green = (unsigned short) (rgba[1] * 256);
       aColor.blue = (unsigned short) (rgba[2] * 256);
@@ -237,7 +236,7 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
       ftmp = p->GetPoint(pts[j]);
       if (c && !cellScalars)
 	{
-	rgba = c->GetColor(pts[j]);
+	rgba = c->GetPointer(4*pts[j]);
 	aColor.red = (unsigned short) (rgba[0] * 256);
 	aColor.green = (unsigned short) (rgba[1] * 256);
 	aColor.blue = (unsigned short) (rgba[2] * 256);

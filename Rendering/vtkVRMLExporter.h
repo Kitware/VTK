@@ -87,7 +87,8 @@ protected:
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkNormals *normals, 
-		      vtkTCoords *tcoords, vtkScalars *colors, FILE *fp);
+		      vtkTCoords *tcoords, vtkUnsignedCharArray *colors, 
+                      FILE *fp);
   char *FileName;
   FILE *FilePointer;
   float Speed;

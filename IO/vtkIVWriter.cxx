@@ -41,12 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <stdio.h>
 #include "vtkIVWriter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkLookupTable.h"
+#include "vtkAbstractMapper.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------
 vtkIVWriter* vtkIVWriter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +57,6 @@ vtkIVWriter* vtkIVWriter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkIVWriter;
 }
-
-
-
 
 void vtkIVWriter::WriteData()
 {
@@ -90,7 +86,8 @@ void vtkIVWriter::WriteData()
   this->WritePolyData(this->GetInput(), fp);
   if (fclose(fp)) 
     {
-    vtkErrorMacro(<< this->FileName << " did not close successfully. Check disk space.");
+    vtkErrorMacro(<< this->FileName 
+                  << " did not close successfully. Check disk space.");
     }
 }
 
@@ -101,14 +98,29 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkCellArray *cells;
   vtkIdType npts;
   vtkIdType *indx;
-  vtkPolyDataMapper *pm;
-  vtkScalars *colors;
-  
-  pm = vtkPolyDataMapper::New();
-  pm->SetInput(pd);
+  vtkUnsignedCharArray *colors=NULL;
+  int offset=0;
   
   points = pd->GetPoints();
-  colors  = pm->GetColors();
+
+  // create colors for vertices
+  vtkDataArray *scalars = vtkAbstractMapper::
+    GetScalars(pd, VTK_SCALAR_MODE_USE_POINT_DATA, 0, 0, NULL, offset);
+
+  if ( scalars )
+    {
+    vtkLookupTable *lut;
+    if ( (lut=scalars->GetLookupTable()) == NULL )
+      {
+      lut = vtkLookupTable::New();
+      lut->Build();
+      }
+    colors = lut->MapScalars(scalars,VTK_COLOR_MODE_DEFAULT,0);
+    if ( ! scalars->GetLookupTable() )
+      {
+      lut->Delete();
+      }
+    }
   
   fprintf(fp,"Separator {\n");
   
@@ -140,20 +152,21 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\tMaterial {\n");
     fprintf(fp,"\t\tdiffuseColor [\n");
     fprintf(fp, "\t\t\t");
-    for (i=0; i<colors->GetNumberOfScalars(); i++) 
+    for (i=0; i<colors->GetNumberOfTuples(); i++) 
       {
       unsigned char *rgba;
-      rgba = colors->GetColor(i);
+      rgba = colors->GetPointer(4*i);
       fprintf(fp, "%g %g %g, ", rgba[0]/255.0f, 
-	      rgba[1]/255.0f, rgba[2]/255.0f);
+              rgba[1]/255.0f, rgba[2]/255.0f);
       if (!((i+1)%2))
-	{
-	fprintf(fp, "\n\t\t\t");
-	}
+        {
+        fprintf(fp, "\n\t\t\t");
+        }
       }
     fprintf(fp, "\n\t\t]\n");
     fprintf(fp,"\t}\n");
     }
+  colors->Delete();
   
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
@@ -165,10 +178,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       {
       fprintf(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"\t\t]\n");
@@ -186,10 +199,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       {
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"\t\t]\n");
@@ -206,10 +219,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       {
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"\t\t]\n");
@@ -228,10 +241,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       {
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"\t\t]\n");
@@ -239,8 +252,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     }
   
   fprintf(fp,"}\n"); // close the  Shape
-  
-  pm->Delete();
+
 }
 
 

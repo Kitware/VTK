@@ -120,6 +120,83 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
     }
 }
 
+vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
+                                            int scalarMode,
+											int arrayAccessMode,
+                                            int arrayId, 
+                                            const char *arrayName,
+                                            int& offset)
+{
+  vtkDataArray *scalars=NULL;
+  vtkPointData *pd;
+  vtkCellData *cd;
+  
+  // make sure we have an input
+  if ( !input )
+    {
+    return NULL;
+    }
+    
+  // get and scalar data according to scalar mode
+  if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
+    {
+    scalars = input->GetPointData()->GetActiveScalars();
+    if (!scalars)
+      {
+      scalars = input->GetCellData()->GetActiveScalars();
+      }
+    }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
+    {
+    scalars = input->GetPointData()->GetActiveScalars();
+    }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
+    {
+    scalars = input->GetCellData()->GetActiveScalars();
+    }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
+    {
+    pd = input->GetPointData();
+    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+      scalars = pd->GetArray(arrayId);
+      }
+    else
+      {
+      scalars = pd->GetArray(arrayName);
+      }
+    
+    if ( !scalars ||
+         !(offset < scalars->GetNumberOfComponents()) )
+      {
+      offset=0;
+      vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
+      }
+    }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    cd = input->GetCellData();
+    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+      scalars = cd->GetArray(arrayId);
+      }
+    else
+      {
+      scalars = cd->GetArray(arrayName);
+      }
+
+    if ( !scalars ||
+         !(offset < scalars->GetNumberOfComponents()) )
+      {
+      offset=0;
+      vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
+      }
+    }
+  
+  return scalars;
+}
+
+
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkProcessObject::PrintSelf(os,indent);

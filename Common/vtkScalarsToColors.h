@@ -45,6 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // convert scalars to colors. This include vtkLookupTable classes and
 // color transfer functions.
 //
+// The scalars to color mapping can be augmented with an additional
+// uniform alpha blend. This is used, for example, to blend a vtkActor's
+// opacity with the lookup table values.
+//
 // .SECTION See Also
 // vtkLookupTable vtkColorTransferFunction
 
@@ -54,10 +58,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkUnsignedCharArray.h"
 
-#define VTK_RGBA       4
-#define VTK_RGB        3
-#define VTK_LUMINANCE  1
+#define VTK_LUMINANCE       1
 #define VTK_LUMINANCE_ALPHA 2
+#define VTK_RGB             3
+#define VTK_RGBA            4
+
+#define VTK_COLOR_MODE_DEFAULT 0
+#define VTK_COLOR_MODE_MAP_SCALARS 1
 
 class vtkScalars;
 
@@ -109,6 +116,25 @@ public:
     return rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11;}
 
   // Description:
+  // Specify an additional opacity (alpha) value to blend with. Values
+  // != 1 modify the resulting color consistent with the requested
+  // form of the output. This is typically used by an actor in order to
+  // blend its opacity.
+  void SetAlpha(float alpha);
+  vtkGetMacro(Alpha,float);
+
+  // Description:
+  // An internal method maps a data array into a 4-component, unsigned char
+  // RGBA array. The color mode determines the behavior of mapping. If 
+  // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
+  // treated as colors (and converted to RGBA if necessary); otherwise, 
+  // the data is mapped through this instance of ScalarsToColors. The offset
+  // is used for data arrays with more than one component; it indicates 
+  // which component to use to do the blending.
+  vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+                                   int component);
+  
+  // Description:
   // Map a set of scalars through the lookup table in a single operation. 
   // The output format can be set to VTK_RGBA (4 components), 
   // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
@@ -129,11 +155,20 @@ public:
                                        int inputIncrement, 
                                        int outputFormat) = 0;
 
+  // Description:
+  // An internal method used to convert a color array to RGBA. The
+  // method instantiates a vtkUnsignedCharArray and returns it. The user is
+  // responsible for managing the memory.
+  virtual vtkUnsignedCharArray *ConvertUnsignedCharToRGBA(
+    vtkUnsignedCharArray *colors, int numComp, int numTuples);
+
 protected:
-  vtkScalarsToColors() {};
-  ~vtkScalarsToColors() {};
+  vtkScalarsToColors():Alpha(1.0) {}
+  ~vtkScalarsToColors() {}
   vtkScalarsToColors(const vtkScalarsToColors &);
   void operator=(const vtkScalarsToColors &);
+
+  float Alpha;
 
 private:
   float RGB[3];

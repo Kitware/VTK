@@ -55,6 +55,7 @@ static float vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 vtkMapper::vtkMapper()
 {
   this->Colors = NULL;
+  this->Scalars = NULL;
 
   this->LookupTable = NULL;
 
@@ -75,8 +76,8 @@ vtkMapper::vtkMapper()
   
   strcpy(this->ArrayName, "");
   this->ArrayId = -1;
-  this->ArrayComponent = -1;
-  this->ArrayAccessMode = -1;
+  this->ArrayComponent = 0;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
 vtkMapper::~vtkMapper()
@@ -212,165 +213,71 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
   this->SetImmediateModeRendering(m->GetImmediateModeRendering());
 }
 
-// a side effect of this is that this->Colors is also set
-// to the return value
 vtkScalars *vtkMapper::GetColors()
 {
-  vtkScalars *scalars = NULL;
-  vtkDataArray *dataArray=0;
-  vtkPointData *pd;
-  vtkCellData *cd;
-  vtkIdType i, numScalars;
-  
-  // make sure we have an input
-  if (!this->GetInput())
+  VTK_LEGACY_METHOD("GetColors", "4.0");
+  vtkUnsignedCharArray *scalars = this->MapScalars(1.0);
+
+  if ( scalars == NULL )
     {
     return NULL;
     }
-    
-  // get and scalar data according to scalar mode
-  if ( this->ScalarMode == VTK_SCALAR_MODE_DEFAULT )
-    {
-    scalars = this->GetInput()->GetPointData()->GetScalars();
-    if (!scalars)
-      {
-      scalars = this->GetInput()->GetCellData()->GetScalars();
-      }
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
-    {
-    scalars = this->GetInput()->GetPointData()->GetScalars();
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
-    scalars = this->GetInput()->GetCellData()->GetScalars();
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
-    pd = this->GetInput()->GetPointData();
-    if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
-      dataArray = pd->GetArray(this->ArrayId);
-      }
-    else
-      {
-      dataArray = pd->GetArray(this->ArrayName);
-      }
-    
-    if (dataArray &&
-        (this->ArrayComponent < dataArray->GetNumberOfComponents()))
-      {
-      scalars = vtkScalars::New();
-      numScalars = dataArray->GetNumberOfTuples();
-      scalars->SetNumberOfScalars(numScalars);
-      if (dataArray->GetNumberOfComponents() == 1)
-        {
-        scalars->SetData(dataArray);
-        }
-      else
-        { // I do not know how useful it is to color by a componenet.
-        // This could probably be done with out a copy
-        // by using active component.
-        for (i = 0; i < numScalars; i++)
-          {
-          scalars->
-            InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
-          }
-        }
-      }
-    else
-      {
-      vtkWarningMacro(<<"Data array (used for coloring) not found");
-      }
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
-    cd = this->GetInput()->GetCellData();
-    if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
-      dataArray = cd->GetArray(this->ArrayId);
-      }
-    else
-      {
-      dataArray = cd->GetArray(this->ArrayName);
-      }
 
-    if (dataArray &&
-        (this->ArrayComponent < dataArray->GetNumberOfComponents()))
-      {
-      scalars = vtkScalars::New();
-      numScalars = dataArray->GetNumberOfTuples();
-      scalars->SetNumberOfScalars(numScalars);
-      if (dataArray->GetNumberOfComponents() == 1)
-        {
-        scalars->SetData(dataArray);
-        }
-      else
-        { // I do not know how useful it is to color by a componenet.
-        // This could probably be done with out a copy
-        // by using active component.
-        for (i = 0; i < numScalars; i++)
-          {
-          scalars->
-            InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
-          }
-        }
-      }
-    else
-      {
-      vtkWarningMacro(<<"Data array (used for coloring) not found");
-      }
+  if ( this->Scalars == NULL )
+    {
+    this->Scalars = vtkScalars::New();
     }
+  int numScalars = scalars->GetNumberOfTuples();
+  this->Scalars->SetNumberOfScalars(numScalars);
+  this->Scalars->SetNumberOfComponents(4);
+  this->Scalars->SetData(scalars);
+  this->Scalars->InitColorTraversal(1.0,this->LookupTable,this->ColorMode);
   
-  // do we have any scalars ?
-  if (scalars && this->ScalarVisibility)
+  return this->Scalars;
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(float alpha)
+{
+  // Get rid of old colors
+  if ( this->Colors )
     {
-    // if the scalars have a lookup table use it instead
-    if (scalars->GetLookupTable())
-      {
-      this->SetLookupTable(scalars->GetLookupTable());
-      }
-    else
-      {
-      // make sure we have a lookup table
-      if ( this->LookupTable == NULL )
-	      {
-	      this->CreateDefaultLookupTable();
-	      }
-      this->LookupTable->Build();
-      }
-
-    // Setup mapper/scalar object for color generation
-    if (!this->UseLookupTableScalarRange)
-      {
-      this->LookupTable->SetRange(this->ScalarRange);
-      }
-
-    if (this->Colors)
-      {
-      this->Colors->UnRegister(this);
-      }
-    this->Colors = scalars;
-    this->Colors->Register(this);
-    this->Colors->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
-    }
-
-  else //scalars not visible
-    {
-    if ( this->Colors )
-      {
-      this->Colors->UnRegister(this);
-      }
+    this->Colors->UnRegister(this);
     this->Colors = NULL;
     }
   
-  if (((this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA) ||
-       (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)) &&
-      scalars)
+  // map scalars if necessary
+  if ( this->ScalarVisibility )
     {
-    scalars->Delete();
+    vtkDataArray *scalars = vtkAbstractMapper::
+      GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                 this->ArrayId, this->ArrayName, this->ArrayComponent);
+    if ( scalars )
+      {
+      if ( scalars->GetLookupTable() )
+        {
+        this->SetLookupTable(scalars->GetLookupTable());
+        }
+      else
+        {
+        // make sure we have a lookup table
+        if ( this->LookupTable == NULL )
+          {
+          this->CreateDefaultLookupTable();
+          }
+        this->LookupTable->Build();
+        }
+      if ( !this->UseLookupTableScalarRange )
+        {
+        this->LookupTable->SetRange(this->ScalarRange);
+        }
+      this->LookupTable->SetAlpha(alpha);
+      this->Colors = this->LookupTable->
+        MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+      }
     }
-  
+
   return this->Colors;
 }
 
@@ -451,11 +358,7 @@ void vtkMapper::Update()
 // Return the method of coloring scalar data.
 const char *vtkMapper::GetColorModeAsString(void)
 {
-  if ( this->ColorMode == VTK_COLOR_MODE_LUMINANCE )
-    {
-    return "Luminance";
-    }
-  else if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
+  if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
     {
     return "MapScalars";
     }
@@ -515,7 +418,8 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 
-  os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
+  os << indent << "UseLookupTableScalarRange: " 
+     << this->UseLookupTableScalarRange << "\n";
 
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 

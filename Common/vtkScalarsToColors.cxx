@@ -44,6 +44,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalars.h"
 
 
+// do not use SetMacro() because we do not the table to rebuild.
+void vtkScalarsToColors::SetAlpha(float alpha)
+{
+  this->Alpha = (alpha < 0.0 ? 0.0 : (alpha > 1.0 ? 1.0 : alpha));
+}
+
+vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
+                                                     int colorMode, int comp)
+{
+  vtkUnsignedCharArray *newColors;
+  vtkUnsignedCharArray *colors;
+
+  // map scalars through lookup table only if needed
+  if ( colorMode == VTK_COLOR_MODE_DEFAULT && 
+       (colors=vtkUnsignedCharArray::SafeDownCast(scalars)) != NULL )
+    {
+    newColors = this->
+      ConvertUnsignedCharToRGBA(colors, colors->GetNumberOfComponents(),
+                                scalars->GetNumberOfTuples());
+    }
+  else
+    {
+    newColors = vtkUnsignedCharArray::New();
+    newColors->SetNumberOfComponents(4);
+    newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
+    newColors->Register(this);
+    this->
+      MapScalarsThroughTable2(scalars->GetVoidPointer(comp), 
+                              newColors->GetPointer(0),
+                              scalars->GetDataType(),
+                              scalars->GetNumberOfTuples(),
+                              scalars->GetNumberOfComponents(), 
+                              VTK_RGBA);
+    }//need to map
+
+  return newColors;
+}
+
 // Map a set of scalar values through the table
 void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars, 
                                                 unsigned char *output,
@@ -68,4 +106,117 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars,
 				scalars->GetNumberOfComponents(),
 				outputFormat);
 }
+
+vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
+  vtkUnsignedCharArray *colors, int numComp, int numTuples)
+{
+  unsigned char *cptr = colors->GetPointer(0);
+  vtkUnsignedCharArray *newColors = vtkUnsignedCharArray::New();
+
+  if ( numComp == 4 && this->Alpha >= 1.0 )
+    {
+    newColors->SetArray(cptr, numTuples, 0);
+    return newColors;
+    }
+    
+  newColors->SetNumberOfComponents(4);
+  newColors->SetNumberOfTuples(numTuples);
+  unsigned char *nptr = newColors->GetPointer(0);
+  int i;
+
+  if ( this->Alpha >= 1.0 )
+    {
+    switch (numComp)
+      {
+      case 1:
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr;
+          *nptr++ = *cptr;
+          *nptr++ = *cptr++;
+          *nptr++ = 255;
+          }
+        break;
+
+      case 2:
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr;
+          *nptr++ = *cptr;
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          }
+        break;
+
+      case 3:
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = 255;
+          }
+        break;
+
+      default:
+        vtkErrorMacro(<<"Cannot convert colors");
+        return NULL;
+      }
+    }
+  else //blending required
+    {
+    unsigned char alpha;
+    switch (numComp)
+      {
+      case 1:
+        alpha = this->Alpha*255;
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr;
+          *nptr++ = *cptr;
+          *nptr++ = *cptr++;
+          *nptr++ = alpha;
+          }
+        break;
+
+      case 2:
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr;
+          *nptr++ = *cptr;
+          *nptr++ = *cptr++;
+          *nptr++ = (*cptr)*this->Alpha; cptr++;
+          }
+        break;
+
+      case 3:
+        alpha = this->Alpha*255;
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = alpha;
+          }
+        break;
+
+      case 4:
+        for (i=0; i<numTuples; i++)
+          {
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = *cptr++;
+          *nptr++ = (*cptr)*this->Alpha; cptr++;
+          }
+        break;
+
+      default:
+        vtkErrorMacro(<<"Cannot convert colors");
+        return NULL;
+      }
+    }
+  
+  return newColors;
+}
+
 

@@ -65,6 +65,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarsToColors.h"
 #include "vtkPolyData.h"
 
+#define VTK_GET_ARRAY_BY_ID 0
+#define VTK_GET_ARRAY_BY_NAME 1
+
 class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
@@ -95,22 +98,21 @@ public:
 
   // Description:
   // Control how the scalar data is mapped to colors.  By default
-  // (ColorModeToDefault), scalars that are unsigned char types are treated
-  // as colors, and NOT mapped through the lookup table, while everything
-  // else is.  Setting ColorModeToMapScalars means that all scalar data will
-  // be mapped through the lookup table. Setting ColorModeToLuminance means
-  // that scalars will be converted to luminance (gray values) using the
-  // luminance equation . (The ColorMode ivar is used with vtkScalars to map
-  // scalar data to colors. See vtkScalars::InitColorTraversal() for more
-  // information.)
+  // (ColorModeToDefault), unsigned char scalars are treated as colors, and
+  // NOT mapped through the lookup table, while everything else is. Setting
+  // ColorModeToMapScalars means that all scalar data will be mapped through
+  // the lookup table.  (Note that for multi-component scalars, the
+  // particular component to use for mapping can be specified using the
+  // ColorByArrayComponent() method.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToDefault() 
     {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
   void SetColorModeToMapScalars() 
     {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
-  void SetColorModeToLuminance() 
-    {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
+
+  // Description:
+  // Return the method of coloring scalar data.
   const char *GetColorModeAsString();
 
   // Description:
@@ -132,10 +134,40 @@ public:
   vtkGetVectorMacro(ScalarRange,float,2);
 
   // Description:
-  // Calculate and return the colors for the input. After invoking this
-  // method, use GetColor() on the scalar to get the scalar values. This
-  // method may return NULL if no color information is available.
-  vtkScalars *GetColors();
+  // Control how the filter works with scalar point data and cell attribute
+  // data.  By default (ScalarModeToDefault), the filter will use point data,
+  // and if no point data is available, then cell data is used. Alternatively
+  // you can explicitly set the filter to use point data
+  // (ScalarModeToUsePointData) or cell data (ScalarModeToUseCellData).
+  // You can also choose to get the scalars from an array in point field
+  // data (ScalarModeToUsePointFieldData) or cell field data
+  // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
+  // data array, you must call ColorByArrayComponent before you call
+  // GetColors.
+  vtkSetMacro(ScalarMode,int);
+  vtkGetMacro(ScalarMode,int);
+  void SetScalarModeToDefault() {
+    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
+  void SetScalarModeToUsePointData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
+  void SetScalarModeToUseCellData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
+  void SetScalarModeToUsePointFieldData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
+  void SetScalarModeToUseCellFieldData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
+  
+  // Description:
+  // Choose which component of which field data array to color by.
+  void ColorByArrayComponent(int arrayNum, int component);
+  void ColorByArrayComponent(char* arrayName, int component);
+  
+  // Description:
+  // Get the array name or number and component to color by.
+  char* GetArrayName() { return this->ArrayName; }
+  int GetArrayId() { return this->ArrayId; }
+  int GetArrayAccessMode() { return this->ArrayAccessMode; }
+  int GetArrayComponent() { return this->ArrayComponent; }
 
   // Description:
   // Overload standard modified time function. If lookup table is modified,
@@ -150,8 +182,23 @@ public:
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
   // Description:
+  // Map the scalars (if there are any scalars and ScalarVisibility is on)
+  // through the lookup table, returning an unsigned char RGBA array. This is
+  // typically done as part of the rendering process. The alpha parameter 
+  // allows the blending of the scalars with an additional alpha (typically
+  // which comes from a vtkActor, etc.)
+  vtkUnsignedCharArray *MapScalars(float alpha);
+  
+  // Description:
   // Make a shallow copy of this mapper.
   void ShallowCopy(vtkPolyDataMapper2D *m);
+
+  // Description:
+  // Calculate and return the colors for the input. After invoking this
+  // method, use GetColor() on the scalar to get the scalar values. This
+  // method may return NULL if no color information is available. (This
+  // method is obsolete; use MapScalars() instead.)
+  vtkScalars *GetColors();
 
 protected:
   vtkPolyDataMapper2D();
@@ -160,16 +207,25 @@ protected:
   void operator=(const vtkPolyDataMapper2D&);
 
   vtkPolyData* Input;
-  vtkScalars *Colors;
+
+  vtkScalars *Scalars;
+  vtkUnsignedCharArray *Colors;
+
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
   int UseLookupTableScalarRange;
   int ColorMode;
+  int ScalarMode;
   
   vtkCoordinate *TransformCoordinate;
 
+  // for coloring by a component of a field data array
+  int ArrayId;
+  char ArrayName[256];
+  int ArrayComponent;
+  int ArrayAccessMode;
 };
 
 

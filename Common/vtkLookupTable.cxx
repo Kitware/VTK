@@ -44,8 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalars.h"
 #include "vtkObjectFactory.h"
 
-
-
 //----------------------------------------------------------------------------
 vtkLookupTable* vtkLookupTable::New()
 {
@@ -427,119 +425,241 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   float shift, scale;
   unsigned char *table = self->GetPointer(0);
   unsigned char *cptr;
+  float alpha;
 
-  if (self->GetScale() == VTK_SCALE_LOG10)
+  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required 
     {
-    float val;
-    float logRange[2];
-    vtkLookupTableLogRange(range, logRange);
-    shift = -logRange[0];
-    scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
-    /* correct scale
-    scale = maxIndex/(logRange[1] - logRange[0]);
-    */
-    if (outFormat == VTK_RGBA)
+    if (self->GetScale() == VTK_SCALE_LOG10)
       {
-      while (--i >= 0) 
+      float val;
+      float logRange[2];
+      vtkLookupTableLogRange(range, logRange);
+      shift = -logRange[0];
+      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      /* correct scale
+      scale = maxIndex/(logRange[1] - logRange[0]);
+      */
+      if (outFormat == VTK_RGBA)
         {
-	val = vtkApplyLogScale(*input, range, logRange);
-        cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;     
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;     
+          input += inIncr;
+          }
         }
-      }
-    else if (outFormat == VTK_RGB)
-      {
-      while (--i >= 0) 
+      else if (outFormat == VTK_RGB)
         {
-	val = vtkApplyLogScale(*input, range, logRange);
-        cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          input += inIncr;
+          }
         }
-      }
-    else if (outFormat == VTK_LUMINANCE_ALPHA)
-      {
-      while (--i >= 0) 
+      else if (outFormat == VTK_LUMINANCE_ALPHA)
         {
-	val = vtkApplyLogScale(*input, range, logRange);
-        cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-        *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + cptr[2]*0.11
-				    + 0.5);
-        *output++ = cptr[3];
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          *output++ = cptr[3];
+          input += inIncr;
+          }
         }
-      }
-    else // outFormat == VTK_LUMINANCE
-      {
-      while (--i >= 0) 
+      else // outFormat == VTK_LUMINANCE
         {
-	val = vtkApplyLogScale(*input, range, logRange);
-        cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-        *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + cptr[2]*0.11
-				    + 0.5);
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          input += inIncr;
+          }
         }
-      }
-    }
-  else
-    {
-    shift = -range[0];
-    scale = (maxIndex + 1)/(range[1] - range[0]);
-    /* correct scale
-    scale = maxIndex/(range[1] - range[0]);
-    */
+      }//if log scale
 
-    if (outFormat == VTK_RGBA)
+    else //not log scale
       {
-      while (--i >= 0) 
+      shift = -range[0];
+      scale = (maxIndex + 1)/(range[1] - range[0]);
+      /* correct scale
+      scale = maxIndex/(range[1] - range[0]);
+      */
+
+      if (outFormat == VTK_RGBA)
         {
-        cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;     
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;     
+          input += inIncr;
+          }
         }
-      }
-    else if (outFormat == VTK_RGB)
+      else if (outFormat == VTK_RGB)
+        {
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          input += inIncr;
+          }
+        }
+      else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          *output++ = cptr[3];
+          input += inIncr;
+          }
+        }
+      else // outFormat == VTK_LUMINANCE
+        {
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          input += inIncr;
+          }
+        }
+      }//if not log lookup
+    }//if blending not needed
+
+  else //blend with the specified alpha
+    {
+    if (self->GetScale() == VTK_SCALE_LOG10)
       {
-      while (--i >= 0) 
+      float val;
+      float logRange[2];
+      vtkLookupTableLogRange(range, logRange);
+      shift = -logRange[0];
+      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      /* correct scale
+      scale = maxIndex/(logRange[1] - logRange[0]);
+      */
+      if (outFormat == VTK_RGBA)
         {
-        cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        *output++ = *cptr++;
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = cptr[3]*alpha;
+          input += inIncr;
+          }
         }
-      }
-    else if (outFormat == VTK_LUMINANCE_ALPHA)
+      else if (outFormat == VTK_RGB)
+        {
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          input += inIncr;
+          }
+        }
+      else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          *output++ = alpha*cptr[3];
+          input += inIncr;
+          }
+        }
+      else // outFormat == VTK_LUMINANCE
+        {
+        while (--i >= 0) 
+          {
+          val = vtkApplyLogScale(*input, range, logRange);
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          input += inIncr;
+          }
+        }
+      }//log scale with blending
+
+    else //no log scale with blending
       {
-      while (--i >= 0) 
+      shift = -range[0];
+      scale = (maxIndex + 1)/(range[1] - range[0]);
+      /* correct scale
+      scale = maxIndex/(range[1] - range[0]);
+      */
+
+      if (outFormat == VTK_RGBA)
         {
-        cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-        *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + cptr[2]*0.11
-				    + 0.5);
-        *output++ = cptr[3];
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = cptr[3]*alpha;
+          input += inIncr;
+          }
         }
-      }
-    else // outFormat == VTK_LUMINANCE
-      {
-      while (--i >= 0) 
+      else if (outFormat == VTK_RGB)
         {
-        cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-        *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + cptr[2]*0.11
-				    + 0.5);
-        input += inIncr;
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          *output++ = *cptr++;
+          input += inIncr;
+          }
         }
-      }
-    }
+      else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          *output++ = cptr[3]*alpha;
+          input += inIncr;
+          }
+        }
+      else // outFormat == VTK_LUMINANCE
+        {
+        while (--i >= 0) 
+          {
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          *output++ = (unsigned char)(cptr[0]*0.30 + cptr[1]*0.59 + 
+                                      cptr[2]*0.11 + 0.5);
+          input += inIncr;
+          }
+        }
+      }//no log scale
+    }//alpha blending
 }
 
 void vtkLookupTable::MapScalarsThroughTable2(void *input, 

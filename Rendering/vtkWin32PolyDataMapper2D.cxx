@@ -71,7 +71,7 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   int npts, j;
   vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
-  vtkScalars *c=NULL;
+  vtkUnsignedCharArray *c=NULL;
   unsigned char *rgba;
   int *pts;
   float *ftmp;
@@ -111,13 +111,14 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // if something has changed regenrate colors and display lists
   // if required
   //
+  tran = actor->GetProperty()->GetOpacity();
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime || 
        this->LookupTable->GetMTime() > this->BuildTime ||
        actor->GetProperty()->GetMTime() > this->BuildTime)
     {
     // sets this->Colors as side effect
-    this->GetColors();
+    this->MapScalars(tran);
     this->BuildTime.Modified();
     }
 
@@ -140,7 +141,6 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-  tran = actor->GetProperty()->GetOpacity();
 
   // Set the compositing operator
   SetROP2(hdc, R2_COPYPEN);
@@ -165,7 +165,6 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if ( this->Colors )
     {
     c = this->Colors;
-    c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
     if (!input->GetPointData()->GetScalars())
       {
       cellScalars = 1;
@@ -188,11 +187,11 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       {
       if (cellScalars) 
 	{
-	rgba = c->GetColor(cellNum);
+	rgba = c->GetPointer(4*cellNum);
 	}
       else
 	{
-	rgba = c->GetColor(pts[j]);
+	rgba = c->GetPointer(4*pts[j]);
 	}
       npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
       pen = (HPEN) SelectObject(hdc,npen);
@@ -226,11 +225,11 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       {
       if (cellScalars) 
 	{
-	rgba = c->GetColor(cellNum);
+	rgba = c->GetPointer(4*cellNum);
 	}
       else
 	{
-	rgba = c->GetColor(pts[j]);
+	rgba = c->GetPointer(4*pts[j]);
 	}
       npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
       pen =  (HPEN) SelectObject(hdc,npen);   

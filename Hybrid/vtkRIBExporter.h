@@ -148,8 +148,10 @@ protected:
   void WriteLight (vtkLight *aLight, int count);
   void WriteAmbientLight (int count);
   void WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture);
-  void WritePolygons (vtkPolyData *pd, vtkScalars *colors, vtkProperty *aProperty);
-  void WriteStrips (vtkPolyData *pd, vtkScalars *colors, vtkProperty *aProperty);
+  void WritePolygons (vtkPolyData *pd, vtkUnsignedCharArray *colors, 
+                      vtkProperty *aProperty);
+  void WriteStrips (vtkPolyData *pd, vtkUnsignedCharArray *colors, 
+                    vtkProperty *aProperty);
 
   void WriteData();
   void WriteActor(vtkActor *anActor);
