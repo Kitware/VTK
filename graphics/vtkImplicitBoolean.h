@@ -51,8 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The operators work as follows. The VTK_UNION operator takes the minimum
 // value of all implicit functions. The VTK_INTERSECTION operator takes the
 // maximum value of all implicit functions. The VTK_DIFFERENCE operator
-// subtracts the 2nd through last implicit functions from the first.
-
+// subtracts the 2nd through last implicit functions from the first. The
+// VTK_UNION_OF_MAGNITUDES takes the minimum absolute value of the 
+// implicit functions.
 
 #ifndef __vtkImplicitBoolean_h
 #define __vtkImplicitBoolean_h
@@ -68,7 +69,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
-
+  // Description:
+  // Default boolean method is union.
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
   static vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
@@ -76,12 +78,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
-  
-  // Description
+
+  // Description:
   // Evaluate boolean combinations of implicit function using current operator.
   float EvaluateFunction(float x[3]);
 
-  // Description
+  // Description:
   // Evaluate gradient of boolean combination.
   void EvaluateGradient(float x[3], float g[3]);
 
@@ -91,7 +93,6 @@ public:
   // Description:
   // Add another implicit function to the list of functions.
   void AddFunction(vtkImplicitFunction *in);
-
   void AddFunction(vtkImplicitFunction &in) {this->AddFunction(&in);};
 
   // Description:
