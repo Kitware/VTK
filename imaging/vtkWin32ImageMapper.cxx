@@ -682,7 +682,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   cshift  = this->GetColorShift();
   cscale  = this->GetColorScale();
   cwindow = this->GetColorWindow();
-  clevel  = this->GetColorScale();
+  clevel  = this->GetColorLevel();
 
   this->HBitmap = this->CreateBitmapObject(this->HBitmap, dataHeader, windowDC,
     this->DataOut, data, width, height);
