@@ -60,7 +60,7 @@ vtkAssemblyPath* vtkAssemblyPath::New()
 vtkAssemblyPath::vtkAssemblyPath()
 {
   this->Transform = vtkTransform::New();
-  this->Transform->PostMultiply();  
+  this->Transform->PreMultiply();  
   this->TransformedProp = NULL;
 }
 
