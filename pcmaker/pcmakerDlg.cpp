@@ -78,10 +78,6 @@ END_MESSAGE_MAP()
 
 BOOL CPcmakerDlg::OnInitDialog()
 {
-	this->m_WhereBuild = "C:\\vtkbin";
-	this->m_WhereVTK = "C:\\vtk";
-  this->m_WhereCompiler = "C:\\msdev";
-  this->m_WhereJDK = "";
 	CDialog::OnInitDialog();
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -133,6 +129,11 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 extern void makeMakefile(CPcmakerDlg *vals);
 
 void CPcmakerDlg::OnOK() 
+{
+  this->DoOKStuff();
+}
+
+void CPcmakerDlg::DoOKStuff()
 {
   FILE *fp;
   char fname[128];

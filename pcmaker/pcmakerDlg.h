@@ -9,6 +9,7 @@ class CPcmakerDlg : public CDialog
 // Construction
 public:
 	CPcmakerDlg(CWnd* pParent = NULL);	// standard constructor
+  void DoOKStuff();
 
 // Dialog Data
 	//{{AFX_DATA(CPcmakerDlg)
