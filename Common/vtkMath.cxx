@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.85");
+vtkCxxRevisionMacro(vtkMath, "1.86");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -35,7 +35,7 @@ long vtkMath::Seed = 1177; // One authors home address
 
 // Generate random numbers between 0.0 and 1.0.
 // This is used to provide portability across different systems.
-float vtkMath::Random()
+double vtkMath::Random()
 {
   long hi, lo;
     
@@ -49,7 +49,7 @@ float vtkMath::Random()
     {
     Seed += VTK_K_M;
     }
-  return ((float) vtkMath::Seed / VTK_K_M);
+  return ((double) vtkMath::Seed / VTK_K_M);
 }
 
 // Initialize seed value. NOTE: Random() has the bad property that 

@@ -344,11 +344,11 @@ public:
   // Description:
   // Generate random numbers between 0.0 and 1.0.
   // This is used to provide portability across different systems.
-  static float Random();  
+  static double Random();  
 
   // Description:
   // Generate random number between (min,max).
-  static float Random(float min, float max);
+  static double Random(double min, double max);
 
   // Description:
   // Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
@@ -624,7 +624,7 @@ inline double vtkMath::Distance2BetweenPoints(const double x[3],
           (x[2]-y[2])*(x[2]-y[2]));
 }
 
-inline float vtkMath::Random(float min, float max)
+inline double vtkMath::Random(double min, double max)
 {
   return (min + vtkMath::Random()*(max-min));
 }
