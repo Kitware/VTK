@@ -760,7 +760,7 @@ void DICOMParser::ClearAllDICOMTagCallbacks()
        mapIter != this->Implementation->Map.end();
        mapIter++)
        {
-       dicom_stl::pair<DICOMMapKey, DICOMMapValue> mapPair = *mapIter;
+       dicom_stl::pair<const DICOMMapKey, DICOMMapValue> mapPair = *mapIter;
        DICOMMapValue mapVal = mapPair.second;
        dicom_stl::vector<DICOMCallback*>* cbVector = mapVal.second;
        
