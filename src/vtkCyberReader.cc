@@ -527,7 +527,7 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
 {
     float theta, theta_incr;	/* angle of lg and increment */
     short lt, lg;		/* latitude/longitude counters */
-    int radius;			/* radius from input image */
+    unsigned int radius;	/* radius from input image */
     float r, x, y;		/* rectangular coords */
     float y_incr;		/* latitudnal increment */
     float sin_theta, cos_theta;	/* time savers */
@@ -713,34 +713,39 @@ static int gsget(GSPEC* gs, int fd)
 
 static int gdget(GSPEC* gs, int fd)
 {
-	unsigned long count = (long)sizeof(short) * (long)gs->nlt * (long)gs->nlg;
-	unsigned int n;
-	unsigned int readsize;
-	char *addr;
-	unsigned size = count;
+  unsigned long count = (long)sizeof(short) * (long)gs->nlt * (long)gs->nlg;
+  int n;
+  unsigned int readsize;
+  char *addr;
+  unsigned size = count;
+  
+  /* if unallocated, allocate image memory */
+  if (gs->base == NULL) 
+    {
+    if (gdallo(gs) == -1) 
+      {
+      return(-1);
+      }
+    }
 
-	/* if unallocated, allocate image memory */
-	if (gs->base == NULL) {
-		if (gdallo(gs) == -1) {
-			return(-1);
-		}
-	}
-
-	if (lseek(fd, gs->offset, 0) == -1L) {
-		perror(STR026);
-		return(-1);
-	}
-	addr = (char *)gs->base;
-	while (count > 0) {
-		readsize = (unsigned int) MIN(size, count);
-		if ((n = read(fd, addr, readsize)) == -1L) {
-			perror(STR027);
-			return(-1);
-		}
-		count -= (unsigned long)n;
-		addr += n;
-	}
-	return(0);
+  if (lseek(fd, gs->offset, 0) == -1L) 
+    {
+    perror(STR026);
+    return(-1);
+    }
+  addr = (char *)gs->base;
+  while (count > 0) 
+    {
+    readsize = (unsigned int) MIN(size, count);
+    if ((n = read(fd, addr, readsize)) == -1) 
+      {
+      perror(STR027);
+      return(-1);
+      }
+    count -= (unsigned long)n;
+    addr += n;
+    }
+  return(0);
 }
 
 
