@@ -175,24 +175,34 @@ void vtkStripper::Execute()
               if ( triPts[i] != pts[numPts-2] && 
               triPts[i] != pts[numPts-1] )
                 break;
-
-            pts[numPts] = triPts[i];
-            Mesh.GetCellEdgeNeighbors(neighbor, pts[numPts], pts[numPts-1], cellIds);
-            if ( ++numPts > longestStrip ) longestStrip = numPts;
-
-            // note: if updates value of neighbor
-            if ( cellIds.GetNumberOfIds() <= 0 || 
-            visited[neighbor=cellIds.GetId(0)] ||
-            Mesh.GetCellType(neighbor) != VTK_TRIANGLE ||
-            numPts >= (this->MaximumLength+2) )
-              {
-              newStrips->InsertNextCell(numPts,pts);
-              neighbor = (-1);
-              }
-            } // while
-          } // else continue strip
-        } // if triangle
-
+	    
+	    // only add the triangle to the strip if it isn't degenerate.
+	    if (i < 3)
+	      {
+	      pts[numPts] = triPts[i];
+	      Mesh.GetCellEdgeNeighbors(neighbor, pts[numPts], 
+					pts[numPts-1], cellIds);
+	      numPts++;
+	      }
+	    
+	    if ( numPts > longestStrip ) longestStrip = numPts;
+	    
+	    // note: if updates value of neighbor
+	    // Note2: for a degenerate triangle this test will
+	    // correctly fail because the visited[neighbor] will
+	    // now be visited
+	    if ( cellIds.GetNumberOfIds() <= 0 || 
+		 visited[neighbor=cellIds.GetId(0)] ||
+		 Mesh.GetCellType(neighbor) != VTK_TRIANGLE ||
+		 numPts >= (this->MaximumLength+2) )
+	      {
+	      newStrips->InsertNextCell(numPts,pts);
+	      neighbor = (-1);
+	      }
+	    } // while
+	  } // else continue strip
+	} // if triangle
+      
       else if ( Mesh.GetCellType(cellId) == VTK_LINE )
         {
 //
