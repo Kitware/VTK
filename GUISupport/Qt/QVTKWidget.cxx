@@ -95,7 +95,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
 
 {
   // no background
-  setBackgroundMode( Qt::NoBackground );
+  this->setAttribute(Qt::WA_PaintOnScreen);
+  this->setAttribute(Qt::WA_NoSystemBackground);
 
    // default to strong focus
   this->setFocusPolicy(Qt::StrongFocus);
@@ -152,7 +153,8 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
   {
 #if defined(QVTK_HAVE_VTK_4_5)
     //clean up window as one could remap it
-    this->mRenWin->Finalize();
+    if(this->mRenWin->GetMapped())
+      this->mRenWin->Finalize();
 #ifdef Q_WS_X11
     this->mRenWin->SetDisplayId(NULL);
 #endif
@@ -195,10 +197,13 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
     this->mRenWin->vtkRenderWindow::SetPosition(this->x(), this->y());
     
     // have VTK start this window and create the necessary graphics resources
-    this->mRenWin->Start();
-#if defined (Q_WS_MAC)
-    macFixRect();
+    if(isVisible())
+      {
+      this->mRenWin->Start();
+#if defined (Q_WS_MAC) && (QT_VERSION < 0x040000)
+      macFixRect();
 #endif
+      }
     
     // if an interactor wasn't provided, we'll make one by default
     if(!this->mRenWin->GetInteractor())
@@ -317,7 +322,7 @@ void QVTKWidget::resizeEvent(QResizeEvent* event)
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
   this->markCachedImageAsDirty();
   
-#if defined (Q_WS_MAC)
+#if defined (Q_WS_MAC) && (QT_VERSION < 0x040000)
   macFixRect();
 #endif
 }
@@ -332,7 +337,7 @@ void QVTKWidget::moveEvent(QMoveEvent* event)
   // give the size to the interactor and vtk window
   this->mRenWin->vtkRenderWindow::SetPosition(this->x(), this->y());
   
-#if defined (Q_WS_MAC)
+#if defined (Q_WS_MAC) && (QT_VERSION < 0x040000)
   macFixRect();
 #endif
 }
@@ -372,13 +377,21 @@ void QVTKWidget::mousePressEvent(QMouseEvent* event)
   
   if(!iren || !iren->GetEnabled())
     return;
-  
+
   // give interactor the event information
+#if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(event->x(), event->y(), 
       (event->state() & Qt::ControlButton), 
       (event->state() & Qt::ShiftButton ),
       0,
       event->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+#else
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->modifiers() & Qt::ControlModifier), 
+      (event->modifiers() & Qt::ShiftModifier ),
+      0,
+      event->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+#endif
 
   // invoke appropriate vtk event
   switch(event->button())
@@ -412,9 +425,15 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* event)
     return;
   
   // give interactor the event information
-  iren->SetEventInformationFlipY(event->x(), event->y(),
-      (event->state() & Qt::ControlButton),
-      (event->state() & Qt::ShiftButton));
+#if QT_VERSION < 0x040000
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->state() & Qt::ControlButton), 
+      (event->state() & Qt::ShiftButton ));
+#else
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->modifiers() & Qt::ControlModifier), 
+      (event->modifiers() & Qt::ShiftModifier ));
+#endif
   
   // invoke vtk event
   iren->InvokeEvent(vtkCommand::MouseMoveEvent, event);
@@ -461,9 +480,15 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* event)
     return;
   
   // give vtk event information
-  iren->SetEventInformationFlipY(event->x(), event->y(),
-      (event->state() & Qt::ControlButton),
-      (event->state() & Qt::ShiftButton));
+#if QT_VERSION < 0x040000
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->state() & Qt::ControlButton), 
+      (event->state() & Qt::ShiftButton ));
+#else
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->modifiers() & Qt::ControlModifier), 
+      (event->modifiers() & Qt::ShiftModifier ));
+#endif
   
   // invoke appropriate vtk event
   switch(event->button())
@@ -511,10 +536,17 @@ void QVTKWidget::keyPressEvent(QKeyEvent* event)
   }
   
   // give interactor event information
+#if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
       (event->state() & Qt::ControlButton),
       (event->state() & Qt::ShiftButton),
       ascii_key, event->count(), keysym);
+#else
+  iren->SetKeyEventInformation(
+      (event->modifiers() & Qt::ControlModifier),
+      (event->modifiers() & Qt::ShiftModifier),
+      ascii_key, event->count(), keysym);
+#endif
   
   // invoke vtk event
   iren->InvokeEvent(vtkCommand::KeyPressEvent, event);
@@ -551,11 +583,17 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
   }
 
   // give event information to interactor
+#if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
       (event->state() & Qt::ControlButton),
       (event->state() & Qt::ShiftButton),
-      ascii_key,
-      event->count(), keysym);
+      ascii_key, event->count(), keysym);
+#else
+  iren->SetKeyEventInformation(
+      (event->modifiers() & Qt::ControlModifier),
+      (event->modifiers() & Qt::ShiftModifier),
+      ascii_key, event->count(), keysym);
+#endif
 
   // invoke vtk event
   iren->InvokeEvent(vtkCommand::KeyReleaseEvent, event);
@@ -575,11 +613,15 @@ void QVTKWidget::wheelEvent(QWheelEvent* event)
 #if defined(QVTK_HAVE_VTK_4_5)
   
   // give event information to interactor
-  iren->SetEventInformationFlipY(
-                event->x(),
-                event->y(),
-                (event->state() & Qt::ControlButton),
-                (event->state() & Qt::ShiftButton) );
+#if QT_VERSION < 0x040000
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->state() & Qt::ControlButton), 
+      (event->state() & Qt::ShiftButton ));
+#else
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->modifiers() & Qt::ControlModifier), 
+      (event->modifiers() & Qt::ShiftModifier ));
+#endif
   
   // invoke vtk event
   // if delta is positive, it is a forward wheel event
@@ -623,17 +665,19 @@ void QVTKWidget::contextMenuEvent(QContextMenuEvent* event)
     return;
   
   // give interactor the event information
+#if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(event->x(), event->y(), 
       (event->state() & Qt::ControlButton), 
       (event->state() & Qt::ShiftButton ));
+#else
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->modifiers() & Qt::ControlModifier), 
+      (event->modifiers() & Qt::ShiftModifier ));
+#endif
 
   // invoke event and pass qt event for additional data as well
   iren->InvokeEvent(QVTKWidget::ContextMenuEvent, event);
   
-  // if event wasn't consumed, pass it down
-  if(!event->isConsumed())
-    QWidget::contextMenuEvent(event);
-
 }
 
 void QVTKWidget::dragEnterEvent(QDragEnterEvent* event)
@@ -707,7 +751,8 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
     {
     // Finalize the window to remove graphics resources associated with
     // this window
-    this->mRenWin->Finalize();
+    if(this->mRenWin->GetMapped())
+      this->mRenWin->Finalize();
 
     // have QWidget reparent as normal, but don't show
     QWidget::reparent(parent, f, p, false);
@@ -722,7 +767,8 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
 #endif
 
     // start up the window to create graphics resources for this window
-    this->mRenWin->Start();
+    if(isVisible())
+      this->mRenWin->Start();
     }
   
   // show if requested
@@ -740,7 +786,8 @@ void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
     {
     // Finalize the window to remove graphics resources associated with
     // this window
-    this->mRenWin->Finalize();
+    if(this->mRenWin->GetMapped())
+      this->mRenWin->Finalize();
 
     // have QWidget reparent as normal, but don't show
     QWidget::setParent(parent, f);
@@ -755,7 +802,8 @@ void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
 #endif
 
     // start up the window to create graphics resources for this window
-    this->mRenWin->Start();
+    if(isVisible())
+      this->mRenWin->Start();
     }
   
 #endif
@@ -764,7 +812,7 @@ void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
 
 void QVTKWidget::hide()
 {
-#if defined (Q_WS_MAC) && defined(QVTK_HAVE_VTK_4_5)
+#if defined(QVTK_HAVE_VTK_4_5)
   if (this->mRenWin)
     {
     // gotta finalize the window on the mac to make it really disappear
@@ -780,7 +828,7 @@ void QVTKWidget::show()
   this->markCachedImageAsDirty();
 
   QWidget::show();
-#if defined (Q_WS_MAC) && defined(QVTK_HAVE_VTK_4_5)
+#if defined(QVTK_HAVE_VTK_4_5)
   if (this->mRenWin)
     {
     // gotta start the window on the mac to make it come back
@@ -835,16 +883,20 @@ QVTKInteractor::~QVTKInteractor()
 
 /*! create Qt timer with an interval of 10 msec.
 */
-int QVTKInteractor::CreateTimer(int )
+int QVTKInteractor::CreateTimer(int timer_type)
 {
-  // single-shot is fine
-  return mTimer.start(10, true);
+  if(timer_type == VTKI_TIMER_FIRST)
+  {
+    mTimer.start(10);
+  }
+  return 1;
 }
 
 /*! destroy timer
 */
 int QVTKInteractor::DestroyTimer()
 {
+  mTimer.stop();
   return 1;
 }
 
@@ -896,7 +948,11 @@ const char* qt_key_to_key_sym(Qt::Key i)
     // Cancel
     QVTK_HANDLE(Qt::Key_Backspace, "BackSpace")
     QVTK_HANDLE(Qt::Key_Tab, "Tab")
+#if QT_VERSION < 0x040000
     QVTK_HANDLE(Qt::Key_BackTab, "Tab")
+#else
+    QVTK_HANDLE(Qt::Key_Backtab, "Tab")
+#endif
     //QVTK_HANDLE(Qt::Key_Clear, "Clear")
     QVTK_HANDLE(Qt::Key_Return, "Return")
     QVTK_HANDLE(Qt::Key_Enter, "Return")
@@ -907,8 +963,8 @@ const char* qt_key_to_key_sym(Qt::Key i)
     QVTK_HANDLE(Qt::Key_CapsLock, "Caps_Lock")
     QVTK_HANDLE(Qt::Key_Escape, "Escape")
     QVTK_HANDLE(Qt::Key_Space, "space")
-    QVTK_HANDLE(Qt::Key_Prior, "Prior")
-    QVTK_HANDLE(Qt::Key_Next, "Next")
+    //QVTK_HANDLE(Qt::Key_Prior, "Prior")
+    //QVTK_HANDLE(Qt::Key_Next, "Next")
     QVTK_HANDLE(Qt::Key_End, "End")
     QVTK_HANDLE(Qt::Key_Home, "Home")
     QVTK_HANDLE(Qt::Key_Left, "Left")
@@ -1026,7 +1082,11 @@ void QVTKWidget::x11_setup_window()
   
   // save widget states
   bool tracking = this->hasMouseTracking();       
+#if QT_VERSION < 0x040000
   FocusPolicy focus_policy = focusPolicy();
+#else
+  Qt::FocusPolicy focus_policy = focusPolicy();
+#endif
   bool visible = isVisible();
   if(visible)
     hide();
@@ -1119,7 +1179,12 @@ void QVTKWidget::x11_setup_window()
 
   // restore widget states
   this->setMouseTracking(tracking);
+#if QT_VERSION < 0x040000
   setBackgroundMode( Qt::NoBackground );
+#else
+  this->setAttribute(Qt::WA_PaintOnScreen);
+  this->setAttribute(Qt::WA_NoSystemBackground);
+#endif
   setFocusPolicy(focus_policy);
   if(visible)
     show();
