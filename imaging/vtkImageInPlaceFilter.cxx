@@ -62,7 +62,7 @@ vtkImageInPlaceFilter* vtkImageInPlaceFilter::New()
 
 //----------------------------------------------------------------------------
 
-void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *out)
+void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
 {
   vtkImageData *output = this->GetOutput();
   int *inExt, *outExt;
