@@ -16,9 +16,6 @@ vtkRenderWindowInteractor iren
 vtkPlaneSource plane
   plane SetResolution 10 10
 
-vtkTriangleFilter planeTris
-  planeTris SetInput [plane GetOutput]
-
 vtkPlane halfPlane
   halfPlane SetOrigin -.13 -.03 0
   halfPlane SetNormal 1 .2 0
@@ -26,8 +23,8 @@ vtkPlane halfPlane
 #
 # assign scalars to points
 #
-planeTris Update
-set points [[planeTris GetOutput] GetPoints]
+plane Update
+set points [[plane GetOutput] GetPoints]
 set numPoints [$points GetNumberOfPoints]
 
 vtkScalars scalars
@@ -37,11 +34,11 @@ for {set i 0} { $i < $numPoints} {incr i} {
     scalars SetScalar $i [eval halfPlane EvaluateFunction [$points GetPoint $i]]
 }
 
-planeTris Update
-[[planeTris GetOutput] GetPointData] SetScalars scalars
+plane Update
+[[plane GetOutput] GetPointData] SetScalars scalars
 
 vtkThreshold positive
-  positive SetInput  [planeTris GetOutput]
+  positive SetInput  [plane GetOutput]
   positive ThresholdByUpper 0.0
   positive AllScalarsOff
 
