@@ -42,7 +42,7 @@ class VTK_COMMON_EXPORT vtkMatrixToHomogeneousTransform :
 
   // Set the input matrix.  Any modifications to the matrix will be
   // reflected in the transformation.
-  vtkSetObjectMacro(Input,vtkMatrix4x4);
+  virtual void SetInput(vtkMatrix4x4*);
   vtkGetObjectMacro(Input,vtkMatrix4x4);
 
   // Description:

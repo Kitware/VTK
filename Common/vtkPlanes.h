@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Specify a list of points defining points through which the planes pass.
-  vtkSetObjectMacro(Points,vtkPoints);
+  virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points,vtkPoints);
   
   // Description:

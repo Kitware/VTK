@@ -80,7 +80,7 @@ public:
   // Description:
   // Set/Get a transformation to apply to input points before
   // executing the implicit function.
-  vtkSetObjectMacro(Transform,vtkAbstractTransform);
+  virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
   // Description:

@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkPlanes.h"
+
 #include "vtkPlane.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPlanes, "1.7");
+vtkCxxRevisionMacro(vtkPlanes, "1.8");
 vtkStandardNewMacro(vtkPlanes);
+vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);
 
 vtkPlanes::vtkPlanes()
 {

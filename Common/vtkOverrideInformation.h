@@ -21,15 +21,11 @@
 // a class which is overriden in a vtkObjectFactory.
 //
 
-
-
 #ifndef __vtkOverrideInformation_h
 #define __vtkOverrideInformation_h
 
-
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-
 
 class VTK_COMMON_EXPORT vtkOverrideInformation : public vtkObject
 {
@@ -80,7 +76,8 @@ public:
   // Set the description
   vtkSetStringMacro(Description);
 protected:
-  vtkSetObjectMacro(ObjectFactory, vtkObjectFactory);
+  virtual void SetObjectFactory(vtkObjectFactory*);
+
 private:
   vtkOverrideInformation();
   ~vtkOverrideInformation();
