@@ -35,18 +35,21 @@
 // bright as the total of all other lights in the scene to provide good
 // modeling of object features.
 // 
-// The other two lights in the kit, the fill light and headlight, are
-// weaker sources that provide extra illumination to fill in the spots
-// that the key light misses.  The fill light is usually positioned
-// across from or opposite from the key light (though still on the
-// same side of the object as the camera) in order to simulate diffuse
-// reflections from other objects in the scene.  The headlight, always
-// located at the position of the camera, reduces the contrast between
-// areas lit by the key and fill light. To enforce the relationship
-// between the three lights, the intensity of the fill and headlights
-// are set as a ratio to the key light brightness.  Thus, the brightness
-// of all the lights in the scene can be changed by changing the key light 
-// intensity.
+// The other lights in the kit (the fill light, headlight, and a pair of
+// back lights) are weaker sources that provide extra
+// illumination to fill in the spots that the key light misses.  The
+// fill light is usually positioned across from or opposite from the
+// key light (though still on the same side of the object as the
+// camera) in order to simulate diffuse reflections from other objects
+// in the scene.  The headlight, always located at the position of the
+// camera, reduces the contrast between areas lit by the key and fill
+// light. The two back lights, one on the left of the object as seen
+// from the observer and one on the right, fill on the high-contrast
+// areas behind the object.  To enforce the relationship between the
+// different lights, the intensity of the fill, back and headlights
+// are set as a ratio to the key light brightness.  Thus, the
+// brightness of all the lights in the scene can be changed by
+// changing the key light intensity.
 //
 // All lights are directional lights (infinitely far away with no
 // falloff).  Lights move with the camera.
@@ -117,7 +120,7 @@ public:
   // may correspond to indirect illumination from the key light, bounced
   // off a wall, floor, or other object.  The fill light should never
   // be brighter than the key light:  a good range for the key-to-fill
-  // ratio is between 3 and 10.
+  // ratio is between 2 and 10.
   vtkSetClampMacro(KeyToFillRatio, float, 0.5, VTK_FLOAT_MAX);
   vtkGetMacro(KeyToFillRatio, float);
 
@@ -130,9 +133,18 @@ public:
   // As such, a headlight tends to reduce the contrast of a scene.  It
   // can be used to fill in "shadows" of the object missed by the key
   // and fill lights.  The headlight should always be significantly
-  // dimmer than the key light:  ratios of 3 to 15 are typical.
+  // dimmer than the key light:  ratios of 2 to 15 are typical.
   vtkSetClampMacro(KeyToHeadRatio, float, 0.5, VTK_FLOAT_MAX);
   vtkGetMacro(KeyToHeadRatio, float);
+
+  // Description: 
+  // Set/Get the key-to-back light ratio.  This ratio controls
+  // how bright the back lights are compared to the key light: larger
+  // values correspond to dimmer back lights.  The back lights fill
+  // in the remaining high-contrast regions behind the object.
+  // Values between 2 and 10 are good.
+  vtkSetClampMacro(KeyToBackRatio, float, 0.5, VTK_FLOAT_MAX);
+  vtkGetMacro(KeyToBackRatio, float);
 
   // Description: 
   // Set the warmth of each the lights.  Warmth is a parameter that
@@ -154,11 +166,15 @@ public:
   vtkSetMacro(HeadlightWarmth, float);
   vtkGetMacro(HeadlightWarmth, float);
 
+  vtkSetMacro(BackLightWarmth, float);
+  vtkGetMacro(BackLightWarmth, float);
+
   // Description:
   // Returns the floating-point RGB values of each of the light's color.
   vtkGetVectorMacro(KeyLightColor,  float, 3);
   vtkGetVectorMacro(FillLightColor, float, 3);
   vtkGetVectorMacro(HeadlightColor, float, 3);
+  vtkGetVectorMacro(BackLightColor, float, 3);
 
   // Description:
   // If MaintainLuminance is set, the LightKit will attempt to maintain
@@ -169,13 +185,17 @@ public:
   vtkSetMacro(MaintainLuminance, int);
 
   // Description: 
-  // Get/Set the position of the key light and fill
-  // light, using angular methods.  Elevation corresponds to latitude,
+  // Get/Set the position of the key, fill, and back lights
+  // using angular methods.  Elevation corresponds to latitude,
   // azimuth to longitude.  It is recommended that the key light
   // always be on the viewer's side of the object and above the
   // object, while the fill light generally lights the part of the object
   // not lit by the fill light.  The headlight, which is always located
   // at the viewer, can then be used to reduce the contrast in the image.
+  // There are a pair of back lights.  They are located at the same
+  // elevation and at opposing azimuths (ie, one to the left, and one to
+  // the right).  They are generally set at the equator (elevation = 0),
+  // and at approximately 120 degrees (lighting from each side and behind).
   void SetKeyLightAngle(float elevation, float azimuth);
   void SetKeyLightAngle(float angle[2]) { 
     this->SetKeyLightAngle(angle[0], angle[1]); };
@@ -210,6 +230,23 @@ public:
   float GetFillLightAzimuth() {
     float ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
 
+  void SetBackLightAngle(float elevation, float azimuth);
+  void SetBackLightAngle(float angle[2]) { 
+    this->SetBackLightAngle(angle[0], angle[1]); };
+
+  void SetBackLightElevation(float x) {
+    this->SetBackLightAngle(x, this->BackLightAngle[1]); };
+
+  void SetBackLightAzimuth(float x) {
+    this->SetBackLightAngle(this->BackLightAngle[0], x); };
+
+  vtkGetVectorMacro(BackLightAngle, float, 2);
+  float GetBackLightElevation() {
+    float ang[2]; this->GetBackLightAngle(ang); return ang[0]; };
+
+  float GetBackLightAzimuth() {
+    float ang[2]; this->GetBackLightAngle(ang); return ang[1]; };
+
   // Description:
   // Add lights to, or remove lights from, a renderer.  
   // Lights may be added to more than one renderer, if desired.
@@ -234,6 +271,7 @@ protected:
   float KeyLightIntensity;
   float KeyToFillRatio;
   float KeyToHeadRatio;
+  float KeyToBackRatio;
   
   vtkLight *KeyLight;
   float KeyLightWarmth;
@@ -244,6 +282,14 @@ protected:
   float FillLightWarmth;
   float FillLightAngle[2];
   float FillLightColor[3];
+
+  float BackLightWarmth;
+  float BackLightColor[3];
+
+  vtkLight *BackLight0;
+  vtkLight *BackLight1;
+
+  float BackLightAngle[2];
 
   vtkLight *Headlight;
   float HeadlightWarmth;
