@@ -41,8 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMarchingCubes.hh"
 #include "vtkMarchingCubesCases.hh"
 #include "vtkStructuredPoints.hh"
-#include "vtkShortScalars.hh"
 #include "vtkMath.hh"
+#include "vtkUnsignedCharScalars.hh"
+#include "vtkShortScalars.hh"
+#include "vtkFloatScalars.hh"
+#include "vtkIntScalars.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -101,8 +104,10 @@ void vtkMarchingCubes::GenerateValues(int numContours, float r1, float r2)
   this->GenerateValues(numContours,rng);
 }
 
-void ComputePointGradient(int i, int j, int k, short *s, int dims[3], 
-                      int sliceSize, float aspectRatio[3], float n[3])
+
+template <class T>
+void ComputePointGradient(int i, int j, int k, T *s, int dims[3], 
+                          int sliceSize, float aspectRatio[3], float n[3])
 {
   float sp, sm;
 
@@ -165,150 +170,125 @@ void ComputePointGradient(int i, int j, int k, short *s, int dims[3],
     sm = s[i + j*dims[0] + (k-1)*sliceSize];
     n[2] = 0.5 * (sp - sm) / aspectRatio[2];
     }
-
 }
 
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
-void vtkMarchingCubes::Execute()
+template <class T>
+void ContourVolume(T *scalars, int dims[3], float origin[3], float aspectRatio[3],
+                   vtkScalars *newScalars, vtkFloatVectors *newGradients,
+                   vtkFloatNormals *newNormals, vtkFloatPoints *newPts,
+                   vtkCellArray *newPolys, float *values, int numValues)
 {
+  T s[8], value;
   static vtkMath math;
-  vtkFloatPoints *newPts;
-  vtkCellArray *newPolys;
-  vtkShortScalars *newScalars;
-  vtkFloatNormals *newNormals;
-  vtkFloatVectors *newGradients;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  vtkPointData *pd=input->GetPointData();
-  vtkScalars *inScalars=pd->GetScalars();
-  short *scalars, s[8], value;
-  int dims[3];
-  float aspectRatio[3], origin[3];
   int i, j, k, sliceSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, jj, index, *vert;
   int ptIds[3];
-  float t, *x1, *x2, x[3], *n1, *n2, n[3];
+  float t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;
   float pts[8][3], gradients[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
-  vtkPolyData *output = this->GetOutput();
-  
-  vtkDebugMacro(<< "Executing marching cubes");
 //
-// Initialize and check input
+// Get min/max contour values
 //
-  if ( inScalars == NULL )
+  for ( min=max=values[0], i=1; i < numValues; i++)
     {
-    vtkErrorMacro(<<"Scalars must be defined for contouring");
-    return;
+    if ( values[i] < min ) min = values[i];
+    if ( values[i] > max ) max = values[i];
     }
-
-  if ( input->GetDataDimension() != 3 )
-    {
-    vtkErrorMacro(<<"Cannot contour data of dimension != 3");
-    return;
-    }
-  input->GetDimensions(dims);
-  input->GetOrigin(origin);
-  input->GetAspectRatio(aspectRatio);
-
-  if ( strcmp("short",inScalars->GetDataType()) )
-    {
-    vtkErrorMacro(<<"Scalars must be short ints...");
-    return;
-    }
-  scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
-
-  newPts = new vtkFloatPoints(10000,50000);
-  newScalars = new vtkShortScalars(10000,50000);
-  newNormals = new vtkFloatNormals(10000,50000);
-  newGradients = new vtkFloatVectors(10000,50000);
-  newPolys = new vtkCellArray();
-  newPolys->Allocate(newPolys->EstimateSize(25000,3));
 //
 // Traverse all voxel cells, generating triangles and point gradients
 // using marching cubes algorithm.
 //  
   sliceSize = dims[0] * dims[1];
-  for (contNum=0; contNum < this->NumberOfContours; contNum++)
+  for ( k=0; k < (dims[2]-1); k++)
     {
-    value = (short) this->Values[contNum];
-    for ( k=0; k < (dims[2]-1); k++)
+    kOffset = k*sliceSize;
+    pts[0][2] = origin[2] + k*aspectRatio[2];
+    zp = origin[2] + (k+1)*aspectRatio[2];
+    for ( j=0; j < (dims[1]-1); j++)
       {
-      kOffset = k*sliceSize;
-      pts[0][2] = origin[2] + k*aspectRatio[2];
-      zp = origin[2] + (k+1)*aspectRatio[2];
-      for ( j=0; j < (dims[1]-1); j++)
+      jOffset = j*dims[0];
+      pts[0][1] = origin[1] + j*aspectRatio[1];
+      yp = origin[1] + (j+1)*aspectRatio[1];
+      for ( i=0; i < (dims[0]-1); i++)
         {
-        jOffset = j*dims[0];
-        pts[0][1] = origin[1] + j*aspectRatio[1];
-        yp = origin[1] + (j+1)*aspectRatio[1];
-        for ( i=0; i < (dims[0]-1); i++)
-          {
-          //get scalar values
-          idx = i + jOffset + kOffset;
-          s[0] = scalars[idx];
-          s[1] = scalars[idx+1];
-          s[2] = scalars[idx+1 + dims[0]];
-          s[3] = scalars[idx + dims[0]];
-          s[4] = scalars[idx + sliceSize];
-          s[5] = scalars[idx+1 + sliceSize];
-          s[6] = scalars[idx+1 + dims[0] + sliceSize];
-          s[7] = scalars[idx + dims[0] + sliceSize];
+        //get scalar values
+        idx = i + jOffset + kOffset;
+        s[0] = scalars[idx];
+        s[1] = scalars[idx+1];
+        s[2] = scalars[idx+1 + dims[0]];
+        s[3] = scalars[idx + dims[0]];
+        s[4] = scalars[idx + sliceSize];
+        s[5] = scalars[idx+1 + sliceSize];
+        s[6] = scalars[idx+1 + dims[0] + sliceSize];
+        s[7] = scalars[idx + dims[0] + sliceSize];
 
+        if ( (s[0] < min && s[1] < min && s[2] < min && s[3] < min &&
+        s[4] < min && s[5] < min && s[6] < min && s[7] < min) ||
+        (s[0] > max && s[1] > max && s[2] > max && s[3] > max &&
+        s[4] > max && s[5] > max && s[6] > max && s[7] > max) )
+          {
+          continue; // no contours possible
+          }
+
+        //create voxel points
+        pts[0][0] = origin[0] + i*aspectRatio[0];
+        xp = origin[0] + (i+1)*aspectRatio[0];
+
+        pts[1][0] = xp;
+        pts[1][1] = pts[0][1];
+        pts[1][2] = pts[0][2];
+
+        pts[2][0] = xp;
+        pts[2][1] = yp;
+        pts[2][2] = pts[0][2];
+
+        pts[3][0] = pts[0][0];
+        pts[3][1] = yp;
+        pts[3][2] = pts[0][2];
+
+        pts[4][0] = pts[0][0];
+        pts[4][1] = pts[0][1];
+        pts[4][2] = zp;
+
+        pts[5][0] = xp;
+        pts[5][1] = pts[0][1];
+        pts[5][2] = zp;
+
+        pts[6][0] = xp;
+        pts[6][1] = yp;
+        pts[6][2] = zp;
+
+        pts[7][0] = pts[0][0];
+        pts[7][1] = yp;
+        pts[7][2] = zp;
+
+        //create gradients
+        ComputePointGradient(i,j,k, scalars, dims, sliceSize, aspectRatio, gradients[0]);
+        ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, aspectRatio, gradients[1]);
+        ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[2]);
+        ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[3]);
+        ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[4]);
+        ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[5]);
+        ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[6]);
+        ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[7]);
+
+        for (contNum=0; contNum < numValues; contNum++)
+          {
+          value = (T) values[contNum];
           // Build the case table
           for ( ii=0, index = 0; ii < 8; ii++)
               if ( s[ii] >= value )
                   index |= CASE_MASK[ii];
 
           if ( index == 0 || index == 255 ) continue; //no surface
-
-          //create voxel points
-          pts[0][0] = origin[0] + i*aspectRatio[0];
-          xp = origin[0] + (i+1)*aspectRatio[0];
-
-          pts[1][0] = xp;
-          pts[1][1] = pts[0][1];
-          pts[1][2] = pts[0][2];
-
-          pts[2][0] = xp;
-          pts[2][1] = yp;
-          pts[2][2] = pts[0][2];
-
-          pts[3][0] = pts[0][0];
-          pts[3][1] = yp;
-          pts[3][2] = pts[0][2];
-
-          pts[4][0] = pts[0][0];
-          pts[4][1] = pts[0][1];
-          pts[4][2] = zp;
-
-          pts[5][0] = xp;
-          pts[5][1] = pts[0][1];
-          pts[5][2] = zp;
-
-          pts[6][0] = xp;
-          pts[6][1] = yp;
-          pts[6][2] = zp;
-
-          pts[7][0] = pts[0][0];
-          pts[7][1] = yp;
-          pts[7][2] = zp;
-
-          //create gradients
-          ComputePointGradient(i,j,k, scalars, dims, sliceSize, aspectRatio, gradients[0]);
-          ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, aspectRatio, gradients[1]);
-          ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[2]);
-          ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[3]);
-          ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[4]);
-          ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[5]);
-          ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[6]);
-          ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[7]);
 
           triCase = triCases + index;
           edge = triCase->edges;
@@ -331,16 +311,107 @@ void vtkMarchingCubes::Execute()
               ptIds[ii] = newPts->InsertNextPoint(x);
               newScalars->InsertScalar(ptIds[ii],value);
               newGradients->InsertVector(ptIds[ii],n);
-	      math.Normalize(n);
+              math.Normalize(n);
               newNormals->InsertNormal(ptIds[ii],n);
               }
             newPolys->InsertNextCell(3,ptIds);
             }//for each triangle
-          }//for i
-        }//for j
-      }//for k
-    }//for all contours
+          }//for all contours
+        }//for i
+      }//for j
+    }//for k
+}
 
+//
+// Contouring filter specialized for volumes and "short int" data values.  
+//
+void vtkMarchingCubes::Execute()
+{
+  vtkFloatPoints *newPts;
+  vtkCellArray *newPolys;
+  vtkScalars *newScalars;
+  vtkFloatNormals *newNormals;
+  vtkFloatVectors *newGradients;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkPointData *pd=input->GetPointData();
+  vtkScalars *inScalars=pd->GetScalars();
+  char *type;
+  int dims[3];
+  float aspectRatio[3], origin[3];
+  vtkPolyData *output = this->GetOutput();
+  
+  vtkDebugMacro(<< "Executing marching cubes");
+//
+// Initialize and check input
+//
+  if ( inScalars == NULL )
+    {
+    vtkErrorMacro(<<"Scalars must be defined for contouring");
+    return;
+    }
+
+  if ( input->GetDataDimension() != 3 )
+    {
+    vtkErrorMacro(<<"Cannot contour data of dimension != 3");
+    return;
+    }
+  input->GetDimensions(dims);
+  input->GetOrigin(origin);
+  input->GetAspectRatio(aspectRatio);
+
+  newPts = new vtkFloatPoints(10000,50000);
+  newNormals = new vtkFloatNormals(10000,50000);
+  newGradients = new vtkFloatVectors(10000,50000);
+  newPolys = new vtkCellArray(150000,50000);
+
+  type = inScalars->GetDataType();
+  if ( !strcmp(type,"unsigned char") && 
+  inScalars->GetNumberOfValuesPerScalar() == 1 )
+    {
+    unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPtr(0);
+    newScalars = (vtkUnsignedCharScalars *) new vtkUnsignedCharScalars(10000,50000);
+    ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
+                  newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
+    }
+
+  else if ( !strcmp(type,"short") )
+    {
+    short *scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
+    newScalars = (vtkShortScalars *) new vtkShortScalars(10000,50000);
+    ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
+                  newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
+    }
+  
+  else if ( !strcmp(type,"float") )
+    {
+    float *scalars = ((vtkFloatScalars *)inScalars)->GetPtr(0);
+    newScalars = (vtkFloatScalars *) new vtkFloatScalars(10000,50000);
+    ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
+                  newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
+    }
+
+  else if ( !strcmp(type,"int") )
+    {
+    int *scalars = ((vtkIntScalars *)inScalars)->GetPtr(0);
+    newScalars = (vtkIntScalars *) new vtkFloatScalars(10000,50000);
+    ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
+                  newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
+    }
+
+  else //use general method - temporarily copies image
+    {
+    int dataSize = dims[0] * dims[1] * dims[2];
+    vtkFloatScalars *image = new vtkFloatScalars(dataSize);
+    inScalars->GetScalars(0,dataSize,*image);
+    newScalars = (vtkFloatScalars *) new vtkFloatScalars(10000,50000);
+
+    float *scalars = image->GetPtr(0);
+    ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
+                  newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
+
+    delete image;
+    }
+  
   vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
                << newPolys->GetNumberOfCells() << " triangles");

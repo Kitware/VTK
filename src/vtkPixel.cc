@@ -184,31 +184,9 @@ int vtkPixel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 //
 // Marching squares
 //
+#include "vtkMarchingSquaresCases.hh"
+
 static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
-
-typedef int EDGE_LIST;
-typedef struct {
-       EDGE_LIST edges[5];
-} LINE_CASES;
-
-static LINE_CASES lineCases[] = { 
-  {{-1, -1, -1, -1, -1}},
-  {{0, 3, -1, -1, -1}},
-  {{1, 0, -1, -1, -1}},
-  {{1, 3, -1, -1, -1}},
-  {{2, 1, -1, -1, -1}},
-  {{0, 3, 2, 1, -1}},
-  {{2, 0, -1, -1, -1}},
-  {{2, 3, -1, -1, -1}},
-  {{3, 2, -1, -1, -1}},
-  {{0, 2, -1, -1, -1}},
-  {{1, 0, 3, 2, -1}},
-  {{1, 2, -1, -1, -1}},
-  {{3, 1, -1, -1, -1}},
-  {{0, 1, -1, -1, -1}},
-  {{3, 0, -1, -1, -1}},
-  {{-1, -1, -1, -1, -1}}
-};
 
 void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
 		       vtkFloatPoints *points, 

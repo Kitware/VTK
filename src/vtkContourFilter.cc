@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatScalars.hh"
 #include "vtkCell.hh"
 #include "vtkMergePoints.hh"
+#include "vtkMarchingSquares.hh"
+#include "vtkMarchingCubes.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -125,6 +127,19 @@ void vtkContourFilter::Execute()
     vtkErrorMacro(<<"No scalar data to contour");
     return;
     }
+
+  // If structured points, use more efficient algorithms
+  if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
+    {
+    int dim = this->Input->GetCell(0)->GetCellDimension();
+
+    if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
+      {
+      this->StructuredPointsContour(dim);
+      return;
+      }
+    }
+
   range = inScalars->GetRange();
 //
 // Create objects to hold output of contour operation
@@ -178,6 +193,47 @@ void vtkContourFilter::Execute()
 
   output->Squeeze();
 }
+
+//
+// Special method handles structured points
+//
+void vtkContourFilter::StructuredPointsContour(int dim)
+{
+  vtkPolyData *output;
+  vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
+  int i;
+
+  if ( dim == 2 ) //marching squares
+    {
+    static vtkMarchingSquares msquares;
+
+    msquares.SetInput((vtkStructuredPoints *)this->Input);
+    msquares.SetDebug(this->Debug);
+    for (i=0; i < this->NumberOfContours; i++)
+      msquares.SetValue(i,this->Values[i]);
+         
+    msquares.Update();
+    output = msquares.GetOutput();
+    }
+
+  else //marching cubes
+    {
+    static vtkMarchingCubes mcubes;
+
+    mcubes.SetInput((vtkStructuredPoints *)this->Input);
+    mcubes.SetDebug(this->Debug);
+    for (i=0; i < this->NumberOfContours; i++)
+      mcubes.SetValue(i,this->Values[i]);
+
+    mcubes.Update();
+    output = mcubes.GetOutput();
+    }
+
+  thisOutput->CopyStructure(output);
+  *thisOutput->GetPointData() = *output->GetPointData();
+  output->Initialize();
+}
+
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

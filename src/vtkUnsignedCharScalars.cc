@@ -60,3 +60,15 @@ void vtkUnsignedCharScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
     fs.InsertScalar(i,(float)this->S.GetValue(ptId.GetId(i)));
     }
 }
+
+void vtkUnsignedCharScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
+{
+  float *fp=fs.GetPtr(0);
+  unsigned char *cp=this->S.GetPtr(p1);
+  
+  for (int id=p1; id <= p2; id++)
+    {
+    *fp++ = (float)*cp++;
+    }
+}
+

@@ -60,3 +60,9 @@ void vtkFloatScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
     fs.InsertScalar(i,this->S.GetValue(ptId.GetId(i)));
     }
 }
+
+void vtkFloatScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
+{
+  memcpy(fs.GetPtr(0), this->S.GetPtr(p1), sizeof(float)*(p2-p1+1));
+}
+

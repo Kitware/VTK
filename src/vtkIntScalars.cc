@@ -60,3 +60,14 @@ void vtkIntScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
     fs.InsertScalar(i,(float)this->S.GetValue(ptId.GetId(i)));
     }
 }
+
+void vtkIntScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
+{
+  float *fp=fs.GetPtr(0);
+  int *ip=this->S.GetPtr(p1);
+  
+  for (int id=p1; id <= p2; id++)
+    {
+    *fp++ = (float)*ip++;
+    }
+}
