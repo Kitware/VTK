@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "RefCount.hh"
 #include "CellType.hh"
 
-struct vlCell_s {
+struct _vlCell_s {
     unsigned char type; //from CellTypes.hh
     int loc; //location in associated CellArray object
 };
@@ -39,7 +39,7 @@ public:
   ~vlCellList();
   char *GetClassName() {return "vlCellList";};
 
-  vlCell_s &GetCell(const int id);
+  _vlCell_s &GetCell(const int id);
   unsigned char GetCellType(const int id);
   int GetCellLocation(const int id);
   void InsertCell(const int id, const unsigned char type, const int loc);
@@ -51,16 +51,16 @@ public:
   void Reset();
 
 private:
-  vlCell_s *Array;   // pointer to data
+  _vlCell_s *Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
-  vlCell_s *Resize(const int sz);  // function to resize data
+  _vlCell_s *Resize(const int sz);  // function to resize data
 };
 
 // Description:
 // Return a reference to a cell list structure.
-inline vlCell_s &vlCellList::GetCell(const int id) 
+inline _vlCell_s &vlCellList::GetCell(const int id) 
 {
   return this->Array[id];
 }
