@@ -25,4 +25,6 @@
 #define VTK_HP_PTHREADS
 #endif
 
-
+#ifdef __CYGWIN__
+#define _WIN32
+#endif

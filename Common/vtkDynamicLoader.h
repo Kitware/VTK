@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __vtkDynamicLoader_h
 #define __vtkDynamicLoader_h
+#include "vtkConfigure.h"
 
 //BTX
 // Ugly stuff for library handles
