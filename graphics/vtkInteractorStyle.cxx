@@ -615,13 +615,13 @@ void  vtkInteractorStyle::EndTimer()
 // Intercept any keypresses which are style independent here and do the rest in
 // subclasses - none really required yet!
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnKeyDown(int ctrl, int shift, char keycode, int vtkNotUsed(repeatcount))
+void vtkInteractorStyle::OnKeyDown(int ctrl, int shift, char vtkNotUsed(keycode), int vtkNotUsed(repeatcount))
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnKeyUp  (int ctrl, int shift, char keycode, int vtkNotUsed(repeatcount)) 
+void vtkInteractorStyle::OnKeyUp  (int ctrl, int shift, char vtkNotUsed(keycode), int vtkNotUsed(repeatcount)) 
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
