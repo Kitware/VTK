@@ -69,10 +69,10 @@ int SystemInformation(int,char *[])
   vtkDebugLeaks::PromptUserOff();
   const char* files[] =
     {
-      VTK_BINARY_DIR "/CMakeCache.txt", 
+      CMAKE_BINARY_DIR "/CMakeCache.txt", 
       VTK_BINARY_DIR "/vtkConfigure.h",
       VTK_BINARY_DIR "/vtkToolkits.h",
-      VTK_BINARY_DIR "/CMakeError.log",
+      CMAKE_BINARY_DIR "/CMakeError.log",
       VTK_BINARY_DIR "/CMake/CMakeCache.txt", 
       VTK_BINARY_DIR "/VTKBuildSettings.cmake",
       VTK_BINARY_DIR "/VTKLibraryDepends.cmake",
