@@ -13,14 +13,14 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkPNMReader image
-  image SetFileName "../../../vtkdata/vtks.pgm"
-  image SetDataOrigin -.5 [expr -(160.0/320.00) / 2.0] 0
-  image SetDataSpacing [expr 1.0 / 320.00] [ expr 1.0 / 320.00] 1
-  image Update
+vtkPNMReader imageIn
+  imageIn SetFileName "../../../vtkdata/vtks.pgm"
+  imageIn SetDataOrigin -.5 [expr -(160.0/320.00) / 2.0] 0
+  imageIn SetDataSpacing [expr 1.0 / 320.00] [ expr 1.0 / 320.00] 1
+  imageIn Update
 
 vtkImageGaussianSmooth gaussian
-    gaussian SetInput [image GetOutput]
+    gaussian SetInput [imageIn GetOutput]
     eval gaussian SetStandardDeviations 5 5
     gaussian SetDimensionality 2
     gaussian SetRadiusFactors 2 2

@@ -13,14 +13,14 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkPNMReader image
-  image SetFileName "../../../vtkdata/B.pgm"
+vtkPNMReader imageIn
+  imageIn SetFileName "../../../vtkdata/B.pgm"
 
 vtkImageGaussianSmooth gaussian
     eval gaussian SetStandardDeviations 2 2
     gaussian SetDimensionality 2
     gaussian SetRadiusFactors 1 1
-    gaussian SetInput [image GetOutput]
+    gaussian SetInput [imageIn GetOutput]
 
 vtkImageToStructuredPoints toStructuredPoints
     toStructuredPoints SetInput [gaussian GetOutput]

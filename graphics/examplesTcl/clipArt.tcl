@@ -11,10 +11,10 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkBMPReader image
-  image SetFileName "../../../vtkdata/beach.bmp"
-  image ReleaseDataFlagOff
-  image Update
+vtkBMPReader imageIn
+  imageIn SetFileName "../../../vtkdata/beach.bmp"
+  imageIn ReleaseDataFlagOff
+  imageIn Update
 
 proc PowerOfTwo {amt} {
   set pow 0
@@ -26,17 +26,17 @@ proc PowerOfTwo {amt} {
   }
 }
 
-set orgX [expr [lindex [[image GetOutput] GetWholeExtent] 1] - [lindex [[image GetOutput] GetWholeExtent] 0] + 1]
-set orgY [expr [lindex [[image GetOutput] GetWholeExtent] 3] - [lindex [[image GetOutput] GetWholeExtent] 2] + 1]
+set orgX [expr [lindex [[imageIn GetOutput] GetWholeExtent] 1] - [lindex [[imageIn GetOutput] GetWholeExtent] 0] + 1]
+set orgY [expr [lindex [[imageIn GetOutput] GetWholeExtent] 3] - [lindex [[imageIn GetOutput] GetWholeExtent] 2] + 1]
 set padX [PowerOfTwo $orgX]
 set padY [PowerOfTwo $orgY]
 
 vtkImageConstantPad imagePowerOf2
-  imagePowerOf2 SetInput [image GetOutput]
+  imagePowerOf2 SetInput [imageIn GetOutput]
   imagePowerOf2 SetOutputWholeExtent 0 [expr $padX - 1] 0 [expr $padY - 1] 0 0
 
 vtkImageRGBToHSV toHSV
-  toHSV SetInput [image GetOutput]
+  toHSV SetInput [imageIn GetOutput]
   toHSV ReleaseDataFlagOff
 
 vtkImageExtractComponents extractImage
