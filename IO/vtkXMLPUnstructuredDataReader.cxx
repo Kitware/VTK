@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.8");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -329,6 +329,10 @@ void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray,
                                                        vtkDataArray* outArray)
 {
   if(!this->PieceReaders[this->Piece])
+    {
+    return;
+    }
+  if (inArray == NULL || outArray == NULL)
     {
     return;
     }
