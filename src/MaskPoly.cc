@@ -34,24 +34,25 @@ void vlMaskPolyData::Execute()
   int id, interval;
   vlPointData *pd;
   int npts, *pts;
+  vlPolyData *input=(vlPolyData *)this->Input;
 //
 // Check input / pass data through
 //
   this->Initialize();
 
-  inVerts = this->Input->GetVerts();
+  inVerts = input->GetVerts();
   numVerts = inVerts->GetNumberOfCells();
   numNewVerts = numVerts / this->OnRatio;
 
-  inLines = this->Input->GetLines();
+  inLines = input->GetLines();
   numLines = inLines->GetNumberOfCells();
   numNewLines = numLines / this->OnRatio;
 
-  inPolys = this->Input->GetPolys();
+  inPolys = input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
   numNewPolys = numPolys / this->OnRatio;
 
-  inStrips = this->Input->GetStrips();
+  inStrips = input->GetStrips();
   numStrips = inStrips->GetNumberOfCells();
   numNewStrips = numStrips / this->OnRatio;
 
@@ -114,21 +115,14 @@ void vlMaskPolyData::Execute()
 // Update ourselves
 //
   // pass through points and point data
-  this->SetPoints(this->Input->GetPoints());
-  pd = this->Input->GetPointData();
+  this->SetPoints(input->GetPoints());
+  pd = input->GetPointData();
   this->PointData = *pd;
-
-  newVerts->Squeeze();
   this->SetVerts(newVerts);
-
-  newLines->Squeeze();
   this->SetLines(newLines);
-
-  newPolys->Squeeze();
   this->SetPolys(newPolys);
-
-  newStrips->Squeeze();
   this->SetStrips(newStrips);
+  this->Squeeze();
 }
 
 void vlMaskPolyData::PrintSelf(ostream& os, vlIndent indent)

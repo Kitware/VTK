@@ -13,23 +13,23 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredOutlineFilter - create wireframe outline for structured data
+// .NAME vlStructuredGridOutlineFilter - create wireframe outline for structured grid
 // .SECTION Description
-// vlStructuredOutlineFilter is a filter that generates a wireframe outline of
-// structured (i.e., topologically regular) data. Structured data is 
+// vlStructuredGridOutlineFilter is a filter that generates a wireframe 
+// outline of a structured grid (vlStructuredGrid). Structured data is 
 // topologically a cube, so the outline will have 12 "edges".
 
-#ifndef __vlStructuredOutlineFilter_h
-#define __vlStructuredOutlineFilter_h
+#ifndef __vlStructuredGridOutlineFilter_h
+#define __vlStructuredGridOutlineFilter_h
 
-#include "SD2PolyF.hh"
+#include "SG2PolyF.hh"
 
-class vlStructuredOutlineFilter : public vlStructuredDataToPolyFilter
+class vlStructuredGridOutlineFilter : public vlStructuredGridToPolyFilter
 {
 public:
-  vlStructuredOutlineFilter() {};
-  ~vlStructuredOutlineFilter() {};
-  char *GetClassName() {return "vlStructuredOutlineFilter";};
+  vlStructuredGridOutlineFilter() {};
+  ~vlStructuredGridOutlineFilter() {};
+  char *GetClassName() {return "vlStructuredGridOutlineFilter";};
 
 protected:
   void Execute();

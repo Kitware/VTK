@@ -28,9 +28,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlDataSetToUnstructuredGridFilter : public vlUnstructuredGrid, public vlDataSetFilter
 {
 public:
-  void Update();
   char *GetClassName() {return "vlDataSetToUnstructuredGridFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
+  void Update();
 };
 
 #endif

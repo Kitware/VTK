@@ -15,20 +15,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "P2PF.hh"
 
+void vlPolyToPolyFilter::Modified()
+{
+  this->vlPolyData::Modified();
+  this->vlPolyFilter::_Modified();
+}
+
+unsigned long int vlPolyToPolyFilter::GetMTime()
+{
+  unsigned long dtime = this->vlPolyData::GetMTime();
+  unsigned long ftime = this->vlPolyFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlPolyToPolyFilter::Update()
 {
-  vlPolyFilter::Update();
+  this->UpdateFilter();
 }
 
 void vlPolyToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPolyToPolyFilter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlPolyData::PrintSelf(os,indent);
-    vlPolyFilter::PrintSelf(os,indent);
-    
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  vlPolyData::PrintSelf(os,indent);
+  vlPolyFilter::_PrintSelf(os,indent);
 }
+
+

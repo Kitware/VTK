@@ -32,8 +32,8 @@ class vlPointSetToPointSetFilter : public vlPointSet, public vlPointSetFilter
 public:
   vlPointSetToPointSetFilter();
   ~vlPointSetToPointSetFilter();
-  char *GetClassName() {return "vlPointSetToPointSetFilter";};
   char *GetDataType() {return this->PointSet->GetDataType();};
+  char *GetClassName() {return "vlPointSetToPointSetFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -48,6 +48,9 @@ public:
   void Initialize();
 
   void ComputeBounds();
+
+  void Modified();
+  unsigned long int GetMTime();
   void Update();
 
 protected:

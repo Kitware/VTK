@@ -13,9 +13,9 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "StrOutlF.hh"
+#include "SGOutlF.hh"
 
-void vlStructuredOutlineFilter::Execute()
+void vlStructuredGridOutlineFilter::Execute()
 {
   vlFloatPoints *newPts;
   vlCellArray *newLines;

@@ -15,20 +15,26 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "DS2PolyF.hh"
 
+void vlDataSetToPolyFilter::Modified()
+{
+  this->vlPolyData::Modified();
+  this->vlDataSetFilter::_Modified();
+}
+
+unsigned long int vlDataSetToPolyFilter::GetMTime()
+{
+  unsigned long dtime = this->vlPolyData::GetMTime();
+  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlDataSetToPolyFilter::Update()
 {
-  vlDataSetFilter::Update();
+  this->UpdateFilter();
 }
 
 void vlDataSetToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDataSetToPolyFilter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlPolyData::PrintSelf(os,indent);
-    vlDataSetFilter::PrintSelf(os,indent);
-    
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  vlPolyData::PrintSelf(os,indent);
+  vlDataSetFilter::_PrintSelf(os,indent);
 }

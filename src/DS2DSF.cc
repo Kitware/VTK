@@ -27,11 +27,6 @@ vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
   delete this->DataSet;
 }
 
-void vlDataSetToDataSetFilter::Update()
-{
-  vlDataSetFilter::Update();
-}
-
 // Description:
 // Initialize method is fancy: creates an internal dataset that holds
 // geometry representation. All methods directed at geometry are 
@@ -56,25 +51,36 @@ void vlDataSetToDataSetFilter::ComputeBounds()
   for (int i=0; i<6; i++) this->Bounds[i] = bounds[i];
 }
 
+void vlDataSetToDataSetFilter::Modified()
+{
+  this->vlDataSet::Modified();
+  this->vlDataSetFilter::_Modified();
+}
+
+unsigned long int vlDataSetToDataSetFilter::GetMTime()
+{
+  unsigned long dtime = this->vlDataSet::GetMTime();
+  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
+void vlDataSetToDataSetFilter::Update()
+{
+  this->UpdateFilter();
+}
+
 void vlDataSetToDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDataSetToDataSetFilter::GetClassName()))
+  vlDataSet::PrintSelf(os,indent);
+  vlDataSetFilter::_PrintSelf(os,indent);
+
+  if ( this->DataSet )
     {
-    this->PrintWatchOn(); // watch for multiple inheritance
-
-    vlDataSet::PrintSelf(os,indent);
-    vlDataSetFilter::PrintSelf(os,indent);
-
-    if ( this->DataSet )
-      {
-      os << indent << "DataSet: (" << this->DataSet << ")\n";
-      os << indent << "DataSet type: " << this->DataSet->GetClassName() << "\n";
-      }
-    else
-      {
-      os << indent << "DataSet: (none)\n";
-      }
-
-    this->PrintWatchOff(); // stop worrying about it now
-   }
+    os << indent << "DataSet: (" << this->DataSet << ")\n";
+    os << indent << "DataSet type: " << this->DataSet->GetClassName() << "\n";
+    }
+  else
+    {
+    os << indent << "DataSet: (none)\n";
+    }
 }

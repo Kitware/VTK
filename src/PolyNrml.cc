@@ -61,12 +61,13 @@ void vlPolyNormals::Execute()
   vlCellArray *newPolys;
   int ptId, oldId;
   vlIdList cellIds(MAX_CELL_SIZE);
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   vlDebugMacro(<<"Generating surface normals");
   this->Initialize();
 
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 || 
-  (numPolys=this->Input->GetNumberOfPolys()) < 1 )
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
+  (numPolys=input->GetNumberOfPolys()) < 1 )
     {
     vlErrorMacro(<<"No data to generate normals for!");
     return;
@@ -76,15 +77,15 @@ void vlPolyNormals::Execute()
 // non-writable mesh used to perform topological queries.  The other 
 // is used to write into and modify the connectivity of the mesh.
 //
-  inPts = this->Input->GetPoints();
-  inPolys = this->Input->GetPolys();
+  inPts = input->GetPoints();
+  inPolys = input->GetPolys();
 
   OldMesh = new vlPolyData;
   OldMesh->SetPoints(inPts);
   OldMesh->SetPolys(inPolys);
   OldMesh->BuildLinks();
   
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
     
   NewMesh = new vlPolyData;
   NewMesh->SetPoints(inPts);

@@ -41,7 +41,7 @@ public:
   void AddInput(vlDataSet& in) {this->AddInput(&in);};
   void RemoveInput(vlDataSet *in);
   void RemoveInput(vlDataSet& in) {this->RemoveInput(&in);};
-  vlDataSetCollection *GetInput() {return &(this->Input);};
+  vlDataSetCollection *GetInput() {return &(this->InputList);};
 
   // filter interface
   void Update();
@@ -50,7 +50,7 @@ protected:
   // Usual data generation method
   void Execute();
   // list of data sets to append together
-  vlDataSetCollection Input;
+  vlDataSetCollection InputList;
 };
 
 #endif

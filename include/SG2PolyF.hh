@@ -13,25 +13,27 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// .NAME vlStructuredDataToPolyFilter - abstract filter class
+// .NAME vlStructuredGridToPolyFilter - abstract filter class
 // .SECTION Description
-// vlStructuredDataToPolyFilter are filters whose subclasses take as input
+// vlStructuredGridToPolyFilter are filters whose subclasses take as input
 // structured data (e.g., structured points, structured grid) and generate
 // polygonal data on output.
 
-#ifndef __vlStructuredDataToPolyFilter_h
-#define __vlStructuredDataToPolyFilter_h
+#ifndef __vlStructuredGridToPolyFilter_h
+#define __vlStructuredGridToPolyFilter_h
 
-#include "StrDataF.hh"
+#include "SGridF.hh"
 #include "PolyData.hh"
 
-class vlStructuredDataToPolyFilter : public vlPolyData, public vlStructuredDataFilter
+class vlStructuredGridToPolyFilter : public vlPolyData, public vlStructuredGridFilter
 {
 public:
-  void Update();
-  char *GetClassName() {return "vlStructuredDataToPolyFilter";};
+  char *GetClassName() {return "vlStructuredGridToPolyFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
+  void Update();
 };
 
 #endif

@@ -48,6 +48,9 @@ public:
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pc[3]) {return this->DataSet->FindCell(x,cell,tol2,subId,pc);};
 
   void ComputeBounds();
+
+  void Modified();
+  unsigned long int GetMTime();
   void Update();
 
 protected:

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,22 +13,28 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "SD2PolyF.hh"
+#include "SG2PolyF.hh"
 
-void vlStructuredDataToPolyFilter::Update()
+void vlStructuredGridToPolyFilter::Modified()
 {
-  vlStructuredDataFilter::Update();
+  this->vlPolyData::Modified();
+  this->vlStructuredGridFilter::_Modified();
 }
 
-void vlStructuredDataToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+unsigned long int vlStructuredGridToPolyFilter::GetMTime()
 {
-  if (this->ShouldIPrint(vlStructuredDataToPolyFilter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlPolyData::PrintSelf(os,indent);
-    vlStructuredDataFilter::PrintSelf(os,indent);
-    
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  unsigned long dtime = this->vlPolyData::GetMTime();
+  unsigned long ftime = this->vlStructuredGridFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
+void vlStructuredGridToPolyFilter::Update()
+{
+  this->UpdateFilter();
+}
+
+void vlStructuredGridToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlPolyData::PrintSelf(os,indent);
+  vlStructuredGridFilter::_PrintSelf(os,indent);
 }

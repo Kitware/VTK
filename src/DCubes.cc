@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -47,6 +45,7 @@ void vlDividingCubes::Execute()
   float len2;
   vlCellArray *newVerts;
   int above, below, vertNum;
+  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
 
   vlDebugMacro(<< "Executing Dividing Cubes");
 //
@@ -55,14 +54,14 @@ void vlDividingCubes::Execute()
   this->Initialize();
 
   // make sure we have scalar data
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vlErrorMacro(<<"No scalar data to contour");
     return;
     }
 
   // just deal with volume data
-  if ( this->Input->GetDataDimension() != 3 )
+  if ( input->GetDataDimension() != 3 )
     {
     vlErrorMacro("Bad input: only treats 3D point sets");
     return;
@@ -73,15 +72,15 @@ void vlDividingCubes::Execute()
   newVerts = new vlCellArray(5000,25000);
 
   // prepare to interpolate data
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   this->PointData.InterpolateAllocate(pd,5000,25000);
 
 //
 // Loop over all cells checking to see which straddle the specified value
 //
-  for ( cellId=0; cellId = this->Input->GetNumberOfCells(); cellId++ )
+  for ( cellId=0; cellId = input->GetNumberOfCells(); cellId++ )
     {
-    brick = this->Input->GetCell(cellId);
+    brick = input->GetCell(cellId);
     brickPts = brick->GetPointIds();
     inScalars->GetScalars(*brickPts,brickScalars);
 

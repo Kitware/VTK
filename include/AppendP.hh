@@ -41,7 +41,7 @@ public:
   void AddInput(vlPolyData& in) {this->AddInput(&in);};
   void RemoveInput(vlPolyData *);
   void RemoveInput(vlPolyData& in) {this->RemoveInput(&in);};
-  vlPolyDataCollection *GetInput() {return &(this->Input);};
+  vlPolyDataCollection *GetInput() {return &(this->InputList);};
 
   // filter interface
   void Update();
@@ -51,7 +51,7 @@ protected:
   void Execute();
 
   // list of data sets to append together
-  vlPolyDataCollection Input;
+  vlPolyDataCollection InputList;
 };
 
 #endif

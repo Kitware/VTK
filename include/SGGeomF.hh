@@ -13,25 +13,25 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredGeometryFilter - extract geometry for structured data
+// .NAME vlStructuredGridGeometryFilter - extract geometry for structured grid
 // .SECTION Description
-// vlStructuredGeometryFilter is a filter that extracts geometry from 
-// structured data. By specifying appropriate i-j-k indices, it is possible
+// vlStructuredGridGeometryFilter is a filter that extracts geometry from a
+// structured grid. By specifying appropriate i-j-k indices, it is possible
 // to extract a point, a curve, a surface, or a "volume". Depending upon the
 // type of data, the curve and surface may be curved or planar. The volume
 // is actually a (n x m x o) region of points.
 
-#ifndef __vlStructuredGeometryFilter_h
-#define __vlStructuredGeometryFilter_h
+#ifndef __vlStructuredGridGeometryFilter_h
+#define __vlStructuredGridGeometryFilter_h
 
-#include "SD2PolyF.hh"
+#include "SG2PolyF.hh"
 
-class vlStructuredGeometryFilter : public vlStructuredDataToPolyFilter
+class vlStructuredGridGeometryFilter : public vlStructuredGridToPolyFilter
 {
 public:
-  vlStructuredGeometryFilter();
-  ~vlStructuredGeometryFilter() {};
-  char *GetClassName() {return "vlStructuredGeometryFilter";};
+  vlStructuredGridGeometryFilter();
+  ~vlStructuredGridGeometryFilter() {};
+  char *GetClassName() {return "vlStructuredGridGeometryFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);

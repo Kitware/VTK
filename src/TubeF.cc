@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -30,23 +28,24 @@ vlTubeFilter::vlTubeFilter()
 void vlTubeFilter::Execute()
 {
   int i;
-  int numSides;
+  int numSides=this->NumberOfSides;
   vlRibbonFilter **ribbons;
   vlAppendPolyData *appendF;
   vlPoints *inPoints;
   vlCellArray *inLines;
   vlPointData *pd;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   vlDebugMacro(<<"Creating tube");
   this->Initialize();
 
-  inPoints = this->Input->GetPoints();
-  inLines =   this->Input->GetLines();
-  pd = this->Input->GetPointData();
+  inPoints = input->GetPoints();
+  inLines =   input->GetLines();
+  pd = input->GetPointData();
 
   ribbons = new vlRibbonFilter * [numSides];
 
-  if ( (numSides=this->GetNumberOfSides()) == 0 ) //just copy lines through
+  if ( numSides == 0 ) //just copy lines through
     {
     this->PointData = *pd;
     this->SetPoints(inPoints);
@@ -59,7 +58,7 @@ void vlTubeFilter::Execute()
     for (i=0; i < numSides; i++)
       {
       ribbons[i] = new vlRibbonFilter();
-      ribbons[i]->SetInput(this->Input);
+      ribbons[i]->SetInput(input);
       ribbons[i]->SetRadius(0.0);
       ribbons[i]->SetAngle(i*90.0);
       appendF->AddInput(ribbons[i]);
@@ -71,7 +70,7 @@ void vlTubeFilter::Execute()
     for (i=0; i < numSides; i++)
       {
       ribbons[i] = new vlRibbonFilter();
-      ribbons[i]->SetInput(this->Input);
+      ribbons[i]->SetInput(input);
       ribbons[i]->SetRadius(this->Radius);
       ribbons[i]->SetAngle(this->Rotation + i*(360.0/numSides));
       appendF->AddInput(ribbons[i]);

@@ -53,38 +53,31 @@ void vlMergeFilter::Initialize()
 
 void vlMergeFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlMergeFilter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
+  vlFilter::_PrintSelf(os,indent);
+  vlDataSet::PrintSelf(os,indent);
 
-    vlFilter::PrintSelf(os,indent);
-    vlDataSet::PrintSelf(os,indent);
+  os << indent << "Geometry: (" << this->Geometry << ")\n";
+  os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
 
-    os << indent << "Geometry: (" << this->Geometry << ")\n";
-    os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
+  if ( this->Scalars )
+    os << indent << "Scalars: (" << this->Scalars << ")\n";
+  else
+    os << indent << "Scalars: (none)\n";
 
-    if ( this->Scalars )
-      os << indent << "Scalars: (" << this->Scalars << ")\n";
-    else
-      os << indent << "Scalars: (none)\n";
+  if ( this->Vectors )
+    os << indent << "Vectors: (" << this->Vectors << ")\n";
+  else
+    os << indent << "Vectors: (none)\n";
 
-    if ( this->Vectors )
-      os << indent << "Vectors: (" << this->Vectors << ")\n";
-    else
-      os << indent << "Vectors: (none)\n";
+  if ( this->Normals )
+    os << indent << "Normals: (" << this->Normals << ")\n";
+  else
+    os << indent << "Normals: (none)\n";
 
-    if ( this->Normals )
-      os << indent << "Normals: (" << this->Normals << ")\n";
-    else
-      os << indent << "Normals: (none)\n";
-
-    if ( this->TCoords )
-      os << indent << "TCoords: (" << this->TCoords << ")\n";
-    else
-      os << indent << "TCoords: (none)\n";
-
-    this->PrintWatchOff(); // stop worrying about it now
-   }
+  if ( this->TCoords )
+    os << indent << "TCoords: (" << this->TCoords << ")\n";
+  else
+    os << indent << "TCoords: (none)\n";
 }
 
 // Merge it all together

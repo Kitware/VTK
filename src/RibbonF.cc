@@ -42,19 +42,19 @@ void vlRibbonFilter::Execute()
   vlMath math;
   float theta;
   int deleteNormals=0;
+  vlPolyData *input=(vlPolyData *)this->Input;
 //
 // Initialize
 //
   this->Initialize();
 
-  inPts = this->Input->GetPoints();
-  pd = this->Input->GetPointData();
+  inPts = input->GetPoints();
+  pd = input->GetPointData();
   // copy scalars, vectors, tcoords.  Normals are computed here.
   this->PointData.CopyNormalsOff();
   this->PointData.CopyAllocate(pd);
 
-  if ( !(inLines = this->Input->GetLines()) || 
-  inLines->GetNumberOfCells() < 1 )
+  if ( !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
     vlErrorMacro(<< ": No input data!\n");
     return;

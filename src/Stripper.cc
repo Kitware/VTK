@@ -37,15 +37,16 @@ void vlStripper::Execute()
   char *visited;
   int pts[MAX_CELL_SIZE];
   int numStripPts, *stripPts;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   vlDebugMacro(<<"Executing triangle strip filter");
 
   this->Initialize();
 
   // build cell structure.  Only operate with polygons and triangle strips.
-  Mesh.SetPoints(this->Input->GetPoints());
-  Mesh.SetPolys(this->Input->GetPolys());
-  Mesh.SetStrips(this->Input->GetStrips());
+  Mesh.SetPoints(input->GetPoints());
+  Mesh.SetPolys(input->GetPolys());
+  Mesh.SetStrips(input->GetStrips());
   Mesh.BuildLinks();
   // check input
   if ( (numCells=Mesh.GetNumberOfCells()) < 1 )
@@ -58,7 +59,7 @@ void vlStripper::Execute()
   newStrips->Allocate(newStrips->EstimateSize(numCells,6));
 
   // pre-load existing strips
-  inStrips = this->Input->GetStrips();
+  inStrips = input->GetStrips();
   for (inStrips->InitTraversal(); inStrips->GetNextCell(numStripPts,stripPts); )
     {
     newStrips->InsertNextCell(numStripPts,stripPts);
@@ -152,15 +153,15 @@ void vlStripper::Execute()
 //
   delete [] visited;
 
-  this->SetPoints(this->Input->GetPoints());
+  this->SetPoints(input->GetPoints());
   this->PointData = *pd; // pass data through as is
 
   newStrips->Squeeze();
   this->SetStrips(newStrips);
 
   // pass through verts and lines
-  this->SetVerts(this->Input->GetVerts());
-  this->SetLines(this->Input->GetLines());
+  this->SetVerts(input->GetVerts());
+  this->SetLines(input->GetLines());
 
   vlDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips << " triangle strips \n\t(Average " << (float)numCells/numStrips << " triangles per strip, longest strip = "<<  ((longest-2)>0?(longest-2):0) << " triangles)");
 

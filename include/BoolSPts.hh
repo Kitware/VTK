@@ -43,9 +43,10 @@ public:
   void AddInput(vlStructuredPoints &in) {this->AddInput(&in);};
   void RemoveInput(vlStructuredPoints *in);
   void RemoveInput(vlStructuredPoints &in) {this->RemoveInput(&in);};
-  vlStructuredPointsCollection *GetInput() {return &(this->Input);};
+  vlStructuredPointsCollection *GetInput() {return &(this->InputList);};
 
   // filter interface
+  unsigned long int GetMTime();
   void Update();
 
   // alternative method to boolean data
@@ -70,7 +71,7 @@ protected:
   void InitializeBoolean();
 
   // list of data sets to append together
-  vlStructuredPointsCollection Input;
+  vlStructuredPointsCollection InputList;
 
   // pointer to operation function
   void (vlBooleanStructuredPoints::*Operator)();

@@ -24,12 +24,13 @@ void vlWarpScalar::Execute()
   vlPointData *pd;
   int i, ptId;
   float *x, *n, s, newX[3];
+  vlPointSet *input=(vlPointSet *)this->Input;
   
   vlDebugMacro(<<"Warping data with scalars");
   this->Initialize();
 
-  inPts = this->Input->GetPoints();
-  pd = this->Input->GetPointData();
+  inPts = input->GetPoints();
+  pd = input->GetPointData();
   inNormals = pd->GetNormals();
   inScalars = pd->GetScalars();
 
@@ -58,7 +59,7 @@ void vlWarpScalar::Execute()
 // Update ourselves
 //
   this->PointData.CopyNormalsOff(); // distorted geometry - normals are bad
-  this->PointData.PassData(this->Input->GetPointData());
+  this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
 }

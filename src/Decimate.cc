@@ -70,7 +70,7 @@ public:
     {this->MaxId = -1; this->Array = new struct vlVertex[sz];};
   ~vlVertexArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfVertices() {return this->MaxId + 1;};
-  int InsertNextVertex(vlVertex& v) 
+  void InsertNextVertex(vlVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
   struct vlVertex& GetVertex(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
@@ -85,7 +85,7 @@ public:
     {this->MaxId = -1; this->Array = new struct vlTri[sz];};
   ~vlTriArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
-  int InsertNextTriangle(vlTri& t) 
+  void InsertNextTriangle(vlTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
   struct vlTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
@@ -149,14 +149,15 @@ void vlDecimate::Execute()
   int *map, numNewPts, size;
   vlPointData *pd;
   vlFloatPoints *newPts;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   vlDebugMacro(<<"Decimating mesh...");
   this->Initialize();
 //
 // Check input
 //
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 || 
-  (numTris=this->Input->GetNumberOfPolys()) < 1 )
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
+  (numTris=input->GetNumberOfPolys()) < 1 )
     {
     vlErrorMacro(<<"No data to decimate!");
     return;
@@ -164,7 +165,7 @@ void vlDecimate::Execute()
 //
 //  Get the bounds of the data to compute decimation threshold
 //
-  bounds = this->Input->GetBounds();
+  bounds = input->GetBounds();
 
   for (max=0.0, i=0; i<3; i++)
     max = ((bounds[2*i+1]-bounds[2*i]) > max ? 
@@ -191,8 +192,8 @@ void vlDecimate::Execute()
 // Build cell data structure. Need to copy triangle connectivity data
 // so we can modify it.
 //
-  inPts = this->Input->GetPoints();
-  inPolys = this->Input->GetPolys();
+  inPts = input->GetPoints();
+  inPolys = input->GetPolys();
   Mesh = new vlPolyData;
   Mesh->SetPoints(inPts);
   newPolys = new vlCellArray(*(inPolys));
@@ -351,7 +352,7 @@ void vlDecimate::Execute()
     if ( ncells > 0 ) map[ptId] = numNewPts++;
     }
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   this->PointData.CopyAllocate(pd,numNewPts);
   newPts = new vlFloatPoints(numNewPts);
 

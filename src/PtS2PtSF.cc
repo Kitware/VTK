@@ -29,15 +29,29 @@ vlPointSetToPointSetFilter::~vlPointSetToPointSetFilter()
 
 vlDataSet* vlPointSetToPointSetFilter::MakeObject()
 {
-  vlPointSetToPointSetFilter *o = new vlPointSetToPointSetFilter();
+//  vlPointSetToPointSetFilter *o = new vlPointSetToPointSetFilter();
+  vlPointSetToPointSetFilter *o;
   o->PointSet = this->PointSet;
   o->SetPoints(this->GetPoints());
   return o;
 }
 
+void vlPointSetToPointSetFilter::Modified()
+{
+  this->vlPointSet::Modified();
+  this->vlPointSetFilter::_Modified();
+}
+
+unsigned long int vlPointSetToPointSetFilter::GetMTime()
+{
+  unsigned long dtime = this->vlPointSet::GetMTime();
+  unsigned long ftime = this->vlPointSetFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlPointSetToPointSetFilter::Update()
 {
-  vlPointSetFilter::Update();
+  this->UpdateFilter();
 }
 
 void vlPointSetToPointSetFilter::Initialize()
@@ -67,23 +81,16 @@ void vlPointSetToPointSetFilter::ComputeBounds()
 
 void vlPointSetToPointSetFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPointSetToPointSetFilter::GetClassName()))
+  vlPointSet::PrintSelf(os,indent);
+  vlPointSetFilter::_PrintSelf(os,indent);
+
+  if ( this->PointSet )
     {
-    this->PrintWatchOn(); // watch for multiple inheritance
-
-    vlPointSet::PrintSelf(os,indent);
-    vlPointSetFilter::PrintSelf(os,indent);
-
-    if ( this->PointSet )
-      {
-      os << indent << "PointSet: (" << this->PointSet << ")\n";
-      os << indent << "PointSet type: " << this->PointSet->GetClassName() << "\n";
-      }
-    else
-      {
-      os << indent << "PointSet: (none)\n";
-      }
-
-    this->PrintWatchOff(); // stop worrying about it now
-   }
+    os << indent << "PointSet: (" << this->PointSet << ")\n";
+    os << indent << "PointSet type: " << this->PointSet->GetClassName() <<"\n";
+    }
+  else
+    {
+    os << indent << "PointSet: (none)\n";
+    }
 }

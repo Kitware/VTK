@@ -13,11 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "StrGeomF.hh"
+#include "SGGeomF.hh"
 
 // Description:
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a plane).
-vlStructuredGeometryFilter::vlStructuredGeometryFilter()
+vlStructuredGridGeometryFilter::vlStructuredGridGeometryFilter()
 {
   this->Extent[0] = 0;
   this->Extent[1] = 100;
@@ -28,7 +28,8 @@ vlStructuredGeometryFilter::vlStructuredGeometryFilter()
 }
 
 
-void vlStructuredGeometryFilter::Execute()
+#include "SGrid.hh"
+void vlStructuredGridGeometryFilter::Execute()
 {
   vlPointData *pd;
   int *dims, dimension, dir[3], diff[3];
@@ -41,13 +42,14 @@ void vlStructuredGeometryFilter::Execute()
   int totPoints, numPolys;
   int offset[3], pos;
   float *x;
+  vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
 
   vlDebugMacro(<< "Creating structured geometry");
   this->Initialize();
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   this->PointData.CopyNormalsOff();
-  dims = this->Input->GetDimensions();
+  dims = input->GetDimensions();
 //
 // Based on the dimensions of the structured data, and the extent of the geometry,
 // compute the combined extent plus the dimensionality of the data
@@ -72,14 +74,14 @@ void vlStructuredGeometryFilter::Execute()
 
     case 0: // --------------------- build point -----------------------
 
-      if ( this->Input->IsPointVisible(startIdx) )
+      if ( input->IsPointVisible(startIdx) )
         {
         newPts = new vlFloatPoints(1);
         newVerts = new vlCellArray;
         newVerts->Allocate(newVerts->EstimateSize(1,1));
         this->PointData.CopyAllocate(pd,1);
 
-        ptIds[0] = newPts->InsertNextPoint(this->Input->GetPoint(startIdx));
+        ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
         this->PointData.CopyData(pd,startIdx,ptIds[0]);
         newVerts->InsertNextCell(1,ptIds);
         }
@@ -113,14 +115,14 @@ void vlStructuredGeometryFilter::Execute()
       for (i=0; i<totPoints; i++) 
         {
         idx = startIdx + i*offset[0];
-        x = this->Input->GetPoint(idx);
+        x = input->GetPoint(idx);
         ptIds[0] = newPts->InsertNextPoint(x);
         this->PointData.CopyData(pd,idx,ptIds[0]);
         }
 
       for (idx=0,i=0; i<(totPoints-1); i++) 
         {
-        if ( this->Input->IsPointVisible(idx) || this->Input->IsPointVisible(idx+offset[0]) )
+        if ( input->IsPointVisible(idx) || input->IsPointVisible(idx+offset[0]) )
           {
           ptIds[0] = i;
           ptIds[1] = i + 1;
@@ -168,7 +170,7 @@ void vlStructuredGeometryFilter::Execute()
         for (i=0; i < (diff[dir[0]]+1); i++) 
           {
           idx = pos + i*offset[0];
-          x = this->Input->GetPoint(idx);
+          x = input->GetPoint(idx);
           ptIds[0] = newPts->InsertNextPoint(x);
           this->PointData.CopyData(pd,idx,ptIds[0]);
           }
@@ -181,10 +183,10 @@ void vlStructuredGeometryFilter::Execute()
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
-          if (this->Input->IsPointVisible(pos+i*offset[0])
-          || this->Input->IsPointVisible(pos+(i+1)*offset[0])
-          || this->Input->IsPointVisible(pos+i*offset[0]+offset[1]) 
-          || this->Input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
+          if (input->IsPointVisible(pos+i*offset[0])
+          || input->IsPointVisible(pos+(i+1)*offset[0])
+          || input->IsPointVisible(pos+i*offset[0]+offset[1]) 
+          || input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
             {
             ptIds[0] = i + j*(diff[dir[0]]+1);
             ptIds[1] = ptIds[0] + 1;
@@ -223,9 +225,9 @@ void vlStructuredGeometryFilter::Execute()
           pos = startIdx + j*offset[0] + k*offset[1];
           for (i=0; i < (diff[0]+1); i++) 
             {
-            if ( this->Input->IsPointVisible(pos+i) ) 
+            if ( input->IsPointVisible(pos+i) ) 
               {
-              x = this->Input->GetPoint(pos+i);
+              x = input->GetPoint(pos+i);
               ptIds[0] = newPts->InsertNextPoint(x);
               this->PointData.CopyData(pd,idx,ptIds[0]);
               newVerts->InsertNextCell(1,ptIds);
@@ -245,7 +247,7 @@ void vlStructuredGeometryFilter::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlStructuredGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
+void vlStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
                                    int kMin, int kMax)
 {
   int extent[6];
@@ -262,7 +264,7 @@ void vlStructuredGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMa
 
 // Description:
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
-void vlStructuredGeometryFilter::SetExtent(int *extent)
+void vlStructuredGridGeometryFilter::SetExtent(int *extent)
 {
   int i;
 
@@ -281,15 +283,10 @@ void vlStructuredGeometryFilter::SetExtent(int *extent)
     }
 }
 
-void vlStructuredGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlStructuredGridGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredGeometryFilter::GetClassName()))
-    {
-    vlStructuredDataToPolyFilter::PrintSelf(os,indent);
-
-    os << indent << "Extent: \n";
-    os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
-    os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
-    os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
-    }
+  os << indent << "Extent: \n";
+  os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }

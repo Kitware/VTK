@@ -18,8 +18,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlTriangleFilter::Execute()
 {
-  vlCellArray *inPolys=this->Input->GetPolys();
-  vlCellArray *inStrips=this->Input->GetStrips();;
+  vlPolyData *input=(vlPolyData *)this->Input;
+  vlCellArray *inPolys=input->GetPolys();
+  vlCellArray *inStrips=input->GetStrips();;
   int npts, *pts;
   vlCellArray *newPolys=NULL;
   int numCells;
@@ -27,7 +28,7 @@ void vlTriangleFilter::Execute()
   vlPolygon poly;
   int i, j;
   vlIdList outVerts(3*MAX_CELL_SIZE);
-  vlPoints *inPoints=this->Input->GetPoints();
+  vlPoints *inPoints=input->GetPoints();
   vlPointData *pd;
 
   vlDebugMacro(<<"Executing triangle filter");
@@ -35,7 +36,7 @@ void vlTriangleFilter::Execute()
 
   newPolys = new vlCellArray();
   // approximation
-  numCells = this->Input->GetNumberOfPolys() + this->Input->GetNumberOfStrips();
+  numCells = input->GetNumberOfPolys() + input->GetNumberOfStrips();
   newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);
 
   // pass through triangles; triangulate polygons if necessary
@@ -90,20 +91,19 @@ void vlTriangleFilter::Execute()
   this->SetPolys(newPolys);
 
   // pass through points and point data
-  this->SetPoints(this->Input->GetPoints());
-  pd = this->Input->GetPointData();
+  this->SetPoints(input->GetPoints());
+  pd = input->GetPointData();
   this->PointData = *pd;
 
   // pass through other stuff if requested
-  if ( this->PassVerts ) this->SetVerts(this->Input->GetVerts());
-  if ( this->PassLines ) this->SetLines(this->Input->GetLines());
+  if ( this->PassVerts ) this->SetVerts(input->GetVerts());
+  if ( this->PassLines ) this->SetLines(input->GetLines());
 
   vlDebugMacro(<<"Converted " << inPolys->GetNumberOfCells() <<
                " polygons and " << inStrips->GetNumberOfCells() <<
                " strips to " << newPolys->GetNumberOfCells() <<
                " triangles");
 }
-
 
 void vlTriangleFilter::PrintSelf(ostream& os, vlIndent indent)
 {

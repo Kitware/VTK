@@ -27,6 +27,7 @@ void vlTransformFilter::Execute()
   vlNormals *inNormals;
   vlFloatNormals *newNormals=NULL;
   int numPts;
+  vlPointSet *input=(vlPointSet *)this->Input;
 
   vlDebugMacro(<<"Executing transformation");
   this->Initialize();
@@ -39,8 +40,8 @@ void vlTransformFilter::Execute()
     return;
     }
 
-  inPts = this->Input->GetPoints();
-  pd = this->Input->GetPointData();
+  inPts = input->GetPoints();
+  pd = input->GetPointData();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
 
@@ -75,7 +76,7 @@ void vlTransformFilter::Execute()
 //
   this->PointData.CopyVectorsOff();
   this->PointData.CopyNormalsOff();
-  this->PointData.PassData(this->Input->GetPointData());
+  this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
   this->PointData.SetNormals(newNormals);

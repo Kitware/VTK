@@ -28,10 +28,10 @@ vlAppendFilter::~vlAppendFilter()
 // Add a dataset to the list of data to append.
 void vlAppendFilter::AddInput(vlDataSet *ds)
 {
-  if ( ! this->Input.IsItemPresent(ds) )
+  if ( ! this->InputList.IsItemPresent(ds) )
     {
     this->Modified();
-    this->Input.AddItem(ds);
+    this->InputList.AddItem(ds);
     }
 }
 
@@ -39,10 +39,10 @@ void vlAppendFilter::AddInput(vlDataSet *ds)
 // Remove a dataset from the list of data to append.
 void vlAppendFilter::RemoveInput(vlDataSet *ds)
 {
-  if ( this->Input.IsItemPresent(ds) )
+  if ( this->InputList.IsItemPresent(ds) )
     {
     this->Modified();
-    this->Input.RemoveItem(ds);
+    this->InputList.RemoveItem(ds);
     }
 }
 
@@ -52,7 +52,7 @@ void vlAppendFilter::Update()
   vlDataSet *ds;
 
   // make sure input is available
-  if ( this->Input.GetNumberOfItems() < 1 )
+  if ( this->InputList.GetNumberOfItems() < 1 )
     {
     vlErrorMacro(<< "No input!\n");
     return;
@@ -62,7 +62,7 @@ void vlAppendFilter::Update()
   if (this->Updating) return;
 
   this->Updating = 1;
-  for (mtime=0, this->Input.InitTraversal(); ds = this->Input.GetNextItem(); )
+  for (mtime=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
     {
     ds->Update();
     ds_mtime = ds->GetMTime();
@@ -102,7 +102,7 @@ void vlAppendFilter::Execute()
   normalsPresent = 1;
   tcoordsPresent = 1;
 
-  for ( this->Input.InitTraversal(); ds = this->Input.GetNextItem(); )
+  for ( this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
     {
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
@@ -128,7 +128,7 @@ void vlAppendFilter::Execute()
 
   newPts = new vlFloatPoints(numPts);
 
-  for ( ptOffset=0, this->Input.InitTraversal(); ds = this->Input.GetNextItem(); ptOffset+=numPts)
+  for ( ptOffset=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); ptOffset+=numPts)
     {
     numPts = ds->GetNumberOfPoints();
     numCells = ds->GetNumberOfCells();
@@ -157,17 +157,10 @@ void vlAppendFilter::Execute()
 
 void vlAppendFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlAppendFilter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlUnstructuredGrid::PrintSelf(os,indent);
-    vlFilter::PrintSelf(os,indent);
+  vlUnstructuredGrid::PrintSelf(os,indent);
+  vlFilter::_PrintSelf(os,indent);
 
-    os << indent << "Input DataSets:\n";
-    this->Input.PrintSelf(os,indent.GetNextIndent());
-
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  os << indent << "Input DataSets:\n";
+  this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 

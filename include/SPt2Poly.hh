@@ -29,9 +29,12 @@ class vlStructuredPointsToPolyDataFilter : public vlPolyData,
                                               public vlStructuredPointsFilter
 {
 public:
-  void Update();
   char *GetClassName() {return "vlDataSetToPolyDataFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
+  void Update();
 };
 
 #endif

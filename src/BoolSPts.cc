@@ -39,14 +39,21 @@ vlBooleanStructuredPoints::~vlBooleanStructuredPoints()
 {
 }
 
+unsigned long int vlBooleanStructuredPoints::GetMTime()
+{
+  unsigned long dtime = this->vlStructuredPoints::GetMTime();
+  unsigned long ftime = this->vlFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 // Description:
 // Add another structured point set to the list of objects to boolean.
 void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
 {
-  if ( ! this->Input.IsItemPresent(sp) )
+  if ( ! this->InputList.IsItemPresent(sp) )
     {
     this->Modified();
-    this->Input.AddItem(sp);
+    this->InputList.AddItem(sp);
     }
 }
 
@@ -54,10 +61,10 @@ void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
 // Remove an object from the list of objects to boolean.
 void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
 {
-  if ( this->Input.IsItemPresent(sp) )
+  if ( this->InputList.IsItemPresent(sp) )
     {
     this->Modified();
-    this->Input.RemoveItem(sp);
+    this->InputList.RemoveItem(sp);
     }
 }
 
@@ -67,13 +74,13 @@ void vlBooleanStructuredPoints::Update()
   vlDataSet *ds;
 
   // make sure input is available
-  if ( this->Input.GetNumberOfItems() < 1 ) return;
+  if ( this->InputList.GetNumberOfItems() < 1 ) return;
 
   // prevent chasing our tail
   if (this->Updating) return;
 
   this->Updating = 1;
-  for (mtime=0, this->Input.InitTraversal(); ds = this->Input.GetNextItem(); )
+  for (mtime=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
     {
     ds->Update();
     ds_mtime = ds->GetMTime();
@@ -109,11 +116,11 @@ void vlBooleanStructuredPoints::InitializeBoolean()
   this->ModelBounds[2] >= this->ModelBounds[3] ||
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
-    if ( this->Input.GetNumberOfItems() > 0 )
+    if ( this->InputList.GetNumberOfItems() > 0 )
       {
        this->ModelBounds[0] = this->ModelBounds[2] = this->ModelBounds[4] = LARGE_FLOAT;
        this->ModelBounds[1] = this->ModelBounds[3] = this->ModelBounds[5] = -LARGE_FLOAT;
-      for ( this->Input.InitTraversal(); sp = this->Input.GetNextItem(); )
+      for ( this->InputList.InitTraversal(); sp = this->InputList.GetNextItem(); )
         {
         bounds = sp->GetBounds();
         for (j=0; j < 3; j++)
@@ -142,9 +149,9 @@ void vlBooleanStructuredPoints::InitializeBoolean()
     }
 
   // Create output scalar (same type as input)
-  if ( this->Input.GetNumberOfItems() > 0 )
+  if ( this->InputList.GetNumberOfItems() > 0 )
     {
-    this->Input.InitTraversal(); sp = this->Input.GetNextItem();
+    this->InputList.InitTraversal(); sp = this->InputList.GetNextItem();
     inScalars = sp->GetPointData()->GetScalars();
     }
 
@@ -167,7 +174,7 @@ void vlBooleanStructuredPoints::Execute()
 
   this->InitializeBoolean();
 
-  for ( this->Input.InitTraversal(); sp = this->Input.GetNextItem(); )
+  for ( this->InputList.InitTraversal(); sp = this->InputList.GetNextItem(); )
     {
     this->Append(sp);
     }
@@ -246,18 +253,11 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 
 void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlBooleanStructuredPoints::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlStructuredPoints::PrintSelf(os,indent);
-    vlFilter::PrintSelf(os,indent);
+  vlStructuredPoints::PrintSelf(os,indent);
+  vlFilter::_PrintSelf(os,indent);
 
-    os << indent << "Input DataSets:\n";
-    this->Input.PrintSelf(os,indent.GetNextIndent());
-
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  os << indent << "Input DataSets:\n";
+  this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 
 // Description:

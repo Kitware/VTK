@@ -98,6 +98,7 @@ void vlTransformStructuredPoints::Execute()
   float *originIn, *aspectIn, ar[3];
   vlPointData *pd;
   vlScalars *inScalars, *outScalars;
+  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
 
   vlDebugMacro(<<"Transforming points");
   this->Initialize();
@@ -113,9 +114,9 @@ void vlTransformStructuredPoints::Execute()
     }
 
   // Get origin, aspect ratio and dimensions from input
-  dimIn = this->Input->GetDimensions();
-  originIn = this->Input->GetOrigin();
-  aspectIn = this->Input->GetAspectRatio();
+  dimIn = input->GetDimensions();
+  originIn = input->GetOrigin();
+  aspectIn = input->GetAspectRatio();
 
   // if dimensions are not specified, use input's dimensions
   if (this->SampleDimensions[0] <= 1 || this->SampleDimensions[1] <= 1 || 

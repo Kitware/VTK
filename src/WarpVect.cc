@@ -23,12 +23,13 @@ void vlWarpVector::Execute()
   vlVectors *inVectors;
   int i, ptId;
   float *x, *v, newX[3];
+  vlPointSet *input=(vlPointSet *)this->Input;
 
   vlDebugMacro(<<"Warping data with vectors");
   this->Initialize();
 
-  inPts = this->Input->GetPoints();
-  pd = this->Input->GetPointData();
+  inPts = input->GetPoints();
+  pd = input->GetPointData();
   inVectors = pd->GetVectors();
 
   if ( !inVectors || !inPts )
@@ -55,7 +56,7 @@ void vlWarpVector::Execute()
 // Update ourselves
 //
   this->PointData.CopyNormalsOff(); // distorted geometry - normals are bad
-  this->PointData.PassData(this->Input->GetPointData());
+  this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
 }
