@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.104");
+vtkCxxRevisionMacro(vtkTriangle, "1.105");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -500,14 +500,16 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
 
   // Evaluate position
   //
-  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)
-      >= 0)
+  int inside;
+  if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords, 
+        dist2, weights)) >= 0)
     {
     if ( dist2 <= tol2 )
       {
       pcoords[2] = 0.0;
       return 1;
       }
+    return inside;
     }
   
   // so the easy test failed. The line is not intersecting the triangle.
