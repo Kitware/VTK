@@ -78,7 +78,8 @@ void vtkDashedStreamLine::Execute()
   float xEnd[3], vEnd[3], sEnd;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  
+
+  this->SavePointInterval = this->StepLength;
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 )
     {

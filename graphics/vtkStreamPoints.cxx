@@ -79,7 +79,8 @@ void vtkStreamPoints::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input = this->GetInput();
   vtkIdList *pts;
-  
+
+  this->SavePointInterval = this->TimeIncrement;  
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 )
     {
