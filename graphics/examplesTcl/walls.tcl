@@ -72,7 +72,7 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-#renWin SetFileName wall.tcl.ppm
+#renWin SetFileName walls.tcl.ppm
 #renWin SaveImageAsPPM
 
 
