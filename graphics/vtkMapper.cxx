@@ -274,7 +274,7 @@ char *vtkMapper::GetScalarModeAsString(void)
 
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  vtkAbstractMapper::PrintSelf(os,indent);
 
   if ( this->LookupTable )
     {

@@ -120,5 +120,7 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Input: (none)\n";
     }
+  os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
+
 }
 
