@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -77,9 +77,16 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set reslicing transform (describes the set of axis along which to reslice)
+  // Set reslicing transform (describes the set of axis along which to reslice
+  // the input volume)
   vtkSetObjectMacro(ResliceTransform,vtkTransform);
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
+
+  // Description:
+  // Turn on wrap-pad feature (default: off)
+  vtkSetMacro(Wrap,int);
+  vtkGetMacro(Wrap,int);
+  vtkBooleanMacro(Wrap,int);
 
   // Description:
   // Turn on interpolation (default is nearest-neighbor interpolation)
@@ -88,32 +95,37 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
-  // Set interpolation mode, if Interpolate is on (default: trilinear)
+  // Set interpolation mode, ignored unless InterpolateOn() has been set.
+  // Default: Linear
   // Note 1: nearest neighbor is the same as no interpolation
   // Note 2: Cubic is just cubic, it is not cubic spline 
   vtkSetMacro(InterpolationMode,int);
   vtkGetMacro(InterpolationMode,int);
   void SetInterpolationModeToNearestNeighbor()
-    { SetInterpolationMode(VTK_RESLICE_NEAREST); };
+    { this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
   void SetInterpolationModeToLinear()
-    { SetInterpolationMode(VTK_RESLICE_LINEAR); };
+    { this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
   void SetInterpolationModeToCubic()
-    { SetInterpolationMode(VTK_RESLICE_CUBIC); };
+    { this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
+  char *GetInterpolationModeAsString();
 
   // Description:
-  // Turn on and off optimizations (default on, turn them off if
+  // Turn on and off optimizations (default on, turn them off only if
   // they are not stable on your architechture)
   vtkSetMacro(Optimization,int);
   vtkGetMacro(Optimization,int);
   vtkBooleanMacro(Optimization,int);
 
   // Description:
-  // Allow user to set background grey level (default black)
+  // Allow user to set background grey level (default: black)
   vtkSetMacro(BackgroundLevel, double);
   vtkGetMacro(BackgroundLevel, double);
 
   // Description:
   // Spacing, origin, and extent of output data
+  // OutputSpacing default: 1 1 1
+  // The OutputOrigin and OutputExtent are set to cover the entire
+  // transformed input extent by default.
   vtkSetVector3Macro(OutputSpacing, float);
   vtkGetVector3Macro(OutputSpacing, float);
   vtkSetVector3Macro(OutputOrigin, float);
@@ -128,6 +140,7 @@ public:
 		      int *inMin, int *inMax, int *outExt);
 protected:
   vtkTransform *ResliceTransform;
+  int Wrap;
   int Interpolate;
   int InterpolationMode;
   int Optimization;
@@ -146,6 +159,22 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 };
+
+//----------------------------------------------------------------------------
+inline char *vtkImageReslice::GetInterpolationModeAsString()
+{
+  switch (this->InterpolationMode)
+    {
+    case VTK_RESLICE_NEAREST:
+      return "NearestNeighbor";
+    case VTK_RESLICE_LINEAR:
+      return "Linear";
+    case VTK_RESLICE_CUBIC:
+      return "Cubic";
+    default:
+      return "";
+    }
+}  
 
 #endif
 
