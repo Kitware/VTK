@@ -32,7 +32,7 @@ public:
   vlFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
   ~vlFloatNormals() {};
   int Allocate(const int sz, const int ext=1000) {return this->N.Allocate(3*sz,3*ext);};
-  void Initialize() {return this->N.Initialize();};
+  void Initialize() {this->N.Initialize();};
   char *GetClassName() {return "vlFloatNormals";};
 
   // vlNormal interface
