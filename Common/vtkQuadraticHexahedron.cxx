@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.3");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -132,6 +132,27 @@ void vtkQuadraticHexahedron::Subdivide(float *weights)
       }
     this->Points->SetPoint(20+numMidPts,x);
     }
+}
+
+void vtkQuadraticHexahedron::InterpolateAttributes(vtkPointData *inPd, 
+                                                   vtkCellData *inCd, 
+                                                   vtkIdType cellId,
+                                                   float *weights)
+{
+  this->PointData->CopyAllocate(inPd,27);
+  this->CellData->CopyAllocate(inCd,8);
+  
+  // copy the point data over into point ids 0->7
+  for (int i=0; i<20; i++)
+    {
+    this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    }
+
+  // now interpolate the center point
+  this->PointData->InterpolatePoint(inPd, 8, this->PointIds, weights);
+  
+  // copy the cell data over to the linear cell
+  this->CellData->CopyData(inCd,cellId,0);
 }
 
 static const float VTK_DIVERGED = 1.e6;
@@ -293,18 +314,47 @@ int vtkQuadraticHexahedron::CellBoundary(int subId, float pcoords[3],
   return this->Region->CellBoundary(subId, pcoords, pts);
 }
 
-void vtkQuadraticHexahedron::Contour(float vtkNotUsed(value), 
-                                     vtkDataArray* vtkNotUsed(cellScalars), 
-                                     vtkPointLocator* vtkNotUsed(locator), 
-                                     vtkCellArray *vtkNotUsed(verts), 
-                                     vtkCellArray* vtkNotUsed(lines), 
-                                     vtkCellArray* vtkNotUsed(polys), 
-                                     vtkPointData* vtkNotUsed(inPd), 
-                                     vtkPointData* vtkNotUsed(outPd),
-                                     vtkCellData* vtkNotUsed(inCd), 
-                                     vtkIdType vtkNotUsed(cellId), 
-                                     vtkCellData* vtkNotUsed(outCd))
+static int LinearHexs[8][8] = { {0,8,24,11,16,17,26,20},
+                                {8,1,9,24,22,17,21,26},
+                                {11,24,10,3,20,26,23,19},
+                                {24,9,2,10,26,21,18,23},
+                                {16,22,26,20,4,12,25,15},
+                                {22,17,21,26,12,5,13,25},
+                                {20,26,23,19,15,25,14,7},
+                                {26,21,18,23,25,13,6,14} };
+
+
+void vtkQuadraticHexahedron::Contour(float value, 
+                                     vtkDataArray* cellScalars, 
+                                     vtkPointLocator* locator, 
+                                     vtkCellArray *verts, 
+                                     vtkCellArray* lines, 
+                                     vtkCellArray* polys, 
+                                     vtkPointData* inPd, 
+                                     vtkPointData* outPd,
+                                     vtkCellData* inCd, 
+                                     vtkIdType cellId, 
+                                     vtkCellData* outCd)
 {
+  float weights[20];
+
+  //first define the midquad point
+  this->Subdivide(weights);
+  
+  //interpolate point and cell data
+  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  
+  //contour each linear quad separately
+  vtkDataArray *localScalars = this->PointData->GetScalars();
+  for (int i=0; i<8; i++)
+    {
+    for (int j=0; j<8; j++)
+      {
+      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
+      }
+    this->Region->Contour(value,this->Scalars,locator,verts,lines,polys,
+                          this->PointData,outPd,this->CellData,0,outCd);
+    }
 }
 
 // Line-line intersection. Intersection has to occur within [0,1] parametric
