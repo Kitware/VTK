@@ -77,6 +77,7 @@ _CurrentCamera:        The camera for the current renderer
 # import usual libraries
 import math, os, sys
 from wxPython.wx import *
+from vtkpython import *
 
 # a few configuration items, see what works best on your system
 
@@ -201,9 +202,13 @@ class wxVTKRenderWindow(baseClass):
         if stereo:
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
-        
+
+        self.__Created = 0
         # Tell the RenderWindow to render inside the wxWindow.
-        self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
+        if wxPlatform == '__WXMSW__':
+            self.__Created = 1
+            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
+        # if this is wxGTK, delay SetWindowInfo until first Paint
 
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -246,7 +251,8 @@ class wxVTKRenderWindow(baseClass):
         self.OnSize(event)
 
     def OnSize(self, event):
-        self._RenderWindow.Render()
+        if self.__Created:
+            self._RenderWindow.Render()
 
     def OnMove(self,event):
         pass
@@ -407,6 +413,9 @@ class wxVTKRenderWindow(baseClass):
             light.SetPosition(self._CurrentCamera.GetPosition())
             light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
 
+        if not self.__Created:
+            self.__Created = 1
+            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
         self._RenderWindow.Render()
 
     def UpdateRenderer(self,event):
