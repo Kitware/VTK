@@ -1,18 +1,16 @@
 # if we have rendering add the following tests
-IF (VTK_USE_RENDERING)
+IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Graphics)
   # add etsts that do not require data
   SET(MyTests)
-  IF(VTK_USE_DISPLAY)
-    SET(MyTests     
-      Mace.cxx
-      expCos.cxx
-      CellLocator.cxx
-      PointLocator.cxx
-      FrustumClip.cxx
-      RGrid.cxx
-      )
-  ENDIF(VTK_USE_DISPLAY)
+  SET(MyTests     
+    Mace.cxx
+    expCos.cxx
+    CellLocator.cxx
+    PointLocator.cxx
+    FrustumClip.cxx
+    RGrid.cxx
+    )
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}     
@@ -42,4 +40,4 @@ IF (VTK_USE_RENDERING)
       ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 
-ENDIF (VTK_USE_RENDERING)
+ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
