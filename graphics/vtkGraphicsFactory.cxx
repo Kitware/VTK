@@ -114,9 +114,12 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
   //  does not have opengl but they do have mesa, then use it
 #ifndef VTK_USE_OGLR
 #ifdef VTK_USE_MESA
-  if (!strcmp("OpenGL",temp))
+  if ( temp != NULL )
     {
-    temp = "Mesa";
+    if (!strcmp("OpenGL",temp))
+      {
+       temp = "Mesa";
+      }
     }
 #endif
 #endif
