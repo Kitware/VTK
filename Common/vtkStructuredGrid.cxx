@@ -1156,8 +1156,8 @@ void vtkStructuredGrid::Crop()
     this->SetExtent(uExt);
     this->SetPoints(newPts);
     newPts->Delete();
-    outPD->ShallowCopy(inPD);
-    outCD->ShallowCopy(inCD);
+    inPD->ShallowCopy(outPD);
+    inCD->ShallowCopy(outCD);
     newGrid->Delete();
     }
 }
