@@ -29,6 +29,7 @@ vtkImageFourierFilter
 #vtkImageTwoOutputFilter
 
 CONCRETE = \
+vtkBMPReader \
 vtkBMPWriter \
 vtkImageAccumulate \
 vtkImageAnisotropicDiffusion2D \
