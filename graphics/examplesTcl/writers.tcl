@@ -71,6 +71,13 @@ vtkPolyDataWriter pdw
   pdw SetFileName brain.pdw
   pdw Write
 
+if { [info command vtkIVWriter] != "" } {
+  vtkIVWriter iv
+    iv SetInput [smooth GetOutput]
+    iv SetFileName brain.iv
+    iv Write
+}
+
 #
 # the next writers only handle triangles
 vtkTriangleFilter triangles
