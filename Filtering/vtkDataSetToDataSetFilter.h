@@ -66,23 +66,23 @@ public:
 
   // Description:
   // Get the output as vtkPolyData.
-  vtkPolyData *GetPolyDataOutput();
+  virtual vtkPolyData *GetPolyDataOutput();
 
   // Description:
   // Get the output as vtkStructuredPoints.
-  vtkStructuredPoints *GetStructuredPointsOutput();
+  virtual vtkStructuredPoints *GetStructuredPointsOutput();
 
   // Description:
   // Get the output as vtkStructuredGrid.
-  vtkStructuredGrid *GetStructuredGridOutput();
+  virtual vtkStructuredGrid *GetStructuredGridOutput();
 
   // Description:
   // Get the output as vtkUnstructuredGrid.
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  virtual vtkUnstructuredGrid *GetUnstructuredGridOutput();
 
   // Description:
   // Get the output as vtkRectilinearGrid. 
-  vtkRectilinearGrid *GetRectilinearGridOutput();
+  virtual vtkRectilinearGrid *GetRectilinearGridOutput();
   
   // Description:
   // Get the input data or filter.
