@@ -301,13 +301,16 @@ void vtkPythonVoidFunc(void *arg)
   arglist = Py_BuildValue("()");
 
   result = PyEval_CallObject(func, arglist);
-  if (PyErr_Occurred())
+  Py_DECREF(arglist);
+
+  if (result)
+    {
+    Py_XDECREF(result);
+    }
+  else
     {
     PyErr_Print();
     }
-
-  Py_XDECREF(result);
-  Py_DECREF(arglist);
 }
 
 void vtkPythonVoidFuncArgDelete(void *arg)
