@@ -117,7 +117,7 @@ public:
 
   // Description:
   // The number of dimensions stored in a file. This defaults to two.
-  virtual GetFileDimensions();
+  virtual int GetFileDimensions();
   
   // Description:
   // Set/Get the spacing of the data in the file.
