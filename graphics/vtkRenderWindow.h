@@ -191,7 +191,6 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual unsigned char *GetPixelData(int, int, int, int, int) {return (unsigned char *)NULL;};
   virtual void SetPixelData(int, int, int, int, unsigned char *,int) {};
 
   // Description:

@@ -149,16 +149,6 @@ public:
   // Close the PPM file
   virtual void ClosePPMImageFile();
 
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
-  // front argument indicates if the front buffer should be used or the back 
-  // buffer. It is the caller's responsibility to delete the resulting 
-  // array. It is very important to realize that the memory in this array
-  // is organized from the bottom of the window to the top. The origin
-  // of the screen is in the lower left corner. The y axis increases as
-  // you go up the screen. So the storage of pixels is from left to right
-  // and from bottom to top.
-  virtual unsigned char *GetPixelData(int, int, int, int, int) {return (unsigned char *)NULL;};
 
   // Description:
   // Set/Get the FileName used for saving images. See the SaveImageAsPPM 
