@@ -43,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.49");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.50");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -740,24 +740,19 @@ void vtkCompositeManager::StartRender()
   vtkCamera *cam;
   vtkLightCollection *lc;
   vtkLight *light;
-  vtkRenderWindow* renWin = this->RenderWindow;
-  vtkMultiProcessController *controller = this->Controller;
   
   vtkDebugMacro("StartRender");
   
   // Used to time the total render (without compositing.)
   this->Timer->StartTimer();
 
-  if (controller->GetNumberOfProcesses() == 1)
-    {
-    this->UseCompositing = 0;
-    }
-
   if (!this->UseCompositing)
     {
     return;
     }  
 
+  vtkRenderWindow* renWin = this->RenderWindow;
+  vtkMultiProcessController *controller = this->Controller;
 
   if (controller == NULL || this->Lock)
     {
@@ -881,12 +876,6 @@ void vtkCompositeManager::EndRender()
   // EndRender only happens on root.
   if (this->CheckForAbortComposite())
     {
-    renWin->SwapBuffersOn();  
-    // I am putting this here because
-    // I am getting an abort when I first hit accept.
-    // I may cause undesired behavior with the render
-    // interrupts displaying partial geometry.
-    //renWin->Frame(); // I forced compositing off with 1 proc instead.
     this->Lock = 0;
     return;
     }  
