@@ -24,7 +24,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.22");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.23");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -38,6 +38,7 @@ vtkJPEGWriter::vtkJPEGWriter()
   this->Progressive = 1;
   this->WriteToMemory = 0;
   this->Result = 0;
+  this->TempFP = 0;
 }
 
 vtkJPEGWriter::~vtkJPEGWriter()
@@ -230,11 +231,11 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   // Create the jpeg compression object and error handler
   struct jpeg_compress_struct cinfo;
   struct VTK_JPEG_ERROR_MANAGER jerr;
-  FILE *fp = 0;
+  this->TempFP = 0;
   if (!this->WriteToMemory)
     {
-    fp = fopen(this->InternalFileName, "wb");
-    if (!fp)
+    this->TempFP = fopen(this->InternalFileName, "wb");
+    if (!this->TempFP)
       {
       vtkErrorMacro("Unable to open file " << this->InternalFileName);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -249,7 +250,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     jpeg_destroy_compress(&cinfo);
     if (!this->WriteToMemory)
       {
-      fclose(fp);
+      fclose(this->TempFP);
       }
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return;
@@ -270,7 +271,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     }
   else
     {
-    jpeg_stdio_dest(&cinfo, fp);
+    jpeg_stdio_dest(&cinfo, this->TempFP);
     }
   
   // set the information about image
@@ -319,10 +320,10 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   
   if (!this->WriteToMemory)
     {
-    if (fflush(fp) == EOF)
+    if (fflush(this->TempFP) == EOF)
       {
       this->ErrorCode = vtkErrorCode::OutOfDiskSpaceError;
-      fclose(fp);
+      fclose(this->TempFP);
       return;
       }
     }
@@ -336,7 +337,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   
   if (!this->WriteToMemory)
     {
-    fclose(fp);
+    fclose(this->TempFP);
     }
 }
 
