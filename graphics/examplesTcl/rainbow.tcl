@@ -55,7 +55,7 @@ set outlineProp [outlineActor GetProperty]
 #    lut SetHueRange 0.667 0.0
 
 #funky constrast
-    lut SetNumberOfColors 64
+    lut SetNumberOfColors 256
     lut Build
     for {set i 0} {$i<16} {incr i 1} {
         eval lut SetTableValue [expr $i*16] $red 1
