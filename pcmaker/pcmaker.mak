@@ -904,7 +904,7 @@ DEP_CPP_Y_TAB=\
 ################################################################################
 # Begin Source File
 
-SOURCE=\vtk\java\java_parse.tab.c
+SOURCE=..\java\java_parse.tab.c
 DEP_CPP_JAVA_=\
 	"..\java\lex.yy.c"\
 	
@@ -930,7 +930,7 @@ DEP_CPP_JAVA_=\
 ################################################################################
 # Begin Source File
 
-SOURCE=\vtk\java\java_wrap.tab.c
+SOURCE=..\java\java_wrap.tab.c
 DEP_CPP_JAVA_W=\
 	"..\java\lex.yy.c"\
 	
