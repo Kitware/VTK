@@ -97,7 +97,7 @@ public:
   virtual void SetParentId(void *) {};
 
   // useful for scripting languages
-  virtual void SetWindowInfo(char *info) {};
+  virtual void SetWindowInfo(char *) {};
 
   // Description:
   // Performed at the end of the rendering process to generate image.
