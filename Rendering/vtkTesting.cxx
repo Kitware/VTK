@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.3");
+vtkCxxRevisionMacro(vtkTesting, "1.4");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -139,6 +139,7 @@ vtkTesting::vtkTesting()
   this->FrontBuffer = 0;
   this->RenderWindow = 0;
   this->DataFileName = 0;
+  this->ImageDifference = 0;
 }  
 
 vtkTesting::~vtkTesting()
@@ -245,6 +246,7 @@ int vtkTesting::RegressionTest(double thresh)
   rt_png->Delete(); 
 
   double minError = rt_id->GetThresholdedError();
+  this->ImageDifference = minError;
   if (minError <= thresh) 
     { 
     rt_id->Delete(); 
@@ -453,4 +455,5 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RenderWindow: " << this->RenderWindow << endl;
   os << indent << "DataFileName: " << (this->DataFileName?this->DataFileName:"(none)") << endl;
   os << indent << "FrontBuffer: " << (this->FrontBuffer?"On":"Off") << endl;
+  os << indent << "ImageDifference: " << this->ImageDifference << endl;
 }

@@ -42,16 +42,16 @@ struct VTK_RENDERING_EXPORT vtkTestUtilities
   // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandDataFileName(int argc, char* argv[], 
-                                         const char* fname,
-                                         int slash = 0);
+                                  const char* fname,
+                                  int slash = 0);
   // Description:
   // Function returning either a command line argument, an environment 
   // variable or a default value.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* GetArgOrEnvOrDefault(const char* arg, 
-                                           int argc, char* argv[], 
-                                           const char* env, 
-                                           const char* def);
+                                    int argc, char* argv[], 
+                                    const char* env, 
+                                    const char* def);
 
   // Description:
   // Given a file name, this function returns a new string which
@@ -61,11 +61,11 @@ struct VTK_RENDERING_EXPORT vtkTestUtilities
   // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                          int argc, char* argv[], 
-                                                          const char* env, 
-                                                          const char* def, 
-                                                          const char* fname,
-                                                          int slash = 0);
+                                                   int argc, char* argv[], 
+                                                   const char* env, 
+                                                   const char* def, 
+                                                   const char* fname,
+                                                   int slash = 0);
 };
 //ETX
 
@@ -107,6 +107,10 @@ public:
   vtkSetStringMacro(DataFileName);
   vtkGetStringMacro(DataFileName);
 
+  // Description:
+  // Get the image difference.
+  vtkGetMacro(ImageDifference, double);
+
 protected:
   vtkTesting();
   ~vtkTesting();
@@ -117,6 +121,7 @@ protected:
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* DataFileName;
+  double ImageDifference;
 
 private:
   vtkTesting(const vtkTesting&);  // Not implemented.
