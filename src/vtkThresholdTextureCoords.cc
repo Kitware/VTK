@@ -92,7 +92,7 @@ void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
     {
     this->LowerThreshold = lower; 
     this->UpperThreshold = upper;
-    this->ThresholdFunction = vtkThresholdTextureCoords::Between;
+    this->ThresholdFunction = &vtkThresholdTextureCoords::Between;
     this->Modified();
     }
 }

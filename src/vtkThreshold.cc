@@ -82,7 +82,7 @@ void vtkThreshold::ThresholdBetween(float lower, float upper)
     {
     this->LowerThreshold = lower; 
     this->UpperThreshold = upper;
-    this->ThresholdFunction = vtkThreshold::Between;
+    this->ThresholdFunction = &vtkThreshold::Between;
     this->Modified();
     }
 }
