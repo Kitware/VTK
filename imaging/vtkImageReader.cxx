@@ -574,6 +574,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   int inExtent[6];
   int dataExtent[6];
   int comp, pixelSkip;
+  int filePos, correction;
   
   // Get the requested extents.
   data->GetExtent(inExtent);
@@ -671,11 +672,23 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 	outPtr0 += outIncr[0];
 	}
       // move to the next row in the file and data
-      self->File->seekg(self->File->tellg() + streamSkip0, ios::beg);
+      filePos = self->File->tellg();
+      // watch for case where we might rewind too much
+      // if that happens, store the value in correction and apply later
+      if (filePos + streamSkip0 >= 0)
+	{
+	self->File->seekg(self->File->tellg() + streamSkip0, ios::beg);
+	correction = 0;
+	}
+      else
+	{
+	correction = streamSkip0;
+	}
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
-    self->File->seekg(self->File->tellg() + streamSkip1, ios::beg);
+    self->File->seekg(self->File->tellg() + streamSkip1 + correction, 
+		      ios::beg);
     outPtr2 += outIncr[2];
     }
 
