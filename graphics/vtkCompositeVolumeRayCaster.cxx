@@ -120,7 +120,8 @@ static void CastRay_NN_Unshaded( vtkCompositeVolumeRayCaster *mapper,
     {
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -160,7 +161,8 @@ static void CastRay_NN_Unshaded( vtkCompositeVolumeRayCaster *mapper,
     {
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -233,12 +235,12 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
 			       float ray_increment[3],
 			       int num_steps, float pixel_value[6] )
 {
-  int             value;
+  int             value = 0;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
   float           remaining_opacity;
-  float           opacity;
+  float           opacity = 0.0;
   int             loop;
   int             xinc, yinc, zinc;
   int             voxel[3];
@@ -249,9 +251,13 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
   float           *red_d_shade, *green_d_shade, *blue_d_shade;
   float           *red_s_shade, *green_s_shade, *blue_s_shade;
   unsigned short  *encoded_normals;
-  float           red_shaded_value, green_shaded_value, blue_shaded_value;
-  int             offset;
-  float           single_r, single_g, single_b;
+  float           red_shaded_value   = 0.0;
+  float           green_shaded_value = 0.0;
+  float           blue_shaded_value  = 0.0;
+  int             offset = 0;
+  float           single_r = 0.0;
+  float           single_g = 0.0;
+  float           single_b = 0.0;
   int             steps_this_ray = 0;
  
   // Get diffuse shading table pointers
@@ -284,6 +290,7 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
   ray_position[0] = ray_start[0];
   ray_position[1] = ray_start[1];
   ray_position[2] = ray_start[2];
+
   voxel[0] = vtkRoundFuncMacro( ray_position[0] );
   voxel[1] = vtkRoundFuncMacro( ray_position[1] );
   voxel[2] = vtkRoundFuncMacro( ray_position[2] );
@@ -294,65 +301,10 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
   accum_blue_intensity    = 0.0;
   remaining_opacity       = 1.0;
 
-  // Set up the data values for the first pass through the loop
-  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
-  value = *(data_ptr + offset);
-
-  // Compute the opacity, and shaded value (r,g,b) of this voxel
-  opacity = COTF[value];
-  // Two cases - we are working with a single color or a color transfer
-  // function - break them up to make it more efficient
-  if ( mapper->ColorType == VTK_SINGLE_COLOR ) 
-    {
-      single_r = mapper->SingleColor[0];
-      single_g = mapper->SingleColor[1];
-      single_b = mapper->SingleColor[2];
-
-      if ( opacity )
-	{
-	  red_shaded_value = opacity *  remaining_opacity *
-	    ( red_d_shade[*(encoded_normals + offset)] * single_r + 
-	      red_s_shade[*(encoded_normals + offset)] );
-	  green_shaded_value = opacity *  remaining_opacity *
-	    ( green_d_shade[*(encoded_normals + offset)] * single_g + 
-	      green_s_shade[*(encoded_normals + offset)] );
-	  blue_shaded_value = opacity *  remaining_opacity *
-	    ( blue_d_shade[*(encoded_normals + offset)] * single_b +
-	      blue_s_shade[*(encoded_normals + offset)] );
-	}
-      else
-	{
-	  red_shaded_value = 0.0;
-	  green_shaded_value = 0.0;
-	  blue_shaded_value = 0.0;
-	}
-    }
-  else  if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
-    {
-      if ( opacity )
-	{
-	  red_shaded_value = opacity *  remaining_opacity *
-	    ( red_d_shade[*(encoded_normals + offset)] * CTF[value*3] + 
-	      red_s_shade[*(encoded_normals + offset)] );
-	  green_shaded_value = opacity *  remaining_opacity *
-	    ( green_d_shade[*(encoded_normals + offset)] * CTF[value*3 + 1] + 
-	      green_s_shade[*(encoded_normals + offset)] );
-	  blue_shaded_value = opacity *  remaining_opacity *
-	    ( blue_d_shade[*(encoded_normals + offset)] * CTF[value*3 + 2] +
-	      blue_s_shade[*(encoded_normals + offset)] );
-	}
-      else
-	{
-	  red_shaded_value = 0.0;
-	  green_shaded_value = 0.0;
-	  blue_shaded_value = 0.0;
-	}
-    }
-  
   // Keep track of previous voxel to know when we step into a new one  
-  prev_voxel[0] = voxel[0];
-  prev_voxel[1] = voxel[1];
-  prev_voxel[2] = voxel[2];
+  prev_voxel[0] = voxel[0]-1;
+  prev_voxel[1] = voxel[1]-1;
+  prev_voxel[2] = voxel[2]-1;
   
   // Two cases - we are working with a single color or a color transfer
   // function - break them up to make it more efficient
@@ -363,7 +315,8 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
     single_b = mapper->SingleColor[2];
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -390,6 +343,12 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
 	    ( blue_d_shade[*(encoded_normals + offset)] * single_b +
 	      blue_s_shade[*(encoded_normals + offset)] );
  	  }
+	else
+	  {
+	  red_shaded_value = 0.0;
+	  green_shaded_value = 0.0;
+	  blue_shaded_value = 0.0;
+	  }
 
 	prev_voxel[0] = voxel[0];
 	prev_voxel[1] = voxel[1];
@@ -447,6 +406,13 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
 	    ( blue_d_shade[*(encoded_normals + offset)] * CTF[value*3 + 2] +
 	      blue_s_shade[*(encoded_normals + offset)] );
 	  }	
+	else
+	  {
+	  red_shaded_value = 0.0;
+	  green_shaded_value = 0.0;
+	  blue_shaded_value = 0.0;
+	  }
+
 	prev_voxel[0] = voxel[0];
 	prev_voxel[1] = voxel[1];
 	prev_voxel[2] = voxel[2];
@@ -589,7 +555,8 @@ static void CastRay_TrilinVertices_Unshaded(
     {
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -700,7 +667,8 @@ static void CastRay_TrilinVertices_Unshaded(
     {
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -1019,7 +987,7 @@ static void CastRay_TrilinVertices_Shaded(
       red_shaded_value = 0.0;
       green_shaded_value = 0.0;
       blue_shaded_value = 0.0;
-      
+
       // Now add the opacity and shaded intensity value in vertex by 
       // vertex.  If any of the A-H have a non-transparent opacity value, 
       // then add its contribution to the opacity
@@ -1492,9 +1460,12 @@ static void CastRay_TrilinSample_Unshaded(
       opacity = COTF[(int)scalar_value];
       
       // Accumulate intensity and opacity for this sample location
-      accum_intensity += opacity * remaining_opacity;
-      remaining_opacity *= (1.0 - opacity);
-      
+      if ( opacity )
+	{
+	accum_intensity += opacity * remaining_opacity;
+	remaining_opacity *= (1.0 - opacity);
+	}
+
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
@@ -1557,16 +1528,19 @@ static void CastRay_TrilinSample_Unshaded(
 
       opacity = COTF[(int)scalar_value];
 
-      red_value   = opacity * CTF[((int)scalar_value) * 3    ];
-      green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
-      blue_value  = opacity * CTF[((int)scalar_value) * 3 + 2];
+      if ( opacity )
+	{
+	red_value   = opacity * CTF[((int)scalar_value) * 3    ];
+	green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
+	blue_value  = opacity * CTF[((int)scalar_value) * 3 + 2];
+	
+	// Accumulate intensity and opacity for this sample location
+	accum_red_intensity   += remaining_opacity * red_value;
+	accum_green_intensity += remaining_opacity * green_value;
+	accum_blue_intensity  += remaining_opacity * blue_value;
+	remaining_opacity *= (1.0 - opacity);
+	}
 
-      // Accumulate intensity and opacity for this sample location
-      accum_red_intensity   += remaining_opacity * red_value;
-      accum_green_intensity += remaining_opacity * green_value;
-      accum_blue_intensity  += remaining_opacity * blue_value;
-      remaining_opacity *= (1.0 - opacity);
-      
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
@@ -1762,62 +1736,65 @@ static void CastRay_TrilinSample_Shaded(
       scalar_value = mapper->OpacityTFArraySize - 1;
     
     opacity = COTF[scalar_value];
-    
-    final_rd = 
-      red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
-      red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
-      red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
-      red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
 
-    final_gd = 
-      green_d_shade[ A_n ] * tA + green_d_shade[ B_n ] * tB + 	
-      green_d_shade[ C_n ] * tC + green_d_shade[ D_n ] * tD + 
-      green_d_shade[ E_n ] * tE + green_d_shade[ F_n ] * tF +	
-      green_d_shade[ G_n ] * tG + green_d_shade[ H_n ] * tH;
-
-    final_bd = 
-      blue_d_shade[ A_n ] * tA + blue_d_shade[ B_n ] * tB + 	
-      blue_d_shade[ C_n ] * tC + blue_d_shade[ D_n ] * tD + 
-      blue_d_shade[ E_n ] * tE + blue_d_shade[ F_n ] * tF +	
-      blue_d_shade[ G_n ] * tG + blue_d_shade[ H_n ] * tH;
-
-    final_rs = 
-      red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
-      red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
-      red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
-      red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
-
-    final_gs = 
-      green_s_shade[ A_n ] * tA + green_s_shade[ B_n ] * tB + 	
-      green_s_shade[ C_n ] * tC + green_s_shade[ D_n ] * tD + 
-      green_s_shade[ E_n ] * tE + green_s_shade[ F_n ] * tF +	
-      green_s_shade[ G_n ] * tG + green_s_shade[ H_n ] * tH;
-
-    final_bs = 
-      blue_s_shade[ A_n ] * tA + blue_s_shade[ B_n ] * tB + 	
-      blue_s_shade[ C_n ] * tC + blue_s_shade[ D_n ] * tD + 
-      blue_s_shade[ E_n ] * tE + blue_s_shade[ F_n ] * tF +	
-      blue_s_shade[ G_n ] * tG + blue_s_shade[ H_n ] * tH;
-    
-    if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
+    if ( opacity )
       {
-      r = CTF[(scalar_value) * 3    ];
-      g = CTF[(scalar_value) * 3 + 1];
-      b = CTF[(scalar_value) * 3 + 2];
+      final_rd = 
+	red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
+	red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
+	red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
+	red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
+      
+      final_gd = 
+	green_d_shade[ A_n ] * tA + green_d_shade[ B_n ] * tB + 	
+	green_d_shade[ C_n ] * tC + green_d_shade[ D_n ] * tD + 
+	green_d_shade[ E_n ] * tE + green_d_shade[ F_n ] * tF +	
+	green_d_shade[ G_n ] * tG + green_d_shade[ H_n ] * tH;
+      
+      final_bd = 
+	blue_d_shade[ A_n ] * tA + blue_d_shade[ B_n ] * tB + 	
+	blue_d_shade[ C_n ] * tC + blue_d_shade[ D_n ] * tD + 
+	blue_d_shade[ E_n ] * tE + blue_d_shade[ F_n ] * tF +	
+	blue_d_shade[ G_n ] * tG + blue_d_shade[ H_n ] * tH;
+      
+      final_rs = 
+	red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
+	red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
+	red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
+	red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
+      
+      final_gs = 
+	green_s_shade[ A_n ] * tA + green_s_shade[ B_n ] * tB + 	
+	green_s_shade[ C_n ] * tC + green_s_shade[ D_n ] * tD + 
+	green_s_shade[ E_n ] * tE + green_s_shade[ F_n ] * tF +	
+	green_s_shade[ G_n ] * tG + green_s_shade[ H_n ] * tH;
+      
+      final_bs = 
+	blue_s_shade[ A_n ] * tA + blue_s_shade[ B_n ] * tB + 	
+	blue_s_shade[ C_n ] * tC + blue_s_shade[ D_n ] * tD + 
+	blue_s_shade[ E_n ] * tE + blue_s_shade[ F_n ] * tF +	
+	blue_s_shade[ G_n ] * tG + blue_s_shade[ H_n ] * tH;
+      
+      if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
+	{
+	r = CTF[(scalar_value) * 3    ];
+	g = CTF[(scalar_value) * 3 + 1];
+	b = CTF[(scalar_value) * 3 + 2];
+	}
+
+      // For this sample we have do not yet have any opacity or
+      // shaded intensity yet
+      red_shaded_value   = opacity * ( final_rd * r + final_rs );
+      green_shaded_value = opacity * ( final_gd * g + final_gs );
+      blue_shaded_value  = opacity * ( final_bd * b + final_bs );
+      
+      // Accumulate intensity and opacity for this sample location   
+      accum_red_intensity   += red_shaded_value   * remaining_opacity;
+      accum_green_intensity += green_shaded_value * remaining_opacity;
+      accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
+      remaining_opacity *= (1.0 - opacity);
       }
 
-    // For this sample we have do not yet have any opacity or
-    // shaded intensity yet
-    red_shaded_value   = opacity * ( final_rd * r + final_rs );
-    green_shaded_value = opacity * ( final_gd * g + final_gs );
-    blue_shaded_value  = opacity * ( final_bd * b + final_bs );
-      
-    // Accumulate intensity and opacity for this sample location   
-    accum_red_intensity   += red_shaded_value   * remaining_opacity;
-    accum_green_intensity += green_shaded_value * remaining_opacity;
-    accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
-    remaining_opacity *= (1.0 - opacity);
-      
     // Increment our position and compute our voxel location
     ray_position[0] += ray_increment[0];
     ray_position[1] += ray_increment[1];
