@@ -39,9 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkMath.h"
 #include "vtkImplicitModeller.h"
-#include "vtkCellLocator.h"
 #include "vtkScalars.h"
 
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
@@ -107,18 +105,18 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 {
   int cellNum, i, j, k;
   float *bounds, adjBounds[6];
+  vtkCell *cell;
   float maxDistance, pcoords[3];
   vtkScalars *newScalars;
-  int idx, subId, cellId;
+  int idx, subId;
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
   int jkFactor;
-  float closestPoint[3], mDist;
+  float closestPoint[3];
   vtkStructuredPoints *output = this->GetOutput();
   float *Spacing;
   float *origin;
   float *weights=new float[input->GetMaxCellSize()];
-  vtkGenericCell *cell = vtkGenericCell::New();
   
   vtkDebugMacro(<< "Appending data");
 
@@ -129,69 +127,62 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   maxDistance = this->ComputeModelBounds();
   Spacing = output->GetSpacing();
   origin = output->GetOrigin();
-
-  vtkCellLocator *locator = vtkCellLocator::New();
-  // Set up the cell locator.
-  // If AutomaticOff, then NumberOfCellsPerBucket only used for allocating
-  // memory.  If AutomaticOn, then NumberOfCellsPerBucket is used to guess
-  // the depth for the uniform octree required to support
-  // NumberOfCellsPerBucket (assuming uniform distribution of cells).
-  locator->SetDataSet( input );
-  locator->AutomaticOff();
-  locator->SetMaxLevel( 5 );
-  locator->SetNumberOfCellsPerBucket( 1 );  
-  locator->BuildLocator();
-
-  jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
-  for (k = 0; k < SampleDimensions[2]; k++) 
+  
+  //
+  // Traverse all cells; computing distance function on volume points.
+  //
+  for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
     {
-    x[2] = Spacing[2] * k + origin[2];
-    for (j = 0; j < SampleDimensions[1]; j++)
+    cell = input->GetCell(cellNum);
+    bounds = cell->GetBounds();
+    for (i=0; i<3; i++)
       {
-      cellId = -1;
-      x[1] = Spacing[1] * j + origin[1];
-      for (i = 0; i < SampleDimensions[0]; i++) 
+      adjBounds[2*i] = bounds[2*i] - maxDistance;
+      adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
+      }
+
+    // compute dimensional bounds in data set
+    for (i=0; i<3; i++)
+      {
+      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+                      Spacing[i]);
+      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+                      Spacing[i]);
+      if (min[i] < 0)
+	{
+	min[i] = 0;
+	}
+      if (max[i] >= this->SampleDimensions[i])
+	{
+	max[i] = this->SampleDimensions[i] - 1;
+	}
+      }
+
+    jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
+    for (k = min[2]; k <= max[2]; k++) 
+      {
+      x[2] = Spacing[2] * k + origin[2];
+      for (j = min[1]; j <= max[1]; j++)
         {
-        x[0] = Spacing[0] * i + origin[0];
-        idx = jkFactor*k + this->SampleDimensions[0]*j + i;
-        
-        if (cellId != -1)
+        x[1] = Spacing[1] * j + origin[1];
+        for (i = min[0]; i <= max[0]; i++) 
           {
-          cell->EvaluatePosition(x, closestPoint, subId, pcoords,
-            distance2, weights);
-          mDist = sqrt(distance2);
-          if (mDist < maxDistance)
-            {
+          x[0] = Spacing[0] * i + origin[0];
+          idx = jkFactor*k + this->SampleDimensions[0]*j + i;
+          prevDistance2 = newScalars->GetScalar(idx);
+
+          // union combination of distances
+          if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
+                  distance2, weights) != -1 && distance2 < prevDistance2 )
+	    {
             newScalars->SetScalar(idx,distance2);
-            }
-          else
-            {
-            mDist = maxDistance;
-            }
-          }
-        else
-          {
-          mDist = maxDistance; 
-          }
-        
-        if (locator->FindClosestPointWithinRadius(x, mDist,
-          closestPoint, cell, cellId, subId, distance2) )
-          {
-          newScalars->SetScalar(idx,distance2);
-          }
-        else
-          {
-          cellId = -1;
+	    }
           }
         }
       }
     }
 
-
-  locator->Delete();
   delete [] weights;
-  cell->Delete();
-
 }
 
 // Method completes the append process.
