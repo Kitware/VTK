@@ -17,6 +17,9 @@
 // vtkFunctionParser is a class that takes in a mathematical expression as
 // a char string, parses it, and evaluates it at the specified values of
 // the variables in the input string.
+// .SECTION Thanks
+// Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
+// two-parameter-parsing and a few functions (sign, min, max).
 
 #ifndef __vtkFunctionParser_h
 #define __vtkFunctionParser_h
