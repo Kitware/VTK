@@ -103,18 +103,3 @@ void vlProperty::SetColor(float R,float G,float B)
 }
 
 
-
-float vlProperty::GetTransparency (void)
-{
-  return this->Transparency;
-}
-
-int vlProperty::GetRepresentation (void)
-{
-  return this->Representation;
-}
-
-int vlProperty::GetInterpolation (void)
-{
-  return this->Interpolation;
-}

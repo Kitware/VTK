@@ -42,17 +42,57 @@ class vlProperty : public vlObject
 
  public:
   vlProperty();
+  char *GetClassName() {return "vlProperty";};
   virtual void Render(vlRenderer *ren) = 0;
+
   void SetFlat (void);
   void SetGouraud (void);
   void SetPhong (void);
   void SetPoints (void);
   void SetWireframe (void);
   void SetSurface (void);
-  void SetColor(float R,float G,float B);
-  float GetTransparency();
-  int   GetRepresentation();
-  int   GetInterpolation();
+
+  vlGetMacro(Representation,int);
+  vlGetMacro(Interpolation,int);
+
+  void SetColor(float r,float g,float b);
+  void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
+  vlGetVectorMacro(Color,float);
+
+  vlGetMacro(Ambient,float);
+  vlSetClampMacro(Ambient,float,0.0,1.0);
+
+  vlGetMacro(Diffuse,float);
+  vlSetClampMacro(Diffuse,float,0.0,1.0);
+
+  vlGetMacro(Specular,float);
+  vlSetClampMacro(Specular,float,0.0,1.0);
+
+  vlGetMacro(SpecularPower,float);
+  vlSetClampMacro(SpecularPower,float,0.0,100.0);
+
+  vlGetMacro(Transparency,float);
+  vlSetClampMacro(Transparency,float,0.0,1.0);
+
+  vlGetMacro(EdgeVisibility,int);
+  vlSetMacro(EdgeVisibility,int);
+  vlBooleanMacro(EdgeVisibility,int);
+
+  vlGetMacro(Subdivide,int);
+  vlSetMacro(Subdivide,int);
+  vlBooleanMacro(Subdivide,int);
+
+  vlSetVector3Macro(AmbientColor,float);
+  vlGetVectorMacro(AmbientColor,float);
+
+  vlSetVector3Macro(DiffuseColor,float);
+  vlGetVectorMacro(DiffuseColor,float);
+
+  vlSetVector3Macro(SpecularColor,float);
+  vlGetVectorMacro(SpecularColor,float);
+
+  vlSetVector3Macro(EdgeColor,float);
+  vlGetVectorMacro(EdgeColor,float);
 };
 
 #endif
