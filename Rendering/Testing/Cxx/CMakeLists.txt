@@ -4,16 +4,18 @@ SET(RenderingTests
   otherCoordinate.cxx
   )
 
+SET(RenderingTestsWithArguments)
+
 IF(VTK_USE_DISPLAY) 
   # For tests that actually render something
-  SET(RenderingTests
-    ${RenderingTests}
+  SET(RenderingTestsWithArguments
+    ${RenderingTestsWithArguments}
     TestOrderedTriangulator.cxx
     )
 ENDIF(VTK_USE_DISPLAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
-  ${RenderingTests}
+  ${RenderingTests};${RenderingTestsWithArguments}
   EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
   FUNCTION vtkSuppressCrtDbgWarning
   )
@@ -27,10 +29,22 @@ REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
 #
 # Add all the executables 
-FOREACH (test ${TestsToRun})
+FOREACH (test ${RenderingTests})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
 ENDFOREACH (test) 
+
+FOREACH (test ${RenderingTestsWithArguments})
+  GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+        -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -V Baseline/${KIT}/${TName}.png)
+  ELSE (VTK_DATA_ROOT)
+    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
+  ENDIF (VTK_DATA_ROOT)
+ENDFOREACH(test)
 
 #
 # Add other odd tests or executables
