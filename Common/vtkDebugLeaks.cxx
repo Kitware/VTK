@@ -15,6 +15,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
+#include <vtkstd/string>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
   0
@@ -36,7 +37,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.30");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.31");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -61,13 +62,16 @@ public:
       this->Key = 0;
       this->Next =0;
     }
-  void Print(ostream& os)
+  void Print(vtkstd::string& os)
     {
       if(this->Count)
         {
-        os << "Class " << this->Key << " has " 
-           << this->Count << ((this->Count==1)? " instance" : " instances")
-           << " still around.\n";
+        char tmp[55];
+        sprintf(tmp," has %i %s still around.\n",this->Count,
+                (this->Count == 1) ? "instances" : "instance");
+        os += "Class ";
+        os += this->Key;
+        os += tmp;
         }
     }
   ~vtkDebugLeaksHashNode()
@@ -93,7 +97,7 @@ public:
   void IncrementCount(const char *name);
   unsigned int GetCount(const char *name);
   int DecrementCount(const char* name);
-  void PrintTable(ostream& os);
+  void PrintTable(vtkstd::string &os);
   int IsEmpty();
   ~vtkDebugLeaksHashTable()
     {
@@ -237,7 +241,7 @@ int vtkDebugLeaksHashTable::DecrementCount(const char *key)
 }
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaksHashTable::PrintTable(ostream& os)
+void vtkDebugLeaksHashTable::PrintTable(vtkstd::string &os)
 {
   for(int i =0; i < 64; i++)
     {
@@ -259,7 +263,6 @@ void vtkDebugLeaksHashTable::PrintTable(ostream& os)
       }
     }
 }
-
 
 //----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
@@ -307,36 +310,55 @@ int vtkDebugLeaks::PrintCurrentLeaks()
     {
     return 0;
     }
-  // print the table
-  strstream leaks;
+
+  // we must not use stringstream ior strstream due to problems with
+  // finalizers in MSVC
+  vtkstd::string leaks;
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
-  
 #ifdef _WIN32
+  fprintf(stderr,"%s",leaks.c_str());
   int cancel=0;
-  while(!cancel && !!leaks)
-    {
-    char line[1000];
-    strstream msg;
-    msg << "vtkDebugLeaks has detected LEAKS!\n";
-    int i=0;
-    while((++i <= 10) && !!leaks.getline(line, 1000))
+  vtkstd::string::size_type myPos = 0;
+  int count = 0;
+  vtkstd::string msg;
+  msg = "vtkDebugLeaks has detected LEAKS!\n";
+  while(!cancel && myPos != leaks.npos)
+    {  
+    vtkstd::string::size_type newPos = leaks.find('\n',myPos);
+    if (newPos != leaks.npos)
       {
-      msg << line << "\n";
-      }
-    msg << ends;
-    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
-      {
-      cout << msg.str() << "\n";
+      msg += leaks.substr(myPos,newPos-myPos);
+      msg += "\n";
+      myPos = newPos;
+      myPos++;
       }
     else
       {
-      cancel = vtkDebugLeaks::DisplayMessageBox(msg.str());
+      myPos = newPos;
       }
-    msg.rdbuf()->freeze(0);
+    count++;
+    if (count == 10)
+      {
+      count = 0;
+      if(!getenv("DASHBOARD_TEST_FROM_CTEST") && 
+         !getenv("DART_TEST_FROM_DART"))
+        {
+        cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
+        }
+      msg = "";
+      }
+    }
+  if (count)
+    {
+    if(!getenv("DASHBOARD_TEST_FROM_CTEST") && 
+       !getenv("DART_TEST_FROM_DART"))
+      {
+      cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
+      }
     }
 #else
   cout << "vtkDebugLeaks has detected LEAKS!\n";
-  cout << leaks.rdbuf() << "\n";
+  cout << leaks.c_str() << "\n";
 #endif
 #endif
   return 1;
