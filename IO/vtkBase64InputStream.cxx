@@ -20,7 +20,7 @@
 #include "vtkBase64Utility.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64InputStream, "1.1");
+vtkCxxRevisionMacro(vtkBase64InputStream, "1.2");
 vtkStandardNewMacro(vtkBase64InputStream);
 
 //----------------------------------------------------------------------------
@@ -38,6 +38,21 @@ vtkBase64InputStream::~vtkBase64InputStream()
 void vtkBase64InputStream::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+inline int vtkBase64InputStream::DecodeTriplet(unsigned char& c0,
+                                               unsigned char& c1,
+                                               unsigned char& c2)
+{
+  // Read the 4 bytes encoding this triplet from the stream.
+
+  unsigned char in[4];
+  this->Stream->read(reinterpret_cast<char*>(in), 4);
+  if(this->Stream->gcount() < 4) { return 0; }
+
+  return vtkBase64Utility::DecodeTriplet(in[0], in[1], in[2], in[3],
+                                         &c0, &c1, &c2);
 }
 
 //----------------------------------------------------------------------------
@@ -141,19 +156,4 @@ unsigned long vtkBase64InputStream::Read(unsigned char* data,
     }
   
   return (out-data);  
-}
-
-//----------------------------------------------------------------------------
-inline int vtkBase64InputStream::DecodeTriplet(unsigned char& c0,
-                                               unsigned char& c1,
-                                               unsigned char& c2)
-{
-  // Read the 4 bytes encoding this triplet from the stream.
-
-  unsigned char in[4];
-  this->Stream->read(reinterpret_cast<char*>(in), 4);
-  if(this->Stream->gcount() < 4) { return 0; }
-
-  return vtkBase64Utility::DecodeTriplet(in[0], in[1], in[2], in[3],
-                                         &c0, &c1, &c2);
 }
