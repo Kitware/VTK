@@ -457,16 +457,17 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 {
   float functionDerivs[8], sum;
   int i, j, k, plane, idx[2], jj;
-  float *x0, *x1, *x2, spacing[3];
+  float *x0, *x1, *x2, *x3, spacing[3];
 
   x0 = this->Points->GetPoint(0);
   x1 = this->Points->GetPoint(1);
   x2 = this->Points->GetPoint(2);
+  x3 = this->Points->GetPoint(3);
 
   //figure which plane this pixel is in
   for (i=0; i < 3; i++)
     {
-    spacing[i] = x2[i] - x0[i];
+    spacing[i] = x3[i] - x0[i];
     }
 
   if ( spacing[0] > spacing[2] && spacing[1] > spacing[2] ) // z-plane
@@ -495,7 +496,7 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
   // the derivative values by the data spacing.
   for (k=0; k < dim; k++) //loop over values per vertex
     {
-    for (jj=j=0; j < 3; j++, jj++) //loop over derivative directions
+    for (jj=j=0; j < 3; j++) //loop over derivative directions
       {
       if ( j == plane ) // 0-derivate values in this direction
         {
@@ -505,9 +506,9 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
         {
         for (sum=0.0, i=0; i < 4; i++) //loop over interp. function derivatives
           {
-          sum += functionDerivs[4*idx[jj] + i] * values[dim*i + k];
+          sum += functionDerivs[4*jj + i] * values[dim*i + k];
           }
-        sum /= spacing[idx[jj]];
+        sum /= spacing[idx[jj++]];
         }
       derivs[3*k + j] = sum;
       }
