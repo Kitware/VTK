@@ -18,46 +18,24 @@
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.48");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.49");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
   this->ExtractToFieldData = 0;
+  this->SetNumberOfOutputPorts(3);
+  this->OutputsInitialized = 0;
 }
 
 vtkExtractVectorComponents::~vtkExtractVectorComponents()
 {
-}
-
-// Get the output dataset containing the indicated component. The component is 
-// specified by an index between (0,2) corresponding to the x, y, or z vector
-// component. By default, the x component is extracted.
-vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
-{
-  if ( this->NumberOfOutputs < 3 )
-    {
-    vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
-    return NULL;
-    }
-  
-  if ( i < 0 || i > 2 )
-    {
-    vtkErrorMacro(<<"Vector component must be between (0,2)");
-    if ( i < 0 )
-      {
-      return (vtkDataSet *)this->Outputs[0];
-      }
-    if ( i > 2 )
-      {
-      return (vtkDataSet *)this->Outputs[2];
-      }
-    }
-
-  return (vtkDataSet *)this->Outputs[i];
 }
 
 // Get the output dataset representing velocity x-component. If output is NULL
@@ -66,12 +44,7 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
 // index of 0.)
 vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 {
-  if ( this->NumberOfOutputs < 1)
-    {
-    vtkErrorMacro(<<"Abstract filters require input to be set before VxComponent can be retrieved");
-    return 0;
-    }
-  return static_cast<vtkDataSet *>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 // Get the output dataset representing velocity y-component. If output is NULL
@@ -80,12 +53,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 // index of 1.)
 vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 {
-  if ( this->NumberOfOutputs < 2)
-    {
-    vtkErrorMacro(<<"Abstract filters require input to be set before VyComponent can be retrieved");
-    return 0;
-    }
-  return static_cast<vtkDataSet *>(this->Outputs[1]);
+  return this->GetOutput(1);
 }
 
 // Get the output dataset representing velocity z-component. If output is NULL
@@ -94,49 +62,52 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 // index of 2.)
 vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 {
-  if ( this->NumberOfOutputs < 3)
-    {
-    vtkErrorMacro(<<"Abstract filters require input to be set before VzComponent can be retrieved");
-    return 0;
-    }
-  return static_cast<vtkDataSet *>(this->Outputs[2]);
+  return this->GetOutput(2);
 }
 
 // Specify the input data or filter.
 void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 {
-  if (this->NumberOfInputs > 0 && this->Inputs[0] == input )
+  if (this->GetNumberOfInputConnections(0) > 0 && this->GetInput(0) == input )
     {
     return;
     }
 
-  this->vtkProcessObject::SetNthInput(0, input);
+  this->Superclass::SetInput(0, input);
 
   if ( input == NULL )
     {
     return;
     }
 
-  if (this->NumberOfOutputs < 3)
+  vtkDataSet *output;
+  if ( ! this->OutputsInitialized )
     {
-    this->SetNthOutput(0,input->NewInstance());
-    this->Outputs[0]->Delete();
-    this->SetNthOutput(1,input->NewInstance());
-    this->Outputs[1]->Delete();
-    this->SetNthOutput(2,input->NewInstance());
-    this->Outputs[2]->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(0, output);
+    output->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(1, output);
+    output->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(2, output);
+    output->Delete();
+    this->OutputsInitialized = 1;
     return;
     }
 
   // since the input has changed we might need to create a new output
-  if (strcmp(this->Outputs[0]->GetClassName(),input->GetClassName()))
+  if (strcmp(this->GetOutput(0)->GetClassName(),input->GetClassName()))
     {
-    this->SetNthOutput(0,input->NewInstance());
-    this->Outputs[0]->Delete();
-    this->SetNthOutput(1,input->NewInstance());
-    this->Outputs[1]->Delete();
-    this->SetNthOutput(2,input->NewInstance());
-    this->Outputs[2]->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(0, output);
+    output->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(1, output);
+    output->Delete();
+    output = input->NewInstance();
+    this->GetExecutive()->SetOutputData(2, output);
+    output->Delete();
     vtkWarningMacro(<<" a new output had to be created since the input type changed.");
     }
 }
@@ -152,8 +123,21 @@ void vtkExtractComponents(int numVectors, T* vectors, T* vx, T* vy, T* vz)
     }
 }
 
-void vtkExtractVectorComponents::Execute()
+int vtkExtractVectorComponents::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int numVectors = 0, numVectorsc = 0;
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
@@ -164,17 +148,17 @@ void vtkExtractVectorComponents::Execute()
   vtkDebugMacro(<<"Extracting vector components...");
 
   // taken out of previous update method.
-  this->GetOutput()->CopyStructure(this->GetInput());
+  output->CopyStructure(input);
   if (!this->ExtractToFieldData)
     {
-    this->GetVyComponent()->CopyStructure(this->GetInput());
-    this->GetVzComponent()->CopyStructure(this->GetInput());
+    this->GetVyComponent()->CopyStructure(input);
+    this->GetVzComponent()->CopyStructure(input);
     }
   
-  pd = this->GetInput()->GetPointData();
-  cd = this->GetInput()->GetCellData();
-  outVx = this->GetOutput()->GetPointData();  
-  outVxc = this->GetOutput()->GetCellData();  
+  pd = input->GetPointData();
+  cd = input->GetCellData();
+  outVx = output->GetPointData();  
+  outVxc = output->GetCellData();  
   if (!this->ExtractToFieldData)
     {
     outVy = this->GetVyComponent()->GetPointData();  
@@ -191,7 +175,7 @@ void vtkExtractVectorComponents::Execute()
         ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))  
     {
     vtkErrorMacro(<<"No vector data to extract!");
-    return;
+    return 1;
     }
 
   const char* name;
@@ -316,19 +300,7 @@ void vtkExtractVectorComponents::Execute()
     }
   delete[] newName;
 
-}
-
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkDataSet *vtkExtractVectorComponents::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
+  return 1;
 }
 
 void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)

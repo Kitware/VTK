@@ -31,24 +31,20 @@
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
 
-#include "vtkSource.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkDataSetAlgorithm
 {
 public:
   static vtkExtractVectorComponents *New();
-  vtkTypeRevisionMacro(vtkExtractVectorComponents,vtkSource);
+  vtkTypeRevisionMacro(vtkExtractVectorComponents,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-
-  // Description:
-  // Get the input data or filter.
-  vtkDataSet *GetInput();
 
   // Description:
   // Get the output dataset representing velocity x-component. If output is
@@ -74,12 +70,6 @@ public:
   vtkDataSet *GetVzComponent();
 
   // Description:
-  // Get the output dataset containing the indicated component. The component
-  // is specified by an index between (0,2) corresponding to the x, y, or z
-  // vector component. By default, the x component is extracted.
-  vtkDataSet *GetOutput(int i=0); //default extracts vector component.
-
-  // Description:
   // Determines whether the vector components will be put
   // in separate outputs or in the first output's field data
   vtkSetMacro(ExtractToFieldData, int);
@@ -90,8 +80,9 @@ protected:
   vtkExtractVectorComponents();
   ~vtkExtractVectorComponents();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ExtractToFieldData;
+  int OutputsInitialized;
 private:
   vtkExtractVectorComponents(const vtkExtractVectorComponents&);  // Not implemented.
   void operator=(const vtkExtractVectorComponents&);  // Not implemented.
