@@ -119,7 +119,7 @@ int vlStructuredDataSet::GetNumberOfCells()
 
   for (i=0; i<3; i++)
     if (this->Dimensions[i] > 1)
-      nCells *= (this->Dimensions[1]-1);
+      nCells *= (this->Dimensions[i]-1);
 
   return nCells;
 }
