@@ -31,6 +31,7 @@ void vlStreamLine::SetStartLocation(int cellId, int subId, float pcoords[3])
 // Get the starting location of the streamline in the cell corrdinate system.
 int vlStreamLine::GetStartLocation(int& subId, float pcoords[3])
 {
+return 89;
 }
 
 // Description:
@@ -44,6 +45,8 @@ void vlStreamLine::SetStartPosition(float x[3])
 // Get the start position in global x-y-z coordinates.
 float *vlStreamLine::GetStartPosition()
 {
+static float foo[3];
+return foo;
 }
 
 void vlStreamLine::Execute()
@@ -61,4 +64,5 @@ void vlStreamLine::PrintSelf(ostream& os, vlIndent indent)
     }
 
 }
+
 
