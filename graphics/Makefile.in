@@ -93,6 +93,7 @@ vtkActor \
 vtkActorCollection \
 vtkAppendFilter \
 vtkAppendPolyData \
+vtkArrayCalculator \
 vtkAssembly \
 vtkAttributeDataToFieldDataFilter \
 vtkAxes \
