@@ -60,6 +60,9 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
     }
   attributes[index++] = GLX_DEPTH_SIZE;
   attributes[index++] = 1;
+
+// not all OpenGL implementations support MultiSamples
+#ifdef GLX_SAMPLE_BUFFER_SGIS
   if (this->MultiSamples > 1 )
     {
     attributes[index++] = GLX_SAMPLE_BUFFER_SGIS;
@@ -67,6 +70,7 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
     attributes[index++] = GLX_SAMPLES_SGIS;
     attributes[index++] = ms;
     }
+#endif
   attributes[index++] = None;
 
   v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), attributes );
@@ -91,10 +95,12 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
 	}
       attributes[index++] = GLX_DEPTH_SIZE;
       attributes[index++] = 1;
+#ifdef GLX_SAMPLE_BUFFER_SGIS
       attributes[index++] = GLX_SAMPLE_BUFFER_SGIS;
       attributes[index++] = 1;
       attributes[index++] = GLX_SAMPLES_SGIS;
-      attributes[index++] = this->MultiSamples;
+      attributes[index++] = ms;
+#endif
       attributes[index++] = None;
     
       v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
@@ -415,6 +421,7 @@ void vtkOglrRenderWindow::WindowInitialize (void)
   glEnable( GL_BLEND );
 
   glEnable( GL_NORMALIZE );
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
   this->Mapped = 1;
 }
