@@ -58,8 +58,12 @@ public:
   char *GetClassName() {return "vtkImageGaussianSmooth";};
 
   void SetDimensionality(int num);
-  void SetStandardDeviation(float std);
   void SetRadiusFactor(float factor);
+
+  void SetStandardDeviation(int num, float *std);
+  vtkImageSetMacro(StandardDeviation, float);
+
+  void vtkTest () {};
 
   // Description:
   // Each axis can have a stride to srink the image.
@@ -68,6 +72,7 @@ public:
   
 protected:
   int Strides[VTK_IMAGE_DIMENSIONS];
+  float StandardDeviation[VTK_IMAGE_DIMENSIONS];
 };
 
 #endif
