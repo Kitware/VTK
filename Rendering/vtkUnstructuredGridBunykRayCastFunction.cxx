@@ -32,7 +32,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.26");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.27");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -1067,19 +1067,19 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
 }
 
 template <class T>
-static vtkIdType TemplateCastRay(const T *scalars, 
-                                 vtkUnstructuredGridBunykRayCastFunction *self,
-                                 int numComponents,
-                                 int x, int y, 
-                                 double farClipZ,
-                                 vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
-                                 vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
-                                 vtkIdType &currentTetra,
-                                 vtkIdType *intersectedCells,
-                                 double *intersectionLengths,
-                                 T *nearIntersections,
-                                 T *farIntersections,
-                                 int maxNumIntersections )
+vtkIdType TemplateCastRay(const T *scalars, 
+                          vtkUnstructuredGridBunykRayCastFunction *self,
+                          int numComponents,
+                          int x, int y, 
+                          double farClipZ,
+                          vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
+                          vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
+                          vtkIdType &currentTetra,
+                          vtkIdType *intersectedCells,
+                          double *intersectionLengths,
+                          T *nearIntersections,
+                          T *farIntersections,
+                          int maxNumIntersections )
 {
   int imageViewportSize[2];
   self->GetImageViewportSize( imageViewportSize );
@@ -1409,13 +1409,13 @@ vtkIdType vtkUnstructuredGridBunykRayCastFunction::GetNextIntersections(vtkIdTyp
 }
 
 template<class T>
-static void TemplateIntegrateColor(vtkIdType numIntersections,
-                                   int numComponents,
-                                   const double *intersectionLengths,
-                                   const T *nearIntersections,
-                                   const T *farIntersections,
-                                   vtkUnstructuredGridBunykRayCastFunction *self,
-                                   float color[4])
+void TemplateIntegrateColor(vtkIdType numIntersections,
+                            int numComponents,
+                            const double *intersectionLengths,
+                            const T *nearIntersections,
+                            const T *farIntersections,
+                            vtkUnstructuredGridBunykRayCastFunction *self,
+                            float color[4])
 {
   double **colorTable      = self->GetColorTable();
   double  *colorTableShift = self->GetColorTableShift();
