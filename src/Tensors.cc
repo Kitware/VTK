@@ -41,7 +41,7 @@ void vtkTensors::InsertTensor(int id, float t11, float t12, float t13,
   t.SetComponent(2,1,t32);
   t.SetComponent(2,2,t33);
 
-  this->InsertTensor(id,t);
+  this->InsertTensor(id,&t);
 }
 
 int vtkTensors::InsertNextTensor(float t11, float t12, float t13, 
@@ -59,7 +59,7 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
   t.SetComponent(2,1,t32);
   t.SetComponent(2,2,t33);
 
-  return this->InsertNextTensor(t);
+  return this->InsertNextTensor(&t);
 }
 
 // Description:

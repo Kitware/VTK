@@ -446,7 +446,7 @@ void vtkPointData::NullPoint (int ptId)
 
   if ( this->Tensors )
     {
-    this->Tensors->InsertTensor(ptId,nullTensor);
+    this->Tensors->InsertTensor(ptId,&nullTensor);
     }
 
   if ( this->UserDefined )
