@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.55");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.56");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -120,7 +120,7 @@ int vtkTensorGlyph::RequestData(
   if ( !inTensors || numPts < 1 )
     {
     vtkErrorMacro(<<"No data to glyph!");
-    return 0;
+    return 1;
     }
   //
   // Allocate storage for output PolyData

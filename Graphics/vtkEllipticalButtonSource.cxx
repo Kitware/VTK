@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkEllipticalButtonSource, "1.2");
+vtkCxxRevisionMacro(vtkEllipticalButtonSource, "1.3");
 vtkStandardNewMacro(vtkEllipticalButtonSource);
 
 // Construct 
@@ -59,7 +59,7 @@ int vtkEllipticalButtonSource::RequestData(
   if ( this->Width <= 0.0 || this->Height <= 0.0 )
     {
     vtkErrorMacro(<<"Button must have non-zero height and width");
-    return 0;
+    return 1;
     }
   
   // Create the button in several steps. First, create the button in

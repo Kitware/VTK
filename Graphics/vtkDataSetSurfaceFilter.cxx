@@ -37,7 +37,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.40");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.41");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -87,12 +87,12 @@ int vtkDataSetSurfaceFilter::RequestData(
 
   if (input->CheckAttributes())
     {
-    return 0;
+    return 1;
     }
 
   if (numCells == 0)
     {
-    return 0;
+    return 1;
     }
 
   switch (input->GetDataObjectType())
@@ -101,9 +101,10 @@ int vtkDataSetSurfaceFilter::RequestData(
       {
       if (!this->UnstructuredGridExecute(input, output))
         {
-        return 0;
+        return 1;
         }
-      return !output->CheckAttributes();
+      output->CheckAttributes();
+      return 1;
       }
     case VTK_RECTILINEAR_GRID:
       {
@@ -545,7 +546,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   
   if (numCells == 0)
     {
-    return 0;
+    return 1;
     }
 
   cellIds = vtkIdList::New();

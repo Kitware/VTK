@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.44");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.45");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -62,7 +62,7 @@ int vtkMaskPolyData::RequestData(
   if ( numCells < 1 )
     {
     vtkErrorMacro (<<"No PolyData to mask!");
-    return 0;
+    return 1;
     }
 
   output->Allocate(input,numCells);

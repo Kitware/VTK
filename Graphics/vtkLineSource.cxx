@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.46");
+vtkCxxRevisionMacro(vtkLineSource, "1.47");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)
@@ -77,7 +77,7 @@ int vtkLineSource::RequestData(
   
   if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
-    return 0;
+    return 1;
     }
 
   newPoints = vtkPoints::New();

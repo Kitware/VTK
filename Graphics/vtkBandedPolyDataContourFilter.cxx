@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.48");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.49");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -233,7 +233,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
        !inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No input data!");
-    return 0;
+    return 1;
     }
 
   // Set up supplemental data structures for processing edge/generating

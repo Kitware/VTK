@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.47");
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.48");
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -76,7 +76,7 @@ int vtkSubPixelPositionEdgels::RequestData(
   if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
     {
     vtkErrorMacro(<<"No data to fit!");
-    return 0;
+    return 1;
     }
 
   newPts = vtkPoints::New();

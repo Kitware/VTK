@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.70");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.71");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -120,7 +120,7 @@ int vtkFeatureEdges::RequestData(
        (numPolys < 1 && numStrips < 1) )
     {
     //vtkErrorMacro(<<"No input data!");
-    return 0;
+    return 1;
     }
 
   if ( !this->BoundaryEdges && !this->NonManifoldEdges && 

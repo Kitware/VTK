@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.15");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.16");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -91,13 +91,13 @@ int vtkSplineFilter::RequestData(
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
     vtkWarningMacro(<< " No input data!");
-    return 0;
+    return 1;
     }
 
   if ( this->Spline == NULL )
     {
     vtkWarningMacro(<< "Need to specify a spline!");
-    return 0;
+    return 1;
     }
 
   // Create the geometry and topology

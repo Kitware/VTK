@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTextSource, "1.48");
+vtkCxxRevisionMacro(vtkTextSource, "1.49");
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9
@@ -195,7 +195,7 @@ int vtkTextSource::RequestData(
   if (this->Text == NULL)
     {
     vtkErrorMacro (<< "Text is not set!");
-    return 0;
+    return 1;
     }
 
   // convert colors to unsigned char

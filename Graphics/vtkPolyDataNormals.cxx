@@ -27,7 +27,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.65");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.66");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -92,7 +92,7 @@ int vtkPolyDataNormals::RequestData(
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No data to generate normals for!");
-    return 0;
+    return 1;
     }
 
 

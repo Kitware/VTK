@@ -27,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.39");
+vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.40");
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -98,7 +98,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   if (inPts == NULL)
     {
     vtkErrorMacro("No points!");
-    return 0;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -107,7 +107,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   if ( numPts < 1 || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
-    return 0;
+    return 1;
     }
 
   // See whether to consider scalar connectivity

@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.51");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.52");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -81,7 +81,7 @@ int vtkExtractEdges::RequestData(
   numPts=input->GetNumberOfPoints();
   if ( (numCells=input->GetNumberOfCells()) < 1 || numPts < 1 )
     {
-    return 0;
+    return 1;
     }
 
   // Set up processing

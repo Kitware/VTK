@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.78");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.79");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -105,7 +105,7 @@ int vtkRibbonFilter::RequestData(
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    return 0;
+    return 1;
     }
 
   // Create the geometry and topology

@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.82");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.83");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -100,7 +100,7 @@ int vtkTubeFilter::RequestData(
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    return 0;
+    return 1;
     }
 
   // Create the geometry and topology

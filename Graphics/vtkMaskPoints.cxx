@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.46");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.47");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ int vtkMaskPoints::RequestData(
 
   if ( numPts < 1 )
     {
-    return 0;
+    return 1;
     }
 
   pd = input->GetPointData();

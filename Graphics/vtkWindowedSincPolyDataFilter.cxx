@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.39");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.40");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -111,7 +111,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to smooth!");
-    return 0;
+    return 1;
     }
 
   CosFeatureAngle = 

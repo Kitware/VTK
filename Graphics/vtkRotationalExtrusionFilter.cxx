@@ -25,7 +25,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.55");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.56");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -87,7 +87,7 @@ int vtkRotationalExtrusionFilter::RequestData(
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to extrude!");
-    return 0;
+    return 1;
     }
 
   // Build cell data structure.

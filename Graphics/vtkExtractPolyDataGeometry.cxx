@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.22");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.23");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
@@ -93,7 +93,7 @@ int vtkExtractPolyDataGeometry::RequestData(
   if ( ! this->ImplicitFunction )
     {
     vtkErrorMacro(<<"No implicit function specified");
-    return 0;
+    return 1;
     }
 
   numPts = input->GetNumberOfPoints();

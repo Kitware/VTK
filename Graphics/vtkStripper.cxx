@@ -23,7 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.67");
+vtkCxxRevisionMacro(vtkStripper, "1.68");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -87,7 +87,7 @@ int vtkStripper::RequestData(
     output->GetCellData()->PassData(input->GetCellData());
     mesh->Delete();
     vtkDebugMacro(<<"No data to strip!");
-    return 0;
+    return 1;
     }
 
   pts = new vtkIdType[this->MaximumLength + 2]; //working array

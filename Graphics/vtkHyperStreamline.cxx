@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.58");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.59");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -364,7 +364,7 @@ int vtkHyperStreamline::RequestData(
   if ( ! (inTensors=pd->GetTensors()) )
     {
     vtkErrorMacro(<<"No tensor data defined!");
-    return 0;
+    return 1;
     }
   w = new double[input->GetMaxCellSize()];
 

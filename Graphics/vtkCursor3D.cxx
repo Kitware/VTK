@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.44");
+vtkCxxRevisionMacro(vtkCursor3D, "1.45");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -151,7 +151,7 @@ int vtkCursor3D::RequestData(
     }
   else
     {
-    return 0;
+    return 1;
     }
 
   // Create axes

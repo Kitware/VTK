@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.29");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.30");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -64,7 +64,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to approximate!");
-    return 0;
+    return 1;
     }
 
   //

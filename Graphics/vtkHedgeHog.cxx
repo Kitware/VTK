@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.43");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.44");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -67,19 +67,19 @@ int vtkHedgeHog::RequestData(
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No input data");
-    return 0;
+    return 1;
     }
   if ( !inVectors && this->VectorMode == VTK_USE_VECTOR)
     {
     vtkErrorMacro(<<"No vectors in input data");
-    return 0;
+    return 1;
     }
 
   inNormals = pd->GetNormals();
   if ( !inNormals && this->VectorMode == VTK_USE_NORMAL)
     {
     vtkErrorMacro(<<"No normals in input data");
-    return 0;
+    return 1;
     }
   outputPD->CopyAllocate(pd, 2*numPts);
 

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.32");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.33");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
                      Transform,vtkAbstractTransform);
@@ -71,7 +71,7 @@ int vtkTransformPolyDataFilter::RequestData(
   if ( this->Transform == NULL )
     {
     vtkErrorMacro(<<"No transform defined!");
-    return 0;
+    return 1;
     }
 
   inPts = input->GetPoints();
@@ -83,7 +83,7 @@ int vtkTransformPolyDataFilter::RequestData(
   if ( !inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return 0;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();

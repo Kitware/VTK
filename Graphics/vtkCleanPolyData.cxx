@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.76");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.77");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ int vtkCleanPolyData::RequestData(
   if ( (numPts<1) || (inPts == NULL ) )
     {
     vtkDebugMacro(<<"No data to Operate On!");
-    return 0;
+    return 1;
     }
   vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
 

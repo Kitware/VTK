@@ -28,7 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.41");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.42");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -210,7 +210,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to smooth!");
-    return 0;
+    return 1;
     }
 
   CosFeatureAngle = 

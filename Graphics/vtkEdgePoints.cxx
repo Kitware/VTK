@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.55");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.56");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -84,14 +84,14 @@ int vtkEdgePoints::RequestData(
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
-    return 0;
+    return 1;
     }
 
   inScalars->GetRange(range,0);
   if ( this->Value < range[0] || this->Value > range[1] )
     {
     vtkWarningMacro(<<"Value lies outside of scalar range");
-    return 0;
+    return 1;
     }
 
   numCells = input->GetNumberOfCells();

@@ -32,7 +32,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.33");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.34");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -130,14 +130,14 @@ int vtkSelectPolyData::RequestData(
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro("Input contains no points");
-    return 0;
+    return 1;
     }
 
   if ( this->Loop == NULL || 
   (numLoopPts=this->Loop->GetNumberOfPoints()) < 3 )
     {
     vtkErrorMacro("Please define a loop with at least three points");
-    return 0;
+    return 1;
     }
 
   // Okay, now we build unstructured representation. Make sure we're
@@ -161,7 +161,7 @@ int vtkSelectPolyData::RequestData(
     {
     vtkErrorMacro("This filter operates on surface primitives");
     tf->Delete();
-    return 0;
+    return 1;
     }
 
   this->Mesh = vtkPolyData::New();
@@ -249,7 +249,7 @@ int vtkSelectPolyData::RequestData(
       if ( closest < 0 )
         {
         vtkErrorMacro(<<"Can't follow edge");
-        return 0;
+        return 1;
         }
       else
         {

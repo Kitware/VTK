@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.25");
+vtkCxxRevisionMacro(vtkCellCenters, "1.26");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -65,7 +65,7 @@ int vtkCellCenters::RequestData(
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {
     vtkWarningMacro(<<"No cells to generate center points for");
-    return 0;
+    return 1;
     }
 
   newPts = vtkPoints::New();

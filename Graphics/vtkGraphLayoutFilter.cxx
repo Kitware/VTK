@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.13");
+vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.14");
 vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()
@@ -104,7 +104,7 @@ int vtkGraphLayoutFilter::RequestData(
   if ( numPts <= 0 || numLines <= 0)
     {                   
     vtkErrorMacro(<<"No input");
-    return 0;
+    return 1;
     }
 
   // Generate bounds automatically if necessary. It's the same

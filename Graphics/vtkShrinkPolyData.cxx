@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.67");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.68");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)
@@ -289,7 +289,7 @@ int vtkShrinkPolyData::RequestData(
 
   if (input == NULL || input->GetPoints() == NULL)
     {
-    return 0;
+    return 1;
     }
   
   // get the input pointer for templating

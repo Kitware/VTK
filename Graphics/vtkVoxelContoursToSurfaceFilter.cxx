@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.26");
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.27");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
@@ -515,7 +515,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   
   if (contourBounds[0] > contourBounds[1])
     { // empty input
-    return 0;
+    return 1;
     }
 
   // From the bounds, compute the grid size, and origin

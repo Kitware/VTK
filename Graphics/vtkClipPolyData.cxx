@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipPolyData, "1.54");
+vtkCxxRevisionMacro(vtkClipPolyData, "1.55");
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData,ClipFunction,vtkImplicitFunction);
 
@@ -144,13 +144,13 @@ int vtkClipPolyData::RequestData(
   if ( numPts < 1 || inPts == NULL )
     {
     //vtkErrorMacro(<<"No data to clip");
-    return 0;
+    return 1;
     }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
-    return 0;
+    return 1;
     }
 
   // Create objects to hold output of clip operation
@@ -203,7 +203,7 @@ int vtkClipPolyData::RequestData(
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
-      return 0;
+      return 1;
       }
     }
     

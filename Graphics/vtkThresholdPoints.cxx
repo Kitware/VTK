@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.39");
+vtkCxxRevisionMacro(vtkThresholdPoints, "1.40");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -139,7 +139,7 @@ int vtkThresholdPoints::RequestData(
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
-    return 0;
+    return 1;
     }
      
   numPts = input->GetNumberOfPoints();

@@ -29,7 +29,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.13");
+vtkCxxRevisionMacro(vtkCurvatures, "1.14");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ int vtkCurvatures::RequestData(
   else 
     {
     vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
-    return 0;
+    return 1;
     }
 
   return 1;
