@@ -1021,9 +1021,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* Block inclusion of full streams.  */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
+  fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
-  fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
   
   fprintf(fp,"#if defined(WIN32)\n");
   fprintf(fp,"extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(char *); }\n",
