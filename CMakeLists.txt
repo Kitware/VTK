@@ -614,14 +614,10 @@ IF(VTK_USE_MPI AND BUILD_TESTING)
   SET(VTK_MPI_PREFLAGS "" CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
   SET(VTK_MPI_POSTFLAGS "" CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
   SET(VTK_MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-  SET(VTK_MPI_CLIENT_FLAGS "" CACHE STRING "Extras flags being pass to mpirun when run as client")
-  SET(VTK_MPI_SERVER_FLAGS "" CACHE STRING "Extras flags being pass to mpirun when run as server")
   MARK_AS_ADVANCED(
-    VTK_MPI_NUMPROC_FLAG VTK_MPIRUN_EXE VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS VTK_MPI_CLIENT_FLAGS VTK_MPI_SERVER_FLAGS)
+    VTK_MPI_NUMPROC_FLAG VTK_MPIRUN_EXE VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS)
   SEPARATE_ARGUMENTS(VTK_MPI_PREFLAGS)
   SEPARATE_ARGUMENTS(VTK_MPI_POSTFLAGS)
-  SEPARATE_ARGUMENTS(VTK_MPI_CLIENT_FLAGS)
-  SEPARATE_ARGUMENTS(VTK_MPI_SERVER_FLAGS)
 ENDIF(VTK_USE_MPI AND BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
