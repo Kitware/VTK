@@ -5,7 +5,7 @@
 #include "vtkVersion.h"
 #include <stdlib.h>
 #include <ctype.h>
-
+#include "vtkDebugLeaks.h"
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -15,6 +15,9 @@ vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
 vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
 {
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass(vtkclassname);
+#endif
   if(!vtkObjectFactory::RegisteredFactories)
     {
     vtkObjectFactory::Init();

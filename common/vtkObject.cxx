@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkObject.h"
-
+#include "vtkDebugLeaks.h"
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
 
@@ -248,6 +248,9 @@ void vtkObject::UnRegister(vtkObject* o)
 
   if (--this->ReferenceCount <= 0)
     {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::DestructClass(this->GetClassName());
+#endif
     // invoke the delete method
     if ( this->DeleteMethod )
       {
