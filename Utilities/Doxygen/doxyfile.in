@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2002-07-29 11:10:05 barre>
+# modified by S. Barre (Time-stamp: <2002-09-20 13:17:56 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -154,7 +154,7 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    virtual const char *GetClassName(); \
                    static int IsTypeOf(const char *type); \
                    virtual int IsA(const char *type); \
-                   static thisClass* SafeDownCast(vtkObject *o);"
+                   static thisClass* SafeDownCast(vtkObject *o);" \
                "vtkTypeRevisionMacro(thisClass,superclass)= \
                    typedef superclass Superclass; \
                    virtual const char *GetClassName(); \
