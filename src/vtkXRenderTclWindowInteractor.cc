@@ -18,9 +18,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <string.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
-#include "XInter.hh"
-#include "XRenWin.hh"
-#include "Actor.hh"
+#include "vtkXRenderWindowInteractor.hh"
+#include "vtkXRenderWindow.hh"
+#include "vtkActor.hh"
 #include <X11/Shell.h>
 #include <math.h>
 #include "tk.h"
@@ -95,11 +95,17 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->State = VTKXI_START;
   this->App = 0;
+  this->top = 0;
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
 }
+
+void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
+{
+  this->top = foo;
+} 
 
 void  vtkXRenderWindowInteractor::Start()
 {
@@ -597,6 +603,8 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
   /* add callback */
   XSync(display,False);
   ren->SetNextWindowId(XtWindow(this->top));
+  this->WindowId = XtWindow(this->top);
+  ren->WindowRemap();
 }
 
 // Description:
@@ -605,10 +613,9 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {
   int *size;
 
-  XtAddEventHandler(this->top,
+  XSelectInput(this->DisplayId,this->WindowId,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+		    StructureNotifyMask | ButtonReleaseMask);
 
   size = this->RenderWindow->GetSize();
   this->Size[0] = size[0];
