@@ -18,7 +18,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.4");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.5");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -30,14 +30,15 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
 
   this->NumberOfParameters = 0;
   this->ParameterNames = NULL;
-  this->Parameters = NULL;
-  this->ParameterBrackets = NULL;
+  this->ParameterValues = NULL;
+  this->ParameterScales = NULL;
 
-  this->Result = 0.0;
+  this->FunctionValue = 0.0;
 
   this->Tolerance = 1e-4;
   this->MaxIterations = 1000;
   this->Iterations = 0;
+  this->FunctionEvaluations = 0;
 
   // specific to the amoeba
   this->AmoebaVertices = NULL;
@@ -71,15 +72,15 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
     delete [] this->ParameterNames;
     this->ParameterNames = NULL;
     }
-  if (this->Parameters)
+  if (this->ParameterValues)
     {
-    delete [] this->Parameters;
-    this->Parameters = NULL;
+    delete [] this->ParameterValues;
+    this->ParameterValues = NULL;
     }
-  if (this->ParameterBrackets)
+  if (this->ParameterScales)
     {
-    delete [] this->ParameterBrackets;
-    this->ParameterBrackets = NULL;
+    delete [] this->ParameterScales;
+    this->ParameterScales = NULL;
     }
 
   this->NumberOfParameters = 0;
@@ -94,22 +95,6 @@ void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
     {
     int i;
 
-    os << indent << "ParameterBrackets: \n";
-    for (i = 0; i < this->NumberOfParameters; i++)
-      {
-      const char *name = this->GetParameterName(i);
-      os << indent << "  ";
-      if (name)
-        {
-        os << name << ": ";
-        }
-      else
-        {
-        os << i << ": ";
-        }
-      os << this->GetParameterBracket(i)[0] << " " <<
-           this->GetParameterBracket(i)[1] <<"\n";
-      }
     os << indent << "ParameterValues: \n";
     for (i = 0; i < this->NumberOfParameters; i++)
       {
@@ -125,10 +110,29 @@ void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
         }
       os << this->GetParameterValue(i) << "\n";
       }
+
+    os << indent << "ParameterScales: \n";
+    for (i = 0; i < this->NumberOfParameters; i++)
+      {
+      const char *name = this->GetParameterName(i);
+      os << indent << "  ";
+      if (name)
+        {
+        os << name << ": ";
+        }
+      else
+        {
+        os << i << ": ";
+        }
+      os << this->GetParameterScale(i) << "\n";
+      }
     }
-  os << indent << "Result: " << this->GetResult() << "\n";
-  os << indent << "MaxIterations: " << this->GetMaxIterations() << "\n";
+
+  os << indent << "FunctionValue: " << this->GetFunctionValue() << "\n";
+  os << indent << "FunctionEvaluations: " << this->GetFunctionEvaluations()
+     << "\n";
   os << indent << "Iterations: " << this->GetIterations() << "\n";
+  os << indent << "MaxIterations: " << this->GetMaxIterations() << "\n";
   os << indent << "Tolerance: " << this->GetTolerance() << "\n";
 }
 
@@ -159,30 +163,13 @@ void vtkAmoebaMinimizer::SetFunctionArgDelete(void (*f)(void *))
 }
 
 //----------------------------------------------------------------------------
-double *vtkAmoebaMinimizer::GetParameterBracket(const char *name)
-{
-  static double errval[2] = { 0.0, 0.0 };
-
-  for (int i = 0; i < this->NumberOfParameters; i++)
-    {
-    if (this->ParameterNames[i] && strcmp(name,this->ParameterNames[i]) == 0)
-      {
-      return this->ParameterBrackets[i];
-      }
-    }
-
-  vtkErrorMacro("GetParameterBracket: no parameter named " << name);
-  return errval;
-}
-
-//----------------------------------------------------------------------------
 double vtkAmoebaMinimizer::GetParameterValue(const char *name)
 {
   for (int i = 0; i < this->NumberOfParameters; i++)
     {
     if (this->ParameterNames[i] && strcmp(name,this->ParameterNames[i]) == 0)
       {
-      return this->Parameters[i];
+      return this->ParameterValues[i];
       }
     }
   vtkErrorMacro("GetParameterValue: no parameter named " << name);
@@ -190,8 +177,7 @@ double vtkAmoebaMinimizer::GetParameterValue(const char *name)
 }
 
 //----------------------------------------------------------------------------
-void vtkAmoebaMinimizer::SetParameterBracket(const char *name, 
-                                             double bmin, double bmax)
+void vtkAmoebaMinimizer::SetParameterValue(const char *name, double val)
 {
   int i;
 
@@ -203,7 +189,7 @@ void vtkAmoebaMinimizer::SetParameterBracket(const char *name,
       }
     }
 
-  this->SetParameterBracket(i,bmin,bmax);
+  this->SetParameterValue(i, val);
 
   if (!this->ParameterNames[i])
     {
@@ -214,46 +200,91 @@ void vtkAmoebaMinimizer::SetParameterBracket(const char *name,
 }
 
 //----------------------------------------------------------------------------
-void vtkAmoebaMinimizer::SetParameterBracket(int i, 
-                                             double bmin, double bmax)
+void vtkAmoebaMinimizer::SetParameterValue(int i, double val)
 {
   if (i < this->NumberOfParameters)
     {
-    if (this->ParameterBrackets[i][0] != bmin ||
-        this->ParameterBrackets[i][1] != bmax)
+    if (this->ParameterValues[i] != val)
       {
-      this->ParameterBrackets[i][0] = bmin;
-      this->ParameterBrackets[i][1] = bmax;
+      this->ParameterValues[i] = val;
+      this->Iterations = 0; // reset to start
+      this->FunctionEvaluations = 0;
       this->Modified();
       }
     return;
     }
 
-  int n = i + 1;
+  int n = this->NumberOfParameters + 1;
+
   char **newParameterNames = new char *[n];
-  double *newParameters = new double[n];
-  double (*newParameterBrackets)[2] = new double[n][2];
+  double *newParameterValues = new double[n];
+  double *newParameterScales = new double[n];
 
   for (int j = 0; j < this->NumberOfParameters; j++)
     {
     newParameterNames[j] = this->ParameterNames[j];
     this->ParameterNames[j] = NULL; // or else it will be deleted in Initialize
-    newParameters[j] = this->Parameters[j];
-    newParameterBrackets[j][0] = this->ParameterBrackets[j][0];
-    newParameterBrackets[j][1] = this->ParameterBrackets[j][1];
+    newParameterValues[j] = this->ParameterValues[j];
+    newParameterScales[j] = this->ParameterScales[j];
     }
 
   newParameterNames[n-1] = 0;
-  newParameters[n-1] = bmin;
-  newParameterBrackets[n-1][0] = bmin;
-  newParameterBrackets[n-1][1] = bmax;
+  newParameterValues[n-1] = val;
+  newParameterScales[n-1] = 1.0;
 
   this->Initialize();
 
   this->NumberOfParameters = n;
   this->ParameterNames = newParameterNames;
-  this->Parameters = newParameters;
-  this->ParameterBrackets = newParameterBrackets;
+  this->ParameterValues = newParameterValues;
+  this->ParameterScales = newParameterScales;
+
+  this->Iterations = 0; // reset to start
+  this->FunctionEvaluations = 0;
+}
+
+//----------------------------------------------------------------------------
+double vtkAmoebaMinimizer::GetParameterScale(const char *name)
+{
+  for (int i = 0; i < this->NumberOfParameters; i++)
+    {
+    if (this->ParameterNames[i] && strcmp(name,this->ParameterNames[i]) == 0)
+      {
+      return this->ParameterScales[i];
+      }
+    }
+  vtkErrorMacro("GetParameterScale: no parameter named " << name);
+  return 1.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkAmoebaMinimizer::SetParameterScale(const char *name, double scale)
+{
+  for (int i = 0; i < this->NumberOfParameters; i++)
+    {
+    if (this->ParameterNames[i] && strcmp(name,this->ParameterNames[i]) == 0)
+      {
+      this->SetParameterScale(i, scale);
+      return;
+      }
+    }
+  vtkErrorMacro("SetParameterScale: no parameter named " << name);
+}
+
+//----------------------------------------------------------------------------
+void vtkAmoebaMinimizer::SetParameterScale(int i, double scale)
+{
+  if (i < 0 || i > this->NumberOfParameters)
+    {
+    vtkErrorMacro("SetParameterScale: parameter number out of range: " << i);
+    return;
+    }
+      
+  if (this->ParameterScales[i] != scale)
+    {
+    this->ParameterScales[i] = scale;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -272,21 +303,32 @@ void vtkAmoebaMinimizer::Initialize()
     delete [] this->ParameterNames;
     this->ParameterNames = 0;
     }
-  if (this->Parameters)
+  if (this->ParameterValues)
     {
-    delete [] this->Parameters;
-    this->Parameters = 0;
+    delete [] this->ParameterValues;
+    this->ParameterValues = 0;
     }
-  if (this->ParameterBrackets)
+  if (this->ParameterScales)
     {
-    delete [] this->ParameterBrackets;
-    this->ParameterBrackets = 0;
+    delete [] this->ParameterScales;
+    this->ParameterScales = 0;
     }
 
   this->NumberOfParameters = 0;
   this->Iterations = 0;
+  this->FunctionEvaluations = 0;
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkAmoebaMinimizer::EvaluateFunction()
+{
+  if (this->Function)
+    {
+    this->Function(this->FunctionArg);
+    }
+  this->FunctionEvaluations++;
 }
 
 //----------------------------------------------------------------------------
@@ -303,7 +345,7 @@ int vtkAmoebaMinimizer::Iterate()
     }
 
   int improved = this->PerformAmoeba();
-  this->GetAmoebaParameters();
+  this->GetAmoebaParameterValues();
   this->Iterations++;
 
   return improved;
@@ -331,7 +373,7 @@ void vtkAmoebaMinimizer::Minimize()
       }
     }
 
-  this->GetAmoebaParameters();
+  this->GetAmoebaParameterValues();
 }
 
 /* ----------------------------------------------------------------------------
@@ -452,27 +494,27 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
     {
     for( j = 0; j < n_parameters ; j++ )
       {
-      this->AmoebaVertices[i][j] = this->ParameterBrackets[j][0];
+      this->AmoebaVertices[i][j] = this->ParameterValues[j];
       if( i > 0 && j == i - 1 )
         {
-        this->AmoebaVertices[i][j] = this->ParameterBrackets[j][1];
+        this->AmoebaVertices[i][j] = 
+          this->ParameterValues[j] + this->ParameterScales[j];
         }
-      this->Parameters[j] = this->AmoebaVertices[i][j];
-      this->AmoebaSum[j] += this->Parameters[j];
+      this->AmoebaSum[j] += this->ParameterValues[j];
       }
 
-    this->Function(this->FunctionArg);
-    this->AmoebaValues[i] = this->Result;
+    this->EvaluateFunction();
+    this->AmoebaValues[i] = this->FunctionValue;
     }
 
   for ( j = 0 ; j < n_parameters ; j++ )
     {
-    this->Parameters[j] = this->AmoebaVertices[0][j];
+    this->ParameterValues[j] = this->AmoebaVertices[0][j];
     }
 }
 
 /* ----------------------------- MNI Header -----------------------------------
-@NAME       : GetAmoebaParameters
+@NAME       : GetAmoebaParameterValues
 @INPUT      : 
 @OUTPUT     : 
 @RETURNS    : 
@@ -485,7 +527,7 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
 
-void vtkAmoebaMinimizer::GetAmoebaParameters()
+void vtkAmoebaMinimizer::GetAmoebaParameterValues()
 {
   int   i, j, low;
 
@@ -500,10 +542,10 @@ void vtkAmoebaMinimizer::GetAmoebaParameters()
 
   for( j = 0 ; j < this->NumberOfParameters ; j++ )
     {
-    this->Parameters[j] = this->AmoebaVertices[low][j];
+    this->ParameterValues[j] = this->AmoebaVertices[low][j];
     }
 
-  this->Result = this->AmoebaValues[low];
+  this->FunctionValue = this->AmoebaValues[low];
 }
 
 /* ----------------------------- MNI Header -----------------------------------
@@ -565,7 +607,7 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
   double y_try, fac1, fac2;
   double  *parameters;
 
-  parameters = this->Parameters;
+  parameters = this->ParameterValues;
 
   fac1 = (1.0 - fac) / this->NumberOfParameters;
   fac2 = fac - fac1;
@@ -575,8 +617,8 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
     parameters[j] = (sum[j] * fac1 + this->AmoebaVertices[high][j] * fac2);
     }
 
-  this->Function(this->FunctionArg);
-  y_try = this->Result;
+  this->EvaluateFunction();
+  y_try = this->FunctionValue;
 
   if( y_try < this->AmoebaValues[high] )
     {
@@ -682,13 +724,13 @@ int vtkAmoebaMinimizer::PerformAmoeba()
           {
           for( j = 0 ; j < this->NumberOfParameters ; j++ )
             {
-            this->Parameters[j] = (this->AmoebaVertices[i][j] +
-                                   this->AmoebaVertices[low][j]) / 2.0f;
-            this->AmoebaVertices[i][j] = this->Parameters[j];
+            this->ParameterValues[j] = (this->AmoebaVertices[i][j] +
+                                        this->AmoebaVertices[low][j]) / 2.0f;
+            this->AmoebaVertices[i][j] = this->ParameterValues[j];
             }
           
-          this->Function(this->FunctionArg);
-          this->AmoebaValues[i] = this->Result;
+          this->EvaluateFunction();
+          this->AmoebaValues[i] = this->FunctionValue;
           }
         }
 

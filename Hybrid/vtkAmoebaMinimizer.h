@@ -42,8 +42,10 @@ public:
   // Specify the function to be minimized.  When this function
   // is called, it must get the parameter values by calling
   // GetParameterValue() for each parameter, and then must
-  // call SetResult() to tell the minimizer what the result
-  // of the function evaluation was.
+  // call SetFunctionValue() to tell the minimizer what the result
+  // of the function evaluation was.  The number of function
+  // evaluations used for the minimization can be retrieved
+  // using GetFunctionEvaluations().
   void SetFunction(void (*f)(void *), void *arg);
 
   // Description:
@@ -51,43 +53,33 @@ public:
   void SetFunctionArgDelete(void (*f)(void *));
 
   // Description:
-  // Specify an estimated [min, max] range for a parameter that
-  // will be varied during the minimization.
-  void SetParameterBracket(const char *name, double min, double max);
-  void SetParameterBracket(const char *name, const double range[2]) {
-    this->SetParameterBracket(name,range[0],range[1]); };
-  double *GetParameterBracket(const char *name);
-  void GetParameterBracket(const char *name, double range[2]) {
-    double *r = this->GetParameterBracket(name);
-    range[0] = r[0]; range[1] = r[1]; };
+  // Set the initial value for the specified parameter.  Calling
+  // this function for any parameter will reset the Iterations
+  // and the FunctionEvaluations counts to zero.  You must also
+  // use SetParameterScale() to specify the step size by which the
+  // parameter will be modified during the minimization.  It is
+  // preferable to specify parameters by name, rather than by
+  // number.
+  void SetParameterValue(const char *name, double value);
+  void SetParameterValue(int i, double value);
 
   // Description:
-  // Specify an estimated [min, max] range for a parameter that
-  // will be varied during the minimization.  You should only
-  // use these methods if (for some strange reason) you prefer
-  // to call your parameters by number rather than by name.
-  void SetParameterBracket(int i, double min, double max);
-  void SetParameterBracket(int i, const double range[2]) {
-    this->SetParameterBracket(i,range[0],range[1]); };
-  double *GetParameterBracket(int i) {
-    return this->ParameterBrackets[i]; };
-  void GetParameterBracket(int i, double range[2]) {
-    double *r = this->GetParameterBracket(i);
-    range[0] = r[0]; range[1] = r[1]; };
+  // Set the scale to use when modifying a parameter, i.e. the
+  // initial amount by which the parameter will be modified
+  // during the search for the minimum.  It is preferable to
+  // identify scalars by name rather than by number.
+  void SetParameterScale(const char *name, double scale);
+  double GetParameterScale(const char *name);
+  void SetParameterScale(int i, double scale);
+  double GetParameterScale(int i) { return this->ParameterScales[i]; };
 
   // Description:
-  // Get the value of a variable at the current stage of the minimization.
+  // Get the value of a parameter at the current stage of the minimization.
   // Call this method within the function that you are minimizing in order
-  // to get the current parameter values.
+  // to get the current parameter values.  It is preferable to specify
+  // parameters by name rather than by index. 
   double GetParameterValue(const char *name);
-
-  // Description:
-  // A rapid, unchecked method for getting a parameter value.  The
-  // extra efficiency is only worthwhile if the function that you
-  // are minimizing is extremely simple, e.g. only a few lines
-  // of C++ code.  Otherwise you should specify the variables by
-  // name.
-  double GetParameterValue(int i) { return this->Parameters[i]; };
+  double GetParameterValue(int i) { return this->ParameterValues[i]; };
 
   // Description:
   // For completeness, an unchecked method to get the name for particular
@@ -115,8 +107,8 @@ public:
 
   // Description:
   // Get the function value resulting from the minimization.
-  vtkSetMacro(Result,double); 
-  double GetResult() { return this->Result; };
+  vtkSetMacro(FunctionValue,double); 
+  double GetFunctionValue() { return this->FunctionValue; };
 
   // Description:
   // Specify the fractional tolerance to aim for during the minimization.
@@ -132,6 +124,15 @@ public:
   // Return the number of interations that have been performed.  This
   // is not necessarily the same as the number of function evaluations.
   vtkGetMacro(Iterations,int);
+
+  // Description:
+  // Return the number of times that the function has been evaluated.
+  vtkGetMacro(FunctionEvaluations,int);
+
+  // Description:
+  // Evaluate the function.  This is usually called internally by the
+  // minimization code, but it is provided here as a public method.
+  void EvaluateFunction();
 
 //BTX
   // Description:
@@ -153,15 +154,14 @@ protected:
 
   int NumberOfParameters;
   char **ParameterNames;
-  double *Parameters;
-//BTX
-  double (*ParameterBrackets)[2];
-//ETX
-  double Result;
+  double *ParameterValues;
+  double *ParameterScales;
+  double FunctionValue;
 
   double Tolerance;
   int MaxIterations;
   int Iterations;
+  int FunctionEvaluations;
 
 private:
 // specific to amoeba simplex minimization 
@@ -172,7 +172,7 @@ private:
   int AmoebaNStepsNoImprovement;
   
   void InitializeAmoeba();
-  void GetAmoebaParameters();
+  void GetAmoebaParameterValues();
   void TerminateAmoeba();
   double TryAmoeba(double sum[], int high, double fac);
   int PerformAmoeba();

@@ -30,7 +30,7 @@ static void vtkFunctionToMinimize(void *arg)
 
   double r = (x-5)*(x-5) + (y+2)*(y+2) + (z)*(z);
 
-  minimizer->SetResult(r);
+  minimizer->SetFunctionValue(r);
 }
 
 int main(int argc, char** vtkNotUsed(argv))
@@ -38,9 +38,12 @@ int main(int argc, char** vtkNotUsed(argv))
   vtkAmoebaMinimizer *minimizer = vtkAmoebaMinimizer::New();
 
   minimizer->SetFunction(&vtkFunctionToMinimize, minimizer);
-  minimizer->SetParameterBracket("x",-2,2);
-  minimizer->SetParameterBracket("y",-2,2);
-  minimizer->SetParameterBracket("z",-2,2);
+  minimizer->SetParameterValue("x",0.0);
+  minimizer->SetParameterScale("x",2.0);
+  minimizer->SetParameterValue("y",0.0);
+  minimizer->SetParameterScale("y",2.0);
+  minimizer->SetParameterValue("z",0.0);
+  minimizer->SetParameterScale("z",2.0);
   
   minimizer->Minimize();
 
@@ -48,7 +51,7 @@ int main(int argc, char** vtkNotUsed(argv))
   double y = minimizer->GetParameterValue("y");
   double z = minimizer->GetParameterValue("z");
 
-  double r = minimizer->GetResult();
+  double r = minimizer->GetFunctionValue();
 
   int iterations = minimizer->GetIterations();
 

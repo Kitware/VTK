@@ -15,13 +15,16 @@ proc func {} {
     
     set r  [expr ($x-5.0)*($x-5.0) + ($y+2.0)*($y+2.0) + ($z)*($z)]
     
-    m SetResult $r
+    m SetFunctionValue $r
 }
 
 m SetFunction func
-m SetParameterBracket "x" -2 2
-m SetParameterBracket "y" -2 2
-m SetParameterBracket "z" -2 2
+m SetParameterValue "x" 0.0
+m SetParameterScale "x" 2.0
+m SetParameterValue "y" 0.0
+m SetParameterScale "y" 2.0
+m SetParameterValue "z" 0.0
+m SetParameterScale "z" 2.0
 m Minimize
 
 puts "should find x=5, y=-2, z=0"
@@ -36,8 +39,11 @@ puts [m GetParameterValue "y"]
 puts -nonewline "z = "
 puts [m GetParameterValue "z"]
 
-puts -nonewline "result = "
-puts [m GetResult]
+puts -nonewline "function value = "
+puts [m GetFunctionValue]
+
+puts -nonewline "evaluations = "
+puts [m GetFunctionEvaluations]
 
 puts -nonewline "iterations = "
 puts [m GetIterations]
