@@ -93,10 +93,10 @@ VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKSpecialObjectCheck(PyObject *obj);
 VTK_PYTHON_EXPORT PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr);
 VTK_PYTHON_EXPORT PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
-                         char *classname, char *modulename, char *docstring,
+                         char *classname, char *modulename, char *docstring[],
                          PyObject *base);
 VTK_PYTHON_EXPORT PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-                                 char *classname, char *docstring);
+                                 char *classname, char *docstring[]);
 
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects

@@ -940,6 +940,8 @@ void outputFunction(FILE *fp, FileInfo *data)
 static void create_class_doc(FILE *fp, FileInfo *data)
 {
   const char *text;
+  int i, n;
+  char temp[500];
 
   if (data->NameComment) 
     {
@@ -948,36 +950,53 @@ static void create_class_doc(FILE *fp, FileInfo *data)
       {
       text++;
       }
-    fprintf(fp,"%s\\n\\n",quote_string(text,120));
+    fprintf(fp,"  \"%s\\n\\n\",\n",quote_string(text,500));
     }
   else
     {
-    fprintf(fp,"%s - no description provided.\\n\\n",
-            quote_string(data->ClassName,120));
+    fprintf(fp,"  \"%s - no description provided.\\n\\n\",\n",
+            quote_string(data->ClassName,500));
     }
 
   if (data->NumberOfSuperClasses > 0)
     {
-    fprintf(fp,"Super Class:\\n\\n %s\\n\\n",
-            quote_string(data->SuperClasses[0],120));
+    fprintf(fp,"  \"Super Class:\\n\\n %s\\n\\n\",\n",
+            quote_string(data->SuperClasses[0],500));
     }
 
-  fprintf(fp,"Description:\\n\\n");
-  fprintf(fp,"%s\\n",  
-          data->Description ? quote_string(data->Description,1000) : 
-                              "None provided.\\n");
+  if (data->Description)
+    {
+    n = (strlen(data->Description) + 400-1)/400;
+    for (i = 0; i < n; i++)
+      {
+      strncpy(text, &data->Description[400*i], 400);
+      text[400] = '\0';
+      if (i < n-1)
+        {
+        fprintf(fp,"  \"%s\",\n",quote_string(text,500));
+        }
+      else
+        { // just for the last time
+        fprintf(fp,"  \"%s\\n\",\n",quote_string(text,500));
+        }
+      }
+    }
+  else
+    {
+    fprintf(fp,"  \"%s\\n\",\n", "None provided.\\n");
+    }
 
   if (data->Caveats)
     {
-    fprintf(fp,"Caveats:\\n\\n");
-    fprintf(fp,"%s\\n", quote_string(data->Caveats,500));
+    fprintf(fp,"  \"Caveats:\\n\\n");
+    fprintf(fp,"%s\\n\",\n", quote_string(data->Caveats,500));
     }
 
   if (data->SeeAlso)
     {
     char *dup, *tok;
     
-    fprintf(fp,"See Also:\\n\\n");
+    fprintf(fp,"  \"See Also:\\n\\n");
     dup = strdup(data->SeeAlso);
     tok = strtok(dup," ");
     while (tok)
@@ -986,8 +1005,10 @@ static void create_class_doc(FILE *fp, FileInfo *data)
       tok = strtok(NULL," ");
       }
     free(dup);
-    fprintf(fp,"\\n");
+    fprintf(fp,"\\n\",\n");
     }
+
+  fprintf(fp,"  NULL\n");
 }
 
 /* print the parsed structures */
@@ -1069,9 +1090,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* the docstring for the class */
   if (data->NumberOfSuperClasses || !data->IsAbstract)
     {
-    fprintf(fp,"static char %sDoc[] = \"",data->ClassName); 
+    fprintf(fp,"static char *%sDoc[] = {\n",data->ClassName); 
     create_class_doc(fp,data);
-    fprintf(fp,"\";\n\n");
+    fprintf(fp,"};\n\n");
     }
   
   /* output the class initilization function */
@@ -1130,7 +1151,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"static PyMethodDef Py%sNewMethod = \\\n",data->ClassName);
     fprintf(fp,"{ \"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n",
             data->ClassName,data->ClassName);
-    fprintf(fp,"  %sDoc };\n\n",data->ClassName);
+    fprintf(fp,"  %sDoc[0] };\n\n",data->ClassName);
 
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
     fprintf(fp,"  return PyCFunction_New(&Py%sNewMethod,Py_None);\n}\n\n",

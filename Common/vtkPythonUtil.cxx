@@ -448,6 +448,12 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
 //--------------------------------------------------------------------
 static void PyVTKClass_PyDelete(PyObject *self)
 {
+  // the docstring is dynamically allocated
+  if (((PyVTKClass *)self)->vtk_doc)
+    {
+    delete [] ((PyVTKClass *)self)->vtk_doc;
+    ((PyVTKClass *)self)->vtk_doc = NULL;
+    }
   PyMem_DEL(self);
 }
 
@@ -482,9 +488,44 @@ int PyVTKClass_Check(PyObject *obj)
   return (obj->ob_type == &PyVTKClassType);
 }
 
+//--------------------------------------------------------------------
+// Concatenate an array of strings into a single string.  The resulting
+// string is allocated via new.  The array of strings must be null-terminated,
+// e.g. static char *strings[] = {"string1", "string2", NULL};
+static char *vtkBuildDocString(char *docstring[])
+{
+  char *data;
+  int i, j, n;
+  int *m;
+  int total = 0;
+
+  for (n = 0; docstring[n] != NULL; n++);
+
+  m = new int[n];
+
+  for (i = 0; i < n; i++)
+    {
+    m[i] = strlen(docstring[i]);
+    total += m[i];
+    }
+
+  data = new char[total+1];
+  
+  j = 0;
+  for (i = 0; i < n; i++)
+    {
+    strcpy(&data[j], docstring[i]);
+    j += m[i];
+    }
+  
+  delete [] m;
+
+  return data;
+}
+
 PyObject *PyVTKClass_New(vtknewfunc constructor,
                          PyMethodDef *methods,
-                         char *classname, char *modulename, char *docstring,
+                         char *classname, char *modulename, char *docstring[],
                          PyObject *base)
 {
   PyVTKClass *self = NULL;
@@ -503,7 +544,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
       self->vtk_new = constructor;
       self->vtk_name = classname;
       self->vtk_module = modulename;
-      self->vtk_doc = docstring;
+      self->vtk_doc = vtkBuildDocString(docstring);
       if (base)
         {
           self->vtk_bases = PyTuple_New(1);
@@ -617,6 +658,11 @@ static void PyVTKSpecialObject_PyDelete(PyObject *self)
   //
   //delete ((PyVTKSpecialObject *)self)->vtk_ptr;
   ((PyVTKSpecialObject *)self)->vtk_ptr = NULL;
+  if (((PyVTKSpecialObject *)self)->vtk_doc)
+    {
+    delete [] ((PyVTKSpecialObject *)self)->vtk_doc;
+    ((PyVTKSpecialObject *)self)->vtk_doc = NULL;
+    }
 
   PyMem_DEL(self);
 }
@@ -653,14 +699,14 @@ int PyVTKSpecialObject_Check(PyObject *obj)
 }
 
 PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-                                 char *classname, char *docstring)
+                                 char *classname, char *docstring[])
 {
   PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, 
                                           &PyVTKSpecialObjectType);
   self->vtk_ptr = ptr;
   self->vtk_methods = methods;
   self->vtk_name = classname;
-  self->vtk_doc = docstring;
+  self->vtk_doc = vtkBuildDocString(docstring);
   
   return (PyObject *)self;
 }
@@ -1029,20 +1075,31 @@ template<class T>
 static inline
 int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int n)
 {
+  int changed = 0;
+
   PyObject *seq = PyTuple_GET_ITEM(args, i);
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < n; i++)
+    {
     PyObject *oldobj = PySequence_GetItem(seq, i);
     T oldval = (T)PyFloat_AsDouble(oldobj);
     Py_DECREF(oldobj);
-    if (a[i] != oldval) {
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
       PyObject *newobj = PyFloat_FromDouble(a[i]);
       int rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1) {
+      if (rval == -1)
+        {
         return -1;
         }
       }
     }
+
   return 0;
 }
 
@@ -1050,20 +1107,31 @@ template<class T>
 static inline
 int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
 {
+  int changed = 0;
+
   PyObject *seq = PyTuple_GET_ITEM(args, i);
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < n; i++)
+    {
     PyObject *oldobj = PySequence_GetItem(seq, i);
     T oldval = (T)PyInt_AsLong(oldobj);
     Py_DECREF(oldobj);
-    if (a[i] != oldval) {
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
       PyObject *newobj = PyInt_FromLong(a[i]);
       int rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1) {
+      if (rval == -1)
+        {
         return -1;
         }
       }
     }
+
   return 0;
 }
 
