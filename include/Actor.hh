@@ -66,7 +66,7 @@ class vlActor : public vlObject
   // Sets the posiiton of the actor.
   vlSetVector3Macro(Position,float);
   void AddPosition(float deltaPosition[3]);
-  void AddPosition(float delatX, float deltaY, float deltaZ);
+  void AddPosition(float deltaX,float deltaY,float deltaZ);
 
   // Description:
   // Get the origin of the actor. This is the point about which all 
@@ -125,7 +125,7 @@ class vlActor : public vlObject
   // This does not affect methods such as SetPosition.
   vlSetMacro(Dragable,int);
   // Description:
-  // Set the value of the dragable instance variable. This determines if 
+  // Turn on/off the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
