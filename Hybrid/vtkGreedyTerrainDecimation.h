@@ -175,9 +175,6 @@ protected:
   //Make a guess at initial allocation
   void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType &numPts, vtkIdType &numTris);
   
-  //Compute the error between the height field and the TIN
-  float EvaluateError(vtkIdType inputPtId, int i, int j);
-
   //Returns non-zero if the error measure is satisfied.
   virtual int SatisfiesErrorMeasure(double error);
 
@@ -201,11 +198,12 @@ protected:
 
   void UpdateTriangles(vtkIdType meshPtId); //update all points connected to this point
   void UpdateTriangle(vtkIdType triId, vtkIdType p1, vtkIdType p2, vtkIdType p3);
-  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2]);
+  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], float h[4]);
 
   int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3],
                            int* &min, int* &max, int* &midL, int* &midR,
-                           int* &mid, int mid2[2]);
+                           int* &mid, int mid2[2], float h[3], float &hMin, float &hMax, 
+                           float &hL, float &hR);
 
 private:
   vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&);  // Not implemented.
