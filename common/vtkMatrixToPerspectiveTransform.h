@@ -70,9 +70,6 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
   // this matrix, calls to GetInverse() will modify a copy of this
   // matrix.  
   void SetMatrix(vtkMatrix4x4 *m);
-  vtkMatrix4x4 *GetMatrix() { return this->GetMatrixPointer(); };
-  void GetMatrix(vtkMatrix4x4 *m) { 
-    this->vtkPerspectiveTransform::GetMatrix(m); }; 
 
   // Description:
   // Make the matrix into the identity matrix.
@@ -83,16 +80,16 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
   void Inverse();
 
   // Description:
-  // Make a new transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Make this transform into a copy of the specified transform.
-  void DeepCopy(vtkGeneralTransform *transform);
-
-  // Description:
   // Get the MTime: this is the bit of magic that makes everything work.
   unsigned long GetMTime();
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  // Description:
+  // Make a new transform of the same type.
+  vtkGeneralTransform *MakeTransform();
 
 protected:
   vtkMatrixToPerspectiveTransform() {};

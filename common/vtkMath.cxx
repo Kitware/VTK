@@ -1265,8 +1265,351 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
   return 1;
 }
 
-
 #undef VTK_SMALL_NUMBER
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// All of the following methods are for dealing with 3x3 matrices
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+// helper function, swap two 3-vectors
+template<class T>
+static inline void vtkSwapVectors3(T v1[3], T v2[3])
+{
+  for (int i = 0; i < 3; i++)
+    {
+    T tmp = v1[i];
+    v1[i] = v2[i];
+    v2[i] = tmp;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Unrolled LU factorization of a 3x3 matrix with pivoting.
+// This decomposition is non-standard in that the diagonal
+// elements are inverted, to convert a division to a multiplication
+// in the backsubstitution.
+template<class T>
+static void vtkLUFactor3x3(T A[3][3], int index[3])
+{
+  int i,maxI;
+  T tmp,largest;
+  T scale[3];
+
+  // Loop over rows to get implicit scaling information
+
+  for ( i = 0; i < 3; i++ ) 
+    {
+    largest =  fabs(A[i][0]);
+    if ((tmp = fabs(A[i][1])) > largest)
+      {
+      largest = tmp;
+      }
+    if ((tmp = fabs(A[i][2])) > largest)
+      {
+      largest = tmp;
+      }
+    scale[i] = T(1.0)/largest;
+    }
+  
+  // Loop over all columns using Crout's method
+
+  // first column
+  largest = scale[0]*fabs(A[0][0]);
+  maxI = 0;
+  if ((tmp = scale[1]*fabs(A[1][0])) >= largest) 
+    {
+    largest = tmp;
+    maxI = 1;
+    }
+  if ((tmp = scale[2]*fabs(A[2][0])) >= largest) 
+    {
+    maxI = 2;
+    }
+  if (maxI != 0) 
+    {
+    vtkSwapVectors3(A[maxI],A[0]);
+    scale[maxI] = scale[0];
+    }
+  index[0] = maxI;
+
+  A[0][0] = T(1.0)/A[0][0];
+  A[1][0] *= A[0][0];
+  A[2][0] *= A[0][0];
+    
+  // second column
+  A[1][1] -= A[1][0]*A[0][1];
+  A[2][1] -= A[2][0]*A[0][1];
+  largest = scale[1]*fabs(A[1][1]);
+  maxI = 1;
+  if ((tmp = scale[2]*fabs(A[2][1])) >= largest) 
+    {
+    maxI = 2;
+    vtkSwapVectors3(A[2],A[1]);
+    scale[2] = scale[1];
+    }
+  index[1] = maxI;
+  A[1][1] = T(1.0)/A[1][1];
+  A[2][1] *= A[1][1];
+
+  // third column
+  A[1][2] -= A[1][0]*A[0][2];
+  A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
+  largest = scale[2]*fabs(A[2][2]);
+  index[2] = 2;
+  A[2][2] = T(1.0)/A[2][2];
+}
+
+void vtkMath::LUFactor3x3(float A[3][3], int index[3])
+{
+  vtkLUFactor3x3(A,index);
+}
+
+void vtkMath::LUFactor3x3(double A[3][3], int index[3])
+{
+  vtkLUFactor3x3(A,index);
+}
+
+//----------------------------------------------------------------------------
+// Backsubsitution with an LU-decomposed matrix.  This is the standard
+// LU decomposition, except that the diagonals elements have been inverted.
+template<class T, class T2>
+static void vtkLUSolve3x3(T A[3][3], const int index[3], T2 x[3])
+{
+  T2 sum;
+
+  // forward substitution
+  
+  sum = x[index[0]];
+  x[index[0]] = x[0];
+  x[0] = sum;
+
+  sum = x[index[1]];
+  x[index[1]] = x[1];
+  x[1] = sum - A[1][0]*x[0];
+
+  sum = x[index[2]];
+  x[index[2]] = x[2];
+  x[2] = sum - A[2][0]*x[0] - A[2][1]*x[1];
+
+  // back substitution
+  
+  x[2] = x[2]*A[2][2];
+  x[1] = (x[1] - A[1][2]*x[2])*A[1][1];
+  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
+}  
+
+void vtkMath::LUSolve3x3(const float A[3][3], 
+			 const int index[3], float x[3])
+{
+  vtkLUSolve3x3(A,index,x);
+}
+
+void vtkMath::LUSolve3x3(const double A[3][3], 
+			 const int index[3], double x[3])
+{
+  vtkLUSolve3x3(A,index,x);
+}
+
+//----------------------------------------------------------------------------
+// this method solves Ay = x for y
+template<class T, class T2, class T3>
+static inline void vtkLinearSolve3x3(T A[3][3], T2 x[3], T3 y[3])
+{
+  int index[3];
+  T3 B[3][3];
+  for (int i = 0; i < 3; i++)
+    {
+    B[i][0] = A[i][0];
+    B[i][1] = A[i][1];
+    B[i][2] = A[i][2];
+    y[i] = x[i];
+    }
+
+  vtkLUFactor3x3(B,index);
+  vtkLUSolve3x3(B,index,y);
+}
+
+void vtkMath::LinearSolve3x3(const float A[3][3], 
+			     const float x[3], float y[3])
+{
+  vtkLinearSolve3x3(A,x,y);
+}
+
+void vtkMath::LinearSolve3x3(const double A[3][3], 
+			     const double x[3], double y[3])
+{
+  vtkLinearSolve3x3(A,x,y);
+}
+
+//----------------------------------------------------------------------------
+template<class T, class T2, class T3>
+static inline void vtkMultiply3x3(T A[3][3], T2 v[3], T3 u[3])
+{
+  T3 x = A[0][0]*v[0] + A[0][1]*v[1] + A[0][2]*v[2];
+  T3 y = A[1][0]*v[0] + A[1][1]*v[1] + A[1][2]*v[2];
+  T3 z = A[2][0]*v[0] + A[2][1]*v[1] + A[2][2]*v[2];
+
+  u[0] = x;
+  u[1] = y;
+  u[2] = z;
+}
+
+void vtkMath::Multiply3x3(const float A[3][3], const float v[3], float u[3])
+{
+  vtkMultiply3x3(A,v,u);
+}
+
+void vtkMath::Multiply3x3(const double A[3][3], const double v[3], double u[3])
+{
+  vtkMultiply3x3(A,v,u);
+}
+
+//----------------------------------------------------------------------------
+template<class T, class T2, class T3>
+static inline void vtkMultiplyMatrix3x3(T A[3][3], T2 B[3][3], T3 C[3][3])
+{
+  T3 D[3][3];
+
+  for (int i = 0; i < 3; i++)
+    {
+    D[0][i] = A[0][0]*B[0][i] + A[0][1]*B[1][i] + A[0][2]*B[2][i];
+    D[1][i] = A[1][0]*B[0][i] + A[1][1]*B[1][i] + A[1][2]*B[2][i];
+    D[2][i] = A[2][0]*B[0][i] + A[2][1]*B[1][i] + A[2][2]*B[2][i];
+    }
+
+  for (int j = 0; j < 3; j++)
+    {
+    C[j][0] = D[j][0];
+    C[j][1] = D[j][1];
+    C[j][2] = D[j][2];
+    }
+}
+
+void vtkMath::Multiply3x3(const float A[3][3], 
+			  const float B[3][3], float C[3][3])
+{
+  vtkMultiplyMatrix3x3(A,B,C);
+}
+
+void vtkMath::Multiply3x3(const double A[3][3], 
+			  const double B[3][3], double C[3][3])
+{
+  vtkMultiplyMatrix3x3(A,B,C);
+}
+
+//----------------------------------------------------------------------------
+template<class T, class T2>
+static inline void vtkTranspose3x3(T A[3][3], T2 AT[3][3])
+{
+  T2 tmp;
+  tmp = A[1][0];
+  AT[1][0] = A[0][1];
+  AT[0][1] = tmp;
+  tmp = A[0][2];
+  AT[2][0] = A[0][2];
+  AT[0][2] = tmp;
+  tmp = A[2][1];
+  AT[2][1] = A[1][2];
+  AT[1][2] = tmp;
+
+  AT[0][0] = A[0][0];
+  AT[1][1] = A[1][1];
+  AT[2][2] = A[2][2];
+}
+
+void vtkMath::Transpose3x3(const float A[3][3], float AT[3][3])
+{
+  vtkTranspose3x3(A,AT);
+}
+
+void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
+{
+  vtkTranspose3x3(A,AT);
+}
+
+//----------------------------------------------------------------------------
+template<class T1, class T2>
+static inline void vtkInvert3x3(T1 A[3][3], T2 AI[3][3])
+{
+  int index[3];
+  T2 tmp[3][3];
+
+  for (int k = 0; k < 3; k++)
+    {
+    AI[k][0] = A[k][0];
+    AI[k][1] = A[k][1];
+    AI[k][2] = A[k][2];
+    }
+  // invert one column at a time
+  vtkLUFactor3x3(AI,index);
+  for (int i = 0; i < 3; i++)
+    {
+    T2 *x = tmp[i];
+    x[0] = x[1] = x[2] = 0.0;
+    x[i] = 1.0;
+    vtkLUSolve3x3(AI,index,x);
+    }
+  for (int j = 0; j < 3; j++)
+    {
+    T2 *x = tmp[j];
+    AI[0][j] = x[0];
+    AI[1][j] = x[1];
+    AI[2][j] = x[2];      
+    }
+}
+
+void vtkMath::Invert3x3(const float A[3][3], float AI[3][3])
+{
+  vtkInvert3x3(A,AI);
+}
+
+void vtkMath::Invert3x3(const double A[3][3], double AI[3][3])
+{
+  vtkInvert3x3(A,AI);
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+static inline void vtkIdentity3x3(T A[3][3])
+{
+  for (int i = 0; i < 3; i++)
+    {
+    A[i][0] = A[i][1] = A[i][2] = T(0.0);
+    A[i][i] = 1.0;
+    }
+}
+
+void vtkMath::Identity3x3(float A[3][3])
+{
+  vtkIdentity3x3(A);
+}
+
+void vtkMath::Identity3x3(double A[3][3])
+{
+  vtkIdentity3x3(A);
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+static inline T vtkDeterminant3x3(T A[3][3])
+{
+  return A[0][0]*A[1][1]*A[2][2] + A[1][0]*A[2][1]*A[0][2] + 
+         A[2][0]*A[0][1]*A[1][2] - A[0][0]*A[2][1]*A[1][2] - 
+         A[1][0]*A[0][1]*A[2][2] - A[2][0]*A[1][1]*A[0][2];
+}
+
+double vtkMath::Determinant3x3(float A[3][3])
+{
+  return vtkDeterminant3x3(A);
+}
+
+double vtkMath::Determinant3x3(double A[3][3])
+{
+  return vtkDeterminant3x3(A);
+}
 
 
 

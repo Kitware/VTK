@@ -40,21 +40,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkTransform - a general matrix transformation class
+// .NAME vtkTransform - describes linear transformations via a 4x4 matrix
 // .SECTION Description
-// vtkTransform maintains a stack of 4x4 transformation matrices.  A
-// variety of methods are provided to manipulate the translation,
-// scale, and rotation components of the matrix.  Methods operate on
-// the matrix at the top of the stack. Many objects, such as vtkActor and
-// vtkCamera, use this class for performing their matrix operations.
-// It is very important to realize that this class performs all of
-// its operations in a right handed coordinate system with right
-// handed rotations. Some other graphics libraries use left handed 
-// coordinate systems and rotations.
-
-// .SECTION Caveats
-// By default the initial matrix is the identity matrix.
-
+// A vtkTransform can be used to describe the full range of linear (also
+// known as affine) coordinate transformations in three dimensions,
+// which are internally represented as a 4x4 homogenous transformation
+// matrix.  When you create a new vtkTransform, it is always initialized
+// to the identity tranformation.
+// <P>Most of the methods for manipulating this transformation,
+// e.g. Translate, Rotate, and Concatenate, can operate in either
+// PreMultiply (the default) or PostMultiply mode.  In PreMultiply
+// mode, the translation, concatenation, etc. will occur before any
+// transformations which are represented by the current matrix.  In
+// PostMultiply mode, the additional tranformation will occur after 
+// any transformations represented by the current matrix.
+// <P>This class performs all of its operations in a right handed
+// coordinate system with right handed rotations. Some other graphics
+// libraries use left handed coordinate systems and rotations.  
 // .SECTION See Also
 // vtkLinearTransformConcatenation vtkMatrix4x4 vtkTransformCollection 
 // vtkTransformFilter vtkTransformPolyDataFilter vtkProjectionTransform
@@ -68,147 +70,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkTransform : public vtkLinearTransform
 {
  public:
-  // Description:
-  // Constructs a transform and sets the following defaults
-  // preMultiplyFlag = 1 stackSize = 10. It then
-  // creates an identity matrix as the top matrix on the stack.
   static vtkTransform *New();
-
   vtkTypeMacro(vtkTransform,vtkLinearTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
-
-  // Description:
-  // Make a new transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates an identity matrix and makes it the current transformation matrix.
-  void Identity ();
-
-  // Description:
-  // Deletes the transformation on the top of the stack and sets the top 
-  // to the next transformation on the stack.
-  void Pop ();
-
-  // Description:
-  // Sets the internal state of the transform to post multiply. All
-  // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply ();
-
-  // Description:
-  // Sets the internal state of the transform to pre multiply. All subsequent
-  // matrix operations will occur before those already represented in the
-  // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply ();
-
-  // Description:
-  // Pushes the current transformation matrix onto the transformation stack.
-  void Push ();
-
-  // Description:
-  // Creates an x rotation matrix and concatenates it with the current
-  // transformation matrix. The angle is specified in degrees.
-  void RotateX ( float angle);
-
-  // Description:
-  // Creates a y rotation matrix and concatenates it with the current
-  // transformation matrix. The angle is specified in degrees.
-  void RotateY ( float angle);
-
-  // Description:
-  // Creates a z rotation matrix and concatenates it with the current
-  // transformation matrix. The angle is specified in degrees.
-  void RotateZ (float angle);
-
-  // Description:
-  // Creates a matrix that rotates angle degrees about an axis through the
-  // origin and x, y, z. It then concatenates this matrix with the current
-  // transformation matrix.
-//BTX
-  void RotateWXYZ ( float angle, float x, float y, float z);
-//ETX
-  void RotateWXYZ (double angle, double x, double y, double z);
-
-  // Description:
-  // Scales the current transformation matrix in the x, y and z directions.
-  // A scale factor of zero will automatically be replaced with one.
-//BTX
-  void Scale ( float x, float y, float z);
-//ETX
-  void Scale ( double x, double y, double z);
-  // Description:
-  // Translate the current transformation matrix by the vector {x, y, z}.
-//BTX
-  void Translate ( float x, float y, float z);
-//ETX
-  void Translate ( double x, double y, double z);
-  // Description:
-  // Transposes the current transformation matrix.
-  void Transpose();
-
-  // Description:
-  // Obtain the transpose of the current transformation matrix.
-  void GetTranspose(vtkMatrix4x4 *transpose);
+  void Identity();
 
   // Description:
   // Invert the current transformation matrix.
   void Inverse();
 
-  // Return an inverse transform which will always update itself
-  // to match this transform.
-  vtkGeneralTransform *GetInverse() { 
-    return vtkLinearTransform::GetInverse(); }
+  // Description:
+  // Transposes the current transformation matrix.
+  void Transpose();
 
   // Description:
-  // Return the inverse of the current transformation matrix.
-  void GetInverse(vtkMatrix4x4 *inverse);
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.  The default is PreMultiply.
+  void PreMultiply();
+
+   // Description:
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
+  void PostMultiply();
 
   // Description:
-  // Get the x, y, z orientation angles from the transformation matrix as an
-  // array of three floating point values.
-  float *GetOrientation();
+  // Create a translation matrix and concatenate it with the current
+  // matrix according to PreMultiply or PostMultiply semantics.
+  void Translate(double x, double y, double z);
+  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); };
+  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); };
 
   // Description:
-  // Get the x, y, z orientation angles from the transformation matrix.
-  void GetOrientation(float *prx, float *pry, float *prz);
-  void GetOrientation(float& rx, float& ry, float& rz)
-    {this->GetOrientation(&rx,&ry,&rz);}
+  // Create a rotation matrix and concatenate it with the current matrix
+  // according to PreMultiply or PostMultiply semantics.
+  // The angle is in degrees, and (x,y,z) specifies the axis that the
+  // rotation will be performed around. 
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, const double axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+  void RotateWXYZ(double angle, const float axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
 
   // Description:
-  // Return the wxyz quaternion representing the current orientation.
-  float *GetOrientationWXYZ();  
+  // Create a rotation matrix about the X, Y, or Z axis and concatenate
+  // it with the current matrix according to PreMultiply or PostMultiply
+  // semantics.  The angle is expressed in degrees.
+  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); };
+  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); };
+  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); };
 
   // Description:
-  // Return the position from the current transformation matrix as an array
-  // of three floating point numbers. This is simply returning the translation 
-  // component of the 4x4 matrix.
-  float *GetPosition();
+  // Create a scale matrix (i.e. set the diagonal elements to x, y, z)
+  // and concatenate it with the current matrix according to PreMultiply 
+  // or PostMultiply semantics.
+  void Scale(double x, double y, double z);
+  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); };
+  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
 
   // Description:
-  // Return the x, y, z positions from the current transformation matrix.
-  // This is simply returning the translation component of the 4x4 matrix.
-  void GetPosition (float *px, float *py, float *pz);
-  void GetPosition (float& x, float& y, float& z)
-    {this->GetPosition(&x, &y, &z);}
-
-  // Description:
-  // Return the x, y, z scale factors of the current transformation matrix as 
-  // an array of three float numbers.
-  float *GetScale();
-
-  // Description:
-  // Return the x, y, z scale factors of the current transformation matrix.
-  void GetScale (float *psx, float *psy, float *psz);
-  void GetScale (float& sx, float& sy, float& sz)
-    {this->GetScale(&sx, &sy, &sz);}
-
-  // Description:
-  // Set the current matrix directly (copies m).
-  void SetMatrix(vtkMatrix4x4 *m);
-
-  // Description:
-  // Set the current matrix directly (copies Elements).
+  // Set the current matrix directly.  This can be used in combination
+  // with vtkCamera::GetPerspectiveTransformMatrix() to copy a camera's
+  // perspective transform.
+  void SetMatrix(vtkMatrix4x4 *matrix) { this->SetMatrix(*matrix->Element); };
   void SetMatrix(const double Elements[16]);
 
   // Description:
@@ -216,45 +144,111 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // The resulting matrix becomes the new current transformation matrix.
   // The setting of the PreMultiply flag determines whether the matrix
   // is PreConcatenated or PostConcatenated.
-  void Concatenate(vtkMatrix4x4 *matrix);
+  void Concatenate(vtkMatrix4x4 *matrix) { 
+    this->Concatenate(*matrix->Element); };
   void Concatenate(const double Elements[16]);
 
   // Description:
-  // Make this transform a copy of the specified transform.
-  void DeepCopy(vtkGeneralTransform *t);
+  // Get the x, y, z orientation angles from the transformation matrix as an
+  // array of three floating point values.  Warning: if a Scale() has been
+  // applied with different x,y,z scale factors, then this method will
+  // only return the correct answer if the Scale() was the first transform
+  // applied.
+  void GetOrientation(double orient[3]);
+  void GetOrientation(float orient[3]) {
+    double temp[3]; this->GetOrientation(temp); 
+    orient[0] = temp[0]; orient[1] = temp[1]; orient[2] = temp[2]; };
+  float *GetOrientation() { 
+    this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
-  // Returns the current transformation matrix.
-  void GetMatrix(vtkMatrix4x4 *m);
+  // Return the wxyz quaternion representing the current orientation.
+  // Warning: if a Scale() has been applied with different x,y,z scale 
+  // factors, then this method will only return the correct answer if
+  // the Scale() was the last transform applied.
+  void GetOrientationWXYZ(double wxyz[4]);
+  void GetOrientationWXYZ(float wxyz[3]) {
+    double temp[4]; this->GetOrientation(temp); 
+    wxyz[0]=temp[0]; wxyz[1]=temp[1]; wxyz[2]=temp[2]; wxyz[3]=temp[3];};
+  float *GetOrientationWXYZ() { 
+    this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
+
+  // Description:
+  // Return the position from the current transformation matrix as an array
+  // of three floating point numbers. This is simply returning the translation 
+  // component of the 4x4 matrix.
+  void GetPosition(double pos[3]);
+  void GetPosition(float pos[3]) {
+    double temp[3]; this->GetPosition(temp); 
+    pos[0] = temp[0]; pos[1] = temp[1]; pos[2] = temp[2]; };
+  float *GetPosition() { 
+    this->GetPosition(this->ReturnValue); return this->ReturnValue; };
+
+  // Description:
+  // Return the x, y, z scale factors of the current transformation matrix as 
+  // an array of three float numbers.  Warning: this method returns a 
+  // meaningless answer unless the Scale() applied to the matrix was the
+  // first transform applied.
+  void GetScale(double scale[3]);
+  void GetScale(float scale[3]) {
+    double temp[3]; this->GetScale(temp); 
+    scale[0] = temp[0]; scale[1] = temp[1]; scale[2] = temp[2]; };
+  float *GetScale() { 
+    this->GetScale(this->ReturnValue); return this->ReturnValue; };
+
+  // Description:
+  // Return the inverse of the current transformation matrix.
+  void GetInverse(vtkMatrix4x4 *inverse);
+
+  // Description:
+  // Obtain the transpose of the current transformation matrix.
+  void GetTranspose(vtkMatrix4x4 *transpose);
+
+  // Description:
+  // Pushes the current transformation matrix onto the transformation stack.
+  void Push();
+
+  // Description:
+  // Deletes the transformation on the top of the stack and sets the top 
+  // to the next transformation on the stack.
+  void Pop();
+
+  // Return an inverse transform which will always update itself
+  // to match this transform.
+  vtkGeneralTransform *GetInverse() { 
+    return vtkLinearTransform::GetInverse(); }
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *t);
+
+  // Description:
+  // Make a new transform of the same type.
+  vtkGeneralTransform *MakeTransform();
 
   // Description:
   // Use this method only if you wish to compute the transformation in
   // homogenous (x,y,z,w) coordinates, otherwise use TransformPoint().
   // This method calls this->Matrix->MultiplyPoint().
-  void MultiplyPoint (const float in[4],float out[4]) {
+  void MultiplyPoint(const float in[4], float out[4]) {
     this->Matrix->MultiplyPoint(in,out);};
-  void MultiplyPoint (const double in[4],double out[4]) {      
+  void MultiplyPoint(const double in[4], double out[4]) {      
     this->Matrix->MultiplyPoint(in,out);};
 
   // Description:
-  // This method is deprecated.  Use TransformPoints instead.
+  // These methods are obsolete.  Use TransformPoints, TransformVectors,
+  // or TransformNormals instead.
   void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts) {
     this->TransformPoints(inPts,outPts); };
-  
-  // Description:
-  // This method is deprecated.  Use TransformVectors instead.
   void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors) {
     this->TransformVectors(inVectors,outVectors); };
-
-  // Description:
-  // This method is deprecated.  Use TransformNormals instead.
   void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) {
     this->TransformNormals(inNormals,outNormals); };
 
   // Description:
   // Do not use these functions -- they are here only to provide
   // combatibility with legacy code.  Use TransformPoint() or 
-  // GetMatrixPointer()->MultiplyPoint() instead.
+  // GetMatrix()->MultiplyPoint() instead.
   // <p>Returns the result of multiplying the currently set Point by the 
   // current transformation matrix. Point is expressed in homogeneous 
   // coordinates.  The setting of the PreMultiplyFlag will determine if 
@@ -273,12 +267,27 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
     vtkMatrix4x4::Multiply4x4(a,b,c); }; 
   void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) {
     vtkMatrix4x4::Multiply4x4(&a,&b,&c); }; 
-  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());};
   void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);};
-  void GetMatrix(vtkMatrix4x4 &m){this->GetMatrix(&m);};
   void SetMatrix(vtkMatrix4x4 &m){this->SetMatrix(&m);};
   void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);};
   void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);};
+//BTX
+  void GetOrientation(float *prx, float *pry, float *prz) {
+    double temp[3]; this->GetOrientation(temp); 
+    *prx = temp[0]; *pry = temp[1]; *prz = temp[2]; };    
+  void GetOrientation(float& rx, float& ry, float& rz)
+    {this->GetOrientation(&rx,&ry,&rz);}
+  void GetPosition(float *px, float *py, float *pz) {
+    double temp[3]; this->GetPosition(temp); 
+    *px = temp[0]; *py = temp[1]; *pz = temp[2]; };
+  void GetPosition(float& x, float& y, float& z)
+    {this->GetPosition(&x, &y, &z);}
+  void GetScale(float *psx, float *psy, float *psz) {
+    double temp[3]; this->GetScale(temp); 
+    *psx = temp[0]; *psy = temp[1]; *psz = temp[2]; };
+  void GetScale(float& x, float& y, float& z)
+    {this->GetScale(&x, &y, &z);}
+//ETX
 
 protected:
   vtkTransform ();

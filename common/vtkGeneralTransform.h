@@ -136,12 +136,8 @@ public:
   virtual void Identity() = 0;
 
   // Description:
-  // Make another transform of the same type.
-  virtual vtkGeneralTransform *MakeTransform() = 0;
-
-  // Description:
   // Copy this transform from another of the same type.
-  virtual void DeepCopy(vtkGeneralTransform *) = 0;
+  void DeepCopy(vtkGeneralTransform *);
 
   // Description:
   // Update the transform to account for any changes which
@@ -154,13 +150,26 @@ public:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   virtual void InternalTransformPoint(const float in[3], float out[3]) = 0;
+  virtual void InternalTransformPoint(const double in[3], double out[3]) = 0;
 
   // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
+  // This will transform a point and, at the same time, calculate a
+  // 3x3 Jacobian matrix that provides the partial derivatives of the
+  // transformation at that point.  This method does not call Update.
+  // Meant for use only within other VTK classes.
   virtual void InternalTransformDerivative(const float in[3], float out[3],
 					   float derivative[3][3]) = 0;
+  virtual void InternalTransformDerivative(const double in[3], double out[3],
+					   double derivative[3][3]) = 0;
+
+
+  // Description:
+  // Perform a DeepCopy without type checking, quite risky!
+  virtual void InternalDeepCopy(vtkGeneralTransform *) = 0;
+
+  // Description:
+  // Make another transform of the same type.
+  virtual vtkGeneralTransform *MakeTransform() = 0;
 
   // Description:
   // Needs a special UnRegister() implementation to avoid
@@ -169,47 +178,12 @@ public:
 
 protected:
   vtkGeneralTransform() { this->MyInverse = NULL;
+                          this->Concatenation = NULL;
 			  this->InUnRegister = 0; };
   ~vtkGeneralTransform() { if (this->MyInverse) 
                           { this->MyInverse->Delete(); } }; 
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
-
-  // Description:
-  // LU Factorization of a 3x3 matrix.  The diagonal elements are the
-  // multiplicative inverse of those in the standard LU factorization.
-  static void LUFactor3x3(float A[3][3], int index[3]);
-
-  // Description:
-  // LU backsubstitution for a 3x3 matrix.  The diagonal elements are the
-  // multiplicative inverse of those in the standard LU factorization.
-  static void LUSolve3x3(const float A[3][3], const int index[3], float x[3]);
-
-  // Description:
-  // Solve Ay = x for y and place the result in x.  The matrix A is
-  // destroyed in the process.
-  static void LinearSolve3x3(const float A[3][3], const float x[3],float y[3]);
-
-  // Description:
-  // Multiply a vector by a 3x3 matrix.  The result is placed in x.
-  static void Multiply3x3(const float A[3][3], const float x[3], float y[3]);
-  
-  // Description:
-  // Mutliply one 3x3 matrix by another: B = AB.
-  static void Multiply3x3(const float A[3][3], const float B[3][3], 
-			  float C[3][3]);
-
-  // Description:
-  // Transpose a 3x3 matrix.
-  static void Transpose3x3(const float A[3][3], float AT[3][3]);
-
-  // Description:
-  // Invert a 3x3 matrix.
-  static void Invert3x3(const float A[3][3], float AI[3][3]);
-
-  // Description:
-  // Set A to the identity matrix.
-  static void Identity3x3(float A[3][3]);
 
   vtkGeneralTransform *MyInverse;
 
@@ -217,6 +191,79 @@ protected:
   double InternalDoublePoint[3];
   
   int InUnRegister;
+
+//BTX
+  //-------------------------------------------------------------------------
+  // A helper class (not derived from vtkObject) to make it more efficient
+  // to derive vtk*TransformConcatenation classes
+  class vtkSimpleTransformConcatenation
+  {
+  public:
+    static vtkSimpleTransformConcatenation *New(
+				    vtkGeneralTransform *transform) {
+      return new vtkSimpleTransformConcatenation(transform); };
+    void Delete() { delete this; };
+
+    // add a transform to the list according to Pre/PostMultiply semantics
+    void Concatenate(vtkGeneralTransform *transform);
+    void Concatenate(vtkGeneralTransform *t1,
+		     vtkGeneralTransform *t2,
+		     vtkGeneralTransform *t3,
+		     vtkGeneralTransform *t4);
+    
+    // inverse simply sets the inverse flag
+    void Inverse();
+    
+    // identity simply clears the transform list
+    void Identity();
+    
+    // copy the list
+    void DeepCopy(vtkSimpleTransformConcatenation *transform);
+    
+    // the number of stored transforms
+    int GetNumberOfTransforms() { return this->NumberOfTransforms; };
+    
+    // get one of the transforms
+    vtkGeneralTransform *GetTransform(int i);
+    
+    // switch between pre- and post-multiply mode
+    void PreMultiply() { 
+      this->PreMultiplyFlag = 1; this->Transform->Modified(); };
+    void PostMultiply() { 
+      this->PreMultiplyFlag = 0; this->Transform->Modified(); };
+    
+    // determine which mode we are in
+    int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }; 
+
+    // get maximum MTime of all transforms
+    unsigned long GetMaxMTime();
+    
+    // print relevant information
+    void PrintSelf(ostream& os, vtkIndent indent);
+    
+  protected:
+    vtkSimpleTransformConcatenation(vtkGeneralTransform *transform);
+    vtkSimpleTransformConcatenation() {}; // should never be called
+    ~vtkSimpleTransformConcatenation();  
+    
+    // the transform that owns us
+    vtkGeneralTransform *Transform;
+    
+    int InverseFlag;
+    int PreMultiplyFlag;
+    
+    int NumberOfTransforms;
+    int MaxNumberOfTransforms;
+    vtkGeneralTransform **TransformList;
+    vtkGeneralTransform **InverseList;
+    int *DependencyList;
+  };
+
+  // The Concatenation is only for use within the vtkGeneralTransform class
+  // and within the vtk*Concatenation classes.
+  vtkSimpleTransformConcatenation *Concatenation;
+//ETX
+
 };
 
 #endif

@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkLinearTransformConcatenation.h"
-#include "vtkLinearTransformInverse.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -60,172 +59,22 @@ vtkLinearTransformConcatenation *vtkLinearTransformConcatenation::New()
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::vtkLinearTransformConcatenation()
 {
-  this->InverseFlag = 0;
-
-  this->PreMultiplyFlag = 1;
-
-  this->NumberOfTransforms = 0;
-  this->MaxNumberOfTransforms = 0;
-  this->TransformList = NULL;
-  this->InverseList = NULL;
-
-  this->UpdateRequired = 1;
+  this->Concatenation = vtkSimpleTransformConcatenation::New(this);
   this->UpdateMutex = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::~vtkLinearTransformConcatenation()
 {
-  if (this->NumberOfTransforms > 0)
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      this->TransformList[i]->Delete();
-      this->InverseList[i]->Delete();
-      }
-    }
-  if (this->TransformList)
-    {
-    delete [] this->TransformList;
-    }
-  if (this->InverseList)
-    {
-    delete [] this->InverseList;
-    }
-  if (this->UpdateMutex)
-    {
-    this->UpdateMutex->Delete();
-    }
+  this->Concatenation->Delete();
+  this->UpdateMutex->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os,indent);
-
-  os << indent << "InverseFlag: " << this->InverseFlag << "\n";
-  os << indent << "PreMultiplyFlag: " << this->PreMultiplyFlag << "\n";
-  os << indent << "NumberOfTransforms: " << this->NumberOfTransforms << "\n";
-  os << indent << "TransformList:\n";
-
-  for (int i = 0; i < this->NumberOfTransforms; i++)
-    {
-    this->TransformList[i]->PrintSelf(os, indent.GetNextIndent());
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
-{
-  if (trans == this)
-    {
-    vtkErrorMacro(<< "Concatenate: Can't concatenate with self!");
-    return;
-    }
-
-  vtkLinearTransform **transList = this->TransformList;
-  vtkLinearTransform **inverseList = this->InverseList;
-  int n = this->NumberOfTransforms;
-  this->NumberOfTransforms++;
-  
-  // check to see if we need to allocate more space
-  if (this->NumberOfTransforms > this->MaxNumberOfTransforms)
-    {
-    int nMax = this->MaxNumberOfTransforms + 20;
-    transList = new vtkLinearTransform *[nMax];
-    inverseList = new vtkLinearTransform *[nMax];
-    for (int i = 0; i < n; i++)
-      {
-      transList[i] = this->TransformList[i];
-      inverseList[i] = this->InverseList[i];
-      }
-    if (this->TransformList)
-      {
-      delete [] this->TransformList;
-      }
-    if (this->InverseList)
-      {
-      delete [] this->InverseList;
-      }
-    this->TransformList = transList;
-    this->InverseList = inverseList;
-    this->MaxNumberOfTransforms = nMax;
-    }
-
-  // add the transform either the beginning or end of the list,
-  // according to flags
-  if (this->PreMultiplyFlag ^ this->InverseFlag)
-    {
-    for (int i = n; i > 0; i--)
-      {
-      transList[i] = transList[i-1];
-      inverseList[i] = inverseList[i-1];
-      }
-    n = 0;
-    }
-
-  if (this->InverseFlag)
-    {
-    trans = trans->GetLinearInverse();
-    }
-
-  transList[n] = trans;
-  transList[n]->Register(this);
-  inverseList[n] = trans->GetLinearInverse();
-  inverseList[n]->Register(this);
-
-  this->UpdateRequired = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// concatenate a set of transforms in order.
-void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *t1,
-						  vtkLinearTransform *t2,
-						  vtkLinearTransform *t3,
-						  vtkLinearTransform *t4)
-{
-  if (this->PreMultiplyFlag)
-    {
-    this->Concatenate(t1); 
-    this->Concatenate(t2);
-    if (t3) { this->Concatenate(t3); }
-    if (t4) { this->Concatenate(t4); }
-    }
-  else
-    {
-    if (t4) { this->Concatenate(t4); }
-    if (t3) { this->Concatenate(t3); }
-    this->Concatenate(t2);
-    this->Concatenate(t1);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::Inverse()
-{
-  this->InverseFlag = !this->InverseFlag;
-
-  this->UpdateRequired = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::Identity()
-{
-  if (this->NumberOfTransforms > 0)
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      this->TransformList[i]->Delete();
-      this->InverseList[i]->Delete();
-      }
-    }
-  this->NumberOfTransforms = 0;
-  this->InverseFlag = 0;
-
-  this->UpdateRequired = 1;
-  this->Modified();
+  this->Concatenation->PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
@@ -235,64 +84,13 @@ vtkGeneralTransform *vtkLinearTransformConcatenation::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
+void vtkLinearTransformConcatenation::InternalDeepCopy(
+					     vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkLinearTransformInverse",transform->GetClassName()) == 0)
-    {
-    transform = ((vtkLinearTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkLinearTransformConcatenation",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkLinearTransformConcatenation *t = 
     (vtkLinearTransformConcatenation *)transform;
 
-  if (t == this)
-    {
-    return;
-    }
-
-  this->PreMultiplyFlag = t->PreMultiplyFlag;
-  this->InverseFlag = t->InverseFlag;
-
-  if (this->NumberOfTransforms > 0)
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      this->TransformList[i]->Delete();
-      this->InverseList[i]->Delete();
-      }
-    }
-  if (this->TransformList)
-    {
-    delete [] this->TransformList;
-    }
-  if (this->InverseList)
-    {
-    delete [] this->InverseList;
-    }
-
-  this->MaxNumberOfTransforms = t->MaxNumberOfTransforms;
-  this->NumberOfTransforms = t->NumberOfTransforms;
-
-  this->TransformList = 
-    new vtkLinearTransform *[this->MaxNumberOfTransforms];
-  this->InverseList = 
-    new vtkLinearTransform *[this->MaxNumberOfTransforms];
-
-  // copy the transforms by reference
-  for (int i = 0; i < this->NumberOfTransforms; i++)
-    {
-    this->TransformList[i] = t->TransformList[i];
-    this->TransformList[i]->Register(this);  
-    this->InverseList[i] = t->InverseList[i];
-    this->InverseList[i]->Register(this);  
-    }  
-
-  this->UpdateRequired = 1;
+  this->Concatenation->DeepCopy(t->Concatenation);
 }
 
 //----------------------------------------------------------------------------
@@ -301,65 +99,30 @@ void vtkLinearTransformConcatenation::Update()
   // lock the update just in case multiple threads update simultaneously
   this->UpdateMutex->Lock();
 
-  unsigned long maxMTime = 0;
-
-  if (!this->UpdateRequired)
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      unsigned long mtime = this->TransformList[i]->GetMTime();
-      if (mtime > maxMTime)
-	{
-	maxMTime = mtime;
-	}
-      }    
-    }
-  if (maxMTime > this->Matrix->GetMTime() || this->UpdateRequired)
+  if (this->GetMTime() > this->UpdateTime.GetMTime())
     {
     this->Matrix->Identity();
 
-    if (this->InverseFlag)
+    // concatenate transforms in forward direction
+    for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
       {
-      // concatenate inverse transforms in reverse order
-      for (int i = this->NumberOfTransforms-1; i >= 0; i--)
-	{
-        vtkLinearTransform *transform = this->InverseList[i];
-        transform->Update();
-	vtkMatrix4x4::Multiply4x4(transform->GetMatrixPointer(),
-				  this->Matrix,this->Matrix);
-	}
+      vtkLinearTransform *transform = 
+	(vtkLinearTransform *)this->Concatenation->GetTransform(i);
+      vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),
+				this->Matrix,this->Matrix);
       }
-    else
-      {
-      // concatenate transforms in forward direction
-      for (int i = 0; i < this->NumberOfTransforms; i++)
-	{
-	vtkLinearTransform *transform = this->TransformList[i];
-	transform->Update();
-	vtkMatrix4x4::Multiply4x4(transform->GetMatrixPointer(),
-				  this->Matrix,this->Matrix);
-	}
-      }
-    this->UpdateRequired = 0;
     }
   
+  this->UpdateTime.Modified();
   this->UpdateMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------
 unsigned long vtkLinearTransformConcatenation::GetMTime()
 {
-  unsigned long result = this->vtkLinearTransform::GetMTime();
-
-  for (int i = 0; i < this->NumberOfTransforms; i++)
-    {
-    unsigned long mtime = this->TransformList[i]->GetMTime();
-    if (mtime > result)
-      {
-      result = mtime;
-      }
-    }
-
-  return result;
+  unsigned long mtime1 = this->vtkLinearTransform::GetMTime();
+  unsigned long mtime2 = this->Concatenation->GetMaxMTime();
+  return ((mtime1 > mtime2) ? mtime1 : mtime2);
 }
+
 

@@ -41,7 +41,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkGeneralTransformInverse.h"
 #include "vtkThinPlateSplineTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -297,8 +296,8 @@ void vtkThinPlateSplineTransform::Update()
   FillMatrixWithZeros(L,N+D+1,N+D+1);
 
   int q,c;
-  float p[3],p2[3];
-  float dx,dy,dz;
+  double p[3],p2[3];
+  double dx,dy,dz;
   double r;
   double (*phi)(double) = this->RadialBasisFunction;
 
@@ -363,8 +362,8 @@ void vtkThinPlateSplineTransform::Update()
 // The matrix W was created by Update.  Not much has to be done to
 // apply the transform:  do an affine transformation, then do
 // perturbations based on the landmarks.
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
-							float output[3])
+void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3],
+							double output[3])
 {
   int N = this->NumberOfPoints;
 
@@ -380,8 +379,8 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
   double *C = this->MatrixW[N]; 
   double **A = &this->MatrixW[N+1];
 
-  float dx,dy,dz;
-  float p[3];
+  double dx,dy,dz;
+  double p[3];
   double U,r;
   double invSigma = 1.0/this->Sigma;
 
@@ -412,11 +411,11 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 }
 
 //----------------------------------------------------------------------------
-// calculate the thin plate spline as well as the derivative
+// calculate the thin plate spline as well as the jacobian
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
-						       const float point[3],
-						       float output[3],
-						       float derivative[3][3])
+						       const double point[3],
+						       double output[3],
+						       double derivative[3][3])
 {
   int N = this->NumberOfPoints;
 
@@ -435,8 +434,8 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
   double *C = this->MatrixW[N]; 
   double **A = &this->MatrixW[N+1];
 
-  float dx,dy,dz;
-  float p[3];
+  double dx,dy,dz;
+  double p[3];
   double r, U, f, Ux, Uy, Uz;
   double x = 0, y = 0, z = 0; 
   double invSigma = 1.0/this->Sigma;
@@ -506,8 +505,8 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
 // Simply switching the input & output landmarks will not invert the 
 // transform, so instead we use Newton's method to iteratively invert
 // the transformation.
-void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3], 
-							float output[3])
+void vtkThinPlateSplineTransform::InverseTransformPoint(const double point[3], 
+							double output[3])
 {
   if (this->NumberOfPoints == 0)
     {
@@ -517,9 +516,9 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
     return;
     }
 
-  float inverse[3];
-  float delta[3];
-  float derivative[3][3];
+  double inverse[3];
+  double delta[3];
+  double derivative[3][3];
 
   double errorSquared;
   double toleranceSquared = this->InverseTolerance*this->InverseTolerance;
@@ -541,7 +540,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
     delta[2] -= point[2];
 
     // here is the critical step in Newton's method
-    vtkGeneralTransform::LinearSolve3x3(derivative,delta,delta);
+    vtkMath::LinearSolve3x3(derivative,delta,delta);
 
     inverse[0] -= delta[0];
     inverse[1] -= delta[1];
@@ -602,24 +601,10 @@ vtkGeneralTransform *vtkThinPlateSplineTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::DeepCopy(vtkGeneralTransform *transform)
+void vtkThinPlateSplineTransform::InternalDeepCopy(
+				      vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkGeneralTransformInverse",transform->GetClassName()) == 0)
-    {
-    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkThinPlateSplineTransform",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkThinPlateSplineTransform *t = (vtkThinPlateSplineTransform *)transform;
-
-  if (t == this)
-    {
-    return;
-    }
 
   this->SetInverseTolerance(t->InverseTolerance);
   this->SetSigma(t->Sigma);

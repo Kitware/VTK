@@ -219,7 +219,7 @@ void vtkSweptSurface::Execute()
   transform2->GetMatrix(t->GetMatrixPointer());
 
   this->GetRelativePosition(*t,actorOrigin,position2);
-  t->GetOrientation(orient2[0], orient2[1], orient2[2]);
+  t->GetOrientation(orient2);
   
   for (transNum=0; transNum < (numTransforms-1); transNum++)
     {
@@ -254,7 +254,7 @@ void vtkSweptSurface::Execute()
       orient1[i] = orient2[i];
       }
     this->GetRelativePosition(*t,actorOrigin,position2);
-    t->GetOrientation(orient2[0], orient2[1], orient2[2]);
+    t->GetOrientation(orient2);
 
     vtkDebugMacro(<<"Injecting " << numSteps << " steps between transforms "
                   << transNum <<" and "<< transNum+1);
@@ -569,7 +569,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
     transform2->GetMatrix(t->GetMatrixPointer());
 
     this->GetRelativePosition(*t,actorOrigin,position2);
-    t->GetOrientation(orient2[0], orient2[1], orient2[2]);
+    t->GetOrientation(orient2);
 
     // Initialize process with initial transformed position of input
     x[3] = 1.0;
@@ -607,7 +607,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         orient1[i] = orient2[i];
         }
       this->GetRelativePosition(*t,actorOrigin,position2);
-      t->GetOrientation(orient2[0], orient2[1], orient2[2]);
+      t->GetOrientation(orient2);
 
       // Sample inbetween matrices to compute better bounds. 
       // Use 4 steps (arbitrary),

@@ -167,6 +167,61 @@ public:
     return (a * d - b * c);};
 
   // Description:
+  // LU Factorization of a 3x3 matrix.  The diagonal elements are the
+  // multiplicative inverse of those in the standard LU factorization.
+  static void LUFactor3x3(float A[3][3], int index[3]);
+  static void LUFactor3x3(double A[3][3], int index[3]);
+
+  // Description:
+  // LU backsubstitution for a 3x3 matrix.  The diagonal elements are the
+  // multiplicative inverse of those in the standard LU factorization.
+  static void LUSolve3x3(const float A[3][3], const int index[3], 
+			 float x[3]);
+  static void LUSolve3x3(const double A[3][3], const int index[3], 
+			 double x[3]);
+
+  // Description:
+  // Solve Ay = x for y and place the result in x.  The matrix A is
+  // destroyed in the process.
+  static void LinearSolve3x3(const float A[3][3], const float x[3], 
+			     float y[3]);
+  static void LinearSolve3x3(const double A[3][3], const double x[3], 
+			     double y[3]);
+
+  // Description:
+  // Multiply a vector by a 3x3 matrix.  The result is placed in x.
+  static void Multiply3x3(const float A[3][3], const float x[3], float y[3]);
+  static void Multiply3x3(const double A[3][3], const double x[3], 
+			  double y[3]);
+  
+  // Description:
+  // Mutliply one 3x3 matrix by another: B = AB.
+  static void Multiply3x3(const float A[3][3], const float B[3][3], 
+			  float C[3][3]);
+  static void Multiply3x3(const double A[3][3], const double B[3][3], 
+			  double C[3][3]);
+
+  // Description:
+  // Transpose a 3x3 matrix.
+  static void Transpose3x3(const float A[3][3], float AT[3][3]);
+  static void Transpose3x3(const double A[3][3], double AT[3][3]);
+
+  // Description:
+  // Invert a 3x3 matrix.
+  static void Invert3x3(const float A[3][3], float AI[3][3]);
+  static void Invert3x3(const double A[3][3], double AI[3][3]);
+
+  // Description:
+  // Set A to the identity matrix.
+  static void Identity3x3(float A[3][3]);
+  static void Identity3x3(double A[3][3]);
+
+  // Description:
+  // Return the determinant of a 3x3 matrix.
+  static double Determinant3x3(float A[3][3]);
+  static double Determinant3x3(double A[3][3]);
+
+  // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
   static float Determinant3x3(const float c1[3], 
 			      const float c2[3], 
@@ -180,6 +235,7 @@ public:
   static double Determinant3x3(double a1, double a2, double a3, 
 			       double b1, double b2, double b3, 
 			       double c1, double c2, double c3);
+
 
   // Description:
   // Solve linear equations Ax = b using Crout's method. Input is square
@@ -396,7 +452,6 @@ inline double vtkMath::Normalize2D(double x[3])
     }
   return den;
 }
-
 
 inline float vtkMath::Determinant3x3(const float c1[3], 
 				     const float c2[3], 

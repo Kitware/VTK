@@ -69,7 +69,8 @@ public:
   // multiple transforms, then (assuming that your current transform
   // is called 't') the result is t*t1*t2*t3*t4 in PreMultiply mode,
   // or t1*t2*t3*t4*t in PostMultiply mode.
-  void Concatenate(vtkPerspectiveTransform *transform);
+  void Concatenate(vtkPerspectiveTransform *transform) {
+    this->Concatenation->Concatenate(transform); };
   void Concatenate(vtkPerspectiveTransform *t1,
 		   vtkPerspectiveTransform *t2) { 
     this->Concatenate(t1,t2,0,0); };
@@ -80,35 +81,28 @@ public:
   void Concatenate(vtkPerspectiveTransform *t1,
 		   vtkPerspectiveTransform *t2,
 		   vtkPerspectiveTransform *t3,
-		   vtkPerspectiveTransform *t4);
+		   vtkPerspectiveTransform *t4) {
+    this->Concatenation->Concatenate(t1,t2,t3,t4); };
 
   // Description:
   // Sets the internal state of the transform to post multiply. All
   // subsequent matrix operations will occur after those already represented
   // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply();
+  void PostMultiply() { this->Concatenation->PostMultiply(); };
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
   // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply();
+  void PreMultiply() { this->Concatenation->PreMultiply(); };
 
   // Description:
   // Invert the transformation. 
-  void Inverse();
+  void Inverse() { this->Concatenation->Inverse(); };
 
   // Description:
   // Create an identity transformation.
-  void Identity();
-
-  // Description:
-  // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Copy another transformation into this one.
-  void DeepCopy(vtkGeneralTransform *transform);
+  void Identity() { this->Concatenation->Identity(); };
 
   // Description:
   // Return modified time of transformation.
@@ -118,6 +112,14 @@ public:
   // Update the concatenated transform.
   void Update();
 
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  // Description:
+  // Make another transform of the same type.
+  vtkGeneralTransform *MakeTransform();
+
 protected:
   vtkPerspectiveTransformConcatenation();
   ~vtkPerspectiveTransformConcatenation();
@@ -125,41 +127,9 @@ protected:
 	  const vtkPerspectiveTransformConcatenation&) {};
   void operator=(const vtkPerspectiveTransformConcatenation&) {};
 
-  int InverseFlag;
-  int PreMultiplyFlag;
-
-  int NumberOfTransforms;
-  int MaxNumberOfTransforms;
-  vtkPerspectiveTransform **TransformList;
-  vtkPerspectiveTransform **InverseList;
-
-  int UpdateRequired;
+  vtkTimeStamp UpdateTime;
   vtkMutexLock *UpdateMutex;
 };
-
-//BTX
-//----------------------------------------------------------------------------
-inline void vtkPerspectiveTransformConcatenation::PreMultiply()
-{
-  if (this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-inline void vtkPerspectiveTransformConcatenation::PostMultiply()
-{
-  if (!this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 0;
-  this->Modified();
-}
-//ETX
 
 #endif
 

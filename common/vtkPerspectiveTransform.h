@@ -99,7 +99,7 @@ public:
   // Get a copy of the internal transformation matrix.  The
   // transform is Updated first, to guarantee that the matrix
   // is valid.
-  virtual void GetMatrix(vtkMatrix4x4 *m);
+  void GetMatrix(vtkMatrix4x4 *m);
 
   // Description:
   // Get a pointer to an internal vtkMatrix4x4 that represents
@@ -107,6 +107,10 @@ public:
   // to ensure that the matrix is up-to-date when you get it.
   // You should not store the matrix pointer anywhere because it
   // might become stale.
+  vtkMatrix4x4 *GetMatrix() { this->Update(); return this->Matrix; };
+
+  // Description:
+  // This is an obsolete method provided for backwards-compatibility.
   vtkMatrix4x4 *GetMatrixPointer() { this->Update(); return this->Matrix; };
 
   // Description:
@@ -123,6 +127,7 @@ public:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(const double in[3], double out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
@@ -130,6 +135,8 @@ public:
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
 				   float derivative[3][3]);
+  void InternalTransformDerivative(const double in[3], double out[3],
+				   double derivative[3][3]);
 
 protected:
   vtkPerspectiveTransform() { this->Matrix = vtkMatrix4x4::New(); };

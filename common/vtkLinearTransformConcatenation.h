@@ -39,12 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkLinearTransformConcatenation - concatenation of linear transforms
+// .NAME vtkLinearTransformConcatenation - concatenation of linear 
+// transformations
 // .SECTION Description
-// vtkLinearTransformConcatenation is a special LinearTransform which
-// allows concatenation of linear transformations in a pipelined manner.
+// vtkLinearTransformConcatenation is a special LinearTransform 
+// which allows concatenation of 4x4 matrices in a pipelined manner.
 // .SECTION see also
-// vtkPerspectiveTransformConcatenation vtkGeneralTransformConcatenation
+// vtkGeneralTransformConcatenation vtkLinearTransformConcatenation
 
 
 #ifndef __vtkLinearTransformConcatenation_h
@@ -53,7 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearTransform.h"
 #include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkLinearTransformConcatenation : public vtkLinearTransform
+class VTK_EXPORT vtkLinearTransformConcatenation : 
+  public vtkLinearTransform
 {
 public:
   static vtkLinearTransformConcatenation *New();
@@ -67,44 +69,40 @@ public:
   // multiple transforms, then (assuming that your current transform
   // is called 't') the result is t*t1*t2*t3*t4 in PreMultiply mode,
   // or t1*t2*t3*t4*t in PostMultiply mode.
-  void Concatenate(vtkLinearTransform *transform);
+  void Concatenate(vtkLinearTransform *transform) {
+    this->Concatenation->Concatenate(transform); };
   void Concatenate(vtkLinearTransform *t1,
-		   vtkLinearTransform *t2) { this->Concatenate(t1,t2,0,0); };
+		   vtkLinearTransform *t2) { 
+    this->Concatenate(t1,t2,0,0); };
   void Concatenate(vtkLinearTransform *t1,
 		   vtkLinearTransform *t2,
-		   vtkLinearTransform *t3) { this->Concatenate(t1,t2,t3,0); };
+		   vtkLinearTransform *t3) { 
+    this->Concatenate(t1,t2,t3,0); };
   void Concatenate(vtkLinearTransform *t1,
 		   vtkLinearTransform *t2,
 		   vtkLinearTransform *t3,
-		   vtkLinearTransform *t4);
+		   vtkLinearTransform *t4) {
+    this->Concatenation->Concatenate(t1,t2,t3,t4); };
 
   // Description:
   // Sets the internal state of the transform to post multiply. All
   // subsequent matrix operations will occur after those already represented
   // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply();
+  void PostMultiply() { this->Concatenation->PostMultiply(); };
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
   // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply();
+  void PreMultiply() { this->Concatenation->PreMultiply(); };
 
   // Description:
   // Invert the transformation. 
-  void Inverse();
+  void Inverse() { this->Concatenation->Inverse(); };
 
   // Description:
   // Create an identity transformation.
-  void Identity();
-
-  // Description:
-  // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Copy another transformation into this one.
-  void DeepCopy(vtkGeneralTransform *transform);
+  void Identity() { this->Concatenation->Identity(); };
 
   // Description:
   // Return modified time of transformation.
@@ -114,47 +112,24 @@ public:
   // Update the concatenated transform.
   void Update();
 
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  // Description:
+  // Make another transform of the same type.
+  vtkGeneralTransform *MakeTransform();
+
 protected:
   vtkLinearTransformConcatenation();
   ~vtkLinearTransformConcatenation();
-  vtkLinearTransformConcatenation(const vtkLinearTransformConcatenation&) {};
+  vtkLinearTransformConcatenation(
+	  const vtkLinearTransformConcatenation&) {};
   void operator=(const vtkLinearTransformConcatenation&) {};
 
-  int InverseFlag;
-  int PreMultiplyFlag;
-
-  int NumberOfTransforms;
-  int MaxNumberOfTransforms;
-  vtkLinearTransform **TransformList;
-  vtkLinearTransform **InverseList;
-
-  int UpdateRequired;
+  vtkTimeStamp UpdateTime;
   vtkMutexLock *UpdateMutex;
 };
-
-//BTX
-//----------------------------------------------------------------------------
-inline void vtkLinearTransformConcatenation::PreMultiply()
-{
-  if (this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-inline void vtkLinearTransformConcatenation::PostMultiply()
-{
-  if (!this->PreMultiplyFlag)
-    {
-    return;
-    }
-  this->PreMultiplyFlag = 0;
-  this->Modified();
-}
-//ETX
 
 #endif
 

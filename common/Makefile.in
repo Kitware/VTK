@@ -65,7 +65,6 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkGeneralTransformConcatenation \
-vtkGeneralTransformInverse \
 vtkGenericCell \
 vtkHexahedron \
 vtkIdentityTransform \
@@ -78,7 +77,6 @@ vtkIndent \
 vtkIntArray \
 vtkLine \
 vtkLinearTransformConcatenation \
-vtkLinearTransformInverse \
 vtkLogLookupTable \
 vtkLongArray \
 vtkLookupTable \
@@ -94,7 +92,6 @@ vtkNormals \
 vtkObject \
 vtkOutputWindow \
 vtkPerspectiveTransformConcatenation \
-vtkPerspectiveTransformInverse \
 vtkPixel \
 vtkPlane \
 vtkPlaneCollection \

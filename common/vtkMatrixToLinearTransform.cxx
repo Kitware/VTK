@@ -40,7 +40,6 @@ OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkMatrixToLinearTransform.h"
-#include "vtkLinearTransformInverse.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -69,24 +68,10 @@ vtkGeneralTransform *vtkMatrixToLinearTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToLinearTransform::DeepCopy(vtkGeneralTransform *transform)
+void vtkMatrixToLinearTransform::InternalDeepCopy(
+					   vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkLinearTransformInverse",transform->GetClassName())==0)
-    {
-    transform = ((vtkLinearTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkMatrixToLinearTransform",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkMatrixToLinearTransform *t = (vtkMatrixToLinearTransform *)transform;  
-
-  if (t == this)
-    {
-    return;
-    }
 
   this->Matrix->DeepCopy(t->Matrix);
   this->Modified();

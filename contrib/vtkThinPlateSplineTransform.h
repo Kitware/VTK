@@ -105,14 +105,6 @@ public:
   vtkGetMacro(InverseTolerance,float);
 
   // Description:
-  // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Copy this transform from another of the same type.
-  void DeepCopy(vtkGeneralTransform *transform);
-
-  // Description:
   // Get the MTime.
   unsigned long GetMTime();
 
@@ -120,16 +112,33 @@ public:
   // Prepare the transformation for application.
   void Update();
 
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  // Description:
+  // Make another transform of the same type.
+  vtkGeneralTransform *MakeTransform();
+
 protected:
   vtkThinPlateSplineTransform();
   ~vtkThinPlateSplineTransform();
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) {};
   void operator=(const vtkThinPlateSplineTransform&) {};
 
-  void ForwardTransformPoint(const float in[3], float out[3]);
+  void ForwardTransformPoint(const float in[3], float out[3]) {
+    vtkWarpTransform::ForwardTransformPoint(in,out); };
+  void ForwardTransformPoint(const double in[3], double out[3]);
+
   void ForwardTransformDerivative(const float in[3], float out[3],
-					  float derivative[3][3]);
-  void InverseTransformPoint(const float in[3], float out[3]);
+				  float derivative[3][3]) {
+    vtkWarpTransform::ForwardTransformDerivative(in,out,derivative); };
+  void ForwardTransformDerivative(const double in[3], double out[3],
+				  double derivative[3][3]);
+
+  void InverseTransformPoint(const float in[3], float out[3]) {
+    vtkWarpTransform::InverseTransformPoint(in,out); };
+  void InverseTransformPoint(const double in[3], double out[3]);
 
   vtkThinPlateSplineTransform *ApproximateInverse;
 

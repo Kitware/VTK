@@ -37,7 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include "vtkGeneralTransformInverse.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -410,24 +409,9 @@ vtkGeneralTransform *vtkLandmarkTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkLandmarkTransform::DeepCopy(vtkGeneralTransform *transform)
+void vtkLandmarkTransform::InternalDeepCopy(vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkGeneralTransformInverse",transform->GetClassName()) == 0)
-    {
-    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkLandmarkTransform",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkLandmarkTransform *t = (vtkLandmarkTransform *)transform;
-
-  if (t == this)
-    {
-    return;
-    }
 
   this->SetMode(t->Mode);
   this->SetSourceLandmarks(t->SourceLandmarks);

@@ -41,27 +41,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkLinearTransform.h"
-#include "vtkLinearTransformInverse.h"
+#include "vtkLinearTransformConcatenation.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os, indent);
-  if (this->Matrix)
-    {
-    os << indent << "Matrix: " << this->Matrix << "\n";
-    this->Matrix->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Matrix: (none)" << "\n";
-    }
+  vtkPerspectiveTransform::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------
-template <class T2, class T3>
-static inline void vtkLinearTransformPoint(const double matrix[4][4], 
+template <class T1, class T2, class T3>
+static inline void vtkLinearTransformPoint(T1 matrix[4][4], 
 					   T2 in[3], T3 out[3])
 {
   T3 x = matrix[0][0]*in[0]+matrix[0][1]*in[1]+matrix[0][2]*in[2]+matrix[0][3];
@@ -74,8 +65,24 @@ static inline void vtkLinearTransformPoint(const double matrix[4][4],
 }
 
 //------------------------------------------------------------------------
-template <class T2, class T3>
-static inline void vtkLinearTransformVector(const double matrix[4][4],
+template <class T1, class T2, class T3, class T4>
+static inline void vtkLinearTransformDerivative(T1 matrix[4][4], 
+						T2 in[3], T3 out[3], 
+						T4 derivative[3][3])
+{
+  vtkLinearTransformPoint(matrix,in,out);
+
+  for (int i = 0; i < 3; i++)
+    {
+    derivative[0][i] = matrix[0][i];
+    derivative[1][i] = matrix[1][i];
+    derivative[2][i] = matrix[2][i];
+    }
+}
+
+//------------------------------------------------------------------------
+template <class T1, class T2, class T3>
+static inline void vtkLinearTransformVector(T1 matrix[4][4],
 					    T2 in[3], T3 out[3]) 
 {
   T3 x = matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2];
@@ -88,14 +95,15 @@ static inline void vtkLinearTransformVector(const double matrix[4][4],
 }
 
 //------------------------------------------------------------------------
-template <class T2, class T3>
-static inline void vtkLinearTransformNormal(const double mat[4][4], 
+template <class T1, class T2, class T3>
+static inline void vtkLinearTransformNormal(T1 mat[4][4], 
 					    T2 in[3], T3 out[3]) 
 {
   // to transform the normal, multiply by the transposed inverse matrix
-  double matrix[4][4];
-  vtkMatrix4x4::Transpose(*mat,*matrix);
+  T1 matrix[4][4];
+  memcpy(*matrix,*mat,16*sizeof(T1)); 
   vtkMatrix4x4::Invert(*matrix,*matrix);
+  vtkMatrix4x4::Transpose(*matrix,*matrix);
 
   vtkLinearTransformVector(matrix,in,out);
 
@@ -208,21 +216,27 @@ void vtkLinearTransform::InternalTransformPoint(const float in[3],
   vtkLinearTransformPoint(this->Matrix->Element,in,out);
 }
 
+//------------------------------------------------------------------------
+void vtkLinearTransform::InternalTransformPoint(const double in[3], 
+						double out[3])
+{
+  vtkLinearTransformPoint(this->Matrix->Element,in,out);
+}
+
 //----------------------------------------------------------------------------
 void vtkLinearTransform::InternalTransformDerivative(const float in[3], 
 						     float out[3],
 						     float derivative[3][3])
 {
-  double (*matrix)[4] = this->Matrix->Element;
+  vtkLinearTransformDerivative(this->Matrix->Element,in,out,derivative);
+}
 
-  vtkLinearTransformPoint(matrix,in,out);
-
-  for (int i = 0; i < 3; i++)
-    {
-    derivative[i][0] = matrix[i][0];
-    derivative[i][1] = matrix[i][1];
-    derivative[i][2] = matrix[i][2];
-    }
+//----------------------------------------------------------------------------
+void vtkLinearTransform::InternalTransformDerivative(const double in[3], 
+						     double out[3],
+						     double derivative[3][3])
+{
+  vtkLinearTransformDerivative(this->Matrix->Element,in,out,derivative);
 }
 
 //----------------------------------------------------------------------------
@@ -256,7 +270,7 @@ void vtkLinearTransform::TransformPoints(vtkPoints *inPts,
 {
   int n = inPts->GetNumberOfPoints();
   double (*matrix)[4] = this->Matrix->Element;
-  float point[3];  
+  double point[3];  
 
   this->Update();
 
@@ -275,7 +289,7 @@ void vtkLinearTransform::TransformNormals(vtkNormals *inNms,
 					  vtkNormals *outNms)
 {
   int n = inNms->GetNumberOfNormals();
-  float norm[3];
+  double norm[3];
   double matrix[4][4];
   
   this->Update();
@@ -302,7 +316,7 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
 					  vtkVectors *outNms)
 {
   int n = inNms->GetNumberOfVectors();
-  float vec[3];
+  double vec[3];
   
   this->Update();
 
@@ -319,16 +333,16 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
 }
 
 //----------------------------------------------------------------------------
-// The vtkLinearTransformInverse is a special-purpose class.
-// See vtkLinearTransformInverse.h for more details.
 vtkGeneralTransform *vtkLinearTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {
-    vtkLinearTransformInverse *inverse = vtkLinearTransformInverse::New();
-    inverse->SetInverse(this);
+    vtkLinearTransformConcatenation *inverse = 
+      vtkLinearTransformConcatenation::New();
+    inverse->Concatenate(this);
+    inverse->Inverse();
     this->MyInverse = inverse;
     }
-  return (vtkLinearTransform *)this->MyInverse;
+  return this->MyInverse;
 }
 

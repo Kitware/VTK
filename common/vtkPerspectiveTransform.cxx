@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkPerspectiveTransform.h"
-#include "vtkPerspectiveTransformInverse.h"
+#include "vtkPerspectiveTransformConcatenation.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -60,19 +60,38 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------
-template <class T2, class T3>
-static inline void vtkPerspectiveTransformPoint(const double M[4][4],
-					        T2 in[3], T3 out[3])
+template <class T1, class T2, class T3>
+static inline double vtkPerspectiveTransformPoint(T1 M[4][4],
+						  T2 in[3], T3 out[3])
 {
-  T3 x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
-  T3 y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
-  T3 z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
-  T3 w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
+  double x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
+  double y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
+  double z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
+  double w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
 
-  T3 f = T3(1.0)/w;
+  double f = 1.0/w;
   out[0] = x*f; 
   out[1] = y*f; 
-  out[2] = z*f; 
+  out[2] = z*f;
+
+  return f;
+}
+
+//------------------------------------------------------------------------
+// computes a coordinate transformation and also returns the Jacobian matrix
+template <class T1, class T2, class T3, class T4>
+static inline void vtkPerspectiveTransformDerivative(T1 M[4][4],
+						     T2 in[3], T3 out[3],
+						     T4 derivative[3][3])
+{
+  double f = vtkPerspectiveTransformPoint(M,in,out);
+
+  for (int i = 0; i < 3; i++)
+    { 
+    derivative[0][i] = (M[0][i] - M[3][i]*out[0])*f;
+    derivative[1][i] = (M[1][i] - M[3][i]*out[1])*f;
+    derivative[2][i] = (M[2][i] - M[3][i]*out[2])*f;
+    }
 }
 
 //------------------------------------------------------------------------
@@ -101,29 +120,27 @@ void vtkPerspectiveTransform::InternalTransformPoint(const float in[3],
   vtkPerspectiveTransformPoint(this->Matrix->Element,in,out);
 }
 
+//------------------------------------------------------------------------
+void vtkPerspectiveTransform::InternalTransformPoint(const double in[3], 
+						     double out[3])
+{
+  vtkPerspectiveTransformPoint(this->Matrix->Element,in,out);
+}
+
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::InternalTransformDerivative(const float in[3], 
 						    float out[3],
 						    float derivative[3][3])
 {
-  double (*M)[4] = this->Matrix->Element;
-  
-  float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
-  float y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
-  float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
-  float w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
+  vtkPerspectiveTransformDerivative(this->Matrix->Element,in,out,derivative);
+}
 
-  float f = 1.0f/w;
-  out[0] = x*f; 
-  out[1] = y*f; 
-  out[2] = z*f; 
-
-  for (int i = 0; i < 3; i++)
-    { 
-    derivative[0][i] = (M[0][i] - M[3][i]*out[0])*f;
-    derivative[1][i] = (M[1][i] - M[3][i]*out[1])*f;
-    derivative[2][i] = (M[2][i] - M[3][i]*out[2])*f;
-    }
+//----------------------------------------------------------------------------
+void vtkPerspectiveTransform::InternalTransformDerivative(const double in[3], 
+						    double out[3],
+						    double derivative[3][3])
+{
+  vtkPerspectiveTransformDerivative(this->Matrix->Element,in,out,derivative);
 }
 
 //----------------------------------------------------------------------------
@@ -132,7 +149,7 @@ void vtkPerspectiveTransform::TransformPoints(vtkPoints *inPts,
 {
   int n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
-  float point[3];  
+  double point[3];  
 
   this->Update();
 
@@ -163,14 +180,13 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   int n = inNms->GetNumberOfNormals();
   double (*M)[4] = this->Matrix->Element;
   double L[4][4];
-  float inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
-  float w;
-  float f;
+  double inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
+  double w;
   
   this->Update();
 
   if (inNms)
-    { // need inverse transpose of matrix to calculate normals
+    { // need inverse of the matrix to calculate normals
     vtkMatrix4x4::DeepCopy(*L,this->Matrix);  
     vtkMatrix4x4::Invert(*L,*L);
     vtkMatrix4x4::Transpose(*L,*L);
@@ -180,18 +196,8 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     {
     inPts->GetPoint(i,inPnt);
 
-    // do the linear homogenous transformation
-    outPnt[0] = M[0][0]*inPnt[0]+M[0][1]*inPnt[1]+M[0][2]*inPnt[2]+M[0][3];
-    outPnt[1] = M[1][0]*inPnt[0]+M[1][1]*inPnt[1]+M[1][2]*inPnt[2]+M[1][3];
-    outPnt[2] = M[2][0]*inPnt[0]+M[2][1]*inPnt[1]+M[2][2]*inPnt[2]+M[2][3];
-    w =         M[3][0]*inPnt[0]+M[3][1]*inPnt[1]+M[3][2]*inPnt[2]+M[3][3];
-
-    // apply perspective correction
-    f = 1.0f/w;
-    outPnt[0] *= f;
-    outPnt[1] *= f;
-    outPnt[2] *= f;
-
+    // do the coordinate transformation, get 1/w
+    double f = vtkPerspectiveTransformPoint(M,inPnt,outPnt);
     outPts->InsertNextPoint(outPnt);
 
     if (inVrs)
@@ -233,18 +239,17 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 }
 
 //----------------------------------------------------------------------------
-// The vtkPerspectiveTransformInverse is a special-purpose class.
-// See vtkPerspectiveTransformInverse.h for more details.
 vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {
-    vtkPerspectiveTransformInverse *inverse = 
-      vtkPerspectiveTransformInverse::New();
-    inverse->SetInverse(this);
+    vtkPerspectiveTransformConcatenation *inverse = 
+      vtkPerspectiveTransformConcatenation::New();
+    inverse->Concatenate(this);
+    inverse->Inverse();
     this->MyInverse = inverse;
     }
-  return (vtkPerspectiveTransform *)this->MyInverse;
+  return this->MyInverse;
 }
 
 //----------------------------------------------------------------------------

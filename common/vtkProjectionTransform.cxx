@@ -41,13 +41,8 @@ OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <stdlib.h>
 #include "vtkProjectionTransform.h"
-#include "vtkPerspectiveTransformInverse.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
-// Useful for viewing a double[16] as a double[4][4]
-typedef double (*SqMatPtr)[4];
-
 
 //----------------------------------------------------------------------------
 vtkProjectionTransform* vtkProjectionTransform::New()
@@ -66,11 +61,21 @@ vtkProjectionTransform* vtkProjectionTransform::New()
 vtkProjectionTransform::vtkProjectionTransform()
 {
   this->PreMultiplyFlag = 1;
+  this->StackSize = 10;
+  this->Stack = new vtkMatrix4x4 *[this->StackSize];
+  this->StackBottom = this->Stack;
 }
 
 //----------------------------------------------------------------------------
 vtkProjectionTransform::~vtkProjectionTransform()
 {
+  int n = this->Stack-this->StackBottom;
+  for (int i = 0; i < n; i++)
+    {
+    this->StackBottom[i]->Delete();
+    }
+
+  delete [] this->StackBottom;
 }
 
 //----------------------------------------------------------------------------
@@ -87,27 +92,37 @@ vtkGeneralTransform *vtkProjectionTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkProjectionTransform::DeepCopy(vtkGeneralTransform *transform)
+void vtkProjectionTransform::InternalDeepCopy(vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkPerspectiveTransformInverse",transform->GetClassName())==0)
-    {
-    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkProjectionTransform",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkProjectionTransform *t = (vtkProjectionTransform *)transform;  
 
-  if (t == this)
-    {
-    return;
-    }
-
   this->PreMultiplyFlag = t->PreMultiplyFlag;
+  this->StackSize = t->StackSize;
   this->Matrix->DeepCopy(t->Matrix);
+
+  // free the old stack
+  if (this->StackBottom)
+    {
+    int n = this->Stack-this->StackBottom;
+    for (int i = 0; i < n; i++)
+      {
+      this->StackBottom[i]->Delete();
+      }
+    delete [] this->StackBottom;
+    } 
+
+  // allocate new stack
+  this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
+
+  // copy the stack
+  int n = t->Stack-t->StackBottom;
+  for (int i = 0; i < n; i++ )
+    {
+    this->StackBottom[i] = vtkMatrix4x4::New();
+    (this->StackBottom[i])->DeepCopy(t->Stack[i]);
+    }
+  this->Stack = this->StackBottom + n;
+
   this->Modified();
 }
 
@@ -185,7 +200,7 @@ void vtkProjectionTransform::PreMultiply()
 //----------------------------------------------------------------------------
 // Utility for adjusting the window range to a new one.  Usually the
 // previous range was ([-1,+1],[-1,+1]) as per Ortho and Frustum, and you
-// are mapping them to display coordinates.
+// are mapping to the display coordinate range ([0,width-1],[0,height-1]).
 void vtkProjectionTransform::AdjustViewport(double oldXMin, double oldXMax, 
 					    double oldYMin, double oldYMax,
 					    double newXMin, double newXMax, 
@@ -276,6 +291,7 @@ void vtkProjectionTransform::Frustum(double xmin, double xmax,
 }
 
 //----------------------------------------------------------------------------
+// For convenience, an easy way to set up a symmetrical frustum.
 void vtkProjectionTransform::Perspective(double angle, double aspect,
 					 double znear, double zfar)
 {
@@ -289,21 +305,83 @@ void vtkProjectionTransform::Perspective(double angle, double aspect,
 }
 
 //----------------------------------------------------------------------------
-void vtkProjectionTransform::Stereo(double angle, double focaldistance)
+// The Shear method can be used after Perspective to create correct
+// perspective views for use with head-tracked stereo on a flat, fixed
+// (i.e. not head-mounted) viewing screen.
+//
+// You must measure the eye position relative to the center of the
+// RenderWindow (or the center of the screen, if the window is
+// full-screen).  The following applies:  +x is 'right', +y is 'up',
+// and zplane is the distance from screen to the eye.
+//
+// Here is some info on how to set this up properly:
+//
+//  - Decide on a real-world-coords to virtual-world-coords conversion
+//    factor that is appropriate for the scene you are viewing.
+//  - The screen is the focal plane, the near clipping plane lies in 
+//    front of the screen and far clipping plane lies behind.  
+//    Measure the (x,y,z) displacent from the center of the screen to 
+//    your eye.  Scale these by the factor you chose.
+//  - After you have scaled x, y, and z call Shear(x/z,y/z,z).
+//
+// We're not done yet!
+//
+//  - When you set up the view using SetupCamera(), the camera should
+//    be placed the same distance from the screen as your eye, but so
+//    that it looks at the screen straight-on.  I.e. it must lie along
+//    the ray perpendicular to the screen which passes through the center
+//    of screen (i.e. the center of the screen, in world coords, corresponds
+//    to the focal point).  Whatever 'z' you used in Shear(), the 
+//    camera->focalpoint distance should be the same.   If you are 
+//    wondering why you don't set the camera position to be the eye
+//    position, don't worry -- the combination of SetupCamera() and
+//    an Oblique() shear about the focal plane does precisely that.
+//  
+//  - When you set up the view frustum using Perspective(),
+//    set the angle to  2*atan(0.5*height/z)  where 'height' is
+//    the height of your screen multiplied by the real-to-virtual
+//    scale factor.  Don't forget to convert the angle to degrees.
+//  - Though it is not absolutely necessary, you might want to 
+//    keep your near and far clipping planes at constant distances
+//    from the focal point.  By default, they are set up relative
+//    to the camera position.
+//
+//  The order in which you apply the transformations, in 
+//  PreMultiply mode, is:
+//    1) Perspective(),  2) Shear(),  3) SetupCamera()
+//
+// Take the above advice with a grain of salt... I've never actually
+// tried any of this except for with pencil & paper.  Looks good on
+// paper, though!
+void vtkProjectionTransform::Shear(double dxdz, double dydz, double zplane)
 {
-  double shear = tan(angle*vtkMath::DoubleDegreesToRadians());
-
   double matrix[4][4];
   vtkMatrix4x4::Identity(*matrix);
-  
-  // create a shear in Z
-  matrix[0][2] = -shear;
-  
-  // shift by the separation between the eyes
-  matrix[0][3] = -shear*focaldistance;
+
+  // everything is negative because the position->focalpoint vector
+  // is in the -z direction, hence z distances along that vector
+  // are negative.
+
+  // shear according to the eye position relative to the screen
+  matrix[0][2] = -dxdz;
+  matrix[1][2] = -dydz;
+
+  // shift so that view rays converge in the focal plane
+  matrix[0][3] = -zplane*dxdz;
+  matrix[1][3] = -zplane*dydz;
 
   // concatenate with the current matrix
   this->Concatenate(*matrix);
+}
+
+//----------------------------------------------------------------------------
+// For convenience -- this is sufficient for most people's stereo needs.
+// Set the angle to negative for left eye, positive for right eye.
+void vtkProjectionTransform::Stereo(double angle, double focaldistance)
+{
+  double dxdz = tan(angle*vtkMath::DoubleDegreesToRadians());
+
+  this->Shear(dxdz, 0.0, focaldistance);
 }
 
 //----------------------------------------------------------------------------
@@ -441,6 +519,45 @@ void vtkProjectionTransform::Scale(double x, double y, double z)
   matrix[2][2] = z;
 
   this->Concatenate(*matrix);
+}
+
+//----------------------------------------------------------------------------
+// Deletes the matrix on the top of the stack and sets the top 
+// to the next matrix on the stack.
+void vtkProjectionTransform::Pop()
+{
+  // if we're at the bottom of the stack, don't pop
+  if (this->Stack == this->StackBottom)
+    {
+    return;
+    }
+
+  this->Matrix->DeepCopy(*--this->Stack);
+
+  // free the stack matrix storage
+  (*this->Stack)->Delete();
+  (*this->Stack) = NULL;
+
+  this->Modified ();
+}
+
+//----------------------------------------------------------------------------
+// Pushes the current matrix onto the stack.
+void vtkProjectionTransform::Push()
+{
+  if ((this->Stack - this->StackBottom) > this->StackSize) 
+    {
+    vtkErrorMacro("Push: Exceeded matrix stack size");
+    return;
+    }
+
+  // allocate a new matrix on the stack
+  (*this->Stack) = vtkMatrix4x4::New();
+  
+  // set the new matrix to the previous top of stack matrix
+  (*this->Stack++)->DeepCopy(this->Matrix);
+
+  this->Modified ();
 }
 
   

@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkWarpTransform.h"
+#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -67,6 +68,20 @@ void vtkWarpTransform::InternalTransformPoint(const float input[3],
 }
 
 //------------------------------------------------------------------------
+void vtkWarpTransform::InternalTransformPoint(const double input[3],
+					      double output[3])
+{
+  if (this->InverseFlag)
+    {
+    this->InverseTransformPoint(input,output);
+    }
+  else
+    {
+    this->ForwardTransformPoint(input,output);
+    }
+}
+
+//------------------------------------------------------------------------
 // Check the InverseFlag, and set the output point and derivative as
 // appropriate.
 void vtkWarpTransform::InternalTransformDerivative(const float input[3],
@@ -81,7 +96,28 @@ void vtkWarpTransform::InternalTransformDerivative(const float input[3],
     tmp[2] = input[2];
     this->ForwardTransformDerivative(tmp,output,derivative);
     this->InverseTransformPoint(tmp,output);
-    vtkGeneralTransform::Invert3x3(derivative,derivative);
+    vtkMath::Invert3x3(derivative,derivative);
+    }
+  else
+    {
+    this->ForwardTransformDerivative(input,output,derivative);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWarpTransform::InternalTransformDerivative(const double input[3],
+						   double output[3],
+						   double derivative[3][3])
+{
+  if (this->InverseFlag)
+    {
+    double tmp[3];
+    tmp[0] = input[0];
+    tmp[1] = input[1];
+    tmp[2] = input[2];
+    this->ForwardTransformDerivative(tmp,output,derivative);
+    this->InverseTransformPoint(tmp,output);
+    vtkMath::Invert3x3(derivative,derivative);
     }
   else
     {
@@ -95,6 +131,63 @@ void vtkWarpTransform::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// convert float to double and back again
+void vtkWarpTransform::ForwardTransformPoint(const float point[3], 
+					     float output[3])
+{
+  double dpoint[3];
+  dpoint[0] = point[0]; 
+  dpoint[1] = point[1]; 
+  dpoint[2] = point[2];
+
+  this->ForwardTransformPoint(dpoint,dpoint);
+ 
+  output[0] = dpoint[0]; 
+  output[1] = dpoint[1]; 
+  output[2] = dpoint[2];
+}
+
+//----------------------------------------------------------------------------
+// convert float to double and back again
+void vtkWarpTransform::InverseTransformPoint(const float point[3], 
+					     float output[3])
+{
+  double dpoint[3];
+  dpoint[0] = point[0]; 
+  dpoint[1] = point[1]; 
+  dpoint[2] = point[2];
+
+  this->InverseTransformPoint(dpoint,dpoint);
+ 
+  output[0] = dpoint[0]; 
+  output[1] = dpoint[1]; 
+  output[2] = dpoint[2];
+}
+
+//----------------------------------------------------------------------------
+// convert float to double and back again
+void vtkWarpTransform::ForwardTransformDerivative(const float point[3],
+						  float output[3],
+						  float derivative[3][3])
+{
+  double dpoint[3];
+  double dderivative[3][3];
+  for (int i = 0; i < 3; i++)
+    {
+    dderivative[i][0] = derivative[i][0];
+    dpoint[i] = point[i];
+    } 
+
+  this->ForwardTransformDerivative(dpoint,dpoint,dderivative);
+ 
+  for (int j = 0; j < 3; j++)
+    {
+    derivative[j][0] = dderivative[j][0];
+    output[j] = dpoint[j];
+    } 
 }
 
 

@@ -118,19 +118,10 @@ public:
   vtkGeneralTransform *GetInverse();
 
   // Description:
-  // Make a transform of the same type.  This will actually
-  // return the same transform.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Make this transform a copy of the specified transform.  The
-  // specified transform must be the identity transform.
-  void DeepCopy(vtkGeneralTransform *t);
-
-  // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(const double in[3], double out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
@@ -138,6 +129,17 @@ public:
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
 				   float derivative[3][3]);
+  void InternalTransformDerivative(const double in[3], double out[3],
+				   double derivative[3][3]);
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *t);
+
+  // Description:
+  // Make a transform of the same type.  This will actually
+  // return the same transform.
+  vtkGeneralTransform *MakeTransform();
 
 protected:
   vtkIdentityTransform();

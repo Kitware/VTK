@@ -40,7 +40,6 @@ OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkMatrixToPerspectiveTransform.h"
-#include "vtkPerspectiveTransformInverse.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -69,25 +68,11 @@ vtkGeneralTransform *vtkMatrixToPerspectiveTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::DeepCopy(vtkGeneralTransform *transform)
+void vtkMatrixToPerspectiveTransform::InternalDeepCopy(
+					     vtkGeneralTransform *transform)
 {
-  if (strcmp("vtkPerspectiveTransformInverse",transform->GetClassName())==0)
-    {
-    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform();
-    }
-  if (strcmp("vtkMatrixToPerspectiveTransform",transform->GetClassName()) != 0)
-    {
-    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
-    return;
-    }
-
   vtkMatrixToPerspectiveTransform *t = 
     (vtkMatrixToPerspectiveTransform *)transform;  
-
-  if (t == this)
-    {
-    return;
-    }
 
   this->Matrix->DeepCopy(t->Matrix);
   this->Modified();

@@ -71,6 +71,7 @@ public:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(const double in[3], double out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
@@ -78,6 +79,8 @@ public:
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
 				   float derivative[3][3]);
+  void InternalTransformDerivative(const double in[3], double out[3],
+				   double derivative[3][3]);
 
 protected:
   vtkWarpTransform() { this->InverseFlag = 0; };
@@ -88,19 +91,23 @@ protected:
   // Description:
   // If the InverseFlag is set to 0, then a call to InternalTransformPoint
   // results in a call to ForwardTransformPoint. 
-  virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
+  virtual void ForwardTransformPoint(const float in[3], float out[3]);
+  virtual void ForwardTransformPoint(const double in[3], double out[3]) = 0;
 
   // Description:
   // If the InverseFlag is set to 1, then a call to InternalTransformPoint
   // results in a call to InverseTransformPoint.
-  virtual void InverseTransformPoint(const float in[3], float out[3]) = 0;
+  virtual void InverseTransformPoint(const float in[3], float out[3]);
+  virtual void InverseTransformPoint(const double in[3], double out[3]) = 0;
 
   // Description:
   // Calculate the forward transform as well as the derivative.  The
   // derivative of the inverse transform can be computed as the inverse
   // of the derivative of the forward transform.
   virtual void ForwardTransformDerivative(const float in[3], float out[3],
-					  float derivative[3][3]) = 0;
+					  float derivative[3][3]);
+  virtual void ForwardTransformDerivative(const double in[3], double out[3],
+					  double derivative[3][3]) = 0;
 
   int InverseFlag;
 };

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .NAME vtkProjectionTransform - describes a 4x4 matrix transformation
 // .SECTION Description
-// vtkProjectionTransform can be used to describe the full range of
+// A vtkProjectionTransform can be used to describe the full range of
 // perspective transformations.  It was designed in particular
 // to describe a camera-view of a scene.  
 // <P>The order in which you set up the display coordinates (via 
@@ -52,7 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // default, set the Viewport and ZBuffer first, then the projection, and
 // finally the camera view.  Once the view is set up, the Translate
 // and Rotate methods can be used to move the camera around in world
-// coordinates.  
+// coordinates.  If the Oblique() or Stereo() methods are used, they 
+// should be called just before SetupCamera().
 // <P>In PostMultiply mode, you must perform all transformations
 // in the opposite order.  This is necessary, for example, if you
 // already have a perspective transformation set up but must adjust
@@ -75,17 +76,24 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:
-  // Make a new transform of the same type -- you are responsible for
-  // deleting the transform when you are done with it.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
   // Creates an identity matrix and makes it the current transformation matrix.
   void Identity();
 
   // Description:
   // Invert the current transformation matrix.
   void Inverse();
+
+  // Description:
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.  The default is PreMultiply.
+  void PreMultiply();
+
+  // Description:
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
+  void PostMultiply();
 
   // Description:
   // Perform an adjustment to the viewport coordinates.  By default Ortho,
@@ -131,13 +139,28 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   void Perspective(double angle, double aspect, double znear, double zfar);
 
   // Description:
-  // Create a stereo shear matrix and concatenate it with the current
-  // matrix.  This can be applied in conjunction with either a 
+  // Create a shear transformation about a plane at distance z from
+  // the camera.  The values dxdz (i.e. dx/dz) and dydz specify the
+  // amount of shear in the x and y directions.  The 'zplane' specifies
+  // the distance from the camera to the plane at which the shear
+  // causes zero displacement.  Generally you want this plane to be the
+  // focal plane.
+  // This transformation can be used in combination with Ortho to create 
+  // an oblique projection.  It can also be used in combination with
+  // Perspective to provide correct stereo views when the eye is at
+  // arbitrary but known positions relative to the center of a flat
+  // viewing screen.
+  void Shear(double dxdz, double dydz, double zplane);
+
+  // Description:
+  // Create a stereo shear matrix and concatenate it with the
+  // current matrix.  This can be applied in conjunction with either a 
   // perspective transformation (via Frustum or Projection) or an
   // orthographic projection.  You must specify the distance from
   // the camera plane to the focal plane, and the angle between
   // the distance vector and the eye.  The angle should be negative
-  // for the left eye, and positive for the right.
+  // for the left eye, and positive for the right.  This method
+  // works via Oblique.
   void Stereo(double angle, double focaldistance);
 
   // Description:
@@ -189,18 +212,6 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   void SetMatrix(const double Elements[16]);
 
   // Description:
-  // Sets the internal state of the transform to post multiply. All
-  // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply();
-
-  // Description:
-  // Sets the internal state of the transform to pre multiply. All subsequent
-  // matrix operations will occur before those already represented in the
-  // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply();
-
-  // Description:
   // Concatenates the input matrix with the current transformation matrix.
   // The resulting matrix becomes the new current transformation matrix.
   // The setting of the PreMultiply flag determines whether the matrix
@@ -209,9 +220,23 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
     this->Concatenate(*matrix->Element); };
   void Concatenate(const double Elements[16]);
 
-   // Description:
-  // Make this transform a copy of the specified transform.
-  void DeepCopy(vtkGeneralTransform *t);
+  // Description:
+  // Pushes the current matrix onto the stack.
+  void Push();
+
+  // Description:
+  // Copies the top matrix on the stack into the current matrix,
+  // then deletes the top of the stack.
+  void Pop();
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *t);
+
+  // Description:
+  // Make a new transform of the same type -- you are responsible for
+  // deleting the transform when you are done with it.
+  vtkGeneralTransform *MakeTransform();
 
 protected:
   vtkProjectionTransform();
@@ -220,6 +245,9 @@ protected:
   void operator=(const vtkProjectionTransform&) {};
 
   int PreMultiplyFlag;
+  int StackSize;
+  vtkMatrix4x4 **Stack;
+  vtkMatrix4x4 **StackBottom;
 };
 
 

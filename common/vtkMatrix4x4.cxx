@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkMatrix4x4* vtkMatrix4x4::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,43 +60,13 @@ vtkMatrix4x4* vtkMatrix4x4::New()
   return new vtkMatrix4x4;
 }
 
-
-
-
 // Useful for viewing a double[16] as a double[4][4]
 typedef double (*SqMatPtr)[4];
 
-// Construct a 4x4 identity matrix.
-vtkMatrix4x4::vtkMatrix4x4 ()
-{
-  vtkMatrix4x4::Identity(&this->Element[0][0]);
-}
-
-// Construct a 4x4 matrix with the values which are contained in the
-// argument m.
-vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
-{
-  int i;
-  
-  for (i = 0; i < 4; i++)
-    {
-    this->Element[i][0] = m.Element[i][0];
-    this->Element[i][1] = m.Element[i][1];
-    this->Element[i][2] = m.Element[i][2];
-    this->Element[i][3] = m.Element[i][3];
-    }
-}
-
-
-void vtkMatrix4x4::Zero()
-{
-  vtkMatrix4x4::Zero(&this->Element[0][0]);
-  this->Modified ();
-}
-
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::Zero(double Elements[16])
 {
-  SqMatPtr elem  = (SqMatPtr) Elements;
+  SqMatPtr elem  = (SqMatPtr)Elements;
   int i,j;
   for (i = 0; i < 4; i++)
     {
@@ -107,14 +77,7 @@ void vtkMatrix4x4::Zero(double Elements[16])
     }
 }
 
-
-void vtkMatrix4x4::Identity()
-{
-  vtkMatrix4x4::Identity(&this->Element[0][0]);
-  this->Modified();
-}
-
-
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::Identity(double Elements[16])
 {
   Elements[0] = Elements[5] = Elements[10] = Elements[15] = 1.0;
@@ -123,91 +86,49 @@ void vtkMatrix4x4::Identity(double Elements[16])
     Elements[11] = Elements[12] = Elements[13] = Elements[14] = 0.0;
 }
 
-
-// Set all the elements of the matrix to the given value.
-void vtkMatrix4x4::operator= (double element)
+//----------------------------------------------------------------------------
+template<class T1, class T2, class T3>
+static inline void vtkMatrixMultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
 {
-  int i,j;
+  T3 v1 = in[0];
+  T3 v2 = in[1];
+  T3 v3 = in[2];
+  T3 v4 = in[3];
 
-  for (i = 0; i < 4; i++)
-    {
-    for (j = 0; j < 4; j++)
-      {
-      this->Element[i][j] = element;
-      }
-    }
-  this->Modified ();
-}
+  out[0] = v1*elem[0]  + v2*elem[1]  + v3*elem[2]  + v4*elem[3];
+  out[1] = v1*elem[4]  + v2*elem[5]  + v3*elem[6]  + v4*elem[7];
+  out[2] = v1*elem[8]  + v2*elem[9]  + v3*elem[10] + v4*elem[11];
+  out[3] = v1*elem[12] + v2*elem[13] + v3*elem[14] + v4*elem[15];
+}  
 
-
+//----------------------------------------------------------------------------
 // Multiply this matrix by a point (in homogeneous coordinates). 
 // and return the result in result. The in[4] and result[4] 
 // arrays must both be allocated but they can be the same array.
-void vtkMatrix4x4::MultiplyPoint(const float in[4], float result[4])
-{
-  vtkMatrix4x4::MultiplyPoint(&this->Element[0][0], in, result);
-}
-
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16], 
 				 const float in[4], float result[4])
 {
-  SqMatPtr elem = (SqMatPtr) Elements;
-
-  int i;
-  double v1 = in[0];
-  double v2 = in[1];
-  double v3 = in[2];
-  double v4 = in[3];
-  
-  for (i = 0; i < 4; i++)
-    {
-    result[i] = 
-      v1 * elem[i][0] +
-      v2 * elem[i][1] +
-      v3 * elem[i][2] +
-      v4 * elem[i][3];
-    }
-  
+  vtkMatrixMultiplyPoint(Elements,in,result);
 }
 
-// Multiply this matrix by a point (in homogeneous coordinates). 
-// and return the result in result. The in[4] and result[4] 
-// arrays must both be allocated but they can be the same array.
-void vtkMatrix4x4::MultiplyPoint(const double in[4], double result[4])
-{
-  vtkMatrix4x4::MultiplyPoint(&this->Element[0][0], in, result);
-}
-
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16], 
 				 const double in[4], double result[4])
 {
-  SqMatPtr elem = (SqMatPtr) Elements;
-
-  int i;
-  double v1 = in[0];
-  double v2 = in[1];
-  double v3 = in[2];
-  double v4 = in[3];
-  
-  for (i = 0; i < 4; i++)
-    {
-    result[i] = 
-      v1 * elem[i][0] +
-      v2 * elem[i][1] +
-      v3 * elem[i][2] +
-      v4 * elem[i][3];
-    }
-  
+  vtkMatrixMultiplyPoint(Elements,in,result);
 }
 
+//----------------------------------------------------------------------------
 // Multiply a point (in homogeneous coordinates) by the transpose
-// of the matrix.
+// of the matrix.  These methods have been deprecated because they
+// have a long history of being used incorrectly
 void vtkMatrix4x4::PointMultiply(const float in[4],float result[4])
 {
   vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
   vtkWarningMacro("PointMultiply: this method is deprecated");
 }
 
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
 				 const float in[4], float result[4])
 {
@@ -216,12 +137,14 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
   vtkMatrix4x4::MultiplyPoint(newElements,in,result);
 }
 
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double in[4],double result[4])
 {
   vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
   vtkWarningMacro("PointMultiply: this method is deprecated");
 }
 
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
 				 const double in[4], double result[4])
 {
@@ -230,35 +153,7 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
   vtkMatrix4x4::MultiplyPoint(newElements,in,result);
 }
 
-// Multiplies matrices a and b and stores the result in c.
-void vtkMatrix4x4::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
-			       vtkMatrix4x4 *c)
-{
-  int i, k;
-  double Accum[4][4];
-
-  for (i = 0; i < 4; i++) 
-    {
-    for (k = 0; k < 4; k++) 
-      {
-      Accum[i][k] = a->Element[i][0] * b->Element[0][k] +
-        a->Element[i][1] * b->Element[1][k] +
-        a->Element[i][2] * b->Element[2][k] +
-        a->Element[i][3] * b->Element[3][k];
-      }
-    }
-
-  // Copy to final dest
-  for (i = 0; i < 4; i++)
-    {
-    c->Element[i][0] = Accum[i][0];
-    c->Element[i][1] = Accum[i][1];
-    c->Element[i][2] = Accum[i][2];
-    c->Element[i][3] = Accum[i][3];
-    }
-  c->Modified();
-}
-
+//----------------------------------------------------------------------------
 // Multiplies matrices a and b and stores the result in c.
 void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16], 
 			       double c[16])
@@ -291,17 +186,13 @@ void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
 
 }
 
+//----------------------------------------------------------------------------
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
-void vtkMatrix4x4::Invert (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
-{
-  vtkMatrix4x4::Invert(&in->Element[0][0], &out->Element[0][0]);
-}
-
 void vtkMatrix4x4::Invert(const double inElements[16], 
 			  double outElements[16])
 {
-  SqMatPtr outElem = (SqMatPtr) outElements;
+  SqMatPtr outElem = (SqMatPtr)outElements;
 
   // inverse( original_matrix, inverse_matrix )
   // calculate the inverse of a 4x4 matrix
@@ -326,7 +217,7 @@ void vtkMatrix4x4::Invert(const double inElements[16],
     }
 
   // calculate the adjoint matrix
-  vtkMatrix4x4::Adjoint( inElements, outElements );
+  vtkMatrix4x4::Adjoint(inElements, outElements );
 
   // scale the adjoint matrix to get the inverse
   for (i=0; i<4; i++)
@@ -338,15 +229,10 @@ void vtkMatrix4x4::Invert(const double inElements[16],
     }
 }
 
-// Compute the determinant of the matrix and return it.
-float vtkMatrix4x4::Determinant (vtkMatrix4x4 *in)
+//----------------------------------------------------------------------------
+double vtkMatrix4x4::Determinant(const double Elements[16])
 {
-  return vtkMatrix4x4::Determinant(&in->Element[0][0]);
-}
-
-float vtkMatrix4x4::Determinant (const double Elements[16])
-{
-  SqMatPtr elem = (SqMatPtr) Elements;
+  SqMatPtr elem = (SqMatPtr)Elements;
 
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 
@@ -371,12 +257,7 @@ float vtkMatrix4x4::Determinant (const double Elements[16])
        - d1 * vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 }
 
-// Compute adjoint of the matrix and put it into out.
-void vtkMatrix4x4::Adjoint (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
-{
-  vtkMatrix4x4::Adjoint(&in->Element[0][0], &out->Element[0][0]);
-}
-
+//----------------------------------------------------------------------------
 void vtkMatrix4x4::Adjoint(const double inElements[16], double outElements[16])
 {
   SqMatPtr inElem = (SqMatPtr) inElements;
@@ -457,57 +338,22 @@ void vtkMatrix4x4::Adjoint(const double inElements[16], double outElements[16])
     vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
-// Set the elements of the matrix to the same values as the elements
-// of the source Matrix.
-void vtkMatrix4x4::DeepCopy(vtkMatrix4x4 *source)
+//----------------------------------------------------------------------------
+void vtkMatrix4x4::DeepCopy(double Elements[16], const double newElements[16])
 {
-  vtkMatrix4x4::DeepCopy(&this->Element[0][0], source);
-  this->Modified();
-}
-
-void vtkMatrix4x4::DeepCopy(double Elements[16], vtkMatrix4x4 *source)
-{
-  SqMatPtr elem = (SqMatPtr) Elements;
-  int i;
-  
-  for (i = 0; i < 4; ++i)
+  for (int i = 0; i < 16; i++)
     {
-    elem[i][0] = source->Element[i][0];
-    elem[i][1] = source->Element[i][1];
-    elem[i][2] = source->Element[i][2];
-    elem[i][3] = source->Element[i][3];
+    Elements[i] = newElements[i];
     }
 }
 
-// Non-static member function. Assigns *from* elements array
-void vtkMatrix4x4::DeepCopy(const double Elements[16])
-{
-  SqMatPtr elem = (SqMatPtr) Elements;
-  int i;
-
-  for (i = 0; i < 4; i++)
-    {
-    this->Element[i][0] = elem[i][0];
-    this->Element[i][1] = elem[i][1];
-    this->Element[i][2] = elem[i][2];
-    this->Element[i][3] = elem[i][3];
-    }
-  this->Modified();
-}
-
-
-// Transpose the matrix and put it into out. 
-  
-void vtkMatrix4x4::Transpose (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
-{
-  vtkMatrix4x4::Transpose(&in->Element[0][0],&out->Element[0][0]);
-}
-
-void vtkMatrix4x4::Transpose (const double inElements[16], 
+//----------------------------------------------------------------------------
+// Transpose the matrix and put it into out.   
+void vtkMatrix4x4::Transpose(const double inElements[16], 
 			      double outElements[16])
 {
-  SqMatPtr inElem = (SqMatPtr) inElements;
-  SqMatPtr outElem = (SqMatPtr) outElements;
+  SqMatPtr inElem = (SqMatPtr)inElements;
+  SqMatPtr outElem = (SqMatPtr)outElements;
   int i, j;
   double temp;
 
@@ -522,7 +368,8 @@ void vtkMatrix4x4::Transpose (const double inElements[16],
     }
 }
 
-void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)
+//----------------------------------------------------------------------------
+void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i, j;
 
@@ -538,5 +385,22 @@ void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)
       }
     os << "\n";
     }
+}
+
+//----------------------------------------------------------------------------
+// Set all the elements of the matrix to the given value.  
+// This is a legacy method -- do not use
+void vtkMatrix4x4::operator=(double element)
+{
+  int i,j;
+
+  for (i = 0; i < 4; i++)
+    {
+    for (j = 0; j < 4; j++)
+      {
+      this->Element[i][j] = element;
+      }
+    }
+  this->Modified ();
 }
 

@@ -96,19 +96,19 @@ public:
   void Inverse();
 
   // Description:
-  // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // Copy this transform from another of the same type.
-  void DeepCopy(vtkGeneralTransform *transform);
-
-  // Description:
   // Get the MTime.
   unsigned long GetMTime();
 
   // Update the matrix from the quaternion.
   void Update();
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  // Description:
+  // Make another transform of the same type.
+  vtkGeneralTransform *MakeTransform();
 
 protected:
   vtkLandmarkTransform();
