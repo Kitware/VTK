@@ -69,6 +69,7 @@ vtkPerspectiveTransformConcatenation::vtkPerspectiveTransformConcatenation()
   this->TransformList = NULL;
   this->InverseList = NULL;
 
+  this->UpdateRequired = 1;
   this->UpdateMutex = vtkMutexLock::New();
 }
 
@@ -172,7 +173,8 @@ void vtkPerspectiveTransformConcatenation::Concatenate(vtkPerspectiveTransform *
   transList[n]->Register(this);
   inverseList[n] = trans->GetPerspectiveInverse();
   inverseList[n]->Register(this);
-  
+
+  this->UpdateRequired = 1;
   this->Modified();
 }
 
@@ -180,6 +182,8 @@ void vtkPerspectiveTransformConcatenation::Concatenate(vtkPerspectiveTransform *
 void vtkPerspectiveTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
+
+  this->UpdateRequired = 1;
   this->Modified();
 }
 
@@ -197,6 +201,7 @@ void vtkPerspectiveTransformConcatenation::Identity()
   this->NumberOfTransforms = 0;
   this->InverseFlag = 0;
 
+  this->UpdateRequired = 1;
   this->Modified();
 }
 
@@ -213,8 +218,7 @@ void vtkPerspectiveTransformConcatenation::DeepCopy(vtkGeneralTransform *transfo
     {
     transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform();
     }
-  if (strcmp("vtkPerspectiveTransformConcatenation",transform->GetClassName())
-      != 0)
+  if (strcmp("vtkPerspectiveTransformConcatenation",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
     return;
@@ -236,11 +240,16 @@ void vtkPerspectiveTransformConcatenation::DeepCopy(vtkGeneralTransform *transfo
     for (int i = 0; i < this->NumberOfTransforms; i++)
       {
       this->TransformList[i]->Delete();
+      this->InverseList[i]->Delete();
       }
     }
   if (this->TransformList)
     {
     delete [] this->TransformList;
+    }
+  if (this->InverseList)
+    {
+    delete [] this->InverseList;
     }
 
   this->MaxNumberOfTransforms = t->MaxNumberOfTransforms;
@@ -248,30 +257,50 @@ void vtkPerspectiveTransformConcatenation::DeepCopy(vtkGeneralTransform *transfo
 
   this->TransformList = 
     new vtkPerspectiveTransform *[this->MaxNumberOfTransforms];
+  this->InverseList = 
+    new vtkPerspectiveTransform *[this->MaxNumberOfTransforms];
 
   // copy the transforms by reference
   for (int i = 0; i < this->NumberOfTransforms; i++)
     {
     this->TransformList[i] = t->TransformList[i];
     this->TransformList[i]->Register(this);  
+    this->InverseList[i] = t->InverseList[i];
+    this->InverseList[i]->Register(this);  
     }  
+
+  this->UpdateRequired = 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::Update()
 {
-  // lock the update just in case multiple threads try to update
-  // at the same time.
+  // lock the update just in case multiple threads update simultaneously
   this->UpdateMutex->Lock();
 
-  if (this->GetMTime() > this->Matrix->GetMTime())
+  unsigned long maxMTime = 0;
+
+  if (!this->UpdateRequired)
     {
+    for (int i = 0; i < this->NumberOfTransforms; i++)
+      {
+      unsigned long mtime = this->TransformList[i]->GetMTime();
+      if (mtime > maxMTime)
+	{
+	maxMTime = mtime;
+	}
+      }    
+    }
+  if (maxMTime > this->Matrix->GetMTime() || this->UpdateRequired)
+    {
+    this->Matrix->Identity();
+
     if (this->InverseFlag)
       {
-      this->Matrix->Identity();
+      // concatenate inverse transforms in reverse order
       for (int i = this->NumberOfTransforms-1; i >= 0; i--)
 	{
-        vtkPerspectiveTransform *transform = this->TransformList[i];
+        vtkPerspectiveTransform *transform = this->InverseList[i];
         transform->Update();
 	vtkMatrix4x4::Multiply4x4(transform->GetMatrixPointer(),
 				  this->Matrix,this->Matrix);
@@ -279,7 +308,7 @@ void vtkPerspectiveTransformConcatenation::Update()
       }
     else
       {
-      this->Matrix->Identity();
+      // concatenate transforms in forward direction
       for (int i = 0; i < this->NumberOfTransforms; i++)
 	{
 	vtkPerspectiveTransform *transform = this->TransformList[i];
@@ -288,6 +317,7 @@ void vtkPerspectiveTransformConcatenation::Update()
 				  this->Matrix,this->Matrix);
 	}
       }
+    this->UpdateRequired = 0;
     }
   
   this->UpdateMutex->Unlock();
@@ -297,11 +327,10 @@ void vtkPerspectiveTransformConcatenation::Update()
 unsigned long vtkPerspectiveTransformConcatenation::GetMTime()
 {
   unsigned long result = this->vtkPerspectiveTransform::GetMTime();
-  unsigned long mtime;
 
   for (int i = 0; i < this->NumberOfTransforms; i++)
     {
-    mtime = this->TransformList[i]->GetMTime();
+    unsigned long mtime = this->TransformList[i]->GetMTime();
     if (mtime > result)
       {
       result = mtime;

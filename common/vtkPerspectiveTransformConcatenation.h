@@ -118,6 +118,8 @@ protected:
   int MaxNumberOfTransforms;
   vtkPerspectiveTransform **TransformList;
   vtkPerspectiveTransform **InverseList;
+
+  int UpdateRequired;
   vtkMutexLock *UpdateMutex;
 };
 

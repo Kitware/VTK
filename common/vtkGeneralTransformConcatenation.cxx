@@ -116,7 +116,6 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
     return;
     }
 
-  int i;
   vtkGeneralTransform **transList = this->TransformList;
   vtkGeneralTransform **inverseList = this->InverseList;
   int n = this->NumberOfTransforms;
@@ -128,7 +127,7 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
     int nMax = this->MaxNumberOfTransforms + 20;
     transList = new vtkGeneralTransform *[nMax];
     inverseList = new vtkGeneralTransform *[nMax];
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
       {
       transList[i] = this->TransformList[i];
       inverseList[i] = this->InverseList[i];
@@ -150,7 +149,7 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
   // according to flags
   if (this->PreMultiplyFlag ^ this->InverseFlag)
     {
-    for (i = n; i > 0; i--)
+    for (int i = n; i > 0; i--)
       {
       transList[i] = transList[i-1];
       inverseList[i] = inverseList[i-1];
@@ -242,11 +241,9 @@ void vtkGeneralTransformConcatenation::Inverse()
 //----------------------------------------------------------------------------
 void vtkGeneralTransformConcatenation::Identity()
 {
-  int i;
-
   if (this->NumberOfTransforms > 0)
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (int i = 0; i < this->NumberOfTransforms; i++)
       {
       this->TransformList[i]->Delete();
       this->InverseList[i]->Delete();
@@ -286,21 +283,24 @@ void vtkGeneralTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
     return;
     }
 
-  int i;
-
   this->PreMultiplyFlag = t->PreMultiplyFlag;
   this->InverseFlag = t->InverseFlag;
 
   if (this->NumberOfTransforms > 0)
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (int i = 0; i < this->NumberOfTransforms; i++)
       {
       this->TransformList[i]->Delete();
+      this->InverseList[i]->Delete();
       }
     }
   if (this->TransformList)
     {
     delete [] this->TransformList;
+    }
+  if (this->InverseList)
+    {
+    delete [] this->InverseList;
     }
 
   this->MaxNumberOfTransforms = t->MaxNumberOfTransforms;
@@ -308,12 +308,16 @@ void vtkGeneralTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
 
   this->TransformList = 
     new vtkGeneralTransform *[this->MaxNumberOfTransforms];
+  this->InverseList = 
+    new vtkGeneralTransform *[this->MaxNumberOfTransforms];
 
   // copy the transforms by reference
-  for (i = 0; i < this->NumberOfTransforms; i++)
+  for (int i = 0; i < this->NumberOfTransforms; i++)
     {
     this->TransformList[i] = t->TransformList[i];
     this->TransformList[i]->Register(this);  
+    this->InverseList[i] = t->InverseList[i];
+    this->InverseList[i]->Register(this);  
     }  
 }
 
@@ -340,28 +344,13 @@ void vtkGeneralTransformConcatenation::Update()
 unsigned long vtkGeneralTransformConcatenation::GetMTime()
 {
   unsigned long result = this->vtkGeneralTransform::GetMTime();
-  unsigned long mtime;
 
-  if (this->InverseFlag)
+  for (int i = 0; i < this->NumberOfTransforms; i++)
     {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
+    unsigned long mtime = this->TransformList[i]->GetMTime();
+    if (mtime > result)
       {
-      mtime = this->TransformList[i]->GetMTime();
-      if (mtime > result)
-	{
-	result = mtime;
-	}
-      }
-    }
-  else
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      mtime = this->InverseList[i]->GetMTime();
-      if (mtime > result)
-	{
-	result = mtime;
-	}
+      result = mtime;
       }
     }
 

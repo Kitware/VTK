@@ -115,6 +115,8 @@ protected:
   int MaxNumberOfTransforms;
   vtkLinearTransform **TransformList;
   vtkLinearTransform **InverseList;
+
+  int UpdateRequired;
   vtkMutexLock *UpdateMutex;
 };
 
