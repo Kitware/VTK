@@ -1,23 +1,18 @@
 package require vtktcl_interactor
 
-vtkDiskSource disk
-  disk SetRadialResolution 2
-  disk SetCircumferentialResolution 9
-vtkTriangleFilter tri
-  tri SetInput [disk GetOutput]
-  tri Update
-
+vtkVectorText disk
+  disk SetText "o"
 
 vtkTransform t
   t Translate 1.1 0 0
 vtkTransformFilter tf
   tf SetTransform t
-  tf SetInput [tri GetOutput]
+  tf SetInput [disk GetOutput]
 vtkStripper strips
   strips SetInput [tf GetOutput]
 
 vtkAppendPolyData app
-  app AddInput [tri GetOutput]
+  app AddInput [disk GetOutput]
   app AddInput [strips GetOutput]
   app Update
 
