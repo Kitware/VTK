@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 {
  public:
-  float Element[4][4];
+  double Element[4][4];
   static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
   const char *GetClassName() {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);
@@ -94,12 +94,14 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // and return the result in result. The in[4] and result[4] 
   // arrays must both be allocated but they can be the same array.
   void MultiplyPoint(float in[4], float out[4]);
+  void MultiplyPoint(double in[4], double out[4]);
 
   // Description:
   // Multiply a point (in homogeneous coordinates) by this matrix,
   // and return the result in result. The in[4] and result[4] 
   // arrays must both be allocated, but they can be the same array.
   void PointMultiply(float in[4], float out[4]);
+  void PointMultiply(double in[4], double out[4]);
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
@@ -112,17 +114,18 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // Sets the element i,j in the matrix.
   void SetElement(int i, int j, float value);
+  void SetElement(int i, int j, double value);
 
   // Description:
   // Returns the element i,j from the matrix.
-  float GetElement(int i, int j) const {return this->Element[i][j];};
+  double GetElement(int i, int j) const {return this->Element[i][j];};
 
   // Description: 
   // For legacy compatibility. Do not use.
-  float *operator[](const unsigned int i) {return &(this->Element[i][0]);};
-  const float *operator[](unsigned int i) const
+  double *operator[](const unsigned int i) {return &(this->Element[i][0]);};
+  const double *operator[](unsigned int i) const
     { return &(this->Element[i][0]); }  
-  void operator= (float element);
+  void operator= (double element);
   vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
   void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out){this->Adjoint(&in,&out);}
   float Determinant(vtkMatrix4x4 &in) {return this->Determinant(&in);}
@@ -133,6 +136,14 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 };
 
 inline void vtkMatrix4x4::SetElement (int i, int j, float value)
+{
+  if (this->Element[i][j] != value)
+    {
+    this->Element[i][j] = value;
+    this->Modified();
+    }
+}
+inline void vtkMatrix4x4::SetElement (int i, int j, double value)
 {
   if (this->Element[i][j] != value)
     {

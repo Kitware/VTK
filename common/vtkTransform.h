@@ -136,10 +136,12 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Scales the current transformation matrix in the x, y and z directions.
   // A scale factor of zero will automatically be replaced with one.
   void Scale ( float x, float y, float z);
+  void Scale ( double x, double y, double z);
 
   // Description:
   // Translate the current transformation matrix by the vector {x, y, z}.
   void Translate ( float x, float y, float z);
+  void Translate ( double x, double y, double z);
 
   // Description:
   // Transposes the current transformation matrix.
@@ -221,7 +223,10 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Multiply a xyzw point by the transform and store the result in out.
-  void MultiplyPoint (float in[4],float out[4]);
+  void MultiplyPoint (float in[4],float out[4]) {
+    this->Stack[0]->MultiplyPoint(in,out);};
+  void MultiplyPoint (double in[4],double out[4]) {      
+    this->Stack[0]->MultiplyPoint(in,out);};
 
   // Description:
   // Multiplies a list of points (inPts) by the current transformation matrix.
@@ -276,9 +281,5 @@ private:
 
 };
 
-inline void vtkTransform::MultiplyPoint (float in[4],float out[4]) 
-{
-  this->Stack[0]->MultiplyPoint(in,out);
-}
 
 #endif

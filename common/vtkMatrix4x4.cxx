@@ -94,7 +94,7 @@ void vtkMatrix4x4::Zero()
 }
 
 // Set all the elements of the matrix to the given value.
-void vtkMatrix4x4::operator= (float element)
+void vtkMatrix4x4::operator= (double element)
 {
   int i,j;
 
@@ -115,10 +115,10 @@ void vtkMatrix4x4::operator= (float element)
 void vtkMatrix4x4::MultiplyPoint(float in[4],float result[4])
 {
   int i;
-  float v1 = in[0];
-  float v2 = in[1];
-  float v3 = in[2];
-  float v4 = in[3];
+  double v1 = in[0];
+  double v2 = in[1];
+  double v3 = in[2];
+  double v4 = in[3];
   
   for (i = 0; i < 4; i++)
     {
@@ -137,10 +137,53 @@ void vtkMatrix4x4::MultiplyPoint(float in[4],float result[4])
 void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
-  float v1 = in[0];
-  float v2 = in[1];
-  float v3 = in[2];
-  float v4 = in[3];
+  double v1 = in[0];
+  double v2 = in[1];
+  double v3 = in[2];
+  double v4 = in[3];
+  
+  for (i = 0; i < 4; i++)
+    {
+    result[i] = 
+      v1 * this->Element[0][i] +
+      v2 * this->Element[1][i] +
+      v3 * this->Element[2][i] +
+      v4 * this->Element[3][i];
+    }
+  
+}
+// Multiply this matrix by a point (in homogeneous coordinates). 
+// and return the result in result. The in[4] and result[4] 
+// arrays must both be allocated but they can be the same array.
+void vtkMatrix4x4::MultiplyPoint(double in[4],double result[4])
+{
+  int i;
+  double v1 = in[0];
+  double v2 = in[1];
+  double v3 = in[2];
+  double v4 = in[3];
+  
+  for (i = 0; i < 4; i++)
+    {
+    result[i] = 
+      v1 * this->Element[i][0] +
+      v2 * this->Element[i][1] +
+      v3 * this->Element[i][2] +
+      v4 * this->Element[i][3];
+    }
+  
+}
+
+// Multiply a point (in homogeneous coordinates) by this matrix,
+// and return the result in result. The in[4] and result[4] 
+// arrays must both be allocated, but they can be the same array.
+void vtkMatrix4x4::PointMultiply(double in[4],double result[4])
+{
+  int i;
+  double v1 = in[0];
+  double v2 = in[1];
+  double v3 = in[2];
+  double v4 = in[3];
   
   for (i = 0; i < 4; i++)
     {
@@ -333,7 +376,7 @@ vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
 void vtkMatrix4x4::Transpose (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
 {
   int i, j;
-  float temp;
+  double temp;
 
   for (i=0; i<4; i++)
     {
