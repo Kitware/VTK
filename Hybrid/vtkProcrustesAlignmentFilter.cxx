@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.9");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.10");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -369,5 +369,6 @@ void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   this->LandmarkTransform->PrintSelf(os,indent);
+  this->MeanPoints->PrintSelf(os, indent);
 }
 
