@@ -65,13 +65,37 @@ public:
   vlGetMacro(Switch,int);
   vlBooleanMacro(Switch,int);
 
+  // Description:
+  // Turn positional lighting on/off.
+  vlSetMacro(Positional,int);
+  vlGetMacro(Positional,int);
+  vlBooleanMacro(Positional,int);
+
+  // Description:
+  // Set the exponent of the cosine used in positional lighting.
+  vlSetMacro(Exponent,float);
+  vlGetMacro(Exponent,float);
+
+  // Description:
+  // Set the lighting cone angle in degrees of a positional light.
+  vlSetMacro(ConeAngle,float);
+  vlGetMacro(ConeAngle,float);
+
+  // Description:
+  // Set the quadratic attenuation constants, const linear quad in order.
+  vlSetVector3Macro(AttenuationValues,float);
+  vlGetVectorMacro(AttenuationValues,float,3);
+
 protected:
   float FocalPoint[3];
   float Position[3];
   float Intensity;
   float Color[3];
   int   Switch;
-
+  int   Positional;
+  float Exponent;
+  float ConeAngle;
+  float AttenuationValues[3];
 };
 
 #endif
