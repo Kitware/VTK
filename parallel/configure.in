@@ -25,7 +25,7 @@ BUILD_PVTK=""
 AC_ARG_WITH(mpi,
          [  --with-mpi           create the mpi specific controller],
 	 if test "$withval" = yes -a "$use_tcl" = yes; then
-	 BUILD_PVTK="pvtk"
+	 BUILD_PVTK="build_pvtk"
 	 fi,)
 
 AC_SUBST(MAKEINCLUDE)

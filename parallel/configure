@@ -558,7 +558,7 @@ BUILD_PVTK=""
 if test "${with_mpi+set}" = set; then
   withval="$with_mpi"
   if test "$withval" = yes -a "$use_tcl" = yes; then
-	 BUILD_PVTK="pvtk"
+	 BUILD_PVTK="build_pvtk"
 	 fi
 fi
 
