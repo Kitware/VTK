@@ -31,6 +31,11 @@ ENDIF (VTK_USE_X)
 #
 ADD_EXECUTABLE(TimeRenderer TimeRenderer)
 ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2)
+ADD_EXECUTABLE(otherCoordinate otherCoordinate)
+
+ADD_TEST(otherCoordinate ${CXX_TEST_PATH}/otherCoordinate)
+
+
 
 
 
