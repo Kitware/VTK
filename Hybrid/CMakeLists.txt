@@ -6,7 +6,6 @@ vtkDepthSortPolyData
 vtkEarthSource 
 vtkGridTransform 
 vtkImplicitModeller
-vtkIVWriter 
 vtkImageToPolyDataFilter 
 vtkIterativeClosestPointTransform
 vtkLandmarkTransform 

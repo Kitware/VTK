@@ -19,6 +19,7 @@ vtkGenericEnSightReader
 vtkImageReader
 vtkImageReader2
 vtkImageWriter
+vtkIVWriter 
 vtkJPEGReader
 vtkJPEGWriter
 vtkMCubesReader
