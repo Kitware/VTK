@@ -169,9 +169,10 @@ void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData,
   if (inData[0]->GetScalarType() != outData->GetScalarType() ||
       inData[1]->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << 
-    inData[0]->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input1 ScalarType (" << 
+    inData[0]->GetScalarType() << ") and input2 ScalarType (" <<
+    inData[1]->GetScalarType()
+    << "), must both match output ScalarType (" << outData->GetScalarType() << ")");
     return;
     }
   
