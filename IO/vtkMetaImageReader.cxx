@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.9");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.10");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -229,21 +229,35 @@ int vtkMetaImageReaderInternal::StringEquals(const char* s1, const char* s2, siz
 void vtkMetaImageReader::ExecuteInformation()
 {
   const char* fname = this->MHDFileName;
-  if ( !fname )
+  if ( !this->GetFileInformation(fname, 1) )
     {
     return;
+    }
+  this->Superclass::ExecuteInformation();
+}
+
+
+//----------------------------------------------------------------------------
+int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
+{
+  if ( !fname )
+    {
+    return 0;
     }
   struct stat fs;
   if ( stat( fname, &fs) )
     {
-    vtkErrorMacro(<< "Initialize: Could not open file " << fname);
-    return;
+    if ( populate )
+      {
+      vtkErrorMacro(<< "Initialize: Could not open file " << fname);
+      }
+    return 0;
     }
 
   ifstream ifs(fname);
   if ( !fname )
     {
-    return;
+    return 0;
     }
 
   vtkstd::string path = vtkMetaImageReaderInternal::GetFilenamePath(fname);
@@ -255,6 +269,8 @@ void vtkMetaImageReader::ExecuteInformation()
   int data_type = VTK_UNSIGNED_CHAR;
   int number_of_channels = 1;
   vtkstd::string datafile = "";
+  unsigned long headerlen = 0;
+  int size_type = 1;
 
   vtkstd::string line;
   int count = -1;
@@ -314,8 +330,11 @@ void vtkMetaImageReader::ExecuteInformation()
         {
         if ( !vtkMetaImageReaderInternal::StringEquals(value, "Image", valuelen) )
           {
-          vtkErrorMacro(<<"Only understand image data. This is not an image data");
-          return;
+          if ( populate )
+            {
+            vtkErrorMacro(<<"Only understand image data. This is not an image data");
+            }
+          return 0;
           }
         vtkDebugMacro(<< "* Have image data");
         }
@@ -324,9 +343,13 @@ void vtkMetaImageReader::ExecuteInformation()
         sscanf(value, "%d", &ndims);
         if ( ndims <= 0 || ndims >= 4)
           {
-          vtkErrorMacro(<< "Only understands image data of 1, 2, or 3 dimensions. This image has "
-            << ndims << " dimensions");
-          return;
+          if ( populate )
+            {
+            vtkErrorMacro(
+              << "Only understands image data of 1, 2, or 3 dimensions. This image has "
+              << ndims << " dimensions");
+            }
+          return 0;
           }
         vtkDebugMacro(<< "* This image has " << ndims << " dimensions");
         }
@@ -335,13 +358,18 @@ void vtkMetaImageReader::ExecuteInformation()
         if ( !vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) && 
           vtkMetaImageReaderInternal::StringEquals(value, "true", valuelen) )
           {
-          vtkErrorMacro(<< "Only understand binary image data. This one has BinaryData set to: " 
-            << value);
-          return;
+          if ( populate )
+            {
+            vtkErrorMacro(
+              << "Only understand binary image data. This one has BinaryData set to: " 
+              << value);
+            }
+          return 0;
           }
         vtkDebugMacro(<< "* This image has binary data");
         }
-      else if ( vtkMetaImageReaderInternal::StringEquals(key, "BinaryDataByteOrderMSB", keylen) )
+      else if ( vtkMetaImageReaderInternal::StringEquals(key, 
+          "BinaryDataByteOrderMSB", keylen) )
         {
         if ( !vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) && 
           vtkMetaImageReaderInternal::StringEquals(value, "true", valuelen) )
@@ -349,31 +377,40 @@ void vtkMetaImageReader::ExecuteInformation()
           bigendian = 1;
           }
         bigendian = 0;
-        vtkDebugMacro(<< "* This image has data which is " << (bigendian?"big":"little") << " endian");
+        vtkDebugMacro(<< "* This image has data which is " 
+          << (bigendian?"big":"little") << " endian");
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "DimSize", keylen) )
         {
         sscanf(value, "%d %d %d", dims, dims+1, dims+2);
-        vtkDebugMacro(<< "* This image has dimensions " << dims[0] << " " << dims[1] << " " << dims[2]);
+        vtkDebugMacro(<< "* This image has dimensions " 
+          << dims[0] << " " << dims[1] << " " << dims[2]);
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementSpacing", keylen) )
         {
         sscanf(value, "%lf %lf %lf", spacing, spacing+1, spacing+2);
-        vtkDebugMacro(<< "* This image has spacing " << spacing[0] << " " << spacing[1] << " " << spacing[2]);
+        vtkDebugMacro(<< "* This image has spacing " 
+          << spacing[0] << " " << spacing[1] << " " << spacing[2]);
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "Position", keylen) )
         {
         sscanf(value, "%lf %lf %lf", origin, origin+1, origin+2);
-        vtkDebugMacro(<< "* This image has origin " << origin[0] << " " << origin[1] << " " << origin[2]);
+        vtkDebugMacro(<< "* This image has origin " 
+          << origin[0] << " " << origin[1] << " " << origin[2]);
         }
-      else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementNumberOfChannels", keylen) )
+      else if ( vtkMetaImageReaderInternal::StringEquals(key, 
+          "ElementNumberOfChannels", keylen) )
         {
         sscanf(value, "%d", &number_of_channels);
         if ( ndims <= 0 )
           {
-          vtkErrorMacro(<< "Only understands image data of 1 or more channels. This image has "
-            << number_of_channels << " dimensions");
-          return;
+          if ( populate )
+            {
+            vtkErrorMacro(
+              << "Only understands image data of 1 or more channels. This image has "
+              << number_of_channels << " dimensions");
+            }
+          return 0;
           }
         vtkDebugMacro(<< "* This image has " << number_of_channels << " channels");
         }
@@ -383,105 +420,147 @@ void vtkMetaImageReader::ExecuteInformation()
           vtkMetaImageReaderInternal::StringEquals(value, "MET_CHAR_ARRAY", valuelen) )
           {
           data_type = VTK_CHAR;
+          size_type = sizeof(char);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_UCHAR", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_UCHAR_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_CHAR;
+          size_type = sizeof(unsigned char);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_SHORT", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_SHORT_ARRAY", valuelen) )
           {
           data_type = VTK_SHORT;
+          size_type = sizeof(short);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_USHORT", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_USHORT_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_SHORT;
+          size_type = sizeof(unsigned short);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_INT", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_INT_ARRAY", valuelen) )
           {
           data_type = VTK_INT;
+          size_type = sizeof(int);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_UINT", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_UINT_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_INT;
+          size_type = sizeof(unsigned int);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_LONG", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_LONG_ARRAY", valuelen) )
           {
           data_type = VTK_LONG;
+          size_type = sizeof(long);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_ULONG", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_ULONG_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_LONG;
+          size_type = sizeof(unsigned long);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_FLOAT", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_FLOAT_ARRAY", valuelen) )
           {
           data_type = VTK_FLOAT;
+          size_type = sizeof(float);
           }
         else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_DOUBLE", valuelen) || 
           vtkMetaImageReaderInternal::StringEquals(value, "MET_DOUBLE_ARRAY", valuelen) )
           {
           data_type = VTK_DOUBLE;
+          size_type = sizeof(double);
           }
         else
           {
-          vtkErrorMacro(<< "Unknown data type: " << value);
-          return;
+          if ( populate )
+            {
+            vtkErrorMacro(<< "Unknown data type: " << value);
+            }
+          return 0;
           }
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementDataFile", keylen) )
         {
-        if ( value[0] == '/' || 
-          ( value[1] == ':' && ( value[2] == '/' || value[2] == '\\' ) ) ||
-          ( value[0] == '\\' && value[1] == '\\' ) ||
-          path.size() == 0)
+        if ( vtkMetaImageReaderInternal::StringEquals(value, "LOCAL", valuelen) )
           {
-          datafile = "";
-          datafile.append(value, valuelen);
-          vtkDebugMacro("Use absolute path");
+          datafile = fname;
           }
         else
           {
-          datafile = path;
-          datafile += "/";
-          datafile.append(value, valuelen);
-          vtkDebugMacro("Use relative path");
-          }
+          if ( value[0] == '/' || 
+            ( value[1] == ':' && ( value[2] == '/' || value[2] == '\\' ) ) ||
+            ( value[0] == '\\' && value[1] == '\\' ) ||
+            path.size() == 0)
+            {
+            datafile = "";
+            datafile.append(value, valuelen);
+            vtkDebugMacro("Use absolute path");
+            }
+          else
+            {
+            datafile = path;
+            datafile += "/";
+            datafile.append(value, valuelen);
+            vtkDebugMacro("Use relative path");
+            }
 
-        if ( stat( datafile.c_str(), &fs) )
-          {
-          vtkErrorMacro(<< "Initialize: Could not open file " << datafile.c_str());
-          return;
+          if ( stat( datafile.c_str(), &fs) )
+            {
+            if ( populate )
+              {
+              vtkErrorMacro(<< "Initialize: Could not open file " << datafile.c_str());
+              }
+            return 0;
+            }
+          vtkDebugMacro(<< "* Use data file: " << datafile.c_str());
           }
-        vtkDebugMacro(<< "* Use data file: " << datafile.c_str());
         }
       }
     else
       {
-      vtkErrorMacro(<< "Problem parsing line: " << count << " of file: " << fname);
+      if ( datafile == fname )
+        {
+        break;
+        }
+      if ( populate )
+        {
+        vtkErrorMacro(<< "Problem parsing line: " << count << " of file: " << fname);
+        }
+      return 0;
       }
     }
   if ( ndims <= 0 )
     {
-    vtkErrorMacro(<< "Number of dimensions not specified");
-    return;
+    if ( populate )
+      {
+      vtkErrorMacro(<< "Number of dimensions not specified");
+      }
+    return 0;
     }
   int cc;
   for ( cc = 0; cc < ndims; cc ++ )
     {
     if ( dims[cc] <= 0 )
       {
-      vtkErrorMacro(<< "Dimension " << cc << " is " << dims[cc]);
+      if ( populate )
+        {
+        vtkErrorMacro(<< "Dimension " << cc << " is " << dims[cc]);
+        }
+      return 0;
       }
     if ( spacing[cc] == 0 )
       {
-      vtkErrorMacro(<< "Spacing " << cc << " is 0.");
+      if ( populate )
+        {
+        vtkErrorMacro(<< "Spacing " << cc << " is 0.");
+        }
+      return 0;
       }
     }
   for ( cc = ndims; cc < 3; cc ++ )
@@ -489,105 +568,58 @@ void vtkMetaImageReader::ExecuteInformation()
     dims[cc] = 1;
     }
 
-  this->SetDataScalarType(data_type);
-  this->SetNumberOfScalarComponents(number_of_channels);
-  this->SetDataExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1);
-  this->SetFileDimensionality(3);
-  this->SetDataSpacing(spacing);
-  this->SetDataOrigin(origin);
-
-  if ( bigendian )
+  if ( populate )
     {
-    this->SetDataByteOrderToBigEndian();
+    this->SetDataScalarType(data_type);
+    this->SetNumberOfScalarComponents(number_of_channels);
+    this->SetDataExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1);
+    this->SetFileDimensionality(3);
+    this->SetDataSpacing(spacing);
+    this->SetDataOrigin(origin);
+
+    if ( bigendian )
+      {
+      this->SetDataByteOrderToBigEndian();
+      }
+    else
+      {
+      this->SetDataByteOrderToLittleEndian();
+      }
+
+    this->Superclass::SetFileName(datafile.c_str());
+    }
+
+  if ( datafile == fname )
+    {
+    unsigned long datasize = number_of_channels * dims[0] * dims[1] * dims[2] * size_type;
+    unsigned long filesize = fs.st_size;
+    if ( filesize < datasize )
+      {
+      if ( populate )
+        {
+        vtkErrorMacro("File size (" << filesize << ") is less than datasize ("
+          << datasize << ")");
+        }
+      return 0;
+      }
+    headerlen = filesize - datasize;
+    vtkDebugMacro("Read raw data from local file");
     }
   else
     {
-    this->SetDataByteOrderToLittleEndian();
+    vtkDebugMacro("Read raw file: " << datafile.c_str());
     }
-
-  vtkDebugMacro("Read raw file: " << datafile.c_str());
-  this->Superclass::SetFileName(datafile.c_str());
-  this->Superclass::ExecuteInformation();
+  if ( populate )
+    {
+    this->SetHeaderSize(headerlen);
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkMetaImageReader::CanReadFile(const char* fname)
 {
-  if ( !fname )
-    {
-    return 0;
-    }
-  struct stat fs;
-  if ( stat( fname, &fs) )
-    {
-    return 0;
-    }
-
-  ifstream ifs(fname);
-  if ( !ifs )
-    {
-    return 0;
-    }
-  int have_dims = 0;
-  int have_ndims = 0;
-  int have_datafile = 0;
-  int count = 0;
-  vtkstd::string line;
-  while(vtkMetaImageReaderInternal::GetLineFromStream(ifs, line, 0, 1024) )
-    {
-    count ++;
-    if ( count > 10 )
-      {
-      break;
-      }
-    vtkstd::string::size_type pos = line.find("=");
-    if ( pos != vtkstd::string::npos )
-      {
-      vtkstd::string::size_type keylen;
-      const char* key = line.c_str();
-      const char* endkey = line.c_str()+pos-1;
-      while ( *key!= 0 )
-        {
-        if ( *key!= ' ' && *key!= '\t' && *key!= '\r' )
-          {
-          break;
-          }
-        key++;
-        }
-
-      while ( endkey > key )
-        {
-        if ( *endkey != ' ' && *endkey != '\t' && *endkey != '\r' && *endkey != 0 )
-          {
-          break;
-          }
-        endkey--;
-        }
-      keylen = endkey - key + 1;
-
-      if ( vtkMetaImageReaderInternal::StringEquals(key, "NDims", keylen) )
-        {
-        have_ndims = 1;
-        }
-      else if ( vtkMetaImageReaderInternal::StringEquals(key, "DimSize", keylen) )
-        {
-        have_dims = 1;
-        }
-      else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementDataFile", keylen) )
-        {
-        have_datafile = 1;
-        }
-      }
-    else
-      {
-      return 0;
-      }
-    }
-  if ( !have_dims || !have_ndims || !have_datafile )
-    {
-    return 0;
-    }
-  return 1;
+  return this->GetFileInformation(fname, 0);
 }
 
 //----------------------------------------------------------------------------
