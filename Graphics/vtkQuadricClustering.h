@@ -74,16 +74,16 @@
 #ifndef __vtkQuadricClustering_h
 #define __vtkQuadricClustering_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkFeatureEdges;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkQuadricClustering, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricClustering *New();
 
@@ -197,8 +197,9 @@ protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
 
-  void Execute();
-    
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
+
   // Description:
   // Given a point, determine what bin it falls into.
   vtkIdType HashPoint(double point[3]);
@@ -211,23 +212,29 @@ protected:
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then
   // triangles are added to the output.
-  void AddPolygons(vtkCellArray *polys, vtkPoints *points, int geometryFlag);
-  void AddStrips(vtkCellArray *strips, vtkPoints *points, int geometryFlag);
+  void AddPolygons(vtkCellArray *polys, vtkPoints *points, int geometryFlag,
+                   vtkPolyData *input, vtkPolyData *output);
+  void AddStrips(vtkCellArray *strips, vtkPoints *points, int geometryFlag,
+                 vtkPolyData *input, vtkPolyData *output);
   void AddTriangle(vtkIdType *binIds, double *pt0, double *pt1, double *pt2,
-                   int geometeryFlag);
+                   int geometeryFlag, vtkPolyData *input, vtkPolyData *output);
 
   // Description:
   // Add edges to the quadric array.  If geometry flag is on then
   // edges are added to the output.
   void AddEdges(vtkCellArray *edges, vtkPoints *points,
-                int geometryFlag);
-  void AddEdge(vtkIdType *binIds, double *pt0, double *pt1, int geometeryFlag);
+                int geometryFlag,
+                vtkPolyData *input, vtkPolyData *output);
+  void AddEdge(vtkIdType *binIds, double *pt0, double *pt1, int geometeryFlag,
+               vtkPolyData *input, vtkPolyData *output);
 
   // Description:
   // Add vertices to the quadric array.  If geometry flag is on then
   // vertices are added to the output.
-  void AddVertices(vtkCellArray *verts, vtkPoints *points, int geometryFlag);
-  void AddVertex(vtkIdType binId, double *pt, int geometryFlag);
+  void AddVertices(vtkCellArray *verts, vtkPoints *points, int geometryFlag,
+                   vtkPolyData *input, vtkPolyData *output);
+  void AddVertex(vtkIdType binId, double *pt, int geometryFlag,
+                 vtkPolyData *input, vtkPolyData *output);
 
   // Description:
   // Initialize the quadric matrix to 0's.
@@ -247,16 +254,16 @@ protected:
   // Description:
   // This method will rep[lace the quadric  generated points with the
   // input points with the lowest error.
-  void EndAppendUsingPoints(vtkPolyData *input);
+  void EndAppendUsingPoints(vtkPolyData *input, vtkPolyData *output);
   int UseInputPoints;
 
   // Description:
   // This method sets the verticies of the output.
   // It duplicates the structure of the input cells (but decimiated).
-  void EndAppendVertexGeometry(vtkPolyData *input);
+  void EndAppendVertexGeometry(vtkPolyData *input, vtkPolyData *output);
 
   // Unfinished option to handle boundary edges differently.
-  void AppendFeatureQuadrics(vtkPolyData *pd);
+  void AppendFeatureQuadrics(vtkPolyData *pd, vtkPolyData *output);
   int UseFeatureEdges;
   int UseFeaturePoints;
   int UseInternalTriangles;
