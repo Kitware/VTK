@@ -47,10 +47,9 @@ renWin Render
 shrink  SetInput [colorIt GetOutput]
 # begin looping
 
-for {set i 0} {$i < 20} {incr i} {
+for {set i 0} {$i < 40} {incr i} {
    renWin Render
 }
-
 
 
 
@@ -61,4 +60,7 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+
+# break the loop (reference-counting loop) so that object will be deleted
+shrink  SetInput [sphere GetOutput]
 
