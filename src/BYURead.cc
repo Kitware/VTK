@@ -41,22 +41,6 @@ vlBYUReader::~vlBYUReader()
   if ( this->TextureFilename ) delete [] this->TextureFilename;
 }
 
-void vlBYUReader::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlBYUReader::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
-
-    os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
-    os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
-    os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
-    os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
-    os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
-    os << indent << "Read Texture: " << (this->ReadTexture ? "On\n" : "Off\n");
-    os << indent << "Texture Filename: " << this->TextureFilename << "\n";
-    }
-}
-
 void vlBYUReader::Execute()
 {
   FILE *geomFp;
@@ -153,7 +137,7 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
       }
     else //terminated based on exceeding number of points
       {
-      while ( id >= 0 ) fscanf (geomFile, "%d", &id);
+      for ( id=1; id >= 0; ) fscanf (geomFile, "%d", &id);
       }
     npts++;
 
@@ -267,3 +251,17 @@ void vlBYUReader::ReadTextureFile(int numPts)
 
   this->PointData.SetTCoords(newTCoords);
 }
+
+void vlBYUReader::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlPolySource::PrintSelf(os,indent);
+
+  os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
+  os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
+  os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
+  os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
+  os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
+  os << indent << "Read Texture: " << (this->ReadTexture ? "On\n" : "Off\n");
+  os << indent << "Texture Filename: " << this->TextureFilename << "\n";
+}
+
