@@ -30,13 +30,13 @@
 #define __vtkImageIdealHighPass_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageIdealHighPass : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageIdealHighPass *New();
-  vtkTypeRevisionMacro(vtkImageIdealHighPass,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageIdealHighPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,8 +59,11 @@ protected:
 
   double CutOff[3];
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
 private:
   vtkImageIdealHighPass(const vtkImageIdealHighPass&);  // Not implemented.
   void operator=(const vtkImageIdealHighPass&);  // Not implemented.

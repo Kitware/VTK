@@ -29,13 +29,13 @@
 #define __vtkImageButterworthLowPass_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageButterworthLowPass : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageButterworthLowPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageButterworthLowPass *New();
-  vtkTypeRevisionMacro(vtkImageButterworthLowPass,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageButterworthLowPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -65,8 +65,11 @@ protected:
   int Order;
   double CutOff[3];
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
+  void ThreadedRequestData( vtkInformation *request,
+                            vtkInformationVector **inputVector,
+                            vtkInformationVector *outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int outExt[6], int id);
 private:
   vtkImageButterworthLowPass(const vtkImageButterworthLowPass&);  // Not implemented.
   void operator=(const vtkImageButterworthLowPass&);  // Not implemented.

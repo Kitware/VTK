@@ -27,13 +27,13 @@
 #define __vtkimageLaplacian_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageLaplacian : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLaplacian *New();
-  vtkTypeRevisionMacro(vtkImageLaplacian,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageLaplacian,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -47,9 +47,12 @@ protected:
 
   int Dimensionality;
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
 private:
   vtkImageLaplacian(const vtkImageLaplacian&);  // Not implemented.
   void operator=(const vtkImageLaplacian&);  // Not implemented.

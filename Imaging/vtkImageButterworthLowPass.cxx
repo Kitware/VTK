@@ -15,11 +15,14 @@
 #include "vtkImageButterworthLowPass.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.24");
+vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.25");
 vtkStandardNewMacro(vtkImageButterworthLowPass);
 
 //----------------------------------------------------------------------------
@@ -62,16 +65,20 @@ void vtkImageButterworthLowPass::SetZCutOff(double cutOff)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData, 
-                                                 vtkImageData *outData,
-                                                 int ext[6], int id)
+void vtkImageButterworthLowPass::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector,
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int ext[6], int id)
 {
   int idx0, idx1, idx2;
   int min0, max0;
   double *inPtr;
   double *outPtr;
-  int *wholeExtent;
-  double *spacing;
+  int wholeExtent[6];
+  double spacing[3];
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
   double temp0, temp1, temp2, mid0, mid1, mid2;
@@ -81,28 +88,31 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
   unsigned long count = 0;
   unsigned long target;
 
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // Error checking
-  if (inData->GetNumberOfScalarComponents() != 2)
+  if (inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) != 2)
     {
-    vtkErrorMacro("Expecting 2 components not " 
-                  << inData->GetNumberOfScalarComponents());
+    vtkErrorMacro("Expecting 2 components not "
+                  << inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
     return;
     }
-  if (inData->GetScalarType() != VTK_DOUBLE || 
-      outData->GetScalarType() != VTK_DOUBLE)
+  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_DOUBLE || 
+      outInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_DOUBLE)
     {
     vtkErrorMacro("Expecting input and output to be of type double");
     return;
     }
   
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  spacing = inData->GetSpacing();
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
 
-  inPtr = (double *)(inData->GetScalarPointerForExtent(ext));
-  outPtr = (double *)(outData->GetScalarPointerForExtent(ext));
+  inPtr = (double *)(inData[0][0]->GetScalarPointerForExtent(ext));
+  outPtr = (double *)(outData[0]->GetScalarPointerForExtent(ext));
 
-  inData->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
-  outData->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
+  inData[0][0]->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
+  outData[0]->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
   
   min0 = ext[0];
   max0 = ext[1];

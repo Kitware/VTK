@@ -15,11 +15,14 @@
 #include "vtkImageLaplacian.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.28");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.29");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -40,38 +43,44 @@ void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageLaplacian::ComputeInputUpdateExtent(int inExt[6], 
-                                                 int outExt[6])
+void vtkImageLaplacian::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   int idx;
-  int *wholeExtent;
+  int wholeExtent[6], inUExt[6];
   
-  // handle XYZ
-  memcpy(inExt,outExt,sizeof(int)*6);
-  
-  wholeExtent = this->GetInput()->GetWholeExtent();
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt);
+
   // update and Clip
   for (idx = 0; idx < 3; ++idx)
     {
-    --inExt[idx*2];
-    ++inExt[idx*2+1];
-    if (inExt[idx*2] < wholeExtent[idx*2])
+    --inUExt[idx*2];
+    ++inUExt[idx*2+1];
+    if (inUExt[idx*2] < wholeExtent[idx*2])
       {
-      inExt[idx*2] = wholeExtent[idx*2];
+      inUExt[idx*2] = wholeExtent[idx*2];
       }
-    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx*2] > wholeExtent[idx*2 + 1])
       {
-      inExt[idx*2] = wholeExtent[idx*2 + 1];
+      inUExt[idx*2] = wholeExtent[idx*2 + 1];
       }
-    if (inExt[idx*2+1] < wholeExtent[idx*2])
+    if (inUExt[idx*2+1] < wholeExtent[idx*2])
       {
-      inExt[idx*2+1] = wholeExtent[idx*2];
+      inUExt[idx*2+1] = wholeExtent[idx*2];
       }
-    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
-      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 }
 
 
@@ -182,28 +191,35 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageLaplacian::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
-                                           int outExt[6], int id)
+void vtkImageLaplacian::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector,
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-  
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) !=
+      outInfo->Get(vtkDataObject::SCALAR_TYPE()))
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, "
+    << inInfo->Get(vtkDataObject::SCALAR_TYPE())
+    << ", must match out ScalarType "
+    << outInfo->Get(vtkDataObject::SCALAR_TYPE()));
     return;
     }
-  
-  switch (inData->GetScalarType())
+
+  switch (inInfo->Get(vtkDataObject::SCALAR_TYPE()))
     {
-    vtkTemplateMacro7(vtkImageLaplacianExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
+    vtkTemplateMacro7(vtkImageLaplacianExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr), 
                       outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
