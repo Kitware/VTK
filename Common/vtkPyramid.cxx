@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.37");
+vtkCxxRevisionMacro(vtkPyramid, "1.38");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -550,7 +550,7 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
 //----------------------------------------------------------------------------
 int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
-  int p[4], i;
+  int i;
   ptIds->Reset();
   pts->Reset();
 
@@ -567,13 +567,11 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
 
   if (diagonal1 < diagonal2)
     {
-    p[0] = 0; p[1] = 1; p[2] = 2; p[3] = 4;
     for (i=0; i < 4; i++)
       {
       ptIds->InsertId(i,this->PointIds->GetId(i));
       pts->InsertPoint(i,this->Points->GetPoint(i));
       }
-    p[0] = 0; p[1] = 2; p[2] = 3; p[3] = 4;
     for (i=0; i < 4; i++)
       {
       ptIds->InsertId(i,this->PointIds->GetId(i));
@@ -582,13 +580,11 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
     }
   else
     {
-    p[0] = 0; p[1] = 1; p[2] = 3; p[3] = 4;
     for (i=0; i < 4; i++)
       {
       ptIds->InsertId(i,this->PointIds->GetId(i));
       pts->InsertPoint(i,this->Points->GetPoint(i));
       }
-    p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4;
     for (i=0; i < 4; i++)
       {
       ptIds->InsertId(i,this->PointIds->GetId(i));
