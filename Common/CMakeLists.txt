@@ -352,6 +352,7 @@ ENDIF(LOCALUSERMACRODEFINED)
 # -----------------------------------------------------------------
 
 INSTALL_FILES(/include/vtk .h
+  vtkAMRBox
   vtkCellType
   vtkDataArrayTemplate
   vtkIOStream
