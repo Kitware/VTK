@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.22");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.23");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the tetra with ten points.
@@ -517,7 +517,7 @@ void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30]
 double vtkQuadraticTetra::GetParametricDistance(double pcoords[3])
 {
   int i;
-  double pDist, pDistMax=0.0f;
+  double pDist, pDistMax=0.0;
   double pc[4];
 
   pc[0] = pcoords[0];
@@ -533,7 +533,7 @@ double vtkQuadraticTetra::GetParametricDistance(double pcoords[3])
       }
     else if ( pc[i] > 1.0 ) 
       {
-      pDist = pc[i] - 1.0f;
+      pDist = pc[i] - 1.0;
       }
     else //inside the cell in the parametric direction
       {

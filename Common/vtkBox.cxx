@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBox, "1.4");
+vtkCxxRevisionMacro(vtkBox, "1.5");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -158,20 +158,20 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
   // Ultimately the point will lie in one of 27 separate regions around
   // or within the box. The gradient vector is computed differently in
   // each of the regions.
-  inDir[0] = inDir[1] = inDir[2] = 0.0f;
-  outDir[0] = outDir[1] = outDir[2] = 0.0f;
+  inDir[0] = inDir[1] = inDir[2] = 0.0;
+  outDir[0] = outDir[1] = outDir[2] = 0.0;
   for (i=0; i<3; i++)
     {
     center[i] = (this->XMin[i] + this->XMax[i])/2.0;
     if ( x[i] < this->XMin[i] )
       {
       loc[i] = 0;
-      outDir[i] = -1.0f;
+      outDir[i] = -1.0;
       }
     else if ( x[i] > this->XMax[i] )
       {
       loc[i] = 2;
-      outDir[i] = 1.0f;
+      outDir[i] = 1.0;
       }
     else
       {
@@ -179,12 +179,12 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
       if ( x[i] <= center[i] )
         {
         dist = x[i] - this->XMin[i];
-        inDir[i] = -1.0f;
+        inDir[i] = -1.0;
         }
       else
         {
         dist = this->XMax[i] - x[i];
-        inDir[i] = 1.0f;
+        inDir[i] = 1.0;
         }
       if ( dist < minDist ) //remember, it's negative
         {
@@ -213,7 +213,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
     case 19: case 21: case 23: case 25:
       for (i=0; i<3; i++)
         {
-        if ( outDir[i] != 0.0f )
+        if ( outDir[i] != 0.0 )
           {
           n[i] = x[i] - center[i]; 
           }

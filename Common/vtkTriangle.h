@@ -182,7 +182,7 @@ private:
 
 inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.333f; pcoords[2] = 0.0;
+  pcoords[0] = pcoords[1] = 1./3; pcoords[2] = 0.0;
   return 0;
 }
 
@@ -218,9 +218,9 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
 inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3], 
                                         double p3[3], double center[3])
 {
-  center[0] = (p1[0]+p2[0]+p3[0]) / 3.0f;
-  center[1] = (p1[1]+p2[1]+p3[1]) / 3.0f;
-  center[2] = (p1[2]+p2[2]+p3[2]) / 3.0f;
+  center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
+  center[1] = (p1[1]+p2[1]+p3[1]) / 3.0;
+  center[2] = (p1[2]+p2[2]+p3[2]) / 3.0;
 }
 
 inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])

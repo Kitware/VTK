@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.85");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.86");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1261,19 +1261,19 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
   double zbounds[] = {origin[2] + spacing[2] * (extent[4] - 0.5),
                      origin[2] + spacing[2] * (extent[5] + 0.5)};
 
-  if ( spacing[0] < 0.0f )
+  if ( spacing[0] < 0.0 )
     {
     double t = xbounds[0];
     xbounds[0] = xbounds[1];
     xbounds[1] = t;
     }
-  if ( spacing[1] < 0.0f )
+  if ( spacing[1] < 0.0 )
     {
     double t = ybounds[0];
     ybounds[0] = ybounds[1];
     ybounds[1] = t;
     }
-  if ( spacing[2] < 0.0f )
+  if ( spacing[2] < 0.0 )
     {
     double t = zbounds[0];
     zbounds[0] = zbounds[1];
@@ -1385,7 +1385,7 @@ void vtkImagePlaneWidget::UpdateOrigin()
     this->PlaneSource->GetNormal(abs_normal);
     double planeCenter[3];
     this->PlaneSource->GetCenter(planeCenter);
-    double nmax = 0.0f;
+    double nmax = 0.0;
     int k = 0;
     for ( i = 0; i < 3; i++ )
       {
@@ -1703,7 +1703,7 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 
 void vtkImagePlaneWidget::SetSlicePosition(double position)
 {
-  double amount = 0.0f;
+  double amount = 0.0;
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
@@ -1753,7 +1753,7 @@ double vtkImagePlaneWidget::GetSlicePosition()
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
     }
 
-  return 0.0f;
+  return 0.0;
 }
 
 void vtkImagePlaneWidget::SetSliceIndex(int index)

@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.28");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.29");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -275,7 +275,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkPoints *points = NULL;
   int i;
   vtkProperty *prop;
-  static double defcolor[3] = {  1.0f, 1.0f, 1.0f };
+  static double defcolor[3] = {  1.0, 1.0, 1.0 };
   double *tempd = defcolor;
   vtkCellArray *cells;
   vtkIdType npts = 0;

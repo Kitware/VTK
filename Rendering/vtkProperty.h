@@ -105,28 +105,28 @@ public:
 
   // Description:
   // Set/Get the ambient lighting coefficient.
-  vtkSetClampMacro(Ambient,double,0.0f,1.0f);
+  vtkSetClampMacro(Ambient,double,0.0,1.0);
   vtkGetMacro(Ambient,double);
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
-  vtkSetClampMacro(Diffuse,double,0.0f,1.0f);
+  vtkSetClampMacro(Diffuse,double,0.0,1.0);
   vtkGetMacro(Diffuse,double);
 
   // Description:
   // Set/Get the specular lighting coefficient.
-  vtkSetClampMacro(Specular,double,0.0f,1.0f);
+  vtkSetClampMacro(Specular,double,0.0,1.0);
   vtkGetMacro(Specular,double);
 
   // Description:
   // Set/Get the specular power.
-  vtkSetClampMacro(SpecularPower,double,0.0f,100.0f);
+  vtkSetClampMacro(SpecularPower,double,0.0,100.0);
   vtkGetMacro(SpecularPower,double);
 
   // Description:
   // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetClampMacro(Opacity,double,0.0f,1.0f);
+  vtkSetClampMacro(Opacity,double,0.0,1.0);
   vtkGetMacro(Opacity,double);
 
   // Description:

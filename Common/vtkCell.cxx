@@ -18,7 +18,7 @@
 #include "vtkMarchingSquaresCases.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.63");
+vtkCxxRevisionMacro(vtkCell, "1.64");
 
 // Construct cell.
 vtkCell::vtkCell()
@@ -146,7 +146,7 @@ int vtkCell::GetParametricCenter(double pcoords[3])
 double vtkCell::GetParametricDistance(double pcoords[3])
 {
   int i;
-  double pDist, pDistMax=0.0f;
+  double pDist, pDistMax=0.0;
 
   for (i=0; i<3; i++)
     {
@@ -156,7 +156,7 @@ double vtkCell::GetParametricDistance(double pcoords[3])
       }
     else if ( pcoords[i] > 1.0 ) 
       {
-      pDist = pcoords[i] - 1.0f;
+      pDist = pcoords[i] - 1.0;
       }
     else //inside the cell in the parametric direction
       {

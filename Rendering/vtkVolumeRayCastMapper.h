@@ -114,19 +114,19 @@ public:
   // Sampling distance in the XY image dimensions. Default value of 1 meaning
   // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
   // set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
-  vtkSetClampMacro( ImageSampleDistance, double, 0.1f, 100.0f );
+  vtkSetClampMacro( ImageSampleDistance, double, 0.1, 100.0 );
   vtkGetMacro( ImageSampleDistance, double );
 
   // Description:
   // This is the minimum image sample distance allow when the image
   // sample distance is being automatically adjusted
-  vtkSetClampMacro( MinimumImageSampleDistance, double, 0.1f, 100.0f );
+  vtkSetClampMacro( MinimumImageSampleDistance, double, 0.1, 100.0 );
   vtkGetMacro( MinimumImageSampleDistance, double );
 
   // Description:
   // This is the maximum image sample distance allow when the image
   // sample distance is being automatically adjusted
-  vtkSetClampMacro( MaximumImageSampleDistance, double, 0.1f, 100.0f );
+  vtkSetClampMacro( MaximumImageSampleDistance, double, 0.1, 100.0 );
   vtkGetMacro( MaximumImageSampleDistance, double );
 
   // Description:

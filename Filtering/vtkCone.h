@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Set/Get the cone angle (expressed in degrees).
-  vtkSetClampMacro(Angle,double,0.0f,89.0f);
+  vtkSetClampMacro(Angle,double,0.0,89.0);
   vtkGetMacro(Angle,double);
 
 protected:

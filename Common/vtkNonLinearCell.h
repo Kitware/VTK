@@ -51,7 +51,7 @@ public:
   // Description:
   // Set/Get the normalized error measure used to control the 
   // tessellation of the cell.
-  vtkSetClampMacro(Error,double,0.001f,1.0f);
+  vtkSetClampMacro(Error,double,0.001,1.0);
   vtkGetMacro(Error,double);
 
   // Description:

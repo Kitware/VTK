@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.13");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.14");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -34,12 +34,12 @@ vtkTransformToGrid::vtkTransformToGrid()
   for (int i = 0; i < 3; i++)
     {
     this->GridExtent[2*i] = this->GridExtent[2*i+1] = 0;
-    this->GridOrigin[i] = 0.0f;
-    this->GridSpacing[i] = 1.0f;
+    this->GridOrigin[i] = 0.0;
+    this->GridSpacing[i] = 1.0;
     }
 
-  this->DisplacementScale = 1.0f;
-  this->DisplacementShift = 0.0f;
+  this->DisplacementScale = 1.0;
+  this->DisplacementShift = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -118,8 +118,8 @@ void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
 
   if (!transform)
     {
-    minDisplacement = -1.0f;
-    maxDisplacement = +1.0f;
+    minDisplacement = -1.0;
+    maxDisplacement = +1.0;
     return;
     }
 
@@ -170,8 +170,8 @@ void vtkTransformToGrid::UpdateShiftScale()
   // nothing to do for double or double
   if (gridType == VTK_DOUBLE || gridType == VTK_DOUBLE)
     {
-    this->DisplacementShift = 0.0f;
-    this->DisplacementScale = 1.0f;
+    this->DisplacementShift = 0.0;
+    this->DisplacementScale = 1.0;
     vtkDebugMacro(<< "displacement (scale, shift) = (" << 
                   this->DisplacementScale << ", " << 
                   this->DisplacementShift << ")");  
@@ -223,9 +223,9 @@ void vtkTransformToGrid::UpdateShiftScale()
   this->DisplacementShift = ((typeMax*minDisplacement-typeMin*maxDisplacement)/
                              (typeMax - typeMin)); 
 
-  if (this->DisplacementScale == 0.0f)
+  if (this->DisplacementScale == 0.0)
     {
-    this->DisplacementScale = 1.0f;
+    this->DisplacementScale = 1.0;
     }
 
   vtkDebugMacro(<< "displacement (scale, shift) = (" << 
@@ -281,7 +281,7 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
   double *origin = grid->GetOrigin();
   int *increments = grid->GetIncrements();
 
-  double invScale = 1.0f/scale;
+  double invScale = 1.0/scale;
 
   double point[3];
   double newPoint[3];

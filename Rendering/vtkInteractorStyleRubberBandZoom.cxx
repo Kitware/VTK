@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.5");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.6");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
@@ -156,14 +156,14 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   double invw;
   double worldRBCenter[4];
   this->CurrentRenderer->GetWorldPoint(worldRBCenter);
-  invw = 1.0f/worldRBCenter[3];
+  invw = 1.0/worldRBCenter[3];
   worldRBCenter[0] *= invw;
   worldRBCenter[1] *= invw;
   worldRBCenter[2] *= invw;
 
   double winCenter[3];
-  winCenter[0] = origin[0] + 0.5f*size[0];
-  winCenter[1] = origin[1] + 0.5f*size[1];
+  winCenter[0] = origin[0] + 0.5*size[0];
+  winCenter[1] = origin[1] + 0.5*size[1];
   winCenter[2] = 0;
 
   this->CurrentRenderer->SetDisplayPoint(winCenter);
@@ -172,7 +172,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
 
   double worldWinCenter[4];
   this->CurrentRenderer->GetWorldPoint(worldWinCenter);
-  invw = 1.0f/worldWinCenter[3];
+  invw = 1.0/worldWinCenter[3];
   worldWinCenter[0] *= invw;
   worldWinCenter[1] *= invw;
   worldWinCenter[2] *= invw;

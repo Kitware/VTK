@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.84");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.85");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -544,13 +544,13 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             }
 
           minPlane[i] = vtkPlane::New();
-          minPlane[i]->SetNormal(0.0f, 0.0f, -1.0f);
-          minPlane[i]->SetOrigin(0.0f, 0.0f, minZ);
+          minPlane[i]->SetNormal(0.0, 0.0, -1.0);
+          minPlane[i]->SetOrigin(0.0, 0.0, minZ);
 
           minClipper[i] = vtkClipPolyData::New();
           minClipper[i]->SetInput((vtkPolyData *)input);
           minClipper[i]->SetClipFunction(minPlane[i]);
-            minClipper[i]->SetValue( 0.0f );
+            minClipper[i]->SetValue( 0.0 );
                 minClipper[i]->InsideOutOn();
           minClipper[i]->Update();
 
@@ -576,13 +576,13 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             maxZ = this->ModelBounds[5];
             }
           maxPlane[i] = vtkPlane::New();
-          maxPlane[i]->SetNormal(0.0f, 0.0f, 1.0f);
-          maxPlane[i]->SetOrigin(0.0f, 0.0f, maxZ);
+          maxPlane[i]->SetNormal(0.0, 0.0, 1.0);
+          maxPlane[i]->SetOrigin(0.0, 0.0, maxZ);
 
           maxClipper[i] = vtkClipPolyData::New();
           maxClipper[i]->SetInput(minClipper[i]->GetOutput());
           maxClipper[i]->SetClipFunction(maxPlane[i]);
-            maxClipper[i]->SetValue( 0.0f );
+            maxClipper[i]->SetValue( 0.0 );
                 maxClipper[i]->InsideOutOn();
           maxClipper[i]->Update();
 

@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.15");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -295,7 +295,7 @@ int vtkQuadraticTriangle::GetParametricCenter(double pcoords[3])
 double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
 {
   int i;
-  double pDist, pDistMax=0.0f;
+  double pDist, pDistMax=0.0;
   double pc[3];
 
   pc[0] = pcoords[0];
@@ -310,7 +310,7 @@ double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
       }
     else if ( pc[i] > 1.0 ) 
       {
-      pDist = pc[i] - 1.0f;
+      pDist = pc[i] - 1.0;
       }
     else //inside the cell in the parametric direction
       {

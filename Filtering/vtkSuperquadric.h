@@ -74,7 +74,7 @@ public:
   // Set/Get Superquadric ring thickness (toroids only).
   // Changing thickness maintains the outside diameter of the toroid.
   vtkGetMacro(Thickness,double);
-  vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0f);
+  vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
 
   // Description:
   // Set/Get Superquadric north/south roundness. 

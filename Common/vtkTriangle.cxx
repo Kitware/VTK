@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.105");
+vtkCxxRevisionMacro(vtkTriangle, "1.106");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -1001,7 +1001,7 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
 double vtkTriangle::GetParametricDistance(double pcoords[3])
 {
   int i;
-  double pDist, pDistMax=0.0f;
+  double pDist, pDistMax=0.0;
   double pc[3];
 
   pc[0] = pcoords[0];
@@ -1016,7 +1016,7 @@ double vtkTriangle::GetParametricDistance(double pcoords[3])
       }
     else if ( pc[i] > 1.0 ) 
       {
-      pDist = pc[i] - 1.0f;
+      pDist = pc[i] - 1.0;
       }
     else //inside the cell in the parametric direction
       {

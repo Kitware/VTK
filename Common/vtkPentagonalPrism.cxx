@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.12");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.13");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -69,7 +69,7 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
 //  linear prism element from global coordinates.
 //
 static const int VTK_PENTA_MAX_ITERATION=10;
-static const double VTK_PENTA_CONVERGED=1.e-03f;
+static const double VTK_PENTA_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
 int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],

@@ -101,8 +101,8 @@ private:
 
 inline int vtkWedge::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.333333f;
-  pcoords[2] = 0.5f;
+  pcoords[0] = pcoords[1] = 0.333333;
+  pcoords[2] = 0.5;
   return 0;
 }
 

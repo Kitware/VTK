@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.66");
+vtkCxxRevisionMacro(vtkConeSource, "1.67");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -37,13 +37,13 @@ vtkConeSource::vtkConeSource(int res)
   this->Radius = 0.5;
   this->Capping = 1;
 
-  this->Center[0] = 0.0f;
-  this->Center[1] = 0.0f;
-  this->Center[2] = 0.0f;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
   
-  this->Direction[0] = 1.0f;
-  this->Direction[1] = 0.0f;
-  this->Direction[2] = 0.0f;
+  this->Direction[0] = 1.0;
+  this->Direction[1] = 0.0;
+  this->Direction[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -228,9 +228,9 @@ void vtkConeSource::Execute()
 
   // A non-default origin and/or direction requires transformation
   //
-  if ( this->Center[0] != 0.0f || this->Center[1] != 0.0f || 
-       this->Center[2] != 0.0f || this->Direction[0] != 1.0f || 
-       this->Direction[1] != 0.0f || this->Direction[2] != 0.0f )
+  if ( this->Center[0] != 0.0 || this->Center[1] != 0.0 || 
+       this->Center[2] != 0.0 || this->Direction[0] != 1.0 || 
+       this->Direction[1] != 0.0 || this->Direction[2] != 0.0 )
     {
     vtkTransform *t = vtkTransform::New();
     t->Translate(this->Center[0], this->Center[1], this->Center[2]);

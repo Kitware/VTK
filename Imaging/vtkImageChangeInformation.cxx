@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.11");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.12");
 vtkStandardNewMacro(vtkImageChangeInformation);
 vtkCxxSetObjectMacro(vtkImageChangeInformation, InformationInput, vtkImageData);
 
@@ -34,12 +34,12 @@ vtkImageChangeInformation::vtkImageChangeInformation()
     this->ExtentTranslation[i] = 0;
     this->FinalExtentTranslation[i] = VTK_INT_MAX;
 
-    this->OutputSpacing[i] = VTK_FLOAT_MAX;
-    this->SpacingScale[i] = 1.0f;
+    this->OutputSpacing[i] = VTK_DOUBLE_MAX;
+    this->SpacingScale[i] = 1.0;
 
-    this->OutputOrigin[i] = VTK_FLOAT_MAX;
-    this->OriginScale[i] = 1.0f;
-    this->OriginTranslation[i] = 0.0f;
+    this->OutputOrigin[i] = VTK_DOUBLE_MAX;
+    this->OriginScale[i] = 1.0;
+    this->OriginTranslation[i] = 0.0;
     }
 }
 
@@ -131,12 +131,12 @@ void vtkImageChangeInformation::ExecuteInformation(vtkImageData *inData,
 
   for (i = 0; i < 3; i++)
     {
-    if (this->OutputSpacing[i] != VTK_FLOAT_MAX)
+    if (this->OutputSpacing[i] != VTK_DOUBLE_MAX)
       {
       spacing[i] = this->OutputSpacing[i];
       }
 
-    if (this->OutputOrigin[i] != VTK_FLOAT_MAX)
+    if (this->OutputOrigin[i] != VTK_DOUBLE_MAX)
       {
       origin[i] = this->OutputOrigin[i];
       }

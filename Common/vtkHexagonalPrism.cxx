@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.14");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.15");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -66,7 +66,7 @@ vtkHexagonalPrism::~vtkHexagonalPrism()
 //  linear hexahedron element from global coordinates.
 //
 static const int VTK_HEX_MAX_ITERATION=10;
-static const double VTK_HEX_CONVERGED=1.e-03f;
+static const double VTK_HEX_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
 int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,

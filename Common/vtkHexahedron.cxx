@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.92");
+vtkCxxRevisionMacro(vtkHexahedron, "1.93");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -59,7 +59,7 @@ vtkHexahedron::~vtkHexahedron()
 //  linear hexahedron element from global coordinates.
 //
 static const int VTK_HEX_MAX_ITERATION=10;
-static const double VTK_HEX_CONVERGED=1.e-03f;
+static const double VTK_HEX_CONVERGED=1.e-03;
 
 int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
                                    int& subId, double pcoords[3], 

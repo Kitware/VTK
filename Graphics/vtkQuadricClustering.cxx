@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.71");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.72");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -744,7 +744,7 @@ void vtkQuadricClustering::AddQuadric(vtkIdType binId, double quadric[9])
   
   for (int i=0; i<9; i++)
     {
-    q[i] += (quadric[i] * 100000000.0f);
+    q[i] += (quadric[i] * 100000000.0);
     }
 }
 
@@ -956,12 +956,12 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
           }
         else
           {
-          W[i][j] = 0.0f;
+          W[i][j] = 0.0;
           }
         }
       else
         {
-        W[i][j] = 0.0f;
+        W[i][j] = 0.0;
         }
       }
     }

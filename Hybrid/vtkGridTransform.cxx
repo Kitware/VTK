@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.21");
+vtkCxxRevisionMacro(vtkGridTransform, "1.22");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -76,9 +76,9 @@ inline void vtkNearestNeighborInterpolation(double point[3],
                                             int gridExt[6], int gridInc[3])
 {
   int gridId[3];
-  gridId[0] = vtkGridFloor(point[0]+0.5f)-gridExt[0];
-  gridId[1] = vtkGridFloor(point[1]+0.5f)-gridExt[2];
-  gridId[2] = vtkGridFloor(point[2]+0.5f)-gridExt[4];
+  gridId[0] = vtkGridFloor(point[0]+0.5)-gridExt[0];
+  gridId[1] = vtkGridFloor(point[1]+0.5)-gridExt[2];
+  gridId[2] = vtkGridFloor(point[2]+0.5)-gridExt[4];
   
   int ext[3];
   ext[0] = gridExt[1]-gridExt[0];
@@ -595,9 +595,9 @@ inline void vtkCubicHelper(double displacement[3], double derivatives[3][3],
     {
     for (int i = 0; i < 3; i++)
       {
-      derivatives[i][0] = 0.0f; 
-      derivatives[i][1] = 0.0f; 
-      derivatives[i][2] = 0.0f;
+      derivatives[i][0] = 0.0; 
+      derivatives[i][1] = 0.0; 
+      derivatives[i][2] = 0.0;
       }
     vtkSetTricubicDerivCoeffs(fX,gX,&ll,&lm,fx,interpModeX);
     vtkSetTricubicDerivCoeffs(fY,gY,&kl,&km,fy,interpModeY);
@@ -970,7 +970,7 @@ void vtkGridTransform::ForwardTransformDerivative(const double inPoint[3],
     derivative[i][0] = derivative[i][0]*scale/spacing[0];
     derivative[i][1] = derivative[i][1]*scale/spacing[1];
     derivative[i][2] = derivative[i][2]*scale/spacing[2];
-    derivative[i][i] += 1.0f;
+    derivative[i][i] += 1.0;
     }
 
   outPoint[0] = inPoint[0] + (displacement[0]*scale + shift);
@@ -1028,9 +1028,9 @@ void vtkGridTransform::InverseTransformDerivative(const double inPoint[3],
   int *increments = this->GridIncrements;
 
   double invSpacing[3];
-  invSpacing[0] = 1.0f/spacing[0];
-  invSpacing[1] = 1.0f/spacing[1];
-  invSpacing[2] = 1.0f/spacing[2];
+  invSpacing[0] = 1.0/spacing[0];
+  invSpacing[1] = 1.0/spacing[1];
+  invSpacing[2] = 1.0/spacing[2];
 
   double shift = this->DisplacementShift;
   double scale = this->DisplacementScale;
@@ -1046,7 +1046,7 @@ void vtkGridTransform::InverseTransformDerivative(const double inPoint[3],
   double toleranceSquared = this->InverseTolerance;
   toleranceSquared *= toleranceSquared;
 
-  double f = 1.0f;
+  double f = 1.0;
   double a;
 
   // convert the inPoint to i,j,k indices plus fractions
@@ -1086,7 +1086,7 @@ void vtkGridTransform::InverseTransformDerivative(const double inPoint[3],
       derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
       derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
       derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
-      derivative[j][j] += 1.0f;
+      derivative[j][j] += 1.0;
       }
 
     // get the current function value

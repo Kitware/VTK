@@ -53,7 +53,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.34");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.35");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -67,7 +67,7 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->ErrorQuadrics = NULL;
   this->TargetPoints = vtkDoubleArray::New();
   
-  this->TargetReduction = 0.90f;
+  this->TargetReduction = 0.9;
   this->NumberOfEdgeCollapses = 0;
   this->NumberOfComponents = 0;
 
@@ -78,13 +78,13 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->TCoordsAttribute = 1;
   this->TensorsAttribute = 1;
 
-  this->ScalarsWeight = 0.1f;
-  this->VectorsWeight = 0.1f;
-  this->NormalsWeight = 0.1f;
-  this->TCoordsWeight = 0.1f;
-  this->TensorsWeight = 0.1f;
+  this->ScalarsWeight = 0.1;
+  this->VectorsWeight = 0.1;
+  this->NormalsWeight = 0.1;
+  this->TCoordsWeight = 0.1;
+  this->TensorsWeight = 0.1;
 
-  this->ActualReduction = 0.00f;
+  this->ActualReduction = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -293,7 +293,7 @@ void vtkQuadricDecimation::Execute()
   this->UpdateProgress(0.20);
 
   // Okay collapse edges until desired reduction is reached
-  this->ActualReduction = 0.00f;
+  this->ActualReduction = 0.0;
   this->NumberOfEdgeCollapses = 0;
   edgeId = this->EdgeCosts->Pop(0,cost);
 
@@ -1233,7 +1233,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   for (i = 0; i < 6; i++)
     {
     this->AttributeComponents[i] = 0;
-    this->AttributeScale[i] = 1.0f;
+    this->AttributeScale[i] = 1.0;
     }
 
   // Scalar attributes
@@ -1271,7 +1271,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       this->NumberOfComponents += pd->GetVectors()->GetNumberOfComponents();
       pd->CopyVectorsOn();
       this->AttributeScale[1] = this->VectorsWeight/maxRange;
-      maxRange = 0.0f;
+      maxRange = 0.0;
       }
     vtkDebugMacro("vectors "<< this->NumberOfComponents << " " 
                   << this->AttributeScale[1]);
@@ -1298,12 +1298,12 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       maxRange = (maxRange < (range[1] - range[0]) ? 
                   (range[1] - range[0]) : maxRange);
       }
-    if (maxRange != 0.0f) 
+    if (maxRange != 0.0) 
       {
       this->NumberOfComponents += pd->GetTCoords()->GetNumberOfComponents();
       pd->CopyTCoordsOn();
       this->AttributeScale[3] = this->TCoordsWeight/maxRange;
-      maxRange = 0.0f;
+      maxRange = 0.0;
       }
     vtkDebugMacro("tcoords "<< this->NumberOfComponents << " " 
                   << this->AttributeScale[3]);
@@ -1319,12 +1319,12 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       maxRange = (maxRange < (range[1] - range[0]) ? 
                   (range[1] - range[0]) : maxRange);
       }
-    if (maxRange != 0.0f) 
+    if (maxRange != 0.0) 
       {
       this->NumberOfComponents += 9;
       pd->CopyTensorsOn();
       this->AttributeScale[4] = this->TensorsWeight/maxRange;
-      maxRange = 0.0f;
+      maxRange = 0.0;
       }
     vtkDebugMacro("tensors "<< this->NumberOfComponents << " " 
                   << this->AttributeScale[4]);
