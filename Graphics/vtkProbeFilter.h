@@ -80,6 +80,9 @@ public:
   vtkGetMacro(SpatialMatch, int);
   vtkBooleanMacro(SpatialMatch, int);
 
+  // Description:
+  // Get the list of point ids in the output that contain attribute data
+  // interpolated from the source.
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
   
 protected:
