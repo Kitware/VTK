@@ -577,9 +577,9 @@ output_function()
 	  {
 	  handle_vtkobj_return();
 	  }
-	fprintf(yyout,"extern \"C\" ");
+	fprintf(yyout,"JNIEXPORT extern \"C\" ");
 	return_result();
-	fprintf(yyout,"Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
+	fprintf(yyout," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
 		class_name,func_name, numFuncs);
 	
 	for (i = 0; i < num_args; i++)
@@ -1652,7 +1652,7 @@ case 4:
 {
 	if ((!num_superclasses)&&(have_delete))
 	  {
-	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
+	  fprintf(yyout,"\nJNIEXPORT extern \"C\" void JNICALL Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
 		  class_name);
 	  fprintf(yyout,"{\n  %s *op;\n",class_name);
 	  fprintf(yyout,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
@@ -1673,7 +1673,7 @@ case 4:
 	  fprintf(yyout,"static int vtk_%s_NoCreate = 0;\n",class_name);
 	  fprintf(yyout,"void vtk_%s_NoCPP()\n",class_name);
 	  fprintf(yyout,"{\n  vtk_%s_NoCreate = 1;\n}\n\n",class_name);
-	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
+	  fprintf(yyout,"\nJNIEXPORT extern \"C\" void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
 		  class_name);
 	  fprintf(yyout,"{\n  if (!vtk_%s_NoCreate)\n",class_name);
 	  fprintf(yyout,"    {\n    %s *aNewOne = new %s;\n",class_name,
@@ -2142,7 +2142,7 @@ case 93:
    
    if (!done_one())
      {
-     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+     fprintf(yyout,"JNIEXPORT extern \"C\" void JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
 	     class_name,func_name,numFuncs);
      
      for (i = 0; i < num_args; i++)
@@ -2193,7 +2193,7 @@ case 93:
    
    if (!done_one())
      {
-     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+     fprintf(yyout,"JNIEXPORT extern \"C\" void JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
 	     class_name,func_name,numFuncs);
      fprintf(yyout,",");
      output_proto_vars(0);
