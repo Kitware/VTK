@@ -161,7 +161,7 @@ public:
   // Description:
   // A generic way of specifying an update extent.  Subclasses
   // must decide what a piece is.
-  virtual void SetUpdateExtent(int piece, int numPieces)
+  virtual void SetUpdateExtent(int vtkNotUsed(piece),int vtkNotUsed(numPieces))
     { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
   
   // Description:
@@ -207,7 +207,7 @@ public:
   // CopyUpdateExtent method).
   virtual vtkExtent *GetGenericUpdateExtent()
     {vtkErrorMacro("Subclass did not implent GetGenericUpdateExtent"); return NULL;}
-  virtual void CopyGenericUpdateExtent(vtkExtent *ext)
+  virtual void CopyGenericUpdateExtent(vtkExtent *vtkNotUsed(ext))
     {vtkErrorMacro("Subclass did not implent CopyGenericUpdateExtent");}  
   
   // Description:
