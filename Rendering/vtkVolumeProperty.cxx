@@ -18,7 +18,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.30");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.31");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -26,7 +26,7 @@ vtkVolumeProperty::vtkVolumeProperty()
 {
   this->InterpolationType               = VTK_NEAREST_INTERPOLATION;
 
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
     this->ColorChannels[i]                   = 1;
 
@@ -46,7 +46,7 @@ vtkVolumeProperty::vtkVolumeProperty()
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
     if (this->GrayTransferFunction[i] != NULL)
       {
@@ -74,7 +74,7 @@ void vtkVolumeProperty::UpdateMTimes()
 {
   this->Modified();
 
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
     this->GrayTransferFunctionMTime[i].Modified();
     this->RGBTransferFunctionMTime[i].Modified();
@@ -88,7 +88,7 @@ unsigned long int vtkVolumeProperty::GetMTime()
   unsigned long mTime=this->vtkObject::GetMTime();
   unsigned long time;
   
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
     // Color MTimes
     if (this->ColorChannels[i] == 1)
@@ -424,7 +424,7 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolation Type: "
      << this->GetInterpolationTypeAsString() << "\n";
 
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
     os << indent << "Properties for material " << i << endl;
     

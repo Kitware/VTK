@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.65");
+vtkCxxRevisionMacro(vtkVolume, "1.66");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -34,11 +34,17 @@ vtkVolume::vtkVolume()
 {
   this->Mapper                      = NULL;
   this->Property                    = NULL;
-  this->ScalarOpacityArray          = NULL;
-  this->RGBArray                    = NULL;
-  this->GrayArray                   = NULL;
-  this->CorrectedScalarOpacityArray = NULL;
+  
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+    {
+    this->ScalarOpacityArray[i]          = NULL;
+    this->RGBArray[i]                    = NULL;
+    this->GrayArray[i]                   = NULL;
+    this->CorrectedScalarOpacityArray[i] = NULL;
+    }
+  
   this->CorrectedStepSize           = -1;
+  this->ArraySize                   =  0;
 }
 
 // Destruct a volume
@@ -51,24 +57,27 @@ vtkVolume::~vtkVolume()
 
   this->SetMapper(NULL);
 
-  if ( this->ScalarOpacityArray )
+  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {
-    delete [] this->ScalarOpacityArray;
-    }
-
-  if ( this->RGBArray )
-    {
-    delete [] this->RGBArray;
-    }
-
-  if ( this->GrayArray )
-    {
-    delete [] this->GrayArray;
-    }
-
-  if ( this->CorrectedScalarOpacityArray )
-    {
-    delete [] this->CorrectedScalarOpacityArray;
+    if ( this->ScalarOpacityArray[i] )
+      {
+      delete [] this->ScalarOpacityArray[i];
+      }
+    
+    if ( this->RGBArray[i] )
+      {
+      delete [] this->RGBArray[i];
+      }
+    
+    if ( this->GrayArray[i] )
+      {
+      delete [] this->GrayArray[i];
+      }
+    
+    if ( this->CorrectedScalarOpacityArray[i] )
+      {
+      delete [] this->CorrectedScalarOpacityArray[i];
+      }
     }
 }
 
@@ -90,6 +99,72 @@ void vtkVolume::ShallowCopy(vtkProp *prop)
 
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
+}
+
+float *vtkVolume::GetScalarOpacityArray(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->ScalarOpacityArray[index];
+}
+
+float *vtkVolume::GetCorrectedScalarOpacityArray(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->CorrectedScalarOpacityArray[index];
+}
+
+float *vtkVolume::GetGradientOpacityArray(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->GradientOpacityArray[index];
+}
+
+float vtkVolume::GetGradientOpacityConstant(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->GradientOpacityConstant[index];
+}
+
+float *vtkVolume::GetGrayArray(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->GrayArray[index];
+}
+
+float *vtkVolume::GetRGBArray(int index)
+{
+  if ( index < 0 || index >= VTK_MAX_VRCOMP )
+    {
+    vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
+                  "]: " << index );
+    return NULL;
+    }
+  return this->RGBArray[index];
 }
 
 void vtkVolume::SetMapper(vtkVolumeMapper *mapper)
@@ -390,28 +465,34 @@ unsigned long int vtkVolume::GetRedrawMTime()
       }
     }
 
+  int numComponents = this->Mapper->GetInput()->GetPointData()->
+    GetScalars()->GetNumberOfComponents();
+  
   if ( this->Property != NULL )
     {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if ( this->Property->GetGrayTransferFunction() != NULL )
+    
+    for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
       {
-      time = this->Property->GetGrayTransferFunction()->GetMTime();
+      // Check the color transfer function (gray or rgb)
+      if ( this->Property->GetColorChannels(i) == 1 )
+        {
+        time = this->Property->GetGrayTransferFunction(i)->GetMTime();
+        mTime = ( time > mTime ? time : mTime );
+        }
+      else
+        {
+        time = this->Property->GetRGBTransferFunction(i)->GetMTime();
+        mTime = ( time > mTime ? time : mTime );
+        }
+      
+      // check the scalar opacity function
+      time = this->Property->GetScalarOpacity(i)->GetMTime();
       mTime = ( time > mTime ? time : mTime );
-      }
-    if ( this->Property->GetRGBTransferFunction() != NULL )
-      {
-      time = this->Property->GetRGBTransferFunction()->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
-      }
-    if ( this->Property->GetScalarOpacity() != NULL )
-      {
-      time = this->Property->GetScalarOpacity()->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
-      }
-    if ( this->Property->GetGradientOpacity() != NULL )
-      {
-      time = this->Property->GetGradientOpacity()->GetMTime();
+
+      // check the gradient opacity function
+      time = this->Property->GetGradientOpacity(i)->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }
     }
@@ -421,237 +502,191 @@ unsigned long int vtkVolume::GetRedrawMTime()
 
 void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
 {
-  int                       data_type;
-  vtkPiecewiseFunction      *scalar_opacity_transfer_function;
-  vtkPiecewiseFunction      *gradient_opacity_transfer_function;
-  vtkPiecewiseFunction      *gray_transfer_function;
-  vtkColorTransferFunction  *rgb_transfer_function;
-  int                       color_channels;
-  int                       scalar_opacity_tf_needs_updating = 0;
-  int                       gradient_opacity_tf_needs_updating = 0;
-  int                       rgb_tf_needs_updating = 0;
-  int                       gray_tf_needs_updating = 0;
-
-  // Update the ScalarOpacityArray if necessary.  This is necessary if
-  // the ScalarOpacityArray does not exist, or the transfer function has
-  // been modified more recently than the ScalarOpacityArray has.
-  scalar_opacity_transfer_function   = this->Property->GetScalarOpacity();
-  gradient_opacity_transfer_function = this->Property->GetGradientOpacity();
-  rgb_transfer_function              = this->Property->GetRGBTransferFunction();
-  gray_transfer_function             = this->Property->GetGrayTransferFunction();
-  color_channels                     = this->Property->GetColorChannels();
-
+  int                        dataType;
+  vtkPiecewiseFunction      *sotf;
+  vtkPiecewiseFunction      *gotf;
+  vtkPiecewiseFunction      *graytf;
+  vtkColorTransferFunction  *rgbtf;
+  int                        colorChannels;
+  int                        sotfNeedsUpdate = 0;
+  int                        rgbtfNeedsUpdate = 0;
+  int                        graytfNeedsUpdate = 0;
+  int                        arraySize = 0;
+  
+  // Check that we have scalars
   if ( this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
     }
     
-  data_type = this->Mapper->GetInput()->
+  // What is the type of the data?
+  dataType = this->Mapper->GetInput()->
     GetPointData()->GetScalars()->GetDataType();
-
-  if ( scalar_opacity_transfer_function == NULL )
+  
+  if (dataType == VTK_UNSIGNED_CHAR)
     {
-    vtkErrorMacro( << "Error: no transfer function!" );
+    arraySize = 256;
+    }
+  else if (dataType == VTK_UNSIGNED_SHORT)
+    {
+    arraySize = 65536;
+    }
+  else
+    {
+    vtkErrorMacro("Unsupported data type");
     return;
-    }
-  else if ( this->ScalarOpacityArray == NULL ||
-            scalar_opacity_transfer_function->GetMTime() >
-            this->ScalarOpacityArrayMTime ||
-            this->Property->GetScalarOpacityMTime() >
-            this->ScalarOpacityArrayMTime )
-    {
-    scalar_opacity_tf_needs_updating = 1;
-    }
-
-  if ( gradient_opacity_transfer_function == NULL )
-    {
-    vtkErrorMacro( << "Error: no gradient magnitude opacity function!" );
-    return;
-    }
-  else if ( gradient_opacity_transfer_function->GetMTime() >
-            this->GradientOpacityArrayMTime ||
-            this->Property->GetGradientOpacityMTime() >
-            this->GradientOpacityArrayMTime )
-    {
-    gradient_opacity_tf_needs_updating = 1;
     }
   
-  switch ( color_channels )
-    {
-    case 1:
-      if ( gray_transfer_function == NULL )
-        {
-        vtkErrorMacro( << "Error: no gray transfer function!" );
-        }
-      else if ( this->GrayArray == NULL ||
-                gray_transfer_function->GetMTime() >
-                this->GrayArrayMTime ||
-                this->Property->GetGrayTransferFunctionMTime() >
-                this->GrayArrayMTime )
-        {
-        gray_tf_needs_updating = 1;
-        }
-      break;
-    case 3:
-      if ( rgb_transfer_function == NULL )
-        {
-        vtkErrorMacro( << "Error: no color transfer function!" );
-        }
-      else if ( this->RGBArray == NULL ||
-                rgb_transfer_function->GetMTime() >
-                this->RGBArrayMTime ||
-                this->Property->GetRGBTransferFunctionMTime() >
-                this->RGBArrayMTime )
-        {
-        rgb_tf_needs_updating = 1;
-        }
-      break;
-    }
+  int numComponents = this->Mapper->GetInput()->GetPointData()->
+    GetScalars()->GetNumberOfComponents();
 
-  if ( gradient_opacity_tf_needs_updating )
+  for ( int c = 0; c < numComponents; c++ )
     {
     
-    // Get values according to scale/bias from mapper 256 values are
-    // in the table, the scale / bias values control what those 256 values
-    // mean. 
-    float scale = this->Mapper->GetGradientMagnitudeScale();
-    float bias  = this->Mapper->GetGradientMagnitudeBias();
-    
-    float low   = -bias;
-    float high  = 255 / scale - bias;
-    
-    gradient_opacity_transfer_function->GetTable( low, high,
-                                                  (int)(0x100), 
-                                                  this->GradientOpacityArray );
-    if ( !strcmp(gradient_opacity_transfer_function->GetType(), "Constant") )
+    // Did our array size change? If so, free up all our previous arrays
+    // and create new ones for the scalar opacity and corrected scalar
+    // opacity
+    if ( arraySize != this->ArraySize )
       {
-      this->GradientOpacityConstant = this->GradientOpacityArray[128];
+      if ( this->ScalarOpacityArray[c] )
+        {
+        delete [] this->ScalarOpacityArray[c];
+        }
+      if ( this->CorrectedScalarOpacityArray[c] )
+        {
+        delete [] this->CorrectedScalarOpacityArray[c];
+        }
+      if ( this->GrayArray[c] )
+        {
+        delete [] this->GrayArray[c];
+        }
+      if ( this->RGBArray[c] )
+        {
+        delete [] this->RGBArray[c];
+        }
+      
+      // Allocate these two because we know we need them
+      this->ScalarOpacityArray[c] = new float[arraySize];
+      this->CorrectedScalarOpacityArray[c] = new float[arraySize];
+      
+      // Set these two to null - we will create one of them later
+      this->GrayArray[c] = NULL;
+      this->RGBArray[c] = NULL;
+    }
+  
+    // How many color channels for this component?
+    colorChannels = this->Property->GetColorChannels(c);
+    
+    // If we have 1 color channel and no gray array, create it.
+    // Free the rgb array if there is one.
+    if ( colorChannels == 1 && !this->GrayArray[c] )
+      {
+      if ( this->RGBArray[c] )
+        {
+        delete [] this->RGBArray[c];
+        }              
+      this->GrayArray[c] = new float[arraySize];
+      }
+    
+    // If we have 3 color channels and no rgb array, create it.
+    // Free the gray array if there is one.
+    if ( colorChannels == 3 && !this->RGBArray[c] )
+      {
+      if ( this->GrayArray[c] )
+        {
+        delete [] this->GrayArray[c];
+        }
+      this->RGBArray[c] = new float[3*arraySize];
+      }
+    
+    // Get the various functions for this index. There is no chance of
+    // these being NULL since the property will create them if they were
+    // not defined
+    sotf          = this->Property->GetScalarOpacity(c);
+    gotf          = this->Property->GetGradientOpacity(c);
+    
+    if ( colorChannels == 1 )
+      {
+      rgbtf         = NULL;
+      graytf        = this->Property->GetGrayTransferFunction(c);
       }
     else
       {
-      this->GradientOpacityConstant = -1.0;
+      rgbtf         = this->Property->GetRGBTransferFunction(c);
+      graytf        = NULL;
       }
+    
 
-    this->GradientOpacityArrayMTime.Modified();
-    }
-
-
-  if (data_type == VTK_UNSIGNED_CHAR)
-    {
-    this->ArraySize = (int)(0x100);
-
-    if ( scalar_opacity_tf_needs_updating )
+    // Update the scalar opacity array if necessary
+    if ( sotf->GetMTime() >
+         this->ScalarOpacityArrayMTime[c] ||
+         this->Property->GetScalarOpacityMTime(c) >
+         this->ScalarOpacityArrayMTime[c] )
       {
-      // Get values 0-255 (256 values)
-      if ( this->ScalarOpacityArray )
+      sotf->GetTable( 0.0, static_cast<float>(arraySize-1),  
+                      arraySize, this->ScalarOpacityArray[c] );
+      this->ScalarOpacityArrayMTime[c].Modified();
+      }
+    
+    // Update the gradient opacity array if necessary
+    if ( gotf->GetMTime() >
+         this->GradientOpacityArrayMTime[c] ||
+         this->Property->GetGradientOpacityMTime(c) >
+         this->GradientOpacityArrayMTime[c] )
+      {
+      // Get values according to scale/bias from mapper 256 values are
+      // in the table, the scale / bias values control what those 256 values
+      // mean. 
+      float scale = this->Mapper->GetGradientMagnitudeScale(c);
+      float bias  = this->Mapper->GetGradientMagnitudeBias(c);
+      
+      float low   = -bias;
+      float high  = 255 / scale - bias;
+      
+      gotf->GetTable( low, high, (int)(0x100), this->GradientOpacityArray[c] );
+      
+      if ( !strcmp(gotf->GetType(), "Constant") )
         {
-        delete [] this->ScalarOpacityArray;
+        this->GradientOpacityConstant[c] = this->GradientOpacityArray[c][0];
         }
-
-      this->ScalarOpacityArray = new float[(int)(0x100)];
-      scalar_opacity_transfer_function->GetTable( (float)(0x00),
-                                           (float)(0xff),  
-                                           (int)(0x100), 
-                                           this->ScalarOpacityArray );
-      this->ScalarOpacityArrayMTime.Modified();
-      }
-
-    if ( gray_tf_needs_updating )
-      {
-      if ( this->GrayArray )
+      else
         {
-        delete [] this->GrayArray;
-        }
-
-      this->GrayArray = new float[(int)(0x100)];
-      gray_transfer_function->GetTable( (float)(0x00),
-                                        (float)(0xff),  
-                                        (int)(0x100), 
-                                        this->GrayArray );
-      this->GrayArrayMTime.Modified();
-      }
-
-    if ( rgb_tf_needs_updating )
-      {
-      if ( this->RGBArray )
-        {
-        delete [] this->RGBArray;
+        this->GradientOpacityConstant[c] = -1.0;
         }
       
-      this->RGBArray = new float[3 * (int)(0x100)];
-      rgb_transfer_function->GetTable( (float)(0x00),
-                                       (float)(0xff),  
-                                       (int)(0x100), 
-                                       this->RGBArray );
-      this->RGBArrayMTime.Modified();
+      this->GradientOpacityArrayMTime[c].Modified();
+      }
+    
+    // Update the RGB or Gray transfer function if necessary
+    if ( colorChannels == 1 )
+      {
+      if ( graytf->GetMTime() >
+           this->GrayArrayMTime[c] ||
+           this->Property->GetGrayTransferFunctionMTime(c) >
+           this->GrayArrayMTime[c] )
+        {
+        graytf->GetTable( 0.0, static_cast<float>(arraySize-1),
+                          arraySize, this->GrayArray[c] );
+        this->GrayArrayMTime[c].Modified();
+        }
+      }
+    else
+      {
+      if ( rgbtf->GetMTime() >
+           this->RGBArrayMTime[c] ||
+           this->Property->GetRGBTransferFunctionMTime(c) >
+           this->RGBArrayMTime[c] )
+        {
+        rgbtf->GetTable( 0.0, static_cast<float>(arraySize-1),
+                         arraySize, this->RGBArray[c] );
+        this->RGBArrayMTime[c].Modified();
+        }
       }
     }
-  else if ( data_type == VTK_UNSIGNED_SHORT )
-    {
-    this->ArraySize = (int)(0x10000);
-
-    if ( scalar_opacity_tf_needs_updating )
-      {
-      // Get values 0-65535 (65536 values)
-      if ( this->ScalarOpacityArray )
-        {
-        delete [] this->ScalarOpacityArray;
-        }
-
-      this->ScalarOpacityArray = new float[(int)(0x10000)];
-      scalar_opacity_transfer_function->GetTable( (float)(0x0000),
-                                           (float)(0xffff),  
-                                           (int)(0x10000), 
-                                           this->ScalarOpacityArray );
-      this->ScalarOpacityArrayMTime.Modified();
-      }
-
-    if ( gray_tf_needs_updating )
-      {
-      if ( this->GrayArray )
-        {
-        delete [] this->GrayArray;
-        }
-
-      this->GrayArray = new float[(int)(0x10000)];
-      gray_transfer_function->GetTable( (float)(0x0000),
-                                        (float)(0xffff),  
-                                        (int)(0x10000), 
-                                        this->GrayArray );
-      this->GrayArrayMTime.Modified();
-      }
-
-    if ( rgb_tf_needs_updating )
-      {
-      if ( this->RGBArray )
-        {
-        delete [] this->RGBArray;
-        }
-      
-      this->RGBArray = new float[3 * (int)(0x10000)];
-      rgb_transfer_function->GetTable( (float)(0x0000),
-                                       (float)(0xffff),  
-                                       (int)(0x10000), 
-                                       this->RGBArray );
-      this->RGBArrayMTime.Modified();
-      }
-    }
-
-  // check that the corrected scalar opacity transfer function
-  // is update to date with the current step size.
-  // Update CorrectedScalarOpacityArray if it is required.
-
-  if ( scalar_opacity_tf_needs_updating )
-    {
-    if ( this->CorrectedScalarOpacityArray )
-      {
-      delete [] this->CorrectedScalarOpacityArray;
-      }
-
-    this->CorrectedScalarOpacityArray = new float[this->ArraySize];
-    }
-
+  
+  // reset the array size to the current size
+  this->ArraySize = arraySize;
 }
 
 // This method computes the corrected alpha blending for a given
@@ -674,33 +709,39 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
   needsRecomputing = needsRecomputing || 
       this->CorrectedStepSize-ray_scale < -0.0001;
 
-  if (!needsRecomputing)
+  int numComponents = this->Mapper->GetInput()->GetPointData()->
+    GetScalars()->GetNumberOfComponents();
+
+  if ( needsRecomputing )
     {
-    // updated scalar opacity xfer function
-    needsRecomputing = needsRecomputing || 
-        this->ScalarOpacityArrayMTime > this->CorrectedScalarOpacityArrayMTime;
-    }
-  if (needsRecomputing)
-    {
-    this->CorrectedScalarOpacityArrayMTime.Modified();
     this->CorrectedStepSize = ray_scale;
-
-    for (i = 0;i < this->ArraySize;i++)
+    }
+  
+  for ( int c = 0; c < numComponents; c++ )
+    {
+    if (needsRecomputing || 
+        this->ScalarOpacityArrayMTime[c] > 
+        this->CorrectedScalarOpacityArrayMTime[c])
       {
-      originalAlpha = *(this->ScalarOpacityArray+i);
+      this->CorrectedScalarOpacityArrayMTime[c].Modified();
 
-      // this test is to accelerate the Transfer function correction
+      for (i = 0; i < this->ArraySize; i++)
+        {
+        originalAlpha = *(this->ScalarOpacityArray[c]+i);
 
-      if (originalAlpha > 0.0001)
-        {
-        correctedAlpha = 
-          1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
+        // this test is to accelerate the Transfer function correction
+        if (originalAlpha > 0.0001)
+          {
+          correctedAlpha = 
+            1.0-pow((double)(1.0-originalAlpha),
+                    double(this->CorrectedStepSize));
+          }
+        else
+          {
+          correctedAlpha = originalAlpha;
+          }
+        *(this->CorrectedScalarOpacityArray[c]+i) = correctedAlpha;
         }
-      else
-        {
-        correctedAlpha = originalAlpha;
-        }
-      *(this->CorrectedScalarOpacityArray+i) = correctedAlpha;
       }
     }
 }

@@ -55,6 +55,7 @@
 #define VTK_NEAREST_INTERPOLATION       0
 #define VTK_LINEAR_INTERPOLATION        1
 
+#define VTK_MAX_VRCOMP                  4
 
 class VTK_RENDERING_EXPORT vtkVolumeProperty : public vtkObject
 {
@@ -236,25 +237,25 @@ protected:
 
   int                           InterpolationType;
 
-  int                           ColorChannels[4];
+  int                           ColorChannels[VTK_MAX_VRCOMP];
 
-  vtkPiecewiseFunction          *GrayTransferFunction[4];
-  vtkTimeStamp                  GrayTransferFunctionMTime[4];
+  vtkPiecewiseFunction          *GrayTransferFunction[VTK_MAX_VRCOMP];
+  vtkTimeStamp                  GrayTransferFunctionMTime[VTK_MAX_VRCOMP];
 
-  vtkColorTransferFunction      *RGBTransferFunction[4];
-  vtkTimeStamp                  RGBTransferFunctionMTime[4];
+  vtkColorTransferFunction      *RGBTransferFunction[VTK_MAX_VRCOMP];
+  vtkTimeStamp                  RGBTransferFunctionMTime[VTK_MAX_VRCOMP];
 
-  vtkPiecewiseFunction          *ScalarOpacity[4];
-  vtkTimeStamp                  ScalarOpacityMTime[4];
+  vtkPiecewiseFunction          *ScalarOpacity[VTK_MAX_VRCOMP];
+  vtkTimeStamp                  ScalarOpacityMTime[VTK_MAX_VRCOMP];
 
-  vtkPiecewiseFunction          *GradientOpacity[4];
-  vtkTimeStamp                  GradientOpacityMTime[4];
+  vtkPiecewiseFunction          *GradientOpacity[VTK_MAX_VRCOMP];
+  vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
 
-  int                           Shade[4];
-  float                         Ambient[4];
-  float                         Diffuse[4];
-  float                         Specular[4];
-  float                         SpecularPower[4];
+  int                           Shade[VTK_MAX_VRCOMP];
+  float                         Ambient[VTK_MAX_VRCOMP];
+  float                         Diffuse[VTK_MAX_VRCOMP];
+  float                         Specular[VTK_MAX_VRCOMP];
+  float                         SpecularPower[VTK_MAX_VRCOMP];
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
