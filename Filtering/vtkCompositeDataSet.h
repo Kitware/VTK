@@ -29,6 +29,7 @@
 
 class vtkCompositeDataIterator;
 class vtkInformation;
+class vtkInformationDataObjectKey;
 
 class VTK_FILTERING_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
@@ -61,9 +62,13 @@ public:
   // object.  Which keys are used depends on the actual subclass.
   virtual vtkDataObject* GetDataSet(vtkInformation* index) = 0;
 
+  // Description:
+  // Set the pipeline information object that owns this data
+  // object.
   virtual void SetPipelineInformation(vtkInformation*);
 
   static vtkInformationIntegerKey* INDEX();
+  static vtkInformationDataObjectKey* COMPOSITE_DATA_SET();
 
 protected:
   vtkCompositeDataSet();

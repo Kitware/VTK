@@ -18,11 +18,13 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationDataObjectKey.h"
 #include "vtkInformationIntegerKey.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.5");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.6");
 
 vtkInformationKeyMacro(vtkCompositeDataSet,INDEX,Integer);
+vtkInformationKeyMacro(vtkCompositeDataSet,COMPOSITE_DATA_SET,DataObject);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -53,7 +55,7 @@ void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
 
       // Detach the output that used to be held by the new information.
       if(vtkDataObject* oldData = 
-         newInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_SET()))
+         newInfo->Get(COMPOSITE_DATA_SET()))
         {
         oldData->Register(this);
         oldData->SetPipelineInformation(0);
@@ -61,7 +63,7 @@ void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
         }
 
       // Tell the new information about this object.
-      newInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_SET(), this);
+      newInfo->Set(COMPOSITE_DATA_SET(), this);
       }
 
     // Save the pointer to the new information.
@@ -70,7 +72,7 @@ void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
     if(oldInfo)
       {
       // Remove the old information's reference to us.
-      oldInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_SET(), 0);
+      oldInfo->Set(COMPOSITE_DATA_SET(), 0);
 
       // Remove our reference to the old information.
       oldInfo->UnRegister(this);
