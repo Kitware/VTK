@@ -84,19 +84,19 @@ float *vtkMapper::GetBounds()
 {
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if ( ! this->GetDataSetInput() ) 
+  if ( ! this->GetInput() ) 
     {
     return bounds;
     }
   else
     {
-    this->GetDataSetInput()->Update();
-    this->GetDataSetInput()->GetBounds(this->Bounds);
+    this->GetInput()->Update();
+    this->GetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
 
-vtkDataSet *vtkMapper::GetDataSetInput()
+vtkDataSet *vtkMapper::GetInput()
 {
   if (this->NumberOfInputs < 1)
     {
@@ -151,7 +151,7 @@ vtkScalars *vtkMapper::GetColors()
   vtkScalars *scalars;
   
   // make sure we have an input
-  if (!this->GetDataSetInput())
+  if (!this->GetInput())
     {
     return NULL;
     }
@@ -159,19 +159,19 @@ vtkScalars *vtkMapper::GetColors()
   // get and scalar data according to scalar mode
   if ( this->ScalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
-    scalars = this->GetDataSetInput()->GetPointData()->GetScalars();
+    scalars = this->GetInput()->GetPointData()->GetScalars();
     if (!scalars)
       {
-      scalars = this->GetDataSetInput()->GetCellData()->GetScalars();
+      scalars = this->GetInput()->GetCellData()->GetScalars();
       }
     }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
-    scalars = this->GetDataSetInput()->GetPointData()->GetScalars();
+    scalars = this->GetInput()->GetPointData()->GetScalars();
     }
   else
     {
-    scalars = this->GetDataSetInput()->GetCellData()->GetScalars();
+    scalars = this->GetInput()->GetCellData()->GetScalars();
     }
   
   // do we have any scalars ?
@@ -255,9 +255,9 @@ void vtkMapper::CreateDefaultLookupTable()
 // Update the network connected to this mapper.
 void vtkMapper::Update()
 {
-  if ( this->GetDataSetInput() )
+  if ( this->GetInput() )
     {
-    this->GetDataSetInput()->Update();
+    this->GetInput()->Update();
     }
 }
 

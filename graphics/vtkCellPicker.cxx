@@ -58,7 +58,7 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   int cellId, i, minCellId, minSubId, subId;
   float x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
   vtkCell *cell;
-  vtkDataSet *input=m->GetDataSetInput();
+  vtkDataSet *input=m->GetInput();
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {

@@ -50,7 +50,7 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 					vtkActor *assem, vtkActor *a, 
 					vtkMapper *m)
 {
-  vtkDataSet *input=m->GetDataSetInput();
+  vtkDataSet *input=m->GetInput();
   int numPts;
   int ptId, i, minPtId;
   float ray[3], rayFactor, tMin, *p, t, projXYZ[3], minXYZ[3];

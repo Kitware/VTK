@@ -225,7 +225,7 @@ public:
   // Description:
   // Allow access the the input as a vtkDataSet - a few objects need
   // this such as vtkActor, and some exporters
-  vtkDataSet *GetDataSetInput();
+  vtkDataSet *GetInput();
 //ETX
 
 protected:

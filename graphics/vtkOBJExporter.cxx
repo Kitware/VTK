@@ -161,7 +161,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   fprintf(fpMtl,"illum 3\n\n");
 
   // get the mappers input and matrix
-  ds = anActor->GetMapper()->GetDataSetInput();
+  ds = anActor->GetMapper()->GetInput();
   ds->Update();
   trans->SetMatrix(*(anActor->vtkProp3D::GetMatrixPointer()));
     

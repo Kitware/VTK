@@ -270,7 +270,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   trans->Delete();
   
   // get the mappers input and matrix
-  ds = anActor->GetMapper()->GetDataSetInput();
+  ds = anActor->GetMapper()->GetInput();
   
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )

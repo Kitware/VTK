@@ -453,10 +453,10 @@ unsigned long int vtkActor::GetRedrawMTime()
     {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetDataSetInput() != NULL)
+    if (this->GetMapper()->GetInput() != NULL)
       {
-      this->GetMapper()->GetDataSetInput()->Update();
-      time = this->Mapper->GetDataSetInput()->GetMTime();
+      this->GetMapper()->GetInput()->Update();
+      time = this->Mapper->GetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }
     }
