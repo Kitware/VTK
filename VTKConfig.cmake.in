@@ -45,6 +45,10 @@
 # VTK_HAVE_VG500            - Support for VolumeProVG500 in vtkRendering.
 # VTK_HAVE_VP1000           - Support for VolumeProVP1000 in vtkRendering.
 # VTK_MANGLE_MESA           - Mangled-MESA support.
+# VTK_MPIRUN_EXE            - Location of executable to launch MPI apps.
+# VTK_MPI_MAX_NUMPROCS      - Max # processes available through MPI.
+# VTK_MPI_POSTFLAGS         - MPI program flags after exe.
+# VTK_MPI_PREFLAGS          - MPI program flags before exe.
 # VTK_OPENGL_HAS_OSMESA     - Off-screen rendering support from OpenGL.
 # VTK_USE_64BIT_IDS         - vtkIdType is a 64-bit integer type.
 # VTK_USE_ANSI_STDLIB       - ANSI-style streams.
@@ -203,6 +207,10 @@ SET(VTK_DISABLE_TK_INIT "@VTK_DISABLE_TK_INIT@")
 SET(VTK_HAVE_VG500 "@VTK_HAVE_VG500@")
 SET(VTK_HAVE_VP1000 "@VTK_HAVE_VP1000@")
 SET(VTK_MANGLE_MESA "@VTK_MANGLE_MESA@")
+SET(VTK_MPIRUN_EXE "@VTK_MPIRUN_EXE_CONFIG@")
+SET(VTK_MPI_MAX_NUMPROCS "@VTK_MPI_PREFLAGS_CONFIG@")
+SET(VTK_MPI_POSTFLAGS "@VTK_MPI_POSTFLAGS_CONFIG@")
+SET(VTK_MPI_PREFLAGS "@VTK_MPI_PREFLAGS_CONFIG@")
 SET(VTK_OPENGL_HAS_OSMESA "@VTK_OPENGL_HAS_OSMESA@")
 SET(VTK_USE_64BIT_IDS "@VTK_USE_64BIT_IDS@")
 SET(VTK_USE_ANSI_STDLIB "@VTK_USE_ANSI_STDLIB@")
