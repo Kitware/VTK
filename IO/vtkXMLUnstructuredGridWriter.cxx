@@ -21,7 +21,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.2.2.1");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -80,6 +80,7 @@ void vtkXMLUnstructuredGridWriter::SetInputUpdateExtent(int piece,
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridWriter::WriteInlinePieceAttributes()
 {
+  this->Superclass::WriteInlinePieceAttributes();
   vtkUnstructuredGrid* input = this->GetInput();
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
 }
