@@ -16,6 +16,7 @@ vtkImageAdaptiveFilter.o \
 vtkImageAnisotropicDiffusion2D.o \
 vtkImageAnisotropicDiffusion3D.o \
 vtkImageArithmetic.o \
+vtkImageCTAComposite.o \
 vtkImageConnectivity.o \
 vtkImageConvolution1D.o \
 vtkImageDecomposedFilter.o \
@@ -69,6 +70,7 @@ tcl/vtkImageAdaptiveFilterTcl.o \
 tcl/vtkImageAnisotropicDiffusion2DTcl.o \
 tcl/vtkImageAnisotropicDiffusion3DTcl.o \
 tcl/vtkImageArithmeticTcl.o \
+tcl/vtkImageCTACompositeTcl.o \
 tcl/vtkImageConnectivityTcl.o \
 tcl/vtkImageConvolution1DTcl.o \
 tcl/vtkImageDecomposedFilterTcl.o \
@@ -121,6 +123,7 @@ vtkImageAdaptiveFilter.h \
 vtkImageAnisotropicDiffusion2D.h \
 vtkImageAnisotropicDiffusion3D.h \
 vtkImageArithmetic.h \
+vtkImageCTAComposite.h \
 vtkImageConnectivity.h \
 vtkImageConvolution1D.h \
 vtkImageDilate1D.h \
@@ -233,6 +236,9 @@ tcl/vtkImageAnisotropicDiffusion3DTcl.cxx: vtkImageAnisotropicDiffusion3D.h ../t
 
 tcl/vtkImageArithmeticTcl.cxx: vtkImageArithmetic.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageArithmeticTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageArithmetic.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageArithmeticTcl.cxx
+
+tcl/vtkImageCTACompositeTcl.cxx: vtkImageCTAComposite.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageCTACompositeTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageCTAComposite.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageCTACompositeTcl.cxx
 
 tcl/vtkImageConnectivityTcl.cxx: vtkImageConnectivity.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageConnectivityTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageConnectivity.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageConnectivityTcl.cxx
