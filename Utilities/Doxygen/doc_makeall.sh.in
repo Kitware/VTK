@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-02-12 13:34:29 barre>
+# modified by S. Barre (Time-stamp: <2002-02-13 16:18:18 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -241,12 +241,12 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
         --cachedir "$DOXTEMP/cache" \
         --class_group '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm)$' \
-        --files_in '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|doc|h|html|in|java|mm|pl|py|tcl|txt))$' \
+        --files_in '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|h|html|in|java|mm|pl|py|tcl|txt))$' \
         --files_out '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c)$' \
         --gnuplot_file "$DOXTEMP/contrib/history.plt" \
-        --history_img "$DOXTEMP/contrib/history.png" \
-        --history_img2y "$DOXTEMP/contrib/history2y.png" \
-        --history_img6m "$DOXTEMP/contrib/history6m.png" \
+        --history_img "|lines|$DOXTEMP/contrib/history.png" \
+        --history_img "730|lines|$DOXTEMP/contrib/history2y.png" \
+        --history_img "180|linespoints|$DOXTEMP/contrib/history6m.png" \
         --history_dir "$DOXTEMP/contrib" \
         --history_max_nb 12 \
         --lines_add 1.0 \

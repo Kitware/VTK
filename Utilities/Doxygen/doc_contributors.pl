@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-02-08 17:26:51 barre>
+# Time-stamp: <2002-02-13 18:17:58 barre>
 #
 # Get author and contributors.
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.6 (barre) :
+#   - Change --history_img in order to create any contribution graph(s)
 #
 # 0.5 (barre) :
 #   - Contribution graphs for the whole period (back to 1994).
@@ -32,7 +35,7 @@ use strict;
 use FileHandle;
 use Time::Local;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.5, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.6, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # -------------------------------------------------------------------------
@@ -41,19 +44,16 @@ $PROGNAME =~ s/^.*[\\\/]//;
 my %default = 
   (
    dirs => ["../.."],
-   authors => "authors.txt",
    cachedir => $ENV{TMP} . "/cache",
    class_group => '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm)$',
    files_in => '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|doc|h|html|in|java|mm|pl|py|tcl|txt))$',
    files_out => '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c)$',
-#   files_out => 'bazounga',
-#   files_in => '\.(?:cxx|h|mm)$',
    gnuplot_file => '../../../VTK-doxygen/contrib/history.plt',
-   history_img => '../../../VTK-doxygen/contrib/history.png',
-   history_img2y => '../../../VTK-doxygen/contrib/history2y.png',
-   history_img6m => '../../../VTK-doxygen/contrib/history6m.png',
    history_dir => '../../../VTK-doxygen/contrib',
-   history_max_nb => 11,
+   history_img => ['|lines|../../../VTK-doxygen/contrib/history.png',
+                   '730|lines|../../../VTK-doxygen/contrib/history2y.png',
+                   '180|linespoints|../../../VTK-doxygen/contrib/history6m.png'],
+   history_max_nb => 12,
    lines_add => 1.0,
    lines_rem => 0.5,
    massive => 200,
@@ -73,24 +73,22 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "class_group=s", "files_in=s", "files_out=s", "gnuplot_file=s", "history_dir=s", "history_img=s", "history_img2y=s", "history_img6m=s", "history_max_nb=i", "lines_add=f", "lines_rem=f", "massive=i", "max_class_nb=i", "max_file_nb=i", "min_class=f", "min_file=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
+GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "class_group=s", "files_in=s", "files_out=s", "gnuplot_file=s", "history_dir=s", "history_img=s@", "history_max_nb=i", "lines_add=f", "lines_rem=f", "massive=i", "max_class_nb=i", "max_file_nb=i", "min_class=f", "min_file=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
 
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 if (exists $args{"help"}) {
     print <<"EOT";
-Usage : $PROGNAME [--help] [--verbose|-v] [--authors file] [--cachedir path] [--files_in string] [--files_out string] [--gnuplot_file string] [--history_dir string] [--history_img string] [--history_img2y string] [--history_img6m string] [--history_max_nb number] [--lines_add number] [--lines_rem number] [--massive number] [--max_class_nb number] [--max_file_nb number] [--min_class number] [--min_file number] [--min_contrib number] [--min_gcontrib number] [--store file] [--relativeto path] [--to path] [files|directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--authors file] [--cachedir path] [--files_in string] [--files_out string] [--gnuplot_file string] [--history_dir string] [--history_img string] [--history_max_nb number] [--lines_add number] [--lines_rem number] [--massive number] [--max_class_nb number] [--max_file_nb number] [--min_class number] [--min_file number] [--min_contrib number] [--min_gcontrib number] [--store file] [--relativeto path] [--to path] [files|directories...]
   --help           : this message
   --verbose|-v     : verbose (display filenames while processing)
-  --authors file   : use 'file' to read authors list (default: $default{authors})
+  --authors file   : use 'file' to read authors list
   --cachedir path  : use 'path' as cache directory for CVS logs (default: $default{cachedir})
   --files_in s     : accept only file names (without path) matching 's' (default: $default{files_in})
   --files_out s    : (then) reject file names (without path) matching 's' (default: $default{files_out})
   --gnuplot_file s : use 's' to store gnuplot command file (default: $default{gnuplot_file})
   --history_dir s  : history dir (default: $default{history_dir})
-  --history_img s  : store history pic in 's' (default: $default{history_img})
-  --history_img2y s : store history pic (2 years) in 's' (default: $default{history_img2y})
-  --history_img6m s : store history pic (6 months) in 's' (default: $default{history_img6m})
+  --history_img d|s : create history image 's' graphing contribs up to 'd' ago (default: $default{history_img})
   --history_max_nb n : use at most 'n' authors in history pic (default: $default{history_max_nb})
   --lines_add n           : use 'n' as weight for added lines (default: $default{lines_add})
   --lines_rem n          : use 'n' as weight for removed lines (default: $default{lines_rem})
@@ -113,7 +111,6 @@ EOT
 }
 
 foreach my $option (
-                    "authors",
                     "cachedir",
                     "class_group",
                     "files_in",
@@ -121,8 +118,6 @@ foreach my $option (
                     "gnuplot_file",
                     "history_dir",
                     "history_img",
-                    "history_img2y",
-                    "history_img6m",
                     "history_max_nb",
                     "lines_add",
                     "lines_rem",
@@ -158,15 +153,6 @@ my $start_time = time();
 # -------------------------------------------------------------------------
 # Read the authors list
 
-print "Reading the authors list from ". $args{"authors"} . "...\n";
-
-sysopen(AUTHORS_FILE, 
-        $args{"authors"}, 
-        O_RDONLY|$open_file_as_text)
-  or die "$PROGNAME: unable to open authors list ". $args{"authors"} . "\n";
-my @authors_file = <AUTHORS_FILE>;
-close(AUTHORS_FILE);
-
 # %authors is indexed by login name (i.e. $authors{$name})
 # {'name'}: full name of the user
 # {'email'}: email of the user
@@ -190,22 +176,39 @@ sub trim_spaces {
 # Example:
 # will, schroede: Schroeder, Will (will.schroeder@kitware.com)
 
-foreach my $line (@authors_file) {
-    if ($line && $line =~ m/^\s*(.+?)\s*:\s*(.+?)\s*\(\s*(.*?)\s*\)/) {
-        my @aliases = split(',', $1);
-        my $author = trim_spaces(shift @aliases);
-        $authors{$author}{'name'} = $2;
-        $authors{$author}{'email'} = $3;
-        foreach my $alias (@aliases) {
-            $authors_aliases{trim_spaces($alias)} = $author;
+my $authors_file_loaded = 0;
+
+if (exists $args{"authors"}) {
+    if (!sysopen(AUTHORS_FILE, 
+                 $args{"authors"}, 
+                 O_RDONLY|$open_file_as_text)) {
+        carp "$PROGNAME: unable to open authors list ". $args{"authors"}. "\n";
+    } else {
+        print "Reading the authors list from ". $args{"authors"} . "...\n";
+        
+        my @authors_file = <AUTHORS_FILE>;
+        close(AUTHORS_FILE);
+
+        $authors_file_loaded = 1;
+
+        foreach my $line (@authors_file) {
+            if ($line && $line =~ m/^\s*(.+?)\s*:\s*(.+?)\s*\(\s*(.*?)\s*\)/) {
+                my @aliases = split(',', $1);
+                my $author = trim_spaces(shift @aliases);
+                $authors{$author}{'name'} = $2;
+                $authors{$author}{'email'} = $3;
+                foreach my $alias (@aliases) {
+                    $authors_aliases{trim_spaces($alias)} = $author;
+                }
+                print " >> $author: ", $authors{$author}{'name'}, 
+                " (", $authors{$author}{'email'}, ")\n" 
+                  if  exists $args{"verbose"};
+            }
         }
-        print " >> $author: ", $authors{$author}{'name'}, 
-        " (", $authors{$author}{'email'}, ")\n" 
-          if  exists $args{"verbose"};
+        
+        print " => ", scalar keys %authors, " authors(s) read from ", basename($args{"authors"}), ".\n";
     }
 }
-
-print " => ", scalar keys %authors, " authors(s) read from ", basename($args{"authors"}), ".\n";
 
 # -------------------------------------------------------------------------
 # Parse a revision
@@ -389,11 +392,6 @@ foreach my $file_name (@files_submitted) {
         
         $author = $authors_aliases{$author} 
           if exists $authors_aliases{$author};
-        
-        if (! exists $authors{$author}{'name'}) {
-            carp "Unknown author $author in $file_name log. Please fix " . 
-              $args{"authors"} . "\n";
-        }
         
         $nb_revisions++;
         
@@ -658,7 +656,7 @@ while (@classes_names) {
 
     my $doc = $preamble . "                - " . 
       join("\n                - ", 
-           sort map($authors{$_}{'name'}, keys %{$classes{$class_name}{'creators'}})) . "\n";
+           sort map(exists $authors{$_}{'name'} ? $authors{$_}{'name'} : $_, keys %{$classes{$class_name}{'creators'}})) . "\n";
 
     $doc .= "\n    \@par      Contributed by (if > " . int(100.0 * $args{"min_contrib"}) . "%):\n";
 
@@ -667,7 +665,7 @@ while (@classes_names) {
           $contribution_by_author_class{$class_contributor}{$class_name} / 
             $total_class_contribution;
         last if $ratio < $args{"min_contrib"};
-        $doc .= "                - " . $authors{$class_contributor}{'name'} . " (" . int($ratio * 100.0) . "%)\n";
+        $doc .= "                - " . (exists $authors{$class_contributor}{'name'} ? $authors{$class_contributor}{'name'} : $class_contributor) . " (" . int($ratio * 100.0) . "%)\n";
     }
 
     if ($block !~ s/($preamble.+?)(\s*\@par|\z)/$doc$2/gms) {
@@ -706,7 +704,7 @@ my $header;
 my (@summary, @credits);
 
 push @summary, 
-  "  - " . (scalar keys %authors) . " authors(s) read from " . basename($args{"authors"});
+  "  - " . (scalar keys %contribution_by_author_file) . " authors(s) reported";
 
 push @summary, 
   "  - Files matching \@c " . $args{"files_in"} . " and not matching \@c ". $args{"files_out"} . " are taken into account";
@@ -760,8 +758,16 @@ my %contribution_by_author;
 
 my %contribution_by_date;
 
-foreach my $contributor (sort {$authors{$a}{'name'} cmp $authors{$b}{'name'}} keys %contribution_by_author_file) {
-    print DEST_FILE "$indent - " . $authors{$contributor}{'name'} . "\n";
+sub compare_by_author_name {
+    my $a_name = exists $authors{$a}{'name'} ? $authors{$a}{'name'} : $a;
+    my $b_name = exists $authors{$b}{'name'} ? $authors{$b}{'name'} : $b;
+    return lc $a_name cmp lc $b_name;
+}
+
+foreach my $contributor (sort compare_by_author_name 
+                         keys %contribution_by_author_file) {
+    
+    print DEST_FILE "$indent - " . (exists $authors{$contributor}{'name'} ? $authors{$contributor}{'name'} : $contributor) . "\n";
 
     foreach my $file_name 
       (keys %{$contribution_by_author_file{$contributor}}) {
@@ -789,8 +795,9 @@ foreach my $date
   }
 
 my @all_contribution_dates = sort {$a cmp $b} keys %contribution_by_date;
-my $latest_contribution_date = pop @all_contribution_dates;
-my $total_contribution = $contribution_by_date{$latest_contribution_date};
+my $last_contribution_date = $all_contribution_dates[$#all_contribution_dates];
+my $first_contribution_date = $all_contribution_dates[0];
+my $total_contribution = $contribution_by_date{$last_contribution_date};
 
 print DEST_FILE 
   "\n$indent\@section contributors_decreasing Contributors (by decreasing order of global contribution)\n";
@@ -807,17 +814,14 @@ foreach my $contributor (@contributors_sorted) {
     my $c_ratio = $contribution_by_author{$contributor} / $total_contribution;
     last if $c_ratio < $args{"min_gcontrib"};
     
-    print DEST_FILE "$indent -# " . $authors{$contributor}{'name'} . "\n";
+    print DEST_FILE "$indent -# " . (exists $authors{$contributor}{'name'} ? $authors{$contributor}{'name'} : $contributor) . "\n";
 }
 
-print DEST_FILE 
-  "\n$indent\@image html " . basename($args{"history_img"}) . "\n";
-
-print DEST_FILE 
-  "\n$indent\@image html " . basename($args{"history_img2y"}) . "\n";
-
-print DEST_FILE 
-  "\n$indent\@image html " . basename($args{"history_img6m"}) . "\n";
+foreach my $history (@{$args{"history_img"}}) {
+    my ($delta, $style, $filename) = split(/\|/, $history);
+    print DEST_FILE 
+      "\n$indent\@image html " . basename($filename) . "\n";
+}
 
 print DEST_FILE 
   "\n$indent\@section contributors_detailed Detailed contributions (by decreasing order)\n";
@@ -827,8 +831,7 @@ print DEST_FILE
 
 print DEST_FILE 
   "\n$indent\@note Details are:",
-  "\n$indent       - % of global contribution at $latest_contribution_date",
-  "\n$indent       - % of global contribution at last date of contribution",
+  "\n$indent       - % of global contribution at $last_contribution_date, % at date of last contribution, % at date of first contribution",
   "\n$indent       - first ", $args{"max_class_nb"}, " contributed classes > ", int($args{"min_class"} * 100.0), "% of author's total contribution",
   "\n$indent       - first ", $args{"max_file_nb"}, " contributed (non-class) files > ", int($args{"min_file"} * 100.0), "% of author's total contribution",
   "\n\n";
@@ -883,12 +886,18 @@ foreach my $contributor (@contributors_sorted) {
 
     my @contribution_dates = sort { $a cmp $b } 
       keys %{$contribution_by_author_date{$contributor}};
-    my $date = pop @contribution_dates;
+    my $last_contrib_date = $contribution_dates[$#contribution_dates];
+    my $first_contrib_date = $contribution_dates[0];
+
+    if (exists $authors{$contributor}{'name'}) {
+        print DEST_FILE 
+          "$indent -# \@b ". $authors{$contributor}{'name'}. " ($contributor):\n";
+    } else {
+        print DEST_FILE "$indent -# \@b $contributor:\n";
+    }
 
     print DEST_FILE 
-      "$indent -# " . $authors{$contributor}{'name'} . " ($contributor):\n",
-      "$indent   - \@b ", int(10000.0 * $c_ratio) / 100, "% ($latest_contribution_date)\n",
-      "$indent   - ", int(10000.0 * ($contribution_by_author_date{$contributor}{$date} / $contribution_by_date{$date})) / 100, "% ($date)\n";
+      "$indent   - \@b ", int(10000.0 * $c_ratio) / 100, "% ($last_contribution_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$last_contrib_date} / $contribution_by_date{$last_contrib_date})) / 100, "% ($last_contrib_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$first_contrib_date} / $contribution_by_date{$first_contrib_date})) / 100, "% ($first_contrib_date)\n";
 
     print DEST_FILE 
       "$indent   - ", (scalar @classes_sorted), " class(es): ", join(", ", @ok_classes), "...\n" if @classes_sorted;
@@ -925,11 +934,22 @@ foreach my $contributor (@contributors_sorted) {
 # -------------------------------------------------------------------------
 # Create gnuplot file
 
-my ($year, $month, $mday) = split('/', $latest_contribution_date);
-my $latest_contribution_sec = timelocal(0, 0, 0, 
-                                        $mday, $month - 1, $year - 1900); 
-
 print "Creating gnuplot command file\n", $args{"gnuplot_file"}, "\n";
+
+my ($year, $month, $mday) = split('/', $last_contribution_date);
+
+my $last_contribution_sec = timelocal(0, 0, 0, $mday, $month - 1, $year-1900); 
+
+my $history_dir_abs = abs_path($args{"history_dir"});
+
+my @plots;
+foreach my $contributor (@contributors_sorted) {
+    last if scalar @plots >= $args{"history_max_nb"};
+    my $history_filename = $history_dir_abs . "/$contributor.dat";
+    push @plots, "\"$history_filename\" using 1:2 title \"" . (exists $authors{$contributor}{'name'} ? $authors{$contributor}{'name'} : $contributor) . "\"" if -e $history_filename;
+}
+
+my $plot = 'plot ' . join(', ', @plots);
 
 sysopen(GNUPLOT_FILE, 
         $args{"gnuplot_file"}, 
@@ -956,64 +976,31 @@ set terminal png color small
 
 set timestamp top
 
-# First graph
-
-set title "Contributions over time (whole period)"
-
-set data style lines
-
 EOT
 
-print GNUPLOT_FILE "set output \"" . abs_path(dirname($args{"history_img"})) . '/' . basename($args{"history_img"}) . "\"\n\n";
-
-my @plots;
-foreach my $contributor (@contributors_sorted) {
-    last if scalar @plots >= $args{"history_max_nb"};
-    my $history_name = abs_path($args{"history_dir"}) . "/$contributor.dat";
-    push @plots, "\"$history_name\" using 1:2 title \"" . $authors{$contributor}{'name'} . "\"" if -e $history_name;
+my $date_from;
+foreach my $history (@{$args{"history_img"}}) {
+    my ($delta, $style, $filename) = split(/\|/, $history);
+    if ($delta eq '') {
+        print GNUPLOT_FILE "# Whole period\n\n";
+        $date_from = $first_contribution_date;
+        print GNUPLOT_FILE "set title \"Contributions over time (whole period: $date_from to $last_contribution_date)\"\n\n";
+    } else {
+        print GNUPLOT_FILE "# Back $delta days\n\n";
+        ($mday, $month, $year) = 
+          (localtime($last_contribution_sec - $delta * 24 * 60 * 60))[3, 4, 5];
+        $date_from = sprintf("%04d/%02d/%02d", $year+1900, $month + 1, $mday);
+        print GNUPLOT_FILE "set title \"Contributions over time ($delta days ago: $date_from to $last_contribution_date)\"\n\n";
+    }
+    print GNUPLOT_FILE "set xrange [\"$date_from\":]\n\n";
+    print GNUPLOT_FILE "set output \"" . 
+      abs_path(dirname($filename)) . '/' . basename($filename) . "\"\n\n";
+    print GNUPLOT_FILE "set data style $style\n\n";
+    print GNUPLOT_FILE "$plot\n\n";
+    if ($plot ne 'replot') {
+        $plot = 'replot';
+    }
 }
-
-print GNUPLOT_FILE "plot ", join(', ', @plots), "\n";
-
-($mday, $month, $year) = 
-  (localtime($latest_contribution_sec - 2 * 365 * 24 * 60 * 60))[3, 4, 5];
-my $date = ($year + 1900) . '/' . ($month + 1) . '/' . $mday;
-
-print GNUPLOT_FILE <<EOT;
-
-# Second graph
-
-set xrange ["$date":]
-
-set data style lines
-
-set title "Contributions over time (last 2 years)"
-
-EOT
-
-print GNUPLOT_FILE "set output \"" . abs_path(dirname($args{"history_img2y"})) . '/' . basename($args{"history_img2y"}) . "\"\n\n";
-
-print GNUPLOT_FILE "replot\n";
-
-($mday, $month, $year) = 
-  (localtime($latest_contribution_sec - 6 * 30.5 * 24 * 60 * 60))[3, 4, 5];
-$date = ($year + 1900) . '/' . ($month + 1) . '/' . $mday;
-
-print GNUPLOT_FILE <<EOT;
-
-# Third graph
-
-set xrange ["$date":]
-
-set data style linespoints
-
-set title "Contributions over time (last 6 months)"
-
-EOT
-
-print GNUPLOT_FILE "set output \"" . abs_path(dirname($args{"history_img6m"})) . '/' . basename($args{"history_img6m"}) . "\"\n\n";
-
-print GNUPLOT_FILE "replot\n";
 
 close(GNUPLOT_FILE);
 
