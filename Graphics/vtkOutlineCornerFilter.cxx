@@ -15,11 +15,13 @@
 #include "vtkOutlineCornerFilter.h"
 
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.9");
+vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.10");
 vtkStandardNewMacro(vtkOutlineCornerFilter);
 
 vtkOutlineCornerFilter::vtkOutlineCornerFilter ()
@@ -37,37 +39,34 @@ vtkOutlineCornerFilter::~vtkOutlineCornerFilter ()
     }
 }
 
-void vtkOutlineCornerFilter::Execute()
+int vtkOutlineCornerFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   vtkDebugMacro(<< "Creating dataset outline");
 
   //
   // Let OutlineCornerSource do all the work
   //
-  this->OutlineCornerSource->SetBounds(this->GetInput()->GetBounds());
+  this->OutlineCornerSource->SetBounds(input->GetBounds());
   this->OutlineCornerSource->SetCornerFactor(this->GetCornerFactor());
   this->OutlineCornerSource->Update();
 
   output->CopyStructure(this->OutlineCornerSource->GetOutput());
 
+  return 1;
 }
-
-
-void vtkOutlineCornerFilter::ExecuteInformation()
-{
-  vtkDebugMacro(<< "Creating dataset outline");
-
-  //
-  // Let OutlineCornerSource do all the work
-  //
-  
-  this->vtkSource::ExecuteInformation();
-
-  this->OutlineCornerSource->UpdateInformation();
-}
-
 
 void vtkOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

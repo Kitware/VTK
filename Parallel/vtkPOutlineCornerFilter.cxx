@@ -15,12 +15,15 @@
 #include "vtkPOutlineCornerFilter.h"
 
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.5");
+vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.6");
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
 
@@ -42,18 +45,30 @@ vtkPOutlineCornerFilter::~vtkPOutlineCornerFilter ()
     }
 }
 
-void vtkPOutlineCornerFilter::Execute()
+int vtkPOutlineCornerFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double bds[6];
 
   if ( !this->Controller )
     {
     vtkErrorMacro("Controller not set");
-    return;
+    return 0;
     }
 
-  this->GetInput()->GetBounds(bds);
+  input->GetBounds(bds);
   //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", " 
   //                   << bds[2] << ", " << bds[3] << ", "
   //                   << bds[4] << ", " << bds[5] << endl;
@@ -105,14 +120,22 @@ void vtkPOutlineCornerFilter::Execute()
     this->OutlineCornerSource->Update();
     output->CopyStructure(this->OutlineCornerSource->GetOutput());
     }
+
+  return 1;
 }
 
-
-void vtkPOutlineCornerFilter::ExecuteInformation()
+int vtkPOutlineCornerFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
-}
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
 
+  return 1;
+}
 
 void vtkPOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
