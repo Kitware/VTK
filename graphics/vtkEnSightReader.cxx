@@ -266,12 +266,11 @@ int vtkEnSightReader::ReadCaseFile()
     stringRead = sscanf(line, " %*s %*s %s", subLine);
     if (stringRead == 1)
       {
-      if (strcmp(subLine, "gold") != 0 &&
-          strcmp(this->GetClassName(), "vtkEnSightGoldReader") == 0)
+      if (strcmp(subLine, "gold") == 0 &&
+          strcmp(this->GetClassName(), "vtkEnSight6Reader") == 0)
         {
-        // The class is vtkEnSightGoldReader, but the case file does
-        // not say "gold".
-        vtkErrorMacro("This is not an EnSight Gold file.");
+        // The class is vtkEnSight6Reader, but the case file says "gold".
+        vtkErrorMacro("This is not an EnSight6 file.");
         delete this->IS;
         this->IS = NULL;
         return 0;
@@ -279,11 +278,11 @@ int vtkEnSightReader::ReadCaseFile()
       }
     else
       {
-      if (strcmp(subLine, "gold") == 0 &&
-          strcmp(this->GetClassName(), "vtkEnSight6Reader") == 0)
+      if (strcmp(this->GetClassName(), "vtkEnSightGoldReader") == 0)
         {
-        // The class is vtkEnSight6Reader, but the case file says "gold".
-        vtkErrorMacro("This is not an EnSight6 file.");
+        // The class is vtkEnSightGoldReader, but the case file does
+        // not say "gold".
+        vtkErrorMacro("This is not an EnSight Gold file.");
         delete this->IS;
         this->IS = NULL;
         return 0;

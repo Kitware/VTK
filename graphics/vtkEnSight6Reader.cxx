@@ -127,12 +127,15 @@ int vtkEnSight6Reader::ReadGeometryFile()
   // because the description line could be blank.
   //this->ReadNextDataLine(line);
   this->ReadLine(line);
-  sscanf(line, " %*s %s", subLine);
-  if (strcmp(subLine, "Binary") == 0)
+
+  if (sscanf(line, " %*s %s", subLine) == 1)
     {
-    vtkErrorMacro("This is a binary data set. Try "
-                  << "vtkEnSight6BinaryReader.");
-    return 0;
+    if (strcmp(subLine, "Binary") == 0)
+      {
+      vtkErrorMacro("This is a binary data set. Try "
+		    << "vtkEnSight6BinaryReader.");
+      return 0;
+      }
     }
   this->ReadLine(line);
   

@@ -169,6 +169,7 @@ void vtkArrayCalculator::Execute()
   vtkDataArray* currentArray;
   vtkDoubleArray* resultArray;
   int numPts = input->GetNumberOfPoints();
+  double scalarResult[1];
   
   if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)
     {
@@ -290,10 +291,10 @@ void vtkArrayCalculator::Execute()
   resultArray = vtkDoubleArray::New();
   if (resultType == 0)
     {
-    resultArray->Allocate(numPts);
     resultArray->SetNumberOfComponents(1);
     resultArray->SetNumberOfTuples(numPts);
-    resultArray->SetComponent(0, 0, this->FunctionParser->GetScalarResult());
+    scalarResult[0] = this->FunctionParser->GetScalarResult();
+    resultArray->SetTuple(0, scalarResult);
     }
   else
     {
@@ -321,7 +322,8 @@ void vtkArrayCalculator::Execute()
       }
     if (resultType == 0)
       {
-      resultArray->SetComponent(i, 0, this->FunctionParser->GetScalarResult());
+      scalarResult[0] = this->FunctionParser->GetScalarResult();
+      resultArray->SetTuple(i, scalarResult);
       }
     else
       {
