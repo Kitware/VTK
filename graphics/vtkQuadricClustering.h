@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkQuadricClustering - reduce the number of triangles in a mesh
 // .SECTION Description
-
 // vtkQuadricClustering is a filter to reduce the number of triangles in a
 // triangle mesh, forming a good approximation to the original geometry.  The
 // input to vtkQuadricClustering is a vtkPolyData object, and only triangles
@@ -58,16 +57,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // It then breaks this bounding volume into a user-specified number of
 // spatial bins.  It then reads each triangle from the input and hashes its
 // vertices into these bins.  (If this is the first time a bin has been
-// visited, initialize its quadric to the 0 matrix.)  If 2 or more vertices
-// of the triangle fall in the same bin, the triangle is dicarded.  If the
-// triangle is not discarded, the algorithm then computes the error quadric
-// for this triangle and adds it to the existing quadric for each bin
-// corresponding to a vertex of this triangle.  It adds the triangle to the
-// list of output triangles as a list of vertex identifiers.  (There is one
-// vertex id per bin.)  After all the triangles have been read, the
-// representative vertex for each bin is computed using the quadric for that
-// bin.  This determines the spatial location of the vertices of each of the
-// triangles in the output.
+// visited, initialize its quadric to the 0 matrix.) The algorithm computes
+// the error quadric for this triangle and adds it to the existing quadric to
+// the bin in which each vertex is contained. Then, if 2 or more vertices of
+// the triangle fall in the same bin, the triangle is dicarded.  If the
+// triangle is not discarded, it adds the triangle to the list of output
+// triangles as a list of vertex identifiers.  (There is one vertex id per
+// bin.)  After all the triangles have been read, the representative vertex
+// for each bin is computed (an optimal location is found) using the quadric
+// for that bin.  This determines the spatial location of the vertices of
+// each of the triangles in the output.
 //
 // To use this filter, specify the divisions defining the spatial subdivision
 // in the x, y, and z directions. You must also specify an input vtkPolyData.
