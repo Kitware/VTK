@@ -66,7 +66,8 @@ void vtkFilter::Update()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
+  if (this->Input->GetMTime() > this->ExecuteTime ||
+  this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
