@@ -939,6 +939,9 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
   
   worldToVoxelsTransform->TransformVectorAtPoint( vpn, pos, vpn );
   
+  volMatrix->Delete();
+  voxelsTransform->Delete();
+  worldToVoxelsTransform->Delete();
                                                   
   if ( fabs(vpn[0]) >= fabs(vpn[1]) && fabs(vpn[0]) >= fabs(vpn[2]) )
     {
