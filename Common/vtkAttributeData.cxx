@@ -74,7 +74,7 @@ vtkAttributeData::~vtkAttributeData()
   this->Data->UnRegister(this);
 }
 
-int vtkAttributeData::Allocate(const int sz, const int ext)
+int vtkAttributeData::Allocate(const vtkIdType sz, const vtkIdType ext)
 {
   int numComp=this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz*numComp,ext*numComp);

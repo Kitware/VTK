@@ -166,7 +166,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       fprintf(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }
@@ -186,7 +187,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }
@@ -205,7 +207,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }
@@ -226,7 +229,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       fprintf(fp,"\t\t\t");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }

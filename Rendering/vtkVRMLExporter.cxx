@@ -495,7 +495,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"              ");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }
@@ -544,8 +545,9 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 	  i1 = i - 2;
 	  i2 = i - 1;
 	  }
-	fprintf(fp,"              %i, %i, %i, -1,\n",indx[i1], 
-		indx[i2], indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"              %i, %i, %i, -1,\n", (int)indx[i1], 
+		(int)indx[i2], (int)indx[i]);
 	}
       }
     fprintf(fp,"            ]\n");
@@ -578,7 +580,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"              ");
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	}
       fprintf(fp,"-1,\n");
       }

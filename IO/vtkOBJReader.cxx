@@ -90,10 +90,10 @@ void vtkOBJReader::Execute()
   float xyz[3], n[3], tc[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  vtkIdType count;
+  int count;
   vtkIdType ptId;
   vtkIdType numberOfPts, numberOfNormals, numberOfTCoords;
-  vtkIdType objPtId, objNormalId, objTCoordId;
+  int objPtId, objNormalId, objTCoordId;
   char *slash, *blank, *next, *ptr;
 
   vtkDebugMacro(<<"Reading file");
