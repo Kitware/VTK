@@ -316,9 +316,13 @@ IF(VTK_RENDERING_NEED_TK_INTERNAL)
 ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
 
 IF (VTK_WRAP_TCL)
-  SET(RenderingTCL_SRCS
-     vtkTkRenderWidget.cxx
-     vtkTkImageViewerWidget.cxx)
+  IF(NOT VTK_USE_COCOA)
+    SET(RenderingTCL_SRCS
+       vtkTkRenderWidget.cxx
+       vtkTkImageViewerWidget.cxx)
+  ELSE(NOT VTK_USE_COCOA)
+    SET(VTK_DISABLE_TK_INIT 1)
+  ENDIF(NOT VTK_USE_COCOA)
 
   IF (VTK_USE_X)
     SET(VTK_DISABLE_TK_INIT 0 CACHE BOOL "Allows the user to disable the automatic initialization of Tk widgets when loading the rendering library.")
@@ -354,6 +358,10 @@ IF (VTK_WRAP_TCL)
 
   IF (APPLE)
     ADD_LIBRARY(vtkRenderingTCL SHARED vtkOSXRenderingTclInit.c ${RenderingTCL_SRCS})
+    IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+      SET_TARGET_PROPERTIES(vtkRenderingTCL PROPERTIES LINK_FLAGS "-init _oft_initRen")
+    ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+
   ELSE (APPLE)
     ADD_LIBRARY(vtkRenderingTCL ${RenderingTCL_SRCS})
   ENDIF (APPLE)
@@ -395,18 +403,20 @@ IF (VTK_WRAP_PYTHON)
 
   INSTALL_TARGETS(/lib/vtk vtkRenderingPython)
   IF (TK_LIBRARY)
-     SET(RenderingPythonTkWidgets_SRCS
-        vtkTkWidgetsInit.cxx
-        vtkTkRenderWidgetPython.cxx
-        vtkTkImageViewerWidgetPython.cxx
-        )
-     ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
-                 ${RenderingPythonTkWidgets_SRCS})
-     TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
-                            vtkRendering
-                            ${TCL_LIBRARY}
-                            ${TK_LIBRARY})
-     INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
+     IF(NOT VTK_USE_COCOA)
+       SET(RenderingPythonTkWidgets_SRCS
+          vtkTkWidgetsInit.cxx
+          vtkTkRenderWidgetPython.cxx
+          vtkTkImageViewerWidgetPython.cxx
+          )
+       ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
+                   ${RenderingPythonTkWidgets_SRCS})
+       TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
+                              vtkRendering
+                              ${TCL_LIBRARY}
+                              ${TK_LIBRARY})
+       INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
+     ENDIF(NOT VTK_USE_COCOA)
 
      # find the tk internals for win32
      IF (WIN32)
