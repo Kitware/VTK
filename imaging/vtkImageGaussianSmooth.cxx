@@ -113,6 +113,12 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
 //----------------------------------------------------------------------------
 void vtkImageGaussianSmooth::ExecuteInformation()
 {
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 //----------------------------------------------------------------------------

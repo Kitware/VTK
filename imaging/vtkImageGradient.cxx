@@ -81,6 +81,10 @@ void vtkImageGradient::ExecuteInformation()
 
   this->GetOutput()->SetWholeExtent(extent);
   this->GetOutput()->SetNumberOfScalarComponents(this->Dimensionality);
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
 }
 
 

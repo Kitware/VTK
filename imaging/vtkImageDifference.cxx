@@ -360,6 +360,13 @@ void vtkImageDifference::ExecuteInformation()
     vtkErrorMacro("ExecuteInformation: Input are not the same size.");
     return;
     }
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 float vtkImageDifference::GetError()

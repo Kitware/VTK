@@ -64,6 +64,12 @@ void vtkImageFlip::ExecuteInformation()
     extent[axis*2+1] = -temp;
     this->GetOutput()->SetWholeExtent(extent);
     }
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 //----------------------------------------------------------------------------

@@ -117,6 +117,12 @@ void vtkImageShrink3D::ExecuteInformation()
 
   this->GetOutput()->SetWholeExtent(wholeExtent);
   this->GetOutput()->SetSpacing(spacing);
+
+  // Set default values
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 

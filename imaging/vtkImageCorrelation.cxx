@@ -62,6 +62,9 @@ void vtkImageCorrelation::ExecuteInformation()
   
   this->GetOutput()->SetWholeExtent(extent1);
   this->GetOutput()->SetScalarType(VTK_FLOAT);
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
 }
 
 //----------------------------------------------------------------------------

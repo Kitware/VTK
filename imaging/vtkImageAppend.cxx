@@ -100,6 +100,11 @@ void vtkImageAppend::ExecuteInformation()
   outExt[this->AppendAxis*2 + 1] = max;
 
   this->GetOutput()->SetWholeExtent(outExt);
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                        this->GetInput()->GetNumberOfScalarComponents());
 }
 
 

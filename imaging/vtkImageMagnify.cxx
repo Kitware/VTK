@@ -81,6 +81,11 @@ void vtkImageMagnify::ExecuteInformation()
   
   this->GetOutput()->SetWholeExtent(outExt);
   this->GetOutput()->SetSpacing(outSpacing);
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 //----------------------------------------------------------------------------

@@ -76,6 +76,11 @@ void vtkImagePermute::ExecuteInformation()
   this->GetOutput()->SetWholeExtent(ext);
   this->GetOutput()->SetSpacing(spacing);
   this->GetOutput()->SetOrigin(origin);
+
+  // Set default values
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 

@@ -71,10 +71,15 @@ void vtkImageNonMaximumSuppression::ExecuteInformation()
       }
     }
 
-  this->GetOutput()->SetNumberOfScalarComponents
-    (this->GetInput(0)->GetNumberOfScalarComponents());
   
   this->GetOutput()->SetWholeExtent(extent);
+
+  // Set default values
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                    this->GetInput(0)->GetNumberOfScalarComponents());
 }
 
 

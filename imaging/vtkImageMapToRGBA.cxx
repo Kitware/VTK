@@ -67,6 +67,10 @@ void vtkImageMapToRGBA::ExecuteInformation()
     }
   this->GetOutput()->SetScalarType(VTK_UNSIGNED_CHAR);
   this->GetOutput()->SetNumberOfScalarComponents(4);
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
 }
 
 //----------------------------------------------------------------------------

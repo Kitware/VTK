@@ -126,6 +126,11 @@ void vtkImageExtractComponents::SetComponents(int c1)
 void vtkImageExtractComponents::ExecuteInformation()
 {
   this->GetOutput()->SetNumberOfScalarComponents(this->NumberOfComponents);
+
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
 }
 
 //----------------------------------------------------------------------------

@@ -194,6 +194,12 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
     // Cause MagnificationFactor to recompute.
     this->MagnificationFactors[axis] = 0.0;
     }
+
+  // Set default values
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 
