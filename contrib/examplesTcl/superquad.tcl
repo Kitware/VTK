@@ -32,6 +32,7 @@ squad SetTransform ntrans
 vtkSampleFunction sample
   sample SetImplicitFunction squad
   sample SetSampleDimensions 64 64 64
+  sample ComputeNormalsOff
 
 vtkContourFilter iso
   iso SetInput [sample GetOutput]
