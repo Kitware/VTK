@@ -8,7 +8,6 @@ vtkAxes
 vtkBlankStructuredGridWithImage
 vtkBrownianPoints
 vtkButterflySubdivisionFilter
-vtkCardinalSpline
 vtkCellCenters
 vtkCellDataToPointData
 vtkCellDerivatives 
@@ -55,7 +54,6 @@ vtkImplicitModeller
 vtkImplicitTextureCoords
 vtkInterpolateDataSetAttributes
 vtkInterpolatingSubdivisionFilter
-vtkKochanekSpline
 vtkLineSource
 vtkLinearExtrusionFilter
 vtkLinearSubdivisionFilter

@@ -1,4 +1,5 @@
 SOURCE_FILES( Filtering_SRCS
+vtkCardinalSpline
 vtkCastToConcrete
 vtkCellLocator
 vtkColorTransferFunction
@@ -25,6 +26,7 @@ vtkImplicitDataSet
 vtkImplicitSelectionLoop
 vtkImplicitVolume
 vtkImplicitWindowFunction
+vtkKochanekSpline
 vtkPiecewiseFunction
 vtkPointSetSource
 vtkPointSetToPointSetFilter
