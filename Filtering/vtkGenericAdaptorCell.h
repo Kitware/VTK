@@ -114,11 +114,19 @@ public:
   // \post definition: result==(GetGeometryOrder()==1)
   int IsGeometryLinear();
   
-  // Description: Return the Interpolation order of attribute `a' on the cell
+  // Description:
+  // Return the Interpolation order of attribute `a' on the cell
   // (may differ by cell).  
   // \pre a_exists: a!=0 
   // \post positive_result: result>=0
   virtual int GetAttributeOrder(vtkGenericAttribute *a)=0;
+  
+  // Description:
+  // Return the index of the first point centered attribute with the highest
+  // order in `ac'.
+  // \pre ac_exists: ac!=0
+  // \post valid_result: result>=-1 && result<ac->GetNumberOfAttributes()
+  virtual int GetHighestOrderAttribute(vtkGenericAttributeCollection *ac);
   
   // Description:
   // Does the attribute `a' have a non-linear interpolation?
