@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageLaplacian.h"
 
@@ -49,79 +48,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageLaplacian fitler.
 vtkImageLaplacian::vtkImageLaplacian()
 {
-  this->SetOutputScalarType(VTK_FLOAT);
-
-  // The execute handles three axes.
-  this->NumberOfExecutionAxes = 3;
+  this->Dimensionality = 2;
 }
 
 
 //----------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
   this->vtkImageFilter::PrintSelf(os, indent);
-  os << indent << "FitleredAxes: " 
-     << vtkImageAxisNameMacro(this->FilteredAxes[0]);
-  for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    os << ", " << vtkImageAxisNameMacro(this->FilteredAxes[idx]);
-    }
-  os << "\n";
+  os << indent << "Dimensionality: " << this->Dimensionality;
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Determines how the input is interpreted (set of 2d slices ...)
-// and cannot be more than 3.
-void vtkImageLaplacian::SetFilteredAxes(int num, int *axes)
+// Just clip the request.  The subclass may need to overwrite this method.
+void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							 int outExt[6])
 {
-  if (num > 3)
-    {
-    vtkErrorMacro("SetFilteredAxes: This filter is only ");
-    num = 3;
-    }
-  this->vtkImageFilter::SetFilteredAxes(num, axes);
-  this->NumberOfExecutionAxes = 3;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the input extent necessary to generate the output.
-void vtkImageLaplacian::ComputeRequiredInputUpdateExtent()
-{
-  int extent[8];
+  int idx;
   int *wholeExtent;
-  int idx, axis;
-
-  wholeExtent = this->Input->GetWholeExtent();
-  this->Output->GetUpdateExtent(extent);
   
-  // grow input image extent.
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  // handle XYZ
+  memcpy(inExt,outExt,sizeof(int)*6);
+  
+  wholeExtent = this->Input->GetWholeExtent();
+  // update and Clip
+  for (idx = 0; idx < 3; ++idx)
     {
-    axis = this->FilteredAxes[idx];
-    extent[axis*2] -= 1;
-    extent[axis*2+1] += 1;
-    // we must clip extent with image extent if we hanlde boundaries.image
-    if (extent[axis*2] < wholeExtent[axis*2])
+    --inExt[idx*2];
+    ++inExt[idx*2+1];
+    if (inExt[idx*2] < wholeExtent[idx*2])
       {
-      extent[axis*2] = wholeExtent[axis*2];
+      inExt[idx*2] = wholeExtent[idx*2];
       }
-    if (extent[axis*2 + 1] > wholeExtent[axis*2 + 1])
+    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
       {
-      extent[axis*2 + 1] = wholeExtent[axis*2 + 1];
+      inExt[idx*2] = wholeExtent[idx*2 + 1];
+      }
+    if (inExt[idx*2+1] < wholeExtent[idx*2])
+      {
+      inExt[idx*2+1] = wholeExtent[idx*2];
+      }
+    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+      {
+      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
-  
-  this->Input->SetUpdateExtent(extent);
 }
-
-
-
 
 
 //----------------------------------------------------------------------------
@@ -131,133 +104,160 @@ void vtkImageLaplacian::ComputeRequiredInputUpdateExtent()
 // out of extent.
 template <class T>
 static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
-				     vtkImageRegion *inRegion, T *inPtr, 
-				     vtkImageRegion *outRegion, float *outPtr)
+				      vtkImageData *inData, T *inPtr,
+				      vtkImageData *outData, T *outPtr,
+				      int outExt[6], int id)
 {
-  int axisIdx, axesNum;
-  float d, sum;
-  float r[3];
-  // For looping though output (and input) pixels.
-  int min0, max0, min1, max1, min2, max2;
-  int outIdx0, outIdx1, outIdx2;
-  int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
-  int inInc0, inInc1, inInc2;
-  T *inPtr0, *inPtr1, *inPtr2;
-  // For computation of Laplacian (everything has to be arrays for loop).
-  int *incs, *imageExtent, *idxs, outIdxs[3];
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int axesNum;
+  int *wholeExtent, *inIncs;
+  float r[3], d, sum;
+  int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
-  // Get the dimensionality of the Laplacian.
-  axesNum = self->GetNumberOfFilteredAxes();
-  
-  // Get information to march through data (skip component)
-  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
-  outRegion->GetIncrements(outInc0, outInc1, outInc2); 
-  outRegion->GetExtent(min0,max0, min1,max1, min2,max2);
-    
-  // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2));
+  // find the region to loop over
+  maxC = inData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
 
-  // The data spcing is important for computing the Laplacian.
-  // Divid by dx twice (second derivative).
-  inRegion->GetSpacing(4, r);
-  r[0] = 1.0 / r[0] * r[0];
-  r[1] = 1.0 / r[1] * r[1];
-  r[2] = 1.0 / r[2] * r[2];
+  // Get the dimensionality of the gradient.
+  axesNum = self->GetDimensionality();
   
-  // loop through pixels of output
-  outPtr2 = outPtr;
-  inPtr2 = inPtr;
-  for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
+  // The data spacing is important for computing the Laplacian.
+  // Divided by dx twice (second derivative).
+  inData->GetSpacing(r);
+  r[0] = 1.0 / (r[0] * r[0]);
+  r[1] = 1.0 / (r[1] * r[1]);
+  r[2] = 1.0 / (r[2] * r[2]);
+
+  // get some other info we need
+  inIncs = inData->GetIncrements(); 
+  wholeExtent = inData->GetExtent(); 
+
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outIdxs[2] = outIdx2;
-    outPtr1 = outPtr2;
-    inPtr1 = inPtr2;
-    for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
+    useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
+    useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      outIdxs[1] = outIdx1;
-      outPtr0 = outPtr1;
-      inPtr0 = inPtr1;
-      for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
+      if (!id) 
 	{
-	*outIdxs = outIdx0;
-	
-	// compute Laplacian.
-	sum = 0.0;
-	idxs = outIdxs;
-	incs = inRegion->GetIncrements(); 
-	imageExtent = inRegion->GetWholeExtent(); 
-	for(axisIdx = 0; axisIdx < axesNum; ++axisIdx)
-	  {
-	  // Compute difference using central differences (if in extent).
-	  d = -2.0 * *inPtr0;
-	  d += (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[-*incs];
-	  d += (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[*incs];
-	  sum += d * r[axisIdx]; // divide by spacing squared
-	  ++idxs;
-	  ++incs;
-	  }
-	*outPtr0 = sum;
-
-	outPtr0 += outInc0;
-	inPtr0 += inInc0;
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      outPtr1 += outInc1;
-      inPtr1 += inInc1;
+      useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
+      useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+	for (idxC = 0; idxC < maxC; idxC++)
+	  {
+	  // do X axis
+	  d = -2.0*(*inPtr);
+	  d += (float)(inPtr[useXMin]);
+	  d += (float)(inPtr[useXMax]);
+	  sum = d * r[0];
+
+	  // do y axis
+	  d = -2.0*(*inPtr);
+	  d += (float)(inPtr[useYMin]);
+	  d += (float)(inPtr[useYMax]);
+	  sum = sum + d * r[1];
+	  if (axesNum == 3)
+	    {
+	    // do z axis
+	    d = -2.0*(*inPtr);
+	    d += (float)(inPtr[useZMin]);
+	    d += (float)(inPtr[useZMax]);
+	    sum = sum + d * r[2];
+	    }
+	  *outPtr = (T)sum;
+	  inPtr++;
+	  outPtr++;
+	  }
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
-    outPtr2 += outInc2;
-    inPtr2 += inInc2;
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
 }
 
-
+  
 //----------------------------------------------------------------------------
 // Description:
 // This method contains a switch statement that calls the correct
-// templated function for the input region type.  The output region
-// must be of type float.  This method does handle boundary conditions.
-void vtkImageLaplacian::Execute(vtkImageRegion *inRegion, 
-				vtkImageRegion *outRegion)
+// templated function for the input data type.  The output data
+// must match input type.  This method does handle boundary conditions.
+void vtkImageLaplacian::ThreadedExecute(vtkImageData *inData, 
+					vtkImageData *outData,
+					   int outExt[6], int id)
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that output is type float.
-  if (outRegion->GetScalarType() != VTK_FLOAT)
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, "
-        << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
-        << ", must be float");
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageLaplacianExecute(this, inRegion, (float *)(inPtr), 
-			       outRegion, (float *)(outPtr));
+      vtkImageLaplacianExecute(this, 
+			       inData, (float *)(inPtr), 
+			       outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageLaplacianExecute(this, inRegion, (int *)(inPtr), 
-			       outRegion, (float *)(outPtr));
+      vtkImageLaplacianExecute(this, 
+			       inData, (int *)(inPtr), 
+			       outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageLaplacianExecute(this, inRegion, (short *)(inPtr), 
-			       outRegion, (float *)(outPtr));
+      vtkImageLaplacianExecute(this, 
+			       inData, (short *)(inPtr), 
+			       outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageLaplacianExecute(this, inRegion, (unsigned short *)(inPtr), 
-			       outRegion, (float *)(outPtr));
+      vtkImageLaplacianExecute(this, 
+			       inData, (unsigned short *)(inPtr), 
+			       outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageLaplacianExecute(this, inRegion, (unsigned char *)(inPtr), 
-			       outRegion, (float *)(outPtr));
+      vtkImageLaplacianExecute(this, 
+			       inData, (unsigned char *)(inPtr), 
+			       outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
+
+
+
+
+
 
 
 

@@ -6,7 +6,6 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageReader reader
-reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
@@ -14,9 +13,8 @@ reader SetDataMask 0x7fff
 #reader DebugOn
 
 vtkImageLaplacian laplacian
-laplacian SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+laplacian SetDimensionality 3
 laplacian SetInput [reader GetOutput]
-laplacian ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [laplacian GetOutput]

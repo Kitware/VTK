@@ -19,7 +19,7 @@ cast SetOutputScalarTypeToFloat
 
 vtkImageLaplacian lap
 lap SetInput [cast GetOutput]
-lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+lap SetDimensionality 3
 
 vtkImageMathematics subtract
 subtract SetOperationToSubtract
@@ -36,17 +36,17 @@ viewer1 SetColorLevel 1000
 
 
 vtkImageViewer viewer2
-viewer2 SetInput [cast GetOutput]
+viewer2 SetInput [lap GetOutput]
 viewer2 SetZSlice 22
 viewer2 SetColorWindow 1000
 viewer2 SetColorLevel 0
 
 
-vtkImageViewer viewer3
-viewer3 SetInput [subtract GetOutput]
-viewer3 SetZSlice 22
-viewer3 SetColorWindow 2000
-viewer3 SetColorLevel 1000
+vtkImageViewer viewer
+viewer SetInput [subtract GetOutput]
+viewer SetZSlice 22
+viewer SetColorWindow 2000
+viewer SetColorLevel 1000
 
 
 # Create the GUI
@@ -57,7 +57,7 @@ frame .top.f1
 
 vtkTkImageViewerWidget .top.f1.r1 -width 256 -height 256 -iv viewer1
 vtkTkImageViewerWidget .top.f1.r2 -width 256 -height 256 -iv viewer2
-vtkTkImageViewerWidget .top.f1.r3 -width 256 -height 256 -iv viewer3
+vtkTkImageViewerWidget .top.f1.r3 -width 256 -height 256 -iv viewer
 
 button .top.btn  -text Quit -command exit
 

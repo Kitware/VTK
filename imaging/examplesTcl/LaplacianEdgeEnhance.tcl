@@ -20,7 +20,7 @@ cast SetOutputScalarTypeToFloat
 
 vtkImageLaplacian lap
 lap SetInput [cast GetOutput]
-lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+lap SetDimensionality 2
 
 vtkImageMathematics subtract
 subtract SetOperationToSubtract

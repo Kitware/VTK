@@ -59,6 +59,7 @@ vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
 vtkImageIslandRemoval2D \
+vtkImageLaplacian \
 vtkImageLogic \
 vtkImageMagnify \
 vtkImageMagnitude \
@@ -107,7 +108,6 @@ vtkXTextMapper
 #vtkImageHybridMedian2D \
 #vtkImageIdealHighPass \
 #vtkImageIdealLowPass \
-#vtkImageLaplacian \
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageOpenClose3D \
