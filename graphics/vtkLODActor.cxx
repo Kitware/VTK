@@ -228,10 +228,15 @@ void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 
 //----------------------------------------------------------------------------
 // Can only be used if no LOD mappers have been added.
+// Maybe we should remove this exculsive feature.
 void vtkLODActor::CreateLODs()
 {
   int num;
-  vtkPolyDataMapper *mediumMapper, *lowMapper;
+
+  if (this->SelfCreatedLODs)
+    {
+    return;
+    }
   
   if ( this->Mapper == NULL)
     {
@@ -239,9 +244,6 @@ void vtkLODActor::CreateLODs()
     return;
     }
   
-  // delete the old mappers
-  this->DeleteSelfCreatedLODs();
-
   // There are ways of getting arround this limitation ...
   num = this->LODMappers->GetNumberOfItems();
   if (num > 0)
@@ -251,48 +253,58 @@ void vtkLODActor::CreateLODs()
     return;
     }
   
-  // create filters if necessary
-  // NULL check should not be necessary but ...
-  if (this->PointSource == NULL)
-    {
-    this->PointSource = vtkPointSource::New();
-    }
-  if (this->Glyph3D == NULL)
-    {
-    this->Glyph3D = vtkGlyph3D::New();
-    }
-  if (this->MaskPoints == NULL)
-    {
-    this->MaskPoints = vtkMaskPoints::New();
-    }
-  if (this->OutlineFilter == NULL)
-    {
-    this->OutlineFilter = vtkOutlineFilter::New();
-    }
+  // create filters and mappers
+  this->PointSource = vtkPointSource::New();
+  this->Glyph3D = vtkGlyph3D::New();
+  this->MaskPoints = vtkMaskPoints::New();
+  this->OutlineFilter = vtkOutlineFilter::New();
+  this->LowMapper = vtkPolyDataMapper::New();
+  this->MediumMapper = vtkPolyDataMapper::New();
   
   // connect the filters
+  this->Glyph3D->SetInput(this->MaskPoints->GetOutput());
+  this->Glyph3D->SetSource(this->PointSource->GetOutput());
+  this->MediumMapper->SetInput(this->Glyph3D->GetOutput());
+  this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
+  this->AddLODMapper(this->MediumMapper);
+  this->AddLODMapper(this->LowMapper);
+  
+  this->SelfCreatedLODs = 1;
+  this->UpdateSelfCreatedLODs();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkLODActor::UpdateSelfCreatedLODs()
+{
+  int num;
+  
+  if ( this->Mapper == NULL)
+    {
+    vtkErrorMacro("Cannot create LODs with out a mapper.");
+    return;
+    }
+
+  if ( ! this->SelfCreatedLODs)
+    {
+    this->CreateLODs();
+    if ( ! this->SelfCreatedLODs)
+      { // could not create the LODs
+      return;
+      }
+    }
+  
+  // connect the filters to the mapper, and set parameters
   this->PointSource->SetRadius(0);
   this->PointSource->SetNumberOfPoints(1);
   this->MaskPoints->SetInput(this->Mapper->GetInput());
   this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
   this->MaskPoints->SetRandomMode(1);
-  this->Glyph3D->SetInput(this->MaskPoints->GetOutput());
-  this->Glyph3D->SetSource(this->PointSource->GetOutput());
   this->OutlineFilter->SetInput(this->Mapper->GetInput());
-  
-  mediumMapper = vtkPolyDataMapper::New();
-  lowMapper = vtkPolyDataMapper::New();
-  
-  mediumMapper->SetInput(this->Glyph3D->GetOutput());
-  mediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
-  mediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
-  lowMapper->SetInput(this->OutlineFilter->GetOutput());
-
-  this->AddLODMapper(mediumMapper);
-  this->AddLODMapper(lowMapper);
+  this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
+  this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
   
   this->BuildTime.Modified();
-  this->SelfCreatedLODs = 1;
 }
 
 
@@ -307,46 +319,25 @@ void vtkLODActor::DeleteSelfCreatedLODs()
     {
     return;
     }
-  
-  // delete the filters used to create the LODs
-  // The NULL check should not be necessary, but for sanity ...
-  if (this->PointSource)
-    {
-    this->PointSource->Delete();
-    this->PointSource = NULL;
-    }
-  if (this->Glyph3D)
-    {
-    this->Glyph3D->Delete();
-    this->Glyph3D = NULL;
-    }
-  if (this->MaskPoints)
-    {
-    this->MaskPoints->Delete();
-    this->MaskPoints = NULL;
-    }
-  if (this->OutlineFilter)
-    {
-    this->OutlineFilter->Delete();
-    this->OutlineFilter = NULL;
-    }
-  
-  mediumMapper = (vtkMapper *)(this->LODMappers->GetItemAsObject(0));
-  lowMapper = (vtkMapper *)(this->LODMappers->GetItemAsObject(1));
 
-  if (lowMapper)
-    {
-    this->LODMappers->RemoveItem(lowMapper);
-    lowMapper->Delete();
-    this->Modified();
-    }
+  // remove the mappers from the LOD collection
+  this->LODMappers->RemoveItem(this->LowMapper);
+  this->LODMappers->RemoveItem(this->MediumMapper);
   
-  if (mediumMapper)
-    {
-    this->LODMappers->RemoveItem(mediumMapper);
-    mediumMapper->Delete();
-    this->Modified();
-    }
+  // delete the filters used to create the LODs ...
+  // The NULL check should not be necessary, but for sanity ...
+  this->PointSource->Delete();
+  this->PointSource = NULL;
+  this->Glyph3D->Delete();
+  this->Glyph3D = NULL;
+  this->MaskPoints->Delete();
+  this->MaskPoints = NULL;
+  this->OutlineFilter->Delete();
+  this->OutlineFilter = NULL;
+  this->LowMapper->Delete();
+  this->LowMapper = NULL;
+  this->MediumMapper->Delete();
+  this->MediumMapper = NULL;
   
   this->SelfCreatedLODs = 0;
 }

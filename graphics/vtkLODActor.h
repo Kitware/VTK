@@ -103,18 +103,22 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   vtkGetObjectMacro(LODMappers, vtkMapperCollection);
   
 protected:
+  vtkActor            *Device;
+  vtkMapperCollection *LODMappers;
+
+  // stuff for creating our own LOD mappers
+  int                 SelfCreatedLODs;
   vtkPointSource      *PointSource;
   vtkGlyph3D          *Glyph3D;
   vtkMaskPoints       *MaskPoints;
   vtkOutlineFilter    *OutlineFilter;
   vtkTimeStamp        BuildTime;
   int                 NumberOfCloudPoints;
-  vtkActor            *Device;
-  
-  vtkMapperCollection *LODMappers;
-  int                 SelfCreatedLODs;
+  vtkPolyDataMapper   *LowMapper;
+  vtkPolyDataMapper   *MediumMapper;
 
   void CreateLODs();
+  void UpdateSelfCreatedLODs();
   void DeleteSelfCreatedLODs();
 };
 
