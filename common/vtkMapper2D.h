@@ -60,11 +60,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkMapper2D";};
   
-  virtual void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {};
-  virtual void RenderOpaqueGeometry(vtkViewport* viewport, 
-		vtkActor2D* actor) {};
-  virtual void RenderTranslucentGeometry(vtkViewport* viewport, 
-		vtkActor2D* actor) {};
+  virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
+  virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};
+  virtual void RenderTranslucentGeometry(vtkViewport*, vtkActor2D*) {};
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

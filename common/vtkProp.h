@@ -72,9 +72,9 @@ public:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
-  virtual void GetActors(vtkPropCollection *ac) {};
-  virtual void GetActors2D(vtkPropCollection *ac) {};
-  virtual void GetVolumes(vtkPropCollection *vc) {};
+  virtual void GetActors(vtkPropCollection *) {};
+  virtual void GetActors2D(vtkPropCollection *) {};
+  virtual void GetVolumes(vtkPropCollection *) {};
 
   // Description:
   // Set/Get visibility of this vtkProp.
