@@ -148,7 +148,7 @@ int vtkTextMapper::GetHeight(vtkViewport* viewport)
 
 // Parse the input and create multiple text mappers if multiple lines
 // (delimited by \n) are specified.
-void vtkTextMapper::SetInput(char *input)
+void vtkTextMapper::SetInput(const char *input)
 {
   if ( this->Input && input && (!strcmp(this->Input,input))) 
     {
@@ -215,7 +215,7 @@ void vtkTextMapper::SetInput(char *input)
 }
 
 // Determine the number of lines in the Input string (delimited by "\n").
-int vtkTextMapper::GetNumberOfLines(char *input)
+int vtkTextMapper::GetNumberOfLines(const char *input)
 {
   if ( input == NULL )
     {
@@ -223,7 +223,7 @@ int vtkTextMapper::GetNumberOfLines(char *input)
     }
 
   int numLines=1;
-  char *ptr = input;
+  const char *ptr = input;
 
   while ( ptr != NULL )
     {
@@ -239,11 +239,12 @@ int vtkTextMapper::GetNumberOfLines(char *input)
 
 // Get the next \n delimited line. Returns a string that
 // must be freed by the calling function.
-char *vtkTextMapper::NextLine(char *input, int lineNum)
+char *vtkTextMapper::NextLine(const char *input, int lineNum)
 {
-  char *line, *ptr, *ptrEnd;
+  const char *ptr, *ptrEnd;
   int strLen;
-
+  char *line;
+  
   ptr = input;
   for (int i=0; i != lineNum; i++)
     {

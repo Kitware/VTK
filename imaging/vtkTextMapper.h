@@ -99,7 +99,7 @@ public:
   // Description:
   // Set the input text string to the mapper.  The mapper recognizes "\n"
   // as a carriage return/linefeed (line separator).
-  void SetInput(char *inputString);
+  void SetInput(const char *inputString);
   vtkGetStringMacro(Input);
 
   // Description:
@@ -198,8 +198,8 @@ protected:
   int  NumberOfLines;
   int  NumberOfLinesAllocated;
   vtkTextMapper **TextLines;
-  int  GetNumberOfLines(char *input);
-  char *NextLine(char *input, int lineNum);
+  int  GetNumberOfLines(const char *input);
+  char *NextLine(const char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
   void RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
