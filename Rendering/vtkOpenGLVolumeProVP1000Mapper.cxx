@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
-#include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 
 vtkOpenGLVolumeProVP1000Mapper* vtkOpenGLVolumeProVP1000Mapper::New()
 {
