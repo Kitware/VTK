@@ -33,6 +33,8 @@ public:
   char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set/Get value of applied load.
   vtkSetMacro(LoadValue,float);
   vtkGetMacro(LoadValue,float);
 
@@ -44,10 +46,16 @@ public:
   void SetModelBounds(float *bounds);
   vtkGetVectorMacro(ModelBounds,float,6);
 
+  // Description:
+  // Set/Get Poisson's ratio.
+  vtkSetMacro(PoissonsRatio,float);
+  vtkGetMacro(PoissonsRatio,float);
+
 protected:
   void Execute();
 
   float LoadValue;
+  float PoissonsRatio;
   int SampleDimensions[3];
   float ModelBounds[6];
 
