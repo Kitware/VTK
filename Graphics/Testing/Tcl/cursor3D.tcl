@@ -41,8 +41,8 @@ vtkActor cursorActor
 
   # create probe
 vtkProbeFilter probe
-  probe SetSource [reader GetOutput]
   probe SetInput [cursor GetFocus]
+  probe SetSource [reader GetOutput]
 
   # create a cone geometry for glyph
 vtkConeSource cone

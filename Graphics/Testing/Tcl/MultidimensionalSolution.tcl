@@ -51,12 +51,12 @@ contour SetValue 0 0.225
 
 # probe the vector fields to get data at the contour surface
 vtkProbeFilter probe_gradient
-probe_gradient SetSource [pl3d_gradient GetOutput]
 probe_gradient SetInput [contour GetOutput]
+probe_gradient SetSource [pl3d_gradient GetOutput]
 
 vtkProbeFilter probe_velocity
-probe_velocity SetSource [pl3d_velocity GetOutput]
 probe_velocity SetInput [contour GetOutput]
+probe_velocity SetSource [pl3d_velocity GetOutput]
 
 
 #

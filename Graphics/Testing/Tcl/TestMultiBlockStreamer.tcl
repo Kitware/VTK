@@ -69,9 +69,9 @@ LineSourceWidget0 SetResolution 20
 
 vtkStreamTracer Stream0
 Stream0 AddInput [ExtractGrid0 GetOutput]
+Stream0 SetSource [LineSourceWidget0 GetOutput]
 Stream0 AddInput [ExtractGrid1 GetOutput]
 Stream0 AddInput [ExtractGrid2 GetOutput]
-Stream0 SetSource [LineSourceWidget0 GetOutput]
 Stream0 SetMaximumPropagationUnit 1
 Stream0 SetMaximumPropagation 20
 Stream0 SetInitialIntegrationStepUnit 2
