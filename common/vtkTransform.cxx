@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+// Useful for viewing a double[16] as a double[4][4]
+typedef double (*SqMatPtr)[4];
 
 
 //------------------------------------------------------------------------------
@@ -57,60 +59,6 @@ vtkTransform* vtkTransform::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTransform;
 }
-
-
-
-
-// Useful for viewing a double[16] as a double[4][4]
-typedef double (*SqMatPtr)[4];
-
-// Internal class -- this class maintains a single Identity matrix 
-// shared by all instances of this class, which is used for re-initializing
-// the scratchpad matrix to the identity matrix as needed. It's faster to
-// block-copy one matrix onto another than it is to do a comparison for i==j
-// inside a tight loop.
-// The constructor for this class allocates the sole vtkMatrix4x4
-// object used to maintain an identity matrix. There is only
-// one instance of this IdentityMatrix class, and it is declared
-// static inside MakeIdentity. This guarantees that the vtkMatrix4x4 will
-// be available whenever it is needed. See Meyers, _More_Effective_C++,
-// pages 130-134.
-class vtkIdentityMatrix
-{
-private:
-  vtkMatrix4x4 *TheMatrix;
-  vtkIdentityMatrix() {this->TheMatrix = vtkMatrix4x4::New();}
-  vtkIdentityMatrix(const vtkIdentityMatrix&); //Forbid copy constructor as well
-  static vtkMatrix4x4* GetIdentity();
-public:
-  // The dtor should be declared private, but the MSVC++5 compiler complains 
-  // about not being able to invoke the private dtor from within the
-  // static member function MakeIdentity, despite the fact that it has no
-  // problem with invoking the private ctor. Go figure.
-  ~vtkIdentityMatrix() {this->TheMatrix->Delete();}
-  static void MakeIdentity(vtkMatrix4x4 *target);
-  static void MakeIdentity(double Elements[16]);
-};
-
-vtkMatrix4x4* vtkIdentityMatrix::GetIdentity()
-{
-  static vtkIdentityMatrix imat;// constructed first time function called
-  return imat.TheMatrix;
-}
-
-// 
-// Copy the internal identity matrix into the target matrix
-void vtkIdentityMatrix::MakeIdentity(vtkMatrix4x4 *target)
-{
-  target->DeepCopy(vtkIdentityMatrix::GetIdentity());
-}
-
-void vtkIdentityMatrix::MakeIdentity(double Elements[16])
-{
-  vtkMatrix4x4::DeepCopy(Elements,vtkIdentityMatrix::GetIdentity());
-}
-
-
 
 
 // Constructs a transform and sets the following defaults
@@ -263,7 +211,7 @@ void vtkTransform::RotateX ( float angle)
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
   // Reset the scratchpad
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
 
   if (angle != 0.0) 
     {
@@ -292,7 +240,7 @@ void vtkTransform::RotateY ( float angle)
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
@@ -320,7 +268,7 @@ void vtkTransform::RotateZ (float angle)
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
@@ -352,7 +300,7 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   float   sinAngle;
   float   cosAngle;
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -406,7 +354,7 @@ void vtkTransform::RotateWXYZ ( double angle, double x, double y, double z)
   double   sinAngle;
   double   cosAngle;
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -457,7 +405,7 @@ void vtkTransform::Scale ( float x, float y, float z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ScratchPadMatrix[0][0] = x;
@@ -476,7 +424,7 @@ void vtkTransform::Scale ( double x, double y, double z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ScratchPadMatrix[0][0] = x;
@@ -494,7 +442,7 @@ void vtkTransform::Translate ( float x, float y, float z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
     ScratchPadMatrix[0][3] = x;
@@ -511,7 +459,7 @@ void vtkTransform::Translate ( double x, double y, double z)
 {
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
+  vtkMatrix4x4::Identity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
     ScratchPadMatrix[0][3] = x;
@@ -708,7 +656,7 @@ float *vtkTransform::GetOrientationWXYZ ()
   this->GetScale (scaleX, scaleY, scaleZ);
   if (scaleX != 1.0 || scaleY != 1.0 || scaleZ != 1.0) 
     {
-    vtkIdentityMatrix::MakeIdentity(temp1);
+    vtkMatrix4x4::Identity(temp1);
     temp1Matrix[0][0] = 1.0 / scaleX;
     temp1Matrix[1][1] = 1.0 / scaleY;
     temp1Matrix[2][2] = 1.0 / scaleZ;
@@ -846,22 +794,7 @@ void vtkTransform::SetMatrix(double Elements[16])
 // Creates an identity matrix and makes it the current transformation matrix.
 void vtkTransform::Identity()
 {
-  vtkMatrix4x4 *ctm;
-  int i,j;
-
-  ctm = *this->Stack;
-  
-  for (j = 0; j < 4; j++) 
-    {
-    for (i = 0; i < 4; i++) 
-      {
-	ctm->Element[i][j] = 0.0;	
-      }
-    }
-
-  ctm->Element[0][0] = ctm->Element[1][1] =
-    ctm->Element[2][2] = ctm->Element[3][3] = 1.0;
-
+  (*this->Stack)->Identity();
   this->Modified();
 }
 
