@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkSpatialRepresentationFilter* vtkSpatialRepresentationFilter::New()
 {
@@ -111,57 +110,7 @@ void vtkSpatialRepresentationFilter::ResetOutput()
     {
     this->vtkSource::SetNthOutput(i, NULL);
     }
-}
-
-    
-// Update input to this filter and the filter itself.
-void vtkSpatialRepresentationFilter::Update()
-{
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  
-  // make sure input is available
-  if ( ! input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  input->Update();
-  this->Updating = 0;
-
-  // execute
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  output->Initialize(); //clear output
-  // reset AbortExecute flag and Progress
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->Execute();
-  if ( !this->AbortExecute )
-    {
-    this->UpdateProgress(1.0);
-    }
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-
-  // clean up
-  if ( input->ShouldIReleaseData() )
-    {
-    input->ReleaseData();
-    }
-}
+}    
 
 
 // Build OBB tree

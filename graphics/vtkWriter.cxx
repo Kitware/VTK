@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkWriter.h"
+#include "vtkCommand.h"
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -82,15 +83,9 @@ void vtkWriter::Write()
     return;
   }
   //
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
   this->WriteData();
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   if ( input->ShouldIReleaseData() )
     {

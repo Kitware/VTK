@@ -88,11 +88,6 @@ public:
   static vtkTensorGlyph *New();
 
   // Description:
-  // Override update method because execution can branch two ways (via Input 
-  // and Source objects).
-  void Update();
-
-  // Description:
   // Specify the geometry to copy to each point.
   void SetSource(vtkPolyData *source);
   vtkPolyData *GetSource();

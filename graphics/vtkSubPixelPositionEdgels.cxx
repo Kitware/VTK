@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkSubPixelPositionEdgels* vtkSubPixelPositionEdgels::New()
 {
@@ -393,59 +392,6 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
     }
 }
 
-
-// Override update method because execution can branch two ways 
-// (Input and GradMaps)
-void vtkSubPixelPositionEdgels::Update()
-{
-  // make sure input is available
-  if (this->GetInput() == NULL || this->GetGradMaps() == NULL)
-    {
-    vtkErrorMacro(<< "No input!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  // update our inputs
-  this->Updating = 1;
-  this->GetInput()->Update();
-  this->GetGradMaps()->Update();
-  this->Updating = 0;
-
-  // execute
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  this->GetOutput()->Initialize();
-  // reset AbortExecute flag and Progress
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->Execute();
-  if ( !this->AbortExecute )
-    {
-    this->UpdateProgress(1.0);
-    }
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-
-  // clean up
-  if ( this->GetInput()->ShouldIReleaseData() )
-    {
-    this->GetInput()->ReleaseData();
-    }
-  if ( this->GetGradMaps()->ShouldIReleaseData() )
-    {
-    this->GetGradMaps()->ReleaseData();
-    }
-}
 
 void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
 {

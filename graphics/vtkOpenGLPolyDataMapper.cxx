@@ -58,6 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //--------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
@@ -148,27 +149,15 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     if ( input->GetDataReleased() )
       {
-      if ( this->StartMethod )
-        {
-        (*this->StartMethod)(this->StartMethodArg);
-        }
+      this->InvokeEvent(vtkCommand::StartEvent,NULL);
       input->Update();
-      if ( this->EndMethod )
-        {
-        (*this->EndMethod)(this->EndMethodArg);
-        }
+      this->InvokeEvent(vtkCommand::EndEvent,NULL);
       }
     else
       {
-      if ( this->StartMethod )
-        {
-        (*this->StartMethod)(this->StartMethodArg);
-        }
+      this->InvokeEvent(vtkCommand::StartEvent,NULL);
       input->Update();
-      if ( this->EndMethod )
-        {
-        (*this->EndMethod)(this->EndMethodArg);
-        }
+      this->InvokeEvent(vtkCommand::EndEvent,NULL);
       }
     numPts = input->GetNumberOfPoints();
     } 

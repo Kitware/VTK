@@ -306,9 +306,7 @@ protected:
 
   int Visibility;
   int Pickable;
-  void (*PickMethod)(void *);
-  void (*PickMethodArgDelete)(void *);
-  void *PickMethodArg;
+  unsigned long PickTag;
   int Dragable;
 
   float AllocatedRenderTime;

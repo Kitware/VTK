@@ -47,7 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkTensorGlyph* vtkTensorGlyph::New()
 {
@@ -356,59 +355,6 @@ void vtkTensorGlyph::Execute()
   output->Squeeze();
   trans->Delete();
   matrix->Delete();
-}
-
-// Override update method because execution can branch two ways (via Input 
-// and Source objects).
-void vtkTensorGlyph::Update()
-{
-  // make sure input is available
-  if ( this->GetInput() == NULL || this->GetSource() == NULL )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-      {
-      return;
-      }
-
-  // update the input
-  this->Updating = 1;
-  this->GetInput()->Update();
-  this->GetSource()->Update();
-  this->Updating = 0;
-
-  // execute
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  this->GetOutput()->Initialize(); //clear output
-  // reset AbortExecute flag and Progress
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->Execute();
-  if ( !this->AbortExecute )
-    {
-    this->UpdateProgress(1.0);
-    }
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-
-  // clean up
-  if ( this->GetInput()->ShouldIReleaseData() )
-    {
-    this->GetInput()->ReleaseData();
-    }
-  if ( this->GetSource()->ShouldIReleaseData() )
-    {
-    this->GetSource()->ReleaseData();
-    }
 }
 
 void vtkTensorGlyph::SetSource(vtkPolyData *source)

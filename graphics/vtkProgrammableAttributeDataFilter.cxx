@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkProgrammableAttributeDataFilter* vtkProgrammableAttributeDataFilter::New()
 {
@@ -123,70 +122,6 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(void (*f)(voi
     {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
-    }
-}
-
-void vtkProgrammableAttributeDataFilter::Update()
-{
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
-  vtkDataSet *ds;
-
-  // make sure input is available
-  if ( !input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  // Update the inputs
-  this->Updating = 1;
-  input->Update();
-  for (this->InputList->InitTraversal(); 
-       (ds = this->InputList->GetNextItem()); )
-    {
-    ds->Update();
-    }
-  this->Updating = 0;
-
-  // execute
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  output->CopyStructure(input);
-  // reset AbortExecute flag and Progress
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->Execute();
-  if ( !this->AbortExecute )
-    {
-    this->UpdateProgress(1.0);
-    }
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-  
-  // clean up
-  if ( input->ShouldIReleaseData() ) 
-    {
-    input->ReleaseData();
-    }
-  
-  for (this->InputList->InitTraversal(); 
-       (ds = this->InputList->GetNextItem()); )
-    {
-    if ( ds->ShouldIReleaseData() )
-      {
-      ds->ReleaseData();
-      }
     }
 }
 

@@ -130,10 +130,6 @@ public:
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // vtkFilter interface - overridden because of multiple input.
-  void Update();
-
-  // Description:
   // For legacy compatibility. Do not use.
   void AddInput(vtkDataSet& in) {this->AddInput(&in);};
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};

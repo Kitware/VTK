@@ -71,11 +71,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Override update method because execution can branch two ways 
-  // (Input and GradMaps)
-  void Update();
-
-  // Description:
   // Set/Get the gradient data for doing the position adjustments.
   void SetGradMaps(vtkStructuredPoints *gm);
   vtkStructuredPoints *GetGradMaps();

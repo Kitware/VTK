@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 
 //------------------------------------------------------------------------------
@@ -200,10 +200,7 @@ void vtkProgrammableSource::UpdateInformation()
       }
     }
   // If there is a start method, call it
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   // Execute this object - we have not aborted yet, and our progress
   // before we start to execute is 0.0.
@@ -219,10 +216,7 @@ void vtkProgrammableSource::UpdateInformation()
     }
 
   // Call the end method, if there is one
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
     
   // Now we have to mark the data as up to data.
   for (idx = 0; idx < this->NumberOfOutputs; ++idx)

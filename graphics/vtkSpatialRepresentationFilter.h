@@ -115,10 +115,6 @@ public:
   void ResetOutput();
   
   // Description:
-  // Update input to this filter and the filter itself.
-  void Update();
-
-  // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
   virtual void SetInput(vtkImageData *cache)

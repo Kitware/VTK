@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProp.h"
 #include "vtkObjectFactory.h"
 #include "vtkAssemblyPaths.h"
-
+#include "vtkCommand.h"
 
 
 //----------------------------------------------------------------------------
@@ -63,9 +63,7 @@ vtkProp::vtkProp()
   this->Visibility = 1;  // ON
 
   this->Pickable   = 1;
-  this->PickMethod = NULL;
-  this->PickMethodArgDelete = NULL;
-  this->PickMethodArg = NULL;
+  this->PickTag = 0;
   this->Dragable   = 1;
   
   this->AllocatedRenderTime = 10.0;
@@ -77,10 +75,6 @@ vtkProp::vtkProp()
 
 vtkProp::~vtkProp()
 {
-  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-    {
-    (*this->PickMethodArgDelete)(this->PickMethodArg);
-    }
   if ( this->Paths )
     {
     this->Paths->Delete();
@@ -91,37 +85,29 @@ vtkProp::~vtkProp()
 // e.g., vtkActor) is picked by vtkPicker.
 void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->PickMethod || arg != this->PickMethodArg )
-    {
-    // delete the current arg if there is one and a delete method
-    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-      {
-      (*this->PickMethodArgDelete)(this->PickMethodArg);
-      }
-    this->PickMethod = f;
-    this->PickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->PickTag);
+  this->PickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
 }
 
 // Set a method to delete user arguments for PickMethod.
 void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->PickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->PickTag);
+  if (cmd)
     {
-    this->PickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // This method is invoked if the prop is picked.
 void vtkProp::Pick()
-  {
-  if (this->PickMethod)
-    {
-    (*this->PickMethod)(this->PickMethodArg);
-    }
-  }
+{
+  this->InvokeEvent(vtkCommand::PickEvent,NULL);
+}
 
 // Shallow copy of vtkProp.
 void vtkProp::ShallowCopy(vtkProp *prop)
@@ -129,9 +115,6 @@ void vtkProp::ShallowCopy(vtkProp *prop)
   this->Visibility = prop->GetVisibility();
   this->Pickable   = prop->GetPickable();
   this->Dragable   = prop->GetDragable();
-
-  this->SetPickMethod(prop->PickMethod, prop->PickMethodArg);
-  this->SetPickMethodArgDelete(prop->PickMethodArgDelete);
 }
 
 void vtkProp::InitPathTraversal()
@@ -177,15 +160,6 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
-
-  if ( this->PickMethod )
-    {
-    os << indent << "Pick Method defined\n";
-    }
-  else
-    {
-    os << indent <<"No Pick Method\n";
-    }
 
   os << indent << "AllocatedRenderTime: " 
      << this->AllocatedRenderTime << endl;
