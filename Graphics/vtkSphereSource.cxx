@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSphereSource* vtkSphereSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -95,6 +95,17 @@ void vtkSphereSource::Execute()
   vtkPolyData *output = this->GetOutput();
   int piece = output->GetUpdatePiece();
   int numPieces = output->GetUpdateNumberOfPieces();
+
+  if (numPieces > this->ThetaResolution)
+    {
+    numPieces = this->ThetaResolution;
+    }
+  if (piece >= numPieces)
+    {
+    // Although the super class should take care of this,
+    // it cannot hurt to check here.
+    return;
+    }
 
   // I want to modify the ivars resoultion start theta and end theta, 
   // so I will make local copies of them.  THese might be able to be merged 

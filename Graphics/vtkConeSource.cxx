@@ -99,6 +99,16 @@ void vtkConeSource::Execute()
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
   maxPieces = this->Resolution;
+  if (numPieces > maxPieces)
+    {
+    numPieces = maxPieces;
+    }
+  if (piece >= maxPieces)
+    {
+    // Super class should do this for us, 
+    // but I put this condition in any way.
+    return;
+    }
   start = maxPieces * piece / numPieces;
   end = (maxPieces * (piece+1) / numPieces) - 1;
   createBottom = (this->Capping && (start == 0));
