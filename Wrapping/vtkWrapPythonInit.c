@@ -13,12 +13,12 @@ void stuffit()
   for (i = 0; i < anindex; i++)
     {
     fprintf(stdout,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
-	    names[i]);
+            names[i]);
     }
 
   fprintf(stdout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n",
-	  kitName);
-  fprintf(stdout,"{NULL, NULL}};\n\n");
+          kitName);
+  fprintf(stdout,"{NULL, NULL, 0, NULL}};\n\n");
   
   fprintf(stdout,"extern \"C\" { void init%s();}\n\n",kitName);
 
@@ -27,19 +27,19 @@ void stuffit()
   fprintf(stdout,"  PyObject *m, *d, *c;\n\n");
   fprintf(stdout,"  static char modulename[] = \"%s\";\n",kitName);
   fprintf(stdout,"  m = Py_InitModule(modulename, Py%s_ClassMethods);\n",
-	  kitName);
+          kitName);
   
   fprintf(stdout,"  d = PyModule_GetDict(m);\n");
   fprintf(stdout,"  if (!d) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
-	  kitName);
+          kitName);
 
   for (i = 0; i < anindex; i++)
     {
     fprintf(stdout,"  if ((c = PyVTKClass_%sNew(modulename)))\n",names[i]);
     fprintf(stdout,"    if (-1 == PyDict_SetItemString(d, \"%s\", c))\n",
-	    names[i]);
+            names[i]);
     fprintf(stdout,"      Py_FatalError(\"can't add class %s to dictionary!\");\n\n",
-	    names[i]);
+            names[i]);
     }
   fprintf(stdout,"}\n\n");
 }
