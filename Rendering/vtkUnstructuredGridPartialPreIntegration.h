@@ -90,11 +90,10 @@ protected:
   vtkTimeStamp ControlPointsModified;
   int NumIndependentComponents;
 
-  static float *PsiTable;
-
 //BTX
   enum {PSI_TABLE_SIZE = 512};
 //ETX
+  static float PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
 
 private:
   vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.

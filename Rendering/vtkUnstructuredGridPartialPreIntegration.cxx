@@ -31,26 +31,14 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkUnstructuredGridLinearRayIntegrator.h"
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4100)
-#endif
-
-#include <set>
-#include <algorithm>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-#include <math.h>
+#include <vtkstd/set>
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
-float *vtkUnstructuredGridPartialPreIntegration::PsiTable = NULL;
+float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
 
 //-----------------------------------------------------------------------------
 
@@ -60,9 +48,10 @@ vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegrati
   this->ControlPoints = NULL;
   this->NumIndependentComponents = 0;
 
-  vtkUnstructuredGridPartialPreIntegration::BuildPsiTable();
+  this->BuildPsiTable();
 }
 
+//-----------------------------------------------------------------------------
 vtkUnstructuredGridPartialPreIntegration::~vtkUnstructuredGridPartialPreIntegration()
 {
   for (int c = 0; c < this->NumIndependentComponents; c++)
@@ -72,6 +61,7 @@ vtkUnstructuredGridPartialPreIntegration::~vtkUnstructuredGridPartialPreIntegrat
   delete[] this->ControlPoints;
 }
 
+//-----------------------------------------------------------------------------
 void vtkUnstructuredGridPartialPreIntegration::PrintSelf(ostream &os,
                                                        vtkIndent indent)
 {
@@ -295,6 +285,8 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
         nearInterpolant = farInterpolant;
         }
       }
+      delete[] nearScalars;
+      delete[] farScalars;
     }
   else
     {
@@ -328,10 +320,6 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
 
 void vtkUnstructuredGridPartialPreIntegration::BuildPsiTable()
 {
-  if (PsiTable != NULL) return;
-
-  PsiTable = new float[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
-
   for (int gammafi = 0; gammafi < PSI_TABLE_SIZE; gammafi++)
     {
     float gammaf = ((float)gammafi+0.0f)/PSI_TABLE_SIZE;
