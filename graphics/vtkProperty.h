@@ -79,6 +79,13 @@ public:
   virtual void Render(vtkActor *,vtkRenderer *) {};
 
   // Description:
+  // This method renders the property as a backface property. TwoSidedLighting
+  // must be turned off to see any backface properties. Note that only
+  // colors and opacity are used for backface properties. Other properties
+  // such as Representation, Culling are specified by the Property.
+  virtual void BackfaceRender(vtkActor *,vtkRenderer *) {};
+
+  // Description:
   // Set the shading interpolation method for an object.
   vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
   vtkGetMacro(Interpolation,int);
