@@ -37,7 +37,7 @@
 #ifndef __vtkBandedPolyDataContourFilter_h
 #define __vtkBandedPolyDataContourFilter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
 
@@ -51,10 +51,10 @@ class vtkDoubleArray;
 #define VTK_SCALAR_MODE_INDEX 0
 #define VTK_SCALAR_MODE_VALUE 1
 
-class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeRevisionMacro(vtkBandedPolyDataContourFilter,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkBandedPolyDataContourFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -126,7 +126,7 @@ protected:
   vtkBandedPolyDataContourFilter();
   ~vtkBandedPolyDataContourFilter();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void Execute();
 
   int ComputeScalarIndex(double);
   int IsContourValue(double val);
@@ -212,3 +212,5 @@ inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours,
 
 
 #endif
+
+
