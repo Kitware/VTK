@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.9");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.10");
 
 #ifndef NULL
 #define NULL 0
@@ -613,19 +613,9 @@ int vtkSource::ProcessRequest(vtkInformation* request,
         info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
       }
-    
-    
-    // Copy the MTime into the data object for compatibility.
+
+    // The number of outputs may have been changed by execute information.
     outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
-    for(i=0; i < this->NumberOfOutputs; ++i)
-      {
-      if(this->Outputs[i])
-        {
-        vtkDemandDrivenPipeline* ddp =
-          vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-        this->Outputs[i]->SetPipelineMTime(ddp->GetPipelineMTime());
-        }
-      }
     return 1;
     }
   else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))

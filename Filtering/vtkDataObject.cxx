@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.13");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.14");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -75,8 +75,6 @@ vtkDataObject::vtkDataObject()
   this->SetFieldData(fd);
   fd->Delete();
 
-  this->PipelineMTime = 0;
-
   this->RequestExactExtent = 0;
   
   this->GarbageCollecting = 0;
@@ -118,7 +116,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Global Release Data: "
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
-  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
 
   if(vtkInformation* pInfo = this->GetPipelineInformation())
@@ -966,6 +963,16 @@ int vtkDataObject::GetReleaseDataFlag()
   if(SDDP* sddp = this->TrySDDP("GetReleaseDataFlag"))
     {
     return sddp->GetReleaseDataFlag(this->GetPortNumber());
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkDataObject::GetPipelineMTime()
+{
+  if(SDDP* sddp = this->TrySDDP("GetPipelineMTime"))
+    {
+    return sddp->GetPipelineMTime();
     }
   return 0;
 }

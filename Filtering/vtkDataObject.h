@@ -223,8 +223,10 @@ public:
   // (that UpdateInformation has been called)
   void SetUpdateExtentToWholeExtent();
 
-  void SetPipelineMTime(unsigned long time) {this->PipelineMTime = time; }
-  vtkGetMacro(PipelineMTime, unsigned long);
+  // Description:
+  // Get the cumulative modified time of everything upstream.  Does
+  // not include the MTime of this object.
+  unsigned long GetPipelineMTime();
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -405,10 +407,6 @@ protected:
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
-
-  // The Maximum MTime of all upstream filters and data objects.
-  // This does not include the MTime of this data object.
-  unsigned long PipelineMTime;
 
   // Get the executive that manages this data object.
   vtkExecutive* GetExecutive();
