@@ -74,7 +74,7 @@ vtkImplicitModeller blobbyLogoImp
 blobbyLogoImp SetInput [appendAll GetOutput ]
   blobbyLogoImp SetMaximumDistance .2
   blobbyLogoImp SetSampleDimensions 64 64 64
-  blobbyLogoImp SetModelBounds -1 2 -1 2 -1 2
+  blobbyLogoImp SetAdjustDistance .5
 
 # extract an iso surface
 vtkContourFilter blobbyLogoIso
