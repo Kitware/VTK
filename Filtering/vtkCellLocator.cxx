@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.72");
+vtkCxxRevisionMacro(vtkCellLocator, "1.73");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -215,7 +215,8 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     tMax += direction2[i]*direction2[i];
     }
   
-  tMax = sqrt(tMax);
+  tMax = (tMax > 0.0 ? sqrt(tMax) : 1.0);
+  
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
     {
