@@ -8,8 +8,8 @@
 
 catch {load vtktcl}
 
-set rtSelector "grep -v 'Number of Threads' | grep -v 0x | grep -v Modified"
-set rtComparator "diff"
+set rtSelector "sed -e s/0x0/0/ | grep -v -i thread | grep -v StartTime: | grep -v 0x | grep -v Modified"
+set rtComparator "diff -b"
 
 proc rtOtherTest { fileid } {
 #actual test
