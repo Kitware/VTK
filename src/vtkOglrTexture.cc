@@ -100,8 +100,8 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
     bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
 
     // make sure using unsigned char data of color scalars type
-    if ( strcmp(scalars->GetDataType(),"unsigned char") ||
-    strcmp(scalars->GetScalarType(),"ColorScalar") )
+    if (strcmp(scalars->GetDataType(),"unsigned char") ||
+        strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
       dataPtr = txt->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
@@ -181,6 +181,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
       }
 
     // define a display list for this texture
+    glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
     glNewList ((GLuint) this->Index, GL_COMPILE);
     if (txt->GetInterpolate())
       {
@@ -214,7 +215,6 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
     glTexImage2D( GL_TEXTURE_2D, 0 , bytesPerPixel,
 		  xsize, ysize, 0, format, 
 		  GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
-
     glEndList ();
     // modify the load time to the current time
     this->LoadTime.Modified();
@@ -233,7 +233,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
   glEnable(GL_BLEND);
 
   // don't accept fragments if they have zero opacity. this will stop the
-  // zbuffer from be blocked by totally trasnapernt texture fragments.
+  // zbuffer from be blocked by totally transparent texture fragments.
   glAlphaFunc (GL_GREATER, (GLclampf) 0);
   glEnable (GL_ALPHA_TEST);
 
