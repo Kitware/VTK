@@ -54,7 +54,6 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 90
 $cam1 SetViewUp 0 0 -1
 $cam1 Zoom 1.3
-$cam1 Azimuth 180
 eval lgt SetPosition [$cam1 GetPosition]
 eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 
