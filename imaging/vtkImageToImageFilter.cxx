@@ -271,6 +271,14 @@ void vtkImageToImageFilter::UpdateInformation()
 
   if ( ! this->Bypass)
     {
+    // legacy (hack to check to see if subclass used wrong method.
+    this->ExecuteImageInformationHack = 1;
+    this->ExecuteImageInformation();
+    if (this->ExecuteImageInformationHack == 1)
+      {
+      vtkWarningMacro("Rename your ExecuteImageInformation to ExecuteInformation");
+      }
+    // the correct call.
     // Let the subclass modify the default.
     this->ExecuteInformation();
     }

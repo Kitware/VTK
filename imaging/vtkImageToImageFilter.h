@@ -81,7 +81,6 @@ public:
   // This method sets the WholeExtent, Spacing and Origin of the output.
   virtual void UpdateInformation();
 
-
   // Description:
   // This Method returns the MTime of the pipeline up to and including this
   // filter Note: current implementation may create a cascade of
@@ -121,6 +120,17 @@ public:
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
   
+  // Legacy!!!!!!!!!!!!!!!
+  
+  // Description:
+  // Legacy method.  May go away at any time. It should be called 
+  // UpdateInformation.
+  virtual void UpdateImageInformation() 
+    {vtkWarningMacro("Use UpdateInformation instead of UpdateImageInformation");  
+    this->UpdateInformation();
+    }
+  
+  
 protected:
   vtkMultiThreader *Threader;
   int Bypass;
@@ -132,6 +142,13 @@ protected:
 
   virtual void RecursiveStreamUpdate(vtkImageData *outData);
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Description:
+  // Legacy method.  May go away at any time. It should be called 
+  // UpdateInformation.
+  virtual void ExecuteImageInformation() 
+    {this->ExecuteImageInformationHack = 0;}
+  int ExecuteImageInformationHack;
 };
 
 #endif
