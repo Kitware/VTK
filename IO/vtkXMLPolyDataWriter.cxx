@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkXMLPolyDataWriter.h"
+
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.2");
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //----------------------------------------------------------------------------

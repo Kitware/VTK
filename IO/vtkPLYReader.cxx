@@ -17,6 +17,8 @@
 =========================================================================*/
 #include "vtkPLYReader.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
@@ -25,7 +27,7 @@
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.13");
+vtkCxxRevisionMacro(vtkPLYReader, "1.14");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true

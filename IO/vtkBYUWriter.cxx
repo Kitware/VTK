@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkBYUWriter.h"
 
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.45");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.46");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files

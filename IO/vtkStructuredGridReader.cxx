@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkStructuredGridReader.h"
 
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridReader, "1.54");
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.55");
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()

@@ -18,10 +18,12 @@
 #include "vtkUnstructuredGridReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.65");
+vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.66");
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read

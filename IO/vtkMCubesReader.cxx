@@ -18,15 +18,17 @@
 #include "vtkMCubesReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkMCubesReader, "1.59");
+vtkCxxRevisionMacro(vtkMCubesReader, "1.60");
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.

@@ -18,11 +18,12 @@
 #include "vtkIVWriter.h"
 
 #include "vtkAbstractMapper.h"
+#include "vtkCellArray.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.26");
+vtkCxxRevisionMacro(vtkIVWriter, "1.27");
 vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()

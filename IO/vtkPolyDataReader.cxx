@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkPolyDataReader.h"
 
+#include "vtkCellArray.h"
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.23");
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.24");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()

@@ -21,10 +21,11 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.12");
+vtkCxxRevisionMacro(vtkParticleReader, "1.13");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.

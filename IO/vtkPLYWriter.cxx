@@ -17,14 +17,17 @@
 =========================================================================*/
 #include "vtkPLYWriter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
 
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.15");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.16");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);

@@ -20,10 +20,11 @@
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.23");
+vtkCxxRevisionMacro(vtkImageReader2, "1.24");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read

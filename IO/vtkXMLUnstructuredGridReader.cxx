@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLDataElement.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.1");
+#include "vtkCellArray.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLDataElement.h"
+
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.2");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------

@@ -19,13 +19,15 @@
 
 #include "vtkByteSwap.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.71");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.72");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0

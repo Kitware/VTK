@@ -18,10 +18,12 @@
 #include "vtkMCubesWriter.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMCubesWriter, "1.29");
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.30");
 vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.

@@ -19,10 +19,11 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.15");
+vtkCxxRevisionMacro(vtkPNGReader, "1.16");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()

@@ -16,18 +16,23 @@
 
 =========================================================================*/
 #include "vtkEnSight6BinaryReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
+
 #include "vtkByteSwap.h"
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
+
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.25");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.26");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------

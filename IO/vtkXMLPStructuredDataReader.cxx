@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkXMLPStructuredDataReader.h"
-#include "vtkXMLDataElement.h"
-#include "vtkXMLStructuredDataReader.h"
+
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkTableExtentTranslator.h"
+#include "vtkXMLDataElement.h"
+#include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()

@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkPostScriptWriter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPostScriptWriter, "1.18");
+vtkCxxRevisionMacro(vtkPostScriptWriter, "1.19");
 vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95

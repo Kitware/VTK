@@ -17,12 +17,15 @@
 =========================================================================*/
 #include "vtkXMLPDataReader.h"
 
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
+#include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()

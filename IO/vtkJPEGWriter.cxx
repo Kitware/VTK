@@ -19,12 +19,13 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.13");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.14");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);

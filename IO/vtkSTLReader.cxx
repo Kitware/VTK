@@ -18,6 +18,8 @@
 #include "vtkSTLReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
@@ -25,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.65");
+vtkCxxRevisionMacro(vtkSTLReader, "1.66");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0

@@ -20,8 +20,9 @@
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.15");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.16");
 vtkStandardNewMacro(vtkGESignaReader);
 
 

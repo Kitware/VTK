@@ -19,8 +19,9 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkFieldData.h"
+#include "vtkDataObject.h"
 
-vtkCxxRevisionMacro(vtkDataObjectReader, "1.16");
+vtkCxxRevisionMacro(vtkDataObjectReader, "1.17");
 vtkStandardNewMacro(vtkDataObjectReader);
 
 vtkDataObjectReader::vtkDataObjectReader()

@@ -16,18 +16,22 @@
 
 =========================================================================*/
 #include "vtkEnSight6Reader.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkPolyData.h"
+
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.34");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.35");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------

@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageWriter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.44");
+vtkCxxRevisionMacro(vtkImageWriter, "1.45");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write

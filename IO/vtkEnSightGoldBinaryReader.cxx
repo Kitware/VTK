@@ -16,18 +16,22 @@
 
 =========================================================================*/
 #include "vtkEnSightGoldBinaryReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
+
 #include "vtkByteSwap.h"
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.28");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.29");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------

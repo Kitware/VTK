@@ -19,6 +19,7 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 extern "C" {
 #include <jpeglib.h>
@@ -26,7 +27,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.14");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.15");
 vtkStandardNewMacro(vtkJPEGReader);
 
 

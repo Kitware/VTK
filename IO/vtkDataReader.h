@@ -38,6 +38,7 @@ class vtkCharArray;
 class vtkDataArray;
 class vtkDataSet;
 class vtkDataSetAttributes;
+class vtkFieldData;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
