@@ -154,6 +154,10 @@ public:
   vtkGetMacro(GetBuffersTime, double);
   vtkGetMacro(SetBuffersTime, double);
   vtkGetMacro(TransmitTime, double);
+
+  // Description:
+  // Get the value of the z buffer at a position. 
+  float GetZ(int x, int y);
   
 //BTX
 

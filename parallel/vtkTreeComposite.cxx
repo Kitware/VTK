@@ -817,6 +817,49 @@ void vtkTreeComposite::SetWindowSize(int x, int y)
 }
 
 
+float vtkTreeComposite::GetZ(int x, int y)
+{
+  float val;
+  int idx;
+  
+  if (this->Controller == NULL || this->Controller->GetNumberOfProcesses() == 1)
+    {
+    int *size = this->RenderWindow->GetSize();
+    float *Zdata;
+    
+    // Make sure we have defualt values.
+    this->ReductionFactor = 1;
+    this->SetWindowSize(size[0], size[1]);
+    
+    // Get the z buffer.
+    Zdata = this->RenderWindow->GetZbufferData(0,0,size[0]-1, size[1]-1);
+    memcpy(this->ZData, Zdata, size[0]*size[1]*sizeof(float));
+    delete [] Zdata;
+    }
+  
+  if (x < 0 || x >= this->WindowSize[0] || y < 0 || y >= this->WindowSize[1])
+    {
+    return 0.0;
+    }
+  
+  if (this->ReductionFactor > 1)
+    {
+    idx = (x + (y * this->WindowSize[0] / this->ReductionFactor)) / this->ReductionFactor;
+    }
+  else
+    {
+    idx = (x + (y * this->WindowSize[0]));
+    }
+
+  int temp = this->WindowSize[0] * this->WindowSize[1] * 0.5;
+    
+  return this->ZData[idx];
+  
+}
+
+
+
+
 void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata, 
                                     int windowSize[2])
 {
@@ -1103,13 +1146,16 @@ void vtkTreeComposite::Composite()
 	  this->Controller->Send(localPdata, pdata_size, id, 99);
 	  }
 	}
-	}
+      }
     }
+  
   timer->StopTimer();
   this->TransmitTime = timer->GetElapsedTime();
   
-  if (myId ==0) 
+  if (myId == 0) 
     {
+    // Save the ZData for picking.
+    memcpy(this->ZData, localZdata, windowSize[0]*windowSize[1]*sizeof(float));
     if (this->ReductionFactor > 1)
       {
       // localZdata, localPdata and window size get modified.
@@ -1133,17 +1179,16 @@ void vtkTreeComposite::Composite()
   
   if (localPdata)
     {
-    delete localPdata;
+    delete [] localPdata;
     }  
   if (localZdata)
     {
-    delete localZdata;
+    delete [] localZdata;
     }
   
   timer->Delete();
   timer = NULL;
 }
-
 
 void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1180,3 +1225,6 @@ void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "UseCompositing: Off\n";
     }
 }
+
+
+
