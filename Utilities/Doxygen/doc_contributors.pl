@@ -979,9 +979,9 @@ foreach my $contributor (@contributors_sorted) {
 
 print "Creating gnuplot command file\n", $args{"gnuplot_file"}, "\n";
 
-my ($year, $month, $mday) = split('/', $last_contribution_date);
+my ($year, $month, $mday) = split('-', $last_contribution_date);
 
-my $last_contribution_sec = timelocal(0, 0, 0, $mday, $month, $year-1900); 
+my $last_contribution_sec = timelocal(0, 0, 0, $mday, $month -1 , $year-1900); 
 
 my $history_dir_abs = abs_path($args{"history_dir"});
 
