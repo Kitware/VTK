@@ -1,6 +1,6 @@
 package require -exact vtkcommon 4.1
 
-if {[info commands ::vtk::init::load_source_package] != ""} {
+if {[info commands ::vtk::init::require_package] != ""} {
   if {[::vtk::init::require_package vtkFilteringTCL 4.1]} {
     package provide vtkfiltering 4.1
   }

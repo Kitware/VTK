@@ -11,12 +11,6 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
       }
       cd $currentDirectory
     }
-    proc load_source_package {srcName srcPath} {
-      set srcFile [file join $srcPath $srcName "${srcName}.tcl"]
-      if {[catch "source {$srcFile}" errorMessage]} {
-        puts $errorMessage
-      }
-    }
     proc require_package {name {version {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}}} {
       if {[catch "package require -exact $name $version" errorMessage]} {
         puts $errorMessage
@@ -38,13 +32,17 @@ foreach kit { Common Filtering IO Imaging Graphics
   "
   package ifneeded "vtk[string tolower ${kit}]" {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
     package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
-    ::vtk::init::load_source_package {vtk[string tolower ${kit}]} {@VTK_TCL_SCRIPT_DIR@}
+    if {\[catch {source \[file join {@VTK_TCL_SCRIPT_DIR@} {vtk[string tolower ${kit}]} {vtk[string tolower ${kit}].tcl}\]} errorMessage\]} {
+      puts \$errorMessage
+    }
   "
 }
 
 foreach src {vtk vtkbase vtkinteraction vtktesting} {
   package ifneeded ${src} {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
     package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
-    ::vtk::init::load_source_package ${src} {@VTK_TCL_SCRIPT_DIR@}
+    if {\[catch {source \[file join {@VTK_TCL_SCRIPT_DIR@} {$src} {$src.tcl}\]} errorMessage\]} {
+      puts \$errorMessage
+    }
   "
 }

@@ -31,7 +31,7 @@ namespace eval ::vtk::rendering {
   }
 }
 
-if {[info commands ::vtk::init::load_source_package] != ""} {
+if {[info commands ::vtk::init::require_package] != ""} {
   if {![info exists __tk_error] && \
        [::vtk::init::require_package vtkRenderingTCL 4.1]} {
     ::vtk::rendering::SetWin32ExitCallback
