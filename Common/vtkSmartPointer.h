@@ -118,4 +118,12 @@ VTK_SMART_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_DEFINE_OPERATOR
 
+// Description:
+// Streaming operator to print smart pointer like regular pointers.
+template <class T>
+inline ostream& operator << (ostream& os, const vtkSmartPointer<T>& p)
+{
+  return os << static_cast<const vtkSmartPointerBase&>(p);
+}
+
 #endif
