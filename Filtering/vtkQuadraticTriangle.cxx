@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.3");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -195,9 +195,9 @@ void vtkQuadraticTriangle::Contour(double value,
 
     if ( outPd )
       {
-      this->Face->PointIds->SetId(0,this->PointIds->GetId(linearTris[i][0]));
-      this->Face->PointIds->SetId(1,this->PointIds->GetId(linearTris[i][1]));
-      this->Face->PointIds->SetId(2,this->PointIds->GetId(linearTris[i][2]));
+      this->Face->PointIds->SetId(0,linearTris[i][0]);
+      this->Face->PointIds->SetId(1,linearTris[i][1]);
+      this->Face->PointIds->SetId(2,linearTris[i][2]);
       }
 
     this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
@@ -291,9 +291,9 @@ void vtkQuadraticTriangle::Clip(double value,
     this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(linearTris[i][2]));
 
-    this->Face->PointIds->SetId(0,this->PointIds->GetId(linearTris[i][0]));
-    this->Face->PointIds->SetId(1,this->PointIds->GetId(linearTris[i][1]));
-    this->Face->PointIds->SetId(2,this->PointIds->GetId(linearTris[i][2]));
+    this->Face->PointIds->SetId(0,linearTris[i][0]);
+    this->Face->PointIds->SetId(1,linearTris[i][1]);
+    this->Face->PointIds->SetId(2,linearTris[i][2]);
 
     this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
     this->Scalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));

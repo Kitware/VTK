@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.3");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void vtkQuadraticQuad::Contour(double value,
     for (int j=0; j<4; j++)
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
-      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
+      this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearQuads[i][j]));
       }
     
@@ -459,7 +459,7 @@ void vtkQuadraticQuad::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars),
     for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
-      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
+      this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
       this->Scalars->SetTuple(j,localScalars->GetTuple(LinearQuads[i][j]));
       }
 

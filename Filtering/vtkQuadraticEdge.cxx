@@ -20,7 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.4");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 //----------------------------------------------------------------------------
@@ -157,8 +157,8 @@ void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
 
     if ( outPd )
       {
-      this->Line->PointIds->SetId(0,this->PointIds->GetId(linearLines[i][0]));
-      this->Line->PointIds->SetId(1,this->PointIds->GetId(linearLines[i][1]));
+      this->Line->PointIds->SetId(0,linearLines[i][0]);
+      this->Line->PointIds->SetId(1,linearLines[i][1]);
       }
 
     lineScalars->SetTuple(0,cellScalars->GetTuple(linearLines[i][0]));
@@ -322,8 +322,8 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
       this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
 
-      this->Line->PointIds->SetId(0,this->PointIds->GetId(0));
-      this->Line->PointIds->SetId(1,this->PointIds->GetId(2));
+      this->Line->PointIds->SetId(0,0);
+      this->Line->PointIds->SetId(1,2);
 
       lineScalars->SetComponent(0,0,cellScalars->GetComponent(0,0));
       lineScalars->SetComponent(1,0,cellScalars->GetComponent(2,0));
@@ -333,8 +333,8 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
       this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
 
-      this->Line->PointIds->SetId(0,this->PointIds->GetId(2));
-      this->Line->PointIds->SetId(1,this->PointIds->GetId(1));
+      this->Line->PointIds->SetId(0,2);
+      this->Line->PointIds->SetId(1,1);
 
       lineScalars->SetComponent(0,0,cellScalars->GetComponent(2,0));
       lineScalars->SetComponent(1,0,cellScalars->GetComponent(1,0));

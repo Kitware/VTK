@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.2");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------
@@ -278,7 +278,7 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
+      this->Tetra->PointIds->SetId(j,LinearTetras[i][j]);
       this->Scalars->SetTuple(j,cellScalars->GetTuple(LinearTetras[i][j]));
       }
 
@@ -442,10 +442,9 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
+      this->Tetra->PointIds->SetId(j,LinearTetras[i][j]);
       this->Scalars->SetTuple(j,cellScalars->GetTuple(LinearTetras[i][j]));
       }
-
     this->Tetra->Clip(value, this->Scalars, locator, tetras, inPd, outPd, 
                       inCd, cellId, outCd, insideOut);
     }
