@@ -25,6 +25,7 @@
 // - No checking is done at the moment regarding hardware texture size limits.
 // - Alignment is not supported (soon).
 // - Multiline is not supported.
+// - Need to fix angle out of 0<->360
 //
 // .SECTION See Also
 // vtkProp3D

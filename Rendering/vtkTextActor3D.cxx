@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.4");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.5");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -154,11 +154,15 @@ int vtkTextActor3D::UpdateImageActor()
     return 0;
     }
 
-  // No input, don't render
+  // No input, the assign the image actor a zilch input
 
-  if (!this->Input)
+  if (!this->Input || !*this->Input)
     {
-    return 0;
+    if (this->ImageActor)
+      {
+      this->ImageActor->SetInput(NULL);
+      }
+    return 1;
     }
 
   // Do we need to (re-)render the text ?
@@ -176,6 +180,8 @@ int vtkTextActor3D::UpdateImageActor()
     this->BuildTime.Modified();
 
     // Get the bounding box of the text to render
+    // If the bounding box is invalid, then there is nothing to render
+    // assign the image actor a nada input
 
     vtkFreeTypeUtilities *fu = vtkFreeTypeUtilities::GetInstance();
     if (!fu)
@@ -188,7 +194,11 @@ int vtkTextActor3D::UpdateImageActor()
     fu->GetBoundingBox(this->TextProperty, this->Input, text_bbox);
     if (!fu->IsBoundingBoxValid(text_bbox))
       {
-      return 0;
+      if (this->ImageActor)
+        {
+        this->ImageActor->SetInput(NULL);
+        }
+      return 1;
       }
 
     // The bounding box was the area that is going to be filled with pixels
@@ -281,17 +291,20 @@ int vtkTextActor3D::UpdateImageActor()
       //y += this->TextProperty->GetShadowOffset()[1];
       }
     this->ImageData->SetOrigin(-x, -y, 0);
+
+    // Associate the image data (should be up to date now) to the image actor
+
+    if (this->ImageActor)
+      {
+      this->ImageActor->SetInput(this->ImageData);
+      }
     }
 
-  // Associate the image data (should be up to date now) to the image actor
+  // Position the actor
 
   if (this->ImageActor)
     {
-    this->ImageActor->SetInput(this->ImageData);
-
-    // Position the actor
     // Which one is faster ?
-
 #if 1
     vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
     this->GetMatrix(matrix);
