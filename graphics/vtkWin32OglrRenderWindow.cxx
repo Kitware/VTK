@@ -65,7 +65,9 @@ vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
 
-  strcpy(this->Name,"Visualization Toolkit - Win32OpenGL");
+  if ( this->WindowName )
+    delete [] this->WindowName;
+  this->WindowName = strdup("Visualization Toolkit - Win32OpenGL");
 }
 
 // Description:
@@ -216,13 +218,19 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
   if (!this->MFChandledWindow) {  // hsr 
 	  if (!this->WindowId)
 		{
-		sprintf(this->Name,"Visualization Toolkit - Win32OpenGL #%i",count++);
+                if( this->WindowName )
+                  delete [] this->WindowName;
+                int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
+                          + (int)ceil( (double) log10( (double)(count+1) ) )
+                          + 1; 
+                this->WindowName = new char [ len ];
+		sprintf(this->WindowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
 
 		auxInitPosition(x, y, width, height);
 		type = AUX_DEPTH16 | AUX_RGB | AUX_DOUBLE;
 		auxInitDisplayMode(type);
 
-	    if (auxInitWindow(this->Name) == GL_FALSE) 
+	    if (auxInitWindow(this->WindowName) == GL_FALSE) 
         {
 		  auxQuit();
 		}
