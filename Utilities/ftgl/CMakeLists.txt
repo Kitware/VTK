@@ -71,6 +71,11 @@ IF (BUILD_EXAMPLES)
     ENDIF (GLUT_INCLUDE_PATH)
     LINK_LIBRARIES (${GLUT_LIBRARY})
 
+    IF (VTK_USE_X)
+      LINK_LIBRARIES(-lXt -lXmu)
+      LINK_LIBRARIES(${CMAKE_X_LIBS})
+    ENDIF (VTK_USE_X)
+
     SOURCE_FILES (FTGL_DEMO_SRCS
       demo/tb.c
       demo/trackball.c
