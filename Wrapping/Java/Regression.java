@@ -18,20 +18,27 @@ public class Regression
 {
   public static void main (String []args) 
     {
-    vtkTesting2.Initialize(args);
+    vtkTesting2.Initialize(args, true);
 
 
     vtkShortArray array = new vtkShortArray();
-    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(3.0);
     array.InsertNextTuple1(1.0);
-    array.InsertNextTuple1(8.0);
-    array.InsertNextTuple1(5.0);
-    array.InsertNextTuple1(8.0);
-    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(4.0);
+    array.InsertNextTuple1(1.0);
     array.InsertNextTuple1(5.0);
     array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(2.0);
+    array.InsertNextTuple1(6.0);
+    array.InsertNextTuple1(5.0);
     array.InsertNextTuple1(3.0);
-    array.InsertNextTuple1(4.0);
+    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(7.0);
+    array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(3.0);
+    array.InsertNextTuple1(1.0);
     short[] carray = array.GetJavaArray();
     int cc;
     System.out.print("[");

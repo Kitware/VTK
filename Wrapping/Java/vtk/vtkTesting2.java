@@ -10,37 +10,53 @@ public class vtkTesting2
   public static final int NOT_RUN       = 2;
   public static final int DO_INTERACTOR = 3;
 
-  private static int LoadLib(String lib)
+  private static int LoadLib(String lib, boolean verbose)
     {
     try
       {
-      System.out.println("Try to load: " + lib);
+      if ( verbose )
+        {
+        System.out.println("Try to load: " + lib);
+        }
       Runtime.getRuntime().load(lib);
       }
     catch (UnsatisfiedLinkError e)
       {
+      if ( verbose )
+        {
+        System.out.println("Failed to load: " + lib);
+        }
       return 0;
+      }
+    if ( verbose )
+      {
+      System.out.println("Successfully loaded: " + lib);
       }
     return 1;
     }
 
-  private static void LoadLibrary(String path, String library)
+  private static void LoadLibrary(String path, String library, boolean verbose)
     {
     String lname = System.mapLibraryName(library);
     String sep = System.getProperty("file.separator");
     String libname = path + sep + lname;
     String releaselibname = path + sep + "Release" + sep + lname;
     String debuglibname = path + sep + "Debug" + sep + lname;
-    if ( vtkTesting2.LoadLib(library) != 1 &&
-      vtkTesting2.LoadLib(libname) != 1 &&
-      vtkTesting2.LoadLib(releaselibname) != 1 &&
-      vtkTesting2.LoadLib(debuglibname) != 1 )
+    if ( vtkTesting2.LoadLib(library, verbose) != 1 &&
+      vtkTesting2.LoadLib(libname, verbose) != 1 &&
+      vtkTesting2.LoadLib(releaselibname, verbose) != 1 &&
+      vtkTesting2.LoadLib(debuglibname, verbose) != 1 )
       {
-      System.out.println("Problem");
+      System.out.println("Problem loading apropriate library");
       }
     }
 
   public static void Initialize(String[] args)
+    {
+    vtkTesting2.Initialize(args, false);
+    }
+
+  public static void Initialize(String[] args, boolean verbose)
     {
     String lpath = vtkSettings.GetVTKLibraryDir();
     if ( lpath != null )
@@ -55,7 +71,7 @@ public class vtkTesting2
     int cc;
     for ( cc = 0; cc < kits.length; cc ++ )
       {
-      vtkTesting2.LoadLibrary(lpath, "vtk" + kits[cc] + "Java"); 
+      vtkTesting2.LoadLibrary(lpath, "vtk" + kits[cc] + "Java", verbose); 
       }
     }
 
@@ -187,34 +203,15 @@ public class vtkTesting2
       System.err.println("File " + file.getName() + " does not exists");
       return vtkTesting2.NOT_RUN;
       }
+    vtkTesting tt = new vtkTesting();
+    tt.SetDataFileName(data_path + "/" + image_path);
+    tt.SetRenderWindow(renWin);
 
-    renWin.Render();
-
-    vtkWindowToImageFilter w2if = new vtkWindowToImageFilter();
-    w2if.SetInput(renWin);
-
-    vtkImageDifference imgDiff = new vtkImageDifference();
-
-    vtkPNGReader rtpnm = new vtkPNGReader();
-    rtpnm.SetFileName(data_path + "/" + image_path);
-
-    imgDiff.SetInput(w2if.GetOutput());
-    imgDiff.SetImage(rtpnm.GetOutput());
-    imgDiff.Update();
-
-    if (imgDiff.GetThresholdedError() <= threshold) 
+    if (tt.RegressionTest(threshold) == vtkTesting2.PASSED ) 
       {
-      System.out.println("Java smoke test passed."); 
       return vtkTesting2.PASSED;
       } 
-    System.out.println("Java smoke test error!"); 
-    System.out.println("Image difference: " + imgDiff.GetThresholdedError());
-    vtkJPEGWriter wr = new vtkJPEGWriter();
-    wr.SetFileName(data_path + "/" + image_path + ".error.jpg");
-    wr.SetInput(w2if.GetOutput());
-    wr.Write();
-    wr.SetFileName(data_path + "/" + image_path + ".diff.jpg");
-    wr.SetInput(imgDiff.GetOutput());
+    System.out.println("Image difference: " + tt.GetImageDifference());
     return vtkTesting2.FAILED;
     } 
 }
