@@ -143,7 +143,6 @@ void vtkDecimatePro::Execute()
   float max, *bounds;
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
-  vtkPointData *newPD;
   int *map, numNewPts, totalPts, newCellPts[3];
   int abortExecute=0;
 
