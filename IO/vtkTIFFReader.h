@@ -59,7 +59,7 @@ class TIFFInternal;
 
 class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
 {
-  public:
+public:
   static vtkTIFFReader *New();
   vtkTypeMacro(vtkTIFFReader,vtkImageReader2);
 
@@ -90,7 +90,8 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
     }
 
   // Description: 
-  // Return a descriptive name for the file format that might be useful in a GUI.
+  // Return a descriptive name for the file format that might be useful 
+  // in a GUI.
   virtual const char* GetDescriptiveName()
     {
     return "TIFF";
@@ -101,7 +102,7 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
  
 //ETX
 
-  protected:
+protected:
   vtkTIFFReader();
   ~vtkTIFFReader();
 
@@ -113,7 +114,7 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
                          unsigned int size );
   
   int EvaluateImageAt( void*, void* ); 
-  private:
+private:
   vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
   void operator=(const vtkTIFFReader&);  // Not implemented.
 

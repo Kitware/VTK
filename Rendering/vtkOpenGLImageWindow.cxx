@@ -20,7 +20,7 @@
 #include "GL/gl.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOpenGLImageWindow, "1.22");
+vtkCxxRevisionMacro(vtkOpenGLImageWindow, "1.23");
 vtkStandardNewMacro(vtkOpenGLImageWindow);
 
 XVisualInfo *vtkOpenGLImageWindowTryForVisual(Display *DisplayId,
@@ -298,7 +298,7 @@ int vtkOpenGLImageWindow::GetDesiredDepth()
 Visual *vtkOpenGLImageWindow::GetDesiredVisual ()
 {
   XVisualInfo *v;
-  Visual *vis;
+  Visual *vis=0;
   
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();
