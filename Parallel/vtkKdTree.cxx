@@ -45,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.24");
+vtkCxxRevisionMacro(vtkKdTree, "1.25");
 
 // Timing data ---------------------------------------------
 
@@ -3690,7 +3690,7 @@ int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
       ids.insert(regionIds->GetValue(i));
       }
 
-    if (ids.size() < this->NumberOfRegions)
+    if (ids.size() < (unsigned int)this->NumberOfRegions)
       {
       IdsOfInterest = vtkIntArray::New();
       IdsOfInterest->SetNumberOfValues(ids.size());
