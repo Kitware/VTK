@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkLine.h"
 #include "vtkTriangle.h"
+#include "vtkQuad.h"
 
 class VTK_EXPORT vtkPolygon : public vtkCell
 {
@@ -182,6 +183,7 @@ protected:
   float   Normal[3]; //polygon normal
   vtkIdList *Tris;
   vtkTriangle *Triangle;
+  vtkQuad *Quad;
   vtkScalars *TriScalars;
   vtkLine *Line;
 

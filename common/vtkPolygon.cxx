@@ -73,6 +73,7 @@ vtkPolygon::vtkPolygon()
   this->Tris = vtkIdList::New();
   this->Tris->Allocate(VTK_CELL_SIZE);
   this->Triangle = vtkTriangle::New();
+  this->Quad = vtkQuad::New();
   this->TriScalars = vtkScalars::New();
   this->TriScalars->Allocate(3);
   this->Line = vtkLine::New();
@@ -82,6 +83,7 @@ vtkPolygon::~vtkPolygon()
 {
   this->Tris->Delete();
   this->Triangle->Delete();
+  this->Quad->Delete();
   this->TriScalars->Delete();
   this->Line->Delete();
 }
@@ -1141,11 +1143,32 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
                              float *values, int dim, float *derivs)
 {
   int i, j, k, idx;
+
+  if ( this->Points->GetNumberOfPoints() == 4 )
+    {
+    for(i=0; i<4; i++)
+      {
+      this->Quad->Points->SetPoint(i,this->Points->GetPoint(i));
+      }
+    this->Quad->Derivatives(0, pcoords, values, dim, derivs);
+    return;
+    }
+  else if ( this->Points->GetNumberOfPoints() == 3 )
+    {
+    for(i=0; i<3; i++)
+      {
+      this->Triangle->Points->SetPoint(i,this->Points->GetPoint(i));
+      }
+    this->Triangle->Derivatives(0, pcoords, values, dim, derivs);
+    return;
+    }
+
   float p0[3], p10[3], l10, p20[3], l20, n[3];
   float x[3][3], l1, l2, v1[3], v2[3];
   int numVerts=this->PointIds->GetNumberOfIds();
   float *weights = new float[numVerts];
   float *sample = new float[dim*3];
+
 
   //setup parametric system and check for degeneracy
   if ( this->ParameterizePolygon(p0, p10, l10, p20, l20, n) == 0 )
