@@ -41,10 +41,15 @@ typedef int vtkIdType;
 #endif // VTK_USE_64BIT_IDS
 
 // Visual Studio 6 does not provide these operators.
-#if defined(VTK_USE_64BIT_IDS) && defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(VTK_SIZEOF___INT64) && defined(_MSC_VER) && (_MSC_VER < 1300)
 # if !defined(VTK_NO_INT64_OSTREAM_OPERATOR)
 VTK_COMMON_EXPORT ostream& vtkIdTypeOutput(ostream& os, __int64 id);
 inline ostream& operator << (ostream& os, __int64 id)
+{
+  return vtkIdTypeOutput(os, id);
+}
+VTK_COMMON_EXPORT ostream& vtkIdTypeOutput(ostream& os, unsigned __int64 id);
+inline ostream& operator << (ostream& os, unsigned __int64 id)
 {
   return vtkIdTypeOutput(os, id);
 }
@@ -52,6 +57,11 @@ inline ostream& operator << (ostream& os, __int64 id)
 # if !defined(VTK_NO_INT64_ISTREAM_OPERATOR)
 VTK_COMMON_EXPORT istream& vtkIdTypeInput(istream& is, __int64& id);
 inline istream& operator >> (istream& is, __int64& id)
+{
+  return vtkIdTypeInput(is, id);
+}
+VTK_COMMON_EXPORT istream& vtkIdTypeInput(istream& is, unsigned __int64& id);
+inline istream& operator >> (istream& is, unsigned __int64& id)
 {
   return vtkIdTypeInput(is, id);
 }
