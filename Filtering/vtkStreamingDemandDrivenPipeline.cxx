@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.15");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.16");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -322,8 +322,8 @@ vtkStreamingDemandDrivenPipeline
           // Get the executive and port number producing this input.
           vtkStreamingDemandDrivenPipeline* inExec =
             vtkStreamingDemandDrivenPipeline::SafeDownCast(
-              inInfo->Get(vtkExecutive::EXECUTIVE()));
-          int inPort = inInfo->Get(vtkExecutive::PORT_NUMBER());
+              inInfo->GetExecutive(vtkExecutive::PRODUCER()));
+          int inPort = inInfo->GetPort(vtkExecutive::PRODUCER());
           if(!inExec)
             {
             vtkErrorMacro(

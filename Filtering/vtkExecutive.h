@@ -32,7 +32,7 @@ class vtkAlgorithmToExecutiveFriendship;
 class vtkDataObject;
 class vtkExecutiveInternals;
 class vtkInformation;
-class vtkInformationExecutiveKey;
+class vtkInformationExecutivePortKey;
 class vtkInformationIntegerKey;
 class vtkInformationKeyVectorKey;
 class vtkInformationVector;
@@ -89,13 +89,9 @@ public:
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
-  // Information key to store a pointer to an executive in an
+  // Information key to store the executive/port number producing an
   // information object.
-  static vtkInformationExecutiveKey* EXECUTIVE();
-
-  // Description:
-  // Information key to store a port number in an information object.
-  static vtkInformationIntegerKey* PORT_NUMBER();
+  static vtkInformationExecutivePortKey* PRODUCER();
 
   // Description:
   // Information key to store the output port number from which a

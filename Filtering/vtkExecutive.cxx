@@ -19,7 +19,7 @@
 #include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
-#include "vtkInformationExecutiveKey.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationVector.h"
@@ -29,31 +29,91 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.18");
+vtkCxxRevisionMacro(vtkExecutive, "1.19");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
-vtkInformationKeyMacro(vtkExecutive, EXECUTIVE, Executive);
 vtkInformationKeyMacro(vtkExecutive, FORWARD_DIRECTION, Integer);
 vtkInformationKeyMacro(vtkExecutive, FROM_OUTPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkExecutive, KEYS_TO_COPY, KeyVector);
-vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
+vtkInformationKeyMacro(vtkExecutive, PRODUCER, ExecutivePort);
 
 //----------------------------------------------------------------------------
 class vtkExecutiveInternals
 {
 public:
   vtkSmartPointer<vtkInformationVector> OutputInformation;
-  vtkstd::vector< vtkSmartPointer<vtkInformationVector> > InputInformation;
-  vtkstd::vector<vtkInformationVector*> InputInformationArray;
+  vtkstd::vector<vtkInformationVector*> InputInformation;
 
-  vtkExecutiveInternals()
-    {
-    this->OutputInformation = vtkSmartPointer<vtkInformationVector>::New();
-    }
-
+  vtkExecutiveInternals();
+  ~vtkExecutiveInternals();
   vtkInformationVector** GetInputInformation(int newNumberOfPorts);
 };
+
+//----------------------------------------------------------------------------
+vtkExecutiveInternals::vtkExecutiveInternals()
+{
+  // Create the single output information vector.
+  this->OutputInformation = vtkSmartPointer<vtkInformationVector>::New();
+}
+
+//----------------------------------------------------------------------------
+vtkExecutiveInternals::~vtkExecutiveInternals()
+{
+  // Delete all the input information vectors.
+  for(vtkstd::vector<vtkInformationVector*>::iterator
+        i = this->InputInformation.begin();
+      i != this->InputInformation.end(); ++i)
+    {
+    if(vtkInformationVector* v = *i)
+      {
+      v->Delete();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkInformationVector**
+vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
+{
+  // Adjust the number of vectors.
+  int oldNumberOfPorts = static_cast<int>(this->InputInformation.size());
+  if(newNumberOfPorts > oldNumberOfPorts)
+    {
+    // Create new vectors.
+    this->InputInformation.resize(newNumberOfPorts, 0);
+    for(int i=oldNumberOfPorts; i < newNumberOfPorts; ++i)
+      {
+      this->InputInformation[i] = vtkInformationVector::New();
+      }
+    }
+  else if(newNumberOfPorts < oldNumberOfPorts)
+    {
+    // Delete old vectors.
+    for(int i=newNumberOfPorts; i < oldNumberOfPorts; ++i)
+      {
+      if(vtkInformationVector* v = this->InputInformation[i])
+        {
+        // Set the pointer to NULL first to avoid reporting of the
+        // entry if deleting the vector causes a garbage collection
+        // reference walk.
+        this->InputInformation[i] = 0;
+        v->Delete();
+        }
+      }
+    this->InputInformation.resize(newNumberOfPorts);
+    }
+
+  // Return the array of information vector pointers.
+  if(newNumberOfPorts > 0)
+    {
+    return &this->InputInformation[0];
+    }
+  else
+    {
+    return 0;
+    }
+}
 
 //----------------------------------------------------------------------------
 vtkExecutive::vtkExecutive()
@@ -125,31 +185,6 @@ void vtkExecutive::SetAlgorithm(vtkAlgorithm* newAlgorithm)
 vtkAlgorithm* vtkExecutive::GetAlgorithm()
 {
   return this->Algorithm;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationVector**
-vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
-{
-  int oldNumberOfPorts = int(this->InputInformation.size());
-  if(oldNumberOfPorts != newNumberOfPorts)
-    {
-    this->InputInformation.resize(newNumberOfPorts);
-    this->InputInformationArray.resize(newNumberOfPorts);
-    for(int i=oldNumberOfPorts; i < newNumberOfPorts; ++i)
-      {
-      this->InputInformation[i] = vtkSmartPointer<vtkInformationVector>::New();
-      this->InputInformationArray[i] = this->InputInformation[i];
-      }
-    }
-  if(newNumberOfPorts > 0)
-    {
-    return &this->InputInformationArray[0];
-    }
-  else
-    {
-    return 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -231,8 +266,7 @@ vtkInformationVector* vtkExecutive::GetOutputInformation()
     {
     vtkInformation* info =
       this->ExecutiveInternal->OutputInformation->GetInformationObject(i);
-    info->Set(vtkExecutive::EXECUTIVE(), this);
-    info->Set(vtkExecutive::PORT_NUMBER(), i);
+    info->Set(vtkExecutive::PRODUCER(), this, i);
     }
 
   return this->ExecutiveInternal->OutputInformation;
@@ -379,8 +413,8 @@ vtkAlgorithmOutput* vtkExecutive::GetProducerPort(vtkDataObject* d)
   if(this->Algorithm && d)
     {
     vtkInformation* info = d->GetPipelineInformation();
-    vtkExecutive* dExecutive = info->Get(vtkExecutive::EXECUTIVE());
-    int port = info->Get(vtkExecutive::PORT_NUMBER());
+    vtkExecutive* dExecutive = info->GetExecutive(vtkExecutive::PRODUCER());
+    int port = info->GetPort(vtkExecutive::PRODUCER());
     if(dExecutive == this)
       {
       return this->Algorithm->GetOutputPort(port);

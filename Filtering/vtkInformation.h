@@ -32,7 +32,7 @@ class vtkExecutive;
 class vtkInformationDataObjectKey;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
-class vtkInformationExecutiveKey;
+class vtkInformationExecutivePortKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -68,7 +68,7 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationExecutiveKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key);
@@ -179,18 +179,19 @@ public:
   int Has(vtkInformationDataObjectKey* key);
 
   // Description:
-  // Get/Set an entry storing a vtkExecutive instance.
-  void Set(vtkInformationExecutiveKey* key, vtkExecutive*);
-  vtkExecutive* Get(vtkInformationExecutiveKey* key);
-  void Remove(vtkInformationExecutiveKey* key);
-  int Has(vtkInformationExecutiveKey* key);
+  // Get/Set an entry storing a vtkExecutive/port number pair.
+  void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
+  vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key);
+  int GetPort(vtkInformationExecutivePortKey* key);
+  void Remove(vtkInformationExecutivePortKey* key);
+  int Has(vtkInformationExecutivePortKey* key);
 
   // Description:
   // Upcast the given key instance.
   static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
   static vtkInformationKey* GetKey(vtkInformationDoubleKey* key);
   static vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
-  static vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
+  static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
   static vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);

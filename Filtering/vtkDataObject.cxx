@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.11");
+vtkCxxRevisionMacro(vtkDataObject, "1.12");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -245,8 +245,8 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
 
       // If the new producer is a vtkSource then setup the backward
       // compatibility link.
-      vtkExecutive* newExec = newInfo->Get(vtkExecutive::EXECUTIVE());
-      int newPort = newInfo->Get(vtkExecutive::PORT_NUMBER());
+      vtkExecutive* newExec = newInfo->GetExecutive(vtkExecutive::PRODUCER());
+      int newPort = newInfo->GetPort(vtkExecutive::PRODUCER());
       if(newExec)
         {
         vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
@@ -265,8 +265,8 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
       {
       // If the old producer was a vtkSource then remove the backward
       // compatibility link.
-      vtkExecutive* oldExec = oldInfo->Get(vtkExecutive::EXECUTIVE());
-      int oldPort = oldInfo->Get(vtkExecutive::PORT_NUMBER());
+      vtkExecutive* oldExec = oldInfo->GetExecutive(vtkExecutive::PRODUCER());
+      int oldPort = oldInfo->GetPort(vtkExecutive::PRODUCER());
       if(oldExec)
         {
         vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
@@ -443,7 +443,7 @@ vtkExecutive* vtkDataObject::GetExecutive()
 {
   if(this->PipelineInformation)
     {
-    return this->PipelineInformation->Get(vtkExecutive::EXECUTIVE());
+    return this->PipelineInformation->GetExecutive(vtkExecutive::PRODUCER());
     }
   return 0;
 }
@@ -453,7 +453,7 @@ int vtkDataObject::GetPortNumber()
 {
   if(this->PipelineInformation)
     {
-    return this->PipelineInformation->Get(vtkExecutive::PORT_NUMBER());
+    return this->PipelineInformation->GetPort(vtkExecutive::PRODUCER());
     }
   return 0;
 }

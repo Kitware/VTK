@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationExecutiveKey.h
+  Module:    vtkInformationExecutivePortKey.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationExecutiveKey - Key for vtkExecutive values.
+// .NAME vtkInformationExecutivePortKey - Key for vtkExecutive/Port value pairs.
 // .SECTION Description
-// vtkInformationExecutiveKey is used to represent keys in
-// vtkInformation for values that are vtkExecutive instances.
+// vtkInformationExecutivePortKey is used to represent keys in
+// vtkInformation for values that are vtkExecutive instances paired
+// with port numbers.
 
-#ifndef __vtkInformationExecutiveKey_h
-#define __vtkInformationExecutiveKey_h
+#ifndef __vtkInformationExecutivePortKey_h
+#define __vtkInformationExecutivePortKey_h
 
 #include "vtkInformationKey.h"
 
@@ -26,20 +27,21 @@
 
 class vtkExecutive;
 
-class VTK_FILTERING_EXPORT vtkInformationExecutiveKey : public vtkInformationKey
+class VTK_FILTERING_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
 {
 public:
-  vtkTypeRevisionMacro(vtkInformationExecutiveKey,vtkInformationKey);
+  vtkTypeRevisionMacro(vtkInformationExecutivePortKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkInformationExecutiveKey(const char* name, const char* location);
-  ~vtkInformationExecutiveKey();
+  vtkInformationExecutivePortKey(const char* name, const char* location);
+  ~vtkInformationExecutivePortKey();
 
   // Description:
   // Get/Set the value associated with this key in the given
   // information object.
-  void Set(vtkInformation* info, vtkExecutive*);
-  vtkExecutive* Get(vtkInformation* info);
+  void Set(vtkInformation* info, vtkExecutive*, int);
+  vtkExecutive* GetExecutive(vtkInformation* info);
+  int GetPort(vtkInformation* info);
   int Has(vtkInformation* info);
 
   // Description:
@@ -53,8 +55,8 @@ public:
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
 private:
-  vtkInformationExecutiveKey(const vtkInformationExecutiveKey&);  // Not implemented.
-  void operator=(const vtkInformationExecutiveKey&);  // Not implemented.
+  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&);  // Not implemented.
+  void operator=(const vtkInformationExecutivePortKey&);  // Not implemented.
 };
 
 #endif

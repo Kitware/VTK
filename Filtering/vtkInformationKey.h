@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Remove this key from the given information object.
-  void Remove(vtkInformation* info);
+  virtual void Remove(vtkInformation* info);
 
   // Description:
   // Report a reference this key has in the given information object.

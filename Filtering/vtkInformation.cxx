@@ -18,7 +18,7 @@
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationExecutiveKey.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationInformationKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -32,7 +32,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.8");
+vtkCxxRevisionMacro(vtkInformation, "1.9");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutiveKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key)
 {
   key->Copy(from, this);
 }
@@ -225,7 +225,6 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Double, double);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(UnsignedLong, unsigned long);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(String, const char*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
-VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Executive, vtkExecutive*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Information, vtkInformation*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
@@ -297,6 +296,37 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
 #undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
 
 //----------------------------------------------------------------------------
+void vtkInformation::Set(vtkInformationExecutivePortKey* key,
+                         vtkExecutive* executive, int port)
+{
+  key->Set(this, executive, port);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationExecutivePortKey* key)
+{
+  key->Remove(this);
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkInformation::GetExecutive(vtkInformationExecutivePortKey* key)
+{
+  return key->GetExecutive(this);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformation::GetPort(vtkInformationExecutivePortKey* key)
+{
+  return key->GetPort(this);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationExecutivePortKey* key)
+{
+  return key->Has(this);
+}
+
+//----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationKey* key)
 {
   return key;
@@ -309,7 +339,7 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectKey* key)
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKey* vtkInformation::GetKey(vtkInformationExecutiveKey* key)
+vtkInformationKey* vtkInformation::GetKey(vtkInformationExecutivePortKey* key)
 {
   return key;
 }

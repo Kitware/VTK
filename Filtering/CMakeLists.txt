@@ -105,7 +105,7 @@ vtkInformation.cxx
 vtkInformationDataObjectKey.cxx
 vtkInformationDoubleKey.cxx
 vtkInformationDoubleVectorKey.cxx
-vtkInformationExecutiveKey.cxx
+vtkInformationExecutivePortKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
@@ -246,7 +246,7 @@ vtkImageTwoInputFilter
 vtkInformationDataObjectKey
 vtkInformationDoubleKey
 vtkInformationDoubleVectorKey
-vtkInformationExecutiveKey
+vtkInformationExecutivePortKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey
 vtkInformationIntegerKey
