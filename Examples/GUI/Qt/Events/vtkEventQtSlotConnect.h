@@ -32,6 +32,8 @@
 
 #include "qobject.h"
 
+class vtkEventQtSlotConnectPrivate;
+class vtkQtConnectionString;
 
 // manage connections between VTK object events and Qt slots
 class vtkEventQtSlotConnect : public vtkObject
@@ -60,7 +62,6 @@ class vtkEventQtSlotConnect : public vtkObject
                  QObject* qt_obj=NULL, const char* slot = 0);
 
   protected:
-    class vtkEventQtSlotConnectPrivate;
     vtkEventQtSlotConnectPrivate* mPrivate;
   
     vtkEventQtSlotConnect();
@@ -106,8 +107,7 @@ class vtkQtConnection : public QObject, public vtkCommand
     vtkObject* mVTKObject;
     QObject* mQtObject;
     void* mClientData;
-    int mVTKEvent;
-    class vtkQtConnectionString;
+    unsigned long mVTKEvent;
     vtkQtConnectionString* mQtSlot;
 
 };

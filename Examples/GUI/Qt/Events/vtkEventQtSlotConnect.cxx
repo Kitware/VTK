@@ -32,7 +32,7 @@
 #include "qobject.h"
 
 
-class vtkQtConnection::vtkQtConnectionString : public vtkstd::string 
+class vtkQtConnectionString : public vtkstd::string 
 {
   public:
     vtkQtConnectionString(const char* str) : vtkstd::string(str) {}
@@ -122,21 +122,21 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
       
 
 // hold all the connections
-class vtkEventQtSlotConnect::vtkEventQtSlotConnectPrivate : public vtkstd::vector< vtkQtConnection* > {};
+class vtkEventQtSlotConnectPrivate : public vtkstd::vector< vtkQtConnection* > {};
 
 vtkStandardNewMacro(vtkEventQtSlotConnect)
 
 // constructor
 vtkEventQtSlotConnect::vtkEventQtSlotConnect()
 {
-  mPrivate = new vtkEventQtSlotConnect::vtkEventQtSlotConnectPrivate;
+  mPrivate = new vtkEventQtSlotConnectPrivate;
 }
 
 
 vtkEventQtSlotConnect::~vtkEventQtSlotConnect()
 {
   // clean out connections
-  vtkEventQtSlotConnect::vtkEventQtSlotConnectPrivate::iterator iter;
+  vtkEventQtSlotConnectPrivate::iterator iter;
   for(iter=mPrivate->begin(); iter!=mPrivate->end(); ++iter)
     {
     (*iter)->Delete();
@@ -160,7 +160,7 @@ void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
   if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)
     all_info = false;
 
-  vtkEventQtSlotConnect::vtkEventQtSlotConnectPrivate::iterator iter;
+  vtkEventQtSlotConnectPrivate::iterator iter;
   for(iter=mPrivate->begin(); iter!=mPrivate->end(); ++iter)
     {
       // if information matches, remove the connection
