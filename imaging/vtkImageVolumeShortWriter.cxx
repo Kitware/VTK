@@ -241,7 +241,7 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
       }
     
     // write a row
-    if ( ! file->write(buf, streamRowRead))
+    if ( ! file->write((char *)buf, streamRowRead))
       {
       cerr << "vtkImageVolumeShortWriterWrite2: ERROR: "
 	   << "WriteSlice: write failed";

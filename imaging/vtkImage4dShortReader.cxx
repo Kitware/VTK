@@ -213,7 +213,7 @@ void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
   buf = new unsigned char[imageSize]; 
   
   // read the image all at once
-  if ( ! self->File->read(buf, imageSize))
+  if ( ! self->File->read((char *)buf, imageSize))
     {
     cerr << "File operation failed.\n";
     return;
@@ -331,7 +331,7 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
   pf1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
-    if ( ! self->File->read(buf, streamRowRead))
+    if ( ! self->File->read((char *)buf, streamRowRead))
       {
       cerr << "File operation failed. row = " << idx1
 	   << ", StartPos = " << streamStartPos

@@ -217,7 +217,7 @@ void vtkImageVolumeShortReaderGenerateData2d(vtkImageVolumeShortReader *self,
   pf1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
-    if ( ! self->File->read(buf, streamRowRead))
+    if ( ! self->File->read((char *)buf, streamRowRead))
       {
       cerr << "File operation failed. row = " << idx1
 	   << ", StartPos = " << streamStartPos
