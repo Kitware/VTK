@@ -148,41 +148,39 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   vtkWindow* window = viewport->GetVTKWindow();
   int* winSize = window->GetSize();
 
-  // if we clip based on 0,0 then we need to store the amount we
-  // adjusted by so that we can take that into account in the
-  // positioning of the actor
-  // initialize PositionAdjustment to zero
-  this->PositionAdjustment[0] = 0;
-  this->PositionAdjustment[1] = 0;
+
+  // the basic formula is that the draw pos equals
+  // the pos + extentPos + clippedAmount
+  // The concrete subclass will get the pos in display
+  // coordinates so we need to provide the extentPos plus
+  // clippedAmount in the PositionAdjustment variable
 
   // Now clip to imager extents
-  if (pos[0] < 0) 
+  if (pos[0] + wholeExtent[0] < 0) 
     {
-    this->PositionAdjustment[0] = -1*pos[0];
-    displayExtent[0] -= pos[0];
+    displayExtent[0] = -pos[0];
     }
-  if ((pos[0]+wholeExtent[1] - wholeExtent[0] + 1) > 
+  if ((pos[0]+wholeExtent[1]) >= 
       (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
     {
-    displayExtent[1] = displayExtent[1] - 
-      (pos[0]+wholeExtent[1] - wholeExtent[0] + 1) + 
-      (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]);
+    displayExtent[1] = (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]) - pos[0] - 1;
     }
-  if (pos[1] < 0) 
+  if (pos[1] + wholeExtent[2] < 0) 
     {
-    this->PositionAdjustment[1] = -1*pos[1];
-    displayExtent[2] -= pos[1];
+    displayExtent[2] = -pos[1];
     }
-  if ((pos[1] + wholeExtent[3] - wholeExtent[2] + 1) > 
+  if ((pos[1]+wholeExtent[3]) >= 
       (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
     {
-    displayExtent[3] = displayExtent[3] - 
-      (pos[1]+wholeExtent[3] - wholeExtent[2] + 1) + 
-      (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]);
+    displayExtent[3] = (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]) - pos[1] - 1;
     }
 
   this->Input->SetUpdateExtent(displayExtent);
 
+  // set the position adjustment
+  this->PositionAdjustment[0] = displayExtent[0];
+  this->PositionAdjustment[1] = displayExtent[2];
+    
   // Get the region from the input
   data = this->Input->UpdateAndReturnData();
   if ( !data)
