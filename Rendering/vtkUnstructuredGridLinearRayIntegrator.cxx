@@ -56,13 +56,14 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
 {
   this->Property = NULL;
   this->ControlPoints = NULL;
+  this->NumIndependentComponents = 0;
 }
 
 vtkUnstructuredGridLinearRayIntegrator::~vtkUnstructuredGridLinearRayIntegrator()
