@@ -1,4 +1,4 @@
-catch {load vtkdll}
+catch {load vtktcl}
 
 foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt UnsignedLong UnsignedShort" {
   vtk${array}Array a${array}Array

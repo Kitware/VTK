@@ -13,7 +13,7 @@ source ../../examplesTcl/vtkInt.tcl
 
 wm withdraw .
 
-catch {load vtkdll}
+catch {load vtktcl}
 
 #
 #	input static grid data once
