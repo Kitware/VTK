@@ -46,6 +46,11 @@ vtkBridgeCellIteratorOnCellList.cxx
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherCreation.cxx
   TestGenericDataSetTessellator.cxx
+  TestGenericGeometryFilter.cxx
+  TestGenericGlyph3DFilter.cxx
+  TestGenericContourFilter.cxx
+  TestGenericClip.cxx
+  TestGenericCutter.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ${Kit_SRCS} )
