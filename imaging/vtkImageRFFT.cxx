@@ -54,7 +54,10 @@ vtkImageRFFT::vtkImageRFFT()
 // This method sets up multiple RFFT filters
 void vtkImageRFFT::SetDimensionality(int num)
 {
-  int idx;
+  int idx, idx2;
+  int splitOrder[VTK_IMAGE_DIMENSIONS];
+  int *axes;
+  
   
   if (num > VTK_IMAGE_DIMENSIONS)
     {
@@ -70,6 +73,13 @@ void vtkImageRFFT::SetDimensionality(int num)
       }
     this->Filters[idx] = new vtkImageRFFT1D;
     this->Filters[idx]->SetAxes(this->Axes[idx]);
+    // Splitting the principle axis will do no good (reverse order).
+    axes = this->Filters[idx]->GetAxes();
+    for (idx2 = 0; idx2 < VTK_IMAGE_DIMENSIONS; ++idx2)
+      {
+      splitOrder[idx2] = axes[VTK_IMAGE_DIMENSIONS - idx2 - 1];
+      }
+    this->Filters[idx]->SetSplitOrder(VTK_IMAGE_DIMENSIONS, splitOrder);
     }
   
   this->Dimensionality = num;

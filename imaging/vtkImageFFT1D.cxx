@@ -199,8 +199,8 @@ void vtkImageFFT1DExecute(vtkImageFFT1D *self,
   // Convert the input to complex numbers.
   // The complexity is because real or imaginary may not exist.
   // Set up the pointers (NULL => does not exist).
-  realComp = self->GetInputRealComponent();
-  imagComp = self->GetInputImaginaryComponent();
+  realComp = self->InputRealComponent;
+  imagComp = self->InputImaginaryComponent;
   if (realComp > inMax0 || realComp < inMin0)
     {
     inPtrReal = NULL;
@@ -281,9 +281,6 @@ void vtkImageFFT1D::Execute(vtkImageRegion *inRegion,
   inPtr = inRegion->GetScalarPointer();
   outPtr = outRegion->GetScalarPointer();
 
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
-  
   // this filter expects that the output be floats.
   if (outRegion->GetScalarType() != VTK_FLOAT)
     {

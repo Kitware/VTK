@@ -53,6 +53,8 @@ vtkImageFilter::vtkImageFilter()
 //----------------------------------------------------------------------------
 void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
+  
   vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ").\n";
   if (this->UseExecuteMethod)
@@ -63,6 +65,13 @@ void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Use Update Method.\n";
     }
+  
+  os << indent << "SplitOrder: ("<< vtkImageAxisNameMacro(this->SplitOrder[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->SplitOrder[idx]);
+    }
+  os << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -253,8 +262,8 @@ void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
     // Set the first half to update
     mid = (min + max) / 2;
     vtkDebugMacro(<< "UpdatePointData2: Splitting " 
-        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << mid
-        << ", " << mid+1 << "->" << max);
+        << vtkImageAxisNameMacro(splitAxis) << ": memory = " << memory <<
+        ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
     outRegion->SetAxisExtent(splitAxis, min, mid);
     this->UpdatePointData2(dim, inRegion, outRegion);
     // Set the second half to update

@@ -167,6 +167,35 @@ void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
 }
 
 
+//----------------------------------------------------------------------------
+// Description:
+// Each sub filter gets the same limit.
+void vtkImageDecomposedFilter::SetInputMemoryLimit(long limit)
+{
+  int idx;
+  
+  for (idx = 0; idx < this->Dimensionality; ++idx)
+    {
+    if ( ! this->Filters[idx])
+      {
+      vtkErrorMacro(<< "SetInputMemoryLimit: Sub filter not created yet. "
+		    << "Subclasses SetDimensionality did not work");
+      return;
+      }
+    this->Filters[idx]->SetInputMemoryLimit(limit);
+    }
+  
+  this->Modified();
+}
+
+
+
+
+
+
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:

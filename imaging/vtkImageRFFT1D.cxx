@@ -191,9 +191,6 @@ void vtkImageRFFT1D::Execute(vtkImageRegion *inRegion,
   inPtr = inRegion->GetScalarPointer();
   outPtr = outRegion->GetScalarPointer();
 
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
-  
   // this filter expects the input to be floats.
   if (inRegion->GetScalarType() != VTK_FLOAT)
     {

@@ -70,7 +70,10 @@ public:
   unsigned long GetPipelineMTime();
   // Foward filter messages to first fitler
   void SetInput(vtkImageSource *Input);
-
+  // Input memory limit causes streaming
+  void SetInputMemoryLimit(long limit);
+  
+  
   // Description:
   // Set the axes of the filter. This also tells the filter how many 
   // 1D filters should be created.

@@ -69,11 +69,13 @@ public:
   vtkGetMacro(InputRealComponent, int);
   vtkSetMacro(InputImaginaryComponent, int);
   vtkGetMacro(InputImaginaryComponent, int);
-  
-protected:
+
   // which input components are real and which are imaginary.
+  // Public for templated function.
   int InputRealComponent;
   int InputImaginaryComponent;
+
+protected:
     
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);

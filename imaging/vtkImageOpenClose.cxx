@@ -194,7 +194,7 @@ unsigned long int vtkImageOpenClose::GetPipelineMTime()
   if ( ! this->Filter1)
     {
     vtkWarningMacro(<< "GetPipelineMTime: Sub filter not created yet.");
-    return NULL;
+    return 0;
     }
   else
     {
