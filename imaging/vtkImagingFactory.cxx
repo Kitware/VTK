@@ -155,6 +155,10 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkXImageWindow::New();
       }
+    if(strcmp(vtkclassname, "vtkImager") == 0)
+      {
+      return NULL;
+      }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
       return vtkXImageMapper::New();
