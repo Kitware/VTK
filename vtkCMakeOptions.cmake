@@ -128,7 +128,6 @@ ELSE (WIN32)
     PATHS  
     /usr/lib 
     /usr/local/lib
-    "${VTK_SOURCE_DIR}/IO/PNG"
   )
   FIND_PATH(PNG_INCLUDE_PATH png.h 
     /usr/include 
@@ -140,7 +139,6 @@ ELSE (WIN32)
     PATHS  
     /usr/lib 
     /usr/local/lib
-    "${VTK_SOURCE_DIR}/IO/PNG"
   )
   FIND_PATH(ZLIB_INCLUDE_PATH zlib.h 
     /usr/include 
