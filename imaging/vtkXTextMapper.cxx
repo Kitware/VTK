@@ -176,7 +176,7 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
   int dir, as, des;
   XCharStruct overall;
   XQueryTextExtents(displayId, font, this->Input, strlen(this->Input),
-		    &dir, &as, &des, &overall);n
+		    &dir, &as, &des, &overall);
   size[1] = as + des;
   size[0] = overall.width;
   this->CurrentFont = font;
