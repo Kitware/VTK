@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.16");
+vtkCxxRevisionMacro(vtkXMLReader, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -639,7 +639,7 @@ void vtkXMLReader::DestroyStringArray(int numStrings, char** strings)
       delete [] strings[i];
       }
     }
-  delete strings;
+  delete [] strings;
 }
 
 //----------------------------------------------------------------------------
