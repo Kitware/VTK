@@ -50,6 +50,30 @@ SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
 CHECK_TYPE_SIZE("long long" VTK_SIZEOF_LONG_LONG)
 CHECK_TYPE_SIZE("__int64"   VTK_SIZEOF___INT64)
 
+IF(VTK_SIZEOF___INT64)
+  IF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
+    MESSAGE(STATUS "Checking whether long and __int64 are the same type")
+    TRY_COMPILE(VTK_TYPE_SAME_LONG_AND___INT64
+      ${VTK_BINARY_DIR}/CMakeTmp
+      ${VTK_SOURCE_DIR}/CMake/vtkTestCompareTypes.cxx
+      COMPILE_DEFINITIONS
+      -DVTK_TEST_COMPARE_TYPE_1=long
+      -DVTK_TEST_COMPARE_TYPE_2=__int64
+      OUTPUT_VARIABLE OUTPUT)
+    IF(VTK_TYPE_SAME_LONG_AND___INT64)
+      MESSAGE(STATUS "Checking whether long and __int64 are the same type -- yes")
+      SET(VTK_TYPE_SAME_LONG_AND___INT64 1 CACHE INTERNAL "Whether long and __int64 are the same type")
+    ELSE(VTK_TYPE_SAME_LONG_AND___INT64)
+      MESSAGE(STATUS "Checking whether long and __int64 are the same type -- no")
+      SET(VTK_TYPE_SAME_LONG_AND___INT64 0 CACHE INTERNAL "Whether long and __int64 are the same type")
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+        "Determining whether long and __int64 are the same type "
+        "failed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
+    ENDIF(VTK_TYPE_SAME_LONG_AND___INT64)
+  ENDIF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
+ENDIF(VTK_SIZEOF___INT64)
+
 IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   MESSAGE(STATUS "Checking support for C++ type bool")
   TRY_COMPILE(VTK_COMPILER_HAS_BOOL
