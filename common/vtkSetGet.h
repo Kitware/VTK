@@ -122,7 +122,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
 #define vtkSetMacro(name,type) \
-void Set##name (type _arg) \
+virtual void Set##name (type _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " #name " to " << _arg); \
   if (this->name != _arg) \
@@ -136,7 +136,7 @@ void Set##name (type _arg) \
 // Get built-in type.  Creates member Get"name"() (e.g., GetVisibility());
 //
 #define vtkGetMacro(name,type) \
-type Get##name () { \
+virtual type Get##name () { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << this->name ); \
   return this->name; \
   } 
@@ -147,7 +147,7 @@ type Get##name () { \
 // (e.g., SetFilename(char *));
 //
 #define vtkSetStringMacro(name) \
-void Set##name (const char* _arg) \
+virtual void Set##name (const char* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
@@ -169,7 +169,7 @@ void Set##name (const char* _arg) \
 // (e.g., char *GetFilename());
 //
 #define vtkGetStringMacro(name) \
-char* Get##name () { \
+virtual char* Get##name () { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << this->name); \
   return this->name; \
   } 
@@ -180,7 +180,7 @@ char* Get##name () { \
 // convienience for clamping open-ended values.
 //
 #define vtkSetClampMacro(name,type,min,max) \
-void Set##name (type _arg) \
+virtual void Set##name (type _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if (this->name != (_arg<min?min:(_arg>max?max:_arg))) \
@@ -195,7 +195,7 @@ void Set##name (type _arg) \
 // Creates method Set"name"() (e.g., SetPoints()).
 //
 #define vtkSetObjectMacro(name,type) \
-void Set##name (type* _arg) \
+virtual void Set##name (type* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if (this->name != _arg) \
@@ -211,7 +211,7 @@ void Set##name (type* _arg) \
 // Identical to vtkSetObjectMacro. Left in for legacy compatibility.
 //
 #define vtkSetReferenceCountedObjectMacro(name,type) \
-void Set##name (type* _arg) \
+virtual void Set##name (type* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if (this->name != _arg) \
@@ -227,7 +227,7 @@ void Set##name (type* _arg) \
 // Get pointer to object.  Creates member Get"name" (e.g., GetPoints()).
 //
 #define vtkGetObjectMacro(name,type) \
-type *Get##name () \
+virtual type *Get##name () \
   { \
       vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name " address " << this->name ); \
   return this->name; \
@@ -238,8 +238,8 @@ type *Get##name () \
 // Set method must be defined to use this macro.
 //
 #define vtkBooleanMacro(name,type) \
-void name##On () { this->Set##name((type)1);}; \
-void name##Off () { this->Set##name((type)0);}
+virtual void name##On () { this->Set##name((type)1);}; \
+virtual void name##Off () { this->Set##name((type)0);}
 
 //
 // Following set macros for vectors define two members for each macro.  The first 
@@ -248,7 +248,7 @@ void name##Off () { this->Set##name((type)0);}
 // The macros vary in the size of the vector they deal with.
 //
 #define vtkSetVector2Macro(name,type) \
-void Set##name (type _arg1, type _arg2) \
+virtual void Set##name (type _arg1, type _arg2) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)) \
@@ -264,24 +264,24 @@ void Set##name (type _arg[2]) \
   } 
 
 #define vtkGetVector2Macro(name,type) \
-type *Get##name () \
+virtual type *Get##name () \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
-void Get##name (type &_arg1, type &_arg2) \
+virtual void Get##name (type &_arg1, type &_arg2) \
   { \
     _arg1 = this->name[0]; \
     _arg2 = this->name[1]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")"); \
   }; \
-void Get##name (type _arg[2]) \
+virtual void Get##name (type _arg[2]) \
   { \
   this->Get##name (_arg[0], _arg[1]);\
   } 
 
 #define vtkSetVector3Macro(name,type) \
-void Set##name (type _arg1, type _arg2, type _arg3) \
+virtual void Set##name (type _arg1, type _arg2, type _arg3) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)) \
@@ -292,31 +292,31 @@ void Set##name (type _arg1, type _arg2, type _arg3) \
     this->name[2] = _arg3; \
     } \
   }; \
-void Set##name (type _arg[3]) \
+virtual void Set##name (type _arg[3]) \
   { \
   this->Set##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vtkGetVector3Macro(name,type) \
-type *Get##name () \
+virtual type *Get##name () \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
-void Get##name (type &_arg1, type &_arg2, type &_arg3) \
+virtual void Get##name (type &_arg1, type &_arg2, type &_arg3) \
   { \
     _arg1 = this->name[0]; \
     _arg2 = this->name[1]; \
     _arg3 = this->name[2]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
   }; \
-void Get##name (type _arg[3]) \
+virtual void Get##name (type _arg[3]) \
   { \
   this->Get##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vtkSetVector4Macro(name,type) \
-void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
+virtual void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)||(this->name[3] != _arg4)) \
@@ -328,19 +328,19 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
     this->name[3] = _arg4; \
     } \
   }; \
-void Set##name (type _arg[4]) \
+virtual void Set##name (type _arg[4]) \
   { \
   this->Set##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 
 #define vtkGetVector4Macro(name,type) \
-type *Get##name () \
+virtual type *Get##name () \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
-void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
+virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
   { \
     _arg1 = this->name[0]; \
     _arg2 = this->name[1]; \
@@ -348,13 +348,13 @@ void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
     _arg4 = this->name[3]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   }; \
-void Get##name (type _arg[4]) \
+virtual void Get##name (type _arg[4]) \
   { \
   this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 #define vtkSetVector6Macro(name,type) \
-void Set##name (type _arg1, type _arg2, type _arg3, type _arg4, type _arg5, type _arg6) \
+virtual void Set##name (type _arg1, type _arg2, type _arg3, type _arg4, type _arg5, type _arg6) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << "," << _arg5 << "," << _arg6 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)||(this->name[3] != _arg4)||(this->name[4] != _arg5)||(this->name[5] != _arg6)) \
@@ -368,18 +368,18 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4, type _arg5, type
     this->name[5] = _arg6; \
     } \
   }; \
-void Set##name (type _arg[6]) \
+virtual void Set##name (type _arg[6]) \
   { \
   this->Set##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
   } 
 
 #define vtkGetVector6Macro(name,type) \
-type *Get##name () \
+virtual type *Get##name () \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
-void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type &_arg5, type &_arg6) \
+virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type &_arg5, type &_arg6) \
   { \
     _arg1 = this->name[0]; \
     _arg2 = this->name[1]; \
@@ -389,7 +389,7 @@ void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type &_arg5,
     _arg6 = this->name[5]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << "," << _arg5 <<"," << _arg6 << ")"); \
   }; \
-void Get##name (type _arg[6]) \
+virtual void Get##name (type _arg[6]) \
   { \
   this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
   } 
@@ -400,7 +400,7 @@ void Get##name (type _arg[6]) \
 // Examples: void SetColor(c,3)
 //
 #define vtkSetVectorMacro(name,type,count) \
-void Set##name(type data[]) \
+virtual void Set##name(type data[]) \
 { \
   int i; \
   for (i=0; i<count; i++) { if ( data[i] != this->name[i] ) { break; }} \
@@ -418,12 +418,12 @@ void Set##name(type data[]) \
 // Examples: float *GetColor() and void GetColor(float c[count]).
 //
 #define vtkGetVectorMacro(name,type,count) \
-type *Get##name () \
+virtual type *Get##name () \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
-void Get##name (type data[count]) \
+virtual void Get##name (type data[count]) \
 { \
   for (int i=0; i<count; i++) { data[i] = this->name[i]; }\
 }
@@ -524,35 +524,35 @@ if (vtkObject::GetGlobalWarningDisplay()) { cerr << "Warning: In " __FILE__ ", l
 #define vtkNotUsed(x)
 
 #define vtkWorldCoordinateMacro(name) \
-vtkCoordinate *Get##name##Coordinate () \
+virtual vtkCoordinate *Get##name##Coordinate () \
 { \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name "Coordinate address " << this->name##Coordinate ); \
     return this->name##Coordinate; \
 } \
-void Set##name(float x[3]) {this->Set##name(x[0],x[1],x[2]);}; \
-void Set##name(float x, float y, float z) \
+virtual void Set##name(float x[3]) {this->Set##name(x[0],x[1],x[2]);}; \
+virtual void Set##name(float x, float y, float z) \
 { \
     this->name##Coordinate->SetCoordinateSystem(VTK_WORLD); \
     this->name##Coordinate->SetValue(x,y,z); \
 } \
-float *Get##name() \
+virtual float *Get##name() \
 { \
     return this->name##Coordinate->GetValue(); \
 }
 
 #define vtkViewportCoordinateMacro(name) \
-vtkCoordinate *Get##name##Coordinate () \
+virtual vtkCoordinate *Get##name##Coordinate () \
 { \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name "Coordinate address " << this->name##Coordinate ); \
     return this->name##Coordinate; \
 } \
-void Set##name(float x[2]) {this->Set##name(x[0],x[1]);}; \
-void Set##name(float x, float y) \
+virtual void Set##name(float x[2]) {this->Set##name(x[0],x[1]);}; \
+virtual void Set##name(float x, float y) \
 { \
     this->name##Coordinate->SetCoordinateSystem(VTK_VIEWPORT); \
     this->name##Coordinate->SetValue(x,y); \
 } \
-float *Get##name() \
+virtual float *Get##name() \
 { \
     return this->name##Coordinate->GetValue(); \
 }
