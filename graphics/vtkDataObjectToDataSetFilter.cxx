@@ -456,23 +456,33 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
     return 0;
     }
 
+  // Try using the arrays directly if possible; otherwise copy data
   vtkPoints *newPts = vtkPoints::New();
-  newPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(3, fieldArray));
-  newPts->SetNumberOfPoints(npts);
-  
-  for ( i=0; i < 3; i++ )
+  if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
+       fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
+       fieldArray[0]->GetNumberOfTuples() == npts )
     {
-    if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-      newPts->GetData(), i, fieldArray[i], this->PointArrayComponents[i],
-      this->PointComponentRange[i][0],
-      this->PointComponentRange[i][1],
-      this->PointNormalize[i]) == 0 )
+    newPts->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(3, fieldArray));
+    newPts->SetNumberOfPoints(npts);
+
+    for ( i=0; i < 3; i++ )
       {
-      newPts->Delete();
-      return 0;
+      if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
+	newPts->GetData(), i, fieldArray[i], this->PointArrayComponents[i],
+	this->PointComponentRange[i][0],
+	this->PointComponentRange[i][1],
+	this->PointNormalize[i]) == 0 )
+	{
+	newPts->Delete();
+	return 0;
+	}
       }
     }
-  
+
   ps->SetPoints(newPts);
   newPts->Delete();
   
