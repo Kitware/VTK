@@ -5,7 +5,7 @@
 // typical of most VTK programs.
 //
 
-// we import the vtk wrapped classes forst
+// we import the vtk wrapped classes first
 import vtk.*;
 
 // then we define our class
