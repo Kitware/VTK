@@ -80,7 +80,7 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 
   if ( cellId >= this->Size )
     {
-    this->Resize(cellId);
+    this->Resize(cellId + 1);
     }
   if ( cellId > this->MaxId )
     {
@@ -123,7 +123,7 @@ _vtkCell_s *vtkCellTypes::Resize(int sz)
 
   if ( sz >= this->Size )
     {
-    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    newSize = this->Size + sz;
     }
   else
     {

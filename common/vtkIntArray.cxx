@@ -165,7 +165,7 @@ int *vtkIntArray::Resize(const int sz)
 
   if ( sz > this->Size ) 
     {
-    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    newSize = this->Size + sz;
     }
   else if (sz == this->Size)
     {
@@ -176,6 +176,12 @@ int *vtkIntArray::Resize(const int sz)
     newSize = sz;
     }
 
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return 0;
+    }
+  
   if ( (newArray = new int[newSize]) == NULL )
     {
     vtkErrorMacro(<< "Cannot allocate memory\n");

@@ -106,7 +106,7 @@ _vtkLink_s *vtkCellLinks::Resize(int sz)
 
   if ( sz >= this->Size )
     {
-    newSize = this->Size +  this->Extend*(((sz-this->Size)/this->Extend)+1);
+    newSize = this->Size + sz;
     }
   else
     {
@@ -115,7 +115,7 @@ _vtkLink_s *vtkCellLinks::Resize(int sz)
 
   newArray = new _vtkLink_s[newSize];
 
-  for (i=0; i<newSize && i<this->Size; i++)
+  for (i=0; i<sz && i<this->Size; i++)
     {
     newArray[i] = this->Array[i];
     }
@@ -184,7 +184,7 @@ int vtkCellLinks::InsertNextPoint(int numLinks)
 {
   if ( ++this->MaxId >= this->Size )
     {
-    this->Resize(this->MaxId);
+    this->Resize(this->MaxId + 1);
     }
   this->Array[this->MaxId].cells = new int[numLinks];
   return this->MaxId;
