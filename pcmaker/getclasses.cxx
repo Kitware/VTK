@@ -531,11 +531,11 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (vals->m_Lean)
     {
-    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
+    fprintf(fp,"/W2 /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
     }
   else
     {
-    fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
+    fprintf(fp,"/W2 /Fo\"$(OUTDIR)/\" /c \n");
     }
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
