@@ -282,10 +282,9 @@ protected:
   int   LastTitleFontSize;
   int   LastLabelFontSize;
   
-private:
-  void BuildAxis(vtkViewport *viewport);
+  virtual void BuildAxis(vtkViewport *viewport);
   static float ComputeStringOffset(float width, float height, float theta);
-  static void SetOffsetPosition(float xTick[3], float theta, int stringHeight, 
+  static void SetOffsetPosition(float xTick[3], float theta, int stringHeight,
                                 int stringWidth, int offset, vtkActor2D *actor);
 
   vtkTextMapper *TitleMapper;
