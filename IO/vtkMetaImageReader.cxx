@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.14");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.15");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -645,7 +645,7 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
     {
     this->SetHeaderSize(headerlen);
     }
-  return 1;
+  return 3;
 }
 
 //----------------------------------------------------------------------------
