@@ -248,7 +248,7 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 }
       
 VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
-				 Tcl_Interp *interp)
+					       Tcl_Interp *interp, int &error)
 {
   Tcl_HashEntry *entry;
   ClientData temp;
@@ -256,6 +256,9 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
   char *args[3];
   char temps[256];
 
+  /* check for empty string, empty string is the same as passing NULL */
+  if (name[0] == '\0') return NULL;
+  
   /* set up the args */
   args[0] = "DoTypecasting";
   args[1] = result_type;
@@ -264,6 +267,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
   // object names cannot start with a number
   if ((name[0] >= '0')&&(name[0] <= '9'))
     {
+    error = 1;
     return NULL;
     }
   if ((entry = Tcl_FindHashEntry(&vtkInstanceLookup,name)))
@@ -274,6 +278,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
     {
     sprintf(temps,"vtk bad argument, could not find object named %s\n", name);
     Tcl_AppendResult(interp,temps,NULL);
+    error = 1;
     return NULL;
     }
   
@@ -286,6 +291,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
     {
     sprintf(temps,"vtk bad argument, could not find command process for %s.\n", name);
     Tcl_AppendResult(interp,temps,NULL);
+    error = 1;
     return NULL;
     }
 
@@ -297,6 +303,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
     {
     sprintf(temps,"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s to type %s.\n", name, name, result_type);
     Tcl_AppendResult(interp,temps,NULL);
+    error = 1;
     return NULL;
     }
 

@@ -465,7 +465,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   else
     {
     self->ImageViewer = (vtkImageViewer *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp);
+      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp, new_flag);
     ImageViewer = (vtkImageViewer *)(self->ImageViewer);
     }
   
@@ -616,7 +616,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   else
     {
     ImageViewer = (vtkImageViewer *)
-      vtkTclGetPointerFromObject(self->IV,"vtkImageViewer",self->Interp);
+      vtkTclGetPointerFromObject(self->IV,"vtkImageViewer",self->Interp, new_flag);
     self->ImageViewer = ImageViewer;
     }
   

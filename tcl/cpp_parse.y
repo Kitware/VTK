@@ -1190,8 +1190,7 @@ get_args(int i)
       break;
     case 109:
     case 309:
-      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp));\n",i,arg_ids[i],i+2,arg_ids[i]);
-      fprintf(yyout,"    if (temp%i == NULL)\n      {  error = 1;  }\n",i);
+      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp,error));\n",i,arg_ids[i],i+2,arg_ids[i]);
       break;
     case 2:    
     case 9:

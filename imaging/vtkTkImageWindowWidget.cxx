@@ -427,7 +427,7 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
   else
     {
     self->ImageWindow = (vtkImageWindow *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageWindow", self->Interp);
+      vtkTclGetPointerFromObject(self->IV, "vtkImageWindow", self->Interp, new_flag);
     ImageWindow = (vtkWin32ImageWindow *)(self->ImageWindow);
     }
   
@@ -576,7 +576,7 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
   else
     {
     ImageWindow = (vtkXImageWindow *)
-      vtkTclGetPointerFromObject(self->IV,"vtkImageWindow",self->Interp);
+      vtkTclGetPointerFromObject(self->IV,"vtkImageWindow",self->Interp, new_flag);
     self->ImageWindow = (vtkImageWindow *)(ImageWindow);
     }
   

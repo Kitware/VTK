@@ -475,7 +475,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   else
     {
     self->RenderWindow = (vtkRenderWindow *)vtkTclGetPointerFromObject(
-				  self->RW, "vtkRenderWindow", self->Interp);
+				  self->RW, "vtkRenderWindow", self->Interp,
+				  new_flag);
     renderWindow = (vtkWin32OpenGLRenderWindow *)(self->RenderWindow);
     }
   
@@ -625,7 +626,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   else
     {
     renderWindow = (vtkXRenderWindow *)
-      vtkTclGetPointerFromObject(self->RW,"vtkXRenderWindow",self->Interp);
+      vtkTclGetPointerFromObject(self->RW,"vtkXRenderWindow",self->Interp, new_flag);
     self->RenderWindow = (vtkRenderWindow *)(renderWindow);
     }
   

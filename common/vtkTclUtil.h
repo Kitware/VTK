@@ -60,7 +60,7 @@ extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 extern VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]));
 extern VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
-					Tcl_Interp *interp);
+					Tcl_Interp *interp, int &error);
 extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
 extern VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *);
 extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);
