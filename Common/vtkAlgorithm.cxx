@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.9");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -371,12 +371,19 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
   // Remove all other connections.
   if(!this->AlgorithmInternal->InputPorts[port].empty())
     {
+    vtkDebugMacro("Removing all connections to input port " << port << ".");
     vtkAlgorithm::ConnectionRemoveAllInput(this, port);
     }
 
   // Add the new connection.
   if(input)
     {
+    vtkDebugMacro("Adding connection from output port index "
+                  << input->GetIndex() << " on algorithm "
+                  << (input->GetProducer()?
+                      input->GetProducer()->GetClassName() : "NULL")
+                  << "(" << input->GetProducer() << ") to input port "
+                  << port << ".");
     vtkAlgorithm::ConnectionAdd(input->GetProducer(), input->GetIndex(),
                                 this, port);
     }
@@ -401,6 +408,12 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
     }
 
   // Add the new connection.
+  vtkDebugMacro("Adding connection from output port index "
+                << input->GetIndex() << " on algorithm "
+                << (input->GetProducer()?
+                    input->GetProducer()->GetClassName() : "NULL")
+                << "(" << input->GetProducer() << ") to input port "
+                << port << ".");
   vtkAlgorithm::ConnectionAdd(input->GetProducer(), input->GetIndex(),
                               this, port);
   this->Modified();
@@ -424,6 +437,12 @@ void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
     }
 
   // Remove the connection.
+  vtkDebugMacro("Removing connection from output port index "
+                << input->GetIndex() << " on algorithm "
+                << (input->GetProducer()?
+                    input->GetProducer()->GetClassName() : "NULL")
+                << "(" << input->GetProducer() << ") to input port "
+                << port << ".");
   vtkAlgorithm::ConnectionRemove(input->GetProducer(), input->GetIndex(),
                                  this, port);
   this->Modified();
