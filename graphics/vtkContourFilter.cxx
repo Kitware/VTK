@@ -43,8 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
+
+#ifdef USE_PATENTED
 #include "vtkMarchingSquares.h"
 #include "vtkMarchingCubes.h"
+#endif
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -143,11 +146,13 @@ void vtkContourFilter::Execute()
     {
     int dim = this->Input->GetCell(0)->GetCellDimension();
 
+#if USE_PATENTED
     if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
       {
       this->StructuredPointsContour(dim);
       return;
       }
+#endif
     }
 
   inScalars->GetRange(range);
@@ -225,6 +230,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
   vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
   int i;
 
+#if USE_PATENTED  
   if ( dim == 2 ) //marching squares
     {
     static vtkMarchingSquares msquares;
@@ -255,7 +261,8 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     mcubes.Update();
     output = mcubes.GetOutput();
     }
-
+#endif
+  
   thisOutput->CopyStructure(output);
   *thisOutput->GetPointData() = *output->GetPointData();
   output->Initialize();
