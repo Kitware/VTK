@@ -55,6 +55,11 @@ public:
   void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
   float TriangleArea(float p1[3], float p2[3], float p3[3]);
 
+private:
+  int _EvaluatePosition(float x[3], float closestPoint[3],
+                       int& subId, float pcoords[3],
+                       float& dist2, float weights[MAX_CELL_SIZE]);
+
 };
 
 // Description:
