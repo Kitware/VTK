@@ -167,6 +167,7 @@ protected:
   XColor               Colors[256];
   int                  NumberOfColors;
   Pixmap               Drawable;
+  int                  OwnDisplay;
   
   void MakeDefaultWindow();
   void GetDefaultVisualInfo(XVisualInfo *info);
