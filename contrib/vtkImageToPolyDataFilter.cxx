@@ -59,7 +59,6 @@ vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
   this->Table = vtkUnsignedCharArray::New();
   this->LookupTable = NULL;
 
-  this->Append = vtkAppendPolyData::New();
 }
 
 vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
@@ -69,7 +68,6 @@ vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
     {
     this->LookupTable->Delete();
     }
-  this->Append->Delete();
 }
 
 // declare helper functions
@@ -81,7 +79,8 @@ void vtkImageToPolyDataFilter::Execute()
   vtkPolyData *output=this->GetOutput();
   vtkPolyData *tmpOutput=vtkPolyData::New();
   vtkPolyData *tmpInput=vtkPolyData::New();
-  vtkPolyData *appendOutput=this->Append->GetOutput();
+  vtkAppendPolyData *append = vtkAppendPolyData::New();
+  vtkPolyData *appendOutput;
   vtkScalars *inScalars = input->GetPointData()->GetScalars();
   int numPixels=input->GetNumberOfPoints();
   int dims[3], numComp=inScalars->GetData()->GetNumberOfComponents();
@@ -101,6 +100,8 @@ void vtkImageToPolyDataFilter::Execute()
     return;
     }
   
+  appendOutput=append->GetOutput();
+
   input->GetDimensions(dims);
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
@@ -113,8 +114,8 @@ void vtkImageToPolyDataFilter::Execute()
   totalPieces = numPieces[0]*numPieces[1];
 
   appendOutput->Initialize(); //empty the output
-  this->Append->AddInput(tmpOutput); //output of piece
-  this->Append->AddInput(tmpInput); //output of previoius append
+  append->AddInput(tmpOutput); //output of piece
+  append->AddInput(tmpInput); //output of previoius append
 
   // Loop over this many pieces
   for (pieceNum=j=0; j < numPieces[1] && !abortExecute; j++)
@@ -177,7 +178,7 @@ void vtkImageToPolyDataFilter::Execute()
       tmpInput->CopyStructure(appendOutput);
       tmpInput->GetPointData()->PassData(appendOutput->GetPointData());
       tmpInput->GetCellData()->PassData(appendOutput->GetCellData());
-      this->Append->Update();
+      append->Update();
 
       // Clean up this iteration
       //
@@ -192,6 +193,7 @@ void vtkImageToPolyDataFilter::Execute()
   output->GetPointData()->PassData(appendOutput->GetPointData());
   output->GetCellData()->PassData(appendOutput->GetCellData());
 
+  append->Delete();
   tmpInput->Delete();
   tmpOutput->Delete();
 }
