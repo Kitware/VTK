@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------
 #
 SHELL = /bin/sh
-.SUFFIXES: .cc
+.SUFFIXES: .cxx
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in Config.mk
@@ -46,7 +46,7 @@ CXX_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
 
 VTKLIB = ${VTK_LIB_FILE}
 
-LDLIBS = -L../../common -lVTKCommon -L.. -lVTKGraphics ${XLIBS} @OGLR_LIBS@ @GLR_LIBS@ @SBR_LIBS@ @XGLR_LIBS@ ${DL_LIBS}
+LDLIBS = -L../../common -L.. -lVTKGraphics -lVTKCommon  ${XLIBS} @OGLR_LIBS@ @GLR_LIBS@ @SBR_LIBS@ @XGLR_LIBS@ ${DL_LIBS}
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
