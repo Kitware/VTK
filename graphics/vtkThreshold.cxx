@@ -93,7 +93,6 @@ void vtkThreshold::Execute()
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = new vtkIdList;
   vtkScalars *inScalars;
-  vtkFloatScalars *cellScalars = new vtkFloatScalars;
   vtkCell *cell;
   vtkFloatPoints *newPoints;
   vtkPointData *pd, *outPD;
@@ -126,7 +125,6 @@ void vtkThreshold::Execute()
     {
     cell = this->Input->GetCell(cellId);
     cellPts = cell->GetPointIds();
-    inScalars->GetScalars(*cellPts,*cellScalars);
     numCellPts = cell->GetNumberOfPoints();
     
     if (this->AllScalars)
@@ -136,7 +134,7 @@ void vtkThreshold::Execute()
 	{
 	ptId = cellPts->GetId(i);
 	keepCell = 
-	  (this->*(this->ThresholdFunction))(cellScalars->GetScalar(ptId));
+	  (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId));
 	}
       }
     else
@@ -146,7 +144,7 @@ void vtkThreshold::Execute()
 	{
 	ptId = cellPts->GetId(i);
 	keepCell = 
-	  (this->*(this->ThresholdFunction))(cellScalars->GetScalar(ptId));
+	  (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId));
 	}
       }
     
@@ -170,7 +168,7 @@ void vtkThreshold::Execute()
     } // for all cells
 
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
-               << " number of cells.");
+                << " number of cells.");
 
   // now clean up / update ourselves
   pointMap->Delete();
@@ -180,7 +178,6 @@ void vtkThreshold::Execute()
   newPoints->Delete();
 
   output->Squeeze();
-  cellScalars->Delete();
 }
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
