@@ -63,11 +63,12 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
 // Specify the dimensions of a regular, rectangular dataset. The input is
 // the new dimensions (inDim) and the current dimensions (dim). The function 
 // returns the dimension of the dataset (0-3D). If the dimensions are 
-// improperly specified or are unchanged, a -1 is returned.
+// improperly specified a -1 is returned. If the dimensions are unchanged, a
+// value of 100 is returned.
 int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 {
   int dataDim, i;
-  int dataDescription=(-1);
+  int dataDescription=VTK_UNCHANGED;
 
   if ( inDim[0] != dim[0] || inDim[1] != dim[1] || inDim[2] != dim[2] )
     {

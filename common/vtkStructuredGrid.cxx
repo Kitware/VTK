@@ -341,15 +341,16 @@ void vtkStructuredGrid::SetDimensions(int dim[3])
 {
   int returnStatus=vtkStructuredData::SetDimensions(dim,this->Dimensions);
 
-  if ( returnStatus > -1 ) 
+  if ( returnStatus > 0 ) 
     {
     this->DataDescription = returnStatus;
     this->Modified();
     }
-  else
-   {
-   vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
-   }
+
+   else if ( returnStatus < 0 ) //improperly specified
+    {
+    vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
+    }
 }
 
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)

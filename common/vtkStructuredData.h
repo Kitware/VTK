@@ -52,14 +52,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIdList.h"
 #include "vtkDataSet.h"
 
-#define VTK_SINGLE_POINT 0
-#define VTK_X_LINE 1
-#define VTK_Y_LINE 2
-#define VTK_Z_LINE 3
-#define VTK_XY_PLANE 4
-#define VTK_YZ_PLANE 5
-#define VTK_XZ_PLANE 6
-#define VTK_XYZ_GRID 7
+#define VTK_UNCHANGED 0
+#define VTK_SINGLE_POINT 1
+#define VTK_X_LINE 2
+#define VTK_Y_LINE 3
+#define VTK_Z_LINE 4
+#define VTK_XY_PLANE 5
+#define VTK_YZ_PLANE 6
+#define VTK_XZ_PLANE 7
+#define VTK_XYZ_GRID 8
 
 class vtkStructuredData : public vtkObject 
 {
