@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // user can specifiy the NumberOfSubdivisions. This filter implements the
 // 8-point butterfly scheme described in: Zorin, D., Schroder, P., and
 // Sweldens, W., "Interpolating Subdivisions for Meshes with Arbitrary
-// Topology," Computer Grapgucs Proceedings, Annual Conference Series,
+// Topology," Computer Graphics Proceedings, Annual Conference Series,
 // 1996, ACM SIGGRAPH, pp.189-192. This scheme improves previous
 // butterfly subdivisions with special treatment of vertices with valence
 // other than 6.
