@@ -31,6 +31,7 @@
 #include "vtkCellLinks.h"
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
+
 class vtkVertex;
 class vtkPolyVertex;
 class vtkLine;
@@ -46,6 +47,10 @@ class vtkHexahedron;
 class vtkWedge;
 class vtkPyramid;
 class vtkQuadraticEdge;
+class vtkQuadraticTriangle;
+class vtkQuadraticQuad;
+class vtkQuadraticTetra;
+class vtkQuadraticHexahedron;
 
 class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 private:
@@ -171,21 +176,25 @@ protected:
   ~vtkUnstructuredGrid();
 
   // used by GetCell method
-  vtkVertex *Vertex;
-  vtkPolyVertex *PolyVertex;
-  vtkLine *Line;
-  vtkPolyLine *PolyLine;
-  vtkTriangle *Triangle;
+  vtkVertex        *Vertex;
+  vtkPolyVertex    *PolyVertex;
+  vtkLine          *Line;
+  vtkPolyLine      *PolyLine;
+  vtkTriangle      *Triangle;
   vtkTriangleStrip *TriangleStrip;
-  vtkPixel *Pixel;
-  vtkQuad *Quad;
-  vtkPolygon *Polygon;
-  vtkTetra *Tetra;
-  vtkVoxel *Voxel;
+  vtkPixel         *Pixel;
+  vtkQuad          *Quad;
+  vtkPolygon       *Polygon;
+  vtkTetra      *Tetra;
+  vtkVoxel      *Voxel;
   vtkHexahedron *Hexahedron;
-  vtkWedge *Wedge;
-  vtkPyramid *Pyramid;
-  vtkQuadraticEdge *QuadraticEdge;
+  vtkWedge      *Wedge;
+  vtkPyramid    *Pyramid;
+  vtkQuadraticEdge       *QuadraticEdge;
+  vtkQuadraticTriangle   *QuadraticTriangle;
+  vtkQuadraticQuad       *QuadraticQuad;
+  vtkQuadraticTetra      *QuadraticTetra;
+  vtkQuadraticHexahedron *QuadraticHexahedron;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

@@ -17,7 +17,7 @@
 =========================================================================*/
 // .NAME vtkDataSetSurfaceFilter - Extracts outer (polygonal) surface.
 // .SECTION Description
-// vtkDataSetSurfaceFilter is a fast version of vtkGeometry filter, but it 
+// vtkDataSetSurfaceFilter is a faster version of vtkGeometry filter, but it 
 // does not have an option to select bounds.  It may use more memory than
 // vtkGeometryFilter.  It only has one option: whether to use triangle strips 
 // when the input type is structured.
@@ -35,7 +35,6 @@
 
 class vtkFastGeomQuad; 
 
-
 class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
 {
 public:
@@ -44,9 +43,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // When input is structured data, this flag will generate faces with triangle strips.
-  // This should render faster and use less memory, but no cell data is copied.
-  // By default, UseStrips is Off.
+  // When input is structured data, this flag will generate faces with
+  // triangle strips.  This should render faster and use less memory, but no
+  // cell data is copied.  By default, UseStrips is Off.
   vtkSetMacro(UseStrips, int);
   vtkGetMacro(UseStrips, int);
   vtkBooleanMacro(UseStrips, int);

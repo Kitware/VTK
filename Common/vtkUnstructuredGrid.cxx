@@ -31,9 +31,13 @@
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
 #include "vtkQuadraticEdge.h"
+#include "vtkQuadraticTriangle.h"
+#include "vtkQuadraticQuad.h"
+#include "vtkQuadraticTetra.h"
+#include "vtkQuadraticHexahedron.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.104");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.105");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -53,13 +57,16 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Wedge = vtkWedge::New();
   this->Pyramid = vtkPyramid::New();
   this->QuadraticEdge = vtkQuadraticEdge::New();
+  this->QuadraticTriangle = vtkQuadraticTriangle::New();
+  this->QuadraticQuad = vtkQuadraticQuad::New();
+  this->QuadraticTetra = vtkQuadraticTetra::New();
+  this->QuadraticHexahedron = vtkQuadraticHexahedron::New();
 
   this->Connectivity = NULL;
   this->Links = NULL;
   this->Types = NULL;
   this->Locations = NULL;
   this->Allocate(1000,1000);
-
 }
 
 // Allocate memory space for data insertion. Execute this method before
@@ -258,6 +265,22 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 
     case VTK_QUADRATIC_EDGE:
       cell = this->QuadraticEdge;
+      break;
+
+    case VTK_QUADRATIC_TRIANGLE:
+      cell = this->QuadraticTriangle;
+      break;
+
+    case VTK_QUADRATIC_QUAD:
+      cell = this->QuadraticQuad;
+      break;
+
+    case VTK_QUADRATIC_TETRA:
+      cell = this->QuadraticTetra;
+      break;
+
+    case VTK_QUADRATIC_HEXAHEDRON:
+      cell = this->QuadraticHexahedron;
       break;
     }
 
