@@ -22,7 +22,9 @@
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.14");
+#include <stddef.h>
+
+vtkCxxRevisionMacro(vtkPLYWriter, "1.15");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);

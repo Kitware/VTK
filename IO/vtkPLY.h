@@ -65,7 +65,6 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #ifndef __vtkPLY_h
 #define __vtkPLY_h
 
-#include <stddef.h>
 #include "vtkObject.h"
 
 #define PLY_ASCII      1        /* ascii PLY file */
@@ -152,9 +151,6 @@ typedef struct PlyFile {        /* description of PLY file */
   PlyElement *which_elem;       /* which element we're currently writing */
   PlyOtherElems *other_elems;   /* "other" elements from a PLY file */
 } PlyFile;
-
-/* memory allocation */
-#define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
 class VTK_IO_EXPORT vtkPLY
 {

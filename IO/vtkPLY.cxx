@@ -52,6 +52,11 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkPLY.h"
 #include "vtkHeap.h"
 
+#include <stddef.h>
+
+/* memory allocation */
+#define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
+
 //wjs: added to manage memory leak
 static vtkHeap *plyHeap=NULL;
 static void plyInitialize()

@@ -21,9 +21,9 @@
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
-#include <string.h>
+#include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.11");
+vtkCxxRevisionMacro(vtkPLYReader, "1.12");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
