@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
-vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.6");
+vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.7");
 vtkStandardNewMacro(vtkTestHierarchicalDataReader);
 
 vtkTestHierarchicalDataReader::vtkTestHierarchicalDataReader()
@@ -307,10 +307,22 @@ char* vtkTestHierarchicalDataReader::GetBlockFileName(int blockId)
 {
   size_t len = strlen(this->FileName);
   size_t pos;
-  for (pos=0; pos<len; pos++)
+
+  // Search from the tail end of the filename until we
+  // find a '.' indicating an extension, or we find a
+  // path separator or the beginning of the string.
+  for (pos=len-1; pos!=0; --pos)
     {
     if (this->FileName[pos] == '.')
       {
+      break;
+      }
+
+    if (1==pos || this->FileName[pos] == '/')
+      {
+      // No extension on this->FileName; use the whole
+      // thing as the base name
+      pos= len;
       break;
       }
     }
