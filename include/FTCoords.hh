@@ -13,7 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlFloatTCoords - floating point representation of 3D texture coordinates
+// .NAME vlFloatTCoords - floating point representation of texture coordinates
 // .SECTION Description
 // vlFloatTCoords is a concrete implementation of vlTCoords. Texture
 // coordinates are represented using float values.
