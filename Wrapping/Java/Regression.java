@@ -23,6 +23,38 @@ public class Regression
     {
     vtkTesting.Initialize(args);
 
+
+    vtkShortArray array = new vtkShortArray();
+    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(1.0);
+    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(3.0);
+    array.InsertNextTuple1(4.0);
+    short[] carray = array.GetJavaArray();
+    int cc;
+    System.out.print("[");
+    for ( cc = 0; cc < carray.length; cc ++ )
+      {
+      short i = carray[cc];
+      System.out.print(i);
+      }
+    System.out.println("]");
+
+    vtkShortArray narray = new vtkShortArray();
+    narray.SetJavaArray(carray);
+    System.out.print("[");
+    for ( cc = 0; cc <= narray.GetMaxId(); cc ++ )
+      {
+      int i = narray.GetValue(cc);
+      System.out.print(i);
+      }
+    System.out.println("]");
+
     vtkRenderWindow renWin = new vtkRenderWindow();
     vtkRenderer ren1 = new vtkRenderer();
     renWin.AddRenderer(ren1);
@@ -38,13 +70,98 @@ public class Regression
 
     ren1.AddActor(coneActor);
     renWin.Render();
+    vtkWindowToImageFilter w2i = new vtkWindowToImageFilter();
+    w2i.SetInput(renWin);
+    w2i.Modified();
+    renWin.Render();
+    w2i.Update();
+    vtkImageData image = w2i.GetOutput();
 
-    int retVal = vtkTesting.RegressionTestImage(renWin, args, 10);
-    if ( retVal == vtkTesting.DO_INTERACTOR )
+    vtkUnsignedCharArray da = (vtkUnsignedCharArray)image.GetPointData().GetScalars();
+    byte[] barray = da.GetJavaArray();
+
+    System.out.println("Length of array: " + barray.length);
+
+    vtkUnsignedCharArray nda = new vtkUnsignedCharArray();
+    nda.SetJavaArray(barray);
+
+    vtkImageData nimage = new vtkImageData();
+    nimage.SetDimensions(image.GetDimensions());
+    nimage.SetSpacing(image.GetSpacing());
+    nimage.SetOrigin(image.GetOrigin());
+    nimage.SetScalarType(image.GetScalarType());
+    nimage.SetNumberOfScalarComponents(image.GetNumberOfScalarComponents());
+    nimage.AllocateScalars();
+    vtkUnsignedCharArray nida = (vtkUnsignedCharArray)nimage.GetPointData().GetScalars();
+    nida.SetJavaArray(barray);
+
+    int retVal0 = vtkTesting.PASSED;
+
+    for ( cc = 0; cc <= da.GetMaxId(); cc ++ )
+      {
+      int v1=0, v2=0, v3=0;
+      v1 = da.GetValue(cc);
+      if ( cc <= nda.GetMaxId() )
+        {
+        v2 = nda.GetValue(cc);
+        }
+      else
+        {
+        System.out.println("Cannot find point " + cc + " in nda");
+        retVal0 = vtkTesting.FAILED;
+        }
+      if ( cc <= nida.GetMaxId() )
+        {
+        v3 = nida.GetValue(cc);
+        }
+      else
+        {
+        System.out.println("Cannot find point " + cc + " in nida");
+        retVal0 = vtkTesting.FAILED;
+        }
+      if ( v1 != v2 || v1 != v3 )
+        {
+        System.out.println("Wrong point: " + v1 + " <> " + v2 + " <> " + v3);
+        retVal0 = vtkTesting.FAILED;
+        }
+      }
+
+    vtkImageDifference imgDiff = new vtkImageDifference();
+    imgDiff.SetInput(nimage);
+    imgDiff.SetImage(image);
+    imgDiff.Update();
+
+    int retVal1 = vtkTesting.PASSED;
+    if ( imgDiff.GetThresholdedError() != 0 )
+      {
+      System.out.println("Problem with array conversion. Image difference is: " + imgDiff.GetThresholdedError());
+      vtkPNGWriter wr = new vtkPNGWriter();
+      wr.SetInput(image);
+      wr.SetFileName("im1.png");
+      wr.Write();
+      wr.SetInput(nimage);
+      wr.SetFileName("im2.png");
+      wr.Write();
+      wr.SetInput(imgDiff.GetOutput());
+      wr.SetFileName("diff.png");
+      wr.Write();
+      retVal1 = vtkTesting.FAILED;
+      }
+
+    int retVal2 = vtkTesting.RegressionTestImage(renWin, args, 10);
+    if ( retVal2 == vtkTesting.DO_INTERACTOR )
       {
       iren.Start();
       }
-    vtkTesting.Exit(retVal);
+    if ( retVal0 != vtkTesting.PASSED )
+      {
+      vtkTesting.Exit(retVal0);
+      }
+    if ( retVal1 != vtkTesting.PASSED )
+      {
+      vtkTesting.Exit(retVal1);
+      }
+    vtkTesting.Exit(retVal2);
     }
 }
 
