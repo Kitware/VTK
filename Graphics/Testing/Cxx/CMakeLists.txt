@@ -16,7 +16,9 @@ IF (VTK_USE_RENDERING)
       volProt.cxx
       )
   ENDIF (VTK_DATA_ROOT)
-  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
+  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
+                         EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
+                         FUNCTION vtkSuppressCrtDbgWarning)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   SET (TestsToRun ${Tests})

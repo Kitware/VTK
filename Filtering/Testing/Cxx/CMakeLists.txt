@@ -2,7 +2,9 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
-    otherColorTransferFunction.cxx
+  otherColorTransferFunction.cxx
+  EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
+  FUNCTION vtkSuppressCrtDbgWarning
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

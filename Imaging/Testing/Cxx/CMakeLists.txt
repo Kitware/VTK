@@ -2,6 +2,8 @@ IF (VTK_USE_RENDERING)
   SET(KIT Imaging)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
     ImportExport.cxx
+    EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
+    FUNCTION vtkSuppressCrtDbgWarning
     )
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
