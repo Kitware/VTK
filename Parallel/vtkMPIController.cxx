@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkMPIController.cxx
+Program:   Visualization Toolkit
+Module:    vtkMPIController.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkMPIController.h"
@@ -30,22 +30,22 @@ public:
   vtkTypeRevisionMacro(vtkMPIOutputWindow,vtkOutputWindow);
 
   void DisplayText(const char* t)
-  {
-    if (this->Controller)
-      {
-      cout << "Process id: " << this->Controller->GetLocalProcessId()
-           << " >> ";
-      }
-    cout << t;
-  }
+    {
+      if (this->Controller)
+        {
+        cout << "Process id: " << this->Controller->GetLocalProcessId()
+             << " >> ";
+        }
+      cout << t;
+    }
 
   vtkMPIOutputWindow()
-  {
-    vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMPIOutputWindow");
-    if (ret)
-      ret->Delete();
-    this->Controller = 0;
-  }
+    {
+      vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMPIOutputWindow");
+      if (ret)
+        ret->Delete();
+      this->Controller = 0;
+    }
 
   friend class vtkMPIController;
 
@@ -65,9 +65,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.18");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.19");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.18");
+vtkCxxRevisionMacro(vtkMPIController, "1.19");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
   vtkMPIController::Initialized = 1;
   if (initializedExternally == 0)
     {
-      MPI_Init(argc, argv);
+    MPI_Init(argc, argv);
     }
   this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
   this->InitializeNumberOfProcesses();
@@ -203,7 +203,7 @@ void vtkMPIController::Finalize(int finalizedExternally)
       }
     if (finalizedExternally == 0)
       {
-        MPI_Finalize();
+      MPI_Finalize();
       }
     vtkMPIController::Initialized = 0;
     this->Modified();
