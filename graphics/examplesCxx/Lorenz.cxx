@@ -42,7 +42,6 @@ void main( int argc, char *argv[] )
   short *s;
   void options(int, char**);
   int numPts, index;
-  vtkMath math;
 
   // take a stab at an integration step size
   xIncr = resolution / (xmax - xmin);
@@ -61,9 +60,9 @@ void main( int argc, char *argv[] )
   printf ("		y: %f, %f\n", ymin, ymax);
   printf ("		z: %f, %f\n", zmin, zmax);
 
-  x = math.Random(xmin,xmax);
-  y = math.Random(ymin,ymax);
-  z = math.Random(zmin,zmax);
+  x = vtkMath::Random(xmin,xmax);
+  y = vtkMath::Random(ymin,ymax);
+  z = vtkMath::Random(zmin,zmax);
   printf ("	starting at %f, %f, %f\n", x, y, z);
 
   // allocate memory for the slices

@@ -48,7 +48,7 @@ static float R;    //radius of peg
 static float rMin; //min allowable radius of disks
 static float rMax; //max allowable radius of disks
 static float D;    //distance between pegs
-static vtkStack pegStack[3]; //keep track of which pucks are on which pegs
+static vtkStack *pegStack[3]; //keep track of which pucks are on which pegs
 static vtkRenderWindow *Renwin; //Window in which rendering occurs
 
 static int NumberOfMoves; //number of times a puck is moved
@@ -64,10 +64,10 @@ void MovePuck (int peg1, int peg2)
   NumberOfMoves++;
 
   // get the actor to move
-  movingActor = (vtkActor *)pegStack[peg1].Pop();
+  movingActor = (vtkActor *)pegStack[peg1]->Pop();
 
   // get the distance to move up
-  distance = (H - (L * (pegStack[peg1].GetNumberOfItems() - 1)) + rMax) / 
+  distance = (H - (L * (pegStack[peg1]->GetNumberOfItems() - 1)) + rMax) / 
              NumberOfSteps;
 
   for (i=0; i<NumberOfSteps; i++)
@@ -93,7 +93,7 @@ void MovePuck (int peg1, int peg2)
     }
 
   // get the distance to move down
-  distance = ((L * (pegStack[peg2].GetNumberOfItems() - 1)) - H - rMax) / 
+  distance = ((L * (pegStack[peg2]->GetNumberOfItems() - 1)) - H - rMax) / 
              NumberOfSteps;
 
   for (i=0; i<NumberOfSteps; i++)
@@ -102,7 +102,7 @@ void MovePuck (int peg1, int peg2)
     Renwin->Render();
     }
 
-  pegStack[peg2].Push(movingActor);
+  pegStack[peg2]->Push(movingActor);
 
 }
 
@@ -128,13 +128,12 @@ int main(int argc, char *argv[])
   vtkActor *peg[3], *puck[MAX_PUCKS];
   int i, c;
   float scale;
-  vtkMath math;
   int puckResolution=48;
   float red, green, blue;
 
-//
-// Parse command line
-//
+
+  // Parse command line
+  //
   // Default values
   NumberOfPucks = 5;
   NumberOfSteps = 5;
@@ -161,9 +160,9 @@ int main(int argc, char *argv[])
         break;
       }
     }
-//
-// Initialize static variables and check input
-//
+
+  // Initialize static variables and check input
+  //
   if ( NumberOfPucks < 2 )
     {
     cerr << "Please use more pucks!\n";
@@ -182,6 +181,10 @@ int main(int argc, char *argv[])
     return 0;
     }
 
+  pegStack[0] = vtkStack::New();
+  pegStack[1] = vtkStack::New();
+  pegStack[2] = vtkStack::New();
+
   L = 1.0;
   H = 1.1 * NumberOfPucks * L;
   R = 0.5;
@@ -189,9 +192,9 @@ int main(int argc, char *argv[])
   rMax = 12.0 * R;
   D = 1.1 * 1.25 * rMax;
   NumberOfMoves = 0;
-//
-// Create renderer, lights, and camera
-//
+
+  // Create renderer, lights, and camera
+  //
   vtkRenderer *aren = vtkRenderer::New();
     Renwin = vtkRenderWindow::New();
     Renwin->AddRenderer(aren);
@@ -209,9 +212,9 @@ int main(int argc, char *argv[])
 
   aren->SetActiveCamera(camera);
   aren->AddLight(light);
-//
-// Create geometry: table, pegs, and pucks
-//
+
+  // Create geometry: table, pegs, and pucks
+  //
   vtkCylinderSource *pegGeometry = vtkCylinderSource::New();
     pegGeometry->SetResolution(8);
   vtkPolyDataMapper *pegMapper = vtkPolyDataMapper::New();
@@ -226,9 +229,9 @@ int main(int argc, char *argv[])
     tableGeometry->SetResolution(10,10);
   vtkPolyDataMapper *tableMapper = vtkPolyDataMapper::New();
     tableMapper->SetInput(tableGeometry->GetOutput());
-//
-// Create the actors: table top, pegs, and pucks
-//
+
+  // Create the actors: table top, pegs, and pucks
+  //
   // The table
   vtkActor *table = vtkActor::New();
   aren->AddActor(table);
@@ -251,24 +254,25 @@ int main(int argc, char *argv[])
     }
 
   // Initialize the random seed
-  math.RandomSeed( 6 );
+  vtkMath::RandomSeed( 6 );
 
   //The pucks (using cylinder geometry). Always loaded on peg# 0.
   for (i=0; i<NumberOfPucks; i++)
     {
     puck[i] = vtkActor::New();
     puck[i]->SetMapper(puckMapper);
-    red = math.Random (); green = math.Random (); blue = math.Random ();
+    red = vtkMath::Random (); 
+    green = vtkMath::Random (); blue = vtkMath::Random ();
     puck[i]->GetProperty()->SetColor(red, green, blue);
     puck[i]->AddPosition(0,i*L+L/2, 0);
     scale = rMax - i*(rMax-rMin) / (NumberOfPucks-1);
     puck[i]->SetScale(scale,1,scale);
     aren->AddActor(puck[i]);
-    pegStack[0].Push(puck[i]);
+    pegStack[0]->Push(puck[i]);
     }
-//
-// Reset the camera to view all actors.
-//
+
+  // Reset the camera to view all actors.
+  //
   aren->ResetCamera();
   camera->Dolly(2.5);
   aren->ResetCameraClippingRange();
@@ -279,9 +283,8 @@ int main(int argc, char *argv[])
 //  Renwin->SetFileName("hanoi0.ppm");
 //  Renwin->SaveImageAsPPM();
 
-//
-// Begin recursion
-//
+  // Begin recursion
+  //
   Hanoi (NumberOfPucks-1, 0, 2, 1);
   Hanoi (1, 0, 1, 2);
   Hanoi (NumberOfPucks-1, 2, 1, 0);
@@ -292,9 +295,9 @@ int main(int argc, char *argv[])
   //Renwin->SetFileName("hanoi2.ppm");
   //Renwin->SaveImageAsPPM();
 
-//
-// Report output
-//
+
+  // Report output
+  //
   cout << "Number of moves: " << NumberOfMoves << "\n"
        << "Polygons rendered each frame: " 
        << 3*8 + 1 + NumberOfPucks*(2+puckResolution) << "\n"
