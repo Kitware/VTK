@@ -147,6 +147,7 @@ IF (VTK_USE_RENDERING)
       TestStructuredGrid
       TestTriangleFilter
       TestRibbonAndTube
+      textureThreshold
       TransformConcatenation
       TransformCoverage
       TransformPolyData
