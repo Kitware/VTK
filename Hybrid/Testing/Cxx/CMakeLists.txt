@@ -10,10 +10,11 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}     
     ImagePlaneWidget.cxx
     PushTest.cxx
+    TestSplineWidget.cxx 
     TestScalarBarWidget.cxx
     TestLineWidget.cxx
     TestPlaneWidget.cxx
-    TestPointWidget.cxx
+    TestPointWidget.cxx    
     )
 ENDIF (VTK_DATA_ROOT)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
