@@ -295,7 +295,7 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
           *outPtrC = (T)*inPtrX;
           outPtrC += maxC;
           xPos += xFloatInc;
-          while (xPos >= 1.0 ) 
+          while (xPos > 0.5 ) 
             {
             inPtrX += inIncX;
             xPos -= 1.0;
@@ -303,7 +303,7 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
           }
         outPtrC += outIncY;
         yPos += yFloatInc;
-        while (yPos >= 1.0 ) 
+        while (yPos > 0.5 ) 
           {
           inPtrY += inIncY;
           yPos -= 1.0;
@@ -311,7 +311,7 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
         }
       outPtrC += outIncZ;
       zPos += zFloatInc;
-      while (zPos >= 1.0) 
+      while (zPos > 0.5) 
         {
         inPtrZ += inIncZ;
         zPos -= 1.0;
