@@ -34,16 +34,16 @@
 #ifndef __vtkSubPixelPositionEdgels_h
 #define __vtkSubPixelPositionEdgels_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkStructuredPoints;
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSubPixelPositionEdgels *New();
-  vtkTypeRevisionMacro(vtkSubPixelPositionEdgels,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -65,7 +65,9 @@ protected:
   ~vtkSubPixelPositionEdgels();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   void Move(int xdim, int ydim, int zdim, int x, int y,
             float *img, vtkDataArray *inVecs, 
             double *result, int z, double *aspect, double *resultNormal);

@@ -17,34 +17,53 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.46");
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.47");
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
   this->TargetFlag = 0;
   this->TargetValue = 0.0;
+
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels()
 {
 }
 
-void vtkSubPixelPositionEdgels::Execute()
+int vtkSubPixelPositionEdgels::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *gradMapsInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredPoints *gradMaps = vtkStructuredPoints::SafeDownCast(
+    gradMapsInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *newPts;
   vtkDoubleArray *newNormals;
   vtkPoints *inPts;
   vtkDataArray *inVectors;
   vtkIdType ptId;
-  vtkPolyData *output = this->GetOutput();
   float *MapData = 0;
   double *DMapData = 0;
   double pnt[3];
@@ -57,30 +76,28 @@ void vtkSubPixelPositionEdgels::Execute()
   if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
     {
     vtkErrorMacro(<<"No data to fit!");
-    return;
+    return 0;
     }
 
   newPts = vtkPoints::New();
   newNormals = vtkDoubleArray::New();
   newNormals->SetNumberOfComponents(3);
   
-  dimensions = this->GetGradMaps()->GetDimensions();
-  spacing = this->GetGradMaps()->GetSpacing();
-  origin = this->GetGradMaps()->GetOrigin();
-  if (vtkDoubleArray::SafeDownCast(this->GetGradMaps()->GetPointData()
-                                   ->GetScalars()))
+  dimensions = gradMaps->GetDimensions();
+  spacing = gradMaps->GetSpacing();
+  origin = gradMaps->GetOrigin();
+  if (vtkDoubleArray::SafeDownCast(gradMaps->GetPointData()->GetScalars()))
     {
-    DMapData = vtkDoubleArray::SafeDownCast(this->GetGradMaps()->GetPointData()
+    DMapData = vtkDoubleArray::SafeDownCast(gradMaps->GetPointData()
                                             ->GetScalars())->GetPointer(0);
     }
-  else if (vtkFloatArray::SafeDownCast(this->GetGradMaps()->GetPointData()
-                                       ->GetScalars()))
+  else if (vtkFloatArray::SafeDownCast(gradMaps->GetPointData()->GetScalars()))
     {
-    MapData = vtkFloatArray::SafeDownCast(this->GetGradMaps()->GetPointData()
+    MapData = vtkFloatArray::SafeDownCast(gradMaps->GetPointData()
                                           ->GetScalars())->GetPointer(0);
     }
   
-  inVectors = this->GetGradMaps()->GetPointData()->GetVectors();
+  inVectors = gradMaps->GetPointData()->GetVectors();
 
   //
   // Loop over all points, adjusting locations
@@ -119,6 +136,8 @@ void vtkSubPixelPositionEdgels::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
   newNormals->Delete();
+
+  return 1;
 }
 
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
@@ -707,16 +726,29 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
 void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
 {
-  this->vtkProcessObject::SetNthInput(1, gm);
+  this->SetInput(1, gm);
 }
 
 vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  return (vtkStructuredPoints*)(this->Inputs[1]);
+  return vtkStructuredPoints::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
+}
+
+int vtkSubPixelPositionEdgels::FillInputPortInformation(int port,
+                                                        vtkInformation *info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredPoints");
+    return 1;
+    }
+
+  return this->Superclass::FillInputPortInformation(port, info);
 }
 
 // Print the state of the class.
