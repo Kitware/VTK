@@ -22,7 +22,7 @@
 // See task1.cxx and task2.cxx for the pipelines.
 
 #include "TaskParallelism.h"
-#include "vtkCompositeManager.h"
+#include "vtkCompositeRenderManager.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -62,7 +62,7 @@ void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
 
   // This class allows all processes to composite their images.
   // The root process then displays it in it's render window.
-  vtkCompositeManager* tc = vtkCompositeManager::New();
+  vtkCompositeRenderManager* tc = vtkCompositeRenderManager::New();
   tc->SetRenderWindow(renWin);
 
   // Generate the pipeline see task1.cxx and task2.cxx)
