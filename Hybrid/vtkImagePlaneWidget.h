@@ -324,6 +324,14 @@ public:
   // supports single component image data.
   int GetCursorData(float xyzv[4]);
 
+  // Description:
+  // Enable/disable mouse interaction so the widget remains on display.
+  void SetInteraction(int interact);
+  vtkGetMacro(Interaction,int);
+  void InteractionOn()
+    { this->SetInteraction(1); }
+  void InteractionOff()
+    { this->SetInteraction(0); }
 
 protected:
   vtkImagePlaneWidget();
@@ -361,6 +369,7 @@ protected:
   void OnRightButtonUp();
 
   // controlling ivars
+  int   Interaction; // Is the widget responsive to mouse events  
   int   PlaneOrientation;
   int   RestrictPlaneToVolume;
   float OriginalWindow;

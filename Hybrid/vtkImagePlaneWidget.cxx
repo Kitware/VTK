@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.44");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.45");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -55,6 +55,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->State = vtkImagePlaneWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkImagePlaneWidget::ProcessEvents);
 
+  this->Interaction = 1;
   this->PlaneOrientation = 0; // default align normal to x-axis
   this->RestrictPlaneToVolume = 1;
   this->OriginalWindow = 1.0;
@@ -378,6 +379,44 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
 }
 
+void vtkImagePlaneWidget::SetInteraction(int interact)
+{
+  if (this->Interactor && this->Enabled)
+    {
+    if (this->Interaction == interact)
+      {
+      return;
+      }
+    if (interact == 0)
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      }
+    else
+      {
+      vtkRenderWindowInteractor *i = this->Interactor;
+      i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
+                     this->Priority);
+      i->AddObserver(vtkCommand::LeftButtonPressEvent,
+                     this->EventCallbackCommand, this->Priority);
+      i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
+                     this->EventCallbackCommand, this->Priority);
+      i->AddObserver(vtkCommand::MiddleButtonPressEvent,
+                     this->EventCallbackCommand, this->Priority);
+      i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
+                     this->EventCallbackCommand, this->Priority);
+      i->AddObserver(vtkCommand::RightButtonPressEvent,
+                     this->EventCallbackCommand, this->Priority);
+      i->AddObserver(vtkCommand::RightButtonReleaseEvent,
+                     this->EventCallbackCommand, this->Priority);
+      }
+    this->Interaction = interact;
+    }
+  else
+    {
+    vtkGenericWarningMacro(<<"set interactor and Enabled before changing interaction...");
+    }
+}
+
 void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -454,7 +493,9 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Restrict Plane To Volume: " 
      << (this->RestrictPlaneToVolume ? "On\n" : "Off\n") ;
   os << indent << "Display Text: "
-     << (this->DisplayText ? "On\n" : "Off\n") ;     
+     << (this->DisplayText ? "On\n" : "Off\n") ;
+  os << indent << "Interaction: "
+     << (this->Interaction ? "On\n" : "Off\n") ;
 }
 
 void vtkImagePlaneWidget::PositionHandles()
