@@ -414,6 +414,8 @@ protected:
   void SetupProducer();
   void CopyUpdateExtentFromInformation(vtkInformation*);
   void CopyUpdateExtentToInformation(vtkInformation*);
+  void CopyWholeExtentFromInformation(vtkInformation*);
+  void CopyWholeExtentToInformation(vtkInformation*);
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();

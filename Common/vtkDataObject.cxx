@@ -26,7 +26,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.112");
+vtkCxxRevisionMacro(vtkDataObject, "1.113");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -882,24 +882,21 @@ void vtkDataObject::CopyUpdateExtentToInformation(vtkInformation* info)
   // Copy update extent to the information object.
   info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
             this->UpdateExtentInitialized);
-  if(this->UpdateExtentInitialized)
+  if(this->GetExtentType() == VTK_PIECES_EXTENT)
     {
-    if(this->GetExtentType() == VTK_PIECES_EXTENT)
-      {
-      // Setup unstructured extent.
-      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                this->UpdatePiece);
-      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                this->UpdateNumberOfPieces);
-      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                this->UpdateGhostLevel);
-      }
-    else
-      {
-      // Setup structured extent.
-      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                this->UpdateExtent, 6);
-      }
+    // Setup unstructured extent.
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+              this->UpdatePiece);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              this->UpdateNumberOfPieces);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              this->UpdateGhostLevel);
+    }
+  else
+    {
+    // Setup structured extent.
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              this->UpdateExtent, 6);
     }
 }
 
@@ -909,24 +906,57 @@ void vtkDataObject::CopyUpdateExtentFromInformation(vtkInformation* info)
   // Copy update extent from the information object.
   this->UpdateExtentInitialized =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED());
-  if(this->UpdateExtentInitialized)
+  if(this->GetExtentType() == VTK_PIECES_EXTENT)
     {
-    if(this->GetExtentType() == VTK_PIECES_EXTENT)
-      {
-      // Setup unstructured extent.
-      this->UpdatePiece =
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-      this->UpdateNumberOfPieces =
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-      this->UpdateGhostLevel =
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-      }
-    else
-      {
-      // Setup structured extent.
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                this->UpdateExtent);
-      }
+    // Setup unstructured extent.
+    this->UpdatePiece =
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    this->UpdateNumberOfPieces =
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    this->UpdateGhostLevel =
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    }
+  else
+    {
+    // Setup structured extent.
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              this->UpdateExtent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyWholeExtentToInformation(vtkInformation* info)
+{
+  // Copy whole extent to the information object.
+  if(this->GetExtentType() == VTK_PIECES_EXTENT)
+    {
+    // Setup unstructured extent.
+    info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+              this->MaximumNumberOfPieces);
+    }
+  else
+    {
+    // Setup structured extent.
+    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+              this->WholeExtent, 6);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyWholeExtentFromInformation(vtkInformation* info)
+{
+  // Copy whole extent from the information object.
+  if(this->GetExtentType() == VTK_PIECES_EXTENT)
+    {
+    // Setup unstructured extent.
+    this->MaximumNumberOfPieces =
+      info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    }
+  else
+    {
+    // Setup structured extent.
+    info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+              this->WholeExtent);
     }
 }
 

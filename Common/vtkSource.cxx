@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.120");
+vtkCxxRevisionMacro(vtkSource, "1.121");
 
 #ifndef NULL
 #define NULL 0
@@ -46,6 +46,16 @@ public:
                                               vtkInformation* info)
     {
     obj->CopyUpdateExtentFromInformation(info);
+    }
+  static void CopyWholeExtentToInformation(vtkDataObject* obj,
+                                            vtkInformation* info)
+    {
+    obj->CopyWholeExtentToInformation(info);
+    }
+  static void CopyWholeExtentFromInformation(vtkDataObject* obj,
+                                              vtkInformation* info)
+    {
+    obj->CopyWholeExtentFromInformation(info);
     }
 };
 
@@ -1122,8 +1132,11 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
       }
 
-    // Copy information from information objects into data objects for
-    // backward compatibility.
+    // Copy whole extent from information objects into data objects
+    // for backward compatibility.  This is necessary when the
+    // producer of the input is not part of the backward compatibility
+    // layer and therefore does not actually set this information on
+    // the data object.
     for(i=0; i < this->NumberOfInputs; ++i)
       {
       if(this->Inputs[i])
@@ -1131,16 +1144,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         vtkInformation* info = inputVector->GetInformationObject(0)
           ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i);
-        if(info->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
-          {
-          this->Inputs[i]->SetMaximumNumberOfPieces(
-            info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
-          }
-        if(info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-          {
-          this->Inputs[i]->SetWholeExtent(
-            info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-          }
+        vtkSourceToDataObjectFriendship::
+          CopyWholeExtentFromInformation(this->Inputs[i], info);
         }
       }
 
@@ -1158,27 +1163,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       if(this->Outputs[i])
         {
         vtkInformation* info = outputVector->GetInformationObject(i);
-        int extent[6];
-        this->Outputs[i]->GetWholeExtent(extent);
-        vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
-                      "Output " << i << "  WholeExtent = "
-                      << extent[0] << " " << extent[1] << " "
-                      << extent[2] << " " << extent[3] << " "
-                      << extent[4] << " " << extent[5]
-                      << "  MaxPieces = "
-                      << this->Outputs[i]->GetMaximumNumberOfPieces());
-        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
-        info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                  this->Outputs[i]->GetMaximumNumberOfPieces());
-
-        // For backward compatibility, set the update extent of the
-        // output data object to the whole extent if it is
-        // uninitialized.
-        if(!(vtkSourceToDataObjectFriendship
-             ::UpdateExtentInitialized(this->Outputs[i])))
-          {
-          this->Outputs[i]->SetUpdateExtentToWholeExtent();
-          }
+        vtkSourceToDataObjectFriendship
+          ::CopyWholeExtentToInformation(this->Outputs[i], info);
         }
       }
     return 1;
