@@ -24,9 +24,9 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkLogLookupTable.h"
+#include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.55");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.56");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -243,10 +243,24 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // Build scalar bar object; determine its type
     //
-    vtkScalarsToColors *lut = this->LookupTable;
-    int isLogTable = lut->IsA("vtkLogLookupTable");
+    // is this a vtkLookupTable or a subclass of vtkLookupTable 
+    // with its scale set to log
+    // NOTE: it's possible we could to without the 'lut' variable
+    // later in the code, but if the vtkLookupTableSafeDownCast operation
+    // fails for some reason, this code will break in new ways. So, the 'LUT'
+    // variable is used for this operation only
+    vtkLookupTable *LUT = vtkLookupTable::SafeDownCast( this->LookupTable );
+    int isLogTable = 0;
+    if ( LUT )
+      {
+      if ( LUT->GetScale() == VTK_SCALE_LOG10 )
+        {
+        isLogTable = 1; 
+        }
+      }
     
     // we hard code how many steps to display
+    vtkScalarsToColors *lut = this->LookupTable;
     int numColors = this->MaximumNumberOfColors;
     double *range = lut->GetRange();
 
@@ -533,8 +547,17 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
   // created, text properties are created and shallow-assigned a font size
   // which value might be "far" from the target font size).
 
-  vtkScalarsToColors *lut = this->LookupTable;
-  int isLogTable = lut->IsA("vtkLogLookupTable");
+  // is this a vtkLookupTable or a subclass of vtkLookupTable 
+  // with its scale set to log
+  vtkLookupTable *LUT = vtkLookupTable::SafeDownCast( this->LookupTable );
+  int isLogTable = 0;
+  if ( LUT )
+    {
+    if ( LUT->GetScale() == VTK_SCALE_LOG10 )
+      {
+      isLogTable = 1; 
+      }
+    }
 
   for (i=0; i < this->NumberOfLabels; i++)
     {
