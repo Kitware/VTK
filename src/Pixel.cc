@@ -183,7 +183,7 @@ void vlPixel::Contour(float value, vlFloatScalars *cellScalars,
                      vlCellArray *lines, vlCellArray *polys, 
                      vlFloatScalars *scalars)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static int CASE_MASK[4] = {1,2,8,4}; //note difference!
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
