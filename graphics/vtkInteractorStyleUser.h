@@ -90,6 +90,8 @@ public:
 protected:
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser();
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&) {};
+  void operator=(const vtkInteractorStyleUser&) {};
 
   virtual void OnTimer(void);
 
