@@ -64,7 +64,7 @@ protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
   
-  int DisplayMessageBox(const char*);
+  static int DisplayMessageBox(const char*);
   
   static void ClassInitialize();
   static void ClassFinalize();
