@@ -223,6 +223,41 @@ void vtkProcessObject::RemoveInput(vtkDataObject *input)
 }
 
 //----------------------------------------------------------------------------
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
+void vtkProcessObject::SqueezeInputArray()
+{
+  int idx, loc;
+  
+  // move NULL entries to the end
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] == NULL)
+      {
+      for (loc = idx+1; loc < this->NumberOfInputs; loc++)
+        {
+        this->Inputs[loc-1] = this->Inputs[loc];
+        }
+      this->Inputs[this->NumberOfInputs -1] = NULL;
+      }
+    }
+
+  // adjust the size of the array
+  loc = -1;
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (loc == -1 && this->Inputs[idx] == NULL)
+      {
+      loc = idx;
+      }
+    }
+  if (loc > 0)
+    {
+    this->SetNumberOfInputs(loc);
+    }
+}
+
+//----------------------------------------------------------------------------
 // Set an Input of this filter. 
 void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 {

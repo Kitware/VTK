@@ -137,6 +137,11 @@ public:
   vtkDataObject **GetInputs() {return this->Inputs;};
   vtkGetMacro(NumberOfInputs,int);
 
+  // Description:
+  // This method will rearrange the input array so that all NULL entries 
+  // are removed
+  void SqueezeInputArray();
+  
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
