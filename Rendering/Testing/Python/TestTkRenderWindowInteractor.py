@@ -38,12 +38,13 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     act.SetMapper(map)
 
     # assign our actor to the renderer
-    ren.AddActor(act)    
+    ren.AddActor(act)
     
     def testvtkTkRenderWindowInteractor(self):
         "Test if vtkTkRenderWindowInteractor works."
         self.tkrw.Start()
         self.tkrw.Render()
+        self.root.update()
         img_file = "TestTkRenderWindowInteractor.png"
         Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
         Testing.interact()
@@ -60,7 +61,6 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     def testBoolean(self):
         "Testing Boolean methods of vtkTkRenderWindowInteractor"
         self._testBoolean(self.tkrw)
-
 
 if __name__ == "__main__":
     Testing.main([(TestTkRenderWindowInteractor, 'test')])

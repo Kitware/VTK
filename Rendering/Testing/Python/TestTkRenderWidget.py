@@ -43,6 +43,7 @@ class TestTkRenderWidget(Testing.vtkTest):
     def testvtkTkRenderWidget(self):
         "Test if vtkTkRenderWidget works."
         self.rw.Render()
+        self.root.update()
         img_file = "TestTkRenderWidget.png"
         Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
         Testing.interact()
