@@ -87,6 +87,7 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   
   // Symbols and text strings
   this->NumberOfEntries = 0;
+  this->Size = 0;
   this->Colors = NULL;
   this->Symbol = NULL;
   this->Transform = NULL;
@@ -136,10 +137,10 @@ void vtkLegendBoxActor::InitializeEntries()
 {
   int i;
 
-  if ( this->NumberOfEntries > 0 )
+  if ( this->Size > 0 )
     {
     this->Colors->Delete();
-    for (i=0; i<this->NumberOfEntries; i++)
+    for (i=0; i<this->Size; i++)
       {
       if ( this->Symbol[i] )
         {
@@ -172,51 +173,82 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
     return;
     }
 
-  else if ( num < this->NumberOfEntries )
+  else if ( num < this->Size )
     {
     this->NumberOfEntries = num;
     }
   
   else //allocate space
     {
-        int i;
+    int i;
+
+    //Create internal actors, etc.
+    vtkFloatArray *colors = vtkFloatArray::New();
+    colors->SetNumberOfComponents(3);
+    colors->SetNumberOfTuples(num);
+    vtkTextMapper **textMapper= new vtkTextMapper* [num];
+    vtkActor2D **textActor = new vtkActor2D* [num];
+    vtkPolyData **symbol = new vtkPolyData* [num];
+    vtkTransform **transform= new vtkTransform* [num];
+    vtkTransformPolyDataFilter **symbolTransform = 
+                                 new vtkTransformPolyDataFilter* [num];
+    vtkPolyDataMapper2D **symbolMapper = new vtkPolyDataMapper2D* [num];
+    vtkActor2D **symbolActor = new vtkActor2D* [num];
+    //copy old values
+    for (i=0; i<this->NumberOfEntries; i++)
+      {
+      colors->SetTuple(i,this->Colors->GetTuple(i));
+      textMapper[i] = this->TextMapper[i];
+      textMapper[i]->Register(this);
+      textActor[i] = this->TextActor[i];
+      textActor[i]->Register(this);
+      symbol[i] = this->Symbol[i];
+      if ( symbol[i] )
+        {
+        symbol[i]->Register(this);
+        }
+      transform[i] = this->Transform[i];
+      transform[i]->Register(this);
+      symbolTransform[i] = this->SymbolTransform[i];
+      symbolTransform[i]->Register(this);
+      symbolMapper[i] = this->SymbolMapper[i];
+      symbolMapper[i]->Register(this);
+      symbolActor[i] = this->SymbolActor[i];
+      symbolActor[i]->Register(this);
+      }
+    //initialize data values
+    static float color[3]={-1.0,-1.0,-1.0};
+    for (i=this->NumberOfEntries; i<num; i++) //initialize
+      {
+      colors->SetTuple(i,color);
+      textMapper[i] = vtkTextMapper::New();
+      textMapper[i]->SetJustificationToLeft();
+      textMapper[i]->SetVerticalJustificationToCentered();
+      textActor[i] = vtkActor2D::New();
+      textActor[i]->SetMapper(textMapper[i]);
+      symbol[i] = NULL;
+      transform[i] = vtkTransform::New();
+      symbolTransform[i] = vtkTransformPolyDataFilter::New();
+      symbolTransform[i]->SetTransform(transform[i]);
+      symbolMapper[i] = vtkPolyDataMapper2D::New();
+      symbolMapper[i]->SetInput(symbolTransform[i]->GetOutput());
+      symbolActor[i] = vtkActor2D::New();
+      symbolActor[i]->SetMapper(symbolMapper[i]);
+      }
 
     //Clear out the old stuff
     this->InitializeEntries();
-
-    //Rebuild the internal actors, etc.
-    this->NumberOfEntries = num;
-    this->Colors = vtkFloatArray::New();
-    this->Colors->SetNumberOfComponents(3);
-    this->Colors->SetNumberOfTuples(num);
-    static float color[3]={-1.0,-1.0,-1.0};
-    for (i=0; i<num; i++) //initialize to dummy value
-      {
-      this->Colors->SetTuple(i,color);
-      }
-    this->TextMapper = new vtkTextMapper* [num];
-    this->TextActor = new vtkActor2D* [num];
-    this->Symbol = new vtkPolyData* [num];
-    this->Transform = new vtkTransform* [num];
-    this->SymbolTransform = new vtkTransformPolyDataFilter* [num];
-    this->SymbolMapper = new vtkPolyDataMapper2D* [num];
-    this->SymbolActor = new vtkActor2D* [num];
-    for (i=0; i<num; i++)
-      {
-      this->TextMapper[i] = vtkTextMapper::New();
-      this->TextMapper[i]->SetJustificationToLeft();
-      this->TextMapper[i]->SetVerticalJustificationToCentered();
-      this->TextActor[i] = vtkActor2D::New();
-      this->TextActor[i]->SetMapper(this->TextMapper[i]);
-      this->Symbol[i] = NULL;
-      this->Transform[i] = vtkTransform::New();
-      this->SymbolTransform[i] = vtkTransformPolyDataFilter::New();
-      this->SymbolTransform[i]->SetTransform(this->Transform[i]);
-      this->SymbolMapper[i] = vtkPolyDataMapper2D::New();
-      this->SymbolMapper[i]->SetInput(this->SymbolTransform[i]->GetOutput());
-      this->SymbolActor[i] = vtkActor2D::New();
-      this->SymbolActor[i]->SetMapper(this->SymbolMapper[i]);
-      }
+    
+    //Bring everything up to date
+    this->NumberOfEntries = this->Size = num;
+    this->Colors = colors;
+    this->TextMapper = textMapper;
+    this->TextActor = textActor;
+    this->Symbol = symbol;
+    this->Transform = transform;
+    this->SymbolTransform = symbolTransform;
+    this->SymbolMapper = symbolMapper;
+    this->SymbolActor = symbolActor;
     }
   
   this->Modified();
@@ -334,19 +366,16 @@ float* vtkLegendBoxActor::GetEntryColor(int i)
 // resources to release.
 void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if ( this->BorderActor )
-    {
-    this->BorderActor->ReleaseGraphicsResources(win);
-    }
-  
-  if (this->TextMapper != NULL )
-    {
-    for (int i=0; i < this->NumberOfEntries; i++)
-      {
-      this->TextActor[i]->ReleaseGraphicsResources(win);
-      this->SymbolActor[i]->ReleaseGraphicsResources(win);
-      }
-    }
+  if ( this->BorderActor ) 
+     { 
+     this->BorderActor->ReleaseGraphicsResources(win); 
+     } 
+
+  for (int i=0; i < this->Size; i++) 
+    { 
+    this->TextActor[i]->ReleaseGraphicsResources(win); 
+    this->SymbolActor[i]->ReleaseGraphicsResources(win); 
+    } 
 }
 
 void vtkLegendBoxActor::SetWidth(float w)
@@ -462,8 +491,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         else
           {
+          sf = (bounds[1]-bounds[0]) / (bounds[3]-bounds[2]);
           }
-        sf = (bounds[1]-bounds[0]) / (bounds[3]-bounds[2]);
         if ( sf > swr )
           {
           swr = sf;

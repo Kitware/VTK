@@ -33,11 +33,12 @@ vtkGlyphSource2D gs6
 vtkLegendBoxActor legend
     [legend GetPositionCoordinate] SetValue 0.25 0.25 0
     [legend GetPosition2Coordinate] SetValue 0.5 0.5 0;#relative to Position
-    legend SetNumberOfEntries 6
+    legend SetNumberOfEntries 2
     legend SetEntrySymbol 0 [ss GetOutput]
     legend SetEntryString 0 "First entry"
     legend SetEntrySymbol 1 [gs2 GetOutput]
     legend SetEntryString 1 "Second entry"
+    legend SetNumberOfEntries 6
     legend SetEntrySymbol 2 [gs3 GetOutput]
     legend SetEntryString 2 "Third entry"
     eval legend SetEntryColor 2 [gs3 GetColor]

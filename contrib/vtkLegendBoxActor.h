@@ -116,8 +116,9 @@ public:
   // and the text is assumed to be a single line in height. Note that when
   // this method is invoked previous entries are deleted. Also supply a text
   // string and optionally a color. (If a color is not specified, then the
-  // entry color is the same as this actor's color.)
-  void SetEntry(int i, vtkPolyData *symbol, char* string, float colot[3]);
+  // entry color is the same as this actor's color.) (Note: use the set
+  // methods when you use SetNumberOfEntries().)
+  void SetEntry(int i, vtkPolyData *symbol, char* string, float color[3]);
   void SetEntrySymbol(int i, vtkPolyData *symbol);
   void SetEntryString(int i, char* string);
   void SetEntryColor(int i, float color[3]);
@@ -230,6 +231,7 @@ protected:
   
   // Internal actors, mappers, data to represent the legend
   int                        NumberOfEntries;
+  int                        Size; //allocation size
   vtkFloatArray              *Colors;
   vtkTextMapper              **TextMapper;
   vtkActor2D                 **TextActor;
