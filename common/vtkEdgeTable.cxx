@@ -433,11 +433,11 @@ int vtkEdgeTable::InitPointInsertion(vtkPoints *newPts, int estSize)
     {
     this->Points->Delete();
     }
-  this->Points = newPts;
-  this->Points->Register(this);
-
   // Set up the edge insertion
   this->InitEdgeInsertion(estSize,1);
+
+  this->Points = newPts;
+  this->Points->Register(this);
 
   return 1;
 }
