@@ -29,7 +29,6 @@ int main( int argc, char* argv[] )
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
     } 
-  int myId = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)

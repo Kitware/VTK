@@ -18,7 +18,6 @@ void process(vtkMultiProcessController* controller, void* arg)
 {
   taskFunction task;
   int myId = controller->GetLocalProcessId();
-  int numProcs = controller->GetNumberOfProcesses();
 
   // Chose the appropriate task (see task1.cxx and task2.cxx)
   if ( myId == 0 )
@@ -86,7 +85,6 @@ int main( int argc, char* argv[] )
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
     } 
-  int myId = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)
