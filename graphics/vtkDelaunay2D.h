@@ -198,9 +198,9 @@ private:
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;
 
-  char *RecoverBoundary(vtkPolyData *Mesh);
+  int *RecoverBoundary(vtkPolyData *Mesh);
   int RecoverEdge(vtkPolyData *Mesh, int p1, int p2);
-  void FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, char *triUse);
+  void FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, int *triUse);
 
   int InCircle (float x[3], float x1[3], float x2[3], float x3[3]);
   int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
