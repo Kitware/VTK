@@ -112,7 +112,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
       outPD->CopyData(pd,startIdx,ptIds[0]);
 
       cellId = newVerts->InsertNextCell(1,ptIds);
-      outCD->CopyData(cd,startIdx,ptIds[0]);
+      outCD->CopyData(cd,startIdx,cellId);
       break;
 
     case 1: // --------------------- build line -----------------------
