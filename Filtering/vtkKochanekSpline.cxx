@@ -18,7 +18,7 @@
 #include "vtkKochanekSpline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.18");
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.19");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 // Construct a KochanekSpline wth the following defaults:
@@ -194,10 +194,10 @@ void vtkKochanekSpline::Compute ()
 
 // Compute the coefficients for a 1D spline
 void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
-                        float tension, float bias, float continuity,
-                        float coefficients[][4],
-                        int leftConstraint, float leftValue,
-                        int rightConstraint, float rightValue)
+                               float tension, float bias, float continuity,
+                               float coefficients[][4],
+                               int leftConstraint, float leftValue,
+                               int rightConstraint, float rightValue)
 {
   float         cs;             /* source chord                 */
   float         cd;             /* destination chord            */
@@ -336,8 +336,8 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
     }//curve is open
 
   // Compute the Coefficients
-  for (i=0; i < N; i++) {
-
+  for (i=0; i < N; i++) 
+    {
     //
     // c0    = P ;    c1    = DD ;
     //   i      i       i       i
@@ -355,7 +355,22 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
                        + (-2 * coefficients[i][1]) + (-1 * coefficients[i+1][2]);
     coefficients[i][3] = ( 2 * y[i])        + (-2 * y[i+1])
                        + ( 1 * coefficients[i][1]) + ( 1 * coefficients[i+1][2]);
-  }
+    }
+}
+
+void vtkKochanekSpline::DeepCopy(vtkSpline *s)
+{
+  vtkKochanekSpline *spline = vtkKochanekSpline::SafeDownCast(s);
+
+  if ( spline != NULL )
+    {
+    this->DefaultBias = spline->DefaultBias;
+    this->DefaultTension = spline->DefaultTension;
+    this->DefaultContinuity = spline->DefaultContinuity;
+    }
+
+  // Now do superclass
+  this->vtkSpline::DeepCopy(s);
 }
 
 void vtkKochanekSpline::PrintSelf(ostream& os, vtkIndent indent)

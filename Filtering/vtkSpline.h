@@ -19,7 +19,7 @@
 // .SECTION Description
 // vtkSpline is used to create interpolated data points for specified
 // data. vtkSpline is an abstract class: its subclasses vtkCardinalSpline
-// and vtkKochenekSpline do the interpolation, The current implementation 
+// and vtkKochenekSpline do the interpolation. The current implementation 
 // of splines is limited to data dimensions not exceeding four.
 //
 // Typically a spline is used by adding a sequence of points followed by
@@ -52,6 +52,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Virtual constructor creates a spline of the same type as this one.
+  // Note that the created spline does not copy the data from this instance.
+  virtual vtkSpline *MakeObject() = 0;
+
+  // Description:
   // Set/Get ClampValue. If On, results of the interpolation will be
   // clamped to the min/max of the input data.
   vtkSetMacro(ClampValue,int);
@@ -61,6 +66,10 @@ public:
   // Description:
   // Compute the coefficients for the spline.
   virtual void Compute () = 0;
+
+  // Description:
+  // Interpolate the value of the spline at parametric location of t.
+  virtual float Evaluate (float t) = 0;
 
   // Description:
   // Add a pair of points to be fit with the spline.
@@ -107,6 +116,10 @@ public:
   // Return the MTime also considering the Piecewise function.
   unsigned long GetMTime();
 
+  // Description:
+  // Deep copy of spline data.
+  virtual void DeepCopy(vtkSpline *s);
+
 protected:
   vtkSpline();
   ~vtkSpline ();
@@ -121,6 +134,7 @@ protected:
   float RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
+
 private:
   vtkSpline(const vtkSpline&);  // Not implemented.
   void operator=(const vtkSpline&);  // Not implemented.

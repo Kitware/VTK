@@ -17,7 +17,7 @@
 =========================================================================*/
 #include "vtkSpline.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.16");
+vtkCxxRevisionMacro(vtkSpline, "1.17");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
@@ -67,6 +67,22 @@ void vtkSpline::RemovePoint (float t)
 void vtkSpline::RemoveAllPoints ()
 {
   this->PiecewiseFunction->RemoveAllPoints ();
+}
+
+void vtkSpline::DeepCopy(vtkSpline *s)
+{
+  vtkSpline *spline = vtkSpline::SafeDownCast(s);
+
+  if ( spline != NULL )
+    {
+    this->ClampValue = s->ClampValue;
+    this->LeftConstraint = s->LeftConstraint;
+    this->LeftValue = s->LeftValue;
+    this->RightConstraint = s->RightConstraint;
+    this->RightValue = s->RightValue;
+    this->Closed = s->Closed;
+    this->PiecewiseFunction->DeepCopy(s->PiecewiseFunction);
+    }
 }
 
 // Overload standard modified time function. If data is modified,

@@ -61,6 +61,12 @@ public:
   static vtkKochanekSpline *New();
 
   // Description:
+  // Virtual constructor creates a spline of the same type as this one.
+  // Note that the created spline does not copy the data from this instance.
+  virtual vtkSpline *MakeObject() 
+    { return vtkKochanekSpline::New(); }
+
+  // Description:
   // Compute Kochanek Spline coefficients.
   void Compute ();
   
@@ -83,17 +89,22 @@ public:
   vtkSetMacro(DefaultContinuity,float);
   vtkGetMacro(DefaultContinuity,float);
 
+  // Description:
+  // Deep copy of cardinal spline data.
+  virtual void DeepCopy(vtkSpline *s);
+
 protected:
   vtkKochanekSpline();
-  ~vtkKochanekSpline() {};
+  ~vtkKochanekSpline() {}
 
-  void Fit1D (int n, float *x, float *y,
-              float tension, float bias, float continuity,
-              float coefficients[][4],
-              int leftConstraint, float leftValue, int rightConstraint, float rightValue);
+  void Fit1D (int n, float *x, float *y, float tension, float bias, 
+              float continuity, float coefficients[][4], int leftConstraint, 
+              float leftValue, int rightConstraint, float rightValue);
+
   float DefaultBias;
   float DefaultTension;
   float DefaultContinuity;
+
 private:
   vtkKochanekSpline(const vtkKochanekSpline&);  // Not implemented.
   void operator=(const vtkKochanekSpline&);  // Not implemented.

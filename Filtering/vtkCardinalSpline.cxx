@@ -18,13 +18,14 @@
 #include "vtkCardinalSpline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.16");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.17");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline ()
 {
 }
+
 
 // Evaluate a 1D Spline
 float vtkCardinalSpline::Evaluate (float t)
@@ -412,6 +413,19 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
   coefficients[N][1] = work[N];
   coefficients[N][2] = coefficients[0][2];
   coefficients[N][3] = coefficients[0][3];
+}
+
+void vtkCardinalSpline::DeepCopy(vtkSpline *s)
+{
+  vtkCardinalSpline *spline = vtkCardinalSpline::SafeDownCast(s);
+
+  if ( spline != NULL )
+    {
+    //nothing to do
+    }
+
+  // Now do superclass
+  this->vtkSpline::DeepCopy(s);
 }
 
 void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
