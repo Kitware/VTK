@@ -516,7 +516,7 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->GetNumberOfSources() < 2 )
     {
-    if ( this->Inputs[1] != NULL )
+    if ( this->GetSource(0) != NULL )
       {
       os << indent << "Source: (" << this->GetSource(0) << ")\n";
       }
