@@ -105,7 +105,7 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
   BitBlt(compatHdc, 0, 0, width, height, this->DeviceContext, x_low, y_low, SRCCOPY);
 
   // Allocate space for the data
-  int size = width*height*3;
+  int size = dataWidth*height;
   unsigned char*  data = new unsigned char[size];
   if (!data) 
     {
@@ -122,15 +122,24 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
   unsigned char gbyte;
   unsigned char bbyte;
 
-  for (int i = 0; i < width*height; i++)
+  int rowAdder;
+  rowAdder = (4 - (width*3)%4)%4;
+  for (int i = 0; i < height; i++)
     {
+    for (int j = 0; j < width; j++)
+      {
 	bbyte = *p_data++;
 	gbyte = *p_data++;
 	rbyte = *p_data++;
 	*p_data2++ = rbyte;
 	*p_data2++ = gbyte;
 	*p_data2++ = bbyte;
-	}
+      }
+
+    // rows must be a multiple of four bytes
+    // so pad it if neccessary
+    p_data += rowAdder;
+    }
 
   // Free the device context
   DeleteDC(compatHdc);
