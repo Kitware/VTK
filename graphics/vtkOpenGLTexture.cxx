@@ -270,6 +270,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
   glDeleteLists(this->Index,1);
 #endif
   this->Index = 0;
+  this->Modified();
 }
 
 static int FindPowerOfTwo(int i)
