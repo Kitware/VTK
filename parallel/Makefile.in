@@ -37,6 +37,7 @@ vtkPipelineSize \
 vtkPImageWriter \
 vtkPPolyDataNormals \
 vtkPSphereSource \
+vtkRTAnalyticSource \
 vtkSharedMemoryCommunicator \
 vtkThreadedController \
 vtkTreeComposite \
