@@ -1,10 +1,13 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-24 19:25:30 barre>
+# Time-stamp: <2002-01-09 14:26:21 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.83 (barre) :
+#   - add --stdout          : print converted file to standard output
 #
 # 0.82 (barre) :
 #   - add --relativeto path : each file/directory to document is considered
@@ -95,9 +98,8 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.82, $0, "Sebastien Barre et al.");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.83, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
-print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 # -------------------------------------------------------------------------
 # Defaults  (add options as you want: "verbose" => 1 for default verbose mode)
@@ -123,7 +125,9 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "update|u", "force|f", "temp=s", "to=s", "relativeto=s");
+GetOptions (\%args, "help", "verbose|v", "update|u", "force|f", "temp=s", "to=s", "stdout", "relativeto=s");
+
+print "$PROGNAME $VERSION, by $AUTHOR\n" if ! exists $args{"stdout"};
 
 if (exists $args{"help"}) {
     print <<"EOT";
@@ -132,6 +136,7 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--force|-f] [--temp fil
   --verbose|-v      : verbose (display filenames while processing)
   --update|-u       : update (convert only if newer, requires --to)
   --force|-f        : force conversion for all files (overrides --update)
+  --stdout          : print converted file to standard output
   --temp file       : use 'file' as temporary file (default: $default{temp})
   --to path         : use 'path' as destination directory (default: $default{to})
   --relativeto path : each file/directory to document is considered relative to 'path', where --to and --relativeto should be absolute (default: $default{relativeto})
@@ -164,7 +169,7 @@ my $start_time = time();
 
 push @ARGV, @{$default{dirs}} if !@ARGV;
 
-print "Collecting...\n";
+print "Collecting...\n" if ! exists $args{"stdout"};
 my @files;
 foreach my $file (@ARGV) {
     if (-f $file) {
@@ -177,7 +182,7 @@ foreach my $file (@ARGV) {
 # -------------------------------------------------------------------------
 # Process files corresponding to headers
 
-print "Converting...\n";
+print "Converting...\n" if ! exists $args{"stdout"};
 my $intermediate_time = time();
 my $nb_file = 0;
 
@@ -508,33 +513,42 @@ foreach my $source (@files) {
     }
     
     # Write the converted header to its destination
-    # Open the target and create the missing directory if any
+    # or to standard output.
 
-    if (!sysopen(DEST_FILE, 
-                 $dest, 
-                 O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
-        my $dir = dirname($dest);
-        mkpath($dir);
-        sysopen(DEST_FILE, 
-                $dest, 
-                O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
-          or croak "$PROGNAME: unable to open destination file $dest\n";
-    }
-    print DEST_FILE @converted;
-    close(DEST_FILE);
+    if (exists $args{"stdout"}) {
 
-    # If in-place conversion was requested, remove source and rename target
-    # (or temp file) to source
+        print  @converted;
 
-    if (! exists $args{"to"}) {
-        unlink($source)
-          or carp "$PROGNAME: unable to delete original file $source\n";
-        rename($args{"temp"}, $source)
-          or carp "$PROGNAME: unable to rename ", $args{"temp"}, " to $source\n";
+    } else {
+
+        # Open the target and create the missing directory if any
+
+        if (!sysopen(DEST_FILE, 
+                     $dest, 
+                     O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
+            my $dir = dirname($dest);
+            mkpath($dir);
+            sysopen(DEST_FILE, 
+                    $dest, 
+                    O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
+              or croak "$PROGNAME: unable to open destination file $dest\n";
+        }
+        print DEST_FILE @converted;
+        close(DEST_FILE);
+        
+        # If in-place conversion was requested, remove source and rename target
+        # (or temp file) to source
+
+        if (! exists $args{"to"}) {
+            unlink($source)
+              or carp "$PROGNAME: unable to delete original file $source\n";
+            rename($args{"temp"}, $source)
+              or carp "$PROGNAME: unable to rename ", $args{"temp"}, " to $source\n";
+        }
     }
 }
 
-print " => $nb_file files converted in ", time() - $intermediate_time, " s. \n"
-  if ! exists $args{"c"};
-
-print "Finished in ", time() - $start_time, " s.\n";
+if (! exists $args{"stdout"}) {
+    print " => $nb_file files converted in ", time() - $intermediate_time, " s. \n";
+    print "Finished in ", time() - $start_time, " s.\n";
+}
