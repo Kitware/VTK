@@ -3,8 +3,12 @@
 #include "vtkImageReader.h"
 #include "vtkImageImport.h"
 #include "vtkImageExport.h"
+#include "vtkWindowToImageFilter.h"
+#include "vtkPNMWriter.h"
 
-main ()
+#include "SaveViewerImage.h"
+
+void main( int argc, char *argv[] )
 {
  int i,j,k;
 
@@ -67,6 +71,8 @@ main ()
 
  viewer->Render();
 
+ SAVEVIEWERIMAGE (viewer);
+
  char *dummy;
  cin >> dummy;
  
@@ -77,5 +83,4 @@ main ()
  
  delete data;
 
- return 0;
 }
