@@ -49,7 +49,7 @@ void maketree(uInt b, inflate_huft *t)
 }
 
 /* create the fixed tables in C initialization syntax */
-void main(void)
+int main(void)
 {
   int r;
   uInt bl, bd;
@@ -63,7 +63,7 @@ void main(void)
   if (r)
   {
     fprintf(stderr, "inflate_trees_fixed error %d\n", r);
-    return;
+    return 1;
   }
   puts("/* inffixed.h -- table for decoding fixed codes");
   puts(" * Generated automatically by the maketree.c program");
@@ -82,4 +82,5 @@ void main(void)
   printf("local inflate_huft fixed_td[] = {");
   maketree(bd, td);
   puts("  };");
+  return 0;
 }
