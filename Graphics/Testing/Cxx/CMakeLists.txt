@@ -25,7 +25,6 @@ IF (VTK_USE_RENDERING)
   ADD_EXECUTABLE(Mace Mace)
   ADD_EXECUTABLE(expCos expCos)
   ADD_EXECUTABLE(volProt volProt)
-  ADD_EXECUTABLE(OffScreen OffScreen)
 
   #
   # Add tests, with the data
