@@ -55,10 +55,6 @@ protected:
   // passed into it and returns it as an image data
   virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
 
-  void ComputeRequiredInputUpdateExtent( int *vtkNotUsed(in), 
-                                         int *vtkNotUsed(out) ) 
-    {VTK_LEGACY_METHOD(ComputeRequiredInputUpdateExtent,"3.2");}
-  
 private:
   vtkImageSource(const vtkImageSource&);  // Not implemented.
   void operator=(const vtkImageSource&);  // Not implemented.
