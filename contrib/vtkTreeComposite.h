@@ -44,6 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // a render window.  They use vtkMultiProcessControllers to comunicate 
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency well.
+// .SECTION note
+// You should set up the renders and render window interactor before setting
+// the compositers render window.  We set up observers on the renderer,
+// An have no easy way of knowing when the renderers change.  We could 
+// create AddRenderer and RemoveRenderer events ...
 // .SECTION see also
 // vtkMultiProcessController vtkRenderWindow.
 
@@ -65,14 +70,24 @@ public:
 
   // Description:
   // Set/Get the RenderWindow to use for compositing.
-  //vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
+  // We add a start and end observer to the window.
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   void SetRenderWindow(vtkRenderWindow *renWin);
 
   // Description:
+  // This method sets the piece and number of pieces for each
+  // actor with a polydata mapper. My other option is to 
+  // do it every render, but that would force a partioning scheme.
+  void InitializePieces();
+  
+  // Description:
   // Callbacks that initialize and finish the compositing.
+  void StartInteractor();
   void StartRender();
   void EndRender();
   void RenderRMI();
+  void ResetCamera(vtkRenderer *ren);
+  void ResetCameraClippingRange(vtkRenderer *ren);
   
 protected:
   vtkTreeComposite();
@@ -82,14 +97,21 @@ protected:
   
   vtkRenderWindow* RenderWindow;
   vtkRenderWindowInteractor* RenderWindowInteractor;
-  vtkRenderer* Renderer;
   vtkMultiProcessController* Controller;
 
+  unsigned long StartInteractorTag;
   unsigned long StartTag;
   unsigned long EndTag;
   
   void Composite(int flag, float *remoteZdata, float *remotePdata);
-  
+
+  // Convenience method used internally. It set up the start observer
+  // and allows the render window's interactor to be set before or after
+  // the compositer's render window (not exactly true).
+  void SetRenderWindowInteractor(vtkRenderWindowInteractor *iren);
+
+  void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+
 };
 
 
