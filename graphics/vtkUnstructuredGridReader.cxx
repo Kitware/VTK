@@ -320,7 +320,7 @@ void vtkUnstructuredGridReader::Execute()
 
       else
         {
-        vtkErrorMacro(<< "Unrecognized keyord: " << line);
+        vtkErrorMacro(<< "Unrecognized keyword: " << line);
         this->Reader.CloseVTKFile ();
         return;
         }
@@ -344,7 +344,7 @@ void vtkUnstructuredGridReader::Execute()
 
   else 
     {
-    vtkErrorMacro(<< "Unrecognized keyord: " << line);
+    vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 //
 // Clean-up and get out

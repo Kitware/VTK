@@ -274,7 +274,7 @@ void vtkStructuredGridReader::Execute()
 
       else
         {
-        vtkErrorMacro(<< "Unrecognized keyord: " << line);
+        vtkErrorMacro(<< "Unrecognized keyword: " << line);
         this->Reader.CloseVTKFile ();
         return;
         }
@@ -310,7 +310,7 @@ void vtkStructuredGridReader::Execute()
 
   else 
     {
-    vtkErrorMacro(<< "Unrecognized keyord: " << line);
+    vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
     this->Reader.CloseVTKFile ();
 }
