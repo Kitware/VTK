@@ -21,6 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrCam.hh"
 #include "GlrLgt.hh"
 #include "gl/glws.h"
+#include "gl/get.h"
 
 #define MAX_LIGHTS 8
 
@@ -103,6 +104,7 @@ vlGlrRenderWindow::vlGlrRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
+  this->StereoType = VL_STEREO_CRYSTAL_EYES;
 
   strcpy(this->Name,"Visualization Library - GL");
 }
@@ -189,6 +191,53 @@ void vlGlrRenderWindow::Frame(void)
     }
 }
  
+
+// Description:
+// Update system if needed due to stereo rendering.
+void vlGlrRenderWindow::StereoUpdate(void)
+{
+  // if stereo is on and it wasn't before
+  if (this->StereoRender && (!this->StereoStatus))
+    {
+    switch (this->StereoType) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	this->OldMonitorSetting = getmonitor();
+	gflush();
+	setmonitor(STR_RECT);
+	gflush();
+	// make sure we are in full screen
+        this->StereoStatus = 1;
+	this->FullScreenOn();
+	}
+      }
+    }
+  else if ((!this->StereoRender) && this->StereoStatus)
+    {
+    switch (this->StereoType) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	/* restore the monitor */
+	gflush();
+	setmonitor(this->OldMonitorSetting);
+	gflush();
+	// make sure we are in full screen
+        this->StereoStatus = 0;
+	this->FullScreenOff();
+	}
+      }
+    }
+}
+
+// Description:
+// Handles any post rendering stereo operations.
+void vlGlrRenderWindow::StereoRenderComplete(void)
+{
+  // Does nothing right now
+}
+
 // Description:
 // Specify various window parameters.
 void vlGlrRenderWindow::WindowConfigure()
@@ -274,18 +323,15 @@ void vlGlrRenderWindow::WindowInitialize (void)
     exit(1);
     }
 
+
+  attr.override_redirect = False;
+  if (this->Borders == 0.0)
+    attr.override_redirect = True;
+  
   /* create our own window ? */
   this->OwnWindow = 0;
   if (!this->WindowId)
     {
-    /*
-     * if both the position and size have been set, override the window
-     * manager
-     */
-    attr.override_redirect = False;
-    if (this->Borders == 0.0)
-      attr.override_redirect = True;
-    
     v = extract_visual(GLX_NORMAL,conf,this->DisplayId,
 		       DefaultScreen(this->DisplayId));
     
@@ -303,6 +349,20 @@ void vlGlrRenderWindow::WindowInitialize (void)
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
     this->OwnWindow = 1;
     }
+  else
+    {
+    XChangeWindowAttributes(this->DisplayId,this->WindowId,
+			    CWOverrideRedirect, &attr);
+    }
+
+  // RESIZE THE WINDOW TO THE DESIRED SIZE
+  vlDebugMacro(<< "Resizing the xwindow\n");
+  XResizeWindow(this->DisplayId,this->WindowId,
+		((this->Size[0] > 0) ? 
+		 (int)(this->Size[0]) : 256),
+		((this->Size[1] > 0) ? 
+		 (int)(this->Size[1]) : 256));
+  XSync(this->DisplayId,False);
 
   set_window(GLX_NORMAL, this->WindowId, conf);
   
@@ -335,6 +395,9 @@ void vlGlrRenderWindow::WindowInitialize (void)
 
   vlDebugMacro(" zbuff stuff\n");
   zbuffer(TRUE);
+
+  vlDebugMacro(" subpixel stuff\n");
+  subpixel(TRUE);
  
   vlDebugMacro(" texture stuff\n");
   if (getgdesc(GD_TEXTURE))
@@ -506,7 +569,10 @@ void vlGlrRenderWindow::WindowRemap()
     }
 
   // then close the old window 
-  XDestroyWindow(this->DisplayId,this->WindowId);
+  if (this->OwnWindow)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
   GLXunlink(this->DisplayId,this->WindowId);
   // set the default windowid 
   this->WindowId = this->NextWindowId;
