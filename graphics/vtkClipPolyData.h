@@ -50,10 +50,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // To use this filter, you must decide if you will be clipping with an
 // implicit function, or whether you will be using the input scalar
-// data.  If you want to clip with an implicit function, you must
-// define first define and then set it with the SetClipFunction()
-// method. Otherwise, you must make sure input scalar data is
-// available. You can also specify a scalar value, which is used to
+// data.  If you want to clip with an implicit function, you must:
+// 1) define an implicit function
+// 2) set it with the SetClipFunction method
+// 3) apply the GenerateClipScalarsOn method
+// If a ClipFunction is not specified, or GenerateClipScalrs is off
+// (the default), then the input's scalar data will be used to clip
+// the polydata.
+//
+// You can also specify a scalar value, which is used to
 // decide what is inside and outside of the implicit function. You can
 // also reverse the sense of what inside/outside is by setting the
 // InsideOut instance variable. (The cutting algorithm proceeds by
