@@ -45,11 +45,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // extract geometry (and associated data) from an unstructured grid
 // dataset. The extraction process is controlled by specifying a range
 // of point ids, cell ids, or a bounding box (referred to as "Extent").
-// 
+// Those cells lying within these regions are sent to the output.
+// The user has the choice of merging coincident points (Merging is on)
+// or using the original point set (Merging is off).
 
 // .SECTION Caveats
-// The input points are copied through to the output. This means
-// unused points may be present in the output data.
+// If merging is off, the input points are copied through to the
+// output. This means unused points may be present in the output data.
+// If merging is on, then coincident points with different point attribute
+// values are merged.
 
 // .SECTION See Also
 // vtkStructuredPointsGeometryFilter vtkStructuredGridGeometryFilter
@@ -119,6 +123,28 @@ public:
   void SetExtent(float *extent);
   float *GetExtent() { return this->Extent;};
 
+  // Description:
+  // Turn on/off merging of coincident points. Note that is merging is
+  // on, points with different point attributes (e.g., normals) are merged,
+  // which may cause rendering artifacts.
+  vtkSetMacro(Merging,int);
+  vtkGetMacro(Merging,int);
+  vtkBooleanMacro(Merging,int);
+
+  // Description:
+  // Set / get a spatial locator for merging points. By
+  // default an instance of vtkMergePoints is used.
+  void SetLocator(vtkPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
+
+  // Description:
+  // Return the MTime also considering the locator.
+  unsigned long GetMTime();
+
 protected:
   vtkExtractUnstructuredGrid();
   ~vtkExtractUnstructuredGrid() {};
@@ -135,6 +161,9 @@ protected:
   int PointClipping;
   int CellClipping;
   int ExtentClipping;
+
+  int Merging;
+  vtkPointLocator *Locator;
 };
 
 #endif

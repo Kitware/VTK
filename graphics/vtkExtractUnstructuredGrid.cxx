@@ -44,8 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkExtractUnstructuredGrid* vtkExtractUnstructuredGrid::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkExtractUnstructuredGrid* vtkExtractUnstructuredGrid::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkExtractUnstructuredGrid;
 }
-
-
-
 
 // Construct with all types of clipping turned off.
 vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
@@ -80,6 +76,9 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
   this->PointClipping = 0;
   this->CellClipping = 0;
   this->ExtentClipping = 0;
+
+  this->Merging = 0;
+  this->Locator = NULL;
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
@@ -207,10 +206,22 @@ void vtkExtractUnstructuredGrid::Execute()
   output->Allocate(numCells);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   outputCD->CopyAllocate(cd,numCells,numCells/2);
-  pointMap = new int[numPts];
-  for (i=0; i<numPts; i++)
+
+  if ( this->Merging )
     {
-    pointMap[i] = (-1); //initialize as unused
+    if ( this->Locator == NULL )
+      {
+      this->CreateDefaultLocator();
+      }
+    this->Locator->InitPointInsertion (newPts, input->GetBounds());
+    }
+  else
+    {
+    pointMap = new int[numPts];
+    for (i=0; i<numPts; i++)
+      {
+      pointMap[i] = (-1); //initialize as unused
+      }
     }
 
   // Traverse cells to extract geometry
@@ -221,22 +232,37 @@ void vtkExtractUnstructuredGrid::Execute()
       cell = input->GetCell(cellId);
       numIds = cell->PointIds->GetNumberOfIds();
       cellIds->Reset();
-      for (i=0; i < numIds; i++)
-	{
-	ptId = cell->PointIds->GetId(i);
-	if ( pointMap[ptId] < 0 )
-	  {
-	  pointMap[ptId] = newPtId 
-	    = newPts->InsertNextPoint(inPts->GetPoint(ptId));
-	  outputPD->CopyData(pd, ptId, newPtId);
-	  }
-	cellIds->InsertNextId(pointMap[ptId]);
-	}
+      if ( this->Merging )
+        {
+        for (i=0; i < numIds; i++)
+          {
+          ptId = cell->PointIds->GetId(i);
+          x = input->GetPoint(ptId);
+          if ( this->Locator->InsertUniquePoint(x, newPtId) )
+            {
+            outputPD->CopyData(pd,ptId,newPtId);
+            }
+          }
+        }//merging coincident points
+      else
+        {
+        for (i=0; i < numIds; i++)
+          {
+          ptId = cell->PointIds->GetId(i);
+          if ( pointMap[ptId] < 0 )
+            {
+            pointMap[ptId] = newPtId 
+              = newPts->InsertNextPoint(inPts->GetPoint(ptId));
+            outputPD->CopyData(pd, ptId, newPtId);
+            }
+          cellIds->InsertNextId(pointMap[ptId]);
+          }
+        }//keeping original point list
 
       newCellId = output->InsertNextCell(input->GetCellType(cellId), cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
 	
-      } //if visible
+      } //if cell is visible
     } //for all cells
 
   vtkDebugMacro(<<"Extracted " << output->GetNumberOfPoints() << " points,"
@@ -246,14 +272,64 @@ void vtkExtractUnstructuredGrid::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
+  if ( this->Merging && this->Locator )
+    {
+    this->Locator->Initialize(); 
+    }
+  else
+    {
+    delete [] pointMap;
+    }
   output->Squeeze();
-
-  delete [] pointMap;
+  
   if ( cellVis )
     {
     delete [] cellVis;
     }
   cellIds->Delete();
+}
+
+unsigned long int vtkExtractUnstructuredGrid::GetMTime()
+{
+  unsigned long mTime=
+    this->vtkUnstructuredGridToUnstructuredGridFilter::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+
+void vtkExtractUnstructuredGrid::CreateDefaultLocator()
+{
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
+}
+
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
+void vtkExtractUnstructuredGrid::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator == locator ) 
+    {
+    return;
+    }
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }    
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
@@ -275,5 +351,14 @@ void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
   os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
 
+  os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 
