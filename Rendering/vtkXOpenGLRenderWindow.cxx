@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.44");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.45");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -473,7 +473,13 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     {
     if (this->WindowId)
       {
-      XUndefineCursor(this->DisplayId,this->WindowId);
+      // we will only have a cursor defined if a CurrentCursor has been
+      // set > 0 or if the cursor has been hidden... if we undefine without
+      // checking, bad things can happen (BadWindow)
+      if (this->GetCurrentCursor() || this->CursorHidden)
+        {
+        XUndefineCursor(this->DisplayId,this->WindowId);
+        }
       }
     if (this->XCArrow)
       {
@@ -527,6 +533,17 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     {
     this->MakeCurrent();
 
+    // tell each of the renderers that this render window/graphics context
+    // is being removed (the RendererCollection is removed by vtkRenderWindow's
+    // destructor)
+    this->Renderers->InitTraversal();
+    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+          ren != NULL;
+          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+        
     /* first delete all the old lights */
     for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
       {
@@ -549,17 +566,6 @@ void vtkXOpenGLRenderWindow::Finalize (void)
         glDeleteLists(id,1);
         }
 #endif
-      }
-
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    this->Renderers->InitTraversal();
-    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-          ren != NULL;
-          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-      {
-      ren->SetRenderWindow(NULL);
       }
 
     glFinish();
