@@ -378,7 +378,7 @@ void vlDecimate::Execute()
       }
     }
 
-  delete map;
+  delete [] map;
   delete Mesh; //side effect: releases memory consumned by data structures
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
