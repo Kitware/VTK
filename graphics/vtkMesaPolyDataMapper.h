@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataMapper.h"
 #include <stdlib.h>
+#include "vtkToolkits.h"
 
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE

@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaProjectedPolyDataRayBounder_h
 #define __vtkMesaProjectedPolyDataRayBounder_h
 
+#include "vtkToolkits.h"
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkPolyData.h"
 

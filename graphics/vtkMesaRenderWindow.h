@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "vtkToolkits.h"
 #include "vtkXRenderWindow.h"
 
 // include Mesa header files
@@ -74,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // if we really have the mesa headers then include off screen rendering
 #ifdef MESA
-#include "GL/osmesa.h"
+#include "/opt/include/GL/osmesa.h"
 #endif
 
 class vtkIdList;

@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "vtkToolkits.h"
 #include "vtkXImageWindow.h"
 
 #ifdef VTK_MANGLE_MESA
@@ -60,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #else
 #include "GL/glx.h"
 #endif
-#include "GL/osmesa.h"
+#include "/opt/include/GL/osmesa.h"
 
 
 class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow
