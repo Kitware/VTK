@@ -38,7 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkActor - an entity in a rendered image .SECTION Description
+// .NAME vtkActor - an entity in a rendered image 
+// .SECTION Description
 // vtkActor is used to represent an entity in a rendering scene.  It
 // handles functions related to the actors position, orientation and
 // scaling. It combines these instance variables into one four by four
