@@ -39,22 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkLookupTable - map scalar values into colors or colors to scalars; generate color table
+// .NAME vtkLookupTable - map scalar values into colors via a lookup table
 // .SECTION Description
 // vtkLookupTable is an object that is used by mapper objects to map scalar 
 // values into rgba (red-green-blue-alpha transparency) color specification, 
 // or rgba into scalar values. The color table can be created by direct 
 // insertion of color values, or by specifying  hue, saturation, value, and 
 // alpha range and generating a table.
-//
-// This class is designed as a base class for derivation by other classes. 
-// The Build(), MapValue(), MapValues(), and SetTableRange() methods are 
-// virtual and may require overloading in subclasses.
-//
-// .SECTION Caveats
-// vtkLookupTable is a reference counted object. Therefore, you should 
-// always use operator "new" to construct new objects. This procedure will
-// avoid memory problems (see text).
 //
 // .SECTION See Also
 // vtkLogLookupTable vtkWindowLevelLookupTable
@@ -66,11 +57,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkScalars;
 
+#define VTK_RAMP_LINEAR 0
+#define VTK_RAMP_SCURVE 1
+#define VTK_SCALE_LINEAR 0
+#define VTK_SCALE_LOG10 1
+
 class VTK_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
   // Description:
-  // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
+  // Construct with range=[0,1]; and hsv ranges set up for rainbow color table 
   // (from red to blue).
   static vtkLookupTable *New();
   
@@ -87,11 +83,25 @@ public:
   virtual void Build();
 
   // Description:
-  // Set the number of colors in the lookup table. Use this method before
-  // building the lookup table. Use SetNumberOfTableValues() to change the
-  // table size after the lookup table has been built.
-  vtkSetClampMacro(NumberOfColors,int,2, 65536);
-  vtkGetMacro(NumberOfColors,int);
+  // Set the shape of the table ramp to either linear or S-curve.
+  // The default is S-curve, which tails off gradually at either end.  
+  // The equation used for the S-curve is y = (sin((x - 1/2)*pi) + 1)/2,
+  // while the equation for the linear ramp is simply y = x.  For an
+  // S-curve greyscale ramp, you should set NumberOfTableValues to 402 
+  // (which is 256*pi/2) to provide room for the tails of the ramp.
+  vtkSetMacro(Ramp,int);
+  void SetRampToLinear() { this->SetRamp(VTK_RAMP_LINEAR); };
+  void SetRampToSCurve() { this->SetRamp(VTK_RAMP_SCURVE); };
+  vtkGetMacro(Ramp,int);
+
+  // Description:
+  // Set the type of scale to use, linear or logarithmic.  The default
+  // is linear.  If the scale is logarithmic, then the TableRange must not
+  // cross the value zero.
+  void SetScale(int scale);
+  void SetScaleToLinear() { this->SetScale(VTK_SCALE_LINEAR); };
+  void SetScaleToLog10() { this->SetScale(VTK_SCALE_LOG10); };
+  vtkGetMacro(Scale,int);
 
   // Description:
   // Set/Get the minimum/maximum scalar values for scalar mapping. Scalar
@@ -104,44 +114,36 @@ public:
 
   // Description:
   // Set the range in hue (using automatic generation). Hue ranges 
-  // between (0,1).
+  // between [0,1].
   vtkSetVector2Macro(HueRange,float);
-  vtkGetVectorMacro(HueRange,float,2);
+  vtkGetVector2Macro(HueRange,float);
 
   // Description:
   // Set the range in saturation (using automatic generation). Saturation 
-  // ranges between (0,1).
+  // ranges between [0,1].
   vtkSetVector2Macro(SaturationRange,float);
-  vtkGetVectorMacro(SaturationRange,float,2);
+  vtkGetVector2Macro(SaturationRange,float);
 
   // Description:
   // Set the range in value (using automatic generation). Value ranges 
-  // between (0,1).
+  // between [0,1].
   vtkSetVector2Macro(ValueRange,float);
-  vtkGetVectorMacro(ValueRange,float,2);
+  vtkGetVector2Macro(ValueRange,float);
 
   // Description:
   // Set the range in alpha (using automatic generation). Alpha ranges from 
-  // (0,1).
+  // [0,1].
   vtkSetVector2Macro(AlphaRange,float);
-  vtkGetVectorMacro(AlphaRange,float,2);
+  vtkGetVector2Macro(AlphaRange,float);
 
   // Description:
   // Map one value through the lookup table.
   unsigned char *MapValue(float v);
 
   // Description:
-  // map a set of scalars through the lookup table
-  void MapScalarsThroughTable2(void *input, unsigned char *output,
-			       int inputDataType, int numberOfValues,
-			       int inputIncrement, int outputIncrement);
-    
-
-  // Description:
   // Map one value through the lookup table and return the color as
   // an RGB array of floats between 0 and 1.
-  float *GetColor(float x) { 
-    return vtkScalarsToColors::GetColor(x); }
+  float *GetColor(float x) { return vtkScalarsToColors::GetColor(x); }
   void GetColor(float x, float rgb[3]);
 
   // Description:
@@ -151,37 +153,37 @@ public:
 
   // Description:
   // Specify the number of values (i.e., colors) in the lookup
-  // table. This method simply allocates memory and prepares the table
-  // for use with SetTableValue(). It differs from Build() method in
-  // that the allocated memory is not initialized according to HSVA ramps.
+  // table.
   void SetNumberOfTableValues(int number);
-  
+  int GetNumberOfTableValues() { return this->NumberOfColors; };
+
   // Description:
   // Directly load color into lookup table. Use [0,1] float values for color
   // component specification. Make sure that you've either used the
   // Build() method or used SetNumberOfTableValues() prior to using this
   // method.
-  void SetTableValue (int indx, float rgba[4]);
+  void SetTableValue(int indx, float rgba[4]);
 
   // Description:
   // Directly load color into lookup table. Use [0,1] float values for color 
   // component specification.
-  void SetTableValue (int indx, float r, float g, float b, float a=1.0);
+  void SetTableValue(int indx, float r, float g, float b, float a=1.0);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
   // components are expressed as [0,1] float values.
-  float *GetTableValue (int id);
+  float *GetTableValue(int id);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
   // components are expressed as [0,1] float values.
-  void GetTableValue (int id, float rgba[4]);
+  void GetTableValue(int id, float rgba[4]);
 
   // Description:
   // Get pointer to color table data. Format is array of unsigned char
   // r-g-b-a-r-g-b-a...
-  unsigned char *GetPointer(const int id){return this->Table->GetPointer(4*id);};
+  unsigned char *GetPointer(const int id) {
+    return this->Table->GetPointer(4*id); };
 
   // Description:
   // Get pointer to data. Useful for direct writes into object. MaxId is bumped
@@ -190,10 +192,25 @@ public:
   unsigned char *WritePointer(const int id, const int number);
 
   // Description:
-  // Sets/Gets the range of scalars which will be mapped.
-  float *GetRange() {return this->GetTableRange();};
-  void SetRange(float min, float max) {this->SetTableRange(min,max);};
-  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+  // Sets/Gets the range of scalars which will be mapped.  This is a duplicate
+  // of Get/SetTableRange.
+  float *GetRange() { return this->GetTableRange(); };
+  void SetRange(float min, float max) { this->SetTableRange(min, max); };
+  void SetRange(float rng[2]) { this->SetRange(rng[0], rng[1]); };
+
+  // Description:
+  // Set the number of colors in the lookup table.  Use
+  // SetNumberOfTableValues() instead, it can be used both before and
+  // after the table has been built whereas SetNumberOfColors() has no
+  // effect after the table has been built.
+  vtkSetClampMacro(NumberOfColors,int,2,65535);
+  vtkGetMacro(NumberOfColors,int);
+
+  // Description:
+  // map a set of scalars through the lookup table
+  void MapScalarsThroughTable2(void *input, unsigned char *output,
+			       int inputDataType, int numberOfValues,
+			       int inputIncrement, int outputIncrement);
 
 protected:
   vtkLookupTable(int sze=256, int ext=256);
@@ -208,6 +225,8 @@ protected:
   float SaturationRange[2];
   float ValueRange[2];
   float AlphaRange[2];
+  int Scale;
+  int Ramp;
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
   float RGBA[4]; //used during conversion process
