@@ -118,7 +118,8 @@ char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 }
 
 // Description:
-// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax).
+// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
+// to array of six float values.
 float *vlCell::GetBounds ()
 {
   float *x;
@@ -138,6 +139,15 @@ float *vlCell::GetBounds ()
       }
     }
   return bounds;
+}
+
+// Description:
+// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
+// user provided array.
+void vlCell::GetBounds(float bounds[6])
+{
+  float *b=this->GetBounds();
+  for (int i=0; i < 6; i++) bounds[i] = b[i];
 }
 
 // Description:

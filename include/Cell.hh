@@ -123,6 +123,7 @@ public:
   virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId) = 0;
 
+  void GetBounds(float bounds[6]);
   float *GetBounds();
   float GetLength2();
 
