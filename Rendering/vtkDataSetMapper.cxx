@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkDataSetMapper* vtkDataSetMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkDataSetMapper* vtkDataSetMapper::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkDataSetMapper;
 }
-
-
-
 
 vtkDataSetMapper::vtkDataSetMapper()
 {
@@ -103,12 +98,10 @@ void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
     }
 }
 
-//
 // Receives from Actor -> maps data to primitives
 //
 void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
-  //
   // make sure that we've been properly initialized
   //
   if ( !this->GetInput() )
@@ -116,7 +109,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     vtkErrorMacro(<< "No input!\n");
     return;
     } 
-  //
+
   // Need a lookup table
   //
   if ( this->LookupTable == NULL )
@@ -124,7 +117,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->CreateDefaultLookupTable();
     }
   this->LookupTable->Build();
-  //
+
   // Now can create appropriate mapper
   //
   if ( this->PolyDataMapper == NULL ) 
@@ -136,16 +129,16 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->GeometryExtractor = gf;
     this->PolyDataMapper = pm;
     }
-  //
+
   // share clipping planes with the PolyDataMapper
   //
   if (this->ClippingPlanes != this->PolyDataMapper->GetClippingPlanes()) 
     {
     this->PolyDataMapper->SetClippingPlanes(this->ClippingPlanes);
     }
-  //
-  // For efficiency: if input type is vtkPolyData, there's no need to pass it thru
-  // the geometry filter.
+
+  // For efficiency: if input type is vtkPolyData, there's no need to 
+  // pass it thru the geometry filter.
   //
   if ( this->GetInput()->GetDataObjectType() == VTK_POLY_DATA )
     {
@@ -160,15 +153,27 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   // update ourselves in case something has changed
   this->PolyDataMapper->SetLookupTable(this->GetLookupTable());
   this->PolyDataMapper->SetScalarVisibility(this->GetScalarVisibility());
-  this->PolyDataMapper->SetUseLookupTableScalarRange(this->GetUseLookupTableScalarRange());
+  this->PolyDataMapper->SetUseLookupTableScalarRange(
+    this->GetUseLookupTableScalarRange());
   this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
-  this->PolyDataMapper->SetImmediateModeRendering
-    (this->GetImmediateModeRendering());
+  this->PolyDataMapper->SetImmediateModeRendering(
+    this->GetImmediateModeRendering());
   this->PolyDataMapper->SetColorMode(this->GetColorMode());
   this->PolyDataMapper->SetScalarMode(this->GetScalarMode());
-
+  if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+       this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    if ( this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID )
+      {
+      this->PolyDataMapper->ColorByArrayComponent(this->ArrayId,ArrayComponent);
+      }
+    else
+      {
+      this->PolyDataMapper->ColorByArrayComponent(this->ArrayName,ArrayComponent);
+      }
+    }
+  
   this->PolyDataMapper->Render(ren,act);
-
   this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }
 
