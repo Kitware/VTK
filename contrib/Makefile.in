@@ -25,6 +25,7 @@ vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
+vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
 vtkMassProperties
