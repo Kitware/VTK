@@ -89,7 +89,14 @@ public:
     {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
   void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
+
+// Description:
+// Set the data type of pixles in the file.  
+// As a convienience, the OutputScalarType is set to the same value.
+// If you want the output scalar type to have a different value, set it
+// after this method is called.
   void SetDataScalarType(int type);
+
   // Description:
   // Get the file format.  Pixels are this type in the file.
   vtkGetMacro(DataScalarType, int);
@@ -125,8 +132,16 @@ public:
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVector3Macro(DataOrigin,float);
 
+
+// Description:
+// Returns the cache.
   vtkImageCache *GetOutput();
+
+
+// Description:
+// This method returns the largest data that can be generated.
   void UpdateImageInformation();
+
   
   // Description:
   // Get the size of the header computed by this object.

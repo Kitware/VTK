@@ -62,7 +62,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageWindow : public vtkWindow
 {
 public:
+
+// Description:
+// Creates a vtkImageWindow with 
+// background erasing disabled and gray scale hint off
   vtkImageWindow();
+
   ~vtkImageWindow();
 
   void PrintSelf(ostream& os, vtkIndent indent);

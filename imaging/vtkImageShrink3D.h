@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageShrink3D : public vtkImageFilter
 {
 public:
+
+// Description:
+// Constructor: Sets default filter to be identity.
   vtkImageShrink3D();
+
   static vtkImageShrink3D *New() {return new vtkImageShrink3D;};
   const char *GetClassName() {return "vtkImageShrink3D";};
   void PrintSelf(ostream& os, vtkIndent indent);

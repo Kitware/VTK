@@ -61,7 +61,11 @@ public:
   vtkSetVector3Macro(Translation, int);
   vtkGetVector3Macro(Translation, int);
 
+
+// Description:
+// This method simply copies by reference the input data to the output.
   void InternalUpdate(vtkImageData *outData);
+
 
 protected:
   int Translation[3];

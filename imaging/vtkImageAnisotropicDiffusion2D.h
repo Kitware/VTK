@@ -66,12 +66,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageAnisotropicDiffusion2D fitler.
   vtkImageAnisotropicDiffusion2D();
+
   static vtkImageAnisotropicDiffusion2D *New() {return new vtkImageAnisotropicDiffusion2D;};
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This method sets the number of inputs which also affects the
+// input neighborhood needed to compute one output pixel.
   void SetNumberOfIterations(int num);
+
   // Description:
   // Get the number of iterations.
   vtkGetMacro(NumberOfIterations,int);

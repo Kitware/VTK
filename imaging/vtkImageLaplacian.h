@@ -58,7 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLaplacian : public vtkImageFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageLaplacian fitler.
   vtkImageLaplacian();
+
   static vtkImageLaplacian *New() {return new vtkImageLaplacian;};
   const char *GetClassName() {return "vtkImageLaplacian";};
   void PrintSelf(ostream& os, vtkIndent indent);

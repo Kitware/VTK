@@ -56,14 +56,39 @@ public:
   const char *GetClassName() {return "vtkImageStaticCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This method updates the region specified by "UpdateExtent".  
   void Update();
+
+
+// Description:
+// This method updates the instance variables "WholeExtent", "Spacing", 
+// "Origin", "Bounds" etc.
+// It needs to be separate from "Update" because the image information
+// may be needed to compute the required UpdateExtent of the input
+// (see "vtkImageFilter").
   virtual void UpdateImageInformation();
+
   vtkImageData *UpdateAndReturnData();
+
+// Description:
+// This Method deletes any data in cache. For a static cache the data cannot be
+// released except by deleteing the instance or providing a new CachedData
   void ReleaseData();
+
+
+// Description:
+// Make this a separate method to avoid another GetPipelineMTime call.
   virtual unsigned long GetPipelineMTime();
 
+
   // Law: for vtkImageIterateFilter
+
+// Description:
+// return the un filled data of the UpdateExtent in this cache.
   vtkImageData *GetData(); 
+
 
   // Description:
   // Set the vtkImageData for this cache to cache. 

@@ -69,7 +69,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
+
+// Description:
+// Creates a new text mapper with Font size 12, bold off, italic off,
+// and Arial font
   vtkTextMapper();
+
   virtual ~vtkTextMapper();
   const char *GetClassName() {return "vtkTextMapper";};
   static vtkTextMapper *New();

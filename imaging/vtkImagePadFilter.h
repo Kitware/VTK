@@ -55,7 +55,11 @@ class vtkImageCache;
 class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
 {
 public:
+
+// Description:
+// Constructor sets default values
   vtkImagePadFilter();
+
   static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
   const char *GetClassName() {return "vtkImagePadFilter";};
 

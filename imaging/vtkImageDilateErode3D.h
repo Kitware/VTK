@@ -58,7 +58,12 @@ class vtkImageEllipsoidSource;
 class VTK_EXPORT vtkImageDilateErode3D : public vtkImageSpatialFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageDilateErode3D fitler.
+// By default zero values are dilated.
   vtkImageDilateErode3D();
+
   ~vtkImageDilateErode3D();
   static vtkImageDilateErode3D *New() 
     {return new vtkImageDilateErode3D;};
@@ -66,7 +71,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Set/Get the size of the neighood.
+
+// Description:
+// This method sets the size of the neighborhood.  It also sets the 
+// default middle of the neighborhood and computes the eliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
+
   
   vtkSetMacro(DilateValue, float);
   vtkGetMacro(DilateValue, float);

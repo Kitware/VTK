@@ -58,7 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageNonMaximumSuppression fitler.
   vtkImageNonMaximumSuppression();
+
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
 

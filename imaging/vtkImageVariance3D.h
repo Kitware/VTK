@@ -67,7 +67,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Set/Get the size of the neighood.
+
+// Description:
+// This method sets the size of the neighborhood.  It also sets the 
+// default middle of the neighborhood and computes the Elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
+
   
 protected:
   vtkImageEllipsoidSource *Ellipse;

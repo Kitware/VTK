@@ -60,7 +60,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageSkeleton2D fitler.
   vtkImageSkeleton2D();
+
   static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
   const char *GetClassName() {return "vtkImageSkeleton2D";};
 

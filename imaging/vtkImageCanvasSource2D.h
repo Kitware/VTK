@@ -71,8 +71,18 @@ public:
 class VTK_EXPORT vtkImageCanvasSource2D : public vtkImageData
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageCanvasSource2D with no data.
   vtkImageCanvasSource2D();
+
+
+// Description:
+// Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the associated
+// vtkImageData.  However, since the data is reference counted, it may not 
+// actually be deleted.
   ~vtkImageCanvasSource2D();
+
   static vtkImageCanvasSource2D *New() {return new vtkImageCanvasSource2D;};
   const char *GetClassName() {return "vtkImageCanvasSource2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -101,7 +111,12 @@ public:
   void DrawSegment(int x0, int y0, int x1, int y1);
   void DrawSegment3D(float *p0, float *p1);
 
+
+// Description:
+// Fill a colored area with another color. (like connectivity)
+// All pixels connected to pixel (x, y) get replaced by draw color.
   void FillPixel(int x, int y);
+
   
   // Description:
   // To make Canvas source more like other sources, this get output

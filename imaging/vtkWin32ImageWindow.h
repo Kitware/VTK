@@ -76,12 +76,24 @@ public:
   
   //BTX
   void SetDisplayId(void *foo) {vtkDebugMacro(<<"SetDisplayID not implemented");};
+
+// Description:
+// Get the window id.
   HWND GetWindowId(); 
+
   void SetWindowId(void* id) {this->WindowId = (HWND) id;};
   void SetParentId(void* id) {this->ParentId = (HWND) id;};
   void SetDeviceContext(void* dc) {this->DeviceContext = (HDC) dc;};
+
+// Description:
+// Set the window id to a pre-existing window.
   void SetWindowId(HWND);
+
+
+// Description:
+// Set the window id to a pre-existing window.
   void SetParentId(HWND);
+
   void SetDeviceContext(HDC);
 
   void *GetGenericDisplayId() 
@@ -94,8 +106,16 @@ public:
   //ETX
 
   void   SetSize(int,int);
+
+// Description:
+// Get the current size of the window.
   int   *GetSize();
+
+
+// Description:
+// Get the position in screen coordinates of the window.
   int   *GetPosition();
+
   void   SetPosition(int,int);
   void PenLineTo(int x,int y);
   void PenMoveTo(int x,int y);

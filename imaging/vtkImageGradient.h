@@ -58,7 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradient : public vtkImageFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageGradient fitler.
   vtkImageGradient();
+
   static vtkImageGradient *New() {return new vtkImageGradient;};
   const char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);

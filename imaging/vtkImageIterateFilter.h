@@ -67,7 +67,11 @@ public:
   const char *GetClassName() {return "vtkImageIterateFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This method sets the WholeExtent, Spacing and Origin of the output.
   void UpdateImageInformation();
+
 
   // Description:
   // Public for templated iteration filters

@@ -72,13 +72,37 @@ public:
   const char *GetClassName() {return "vtkImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Set the Input of a filter. 
   virtual void SetInput(vtkImageCache *input);
+
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
+
+// Description:
+// This method is called by the cache.  It eventually calls the
+// Execute(vtkImageData *, vtkImageData *) method.
+// ImageInformation has already been updated by this point, 
+// and outRegion is in local coordinates.
+// This method will stream to get the input, and loops over extra axes.
+// Only the UpdateExtent from output will get updated.
   virtual void InternalUpdate(vtkImageData *outData);
+
+
+// Description:
+// This method sets the WholeExtent, Spacing and Origin of the output.
   virtual void UpdateImageInformation();
+
+
+// Description:
+// This Method returns the MTime of the pipeline upto and including this filter
+// Note: current implementation may create a cascade of GetPipelineMTime calls.
+// Each GetPipelineMTime call propagates the call all the way to the original
+// source.  
   unsigned long int GetPipelineMTime();
+
   
   // Description:
   // Get input to this filter.

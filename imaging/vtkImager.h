@@ -62,7 +62,11 @@ class VTK_EXPORT vtkImager : public vtkViewport
 { 
 public:
 
+
+// Description:
+// Create an imager with viewport (0, 0, 1, 1)
   vtkImager();
+
   static vtkImager *New() {return new vtkImager;};
   const char *GetClassName() {return "vtkImager";};
 

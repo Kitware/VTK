@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageFourierCenter fitler.
   vtkImageFourierCenter();
+
   static vtkImageFourierCenter *New() {return new vtkImageFourierCenter;};
   const char *GetClassName() {return "vtkImageFourierCenter";};
   

@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSobel2D : public vtkImageSpatialFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageSobel2D fitler.
   vtkImageSobel2D();
+
   static vtkImageSobel2D *New() {return new vtkImageSobel2D;};
   const char *GetClassName() {return "vtkImageSobel2D";};
   void PrintSelf(ostream& os, vtkIndent indent);

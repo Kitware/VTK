@@ -57,7 +57,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageGradientMagnitude fitler.
   vtkImageGradientMagnitude();
+
   static vtkImageGradientMagnitude *New() 
     {return new vtkImageGradientMagnitude;};
   const char *GetClassName() {return "vtkImageGradientMagnitude";};

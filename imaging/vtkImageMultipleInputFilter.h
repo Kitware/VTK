@@ -70,16 +70,44 @@ public:
   const char *GetClassName() {return "vtkImageMultipleInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Set an Input of this filter. 
   virtual void SetInput(int num, vtkImageCache *input);
+
   void SetInput(int num, vtkStructuredPoints *spts)
     {this->SetInput(num, spts->GetStructuredPointsToImage()->GetOutput());}
+
+// Description:
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
   virtual void AddInput(vtkImageCache *input);
+
   void AddInput(vtkStructuredPoints *spts)
     {this->AddInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
+
+// Description:
+// Called by cache
   void InternalUpdate(vtkImageData *outData);
+
+
+// Description:
+// This method gets the boundary of the inputs then computes and returns 
+// the boundary of the largest region that can be generated. 
   void UpdateImageInformation();
+
+
+// Description:
+// This Method returns the MTime of the pipeline upto and including this filter
+// Note: current implementation may create a cascade of GetPipelineMTime calls.
+// Each GetPipelineMTime call propagates the call all the way to the original
+// source.  This works, but is not elegant.
+// An Executor would probably be the best solution if this is a problem.
+// (The pipeline could vote before it starts processing, but one object
+// has to initiate the voting.)
   unsigned long int GetPipelineMTime();
+
   
   // Description:
   // Get one input to this filter.
@@ -103,9 +131,13 @@ public:
   vtkGetMacro( NumberOfThreads, int );
 
   // subclasses should define this function
+
+// Description:
+// The execute method created by the subclass.
   virtual void ThreadedExecute(vtkImageData **inDatas, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);
+
 
 protected:
   int NumberOfInputs;

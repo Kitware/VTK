@@ -56,7 +56,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageDecomposeFilter fitler.
   vtkImageDecomposeFilter();
+
   static vtkImageDecomposeFilter *New() {return new vtkImageDecomposeFilter;};
   const char *GetClassName() {return "vtkImageDecomposeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -58,10 +58,20 @@ public:
   static vtkImageTwoInputFilter *New() {return new vtkImageTwoInputFilter;};
   const char *GetClassName() {return "vtkImageTwoInputFilter";};
 
+
+// Description:
+// Set the Input1 of this filter. If a ScalarType has not been set,
+// then the ScalarType of the input is used.
   virtual void SetInput1(vtkImageCache *input);
+
   void SetInput1(vtkStructuredPoints *spts)
     {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
+
+// Description:
+// Set the Input2 of this filter. If a ScalarType has not been set,
+// then the ScalarType of the input is used.
   virtual void SetInput2(vtkImageCache *input);
+
   void SetInput2(vtkStructuredPoints *spts)
     {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
 
@@ -73,6 +83,7 @@ public:
 };
 
 #endif
+
 
 
 

@@ -55,14 +55,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAccumulate : public vtkImageFilter
 {
 public:
+
+// Description:
+// Constructor sets default values
   vtkImageAccumulate();
+
   static vtkImageAccumulate *New() {return new vtkImageAccumulate;};
   const char *GetClassName() {return "vtkImageAccumulate";};
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Always generate the whole data set.
+
+// Description:
+// Intercepts the caches Update to make the extent larger than requested.
   void InterceptCacheUpdate();
+
 
   // Description:
   // Set/Get - The component spacing is the dimension of each cell.

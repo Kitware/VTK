@@ -54,7 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
+
+// Description:
+// Constructor sets default values
   vtkImageConstantPad();
+
   static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
   const char *GetClassName() {return "vtkImageConstantPad";};
 

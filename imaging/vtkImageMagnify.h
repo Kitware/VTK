@@ -53,7 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMagnify : public vtkImageFilter
 {
 public:
+
+// Description:
+// Constructor: Sets default filter to be identity.
   vtkImageMagnify();
+
   static vtkImageMagnify *New() {return new vtkImageMagnify;};
   const char *GetClassName() {return "vtkImageMagnify";};
 

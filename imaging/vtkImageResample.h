@@ -52,7 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageResample : public vtkImageDecomposeFilter
 {
 public:
+
+// Description:
+// Constructor: Sets default filter to be identity.
   vtkImageResample();
+
   static vtkImageResample *New() {return new vtkImageResample;};
   const char *GetClassName() {return "vtkImageResample";};
 
