@@ -68,6 +68,9 @@ renWin SetSize 500 500
 iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 1.5
 renWin Render
+scalarBar SetNumberOfLabels 8
+renWin Render
+
 #renWin SetFileName "ScalarBar.tcl.ppm"
 #renWin SaveImageAsPPM
 
