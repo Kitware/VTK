@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.6");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.7");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -371,7 +371,7 @@ int *vtkGenericAttributeCollection::GetAttributesToInterpolate()
 {
   assert("pre: not_empty" && !IsEmpty());
   
-  assert("post: valid_result" && ((!this->NumberOfAttributesToInterpolate>0)
+  assert("post: valid_result" && ((!(this->NumberOfAttributesToInterpolate>0))
                                   || this->AttributesToInterpolate!=0));
   // A=>B !A||B
          
