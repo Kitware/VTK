@@ -77,8 +77,8 @@ vtkPieceScalars::~vtkPieceScalars()
 void vtkPieceScalars::Execute()
 {
   int piece;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
   int i;
   vtkScalars *pieceColors = NULL;
 
@@ -99,7 +99,7 @@ void vtkPieceScalars::Execute()
 //----------------------------------------------------------------------------
 void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 }
 
 

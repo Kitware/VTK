@@ -50,14 +50,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPieceScalars_h
 #define __vtkPieceScalars_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkPieceScalars : public vtkPolyDataToPolyDataFilter
+class VTK_EXPORT vtkPieceScalars : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkPieceScalars *New();
 
-  vtkTypeMacro(vtkPieceScalars,vtkPolyDataToPolyDataFilter);
+  vtkTypeMacro(vtkPieceScalars,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
