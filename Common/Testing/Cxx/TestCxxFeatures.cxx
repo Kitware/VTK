@@ -65,7 +65,7 @@
 #endif
 
 // Check for MSVC.
-#if defined(VTK_CXX_MSVC)
+#if defined(VTK_CXX_MSVC) && (_MSC_VER < 1310)
 # define VTK_TYPENAME /* empty */
 #endif
 
@@ -90,6 +90,12 @@
 #if defined(VTK_CXX_GCC_3)
 # include <sstream>
 #endif
+
+//----------------------------------------------------------------------------
+
+/* Test inclusion of typeinfo header.  */
+
+#include <typeinfo>
 
 //----------------------------------------------------------------------------
 
