@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.8");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1361,7 +1361,7 @@ void vtkXMLWriter::WritePDataArray(vtkDataArray* a, vtkIndent indent,
                                    const char* alternateName)
 {
   ostream& os = *(this->Stream);
-  os << indent << "<DataArray";
+  os << indent << "<PDataArray";
   this->WriteWordTypeAttribute("type", a->GetDataType());
   if(alternateName)
     {
