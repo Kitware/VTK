@@ -29,7 +29,7 @@
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. The interactor will act
-// normally until the "W" key (for "widget") is pressed, at which point the
+// normally until the "i" key (for "interactor") is pressed, at which point the
 // vtkLineWidget will appear. (See superclass documentation for information
 // about changing this behavior.) By grabbing the one of the two end point
 // handles (use the left mouse button), the line can be oriented and
@@ -41,7 +41,7 @@
 // will be made bigger; by moving "down" the render window the widget will be
 // made smaller. Events that occur outside of the widget (i.e., no part of
 // the widget is picked) are propagated to any other registered obsevers
-// (such as the interaction style).  Turn off the widget by pressing the "W"
+// (such as the interaction style).  Turn off the widget by pressing the "i"
 // key again (or invoke the Off() method).
 //
 // The vtkLineWidget has several methods that can be used in conjunction with
@@ -57,15 +57,15 @@
 // Some additional features of this class include the ability to control the
 // properties of the widget. You can set the properties of the selected and
 // unselected representations of the line. For example, you can set the
-// property for the handles and line. In addition there are methods to constrain
-// the line so that it is aligned along the x-y-z axes.
+// property for the handles and line. In addition there are methods to
+// constrain the line so that it is aligned along the x-y-z axes.
 
 // .SECTION Caveats
 // Note that handles and line can be picked even when they are "behind" other
 // actors.  This is an intended feature and not a bug.
 
 // .SECTION See Also
-// vtk3DWidget vtkBoxWidget
+// vtk3DWidget vtkBoxWidget vtkPlaneWidget
 
 
 #ifndef __vtkLineWidget_h

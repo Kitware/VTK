@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.7");
+vtkCxxRevisionMacro(vtkLineWidget, "1.8");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -738,16 +738,12 @@ void vtkLineWidget::CreateDefaultProperties()
     }
 }
 
-void vtkLineWidget::PlaceWidget(float bounds[6])
+void vtkLineWidget::PlaceWidget(float bds[6])
 {
   int i;
+  float bounds[6], center[3];
 
-  // Position the line source to lie in the bounding box aligned
-  // with the x-axis.
-  float center[3];
-  center[0] = (bounds[0]+bounds[1]) / 2.0;
-  center[1] = (bounds[2]+bounds[3]) / 2.0;
-  center[2] = (bounds[4]+bounds[5]) / 2.0;
+  this->AdjustBounds(bds, bounds, center);
   
   if ( this->AlignWithYAxis )
     {
@@ -778,7 +774,7 @@ void vtkLineWidget::PlaceWidget(float bounds[6])
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   for(i=0; i<2; i++)
     {
-    this->HandleGeometry[i]->SetRadius(0.01*this->InitialLength);
+    this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
     }
 }
 
