@@ -18,7 +18,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnsignedCharArray, "1.56");
+vtkCxxRevisionMacro(vtkUnsignedCharArray, "1.57");
 vtkStandardNewMacro(vtkUnsignedCharArray);
 
 // Instantiate object.
@@ -115,8 +115,8 @@ void vtkUnsignedCharArray::DeepCopy(vtkDataArray *ia)
 
   if ( ia->GetDataType() != VTK_UNSIGNED_CHAR )
     {
-      vtkDataArray::DeepCopy(ia);
-      return;
+    vtkDataArray::DeepCopy(ia);
+    return;
     }
 
   if ( this != ia )
