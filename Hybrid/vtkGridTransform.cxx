@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.22");
+vtkCxxRevisionMacro(vtkGridTransform, "1.23");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -29,30 +29,46 @@ vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
 //--------------------------------------------------------------------------
 // The 'floor' function on x86 and mips is many times slower than these
 // and is used a lot in this code, optimize for different CPU architectures
-inline int vtkGridFloor(double x)
+template<class F>
+inline int vtkGridFloor(double x, F &f)
 {
 #if defined mips || defined sparc || defined __ppc__
-  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+  x += 2147483648.0;
+  unsigned int i = (unsigned int)(x);
+  f = x - i;
+  return (int)(i - 2147483648U);
 #elif defined i386 || defined _M_IX86
-  unsigned int hilo[2];
-  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
-  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+  union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
+  dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
+  f = dual.s[0]*0.0000152587890625; // 2**(-16)
+  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+#elif defined ia64 || defined __ia64__ || defined IA64
+  x += 103079215104.0;
+  long long i = (long long)(x);
+  f = x - i;
+  return (int)(i - 103079215104LL);
 #else
-  return int(floor(x));
+  double y = floor(x);
+  f = x - y;
+  return (int)(y);
 #endif
 }
 
-
-//----------------------------------------------------------------------------
-// fast floor() function for converting a double to an int
-// (the floor() implementation on some computers is much slower than this,
-// because they require some 'exact' behaviour that we don't).
-
-inline int vtkGridFloor(double x, double &f)
+inline int vtkGridRound(double x)
 {
-  int ix = vtkGridFloor(x);
-  f = x-ix;
-  return ix;
+#if defined mips || defined sparc || defined __ppc__
+  return (int)((unsigned int)(x + 2147483648.5) - 2147483648U);
+#elif defined i386 || defined _M_IX86
+  union { double d; unsigned int i[2]; } dual;
+  dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
+  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+#elif defined ia64 || defined __ia64__ || defined IA64
+  x += 103079215104.5;
+  long long i = (long long)(x);
+  return (int)(i - 103079215104LL);
+#else
+  return (int)(floor(x+0.5));
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -76,9 +92,9 @@ inline void vtkNearestNeighborInterpolation(double point[3],
                                             int gridExt[6], int gridInc[3])
 {
   int gridId[3];
-  gridId[0] = vtkGridFloor(point[0]+0.5)-gridExt[0];
-  gridId[1] = vtkGridFloor(point[1]+0.5)-gridExt[2];
-  gridId[2] = vtkGridFloor(point[2]+0.5)-gridExt[4];
+  gridId[0] = vtkGridRound(point[0])-gridExt[0];
+  gridId[1] = vtkGridRound(point[1])-gridExt[2];
+  gridId[2] = vtkGridRound(point[2])-gridExt[4];
   
   int ext[3];
   ext[0] = gridExt[1]-gridExt[0];
