@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkRemoveGhostCells* vtkRemoveGhostCells::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -66,7 +66,7 @@ void vtkRemoveGhostCells::Execute()
 {
   vtkCellArray *newCells;
   vtkCellData *cellData;
-  int numCells, cellId, newCellId;
+  vtkIdType numCells, cellId, newCellId;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkCell *cell;

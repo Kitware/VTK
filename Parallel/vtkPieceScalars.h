@@ -82,8 +82,8 @@ protected:
   // Append the pieces.
   void Execute();
   
-  vtkScalars *MakePieceScalars(int piece, int numScalars);
-  vtkScalars *MakeRandomScalars(int piece, int numScalars);
+  vtkScalars *MakePieceScalars(int piece, vtkIdType numScalars);
+  vtkScalars *MakeRandomScalars(int piece, vtkIdType numScalars);
   
   vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
@@ -91,8 +91,3 @@ protected:
 };
 
 #endif
-
-
-
-
-

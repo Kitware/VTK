@@ -104,9 +104,10 @@ vtkImageData *vtkImageComposite::GetInput(int idx)
 void vtkImageComposite::Execute()
 {
   vtkStructuredPoints *output = this->GetOutput();
-  int numPts = output->GetNumberOfPoints();
+  vtkIdType numPts = output->GetNumberOfPoints();
   vtkImageData *input;
-  int i, j;
+  int i;
+  vtkIdType j;
   int firstFlag = 1;
   vtkScalars *inPScalars;
   vtkDataArray *inZData;
@@ -246,9 +247,7 @@ void vtkImageComposite::Execute()
 	    inP += 3;
 	    }
           }
-        }	
-      
-      
+        }      
       
       firstFlag = 0;
       }
@@ -256,13 +255,10 @@ void vtkImageComposite::Execute()
   output->GetPointData()->SetScalars(outPScalars);
   outPScalars->Delete();
   outZArray->Delete();
-
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 }
-

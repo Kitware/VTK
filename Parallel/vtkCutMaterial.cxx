@@ -161,7 +161,6 @@ void vtkCutMaterial::Execute()
   f2a->Delete();
 }
 
-
 void vtkCutMaterial::ComputeNormal()
 {
   float tmp[3];
@@ -189,11 +188,10 @@ void vtkCutMaterial::ComputeNormal()
     }
 }
 
-
 void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
 {
   vtkDataArray *data;
-  int idx, bestIdx, num;
+  vtkIdType idx, bestIdx, num;
   float comp, best;
   vtkCell *cell;
   float *bds;
@@ -232,7 +230,6 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   this->MaximumPoint[1] = (bds[2] + bds[3]) * 0.5;
   this->MaximumPoint[2] = (bds[4] + bds[5]) * 0.5;  
 }
-
 
 void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
 {
