@@ -7,11 +7,8 @@ SET(KIT_LIBS)
 
 IF(WIN32)
   IF (NOT VTK_USE_X)
-    ADD_EXECUTABLE(vtkWin32OutputWindowProcess WIN32
-                   vtkWin32OutputWindowProcess.c)
-    IF(NOT BORLAND)
-      TARGET_LINK_LIBRARIES(vtkWin32OutputWindowProcess gdi32)
-    ENDIF(NOT BORLAND)
+    SET(VTK_OWP_ENCODED_C vtkWin32OutputWindowProcessEncoded.c)
+    SET_SOURCE_FILES_PROPERTIES(${VTK_OWP_ENCODED_C} PROPERTIES WRAP_EXCLUDE 1)
   ENDIF (NOT VTK_USE_X)
 ENDIF(WIN32)
 
@@ -136,7 +133,9 @@ vtkXMLFileOutputWindow.cxx
 IF (WIN32)
   IF (NOT VTK_USE_X)
     SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx
-      vtkWin32ProcessOutputWindow.cxx)
+      vtkWin32ProcessOutputWindow.cxx vtkWin32OutputWindowProcessEncoded.c)
+    SET_SOURCE_FILES_PROPERTIES(vtkWin32OutputWindowProcessEncoded.c
+      PROPERTIES WRAP_EXCLUDE 1)
   ENDIF (NOT VTK_USE_X)
 ENDIF (WIN32)
 

@@ -35,10 +35,6 @@ public:
   // Send text to the output window process.
   virtual void DisplayText(const char*);
 
-  // Description:
-  // Get/Set the executable that is executed and given messages.
-  vtkSetStringMacro(Executable);
-  vtkGetStringMacro(Executable);
 protected:
   vtkWin32ProcessOutputWindow();
   ~vtkWin32ProcessOutputWindow();
@@ -49,11 +45,11 @@ protected:
   // The write end of the pipe to the child process.
   HANDLE OutputPipe;
 
-  // The executable to run.
-  char* Executable;
-
   // Whether the pipe has been broken.
   int Broken;
+
+  // Count the number of times a new child has been initialized.
+  unsigned int Count;
 private:
   vtkWin32ProcessOutputWindow(const vtkWin32ProcessOutputWindow&);  // Not implemented.
   void operator=(const vtkWin32ProcessOutputWindow&);  // Not implemented.

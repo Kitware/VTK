@@ -15,21 +15,24 @@
 #include "vtkWin32ProcessOutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.2");
+#include <vtkstd/string>
+
+vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.3");
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
+
+extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
 
 //----------------------------------------------------------------------------
 vtkWin32ProcessOutputWindow::vtkWin32ProcessOutputWindow()
 {
   this->OutputPipe = 0;
-  this->Executable = 0;
   this->Broken = 0;
+  this->Count = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkWin32ProcessOutputWindow::~vtkWin32ProcessOutputWindow()
 {
-  this->SetExecutable(0);
   if(this->OutputPipe)
     {
     CloseHandle(this->OutputPipe);
@@ -37,10 +40,16 @@ vtkWin32ProcessOutputWindow::~vtkWin32ProcessOutputWindow()
 }
 
 //----------------------------------------------------------------------------
+void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 {
   // Display the text if the pipe has not been broken.
-  if(!this->Broken && this->Executable && text)
+  if(!this->Broken && text)
     {
     const char* begin = text;
     while(const char* end = strchr(begin, '\n'))
@@ -56,6 +65,41 @@ void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 //----------------------------------------------------------------------------
 int vtkWin32ProcessOutputWindow::Initialize()
 {
+  // Write the executable as a temporary file.  It will delete itself.
+  char exeName[_MAX_FNAME+1] = "";
+  char tempDir[_MAX_PATH+1] = "";
+
+  // We will try putting the executable in the system temp directory.
+  // Note that the returned path already has a trailing slash.
+  DWORD length = GetTempPath(_MAX_PATH+1, tempDir);
+  if(length <= 0 || length > _MAX_PATH)
+    {
+    return 0;
+    }
+
+  // Construct the executable name from the process id, pointer to
+  // this output window instance, and a count.  This should be unique.
+  sprintf(exeName, "vtkWin32OWP_%u_%p_%u.exe",
+          GetCurrentProcessId(), this, this->Count++);
+
+  // Allocate a buffer to hold the executable path.
+  size_t tdlen = strlen(tempDir);
+  char* exeFullPath = (char*)malloc(tdlen + strlen(exeName) + 2);
+  if(!exeFullPath)
+    {
+    return 0;
+    }
+
+  // Construct the full path to the executable.
+  sprintf(exeFullPath, "%s%s", tempDir, exeName);
+
+  // Try to write the executable to disk.
+  if(!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))
+    {
+    free(exeFullPath);
+    return 0;
+    }
+
   // Create a process and a pipe connected to its stdin.
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -71,13 +115,17 @@ int vtkWin32ProcessOutputWindow::Initialize()
                       GetCurrentProcess(), &si.hStdInput,
                       0, TRUE, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE))
     {
+    DeleteFile(exeFullPath);
+    free(exeFullPath);
     return 0;
     }
 
   // Create the child process.
-  if(!CreateProcess(0, this->Executable, 0, 0, TRUE,
+  if(!CreateProcess(0, exeFullPath, 0, 0, TRUE,
                     NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
     {
+    DeleteFile(exeFullPath);
+    free(exeFullPath);
     CloseHandle(si.hStdInput);
     return 0;
     }
@@ -86,6 +134,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
   CloseHandle(si.hStdInput);
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
+  free(exeFullPath);
   return 1;
 }
 
@@ -111,13 +160,3 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, int length)
       }
     }
 }
-
-//----------------------------------------------------------------------------
-void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Executable: " 
-     << (this->Executable ? this->Executable : "(none)") << "\n";
-}
-
