@@ -84,7 +84,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.50");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.51");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -629,6 +629,9 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
+    
+  // make sure all other code knows we're not mapped anymore
+  this->Mapped = 0;
 
 }
 
