@@ -60,7 +60,5 @@ vtkImageFilter* vtkImageFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkImageFilter;
 }
-#else
-  Remove this obsoleted class from Makefile.in
 #endif
 
