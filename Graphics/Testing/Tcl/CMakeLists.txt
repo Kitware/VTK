@@ -18,6 +18,10 @@ IF (VTK_USE_RENDERING)
       Canny
       capSphere
       clipArt
+      clipHex
+      clipPyramid
+      clipTet
+      clipWedge
       contourCells
       contour2DAll
       contour3DAll

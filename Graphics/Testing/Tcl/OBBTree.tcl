@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtktcl_interactor
 
 vtkSTLReader reader
   reader SetFileName $VTK_DATA_ROOT/Data/42400-IDGH.stl
