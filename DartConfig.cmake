@@ -21,7 +21,7 @@ SET (PROJECT_URL "http://www.vtk.org")
 
 # Dart server configuration 
 SET (ROLLUP_URL "http://${DROP_SITE}/cgi-bin/vtk-rollup-dashboard.sh")
-SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/VTK/")
+SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/viewcvs.cgi/")
 SET (CVS_WEB_CVSROOT "VTK")
 SET (USE_DOXYGEN "On")
 SET (DOXYGEN_URL "http://www.vtk.org/doc/nightly/html/" )
@@ -35,5 +35,16 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/
 SET (CONTINUOUS_FROM "lorensen@crd.ge.com")
 SET (SMTP_MAILHOST "public.kitware.com")
 SET (CONTINUOUS_MONITOR_LIST "lorensen@crd.ge.com millerjv@crd.ge.com ken.martin@kitware.com")
-SET (CONTINUOUS_BASE_URL "http://www.vtk.org/Testing")
+SET (CONTINUOUS_BASE_URL "${PROJECT_URL}/Testing")
+
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_TEST_FAILURES ON)
+SET (DELIVER_BROKEN_BUILD_EMAIL "Continuous Nightly")
+SET (EMAIL_FROM "vtk-dashboard@public.kitware.com")
+SET (DARTBOARD_BASE_URL "${PROJECT_URL}/Testing")
+
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_CONFIGURE_FAILURES 1)
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_BUILD_ERRORS 1)
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_BUILD_WARNINGS 1)
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_TEST_NOT_RUNS 1)
+SET (DELIVER_BROKEN_BUILD_EMAIL_WITH_TEST_FAILURES 1)
 
