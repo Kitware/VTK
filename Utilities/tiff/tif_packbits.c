@@ -42,9 +42,9 @@ PackBitsPreEncode(TIFF* tif, tsample_t s)
          * Calculate the scanline/tile-width size in bytes.
          */
         if (isTiled(tif))
-                tif->tif_data = (tidata_t) TIFFTileRowSize(tif);
+                tif->tif_data = (tidata_t)(size_t)TIFFTileRowSize(tif);
         else
-                tif->tif_data = (tidata_t) TIFFScanlineSize(tif);
+                tif->tif_data = (tidata_t)(size_t)TIFFScanlineSize(tif);
         return (1);
 }
 
