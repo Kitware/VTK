@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.63");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.64");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1074,6 +1074,7 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     vtkErrorMacro(<<"SetInput() before setting plane orientation.");
     return;
     }
+
   this->ImageData->UpdateInformation();
   int extent[6];
   this->ImageData->GetWholeExtent(extent);
@@ -1342,17 +1343,54 @@ void vtkImagePlaneWidget::UpdateNormal()
 
 
   // Pad extent up to a power of two for efficient texture mapping
-  //
-  int extentX = 1;
-  while (extentX < planeSizeX/spacingX)
+
+  // make sure we're working with valid values
+  float realExtentX;
+  if (spacingX == 0)
+    realExtentX = 0;
+  else
+    realExtentX = planeSizeX / spacingX;
+
+  int extentX;
+  // Sanity check the input data:
+  // * if realExtentX is too large, extentX will wrap
+  // * if spacingX is 0, things will blow up.
+  // * if realExtentX is naturally 0 or < 0, the padding will yield an
+  //   extentX of 1, which is also not desirable if the input data is invalid.
+  if (realExtentX > (VTK_INT_MAX >> 1) || realExtentX < 1)
     {
-    extentX = extentX << 1;
+      vtkErrorMacro(<<"Invalid X extent.  Perhaps the input data is empty?");
+      extentX = 0;
+    }
+  else
+    {
+      extentX = 1;
+      while (extentX < realExtentX)
+        {
+          extentX = extentX << 1;
+        }
     }
 
-  int extentY = 1;
-  while (extentY < planeSizeY/spacingY)
+  // make sure extentY doesn't wrap during padding
+  float realExtentY;
+  if (spacingY == 0)
+    realExtentY = 0;
+  else
+    realExtentY = planeSizeY / spacingY;
+
+  int extentY;
+  if (realExtentY > (VTK_INT_MAX >> 1) || realExtentY < 1)
     {
-    extentY = extentY << 1;
+      vtkErrorMacro(<<"Invalid Y extent.  Perhaps the input data is empty?");
+      extentY = 0;
+    }
+  else
+    {
+      extentY = 1;
+      while (extentY < realExtentY)
+        {
+          extentY = extentY << 1;
+        }
     }
 
   this->Reslice->SetOutputSpacing(spacingX,spacingY,1);
