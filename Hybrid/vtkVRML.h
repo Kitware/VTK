@@ -45,7 +45,7 @@
 #include <new.h>
 #endif
 
-#if defined(__BORLANDC__) && (__BORLANDC__!=0x0560)
+#if defined(__BORLANDC__) && (__BORLANDC__<0x0560)
 // seems to be missing from new.h and new for borland
 void* operator new[](unsigned int,void *v)
 {
