@@ -18,6 +18,8 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkMCubesReader, "1.64");
+vtkCxxRevisionMacro(vtkMCubesReader, "1.65");
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -44,6 +46,8 @@ vtkMCubesReader::vtkMCubesReader()
   this->HeaderSize = 0;
   this->FlipNormals = 0;
   this->Normals = 1;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkMCubesReader::~vtkMCubesReader()
@@ -63,8 +67,18 @@ vtkMCubesReader::~vtkMCubesReader()
     }
 }
 
-void vtkMCubesReader::Execute()
+int vtkMCubesReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   FILE *fp;
   FILE *limitp;
   vtkPoints *newPts;
@@ -78,7 +92,6 @@ void vtkMCubesReader::Execute()
   int numDegenerate=0;
   vtkIdType nodes[3];
   float direction, n[3], dummy[2];
-  vtkPolyData *output = this->GetOutput();
   int byteOrder = this->GetDataByteOrder();
   
   vtkDebugMacro(<<"Reading marching cubes file");
@@ -90,12 +103,12 @@ void vtkMCubesReader::Execute()
   if ( this->FileName == NULL )
     {
     vtkErrorMacro(<< "Please specify input FileName");
-    return;
+    return 0;
     }
   if ( (fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
 
   // Try to read limits file to get bounds. Otherwise, read data.
@@ -267,6 +280,8 @@ void vtkMCubesReader::Execute()
     {
     this->Locator->Initialize(); //free storage
     }
+
+  return 1;
 }
 
 // Specify a spatial locator for merging points. By default, 
@@ -399,7 +414,7 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 
 unsigned long int vtkMCubesReader::GetMTime()
 {
-  unsigned long mTime=this-> vtkPolyDataSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )

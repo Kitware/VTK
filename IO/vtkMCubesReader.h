@@ -47,17 +47,17 @@
 #ifndef __vtkMCubesReader_h
 #define __vtkMCubesReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
 class vtkPointLocator;
 
-class VTK_IO_EXPORT vtkMCubesReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkMCubesReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkMCubesReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkMCubesReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -136,7 +136,7 @@ protected:
   vtkMCubesReader();
   ~vtkMCubesReader();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;
   char *LimitsFileName;
@@ -152,5 +152,3 @@ private:
 };
 
 #endif
-
-
