@@ -209,6 +209,49 @@ void readInMakefile(char *fname,const char *libname)
     }
 }
 
+// order of the files is important for doing the incremental build
+void CreateToolkitsH(CPcmakerDlg *vals)
+{
+  char *fname = new char [strlen(vals->m_WhereBuild)+100];
+  FILE *ofp;
+  
+  // create the vtkToolkits.h file
+  sprintf(fname,"%s\\vtkToolkits.h",vals->m_WhereBuild);
+  ofp = fopen(fname,"w");
+  if (ofp)
+    {
+    fprintf(ofp,"/* generated file from pcmaker.exe */\n");
+    if (vals->m_Patented) 
+      {
+      fprintf(ofp,"#define VTK_USE_PATENTED 1\n");
+      }
+    if (vals->m_Local) 
+      {
+      fprintf(ofp,"#define VTK_USE_LOCAL 1\n");
+      }
+    if (vals->m_Contrib) 
+      {
+      fprintf(ofp,"#define VTK_USE_CONTRIB 1\n");
+      }
+    if (vals->m_Imaging) 
+      {
+      fprintf(ofp,"#define VTK_USE_IMAGING 1\n");
+      }
+    if (vals->m_Graphics) 
+      {
+      fprintf(ofp,"#define VTK_USE_GRAPHICS 1\n");
+      }
+    fclose(ofp);    
+    }
+  else
+    {
+    char msg[256];
+    sprintf(msg,"ERROR!!!!! Unable to create vtkToolkits.h\n");
+    AfxMessageBox(msg);
+    exit(1);
+    }
+}
+
 
 // order of the files is important for doing the incremental build
 void removeExtraFiles(CPcmakerDlg *vals)
@@ -695,8 +738,8 @@ void ReadMakefiles(CPcmakerDlg *vals)
 
 
   // also adds to extraPtr and extra_num
-  extra_num = 0;
-
+  extra_num = 1;
+  extraPtr[0] = strdup(vals->m_WhereBuild);
 
   // do graphics first (if present) and LT_COMMON last for
   // doing split obj.lib's in Tcl and Jave
@@ -827,6 +870,9 @@ void makeMakefiles(CPcmakerDlg *vals)
   char fname[128];
 
 
+  // create vtkToolkits.h
+  CreateToolkitsH(vals);
+  
   if (vals->m_BorlandComp)
     { 
     // Determine whether this is 5.0x or builder (3.0 we hope...)
@@ -1092,26 +1138,24 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+            vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     /* would like to use compiler option /Ox but this option includes /Og which
        causes several problems in subexpressions and loop optimizations.  Therefore
        we include all the compiler options that /Ox uses except for /Og */
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented) 
     {
-    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
-            vals->m_WhereVTK);
+    fprintf(fp," /I \"%s\\patented\" \\\n",vals->m_WhereVTK);
     }
   if (vals->m_Contrib) 
     {
-    fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
-            vals->m_WhereVTK);
+    fprintf(fp," /I \"%s\\contrib\" \\\n",vals->m_WhereVTK);
     }
   
   fprintf(fp," %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
@@ -1473,6 +1517,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,".autodepend\n");
   fprintf(fp,"OUTDIR=obj\n");
   fprintf(fp,"WHEREVTK=%s\n",vals->m_WhereVTK);
+  fprintf(fp,"WHEREBUILD=%s\n",vals->m_WhereBuild);
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
 
@@ -1496,28 +1541,30 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
+    fprintf(fp,"-I$(WHEREVTK)\\patented\n");
     }
   if (vals->m_Contrib)
     {
-    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
+    fprintf(fp,"-I$(WHEREVTK)\\contrib\n");
     }
 
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n");
 
   // JCP take Borland Builder specific action ...
- if (bbuilder) {
-
-  fprintf(fp,"-tWM -tWD -Od -H- -VF -I$(WHERECOMP)\\include;$(WHERECOMP)\\include\\rw;$(WHERECOMP)\\include\\vcl;$(WHEREVTK)\\common;$(WHEREVTK)\\graphics -DWIN32\n");
-
-  } else {
-
+ if (bbuilder) 
+   {
+   fprintf(fp,"-tWM -tWD -Od -H- -VF -I$(WHERECOMP)\\include;$(WHERECOMP)\\include\\rw;$(WHERECOMP)\\include\\vcl;$(WHEREVTK)\\common;$(WHEREVTK)\\graphics -DWIN32\n");
+   } 
+ else 
+   {
    fprintf(fp,"-tWM -tWD -Od -H- -VF -I$(WHERECOMP)\\include;$(WHEREVTK)\\common;$(WHEREVTK)\\graphics -DWIN32\n");
- }
+   }
 
+  fprintf(fp," -I$(WHEREBUILD) \n");
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
   fprintf(fp," -I$(WHEREVTK)\\local \n");
+  fprintf(fp," -I$(WHEREVTK) \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
 
@@ -1710,13 +1757,13 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" %s \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->adlg.m_EXTRA_CFLAGS);
     }
 
 
@@ -1731,13 +1778,11 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
 
 
-  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+  if (vals->m_Patented) fprintf(fp," /I \"%s\\patented\" \\\n",
 				vals->m_WhereVTK);
-  if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
-			       vals->m_WhereVTK);
+  if (vals->m_Contrib) fprintf(fp," /I \"%s\\contrib\" \\\n",vals->m_WhereVTK);
 
-  if (vals->m_Local) fprintf(fp," /D \"VTK_USE_LOCAL\" /I \"%s\\local\" \\\n",
-			       vals->m_WhereVTK);
+  if (vals->m_Local) fprintf(fp," /I \"%s\\local\" \\\n",vals->m_WhereVTK);
 
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
 
@@ -2025,6 +2070,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,".autodepend\n");
   fprintf(fp,"OUTDIR=obj\n\n");
   fprintf(fp,"WHEREVTK=%s\n",vals->m_WhereVTK);
+  fprintf(fp,"WHEREBUILD=%s\n",vals->m_WhereBuild);
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
   fprintf(fp,"ALL : %stcl.dll\n\n",vals->adlg.m_LibPrefix);
@@ -2047,17 +2093,18 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
+    fprintf(fp,"-I$(WHEREVTK)\\patented\n");
     }
   if (vals->m_Contrib)
     {
-    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
+    fprintf(fp,"-I$(WHEREVTK)\\contrib\n");
     }
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n");
   fprintf(fp,"-tWM -tWD -Od -H- -VF  -I$(WHERECOMP)\\include;$(WHERECOMP)\\include\\rw;$(WHEREVTK)\\common;$(WHEREVTK)\\graphics -DWIN32\n");
   fprintf(fp," -I$(WHEREVTK)\\pcmaker\\xlib \n");
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
+  fprintf(fp," -I$(WHEREBUILD) \n");
   fprintf(fp," -I$(WHEREVTK)\\local \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
@@ -2316,23 +2363,21 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\local\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\local\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
-    fprintf(fp,"/D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
-	    vals->m_WhereVTK);
+    fprintf(fp,"/I \"%s\\patented\" \\\n",vals->m_WhereVTK);
     }
   if (vals->m_Contrib)
     {
-    fprintf(fp,"/D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
-	    vals->m_WhereVTK);
+    fprintf(fp,"/I \"%s\\contrib\" \\\n",vals->m_WhereVTK);
     }
 
   fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
@@ -2531,6 +2576,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"OUTDIR=obj\n\n");
   fprintf(fp,"WHEREVTK=%s\n",vals->m_WhereVTK);
   fprintf(fp,"WHEREJDK=%s\n\n",vals->m_WhereJDK);
+  fprintf(fp,"WHEREBUILD=%s\n",vals->m_WhereBuild);
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
   fprintf(fp,"ALL : %sjava.dll\n\n",vals->adlg.m_LibPrefix);
@@ -2551,11 +2597,11 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
+    fprintf(fp,"-I$(WHEREVTK)\\patented\n");
     }
   if (vals->m_Contrib)
     {
-    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
+    fprintf(fp,"-I$(WHEREVTK)\\contrib\n");
     }
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;VTKJAVA;STRICT");
 
@@ -2568,6 +2614,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
   fprintf(fp," -I$(WHEREVTK)\\local \n");
+  fprintf(fp," -I$(WHEREBUILD) \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   // JCP take Borland Builder specific action ...
@@ -2870,13 +2917,13 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
 
   fprintf(fp," /I \"%s\\Include\" ", vals->m_WherePy);
@@ -2886,12 +2933,11 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp," /I \"%s\\PC\" ", vals->m_WherePy);
 
-  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+  if (vals->m_Patented) fprintf(fp," /I \"%s\\patented\" \\\n",
 				vals->m_WhereVTK);
-  if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+  if (vals->m_Contrib) fprintf(fp," /I \"%s\\contrib\" \\\n",
 			       vals->m_WhereVTK);
-  if (vals->m_Local) fprintf(fp," /D \"VTK_USE_LOCAL\" /I \"%s\\local\" \\\n",
-			       vals->m_WhereVTK);
+  if (vals->m_Local) fprintf(fp," /I \"%s\\local\" \\\n",vals->m_WhereVTK);
 
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
 
