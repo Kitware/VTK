@@ -68,6 +68,14 @@ public:
   // Set/Get the vtkTextMapper that defines the text to be drawn.
   void SetMapper(vtkTextMapper *mapper);
 
+  // Override superclass' SetMapper method and check type. This makes it possible
+  // to use the virtual SetMapper call in Actor2D
+  void SetMapper(vtkMapper2D *mapper);
+
+  // Description:
+  // Get the vtkTextMapper that defines the text to be drawn.
+  vtkTextMapper *GetMapper(void);
+
   // Description:
   // Set/Get the minimum size in pixels for this actor.
   // Defaults to 10,10.
@@ -116,9 +124,6 @@ protected:
   int LastSize[2];
   int LastOrigin[2];
 
-private:
-  // hide the superclass' SetMapper method from the user and the compiler
-  void SetMapper(vtkMapper2D *mapper) {this->vtkActor2D::SetMapper( mapper );};
 private:
   vtkScaledTextActor(const vtkScaledTextActor&);  // Not implemented.
   void operator=(const vtkScaledTextActor&);  // Not implemented.

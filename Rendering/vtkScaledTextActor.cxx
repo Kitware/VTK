@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScaledTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScaledTextActor, "1.21");
+vtkCxxRevisionMacro(vtkScaledTextActor, "1.22");
 vtkStandardNewMacro(vtkScaledTextActor);
 
 vtkScaledTextActor::vtkScaledTextActor()
@@ -235,6 +235,23 @@ void vtkScaledTextActor::SetMapper(vtkTextMapper *mapper)
 {
   this->TextActor->SetMapper(mapper);
 }
+
+vtkTextMapper *vtkScaledTextActor::GetMapper(void)
+{
+  return (vtkTextMapper *)(this->TextActor->GetMapper());
+}
+
+void vtkScaledTextActor::SetMapper(vtkMapper2D *mapper)
+{
+  if (mapper->IsA("vtkTextMapper"))
+    {
+    this->SetMapper( (vtkTextMapper *)mapper );
+    }
+  else
+    {
+    vtkErrorMacro("Must use vtkTextMapper for this class");
+    }
+  }
 
 void vtkScaledTextActor::ShallowCopy(vtkProp *prop)
 {
