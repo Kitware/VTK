@@ -7,11 +7,11 @@ source ../../examplesTcl/vtkInt.tcl
 
 wm withdraw .
 
-vtkUnstructuredGridReader r
+vtkDataSetReader r
     r SetFileName "../../../vtkdata/fieldfile.vtk"
     r Update
 
-vtkUnstructuredGridWriter w
+vtkDataSetWriter w
     w SetFileName "fieldfile.vtk"
     w SetInput [r GetOutput]
     w Update
