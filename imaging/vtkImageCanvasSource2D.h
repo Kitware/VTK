@@ -124,6 +124,12 @@ public:
   void SetExtent(int *extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   
+  // Description:
+  // If the canvas is a 3D volume, then this z value is used
+  // as the default for 2D operations.
+  vtkSetMacro(DefaultZ, int);
+  vtkGetMacro(DefaultZ, int);
+
 protected:
   vtkImageCanvasSource2D();
   // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the
@@ -135,6 +141,7 @@ protected:
 
   vtkImageData *ImageData;
   float DrawColor[4];
+  int DefaultZ;
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };
