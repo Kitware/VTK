@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.23");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.24");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1143,6 +1143,9 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
         this->ReadFloatArray(comp1, numPts);
         this->ReadFloatArray(comp2, numPts);
         this->ReadFloatArray(comp3, numPts);
+        delete [] comp1;
+        delete [] comp2;
+        delete [] comp3;
         }
       }
     this->ReadLine(line);
@@ -1435,7 +1438,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
           }
         else 
           {
-          while (lineRead && strcmp(line, "part") != 0)
+          while (lineRead && strcmp(line, "part") != 0 &&
+                 strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType == -1)
@@ -1456,7 +1460,6 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
             } // end while
           } // end else
         }
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1502,7 +1505,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -1510,6 +1514,10 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           fclose(this->IFile);
           this->IFile = NULL;
+          if (component == 0)
+            {
+            scalars->Delete();
+            }
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1622,7 +1630,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
           }
         else 
           {
-          while (lineRead && strcmp(line, "part") != 0)
+          while (lineRead && strcmp(line, "part") != 0 &&
+                 strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType == -1)
@@ -1649,8 +1658,6 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
             } // end while
           } // end else
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1697,7 +1704,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -1705,6 +1713,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           delete this->IS;
           this->IS = NULL;
+          vectors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1828,7 +1837,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
           }
         else 
           {
-          while (lineRead && strcmp(line, "part") != 0)
+          while (lineRead && strcmp(line, "part") != 0 &&
+                 strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType == -1)
@@ -1864,8 +1874,6 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
             } // end while
           } // end else
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1925,7 +1933,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -1933,6 +1942,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           delete [] this->IS;
           this->IS = NULL;
+          tensors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -2726,6 +2736,10 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetXCoordinates(xCoords);  
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetYCoordinates(yCoords);
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetZCoordinates(zCoords);
+
+  xCoords->Delete();
+  yCoords->Delete();
+  zCoords->Delete();
   
   // reading next line to check for EOF
   lineRead = this->ReadLine(line);

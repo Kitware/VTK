@@ -26,7 +26,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.30");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.31");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -719,9 +719,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numCells);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numCells * numberOfComponents);
+      scalars->SetNumberOfTuples(numCells);
       }
     else
       {
@@ -742,7 +741,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -750,6 +750,10 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           delete this->IS;
           this->IS = NULL;
+          if (component == 0)
+            {
+            scalars->Delete();
+            }
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -874,7 +878,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -882,6 +887,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           delete this->IS;
           this->IS = NULL;
+          vectors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1002,7 +1008,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
       }
     else 
       {
-      while (lineRead && strcmp(line, "part") != 0)
+      while (lineRead && strcmp(line, "part") != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType == -1)
@@ -1010,6 +1017,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
           vtkErrorMacro("Unknown element type");
           delete [] this->IS;
           this->IS = NULL;
+          tensors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1782,6 +1790,10 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetXCoordinates(xCoords);  
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetYCoordinates(yCoords);
   ((vtkRectilinearGrid*)this->GetOutput(partId))->SetZCoordinates(zCoords);
+
+  xCoords->Delete();
+  yCoords->Delete();
+  zCoords->Delete();
   
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
