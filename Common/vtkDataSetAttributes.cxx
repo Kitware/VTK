@@ -100,25 +100,23 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
 // Turn on copying of all data.
 void vtkDataSetAttributes::CopyAllOn()
 {
+  this->vtkFieldData::CopyAllOn();
   this->CopyScalarsOn();
   this->CopyVectorsOn();
   this->CopyNormalsOn();
   this->CopyTCoordsOn();
   this->CopyTensorsOn();
-  this->DoCopyAllOn = 1;
-  this->DoCopyAllOff = 0;
 }
 
 // Turn off copying of all data.
 void vtkDataSetAttributes::CopyAllOff()
 {
+  this->vtkFieldData::CopyAllOff();
   this->CopyScalarsOff();
   this->CopyVectorsOff();
   this->CopyNormalsOff();
   this->CopyTCoordsOff();
   this->CopyTensorsOff();
-  this->DoCopyAllOn = 0;
-  this->DoCopyAllOff = 1;
 }
 
 // Deep copy of data (i.e., create new data arrays and

@@ -251,6 +251,9 @@ void vtkFieldData::Initialize()
 
   this->NumberOfArrays = 0;
   this->NumberOfActiveArrays = 0;
+
+  this->CopyAllOn();
+  this->ClearFieldFlags();
 }
 
 // Allocate data for each array.
