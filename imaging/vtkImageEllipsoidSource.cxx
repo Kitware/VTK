@@ -129,10 +129,28 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::UpdateInformation()
 {
-  this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
-  this->GetOutput()->SetWholeExtent(this->WholeExtent);
-  this->GetOutput()->SetNumberOfScalarComponents(1);
-  this->GetOutput()->SetScalarType(this->OutputScalarType);
+  vtkImageData *data = this->GetOutput();
+  unsigned long mem;
+  
+  data->SetSpacing(1.0, 1.0, 1.0);
+  data->SetWholeExtent(this->WholeExtent);
+  data->SetNumberOfScalarComponents(1);
+  data->SetScalarType(this->OutputScalarType);
+
+  // What if we are trying to process a VERY large 2D image?
+  mem = data->GetScalarSize();
+  mem = mem * (this->WholeExtent[1] - this->WholeExtent[0] + 1);
+  mem = mem * (this->WholeExtent[3] - this->WholeExtent[2] + 1);
+  mem = mem / 1000;
+  mem = mem * (this->WholeExtent[5] - this->WholeExtent[4] + 1);
+  if (mem < 1)
+    {
+    mem = 1;
+    }
+  
+  data->SetEstimatedWholeMemorySize(mem);
+  // Do not allow less than 1Kb per piece.
+  data->SetMaximumNumberOfPieces(mem);
 }
 
 

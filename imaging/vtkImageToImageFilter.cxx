@@ -102,11 +102,9 @@ void vtkImageToImageFilter::ExecuteInformation()
   // Setting defaults will modify the data if the sublcass overrides the 
   // defaults.  But this should be OK because ExecuteTime (and UpdateTime)
   // should be out of date anyway if this method is being called.
-  output->SetWholeExtent(input->GetWholeExtent());
-  output->SetSpacing(input->GetSpacing());
-  output->SetOrigin(input->GetOrigin());
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  
+  // Done in superclass now.
+  //output->CopyInformation(input);
 
   if (this->Bypass == 0)
     {

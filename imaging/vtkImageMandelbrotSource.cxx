@@ -173,7 +173,9 @@ void vtkImageMandelbrotSource::ExecuteInformation()
   int idx, axis, *ext = this->WholeExtent;
   float origin[3];
   vtkImageData *output = this->GetOutput();
-
+  unsigned long mem;
+  
+  
   output->SetSpacing(this->Spacing, this->Spacing, this->Spacing);
   output->SetWholeExtent(this->WholeExtent);
   for (idx = 0; idx < 3; ++idx)
@@ -193,6 +195,21 @@ void vtkImageMandelbrotSource::ExecuteInformation()
   output->SetOrigin(origin);
   output->SetNumberOfScalarComponents(1);
   output->SetScalarType(VTK_FLOAT);
+  
+  // What if we are trying to process a VERY large 2D image?
+  mem = output->GetScalarSize();
+  mem = mem * (this->WholeExtent[1] - this->WholeExtent[0] + 1);
+  mem = mem * (this->WholeExtent[3] - this->WholeExtent[2] + 1);
+  mem = mem / 1000;
+  mem = mem * (this->WholeExtent[5] - this->WholeExtent[4] + 1);
+  if (mem < 1)
+    {
+    mem = 1;
+    }
+  
+  output->SetEstimatedWholeMemorySize(mem);
+  // Do not allow less than 1Kb per piece.
+  output->SetMaximumNumberOfPieces(mem);  
 }
 
 //----------------------------------------------------------------------------

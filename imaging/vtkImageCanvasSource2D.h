@@ -118,6 +118,11 @@ public:
   // method should be used.
   vtkImageData *GetOutput() {return this;}
   
+  // Description:
+  // These methods also set the WholeExtent of this "DataObject".
+  void SetExtent(int *extent);
+  void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
+  
 protected:
   vtkImageCanvasSource2D();
   // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the

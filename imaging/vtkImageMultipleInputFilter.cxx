@@ -115,11 +115,7 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
     }
   
   // Set the defaults from input1
-  output->SetWholeExtent(input->GetWholeExtent());
-  output->SetSpacing(input->GetSpacing());
-  output->SetOrigin(input->GetOrigin());
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  output->CopyInformation(input);
 
   if ( ! this->Bypass)
     {

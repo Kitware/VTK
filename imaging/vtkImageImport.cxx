@@ -113,19 +113,36 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 // This method returns the largest data that can be generated.
 void vtkImageImport::ExecuteInformation()
 {
+  vtkImageData *output;
+  unsigned long mem;
+  
   // set the extent
-  this->GetOutput()->SetWholeExtent(this->DataExtent);
+  output->SetWholeExtent(this->DataExtent);
     
   // set the spacing
-  this->GetOutput()->SetSpacing(this->DataSpacing);
+  output->SetSpacing(this->DataSpacing);
 
   // set the origin.
-  this->GetOutput()->SetOrigin(this->DataOrigin);
+  output->SetOrigin(this->DataOrigin);
 
   // set data type
-  this->GetOutput()->SetScalarType(this->DataScalarType);
-  this->GetOutput()->
-    SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  output->SetScalarType(this->DataScalarType);
+  output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+
+  // What if we are trying to process a VERY large 2D image?
+  mem = output->GetScalarSize();
+  mem = mem * (this->DataExtent[1] - this->DataExtent[0] + 1);
+  mem = mem * (this->DataExtent[3] - this->DataExtent[2] + 1);
+  mem = mem / 1000;
+  mem = mem * (this->DataExtent[5] - this->DataExtent[4] + 1);
+  if (mem < 1)
+    {
+    mem = 1;
+    }
+  
+  output->SetEstimatedWholeMemorySize(mem);
+  // Do not allow less than 1Kb per piece.
+  output->SetMaximumNumberOfPieces(mem);
 }
 
 //----------------------------------------------------------------------------
