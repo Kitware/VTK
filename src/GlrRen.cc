@@ -164,6 +164,11 @@ int vlGlrRenderer::UpdateLights ()
 // Concrete gl render method.
 void vlGlrRenderer::Render(void)
 {
+  if (this->StartRenderMethod) 
+    {
+    (*this->StartRenderMethod)(this->StartRenderMethodArg);
+    }
+
   // standard render method 
   this->ClearLights();
   this->DoCameras();
@@ -176,6 +181,11 @@ void vlGlrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vlRenderer *)this);
+    }
+
+  if (this->EndRenderMethod) 
+    {
+    (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
 

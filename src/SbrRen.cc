@@ -147,6 +147,11 @@ void vlSbrRenderer::Render(void)
 {
   vlSbrRenderWindow *temp;
 
+  if (this->StartRenderMethod) 
+    {
+    (*this->StartRenderMethod)(this->StartRenderMethodArg);
+    }
+
   // update our Fd first
   temp = (vlSbrRenderWindow *)this->GetRenderWindow();
   this->Fd = temp->GetFd();
@@ -160,6 +165,11 @@ void vlSbrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vlRenderer *)this);
+    }
+
+  if (this->EndRenderMethod) 
+    {
+    (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
 
