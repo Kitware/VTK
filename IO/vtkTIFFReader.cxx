@@ -458,6 +458,7 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
       }
     int xx, yy;
     unsigned char *simage = (unsigned char *)tempImage;
+    uint32* ssimage = tempImage;
     unsigned char *fimage = (unsigned char *)outPtr;
     for ( yy = 0; yy < height; yy ++ )
       {
@@ -468,10 +469,16 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
              yy >= this->InternalExtents[2] && 
              yy <= this->InternalExtents[3] )
           {       
+          /*
           unsigned char red   = *(simage);
           unsigned char green = *(simage+1);
           unsigned char blue  = *(simage+2);
           unsigned char alpha = *(simage+3);
+          */
+          unsigned char red   = static_cast<unsigned char>(TIFFGetR(*ssimage));
+          unsigned char green = static_cast<unsigned char>(TIFFGetG(*ssimage));
+          unsigned char blue  = static_cast<unsigned char>(TIFFGetB(*ssimage));
+          unsigned char alpha = static_cast<unsigned char>(TIFFGetA(*ssimage));
 
           *(fimage  ) = red;//red;
           *(fimage+1) = green;//green;
@@ -481,6 +488,7 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
           fimage += 4;
           }
         simage += 4;
+        ssimage ++;
         }
       }
     
