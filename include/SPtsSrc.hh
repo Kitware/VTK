@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    SPtsSrc.hh
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      7/13/94
+  Version:   1.1
 
 Description:
 ---------------------------------------------------------------------------

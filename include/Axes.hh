@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    Axes.hh
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      7/20/94
+  Version:   1.2
 
 Description:
 ---------------------------------------------------------------------------

@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    Cursor3D.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      5/16/94
+  Version:   1.1
 
 Description:
 ---------------------------------------------------------------------------

@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    VoxelR.hh
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      6/8/94
+  Version:   1.1
 
 This file is part of the Visualization Library. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express

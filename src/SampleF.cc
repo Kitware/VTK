@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    SampleF.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      7/15/94
+  Version:   1.2
 
 Description:
 ---------------------------------------------------------------------------
