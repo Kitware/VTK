@@ -16,6 +16,9 @@ vtkTexture atext
 	atext InterpolateOn
 
 vtkCubeSource cube 
+	cube SetXLength 3
+	cube SetYLength 2
+	cube SetZLength 1
 
 vtkPolyDataMapper cubeMapper
 	cubeMapper SetInput [cube GetOutput]
