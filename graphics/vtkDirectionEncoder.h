@@ -85,6 +85,10 @@ public:
   virtual float *GetDecodedGradientTable( void )=0;
 
 protected:
+  vtkDirectionEncoder() {};
+  ~vtkDirectionEncoder() {};
+  vtkDirectionEncoder(const vtkDirectionEncoder &) {};
+  void operator=(const vtkDirectionEncoder &) {};
 }; 
 
 

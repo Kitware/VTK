@@ -67,6 +67,11 @@ public:
 		      int& listLength, int& initialized )=0;
 
 protected:
+  vtkCuller() {};
+  ~vtkCuller() {};
+  vtkCuller(const vtkCuller &) {};
+  void operator=(const vtkCuller &) {};
+  
 };
                                          
 #endif

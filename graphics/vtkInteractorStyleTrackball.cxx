@@ -1271,8 +1271,14 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift,
       } 
     else 
       {
-      if (this->CtrlKey) this->StartSpin();
-      else         this->StartRotate();
+      if (this->CtrlKey) 
+        {
+        this->StartSpin();
+        }
+      else
+        {
+        this->StartRotate();
+        }
       }
     }
 }
@@ -1291,13 +1297,25 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int
     {
     if (this->ShiftKey) 
       {
-      if (this->CtrlKey) this->EndDolly();
-      else         this->EndPan();
+      if (this->CtrlKey) 
+        {
+        this->EndDolly();
+        }
+      else
+        {
+        this->EndPan();
+        }
       } 
     else 
       {
-      if (this->CtrlKey) this->EndSpin();
-      else               this->EndRotate();
+      if (this->CtrlKey) 
+        {
+        this->EndSpin();
+        }
+      else
+        {
+        this->EndRotate();
+        }
       }
     }
   this->OldX = 0.0;
@@ -1358,8 +1376,14 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift,
     }
   else 
     {
-    if (this->CtrlKey) this->EndDolly();
-    else         this->EndPan();
+    if (this->CtrlKey) 
+      {
+      this->EndDolly();
+      }
+    else
+      {
+      this->EndPan();
+      }
     }
   this->OldX = 0.0;
   this->OldY = 0.0;

@@ -445,85 +445,127 @@ void  vtkInteractorStyle::StopState()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartRotate() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_ROTATE);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndRotate() 
 {
-  if (this->State != VTKIS_ROTATE) return;
+  if (this->State != VTKIS_ROTATE)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartZoom() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_ZOOM);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndZoom() 
 {
-  if (this->State != VTKIS_ZOOM) return;
+  if (this->State != VTKIS_ZOOM)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartPan() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_PAN);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndPan() 
 {
-  if (this->State != VTKIS_PAN) return;
+  if (this->State != VTKIS_PAN)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartSpin() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_SPIN);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndSpin() 
 {
-  if (this->State != VTKIS_SPIN) return;
+  if (this->State != VTKIS_SPIN)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartDolly() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_DOLLY);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndDolly() 
 {
-    if (this->State != VTKIS_DOLLY) return;
+    if (this->State != VTKIS_DOLLY)
+      {
+      return;
+      }
     this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartUniformScale() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_USCALE);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndUniformScale() 
 {
-  if (this->State != VTKIS_USCALE) return;
+  if (this->State != VTKIS_USCALE)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartTimer() 
 {
-  if (this->State != VTKIS_START) return;
+  if (this->State != VTKIS_START)
+    {
+    return;
+    }
   this->StartState(VTKIS_TIMER);
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndTimer() 
 {
-  if (this->State != VTKIS_TIMER) return;
+  if (this->State != VTKIS_TIMER)
+    {
+    return;
+    }
   this->StopState();
 }
 //----------------------------------------------------------------------------
@@ -696,13 +738,25 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
     {
     if (this->ShiftKey) 
       { // I haven't got a Middle button !
-      if (this->CtrlKey) this->StartDolly();
-      else         this->StartPan();
+      if (this->CtrlKey) 
+        {
+        this->StartDolly();
+        }
+      else
+        {
+        this->StartPan();
+        }
       } 
     else 
       {
-      if (this->CtrlKey) this->StartSpin();
-      else         this->StartRotate();
+      if (this->CtrlKey) 
+        {
+        this->StartSpin();
+        }
+      else
+        {
+        this->StartRotate();
+        }
       }
     }
 }
@@ -721,13 +775,25 @@ void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y)
     {
     if (this->ShiftKey) 
       {
-      if (this->CtrlKey) this->EndDolly();
-      else         this->EndPan();
+      if (this->CtrlKey)
+        {
+        this->EndDolly();
+        }
+      else
+        {
+        this->EndPan();
+        }
       } 
     else 
       {
-      if (this->CtrlKey) this->EndSpin();
-      else               this->EndRotate();
+      if (this->CtrlKey) 
+        {
+        this->EndSpin();
+        }
+      else
+        {
+        this->EndRotate();
+        }
       }
     }
 }
@@ -764,8 +830,14 @@ void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift,
     }
   else 
     {
-    if (this->CtrlKey) this->EndDolly();
-    else         this->EndPan();
+    if (this->CtrlKey) 
+      {
+      this->EndDolly();
+      }
+    else
+      {
+      this->EndPan();
+      }
     }
 }
 
@@ -773,9 +845,9 @@ void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift,
 void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y) 
 {
   //
- this->UpdateInternalState(ctrl, shift, X, Y);
+  this->UpdateInternalState(ctrl, shift, X, Y);
   //
- this->FindPokedCamera(X, Y);
+  this->FindPokedCamera(X, Y);
   if (this->RightButtonPressMethod) 
     {
     (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
@@ -789,7 +861,7 @@ void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y)
 void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y) 
 {
   //
- this->UpdateInternalState(ctrl, shift, X, Y);
+  this->UpdateInternalState(ctrl, shift, X, Y);
   //
   if (this->RightButtonReleaseMethod) 
     {

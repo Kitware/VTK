@@ -80,6 +80,10 @@ public:
 
   
 protected:
+  vtkRayBounder() {};
+  ~vtkRayBounder() {};
+  vtkRayBounder(const vtkRayBounder &) {};
+  void operator=(const vtkRayBounder &) {};
 };
 
 #endif
