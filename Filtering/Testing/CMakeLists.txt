@@ -13,9 +13,9 @@ IF(PYTHON_EXECUTABLE)
            vtkApplyFilterCommandInternal.h
            vtkCellType.h
            vtkDataSetCollection.h
+           vtkFilteringInformationKeyManager.h
            vtkImageIterator.h
            vtkImageProgressIterator.h
-           vtkInformationKeyManager.h
            vtkMarchingCubesCases.h
            vtkMarchingSquaresCases.h
            vtkMultiBlockDataSetInternal.h
