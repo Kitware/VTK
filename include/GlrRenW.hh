@@ -46,6 +46,7 @@ public:
   vlActor     *MakeActor();
   vlLight     *MakeLight();
   vlCamera    *MakeCamera();
+  vlProperty  *MakeProperty();
 
   void Start(void);
   void Frame(void);

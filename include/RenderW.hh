@@ -78,6 +78,10 @@ public:
   virtual vlCamera    *MakeCamera() = 0;
 
   // Description:
+  // Create a device specific property.
+  virtual vlProperty    *MakeProperty() = 0;
+
+  // Description:
   // Get the position in screen coordinates of the rendering window.
   virtual int *GetPosition() = 0;
 

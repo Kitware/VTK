@@ -156,6 +156,16 @@ vlCamera *vlGlrRenderWindow::MakeCamera()
 }
 
 // Description:
+// Create a gl specific property.
+vlProperty *vlGlrRenderWindow::MakeProperty()
+{
+  vlGlrProperty *property;
+
+  property = new vlGlrProperty;
+  return (vlProperty *)property;
+}
+
+// Description:
 // Begin the rendering process.
 void vlGlrRenderWindow::Start(void)
 {

@@ -87,6 +87,16 @@ vlCamera *vlSbrRenderWindow::MakeCamera()
 }
 
 // Description:
+// Create a starbase specific property.
+vlProperty *vlSbrRenderWindow::MakeProperty()
+{
+  vlSbrProperty *property;
+
+  property = new vlSbrProperty;
+  return (vlProperty *)property;
+}
+
+// Description:
 // Begin the rendering process.
 void vlSbrRenderWindow::Start(void)
 {
