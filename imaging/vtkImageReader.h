@@ -141,6 +141,14 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  // Description:
+  // These allow the the min and the max of the extent to be switched.
+  // Because the aspect ratio cannot be negative, a new output 
+  // origin is computed.
+  void SetFlips(int num, int *flip);
+  vtkImageSetMacro(Flips, int);
+  void GetFlips(int num, int *flip);
+  vtkImageGetMacro(Flips, int);
   
   // following should only be used by methods or template helpers, not users
   int DataScalarType;
@@ -148,19 +156,21 @@ public:
   int FileSize;
   int HeaderSize;
   // For seeking to the correct location in the files.
+  // (should really be called DataIncrements instead of FileIncrements ...)
   int FileIncrements[VTK_IMAGE_DIMENSIONS];
   int FileExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   unsigned short PixelMask;  // Mask each pixel with ...
   int SwapBytes;
-  void Swap(unsigned char *buf, int length);
-  
+  void Swap(unsigned char *buf, int numPixels, int pixelSize);
+  // Flips are flags for each axis specifying whether "reflect" the data.
+  int Flips[VTK_IMAGE_DIMENSIONS];
+  int PixelSize;
   
 protected:
   int ManualHeaderSize;
   int Initialized;
   char *FileName;
-  int PixelSize;
-  
+
   int DataDimensions[VTK_IMAGE_DIMENSIONS];
   float DataAspectRatio[VTK_IMAGE_DIMENSIONS];
   float DataOrigin[VTK_IMAGE_DIMENSIONS];

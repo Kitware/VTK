@@ -193,7 +193,8 @@ void vtkImageSeriesReader::SetFilePattern(char *pattern)
 void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
 {
   int idx2, idx3;
-  int min2, max2,  min3, max3;
+  int dataIdx2, dataIdx3;
+  int outMin2, outMax2,  outMin3, outMax3;
   int *axis;
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int fileInc3;  // how to increment the file numbers
@@ -212,36 +213,55 @@ void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
 
   // Get the extent of the extra axes. (Needed to loop over images.)
   axis = region->GetAxes();
-  region->GetAxisExtent(axis[2], min2, max2);
-  region->GetAxisExtent(axis[3], min3, max3);
+  region->GetAxisExtent(axis[2], outMin2, outMax2);
+  region->GetAxisExtent(axis[3], outMin3, outMax3);
   
   // loop over images
-  for (idx3 = min3; idx3 <= max3; ++idx3)
+  for (idx3 = outMin3; idx3 <= outMax3; ++idx3)
     {
+    // Convert extent from out coordinates to data coordinates.
+    if ( this->Flips[3])
+      {
+      dataIdx3 = -idx3 + this->DataExtent[6] + this->DataExtent[7];
+      }
+    else
+      {
+      dataIdx3 = idx3;
+      }
     region->SetAxisExtent(axis[3], idx3, idx3);
     this->FileExtent[6] = this->FileExtent[7] = idx3;
-    for (idx2 = min2; idx2 <= max2; ++idx2)
+    for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
       {
+      // Convert extent from out coordinates to data coordinates.
+      if ( this->Flips[2])
+	{
+	dataIdx2 = -idx2 + this->DataExtent[4] + this->DataExtent[5];
+	}  
+      else
+	{
+	dataIdx2 = idx2;
+	}
       region->SetAxisExtent(axis[2], idx2, idx2);
       this->FileExtent[4] = this->FileExtent[5] = idx2;
     
       // compute the file number (I do not like this. Too messy)
-      fileNumber = this->First + (idx2 - this->DataExtent[4])
-	                   + fileInc3 * (idx3 - this->DataExtent[6]);
+      fileNumber = this->First + (dataIdx2 - this->DataExtent[4])
+  	            + fileInc3 * (dataIdx3 - this->DataExtent[6]);
       
       // Compute the file name.
       sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
       
       // Close file from any previous image
       if (this->File)
-	      {
-	      this->File->close();
-	      delete this->File;
-	      this->File = NULL;
-	      }
+	{
+	this->File->close();
+	delete this->File;
+	this->File = NULL;
+	}
       
       // Open the new file.
-      vtkDebugMacro(<< "SetFileName: opening Short file " << this->FileName);
+      vtkDebugMacro(<< "UpdatePointData: opening Short file " 
+         << this->FileName);
 #ifdef _WIN32
       this->File = new ifstream(this->FileName, ios::in | ios::binary);
 #else

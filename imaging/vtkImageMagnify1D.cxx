@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMagnify1D::vtkImageMagnify1D()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->SetMagnificationFactor(1);
+  this->MagnificationFactor = 1;
   this->InterpolateOff();
 
   // For better performance, the execute function was written as a 2d.

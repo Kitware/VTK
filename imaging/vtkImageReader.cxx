@@ -57,7 +57,7 @@ vtkImageReader::vtkImageReader()
 		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
   // Arbitrary default value.  This ivar is not used by this object.
-  this->Dimensionality = 2;
+  this->Dimensionality = 4;
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -67,6 +67,7 @@ vtkImageReader::vtkImageReader()
     this->DataDimensions[idx] = 1;
     this->DataAspectRatio[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
+    this->Flips[idx] = 0;
     }
 
   this->FileName = NULL;
@@ -268,13 +269,68 @@ void vtkImageReader::GetDataOrigin(int num, float *origin)
 
 
 //----------------------------------------------------------------------------
+void vtkImageReader::SetFlips(int num, int *flips)
+{
+  int idx;
+  
+  this->Modified();
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("SetFlips: " << num << " out of range");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->Flips[idx] = flips[idx];
+    }
+}
+
+  
+//----------------------------------------------------------------------------
+void vtkImageReader::GetFlips(int num, int *flips)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetFlips: " << num << " out of range");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    flips[idx] = this->Flips[idx];
+    }
+}
+
+  
+//----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
 void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
 {
+  int idx;
+  float outOrigin[VTK_IMAGE_DIMENSIONS];
+  
   region->SetImageExtent(5, this->DataExtent); // One extra for component ?
+  // Flips should change aspect ratio, but VTK cannot handle 
+  // negative aspect ratios.
   region->SetAspectRatio(4, this->DataAspectRatio);
-  region->SetOrigin(4, this->DataOrigin);
+  // Flips an axis changes the origin.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if ( this->Flips[idx])
+      {
+      outOrigin[idx] = this->DataOrigin[idx] + 
+	(this->DataAspectRatio[idx] * this->DataExtent[idx*2+1]);
+      }
+    else
+      {
+      outOrigin[idx] = this->DataOrigin[idx];
+      }
+    }
+  region->SetOrigin(4, outOrigin);
 }
 
 
@@ -290,7 +346,8 @@ void vtkImageReader::SetHeaderSize(int size)
 
 //----------------------------------------------------------------------------
 // Description:
-// This function opens the first file to determine the header size.
+// This function opens a file to determine the file size, and to
+// automatically determine the header size.
 void vtkImageReader::Initialize()
 {
   int idx, inc;
@@ -346,7 +403,7 @@ void vtkImageReader::Initialize()
     }
   
   // Open the new file
-  vtkDebugMacro(<< "SetFileName: opening file " << this->FileName);
+  vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
 #ifdef _WIN32
   this->File = new ifstream(this->FileName, ios::in | ios::binary);
 #else
@@ -385,14 +442,50 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
   long streamStart;
   long streamSkip0, streamSkip1, streamSkip2;
   long streamRead, temp;
-  int idx0, idx1, idx2, idx3;
+  int idx0, idx1, idx2, idx3, pixelRead;
   unsigned char *buf;
 
-  // get the information needed to find a location in the file ...
-  region->GetExtent(min0, max0,  min1, max1,  min2, max2,  min3, max3);
   region->GetIncrements(outInc0, outInc1, outInc2, outInc3);
-
-  // region offset - file offset
+  // Get the requested extents.
+  region->GetExtent(min0, max0,  min1, max1,  min2, max2,  min3, max3);
+  // Convert them into to the extent needed from the file. (because of flips)
+  // Flipping does not change the image extent of the output.
+  // The second part of flipping the data is that we march through
+  // the output region backwards.
+  if (self->Flips[0])
+    {
+    outPtr += (max0 - min0) * outInc0;
+    outInc0 = -outInc0;
+    temp = -max0 + self->FileExtent[0] + self->FileExtent[1];
+    max0 = -min0 + self->FileExtent[0] + self->FileExtent[1];
+    min0 = temp;
+    }
+  if (self->Flips[1])
+    {
+    outPtr += (max1 - min1) * outInc1;
+    outInc1 = -outInc1;
+    temp = -max1 + self->FileExtent[2] + self->FileExtent[3];
+    max1 = -min1 + self->FileExtent[2] + self->FileExtent[3];
+    min1 = temp;
+    }
+  if (self->Flips[2])
+    {
+    outPtr += (max2 - min2) * outInc2;
+    outInc2 = -outInc2;
+    temp = -max2 + self->FileExtent[4] + self->FileExtent[5];
+    max2 = -min2 + self->FileExtent[4] + self->FileExtent[5];
+    min2 = temp;
+    }
+  if (self->Flips[3])
+    {
+    outPtr += (max3 - min3) * outInc3;
+    outInc3 = -outInc3;
+    temp = -max3 + self->FileExtent[6] + self->FileExtent[7];
+    max3 = -min3 + self->FileExtent[6] + self->FileExtent[7];
+    min3 = temp;
+    }
+  
+  // convert data extent into constants that can be used to seek through files.
   streamStart = (min0 - self->FileExtent[0]) * self->FileIncrements[0] 
     + (min1 - self->FileExtent[2]) * self->FileIncrements[1]
     + (min2 - self->FileExtent[4]) * self->FileIncrements[3] 
@@ -400,14 +493,17 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 
   streamStart += self->HeaderSize;
 
-  temp = (max0-min0+1) * self->FileIncrements[0];
+  pixelRead = max0 - min0 + 1; // length of a row, num pixels read at a time
+  temp = pixelRead * self->FileIncrements[0];  
   streamRead = temp;
   streamSkip0 = self->FileIncrements[1] - temp;
   temp = + (max1-min1+1) * self->FileIncrements[1];
   streamSkip1 = self->FileIncrements[2] - temp;
   temp = + (max2-min2+1) * self->FileIncrements[2];
   streamSkip2 = self->FileIncrements[3] - temp;
-  
+
+  // Reset the extent to be that of the output. (not really needed)
+  region->GetExtent(min0, max0,  min1, max1,  min2, max2,  min3, max3);
 
   // error checking
   if (streamStart < 0 || streamStart > self->FileSize)
@@ -427,7 +523,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
     }
   
   // create a buffer to hold a row of the region
-  buf = new unsigned char[streamRead]; 
+  buf = new unsigned char[streamRead];
   
   // read the data row by row
   outPtr3 = outPtr;
@@ -457,7 +553,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 	// handle swapping (legacy)
 	if (self->SwapBytes)
 	  {
-	  self->Swap(buf, streamRead);
+	  self->Swap(buf, pixelRead, self->PixelSize);
 	  }
 	
 	// copy the bytes into the typed region
@@ -537,7 +633,7 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
 // are assumed to be the same as the file extent/order.
 void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
 {
-  void *ptr;
+  void *ptr = NULL;
   
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
@@ -602,17 +698,18 @@ vtkImageSource *vtkImageReader::GetOutput()
 
 //----------------------------------------------------------------------------
 // Description:
-// Swaps the bytes of a buffer.  It uses the PixelSize ivar.
+// Swaps the bytes of a buffer.  
 // Assumes the pixel size is divisible by two.
-void vtkImageReader::Swap(unsigned char *buffer, int length)
+// This should really be in vtkSwapBytes.
+void vtkImageReader::Swap(unsigned char *buffer, int numPixels, int pixelSize)
 {
   unsigned char temp, *out;
   int idx1, idx2, inc, half;
   
-  half = this->PixelSize / 2;
-  inc = this->PixelSize - 1;
+  half = pixelSize / 2;
+  inc = pixelSize - 1;
   
-  for (idx1 = 0; idx1 < length; ++idx1)
+  for (idx1 = 0; idx1 < numPixels; ++idx1)
     {
     out = buffer + inc;
     for (idx2 = 0; idx2 < half; ++idx2)
