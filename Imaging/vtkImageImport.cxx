@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.42");
+vtkCxxRevisionMacro(vtkImageImport, "1.43");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -170,8 +170,10 @@ void vtkImageImport::PropagateUpdateExtent(vtkDataObject *output)
   vtkImageSource::PropagateUpdateExtent(output);
   if (this->PropagateUpdateExtentCallback)
     {
-    (this->PropagateUpdateExtentCallback)(this->CallbackUserData,
-                                          output->GetUpdateExtent());
+    tryCatchMacro(
+      (this->PropagateUpdateExtentCallback)(this->CallbackUserData,
+                                            output->GetUpdateExtent()),
+      "PropagateUpdateExtentCallback: ");
     }
 }
 
