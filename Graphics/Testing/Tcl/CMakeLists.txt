@@ -24,6 +24,8 @@ IF (VTK_USE_RENDERING)
       EnSight6Elements
       EnSightGoldElements
       extractUGrid
+      glyph2D
+      KlineBottle
       nacaBinary
       OBBTree
       PolyDataMapperAllPolygons
@@ -38,6 +40,7 @@ IF (VTK_USE_RENDERING)
       spToPd
       teapotHulls
       TenEllip
+      testQuadricDecimation
       triangularTCoords
       ugFacet
       volTestClipRegions
