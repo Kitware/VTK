@@ -107,6 +107,8 @@ vtkShrinkPolyData
 vtkSimpleElevationFilter
 vtkSmoothPolyDataFilter
 vtkSpatialRepresentationFilter
+vtkSpherePuzzle
+vtkSpherePuzzleArrows
 vtkSphereSource
 vtkSplitField
 vtkStreamLine

@@ -183,9 +183,9 @@ void vtkSpherePuzzle::Execute()
         // Lighten the active pieces
         if (this->Active && this->PieceMask[count])
           {
-          r = r + (unsigned char)((255 - r) * 0.3);
-          g = g + (unsigned char)((255 - g) * 0.3);
-          b = b + (unsigned char)((255 - b) * 0.3);
+          r = r + (unsigned char)((255 - r) * 0.4);
+          g = g + (unsigned char)((255 - g) * 0.4);
+          b = b + (unsigned char)((255 - b) * 0.4);
           }
         scalars->InsertNextValue(r);
         scalars->InsertNextValue(g);

@@ -104,7 +104,8 @@ void vtkSpherePuzzleArrows::Execute()
     {
     if (this->Permutation[idx] != idx)
       {
-      this->AppendArrow(idx, this->Permutation[idx], pts, polys);
+      //this->AppendArrow(idx, this->Permutation[idx], pts, polys);
+      this->AppendArrow(this->Permutation[idx], idx, pts, polys);
       }
     }
   output->SetPoints(pts);
