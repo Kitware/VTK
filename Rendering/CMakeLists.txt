@@ -107,6 +107,7 @@ vtkUnstructuredGridVolumeRayCastFunction.cxx
 vtkUnstructuredGridVolumeRayCastIterator.cxx
 vtkUnstructuredGridVolumeRayIntegrator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
+vtkUnstructuredGridVolumeZsweepMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
