@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.24");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.25");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -45,6 +45,8 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  EXTENT_TRANSLATOR, ObjectBase,
                                  "vtkExtentTranslator");
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_INDEX, Integer);
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -288,6 +290,7 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, WHOLE_EXTENT());
           outInfo->CopyEntry(inInfo, MAXIMUM_NUMBER_OF_PIECES());
           outInfo->CopyEntry(inInfo, EXTENT_TRANSLATOR());
+          outInfo->CopyEntry(inInfo, TIME_STEPS());
           }
         }
       }
@@ -356,6 +359,9 @@ vtkStreamingDemandDrivenPipeline
           {
           // Get the pipeline information for this input connection.
           vtkInformation* inInfo = this->GetInputInformation(i, j);
+
+          // Copy the time request
+          inInfo->CopyEntry(outInfo, UPDATE_TIME_INDEX());
 
           // Get the executive and port number producing this input.
           vtkStreamingDemandDrivenPipeline* inExec =

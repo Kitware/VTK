@@ -28,7 +28,6 @@ class vtkDataSetAttributes;
 class vtkDemandDrivenPipelineInternals;
 class vtkFieldData;
 class vtkInformation;
-class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationVector;
 class vtkInformationKeyVectorKey;
@@ -120,10 +119,6 @@ public:
   // Algorithms use this to tell the executive that they will not
   // generate certain outputs for a REQUEST_DATA.
   static vtkInformationIntegerKey* DATA_NOT_GENERATED();
-
-  // Description:
-  // Key to store available time steps.
-  static vtkInformationDoubleVectorKey* TIME_STEPS();
 
 protected:
   vtkDemandDrivenPipeline();

@@ -160,6 +160,14 @@ public:
   // Key to specify the request for exact extent in pipeline information.
   static vtkInformationIntegerKey* EXACT_EXTENT();
 
+  // Description:
+  // Key to store available time steps.
+  static vtkInformationDoubleVectorKey* TIME_STEPS();
+
+  // Description:
+  // Update time requested by the pipeline.
+  static vtkInformationIntegerKey* UPDATE_TIME_INDEX();
+
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
