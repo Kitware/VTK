@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.5");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.6");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -571,6 +571,7 @@ void vtkOrientationMarkerWidget::OnMouseMove()
 
   this->UpdateOutline();
   this->EventCallbackCommand->SetAbortFlag( 1 );
+  this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
   this->Interactor->Render();
 }
 
