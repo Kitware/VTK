@@ -166,12 +166,12 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
 
   if (this->InverseFlag)
     {
-    trans = trans->GetLinearInverse();
+    trans = (vtkLinearTransform *)trans->GetInverse();
     }
 
   transList[n] = trans;
   transList[n]->Register(this);
-  inverseList[n] = trans->GetLinearInverse();
+  inverseList[n] = (vtkLinearTransform *)trans->GetInverse();
   inverseList[n]->Register(this);
   
   this->Modified();
@@ -268,17 +268,15 @@ void vtkLinearTransformConcatenation::Update()
   // at the same time.
   this->UpdateMutex->Lock();
 
-  int i;
-
   if (this->GetMTime() > this->Matrix->GetMTime())
     {
     if (this->InverseFlag)
       {
       this->Matrix->Identity();
-      for (i = this->NumberOfTransforms-1; i >= 0; i--)
+      for (int i = this->NumberOfTransforms-1; i >= 0; i--)
 	{
-        vtkLinearTransform *transform = this->TransformList[i];
-        transform->Update();
+	vtkLinearTransform *transform = this->TransformList[i];
+	transform->Update();
 	vtkMatrix4x4::Multiply4x4(transform->GetMatrixPointer(),
 				  this->Matrix,this->Matrix);
 	}
@@ -286,7 +284,7 @@ void vtkLinearTransformConcatenation::Update()
     else
       {
       this->Matrix->Identity();
-      for (i = 0; i < this->NumberOfTransforms; i++)
+      for (int i = 0; i < this->NumberOfTransforms; i++)
 	{
 	vtkLinearTransform *transform = this->TransformList[i];
 	transform->Update();
@@ -295,7 +293,7 @@ void vtkLinearTransformConcatenation::Update()
 	}
       }
     }
-  
+
   this->UpdateMutex->Unlock();
 }
 
@@ -305,12 +303,26 @@ unsigned long vtkLinearTransformConcatenation::GetMTime()
   unsigned long result = this->vtkLinearTransform::GetMTime();
   unsigned long mtime;
 
-  for (int i = 0; i < this->NumberOfTransforms; i++)
+  if (this->InverseFlag)
     {
-    mtime = this->TransformList[i]->GetMTime();
-    if (mtime > result)
+    for (int i = 0; i < this->NumberOfTransforms; i++)
       {
-      result = mtime;
+      mtime = this->TransformList[i]->GetMTime();
+      if (mtime > result)
+	{
+	result = mtime;
+	}
+      }
+    }
+  else
+    {
+    for (int i = 0; i < this->NumberOfTransforms; i++)
+      {
+      mtime = this->InverseList[i]->GetMTime();
+      if (mtime > result)
+	{
+	result = mtime;
+	}
       }
     }
 
