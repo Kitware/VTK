@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.105");
+vtkCxxRevisionMacro(vtkDataWriter, "1.106");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -504,7 +504,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "char"); *fp << str; 
       char *s=((vtkCharArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%i ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
       }
     break;
 
@@ -512,7 +512,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "unsigned_char"); *fp << str; 
       unsigned char *s=((vtkUnsignedCharArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%i ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%hhu ", num, numComp);
       }
     break;
     
@@ -544,7 +544,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "unsigned_int"); *fp << str; 
       unsigned int *s=((vtkUnsignedIntArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%u ", num, numComp);
       }
     break;
 
@@ -552,7 +552,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "long"); *fp << str; 
       long *s=((vtkLongArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%ld ", num, numComp);
       }
     break;
 
@@ -560,7 +560,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "unsigned_long"); *fp << str; 
       unsigned long *s=((vtkUnsignedLongArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%lu ", num, numComp);
       }
     break;
 
@@ -576,7 +576,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "double"); *fp << str; 
       double *s=((vtkDoubleArray *)data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%lg ", num, numComp);
       }
     break;
 
