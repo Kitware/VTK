@@ -538,7 +538,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 	    }
 	  else
 	    {
-	      this->YAxis->SetRange(yrange[1],range[0]);
+	      this->YAxis->SetRange(yrange[1],yrange[0]);
 	    }
 	}
       else
