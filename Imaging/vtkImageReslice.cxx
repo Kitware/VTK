@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.21");
+vtkCxxRevisionMacro(vtkImageReslice, "1.22");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -597,7 +597,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     else
       {
       s = inSpacing[i];
-      d = (inWholeExt[2*i+1] - e)*s;
+      d = (inWholeExt[2*i+1] - inWholeExt[2*i])*s;
       e = inWholeExt[2*i];
       }
 
