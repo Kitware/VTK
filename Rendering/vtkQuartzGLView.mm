@@ -88,91 +88,117 @@
     NSPoint mouseLoc;
     int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
     int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
-    int altDown = ([theEvent modifierFlags] & NSAlternateKeyMask);
-    int commandDown = ([theEvent modifierFlags] & NSCommandKeyMask);
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-    myVTKRenderWindowInteractor->GetInteractorStyle()->
-        OnMouseMove(controlDown, shiftDown, mouseLoc.x, mouseLoc.y);
+    myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
 
 
 - (void)mouseDown:(NSEvent *)theEvent {
     BOOL keepOn = YES;
-    BOOL isInside = YES;
     NSPoint mouseLoc;
     int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
     int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
-    int altDown = ([theEvent modifierFlags] & NSAlternateKeyMask);
-    int commandDown = ([theEvent modifierFlags] & NSCommandKeyMask);
-    int button=1;
-    if (altDown) {button=2;}
-    if (commandDown) {button=3;}
-
-    myVTKRenderWindowInteractor->SetButtonDown(button);
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    switch (button)
-    {
-    case 1:
-        myVTKRenderWindowInteractor->GetInteractorStyle()->
-            OnLeftButtonDown(controlDown, shiftDown, mouseLoc.x, mouseLoc.y);
-        break;
-    case 2:
-        myVTKRenderWindowInteractor->GetInteractorStyle()->
-            OnMiddleButtonDown(controlDown, shiftDown,mouseLoc.x, mouseLoc.y);
-        break;
-    case 3:
-        myVTKRenderWindowInteractor->GetInteractorStyle()->
-            OnRightButtonDown(controlDown, shiftDown,mouseLoc.x, mouseLoc.y);
-        break;
-    default:
-        break;
-    }
+    myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     
     do {
-        isInside = [self mouse:mouseLoc inRect:[self bounds]];
-        switch ([theEvent type]) {
-            case NSLeftMouseDragged:
-                myVTKRenderWindowInteractor->GetInteractorStyle()->
-                    OnMouseMove(controlDown, shiftDown, mouseLoc.x, mouseLoc.y);                               			break;
-            case NSLeftMouseUp:
-                if (isInside)
-                    switch (myVTKRenderWindowInteractor->GetButtonDown())
-                        {
-                        case 1:
-                            myVTKRenderWindowInteractor->GetInteractorStyle()->
-                                OnLeftButtonUp(controlDown, shiftDown,mouseLoc.x, mouseLoc.y);
-                            break;
-                        case 2:
-                            myVTKRenderWindowInteractor->GetInteractorStyle()->
-                                OnMiddleButtonUp(controlDown, shiftDown,mouseLoc.x, mouseLoc.y);
-                            break;
-                        case 3:
-                            myVTKRenderWindowInteractor->GetInteractorStyle()->
-                                OnRightButtonUp(controlDown, shiftDown,mouseLoc.x, mouseLoc.y);
-                            break;
-                        default:
-                            break;
-                        }
-                myVTKRenderWindowInteractor->SetButtonDown(0);
-                        
-                keepOn = NO;
-                [NSEvent stopPeriodicEvents];
-                return;
-            case NSPeriodic:
-                [NSEvent stopPeriodicEvents];
-                myVTKRenderWindowInteractor->GetInteractorStyle()->OnTimer();
-                break;
-            default:
-                break;
+      switch ([theEvent type]) {
+        case NSLeftMouseDragged:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+            break;
+        case NSLeftMouseUp:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
+            keepOn = NO;
+            [NSEvent stopPeriodicEvents];
+            return;
+        case NSPeriodic:
+            [NSEvent stopPeriodicEvents];
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::TimerEvent, NULL);
+            break;
+        default:
+            break;
         }
         theEvent = [[self window] nextEventMatchingMask: NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask];
         mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
     }while (keepOn);
     return;
 }
+
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    BOOL keepOn = YES;
+    NSPoint mouseLoc;
+    int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
+    int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+
+    mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+
+    do {
+      switch ([theEvent type]) {
+        case NSRightMouseDragged:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+            break;
+        case NSRightMouseUp:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+            keepOn = NO;
+            [NSEvent stopPeriodicEvents];
+            return;
+        case NSPeriodic:
+            [NSEvent stopPeriodicEvents];
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::TimerEvent, NULL);
+            break;
+        default:
+            break;
+        }
+        theEvent = [[self window] nextEventMatchingMask: NSRightMouseUpMask | NSRightMouseDraggedMask | NSPeriodicMask];
+        mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    }while (keepOn);
+    return;
+}
+
+
+- (void)otherMouseDown:(NSEvent *)theEvent {
+    BOOL keepOn = YES;
+    NSPoint mouseLoc;
+    int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
+    int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+
+    mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+    
+    do {
+      switch ([theEvent type]) {
+        case NSOtherMouseDragged:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+            break;
+        case NSOtherMouseUp:
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+            keepOn = NO;
+            [NSEvent stopPeriodicEvents];
+            return;
+        case NSPeriodic:
+            [NSEvent stopPeriodicEvents];
+            myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::TimerEvent, NULL);
+            break;
+        default:
+            break;
+        }
+        theEvent = [[self window] nextEventMatchingMask: NSOtherMouseUpMask | NSOtherMouseDraggedMask | NSPeriodicMask];
+        mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        myVTKRenderWindowInteractor->SetEventInformation(mouseLoc.x, mouseLoc.y, controlDown, shiftDown);
+    }while (keepOn);
+    return;
+}
+
+
 
 
 @end
