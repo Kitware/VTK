@@ -17,11 +17,12 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLargeInteger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.42");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.43");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()
@@ -53,18 +54,21 @@ void vtkImageInPlaceFilter::RequestData(
   inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
-  if ((inExt[0] == outExt[0])&&(inExt[1] == outExt[1])&&
-      (inExt[2] == outExt[2])&&(inExt[3] == outExt[3])&&
-      (inExt[4] == outExt[4])&&(inExt[5] == outExt[5])&&
+  // if the total size of the data is the same then can be in place
+  vtkLargeInteger inSize; 
+  vtkLargeInteger outSize; 
+  inSize = (inExt[1] - inExt[0] + 1);
+  inSize = inSize * (inExt[3] - inExt[2] + 1);
+  inSize = inSize * (inExt[5] - inExt[4] + 1);
+  outSize = (outExt[1] - outExt[0] + 1);
+  outSize = outSize * (outExt[3] - outExt[2] + 1);
+  outSize = outSize * (outExt[5] - outExt[4] + 1);
+  if (inSize == outSize &&
       this->GetInput()->ShouldIReleaseData())
     {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
-    /*
-    inExt = inInfo->Get(vtkDataObject::DATA_EXTENT());
-    output->SetExtent(inExt);
-    */
-    output->SetExtent(input->GetExtent());
+    output->SetExtent(outExt);
     }
   else
     {
