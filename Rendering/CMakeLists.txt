@@ -19,6 +19,7 @@ vtkFiniteDifferenceGradientEstimator
 vtkFollower
 vtkFrustumCoverageCuller
 vtkGraphicsFactory
+vtkIVExporter
 vtkImageActor
 vtkImageMapper
 vtkImager
@@ -39,11 +40,14 @@ vtkInteractorStyleUnicam
 vtkInteractorStyleUser
 vtkLODActor
 vtkLODProp3D
+vtkLabeledDataMapper
 vtkLight
 vtkLightCollection
 vtkLightKit 
 vtkMapper
 vtkMapperCollection
+vtkOBJExporter 
+vtkParallelCoordinatesActor
 vtkPicker
 vtkPointPicker
 vtkPolyDataMapper
@@ -67,6 +71,7 @@ vtkScaledTextActor
 vtkSelectVisiblePoints
 vtkTextMapper
 vtkTexture
+vtkVRMLExporter
 vtkViewRays
 vtkVolume
 vtkVolumeCollection

@@ -21,7 +21,7 @@ vtkImageReader2
 vtkImageWriter
 vtkMCubesReader
 vtkMCubesWriter
-vtkOBJReader 
+vtkOBJReader
 vtkPLOT3DReader
 vtkPNMReader
 vtkPNMWriter
