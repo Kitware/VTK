@@ -84,6 +84,7 @@ vtkImageAccumulate::vtkImageAccumulate()
   this->Min[0] = this->Min[1] = this->Min[2] = 0.0;
   this->Max[0] = this->Max[1] = this->Max[2] = 0.0;
   this->Mean[0] = this->Mean[1] = this->Mean[2] = 0.0;
+  this->StandardDeviation[0] = this->StandardDeviation[1] = this->StandardDeviation[2] = 0.0;  
   this->VoxelCount = 0;
 }
 
@@ -164,12 +165,12 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData, int *outPtr,
-				      double Min[3],
-				      double Max[3],
-				      double Mean[3],
-				      long int *VoxelCount)
+                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *outData, int *outPtr,
+                                      double Min[3],
+                                      double Max[3],
+                                      double Mean[3],
+                                      long int *VoxelCount)
 {
   int idX, idY, idZ, idxC;
   int iter, pmin0, pmax0, min0, max0, min1, max1, min2, max2;
@@ -180,12 +181,15 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   float *origin, *spacing;
   unsigned long count = 0;
   unsigned long target;
+  double sumSqr[3], variance;
 
   // variables used to compute statistics (filter handles max 3 components)
   double sum[3];
   sum[0] = sum[1] = sum[2] = 0.0;
   Min[0] = Min[1] = Min[2] = VTK_DOUBLE_MAX;
   Max[0] = Max[1] = Max[2] = VTK_DOUBLE_MIN;
+  sumSqr[0] = sumSqr[1] = sumSqr[2] = 0.0;
+  StandardDeviation[0] = StandardDeviation[1] = StandardDeviation[2] = 0.0;
   *VoxelCount = 0;
   
   vtkImageStencilData *stencil = self->GetStencil();
@@ -214,63 +218,63 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     for (idY = min1; idY <= max1; idY++)
       {
       if (!(count%target)) 
-	{
+        {
         self->UpdateProgress(count/(50.0*target));
-	}
+        }
       count++;
 
       // loop over stencil sub-extents
       iter = 0;
       if (self->GetReverseStencil())
-	{ // flag that we want the complementary extents
- 	iter = -1;
-	}
+        { // flag that we want the complementary extents
+        iter = -1;
+        }
 
       pmin0 = min0;
       pmax0 = max0;
       while ((stencil != 0 && 
-	      stencil->GetNextExtent(pmin0,pmax0,min0,max0,idY,idZ,iter)) ||
-	     (stencil == 0 && iter++ == 0))
-	{
-	// set up pointer for sub extent
-	tempPtr = inPtr + (inInc2*(idZ - min2) +
-			   inInc1*(idY - min1) +
-			   numC*(pmin0 - min0));
+              stencil->GetNextExtent(pmin0,pmax0,min0,max0,idY,idZ,iter)) ||
+             (stencil == 0 && iter++ == 0))
+        {
+        // set up pointer for sub extent
+        tempPtr = inPtr + (inInc2*(idZ - min2) +
+                           inInc1*(idY - min1) +
+                           numC*(pmin0 - min0));
 
-	// accumulate over the sub extent
-	for (idX = pmin0; idX <= pmax0; idX++)
-	  {
-	  // find the bin for this pixel.
-	  outPtrC = outPtr;
-	  for (idxC = 0; idxC < numC; ++idxC)
-	    {
-	    // Gather statistics
-	    sum[idxC]+= *tempPtr;
-	    if (*tempPtr > Max[idxC])
-	      {
-	      Max[idxC] = *tempPtr;
-	      }
-	    else if (*tempPtr < Min[idxC])
-	      {
-	      Min[idxC] = *tempPtr;
-	      }
-	    (*VoxelCount)++;
-	    // compute the index
-	    outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) 
-				  / spacing[idxC]));
-	    if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
-	      {
-	      // Out of bin range
-	      outPtrC = NULL;
-	      break;
-	      }
-	    outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
-	    }
-	  if (outPtrC)
-	    {
-	    ++(*outPtrC);
-	    }
-	  }
+        // accumulate over the sub extent
+        for (idX = pmin0; idX <= pmax0; idX++)
+          {
+          // find the bin for this pixel.
+          outPtrC = outPtr;
+          for (idxC = 0; idxC < numC; ++idxC)
+            {
+            // Gather statistics
+            sum[idxC]+= *tempPtr;
+            if (*tempPtr > Max[idxC])
+              {
+              Max[idxC] = *tempPtr;
+              }
+            else if (*tempPtr < Min[idxC])
+              {
+              Min[idxC] = *tempPtr;
+              }
+            (*VoxelCount)++;
+            // compute the index
+            outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) 
+                                  / spacing[idxC]));
+            if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+              {
+              // Out of bin range
+              outPtrC = NULL;
+              break;
+              }
+            outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+            }
+          if (outPtrC)
+            {
+            ++(*outPtrC);
+            }
+          }
         }
       }
     }
@@ -280,10 +284,17 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     Mean[0] = sum[0] / (double)*VoxelCount;    
     Mean[1] = sum[1] / (double)*VoxelCount;    
     Mean[2] = sum[2] / (double)*VoxelCount;    
+    variance = sumSqr[0] / (double)*VoxelCount - ((double) *VoxelCount * Mean[0] * Mean[0] / (double) (*VoxelCount - 1));
+    StandardDeviation[1] = sqrt(variance);
+    variance = sumSqr[1] / (double)*VoxelCount - ((double) *VoxelCount * Mean[1] * Mean[1] / (double) (*VoxelCount - 1));
+    StandardDeviation[1] = sqrt(variance);
+    variance = sumSqr[2] / (double)*VoxelCount - ((double) *VoxelCount * Mean[2] * Mean[2] / (double) (*VoxelCount - 1));
+    StandardDeviation[2] = sqrt(variance);
     }
   else
     {
     Mean[0] = Mean[1] = Mean[2] = 0.0;
+    StandardDeviation[0] = StandardDeviation[1] = StandardDeviation[2] = 0.0;
     }
   
 }
@@ -329,11 +340,12 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageAccumulateExecute, this, 
-                      inData, (VTK_TT *)(inPtr), 
-                      outData, (int *)(outPtr),
-		      this->Min, this->Max,
-		      this->Mean, &this->VoxelCount);
+    vtkTemplateMacro10(vtkImageAccumulateExecute, this, 
+                       inData, (VTK_TT *)(inPtr), 
+                       outData, (int *)(outPtr),
+                       this->Min, this->Max,
+                       this->Mean,
+                       this->StandardDeviation, &this->VoxelCount);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -380,10 +392,11 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mean: " << this->Mean << "\n";
   os << indent << "Min: " << this->Min << "\n";
   os << indent << "Max: " << this->Max << "\n";
+  os << indent << "StandardDeviation: " << this->StandardDeviation << "\n";
   os << indent << "VoxelCount: " << this->VoxelCount << "\n";
   os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ReverseStencil: " << (this->ReverseStencil ?
-		                         "On\n" : "Off\n");
+                                         "On\n" : "Off\n");
 
   os << indent << "ComponentOrigin: ( "
      << this->ComponentOrigin[0] << ", "

@@ -78,8 +78,8 @@ public:
   // Description:
   // Set/Get - The component extent is the number/extent of the bins.  
   void SetComponentExtent(int extent[6]);
-  void SetComponentExtent(int minX, int maxX, int minY, int maxY, 
-			  int minZ, int maxZ);
+  void SetComponentExtent(int minX, int maxX, int minY, int maxY,
+        int minZ, int maxZ);
   void GetComponentExtent(int extent[6]);
   int *GetComponentExtent() {return this->ComponentExtent;}
 
@@ -100,6 +100,7 @@ public:
   vtkGetVector3Macro(Min, double);
   vtkGetVector3Macro(Max, double);
   vtkGetVector3Macro(Mean, double);
+  vtkGetVector3Macro(StandardDeviation, double);
   vtkGetMacro(VoxelCount, long int);
  
   
@@ -119,6 +120,7 @@ protected:
   double Min[3];
   double Max[3];
   double Mean[3];
+  double StandardDeviation[3];
   long int VoxelCount;
 
   int ReverseStencil;
