@@ -1,6 +1,6 @@
 package require vtktcl
 package require vtktcl_interactor
-package require vtktcl_colors
+::vtktcl::load_script colors
 
 vtkRenderer ren1
 vtkRenderWindow renWin

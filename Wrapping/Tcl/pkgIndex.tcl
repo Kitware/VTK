@@ -6,11 +6,14 @@ namespace eval ::vtktcl {
 
 package ifneeded vtktcl 3.3 {
 
+    # load_component: load a VTK component 
+    #        Example: ::vtktcl::load_component vtkFilteringTCL
+    
     # Windows: the 'load' command looks in the same dir as the Tcl/Tk app,
-    # the current dir, c:\window\system[32], c:\windows and the dirs 
-    # listed in the PATH env var.
-    # Unix: the 'load' command looks in dirs listed in the 
-    # LD_LIBRARY_PATH env var.
+    #          the current dir, c:\window\system[32], c:\windows and the dirs 
+    #          listed in the PATH env var.
+    #    Unix: the 'load' command looks in dirs listed in the 
+    #          LD_LIBRARY_PATH env var.
 
     proc ::vtktcl::load_component {name} {
         global tcl_platform
@@ -40,6 +43,25 @@ package ifneeded vtktcl 3.3 {
 
     # I won't 'rename ::vtktcl::load_component ""' because it will be 
     # quite useful for user-defined packages depending on vtktcl.
+
+    # load_script: load an additional VTK-related script (located in the 
+    #              same place as this package index file is).
+    #     Example: ::vtktcl::load_script mccases
+
+    proc ::vtktcl::load_script {name} {
+        set filenames [list \
+                [file join $::vtktcl::package_index_dir $name] \
+                [file join $::vtktcl::package_index_dir $name.tcl] \
+                ]
+        foreach filename $filenames {
+            if {[file exists $filename]} {
+                uplevel source $filename
+                return 1
+            }
+        }
+        puts "::vtktcl::load_script: $name not found!"
+        return 0
+    }
 
     set ok 1
 
@@ -120,17 +142,8 @@ package ifneeded vtktcl_widgets 1.0 {
 }
 
 
-package ifneeded vtktcl_colors 1.0 {
-    source [file join $::vtktcl::package_index_dir colors.tcl]
-    package provide vtktcl_colors 1.0
-}
-
-package ifneeded vtktcl_mccases 1.0 {
-    source [file join $::vtktcl::package_index_dir mccases.tcl]
-    package provide vtktcl_mccases 1.0
-}
-
-package ifneeded vtktcl_backdrop 1.0 {
-    source [file join $::vtktcl::package_index_dir backdrop.tcl]
-    package provide vtktcl_backdrop 1.0
-}
+# Please use:
+#   ::vtktcl::load_script colors
+#   ::vtktcl::load_script mccases
+#   ::vtktcl::load_script backdrop
+#   etc.

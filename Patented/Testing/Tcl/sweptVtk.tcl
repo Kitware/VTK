@@ -1,6 +1,6 @@
 package require vtktcl
 package require vtktcl_interactor
-package require vtktcl_colors
+::vtktcl::load_script colors
 
 # Create ren1dering stuff
 vtkRenderer ren1

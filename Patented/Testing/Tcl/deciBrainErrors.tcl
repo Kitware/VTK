@@ -1,5 +1,5 @@
 package require vtktcl_interactor
-package require vtktcl_colors
+::vtktcl::load_script colors
 
 # Create the RenderWindow, Renderer and both Actors
 #
