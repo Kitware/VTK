@@ -81,7 +81,7 @@ void vtkDataSet::Initialize()
 // no modification when initialized.
 //
   this->PointData.Initialize();
-};
+}
 
 void vtkDataSet::SetGlobalReleaseDataFlag(int val)
 {
