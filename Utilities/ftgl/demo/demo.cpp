@@ -4,7 +4,11 @@
 #include <iostream>
 #include <stdlib.h> // exit()
 
-#include <GL/glut.h>
+#ifdef __APPLE_CC__
+  #include <GLUT/glut.h>
+#else
+  #include <GL/glut.h>
+#endif
 
 #ifdef USE_STD_NAMESPACE
 using namespace std;
