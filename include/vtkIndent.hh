@@ -39,10 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkIndent - control print indentation
+// .NAME vtkIndent - a simple class to control print indentation
 // .SECTION Description
 // vtkIndent is used to control indentation during the chaining print 
-// process.
+// process. This way nested objects can correctly indent themselves.
 
 #ifndef __vtkIndent_h
 #define __vtkIndent_h

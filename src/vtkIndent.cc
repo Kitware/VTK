@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 static char blanks[NumberOfBlanks+1]="                                        ";
 
 // Description:
-// Determine the next indentation level.
+// Determine the next indentation level. Keep indenting by two until the 
+// max of forty.
 vtkIndent vtkIndent::GetNextIndent()
 {
   int indent = this->Indent + vtkStdIndent;
@@ -54,7 +55,7 @@ vtkIndent vtkIndent::GetNextIndent()
 }
 
 // Description:
-// Print out the indentation.
+// Print out the indentation. Basically output a bunch of spaces.
 ostream& operator<<(ostream& os, vtkIndent& ind)
 {
   os << blanks + (NumberOfBlanks-ind.Indent) ;
