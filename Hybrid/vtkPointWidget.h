@@ -103,7 +103,7 @@ public:
   float* GetPosition() 
     {return this->Cursor3D->GetFocalPoint();}
   void GetPosition(float xyz[3]) 
-    {this->Cursor3D->SetFocalPoint(xyz);}
+    {this->Cursor3D->GetFocalPoint(xyz);}
 
   // Description:
   // Turn on/off the wireframe bounding box.
