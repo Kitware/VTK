@@ -9,11 +9,8 @@ source ../../examplesTcl/vtkInt.tcl
 vtkDataSetReader reader
   reader SetFileName "../../../vtkdata/matrix.vtk"
 
-vtkCastToConcrete castToStructuredPoints
-  castToStructuredPoints SetInput [reader GetOutput]
-
 vtkContourFilter contour
-  contour SetInput [castToStructuredPoints GetStructuredPointsOutput]
+  contour SetInput [reader GetStructuredPointsOutput]
   contour SetValue 0 .5
 
 vtkDataSetMapper contourMapper
@@ -25,7 +22,7 @@ vtkActor contourActor
   contourActor SetPosition 0 0 5
 
 vtkStructuredPointsGeometryFilter toGeometry
-  toGeometry SetInput [castToStructuredPoints GetStructuredPointsOutput]
+  toGeometry SetInput [reader GetStructuredPointsOutput]
 
 vtkWarpScalar carpet
   carpet SetInput [toGeometry GetOutput]

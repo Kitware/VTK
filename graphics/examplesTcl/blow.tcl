@@ -9,11 +9,8 @@ vtkDataSetReader reader
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 
-vtkCastToConcrete castToUnstructured
-    castToUnstructured SetInput [reader GetOutput]
-
 vtkWarpVector warp
-    warp SetInput [castToUnstructured GetUnstructuredGridOutput]
+    warp SetInput [reader GetUnstructuredGridOutput]
 
 # extract mold from mesh using connectivity
 vtkConnectivityFilter connect
