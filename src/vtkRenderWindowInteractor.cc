@@ -54,7 +54,8 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->LightFollowCamera = 1;
   this->Initialized = 0;
   this->DesiredUpdateRate = 15;
-  this->StillUpdateRate = 0;
+  // default limit is 3 hours per frame
+  this->StillUpdateRate = 0.0001;
   
   this->SelfCreatedPicker = 0;
   this->Picker = this->CreateDefaultPicker();
