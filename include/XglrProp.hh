@@ -21,17 +21,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlXglrProperty_hh
 #define __vlXglrProperty_hh
 
-#include "Property.hh"
+#include "PropDev.hh"
 
 class vlXglrRenderer;
 
-class vlXglrProperty : public vlProperty
+class vlXglrProperty : public vlPropertyDevice
 {
  public:
   char *GetClassName() {return "vlXglrProperty";};
 
-  void Render(vlRenderer *ren);
-  void Render(vlXglrRenderer *ren);
+  void Render(vlProperty *prop, vlRenderer *ren);
+  void Render(vlProperty *prop, vlXglrRenderer *ren);
 };
 
 #endif

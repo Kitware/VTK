@@ -21,17 +21,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlXglrCamera_hh
 #define __vlXglrCamera_hh
 
-#include "Camera.hh"
+#include "CamDev.hh"
 
 class vlXglrRenderer;
 
-class vlXglrCamera : public vlCamera
+class vlXglrCamera : public vlCameraDevice
 {
  public:
   char *GetClassName() {return "vlXglrCamera";};
 
-  void Render(vlRenderer *ren);
-  void Render(vlXglrRenderer *ren);
+  void Render(vlCamera *cam, vlRenderer *ren);
+  void Render(vlCamera *cam, vlXglrRenderer *ren);
 
 };
 
