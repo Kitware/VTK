@@ -42,6 +42,27 @@ for { set i 0 } { $i < [$model GetNumberOfCells] } { incr i } {
 
 
 
+# Lets test the arrow source instead of creating another test.
+vtkArrowSource arrow1
+vtkPolyDataMapper mapper1
+  mapper1 SetInput [arrow1 GetOutput]
+vtkActor actor1 
+  actor1 SetMapper mapper1 
+  actor1 SetPosition 0 -0.2 1
+
+vtkArrowSource arrow2
+  arrow2 SetShaftResolution 2
+  arrow2 SetTipResolution 1
+vtkPolyDataMapper mapper2
+  mapper2 SetInput [arrow2 GetOutput]
+vtkActor actor2 
+  actor2 SetMapper mapper2
+  actor2 SetPosition 1 -0.2 1
+
+
+
+
+
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
@@ -59,6 +80,8 @@ vtkActor actor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor actor
+ren1 AddActor actor1
+ren1 AddActor actor2
 
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
