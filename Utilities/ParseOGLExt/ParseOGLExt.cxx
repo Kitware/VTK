@@ -538,12 +538,12 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
-    hfile << "  //Definitions for " << iextension->name << endl;
+    hfile << "  //Definitions for " << iextension->name.c_str() << endl;
     vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
       = consts.find(*iextension);
     if (cExts != consts.end())
       {
-      hfile << "  enum " << cExts->first.name << "_consts {" << endl;
+      hfile << "  enum " << cExts->first.name.c_str() << "_consts {" << endl;
       bool wroteFirst = false;
 
       for (vtkstd::list<Constant>::iterator iconst = cExts->second.begin();
@@ -557,8 +557,8 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
         // confuses the C++ preprocessor terribly.  Don't write out a
         // definition for an enum with a name/value pair that's
         // already been used.
-        if ( ConstantsAlreadyWritten.find( make_pair( iconst->name, 
-                                                      iconst->value ) )
+        if ( ConstantsAlreadyWritten.find( vtkstd::make_pair( iconst->name, 
+                                                              iconst->value ) )
              == ConstantsAlreadyWritten.end() )
           {
           if (wroteFirst)
@@ -569,16 +569,17 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
             {
             wroteFirst = true;
             }
-          hfile << "    " << iconst->name << " = " << iconst->value;
+          hfile << "    " << iconst->name.c_str() << " = "
+                << iconst->value.c_str();
 
-          ConstantsAlreadyWritten.insert( make_pair( iconst->name, 
-                                                     iconst->value ) );
+          ConstantsAlreadyWritten.insert( vtkstd::make_pair( iconst->name, 
+                                                             iconst->value ) );
           
           }
         else
           {
-          hfile << "/* skipping duplicate " << iconst->name
-                << " = " << iconst->value << " */" << endl;
+          hfile << "/* skipping duplicate " << iconst->name.c_str()
+                << " = " << iconst->value.c_str() << " */" << endl;
           }
         }
       hfile << endl << "  };" << endl;
@@ -590,7 +591,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
       for (vtkstd::list<Typedef>::iterator itype = tExts->second.begin();
            itype != tExts->second.end(); itype++)
         {
-        hfile << "  " << itype->definition << endl;
+        hfile << "  " << itype->definition.c_str() << endl;
         }
       }
     vtkstd::map<Extension, vtkstd::list<Function> >::iterator fExts
@@ -601,7 +602,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
            ifunc != fExts->second.end(); ifunc++)
         {
         hfile << "  extern VTK_RENDERING_EXPORT " << ifunc->GetProcType()
-              << " " << ifunc->name << ";" << endl;
+              << " " << ifunc->name.c_str() << ";" << endl;
         }
       }
     }
@@ -615,14 +616,14 @@ static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
        fExts != functs.end(); fExts++)
     {
     if (fExts->first.type != type) continue;
-    cxxfile << "//Functions for " << fExts->first.name << endl;
+    cxxfile << "//Functions for " << fExts->first.name.c_str() << endl;
     for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
          ifunc != fExts->second.end(); ifunc++)
       {
       cxxfile << "vtk" << Extension::TypeToString(type) << "::"
               << ifunc->GetProcType()
               << " vtk" << Extension::TypeToString(type) << "::"
-              << ifunc->name << " = NULL;" << endl;
+              << ifunc->name.c_str() << " = NULL;" << endl;
       }
     }
   Extension::WriteSupportWrapperEnd(cxxfile, type);
@@ -722,7 +723,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
        iextension != extensions.end(); iextension++)
     {
     iextension->WriteSupportWrapperBegin(cxxfile);
-    cxxfile << "  if (strcmp(name, \"" << iextension->name
+    cxxfile << "  if (strcmp(name, \"" << iextension->name.c_str()
             << "\") == 0)" << endl
             << "    {" << endl;
     string vtkglclass = "vtk";
@@ -731,18 +732,19 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     for (ifunct = functs[*iextension].begin();
          ifunct != functs[*iextension].end(); ifunct++)
       {
-      cxxfile << "    " << vtkglclass << "::"
-              << ifunct->name << " = (" << vtkglclass << "::"
+      cxxfile << "    " << vtkglclass.c_str() << "::"
+              << ifunct->name.c_str() << " = (" << vtkglclass.c_str() << "::"
               << ifunct->GetProcType()
               << ")manager->GetProcAddress(\""
               << Extension::TypeToString(iextension->type)
-              << ifunct->name << "\");" << endl;
+              << ifunct->name.c_str() << "\");" << endl;
       }
     cxxfile << "    return 1";
     for (ifunct = functs[*iextension].begin();
          ifunct != functs[*iextension].end(); ifunct++)
       {
-      cxxfile << " && (" << vtkglclass << "::" << ifunct->name << " != NULL)";
+      cxxfile << " && (" << vtkglclass.c_str() << "::" << ifunct->name.c_str()
+              << " != NULL)";
       }
     cxxfile << ";" << endl;
     cxxfile << "    }" << endl;
