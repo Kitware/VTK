@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.17");
+vtkCxxRevisionMacro(vtkLightKit, "1.18");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
@@ -173,6 +173,13 @@ void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer)
     renderer->RemoveLight(this->BackLight0);
     renderer->RemoveLight(this->BackLight1);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkLightKit::Modified()
+{
+  this->Update();
+  this->MTime.Modified();
 }
 
 //----------------------------------------------------------------------------

@@ -272,6 +272,7 @@ public:
 
   void DeepCopy(vtkLightKit *kit);
 
+  void Modified();
   void Update();
 
   // Description:
