@@ -179,6 +179,12 @@ void vtkGlrRenderer::Render(void)
   this->DoCameras();
   this->DoLights();
   this->DoActors();
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    }
+
   // clean up the model view matrix set up by the camera 
   mmode(MVIEWING);
   popmatrix();
@@ -186,11 +192,6 @@ void vtkGlrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vtkRenderer *)this);
-    }
-
-  if (this->NewVolumeRenderer)
-    {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 
