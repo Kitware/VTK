@@ -69,7 +69,11 @@ public:
   // Description:
   // Swap the front and back buffers if double buffering is being used.
   void SwapBuffers();
-  
+
+  // Description:
+  // Flush the buffer and swap if necessary
+  void Frame();
+
   // Description:
   // Draw the contents of the window
   void Render();

@@ -109,6 +109,10 @@ public:
   virtual void SwapBuffers() = 0;
 
   // Description:
+  // Flush the buffer and swap if necessary.
+  virtual void Frame() = 0;
+  
+  // Description:
   // useful for scripting languages
   virtual void SetWindowInfo(char *) 
       { vtkErrorMacro(<<"vtkImageWindow::SetWindowInfo - Not implemented"); };

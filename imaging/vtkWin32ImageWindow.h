@@ -68,7 +68,13 @@ public:
 
   // Description:
   // Swap the front and back buffers. Normally not called by the user.
+  // Double buffering is not supported in this class.
   void SwapBuffers();
+  
+  // Description:
+  // Flush and swap buffers if necessary. Double buffering is not
+  // supported in this class.
+  void Frame();
 
   // output to the viewer.
   vtkWin32ImageWindow *GetOutput(){return this;};
