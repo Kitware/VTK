@@ -82,7 +82,7 @@ public:
   // Description:
   // Insert the edge (p1,p2) into the table. It is the user's
   // responsibility to check if the edge has already been inserted
-  // (use IsEdge()). If the storAttributes flag in InitEdgeInsertion()
+  // (use IsEdge()). If the storeAttributes flag in InitEdgeInsertion()
   // has been set, then the method returns a unique integer id (i.e.,
   // the edge id) that can be used to set and get edge
   // attributes. Otherwise, the method will return 1. Do not mix this

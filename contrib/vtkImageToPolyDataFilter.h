@@ -47,8 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // formats (i.e., CGM or PostScript). To use this filter, you specify how to
 // quantize the color (or whether to use an image with a lookup table), and
 // what style the output should be. The output is always polygons, but the
-// choice is nxm quads (where n and m define the input image dimensions)
-// "Pixelize" option; arbirary polygons "Polygonalize" option; or variable
+// choice is n x m quads (where n and m define the input image dimensions)
+// "Pixelize" option; arbitrary polygons "Polygonalize" option; or variable
 // number of quads of constant color generated along scan lines "RunLength"
 // option.
 //
@@ -151,8 +151,8 @@ public:
   vtkBooleanMacro(Smoothing, int);
   
   // Description:
-  // Specify the number of smoothing iterations to emooth polygons. (Only
-  // in effect if ouput style is Polygonalize and smoothing is on.)
+  // Specify the number of smoothing iterations to smooth polygons. (Only
+  // in effect if output style is Polygonalize and smoothing is on.)
   vtkSetClampMacro(NumberOfSmoothingIterations,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfSmoothingIterations,int);
   

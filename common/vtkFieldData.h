@@ -166,7 +166,7 @@ public:
   void SetNumberOfTuples(const int number);
 
   // Description:
-  // Return a tuple consisting of a concatentation of all data from all
+  // Return a tuple consisting of a concatenation of all data from all
   // the different arrays. Note that everything is converted to and from
   // float values.
   float *GetTuple(const int i);
@@ -178,7 +178,7 @@ public:
 
   // Description:
   // Set the tuple value at the ith location. Set operations
-  // mean that no range chaecking is performed, so they're faster.
+  // mean that no range checking is performed, so they're faster.
   void SetTuple(const int i, const float * tuple);
 
   // Description:

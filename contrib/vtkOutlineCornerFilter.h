@@ -59,7 +59,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct outline corner filter with defaut corner factor = 0.2
+  // Construct outline corner filter with default corner factor = 0.2
   static vtkOutlineCornerFilter *New();
 
   // Description:

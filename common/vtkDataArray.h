@@ -106,7 +106,7 @@ public:
   // Description:
   // Get the data tuple at ith location. Return it as a pointer to an array.
   // Note: this method is not thread-safe, and the pointer is only valid
-  // as long as another method incovation to a vtk object is not performed.
+  // as long as another method invocation to a vtk object is not performed.
   virtual float *GetTuple(const int i) = 0;
 
   // Description:
@@ -175,7 +175,7 @@ public:
   virtual void *GetVoidPointer(const int id) = 0;
 
   // Description:
-  // Free any unneccesary memory.
+  // Free any unnecessary memory.
   virtual void Squeeze() = 0;
   
   // Description:

@@ -85,7 +85,7 @@ public:
   // Description:
   // Add/Remove different types of props to the renderer.
   // These methods are all synonyms to AddProp and RemoveProp.
-  // They are here for convinience and backwards compatability.
+  // They are here for convenience and backwards compatibility.
   void AddActor2D(vtkProp* p) {this->AddProp(p);};
   void RemoveActor2D(vtkProp* p);
   vtkActor2DCollection *GetActors2D();
@@ -243,7 +243,7 @@ public:
   
   // Description:
   // Methods used to return the pick (x,y) in local display coordinates (i.e.,
-  // it's that same as slectionX and selectionY).
+  // it's that same as selectionX and selectionY).
   vtkGetMacro(PickX, float);
   vtkGetMacro(PickY, float);
   vtkGetMacro(IsPicking, int);
@@ -254,7 +254,7 @@ public:
   
 protected:
   // Create a vtkViewport with a black background, a white ambient light, 
-  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface 
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and back face 
   // culling turned off.
   vtkViewport();
   ~vtkViewport();

@@ -125,7 +125,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 //ETX
 
   // Description:
-  // Multiply a homogenous coordinate by this matrix, i.e. out = A*in.
+  // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
   // The in[4] and out[4] can be the same array.
   void MultiplyPoint(const float in[4], float out[4]) {
     vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); };

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkObjectFactoryCollection - maintain a list of object factories
 // .SECTION Description
-// vtkObjectFactoryCollection is an object that creates amn manipulates lists
+// vtkObjectFactoryCollection is an object that creates and manipulates lists
 // of object of type vtkObjectFactory.
 
 // .SECTION see also

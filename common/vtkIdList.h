@@ -116,7 +116,7 @@ public:
   void DeepCopy(vtkIdList *ids);
 
   // Description:
-  // Delete specified id from list. Will remove all occurences of id in list.
+  // Delete specified id from list. Will remove all occurrences of id in list.
   void DeleteId(int id);
 
   // Description:

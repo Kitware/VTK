@@ -44,9 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // A vtkTransform can be used to describe the full range of linear (also
 // known as affine) coordinate transformations in three dimensions,
-// which are internally represented as a 4x4 homogenous transformation
+// which are internally represented as a 4x4 homogeneous transformation
 // matrix.  When you create a new vtkTransform, it is always initialized
-// to the identity tranformation.
+// to the identity transformation.
 // <P>The SetInput() method allows you to set another transform,
 // instead of the identity transform, to be the base transformation.
 // There is a pipeline mechanism to ensure that when the input is
@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // PreMultiply (the default) or PostMultiply mode.  In PreMultiply
 // mode, the translation, concatenation, etc. will occur before any
 // transformations which are represented by the current matrix.  In
-// PostMultiply mode, the additional tranformation will occur after 
+// PostMultiply mode, the additional transformation will occur after 
 // any transformations represented by the current matrix.
 // <P>This class performs all of its operations in a right handed
 // coordinate system with right handed rotations. Some other graphics
@@ -156,7 +156,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Description:
   // Sets the internal state of the transform to PreMultiply. All subsequent
   // operations will occur before those already represented in the
-  // current transformation.  In homogenous matrix notation, M = M*A where
+  // current transformation.  In homogeneous matrix notation, M = M*A where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PreMultiply() { 
@@ -166,7 +166,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Description:
   // Sets the internal state of the transform to PostMultiply. All subsequent
   // operations will occur after those already represented in the
-  // current transformation.  In homogenous matrix notation, M = A*M where
+  // current transformation.  In homogeneous matrix notation, M = A*M where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PostMultiply()  { 
@@ -272,7 +272,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Use this method only if you wish to compute the transformation in
-  // homogenous (x,y,z,w) coordinates, otherwise use TransformPoint().
+  // homogeneous (x,y,z,w) coordinates, otherwise use TransformPoint().
   // This method calls this->GetMatrix()->MultiplyPoint().
   void MultiplyPoint(const float in[4], float out[4]) {
     this->GetMatrix()->MultiplyPoint(in,out);};
@@ -306,7 +306,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Do not use these functions -- they are here only to provide
-  // combatibility with legacy code.  Use TransformPoint() or 
+  // compatibility with legacy code.  Use TransformPoint() or 
   // GetMatrix()->MultiplyPoint() instead.
   // <p>Returns the result of multiplying the currently set Point by the 
   // current transformation matrix. Point is expressed in homogeneous 

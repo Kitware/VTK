@@ -158,7 +158,7 @@ public:
 
   // Description:
   // Get the address of a particular data index. Performs no checks
-  // to verify that the memroy has been allocated etc.
+  // to verify that the memory has been allocated etc.
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
   char *GetPointer(const int id) {return this->Array + id;}
 

@@ -301,12 +301,12 @@ public:
 
   // Description:
   // make the output data ready for new data to be inserted. For most 
-  // objects we just call Initialize. But for imagedata we leave the old
+  // objects we just call Initialize. But for vtkImageData we leave the old
   // data in case the memory can be reused.
   virtual void PrepareForNewData() {this->Initialize();};
 
   // Description:
-  // Shallow and Deep copy.  These copiy the data, but not any of the 
+  // Shallow and Deep copy.  These copy the data, but not any of the 
   // pipeline connections.
   virtual void ShallowCopy(vtkDataObject *src);  
   virtual void DeepCopy(vtkDataObject *src);
@@ -334,7 +334,7 @@ protected:
   // Description:
   // This detects when the UpdateExtent will generate no data, and
   // UpdateData on the source is not necessary.  This condition is satisfied
-  // wehen the UpdateExtent has zero volume (0,-1,...) 
+  // when the UpdateExtent has zero volume (0,-1,...) 
   // of the UpdateNumberOfPieces is 0.
   int UpdateExtentIsEmpty();
   
@@ -397,7 +397,7 @@ protected:
   // This does not include the MTime of this data object.
   unsigned long PipelineMTime;
 
-  // Was the update extent propogated down the pipeline
+  // Was the update extent propagated down the pipeline
   int LastUpdateExtentWasOutsideOfTheExtent;
   
   // How many upstream filters are local to the process.

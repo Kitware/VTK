@@ -101,7 +101,7 @@ public:
   vtkGetObjectMacro(Points,vtkPoints);
 
   // Description:
-  // Detect refernce loop PointSet <-> locator.
+  // Detect reference loop PointSet <-> locator.
   void UnRegister(vtkObject *o);
   
   // Description:

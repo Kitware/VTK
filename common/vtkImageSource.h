@@ -75,7 +75,7 @@ public:
   int *GetExecuteExtent() {return this->ExecuteExtent;}
   
   // Description:
-  // Legacy compatability.  Do not use.
+  // Legacy compatibility.  Do not use.
   virtual void InterceptCacheUpdate() {this->LegacyHack = 0;}
   int LegacyHack;
     

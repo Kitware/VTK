@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // Locators typically work as follows. One or more "entities", such as 
 // points or cells, are inserted into the tree. These entities are associated
-// with one or more buckets. Then, when preforming geometric operations, the
+// with one or more buckets. Then, when performing geometric operations, the
 // operations are performed first on the buckets, and then if the operation
 // tests positive, then on the entities in the bucket. For example, during
 // collision tests, the locators are collided first to identify intersecting
@@ -119,7 +119,7 @@ public:
 
   // Description:
   // Boolean controls whether to maintain list of entities in each bucket.
-  // Normally the lists are maintainined, but if the locator is being used
+  // Normally the lists are maintained, but if the locator is being used
   // as a geometry simplification technique, there is no need to keep them.
   vtkSetMacro(RetainCellLists,int);
   vtkGetMacro(RetainCellLists,int);

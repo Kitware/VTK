@@ -124,7 +124,7 @@ public:
   static void DumpLog(char *filename);
 
   // Description:
-  // Record a timing event and capture walltime and cputicks.
+  // Record a timing event and capture wall time and cpu ticks.
   static void MarkEvent(char *EventString);
 
   // Description:
@@ -160,12 +160,12 @@ public:
   double GetElapsedTime();
 
   // Description:
-  // Will be a platform independant sleep.
+  // Will be a platform independent sleep.
   // Only works on unix for now.
   static void Sleep(int ms);
 
 protected:
-  vtkTimerLog() {}; //insure constructur/destructor protected
+  vtkTimerLog() {}; //insure constructor/destructor protected
   ~vtkTimerLog() {};
   vtkTimerLog(const vtkTimerLog&) {};
   void operator=(const vtkTimerLog&) {};

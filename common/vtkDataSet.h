@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Attribute data in vtk is either point data (data at points) or cell data
 // (data at cells). Typically filters operate on point data, but some may
-// operate on cell data, both cell and point data, eithoer one, or none.
+// operate on cell data, both cell and point data, either one, or none.
 
 // .SECTION See Also
 // vtkPointSet vtkStructuredPoints vtkStructuredGrid vtkUnstructuredGrid

@@ -65,7 +65,7 @@ typedef struct
   // ray.
   int   Pixel[2];
 
-  // The world coordiante location of the camera is important for the
+  // The world coordinate location of the camera is important for the
   // ray caster to be able to return a Z value for the intersection
   float CameraPosition[3];
 

@@ -42,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkAbstractTransform - superclass for all geometric transformations
 // .SECTION Description
 // vtkAbstractTransform is the superclass for all VTK geometric 
-// transformations.  The VTK transform heirarchy is split into two
-// major branches: warp transformations and homogenous (including linear)
+// transformations.  The VTK transform hierarchy is split into two
+// major branches: warp transformations and homogeneous (including linear)
 // transformations.  The latter can be represented in terms of a 4x4
 // transformation matrix, the former cannot.  
 // <p>Transformations can be pipelined through two mechanisms:  

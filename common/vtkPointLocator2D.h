@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // and finding the closest point.
 //
 // vtkPointLocator2D has two distinct methods of interaction. In the first
-// method, you suppy it with a dataset, and it operates on the points in 
+// method, you supply it with a dataset, and it operates on the points in 
 // the dataset. In the second method, you supply it with an array of points,
 // and the object operates on the array.
 //
@@ -106,7 +106,7 @@ public:
   // Description:
   // Find the closest N points to a position. This returns the closest
   // N points to a position. A faster method could be created that returned
-  // N close points to a position, but neccesarily the exact N closest.
+  // N close points to a position, but necessarily the exact N closest.
   // The returned points are sorted from closest to farthest.
   virtual void FindClosestNPoints(int N, float x[2], vtkIdList *result);
   virtual void FindClosestNPoints(int N, float x, float y,
@@ -115,7 +115,7 @@ public:
   // Description:
   // Find the closest points to a position such that each quadrant of
   // space around the position contains at least N points. Loosely 
-  // limit the search to a maximum number of points evalualted, M. 
+  // limit the search to a maximum number of points evaluated, M. 
   virtual void FindDistributedPoints(int N, float x[2], 
 				     vtkIdList *result, int M);
   virtual void FindDistributedPoints(int N, float x, float y, 

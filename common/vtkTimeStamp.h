@@ -84,7 +84,7 @@ public:
     return (this->ModifiedTime < ts.ModifiedTime);};
 
   // Description:
-  // Allow for typcasting to unsigned long.
+  // Allow for typecasting to unsigned long.
   operator unsigned long() {return this->ModifiedTime;};
 
 private:

@@ -64,7 +64,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set this tranformation to the identity transformation.  If 
+  // Set this transformation to the identity transformation.  If 
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
   void Identity() { this->Concatenation->Identity(); this->Modified(); };
@@ -131,7 +131,7 @@ public:
   // Description:
   // Sets the internal state of the transform to PreMultiply. All subsequent
   // operations will occur before those already represented in the
-  // current transformation.  In homogenous matrix notation, M = M*A where
+  // current transformation.  In homogeneous matrix notation, M = M*A where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PreMultiply() { 
@@ -141,7 +141,7 @@ public:
   // Description:
   // Sets the internal state of the transform to PostMultiply. All subsequent
   // operations will occur after those already represented in the
-  // current transformation.  In homogenous matrix notation, M = A*M where
+  // current transformation.  In homogeneous matrix notation, M = A*M where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PostMultiply()  { 

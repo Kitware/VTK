@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkPriorityQueue - an list of ids arranged in priority order
 // .SECTION Description
 // vtkPriorityQueue is a general object for creating and manipulating lists
-// of object ids (e.g., point or cell ids). Object ids are sorted acccording
+// of object ids (e.g., point or cell ids). Object ids are sorted according
 // to a user-specified priority, where entries at the top of the queue have
 // the smallest values.
 //

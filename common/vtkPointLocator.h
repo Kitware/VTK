@@ -117,7 +117,7 @@ public:
   // Incrementally insert a point into search structure with a particular
   // index value. You should use the method IsInsertedPoint() to see whether 
   // this point has already been inserted (that is, if you desire to prevent
-  // dulicate points). Before using this method you must make sure that 
+  // duplicate points). Before using this method you must make sure that 
   // newPts have been supplied, the bounds has been set properly, and that 
   // divs are properly set. (See InitPointInsertion().)
   virtual void InsertPoint(int ptId, float x[3]);
@@ -126,7 +126,7 @@ public:
   // Incrementally insert a point into search structure. The method returns
   // the insertion location (i.e., point id). You should use the method 
   // IsInsertedPoint() to see whether this point has already been
-  // inserted (that is, if you desire to prevent dulicate points).
+  // inserted (that is, if you desire to prevent duplicate points).
   // Before using this method you must make sure that newPts have been
   // supplied, the bounds has been set properly, and that divs are 
   // properly set. (See InitPointInsertion().)
@@ -162,16 +162,16 @@ public:
   // Description:
   // Find the closest N points to a position. This returns the closest
   // N points to a position. A faster method could be created that returned
-  // N close points to a position, but neccesarily the exact N closest.
+  // N close points to a position, but necessarily the exact N closest.
   // The returned points are sorted from closest to farthest.
   virtual void FindClosestNPoints(int N, float x[3], vtkIdList *result);
   virtual void FindClosestNPoints(int N, float x, float y, float z,
 				  vtkIdList *result);
 
   // Description:
-  // Find the closest points to a position such that each octent of
+  // Find the closest points to a position such that each octant of
   // space around the position contains at least N points. Loosely 
-  // limit the search to a maximum number of points evalualted, M. 
+  // limit the search to a maximum number of points evaluated, M. 
   virtual void FindDistributedPoints(int N, float x[3], 
 				     vtkIdList *result, int M);
   virtual void FindDistributedPoints(int N, float x, float y, 

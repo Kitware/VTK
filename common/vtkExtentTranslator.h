@@ -55,8 +55,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION Description
 // vtkExtentTranslator generates a structured extent from an unstructured extent.
-// It uses a recursive cheme that splits the largest axis.  A hard coded extent can
-// be used fro a starting point.
+// It uses a recursive scheme that splits the largest axis.  A hard coded extent can
+// be used for a starting point.
 
 // .SECTION Caveats
 // This object is still under development.
@@ -98,9 +98,9 @@ protected:
 
   // Description:
   // Returns 0 if no data exist for a piece.
-  // The whole extent SHould be passed in as the ext.
+  // The whole extent Should be passed in as the extent.
   // It is modified to return the result.
-  int SplitExtent(int piece, int numPieces, int *ext);  
+  int SplitExtent(int piece, int numPieces, int *extent);  
 
 
   int Piece;

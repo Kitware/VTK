@@ -83,7 +83,7 @@ public:
 
   // Description:
   // Attempt to detach a dynamic library from the
-  // process.  A value of true is returned if it is sucessful.
+  // process.  A value of true is returned if it is successful.
   static int CloseLibrary(vtkLibHandle);
   //ETX
   

@@ -115,7 +115,7 @@ protected:
   void operator=(const vtkGridTransform&) {};
 
   // Description:
-  // Update the displacment grid.
+  // Update the displacement grid.
   void InternalUpdate();
 
   // Description:

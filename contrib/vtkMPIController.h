@@ -89,7 +89,7 @@ public:
   
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends ar receives exist in the same process.
+  // when multiple sends or receives exist in the same process.
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);

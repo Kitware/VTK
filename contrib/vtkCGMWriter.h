@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Note: During output of the polygonal data, stringle strips are converted
 // to triangles, and polylines to lines. Also, due to limitations in the CGM 
-// color model, only 256 colors are avilable to the color pallette.
+// color model, only 256 colors are available to the color palette.
 
 // .SECTION Caveats
 // The class vtkImageToPolyDataFilter is convenient for converting a raster

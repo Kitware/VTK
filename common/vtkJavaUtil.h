@@ -72,7 +72,7 @@ extern JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObjec
 extern JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env,
               const char* fullclassname, void* obj);
 
-// this is the void pointer parm passed to the vtk callback routines on
+// this is the void pointer parameter passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.
 struct vtkJavaVoidFuncArg 
 {

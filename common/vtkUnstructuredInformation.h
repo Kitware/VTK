@@ -43,8 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // Note:  This object is under development an might change in the future.
 // This class contains all the information specific to unstructured
-// data sets.  The only thing it contians now is the
-// mamximum number of pieces streaming can request.
+// data sets.  The only thing it contains now is the
+// maximum number of pieces streaming can request.
 
 
 #ifndef __vtkUnstructuredInformation_h
@@ -95,7 +95,7 @@ protected:
   void operator=(vtkUnstructuredInformation&) {};
 
   // This tells down stream filters the smallest resolution available 
-  // for streaming/spliting.  Now this is sort of a whole extent
+  // for streaming/splitting.  Now this is sort of a whole extent
   // for unstructured data, and should not be part 
   // of the information of vtkDataObject...
   unsigned long MaximumNumberOfPieces;

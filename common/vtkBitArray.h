@@ -101,7 +101,7 @@ public:
   int InsertNextTuple(const double * tuple);
 
   // Description:
-  // Free any uunrequired memory.
+  // Free any unneeded memory.
   void Squeeze();
 
   // Description:

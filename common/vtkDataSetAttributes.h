@@ -107,7 +107,7 @@ public:
   
   // Description:
   // Interpolate data set attributes from other data set attributes
-  // given cell or point ids and asociated interpolation weights.
+  // given cell or point ids and associated interpolation weights.
   void InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
                         vtkIdList *ids, float *weights);
   
@@ -275,7 +275,7 @@ protected:
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
                         vtkDataArray *toData, int id, float t);
   
-  // support manipulation and access of atribute data
+  // support manipulation and access of attribute data
   vtkScalars *Scalars;
   vtkVectors *Vectors;
   vtkNormals *Normals;

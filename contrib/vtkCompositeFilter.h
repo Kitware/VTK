@@ -42,13 +42,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkCompositeFilter - Composites multiple images.
 // .SECTION Description
 // vtkCompositeFilter Takes a number of inputs of structured points with
-// pixel data and zbuffer data, and composites them into one.  The pixel
+// pixel data and z-buffer data, and composites them into one.  The pixel
 // data should be stored in point scalars, and the z buffer data should be 
 // stored in a point field called ZBuffer.  This is the format produced by 
 // vtkRendererSource.  
 
 // .SECTION Notes
-// Although this fitlter processes structured points, future plans are to
+// Although this filter processes structured points, future plans are to
 // have it produce vtkImageData and have it render select pieces of the 
 // image. Also, this filter ignores alpha (for now).
 

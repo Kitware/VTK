@@ -65,7 +65,7 @@ public:
   vtkGetVector3Macro(Divisions, int);
 
   // Description:
-  // The number of points along any axis that belong to more than one peice.
+  // The number of points along any axis that belong to more than one piece.
   vtkSetMacro(Overlap, int);
   vtkGetMacro(Overlap, int);
 

@@ -81,7 +81,7 @@ public:
   // Description:
   // Get the next assembly node in the list. The node returned
   // contains a pointer to a prop and a 4x4 matrix. The matrix
-  // is evaluated based on the preceeding assembly hierarchy
+  // is evaluated based on the preceding assembly hierarchy
   // (i.e., the matrix is not necessarily as the same as the
   // one that was added with AddNode() because of the 
   // concatenation of matrices in the assembly hierarchy).

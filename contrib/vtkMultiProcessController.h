@@ -61,7 +61,7 @@ class vtkCollection;
 #define VTK_MP_CONTROLLER_ANY_SOURCE -1
 #define VTK_MP_CONTROLLER_INVALID_SOURCE -2
 
-// Internally implememented RMI to break the process loop.
+// Internally implemented RMI to break the process loop.
 #define VTK_BREAK_RMI_TAG           239954
 
 
@@ -136,7 +136,7 @@ public:
 
   // Description:
   // This convenience method returns the controller associated with the 
-  // local process.  It reutrns NULL until the processes are spawned.
+  // local process.  It returns NULL until the processes are spawned.
   // It is better if you hang on to the controller passed as an argument to the
   // SingleMethod or MultipleMethod functions.
   static vtkMultiProcessController *GetGlobalController();
@@ -178,8 +178,8 @@ public:
   // Description:
   // By default, sending objects use shallow copy whenever possible.
   // This flag forces the controller to use deep copies instead.
-  // This is necessary when asyncronous processing occurs 
-  // (i.e. pipeline parallism). This is only important when using
+  // This is necessary when asynchronous processing occurs 
+  // (i.e. pipeline paralellism). This is only important when using
   // vtkThreadedController.
   vtkSetMacro(ForceDeepCopy, int);
   vtkGetMacro(ForceDeepCopy, int);
@@ -229,7 +229,7 @@ public:
   
   //------------------ Timing --------------------
   // Description:
-  // For perfomance monitoring, reading and writing polydata to strings
+  // For performance monitoring, reading and writing polydata to strings
   // are timed.  Access to these times is provided by these methods.
   vtkGetMacro(WriteTime, float);
   vtkGetMacro(ReadTime, float);
@@ -247,7 +247,7 @@ protected:
   int MaximumNumberOfProcesses;
   int NumberOfProcesses;
   // Since we cannot use this ivar in vtkThreadController subclass,
-  // maybe we should elimnated it from this superclass.
+  // maybe we should eliminated it from this superclass.
   int LocalProcessId;
   
   vtkProcessFunctionType      SingleMethod;

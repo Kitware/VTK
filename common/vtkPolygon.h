@@ -107,7 +107,7 @@ public:
   // Description:
   // Create a local s-t coordinate system for a polygon. The point p0 is
   // the origin of the local system, p10 is s-axis vector, and p20 is the 
-  // t-axis vector. (These are expressed in the modelling coordinate system and
+  // t-axis vector. (These are expressed in the modeling coordinate system and
   // are vectors of dimension [3].) The values l20 and l20 are the lengths of
   // the vectors p10 and p20, and n is the polygon normal.
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkPerspectiveTransform - describes a 4x4 matrix transformation
 // .SECTION Description
 // A vtkPerspectiveTransform can be used to describe the full range of
-// homogenous transformations.  It was designed in particular
+// homogeneous transformations.  It was designed in particular
 // to describe a camera-view of a scene.  
 // <P>The order in which you set up the display coordinates (via 
 // AdjustZBuffer() and AdjustViewport()), the projection (via Perspective(), 
@@ -79,7 +79,7 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set this tranformation to the identity transformation.  If 
+  // Set this transformation to the identity transformation.  If 
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
   void Identity() { this->Concatenation->Identity(); this->Modified(); };
@@ -229,7 +229,7 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
   // Description:
   // Sets the internal state of the transform to PreMultiply. All subsequent
   // operations will occur before those already represented in the
-  // current transformation.  In homogenous matrix notation, M = M*A where
+  // current transformation.  In homogeneous matrix notation, M = M*A where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PreMultiply() { 
@@ -239,7 +239,7 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
   // Description:
   // Sets the internal state of the transform to PostMultiply. All subsequent
   // operations will occur after those already represented in the
-  // current transformation.  In homogenous matrix notation, M = A*M where
+  // current transformation.  In homogeneous matrix notation, M = A*M where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
   void PostMultiply()  { 

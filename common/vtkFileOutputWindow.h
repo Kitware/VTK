@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkFileOutputWindow - File Specific output window class
 // .SECTION Description
 // Writes debug/warning/error output to a log file instead of the console.
-// To use this class, instatiate it and then call SetInstance(this).
+// To use this class, instantiate it and then call SetInstance(this).
 // 
 
 #ifndef __vtkFileOutputWindow_h

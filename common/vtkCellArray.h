@@ -194,14 +194,14 @@ public:
   // Define multiple cells by providing a connectivity list. The list is in
   // the form (npts,p0,p1,...p(npts-1), repeated for each cell). Be careful
   // using this method because it discards the old cells, and anything
-  // refering these cells becomes invalid (for example, if BuildCells() has
+  // referring these cells becomes invalid (for example, if BuildCells() has
   // been called see vtkPolyData).  The traversal location is reset to the
   // beginning of the list; the insertion location is set to the end of the
   // list.
   void SetCells(int ncells, vtkIntArray *cells);
   
   // Description:
-  // Perform a deep copy (no reference countsing) of the given cell array.
+  // Perform a deep copy (no reference counting) of the given cell array.
   void DeepCopy(vtkCellArray *ca);
 
   // Description:

@@ -39,9 +39,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkHomogenousTransform - superclass for homogenous transformations
+// .NAME vtkHomogenousTransform - superclass for homogeneous transformations
 // .SECTION Description
-// vtkHomogenousTransform provides a generic interface for homogenous 
+// vtkHomogenousTransform provides a generic interface for homogeneous 
 // transformations, i.e. transformations which can be represented by 
 // multiplying a 4x4 matrix with a homogenous coordinate. 
 // .SECTION see also

@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // color specification, or rgba into scalar values. The color table can
 // be created by direct insertion of color values, or by specifying a
 // window and level. Window / Level is used in medical imaging to specify
-// a lienar greyscale ramp. The Level is the center of the ramp.  The
+// a linear greyscale ramp. The Level is the center of the ramp.  The
 // Window is the width of the ramp.
 
 // .SECTION Caveats
@@ -75,14 +75,14 @@ public:
   void Build();
 
   // Description:
-  // Set the Window for the lookuptable. Window is the width of the
-  // lookuptable ramp.
+  // Set the Window for the lookup table. Window is the width of the
+  // lookup table ramp.
   vtkSetClampMacro(Window,float,1.0,65536.0);
   vtkGetMacro(Window,float);
 
   // Description:
-  // Set the Level for the lookuptable. Level is the center of the ramp of
-  // the lookuptable.  ramp.
+  // Set the Level for the lookup table. Level is the center of the ramp of
+  // the lookup table.
   vtkSetMacro(Level,float);
   vtkGetMacro(Level,float);
 

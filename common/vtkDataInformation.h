@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkDataInformation - Superclass of information objects.
 // .SECTION Description
 // Note:  This object is under development an might change in the future.
-// This class and its sublcasses encapsulate the information associated
+// This class and its subclasses encapsulate the information associated
 // with vtkData objects into there own objects.  The primary motivation 
-// for this division is for pipeline ports between mutiple processes.
+// for this division is for pipeline ports between multiple processes.
 
 #ifndef __vtkDataInformation_h
 #define __vtkDataInformation_h
@@ -71,7 +71,7 @@ public:
   // Description:
   // This is a special value that may not be considered "DataInformation".
   // it is just convenient to compute this value in the UpdateInformation 
-  // calls.  This value represents the mamimum MTimes of all upstream
+  // calls.  This value represents the maximum MTimes of all upstream
   // pipeline objects (not including this data object itself).
   void SetPipelineMTime(unsigned long time) {this->PipelineMTime = time; }
   vtkGetMacro(PipelineMTime, unsigned long);
@@ -91,7 +91,7 @@ public:
   // are upstream of this filter.  Alternatively, it is a crude measure
   // of how long the processing should take to update our data.
   // It is used to sort Update requests in multiple input filters to
-  // get the best possible parallel perfomance.
+  // get the best possible parallel performance.
   void SetLocality(float l) {this->Locality = l;};
   vtkGetMacro(Locality, float);
   
@@ -120,7 +120,7 @@ protected:
   // A guess at how much memory would be consumed by the data object
   // if the WholeExtent were updated.
   unsigned long EstimatedWholeMemorySize;
-  // The Maximum MTime of all upstreamg filters and data objects.
+  // The Maximum MTime of all upstream filters and data objects.
   // This does not include the MTime of this data object.
   unsigned long PipelineMTime;
   // How many upstream filters are local to the process.

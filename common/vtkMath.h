@@ -173,7 +173,7 @@ public:
   static void LUFactor3x3(double A[3][3], int index[3]);
 
   // Description:
-  // LU backsubstitution for a 3x3 matrix.  The diagonal elements are the
+  // LU back substitution for a 3x3 matrix.  The diagonal elements are the
   // multiplicative inverse of those in the standard LU factorization.
   static void LUSolve3x3(const float A[3][3], const int index[3], 
 			 float x[3]);
@@ -270,7 +270,7 @@ public:
 			      const float c3[3]);
 
   // Description:
-  // Calculate the determinent of a 3x3 matrix in the form:
+  // Calculate the determinant of a 3x3 matrix in the form:
   //     | a1,  b1,  c1 |
   //     | a2,  b2,  c2 |
   //     | a3,  b3,  c3 |
@@ -296,12 +296,12 @@ public:
   // Description:
   // Thread safe version of InvertMatrix method.
   // Working memory arrays tmp1SIze and tmp2Size
-  // of length size must be passsed in.
+  // of length size must be passed in.
   static int InvertMatrix(double **A, double **AI, int size,
 			  int *tmp1Size, double *tmp2Size);
 
   // Description:
-  // Factor linear equations Ax = b using LU decompostion A = LU where L is
+  // Factor linear equations Ax = b using LU decomposition A = LU where L is
   // lower triangular matrix and U is upper triangular matrix. Input is 
   // square matrix A, integer array of pivot indices index[0->n-1], and size
   // of square matrix n. Output factorization LU is in matrix A. If error is 
@@ -316,7 +316,7 @@ public:
 				  double *tmpSize);
 
   // Description:
-  // Solve linear equations Ax = b using LU decompostion A = LU where L is
+  // Solve linear equations Ax = b using LU decomposition A = LU where L is
   // lower triangular matrix and U is upper triangular matrix. Input is 
   // factored matrix A=LU, integer array of pivot indices index[0->n-1],
   // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
@@ -383,7 +383,7 @@ public:
   // Return array contains number of (real) roots (counting multiple roots as
   // one) followed by roots themselves. Note that roots[3] contains a return
   // code further describing solution - see documentation for SolveCubic()
-  // for meaining of return codes.
+  // for meaning of return codes.
   static double* SolveQuadratic(double c0, double c1, double c2);
 
   // Description:

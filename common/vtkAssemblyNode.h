@@ -59,8 +59,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // vtkAssemblyNode does not reference count its association with vtkProp.
 // Therefore, do not create an assembly node, associate a prop with it,
-// delete the prop, and then try to dereference the prop...the program
-// will break. (Reason: vtkAssemblyPath (which uses vtkAssemblyNode)
+// delete the prop, and then try to dereference the prop. The program
+// will break! (Reason: vtkAssemblyPath (which uses vtkAssemblyNode)
 // create self-referencing loops that destroy reference counting.)
 
 // .SECTION see also

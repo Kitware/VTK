@@ -82,7 +82,7 @@ public:
   // Description:
   // This just forwards the wait onto the controller, which will wait
   // for a message for any of its ports (or any RMI).
-  // Since this method is implmeneted in the controller, multiple
+  // Since this method is implemented in the controller, multiple
   // output ports can be waiting at once (as long as they share a controller).
   // This method will only return if the BreakFlag is turned on in the 
   // controller.  The controller automatically creates a break rmi with 
@@ -101,7 +101,7 @@ public:
   void TriggerUpdate(int remoteProcessId);
   
   // Description:
-  // Trying to get pipeline parallism working.
+  // Trying to get pipeline parallelism working.
   vtkSetMacro(PipelineFlag, int);
   vtkGetMacro(PipelineFlag, int);
   vtkBooleanMacro(PipelineFlag, int);  

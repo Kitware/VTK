@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //  NORMALIZED DISPLAY -  x-y (0,1) normalized values
 //  VIEWPORT -            x-y pixel values in viewport
 //  NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
-//  VIEW -                x-y-z (-1,1) values in camera coords. (z is depth)
+//  VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
 //  WORLD -               x-y-z global coordinate values
 //</PRE>
 //

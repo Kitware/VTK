@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkObjectFactory is used to create vtk objects.   The base class
 // vtkObjectFactory contains a static method CreateInstance which is used
-// to create vtk objects from the list of registerd vtkObjectFactory 
+// to create vtk objects from the list of registered vtkObjectFactory 
 // sub-classes.   The first time CreateInstance is called, all dll's or shared
 // libraries in the environment variable VTK_AUTOLOAD_PATH are loaded into
 // the current process.   The C function vtkLoad is called on each dll.  
@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // in the shared library. VTK_AUTOLOAD_PATH is an environment variable 
 // containing a colon separated (semi-colon on win32) list of paths.
 //
-// This can be use to overide the creation of any object in VTK.  
+// This can be use to override the creation of any object in VTK.  
 //
 
 
@@ -172,7 +172,7 @@ protected:
 
 	
   // Description:
-  // This method is provioded by sub-classes of vtkObjectFactory.
+  // This method is provided by sub-classes of vtkObjectFactory.
   // It should create the named vtk object or return 0 if that object
   // is not supported by the factory implementation.
   virtual vtkObject* CreateObject(const char* vtkclassname );

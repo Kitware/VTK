@@ -237,7 +237,7 @@ public:
   void *GetScalarPointer();
 
   // Description:
-  // For acces to data from tcl
+  // For access to data from tcl
   float GetScalarComponentAsFloat(int x, int y, int z, int component);
   
   // Description:
@@ -252,7 +252,7 @@ public:
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
 
   // Description:  
-  // This method is used translparently by the "SetInput(vtkImageCache *)"
+  // This method is used transparently by the "SetInput(vtkImageCache *)"
   // method to connect the image pipeline to the visualization pipeline.
   vtkImageToStructuredPoints *MakeImageToStructuredPoints();
 
@@ -301,7 +301,7 @@ public:
 
   // Description:
   // make the output data ready for new data to be inserted. For most 
-  // objects we just call Initialize. But for imagedata we leave the old
+  // objects we just call Initialize. But for image data we leave the old
   // data in case the memory can be reused.
   virtual void PrepareForNewData();
 
@@ -340,7 +340,7 @@ protected:
 
   // The extent of what is currently in the structured grid.
   // Dimensions is just an array to return a value.
-  // Its contants are out of data until GetDimensions is called.
+  // Its contents are out of data until GetDimensions is called.
   int Dimensions[3];
   int DataDescription;
   int Increments[3];

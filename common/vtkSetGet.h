@@ -177,8 +177,8 @@ virtual char* Get##name () { \
 
 //
 // Set built-in type where value is constrained between min/max limits.
-// Create member Set"name"() (e.q., SetRadius()). #defines are 
-// convienience for clamping open-ended values.
+// Create member Set"name"() (eg., SetRadius()). #defines are 
+// convenience for clamping open-ended values.
 //
 #define vtkSetClampMacro(name,type,min,max) \
 virtual void Set##name (type _arg) \

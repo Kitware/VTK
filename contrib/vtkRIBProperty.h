@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkRIBProperty is a subclass of vtkProperty that allows the user to
 // specify named shaders for use with RenderMan. Both a surface shader
-// and displacement shadr can be specified. Parameters for the shaders
+// and displacement shader can be specified. Parameters for the shaders
 // can be declared and set.
 //
 // .SECTION See Also

@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ivar is defined, then the input dataset's bounds is used. If the Input is 
 // not defined, and the Prop (superclass of all actors) is defined, then the
 // Prop's bounds is used. If neither the Input or Prop is defined, then the
-// Bounds instance variable (an araay of six floats) is used.
+// Bounds instance variable (an array of six floats) is used.
 // 
 // .SECTION See Also
 // vtkActor2D vtkAxis2DActor vtkXYPlotActor
@@ -108,7 +108,7 @@ public:
   // Explicitly specify the region in space around which to draw the bounds.
   // The bounds is used only when no Input or Prop is specified. The bounds
   // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
-  // usre that the min's are less than the max's.
+  // sure that the min's are less than the max's.
   vtkSetVector6Macro(Bounds,float);
   float *GetBounds();
   void GetBounds(float& xmin, float& xmax, float& ymin, float& ymax, 
