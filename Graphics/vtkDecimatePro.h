@@ -292,6 +292,8 @@ protected:
   };
   typedef LocalTri *LocalTriPtr;
 
+  class VertexArray;
+  friend class VertexArray;
   class VertexArray { //;prevent man page generation
   public:
     VertexArray(const vtkIdType sz) 
@@ -313,6 +315,8 @@ protected:
     vtkIdType MaxId;             // maximum index inserted thus far
   };
 
+  class TriArray;
+  friend class TriArray;
   class TriArray { //;prevent man page generation
   public:
     TriArray(const vtkIdType sz) 

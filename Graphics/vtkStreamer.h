@@ -176,28 +176,6 @@ public:
   vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
-  //
-  // Special classes for manipulating data
-  //
-  //BTX - begin tcl exclude
-  //
-  class StreamPoint {
-  public:
-    float   x[3];    // position 
-    vtkIdType     cellId;  // cell
-    int     subId;   // cell sub id
-    float   p[3];    // parametric coords in cell 
-    float   v[3];    // velocity 
-    float   speed;   // velocity norm 
-    float   s;       // scalar value 
-    float   t;       // time travelled so far 
-    float   d;       // distance travelled so far 
-    float   omega;   // stream vorticity, if computed
-    float   theta;    // rotation angle, if vorticity is computed
-  };
-  //ETX
-  //
-
 protected:
   // Description:
   // Construct object to start from position (0,0,0); integrate forward;
@@ -228,6 +206,23 @@ protected:
   //
   //BTX - begin tcl exclude
   //
+  class StreamPoint {
+  public:
+    float   x[3];    // position 
+    vtkIdType     cellId;  // cell
+    int     subId;   // cell sub id
+    float   p[3];    // parametric coords in cell 
+    float   v[3];    // velocity 
+    float   speed;   // velocity norm 
+    float   s;       // scalar value 
+    float   t;       // time travelled so far 
+    float   d;       // distance travelled so far 
+    float   omega;   // stream vorticity, if computed
+    float   theta;    // rotation angle, if vorticity is computed
+  };
+
+  class StreamArray;
+  friend class StreamArray;
   class StreamArray { //;prevent man page generation
   public:
     StreamArray();

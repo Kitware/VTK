@@ -210,7 +210,11 @@ public:
   
 protected:
 
+  //
+  // Special classes for manipulating data
+  //
   //BTX - begin tcl exclude
+  //
   // Special structures for building loops
   class LocalVertex
   {
@@ -233,9 +237,8 @@ protected:
   };
   typedef LocalTri *LocalTriPtr;
 
-  //
-  // Special classes for manipulating data
-  //
+  class VertexArray;
+  friend class VertexArray;
   class VertexArray { //;prevent man page generation
   public:
     VertexArray(const vtkIdType sz) 
@@ -251,6 +254,8 @@ protected:
     vtkIdType MaxId;             // maximum index inserted thus far
   };
 
+  class TriArray;
+  friend class TriArray;
   class TriArray { //;prevent man page generation
   public:
     TriArray(const vtkIdType sz) 
