@@ -36,6 +36,7 @@ IF (VTKMY_CAN_BUILD)
     Common
     Imaging 
     Unsorted
+    Utilities
   )
 
   #
