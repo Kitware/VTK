@@ -21,7 +21,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -201,7 +201,7 @@ void vtkXMLPStructuredDataReader::SetupEmptyOutput()
 void vtkXMLPStructuredDataReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
-  this->ExtentTranslator->SetNumberOfPiecesInTable(this->NumberOfPieces);
+  this->ExtentTranslator->SetNumberOfPieces(this->NumberOfPieces);
   this->ExtentTranslator->SetMaximumGhostLevel(this->GhostLevel);
   this->PieceExtents = new int[6*this->NumberOfPieces];
   int i;

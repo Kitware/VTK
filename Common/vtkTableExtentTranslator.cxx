@@ -15,7 +15,7 @@
 #include "vtkTableExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.8");
+vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.9");
 vtkStandardNewMacro(vtkTableExtentTranslator);
 
 //----------------------------------------------------------------------------
@@ -60,8 +60,6 @@ void vtkTableExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ExtentTable: (none)\n";
     }
   os << indent << "MaximumGhostLevel: " << this->MaximumGhostLevel << "\n";
-  os << indent << "NumberOfPiecesInTable: " 
-     << this->NumberOfPiecesInTable << "\n";
   if(this->PieceAvailable)
     {
     vtkIndent nextIndent = indent.GetNextIndent();
@@ -85,27 +83,26 @@ void vtkTableExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkTableExtentTranslator::SetNumberOfPieces(int pieces)
 {
-  // Allocate a table for this number of pieces.
-  if(this->NumberOfPiecesInTable == 0)
-    {
-    this->SetNumberOfPiecesInTable(pieces);
-    }
-  this->Superclass::SetNumberOfPieces(pieces);
-}
-
-//----------------------------------------------------------------------------
-void vtkTableExtentTranslator::SetNumberOfPiecesInTable(int pieces)
-{
   // Make sure we are really changing the number of pieces.
-  if(this->NumberOfPiecesInTable == pieces)
+  if(this->NumberOfPieces == pieces)
     {
     return;
     }
-
-  // The default number of pieces returned is the real number of
-  // pieces.
+  
+  // Cannot change the number of pieces between two non-zero values.
+  // If a pipeline tries to use this extent translator with any number
+  // of pieces but that stored in our table, it is an error, and
+  // another extent translator should be used.
+  if((this->NumberOfPieces != 0) && (pieces != 0))
+    {
+    vtkErrorMacro("Cannot change the number of pieces from "
+                  << this->NumberOfPieces << " to " << pieces);
+    return;
+    }  
+  
+  // Actually set the NumberOfPieces data member.
   this->Superclass::SetNumberOfPieces(pieces);
-
+  
   // Clean out any old extent table.
   if(this->ExtentTable)
     {
@@ -120,12 +117,12 @@ void vtkTableExtentTranslator::SetNumberOfPiecesInTable(int pieces)
   
   // Create and initialize a new extent table if there are any pieces.
   // Assume all pieces are available.
-  if(this->NumberOfPiecesInTable > 0)
+  if(this->NumberOfPieces > 0)
     {
-    this->ExtentTable = new int[this->NumberOfPiecesInTable*6];
-    this->PieceAvailable = new int[this->NumberOfPiecesInTable];
+    this->ExtentTable = new int[this->NumberOfPieces*6];
+    this->PieceAvailable = new int[this->NumberOfPieces*6];
     int i;
-    for(i=0;i < this->NumberOfPiecesInTable;++i)
+    for(i=0;i < this->NumberOfPieces;++i)
       {
       int* extent = this->ExtentTable + i*6;
       extent[0] = extent[2] = extent[4] = 0;
@@ -138,8 +135,7 @@ void vtkTableExtentTranslator::SetNumberOfPiecesInTable(int pieces)
 //----------------------------------------------------------------------------
 void vtkTableExtentTranslator::SetExtentForPiece(int piece, int* extent)
 {
-  if((!this->ExtentTable) || (piece < 0) ||
-     (piece >= this->NumberOfPiecesInTable))
+  if((!this->ExtentTable) || (piece < 0) || (piece >= this->NumberOfPieces))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
     return;
@@ -150,8 +146,7 @@ void vtkTableExtentTranslator::SetExtentForPiece(int piece, int* extent)
 //----------------------------------------------------------------------------
 void vtkTableExtentTranslator::GetExtentForPiece(int piece, int* extent)
 {
-  if((!this->ExtentTable) || (piece < 0) ||
-     (piece >= this->NumberOfPiecesInTable))
+  if((!this->ExtentTable) || (piece < 0) || (piece >= this->NumberOfPieces))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
     extent[0] = extent[2] = extent[4] = 0;
@@ -165,8 +160,7 @@ void vtkTableExtentTranslator::GetExtentForPiece(int piece, int* extent)
 int* vtkTableExtentTranslator::GetExtentForPiece(int piece)
 {
   static int emptyExtent[6] = {0,-1,0,-1,0,-1};
-  if((!this->ExtentTable) || (piece < 0) ||
-     (piece >= this->NumberOfPiecesInTable))
+  if((!this->ExtentTable) || (piece < 0) || (piece >= this->NumberOfPieces))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
     return emptyExtent;
@@ -177,11 +171,9 @@ int* vtkTableExtentTranslator::GetExtentForPiece(int piece)
 //----------------------------------------------------------------------------
 void vtkTableExtentTranslator::SetPieceAvailable(int piece, int available)
 {
-  if((!this->ExtentTable) || (piece < 0) ||
-     (piece >= this->NumberOfPiecesInTable))
+  if((!this->ExtentTable) || (piece < 0) || (piece >= this->NumberOfPieces))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
-    return;
     }
   this->PieceAvailable[piece] = available?1:0;
 }
@@ -189,8 +181,7 @@ void vtkTableExtentTranslator::SetPieceAvailable(int piece, int available)
 //----------------------------------------------------------------------------
 int vtkTableExtentTranslator::GetPieceAvailable(int piece)
 {
-  if((!this->ExtentTable) || (piece < 0) ||
-     (piece >= this->NumberOfPiecesInTable))
+  if((!this->ExtentTable) || (piece < 0) || (piece >= this->NumberOfPieces))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
     return 0;
@@ -234,28 +225,9 @@ vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
                     << this->MaximumGhostLevel << ".  Using the maximum.");
     ghostLevel = this->MaximumGhostLevel;
     }
-
-  if(numPieces == 1)
-    {
-    // The number of pieces requested is one.  Return the whole extent.
-    memcpy(resultExtent, wholeExtent, sizeof(int)*6);
-    }
-  else if(piece < this->NumberOfPiecesInTable)
-    {
-    // The requested piece is beyond the table.  Return an empty extent.
-    resultExtent[0] = 0;
-    resultExtent[1] = -1;
-    resultExtent[2] = 0;
-    resultExtent[3] = -1;
-    resultExtent[4] = 0;
-    resultExtent[5] = -1;
-    }
-  else
-    {
-    // Return the extent from the table entry.
-    memcpy(resultExtent, this->ExtentTable+piece*6, sizeof(int)*6);
-    }
-
+  
+  memcpy(resultExtent, this->ExtentTable+piece*6, sizeof(int)*6);
+  
   if(((resultExtent[1] - resultExtent[0] + 1)*
       (resultExtent[3] - resultExtent[2] + 1)*
       (resultExtent[5] - resultExtent[4] + 1)) == 0)

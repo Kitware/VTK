@@ -34,19 +34,12 @@ public:
   static vtkTableExtentTranslator* New();
   
   // Description:
-
-  // Set the number of pieces into which the whole extent will be
-  // split.  If this is 1 then the whole extent will be returned.  If
-  // this is more than the number of pieces in the table then the
-  // extra pieces will be empty data.  If this is more than one but
-  // less than the number of pieces in the table then only this many
-  // pieces will be returned (FIXME).
+  // Set the number of pieces in the extent table.  Once set to a
+  // non-zero value, this can only be called to change back to zero,
+  // or with the same number of pieces.  This prevents a pipeline from
+  // using this extent translator to get any pieces that don't match
+  // the table.
   void SetNumberOfPieces(int pieces);
-
-  // Description:
-  // Set the real number of pieces in the extent table.
-  void SetNumberOfPiecesInTable(int pieces);
-  vtkGetMacro(NumberOfPiecesInTable, int);
   
   // Description:
   // Called to translate the current piece into an extent.  This is
@@ -95,7 +88,6 @@ protected:
   
   // Store the extent table in a single array.  Every 6 values form an extent.
   int* ExtentTable;
-  int NumberOfPiecesInTable;
   int MaximumGhostLevel;
   
   // Store a flag for the availability of each piece.
