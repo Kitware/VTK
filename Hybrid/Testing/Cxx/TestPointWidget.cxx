@@ -524,11 +524,11 @@ char PointWidgetEventLog[] =
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
-class vtkPWCallback : public vtkCommand
+class vtkmyPWCallback : public vtkCommand
 {
 public:
-  static vtkPWCallback *New() 
-    { return new vtkPWCallback; }
+  static vtkmyPWCallback *New() 
+    { return new vtkmyPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
@@ -536,7 +536,7 @@ public:
       pointWidget->GetPolyData(this->PolyData);
       this->Actor->VisibilityOn();
     }
-  vtkPWCallback():PolyData(0),Actor(0) {}
+  vtkmyPWCallback():PolyData(0),Actor(0) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };
@@ -607,7 +607,7 @@ int TestPointWidget( int argc, char *argv[] )
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
-  vtkPWCallback *myCallback = vtkPWCallback::New();
+  vtkmyPWCallback *myCallback = vtkmyPWCallback::New();
   myCallback->PolyData = point;
   myCallback->Actor = glyphActor;
 
