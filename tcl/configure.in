@@ -34,28 +34,6 @@ if test $ac_cv_c_bigendian = yes; then
 fi
 AC_SUBST(BIGENDIAN)
 
-# what toolkits should we use
-AC_ARG_WITH(graphics,
-         [  --without-graphics      do not include the graphics classes],,
-         graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_DEPENDS=""
-         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS")
-
-AC_SUBST(USE_GRAPHICS_FLAG)
-AC_SUBST(USE_GRAPHICS_LIBS)
-AC_SUBST(USE_GRAPHICS_DEPENDS)
-
-AC_ARG_WITH(imaging,
-         [  --without-imaging       do not include the imaging classes],,
-         imagingdir=imaging
-         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_IMAGING_DEPENDS=""
-         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
-
-AC_SUBST(USE_IMAGING_FLAG)
-AC_SUBST(USE_IMAGING_LIBS)
-AC_SUBST(USE_IMAGING_DEPENDS)
 
 #
 # figure out what graphics we should compile in based on header files
@@ -436,17 +414,48 @@ fi
 AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
     [vtk_shared_ok=yes], [vtk_shared_ok=no])
-if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
+
+# what toolkits should we use
+AC_ARG_WITH(graphics,
+         [  --without-graphics      do not include the graphics classes],
+         [vtk_use_graphics=no], 
+         [vtk_use_graphics=yes] 
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS")
+
+AC_ARG_WITH(imaging,
+         [  --without-imaging       do not include the imaging classes],
+         [vtk_use_imaging=no], 
+         [vtk_use_imaging=yes] 
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
+
+USE_GRAPHICS_DEPENDS=""
+USE_IMAGING_DEPENDS=""
+
+if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
     VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
-    VTK_LIB_FILE="libvtk${SHLIB_SUFFIX}${SHLIB_VERSION}"
     RANLIB=":"
 else
     SHLIB_LD_LIBS=""
     VTK_SHLIB_CFLAGS=""
     VTK_LD_SEARCH_FLAGS=""
-    VTK_LIB_FILE="libvtk.a"
+    if test "$vtk_use_graphics" = "yes"; then
+       USE_GRAPHICS_DEPENDS="../graphics/libVTKGraphicsTcl.a"
+    fi
+    if test "$vtk_use_imaging" = "yes"; then
+       USE_IMAGING_DEPENDS="../imaging/libVTKImagingTcl.a"
+    fi
 fi
+
+AC_SUBST(USE_GRAPHICS_FLAG)
+AC_SUBST(USE_GRAPHICS_LIBS)
+AC_SUBST(USE_GRAPHICS_DEPENDS)
+
+AC_SUBST(USE_IMAGING_FLAG)
+AC_SUBST(USE_IMAGING_LIBS)
+AC_SUBST(USE_IMAGING_DEPENDS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
 AC_SUBST(VTK_LIB_FILE)

@@ -14,15 +14,15 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-x                use the X Window System"
 ac_help="$ac_help
-  --without-graphics      do not include the graphics classes"
-ac_help="$ac_help
-  --without-imaging       do not include the imaging classes"
-ac_help="$ac_help
   --with-mesa               use the mesa opengl package"
 ac_help="$ac_help
   --disable-load          disallow dynamic loading and "load" command"
 ac_help="$ac_help
   --with-shared               create shared libraries"
+ac_help="$ac_help
+  --without-graphics      do not include the graphics classes"
+ac_help="$ac_help
+  --without-imaging       do not include the imaging classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -1753,38 +1753,6 @@ if test $ac_cv_c_bigendian = yes; then
 fi
 
 
-# what toolkits should we use
-# Check whether --with-graphics or --without-graphics was given.
-if test "${with_graphics+set}" = set; then
-  withval="$with_graphics"
-  :
-else
-  graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_DEPENDS=""
-         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS"
-fi
-
-
-
-
-
-
-# Check whether --with-imaging or --without-imaging was given.
-if test "${with_imaging+set}" = set; then
-  withval="$with_imaging"
-  :
-else
-  imagingdir=imaging
-         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_IMAGING_DEPENDS=""
-         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING"
-fi
-
-
-
-
-
 
 #
 # figure out what graphics we should compile in based on header files
@@ -1797,12 +1765,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1801 "configure"
+#line 1769 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1806: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1774: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1836,12 +1804,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1840 "configure"
+#line 1808 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1845: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1813: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1885,12 +1853,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1889 "configure"
+#line 1857 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1894: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1862: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1930,12 +1898,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1934 "configure"
+#line 1902 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1939: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1907: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1968,7 +1936,7 @@ if eval "test \"`echo '$''{'ac_cv_c_const'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1972 "configure"
+#line 1940 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -2018,7 +1986,7 @@ ccp = (char const *const *) p;
 
 ; return 0; }
 EOF
-if { (eval echo configure:2022: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1990: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_const=yes
 else
@@ -2042,7 +2010,7 @@ if eval "test \"`echo '$''{'ac_cv_struct_tm'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2046 "configure"
+#line 2014 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <time.h>
@@ -2051,7 +2019,7 @@ int t() {
 struct tm *tp; tp->tm_sec;
 ; return 0; }
 EOF
-if { (eval echo configure:2055: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:2023: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_struct_tm=time.h
 else
@@ -2109,7 +2077,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2113 "configure"
+#line 2081 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char IceConnectionNumber();
@@ -2119,7 +2087,7 @@ int t() {
 IceConnectionNumber()
 ; return 0; }
 EOF
-if { (eval echo configure:2123: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2091: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2155,7 +2123,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2159 "configure"
+#line 2127 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -2165,7 +2133,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:2169: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2137: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2192,7 +2160,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2196 "configure"
+#line 2164 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -2202,7 +2170,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:2206: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2174: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2234,7 +2202,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2238 "configure"
+#line 2206 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char t_accept();
@@ -2244,7 +2212,7 @@ int t() {
 t_accept()
 ; return 0; }
 EOF
-if { (eval echo configure:2248: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2216: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2275,7 +2243,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2279 "configure"
+#line 2247 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char socket();
@@ -2285,7 +2253,7 @@ int t() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:2289: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2257: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2409,7 +2377,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2413 "configure"
+#line 2381 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dlopen();
@@ -2419,7 +2387,7 @@ int t() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:2423: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2391: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2518,12 +2486,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2522 "configure"
+#line 2490 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2527: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2495: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2727,17 +2695,56 @@ else
   vtk_shared_ok=no
 fi
 
-if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
+
+# what toolkits should we use
+# Check whether --with-graphics or --without-graphics was given.
+if test "${with_graphics+set}" = set; then
+  withval="$with_graphics"
+  vtk_use_graphics=no
+else
+  vtk_use_graphics=yes 
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS"
+fi
+
+
+# Check whether --with-imaging or --without-imaging was given.
+if test "${with_imaging+set}" = set; then
+  withval="$with_imaging"
+  vtk_use_imaging=no
+else
+  vtk_use_imaging=yes 
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING"
+fi
+
+
+USE_GRAPHICS_DEPENDS=""
+USE_IMAGING_DEPENDS=""
+
+if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
     VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
-    VTK_LIB_FILE="libvtk${SHLIB_SUFFIX}${SHLIB_VERSION}"
     RANLIB=":"
 else
     SHLIB_LD_LIBS=""
     VTK_SHLIB_CFLAGS=""
     VTK_LD_SEARCH_FLAGS=""
-    VTK_LIB_FILE="libvtk.a"
+    if test "$vtk_use_graphics" = "yes"; then
+       USE_GRAPHICS_DEPENDS="../graphics/libVTKGraphicsTcl.a"
+    fi
+    if test "$vtk_use_imaging" = "yes"; then
+       USE_IMAGING_DEPENDS="../imaging/libVTKImagingTcl.a"
+    fi
 fi
+
+
+
+
+
+
+
+
 
 
 
@@ -2908,12 +2915,6 @@ s%@X_PRE_LIBS@%$X_PRE_LIBS%g
 s%@X_LIBS@%$X_LIBS%g
 s%@X_EXTRA_LIBS@%$X_EXTRA_LIBS%g
 s%@BIGENDIAN@%$BIGENDIAN%g
-s%@USE_GRAPHICS_FLAG@%$USE_GRAPHICS_FLAG%g
-s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
-s%@USE_GRAPHICS_DEPENDS@%$USE_GRAPHICS_DEPENDS%g
-s%@USE_IMAGING_FLAG@%$USE_IMAGING_FLAG%g
-s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
-s%@USE_IMAGING_DEPENDS@%$USE_IMAGING_DEPENDS%g
 /@sbr_obj@/r $sbr_obj
 s%@sbr_obj@%%g
 /@glr_obj@/r $glr_obj
@@ -2925,6 +2926,12 @@ s%@xglr_obj@%%g
 s%@XGL_HOME@%$XGL_HOME%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
+s%@USE_GRAPHICS_FLAG@%$USE_GRAPHICS_FLAG%g
+s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
+s%@USE_GRAPHICS_DEPENDS@%$USE_GRAPHICS_DEPENDS%g
+s%@USE_IMAGING_FLAG@%$USE_IMAGING_FLAG%g
+s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
+s%@USE_IMAGING_DEPENDS@%$USE_IMAGING_DEPENDS%g
 s%@VTK_SHLIB_CFLAGS@%$VTK_SHLIB_CFLAGS%g
 s%@VTK_LIB_FILE@%$VTK_LIB_FILE%g
 s%@SHLIB_LD@%$SHLIB_LD%g
