@@ -6,6 +6,11 @@
 #include "IdList.hh"
 #include "vlMath.hh"
 
+vlVectors::vlVectors()
+{
+  this->MaxNorm = 0.0;
+}
+
 void vlVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fp)
 {
   for (int i=0; i<ptId.NumIds(); i++)
@@ -37,4 +42,11 @@ float vlVectors::GetMaxNorm()
 {
   this->ComputeMaxNorm();
   return this->MaxNorm;
+}
+void vlVectors::PrintSelf(ostream& os)
+{
+  os << "    Number Vectors: " << this->NumVectors() << "\n";
+  os << "    Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";
+
+  vlObject::PrintSelf(os);
 }

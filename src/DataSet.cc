@@ -81,3 +81,18 @@ unsigned long int vlDataSet::GetMtime()
   if ( this->PointData.GetMtime() > this->Mtime ) return this->PointData.GetMtime();
   else return this->Mtime;
 }
+void vlDataSet::PrintSelf(ostream& os)
+{
+  float * bounds;
+
+  os << "    Point Data: \n";
+  this->PointData.PrintSelf();
+  os << "    Compute time: " << this->ComputeTime.GetMtime() << "\n";
+  bounds = this->GetBounds();
+  os << "    Bounds: \n";
+  os << "      Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+  os << "      Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+  os << "      Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
+
+  vlObject::PrintSelf(os);
+}

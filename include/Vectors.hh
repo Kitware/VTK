@@ -12,6 +12,7 @@ class vlFloatVectors;
 class vlVectors : public vlObject 
 {
 public:
+ vlVectors();
   virtual ~vlVectors() {};
   virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
   virtual int NumVectors() = 0;
@@ -20,10 +21,11 @@ public:
   virtual void InsertVector(int i, float x[3]) = 0;   // allocates memory as necessary
   void GetVectors(vlIdList& ptId, vlFloatVectors& fp);
   char *GetClassName() {return "vlVectors";};
+  void PrintSelf(ostream& os);
   virtual void ComputeMaxNorm();
   float GetMaxNorm();
 
-private:
+protected:
   float MaxNorm;
   vlTimeStamp ComputeTime; // Time at which range computed
 };

@@ -17,6 +17,7 @@ class vlDataSet : virtual public vlObject
 public:
   vlDataSet();
   char *GetClassName() {return "vlDataSet";};
+  void PrintSelf(ostream& os);
   virtual vlDataSet *MakeObject() = 0;
   virtual int NumCells() = 0;
   virtual int NumPoints() = 0;

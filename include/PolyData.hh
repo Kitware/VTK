@@ -22,6 +22,7 @@ public:
   ~vlPolyData();
   vlDataSet *MakeObject();
   char *GetClassName() {return "vlPolyData";};
+  void PrintSelf(ostream& os);
   int NumCells();
   int NumPoints();
   int CellDimension(int cellId);
@@ -29,6 +30,7 @@ public:
   void Initialize();
   float *GetPoint(int i) {return this->Points->GetPoint(i);};
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
+  void ComputeBounds();
   vlMapper *MakeMapper();
 
   // PolyData specific stuff follows

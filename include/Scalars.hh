@@ -12,6 +12,7 @@ class vlFloatScalars;
 class vlScalars : public vlObject 
 {
 public:
+  vlScalars();
   virtual ~vlScalars() {};
   virtual vlScalars *MakeObject(int sze, int ext=1000) = 0;
   virtual int NumScalars() = 0;
@@ -20,10 +21,11 @@ public:
   virtual void InsertScalar(int i, float s) = 0;  // allocates memory as necessary
   void GetScalars(vlIdList& ptId, vlFloatScalars& fp);
   char *GetClassName() {return "vlScalars";};
+  void PrintSelf(ostream& os);
   virtual void ComputeRange();
   float *GetRange();
 
-private:
+protected:
   float Range[2];
   vlTimeStamp ComputeTime; // Time at which range computed
 };

@@ -12,6 +12,7 @@ class vlIdList;
 class vlPoints : public vlObject 
 {
 public:
+  vlPoints();
   virtual ~vlPoints() {};
   virtual vlPoints *MakeObject(int sze, int ext=1000) = 0;
   virtual int NumPoints() = 0;
@@ -20,6 +21,14 @@ public:
   virtual void InsertPoint(int i, float x[3]) = 0;   // allocates memory as necessary
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
   char *GetClassName() {return "vlPoints";};
+  void PrintSelf(ostream& os);
+  virtual void ComputeBounds();
+  float *GetBounds();
+
+protected:
+  float Bounds[6];
+  vlTimeStamp ComputeTime; // Time at which range computed
+
 };
 
 #endif

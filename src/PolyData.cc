@@ -206,3 +206,25 @@ vlMapper *vlPolyData::MakeMapper()
     }
   return this->Mapper;
 }
+void vlPolyData::ComputeBounds()
+{
+  int i;
+  float *bounds;
+
+  if ( this->Points )
+    {
+    bounds = this->Points->GetBounds();
+    for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
+    this->ComputeTime.Modified();
+    }
+}
+void vlPolyData::PrintSelf(ostream& os)
+{
+  os << "    Number Points: " << this->NumPoints() << "\n";
+  os << "    Number Verts: " << this->NumVerts() << "\n";
+  os << "    Number Lines: " << this->NumLines() << "\n";
+  os << "    Number Polygons: " << this->NumPolys() << "\n";
+  os << "    Number Triangle Strips: " << this->NumStrips() << "\n";
+
+  vlDataSet::PrintSelf(os);
+}

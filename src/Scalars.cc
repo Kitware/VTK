@@ -5,6 +5,12 @@
 #include "FScalars.hh"
 #include "IdList.hh"
 
+vlScalars::vlScalars()
+{
+  this->Range[0] = 0.0;
+  this->Range[1] = 1.0;
+}
+
 void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fp)
 {
   for (int i=0; i<ptId.NumIds(); i++)
@@ -36,4 +42,14 @@ float *vlScalars::GetRange()
 {
   this->ComputeRange();
   return this->Range;
+}
+void vlScalars::PrintSelf(ostream& os)
+{
+  float *range;
+
+  os << "    Number Scalars: " << this->NumScalars() << "\n";
+  range = this->GetRange();
+  os << "    Range: (" << range[0] << ", " << range[1] << ")\n";
+
+  vlObject::PrintSelf(os);
 }
