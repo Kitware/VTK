@@ -77,6 +77,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSystemIncludes.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
+#include "vtkHeap.h"
+
+// Use a user-managed heap to remove memory leaks
+static vtkHeap *vrmlHeap=NULL;
+static void vrmlInitialize()
+{
+  if ( vrmlHeap == NULL )
+    {
+    vrmlHeap = vtkHeap::New();
+    }
+}
+static void vrmlCleanUp()
+{
+  if ( vrmlHeap )
+    {
+    vrmlHeap->Delete();
+	vrmlHeap = NULL;
+    }
+}
+static void *vrmlAllocateMemory(size_t n)
+{
+  return vrmlHeap->AllocateMemory(n);
+}
+static char *vrmlStrDup(const char *str)
+{
+  return vrmlHeap->StrDup(str);
+}
+
 
 // Provide isatty prototype for Cygwin. 
 #ifdef __CYGWIN__
@@ -86,9 +114,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int memyyInput_i = 0;
 static int memyyInput_j = 0;
 
-vrmlPointerList* vrmlPointerList::Heap = 0;
-int vrmlPointerList::nAlloc = 0;
-
 // Used during the parsing
 static int creatingDEF = 0;
 static char *curDEFName;
@@ -96,87 +121,6 @@ static char *curDEFName;
 // Used by the lex input to get characters. Needed to read in memory structure
 static void memyyInput(char *buf, int &result, int max_size);
 static void defyyInput(char *buf, int &result, int max_size);
-
-void vrmlPointerList::Add(vrmlPointerNode* node)
-{
-  node->Next = 0;
-  if (!this->Last)
-    {
-    this->Last = node;
-    this->First = node;
-    return;
-    }
-  this->Last->Next = node;
-  this->Last = node;
-}
-
-void vrmlPointerList::CleanAll()
-{
-  this->Current = this->First;
-  if (!this->Current) { return; }
-  while (this->DeleteAndNext());
-}
-
-vrmlPointerNode* vrmlPointerList::DeleteAndNext()
-{
-  if (this->Current)
-    {
-    vrmlPointerNode* tmp = this->Current;
-    this->Current = this->Current->Next;
-    if (tmp->Ptr)
-      {
-      free(tmp->Ptr);
-      }
-    delete tmp;
-    return this->Current;
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-vrmlPointerList::vrmlPointerList()
-{
-  this->First = 0;
-  this->Last = 0;
-  this->Current = 0;
-}
-vrmlPointerList::~vrmlPointerList()
-{
-  this->CleanAll();
-}
-
-void vrmlPointerList::Initialize()
-{
-  if (!Heap)
-    {
-    Heap = new vrmlPointerList;
-    }
-}
-void vrmlPointerList::CleanUp()
-{
-  delete Heap;
-  Heap = 0;
-}
-
-void* vrmlPointerList::AllocateMemory(size_t n)
-{
-  vrmlPointerNode* node = new vrmlPointerNode;
-  node->Ptr = malloc(n);
-  vrmlPointerList::Heap->Add(node);
-  return node->Ptr;
-}
-
-char* vrmlPointerList::StrDup(const char* str)
-{
-  vrmlPointerNode* node = new vrmlPointerNode;
-  node->Ptr = strdup(str);
-  vrmlPointerList::Heap->Add(node);
-  return static_cast<char*>(node->Ptr);
-}
-
-// for the VRMLNodeType data structure
 
 
 /**************************************************
@@ -237,7 +181,7 @@ class VrmlNodeType {
 
   void* operator new(size_t n)
     {
-      return vrmlPointerList::AllocateMemory(n);
+      return vrmlAllocateMemory(n);
     }
   
   void operator delete(void *vtkNotUsed(ptr)) {}
@@ -248,7 +192,7 @@ class VrmlNodeType {
     
     void* operator new(size_t n)
       {
-   	return vrmlPointerList::AllocateMemory(n);
+   	return vrmlAllocateMemory(n);
       }
     
     void operator delete(void *vtkNotUsed(ptr)) {}
@@ -286,7 +230,7 @@ VrmlNodeType::VrmlNodeType(const char *nm)
 {
   assert(nm != NULL);
   name = static_cast<char*>(
-    vrmlPointerList::AllocateMemory((strlen(nm)+1)*sizeof(char)));
+    vrmlAllocateMemory((strlen(nm)+1)*sizeof(char)));
   strcpy(name, nm);
 }
 
@@ -405,7 +349,7 @@ void
 VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *nodeName, int type)
 {
   NameTypeRec *r = new NameTypeRec;
-  r->name = vrmlPointerList::StrDup(nodeName); //strdup(nodeName);
+  r->name = vrmlStrDup(nodeName); //strdup(nodeName);
   r->type = type;
   recs += r;
 }
@@ -5408,7 +5352,7 @@ class vtkVRMLUseStruct {
 
   void* operator new(size_t n)
     {
-      return vrmlPointerList::AllocateMemory(n);
+      return vrmlAllocateMemory(n);
     }
   
   void operator delete(void *vtkNotUsed(ptr)) {}
@@ -5458,7 +5402,7 @@ int vtkVRMLImporter::ImportBegin ()
   memyyInput_i = 0;
   memyyInput_j = 0;
 
-  vrmlPointerList::Initialize();
+  vrmlInitialize();
   if (!this->OpenImportFile())
     {
     return 0;
@@ -5515,7 +5459,7 @@ int vtkVRMLImporter::ImportBegin ()
 
 void vtkVRMLImporter::ImportEnd ()
 {
-  vrmlPointerList::CleanUp();
+  vrmlCleanUp();
   VrmlNodeType::typeList.Init();
   useList.Init();
   currentField.Init();

@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VTKVRML_H_
 #define _VTKVRML_H_
 
-#define	DEFAULTINCREMENT	100
+#define DEFAULTINCREMENT        100
 #include <stdlib.h>
 
 #include "vtkConfigure.h"
@@ -77,46 +77,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkWin32Header.h"
 
-struct VTK_EXPORT vrmlPointerNode
-{
-  void* Ptr;
-  vrmlPointerNode* Next;
-  vrmlPointerNode()
-    {
-      Ptr = 0;
-      Next = 0;
-    }
-};
-
-class VTK_EXPORT vrmlPointerList
-{
-public:
-
-  void Add(vrmlPointerNode* node);
-  
-  void CleanAll();
-
-  vrmlPointerNode* DeleteAndNext();
-
-  vrmlPointerList();
-  ~vrmlPointerList();
-
-  static void Initialize();
-  static void CleanUp();
-
-  static void* AllocateMemory(size_t n);
-
-  static char* StrDup(const char* str);
-
-protected:
-  vrmlPointerNode* First;
-  vrmlPointerNode* Last;
-  vrmlPointerNode* Current;
-
-  static vrmlPointerList* Heap;
-  static int nAlloc;
-};
-
 template <class T> 
 class VTK_EXPORT VectorType
 {
@@ -129,15 +89,15 @@ public:
     {
       Allocated=DEFAULTINCREMENT;
       if (!this->UseNew)
-	{
-	vrmlPointerList::Initialize();
-	void* mem = vrmlPointerList::AllocateMemory(Allocated*sizeof(T));
-	Data=new(mem) T[Allocated];
-	}
+        {
+        vrmlInitialize();
+        void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
+        Data=new(mem) T[Allocated];
+        }
       else
-	{
-	Data = new T[Allocated];
-	}
+        {
+        Data = new T[Allocated];
+        }
       Used=0;
     }
   VectorType()
@@ -152,9 +112,9 @@ public:
   ~VectorType(void)
     {
       if (this->UseNew)
-	{
-	delete[] Data;
-	}
+        {
+        delete[] Data;
+        }
     }
   void Reserve(int newSize);
   void Demand(int newSize)
@@ -169,13 +129,13 @@ public:
   T& Get(int index) const
     {
       if (index > Used)
-	return Data[Used-1];
+        return Data[Used-1];
       return Data[index];
     }
   T& operator[](int index)
     {
       if (index > Used)
-	Demand(index);
+        Demand(index);
       return Data[index];
     }
   operator T*() const
@@ -207,7 +167,7 @@ public:
 
   void* operator new(size_t n)
     {
-      return vrmlPointerList::AllocateMemory(n);
+      return vrmlAllocateMemory(n);
     }
 
   void operator delete(void *)
@@ -229,7 +189,7 @@ void VectorType<T>::Reserve(int newSize)
     temp=Data;
     if (!this->UseNew)
       {
-      void* mem = vrmlPointerList::AllocateMemory(Allocated*sizeof(T));
+      void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
       Data=new(mem) T[Allocated];
       }
     else
