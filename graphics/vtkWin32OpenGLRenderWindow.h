@@ -64,7 +64,6 @@ public:
   int       OwnWindow;
   int       ScreenSize[2];
   int       MultiSamples;
-
 public:
   vtkWin32OpenGLRenderWindow();
   static vtkWin32OpenGLRenderWindow *New() {return new vtkWin32OpenGLRenderWindow;};
@@ -86,9 +85,9 @@ public:
   int *GetPosition();
   //BTX
   HWND      GetWindowId();
-//  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
   void		SetWindowId(HWND);
-//  void    SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+  void    SetParentId(void *foo) {this->SetParentId((HWND)foo);};
   void		SetParentId(HWND);
   void		SetContextId(HGLRC);	// hsr
   void		SetDeviceContext(HDC);	// hsr

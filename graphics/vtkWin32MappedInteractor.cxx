@@ -6,7 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
   Thanks:    to Horst Schreiber for developing this MFC code
-	     with additions from Nick Edgington and Karl M. Syring
+	           with additions from Nick Edgington and Karl M. Syring
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 

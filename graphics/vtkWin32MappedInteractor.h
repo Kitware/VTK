@@ -64,7 +64,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWin32MappedInteractor_h
 #define __vtkWin32MappedInteractor_h
 
-#include "vtkWin32Header.h"
 #include "vtkRenderWindowInteractor.h"
 
 #define HDIB HANDLE
