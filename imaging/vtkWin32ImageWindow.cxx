@@ -780,6 +780,12 @@ void vtkWin32ImageWindow::MakeDefaultWindow()
         RegisterClass(&wndClass);
         }
     
+    // if size not set use default of 256
+    if (this->Size[0] == 0) 
+      {
+      this->Size[0] = 256;
+      this->Size[1] = 256;
+      }
 	
     /* create window */
     // use poor mans mutex

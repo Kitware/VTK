@@ -78,7 +78,6 @@ vtkImageViewer \
 vtkImageWindow \
 vtkImageWrapPad \
 vtkImageWriter \
-vtkImageXViewer \
 vtkPNMReader \
 vtkPNMWriter \
 vtkTextMapper \

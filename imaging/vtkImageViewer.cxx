@@ -40,66 +40,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageViewer.h"
-#ifdef _WIN32
-#include "vtkImageWin32Viewer.h"
-#else
-#include "vtkImageXViewer.h"
-#endif
 
 //----------------------------------------------------------------------------
 vtkImageViewer::vtkImageViewer()
 {
-  // Actual displayed extent is clipped.
-  this->DisplayExtent[0] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[1] = VTK_LARGE_INTEGER;
-  this->DisplayExtent[2] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[3] = VTK_LARGE_INTEGER;
-  this->DisplayExtent[4] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[5] = VTK_LARGE_INTEGER;
-  
-  this->Size[0] = 0;
-  this->Size[1] = 0;
-  this->Position[0] = this->Position[1] = 0;
-  this->Input = NULL;
-  this->Mapped = 0;
-  this->OwnWindow = 0;
-  this->WindowName = NULL;
-  
-  this->ColorWindow = 255.0;
-  this->ColorLevel = 127.0;
-  this->GrayScaleHint = 0;
+  this->ImageWindow = vtkImageWindow::New();
+  this->Imager      = vtkImager::New();
+  this->ImageMapper = vtkImageMapper::New();
+  this->Actor2D     = vtkActor2D::New();
+
+  // setup the pipeline
+  this->Actor2D->SetMapper(this->ImageMapper);
+  this->Imager->AddActor2D(this->Actor2D);
+  this->ImageWindow->AddImager(this->Imager);
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageViewer::~vtkImageViewer()
 {
+  this->ImageMapper->Delete();
+  this->Actor2D->Delete();
+  this->Imager->Delete();
+  this->ImageWindow->Delete();
 }
-
-//----------------------------------------------------------------------------
-vtkImageViewer *vtkImageViewer::New()
-{
-#ifdef _WIN32
-  return vtkImageWin32Viewer::New();
-#else
-  return vtkImageXViewer::New();
-#endif  
-}
-
 
 //----------------------------------------------------------------------------
 void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-  os << indent << "DisplayExtent: (" << this->DisplayExtent[0] << ", " 
-     << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " 
-     << this->DisplayExtent[3] << ", " << this->DisplayExtent[4] << ", " 
-     << this->DisplayExtent[5] << ")\n";
-  os << indent << "ColorWindow: " << this->ColorWindow << "\n";
-  os << indent << "ColorLevel: " << this->ColorLevel << "\n";
-  os << indent << "Size: " << this->Size[0] << ", " << this->Size[1] << "\n";
-  os << indent << "Position: " << this->Position[0] << ", " 
-     << this->Position[1] << "\n";
+  os << indent << *this->ImageWindow << endl;
+  os << indent << *this->Imager << endl;
+  os << indent << *this->ImageMapper << endl;
 }
 
 
@@ -114,123 +86,18 @@ void vtkImageViewer::SetPosition(int a[2])
 {
   this->SetPosition(a[0],a[1]);
 }
-//----------------------------------------------------------------------------
-void vtkImageViewer::SetPosition(int x, int y)
+
+
+void vtkImageViewer::Render()
 {
-  // if we arent mappen then just set the ivars 
-  if (!this->Mapped)
+  // initialize the size if not set yet
+  if (this->ImageWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
     {
-    if ((this->Position[0] != x)||(this->Position[1] != y))
-      {
-      this->Modified();
-      }
-    this->Position[0] = x;
-    this->Position[1] = y;
+    // get the size from the mappers input
+    this->ImageMapper->GetInput()->UpdateImageInformation();
+    int *ext = this->ImageMapper->GetInput()->GetWholeExtent();
+    this->ImageWindow->SetSize(ext[1] - ext[0] + 1, ext[3] - ext[2] + 1);
     }
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageViewer::Render(void)
-{
-  int idx;
-  vtkImageData *data;
-  int *wholeExtent;
-  int displayExtent[6];
   
-  if ( ! this->Input)
-    {
-    // open the window anyhow if not yet open
-    this->RenderData(NULL);
-    vtkDebugMacro(<< "Render: Please Set the input.");
-    return;
-    }
-
-  this->Input->UpdateImageInformation();
-  wholeExtent = this->Input->GetWholeExtent();
-  
-  // determine the Extent of the 2D input region needed
-  // (intersection of DisplayExtent and WholeExtent).
-  for (idx = 0; idx < 3; idx++)
-    {
-    if (this->DisplayExtent[idx*2] < wholeExtent[idx*2]) 
-      {
-      displayExtent[idx*2] = wholeExtent[idx*2];
-      }
-    else 
-      {
-      displayExtent[idx*2] = this->DisplayExtent[idx*2];
-      }
-    if (this->DisplayExtent[idx*2+1] > wholeExtent[idx*2+1]) 
-      {
-      displayExtent[idx*2+1] = wholeExtent[idx*2+1];
-      }
-    else 
-      {
-      displayExtent[idx*2+1] = this->DisplayExtent[idx*2+1];
-      }
-    }
-
-  this->Input->SetUpdateExtent(displayExtent);
-
-  // Get the region from the input
-  data = this->Input->UpdateAndReturnData();
-  if ( !data)
-    {
-    vtkErrorMacro(<< "Render: Could not get data from input.");
-    return;
-    }
-
-  this->RenderData(data);
+  this->ImageWindow->Render();
 }
-
-
-
-
-//----------------------------------------------------------------------------
-int vtkImageViewer::GetZSlice()
-{
-  return this->DisplayExtent[4];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageViewer::SetZSlice(int val)
-{
-  this->DisplayExtent[4] = val;
-  this->DisplayExtent[5] = val;
-}
-
-
-//----------------------------------------------------------------------------
-int vtkImageViewer::GetWholeZMin()
-{
-  int *extent;
-  
-  if ( ! this->Input)
-    {
-    return 0;
-    }
-  this->Input->UpdateImageInformation();
-  extent = this->Input->GetWholeExtent();
-  return extent[4];
-}
-
-//----------------------------------------------------------------------------
-int vtkImageViewer::GetWholeZMax()
-{
-  int *extent;
-  
-  if ( ! this->Input)
-    {
-    return 0;
-    }
-  this->Input->UpdateImageInformation();
-  extent = this->Input->GetWholeExtent();
-  return extent[5];
-}
-
-
-
-
-

@@ -41,12 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageViewer - Display a 2d image.
 // .SECTION Description
-// vtkImageViewer  is a generic viewer superclass.  The "New" method
-// creates a viewer of the correct type.  Viewer have a coordinate system
-// measured in pixels, and does not consider "Spacing" when displaying 
-// an image.  The viewer can display color stored as RGB in the scalars
-// components.  The components used for the RGB values can be specified,
-// but default to 0, 1, 2.
+// vtkImageViewer is a concinience class for displaying a 2d image.
+// It packages up the functionality found in vtkImageWindow,
+// vtkImager and vtkImageMapper into a single easy to use class.
+// Behind the scenes these three classes are actually used to 
+// to provide the required funcitonality. vtkImageViewer is
+// simply a wrapper around them.
 
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <iostream.h>
 
-#include "vtkObject.h"
-#include "vtkImageCache.h"
+#include "vtkImageWindow.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
@@ -69,94 +68,76 @@ class VTK_EXPORT vtkImageViewer : public vtkObject
 public:
   vtkImageViewer();
   ~vtkImageViewer();
-  static vtkImageViewer *New();
+  static vtkImageViewer *New() {return new vtkImageViewer;};
+  
   const char *GetClassName() {return "vtkImageViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get name of rendering window
-  vtkGetStringMacro(WindowName);
+  char *GetWindowName() {return this->ImageWindow->GetWindowName();};
 
   void Render(void);
-  // Description:
-  // Subclass must define these methods.
-  virtual void RenderData(vtkImageData *) {};
   
   // Description:
   // Set/Get the input to the viewer.
-  vtkSetObjectMacro(Input,vtkImageCache);
-  vtkGetObjectMacro(Input,vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  void SetInput(vtkImageCache *in) {this->ImageMapper->SetInput(in);};
+  vtkImageCache *GetInput() { return this->ImageMapper->GetInput();};
+  void SetInput(vtkStructuredPoints *spts) {this->ImageMapper->SetInput(spts);};
   
   // Description:
-  // Methods used to specify the region to be displayed.
-  // The actual extent displayed is clipped by the "WholeExtent".
-  // The ZSlice is stored in values 5 and 6 of the display extent.
-  vtkSetVectorMacro(DisplayExtent, int, 4);
-  vtkGetVectorMacro(DisplayExtent, int, 4);  
-
-  // Description:
   // This is for a tcl interface
-  int GetWholeZMin();
-  int GetWholeZMax();
-  int GetZSlice();
-  void SetZSlice(int);
+  int GetWholeZMin() {return this->ImageMapper->GetWholeZMin();};
+  int GetWholeZMax() {return this->ImageMapper->GetWholeZMax();};
+  int GetZSlice() {return this->ImageMapper->GetZSlice();};
+  void SetZSlice(int s) {this->ImageMapper->SetZSlice(s);};
   
   // Description:
   // Sets window/level for mapping pixels to colors.
-  vtkSetMacro(ColorWindow, float);
-  vtkGetMacro(ColorWindow, float);
-  vtkSetMacro(ColorLevel, float);
-  vtkGetMacro(ColorLevel, float);
+  float GetColorWindow() {return this->ImageMapper->GetColorWindow();};
+  float GetColorLevel() {return this->ImageMapper->GetColorLevel();};
+  void SetColorWindow(float s) {this->ImageMapper->SetColorWindow(s);};
+  void SetColorLevel(float s) {this->ImageMapper->SetColorLevel(s);};
 
   // Description:
   // These are here for using a tk window.
-  virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *) {};
-  virtual void SetParentId(void *) {};
+  void SetDisplayId(void *a) {this->ImageWindow->SetDisplayId(a);};
+  void SetWindowId(void *a) {this->ImageWindow->SetWindowId(a);};
+  void SetParentId(void *a) {this->ImageWindow->SetParentId(a);};
   
-  // Description:
-  // Keep track of whether the rendering window has been mapped to screen.
-  vtkSetMacro(Mapped,int);
-  vtkGetMacro(Mapped,int);
-  vtkBooleanMacro(Mapped,int);
-
   // Description:
   // By default this is a color viewer. 
   // GrayScaleHintOn will improve the appearance
   // of gray scale images on some systems.
-  vtkSetMacro(GrayScaleHint,int);
-  vtkGetMacro(GrayScaleHint,int);
-  vtkBooleanMacro(GrayScaleHint,int);
+  int GetGrayScaleHint() {return this->ImageWindow->GetGrayScaleHint();};
+  void SetGrayScaleHint(int a) {this->ImageWindow->SetGrayScaleHint(a);};
+  void GrayScaleHintOn() {this->ImageWindow->GrayScaleHintOn();};
+  void GrayScaleHintOff() {this->ImageWindow->GrayScaleHintOff();};
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
-  virtual int *GetPosition() {return (int *)NULL;};
-  virtual void SetPosition(int,int);
+  int *GetPosition() {return this->ImageWindow->GetPosition();};
+  void SetPosition(int a,int b) {this->ImageWindow->SetPosition(a,b);};
   virtual void SetPosition(int a[2]);
 
   // Description:
   // Set/Get the size of the window in screen coordinates.
-  virtual int *GetSize() {return (int *)NULL;};
-  virtual void SetSize(int,int) {};
+  int *GetSize() {return this->ImageWindow->GetSize();};
+  void SetSize(int a,int b) {this->ImageWindow->SetSize(a,b);};
   virtual void SetSize(int a[2]);
   
+  // Description:
+  // Get the internal Window Imager and Mapper
+  vtkImageWindow *GetImageWindow() {return this->ImageWindow;};
+  vtkImageMapper *GetImageMapper() {return this->ImageMapper;};
+  vtkImager      *GetImager() {return this->Imager;};
+  vtkActor2D     *GetActor2D() {return this->Actor2D;};
+  
 protected:
-  int Mapped;
-  vtkImageCache *Input;
-  // Contains the extent of the region to be displayed (X and Y axes).
-  int DisplayExtent[6];
-  
-  // For converting image pixels to X pixels.
-  float ColorWindow;
-  float ColorLevel;
-  
-  char *WindowName;
-  int Size[2];
-  int Position[2];
-  int GrayScaleHint;
-  int OwnWindow;
+  vtkImageMapper *ImageMapper;
+  vtkImageWindow *ImageWindow;
+  vtkImager      *Imager;
+  vtkActor2D     *Actor2D;
 };
 
 #endif

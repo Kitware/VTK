@@ -45,9 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <tk.h>
 
 #ifdef _WIN32
-#include "vtkImageWin32Viewer.h"
+#include "vtkWin32ImageWindow.h"
 #else
-#include "vtkImageXViewer.h"
+#include "vtkXImageWindow.h"
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -586,7 +586,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkImageXViewer *ImageViewer;
+  vtkImageViewer *ImageViewer;
+  vtkXImageWindow *ImageWindow;
   
   if (self->ImageViewer)
     {
@@ -604,7 +605,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     {
     // Make the ImageViewer window.
     self->ImageViewer = vtkImageViewer::New();
-    ImageViewer = (vtkImageXViewer *)(self->ImageViewer);
+    ImageViewer = self->ImageViewer;
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
 			       vtkImageViewerCommand);
     self->IV = strdup(self->Interp->result);
@@ -612,19 +613,22 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     }
   else
     {
-    ImageViewer = (vtkImageXViewer *)
+    ImageViewer = (vtkImageViewer *)
       vtkTclGetPointerFromObject(self->IV,"vtkImageViewer",self->Interp);
-    self->ImageViewer = (vtkImageViewer *)(ImageViewer);
+    self->ImageViewer = ImageViewer;
     }
   
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
+
+  // get the window
+  ImageWindow = (vtkXImageWindow *)ImageViewer->GetImageWindow();
   
   // Set the parent correctly
   // Possibly X dependent
   if ((winPtr->parentPtr == NULL) || (winPtr->flags & TK_TOP_LEVEL)) 
     {
-    ImageViewer->SetParentId(XRootWindow(winPtr->display, winPtr->screenNum));
+    ImageWindow->SetParentId(XRootWindow(winPtr->display, winPtr->screenNum));
     }
   else 
     {
@@ -632,21 +636,22 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       {
       Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
       }
-    ImageViewer->SetParentId(winPtr->parentPtr->window);
+    ImageWindow->SetParentId(winPtr->parentPtr->window);
     }
 
+  
   // Use the same display
-  ImageViewer->SetDisplayId(dpy);
+  ImageWindow->SetDisplayId(dpy);
   
   /* Make sure Tk knows to switch to the new colormap when the cursor
    * is over this window when running in color index mode.
    */
-  Tk_SetWindowVisual(self->TkWin, ImageViewer->GetDesiredVisual(), 
-		     ImageViewer->GetDesiredDepth(), 
-		     ImageViewer->GetDesiredColormap());
+  Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
+		     ImageWindow->GetDesiredDepth(), 
+		     ImageWindow->GetDesiredColormap());
   
   self->ImageViewer->Render();  
-  winPtr->window = ImageViewer->GetWindowId();
+  winPtr->window = ImageWindow->GetWindowId();
   XSelectInput(dpy, winPtr->window, VTK_ALL_EVENTS_MASK);
   
   hPtr = Tcl_CreateHashEntry(&winPtr->dispPtr->winTable,

@@ -135,19 +135,11 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   displayExtent[4] = this->ZSlice;
   displayExtent[5] = this->ZSlice;
 
-  // scale the extent
+  // scale currently not handled
   //float *scale = actor->GetScale();
-  //displayExtent[0] *= scale[0];
-  //displayExtent[1] *= scale[0];
-  //displayExtent[2] *= scale[1];
-  //displayExtent[3] *= scale[1];
 
-  // position the extent
+  // get the position
   int *pos = actor->GetComputedViewportPixelPosition(viewport);
-  //displayExtent[0] += pos[0];
-  //displayExtent[1] += pos[0];
-  //displayExtent[2] += pos[1];
-  //displayExtent[3] += pos[1];
   
   // Get the viewport coordinates
   float* vpt = viewport->GetViewport(); 
@@ -159,10 +151,11 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   // if we clip based on 0,0 then we need to store the amount we
   // adjusted by so that we can take that into account in the
   // positioning of the actor
-  // Now clip to imager extents
   // initialize PositionAdjustment to zero
   this->PositionAdjustment[0] = 0;
   this->PositionAdjustment[1] = 0;
+
+  // Now clip to imager extents
   if (pos[0] < 0) 
     {
     this->PositionAdjustment[0] = -1*pos[0];
@@ -174,7 +167,6 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     displayExtent[1] = displayExtent[1] - 
       (pos[0]+wholeExtent[1] - wholeExtent[0] + 1) + 
       (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]);
-    //    displayExtent[1] = (int)((winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]));
     }
   if (pos[1] < 0) 
     {
@@ -187,15 +179,8 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     displayExtent[3] = displayExtent[3] - 
       (pos[1]+wholeExtent[3] - wholeExtent[2] + 1) + 
       (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]);
-    //displayExtent[3] = (int)((winSize[1] - 1)*(vpt[YMAX] - vpt[YMIN]));
     }
 
-  // now add back in the position to determine the update Extent
-  //displayExtent[0] -= pos[0];
-  //displayExtent[1] -= pos[0];
-  //displayExtent[2] -= pos[1];
-  //displayExtent[3] -= pos[1];
-  
   this->Input->SetUpdateExtent(displayExtent);
 
   // Get the region from the input

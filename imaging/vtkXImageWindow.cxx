@@ -465,6 +465,13 @@ void vtkXImageWindow::MakeDefaultWindow()
     this->ParentId = RootWindow(this->DisplayId, screen);
     }
 
+  // if size not set use default of 256
+  if (this->Size[0] == 0) 
+    {
+    this->Size[0] = 256;
+    this->Size[1] = 256;
+    }
+    
   window = XCreateWindow(this->DisplayId, this->ParentId,
 			 0, 0, this->Size[0], this->Size[1], 0, info.depth, 
 			 InputOutput, info.visual,
