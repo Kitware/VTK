@@ -136,6 +136,8 @@ void vtkAppendFilter::Execute()
   int normalsPresentInCD, tcoordsPresentInCD;
   int tensorsPresentInCD, fieldPresentInCD;
   int numPts, numCells, ptOffset, cellOffset;
+  int   tenth, count;
+  float decimal;
   vtkPoints *newPts;
   vtkPointData *pd = NULL;
   vtkCellData *cd = NULL;
@@ -150,6 +152,9 @@ void vtkAppendFilter::Execute()
   vtkDebugMacro(<<"Appending data together");
 
   // loop over all data sets, checking to see what point data is available.
+  count   = 0;
+  decimal = 0.0;
+
   numPts = 0;
   numCells = 0;
   scalarsPresentInPD = 1;
@@ -237,6 +242,8 @@ void vtkAppendFilter::Execute()
     return;
     }
   
+  tenth = (numPts + numCells) / 10;
+
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
   if ( !scalarsPresentInPD )
@@ -314,20 +321,44 @@ void vtkAppendFilter::Execute()
         {
         newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
         outputPD->CopyData(pd,ptId,ptId+ptOffset);
+
+	// Update progress
+	count++;
+	if ((count % tenth) == 0) 
+	  {
+	    decimal += 0.1;
+	    this->UpdateProgress (decimal);
+	    if (this->GetAbortExecute())
+	      {
+		break; 
+	      }
+	  }
         }
       
       cd = ds->GetCellData();
       // copy cell and cell data
       for (cellId=0; cellId < numCells; cellId++)
         {
-        ds->GetCellPoints(cellId, ptIds);
-        newPtIds->Reset ();
-        for (i=0; i < ptIds->GetNumberOfIds(); i++)
-          {
-          newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
-          }
-        newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
-        outputCD->CopyData(cd,cellId,newCellId);
+	  ds->GetCellPoints(cellId, ptIds);
+	  newPtIds->Reset ();
+	  for (i=0; i < ptIds->GetNumberOfIds(); i++)
+	    {
+	      newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+	    }
+	  newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+	  outputCD->CopyData(cd,cellId,newCellId);
+
+	  // Update progress
+	  count++;
+	  if ((count % tenth) == 0) 
+	    {
+	      decimal += 0.1;
+	      this->UpdateProgress (decimal);
+	      if (this->GetAbortExecute())
+		{
+		  break; 
+		}
+	    }
         }
       ptOffset+=numPts;
       cellOffset+=numCells;
