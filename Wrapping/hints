@@ -72,6 +72,7 @@ vtkImageReslice         GetResliceAxesOrigin    307 3
 vtkImageSource          GetExecuteExtent        304 6
 vtkImageSpatialFilter   GetKernelMiddle         304 3
 vtkImageSpatialFilter   GetKernelSize           304 3
+vtkImageTracerWidget    GetHandlePosition       307 3
 vtkImageVectorConvolve  GetKernel               301 3
 vtkImageViewer          GetPosition             304 2
 vtkImageViewer          GetSize                 304 2
