@@ -25,11 +25,13 @@ vtkImageMapper
 vtkImager
 vtkImagerCollection
 vtkImageViewer
+vtkImageViewer2
 vtkImageWindow
 vtkImagingFactory
 vtkImporter
 vtkInteractorStyle
 vtkInteractorStyleFlight
+vtkInteractorStyleImage
 vtkInteractorStyleJoystickActor
 vtkInteractorStyleJoystickCamera
 vtkInteractorStyleSwitch
