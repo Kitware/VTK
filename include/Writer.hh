@@ -37,11 +37,15 @@ public:
 
   void SetStartWrite(void (*f)(void *), void *arg);
   void SetEndWrite(void (*f)(void *), void *arg);
+  void SetStartWriteArgDelete(void (*f)(void *));
+  void SetEndWriteArgDelete(void (*f)(void *));
 
 protected:
   void (*StartWrite)(void *);
+  void (*StartWriteArgDelete)(void *);
   void *StartWriteArg;
   void (*EndWrite)(void *);
+  void (*EndWriteArgDelete)(void *);
   void *EndWriteArg;
 
 };
