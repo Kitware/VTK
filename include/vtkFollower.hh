@@ -41,7 +41,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkFollower - a subclass of actor that always faces the camera
 // .SECTION Description
 // vtkFollowr is a subclass of vtkActor that always follows its specified 
-// camera.
+// camera. More specifically it will not change its position or scale,
+// but it will continually update its orientation so that it is right side
+// up and facing the camera. This is typically used for text labels in a
+// scene. All of the adjustments that can be made to an actor will also
+// take effect with a follwer.  So if you change the orientation of the
+// follower by 90 degrees then it will follow the camera, but be off by 
+// 90 degrees.
+
+// .SECTION see also
+// vtkActor vtkCamera
 
 #ifndef __vtkFollower_hh
 #define __vtkFollower_hh
@@ -60,10 +69,9 @@ class vtkFollower : public vtkActor
   virtual void GetMatrix(vtkMatrix4x4& m);
 
   // Description:
-  // Sets the Camera to follow
+  // Set/Get the Camera to follow. If this is not set then the follower
+  // won't know who to follow.
   vtkSetObjectMacro(Camera,vtkCamera);
-  // Description:
-  // Returns the Camera it is following
   vtkGetObjectMacro(Camera,vtkCamera);
 
 protected:
