@@ -22,12 +22,13 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.65");
+vtkCxxRevisionMacro(vtkLODActor, "1.66");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------
@@ -179,7 +180,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 int vtkLODActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
   int          renderedSomething = 0; 
-  vtkRenderer  *ren = (vtkRenderer *)vp;
+  vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
 
   if ( ! this->Mapper )
     {
