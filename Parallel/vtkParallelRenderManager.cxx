@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.17.2.1");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.17.2.2");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -104,6 +104,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->FullImageUpToDate = 0;
   this->ReducedImageUpToDate = 0;
   this->RenderWindowImageUpToDate = 0;
+  this->FullImageSize[0] = 0;
+  this->FullImageSize[1] = 0;
 
   this->Viewports = vtkDoubleArray::New();
   this->Viewports->SetNumberOfComponents(4);
