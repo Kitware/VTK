@@ -122,7 +122,12 @@ public:
   void ResetCamera(vtkRenderer *ren);
   void ResetCameraClippingRange(vtkRenderer *ren);
   void ComputeVisiblePropBoundsRMI();
-
+  
+  // Description:
+  // If the user wants to handle the event loop, then they must call this
+  // method to initialize the RMIs.
+  void InitializeRMIs();
+  
 //BTX
 
   enum Tags {

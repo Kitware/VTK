@@ -69,6 +69,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkToolkits.h"
+
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -254,9 +256,7 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
 
   if (this->RenderWindow)
     {
-    this->RenderWindow->UnRegister(this);
-    this->RenderWindow =  NULL;
-    this->SetRenderWindowInteractor(NULL);
+    // Remove all of the observers.
     if (this->Controller && this->Controller->GetLocalProcessId() == 0)
       {
       this->RenderWindow->RemoveObserver(this->StartTag);
@@ -272,6 +272,10 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
 	ren->RemoveObserver(this->ResetCameraClippingRangeTag);
 	}
       }
+    // Delete the reference.
+    this->RenderWindow->UnRegister(this);
+    this->RenderWindow =  NULL;
+    this->SetRenderWindowInteractor(NULL);
     }
   if (renWin)
     {
@@ -386,6 +390,8 @@ void vtkTreeComposite::RenderRMI()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
   
+  vtkDebugMacro("RenderRMI");
+  
   // Receive the window size.
   controller->Receive((char*)(&winInfo), 
                       sizeof(struct vtkCompositeRenderWindowInfo), 0, 
@@ -433,7 +439,7 @@ void vtkTreeComposite::RenderRMI()
 
 //-------------------------------------------------------------------------
 // This is only called in the satellite processes (not 0).
-void vtkTreeComposite::StartInteractor()
+void vtkTreeComposite::InitializeRMIs()
 {
   if (this->Controller == NULL)
     {
@@ -445,8 +451,20 @@ void vtkTreeComposite::StartInteractor()
                            vtkTreeComposite::RENDER_RMI_TAG); 
 
   this->Controller->AddRMI(vtkTreeCompositeComputeVisiblePropBoundsRMI,
-			   (void*)this,COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG); 
-  
+     (void*)this, vtkTreeComposite::COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);  
+}
+
+//-------------------------------------------------------------------------
+// This is only called in the satellite processes (not 0).
+void vtkTreeComposite::StartInteractor()
+{
+  if (this->Controller == NULL)
+    {
+    vtkErrorMacro("Missing Controller.");
+    return;
+    }
+
+  this->InitializeRMIs();
   this->Controller->ProcessRMIs();
 }
 
@@ -483,7 +501,9 @@ void vtkTreeComposite::StartRender()
   vtkCamera *cam;
   vtkLightCollection *lc;
   vtkLight *light;
-
+  
+  vtkDebugMacro("StartRender");
+  
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
@@ -695,14 +715,18 @@ void vtkTreeComposite::InitializePieces()
 //-------------------------------------------------------------------------
 void vtkTreeComposite::InitializeOffScreen()
 {
+  vtkDebugMacro("InitializeOffScreen");
   if (this->RenderWindow == NULL || this->Controller == NULL)
     {
+    vtkDebugMacro("Missing object: Window = " << this->RenderWindow
+		  << ", Controller = " << this->Controller);
     return;
     }
   
   // Do not make process 0 off screen.
   if (this->Controller->GetLocalProcessId() == 0)
     {
+    vtkDebugMacro("Process 0.  Keep OnScreen.");
     return;
     }
   
