@@ -60,13 +60,32 @@ vtkVolumeReader
 vtkWriter
 )
 
+# for cmake version 1.1 and later
+SET(WINDOWS 0)
+IF (WIN32)
+   IF (NOT UNIX)
+   SET(WINDOWS 1)
+   ENDIF (NOT UNIX)
+ENDIF (WIN32)
+IF(NOT WINDOWS)
+  IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
+    IF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
+      SET(TIFF_RIGHT_VERSION 1)
+    ENDIF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
+  ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
+
+  IF(NOT TIFF_RIGHT_VERSION)
+    MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
+  ENDIF(NOT TIFF_RIGHT_VERSION)
+ENDIF(NOT WINDOWS)
+
 ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
 vtkWriter
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg)
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
