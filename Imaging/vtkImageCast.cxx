@@ -20,7 +20,7 @@
 #include "vtkImageProgressIterator.h"
 
 
-vtkCxxRevisionMacro(vtkImageCast, "1.42");
+vtkCxxRevisionMacro(vtkImageCast, "1.43");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -57,10 +57,10 @@ void vtkImageCast::UpdateData(vtkDataObject *data)
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-static void vtkImageCastExecute(vtkImageCast *self,
-                                vtkImageData *inData,
-                                vtkImageData *outData,
-                                int outExt[6], int id, IT *, OT *)
+void vtkImageCastExecute(vtkImageCast *self,
+                         vtkImageData *inData,
+                         vtkImageData *outData,
+                         int outExt[6], int id, IT *, OT *)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -117,10 +117,10 @@ static void vtkImageCastExecute(vtkImageCast *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageCastExecute(vtkImageCast *self,
-                                vtkImageData *inData,
-                                vtkImageData *outData, int outExt[6], int id,
-                                T *)
+void vtkImageCastExecute(vtkImageCast *self,
+                         vtkImageData *inData,
+                         vtkImageData *outData, int outExt[6], int id,
+                         T *)
 {
   switch (outData->GetScalarType())
     {

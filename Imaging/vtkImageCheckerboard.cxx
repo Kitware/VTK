@@ -18,7 +18,7 @@
 #include "vtkImageCheckerboard.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.6");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.7");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ vtkImageCheckerboard::vtkImageCheckerboard()
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
+void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
                                   vtkImageData *in1Data, T *in1Ptr,
                                   vtkImageData *in2Data, T *in2Ptr,
                                   vtkImageData *outData, 
@@ -159,8 +159,8 @@ static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData, 
-                                    vtkImageData *outData,
-                                    int outExt[6], int id)
+                                           vtkImageData *outData,
+                                           int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
   void *outPtr;

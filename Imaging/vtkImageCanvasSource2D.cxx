@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.33");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.34");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ void vtkImageCanvasSource2D::SetImageData(vtkImageData *image)
 //----------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
-static void vtkImageCanvasSource2DFillBox(vtkImageData *image, 
+void vtkImageCanvasSource2DFillBox(vtkImageData *image, 
                                           float *drawColor, T *ptr, 
                                           int min0, int max0, int min1, int max1)
 {
@@ -192,7 +192,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
-static void vtkImageCanvasSource2DFillTube(vtkImageData *image, 
+void vtkImageCanvasSource2DFillTube(vtkImageData *image, 
                                   float *drawColor, T *ptr, 
                                   int a0, int a1, int b0, int b1, float radius)
 {
@@ -308,7 +308,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
 //----------------------------------------------------------------------------
 // Fill a triangle (rasterize)
 template <class T>
-static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image, 
+void vtkImageCanvasSource2DFillTriangle(vtkImageData *image, 
                                       float *drawColor, T *ptr, int a0, int a1,
                                       int b0, int b1, int c0, int c1, int z)
 {
@@ -460,7 +460,7 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
 //----------------------------------------------------------------------------
 // Draw a point.  Only implentented for 2D images.
 template <class T>
-static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image, 
+void vtkImageCanvasSource2DDrawPoint(vtkImageData *image, 
                                    float *drawColor, T *ptr, 
                                    int p0, int p1, int z)
 {
@@ -528,7 +528,7 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 //----------------------------------------------------------------------------
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
-static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image, 
+void vtkImageCanvasSource2DDrawCircle(vtkImageData *image, 
                                     float *drawColor, T *ptr, 
                                     int c0, int c1, float radius, int z)
 {
@@ -620,7 +620,7 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>
-static void vtkImageCanvasSource2DDrawSegment(vtkImageData *image, 
+void vtkImageCanvasSource2DDrawSegment(vtkImageData *image, 
                                      float *drawColor, T *ptr, 
                                      int p0, int p1)
 {
@@ -878,7 +878,7 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // Draw a line.  Only implentented for 3D images.
 // First point is already shifted to origin.
 template <class T>
-static void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image, 
+void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image, 
                                        float *drawColor, 
                                        T *ptr, int p0, int p1, int p2)
 {
@@ -1009,8 +1009,8 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color, 
-                              T *ptr, int x, int y)
+void vtkImageCanvasSource2DFill(vtkImageData *image, float *color, 
+                                T *ptr, int x, int y)
 {
   vtkImageCanvasSource2DPixel *pixel;
   vtkImageCanvasSource2DPixel *first, *last;

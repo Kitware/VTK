@@ -20,7 +20,7 @@
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.21");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.22");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -109,11 +109,11 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
 // If the filter needs to be faster, the function could be duplicated
 // for strictly center (no boundary ) processing.
 template <class T>
-static void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
-                                              vtkImageData *mask,
-                                              vtkImageData *inData, T *inPtr, 
-                                              vtkImageData *outData, 
-                                              int *outExt, T *outPtr, int id)
+void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
+                                       vtkImageData *mask,
+                                       vtkImageData *inData, T *inPtr, 
+                                       vtkImageData *outData, 
+                                       int *outExt, T *outPtr, int id)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.

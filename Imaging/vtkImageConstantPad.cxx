@@ -18,7 +18,7 @@
 #include "vtkImageConstantPad.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.31");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.32");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -33,10 +33,10 @@ vtkImageConstantPad::vtkImageConstantPad()
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
-                                       vtkImageData *inData, T *inPtr,
-                                       vtkImageData *outData, T *outPtr,
-                                       int outExt[6], int inExt[6], int id)
+void vtkImageConstantPadExecute(vtkImageConstantPad *self,
+                                vtkImageData *inData, T *inPtr,
+                                vtkImageData *outData, T *outPtr,
+                                int outExt[6], int inExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
