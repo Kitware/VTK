@@ -706,7 +706,7 @@ void vtkMFCInteractor::StretchDIB(CDC *pDC,int x_position,int y_position, int x_
 	StretchDIBits(pDC->GetSafeHdc(),x_position, y_position, x_width, y_width, 0, 0, 
 				        lpbi->biWidth, lpbi->biHeight,
 				        ((BYTE *)lpbi) + lpbi->biSize + palsize,	
-				        lpbi,DIB_RGB_COLORS,SRCCOPY);
+				        (BITMAPINFO *)lpbi,DIB_RGB_COLORS,SRCCOPY);
 	free(lpbi);
 }
 
