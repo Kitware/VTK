@@ -3,7 +3,7 @@ import java.io.File;
 
 import java.util.Properties;
 
-public class vtkTesting
+public class vtkTesting2
 {
   public static final int FAILED        = 0;
   public static final int PASSED        = 1;
@@ -42,13 +42,13 @@ public class vtkTesting
     int cc;
     for ( cc = 0; cc < kits.length; cc ++ )
       {
-      vtkTesting.LoadLibrary(lpath, "vtk" + kits[cc] + "Java"); 
+      vtkTesting2.LoadLibrary(lpath, "vtk" + kits[cc] + "Java"); 
       }
     }
 
   public static void Exit(int retVal)
     {
-    if ( retVal == vtkTesting.FAILED || retVal == vtkTesting.NOT_RUN )
+    if ( retVal == vtkTesting2.FAILED || retVal == vtkTesting2.NOT_RUN )
       {
       System.out.println("Test failed or was not run");
       System.exit(1);
@@ -59,12 +59,12 @@ public class vtkTesting
    
   public static String ExpandDataFileName(String[] args, String path)
     {
-    return vtkTesting.ExpandDataFileName(args, path, false);
+    return vtkTesting2.ExpandDataFileName(args, path, false);
     }
 
   public static String ExpandDataFileName(String[] args, String path, boolean slash)
     {
-    return vtkTesting.ExpandFileNameWithArgOrDefault(
+    return vtkTesting2.ExpandFileNameWithArgOrDefault(
       "-D", args, 
       "../../../../VTKData",
       path, slash);
@@ -100,7 +100,7 @@ public class vtkTesting
                                                          boolean slash)
     {
     String fullName = null;
-    String value = vtkTesting.GetArgOrDefault(arg, args, def);
+    String value = vtkTesting2.GetArgOrDefault(arg, args, def);
     if (value != null)
       {
       fullName = value;
@@ -136,7 +136,7 @@ public class vtkTesting
       if ( args[cc].equals("-I") )
         {
         System.out.println("Interactive mode");
-        return vtkTesting.DO_INTERACTOR;
+        return vtkTesting2.DO_INTERACTOR;
         }
       if ( args[cc].equals("-D") )
         {
@@ -163,7 +163,7 @@ public class vtkTesting
         else
           {
           System.err.println("Image path not specified");
-          return vtkTesting.NOT_RUN;
+          return vtkTesting2.NOT_RUN;
           }
         }
       }
@@ -172,7 +172,7 @@ public class vtkTesting
     if ( !file.exists() )
       {
       System.err.println("File " + file.getName() + " does not exists");
-      return vtkTesting.NOT_RUN;
+      return vtkTesting2.NOT_RUN;
       }
 
     renWin.Render();
@@ -192,7 +192,7 @@ public class vtkTesting
     if (imgDiff.GetThresholdedError() <= threshold) 
       {
       System.out.println("Java smoke test passed."); 
-      return vtkTesting.PASSED;
+      return vtkTesting2.PASSED;
       } 
     System.out.println("Java smoke test error!"); 
     System.out.println("Image difference: " + imgDiff.GetThresholdedError());
@@ -202,6 +202,6 @@ public class vtkTesting
     wr.Write();
     wr.SetFileName(data_path + "/" + image_path + ".diff.jpg");
     wr.SetInput(imgDiff.GetOutput());
-    return vtkTesting.FAILED;
+    return vtkTesting2.FAILED;
     } 
 }
