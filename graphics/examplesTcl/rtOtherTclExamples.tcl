@@ -39,6 +39,11 @@ if { [catch {set logFileName $env(VTK_OTHER_REGRESSION_LOG) }] != 0} {
     set logFile [open $logFileName "a+"]
 }
 
+# set up the xml file descriptor
+if { [catch {set xmlFileName $env(VTK_OTHER_REGRESSION_XML) }] != 0} {
+    set xmlFileName rtOtherLog.xml
+}
+
 # first find all the examples. they can be defined on command line or in
 # current directory
 if { $argv != ""} {
@@ -115,11 +120,18 @@ foreach afile $files {
         }
     }
 
+    # Capture warnings and errors
+    vtkXMLFileOutputWindow rtOtherLog
+    rtOtherLog SetFileName $xmlFileName
+    rtOtherLog AppendOn
+    rtOtherLog FlushOn
+    rtOtherLog SetInstance rtOtherLog
     #
     # now see if there is an alternate text for this architecture
     if {[catch {set channel [open ${validOther}]}] != 0 } {
         set validOther $validPath/$afile.rtr
         if {[catch {set channel [open ${validOther}]}] != 0 } {
+	    rtOtherLog DisplayWarningText "There is no valid other result for $afile"
             puts $logFile "WARNING: There is no valid other result for $afile"
             continue
         } else {
@@ -138,6 +150,9 @@ foreach afile $files {
     puts -nonewline $logFile "\n $Name - "
     flush stdout
     
+    rtOtherLog DisplayTag "<TestRun Name=\"$afile\">"
+    rtOtherLog DisplayTag "<StartDateTime>[clock format [clock seconds]]</StartDateTime>"
+
     # Create a timer so that we can get CPU time.
     # Use the tcl time command to get wall time
     # capture the output using redirection
@@ -177,6 +192,9 @@ foreach afile $files {
     set otherError [lindex [exec wc -l ${VTK_RESULTS_PATH}$afile.error.rtr] 0]
     set otherErrorString [decipadString $otherError 4 9]
 
+    rtOtherLog DisplayTag "<Measurement Gauge=\"WallTime\"><Value>$wallTime</Value></Measurement>"
+    rtOtherLog DisplayTag "<Measurement Gauge=\"CPUTime\"><Value>$CPUTime</Value></Measurement>"
+    rtOtherLog DisplayTag "<Measurement Gauge=\"TextDiff\"><Value>$otherError</Value></Measurement>"
     # a test has to be off by at least threshold for us to care   
     if { $otherError == 0 } {
         exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.rtr
@@ -185,9 +203,11 @@ foreach afile $files {
         exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.filtered.rtr
         exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.filtered.rtr
         set otherStatus "Passed"
+	rtOtherLog DisplayTag "<Passed>true</Passed>"
     } else {
         exec /bin/cp $validOther ${VTK_RESULTS_PATH}$afile.rtr
         set otherStatus "Failed"
+	rtOtherLog DisplayTag "<Passed>false</Passed>"
     }
 
     # Write the text error out to the log file
@@ -211,6 +231,8 @@ foreach afile $files {
         GeneratePlotFiles $afile [string trimleft $CPUTime]
     }
     
+    rtOtherLog DisplayTag "<EndDateTime>[clock format [clock seconds]]</EndDateTime>"
+    rtOtherLog DisplayTag "</TestRun>"
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
