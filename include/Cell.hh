@@ -84,6 +84,9 @@ public:
   // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax)
   float *GetBounds();
 
+  // Compute Length squared of cell (i.e., bounding box diagonal squared)
+  float GetLength2();
+
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
   char HitBBox(float bounds[6], float origin[3], float dir[3], float coord[3]);
 
