@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlDividingCubes -
+// .NAME vlDividingCubes - create points lying on iso-surface
 // .SECTION Description
 // vlDividingCubes is a filter that generates points laying on a surface
 // of constant scalar value (i.e., an iso-surface). Dense point clouds (i.e.,

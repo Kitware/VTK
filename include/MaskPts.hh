@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlMaskPoints -
+// .NAME vlMaskPoints - selectively filter points
 // .SECTION Description
 // vlMaskPoints is a filter that passes through points and point attributes 
 // from input dataset. (Other geometry is not passed through). It is 
