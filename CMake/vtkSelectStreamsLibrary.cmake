@@ -4,7 +4,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
 #-----------------------------------------------------------------------------
 # Macro to select whether to use old streams or ANSI streams.
 # Argument is the variable to set with the result (VTK_USE_ANSI_STDLIB).
-MACRO(VTK_SELECT_STREAMS_LIBRARY var)
+MACRO(VTK_SELECT_STREAMS_LIBRARY var VTK_SOURCE_DIR)
   IF("${var}" MATCHES "^${var}$")
     CHECK_INCLUDE_FILE_CXX("iosfwd" VTK_HAVE_ANSI_STREAMS)
     CHECK_INCLUDE_FILE_CXX("iostream.h" VTK_HAVE_OLD_STREAMS)
@@ -28,7 +28,7 @@ MACRO(VTK_SELECT_STREAMS_LIBRARY var)
         IF("VTK_COMPILER_IS_VC6" MATCHES "^VTK_COMPILER_IS_VC6$")
           MESSAGE(STATUS "Checking if compiler is VC6")
           TRY_COMPILE(VTK_COMPILER_IS_VC6
-            ${VTK_BINARY_DIR}/CMakeTmp
+            ${CMAKE_CURRENT_BINARY_DIR}/CMakeTmp
             ${VTK_SOURCE_DIR}/CMake/vtkTestCompilerIsVC6.cxx
             OUTPUT_VARIABLE OUTPUT)
           IF(VTK_COMPILER_IS_VC6)

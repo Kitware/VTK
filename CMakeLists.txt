@@ -299,7 +299,7 @@ ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 # Select a streams library.
 
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectStreamsLibrary.cmake)
-VTK_SELECT_STREAMS_LIBRARY(VTK_USE_ANSI_STDLIB)
+VTK_SELECT_STREAMS_LIBRARY(VTK_USE_ANSI_STDLIB ${VTK_SOURCE_DIR})
 
 # Check the severity of EOF bugs in the streams library.
 SET(VTK_TEST_STREAM_EOF_CXX ${VTK_SOURCE_DIR}/CMake/vtkTestStreamEOF.cxx.in)
