@@ -119,7 +119,7 @@ void vtkArcPlotter::Execute()
     return;
     }
 
-  // Process attribute data to determine ranges, cumber of components, etc.
+  // Process attribute data to determine ranges, number of components, etc.
   if ( this->ProcessComponents(numPts, inPD) <= 0 )
     {
     return;
@@ -266,7 +266,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
   vtkIdType i;
   int j;
   float *range;
-  vtkFieldData *fd;
+  vtkFieldData *fd = pd->GetFieldData();
   
   this->Data = NULL;
   switch (this->PlotMode)
