@@ -127,3 +127,12 @@ package ifneeded vtktcl_colors 1.0 {
 
     package provide vtktcl_colors 1.0
 }
+
+package ifneeded vtktcl_mccases 1.0 {
+ 
+    global vtkpackagehome
+    source [file join $vtkpackagehome mccases.tcl]
+
+    package provide vtktcl_mccases 1.0
+}
+
