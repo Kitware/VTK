@@ -13,6 +13,7 @@ VPATH         = @srcdir@
 MESA_OBJ = \
 vtkMesaActor \
 vtkMesaCamera \
+vtkMesaImageActor \
 vtkMesaLight \
 vtkMesaPolyDataMapper \
 vtkMesaProperty \

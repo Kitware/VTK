@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef VTK_USE_MESA
 #include "vtkMesaActor.h"
 #include "vtkMesaCamera.h"
+#include "vtkMesaImageActor.h"
 #include "vtkMesaLight.h"
 #include "vtkMesaProperty.h"
 #include "vtkMesaPolyDataMapper.h"
@@ -240,6 +241,10 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkCamera") == 0)
       {
       return vtkMesaCamera::New();
+      }
+    if(strcmp(vtkclassname, "vtkImageActor") == 0)
+      {
+      return vtkMesaImageActor::New();
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {
