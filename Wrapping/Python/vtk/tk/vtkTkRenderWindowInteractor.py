@@ -73,7 +73,15 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
 
     def BindEvents(self):        
         """ Bind all the events.  """
-        self.bind("<Motion>", self.MouseMoveEvent)
+        self.bind("<Motion>",
+                  lambda e, s=self: s.MouseMoveEvent(e, 0, 0))
+        self.bind("<Control-Motion>",
+                  lambda e, s=self: s.MouseMoveEvent(e, 1, 0))
+        self.bind("<Shift-Motion>",
+                  lambda e, s=self: s.MouseMoveEvent(e, 1, 1))
+        self.bind("<Control-Shift-Motion>",
+                  lambda e, s=self: s.MouseMoveEvent(e, 0, 1))
+
         # Left Button
         self.bind("<ButtonPress-1>",
                   lambda e, s=self: s.LeftButtonPressEvent(e, 0, 0))
@@ -147,9 +155,25 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Control-Shift-KeyRelease>", 
                   lambda e, s=self: s.KeyReleaseEvent(e, 1, 1))
 
+        self.bind("<Enter>",
+                  lambda e, s=self: s.EnterEvent(e, 0, 0))
+        self.bind("<Control-Enter>",
+                  lambda e, s=self: s.EnterEvent(e, 1, 0))
+        self.bind("<Shift-Enter>",
+                  lambda e, s=self: s.EnterEvent(e, 0, 1))
+        self.bind("<Control-Shift-Enter>",
+                  lambda e, s=self: s.EnterEvent(e, 1, 1))
+        self.bind("<Leave>",
+                  lambda e, s=self: s.LeaveEvent(e, 0, 0))
+        self.bind("<Control-Leave>",
+                  lambda e, s=self: s.LeaveEvent(e, 1, 0))
+        self.bind("<Shift-Leave>",
+                  lambda e, s=self: s.LeaveEvent(e, 0, 1))
+        self.bind("<Control-Shift-Leave>",
+                  lambda e, s=self: s.LeaveEvent(e, 1, 1))
+
+
         self.bind("<Configure>", self.ConfigureEvent)
-        self.bind("<Enter>", self.EnterEvent)
-        self.bind("<Leave>", self.LeaveEvent)
         self.bind("<Expose>",lambda e,s=self: s.ExposeEvent())
 
     def CreateTimer(self, obj, evt):
@@ -159,9 +183,9 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         """The timer is a one shot timer so will expire automatically."""
         return 1
 
-    def MouseMoveEvent(self, event):
-        self._Iren.SetEventInformationFlipY(event.x, event.y, 0, 0, chr(0),
-                                            0, None)
+    def MouseMoveEvent(self, event, ctrl, shift):
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
+                                            shift, chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
     def LeftButtonPressEvent(self, event, ctrl, shift):
@@ -215,17 +239,17 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetSize(event.width, event.height)
         self._Iren.ConfigureEvent()
 
-    def EnterEvent(self, event):
+    def EnterEvent(self, event, ctrl, shift):
         self._OldFocus=self.focus_get()
         self.focus()
-        self._Iren.SetEventInformationFlipY(event.x, event.y, 0, 0,
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl, shift,
                                             chr(0), 0, None)
         self._Iren.EnterEvent()
 
-    def LeaveEvent(self, event):
+    def LeaveEvent(self, event, ctrl, shift):
         if (self._OldFocus != None):
             self._OldFocus.focus()
-        self._Iren.SetEventInformationFlipY(event.x, event.y, 0, 0,
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl, shift,
                                             chr(0), 0, None)
         self._Iren.LeaveEvent()
 

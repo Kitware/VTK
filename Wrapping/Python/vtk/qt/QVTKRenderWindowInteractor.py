@@ -138,29 +138,37 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self._Iren.ConfigureEvent()
         self.repaint()
 
+    def _GetCtrlShift(self, ev):
+        ctrl, shift = 0, 0
+        if hasattr(ev, 'state'):
+            if (ev.state() & 8):
+                shift = 1
+            if (ev.state() & 16):
+                ctrl = 1
+        elif self.__saveState:
+            if (self.__saveState & 8):
+                shift = 1
+            if (self.__saveState & 16):
+                ctrl = 1            
+        return ctrl, shift
+
     def enterEvent(self,ev):
         if not self.hasFocus():
             self.__oldFocus = self.focusWidget()
             self.setFocus()
+        ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            0, 0, chr(0), 0, None)
+                                            ctrl, shift, chr(0), 0, None)
         self._Iren.EnterEvent()
 
     def leaveEvent(self,ev):
         if (self.__saveState & 0x7) == 0 and self.__oldFocus:
             self.__oldFocus.setFocus()
             self.__oldFocus = None
+        ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            0, 0, chr(0), 0, None)
+                                            ctrl, shift, chr(0), 0, None)
         self._Iren.LeaveEvent()
-
-    def _GetCtrlShift(self, ev):
-        ctrl, shift = 0, 0
-        if (ev.state() & 8):
-            shift = 1
-        if (ev.state() & 16):
-            ctrl = 1
-        return ctrl, shift
 
     def mousePressEvent(self,ev):
         ctrl, shift = self._GetCtrlShift(ev)
@@ -194,8 +202,9 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self.__saveState = ev.state()
         self.__saveX = ev.x()
         self.__saveY = ev.y()
+        ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(ev.x(), ev.y(),
-                                            0, 0, chr(0), 0, None)
+                                            ctrl, shift, chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
     def keyPressEvent(self,ev):

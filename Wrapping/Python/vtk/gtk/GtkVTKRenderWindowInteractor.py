@@ -188,8 +188,9 @@ class GtkVTKRenderWindowInteractor(gtkgl.GtkGLArea):
     def OnMouseMove(self, wid, event):
         """Mouse has moved."""
         m = self.get_pointer()
-        self._Iren.SetEventInformationFlipY(m[0], m[1], 0, 0, chr(0),
-                                            0, None)
+        ctrl, shift = self._GetCtrlShift(event)
+        self._Iren.SetEventInformationFlipY(m[0], m[1], ctrl, shift,
+                                            chr(0), 0, None)
         self._Iren.MouseMoveEvent()
         return gtk.TRUE
 
@@ -197,16 +198,18 @@ class GtkVTKRenderWindowInteractor(gtkgl.GtkGLArea):
         """Entering the vtkRenderWindow."""
         self.grab_focus()
         m = self.get_pointer()
-        self._Iren.SetEventInformationFlipY(m[0], m[1], 0, 0, chr(0),
-                                            0, None)
+        ctrl, shift = self._GetCtrlShift(event)
+        self._Iren.SetEventInformationFlipY(m[0], m[1], ctrl, shift,
+                                            chr(0), 0, None)
         self._Iren.EnterEvent()
         return gtk.TRUE
 
     def OnLeave(self, wid, event):
         """Leaving the vtkRenderWindow."""
         m = self.get_pointer()
-        self._Iren.SetEventInformationFlipY(m[0], m[1], 0, 0, chr(0),
-                                            0, None)
+        ctrl, shift = self._GetCtrlShift(event)
+        self._Iren.SetEventInformationFlipY(m[0], m[1], ctrl, shift,
+                                            chr(0), 0, None)
         self._Iren.LeaveEvent()
         return gtk.TRUE
     
