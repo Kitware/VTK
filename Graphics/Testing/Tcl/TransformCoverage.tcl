@@ -287,7 +287,7 @@ renWin AddRenderer ren42
 
 renWin Render
 
-# free what we did a MakeObject on
+# free what we did a MakeTransform on
 $tNew UnRegister {}
 
 

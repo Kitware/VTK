@@ -3,8 +3,6 @@ package require vtkinteraction
 
 # Demonstrates vtkCellDerivatives for all cell types
 #
-# NOTE: the use of MakeObject is included to increase regression coverage.
-# It is not required in most applications.
 
 # get the interactor ui
 
