@@ -737,6 +737,9 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "ParallelStreamingOff\n";
     }
+  //
+  os << indent << "UserManagedInputs: "
+     << this->UserManagedInputs << endl;
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
@@ -818,7 +821,7 @@ int *vtkAppendPolyData::AppendCells(int *pDest, vtkCellArray *src, int offset)
     {
     return pDest;
     }
-  
+
   pSrc = (int*)(src->GetPointer());
   end = pSrc + src->GetNumberOfConnectivityEntries();
   pNum = pSrc;
