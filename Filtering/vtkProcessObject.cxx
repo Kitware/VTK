@@ -26,7 +26,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.1.2.2");
+vtkCxxRevisionMacro(vtkProcessObject, "1.1.2.3");
 
 //----------------------------------------------------------------------------
 
@@ -73,7 +73,6 @@ vtkProcessObject::~vtkProcessObject()
     {
     if (this->Inputs[idx])
       {
-      this->Inputs[idx]->RemoveConsumer(this);
       this->Inputs[idx]->UnRegister(this);
       this->Inputs[idx] = NULL;
       }
@@ -316,7 +315,6 @@ void vtkProcessObject::RemoveReferences()
     {
     if(this->Inputs[i])
       {
-      this->Inputs[i]->RemoveConsumer(this);
       this->Inputs[i]->UnRegister(this);
       this->Inputs[i] = 0;
       }
@@ -402,7 +400,6 @@ void vtkProcessObject::SetupInputs()
           if(!found)
             {
             newInputs[count]->Register(this);
-            newInputs[count]->AddConsumer(this);
             }
           }
         ++count;
@@ -418,7 +415,6 @@ void vtkProcessObject::SetupInputs()
       {
       if(this->Inputs[i])
         {
-        this->Inputs[i]->RemoveConsumer(this);
         this->Inputs[i]->UnRegister(this);
         }
       }

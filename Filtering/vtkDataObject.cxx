@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.10");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.11");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -83,8 +83,6 @@ vtkDataObject::vtkDataObject()
 
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 
-  this->NumberOfConsumers = 0;
-  this->Consumers = 0;
   this->GarbageCollecting = 0;
 }
 
@@ -94,8 +92,6 @@ vtkDataObject::~vtkDataObject()
   this->SetPipelineInformation(0);
   this->SetInformation(0);
   this->SetFieldData(NULL);
-
-  delete [] this->Consumers;
 }
 
 //----------------------------------------------------------------------------
@@ -204,7 +200,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Locality: " << this->Locality << endl;
-  os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -288,73 +283,6 @@ void vtkDataObject::Initialize()
 {
   this->FieldData->Initialize();
   this->Modified();
-}
-
-void vtkDataObject::AddConsumer(vtkObject *c)
-{
-  // make sure it isn't already there
-  if (this->IsConsumer(c))
-    {
-    return;
-    }
-  // add it to the list, reallocate memory
-  vtkObject **tmp = this->Consumers;
-  this->NumberOfConsumers++;
-  this->Consumers = new vtkObject* [this->NumberOfConsumers];
-  for (int i = 0; i < (this->NumberOfConsumers-1); i++)
-    {
-    this->Consumers[i] = tmp[i];
-    }
-  this->Consumers[this->NumberOfConsumers-1] = c;
-  // free old memory
-  delete [] tmp;
-}
-
-void vtkDataObject::RemoveConsumer(vtkObject *c)
-{
-  // make sure it is already there
-  if (!this->IsConsumer(c))
-    {
-    return;
-    }
-  // remove it from the list, reallocate memory
-  vtkObject **tmp = this->Consumers;
-  this->NumberOfConsumers--;
-  this->Consumers = new vtkObject* [this->NumberOfConsumers];
-  int cnt = 0;
-  int i;
-  for (i = 0; i <= this->NumberOfConsumers; i++)
-    {
-    if (tmp[i] != c)
-      {
-      this->Consumers[cnt] = tmp[i];
-      cnt++;
-      }
-    }
-  // free old memory
-  delete [] tmp;
-}
-
-int vtkDataObject::IsConsumer(vtkObject *c)
-{
-  int i;
-  for (i = 0; i < this->NumberOfConsumers; i++)
-    {
-    if (this->Consumers[i] == c)
-      {
-      return 1;
-      }
-    }
-  return 0;
-}
-
-vtkObject *vtkDataObject::GetConsumer(int i)
-{
-  if (i >= this->NumberOfConsumers)
-    {
-    return 0;
-    }
-  return this->Consumers[i];
 }
 
 //----------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.123");
+vtkCxxRevisionMacro(vtkActor, "1.123.10.1");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 
@@ -510,14 +510,12 @@ void vtkActor::SetMapper(vtkMapper *args)
     {                                                           
     if (this->Mapper != NULL) 
       { 
-      this->Mapper->RemoveConsumer(this);
       this->Mapper->UnRegister(this); 
       }   
     this->Mapper = args;                                          
     if (this->Mapper != NULL) 
       { 
       this->Mapper->Register(this); 
-      this->Mapper->AddConsumer(this);
       }     
     this->Modified();                                           
     }                                                           

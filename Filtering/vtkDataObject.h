@@ -330,17 +330,6 @@ public:
   vtkExtentTranslator* GetExtentTranslator();
 
   // Description:
-  // Get the number of consumers
-  vtkGetMacro(NumberOfConsumers,int);
-  
-  // Description:
-  // Add or remove or get or check a consumer, 
-  void AddConsumer(vtkObject *c);
-  void RemoveConsumer(vtkObject *c);
-  vtkObject *GetConsumer(int i);
-  int IsConsumer(vtkObject *c);
-
-  // Description:
   // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
   // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
   // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
@@ -409,10 +398,6 @@ protected:
 
   // Keep track of data release during network execution
   int DataReleased; 
-
-  // how many consumers does this object have
-  int NumberOfConsumers;
-  vtkObject **Consumers;
 
   virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
                                        vtkInformation* newPInfo);

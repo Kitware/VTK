@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.80");
+vtkCxxRevisionMacro(vtkVolume, "1.80.10.1");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -179,14 +179,12 @@ void vtkVolume::SetMapper(vtkAbstractVolumeMapper *mapper)
     {
     if (this->Mapper != NULL) 
       { 
-      this->Mapper->RemoveConsumer(this);
       this->Mapper->UnRegister(this); 
       }   
     this->Mapper = mapper;
     if (this->Mapper != NULL) 
       { 
       this->Mapper->Register(this); 
-      this->Mapper->AddConsumer(this);
       }     
     this->Modified();
     }
