@@ -100,6 +100,18 @@ public:
   // Returns 1 for okay, 0 for error.
   virtual int Parse();
 
+  // Description:
+  // Get/Set flag to abort reading of data.  This may be set by a
+  // progress event observer.
+  vtkGetMacro(Abort, int);
+  vtkSetMacro(Abort, int);
+  
+  // Description:
+  // Get/Set progress of reading data.  This may be checked by a
+  // progress event observer.
+  vtkGetMacro(Progress, float);
+  vtkSetMacro(Progress, float);  
+  
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();
@@ -128,15 +140,22 @@ protected:
   unsigned int FindBlockSize(unsigned int block);
   int ReadBlock(unsigned int block, unsigned char* buffer);
   unsigned char* ReadBlock(unsigned int block);
-  unsigned long ReadUncompressedData(unsigned char* data, unsigned long offset,
-                                     unsigned long length);
-  unsigned long ReadCompressedData(unsigned char* data, unsigned long offset,
-                                   unsigned long length);
+  unsigned long ReadUncompressedData(unsigned char* data,
+                                     unsigned long startWord,
+                                     unsigned long numWords,
+                                     int wordSize);
+  unsigned long ReadCompressedData(unsigned char* data,
+                                   unsigned long startWord,
+                                   unsigned long numWords,
+                                   int wordSize);
   
   // Ascii data reading methods.
   int ParseAsciiData(int wordType);
   void FreeAsciiBuffer();
     
+  // Progress update methods.
+  void UpdateProgress(float progress);
+  
   // The root XML element.
   vtkXMLDataElement* RootElement;
   
@@ -192,6 +211,12 @@ protected:
   int AsciiDataBufferLength;
   int AsciiDataWordType;
   unsigned long AsciiDataPosition;
+  
+  // Progress during reading of data.
+  float Progress;
+  
+  // Abort flag checked during reading of data.
+  int Abort;
   
 private:
   vtkXMLDataParser(const vtkXMLDataParser&);  // Not implemented.

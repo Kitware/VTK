@@ -32,14 +32,14 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLReader, "1.9");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
 {
   this->FileName = 0;
   this->FileStream = 0;
-  this->XMLParser = 0;  
+  this->XMLParser = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
@@ -54,6 +54,12 @@ vtkXMLReader::vtkXMLReader()
                                              this->SelectionObserver);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
                                             this->SelectionObserver);
+  
+  // Setup a callback for when the XMLParser's data reading routines
+  // report progress.
+  this->DataProgressObserver = vtkCallbackCommand::New();
+  this->DataProgressObserver->SetCallback(&vtkXMLReader::DataProgressCallbackFunction);
+  this->DataProgressObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
@@ -67,6 +73,7 @@ vtkXMLReader::~vtkXMLReader()
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->PointDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
+  this->DataProgressObserver->Delete();
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
 }
@@ -160,6 +167,8 @@ void vtkXMLReader::CreateXMLParser()
     this->DestroyXMLParser();
     }
   this->XMLParser = vtkXMLDataParser::New();
+  this->XMLParser->AddObserver(vtkCommand::ProgressEvent,
+                               this->DataProgressObserver);
 }
 
 //----------------------------------------------------------------------------
@@ -170,6 +179,7 @@ void vtkXMLReader::DestroyXMLParser()
     vtkErrorMacro("DestroyXMLParser() called with no current XMLParser.");
     return;
     }
+  this->XMLParser->RemoveObserver(this->DataProgressObserver);
   this->XMLParser->Delete();
   this->XMLParser = 0;
 }
@@ -262,6 +272,14 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
   // Give the vtkXMLParser instance its file back so that data section
   // reads will work.
   this->XMLParser->SetStream(this->FileStream);
+
+  // We are just starting to read.  Do not call UpdateProgressDiscrete
+  // because we want a 0 progress callback the first time.
+  this->UpdateProgress(0);
+  
+  // Initialize progress range to entire 0..1 range.
+  float wholeProgressRange[2] = {0,1};
+  this->SetProgressRange(wholeProgressRange, 0, 1);
   
   if(!this->InformationError)
     {
@@ -280,6 +298,9 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
     // There was an error reading the file.  Provide empty output.
     this->GetOutputAsDataSet()->Initialize();
     }
+  
+  // We have finished reading.
+  this->UpdateProgressDiscrete(1);
   
   // Close the file to prevent resource leaks.
   this->CloseVTKFile();
@@ -353,7 +374,7 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement*)
 void vtkXMLReader::SetupOutputInformation()
 {
   // Initialize the output.
-  this->GetOutputAsDataSet()->Initialize();  
+  this->GetOutputAsDataSet()->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -677,4 +698,56 @@ void vtkXMLReader::SetCellArrayStatus(const char* name, int status)
     {
     this->CellDataArraySelection->DisableArray(name);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::GetProgressRange(float* range)
+{
+  range[0] = this->ProgressRange[0];
+  range[1] = this->ProgressRange[1];
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::SetProgressRange(float* range, int curStep, int numSteps)
+{
+  float stepSize = (range[1] - range[0])/numSteps;
+  this->ProgressRange[0] = range[0] + stepSize*curStep;
+  this->ProgressRange[1] = range[0] + stepSize*(curStep+1);
+  this->UpdateProgressDiscrete(this->ProgressRange[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::SetProgressRange(float* range, float* fractions, int step)
+{
+  float width = range[1] - range[0];
+  this->ProgressRange[0] = range[0] + fractions[step]*width;
+  this->ProgressRange[1] = range[0] + fractions[step+1]*width;
+  this->UpdateProgressDiscrete(this->ProgressRange[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::UpdateProgressDiscrete(float progress)
+{
+  if(!this->AbortExecute)
+    {
+    // Round progress to nearest 100th.
+    float rounded = float(int((progress*100)+0.5))/100;
+    if(this->GetProgress() != rounded)
+      {
+      this->UpdateProgress(rounded);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::DataProgressCallbackFunction(vtkObject*, unsigned long,
+                                                void* clientdata, void*)
+{
+  reinterpret_cast<vtkXMLReader*>(clientdata)->DataProgressCallback();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::DataProgressCallback()
+{
+  // Do nothing.
 }

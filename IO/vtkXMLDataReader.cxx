@@ -24,7 +24,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -33,6 +33,9 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->PointDataElements = 0;
   this->CellDataElements = 0;
   this->Piece = 0;
+  this->NumberOfPointArrays = 0;
+  this->NumberOfCellArrays = 0;
+  this->InReadData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -124,6 +127,7 @@ void vtkXMLDataReader::SetupOutputInformation()
   vtkCellData* cellData = this->GetOutputAsDataSet()->GetCellData();  
   
   // Setup the point and cell data arrays without allocation.
+  this->NumberOfPointArrays = 0;
   this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
   if(ePointData)
     {
@@ -132,6 +136,7 @@ void vtkXMLDataReader::SetupOutputInformation()
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       if(this->PointDataArrayIsEnabled(eNested))
         {
+        ++this->NumberOfPointArrays;
         vtkDataArray* array = this->CreateDataArray(eNested);
         if(array)
           {
@@ -145,6 +150,7 @@ void vtkXMLDataReader::SetupOutputInformation()
         }
       }
     }
+  this->NumberOfCellArrays = 0;
   this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
   if(eCellData)
     {
@@ -153,6 +159,7 @@ void vtkXMLDataReader::SetupOutputInformation()
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       if(this->CellDataArrayIsEnabled(eNested))
         {
+        ++this->NumberOfCellArrays;
         vtkDataArray* array = this->CreateDataArray(eNested);
         if(array)
           {
@@ -258,6 +265,14 @@ int vtkXMLDataReader::ReadPieceData()
   vtkXMLDataElement* ePointData = this->PointDataElements[this->Piece];
   vtkXMLDataElement* eCellData = this->CellDataElements[this->Piece];
   
+  // Split current progress range over number of arrays.  This assumes
+  // that each array contributes approximately the same amount of data
+  // within this piece.
+  float progressRange[2] = {0,0};
+  int currentArray=0;
+  int numArrays = this->NumberOfPointArrays + this->NumberOfCellArrays;
+  this->GetProgressRange(progressRange);
+  
   // Read the data for this piece from each array.
   int i;
   if(ePointData)
@@ -268,6 +283,10 @@ int vtkXMLDataReader::ReadPieceData()
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       if(this->PointDataArrayIsEnabled(eNested))
         {
+        // Set the range of progress for this array.
+        this->SetProgressRange(progressRange, currentArray++, numArrays);
+        
+        // Read the array.
         if(!this->ReadArrayForPoints(eNested, pointData->GetArray(a++)))
           {
           return 0;
@@ -283,6 +302,10 @@ int vtkXMLDataReader::ReadPieceData()
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       if(this->CellDataArrayIsEnabled(eNested))
         {
+        // Set the range of progress for this array.
+        this->SetProgressRange(progressRange, currentArray++, numArrays);
+        
+        // Read the array.
         if(!this->ReadArrayForCells(eNested, cellData->GetArray(a++)))
           {
           return 0;
@@ -290,6 +313,7 @@ int vtkXMLDataReader::ReadPieceData()
         }
       }
     }
+  
   return 1;
 }
 
@@ -319,18 +343,37 @@ int vtkXMLDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 int vtkXMLDataReader::ReadData(vtkXMLDataElement* da, void* data, int wordType,
                                int startWord, int numWords)
 { 
+  this->InReadData = 1;
   unsigned long num = numWords;
+  int result = 0;
   if(da->GetAttribute("offset"))
     {
     int offset = 0;
     da->GetScalarAttribute("offset", offset);
-    return (this->XMLParser->ReadAppendedData(offset, data, startWord,
-                                              numWords, wordType) == num);
+    result = (this->XMLParser->ReadAppendedData(offset, data, startWord,
+                                                numWords, wordType) == num);
     }
-  int isAscii = 1;
-  const char* format = da->GetAttribute("format");
-  if(format && (strcmp(format, "binary") == 0)) { isAscii = 0; }
-  return (this->XMLParser->ReadInlineData(da, isAscii, data,
-                                          startWord, numWords, wordType)
-          == num);
+  else
+    {
+    int isAscii = 1;
+    const char* format = da->GetAttribute("format");
+    if(format && (strcmp(format, "binary") == 0)) { isAscii = 0; }
+    result = (this->XMLParser->ReadInlineData(da, isAscii, data,
+                                              startWord, numWords, wordType)
+              == num);
+    }
+  this->InReadData = 0;
+  return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::DataProgressCallback()
+{
+  if(this->InReadData)
+    {
+    float width = this->ProgressRange[1]-this->ProgressRange[0];
+    float dataProgress = this->XMLParser->GetProgress();
+    float progress = this->ProgressRange[0] + dataProgress*width;
+    this->UpdateProgressDiscrete(progress);
+    }
 }

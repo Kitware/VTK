@@ -74,16 +74,27 @@ protected:
   int ReadData(vtkXMLDataElement* da, void* data, int wordType, int startWord,
                int numWords);
   
+  // Progress callback from XMLParser.
+  virtual void DataProgressCallback();
+  
   // The number of Pieces of data found in the file.
   int NumberOfPieces;
   
   // The PointData and CellData element representations for each piece.
   vtkXMLDataElement** PointDataElements;
-  vtkXMLDataElement** CellDataElements;  
+  vtkXMLDataElement** CellDataElements;
   
   // The piece currently being read.
   int Piece;
   
+  // The number of point/cell data arrays in the output.  Valid after
+  // SetupOutputInformation has been called.
+  int NumberOfPointArrays;
+  int NumberOfCellArrays;  
+  
+  // Flag for whether DataProgressCallback should actually update
+  // progress.
+  int InReadData;
 private:
   vtkXMLDataReader(const vtkXMLDataReader&);  // Not implemented.
   void operator=(const vtkXMLDataReader&);  // Not implemented.

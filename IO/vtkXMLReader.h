@@ -153,6 +153,11 @@ protected:
   static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
                                         void* clientdata, void* calldata);
   
+  // Callback registered with the DataProgressObserver.
+  static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,
+                                           void*);
+  virtual void DataProgressCallback();
+  
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
   
@@ -170,11 +175,22 @@ protected:
   // modified.
   vtkCallbackCommand* SelectionObserver;
   
+  // The observer to report progress from reading data from XMLParser.
+  vtkCallbackCommand* DataProgressObserver;  
+  
   // Whether there was an error reading the file in ExecuteInformation.
   int InformationError;
   
   // Whether there was an error reading the file in ExecuteData.
   int DataError;
+  
+  // The current range over which progress is moving.  This allows for
+  // incrementally fine-tuned progress updates.
+  virtual void GetProgressRange(float* range);
+  virtual void SetProgressRange(float* range, int curStep, int numSteps);
+  virtual void SetProgressRange(float* range, float* fractions, int step);
+  virtual void UpdateProgressDiscrete(float progress);
+  float ProgressRange[2];
   
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
