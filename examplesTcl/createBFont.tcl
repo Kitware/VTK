@@ -19,7 +19,6 @@ vtkPNMReader image
 vtkImageGaussianSmooth gaussian
     eval gaussian SetStandardDeviations 2 2
     gaussian SetDimensionality 2
-    gaussian SetStrides 2 2
     gaussian SetRadiusFactors 1 1
     gaussian SetInput [image GetOutput]
 
