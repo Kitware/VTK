@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.9");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.10");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -89,7 +89,6 @@ void vtkAVSucdReader::SetByteOrderToLittleEndian()
   this->ByteOrder = FILE_LITTLE_ENDIAN;
 }
 
-
 const char *vtkAVSucdReader::GetByteOrderAsString()
 {
   if ( this->ByteOrder ==  FILE_LITTLE_ENDIAN)
@@ -101,7 +100,6 @@ const char *vtkAVSucdReader::GetByteOrderAsString()
     return "BigEndian";
     }
 }
-
 
 void vtkAVSucdReader::Execute()
 {
@@ -117,12 +115,12 @@ void vtkAVSucdReader::Execute()
   return;
 }
 
-
 void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->FileName << endl;
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
   os << indent << "Number Of Node Fields: " 
@@ -169,7 +167,11 @@ void vtkAVSucdReader::ExecuteInformation()
 
   // first open file in binary mod to check the first byte.
 
-  this->fs = new ifstream(this->FileName, ios::in | ios::binary);
+#ifdef _WIN32
+    this->fs = new ifstream(this->FileName, ios::in | ios::binary);
+#else
+    this->fs = new ifstream(this->FileName, ios::in);
+#endif
   if (this->fs->fail())
     {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
@@ -214,7 +216,8 @@ void vtkAVSucdReader::ExecuteInformation()
     TrueFileLength = this->fs->tellg();
     CalculatedFileLength = 0; // unknown yet
 
-    while(abs(TrueFileLength - CalculatedFileLength)/TrueFileLength > 0.01)
+    while(abs(static_cast<int>(TrueFileLength - CalculatedFileLength))/
+          TrueFileLength > 0.01)
       {
       if(TrueFileLength != CalculatedFileLength)
         {
@@ -449,7 +452,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
                                              int *types, 
                                              vtkIdTypeArray *listcells)
 {
-  int i, j, k1, k2;
+  int i, j, k2=0;
   int *mat = materials->GetPointer(0);
   vtkIdType *list = listcells->GetPointer(0);
   int *Ctype = new int[4 * this->NumberOfCells];
@@ -470,7 +473,6 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   this->ReadIntBlock(this->nlist_nodes, topology_list);
   this->UpdateProgress(0.25);
 
-  k1 = k2 = 0;
   for(i=0; i < this->NumberOfCells; i++)
     {
     //listcells->SetValue(k1++, Ctype[4*i+2]);
