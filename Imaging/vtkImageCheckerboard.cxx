@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.8");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.9");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
@@ -56,20 +56,25 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
-  
+  int threadOffsetX, threadOffsetY, threadOffsetZ;
+  int numDivX, numDivY, numDivZ;
+
   // find the region to loop over
   nComp = in1Data->GetNumberOfScalarComponents();
   rowLength = (outExt[1] - outExt[0]+1)*nComp;
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-
-  
+    
   outData->GetWholeExtent(wholeExt);
   
   dimWholeX = wholeExt[1] - wholeExt[0] + 1;
   dimWholeY = wholeExt[3] - wholeExt[2] + 1;
   dimWholeZ = wholeExt[5] - wholeExt[4] + 1;
   
+  threadOffsetX = (outExt[0] - wholeExt[0]) * nComp;
+  threadOffsetY = outExt[2] - wholeExt[2];
+  threadOffsetZ = outExt[4] - wholeExt[4];
+
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
   
@@ -78,26 +83,19 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  divX = dimWholeX / self->GetNumberOfDivisions()[0] * nComp;
-  if (divX == 0)
-    {
-    divX = 1;
-    }
-  divY = dimWholeY / self->GetNumberOfDivisions()[1];
-  if (divY == 0)
-    {
-    divY = 1;
-    }
-  divZ = dimWholeZ /self->GetNumberOfDivisions()[2];
-  if (divZ == 0)
-    {
-    divZ = 1;
-    }
+  // make sure number of divisions is not 0
+  numDivX = (self->GetNumberOfDivisions()[0] == 0) ? 1 : self->GetNumberOfDivisions()[0];
+  numDivY = (self->GetNumberOfDivisions()[1] == 0) ? 1 : self->GetNumberOfDivisions()[1];
+  numDivZ = (self->GetNumberOfDivisions()[2] == 0) ? 1 : self->GetNumberOfDivisions()[2];
+
+  divX = dimWholeX / numDivX * nComp;
+  divY = dimWholeY / numDivY;
+  divZ = dimWholeZ / numDivZ;
   
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    selectZ = (((idxZ + outExt[4]) / divZ) % 2) << 2;
+    selectZ = (((idxZ + threadOffsetZ) / divZ) % 2) << 2;
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       if (!id) 
@@ -108,11 +106,11 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
           }
         count++;
         }
-      selectY = (((idxY + outExt[2]) / divY) % 2) << 1;
+      selectY = (((idxY + threadOffsetY) / divY) % 2) << 1;
       for (idxR = 0; idxR < rowLength; idxR++)
         {
         
-        selectX = ((idxR + outExt[0]) / divX) % 2;
+        selectX = ((idxR + threadOffsetX) / divX) % 2;
         which = selectZ + selectY + selectX;
         switch (which)
           {
