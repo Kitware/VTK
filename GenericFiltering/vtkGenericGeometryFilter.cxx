@@ -34,7 +34,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.2");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ void vtkGenericGeometryFilter::Execute()
   vtkIdType numCells = input->GetNumberOfCells();
   char *cellVis;
   vtkGenericAdaptorCell *cell;
-  double x[3];
+  double x[3]={0,0,0};
   //vtkIdList *ptIds;
   vtkIdType ptIds[4];
 

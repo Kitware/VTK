@@ -26,7 +26,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamer, "1.1");
+vtkCxxRevisionMacro(vtkGenericStreamer, "1.2");
 vtkCxxSetObjectMacro(vtkGenericStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -214,13 +214,14 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
   double                   xNext[3], vel[3];
   double                   *cellVel;
   double                   derivs[9];
-  double                   *w, pcoords[3];
+  double                   *w=0;
+  double pcoords[3];
   double                   coords[4];
   vtkGenericDataSet    *input;
   vtkGenericCell           *cell;
   //vtkPointData             *pd;
-  vtkDataArray             *inScalars;
-  vtkDataArray             *inVectors;
+  vtkDataArray             *inScalars=0;
+  vtkDataArray             *inVectors=0;
   vtkDoubleArray           *cellVectors;
   vtkDataArray             *cellScalars=0;
   double tOffset, vort[3];
@@ -450,16 +451,16 @@ void vtkGenericStreamer::Integrate()
   vtkDataSet *source = this->GetSource();
 //  vtkPointData *pd   = input->GetPointData();//FIXME
   vtkDataArray *inScalars;
-  vtkDataArray *inVectors;
+  vtkDataArray *inVectors=0;
   vtkIdType numSourcePts, idx, idxNext;
   vtkGenericStreamer::StreamPoint *sNext, *sPtr;
   vtkIdType ptId, i;
   int j, offset;
-  vtkCell *cell;
+  vtkCell *cell=0;
   double v[3], *cellVel, derivs[9], xNext[3], vort[3];
   (void)xNext;  //FIXME
   double tol2;
-  double *w;// = new double[input->GetMaxCellSize()];//FIXME
+  double *w=0;// = new double[input->GetMaxCellSize()];//FIXME
   vtkDoubleArray *cellVectors;
   vtkDataArray *cellScalars=0;
 

@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.2");
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -84,7 +84,7 @@ void vtkGenericGlyph3DFilter::Execute()
   vtkGenericAttribute *inNormals=0;
   //  vtkGenericAttribute *sourceNormals=0;
  
-  int requestedGhostLevel;
+  int requestedGhostLevel=0;
   unsigned char* inGhostLevels=0;
   
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
