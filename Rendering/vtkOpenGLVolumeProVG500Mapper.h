@@ -47,14 +47,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Users should not create this class directly - a vtkVolumeProMapper will 
 // automatically create the object of the right type.
 //
-// This class is not included in the contrib Makefile.in by default. If you
+// This class is not included in the Rendering CMakeLists by default. If you
 // want to add this class to your vtk build, you need to have the vli header
 // and library files.  Please see the vtkVolumeProVG500Mapper.h file for
 // instructions on how to use the vli library with vtk.
 //
 // For more information on the VolumePRO hardware, please see:
 //
-//   http://www.3dvolumegraphics.com/3dvolumegraphics/product/index.htm
+//   http://www.terarecon.com/3d_products.shtml
 //
 // If you encounter any problems with this class, please inform Kitware, Inc.
 // at kitware@kitware.com.
