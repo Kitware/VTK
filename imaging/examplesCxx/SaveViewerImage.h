@@ -4,20 +4,25 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "vtkWindowToImageFilter.h"
+#include "vtkTIFFWriter.h"
 
 #define SAVEVIEWERIMAGE( viewer )                                 \
   if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )     \
     {                                                   \
     char save_filename[4096];                                 \
                                                         \
-    sprintf( save_filename, "%s.cxx.ppm", argv[0] );             \
+    sprintf( save_filename, "%s.cxx.tif", argv[0] );             \
     vtkWindowToImageFilter *wtoif = vtkWindowToImageFilter::New(); \
     wtoif->SetInput(viewer->GetImageWindow()); \
-    vtkPNMWriter *pnm = vtkPNMWriter::New(); \
-    pnm->SetFileName(save_filename); \
-    pnm->SetInput(wtoif->GetOutput()); \
-    pnm->Write(); \
+    vtkTIFFWriter *rttiffw = vtkTIFFWriter::New(); \
+    rttiffw->SetInput(wtoif->GetOutput());\
+    rttiffw->SetFileName(save_filename); \
+    rttiffw->SetInput(wtoif->GetOutput()); \
+    rttiffw->Write(); \
+    rttiffw->SetFileName(save_filename); \
+    rttiffw->Write(); \
     wtoif->Delete(); \
-    pnm->Delete(); \
+    rttiffw->Delete(); \
     exit( 1 );						\
     }
