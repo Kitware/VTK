@@ -477,9 +477,15 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   long streamStart;
 
   this->ComputeInternalFileName(idx);
-  
-  this->UpdateProgress ((float) (idx - dataExtent[4])
+  if (this->GetFileDimensionality() == 3)
+    {
+    this->UpdateProgress(0.0);
+    } 
+  else 
+    {
+    this->UpdateProgress ((float) (idx - dataExtent[4])
                         / (float) (dataExtent[5] - dataExtent[4] + 1));
+    }
   this->OpenFile();
 
   // convert data extent into constants that can be used to seek.
