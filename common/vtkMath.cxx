@@ -182,6 +182,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   return 1;
 }
 
+
 // Invert input square matrix A into matrix AI. Note that A is modified during
 // the inversion. The size variable is the dimension of the matrix. Returns 0
 // if inverse not computed.
