@@ -12,7 +12,7 @@ set dims [[r GetOutput] GetDimensions]
 set d1 [lindex $dims 0]
 set d2 [lindex $dims 1]
 
-# The first button
+# The first elliptical button
 vtkEllipticalButtonSource bs
   bs SetWidth 2
   bs SetHeight 1
@@ -28,7 +28,7 @@ vtkActor b1
   b1 SetMapper bMapper
   b1 SetTexture t
 
-# The second button
+# The second elliptical button
 vtkEllipticalButtonSource bs2
   bs2 SetWidth 2
   bs2 SetHeight 1
@@ -47,6 +47,35 @@ vtkActor b2
   b2 SetMapper b2Mapper
   b2 SetTexture t
 
+# The third rectangular button
+vtkRectangularButtonSource bs3
+  bs3 SetWidth 1.5
+  bs3 SetHeight 0.75
+  bs3 SetDepth 0.2
+  bs3 TwoSidedOn
+  bs3 SetCenter 0 1 0
+  bs3 SetTextureDimensions $d1 $d2
+vtkPolyDataMapper b3Mapper
+  b3Mapper SetInput [bs3 GetOutput]
+vtkActor b3
+  b3 SetMapper b3Mapper
+  b3 SetTexture t
+
+# The fourth rectangular button
+vtkRectangularButtonSource bs4
+  bs4 SetWidth 1.5
+  bs4 SetHeight 0.75
+  bs4 SetDepth 0.2
+  bs4 TwoSidedOn
+  bs4 SetCenter 2 1 0
+  bs4 SetTextureStyleToFitImage
+  bs4 SetTextureDimensions $d1 $d2
+vtkPolyDataMapper b4Mapper
+  b4Mapper SetInput [bs4 GetOutput]
+vtkActor b4
+  b4 SetMapper b4Mapper
+  b4 SetTexture t
+
 # Create the RenderWindow, Renderer and Interactive Renderer
 #
 vtkRenderer ren1
@@ -57,11 +86,13 @@ vtkRenderWindowInteractor iren
 
 ren1 AddActor b1
 ren1 AddActor b2
+ren1 AddActor b3
+ren1 AddActor b4
 ren1 SetBackground 0 0 0
 
-renWin SetSize 300 100
+renWin SetSize 250 150
 renWin Render
-[ren1 GetActiveCamera] Zoom 4.2
+[ren1 GetActiveCamera] Zoom 2.5
 renWin Render
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
