@@ -771,11 +771,11 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
 	      float *tmpDistanceList = new float[listMaxSize];
 	      vtkIdType *tmpCellList = new vtkIdType[listMaxSize];
 	      char *tmpSenseList = new char[listMaxSize];
-	      for (int i = 0; i < listSize; i++)
+	      for (int k = 0; k < listSize; k++)
 		{
-		tmpDistanceList[i] = distanceList[i];
-		tmpCellList[i] = cellList[i];
-		tmpSenseList[i] = senseList[i];
+		tmpDistanceList[k] = distanceList[k];
+		tmpCellList[k] = cellList[k];
+		tmpSenseList[k] = senseList[k];
 		}
 	      delete [] distanceList;
 	      distanceList = tmpDistanceList;

@@ -99,7 +99,7 @@ void vtkExtractPolyDataGeometry::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
-  vtkIdType numPts, numCells, i, cellId, newId;
+  vtkIdType numPts, i, cellId, newId;
   float multiplier;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkCellArray *newVerts=NULL, *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
@@ -113,7 +113,6 @@ void vtkExtractPolyDataGeometry::Execute()
     }
 
   numPts = input->GetNumberOfPoints();
-  numCells = input->GetNumberOfCells();
 
   if ( this->ExtractInside )
     {
@@ -143,7 +142,6 @@ void vtkExtractPolyDataGeometry::Execute()
   // can result in bugs. The cellId is assumed to be arranged starting
   // with the verts, then lines, then polys, then strips.
   //
-  int abort=0;
   int numIn;
   vtkIdType npts, *pts;
   if ( input->GetNumberOfVerts() )
