@@ -39,6 +39,22 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+//BTX
+  enum {REFERENCE_SEA_LEVEL=0,REFERENCE_ELEVATION_BOUNDS};
+//ETX
+
+  // Description:
+  // Specify the elevation origin to use. By default, the elevation origin
+  // is equal to ElevationBounds[0]. A more convenient origin is to use sea
+  // level (i.e., a value of 0.0).
+  vtkSetClampMacro(ElevationReference,int,REFERENCE_SEA_LEVEL,
+                   REFERENCE_ELEVATION_BOUNDS);
+  vtkGetMacro(ElevationReference,int);
+  void SetElevationReferenceToSeaLevel() 
+    {this->SetElevationReference(REFERENCE_SEA_LEVEL);}
+  void SetElevationReferenceToElevationBounds() 
+    {this->SetElevationReference(REFERENCE_ELEVATION_BOUNDS);}
+
   // Description:
   // An ASCII description of the map
   vtkGetStringMacro(MapLabel);
@@ -134,6 +150,8 @@ protected:
   float SpatialResolution[3];
   int ProfileDimension[2];
   int ProfileSeekOffset;
+  int ElevationReference;
+
   void ComputeExtentOriginAndSpacing (int extent[6], 
                                       double origin[6], 
                                       double spacing[6]);

@@ -20,7 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.38");
+vtkCxxRevisionMacro(vtkDEMReader, "1.39");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -73,6 +73,7 @@ vtkDEMReader::vtkDEMReader()
     {
     this->SpatialResolution[i] = 0;
     }
+  this->ElevationReference = REFERENCE_ELEVATION_BOUNDS;
   
   this->SetNumberOfInputPorts(0);
 }
@@ -347,7 +348,14 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   //
   origin[0] = this->GroundCoords[VTK_SW][0];
   origin[1] = this->GroundCoords[VTK_SW][1];
-  origin[2] = this->ElevationBounds[0];
+  if ( this->ElevationReference == REFERENCE_ELEVATION_BOUNDS )
+    {
+    origin[2] = this->ElevationBounds[0];
+    }
+  else //REFERENCE_SEA_LEVEL
+    {
+    origin[2] = 0.0;
+    }
 
   spacing[0] = this->SpatialResolution[0] * planeConversion;
   spacing[1] = this->SpatialResolution[1] * planeConversion;
