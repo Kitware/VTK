@@ -143,6 +143,7 @@ void vtkInteractorStylePlane::SetCallbackMethodArgDelete(void (*f)(void *))
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::DefaultCallback(char *type)
 {
+  type = type;
 }
 
 //----------------------------------------------------------------------------
@@ -184,7 +185,6 @@ void vtkInteractorStylePlane::RotateXY(int dx, int dy)
 {
   vtkCamera *cam;
   double *vu, v2[3];
-  double center[3];
   float n1[4], n2[4];
   int *size;
   
@@ -295,14 +295,10 @@ void vtkInteractorStylePlane::TranslateZ(int vtkNotUsed(dx), int dy)
 void vtkInteractorStylePlane::HandleIndicator(int x, int y) 
 {
   int *size;
-  float display[3], point[4], corner[4], *origin;
+  float display[3], point[4];
   float sphereCx, sphereCy, sphereCz;
-  float temp, centerDistDisplay, centerDistWorld, rad;
+  float temp, centerDistDisplay, rad;
   int renderFlag = 0;
-  float dist;
-  int closestCornerId;
-  float closestCorner[3];
-  float closestCornerDist;
 
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
