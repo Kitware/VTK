@@ -179,6 +179,8 @@ struct normal_encoding {
  E ## isInvalid3, \
  E ## isInvalid4
 
+#define EMPTY_VTABLE(E) 0, 0, 0, 0, 0, 0, 0, 0, 0
+
 static int checkCharRefNumber(int);
 
 #include "xmltok_impl.h"
@@ -422,7 +424,7 @@ static const struct normal_encoding latin1_encoding_ns = {
 #include "asciitab.h"
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(sb_)
+  STANDARD_VTABLE(sb_) EMPTY_VTABLE(sb_)
 };
 
 #endif
@@ -435,7 +437,7 @@ static const struct normal_encoding latin1_encoding = {
 #undef BT_COLON
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(sb_)
+  STANDARD_VTABLE(sb_) EMPTY_VTABLE(sb_)
 };
 
 static
@@ -456,7 +458,7 @@ static const struct normal_encoding ascii_encoding_ns = {
 #include "asciitab.h"
 /* BT_NONXML == 0 */
   },
-  STANDARD_VTABLE(sb_)
+  STANDARD_VTABLE(sb_) EMPTY_VTABLE(sb_)
 };
 
 #endif
@@ -469,7 +471,7 @@ static const struct normal_encoding ascii_encoding = {
 #undef BT_COLON
 /* BT_NONXML == 0 */
   },
-  STANDARD_VTABLE(sb_)
+  STANDARD_VTABLE(sb_) EMPTY_VTABLE(sb_)
 };
 
 static int unicode_byte_type(char hi, char lo)
@@ -681,7 +683,7 @@ static const struct normal_encoding little2_encoding_ns = {
 #include "asciitab.h"
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(little2_)
+  STANDARD_VTABLE(little2_) EMPTY_VTABLE(little2_)
 };
 
 #endif
@@ -700,7 +702,7 @@ static const struct normal_encoding little2_encoding = {
 #undef BT_COLON
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(little2_)
+  STANDARD_VTABLE(little2_) EMPTY_VTABLE(little2_)
 };
 
 #if XML_BYTE_ORDER != 21
@@ -713,7 +715,7 @@ static const struct normal_encoding internal_little2_encoding_ns = {
 #include "iasciitab.h"
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(little2_)
+  STANDARD_VTABLE(little2_) EMPTY_VTABLE(little2_)
 };
 
 #endif
@@ -726,7 +728,7 @@ static const struct normal_encoding internal_little2_encoding = {
 #undef BT_COLON
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(little2_)
+  STANDARD_VTABLE(little2_) EMPTY_VTABLE(little2_)
 };
 
 #endif
@@ -820,7 +822,7 @@ static const struct normal_encoding big2_encoding_ns = {
 #include "asciitab.h"
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(big2_)
+  STANDARD_VTABLE(big2_) EMPTY_VTABLE(big2_)
 };
 
 #endif
@@ -839,7 +841,7 @@ static const struct normal_encoding big2_encoding = {
 #undef BT_COLON
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(big2_)
+  STANDARD_VTABLE(big2_) EMPTY_VTABLE(big2_)
 };
 
 #if XML_BYTE_ORDER != 12
@@ -852,7 +854,7 @@ static const struct normal_encoding internal_big2_encoding_ns = {
 #include "iasciitab.h"
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(big2_)
+  STANDARD_VTABLE(big2_) EMPTY_VTABLE(big2_)
 };
 
 #endif
@@ -865,7 +867,7 @@ static const struct normal_encoding internal_big2_encoding = {
 #undef BT_COLON
 #include "latin1tab.h"
   },
-  STANDARD_VTABLE(big2_)
+  STANDARD_VTABLE(big2_) EMPTY_VTABLE(big2_)
 };
 
 #endif
