@@ -35,7 +35,7 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
     vtk${array}Array b${array}Array
     b${array}Array Allocate 1000 100
     # force a resize
-    b${array}Array InsertComponent 2001 1 1
+    b${array}Array InsertComponent 2001 0 1
     b${array}Array DeepCopy a${array}Array
     
     # MakeObject
@@ -50,7 +50,7 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
 	    incr k
 	}
     }
-    b${array}Array InsertComponent 2001 1 1
+    b${array}Array InsertComponent 2001 0 1
     puts "Actual memory size is: [b${array}Array GetActualMemorySize]"
     b${array}Array Resize 3000
     puts "Actual memory size after Resize is: [b${array}Array GetActualMemorySize]"
