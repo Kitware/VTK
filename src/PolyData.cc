@@ -239,7 +239,7 @@ vlCellArray* vlPolyData::GetStrips()
 }
 
 // Description:
-// 
+// Restore object to initial state. Release memory back to system.
 void vlPolyData::Initialize()
 {
   vlPointSet::Initialize();
