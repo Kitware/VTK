@@ -84,6 +84,7 @@ vtkMultiThreader \
 vtkMutexLock \
 vtkNormals \
 vtkObject \
+vtkOutputWindow \
 vtkPixel \
 vtkPlane \
 vtkPlaneCollection \

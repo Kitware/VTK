@@ -872,6 +872,9 @@ void ReadMakefiles(CPcmakerDlg *vals)
   UpdateStart(LT_COMMON);
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
   readInMakefile(fname,strdup("common"));
+  concrete[num_concrete] = strdup("vtkWin32OutputWindow");
+  concrete_lib[num_concrete] = strdup("common");
+  num_concrete++;
   UpdateEnd(LT_COMMON);
 }
 
