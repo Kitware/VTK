@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.13");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.14");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -47,6 +47,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
 
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
+  this->SetParametricFunction(NULL);
 }
 
 void vtkParametricFunctionSource::SetParametricFunction(vtkParametricFunction *f)
@@ -524,7 +525,9 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   outData->DeepCopy(tri->GetOutput());
 
   if ( GenerateTextureCoordinates != 0 )
+    {
     outData->GetPointData()->SetTCoords( newTCoords );
+    }
 
   // Were done, clean up.
   points->Delete();
