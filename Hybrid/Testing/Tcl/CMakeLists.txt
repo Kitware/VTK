@@ -7,6 +7,7 @@ IF (VTK_USE_RENDERING)
     FOREACH ( tfile 
       3DMorph
       banana
+      bore
       camera
       clipHex
       clipPyramid
