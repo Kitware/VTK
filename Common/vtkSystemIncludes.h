@@ -187,6 +187,7 @@ typedef int vtkIdType;
 #define VTK_IMAGE_DATA         6
 #define VTK_DATA_OBJECT        7
 #define VTK_DATA_SET           8
+#define VTK_POINT_SET          9
 
 // These types define error codes for vtk functions
 #define VTK_OK                 1
