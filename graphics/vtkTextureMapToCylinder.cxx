@@ -84,6 +84,7 @@ void vtkTextureMapToCylinder::Execute()
     vtkPoints *pts=vtkPoints::New(); pts->SetNumberOfPoints(numPts);
     float corner[3], max[3], mid[3], min[3], size[3], l;
     vtkOBBTree OBB;
+    OBB.ReferenceCountingOff();
 
     for ( ptId=0; ptId < numPts; ptId++ )
       {
