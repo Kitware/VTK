@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.12");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.13");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);
@@ -85,7 +85,7 @@ void vtkCollectPolyData::ExecuteData(vtkDataObject*)
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  unsigned long size;
+  unsigned long size=0;
   unsigned long tmp=0;
   int numProcs, myId;
   int idx;
