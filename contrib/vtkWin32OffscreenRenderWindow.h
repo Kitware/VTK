@@ -35,8 +35,8 @@ public:
   virtual  int GetEventPending() { return 0; }
 //BTX
 protected:
-  HBITMAP m_hBitmap, m_hOldBitmap;
-  int m_bpp, m_zbpp;
+  HBITMAP MhBitmap, MhOldBitmap;
+  int MBpp, MZBpp;
   
   // overrides
   virtual void Clean();

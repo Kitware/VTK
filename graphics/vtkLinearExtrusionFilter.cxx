@@ -189,7 +189,7 @@ void vtkLinearExtrusionFilter::Execute()
     {
     x = inPts->GetPoint(ptId);
     newPts->SetPoint(ptId,x);
-    newPts->SetPoint(ptId+numPts,(this->*(ExtrudePoint))(x,ptId,inNormals));
+    newPts->SetPoint(ptId+numPts,(this->*(this->ExtrudePoint))(x,ptId,inNormals));
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
