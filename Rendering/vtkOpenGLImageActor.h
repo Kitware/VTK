@@ -51,13 +51,15 @@ protected:
   vtkOpenGLImageActor();
   ~vtkOpenGLImageActor();
 
-  unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
+  unsigned char *MakeDataSuitable(int &xsize, int &ysize,
+                                  int &release, int &reuseTexture);
 
   vtkTimeStamp   LoadTime;
   long          Index;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
   float Coords[12];
   float TCoords[8];
+  int TextureSize[2];
 private:
   vtkOpenGLImageActor(const vtkOpenGLImageActor&);  // Not implemented.
   void operator=(const vtkOpenGLImageActor&);  // Not implemented.

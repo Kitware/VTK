@@ -32,9 +32,8 @@
 #include <GL/gl.h>
 #endif
 
-
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.19");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -43,6 +42,8 @@ vtkOpenGLImageActor::vtkOpenGLImageActor()
 {
   this->Index = 0;
   this->RenderWindow = 0;
+  this->TextureSize[0] = 0;
+  this->TextureSize[1] = 0;
 }
 
 vtkOpenGLImageActor::~vtkOpenGLImageActor()
@@ -72,6 +73,8 @@ void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
       glDeleteLists(this->Index,1);
       }
 #endif
+    this->TextureSize[0] = 0;
+    this->TextureSize[1] = 0;
     }
   this->Index = 0;
   this->RenderWindow = NULL;
@@ -79,13 +82,16 @@ void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
-                                                     int &release)
+                                                     int &release,
+                                                     int &reuseTexture)
 {
   int contiguous = 0;
   unsigned short xs,ys;
   int powOfTwo = 0;
   int numComp = this->Input->GetNumberOfScalarComponents();
   int xdim, ydim;
+
+  reuseTexture = 0;
   
   // it must be a power of two and contiguous
   // find the two used dimensions
@@ -174,7 +180,17 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
       this->TCoords[4] = this->TCoords[2];
       this->TCoords[5] = 1.0 - 0.5/ysize;  
       this->TCoords[6] = this->TCoords[0];
-      this->TCoords[7] = this->TCoords[5];  
+      this->TCoords[7] = this->TCoords[5];
+
+#ifdef GL_VERSION_1_1
+      // if texture size hasn't changed, reuse old texture
+      if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+        {
+        reuseTexture = 1;
+        }
+#endif
+      this->TextureSize[0] = xsize;
+      this->TextureSize[1] = ysize;
       return (unsigned char *)
         this->Input->GetScalarPointerForExtent(this->DisplayExtent);
       }
@@ -182,7 +198,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   
   // if we made it here then we must copy the data and possibly pad 
   // it as well
-  release = 1;
+
   // find the target size
   xsize = 1;
   while (xsize < 
@@ -207,8 +223,26 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   this->TCoords[6] = this->TCoords[0];
   this->TCoords[7] = this->TCoords[5];  
 
+#ifdef GL_VERSION_1_1
+  // if contiguous and texture size hasn't changed, don't copy or pad
+  if (contiguous &&
+      xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+    {
+    release = 0;
+    reuseTexture = 1;
+    xsize = this->DisplayExtent[xdim*2+1] - this->DisplayExtent[xdim*2] + 1;
+    ysize = this->DisplayExtent[ydim*2+1] - this->DisplayExtent[ydim*2] + 1;
+    return (unsigned char *)
+      this->Input->GetScalarPointerForExtent(this->DisplayExtent);
+    }
+#endif
+
+  this->TextureSize[0] = xsize;
+  this->TextureSize[1] = ysize;
+
   // allocate the memory
   unsigned char *res = new unsigned char [ysize*xsize*numComp];
+  release = 1;
   
   // copy the input data to the memory
   int inIncX, inIncY, inIncZ;
@@ -274,28 +308,38 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
       ren->GetRenderWindow() != this->RenderWindow)
     {
     int xsize, ysize;
-    int release;
-    unsigned char *data = this->MakeDataSuitable(xsize,ysize, release);
+    int release, reuseTexture;
+    unsigned char *data = this->MakeDataSuitable(xsize,ysize,
+                                                 release, reuseTexture);
     int bytesPerPixel = this->Input->GetNumberOfScalarComponents();
     GLuint tempIndex=0;
 
-    // free any old display lists
-    this->ReleaseGraphicsResources(ren->GetRenderWindow());
-    this->RenderWindow = ren->GetRenderWindow();
-
-    // define a display list for this texture
-    // get a unique display list id
+    if (reuseTexture)
+      {
 #ifdef GL_VERSION_1_1
-    glGenTextures(1, &tempIndex);
-    this->Index = (long) tempIndex;
-    glBindTexture(GL_TEXTURE_2D, this->Index);
+      glBindTexture(GL_TEXTURE_2D, this->Index);
+#endif
+      }
+    else
+      {
+      // free any old display lists
+      this->ReleaseGraphicsResources(ren->GetRenderWindow());
+      this->RenderWindow = ren->GetRenderWindow();
+
+      // define a display list for this texture
+      // get a unique display list id
+#ifdef GL_VERSION_1_1
+      glGenTextures(1, &tempIndex);
+      this->Index = (long) tempIndex;
+      glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
-    this->Index = glGenLists(1);
-    glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
-    glNewList ((GLuint) this->Index, GL_COMPILE);
+      this->Index = glGenLists(1);
+      glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
+      glNewList ((GLuint) this->Index, GL_COMPILE);
 #endif
 
-   ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
+      ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
+      }
     
     if (this->Interpolate)
       {
@@ -330,9 +374,22 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
       case 4: internalFormat = GL_RGBA8; break;
       }
 #endif
-    glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                  xsize, ysize, 0, format, 
-                  GL_UNSIGNED_BYTE, (const GLvoid *)data );
+
+    if (reuseTexture)
+      {
+#ifdef GL_VERSION_1_1
+      glTexSubImage2D(  GL_TEXTURE_2D, 0,
+                        0, 0, xsize, ysize, format, 
+                        GL_UNSIGNED_BYTE, (const GLvoid *)data );
+#endif
+      }
+    else
+      {
+      glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
+                    xsize, ysize, 0, format, 
+                    GL_UNSIGNED_BYTE, (const GLvoid *)data );
+      }
+
 #ifndef GL_VERSION_1_1
     glEndList ();
 #endif
