@@ -7,6 +7,7 @@ vtkCommon
 #
 ADD_EXECUTABLE(ObjectFactory ObjectFactory)
 ADD_EXECUTABLE(otherArrays otherArrays)
+ADD_EXECUTABLE(otherEmptyCell otherEmptyCell)
 ADD_EXECUTABLE(otherRectilinearGrid otherRectilinearGrid)
 ADD_EXECUTABLE(otherCellBoundaries otherCellBoundaries)
 ADD_EXECUTABLE(otherCellDerivatives otherCellDerivatives)
