@@ -290,8 +290,13 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
 
   if (self->ImageViewer)
     {
-		// Squash the ImageViewer's WindowID
-	  self->ImageViewer->SetWindowId ( (void*)NULL );
+    if (self->ImageViewer->GetReferenceCount() > 1)
+      {
+      vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
+      return;
+      }
+    // Squash the ImageViewer's WindowID
+    self->ImageViewer->SetWindowId ( (void*)NULL );
     self->ImageViewer->UnRegister(NULL);
     self->ImageViewer = NULL;
     ckfree (self->IV);
@@ -338,9 +343,7 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
-#ifndef _WIN32
       Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
-#endif
       break;
     default:
       // nothing
@@ -453,9 +456,12 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 
     if (message != WM_PAINT)
       {
-      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetImageWindow());
-      SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
-      CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
+      if (self->ImageViewer)
+	{
+	SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetImageWindow());
+	SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
+	CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
+	}
       }
 
     // now reset to the original config
