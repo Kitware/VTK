@@ -5,7 +5,10 @@ import java.lang.Math;
 import sun.awt.*;
 import java.beans.*;
 
-public class vtkPanel extends Canvas implements MouseListener, MouseMotionListener, KeyListener
+public class vtkPanel extends Canvas implements 
+  MouseListener, 
+  MouseMotionListener, 
+  KeyListener
 {
   protected vtkRenderWindow rw = new vtkRenderWindow();     
   protected vtkRenderer ren = new vtkRenderer();
@@ -13,10 +16,10 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   protected vtkLight lgt = new vtkLight();
   protected int lastX;
   protected int lastY;
-  int windowset = 0;
-  int LightFollowCamera = 1;
-  int InteractionMode = 1;
-  boolean rendering = false;
+  private int windowset = 0;
+  private int LightFollowCamera = 1;
+  private int InteractionMode = 1;
+  private boolean rendering = false;
   
   static { 
     System.loadLibrary("vtkCommonJava"); 
@@ -85,6 +88,10 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
             rendering = false;
           }
       }
+  }
+
+  public boolean isWindowSet() {
+    return (this.windowset==1);
   }
   
   public void paint(Graphics g)
