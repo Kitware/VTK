@@ -106,6 +106,9 @@ public:
 
 protected:
   void Execute();
+  // This source does not know how to generate pieces yet.
+  int ComputeDivisionExtents(vtkDataObject *output, 
+			     int idx, int numDivisions);
 
   char *GeometryFileName;
   char *DisplacementFileName;
