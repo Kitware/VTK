@@ -546,7 +546,10 @@ void vtkMILVideoSource::InternalGrab()
     this->StartTimeStamp = this->FrameBufferTimeStamps[index];
     }
 
-  void *ptr = reinterpret_cast<vtkDataArray *>(this->FrameBuffer[index])->GetVoidPointer(0);
+
+  void *ptr = ((reinterpret_cast<vtkUnsignedCharArray*>( \
+		       this->FrameBuffer[index]))->GetPointer(0));
+
   int depth = this->FrameBufferBitsPerPixel/8;
 
   int offsetX = this->FrameBufferExtent[0];

@@ -504,7 +504,8 @@ void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
                                        0.001 * lpVHdr->dwTimeCaptured;
 
   unsigned char *ptr = (unsigned char *)
-    reinterpret_cast<vtkUnsignedCharArray*>(this->FrameBuffer[index])->GetPointer(0));
+    ((reinterpret_cast<vtkUnsignedCharArray*>(this->FrameBuffer[index])) \
+     ->GetPointer(0));
 
   // the DIB has rows which are multiples of 4 bytes
   int outBytesPerRow = ((this->FrameBufferExtent[1]-

@@ -27,6 +27,40 @@ vtkWeightedTransformFilter
 
 WRAP_EXCLUDE_FILES(vtkVRML)
 
+IF (WIN32)
+  OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" ON)
+  IF (VTK_USE_VIDEO_FOR_WINDOWS)
+    SOURCE_FILES ( Hybrid_SRCS
+      vtkWin32VideoSource
+      )
+    LINK_LIBRARIES (
+      vfw32
+      )
+  ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
+ENDIF (WIN32)
+
+IF (WIN32)
+  OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
+  IF (VTK_USE_MATROX_IMAGING)
+    FIND_LIBRARY(MIL_LIBRARY MIL
+      "C:/Program Files/Matrox Imaging/mil/library/winnt/msc/dll"
+      "C:/Program Files/Matrox Imaging/mil/library/windows/msc/dll"
+      )
+    FIND_PATH(MIL_INCLUDE_PATH mil.h
+      "C:/Program Files/Matrox Imaging/mil/include"
+      )
+    SOURCE_FILES ( Hybrid_SRCS
+      vtkMILVideoSource
+      )
+    INCLUDE_DIRECTORIES(
+      ${MIL_INCLUDE_PATH}
+      )
+    LINK_LIBRARIES (
+      ${MIL_LIBRARY}
+      )
+  ENDIF (VTK_USE_MATROX_IMAGING)
+ENDIF (WIN32)
+
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
 ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
@@ -98,7 +132,6 @@ vtkIO
 vtkRendering
 vtkHybrid
 )
-
 
 INSTALL_TARGETS(/lib/vtk vtkHybrid)
 INSTALL_FILES(/include/vtk .h Hybrid_SRCS)
