@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.58");
 #endif
 
 #define MAX_LIGHTS 8
@@ -209,9 +209,7 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     }
 
   data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
-
   glDisable( GL_SCISSOR_TEST );
-  glViewport(0,0, this->Size[0], this->Size[1]);
 
 #ifdef sparc
   // We need to read the image data one row at a time and convert it
