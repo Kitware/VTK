@@ -25,6 +25,12 @@ vtkFloatVectors		GetVector	301 3
 vtkAbstractTransform	TransformPoint	307 3
 vtkAbstractTransform	TransformFloatPoint 301 3
 vtkAbstractTransform	TransformDoublePoint 307 3
+vtkAbstractTransform	TransformNormalAtPoint	307 3
+vtkAbstractTransform	TransformFloatNormalAtPoint 301 3
+vtkAbstractTransform	TransformDoubleNormalAtPoint 307 3
+vtkAbstractTransform	TransformVectorAtPoint	307 3
+vtkAbstractTransform	TransformFloatVectorAtPoint 301 3
+vtkAbstractTransform	TransformDoubleVectorAtPoint 307 3
 vtkLinearTransform	TransformNormal 307 3
 vtkLinearTransform	TransformFloatNormal 301 3
 vtkLinearTransform	TransformDoubleNormal 307 3

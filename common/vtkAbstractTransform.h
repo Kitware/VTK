@@ -91,8 +91,8 @@ public:
     this->Update(); this->InternalTransformPoint(in,out); };
 
   // Description:
-  // Synonymous with TransformDoublePoint(x,y,z).
-  // Use this if you are programming in python, tcl or Java.
+  // Apply the transformation to a double-precision coordinate.  
+  // Use this if you are programming in Python, tcl or Java.
   double *TransformPoint(double x, double y, double z) {
     return this->TransformDoublePoint(x,y,z); }
   double *TransformPoint(const double point[3]) {
@@ -100,7 +100,7 @@ public:
 
   // Description:
   // Apply the transformation to an (x,y,z) coordinate.
-  // Use this if you are programming in python, tcl or Java.
+  // Use this if you are programming in Python, tcl or Java.
   float *TransformFloatPoint(float x, float y, float z) {
       this->InternalFloatPoint[0] = x;
       this->InternalFloatPoint[1] = y;
@@ -112,7 +112,7 @@ public:
 
   // Description:
   // Apply the transformation to a double-precision (x,y,z) coordinate.
-  // Use this if you are programming in python, tcl or Java.
+  // Use this if you are programming in Python, tcl or Java.
   double *TransformDoublePoint(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;
     this->InternalDoublePoint[1] = y;
@@ -121,6 +121,70 @@ public:
     return this->InternalDoublePoint; };
   double *TransformDoublePoint(const double point[3]) {
     return this->TransformDoublePoint(point[0],point[1],point[2]); };
+
+  // Description:
+  // Apply the transformation to a normal at the specified vertex.  If the
+  // transformation is a vtkLinearTransform, you can use TransformNormal()
+  // instead.
+  void TransformNormalAtPoint(const float point[3], const float in[3],
+			      float out[3]);
+  void TransformNormalAtPoint(const double point[3], const double in[3],
+			      double out[3]);
+
+  double *TransformNormalAtPoint(const double point[3], 
+				 const double normal[3]) {
+    this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
+    return this->InternalDoublePoint; };
+
+  // Description:
+  // Apply the transformation to a double-precision normal at the specified
+  // vertex.  If the transformation is a vtkLinearTransform, you can use
+  // TransformDoubleNormal() instead.
+  double *TransformDoubleNormalAtPoint(const double point[3],
+				       const double normal[3]) {
+    this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
+    return this->InternalDoublePoint; };
+  
+  // Description:
+  // Apply the transformation to a single-precision normal at the specified
+  // vertex.  If the transformation is a vtkLinearTransform, you can use
+  // TransformFloatNormal() instead.
+  float *TransformFloatNormalAtPoint(const float point[3],
+				     const float normal[3]) {
+    this->TransformNormalAtPoint(point,normal,this->InternalFloatPoint);
+    return this->InternalFloatPoint; };
+
+  // Description:
+  // Apply the transformation to a vector at the specified vertex.  If the
+  // transformation is a vtkLinearTransform, you can use TransformVector()
+  // instead.
+  void TransformVectorAtPoint(const float point[3], const float in[3],
+			      float out[3]);
+  void TransformVectorAtPoint(const double point[3], const double in[3],
+			      double out[3]);
+
+  double *TransformVectorAtPoint(const double point[3], 
+				 const double vector[3]) {
+    this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
+    return this->InternalDoublePoint; };
+
+  // Description:
+  // Apply the transformation to a double-precision vector at the specified
+  // vertex.  If the transformation is a vtkLinearTransform, you can use
+  // TransformDoubleVector() instead.
+  double *TransformDoubleVectorAtPoint(const double point[3],
+				       const double vector[3]) {
+    this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
+    return this->InternalDoublePoint; };
+  
+  // Description:
+  // Apply the transformation to a single-precision vector at the specified
+  // vertex.  If the transformation is a vtkLinearTransform, you can use
+  // TransformFloatVector() instead.
+  float *TransformFloatVectorAtPoint(const float point[3],
+				     const float vector[3]) {
+    this->TransformVectorAtPoint(point,vector,this->InternalFloatPoint);
+    return this->InternalFloatPoint; };
 
   // Description:
   // Apply the transformation to a series of points, and append the
@@ -139,7 +203,10 @@ public:
 
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
-  // the returned inverse transform will automatically update.
+  // the returned inverse transform will automatically update.  If you
+  // want the inverse of a vtkTransform, you might want to use
+  // GetLinearInverse() instead which will type cast the result from
+  // vtkAbstractTransform to vtkLinearTransform.
   vtkAbstractTransform *GetInverse();
 
   // Description:

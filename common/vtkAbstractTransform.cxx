@@ -80,6 +80,80 @@ void vtkAbstractTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkAbstractTransform::TransformNormalAtPoint(const double point[3],
+						  const double in[3],
+						  double out[3])
+{
+  this->Update();
+
+  double matrix[3][3];
+  double coord[3];
+
+  this->InternalTransformDerivative(point,coord,matrix);
+  vtkMath::Transpose3x3(matrix,matrix);
+  vtkMath::LinearSolve3x3(matrix,in,out);
+  vtkMath::Normalize(out);
+}
+
+void vtkAbstractTransform::TransformNormalAtPoint(const float point[3],
+						  const float in[3],
+						  float out[3])
+{
+  double coord[3];
+  double normal[3];
+
+  coord[0] = point[0];
+  coord[1] = point[1];
+  coord[2] = point[2];
+
+  normal[0] = in[0];
+  normal[1] = in[1];
+  normal[2] = in[2];
+
+  this->TransformNormalAtPoint(coord,normal,normal);
+
+  out[0] = normal[0];
+  out[1] = normal[1];
+  out[2] = normal[2];
+}
+
+//----------------------------------------------------------------------------
+void vtkAbstractTransform::TransformVectorAtPoint(const double point[3],
+						  const double in[3],
+						  double out[3])
+{
+  this->Update();
+
+  double matrix[3][3];
+  double coord[3];
+
+  this->InternalTransformDerivative(point,coord,matrix);
+  vtkMath::Multiply3x3(matrix,in,out);
+}
+
+void vtkAbstractTransform::TransformVectorAtPoint(const float point[3],
+						  const float in[3],
+						  float out[3])
+{
+  double coord[3];
+  double vector[3];
+
+  coord[0] = point[0];
+  coord[1] = point[1];
+  coord[2] = point[2];
+
+  vector[0] = in[0];
+  vector[1] = in[1];
+  vector[2] = in[2];
+
+  this->TransformVectorAtPoint(coord,vector,vector);
+
+  out[0] = vector[0];
+  out[1] = vector[1];
+  out[2] = vector[2];
+}
+
+//----------------------------------------------------------------------------
 // Transform a series of points.
 void vtkAbstractTransform::TransformPoints(vtkPoints *in, vtkPoints *out)
 {
