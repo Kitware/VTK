@@ -6,7 +6,9 @@
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to Tom Johnson at Johnson Scientific International who
-             developed and contributed this class.
+             developed and contributed this class. Also see
+             ftp://www.ou.edu/pub/simtelnet/msdos/worldmap and the
+             data by John B. Allison for more information.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
