@@ -17,15 +17,18 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.30");
+vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.31");
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value, 
@@ -43,6 +46,8 @@ vtkProgrammableGlyphFilter::vtkProgrammableGlyphFilter()
   this->PointData = NULL;
   
   this->ColorMode = VTK_COLOR_BY_INPUT;
+
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkProgrammableGlyphFilter::~vtkProgrammableGlyphFilter()
@@ -56,28 +61,41 @@ vtkProgrammableGlyphFilter::~vtkProgrammableGlyphFilter()
 // Specify a source object at a specified table location.
 void vtkProgrammableGlyphFilter::SetSource(vtkPolyData *pd)
 {
-  this->vtkProcessObject::SetNthInput(1, pd);
+  this->SetInput(1, pd);
 }
 
 // Get a pointer to a source object at a specified table location.
 vtkPolyData *vtkProgrammableGlyphFilter::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  else
-    {
-    return (vtkPolyData *)this->Inputs[1];
-    }
+
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
-void vtkProgrammableGlyphFilter::Execute()
+int vtkProgrammableGlyphFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *source = vtkPolyData::SafeDownCast(
+    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData *inputCD = input->GetCellData();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *newPts, *sourcePts;
@@ -100,18 +118,12 @@ void vtkProgrammableGlyphFilter::Execute()
     vtkErrorMacro(<<"No input points to glyph");
     }
 
-  if (this->GetSource() == NULL)
-    {
-    vtkErrorMacro (<< "Source is NULL.");
-    return;
-    }
-
   pts=vtkIdList::New();
   pts->Allocate(VTK_CELL_SIZE);
-  sourcePD = this->GetSource()->GetPointData();
-  sourceCD = this->GetSource()->GetCellData();
-  numSourcePts = this->GetSource()->GetNumberOfPoints();
-  numSourceCells = this->GetSource()->GetNumberOfCells();
+  sourcePD = source->GetPointData();
+  sourceCD = source->GetCellData();
+  numSourcePts = source->GetNumberOfPoints();
+  numSourceCells = source->GetNumberOfCells();
 
   outputPD->CopyScalarsOff(); //'cause we control the coloring process
   outputCD->CopyScalarsOff();
@@ -154,7 +166,7 @@ void vtkProgrammableGlyphFilter::Execute()
   // Loop over all points, invoking glyph method and Update(), 
   // then append output of source to output of this filter.
   //  
-  this->Updating = 1; // to prevent infinite recursion
+//  this->Updating = 1; // to prevent infinite recursion
   this->PointData = input->GetPointData();
   for (this->PointId=0; this->PointId < numPts; this->PointId++)
     {
@@ -174,15 +186,15 @@ void vtkProgrammableGlyphFilter::Execute()
       (*this->GlyphMethod)(this->GlyphMethodArg);
       }
     
-    if ( this->GetSource() ) 
+    if ( source ) 
       {
-      this->GetSource()->Update();
+      source->Update();
     
-      sourcePts = this->GetSource()->GetPoints();
-      numSourcePts = this->GetSource()->GetNumberOfPoints();
-      numSourceCells = this->GetSource()->GetNumberOfCells();
-      sourcePD = this->GetSource()->GetPointData();
-      sourceCD = this->GetSource()->GetCellData();
+      sourcePts = source->GetPoints();
+      numSourcePts = source->GetNumberOfPoints();
+      numSourceCells = source->GetNumberOfCells();
+      sourcePD = source->GetPointData();
+      sourceCD = source->GetCellData();
 
       if ( this->ColorMode == VTK_COLOR_BY_SOURCE )
         {
@@ -199,7 +211,7 @@ void vtkProgrammableGlyphFilter::Execute()
       
       for (cellId=0; cellId < numSourceCells; cellId++)
         {
-        cell = this->GetSource()->GetCell(cellId);
+        cell = source->GetCell(cellId);
         cellPts = cell->GetPointIds();
         npts = cellPts->GetNumberOfIds();
         for (pts->Reset(), i=0; i < npts; i++) 
@@ -233,7 +245,7 @@ void vtkProgrammableGlyphFilter::Execute()
       }//if a source is available
     } //for all input points
 
-  this->Updating = 0;
+//  this->Updating = 0;
   
   pts->Delete();
 
@@ -255,6 +267,8 @@ void vtkProgrammableGlyphFilter::Execute()
     }
   
   output->Squeeze();
+
+  return 1;
 }
 
 
@@ -298,6 +312,17 @@ const char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
     }
 }
 
+int vtkProgrammableGlyphFilter::FillInputPortInformation(int port,
+                                                         vtkInformation *info)
+{
+  if (port == 0)
+    {
+    return this->Superclass::FillInputPortInformation(port, info);
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}
+
 void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -324,5 +349,4 @@ void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No Glyph Method\n";
     }
-
 }

@@ -33,7 +33,7 @@ proc Glyph {} {
    set xyz [glypher GetPoint]
    set x [lindex $xyz 0] 
    set y [lindex $xyz 1] 
-   set length [[glypher GetInput] GetLength]
+   set length [[glypher GetInput 0] GetLength]
    set scale [expr $length / (2.0*$res)]
 
    squad SetScale $scale $scale $scale
