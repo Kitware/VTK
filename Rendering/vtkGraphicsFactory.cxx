@@ -66,7 +66,6 @@
 #include "vtkMesaLight.h"
 #include "vtkMesaProperty.h"
 #include "vtkMesaPolyDataMapper.h"
-#include "vtkMesaRayCastImageDisplayHelper.h"
 #include "vtkMesaRenderer.h"
 #include "vtkMesaTexture.h"
 #include "vtkXMesaRenderWindow.h"
@@ -79,7 +78,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.36");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
