@@ -165,6 +165,10 @@ protected:
 			     VLIPixel **outBase, int outSize[2],
 			     VLIVector2D textureCoords[6] );
 
+  // Keep track of the size of the data loaded so we know if we can
+  // simply update when a change occurs or if we need to release and
+  // create again
+  int LoadedDataSize[3];
   
 };
 

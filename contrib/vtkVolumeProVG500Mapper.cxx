@@ -52,7 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
 
-
 vtkVolumeProVG500Mapper::vtkVolumeProVG500Mapper()
 {
   VLIStatus         status;
@@ -138,12 +137,6 @@ vtkVolumeProVG500Mapper::~vtkVolumeProVG500Mapper()
     this->Cut->Release();
     }
 
-  // Free the context if necessary
-  if (this->Context)
-    {
-    this->Context->Release();
-    }
-
   // Free the lookup table if it was created
   if ( this->LookupTable )
     {
@@ -154,6 +147,12 @@ vtkVolumeProVG500Mapper::~vtkVolumeProVG500Mapper()
   if ( this->Volume )
     {
     this->Volume->Release();
+    }
+
+  // Free the context if necessary
+  if (this->Context)
+    {
+    this->Context->Release();
     }
 
   // Terminate connection to the hardware
@@ -210,8 +209,6 @@ void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNot
   matrixVLI = new VLIMatrix();
 
   // Get the necessary information from the vtk camera
-  // Simplified - skip all checks to see if this is parallel,
-  // etc.
   ren->GetActiveCamera()->GetPosition( positionVTK );
   ren->GetActiveCamera()->GetFocalPoint( focalPointVTK );
   ren->GetActiveCamera()->GetViewUp( viewUpVTK );
@@ -221,7 +218,7 @@ void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNot
     {
     vtkWarningMacro("The Volume Pro VG500 does not support perspective projection and the camera is currently not in ParallelProjection mode.");
     }
-  
+
   // Create the three vectors we need to do the lookat
   positionVLI = new VLIVector3D( positionVTK );
   focalPointVLI = new VLIVector3D( focalPointVTK );
@@ -663,8 +660,88 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
   VLIStatus                 status;
   float                     range[2];
 
+
   // We need the size to create the volume and check the subvolume
   input->GetDimensions( dataSize );
+
+  // If we have a volume, the size still matches, but our data has
+  // been modified, call UpdateVolume() to change the content
+  if ( this->Volume &&
+       input == this->VolumeInput &&
+       input->GetMTime() >= this->VolumeBuildTime->GetMTime() &&
+       this->LoadedDataSize[0] == dataSize[0] && 
+       this->LoadedDataSize[1] == dataSize[1] &&
+       this->LoadedDataSize[2] == dataSize[2] )
+    {
+    int volumeUpdated = 0;
+
+    // Get the data type and a void * pointer to the data
+    dataType = input->GetPointData()->GetScalars()->GetDataType();
+    data_ptr = input->GetPointData()->GetScalars()->GetVoidPointer(0);
+
+    // Switch on data type and update the volume
+    switch ( dataType )
+      {
+      case VTK_UNSIGNED_CHAR:
+	if ( this->VolumeDataType == VTK_VOLUME_8BIT )
+	  {
+	  uc_data_ptr = (unsigned char *) data_ptr;
+	  this->Volume->UpdateVolume( kVLIVoxelFormatUINT8, uc_data_ptr,
+				      0, 0, 0, 
+				      dataSize[0], 
+				      dataSize[1], 
+				      dataSize[2] );
+	  volumeUpdated = 1;
+	  }
+
+      break;
+
+      case VTK_UNSIGNED_SHORT:
+	if ( this->VolumeDataType == VTK_VOLUME_12BIT_UPPER ||
+	     this->VolumeDataType == VTK_VOLUME_12BIT_LOWER )
+	  {
+	  us_data_ptr = (unsigned short *) data_ptr;
+
+	  // If our scalar range is above 4095 (doesn't fit in 12 bits)
+	  // then use the upper 12 bits of our 16 bit data, otherwise
+	  // use the lower 12 bits.
+	  input->GetPointData()->GetScalars()->GetRange( range );
+	  if ( range[1] > 4095 )
+	    {
+	    this->Volume->UpdateVolume(kVLIVoxelFormatUINT12U, 
+				       us_data_ptr,
+				       0, 0, 0,
+				       dataSize[0], 
+				       dataSize[1], 
+				       dataSize[2]);
+	    this->VolumeDataType = VTK_VOLUME_12BIT_UPPER;
+	    }
+	  else
+	    {
+	    this->Volume->UpdateVolume(kVLIVoxelFormatUINT12L, 
+				       us_data_ptr,
+				       0, 0, 0,
+				       dataSize[0], 
+				       dataSize[1], 
+				       dataSize[2]);
+	    this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
+	    }
+	  volumeUpdated = 1;
+	  }
+	break;
+
+      default:
+	vtkErrorMacro( << "You must convert your data to unsigned char " <<
+	                   "or unsigned short for a VolumePro mapper" );
+	break;
+      }
+    
+    if ( volumeUpdated )
+      {
+      this->VolumeBuildTime->Modified();
+      }
+
+    }
 
   // If we have a volume, it is the one we last built with, and it
   // has not been modified since then, then we don't need to rebuilt
@@ -689,8 +766,6 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
     data_ptr = input->GetPointData()->GetScalars()->GetVoidPointer(0);
 
     // Switch on data type and create the volume
-    // Simplified - only handle 8 bit for now to ensure that is
-    // what we are dealing with
     switch ( dataType )
       {
       case VTK_UNSIGNED_CHAR:
@@ -734,7 +809,13 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
 	                   "or unsigned short for a VolumePro mapper" );
 	break;
       }
+
     }
+
+  // Keep the data size for our check next time
+  this->LoadedDataSize[0] = dataSize[0];
+  this->LoadedDataSize[1] = dataSize[1];
+  this->LoadedDataSize[2] = dataSize[2];
 
   // Store the matrix of the volume in a temporary transformation matrix
   volumeTransform = vtkTransform::New();
@@ -960,6 +1041,7 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     return;
     }
 
+
   // make sure that we have scalar input and update the scalar input
   if ( this->GetInput() == NULL ) 
     {
@@ -974,16 +1056,24 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     } 
 
   this->UpdateCamera( ren, vol );
+
   this->UpdateLights( ren, vol);
+
   this->UpdateVolume( ren, vol );
+
   this->UpdateProperties( ren, vol );  
+
   if ( !this->Volume )
     {
     return;
     }
+
   this->UpdateCropping( ren, vol );
+
   this->UpdateCutPlane( ren, vol );
+
   this->UpdateCursor( ren, vol );
+
 
   switch ( this->BlendMode )
     {
@@ -1060,4 +1150,7 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     {
     delete [] newBasePlane;
     }
+
 }
+
+

@@ -94,6 +94,29 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   t = vtkTransform::New();
   t->SetMatrix( ren->GetActiveCamera()->GetViewTransformMatrix() );
   center = vol->GetCenter();
+
+  // if the cut plane is on
+  if ( this->CutPlane )
+    {
+    // How far is the center from the center of the cut?
+    float dist = 
+      center[0] * this->CutPlaneEquation[0] +
+      center[1] * this->CutPlaneEquation[1] +
+      center[2] * this->CutPlaneEquation[2] +
+      this->CutPlaneEquation[3] + 0.5*this->CutPlaneThickness;
+    
+    // Move the center along the cut direction onto the cut center plane.
+    center[0] -= 
+      dist * this->CutPlaneEquation[0];
+    
+    center[1] -=
+      dist * this->CutPlaneEquation[1];
+
+    center[2] -=
+      dist * this->CutPlaneEquation[2];
+
+    }
+
   in[0] = center[0];
   in[1] = center[1];
   in[2] = center[2];
@@ -103,14 +126,8 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   volCenter[1] = out[1] / out[3];
   volCenter[2] = out[2] / out[3];
 
-  // Remove the view transform from the OpenGL modelview matrix stack
+  // Invert this matrix to go from view to world
   t->Inverse();
-  vtkMatrix4x4 *m = vtkMatrix4x4::New();
-  t->GetTranspose(m);
-  
-  glMultMatrixd(m->Element[0]);
-  m->Delete();
-  t->Delete();
   
   // Specify the texture
   glColor3f(1.0,1.0,1.0);
@@ -122,7 +139,7 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 		0, GL_RGBA, GL_UNSIGNED_BYTE, basePlane );
 #endif
 
-
+  
   // What is the center of the hexagon?
   if (hexagon[0] + (hexagon[0]-hexagon[3]) == hexagon[3])
     {
@@ -136,6 +153,8 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 
   // Render the hexagon - subtract the hexagon center from
   // each vertex, and add the center of the volume to each vertex.
+  // also, transform the vertices into world coordinates (from the
+  // view coordinates that the VPRO harware returns them in)
   glBegin( GL_POLYGON );
   for ( i = 0; i < 6; i++ )
     {
@@ -143,12 +162,15 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
     in[0] = hexagon[i].X() - hexCenter.X() + volCenter[0];
     in[1] = hexagon[i].Y() - hexCenter.Y() + volCenter[1];
     in[2] = hexagon[i].Z() - hexCenter.Z() + volCenter[2];
+    in[3] = 1.0;
+    t->MultiplyPoint(in, in);
     glVertex3fv( in );
     }
   glEnd();
 
+  t->Delete();
+
   glDisable( GL_BLEND );
-  glDisable( GL_ALPHA_TEST );
   glDisable( GL_TEXTURE_2D );
 
   // Pop the OpenGL modelview matrix
