@@ -191,6 +191,9 @@ void vtkImageToPolyDataFilter::Execute()
   output->CopyStructure(appendOutput);
   output->GetPointData()->PassData(appendOutput->GetPointData());
   output->GetCellData()->PassData(appendOutput->GetCellData());
+
+  tmpInput->Delete();
+  tmpOutput->Delete();
 }
 
 void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels, 
@@ -823,7 +826,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
 }
 
 // Uses clipping approach to build the polygon edges
-int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *pixels, 
+int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels), 
                                          int dims[3], float origin[3],
                                          float spacing[3],
                                          vtkUnsignedCharArray *pointDescr, 
