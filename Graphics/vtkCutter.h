@@ -24,8 +24,8 @@
 //
 // In VTK, cutting means reducing a cell of dimension N to a cut surface
 // of dimension N-1. For example, a tetrahedron when cut by a plane (i.e.,
-// vtkPlane implicit function) will generate triangles. (Clipping takes
-// a N dimensional cell and creates N dimension primitives.)
+// vtkPlane implicit function) will generate triangles. (In comparison,
+// clipping takes a N dimensional cell and creates N dimension primitives.)
 //
 // vtkCutter is generally used to "slice-through" a dataset, generating
 // a surface that can be visualized. It is also possible to use vtkCutter
