@@ -24,6 +24,16 @@
 // can be addressed with i-j-k indices. Examples include finite difference 
 // grids.
 //
+// The order and number of points must match that specified by the dimensions
+// of the grid. The point order increases in i fastest (from 0<=i<dims[0]),
+// then j (0<=j<dims[1]), then k (0<=k<dims[2]) where dims[] are the
+// dimensions of the grid in the i-j-k topological directions. The number of
+// points is dims[0]*dims[1]*dims[2]. The same is true for the cells of the
+// grid. The order and number of cells must match that specified by the
+// dimensions of the grid. The cell order increases in i fastest (from
+// 0<=i<(dims[0]-1)), then j (0<=j<(dims[1]-1)), then k (0<=k<(dims[2]-1))
+// The number of cells is (dims[0]-1)*(dims[1]-1)*(dims[2]-1).
+// 
 // A unusual feature of vtkStructuredGrid is the ability to blank, 
 // or "turn-off" points and cells in the dataset. This is controlled by 
 // defining a "blanking array" whose values (0,1) specify whether
