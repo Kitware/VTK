@@ -212,7 +212,7 @@ vtkRenderWindow *vtkRenderWindow::New()
   if (!strcmp("XGL",temp)) return vtkXGLRenderWindow::New();
 #endif
   
-  return new vtkRenderWindow;
+  return NULL;
 }
 
 // Description:
