@@ -67,6 +67,11 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set the tolerance for doing spatial searches of the polydata.
+  vtkSetMacro(Tolerance, float);
+  vtkGetMacro(Tolerance, float);
+
 protected:
   vtkImagePolyDataClippingExtents();
   ~vtkImagePolyDataClippingExtents();
@@ -87,6 +92,7 @@ protected:
   void ThreadedBuildExtents(int extent[6], int threadId);
 
   vtkOBBTree *OBBTree;
+  float Tolerance;
 };
 
 #endif

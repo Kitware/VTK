@@ -64,6 +64,7 @@ vtkImagePolyDataClippingExtents* vtkImagePolyDataClippingExtents::New()
 vtkImagePolyDataClippingExtents::vtkImagePolyDataClippingExtents()
 {
   this->OBBTree = NULL;
+  this->Tolerance = 1e-3;
 }
 
 //----------------------------------------------------------------------------
@@ -79,6 +80,8 @@ vtkImagePolyDataClippingExtents::~vtkImagePolyDataClippingExtents()
 void vtkImagePolyDataClippingExtents::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageClippingExtents::PrintSelf(os,indent);
+
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -95,7 +98,7 @@ void vtkImagePolyDataClippingExtents::PrepareForThreadedBuildExtents()
       this->OBBTree = vtkOBBTree::New();
       }
     this->OBBTree->SetDataSet(polydata);
-    this->OBBTree->SetTolerance(0);
+    this->OBBTree->SetTolerance(this->Tolerance);
     this->OBBTree->BuildLocator();
     }
   else
@@ -124,7 +127,7 @@ void vtkAddEntryToList(int *&clist, int &clistlen, int &clistmaxlen, int r)
     clist = newclist;
     }
 
-  if (clistlen > 0 && r == clist[0])
+  if (clistlen > 0 && r <= clist[clistlen-1])
     { // chop out zero-length extents
     clistlen--;
     }
@@ -154,6 +157,14 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
     {
     float *point = points->GetPoint(idP);
     int r = (int)ceil((point[dim] - origin[dim])/spacing[dim]);
+    if (r < extent[2*dim])
+      {
+      r = extent[2*dim];
+      }
+    if (r > extent[2*dim+1])
+      {
+      break;
+      }
     vtkAddEntryToList(clist, clistlen, clistmaxlen, r);
     }
 }
