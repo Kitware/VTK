@@ -291,7 +291,7 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 void vtkProcessObject::UpdateProgress(float amount)
 {
   this->Progress = amount;
-  this->InvokeEvent(vtkCommand::StartEvent,(void *)&amount);
+  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
 }
 
 void vtkProcessObject::SetProgressText(char *text)
