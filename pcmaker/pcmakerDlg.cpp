@@ -31,12 +31,8 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_Graphics = TRUE;
 	m_Imaging = TRUE;
 	m_WhereCompiler = _T("");
-	m_GEMSIP = FALSE;
-	m_GEMSVOLUME = FALSE;
 	m_Patented = FALSE;
 	m_Lean = FALSE;
-	m_Working = FALSE;
-	m_GEAE = FALSE;
 	m_WhereTcl = _T("");
 	m_WhereTk = _T("");
 	//}}AFX_DATA_INIT
@@ -62,12 +58,8 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
 	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
 	DDV_MaxChars(pDX, m_WhereCompiler, 512);
-	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
-	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
 	DDX_Check(pDX, IDC_PATENTED, m_Patented);
 	DDX_Check(pDX, IDC_LEAN, m_Lean);
-	DDX_Check(pDX, IDC_WORKING, m_Working);
-	DDX_Check(pDX, IDC_GEAE, m_GEAE);
 	DDX_Text(pDX, IDC_WHERETCL, m_WhereTcl);
 	DDV_MaxChars(pDX, m_WhereTcl, 512);
 	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);

@@ -161,10 +161,6 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_Imaging = (dwData&0x4)?TRUE:FALSE;
       dlg.m_Patented = (dwData&0x8)?TRUE:FALSE;
       dlg.m_Lean = (dwData&0x10)?TRUE:FALSE;
-      dlg.m_Working = (dwData&0x20)?TRUE:FALSE;
-      dlg.m_GEMSIP = (dwData&0x40)?TRUE:FALSE;
-      dlg.m_GEMSVOLUME = (dwData&0x80)?TRUE:FALSE;
-      dlg.m_GEAE = (dwData&0x100)?TRUE:FALSE;
       }
     }
 
@@ -228,10 +224,6 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_Imaging)?4:0;
     dwData |= (dlg.m_Patented)?8:0;
     dwData |= (dlg.m_Lean)?0x10:0;
-    dwData |= (dlg.m_Working)?0x20:0;
-    dwData |= (dlg.m_GEMSIP)?0x40:0;
-    dwData |= (dlg.m_GEMSVOLUME)?0x80:0;
-    dwData |= (dlg.m_GEAE)?0x100:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }

@@ -72,14 +72,14 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 335, 229
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 335, 221
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,52,208,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,113,208,50,14
+    DEFPUSHBUTTON   "OK",IDOK,52,199,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,113,199,50,14
     GROUPBOX        "What Compiler",IDC_COMPILER,167,7,161,25,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,7,16,144,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
@@ -90,7 +90,7 @@ BEGIN
                     WS_TABSTOP,176,18,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,226,18,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,321,46
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,321,33
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,140,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
@@ -99,32 +99,24 @@ BEGIN
                     WS_TABSTOP,129,140,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,64,148,10
     EDITTEXT        IDC_WHERECOMPILER,7,75,144,14,ES_AUTOHSCROLL
-    CONTROL         "Working",IDC_WORKING,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,157,41,10
-    CONTROL         "GemsIO/IP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,75,157,47,10
-    CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,130,157,57,10
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,176,37,109,10
     LTEXT           "Where is your Java JDK (this is optional)",IDC_STATIC,7,
                     94,141,9
     EDITTEXT        IDC_WHEREJDK,7,105,144,15,ES_AUTOHSCROLL
     CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
-                    7,188,321,14
-    LTEXT           "Progress",IDC_STATIC,7,177,77,10
-    CONTROL         "Build VTK Lean and Mean",IDC_LEAN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,176,50,124,13
-    PUSHBUTTON      "Help",IDC_HELP1,174,208,50,14
-    CONTROL         "Geae",IDC_GEAE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    187,157,33,10
+                    7,177,321,14
+    LTEXT           "Progress",IDC_STATIC,7,164,77,10
+    CONTROL         "Build Lean VTK (without DebugMacros)",IDC_LEAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,176,50,143,13
+    PUSHBUTTON      "Help",IDC_HELP1,174,199,50,14
     LTEXT           "Where is libtk (leave blank for default)",IDC_STATIC,
                     168,94,152,11
     EDITTEXT        IDC_WHERETK,167,105,153,15,ES_AUTOHSCROLL
     LTEXT           "Where is libtcl (leave blank for default)",IDC_STATIC,
                     167,67,152,11
     EDITTEXT        IDC_WHERETCL,167,78,153,15,ES_AUTOHSCROLL
-    PUSHBUTTON      "Advanced",IDC_ADVANCED,235,208,50,14
+    PUSHBUTTON      "Advanced",IDC_ADVANCED,235,199,50,14
 END
 
 IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
@@ -207,7 +199,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 328
         TOPMARGIN, 7
-        BOTTOMMARGIN, 222
+        BOTTOMMARGIN, 214
     END
 
     IDD_HELPDIALOG, DIALOG
