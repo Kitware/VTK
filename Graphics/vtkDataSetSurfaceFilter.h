@@ -112,6 +112,9 @@ protected:
   vtkIdType *PointMap;
   vtkIdType GetOutputPointId(vtkIdType inPtId, vtkDataSet *input, 
                              vtkPoints *outPts, vtkPointData *outPD);
+  
+  vtkIdType NumberOfNewCells;
+  
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
   void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
