@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
+#include <string.h>
 #include "GlrRen.hh"
 #include "GlrText.hh"
 
@@ -75,16 +76,17 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
       return;
       }
 
-    bytesPerPixel = scalars->GetNumberOfValuesPerPoint();
-    dataPtr = scalars->GetPtr(0);
+    bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
 
-    // make sure its non null
-    if (!dataPtr) 
+    // make sure using unsigned char data of color scalars type
+    if ( strcmp(scalars->GetDataType(),"char") ||
+    strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
       vlDebugMacro(<< "Cannot do quick coversion to unsigned char.\n");
       return;
       }
-    
+
+    dataPtr = ((vlColorScalars *)scalars)->GetPtr(0);    
 
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 
