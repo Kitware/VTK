@@ -13,6 +13,9 @@ vtkVolume16Reader v16
 vtkContourFilter iso
   iso SetInput [v16 GetOutput]
   iso SetValue 0 1150
-  time {iso Update;} 1
+
+set t [format "%6.2f" [expr [lindex [time {iso Update;} 1] 0] / 1000000.0]]
+
+puts "$t seconds"
 
 exit
