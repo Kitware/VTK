@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLReader, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -44,6 +44,8 @@ vtkXMLReader::vtkXMLReader()
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
   this->DataError = 0;
+  this->ProgressRange[0] = 0;
+  this->ProgressRange[1] = 1;
   
   // Setup the selection callback to modify this object when an array
   // selection is changed.
