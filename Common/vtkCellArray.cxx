@@ -15,7 +15,7 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellArray, "1.41");
+vtkCxxRevisionMacro(vtkCellArray, "1.42");
 vtkStandardNewMacro(vtkCellArray);
 
 vtkCellArray::vtkCellArray()
@@ -81,4 +81,13 @@ void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
 unsigned long vtkCellArray::GetActualMemorySize()
 {
   return this->Ia->GetActualMemorySize();
+}
+
+void vtkCellArray::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
+  os << indent << "Insert Location: " << this->InsertLocation << endl;
+  os << indent << "Traversal Location: " << this->TraversalLocation << endl;
 }

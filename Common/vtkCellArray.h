@@ -41,6 +41,7 @@ class VTK_COMMON_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkCellArray,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Instantiate cell array (connectivity list).
