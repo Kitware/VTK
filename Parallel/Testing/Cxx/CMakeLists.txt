@@ -12,7 +12,7 @@ LINK_LIBRARIES( png zlib )
 
 IF (VTK_USE_HYBRID)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso)
-    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkPatented vtkHybrid)
+    TARGET_LINK_LIBRARIES(ParallelIsoTest  vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
