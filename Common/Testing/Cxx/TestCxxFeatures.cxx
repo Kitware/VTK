@@ -521,6 +521,11 @@ int TestSafeBoolIdiom()
 
 /* Test use of exceptions.  */
 
+#if defined(_MSC_VER)
+# pragma warning (push)
+# pragma warning (disable: 4702) /* Unreachable code. */
+#endif
+
 class TestExceptionUnwind
 {
   int* pvalue;
@@ -566,6 +571,10 @@ int TestException()
   cerr << "No exception caught!" << endl;
   return 0;
 }
+
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
 
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
