@@ -39,17 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTextMapper.h"
-#include "vtkObjectFactory.h"
-
-#ifdef _WIN32
-  #include "vtkWin32OpenGLTextMapper.h"
-  #include "vtkWin32TextMapper.h"
-#else
-#ifdef VTK_USE_OGLR
-  #include "vtkXOpenGLTextMapper.h"
-#endif
-  #include "vtkXTextMapper.h"
-#endif
+#include "vtkImagingFactory.h"
 
 // Creates a new text mapper with Font size 12, bold off, italic off,
 // and Arial font
@@ -74,31 +64,8 @@ vtkTextMapper::vtkTextMapper()
 vtkTextMapper *vtkTextMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextMapper");
-  if(ret)
-    {
-    return (vtkTextMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-#ifdef _WIN32
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkWin32OpenGLTextMapper::New();
-#else
-  return vtkWin32TextMapper::New();
-#endif
-#else
-#ifdef VTK_USE_OGLR
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkXOpenGLTextMapper::New();
-#else
-  return vtkXTextMapper::New();
-#endif
-#else
-  return vtkXTextMapper::New();
-#endif
-#endif
-
+  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkTextMapper");
+  return (vtkTextMapper*)ret;
 }
 
 vtkTextMapper::~vtkTextMapper()

@@ -41,40 +41,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImager.h"
 #include "vtkImageWindow.h"
-#include "vtkObjectFactory.h"
-
-#ifdef _WIN32
-  #include "vtkOpenGLImager.h"
-#endif
-#ifdef VTK_USE_OGLR
-  #include "vtkOpenGLImager.h"
-#endif
+#include "vtkImagingFactory.h"
 
 vtkImager* vtkImager::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImager");
+  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImager");
   if(ret)
     {
     return (vtkImager*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-
-#ifdef _WIN32
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkOpenGLImager::New();
-#else
   return new vtkImager;
-#endif
-#else
-#ifdef VTK_USE_OGLR
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkOpenGLImager::New();
-#else
-  return new vtkImager;
-#endif
-#endif
-#endif
 }
 
 // Create an imager with viewport (0, 0, 1, 1)

@@ -42,22 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageMapper.h"
 
 
-#ifdef _WIN32
-#include "vtkOpenGLImageMapper.h"
-#include "vtkWin32ImageMapper.h"
-#else
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLImageMapper.h"
-#endif
-#include "vtkXImageMapper.h"
-#endif
-
 #include "vtkActor2D.h"
 #include "vtkImager.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkImageData.h"
-#include "vtkObjectFactory.h"
+#include "vtkImagingFactory.h"
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
@@ -98,30 +88,8 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 vtkImageMapper* vtkImageMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMapper");
-  if(ret)
-    {
-    return (vtkImageMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-#ifdef _WIN32
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkOpenGLImageMapper::New();
-#else
-  return vtkWin32ImageMapper::New();
-#endif
-#else
-#ifdef VTK_USE_OGLR
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkOpenGLImageMapper::New();
-#else
-  return vtkXImageMapper::New();
-#endif
-#else
-  return vtkXImageMapper::New();
-#endif
-#endif
+  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageMapper");
+  return (vtkImageMapper*)ret;
 }
 
 float vtkImageMapper::GetColorShift()

@@ -40,17 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkImagingFactory.h"
 
-#ifdef _WIN32
-  #include "vtkWin32OpenGLImageWindow.h"
-  #include "vtkWin32ImageWindow.h"
-#else
-#ifdef VTK_USE_OGLR
-  #include "vtkOpenGLImageWindow.h"
-#endif
-  #include "vtkXImageWindow.h"
-#endif
 
 #include "vtkImagerCollection.h"
 
@@ -165,30 +156,8 @@ void vtkImageWindow::GetSize(int *x, int *y)
 vtkImageWindow* vtkImageWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageWindow");
-  if(ret)
-    {
-    return (vtkImageWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
- 
-#ifdef _WIN32
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkWin32OpenGLImageWindow::New();
-#else
-  return vtkWin32ImageWindow::New();
-#endif
-#else
-#ifdef VTK_USE_OGLR
-#ifndef VTK_USE_NATIVE_IMAGING
-  return vtkOpenGLImageWindow::New();
-#else
-  return vtkXImageWindow::New();
-#endif
-#else
-    return vtkXImageWindow::New();
-#endif
-#endif
+  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageWindow");
+  return (vtkImageWindow*)ret;
 }
 
 void vtkImageWindow::PrintSelf(ostream& os, vtkIndent indent)
