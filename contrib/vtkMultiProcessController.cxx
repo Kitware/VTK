@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This will be the default.
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
-#include "vtkThreadedController.h"
+//#include "vtkThreadedController.h"
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
@@ -53,8 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkImageClip.h"
-#include "vtkExtent.h"
-#include "vtkDataInformation.h"
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
 
@@ -155,7 +153,8 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 #endif
   if ( temp == NULL || !strcmp("Threaded",temp))
     {
-    return vtkThreadedController::New();
+      vtkGenericWarningMacro("Threaded Controller is not ready yet");
+      //return vtkThreadedController::New();
     }
 
   vtkGenericWarningMacro("environment variable VTK_CONTROLLER set to unknown value "
@@ -490,20 +489,6 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
     return this->WriteImageData((vtkImageData*)data);
     }
   
-  if (strcmp(data->GetClassName(), "vtkExtent") == 0 ||
-      strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
-      strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
-    {
-    return this->WriteExtent((vtkExtent*)data);
-    }
-  if (strcmp(data->GetClassName(), "vtkDataInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkUnstructuredInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkImageInformation") == 0)
-    {
-    return this->WriteDataInformation((vtkDataInformation*)data);
-    }
-  
   vtkErrorMacro("Cannot marshal object of type "
 		<< data->GetClassName());
   return 0;
@@ -523,20 +508,6 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
   if (strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->ReadImageData((vtkImageData*)data);
-    }
-  
-  if (strcmp(data->GetClassName(), "vtkExtent") == 0 || 
-      strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
-      strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
-    {
-    return this->ReadExtent((vtkExtent*)data);
-    }
-  if (strcmp(data->GetClassName(), "vtkDataInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkUnstructuredInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
-      strcmp(data->GetClassName(), "vtkImageInformation") == 0)
-    {
-    return this->ReadDataInformation((vtkDataInformation*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
@@ -588,14 +559,11 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
   
   reader->ReadFromInputStringOn();
   reader->SetInputString(this->MarshalString, this->MarshalDataLength);
-  reader->GetOutput()->PreUpdate();
-  reader->GetOutput()->InternalUpdate();
-  
-  this->CopyImageData(reader->GetOutput(), object);
-  object->DataHasBeenGenerated();
+  reader->GetOutput()->Update();
+
+  object->ShallowCopy(reader->GetOutput());
   
   reader->Delete();
-
 
   return 1;
 }
@@ -603,22 +571,7 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 void vtkMultiProcessController::CopyImageData(vtkImageData *src, 
 					      vtkImageData *dest)
 {
-  dest->SetExtent(src->GetExtent());
-  dest->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
-  dest->SetScalarType(src->GetScalarType());
-  dest->GetPointData()->SetScalars(src->GetPointData()->GetScalars());
-  dest->SetOrigin(src->GetOrigin());
-  dest->SetSpacing(src->GetSpacing());
-  // here is a hack: we want to be able to send images (not through ports).
-  dest->SetWholeExtent(src->GetExtent());
-  if (dest->GetPointData()->GetScalars())
-    {
-    dest->SetScalarType(src->GetPointData()->GetScalars()->GetDataType());
-    dest->SetNumberOfScalarComponents(
-      src->GetPointData()->GetScalars()->GetNumberOfComponents());
-    }
-  
-  dest->DataHasBeenGenerated();
+  dest->ShallowCopy(src);
 }
 
 
@@ -669,11 +622,10 @@ int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
   reader->ReadFromInputStringOn();
   reader->SetInputString(this->MarshalString, this->MarshalDataLength);
   output = reader->GetOutput();
-  output->PreUpdate();
-  output->InternalUpdate();
-  
-  this->CopyDataSet(output, object);
-  object->DataHasBeenGenerated();
+  output->Update();
+
+  object->ShallowCopy(output);
+
   reader->Delete();
 
   log->StopTimer();
@@ -698,75 +650,7 @@ void vtkMultiProcessController::CopyDataSet(vtkDataSet *src, vtkDataSet *dest)
 
 
 
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteExtent(vtkExtent *ext)
-{
-  ostrstream *fptr = new ostrstream();
-  
-  ext->WriteSelf(*fptr);
-  
-  // I am responsible for deleting this string.
-  this->DeleteAndSetMarshalString(fptr->str(), fptr->pcount());
 
-  // save the actual length of the data string.
-  this->MarshalDataLength = this->MarshalStringLength;
-  delete fptr;
-  
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadExtent(vtkExtent *ext)
-{
-  istrstream *fptr;
-  
-  if (this->MarshalString == NULL || this->MarshalStringLength == 0)
-    {
-    return 0;
-    }
-  
-  fptr = new istrstream(this->MarshalString, this->MarshalStringLength);
-  ext->ReadSelf(*fptr);
-  delete fptr;
-  
-  return 1;
-}
-
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteDataInformation(vtkDataInformation *info)
-{
-  ostrstream *fptr = new ostrstream();
-  
-  info->WriteSelf(*fptr);
-  
-  // I am responsible for deleting this string.
-  this->DeleteAndSetMarshalString(fptr->str(), fptr->pcount());
-
-  // save the actual length of the data string.
-  this->MarshalDataLength = this->MarshalStringLength;
-  delete fptr;
-  
-  return 1;
-}
-
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadDataInformation(vtkDataInformation *info)
-{
-  istrstream *fptr;
-  
-  if (this->MarshalString == NULL || this->MarshalStringLength == 0)
-    {
-    return 0;
-    }
-  
-  fptr = new istrstream(this->MarshalString, this->MarshalStringLength);
-  info->ReadSelf(*fptr);
-  delete fptr;
-  
-  return 1;
-}
 
 
 
