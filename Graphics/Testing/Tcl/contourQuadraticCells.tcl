@@ -152,9 +152,9 @@ vtkPoints tetPoints
   tetPoints InsertPoint 9 0.50 0.6 0.5
 vtkFloatArray tetScalars
   tetScalars SetNumberOfTuples 10
-  tetScalars InsertValue 0 0.0
-  tetScalars InsertValue 1 0.0
-  tetScalars InsertValue 2 0.0
+  tetScalars InsertValue 0 1.0
+  tetScalars InsertValue 1 1.0
+  tetScalars InsertValue 2 1.0
   tetScalars InsertValue 3 1.0
   tetScalars InsertValue 4 0.0
   tetScalars InsertValue 5 0.0
@@ -192,7 +192,6 @@ vtkActor aTetActor
   [aTetActor GetProperty] SetRepresentationToWireframe
 vtkActor aTetContourActor
   aTetContourActor SetMapper aTetContourMapper
-  [aTetContourActor GetProperty] BackfaceCullingOn
 
 # Quadratic hexahedron
 vtkPoints hexPoints
@@ -219,14 +218,14 @@ vtkPoints hexPoints
   hexPoints InsertPoint 19 0 1 0.5
 vtkFloatArray hexScalars
   hexScalars SetNumberOfTuples 20
-  hexScalars InsertValue 0 0.0
-  hexScalars InsertValue 1 0.0
-  hexScalars InsertValue 2 0.0
+  hexScalars InsertValue 0 1.0
+  hexScalars InsertValue 1 1.0
+  hexScalars InsertValue 2 1.0
   hexScalars InsertValue 3 1.0
-  hexScalars InsertValue 4 0.0
-  hexScalars InsertValue 5 0.0
-  hexScalars InsertValue 6 0.0
-  hexScalars InsertValue 7 0.0
+  hexScalars InsertValue 4 1.0
+  hexScalars InsertValue 5 1.0
+  hexScalars InsertValue 6 1.0
+  hexScalars InsertValue 7 1.0
   hexScalars InsertValue 8 0.0
   hexScalars InsertValue 9 0.0
   hexScalars InsertValue 10 0.0
@@ -279,7 +278,6 @@ vtkActor aHexActor
   [aHexActor GetProperty] SetRepresentationToWireframe
 vtkActor aHexContourActor
   aHexContourActor SetMapper aHexContourMapper
-  [aHexContourActor GetProperty] BackfaceCullingOn
 
 # Create the rendering related stuff.
 # Since some of our actors are a single vertex, we need to remove all
@@ -313,12 +311,12 @@ ren1 AddActor aQuadContourActor
 
 ren1 AddActor aTetActor 
 [aTetActor GetProperty] SetDiffuseColor 1 0 0
-#ren1 AddActor aTetContourActor
+ren1 AddActor aTetContourActor
 [aTetContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aHexActor 
 [aHexActor GetProperty] SetDiffuseColor 1 0 0
-#ren1 AddActor aHexContourActor
+ren1 AddActor aHexContourActor
 [aHexContourActor GetProperty] SetDiffuseColor 1 0 0
 
 # places everyone!!
