@@ -24,10 +24,12 @@
 #include "vtkCellArray.h"
 #include "vtkTriangle.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.20");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.21");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -73,6 +75,9 @@ vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
   this->AbsoluteError = 1;
   this->RelativeError = 0.01;
   this->BoundaryVertexDeletion = 1;
+
+  this->ComputeNormals = 0;
+  this->Normals = 0;
 }
 
 vtkGreedyTerrainDecimation::~vtkGreedyTerrainDecimation()
@@ -471,6 +476,12 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
     // Insert the point into the output
     ptId = this->InsertNextPoint(inputPtId, x);
 
+    if (this->Normals)
+      {
+      float n[3];
+      this->ComputePointNormal(ij[0], ij[1], n);
+      this->Normals->InsertNextTuple(n);
+      }
     if ( status == VTK_IN_TRIANGLE ) //in triangle
       {
       //delete this triangle; create three new triangles
@@ -584,6 +595,70 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
   return 0;
 }
 
+void vtkGreedyTerrainDecimation::ComputePointNormal(int i, int j, float n[3])
+{
+  vtkDataArray* scalars;
+  double x0, x1, y0, y1, dx, dy;
+  float vx[3], vy[3];
+
+  scalars = this->InputPD->GetScalars();
+
+  dx = dy = 0;
+  // X
+  if (i > 0)
+    {
+    x0 = scalars->GetTuple1(j*this->Dimensions[0] + i - 1);
+    dx += this->Spacing[0];
+    }
+  else
+    {
+    x0 = scalars->GetTuple1(j*this->Dimensions[0] + i);
+    }
+  if (i < this->Dimensions[0]-1)
+    {
+    x1 = scalars->GetTuple1(j*this->Dimensions[0] + i + 1);
+    dx += this->Spacing[0];
+    }
+  else
+    {
+    x1 = scalars->GetTuple1(j*this->Dimensions[0] + i);
+    }
+  // Y
+  if (j > 0)
+    {
+    y0 = scalars->GetTuple1((j-1)*this->Dimensions[0] + i);
+    dy += this->Spacing[1];
+    }
+  else
+    {
+    y0 = scalars->GetTuple1(j*this->Dimensions[0] + i);
+    }
+  if (j < this->Dimensions[1]-1)
+    {
+    y1 = scalars->GetTuple1((j+1)*this->Dimensions[0] + i);
+    dy += this->Spacing[1];
+    }
+  else
+    {
+    y1 = scalars->GetTuple1(j*this->Dimensions[0] + i);
+    }
+
+  if (dx == 0.0 || dy == 0.0)
+    {
+    // This would only happen if the input was not an XY image.
+    vtkErrorMacro("Could not compute normal.");
+    return;
+    }
+  vx[0] = (float)(dx);
+  vx[1] = 0.0;
+  vx[2] = (float)(x1-x0);
+  vy[0] = 0.0;
+  vy[1] = (float)(dy);
+  vy[2] = (float)(y1-y0);
+  vtkMath::Cross(vx, vy, n);
+  vtkMath::Normalize(n);
+}
+
 int vtkGreedyTerrainDecimation::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -658,6 +733,15 @@ int vtkGreedyTerrainDecimation::RequestData(
   newPts->Allocate(numPts);
   this->Points = static_cast<vtkDoubleArray *>(newPts->GetData());
   
+  // initailize the normals
+  if (this->ComputeNormals)
+    {
+    this->Normals = vtkFloatArray::New();
+    this->Normals->SetNumberOfComponents(3);
+    this->Normals->Allocate(numPts*3);
+    this->Normals->SetName("Normals");
+    }  
+  
   // Supplemental arrays used to accelerate the algorithm.
   // TerrainInfo contains the "containing" triangle for each point. PointInfo maps the
   // triangle mesh point id to the input image point id.
@@ -699,6 +783,20 @@ int vtkGreedyTerrainDecimation::RequestData(
   (*this->PointInfo)[3] = inputPtId;
   this->CurrentPointId = 4;
 
+  // Handle normals of the four corners.
+  if (this->Normals)
+    {
+    float n[3];
+    this->ComputePointNormal(0, 0, n);
+    this->Normals->InsertNextTuple(n);
+    this->ComputePointNormal(this->Dimensions[0]-1, 0, n);
+    this->Normals->InsertNextTuple(n);
+    this->ComputePointNormal(this->Dimensions[0]-1, this->Dimensions[1]-1, n);
+    this->Normals->InsertNextTuple(n);
+    this->ComputePointNormal(0, this->Dimensions[1]-1, n);
+    this->Normals->InsertNextTuple(n);
+    }
+    
   // Insert initial triangles into output mesh
   triangles = vtkCellArray::New();
   triangles->Allocate(numTris,3);
@@ -750,6 +848,13 @@ int vtkGreedyTerrainDecimation::RequestData(
         abortExecute = this->GetAbortExecute();
         }
       }
+    }
+
+  if (this->Normals)
+    {
+    this->OutputPD->SetNormals(this->Normals);
+    this->Normals->Delete();
+    this->Normals = 0;
     }
 
   vtkDebugMacro(<<"Output TIN contains: " << this->Mesh->GetNumberOfPoints() << " points"
@@ -1149,4 +1254,6 @@ void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "BoundaryVertexDeletion: " 
      << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
+  os << indent << "ComputeNormals: " 
+     << (this->ComputeNormals ? "On\n" : "Off\n");
 }

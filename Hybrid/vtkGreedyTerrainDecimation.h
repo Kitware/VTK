@@ -70,6 +70,7 @@ class vtkDataArray;
 class vtkPointData;
 class vtkIdList;
 class vtkDoubleArray;
+class vtkFloatArray;
 
 //PIMPL Encapsulation for STL containers
 class vtkGreedyTerrainDecimationTerrainInfoType;
@@ -143,12 +144,22 @@ public:
   vtkGetMacro(BoundaryVertexDeletion,int);
   vtkBooleanMacro(BoundaryVertexDeletion,int);
 
+  // Description:
+  // Compute normals based on the input image. Off by default.
+  vtkSetMacro(ComputeNormals, int);
+  vtkGetMacro(ComputeNormals, int);
+  vtkBooleanMacro(ComputeNormals, int);
+
 protected:
   vtkGreedyTerrainDecimation();
   ~vtkGreedyTerrainDecimation();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  int ComputeNormals;
+  vtkFloatArray* Normals;
+  void ComputePointNormal(int i, int j, float n[3]);
 
   //ivars that the API addresses
   int       ErrorMeasure;
