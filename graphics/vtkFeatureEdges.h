@@ -132,7 +132,8 @@ protected:
 
   // Usual data generation method
   void Execute();
-
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+  
   float FeatureAngle;
   int BoundaryEdges;
   int FeatureEdges;

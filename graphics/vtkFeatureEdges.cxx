@@ -46,8 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-
-
 //------------------------------------------------------------------------------
 vtkFeatureEdges* vtkFeatureEdges::New()
 {
@@ -64,8 +62,8 @@ vtkFeatureEdges* vtkFeatureEdges::New()
 
 
 
-// Construct object with feature angle = 30; all types of edges extracted
-// and colored.
+// Construct object with feature angle = 30; all types of edges, except 
+// manifold edges, are extracted and colored.
 vtkFeatureEdges::vtkFeatureEdges()
 {
   this->FeatureAngle = 30.0;
@@ -109,6 +107,7 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+  int ghostLevel = input->GetUpdateGhostLevel();
   
   vtkDebugMacro(<<"Executing feature edges");
 
@@ -130,14 +129,14 @@ void vtkFeatureEdges::Execute()
     vtkWarningMacro(<<"All edge types turned off!");
     return;
     }
-
+  
   // build cell structure.  Only operate with polygons.
   Mesh = vtkPolyData::New();
   Mesh->SetPoints(inPts);
   Mesh->SetPolys(inPolys);
   Mesh->BuildLinks();
 
-  // Allocate storage for lines/points (arbitrary allocations size)
+  // Allocate storage for lines/points (arbitrary allocation sizes)
   //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts); 
@@ -205,8 +204,16 @@ void vtkFeatureEdges::Execute()
 
       if ( this->BoundaryEdges && numNei < 1 )
         {
-        numBEdges++;
-        scalar = 0.0;
+	if (input->GetCellData()->GetGhostLevels() &&
+	    input->GetCellData()->GetGhostLevels()->GetGhostLevel(cellId) > 0)
+	  {
+	  continue;
+	  }
+	else
+	  {
+	  numBEdges++;
+	  scalar = 0.0;
+	  }
         }
 
       else if ( this->NonManifoldEdges && numNei > 1 )
@@ -221,8 +228,17 @@ void vtkFeatureEdges::Execute()
 	  }
         if ( j >= numNei )
           {
-          numNonManifoldEdges++;
-          scalar = 0.222222;
+	  if (input->GetCellData()->GetGhostLevels() &&
+	      input->GetCellData()->GetGhostLevels()->
+	      GetGhostLevel(cellId) > 0)
+	    {
+	    continue;
+	    }
+	  else
+	    {
+	    numNonManifoldEdges++;
+	    scalar = 0.222222;
+	    }
           }
         else
 	  {
@@ -235,8 +251,17 @@ void vtkFeatureEdges::Execute()
         if ( vtkMath::Dot(polyNormals->GetNormal(nei),
                           polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
-          numFedges++;
-          scalar = 0.444444;
+	  if (input->GetCellData()->GetGhostLevels() &&
+	      input->GetCellData()->GetGhostLevels()->
+	      GetGhostLevel(cellId) > 0)
+	    {
+	    continue;
+	    }
+	  else
+	    {
+	    numFedges++;
+	    scalar = 0.444444;
+	    }
           }
         else
 	  {
@@ -245,8 +270,16 @@ void vtkFeatureEdges::Execute()
         }
       else if ( this->ManifoldEdges )
         {
-        numManifoldEdges++;
-        scalar = 0.666667;
+	if (input->GetCellData()->GetGhostLevels() &&
+	    input->GetCellData()->GetGhostLevels()->GetGhostLevel(cellId) > 0)
+	  {
+	  continue;
+	  }
+	else
+	  {
+	  numManifoldEdges++;
+	  scalar = 0.666667;
+	  }
         }
       else
 	{
@@ -346,6 +379,20 @@ unsigned long int vtkFeatureEdges::GetMTime()
   return mTime;
 }
 
+void vtkFeatureEdges::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  int numPieces, ghostLevel;
+  
+  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+
+  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevel = output->GetUpdateGhostLevel();
+  if (numPieces > 1)
+    {
+    this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
+    }
+}
+
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
@@ -366,4 +413,3 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-
