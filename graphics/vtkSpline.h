@@ -69,10 +69,6 @@ public:
   vtkBooleanMacro(ClampValue,int);
 
   // Description:
-  // Evaluate a 1D spline.
-  float Evaluate (float t);
-
-  // Description:
   // Compute the coefficients for the spline.
   virtual void Compute () = 0;
 

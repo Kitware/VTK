@@ -83,6 +83,10 @@ public:
   void Compute ();
 
   // Description:
+  // Evaluate a 1D Kochanek spline.
+  float Evaluate (float t);
+
+  // Description:
   // Set the bias for all points. Default is 0.
   vtkSetMacro(DefaultBias,float);
   vtkGetMacro(DefaultBias,float);

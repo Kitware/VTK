@@ -61,6 +61,10 @@ public:
 
   void Compute ();
 
+  // Description:
+  // Evaluate a 1D cardinal spline.
+  float Evaluate (float t);
+
 protected:
   void Fit1D (int n, float *x, float *y, float *w, float coefficients[][4],
 	      int leftConstraint, float leftValue, int rightConstraint, float rightValue);
