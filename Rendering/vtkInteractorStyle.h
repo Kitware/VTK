@@ -33,10 +33,9 @@
 // continuously as long as a mouse button is pressed. In trackball style,
 // motion occurs when the mouse button is pressed and the mouse pointer
 // moves.
-// - Keypress c / Keypress o: toggle between camera and object (actor)
-// modes. In camera mode, mouse events affect the camera position and focal
-// point. In object mode, mouse events affect the actor that is under the
-// mouse pointer.
+// - Keypress c / Keypress a: toggle between camera and actor modes. In
+// camera mode, mouse events affect the camera position and focal point. In
+// actor mode, mouse events affect the actor that is under the mouse pointer.
 // - Button 1: rotate the camera around its focal point (if camera mode) or
 // rotate the actor around its origin (if actor mode). The rotation is in the
 // direction defined from the center of the renderer's viewport towards
@@ -44,12 +43,12 @@
 // determined by the distance the mouse is from the center of the render
 // window.
 // - Button 2: pan the camera (if camera mode) or translate the actor (if
-// object mode). In joystick mode, the direction of pan or translation is
+// actor mode). In joystick mode, the direction of pan or translation is
 // from the center of the viewport towards the mouse position. In trackball
 // mode, the direction of motion is the direction the mouse moves. (Note:
 // with 2-button mice, pan is defined as <Shift>-Button 1.)
 // - Button 3: zoom the camera (if camera mode) or scale the actor (if
-// object mode). Zoom in/increase scale if the mouse position is in the top
+// actor mode). Zoom in/increase scale if the mouse position is in the top
 // half of the viewport; zoom out/decrease scale if the mouse position is in
 // the bottom half. In joystick mode, the amount of zoom is controlled by the
 // distance of the mouse pointer from the horizontal centerline of the
