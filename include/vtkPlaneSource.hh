@@ -49,14 +49,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // width and height of length 1. The resolution of the plane (i.e., number 
 // of subdivisions) is controlled by the ivars XResolution and YResolution.
 //
-// There are two conveience methods that allow you to easily move the plane. 
+// There are three conveience methods that allow you to easily move the plane. 
 // The first, SetNormal(), allows you to specify the plane normal. The effect
 // of this method is to rotate the plane around the center of the plane, 
-// aligning the plane normal with the specified normal. The second, Push(),
-// allows you to translate the plane along the plane normal by the distance 
-// specified. (Negative Push values translate the plane in the negative 
-// normal direction.)  Note that both the SetNormal() and Push() methods may 
-// modify the Origin, Point1, and/or Point2 ivars.
+// aligning the plane normal with the specified normal. The second, SetCenter(),
+// translates the center of the plane to the specified center point. The third
+// method, Push(), allows you to translate the plane along the plane normal by 
+// the distance specified. (Negative Push values translate the plane in the 
+// negative normal direction.)  Note that the SetNormal(), SetCenter() and Push() 
+// methods modify the Origin, Point1, and/or Point2 ivars.
 
 // .SECTION Caveats
 // The normal to the plane will point in the direction of the cross product
@@ -92,23 +93,31 @@ public:
   // Description:
   // Specify a point defining the origin of the plane.
   vtkSetVector3Macro(Origin,float);
-  vtkGetVector3Macro(Origin,float);
+  vtkGetVectorMacro(Origin,float,3);
 
   // Description:
   // Specify a point defining the first axis of the plane.
   vtkSetVector3Macro(Point1,float);
-  vtkGetVector3Macro(Point1,float);
+  vtkGetVectorMacro(Point1,float,3);
 
   // Description:
   // Specify a point defining the second axis of the plane.
   vtkSetVector3Macro(Point2,float);
-  vtkGetVector3Macro(Point2,float);
+  vtkGetVectorMacro(Point2,float,3);
 
   // Description:
-  // Set/Get the plane normal.
+  // Set/Get the plane normal. Works in conjunction with the plane center to
+  // orient the plane.
   void SetNormal(float nx, float ny, float nz);
   void SetNormal(float n[3]);
-  vtkGetVector3Macro(Normal,float);
+  vtkGetVectorMacro(Normal,float,3);
+
+  // Description:
+  // Set/Get the center of the plane. Works in conjunction with the plane normal
+  // to position the plane.
+  void SetCenter(float x, float y, float z);
+  void SetCenter(float center[3]);
+  vtkGetVectorMacro(Center,float,3);
 
   void Push(float distance);
 
@@ -121,8 +130,9 @@ protected:
   float Point1[3];
   float Point2[3];
   float Normal[3];
+  float Center[3];
 
-  int UpdateNormal(float v1[3], float v2[3]);
+  int UpdatePlane(float v1[3], float v2[3]);
 };
 
 #endif
