@@ -357,6 +357,7 @@ void vtkRenderer::AllocateTime()
   // existing render time for an actor.
 
   totalTime = this->PropArrayCount;
+  this->ComputeAspect();
 
   for (this->Cullers->InitTraversal(); 
        (aCuller=this->Cullers->GetNextItem());)
