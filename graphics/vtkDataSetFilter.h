@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkFilter.h"
 #include "vtkDataSet.h"
-#include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkDataSetFilter : public vtkFilter 
@@ -65,8 +64,8 @@ public:
   // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-  virtual void SetInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+  virtual void SetInput(vtkImageData *image)
+    {vtkImageToStructuredPoints *tmp = image->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkDataSet *GetInput() {return (vtkDataSet *)this->Input;};
 
