@@ -199,9 +199,9 @@ int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
 //     * Creates an event handler for this window
 //     * Creates a command that handles this object
 //     * Configures this vtkTkImageViewerWidget for the given arguments
-static int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
-				      Tcl_Interp *interp, 
-				      int argc, char **argv)
+int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
+			       Tcl_Interp *interp, 
+			       int argc, char **argv)
 {
   char *name;
   Tk_Window main = (Tk_Window)clientData;
