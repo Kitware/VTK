@@ -118,8 +118,6 @@ vtkMILVideoSource::~vtkMILVideoSource()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
   vtkVideoSource::PrintSelf(os,indent);
   
   os << indent << "VideoChannel: " << this->VideoChannel << "\n";
@@ -658,7 +656,7 @@ void vtkMILVideoSource::Stop()
   MdigHookFunction(this->MILDigID,M_GRAB_FRAME_END,
 		   (MDIGHOOKFCTPTR)this->OldHookFunction,
 		   OldUserDataPtr);
-  this->OldHookFunction == 0;
+  this->OldHookFunction = 0;
   MdigGrabWait(this->MILDigID,M_GRAB_END);
 
   this->Modified();
