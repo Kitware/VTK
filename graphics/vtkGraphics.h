@@ -153,6 +153,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRendererSource.h"
 #include "vtkRibbonFilter.h"
 #include "vtkRotationalExtrusionFilter.h"
+#include "vtkSLCReader.h"
 #include "vtkSTLReader.h"
 #include "vtkSTLWriter.h"
 #include "vtkSampleFunction.h"
