@@ -214,11 +214,6 @@ unsigned long int vtkDataSet::GetMTime()
   unsigned long mtime, result;
   
   result = vtkDataObject::GetMTime();
-  if (this->Source)
-    {
-    mtime = this->Source->GetMTime();
-    result = ( mtime > result ? mtime : result );
-    }
   
   mtime = this->PointData->GetMTime();
   result = ( mtime > result ? mtime : result );
