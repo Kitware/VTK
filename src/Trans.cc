@@ -150,8 +150,8 @@ void vtkTransform::RotateX ( float angle)
 
     ctm.Element[0][0] = 1.0;
     ctm.Element[1][1] =  cosAngle;
-    ctm.Element[2][1] = -sinAngle;
-    ctm.Element[1][2] =  sinAngle;
+    ctm.Element[2][1] =  sinAngle;
+    ctm.Element[1][2] = -sinAngle;
     ctm.Element[2][2] =  cosAngle;
     ctm.Element[3][3] = 1.0;
 
@@ -178,8 +178,8 @@ void vtkTransform::RotateY ( float angle)
 
     ctm.Element[0][0] = cosAngle;
     ctm.Element[1][1] = 1.0;
-    ctm.Element[2][0] = sinAngle;
-    ctm.Element[0][2] = -sinAngle;
+    ctm.Element[2][0] = -sinAngle;
+    ctm.Element[0][2] = sinAngle;
     ctm.Element[2][2] = cosAngle;
     ctm.Element[3][3] = 1.0;
 
@@ -205,8 +205,8 @@ void vtkTransform::RotateZ (float angle)
     sinAngle = sin (radians);
 
     ctm.Element[0][0] =  cosAngle;
-    ctm.Element[1][0] = -sinAngle;
-    ctm.Element[0][1] =  sinAngle;
+    ctm.Element[1][0] =  sinAngle;
+    ctm.Element[0][1] = -sinAngle;
     ctm.Element[1][1] =  cosAngle;
     ctm.Element[2][2] = 1.0;
     ctm.Element[3][3] = 1.0;
@@ -237,7 +237,7 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   quat[3] = z;
 
   // convert degrees to radians
-  radians = - quat[0] * math.DegreesToRadians() / 2;
+  radians = quat[0] * math.DegreesToRadians() / 2;
 
   cosAngle = cos (radians);
   sinAngle = sin (radians);
@@ -420,7 +420,7 @@ float *vtkTransform::GetOrientation ()
 
   theta = atan2 (sin_theta, cos_theta);
 
-  y = theta / math.DegreesToRadians();
+  y = -theta / math.DegreesToRadians();
 
   // now rotate about x axis
 
@@ -445,7 +445,7 @@ float *vtkTransform::GetOrientation ()
 
   phi = atan2 (sin_phi, cos_phi);
 
-  x = - phi / math.DegreesToRadians();
+  x = phi / math.DegreesToRadians();
 
   // finally, rotate about z
   x3p = x3 * cos_theta - z3 * sin_theta;
@@ -466,7 +466,7 @@ float *vtkTransform::GetOrientation ()
 
   alpha = atan2 (sin_alpha, cos_alpha);
 
-  z = - alpha / math.DegreesToRadians();
+  z = alpha / math.DegreesToRadians();
 
   this->Orientation[0] = x;
   this->Orientation[1] = y;
