@@ -63,6 +63,8 @@ class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 public:
   vtkXRenderWindow();
   ~vtkXRenderWindow();
+  static vtkXRenderWindow *New() 
+  {return (vtkXRenderWindow *)(vtkRenderWindow::New());};
   const char *GetClassName() {return "vtkXRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
