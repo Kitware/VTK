@@ -1,3 +1,3 @@
 """pyGTK widgets for VTK."""
 
-__all__ = ['GtkVTKRenderWindow']
+__all__ = ['GtkVTKRenderWindow', 'GtkVTKRenderWindowInteractor']
