@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.18");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.19");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkLegendBoxActor::vtkLegendBoxActor()
@@ -405,7 +405,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       str = this->TextMapper[i]->GetInput();
       if ( str ) //if there is a string
         {
-        length = strlen(str);
+        length = static_cast<int>(strlen(str));
         if ( length > maxLength )
           {
           maxLength = length;

@@ -291,12 +291,12 @@ char* vtkRegressionTester::IncrementFileName(const char* fname,
   char counts[256];
   sprintf(counts, "%d", count);
   
-  int orgLen = strlen(fname);
+  int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)
     {
     return 0;
     }
-  int extLen = strlen(counts);
+  int extLen = static_cast<int>(strlen(counts));
   char* newFileName = new char[orgLen+extLen+2];
   strcpy(newFileName, fname);
 

@@ -142,7 +142,7 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
     fullName = new char[strlen(value) + strlen(fname) + 2 + (slash ? 1 : 0)];
     fullName[0] = 0;
     strcat(fullName, value);
-    int len = strlen(fullName);
+    int len = static_cast<int>(strlen(fullName));
     fullName[len] = '/';
     fullName[len+1] = 0;
     strcat(fullName, fname);

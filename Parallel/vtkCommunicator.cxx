@@ -29,7 +29,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.11");
+vtkCxxRevisionMacro(vtkCommunicator, "1.12");
 
 template <class T>
 static int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -149,7 +149,7 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   int len = 0;
   if (name)
     {
-    len = strlen(name) + 1;
+    len = static_cast<int>(strlen(name)) + 1;
     }
 
   // send length of name

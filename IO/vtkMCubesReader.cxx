@@ -24,7 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkMCubesReader, "1.57");
+vtkCxxRevisionMacro(vtkMCubesReader, "1.58");
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -188,7 +188,8 @@ void vtkMCubesReader::Execute()
     for (j=0; j<3; j++) 
       {
       int val;
-      val = fread (&point, static_cast<int>(sizeof(pointType)), 1, fp);
+      val = static_cast<int>(
+        fread (&point, static_cast<int>(sizeof(pointType)), 1, fp));
       if (val != 1)
          {
          vtkErrorMacro(<<"Error reading triange " << i 

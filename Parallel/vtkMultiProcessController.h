@@ -176,7 +176,8 @@ public:
   // Description:
   // Convenience method when the arg is a string. 
   void TriggerRMI(int remoteProcessId, char *arg, int tag) 
-    { this->TriggerRMI(remoteProcessId, (void*)arg, strlen(arg)+1, tag); }
+    { this->TriggerRMI(remoteProcessId, (void*)arg, 
+                       static_cast<int>(strlen(arg))+1, tag); }
 
   // Description:
   // Convenience method when there is no argument.

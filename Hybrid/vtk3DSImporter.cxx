@@ -22,7 +22,7 @@
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.26");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.27");
 vtkStandardNewMacro(vtk3DSImporter);
 
 static Colour Black = {0.0, 0.0, 0.0};
@@ -1135,7 +1135,7 @@ static void cleanup_name (char *name)
   strcpy (tmp, &name[i]);
 
     /* Remove any trailing blanks or quotes */
-  for (i = strlen(tmp)-1; i >= 0; i--)
+  for (i = static_cast<int>(strlen(tmp))-1; i >= 0; i--)
     {
     if (isprint(tmp[i]) && !isspace(tmp[i]) && tmp[i] != '"')
       {
