@@ -241,6 +241,11 @@ public:
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
+  // Convenience method to get the texture used by this widget.  This can be
+  // used in external slice viewers.
+  vtkTexture *GetTexture();
+
+  // Description:
   // Get the plane properties. The properties of the plane when selected
   // and unselected can be manipulated.
   virtual void SetPlaneProperty(vtkProperty*);
