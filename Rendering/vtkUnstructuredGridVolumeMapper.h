@@ -39,7 +39,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeMapper,vtkAbstractMapper3D);
+  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeMapper,vtkAbstractVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
