@@ -250,7 +250,7 @@ vtkWin32ImageWindow::vtkWin32ImageWindow()
   this->DeviceContext = (HDC)0;
   this->OwnWindow = 0;
 
-  this->SetWindowName("Visualization Toolkit - InageWin32");
+  this->SetWindowName("Visualization Toolkit - ImageWin32");
   this->DIBPtr = (unsigned char*) NULL;
 
   this->SwapFlag = 0;
