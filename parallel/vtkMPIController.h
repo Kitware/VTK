@@ -66,10 +66,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMPIController_h
 #define __vtkMPIController_h
 
+#include "mpi.h"
+
 #include "vtkMultiProcessController.h"
 #include "vtkMPICommunicator.h"
 
-#include "mpi.h"
 
 class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {

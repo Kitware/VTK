@@ -11,6 +11,8 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
+#include "vtkMPIController.h"
+
 #include "tk.h"
 
 #ifdef USE_TIX
@@ -19,7 +21,6 @@
 
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
-#include "vtkMPIController.h"
 /*
  *----------------------------------------------------------------------
  *
