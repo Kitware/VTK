@@ -1,9 +1,13 @@
 #!/usr/bin/env perl
-# Time-stamp: <2000-11-25 00:32:45 barre>
+# Time-stamp: <2001-06-28 02:31:33 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+#
+# 0.16 (barre) :
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
+#   - updated VTK home page URL.
 #
 # 0.15 (barre) :
 #   - fix RCS/CVS tags problem (regexp replacement when this file is in a CVS)
@@ -29,14 +33,14 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.15, $0, "S. Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.16, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
 
 my %default = 
   (
-   to => "../vtk-dox",
+   to => "../vtk-doxygen",
    store => "doc_version.dox",
    header => "common/vtkVersion.h"
   );
@@ -108,8 +112,8 @@ print DEST_FILE
   "/*! \@mainpage VTK $version Documentation\n\n",
   "  $revision\n",
   "  $date\n",
-  "  \@sa VTK home page : http://www.kitware.com/vtk.html\n",
-  "  \@sa DOC project : ftp://sic.sp2mi.univ-poitiers.fr/pub/barre/vtk/doc/\n",
+  "  \@sa VTK home page (Kitware): http://public.kitware.com\n",
+  "  \@sa DOC project (Sebastien Barre): ftp://sic.sp2mi.univ-poitiers.fr/pub/barre/vtk/doc/\n",
   "*/\n\n";
 
 close(DEST_FILE);

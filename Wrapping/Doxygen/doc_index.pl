@@ -1,9 +1,14 @@
 #!/usr/bin/env perl
-# Time-stamp: <2000-08-02 14:38:38 barre>
+# Time-stamp: <2001-06-28 02:51:28 barre>
 #
 # Build full-text index 
 #
 # barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+#
+# 0.15 (barre) :
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
+#   - change default --stop to 'wrap/doc_index.stop' to comply with the source
+#     tree structure.
 #
 # 0.14 (barre) :
 #   - change doxygen command style from \ to @ to match javadoc, autodoc, etc.
@@ -29,7 +34,7 @@ use Fcntl;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.14, $0, "S. Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.15, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
@@ -39,9 +44,9 @@ my %default =
 #   debug => 1,
    limit => 10,
    dirs => ["common", "contrib", "graphics", "imaging", "patented"],
-   stop => "doc_index.stop",
+   stop => "wrap/doc_index.stop",
    store => "doc_index.dox",
-   to => "../vtk-dox"
+   to => "../vtk-doxygen"
   );
 
 # Parse options
@@ -62,7 +67,7 @@ Usage : $PROGNAME [--help|?] [-v] [--limit n] [--stop file] [--store file] [--to
   --to path    : use 'path' as destination directory (default : $default{to})
 
 Example:
-  $PROGNAME --to ../vtk-dox
+  $PROGNAME --to ../vtk-doxygen
 EOT
     exit;
 }
@@ -84,7 +89,7 @@ my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 
 # Read the stop-words
 
-print "Reading stop-words...\n";
+print "Reading stop-words from $args{stop}...\n";
 
 sysopen(STOPFILE, $args{"stop"}, O_RDONLY|$open_file_as_text)
   or die "$PROGNAME: unable to open stop words list $args{stop}\n";

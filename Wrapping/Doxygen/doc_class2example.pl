@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2000-08-02 14:40:44 barre>
+# Time-stamp: <2001-06-28 02:21:12 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+#
+# 0.55 (barre) :
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
 #
 # 0.54 (barre) :
 #   - change doxygen command style from \ to @ to match javadoc, autodoc, etc.
@@ -50,7 +53,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.54, $0, "S. Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.55, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
@@ -60,7 +63,7 @@ my %default =
    dirs => ["."],
    limit => 20,
    store => "doc_class2example.dox",
-   to => "../vtk-dox"
+   to => "../vtk-doxygen"
   );
 
 # Matchers and parsers
