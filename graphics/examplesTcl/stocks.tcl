@@ -95,8 +95,8 @@ ren1 ResetCamera
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 iren Initialize
 
-renWin SetFileName stocks.tcl.ppm
-renWin SaveImageAsPPM
+#renWin SetFileName stocks.tcl.ppm
+#renWin SaveImageAsPPM
 
 puts "done"
 

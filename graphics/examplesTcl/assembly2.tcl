@@ -110,6 +110,6 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-renWin SetFileName assembly2.tcl.ppm
-renWin SaveImageAsPPM
+#renWin SetFileName assembly2.tcl.ppm
+#renWin SaveImageAsPPM
 
