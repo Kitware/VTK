@@ -52,13 +52,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTKXI_PAN     3
 #define VTKXI_ANIMATE 4
 
+void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *)
+                                                  = (void (*)(void *))NULL;
+void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
+void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *)
+                                                  = (void (*)(void *))NULL;
+
+
 // Description:
 // Construct object so that light follows camera motion.
 vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 {
   static timerId = 1;
   
-  this->State = VTKXI_START;
+  this->State = VTKXI_START;  
   this->AnimationState = VTKXI_START;
   this->WindowId = 0;
   this->TimerId = timerId++;
@@ -380,19 +387,22 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_CHAR:
       switch (wParam)
 	{
-    case 'a':
+	case 'a':
 	  if (me->AnimationState != VTKXI_ANIMATE) 
 		{
 		me->StartAnimation();
 		}
-      else
+	  else
 		{
 		me->EndAnimation();
 		}
 	  break;	
 	case 'e': 
-	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
-	  else exit(0);  //PostQuitMessage(0);
+	  if (me->ExitMethod)
+	    (*me->ExitMethod)(me->ExitMethodArg);
+	  else if (me->ClassExitMethod)
+	    (*me->ClassExitMethod)(me->ClassExitMethodArg);
+	  else PostQuitMessage(0); 
 	  break;
 	case 'u':
 	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
@@ -571,4 +581,43 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       return me->OldProc(hWnd,uMsg,wParam,lParam);
     }
   return 0;
+}
+
+
+
+// Description:
+// Specify the default function to be called when an interactor needs to exit.
+// This callback is overridden by an instance ExitMethod that is defined.
+void
+vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+{
+  if ( f != vtkWin32RenderWindowInteractor::ClassExitMethod
+       || arg != vtkWin32RenderWindowInteractor::ClassExitMethodArg)
+    {
+    // delete the current arg if there is a delete method
+    if ((vtkWin32RenderWindowInteractor::ClassExitMethodArg)
+	&& (vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete))
+      {
+      (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
+	(vtkWin32RenderWindowInteractor::ClassExitMethodArg);
+      }
+    vtkWin32RenderWindowInteractor::ClassExitMethod = f;
+    vtkWin32RenderWindowInteractor::ClassExitMethodArg = arg;
+
+    // no call to this->Modified() since this is a class member function
+    }
+}
+
+
+// Description:
+// Set the arg delete method.  This is used to free user memory.
+void
+vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+{
+  if (f != vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
+    {
+    vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete = f;
+
+    // no call to this->Modified() since this is a class member function
+    }
 }
