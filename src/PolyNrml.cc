@@ -82,6 +82,7 @@ void vlPolyNormals::Execute()
   OldMesh = new vlPolyData;
   OldMesh->SetPoints(inPts);
   OldMesh->SetPolys(inPolys);
+  OldMesh->BuildLinks();
   
   pd = this->Input->GetPointData();
     
@@ -90,6 +91,8 @@ void vlPolyNormals::Execute()
   // create a copy because we're modifying it
   newPolys = new vlCellArray(*(inPolys));
   NewMesh->SetPolys(newPolys);
+  NewMesh->BuildCells();
+
 //
 // The visited array keeps track of which polygons have been visited.
 //
@@ -180,7 +183,7 @@ void vlPolyNormals::Execute()
       }
 
     Map->Squeeze();
-    numNewPts = Map->GetNumberOfIds() - 1;
+    numNewPts = Map->GetNumberOfIds();
 
     vlDebugMacro(<<"Created " << numNewPts-numPts << " new points");
 //
@@ -269,10 +272,9 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
 {
   int p1, p2;
   int j, k, l;
-  vlIdList ptIds(MAX_CELL_SIZE), neiPtIds(MAX_CELL_SIZE);
+  int npts, *pts;
   vlIdList cellIds(MAX_CELL_SIZE);
-  vlIdList edge(2);
-  int npts, neighbor;
+  int numNeiPts, *neiPts, neighbor;
 
   Visited[cellId] = Mark; //means that it's been ordered properly
 
@@ -283,18 +285,14 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
     return;
     }
 
-  NewMesh->GetCellPoints(cellId, ptIds);
-  npts = ptIds.GetNumberOfIds();
+  NewMesh->GetCellPoints(cellId, npts, pts);
 
   for (j=0; j < npts; j++) 
     {
-    p1 = ptIds.GetId(j);
-    p2 = ptIds.GetId((j+1)%npts);
+    p1 = pts[j];
+    p2 = pts[(j+1)%npts];
 
-    edge.SetId(0,p1);
-    edge.SetId(1,p2);
-
-    OldMesh->GetCellNeighbors(cellId, edge, cellIds);
+    OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
 //
 //  Check the direction of the neighbor ordering.  Should be
 //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
@@ -304,15 +302,16 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
       if ( ! Visited[cellIds.GetId(k)] ) 
         {
         neighbor = cellIds.GetId(k);
-        NewMesh->GetCellPoints(neighbor,neiPtIds);
-        for (l=0; l < neiPtIds.GetNumberOfIds(); l++)
-          if (neiPtIds.GetId(l) == p2)
+        NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
+        for (l=0; l < numNeiPts; l++)
+          if (neiPts[l] == p2)
              break;
 //
 //  Have to reverse ordering if neighbor not consistent
 //
-         if ( neiPtIds.GetId((l+1)%neiPtIds.GetNumberOfIds()) != p1 ) 
+         if ( neiPts[(l+1)%numNeiPts] != p1 ) 
            {
+           NumFlips++;
            NewMesh->ReverseCell(neighbor);
            }
          this->TraverseAndOrder (neighbor);
@@ -333,14 +332,13 @@ void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
   int i, spot;
   int neiNode[2];
   float *thisNormal, *neiNormal;
-  int npts;
-  vlIdList oldPts(MAX_CELL_SIZE), ptIds(MAX_CELL_SIZE);
-  vlIdList edge(2), cellIds(MAX_CELL_SIZE), newPtIds;
+  int numOldPts, *oldPts;
+  int numNewPts, *newPts;
+  vlIdList cellIds(MAX_CELL_SIZE);
   vlMath math;
 
   Visited[cellId] = Mark;
-  OldMesh->GetCellPoints(cellId,oldPts);
-  npts = oldPts.GetNumberOfIds();
+  OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
 //
 //  Replace the node if necessary
 //
@@ -348,14 +346,12 @@ void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
     {
     Map->InsertId(replacementPoint, n);
 
-    NewMesh->GetCellPoints(cellId,ptIds);
-    newPtIds = ptIds;
-    for (i=0; i < newPtIds.GetNumberOfIds(); i++) 
+    NewMesh->GetCellPoints(cellId,numNewPts,newPts);
+    for (i=0; i < numNewPts; i++) 
       {
-      if ( newPtIds.GetId(i) == n ) 
+      if ( newPts[i] == n ) 
         {
-        newPtIds.SetId(i,replacementPoint);
-        NewMesh->ReplaceCell(cellId,newPtIds);
+        newPts[i] = replacementPoint; // this is very nasty! direct write!
         break;
         }
       }
@@ -365,32 +361,29 @@ void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
 //  feature edge separates us.  If not, can recusrsively call this
 //  routine. 
 //
-  for (spot=0; spot < npts; spot++)
-    if ( oldPts.GetId(spot) == n )
+  for (spot=0; spot < numOldPts; spot++)
+    if ( oldPts[spot] == n )
       break;
 
   if ( spot == 0 ) 
     {
-    neiNode[0] = oldPts.GetId(spot+1);
-    neiNode[1] = oldPts.GetId(npts-1);
+    neiNode[0] = oldPts[spot+1];
+    neiNode[1] = oldPts[numOldPts-1];
     } 
-  else if ( spot == (npts-1) ) 
+  else if ( spot == (numOldPts-1) ) 
     {
-    neiNode[0] = oldPts.GetId(spot-1);
-    neiNode[1] = oldPts.GetId(0);
+    neiNode[0] = oldPts[spot-1];
+    neiNode[1] = oldPts[0];
     } 
   else 
     {
-    neiNode[0] = oldPts.GetId(spot+1);
-    neiNode[1] = oldPts.GetId(spot-1);
+    neiNode[0] = oldPts[spot+1];
+    neiNode[1] = oldPts[spot-1];
     }
-
-  edge.SetId(0,n);
 
   for (i=0; i<2; i++) 
     {
-    edge.SetId(1,neiNode[i]);
-    OldMesh->GetCellNeighbors(cellId, edge, cellIds);
+    OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], cellIds);
     if ( cellIds.GetNumberOfIds() == 1 && Visited[cellIds.GetId(0)] != Mark ) 
       {
       thisNormal = PolyNormals->GetNormal(cellId);
