@@ -70,6 +70,15 @@ vtkActor2D::~vtkActor2D()
     }
 }
 
+void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
+{
+  // pass this information onto the mapper
+  if (this->Mapper)
+    {
+    this->Mapper->ReleaseGraphicsResources(win);
+    }
+}
+
 // Renders an actor2D's property and then it's mapper.
 int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 {

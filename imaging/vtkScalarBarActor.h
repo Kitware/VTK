@@ -108,6 +108,12 @@ public:
   int RenderOverlay(vtkViewport* viewport);
 
   // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
   // Set/Get the vtkLookupTable to use. The lookup table specifies the number
   // of colors to use in the table (if not overridden), as well as the scalar
   // range.

@@ -95,6 +95,12 @@ public:
   vtkProperty2D* GetProperty();
 
   // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
   // Set this vtkProp's vtkProperty2D.
   vtkSetObjectMacro(Property, vtkProperty2D);
 

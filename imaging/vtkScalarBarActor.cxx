@@ -90,6 +90,23 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastSize[1] = 0;
 }
 
+// Release any graphics resources that are being consumed by this actor.
+// The parameter window could be used to determine which graphic
+// resources to release.
+void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->TitleActor->ReleaseGraphicsResources(win);
+  if (this->TextMappers != NULL )
+    {
+    for (int i=0; i < this->NumberOfLabelsBuilt; i++)
+      {
+      this->TextActors[i]->ReleaseGraphicsResources(win);
+      }
+    }
+  this->ScalarBarActor->ReleaseGraphicsResources(win);
+}
+
+
 vtkScalarBarActor::~vtkScalarBarActor()
 {
   this->Position2Coordinate->Delete();

@@ -58,11 +58,19 @@ class VTK_EXPORT vtkMapper2D : public vtkObject
 public:
   static vtkMapper2D* New() {return new vtkMapper2D;};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  
   virtual void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {};
   virtual void RenderOpaqueGeometry(vtkViewport* viewport, 
 		vtkActor2D* actor) {};
   virtual void RenderTranslucentGeometry(vtkViewport* viewport, 
 		vtkActor2D* actor) {};
+
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *) {};
 
 protected:
 
