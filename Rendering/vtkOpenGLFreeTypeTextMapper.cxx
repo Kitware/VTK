@@ -46,7 +46,7 @@
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.31");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -357,9 +357,8 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // Setup the fonts for GL2PS output.
 
 #ifdef VTK_USE_GL2PS
-  char *font_name[] = {"Arial", "Courier", "Times"};
   char ps_font[64];
-  sprintf(ps_font, "%s", font_name[tprop->GetFontFamily()]);
+  sprintf(ps_font, "%s", tprop->GetFontFamilyAsString());
   if (tprop->GetBold())
     {
     sprintf(ps_font, "%s%s", ps_font, "Bold");
