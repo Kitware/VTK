@@ -45,10 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // GetImageViewer method that returns a vtkImageViewer. You can also 
 // specify a vtkImageViewer to be used when creating the widget by using
 // the -iv option. It also takes -width and -height options.
-
-
-// .SECTION Event Bindings
-// Events can be bound on this widget just liek any other Tk widget.
+// Events can be bound on this widget just like any other Tk widget.
 
 // .SECTION See Also
 // vtkImageViewer
