@@ -589,6 +589,7 @@ void vtkDelaunay2D::Execute()
     {
     double alpha2 = this->Alpha * this->Alpha;
     double x1[3], x2[3], x3[3];
+    double xx1[3], xx2[3], xx3[3];
     vtkIdType cellId, numNei, ap1, ap2, neighbor;
 
     vtkCellArray *alphaVerts = vtkCellArray::New();
@@ -608,10 +609,30 @@ void vtkDelaunay2D::Execute()
       if ( triUse[i] == 1 )
         {
         this->Mesh->GetCellPoints(i, npts, triPts);
-        points->GetPoint(triPts[0],x1);
-        points->GetPoint(triPts[1],x2);
-        points->GetPoint(triPts[2],x3);
-        if ( vtkTriangle::Circumcircle(x1,x2,x3,center) > alpha2 )
+
+        // if any point is one of the bounding points that was added
+        // at the beginning of the algorithm, then grab the points
+        // from the variable "points" (this list has the boundary
+        // points and the original points have been transformed by the
+        // input transform).  if none of the points are bounding points,
+        // then grab the points from the variable "inPoints" so the alpha
+        // criterion is applied in the nontransformed space.
+        if (triPts[0]<numPoints && triPts[1]<numPoints && triPts[2]<numPoints)
+          {
+          inPoints->GetPoint(triPts[0],x1);
+          inPoints->GetPoint(triPts[1],x2);
+          inPoints->GetPoint(triPts[2],x3);
+          }
+        else
+          {
+          points->GetPoint(triPts[0],x1);
+          points->GetPoint(triPts[1],x2);
+          points->GetPoint(triPts[2],x3);
+          }
+
+        // evaluate the alpha criterion in 3D
+        vtkTriangle::ProjectTo2D(x1, x2, x3, xx1, xx2, xx3);
+        if ( vtkTriangle::Circumcircle(xx1,xx2,xx3,center) > alpha2 )
           {
           triUse[i] = 0;
           }
@@ -644,8 +665,22 @@ void vtkDelaunay2D::Execute()
             if ( numNei < 1 || ((neighbor=neighbors->GetId(0)) > cellId 
                                 && !triUse[neighbor]) )
               {//see whether edge is shorter than Alpha
-              this->GetPoint(ap1,x1);
-              this->GetPoint(ap2,x2);
+
+              // same argument as above, if one is a boundary point, get
+              // it using this->GetPoint() which are transformed points. if
+              // neither of the points are boundary points, get the from
+              // inPoints (untransformed points) so alpha comparison done
+              // untransformed space
+              if (ap1 < numPoints && ap2 < numPoints)
+                {
+                inPoints->GetPoint(ap1,x1);
+                inPoints->GetPoint(ap2,x2);
+                }
+              else
+                {
+                this->GetPoint(ap1,x1);
+                this->GetPoint(ap2,x2);
+                }
               if ( (vtkMath::Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
                 {
                 pointUse[ap1] = 1; pointUse[ap2] = 1;
