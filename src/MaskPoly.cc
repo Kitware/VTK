@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "MaskPoly.hh"
 
 //
-// Down sample polygonal data.  Don't cnage points, usually not worth it.
+// Down sample polygonal data.  Don't down sample points, usually not worth it.
 //
 void vlMaskPolyData::Execute()
 {
@@ -123,4 +123,15 @@ void vlMaskPolyData::Execute()
 
   newStrips->Squeeze();
   this->SetStrips(newStrips);
+}
+
+void vlMaskPolyData::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlMaskPolyData::GetClassName()))
+    {
+    vlPolyToPolyFilter::PrintSelf(os,indent);
+
+    os << indent << "On Ratio: " << this->OnRatio << "\n";
+    os << indent << "Offset: " << this->Offset << "\n";
+    }
 }
