@@ -37,7 +37,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 
@@ -212,6 +212,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // on the previous one and the previous render time. Don't let
   // the adjusted image sample distance be less than the minimum image sample 
   // distance or more than the maximum image sample distance.
+  float oldImageSampleDistance = this->ImageSampleDistance;
   if ( this->AutoAdjustSampleDistances )
     {
     float oldTime = this->RetrieveRenderTime( ren, vol );
@@ -376,6 +377,11 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     this->TimeToDraw = this->Timer->GetElapsedTime();
     this->StoreRenderTime( ren, vol, this->TimeToDraw );
     }
+  else
+    {
+    this->ImageSampleDistance = oldImageSampleDistance;
+    }
+  
   
   if ( this->ZBuffer )
     {
