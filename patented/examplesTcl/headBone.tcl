@@ -14,6 +14,12 @@ vtkLight lgt
 
 # create pipeline
 #
+vtkMergePoints locator
+  locator SetDivisions 64 64 46
+  locator RetainCellListsOff
+  locator SetNumberOfPointsPerBucket 2
+  locator AutomaticOff
+
 vtkVolume16Reader v16
     v16 SetDataDimensions 128 128 
     [v16 GetOutput] SetOrigin 0.0 0.0 0.0
@@ -21,10 +27,12 @@ vtkVolume16Reader v16
     v16 SetFilePrefix "../../../vtkdata/headsq/half"
     v16 SetImageRange 1 93
     v16 SetDataSpacing 1.6 1.6 1.5
+
 vtkMarchingCubes iso
     iso SetInput [v16 GetOutput]
     iso SetValue 0 1150
     iso ComputeGradientsOn
+    iso SetLocator locator
 
 vtkVectorNorm gradient
   gradient SetInput [iso GetOutput]
@@ -69,6 +77,7 @@ eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
+iren Initialize
 #renWin SetFileName "headBone.tcl.ppm"
 #renWin SaveImageAsPPM
 
