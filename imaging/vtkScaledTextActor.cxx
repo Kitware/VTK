@@ -57,6 +57,8 @@ vtkScaledTextActor::vtkScaledTextActor()
 
   this->MinimumSize[0] = 10;
   this->MinimumSize[1] = 10;  
+
+  this->MaximumLineHeight = 1.0;
 }
 
 vtkScaledTextActor::~vtkScaledTextActor()
@@ -179,15 +181,22 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkTextMapper *tMapper = (vtkTextMapper *)this->TextActor->GetMapper();
     fontSize = tMapper->GetFontSize();
     tMapper->GetSize(viewport,tempi);
+    int lineMax = size[1]*this->MaximumLineHeight*
+      tMapper->GetNumberOfLines();
+    
     // while the size is too small increase it
-    while (tempi[1] < size[1] && tempi[0] < size[0] && fontSize < 100)
+    while (tempi[1] < size[1] && 
+           tempi[0] < size[0] && 
+           tempi[1] < lineMax &&
+           fontSize < 100)
       {
       fontSize++;
       tMapper->SetFontSize(fontSize);
       tMapper->GetSize(viewport,tempi);
       }
     // while the size is too large decrease it
-    while ((tempi[1] > size[1] || tempi[0] > size[0])&& fontSize > 0)
+    while ((tempi[1] > size[1] || tempi[0] > size[0] || tempi[1] > lineMax)
+           && fontSize > 0)
       {
       fontSize--;
       tMapper->SetFontSize(fontSize);
@@ -235,6 +244,7 @@ void vtkScaledTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
+  os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;
   os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
 }
 

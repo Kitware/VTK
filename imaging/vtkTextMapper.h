@@ -174,7 +174,8 @@ public:
   vtkGetMacro(LineOffset, float);
   vtkSetMacro(LineSpacing, float);
   vtkGetMacro(LineSpacing, float);
-
+  vtkGetMacro(NumberOfLines,int);
+  
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
