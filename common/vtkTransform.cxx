@@ -683,6 +683,8 @@ void vtkTransform::Identity ()
     ctm.Element[i][i] = 1.0;
     }
   **this->Stack = ctm;
+
+  this->Modified();
 }
 
 // Description:
