@@ -58,6 +58,9 @@ protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
   void Execute();
   
   vtkDataSetCollection *InputList; // list of data sets to interpolate 

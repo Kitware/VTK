@@ -16,6 +16,7 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
+#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -24,7 +25,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.26");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.27");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -37,9 +38,13 @@ vtkInterpolateDataSetAttributes::vtkInterpolateDataSetAttributes()
 
 vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
 {
-  this->InputList->Delete();
-  this->InputList = NULL;
+  if (this->InputList)
+    {
+    this->InputList->Delete();
+    this->InputList = NULL;
+    }
 }
+
 
 //----------------------------------------------------------------------------
 // Adds an input to the first null position in the input list.
@@ -48,6 +53,8 @@ void vtkInterpolateDataSetAttributes::AddInput(vtkDataSet *input)
 {
   if (this->NumberOfInputs == 0)
     {
+    // this is important because it sets the output type, otherwise we could
+    // just call AddInput all the time
     this->SetInput(input);
     }
   else
@@ -232,3 +239,31 @@ void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "T: " << this->T << endl;
 }
 
+//----------------------------------------------------------------------------
+void vtkInterpolateDataSetAttributes::ReportReferences(
+  vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  vtkCollectionSimpleIterator dit;
+  vtkDataSet *input;
+  for(this->InputList->InitTraversal(dit); 
+      (input = this->InputList->GetNextDataSet(dit)); )
+    {
+    collector->ReportReference(input, "InputList");    
+    }
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkInterpolateDataSetAttributes::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if (this->InputList)
+    {
+    this->InputList->Delete();
+    this->InputList = NULL;
+    }
+#endif
+  this->Superclass::RemoveReferences();
+}
