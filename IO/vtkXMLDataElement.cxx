@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.12");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.13");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -49,29 +49,34 @@ vtkXMLDataElement::~vtkXMLDataElement()
 {
   this->SetName(0);
   this->SetId(0);
-  int i;
-  for(i=0;i < this->NumberOfAttributes;++i)
-    {
-    delete [] this->AttributeNames[i];
-    delete [] this->AttributeValues[i];
-    }
+
+  this->RemoveAllAttributes();
   delete [] this->AttributeNames;
   delete [] this->AttributeValues;
-  for(i=0;i < this->NumberOfNestedElements;++i)
-    {
-    this->NestedElements[i]->UnRegister(this);
-    }
+
+  this->RemoveAllNestedElements();
   delete [] this->NestedElements;
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXMLDataElement::RemoveAllAttributes()
 {
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "XMLByteIndex: " << this->XMLByteIndex << "\n";
-  os << indent << "Name: " << (this->Name? this->Name : "(none)") << "\n";
-  os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
-  os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
+  for(int i = 0; i < this->NumberOfAttributes; ++i)
+    {
+    delete [] this->AttributeNames[i];
+    delete [] this->AttributeValues[i];
+    }
+  this->NumberOfAttributes = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::RemoveAllNestedElements()
+{
+  for(int i = 0; i < this->NumberOfNestedElements; ++i)
+    {
+    this->NestedElements[i]->UnRegister(this);
+    }
+  this->NumberOfNestedElements = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -168,6 +173,29 @@ void vtkXMLDataElement::AddNestedElement(vtkXMLDataElement* element)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLDataElement::RemoveNestedElement(vtkXMLDataElement* element)
+{
+  if (!element)
+    {
+    return;
+    }
+  
+  int i, j;
+  for(i = 0; i < this->NumberOfNestedElements; ++i)
+    {
+    if (this->NestedElements[i] == element)
+      {
+      for (j = i; j < this->NumberOfNestedElements - 1; ++j)
+        {
+        this->NestedElements[j] = this->NestedElements[j + 1];
+        }
+      element->UnRegister(this);
+      this->NumberOfNestedElements--;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 const char* vtkXMLDataElement::GetAttribute(const char* name)
 {
   if (!name)
@@ -233,6 +261,16 @@ void vtkXMLDataElement::SetParent(vtkXMLDataElement* parent)
 vtkXMLDataElement* vtkXMLDataElement::GetParent()
 {
   return this->Parent;
+}
+
+//----------------------------------------------------------------------------
+vtkXMLDataElement* vtkXMLDataElement::GetRoot()
+{
+  if (!this->Parent)
+    {
+    return this;
+    }
+  return this->Parent->GetRoot();
 }
 
 //----------------------------------------------------------------------------
@@ -771,3 +809,97 @@ int vtkXMLDataElement::IsSpace(char c)
 {
   return isspace(c);
 }
+
+//----------------------------------------------------------------------------
+int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement *elem)
+{
+  if (this == elem)
+    {
+    return 1;
+    }
+
+  if (!elem)
+    {
+    return 0;
+    }
+
+  if (this->GetNumberOfAttributes() != elem->GetNumberOfAttributes() ||
+      this->GetNumberOfNestedElements() != elem->GetNumberOfNestedElements() ||
+      (this->GetName() != elem->GetName() && 
+       (!this->GetName() || !elem->GetName() || strcmp(this->GetName(), 
+                                                       elem->GetName()))))
+    {
+    return 0;
+    }
+
+  // Compare attributes
+
+  int i;
+  for (i = 0; i < this->GetNumberOfAttributes(); ++i)
+    {
+    const char *value = elem->GetAttribute(this->AttributeNames[i]);
+    if (!value || strcmp(value, this->AttributeValues[i]))
+      {
+      return 0;
+      }
+    }
+
+  // Compare nested elements
+
+  for (i = 0; i < this->GetNumberOfNestedElements(); ++i)
+    {
+    if (!this->GetNestedElement(i)->IsEqualTo(elem->GetNestedElement(i)))
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
+{
+  if (!elem)
+    {
+    return;
+    }
+
+  this->SetName(elem->GetName());
+  this->SetId(elem->GetId());
+  this->SetXMLByteIndex(elem->GetXMLByteIndex());
+
+  // Copy attributes
+
+  this->RemoveAllAttributes();
+
+  int i;
+  for (i = 0; i < elem->GetNumberOfAttributes(); ++i)
+    {
+    const char *att_name = elem->GetAttributeName(i);
+    this->SetAttribute(att_name, elem->GetAttribute(att_name));
+    }
+  
+  // Copy nested elements
+
+  this->RemoveAllNestedElements();
+
+  for (i = 0; i < elem->GetNumberOfNestedElements(); ++i)
+    {
+    vtkXMLDataElement *nested_elem = vtkXMLDataElement::New();
+    nested_elem->DeepCopy(elem->GetNestedElement(i));
+    this->AddNestedElement(nested_elem);
+    nested_elem->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "XMLByteIndex: " << this->XMLByteIndex << "\n";
+  os << indent << "Name: " << (this->Name? this->Name : "(none)") << "\n";
+  os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
+  os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
+}
+
