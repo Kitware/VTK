@@ -82,6 +82,7 @@ extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *vtkNot
                                                                   jobject vtkNotUsed(canvas),
                                                                   jobject vtkNotUsed(id0))
 {
+}
 #endif
 
 
