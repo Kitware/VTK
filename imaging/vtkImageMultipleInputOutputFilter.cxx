@@ -98,7 +98,7 @@ void vtkImageMultipleInputOutputFilter::ExecuteInformation()
   vtkImageData *output;
   vtkImageData *input = this->GetInput(0);
   
-  if ( input == NULL || output == NULL)
+  if ( input == NULL)
     {
     return;
     }
