@@ -130,10 +130,10 @@ ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
-SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL "Is this VTK built with shared libraries.")
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
 MARK_AS_ADVANCED(VTK_USE_64BIT_IDS)
+SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator 
