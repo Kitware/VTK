@@ -52,6 +52,11 @@ vtkImageMask::vtkImageMask()
     = this->MaskedOutputValue[2] = 0.0;
 }
 
+vtkImageMask::~vtkImageMask()
+{
+  delete [] this->MaskedOutputValue;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkImageMask::SetMaskedOutputValue(int num, float *v)
