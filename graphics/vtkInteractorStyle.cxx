@@ -67,6 +67,7 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->CurrentActor     = NULL;
 
   this->State    = VTKIS_START;
+  this->AnimState = VTKIS_ANIM_OFF; 
   this->CtrlKey  = 0;
   this->ShiftKey = 1;
 
@@ -422,30 +423,69 @@ void  vtkInteractorStyle::StartState(int newstate)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   this->State = newstate;
-  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
-  if ( !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
-    {
-    vtkErrorMacro(<< "Timer start failed");
-    this->State = VTKIS_START;
-    }
+  if (this->AnimState == VTKIS_ANIM_OFF) 
+   {
+	  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
+	  if ( !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
+	    {
+	    vtkErrorMacro(<< "Timer start failed");
+ 	   this->State = VTKIS_START;
+ 	   }
+	}
 }
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StopState() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   this->State = VTKIS_START;
-  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
-  if ( !rwi->DestroyTimer() ) 
-    {
-    vtkErrorMacro(<< "Timer stop failed");
-    }
-  rwi->Render();
+  if (this->AnimState == VTKIS_ANIM_OFF) 
+   {	
+	  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
+	  if ( !rwi->DestroyTimer() ) 
+    	{
+   	 vtkErrorMacro(<< "Timer stop failed");
+   	 }
+     }	
 }
 
 //----------------------------------------------------------------------------
+// JCP animation control 
+void  vtkInteractorStyle::StartAnimate() 
+{
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+	    vtkErrorMacro(<< "starting animation");
+  this->AnimState = VTKIS_ANIM_ON;
+  if (this->State == VTKIS_START) 
+   {	
+	    vtkErrorMacro(<< "Start state found");
+	  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
+	  if ( !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
+	    {
+	    vtkErrorMacro(<< "Timer start failed");
+ 	   }
+     }	
+  rwi->Render();
+}
+//----------------------------------------------------------------------------
+void  vtkInteractorStyle::StopAnimate() 
+{
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+  this->AnimState = VTKIS_ANIM_OFF;
+  if (this->State == VTKIS_START) 
+   {	
+	  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
+	  if ( !rwi->DestroyTimer() ) 
+    	{
+   	 vtkErrorMacro(<< "Timer stop failed");
+   	 }
+     }	
+}
+
+// JCP Animation control
+//----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartRotate() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -454,7 +494,7 @@ void  vtkInteractorStyle::StartRotate()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndRotate() 
 {
-  if (this->State != VTKIS_ROTATE)
+  if (this->State != VTKIS_ROTATE) 
     {
     return;
     }
@@ -463,7 +503,7 @@ void  vtkInteractorStyle::EndRotate()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartZoom() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -472,7 +512,7 @@ void  vtkInteractorStyle::StartZoom()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndZoom() 
 {
-  if (this->State != VTKIS_ZOOM)
+  if (this->State != VTKIS_ZOOM) 
     {
     return;
     }
@@ -481,7 +521,7 @@ void  vtkInteractorStyle::EndZoom()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartPan() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -490,7 +530,7 @@ void  vtkInteractorStyle::StartPan()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndPan() 
 {
-  if (this->State != VTKIS_PAN)
+  if (this->State != VTKIS_PAN) 
     {
     return;
     }
@@ -499,7 +539,7 @@ void  vtkInteractorStyle::EndPan()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartSpin() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -508,7 +548,7 @@ void  vtkInteractorStyle::StartSpin()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndSpin() 
 {
-  if (this->State != VTKIS_SPIN)
+  if (this->State != VTKIS_SPIN) 
     {
     return;
     }
@@ -517,7 +557,7 @@ void  vtkInteractorStyle::EndSpin()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartDolly() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -526,7 +566,7 @@ void  vtkInteractorStyle::StartDolly()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndDolly() 
 {
-    if (this->State != VTKIS_DOLLY)
+    if (this->State != VTKIS_DOLLY) 
       {
       return;
       }
@@ -535,7 +575,7 @@ void  vtkInteractorStyle::EndDolly()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartUniformScale() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -544,7 +584,7 @@ void  vtkInteractorStyle::StartUniformScale()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndUniformScale() 
 {
-  if (this->State != VTKIS_USCALE)
+  if (this->State != VTKIS_USCALE) 
     {
     return;
     }
@@ -553,7 +593,7 @@ void  vtkInteractorStyle::EndUniformScale()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::StartTimer() 
 {
-  if (this->State != VTKIS_START)
+  if (this->State != VTKIS_START) 
     {
     return;
     }
@@ -562,7 +602,7 @@ void  vtkInteractorStyle::StartTimer()
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::EndTimer() 
 {
-  if (this->State != VTKIS_TIMER)
+  if (this->State != VTKIS_TIMER) 
     {
     return;
     }
@@ -581,6 +621,20 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
   vtkRenderWindowInteractor *rwi = this->Interactor;
   switch (keycode) 
     {
+    // JCP Animation control
+    case 'a' :
+    case 'A' :
+      if (this->AnimState == VTKIS_ANIM_OFF) 
+        {
+        this->StartAnimate();
+        }
+      else 
+        {
+        this->StopAnimate();
+        }
+      break;
+      // JCP Animation control 
+      //-----
     case 'Q' :
     case 'q' :
     case 'e' :
@@ -675,7 +729,14 @@ void vtkInteractorStyle::OnTimer(void)
     {
     //-----
     case VTKIS_START:
-      //?? rwi->Render();
+      // JCP Animation control
+      if (this->AnimState == VTKIS_ANIM_ON)
+	{
+		rwi->DestroyTimer();
+		rwi->Render();
+		rwi->CreateTimer(VTKI_TIMER_FIRST);
+	 }
+      // JCP Animation control 
       break;
       //-----
     case VTKIS_ROTATE:  // rotate with respect to an axis perp to look
@@ -705,10 +766,12 @@ void vtkInteractorStyle::OnTimer(void)
       break;
       //-----
     case VTKIS_TIMER:
+		rwi->Render();
       rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       //-----
     default :
+
       break;
     }
 }
@@ -742,7 +805,7 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
         {
         this->StartDolly();
         }
-      else
+      else 
         {
         this->StartPan();
         }
@@ -753,7 +816,7 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
         {
         this->StartSpin();
         }
-      else
+      else 
         {
         this->StartRotate();
         }
@@ -775,7 +838,7 @@ void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y)
     {
     if (this->ShiftKey) 
       {
-      if (this->CtrlKey)
+      if (this->CtrlKey) 
         {
         this->EndDolly();
         }
@@ -851,9 +914,9 @@ void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift,
 void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y) 
 {
   //
-  this->UpdateInternalState(ctrl, shift, X, Y);
+ this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  this->FindPokedCamera(X, Y);
+ this->FindPokedCamera(X, Y);
   if (this->RightButtonPressMethod) 
     {
     (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
@@ -867,7 +930,7 @@ void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y)
 void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y) 
 {
   //
-  this->UpdateInternalState(ctrl, shift, X, Y);
+ this->UpdateInternalState(ctrl, shift, X, Y);
   //
   if (this->RightButtonReleaseMethod) 
     {

@@ -1032,6 +1032,12 @@ void vtkInteractorStyleTrackball::OnTimer(void)
   switch (this->State) 
     {
     case VTKIS_START:
+      if (this->AnimState == VTKIS_ANIM_ON)
+	{
+        rwi->DestroyTimer();
+        rwi->Render();
+        rwi->CreateTimer(VTKI_TIMER_FIRST);
+        }
       break;
       
     case VTKIS_ROTATE:  // rotate with respect to an axis perp to look
@@ -1275,7 +1281,7 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift,
         {
         this->StartSpin();
         }
-      else
+      else         
         {
         this->StartRotate();
         }
@@ -1301,7 +1307,7 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int
         {
         this->EndDolly();
         }
-      else
+      else        
         {
         this->EndPan();
         }
@@ -1380,7 +1386,7 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift,
       {
       this->EndDolly();
       }
-    else
+    else   
       {
       this->EndPan();
       }
