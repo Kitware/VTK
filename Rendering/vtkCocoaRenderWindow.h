@@ -139,7 +139,7 @@ public:
   // Set the window id to a pre-existing window.
   virtual void  SetWindowId(void *);
 
-  void SetNextWindowId(void *foo)
+  void SetNextWindowId(void*)
     {
        vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }

@@ -44,6 +44,7 @@
 }
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize {
+    (void)sender;
     ((vtkCocoaRenderWindow *)myVTKRenderWindow)->
         UpdateSizeAndPosition( (int)proposedFrameSize.width, (int)proposedFrameSize.height,
                                (int)[self frame].origin.x, (int)[self frame].origin.y);
@@ -51,6 +52,7 @@
 }
 
 - (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame {
+    (void)sender;
     ((vtkCocoaRenderWindow *)myVTKRenderWindow)->
         UpdateSizeAndPosition((int)newFrame.size.width, (int)newFrame.size.height,
                               (int)newFrame.origin.x, (int)newFrame.origin.y);

@@ -59,6 +59,7 @@
 - (void)drawRect:(NSRect)theRect
 {
   NSRect visibleRect;
+  (void)theRect;
 
   // Get visible bounds...
   visibleRect = [self bounds];

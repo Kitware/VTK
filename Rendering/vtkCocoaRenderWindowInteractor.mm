@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <OpenGL/gl.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.2");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.3");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
@@ -118,8 +118,6 @@ void vtkCocoaRenderWindowInteractor::Initialize()
 
 void vtkCocoaRenderWindowInteractor::Enable() 
 {
-  vtkCocoaRenderWindow *ren;
-  vtkCocoaRenderWindow *tmp;
   if (this->Enabled) 
     {
     return;
@@ -133,7 +131,6 @@ void vtkCocoaRenderWindowInteractor::Enable()
 
 void vtkCocoaRenderWindowInteractor::Disable() 
 {
-  vtkCocoaRenderWindow *tmp;
   if (!this->Enabled) 
     {
     return;
@@ -150,7 +147,7 @@ void vtkCocoaRenderWindowInteractor::TerminateApp(void)
   [NSApp terminate:(vtkCocoaWindow *)this->WindowId];
 }
 
-int vtkCocoaRenderWindowInteractor::CreateTimer(int notUsed) 
+int vtkCocoaRenderWindowInteractor::CreateTimer(int) 
 {
     [NSEvent stopPeriodicEvents];
     [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
