@@ -488,7 +488,7 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Function: " 
      << (this->Function ? this->Function : "(none)") << endl;
-  os << indent << "ResultArrayName: "
+  os << indent << "Result Array Name: "
      << (this->ResultArrayName ? this->ResultArrayName : "(none)") << endl;
-  os << indent << "AttributeMode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
 }
