@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.2");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.3");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -48,18 +48,19 @@ void vtkPProbeFilter::ExecuteInformation()
 //----------------------------------------------------------------------------
 void vtkPProbeFilter::Execute()
 {
-  if ( !this->Controller )
-    {
-    vtkErrorMacro("Controller not set");
-    return;
-    }
   vtkDataSet *output = this->GetOutput();
   //vtkDataObject *input = this->GetInput();
   //vtkDataObject *source = this->GetSource();
   
   this->vtkProbeFilter::Execute();
-  int procid = this->Controller->GetLocalProcessId();
-  int numProcs = this->Controller->GetNumberOfProcesses();
+  int procid = 0;
+  int numProcs = 1;
+  if ( this->Controller )
+    {
+    procid = this->Controller->GetLocalProcessId();
+    numProcs = this->Controller->GetNumberOfProcesses();
+    }
+
   vtkIdType numPoints = this->GetValidPoints()->GetMaxId() + 1;
   if ( procid )
     {
