@@ -22,66 +22,80 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackball, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackball, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 {
-  // for actor interactions
-  this->MotionFactor = 10.0;
+  // For actor interactions
+
+  this->MotionFactor      = 10.0;
   this->InteractionPicker = vtkPropPicker::New();
-  this->PropPicked = 0;
-  this->InteractionProp = NULL;
+  this->PropPicked        = 0;
+  this->InteractionProp   = NULL;
 
-  // set to default modes
-  this->TrackballMode = VTKIS_JOY;
-  this->ActorMode = VTKIS_CAMERA;
-  this->ControlMode = VTKIS_CONTROL_OFF;
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-  this->Preprocess = 1;
-  this->RadianToDegree = 180.0 / vtkMath::Pi();
+  // Set to default modes
 
-  this->NewPickPoint[0] = 0.0;
-  this->NewPickPoint[1] = 0.0;
-  this->NewPickPoint[2] = 0.0;
-  this->NewPickPoint[3] = 1.0;
-  this->OldPickPoint[0] = 0.0;
-  this->OldPickPoint[1] = 0.0;
-  this->OldPickPoint[2] = 0.0;
-  this->OldPickPoint[3] = 1.0;
-  this->MotionVector[0] = 0.0;
-  this->MotionVector[1] = 0.0;
-  this->MotionVector[2] = 0.0;
-  this->ViewLook[0] = 0.0;
-  this->ViewLook[1] = 0.0;
-  this->ViewLook[2] = 0.0;
-  this->ViewPoint[0] = 0.0;
-  this->ViewPoint[1] = 0.0;
-  this->ViewPoint[2] = 0.0;
-  this->ViewFocus[0] = 0.0;
-  this->ViewFocus[1] = 0.0;
-  this->ViewFocus[2] = 0.0;
-  this->ViewUp[0] = 0.0;
-  this->ViewUp[1] = 0.0;
-  this->ViewUp[2] = 0.0;
-  this->ViewRight[0] = 0.0;
-  this->ViewRight[1] = 0.0;
-  this->ViewRight[2] = 0.0;  
+  this->TrackballMode    = VTKIS_JOYSTICK;
+  this->ActorMode        = VTKIS_CAMERA;
+  this->ControlMode      = VTKIS_CONTROL_OFF;
 
-  this->Origin[0] = 0.0;
-  this->Origin[1] = 0.0;
-  this->Origin[2] = 0.0;
-  this->Position[0] = 0.0;
-  this->Position[1] = 0.0;
-  this->Position[2] = 0.0;
-  this->ObjCenter[0] = 0.0;
-  this->ObjCenter[1] = 0.0;
-  this->ObjCenter[2] = 0.0;  
+  this->OldX             = 0.0;
+  this->OldY             = 0.0;
+  this->Preprocess       = 1;
+  this->RadianToDegree   = 180.0 / vtkMath::Pi();
+
+  this->NewPickPoint[0]  = 0.0;
+  this->NewPickPoint[1]  = 0.0;
+  this->NewPickPoint[2]  = 0.0;
+  this->NewPickPoint[3]  = 1.0;
+
+  this->OldPickPoint[0]  = 0.0;
+  this->OldPickPoint[1]  = 0.0;
+  this->OldPickPoint[2]  = 0.0;
+  this->OldPickPoint[3]  = 1.0;
+
+  this->MotionVector[0]  = 0.0;
+  this->MotionVector[1]  = 0.0;
+  this->MotionVector[2]  = 0.0;
+
+  this->ViewLook[0]      = 0.0;
+  this->ViewLook[1]      = 0.0;
+  this->ViewLook[2]      = 0.0;
+
+  this->ViewPoint[0]     = 0.0;
+  this->ViewPoint[1]     = 0.0;
+  this->ViewPoint[2]     = 0.0;
+
+  this->ViewFocus[0]     = 0.0;
+  this->ViewFocus[1]     = 0.0;
+  this->ViewFocus[2]     = 0.0;
+
+  this->ViewUp[0]        = 0.0;
+  this->ViewUp[1]        = 0.0;
+  this->ViewUp[2]        = 0.0;
+
+  this->ViewRight[0]     = 0.0;
+  this->ViewRight[1]     = 0.0;
+  this->ViewRight[2]     = 0.0;  
+
+  this->Origin[0]        = 0.0;
+  this->Origin[1]        = 0.0;
+  this->Origin[2]        = 0.0;
+
+  this->Position[0]      = 0.0;
+  this->Position[1]      = 0.0;
+  this->Position[2]      = 0.0;
+
+  this->ObjCenter[0]     = 0.0;
+  this->ObjCenter[1]     = 0.0;
+  this->ObjCenter[2]     = 0.0;  
+
   this->DispObjCenter[0] = 0.0;
   this->DispObjCenter[1] = 0.0;
   this->DispObjCenter[2] = 0.0;
-  this->Radius = 0.0;
+
+  this->Radius           = 0.0;
 }
 
 vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball() 
@@ -944,73 +958,13 @@ void vtkInteractorStyleTrackball::Prop3DTransform(vtkProp3D *prop3D,
 
 
 //----------------------------------------------------------------------------
-// Intercept any keypresses which are style independent here and do the rest in
-// subclasses - none really required yet!
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnChar(int ctrl, int shift, 
-                                         char keycode, int repeatcount) 
-{
-  // first invoke superclass method
-  this->vtkInteractorStyle::OnChar(ctrl,shift,keycode,repeatcount);
-
-  // catch additional keycodes
-  switch (keycode) 
-    {
-    case 'j':
-    case 'J':
-      if (this->State == VTKIS_START) 
-        {
-        this->TrackballMode = VTKIS_JOY;
-        }
-      break;
-      
-    case 't':
-    case 'T':
-      if (this->State == VTKIS_START) 
-        {
-        this->TrackballMode = VTKIS_TRACK;
-        }
-      break;
-      
-    case 'o':
-    case 'O':
-      if (this->State == VTKIS_START) 
-        {
-        if (this->ActorMode != VTKIS_ACTOR)
-          {
-          // reset the actor picking variables
-          this->InteractionProp = NULL;
-          this->PropPicked = 0;
-          this->HighlightProp3D(NULL);          
-          this->ActorMode = VTKIS_ACTOR;
-          }
-        }
-      break;
-      
-    case 'c':
-    case 'C':
-      if (this->State == VTKIS_START) 
-        {
-        if (this->ActorMode != VTKIS_CAMERA)
-          {
-          // reset the actor picking variables
-          this->InteractionProp = NULL;
-          this->PropPicked = 0;
-          this->HighlightProp3D(NULL);
-          this->ActorMode = VTKIS_CAMERA;
-          }
-        }
-      break;
-    }
-}
-
-//----------------------------------------------------------------------------
 // By overriding the RotateCamera, RotateActor members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackball::OnTimer(void) 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
+
   switch (this->State) 
     {
     case VTKIS_START:
@@ -1028,12 +982,12 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           {
           this->TrackballRotateActor(this->LastPos[0],
-                                   this->LastPos[1]);
+                                     this->LastPos[1]);
           }
         else
           {
           this->JoystickRotateActor(this->LastPos[0],
-                                  this->LastPos[1]);
+                                    this->LastPos[1]);
           }
         }
       else if (!(this->ActorMode))
@@ -1041,7 +995,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           {
           this->TrackballRotateCamera(this->LastPos[0],
-                                    this->LastPos[1]);
+                                      this->LastPos[1]);
           }
         else
           {
@@ -1086,7 +1040,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           { 
           this->TrackballDollyCamera(this->LastPos[0],
-                                   this->LastPos[1]);
+                                     this->LastPos[1]);
           }
         else
           {
@@ -1102,12 +1056,12 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           { 
           this->TrackballSpinActor(this->LastPos[0],
-                                 this->LastPos[1]);
+                                   this->LastPos[1]);
           }
         else
           {
           this->JoystickSpinActor(this->LastPos[0],
-                                this->LastPos[1]);
+                                  this->LastPos[1]);
           }
         }
       else if (!(this->ActorMode))
@@ -1115,7 +1069,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           {
           this->TrackballSpinCamera(this->LastPos[0],
-                                  this->LastPos[1]);
+                                    this->LastPos[1]);
           }
         else
           {
@@ -1131,12 +1085,12 @@ void vtkInteractorStyleTrackball::OnTimer(void)
         if (this->TrackballMode)
           { 
           this->TrackballDollyActor(this->LastPos[0],
-                                  this->LastPos[1]);
+                                    this->LastPos[1]);
           }
         else
           {
           this->JoystickDollyActor(this->LastPos[0],
-                                 this->LastPos[1]);
+                                   this->LastPos[1]);
           }
         }
       rwi->CreateTimer(VTKI_TIMER_UPDATE);
@@ -1168,6 +1122,255 @@ void vtkInteractorStyleTrackball::OnTimer(void)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, 
+                                                   int shift, 
+                                                   int x, 
+                                                   int y) 
+{
+  this->OldX = x;
+  this->OldY = y;
+
+  this->FindPokedCamera(x, y);
+  this->Preprocess = 1;
+
+  if (this->ActorMode)
+    {
+    this->FindPickedActor(x, y);    
+    }
+
+  if (shift) 
+    {
+    if (ctrl) 
+      {
+      this->StartDolly();
+      }
+    else 
+      {
+      this->StartPan();
+      }
+    } 
+  else 
+    {
+    if (ctrl) 
+      {
+      this->StartSpin();
+      }
+    else 
+      {
+      this->StartRotate();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, 
+                                                 int shift, 
+                                                 int x, 
+                                                 int y) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_ROTATE:
+      this->EndRotate();
+      break;
+    }
+
+  this->OldX = 0.0;
+  this->OldY = 0.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnMiddleButtonDown(int ctrl, 
+                                                     int shift, 
+                                                     int x, 
+                                                     int y) 
+{
+  this->OldX = x;
+  this->OldY = y;
+
+  this->Preprocess = 1;
+  this->FindPokedCamera(x, y);
+
+  if (this->ActorMode)
+    {
+    this->FindPickedActor(x, y);    
+    }
+
+  if (ctrl)
+    {
+    this->StartDolly();
+    }
+  else
+    {
+    this->StartPan();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, 
+                                                   int shift, 
+                                                   int x, 
+                                                   int y) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
+
+  this->OldX = 0.0;
+  this->OldY = 0.0;
+
+  if (this->ActorMode && this->PropPicked)
+    {
+    this->HighlightProp3D(this->InteractionProp);
+    }
+  else if (this->ActorMode)
+    {
+    this->HighlightProp3D(NULL);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, 
+                                                    int shift, 
+                                                    int x, 
+                                                    int y) 
+{
+  this->OldX = x;
+  this->OldY = y;
+
+  this->FindPokedCamera(x, y);
+  this->Preprocess = 1;
+
+  if (this->ActorMode)
+    {
+    this->FindPickedActor(x,y);    
+    this->StartUniformScale();
+    }
+  else
+    {
+    this->StartZoom();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, 
+                                                  int shift, 
+                                                  int x, 
+                                                  int y) 
+{
+ if (this->ActorMode)
+   {
+   switch (this->State) 
+     {
+     case VTKIS_USCALE:
+       this->EndUniformScale();
+       break;
+     }
+   this->EndUniformScale();
+   }
+ else
+   {
+   switch (this->State) 
+     {
+     case VTKIS_ZOOM:
+       this->EndZoom();
+       break;
+     }
+   }
+  this->OldX = 0.0;
+  this->OldY = 0.0;
+
+  if (this->ActorMode && this->PropPicked)
+    {
+    this->HighlightProp3D(this->InteractionProp);
+    }
+  else if (this->ActorMode)
+    {
+    this->HighlightProp3D(NULL);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Intercept any keypresses which are style independent here and do the rest in
+// subclasses - none really required yet!
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackball::OnChar(int ctrl, 
+                                         int shift, 
+                                         char keycode, 
+                                         int repeatcount) 
+{
+  switch (keycode) 
+    {
+    case 'j':
+    case 'J':
+      if (this->State == VTKIS_START) 
+        {
+        this->TrackballMode = VTKIS_JOYSTICK;
+        }
+      break;
+      
+    case 't':
+    case 'T':
+      if (this->State == VTKIS_START) 
+        {
+        this->TrackballMode = VTKIS_TRACKBALL;
+        }
+      break;
+      
+    case 'o':
+    case 'O':
+      if (this->State == VTKIS_START) 
+        {
+        if (this->ActorMode != VTKIS_ACTOR)
+          {
+          // reset the actor picking variables
+          this->InteractionProp = NULL;
+          this->PropPicked = 0;
+          this->HighlightProp3D(NULL);          
+          this->ActorMode = VTKIS_ACTOR;
+          }
+        }
+      break;
+      
+    case 'c':
+    case 'C':
+      if (this->State == VTKIS_START) 
+        {
+        if (this->ActorMode != VTKIS_CAMERA)
+          {
+          // reset the actor picking variables
+          this->InteractionProp = NULL;
+          this->PropPicked = 0;
+          this->HighlightProp3D(NULL);
+          this->ActorMode = VTKIS_CAMERA;
+          }
+        }
+      break;
+      
+    default:
+      this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+    }
+}
+
 void vtkInteractorStyleTrackball::Prop3DTransform(vtkProp3D *prop3D,
                                                 float *boxCenter,
                                                 int numRotation,
@@ -1181,9 +1384,9 @@ void vtkInteractorStyleTrackball::Prop3DTransform(vtkProp3D *prop3D,
   this->Prop3DTransform(prop3D,boxCenter2,numRotation,rotate,scale);
 }
 
-void vtkInteractorStyleTrackball::FindPickedActor(int X, int Y)
+void vtkInteractorStyleTrackball::FindPickedActor(int x, int y)
 {
-  this->InteractionPicker->Pick(X,Y, 0.0, this->CurrentRenderer);
+  this->InteractionPicker->Pick(x,y, 0.0, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetProp();
   if ( prop != NULL )
     {
@@ -1202,194 +1405,24 @@ void vtkInteractorStyleTrackball::FindPickedActor(int X, int Y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift, 
-                                          int X, int Y) 
-{
-  //
-  this->OldX = X;
-  this->OldY = Y;
-  this->UpdateInternalState(ctrl, shift, X, Y);
-
-  this->FindPokedCamera(X, Y);
-  this->Preprocess = 1;
-  if (this->ActorMode)
-    {
-    this->FindPickedActor(X,Y);    
-    }
-  if (this->ShiftKey) 
-    { // I haven't got a Middle button !
-    if (this->CtrlKey) 
-      {
-      this->StartDolly();
-      }
-    else      
-      {
-      this->StartPan();
-      }
-    } 
-  else 
-    {
-    if (this->CtrlKey) 
-      {
-      this->StartSpin();
-      }
-    else         
-      {
-      this->StartRotate();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int Y) 
-{
-  //
- this->UpdateInternalState(ctrl, shift, X, Y);
- if (this->ShiftKey) 
-   {
-   if (this->CtrlKey) 
-     {
-     this->EndDolly();
-     }
-   else        
-     {
-     this->EndPan();
-     }
-   } 
- else 
-   {
-   if (this->CtrlKey) 
-     {
-     this->EndSpin();
-     }
-   else
-     {
-     this->EndRotate();
-     }
-   }
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnMiddleButtonDown(int ctrl, int shift, 
-                                            int X, int Y) 
-{
-  this->OldX = X;
-  this->OldY = Y;
-  //
-  this->UpdateInternalState(ctrl, shift, X, Y);
-  //
-  this->Preprocess = 1;
-  this->FindPokedCamera(X, Y);
-  //
-  if (this->ActorMode)
-    {
-    this->FindPickedActor(X,Y);    
-    }
-  if (this->CtrlKey) 
-    {
-    this->StartDolly();
-    }
-  else
-    {
-    this->StartPan();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift, 
-                                                   int X, int Y) 
-{
-  //
- this->UpdateInternalState(ctrl, shift, X, Y);
-  //
- if (this->CtrlKey) 
-   {
-   this->EndDolly();
-   }
- else   
-   {
-   this->EndPan();
-   }
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-  if (this->ActorMode && this->PropPicked)
-    {
-    this->HighlightProp3D(this->InteractionProp);
-    }
-  else if (this->ActorMode)
-    {
-    this->HighlightProp3D(NULL);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, int shift, 
-                                                    int X, int Y) 
-{
-  this->OldX = X;
-  this->OldY = Y;
-  //
-  this->UpdateInternalState(ctrl, shift, X, Y);
-  this->FindPokedCamera(X, Y);
-  this->Preprocess = 1;
-  if (this->ActorMode)
-    {
-    this->FindPickedActor(X,Y);    
-    this->StartUniformScale();
-    }
-  else
-    {
-    this->StartZoom();
-    }
-}
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, int shift, 
-                                                  int X, int Y) 
-{
-  //
- this->UpdateInternalState(ctrl, shift, X, Y);
-  //
- if (this->ActorMode)
-   {
-   this->EndUniformScale();
-   }
- else
-   {
-   this->EndZoom();
-   }
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-  if (this->ActorMode && this->PropPicked)
-    {
-    this->HighlightProp3D(this->InteractionProp);
-    }
-  else if (this->ActorMode)
-    {
-    this->HighlightProp3D(NULL);
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkInteractorStyleTrackball::SetTrackballModeToTrackball()
 {
-  if (this->TrackballMode == VTKIS_TRACK)
+  if (this->TrackballMode == VTKIS_TRACKBALL)
     {
     return;
     }
-  this->TrackballMode = VTKIS_TRACK;
+  this->TrackballMode = VTKIS_TRACKBALL;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackball::SetTrackballModeToJoystick()
 {
-  if (this->TrackballMode == VTKIS_JOY)
+  if (this->TrackballMode == VTKIS_JOYSTICK)
     {
     return;
     }
-  this->TrackballMode = VTKIS_JOY;
+  this->TrackballMode = VTKIS_JOYSTICK;
   this->Modified();
 }
 
