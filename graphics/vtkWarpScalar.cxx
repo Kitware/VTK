@@ -83,7 +83,6 @@ void vtkWarpScalar::Execute()
   vtkDebugMacro(<<"Warping data with scalars");
 
   inPts = input->GetPoints();
-  numPts = inPts->GetNumberOfPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();
   inScalars = pd->GetScalars();
@@ -93,6 +92,8 @@ void vtkWarpScalar::Execute()
     vtkErrorMacro(<<"No data to warp");
     return;
     }
+
+  numPts = inPts->GetNumberOfPoints();
 
   if ( inNormals && !this->UseNormal )
     {

@@ -70,6 +70,12 @@ void vtkStructuredGridGeometryFilter::Execute()
 
   vtkDebugMacro(<< "Extracting structured points geometry");
 
+  if ( input->GetPoints() == NULL)
+    {
+    vtkErrorMacro(<<"No data to extract");
+    return;
+    }
+
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyNormalsOff();
