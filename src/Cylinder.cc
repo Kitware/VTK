@@ -23,16 +23,19 @@ vlCylinder::vlCylinder()
 }
 
 // Description
-// Evaluate cylinder equation R^2 - ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) = 0.
+// Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (y-y0)^2 - R^2.
 float vlCylinder::EvaluateFunction(float x[3])
 {
-  return 0;
+  return x[0]*x[0] + x[1]*x[1] - this->Radius*this->Radius;
 }
 
 // Description
 // Evaluate cylinder function gradient.
 void vlCylinder::EvaluateGradient(float x[3], float g[3])
 {
+  g[0] = 2.0 * x[0];
+  g[1] = 2.0 * x[1];
+  g[2] = 0.0;
 }
 
 void vlCylinder::PrintSelf(ostream& os, vlIndent indent)
