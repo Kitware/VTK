@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.106");
+vtkCxxRevisionMacro(vtkDataWriter, "1.107");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -434,6 +434,8 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
     }
   else
     {
+    if (num*numComp > 0)
+      {
       // need to byteswap ??
       switch (sizeT)
         {
@@ -453,6 +455,7 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
           fp->write((char *)data, ( sizeof(T))*( num*numComp));
 
         }
+      }
     }
   *fp << "\n";
 }
