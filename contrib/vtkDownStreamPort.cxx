@@ -143,7 +143,7 @@ void vtkDownStreamPort::UpdateInformation()
 
   // Save the upstream PMT for execute check (this may not be necessary)
   this->UpStreamMTime = pmt;
-  
+
   // !!! Make sure that Update is called if data is released. !!!
   if (pmt > this->DataTime || output->GetDataReleased())
     {

@@ -51,6 +51,8 @@ vtkUpStreamPort::vtkUpStreamPort()
   // Controller keeps a reference to this object as well.
   this->Controller = 
     vtkMultiProcessController::RegisterAndGetGlobalController(this);
+  
+  this->PipelineFlag = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -124,18 +126,18 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
 			    remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
   
+  
+  // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
-  if ( input != NULL )
+  if (this->PipelineFlag == 0)
     {
-    input->InternalUpdate();
+    if ( input != NULL )
+      {
+      input->PreUpdate();
+      input->InternalUpdate();
+      }
     }
 
-  // Since this time has to be local to downstream process
-  // and we have no data, we have to create a time here.
-  // (The output data usually does this.) 
-  this->UpdateTime.Modified();
-
-  
   // This is to time the marshaling and transfer of data.
   if ( this->StartMethod )
     {
@@ -151,6 +153,22 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
     (*this->EndMethod)(this->EndMethodArg);
     }
 
+  // Postpone the update if we want pipeline parallism.
+  // Handle no input gracefully. (Not true: Later we will send a NULL input.)
+  if (this->PipelineFlag)
+    {
+    if ( input != NULL )
+      {
+      input->PreUpdate();
+      input->InternalUpdate();
+      }
+    }
+
+  // Since this time has to be local to downstream process
+  // and we have no data, we have to create a time here.
+  // (The output data usually does this.) 
+  this->UpdateTime.Modified();
+  
   // Since this UpStreamPort can have multiple DownStreamPorts
   // and the DownStreamPort makes the update-descision time comparison,
   // the DownStreamPort has to store this time.

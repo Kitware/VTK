@@ -91,6 +91,12 @@ public:
   void TriggerUpdateInformation(int remoteProcessId);
   void TriggerUpdate(int remoteProcessId);
   
+  // Description:
+  // Trying to get pipeline parallism.
+  vtkSetMacro(PipelineFlag, int);
+  vtkGetMacro(PipelineFlag, int);
+  vtkBooleanMacro(PipelineFlag, int);  
+  
 protected:
   vtkUpStreamPort();
   ~vtkUpStreamPort();  
@@ -102,6 +108,7 @@ protected:
   vtkMultiProcessController *Controller;
   vtkTimeStamp UpdateTime;
 
+  int PipelineFlag;
 };
 
 #endif

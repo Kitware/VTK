@@ -530,7 +530,8 @@ int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
   
   reader->ReadFromInputStringOn();
   reader->SetInputString(this->MarshalString, this->MarshalDataLength);
-  reader->Update();
+  reader->GetOutput()->PreUpdate();
+  reader->GetOutput()->InternalUpdate();
   
   this->CopyPolyData(reader->GetOutput(), object);
   reader->Delete();
