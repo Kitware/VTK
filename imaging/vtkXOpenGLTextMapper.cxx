@@ -175,6 +175,7 @@ void vtkXOpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
     {
     if (cache[i]->Window == win)
       {
+      win->MakeCurrent();
       glDeleteLists(cache[i]->ListBase,255);
       delete cache[i];
       // resort them
