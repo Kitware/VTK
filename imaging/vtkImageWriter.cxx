@@ -126,6 +126,7 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
+  os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
 }
 
 
