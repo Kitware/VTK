@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.37");
+vtkCxxRevisionMacro(vtkThresholdPoints, "1.38");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -38,34 +38,75 @@ vtkThresholdPoints::vtkThresholdPoints()
 // Criterion is cells whose scalars are less than lower threshold.
 void vtkThresholdPoints::ThresholdByLower(double lower) 
 {
+  int isModified=0;
+
+  if ( this->ThresholdFunction != &vtkThresholdPoints::Lower )
+    {
+      this->ThresholdFunction = &vtkThresholdPoints::Lower;
+      isModified=1;
+    }
+
   if ( this->LowerThreshold != lower )
     {
-    this->LowerThreshold = lower; 
-    this->ThresholdFunction = &vtkThresholdPoints::Lower;
-    this->Modified();
+      this->LowerThreshold = lower; 
+      isModified=1;
+    }
+  
+  if(isModified)
+    {
+      this->Modified();
     }
 }
                            
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdPoints::ThresholdByUpper(double upper)
 {
+  int isModified=0;
+
+  if ( this->ThresholdFunction != &vtkThresholdPoints::Upper )
+    {
+      this->ThresholdFunction = &vtkThresholdPoints::Upper;
+      isModified=1;
+    }
+
   if ( this->UpperThreshold != upper )
     {
-    this->UpperThreshold = upper; 
-    this->ThresholdFunction = &vtkThresholdPoints::Upper;
-    this->Modified();
+      this->UpperThreshold = upper; 
+      isModified=1;
+    }
+  
+  if(isModified)
+    {
+      this->Modified();
     }
 }
                            
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 {
-  if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
+  int isModified=0;
+
+  if ( this->ThresholdFunction != &vtkThresholdPoints::Between )
     {
-    this->LowerThreshold = lower; 
-    this->UpperThreshold = upper;
-    this->ThresholdFunction = &vtkThresholdPoints::Between;
-    this->Modified();
+      this->ThresholdFunction = &vtkThresholdPoints::Between;
+      isModified=1;
+    }
+
+  if ( this->LowerThreshold != lower )
+    {
+      this->LowerThreshold = lower;
+      isModified=1;
+    }
+  
+  if ( this->UpperThreshold != upper )
+    {
+      this->UpperThreshold = upper;
+      isModified=1;
+    }
+
+  if(isModified)
+    {
+      this->Modified();
     }
 }
   
