@@ -237,4 +237,25 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 void vtkVolumeTextureMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkVolumeMapper::PrintSelf(os,indent);
+
+  if ( this->GradientEstimator )
+    {
+      os << indent << "Gradient Estimator: " << (this->GradientEstimator) <<
+	endl;
+    }
+  else
+    {
+      os << indent << "Gradient Estimator: (none)" << endl;
+    }
+
+  if ( this->GradientShader )
+    {
+      os << indent << "Gradient Shader: " << (this->GradientShader) << endl;
+    }
+  else
+    {
+      os << indent << "Gradient Shader: (none)" << endl;
+    }
+
+  // this->Shade is a temporary variable that should not be printed
 }
