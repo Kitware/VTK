@@ -110,7 +110,6 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
         # private attributes
         self.__InExpose = 0
-        self.__FirstRender = 1
 
         # create the Tk bindings
         self.BindTkRenderWidget()
@@ -165,13 +164,6 @@ class vtkTkRenderWidget(Tkinter.Widget):
             self.__InExpose = 0
 
     def Render(self):
-        if (self.__FirstRender):
-            renderers = self._RenderWindow.GetRenderers()
-            renderers.InitTraversal()
-            for i in xrange(0,renderers.GetNumberOfItems()):
-                renderers.GetNextItem().ResetCamera()
-            self.__FirstRender = 0
-        
         if (self._CurrentLight):
             light = self._CurrentLight
             light.SetPosition(self._CurrentCamera.GetPosition())
