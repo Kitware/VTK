@@ -284,7 +284,6 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   closestPoint[0] = closest[0]; 
   closestPoint[1] = closest[1]; 
   closestPoint[2] = closest[2]; 
-
   return vtkMath::Distance2BetweenPoints(closest,x);
 }
 
@@ -338,14 +337,15 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     // make sure we are withing tolerance
     for (i=0; i<3; i++)
       {
-      x[i] = a1[i] + pcoords[i]*(a2[i]-a1[i]);
-      projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
+	x[i] = a1[i] + pcoords[0]*(a2[i]-a1[i]);
+	projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
       }
     if ( vtkMath::Distance2BetweenPoints(x,projXYZ) <= tol*tol )
       return 1;
     else
       return 0;
     }
+
   else //check to see if it lies within tolerance
     {
     // one of the parametric coords must be outside 0-1
