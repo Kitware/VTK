@@ -167,12 +167,8 @@ int main (int argc, char *argv[])
       {
       fprintf(fp,"../java/vtk/%s.java: %s.h ../java/java_parse\n\trm -f ../java/vtk/%s.java; ../java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
-      fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap java/vtk_%s.h\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
-	      argv[i],argv[i],argv[i],argv[i], argv[i], argv[i]);
-      fprintf(fp,"java/vtk_%s.h: ../java/vtk/%s.java\n\trm -f java/vtk_%s.h; ${JAVAH} -d java vtk.%s\n",
-	      argv[i],argv[i],argv[i], argv[i]);
-      fprintf(fp,"java/vtk_%s.c: ../java/vtk/%s.java\n\trm -f java/vtk_%s.c; ${JAVAH} -stubs -d java vtk.%s\n",
-	      argv[i],argv[i],argv[i], argv[i]);
+      fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
 
