@@ -36,7 +36,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.3");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.4");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -549,34 +549,37 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
     else //if ( status == VTK_BOUNDARY_EDGE ) // on boundary triangle edge; no neighbor
       {
+      //update cell list
+      for (i=0; i<3; i++)
+        {
+        if ( pts[i] != nei[1] && pts[i] != nei[2] ) 
+          {
+          p1 = pts[i];
+          }
+        }
+      this->Mesh->ResizeCellList(p1,1);
+
       //replace one triangle
       this->Mesh->RemoveReferenceToCell(nei[2],tri[0]);
-      this->Mesh->RemoveReferenceToCell(nei[2],nei[0]);
 
-      nodes[0][0] = ptId; nodes[0][1] = p2; nodes[0][2] = nei[1];
+      nodes[0][0] = ptId; nodes[0][1] = nei[1]; nodes[0][2] = p1;
       this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
-
-      nodes[1][0] = ptId; nodes[1][1] = p1; nodes[1][2] = nei[1];
-      this->Mesh->ReplaceCell(nei[0], 3, nodes[1]);
 
       this->Mesh->ResizeCellList(ptId, 2);
       this->Mesh->AddReferenceToCell(ptId,tri[0]);
-      this->Mesh->AddReferenceToCell(ptId,nei[0]);
-
-      tri[1] = nei[0];
 
       //create one new triangles
-      nodes[2][0] = ptId; nodes[2][1] = p2; nodes[2][2] = nei[2];
-      tri[2] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
+      nodes[1][0] = ptId; nodes[1][1] = p1; nodes[1][2] = nei[2];
+      tri[1] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[1]);
 
       // Check edge neighbors for Delaunay criterion.
-      for ( i=0; i<4; i++ )
+      for ( i=0; i<2; i++ )
         {
         this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i]);
         }
       }
     
-    }//if triangle found
+    }//if triangle containing point found
 
   //Indicate that it is now inserted
   (*this->TerrainInfo)[inputPtId].TriangleId = VTK_VERTEX_INSERTED;
