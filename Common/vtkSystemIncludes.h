@@ -81,17 +81,36 @@ using std::fstream;
 #  ifdef _WIN32
 typedef __int64 vtkIdType;
 
-/* ostream operator for __int64 */
-inline ostream& __cdecl operator<<(ostream& _O, __int64 i64Val)
+// Provide ostream operator for __int64.
+// Allow includer to disable to avoid conflict with other libraries.
+#    ifndef VTK_HAVE_INT64_OSTREAM_OPERATOR
+inline ostream& __cdecl operator<<(ostream& os, __int64 val)
 {
-  wchar_t wchBuf[32];
-  if (i64Val < 0)
-  {
-    _O << char("-");
-    i64Val *= -1;
-  }
-  return (_O << _i64tow(i64Val, wchBuf, 10));
-};
+  // _i64toa can use up to 33 bytes (32 + null terminator).
+  char buf[33];
+  // Convert to string representation in base 10.
+  return (os << _i64toa(val, buf, 10));
+}
+#    endif
+
+// Provide istream operator for __int64.
+// Allow includer to disable to avoid conflict with other libraries.
+#    ifndef VTK_HAVE_INT64_ISTREAM_OPERATOR
+inline istream& __cdecl operator>>(istream& is, __int64& val)
+{
+  // Up to 33 bytes may be needed (32 + null terminator).
+  char buf[33];
+  is.width(33);
+  
+  // Read the string representation from the input.
+  if(is >> buf)
+    {
+    // Convert from string representation to integer.
+    val = _atoi64(buf);
+    }
+  return is;
+}
+#    endif
 
 #  else // _WIN32
 typedef long long vtkIdType;
