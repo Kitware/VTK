@@ -781,18 +781,18 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
           
           if ( absStep[0] >= absStep[1] && absStep[0] >= absStep[2] )
             {
-            dynamicInfo->NumberOfStepsToTake = 
-              (rayEnd[0]-rayStart[0]) / rayStep[0];
+            dynamicInfo->NumberOfStepsToTake = static_cast<int>
+              ((rayEnd[0]-rayStart[0]) / rayStep[0]);
             }
           else if ( absStep[1] >= absStep[2] && absStep[1] >= absStep[0] )
             {
-            dynamicInfo->NumberOfStepsToTake = 
-              (rayEnd[1]-rayStart[1]) / rayStep[1];
+            dynamicInfo->NumberOfStepsToTake = static_cast<int>
+              ((rayEnd[1]-rayStart[1]) / rayStep[1]);
             }
           else
             {
-            dynamicInfo->NumberOfStepsToTake = 
-              (rayEnd[2]-rayStart[2]) / rayStep[2];
+            dynamicInfo->NumberOfStepsToTake = static_cast<int>
+              ((rayEnd[2]-rayStart[2]) / rayStep[2]);
             }
           
           me->VolumeRayCastFunction->CastRay( dynamicInfo, staticInfo );
@@ -1317,8 +1317,8 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     (this->ImageViewportSize[1]-1):(maxY);
 
   // Create the new image, and set its size and position
-  this->ImageInUseSize[0] = maxX - minX + 1;
-  this->ImageInUseSize[1] = maxY - minY + 1;
+  this->ImageInUseSize[0] = static_cast<int>(maxX - minX + 1.0);
+  this->ImageInUseSize[1] = static_cast<int>(maxY - minY + 1.0);
 
   // What is a power of 2 size big enough to fit this image?
   this->ImageMemorySize[0] = 32;
@@ -1332,8 +1332,8 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     this->ImageMemorySize[1] *= 2;
     }
   
-  this->ImageOrigin[0] = minX;
-  this->ImageOrigin[1] = minY;
+  this->ImageOrigin[0] = static_cast<int>(minX);
+  this->ImageOrigin[1] = static_cast<int>(minY);
 
   if ( oldImageMemorySize[0] >= this->ImageMemorySize[0] &&
        oldImageMemorySize[1] >= this->ImageMemorySize[1] )
