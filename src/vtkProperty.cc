@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.hh"
 #include "vtkRenderWindow.hh"
 #include "vtkPropertyDevice.hh"
+#include "vtkActor.hh"
 
 // Description:
 // Construct object with object color, ambient color, diffuse color,
@@ -138,6 +139,15 @@ void vtkProperty::Render(vtkRenderer *ren)
     this->Device = ren->GetRenderWindow()->MakeProperty();
     }
   this->Device->Render(this,ren);
+}
+
+void vtkProperty::Render(vtkRenderer *ren, vtkActor *anActor)
+{
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeProperty();
+    }
+  this->Device->Render(this, anActor, ren);
 }
 
 void vtkProperty::SetFlat (void)
