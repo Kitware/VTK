@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.12");
+vtkCxxRevisionMacro(vtkTesting, "1.13");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -451,8 +451,19 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   this->ImageDifference = minError;
   int passed = 0;
   if (minError <= thresh) 
-    { 
-    passed = 1;
+    {
+    // Make sure there was actually a difference image before
+    // accepting the error measure.
+    vtkImageData* output = rt_id->GetOutput();
+    if(output)
+      {
+      int dims[3];
+      output->GetDimensions(dims);
+      if(dims[0]*dims[1]*dims[2] > 0)
+        {
+        passed = 1;
+        }
+      }
     }
 
   // If the test failed with the first image (foo.png) check if there are
@@ -474,9 +485,20 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_id->Update();
     error = rt_id->GetThresholdedError();
     if (error <= thresh) 
-      { 
-      minError = error;
-      passed = 1;
+      {
+      // Make sure there was actually a difference image before
+      // accepting the error measure.
+      vtkImageData* output = rt_id->GetOutput();
+      if(output)
+        {
+        int dims[3];
+        output->GetDimensions(dims);
+        if(dims[0]*dims[1]*dims[2] > 0)
+          {
+          minError = error;
+          passed = 1;
+          }
+        }
       }
     else
       {
@@ -525,6 +547,15 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 
   rt_png->Update();
   rt_id->Update();
+
+  // If no image differences produced an image, do not write a
+  // difference image.
+  if(minError <= 0)
+    {
+    os << "Image differencing failed to produce an image." << endl;
+    rt_id->Delete();
+    return FAILED;
+    }
 
   // test the directory for writing
   char* diff_small = new char[strlen(tmpDir) + validName.size() + 30];
