@@ -107,7 +107,7 @@ public:
   vtkGetMacro(InputField,int);
   void SetInputFieldToDataObjectField() {this->SetInputField(VTK_DATA_OBJECT_FIELD);};
   void SetInputFieldToPointDataField() {this->SetInputField(VTK_POINT_DATA_FIELD);};
-  void SetInputFieldToCellDataFiled() {this->SetInputField(VTK_CELL_DATA_FIELD);};
+  void SetInputFieldToCellDataField() {this->SetInputField(VTK_CELL_DATA_FIELD);};
   
   // Description:
   // Specify which attribute data to output: point or cell data attributes.
