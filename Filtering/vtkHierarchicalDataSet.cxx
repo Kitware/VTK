@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.4");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
@@ -163,16 +163,7 @@ void vtkHierarchicalDataSet::InitializeNode(unsigned int level,
     }
 
   ldataSets[id] = 0;
-//   if (ldataSets[id])
-//     {
-//     ldataSets[id]->DisconnectAll(vtkHDSNodeRef(level, id), 
-//                                  this->Internal->DataSets);
-//     ldataSets[id]->DataSet = 0;
-//     }
-//   else
-//     {
-//     ldataSets[id] = this->NewNode();
-//     }
+
   this->Modified();
 }
 
