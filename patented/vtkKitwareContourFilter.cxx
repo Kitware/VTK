@@ -75,6 +75,13 @@ vtkKitwareContourFilter::~vtkKitwareContourFilter()
 }
 
 
+
+void vtkKitwareContourFilter::ExecuteInformation()
+{
+  // Arbitrary to get thinks to work.
+  this->GetOutput()->SetMaximumNumberOfPieces(10000);
+}
+
 //
 // General contouring filter.  Handles arbitrary input.
 //
@@ -171,6 +178,9 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
       syncTemp3D->SetValue(i,values[i]);
       }
 
+    syncTemp3D->GetOutput()->SetUpdateExtent(thisOutput->GetUpdatePiece(),
+					     thisOutput->GetUpdateNumberOfPieces(),
+					     thisOutput->GetUpdateGhostLevel());
     syncTemp3D->Update();
     output = syncTemp3D->GetOutput();
     output->Register(this);

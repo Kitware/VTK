@@ -99,6 +99,7 @@ protected:
   void operator=(const vtkKitwareContourFilter&) {};
   
   void Execute();
+  void ExecuteInformation();
 
   //special contouring for structured points
   void StructuredPointsContour(int dim); 
