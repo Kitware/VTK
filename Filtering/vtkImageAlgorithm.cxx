@@ -24,9 +24,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.2");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.3");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -516,18 +515,7 @@ void vtkImageAlgorithm::SetInput(int index, vtkImageData* input)
 {
   if(input)
     {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->SetInputConnection(index, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial producer.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->SetInputConnection(index, producer->GetOutputPort(0));
-      producer->Delete();
-      }
+    this->SetInputConnection(index, input->GetProducerPort());
     }
   else
     {
@@ -547,18 +535,7 @@ void vtkImageAlgorithm::AddInput(int index, vtkImageData* input)
 {
   if(input)
     {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->AddInputConnection(index, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial producer.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->AddInputConnection(index, producer->GetOutputPort(0));
-      producer->Delete();
-      }
+    this->AddInputConnection(index, input->GetProducerPort());
     }
 }
 
