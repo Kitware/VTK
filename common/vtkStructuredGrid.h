@@ -85,6 +85,7 @@ public:
   void GetPoint(int ptId, float p[3]) {this->vtkPointSet::GetPoint(ptId,p);};
   vtkCell *GetCell(int cellId);
   void GetCell(int cellId, vtkGenericCell *cell);
+  void GetCellBounds(int cellId, float bounds[6]);
   int GetCellType(int cellId);
   int GetNumberOfCells();
   void GetCellPoints(int cellId, vtkIdList *ptIds);

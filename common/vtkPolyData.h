@@ -106,7 +106,8 @@ public:
   vtkCell *GetCell(int cellId);
   void GetCell(int cellId, vtkGenericCell *cell);
   int GetCellType(int cellId);
-
+  void GetCellBounds(int cellId, float bounds[6]);
+  
   // Description:
   // Copy a cells point ids into list provided. (Less efficient.)
   void GetCellPoints(int cellId, vtkIdList *ptIds);

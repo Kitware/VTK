@@ -280,6 +280,19 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
     }
 }
 
+
+// Default implementation. This is very slow way to compute this information.
+// Subclasses should override this method for efficiency.
+void vtkDataSet::GetCellBounds(int cellId, float bounds[6])
+{
+  vtkGenericCell *cell = vtkGenericCell::New();
+
+  this->GetCell(cellId, cell);
+  cell->GetBounds(bounds);
+
+  cell->Delete();
+}
+
 void vtkDataSet::Squeeze()
 {
   this->CellData->Squeeze();

@@ -380,6 +380,187 @@ void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
     }
 }
 
+
+// Fast implementation of GetCellBounds().  Bounds are calculated without
+// constructing a cell.
+void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
+{
+  int idx;
+  int i, j, k;
+  int d01, offset1, offset2;
+  float *x;
+  
+  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  
+  // Make sure data is defined
+  if ( ! this->Points )
+    {
+    vtkErrorMacro (<<"No data");
+    return;
+    }
+ 
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT: // cellId can only be = 0
+      x = this->Points->GetPoint( 0 );
+      bounds[0] = bounds[1] = x[0];
+      bounds[2] = bounds[3] = x[1];
+      bounds[4] = bounds[5] = x[2];
+      break;
+
+    case VTK_X_LINE:
+    case VTK_Y_LINE:
+    case VTK_Z_LINE:
+      x = this->Points->GetPoint( cellId );
+      bounds[0] = bounds[1] = x[0];
+      bounds[2] = bounds[3] = x[1];
+      bounds[4] = bounds[5] = x[2];
+
+      x = this->Points->GetPoint( cellId +1 );
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      break;
+
+    case VTK_XY_PLANE:
+    case VTK_YZ_PLANE:
+    case VTK_XZ_PLANE:
+      if (this->DataDescription == VTK_XY_PLANE)
+	{
+	i = cellId % (this->Dimensions[0]-1);
+	j = cellId / (this->Dimensions[0]-1);
+	idx = i + j*this->Dimensions[0];
+	offset1 = 1;
+	offset2 = this->Dimensions[0];
+	}
+      else if (this->DataDescription == VTK_YZ_PLANE)
+	{
+	j = cellId % (this->Dimensions[1]-1);
+	k = cellId / (this->Dimensions[1]-1);
+	idx = j + k*this->Dimensions[1];
+	offset1 = 1;
+	offset2 = this->Dimensions[1];
+	}
+      else if (this->DataDescription == VTK_XZ_PLANE)
+	{
+	i = cellId % (this->Dimensions[0]-1);
+	k = cellId / (this->Dimensions[0]-1);
+	idx = i + k*this->Dimensions[0];
+	offset1 = 1;
+	offset2 = this->Dimensions[0];
+	}
+
+      x = this->Points->GetPoint(idx);
+      bounds[0] = bounds[1] = x[0];
+      bounds[2] = bounds[3] = x[1];
+      bounds[4] = bounds[5] = x[2];
+
+      x = this->Points->GetPoint( idx+offset1);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset1+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      break;
+
+    case VTK_XYZ_GRID:
+      d01 = this->Dimensions[0]*this->Dimensions[1];
+      i = cellId % (this->Dimensions[0] - 1);
+      j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      k = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      idx = i+ j*this->Dimensions[0] + k*d01;
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      x = this->Points->GetPoint(idx);
+      bounds[0] = bounds[1] = x[0];
+      bounds[2] = bounds[3] = x[1];
+      bounds[4] = bounds[5] = x[2];
+
+      x = this->Points->GetPoint( idx+offset1);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset1+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      idx += d01;
+
+      x = this->Points->GetPoint(idx);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset1);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset1+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      x = this->Points->GetPoint( idx+offset2);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+
+      break;
+    }
+}
+
+
 // Turn on data blanking. Data blanking is the ability to turn off
 // portions of the grid when displaying or operating on it. Some data
 // (like finite difference data) routinely turns off data to simulate

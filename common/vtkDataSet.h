@@ -121,6 +121,16 @@ public:
   virtual void GetCell(int cellId, vtkGenericCell *cell) = 0;
 
   // Description:
+  // Get the bounds of the cell with cellId such that:
+  //     0 <= cellId < NumberOfCells.
+  // A subclass may be able to determine the bounds of cell without using
+  // an expensive GetCell() method. A default implementation is provided
+  // that actually uses a GetCell() call.  This is to ensure the method
+  // is available to all datasets.  Subclasses should override this method
+  // to provide an efficient implementation.
+  virtual void GetCellBounds(int cellId, float bounds[6]);
+  
+  // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   virtual int GetCellType(int cellId) = 0;
 

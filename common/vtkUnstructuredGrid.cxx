@@ -274,6 +274,8 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
   return cell;
 }
 
+
+
 void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 {
   int i, loc, numPts, *pts;
@@ -290,6 +292,33 @@ void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
     {
     cell->PointIds->SetId(i,pts[i]);
     cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
+    }
+}
+
+
+// Fast implementation of GetCellBounds().  Bounds are calculated without
+// constructing a cell.
+void vtkUnstructuredGrid::GetCellBounds(int cellId, float bounds[6])
+{
+  int i, loc, numPts, *pts;
+  float *x;
+  
+  loc = this->Cells->GetCellLocation(cellId);
+  this->Connectivity->GetCell(loc,numPts,pts); 
+
+  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+
+  for (i=0; i < numPts; i++)
+    {
+    x = this->Points->GetPoint( pts[i] );
+
+    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
     }
 }
 

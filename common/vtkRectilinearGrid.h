@@ -98,6 +98,7 @@ public:
   void GetPoint(int id, float x[3]);
   vtkCell *GetCell(int cellId);
   void GetCell(int cellId, vtkGenericCell *cell);
+  void GetCellBounds(int cellId, float bounds[6]);
   int FindPoint(float x[3]);
   int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, int& subId, 
                float pcoords[3], float *weights);

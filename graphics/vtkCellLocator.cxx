@@ -322,8 +322,7 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 //
 void vtkCellLocator::BuildLocator()
 {
-  vtkCell *cell;
-  float *bounds, *cellBounds;
+  float *bounds, cellBounds[6];
   int numCells;
   int ndivs, product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
@@ -396,8 +395,7 @@ void vtkCellLocator::BuildLocator()
   product = ndivs * ndivs;
   for (cellId=0; cellId<numCells; cellId++) 
     {
-    cell = this->DataSet->GetCell(cellId);
-    cellBounds = cell->GetBounds();
+    this->DataSet->GetCellBounds(cellId, cellBounds);
 
     // find min/max locations of bounding box
     for (i=0; i<3; i++)

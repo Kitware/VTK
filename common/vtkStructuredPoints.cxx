@@ -292,6 +292,93 @@ void vtkStructuredPoints::GetCell(int cellId, vtkGenericCell *cell)
     }
 }
 
+
+// Fast implementation of GetCellBounds().  Bounds are calculated without
+// constructing a cell.
+void vtkStructuredPoints::GetCellBounds(int cellId, float bounds[6])
+{
+  int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
+  int d01 = this->Dimensions[0]*this->Dimensions[1];
+  float x[3];
+
+  iMin = iMax = jMin = jMax = kMin = kMax = 0;
+  
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT: // cellId can only be = 0
+      break;
+
+    case VTK_X_LINE:
+      iMin = cellId;
+      iMax = cellId + 1;
+      break;
+
+    case VTK_Y_LINE:
+      jMin = cellId;
+      jMax = cellId + 1;
+      break;
+
+    case VTK_Z_LINE:
+      kMin = cellId;
+      kMax = cellId + 1;
+      break;
+
+    case VTK_XY_PLANE:
+      iMin = cellId % (this->Dimensions[0]-1);
+      iMax = iMin + 1;
+      jMin = cellId / (this->Dimensions[0]-1);
+      jMax = jMin + 1;
+      break;
+
+    case VTK_YZ_PLANE:
+      jMin = cellId % (this->Dimensions[1]-1);
+      jMax = jMin + 1;
+      kMin = cellId / (this->Dimensions[1]-1);
+      kMax = kMin + 1;
+      break;
+
+    case VTK_XZ_PLANE:
+      iMin = cellId % (this->Dimensions[0]-1);
+      iMax = iMin + 1;
+      kMin = cellId / (this->Dimensions[0]-1);
+      kMax = kMin + 1;
+      break;
+
+    case VTK_XYZ_GRID:
+      iMin = cellId % (this->Dimensions[0] - 1);
+      iMax = iMin + 1;
+      jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      jMax = jMin + 1;
+      kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      kMax = kMin + 1;
+      break;
+    }
+
+
+  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  
+  // Extract point coordinates
+  for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+    {
+    x[2] = this->Origin[2] + loc[2] * this->Spacing[2]; 
+    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    }
+  for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+    {
+    x[1] = this->Origin[1] + loc[1] * this->Spacing[1]; 
+    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+    }
+  for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
+    {
+    x[0] = this->Origin[0] + loc[0] * this->Spacing[0]; 
+    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+    }
+}
+
 float *vtkStructuredPoints::GetPoint(int ptId)
 {
   static float x[3];
