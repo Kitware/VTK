@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.68");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.69");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -943,10 +943,18 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
     }
   vtkMath::Multiply3x3(tempMatrix, tempVector, tempVector);
 
-  // Make absolutely sure that the point lies in the vicinity of the bin. If
-  // not, then clamp the point to the center of the bin. Currently "vicinity"
-  // is defined as BinSize around the center of the bin. It may be desirable
-  // to increase this to a larger multiple of the bin size.
+  // Make absolutely sure that the point lies in the vicinity (enclosing 
+  // sphere) of the bin.  If not, then clamp the point to the enclosing sphere.
+  double deltaMag = vtkMath::Norm(tempVector);
+  double radius = sqrt(this->XBinSize*this->XBinSize + 
+    this->YBinSize*this->YBinSize +
+    this->ZBinSize*this->ZBinSize) / 2.0;
+  if (deltaMag > radius)
+    {
+    tempVector[0] *= radius / deltaMag;
+    tempVector[1] *= radius / deltaMag;
+    tempVector[2] *= radius / deltaMag;
+    }
 
   point[0] = cellCenter[0] + tempVector[0];
   point[1] = cellCenter[1] + tempVector[1];
