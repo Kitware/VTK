@@ -30,7 +30,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.59.4.2");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.59.4.3");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
