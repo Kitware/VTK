@@ -32,7 +32,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBridgeAttribute, "1.1");
+vtkCxxRevisionMacro(vtkBridgeAttribute, "1.2");
 vtkStandardNewMacro(vtkBridgeAttribute);
 
 void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -67,7 +67,7 @@ int vtkBridgeAttribute::GetNumberOfComponents()
 //            (result==vtkCellCentered) || (result==vtkBoundaryCentered)
 int vtkBridgeAttribute::GetCentering()
 {
-  int result=0;
+  int result;
   if(this->Pd!=0)
     {
     result=vtkPointCentered;
@@ -160,9 +160,9 @@ double *vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c)
   
   double *result=new double[this->GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()];
   double *p=result;
-  int i=0;
-  int j=0;
-  int size=0;
+  int i;
+  int j;
+  int size;
   vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
   
   
@@ -211,9 +211,9 @@ void vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c, double *tuple)
   assert("pre: tuple_exists" && tuple!=0);
   
   double *p=tuple;
-  int i=0;
-  int j=0;
-  int size=0;
+  int i;
+  int j;
+  int size;
   vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
   
   
@@ -292,9 +292,9 @@ void vtkBridgeAttribute::GetComponent(int i,vtkGenericCellIterator *c, double *v
   assert("pre: c_exists" && c!=0);
   assert("pre: c_valid" && !c->IsAtEnd());
   
-  int j=0;
-  int id=0;
-  int size=0;
+  int j;
+  int id;
+  int size;
   vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
   
   if(this->Pd!=0)
@@ -317,7 +317,7 @@ void vtkBridgeAttribute::GetComponent(int i,vtkGenericCellIterator *c, double *v
     while(j<size)
       {
       values[j]=values[0];
-      ++i;
+      ++j;
       }
     }
 }
