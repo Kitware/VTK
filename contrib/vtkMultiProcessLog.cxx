@@ -68,12 +68,10 @@ void vtkMultiProcessLog::SetTimerLog(vtkThreadSafeLog *log)
   vtkMultiProcessController *controller;
   int myid;
 
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::GetGlobalController();
   myid = controller->GetLocalProcessId();
   // Array not initialized: Is there any way to reference the log?
   VTK_TIMER_LOGS[myid] = log;
-
-  controller->UnRegister(NULL);
 }
 //----------------------------------------------------------------------------
 vtkThreadSafeLog *vtkMultiProcessLog::GetTimerLog()
@@ -82,7 +80,7 @@ vtkThreadSafeLog *vtkMultiProcessLog::GetTimerLog()
   vtkThreadSafeLog *log;
   int myid;
 
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::GetGlobalController();
   myid = controller->GetLocalProcessId();
   log = VTK_TIMER_LOGS[myid];
 
@@ -92,7 +90,6 @@ vtkThreadSafeLog *vtkMultiProcessLog::GetTimerLog()
     return NULL;
     }
 
-  controller->UnRegister(NULL);
   return log;
 }
 
@@ -107,7 +104,7 @@ void vtkMultiProcessLog::DumpLog(char *filename)
   vtkThreadSafeLog *log;
   int myid, numProcs, tmp;
 
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::GetGlobalController();
   myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
 
@@ -131,7 +128,6 @@ void vtkMultiProcessLog::DumpLog(char *filename)
     controller->Send(&tmp, 1, myid+1, 9877234);
     }
 
-  controller->UnRegister(NULL);
 }
 
   
