@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.111");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.112");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -199,9 +199,10 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
   // Try to avoid doing anything (for performance).
-  if (this->ContextId != wglGetCurrentContext())
-    { 
-    if(this->IsPickingOn)
+  HGLRC current = wglGetCurrentContext();
+  if (this->ContextId != current)
+    {
+    if(this->IsPicking && current)
       {
       vtkErrorMacro("Attempting to call MakeCurrent for a different window"
                     " than the one doing the picking, this can causes crashes"
