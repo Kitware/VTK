@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.24");
+vtkCxxRevisionMacro(vtkContourGrid, "1.25");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -294,7 +294,7 @@ void vtkContourGrid::Execute()
   inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
   if ( ! inScalars || numCells < 1 )
     {
-    vtkErrorMacro(<<"No data to contour");
+    vtkDebugMacro(<<"No data to contour");
     return;
     }
 
