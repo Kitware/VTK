@@ -51,7 +51,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.4");
+vtkCxxRevisionMacro(vtkKdTree, "1.5");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -387,7 +387,7 @@ float vtkKdNode::_GetDistance2ToBoundary(
     }
   else if (withinX && withinY)  // point projects orthogonally to a face
     {
-    minDistance = (zless ? zmin - z : z - zmax);
+    minDistance = static_cast<float>(zless ? zmin - z : z - zmax);
     minDistance *= minDistance;
 
     if (p)
@@ -511,8 +511,7 @@ int vtkKdNode::IntersectsSphere2(double x, double y, double z, double rSquared,
     return 1; 
     }
 
-  float dist2 = static_cast<float>(
-    this->GetDistance2ToBoundary(x, y, z, useDataBounds));
+  float dist2 = this->GetDistance2ToBoundary((float)x, (float)y, (float)z, useDataBounds);
   
   if (dist2 < rSquared)
     {
