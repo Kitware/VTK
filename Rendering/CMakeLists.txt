@@ -228,7 +228,7 @@ IF (VTK_WRAP_PYTHON)
         vtkTkImageViewerWidgetPython
         vtkTkImageWindowWidgetPython)
      ADD_LIBRARY(vtkPythonTkWidgets RenderingPythonTkWidgets_SRCS)
-     TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 
+     TARGET_LINK_LIBRARIES (vtkPythonTkWidgets 
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
      INSTALL_TARGETS(/lib vtkPythonTkWidgets)
