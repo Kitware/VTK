@@ -57,11 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
 public:
-  const char *GetClassName() {return "vtkLinearSubdivisionFilter";};
-
   // Description:
   // Construct object with NumberOfSubdivisions set to 1.
-  static vtkLinearSubdivisionFilter *New() {return new vtkLinearSubdivisionFilter;};
+  static vtkLinearSubdivisionFilter *New();
+  const char *GetClassName() {return "vtkLinearSubdivisionFilter";};
 
 protected:
   vtkLinearSubdivisionFilter () {};
