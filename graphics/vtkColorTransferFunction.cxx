@@ -617,7 +617,7 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkScalarsToColors::PrintSelf(os, indent);
 
-  os << indent << "Size: " << this->NumberOfPoints;
+  os << indent << "Size: " << this->NumberOfPoints << endl;
   if ( this->Clamping )
     {
     os << indent << "Clamping: On\n";
@@ -635,6 +635,9 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Color Space: HSV\n";
     }
+  
+  os << indent << "Range: " << this->Range[0] << " to " 
+     << this->Range[1] << endl;
   
   if ( this->NumberOfPoints < 100 )
     {
