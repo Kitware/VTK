@@ -78,19 +78,21 @@ SBR_FLAGS 	= @SBR_FLAGS@
 @MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
-LDLIBS = -L../common -lVTKCommonTcl ${USE_GRAPHICS_LIBS}	\
-				    ${USE_IMAGING_LIBS}		\
-				    ${USE_CONTRIB_LIBS}	\
-				    ${USE_GEAE_LIBS}	\
-				    ${USE_GEMSIO_LIBS}	\
-				    ${USE_GEMSVOLUME_LIBS}	\
-				    ${USE_GEMSIP_LIBS}	\
-				    ${USE_VOLUME_LIBS}		\
-				    ${USE_PATENTED_LIBS}		\
-				    ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} \
-				    ${SBR_LIBS} ${XGLR_LIBS} \
-				    ${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
-				    @THREAD_LIBS@
+LDLIBS =  \
+	${USE_CONTRIB_LIBS}	\
+	${USE_GEAE_LIBS}	\
+	${USE_GEMSIP_LIBS}	\
+	${USE_GEMSIO_LIBS}	\
+	${USE_GEMSVOLUME_LIBS}	\
+	${USE_VOLUME_LIBS}	\
+	${USE_PATENTED_LIBS}	\
+	${USE_IMAGING_LIBS}	\
+	${USE_GRAPHICS_LIBS}	\
+        -L../common -lVTKCommonTcl \
+	${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} \
+	${SBR_LIBS} ${XGLR_LIBS} \
+	${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
+	@THREAD_LIBS@
 
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
