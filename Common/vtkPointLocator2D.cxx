@@ -21,12 +21,12 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointLocator2D, "1.23");
+vtkCxxRevisionMacro(vtkPointLocator2D, "1.24");
 vtkCxxSetObjectMacro(vtkPointLocator2D,Points,vtkPoints);
 
 vtkPointLocator2D* vtkPointLocator2D::New() 
 { 
-  vtkGenericWarningMacro("PointLocator2D is being deprecated in VTK 4.1. There is no replacement for it.");
+  vtkGenericWarningMacro("PointLocator2D is being deprecated in VTK 4.2. There is no replacement for it.");
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLocator2D"); 
   if(ret) 
       { 
