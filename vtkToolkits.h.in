@@ -59,9 +59,10 @@
 /* Setup VTK based on platform features and configuration.                  */
 
 /* OGLR */
-#if !defined(_WIN32) && !defined(VTK_USE_CARBON) && !defined(VTK_USE_COCOA) \
-    && (defined(VTK_USE_MANGLED_MESA) || defined(VTK_USE_OPENGL_LIBRARY) || \
-        defined(VTK_USE_X))
+#if ((defined(VTK_USE_OPENGL_LIBRARY) && !defined(_WIN32)) || \
+     (defined(VTK_USE_X) && defined(_WIN32)) || \
+     (defined(VTK_USE_MANGLED_MESA) && !defined(_WIN32))) && \
+     !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
 # define VTK_USE_OGLR 
 #endif
 
