@@ -6,8 +6,8 @@ catch {load vtktcl}
 source ../../examplesTcl/vtkInt.tcl
 
 vtkStructuredPoints volume
-    volume SetDimensions 3 4 5
-set numScalars [expr 2*3*4]
+    volume SetDimensions 5 10 15
+set numScalars [expr 4*9*14]
 vtkMath math
 vtkScalars cellScalars
     cellScalars SetNumberOfScalars $numScalars
@@ -20,7 +20,7 @@ for {set i 0} {$i < $numScalars} {incr i} {
 #
 vtkPlane plane
     eval plane SetOrigin [volume GetCenter]
-    plane SetNormal 0 1 0
+    plane SetNormal 0 1 1
 vtkCutter planeCut
     planeCut SetInput volume
     planeCut SetCutFunction plane
@@ -62,6 +62,7 @@ $cam1 SetFocalPoint 1.67401 3.99838 7.71124
 $cam1 SetPosition 26.1644 21.623 31.3635
 $cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.321615 0.887994 -0.328681
+$cam1 Dolly 1.4
 
 iren Initialize
 renWin SetFileName "cutCells.tcl.ppm"
