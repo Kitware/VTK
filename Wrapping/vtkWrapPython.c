@@ -1027,13 +1027,15 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* Block inclusion of full streams.  */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
-
-#if !defined(__APPLE__)
+/* so far apple and AIX require the class include 
+   to be before the python includes.  Sun requires
+   the oposite */
+#if !defined(__APPLE__) && !defined(_AIX)
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
 #endif
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_AIX)
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
 #endif
   
