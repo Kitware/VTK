@@ -78,15 +78,17 @@ vtkCellArray *vtkPolyData::Dummy = NULL;
 
 vtkPolyData::vtkPolyData ()
 {
-  this->Vertex = vtkVertex::New();
-  this->PolyVertex = vtkPolyVertex::New();
-  this->Line = vtkLine::New();
-  this->PolyLine = vtkPolyLine::New();
-  this->Triangle = vtkTriangle::New();
-  this->Quad = vtkQuad::New();
-  this->Polygon = vtkPolygon::New();
-  this->TriangleStrip = vtkTriangleStrip::New();
-  this->EmptyCell = vtkEmptyCell::New();
+  // Create these guys only when needed. This saves a huge amount
+  // of memory and time spent in memory allocation.
+  this->Vertex = NULL;
+  this->PolyVertex = NULL;
+  this->Line = NULL;
+  this->PolyLine = NULL;
+  this->Triangle = NULL;
+  this->Quad = NULL;
+  this->Polygon = NULL;
+  this->TriangleStrip = NULL;
+  this->EmptyCell = NULL;
   
   this->Verts = NULL;
   this->Lines = NULL;
@@ -172,15 +174,50 @@ vtkPolyData::~vtkPolyData()
     this->Dummy->UnRegister(this);
     }
 
-  this->Vertex->Delete();
-  this->PolyVertex->Delete();
-  this->Line->Delete();
-  this->PolyLine->Delete();
-  this->Triangle->Delete();
-  this->Quad->Delete();
-  this->Polygon->Delete();
-  this->TriangleStrip->Delete();
-  this->EmptyCell->Delete();
+  if (this->Vertex)
+    {
+    this->Vertex->Delete();
+    }
+
+  if (this->PolyVertex)
+    {
+    this->PolyVertex->Delete();
+    }
+
+  if (this->Line)
+    {
+    this->Line->Delete();
+    }
+
+  if (this->PolyLine)
+    {
+    this->PolyLine->Delete();
+    }
+
+  if (this->Triangle)
+    {
+    this->Triangle->Delete();
+    }
+  
+  if (this->Quad)
+    {
+    this->Quad->Delete();
+    }
+
+  if (this->Polygon)
+    {
+    this->Polygon->Delete();
+    }
+
+  if (this->TriangleStrip)
+    {
+    this->TriangleStrip->Delete();
+    }
+
+  if (this->EmptyCell)
+    {
+    this->EmptyCell->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
