@@ -21,22 +21,22 @@ vtkActor outlineActor
 
 # Create the RenderWindow, Renderer, and setup viewports
 vtkCamera camera
-    camera SetClippingRange 2.7 195
-    camera SetFocalPoint 128.4 86.5 223.17
-    camera SetPosition 145.927 68.5 212.686
-    camera SetViewUp 0.6556 0.739704 -0.19305
+    camera SetClippingRange 1.60187 20.0842
+    camera SetFocalPoint 0.21406 1.5 0
+    camera SetPosition 8.3761 4.94858 4.12505
+    camera SetViewUp 0.180325 0.549245 -0.815974
 vtkLight light
-    light SetFocalPoint 128.4 86.5 223.17
-    light SetPosition 145.927 68.5 212.686
+    light SetFocalPoint 0.21406 1.5 0
+    light SetPosition 8.3761 4.94858 4.12505
 
 vtkRenderer ren1
     ren1 SetViewport 0 0 0.5 1.0
-#    ren1 SetActiveCamera camera
-#    ren1 AddLight light
+    ren1 SetActiveCamera camera
+    ren1 AddLight light
 vtkRenderer ren2
     ren2 SetViewport 0.5 0 1.0 1.0
-#    ren2 SetActiveCamera camera
-#    ren2 AddLight light
+    ren2 SetActiveCamera camera
+    ren2 AddLight light
 vtkRenderWindow renWin
     renWin AddRenderer ren1
     renWin AddRenderer ren2

@@ -6,6 +6,7 @@ IF (VTK_USE_RENDERING)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
       camera
+      cubeAxes.tcl
       depthSort
       financialField2
       largeImageOffset
