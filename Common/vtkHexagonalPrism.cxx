@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.5");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.6");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -226,24 +226,25 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[8])
 {
   double r, s, t;
-
   r = pcoords[0];
   s = pcoords[1];
   t = pcoords[2];
 
-  sf[0]  = -2*(r - 0.75)*(s - 1.0)*(t - 1.0);
-  sf[1]  =  2*(r - 0.25)*(s - 1.0)*(t - 1.0);
-  sf[2]  = (r - 0.0 )*(s - 0.0)*(s - 1.0)*(t - 1.0);
-  sf[3]  = -2*(r - 0.25)*(s - 0.0)*(t - 1.0);
-  sf[4]  =  2*(r - 0.75)*(s - 0.0)*(t - 1.0);
-  sf[5]  = (r - 1.0 )*(s - 0.0)*(s - 1.0)*(t - 1.0);
+  //First hexagon
+  sf[0]  = -64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[1]  =  64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[2]  = 4.*r                         *(s - 0.0)*(s - 1.0)*(t - 1.0);
+  sf[3]  =  64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 1.0);
+  sf[4]  = -64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 1.0);
+  sf[5]  = -4.*(r - 1.)                 *(s - 0.0)*(s - 1.0)*(t - 1.0);
 
-  sf[6]  =  2*(r - 0.75)*(s - 1.0)*(t - 0.0);
-  sf[7]  = -2*(r - 0.25)*(s - 1.0)*(t - 0.0);
-  sf[8]  = (r - 0.0 )*          (t - 0.0);
-  sf[9]  = (r - 0.25)*(s - 0.0)*(t - 0.0);
-  sf[10] = (r - 0.75)*(s - 0.0)*(t - 0.0);
-  sf[11] = (r - 1.0 )*          (t - 0.0);
+  //Second hexagon
+  sf[6]  =  64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[7]  = -64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[8]  = -4*r                         *(s - 0.0)*(s - 1.0)*(t - 0.0);
+  sf[9]  = -64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 0.0);
+  sf[10] =  64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 0.0);
+  sf[11] =  4*(r - 1.0)                 *(s - 0.0)*(s - 1.0)*(t - 0.0);
 }
 
 //----------------------------------------------------------------------------
