@@ -670,34 +670,40 @@ static void CastRay_TrilinSample_Unshaded(
       
       if ( opacity )
 	{
-	gmptr = grad_mag_ptr + offset;
+	if ( !grad_op_is_constant )
+	  {
+	  gmptr = grad_mag_ptr + offset;
       
-	A = *(gmptr);
-	B = *(gmptr + Binc);
-	C = *(gmptr + Cinc);
-	D = *(gmptr + Dinc);
-	E = *(gmptr + Einc);
-	F = *(gmptr + Finc);
-	G = *(gmptr + Ginc);
-	H = *(gmptr + Hinc);
-
-	gradient_value = 
-	  A * t1 * t2 * t3 +
-	  B *  x * t2 * t3 +
-	  C * t1 *  y * t3 + 
-	  D *  x *  y * t3 +
-	  E * t1 * t2 *  z + 
-	  F *  x * t2 *  z + 
-	  G * t1 *  y *  z + 
-	  H *  x *  y *  z;
+	  A = *(gmptr);
+	  B = *(gmptr + Binc);
+	  C = *(gmptr + Cinc);
+	  D = *(gmptr + Dinc);
+	  E = *(gmptr + Einc);
+	  F = *(gmptr + Finc);
+	  G = *(gmptr + Ginc);
+	  H = *(gmptr + Hinc);
+	  
+	  gradient_value = 
+	    A * t1 * t2 * t3 +
+	    B *  x * t2 * t3 +
+	    C * t1 *  y * t3 + 
+	    D *  x *  y * t3 +
+	    E * t1 * t2 *  z + 
+	    F *  x * t2 *  z + 
+	    G * t1 *  y *  z + 
+	    H *  x *  y *  z;
       
-	if ( gradient_value < 0.0 )
-	  gradient_value = 0.0;
-	else if ( gradient_value > 255.0 )
-	  gradient_value = 255.0;
+	  if ( gradient_value < 0.0 )
+	    gradient_value = 0.0;
+	  else if ( gradient_value > 255.0 )
+	    gradient_value = 255.0;
 
-	opacity *= GOTF[(int)gradient_value];
-
+	  opacity *= GOTF[(int)gradient_value];
+	  }
+	else
+	  {
+	  opacity *= gradient_opacity_constant;
+	  }
 	red_value   = opacity * GTF[((int)scalar_value)];
 	
 	// Accumulate intensity and opacity for this sample location
@@ -767,33 +773,40 @@ static void CastRay_TrilinSample_Unshaded(
       
       if ( opacity )
 	{
-	gmptr = grad_mag_ptr + offset;
-      
-	A = *(gmptr);
-	B = *(gmptr + Binc);
-	C = *(gmptr + Cinc);
-	D = *(gmptr + Dinc);
-	E = *(gmptr + Einc);
-	F = *(gmptr + Finc);
-	G = *(gmptr + Ginc);
-	H = *(gmptr + Hinc);
+	if ( !grad_op_is_constant )
+	  {
+	  gmptr = grad_mag_ptr + offset;
+	  
+	  A = *(gmptr);
+	  B = *(gmptr + Binc);
+	  C = *(gmptr + Cinc);
+	  D = *(gmptr + Dinc);
+	  E = *(gmptr + Einc);
+	  F = *(gmptr + Finc);
+	  G = *(gmptr + Ginc);
+	  H = *(gmptr + Hinc);
+	  
+	  gradient_value = 
+	    A * t1 * t2 * t3 +
+	    B *  x * t2 * t3 +
+	    C * t1 *  y * t3 + 
+	    D *  x *  y * t3 +
+	    E * t1 * t2 *  z + 
+	    F *  x * t2 *  z + 
+	    G * t1 *  y *  z + 
+	    H *  x *  y *  z;
+	  
+	  if ( gradient_value < 0.0 )
+	    gradient_value = 0.0;
+	  else if ( gradient_value > 255.0 )
+	    gradient_value = 255.0;
 
-	gradient_value = 
-	  A * t1 * t2 * t3 +
-	  B *  x * t2 * t3 +
-	  C * t1 *  y * t3 + 
-	  D *  x *  y * t3 +
-	  E * t1 * t2 *  z + 
-	  F *  x * t2 *  z + 
-	  G * t1 *  y *  z + 
-	  H *  x *  y *  z;
-      
-	if ( gradient_value < 0.0 )
-	  gradient_value = 0.0;
-	else if ( gradient_value > 255.0 )
-	  gradient_value = 255.0;
-
-	opacity *= GOTF[(int)gradient_value];
+	  opacity *= GOTF[(int)gradient_value];
+	  }
+	else
+	  {
+	  opacity *= gradient_opacity_constant;
+	  }
 
 	red_value   = opacity * CTF[((int)scalar_value) * 3    ];
 	green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
@@ -1011,26 +1024,33 @@ static void CastRay_TrilinSample_Shaded(
       // function
       if ( opacity )
 	{
-	gmptr = grad_mag_ptr + offset;
+	if ( !grad_op_is_constant )
+	  {
+	  gmptr = grad_mag_ptr + offset;
       
-	A = *(gmptr);
-	B = *(gmptr + Binc);
-	C = *(gmptr + Cinc);
-	D = *(gmptr + Dinc);
-	E = *(gmptr + Einc);
-	F = *(gmptr + Finc);
-	G = *(gmptr + Ginc);
-	H = *(gmptr + Hinc);
-
-	gradient_value = (int) (
-			    A * tA + B * tB + C * tC + D * tD + 
-			    E * tE + F * tF + G * tG + H * tH );
-	if ( gradient_value < 0 )
-	  gradient_value = 0;
-	else if ( gradient_value > 255 )
-	  gradient_value = 255;
-
-	opacity *= GOTF[gradient_value];
+	  A = *(gmptr);
+	  B = *(gmptr + Binc);
+	  C = *(gmptr + Cinc);
+	  D = *(gmptr + Dinc);
+	  E = *(gmptr + Einc);
+	  F = *(gmptr + Finc);
+	  G = *(gmptr + Ginc);
+	  H = *(gmptr + Hinc);
+	  
+	  gradient_value = (int) (
+				  A * tA + B * tB + C * tC + D * tD + 
+				  E * tE + F * tF + G * tG + H * tH );
+	  if ( gradient_value < 0 )
+	    gradient_value = 0;
+	  else if ( gradient_value > 255 )
+	    gradient_value = 255;
+	  
+	  opacity *= GOTF[gradient_value];
+	  }
+	else
+	  {
+	  opacity *= gradient_opacity_constant;
+	  }
 	}
 
       // If we have a combined opacity value, then compute the shading
@@ -1134,26 +1154,33 @@ static void CastRay_TrilinSample_Shaded(
       
       if ( opacity )
 	{
-	gmptr = grad_mag_ptr + offset;
+	  if ( !grad_op_is_constant )
+	    {
+	    gmptr = grad_mag_ptr + offset;
       
-	A = *(gmptr);
-	B = *(gmptr + Binc);
-	C = *(gmptr + Cinc);
-	D = *(gmptr + Dinc);
-	E = *(gmptr + Einc);
-	F = *(gmptr + Finc);
-	G = *(gmptr + Ginc);
-	H = *(gmptr + Hinc);
+	    A = *(gmptr);
+	    B = *(gmptr + Binc);
+	    C = *(gmptr + Cinc);
+	    D = *(gmptr + Dinc);
+	    E = *(gmptr + Einc);
+	    F = *(gmptr + Finc);
+	    G = *(gmptr + Ginc);
+	    H = *(gmptr + Hinc);
+	    
+	    gradient_value = (int) (
+				    A * tA + B * tB + C * tC + D * tD + 
+				    E * tE + F * tF + G * tG + H * tH );
+	    if ( gradient_value < 0 )
+	      gradient_value = 0;
+	    else if ( gradient_value > 255 )
+	      gradient_value = 255;
 
-	gradient_value = (int) (
-			    A * tA + B * tB + C * tC + D * tD + 
-			    E * tE + F * tF + G * tG + H * tH );
-	if ( gradient_value < 0 )
-	  gradient_value = 0;
-	else if ( gradient_value > 255 )
-	  gradient_value = 255;
-
-	opacity *= GOTF[gradient_value];
+	    opacity *= GOTF[gradient_value];
+	    }
+	  else
+	    {
+	    opacity *= gradient_opacity_constant;
+	    }
 	}
 
       // If we have a combined opacity value, then compute the shading
