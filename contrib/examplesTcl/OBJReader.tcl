@@ -59,6 +59,7 @@ ren1 AddActor hair
 [ren1 GetActiveCamera] Dolly 2
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 30
+ren1 ResetCameraClippingRange
 
 eval [hair GetProperty] SetDiffuseColor $saddle_brown
 eval [cow GetProperty] SetDiffuseColor $beige

@@ -95,6 +95,8 @@ renWin SetSize 786 256
 iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Dolly 4.8
+ren1 ResetCameraClippingRange
+
 iren Initialize
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
