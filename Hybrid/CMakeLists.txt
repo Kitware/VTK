@@ -4,6 +4,7 @@ vtkCubeAxesActor2D
 vtkDepthSortPolyData 
 vtkEarthSource 
 vtkGridTransform 
+vtkImplicitModeller
 vtkIVWriter 
 vtkImageToPolyDataFilter 
 vtkIterativeClosestPointTransform

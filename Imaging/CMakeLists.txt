@@ -87,7 +87,6 @@ vtkImageThreshold
 vtkImageTranslateExtent
 vtkImageVariance3D
 vtkImageWrapPad
-vtkImplicitModeller
 vtkPointLoad
 vtkSampleFunction
 vtkShepardMethod
@@ -120,7 +119,6 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingTCL 
-                         vtkGraphicsTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL 
                          ${TCL_LIBRARY})
@@ -134,7 +132,6 @@ IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingPython ImagingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingPython 
-                         vtkGraphicsPython
                          vtkFilteringPython 
                          vtkCommonPython )
   TARGET_LINK_LIBRARIES (vtkImagingPython 
@@ -150,7 +147,6 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingJava ImagingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingJava 
-                         vtkGraphicsJava
                          vtkCommonJava 
                          vtkFilteringJava)
   INSTALL_TARGETS(/lib vtkImagingJava)
@@ -159,7 +155,6 @@ ENDIF (VTK_WRAP_JAVA)
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering
-vtkGraphics
 vtkImaging 
 )
 
