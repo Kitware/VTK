@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object to extract all of the input data.
 vtkImageDifference::vtkImageDifference()
 {
+  this->Error = 0;
+  this->ThresholdedError = 0.0;
   this->Image = NULL;
   this->Threshold = 51;
   this->AllowShift = 1;
