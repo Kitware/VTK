@@ -66,7 +66,7 @@ void vtkSliceCubes::Update()
 }
 
 template <class T>
-void ComputePointGradient(int i, int j, int dims[3], 
+void ComputePointGradient(int i, int j, int k, int dims[3], 
                           float aspectRatio[3], float n[3],
                           T *s0, T *s1, T *s2)
 {
@@ -106,6 +106,7 @@ void ComputePointGradient(int i, int j, int dims[3],
     n[1] = (sp - sm) / aspectRatio[1];
     }
   else
+
     {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
@@ -113,10 +114,25 @@ void ComputePointGradient(int i, int j, int dims[3],
     }
 
   // z-direction
-  sp = s2[i + j*dims[0]];
-  sm = s0[i + j*dims[0]];
-  n[2] = 0.5 * (sp - sm) / aspectRatio[2];
-
+  // z-direction
+  if ( k == 0 )
+    {
+    sp = s2[i + j*dims[0]];
+    sm = s1[i + j*dims[0]];
+    n[2] = (sp - sm) / aspectRatio[2];
+    }
+  else if ( k == (dims[2]-1) )
+    {
+    sp = s1[i + j*dims[0]];
+    sm = s0[i + j*dims[0]];
+    n[2] = (sp - sm) / aspectRatio[2];
+    }
+  else
+    {
+    sp = s2[i + j*dims[0]];
+    sm = s0[i + j*dims[0]];
+    n[2] = 0.5 * (sp - sm) / aspectRatio[2];
+    }
 }
 
 template <class T, class S>
@@ -140,8 +156,8 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
   vtkByteSwap swap;
-  static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
-                              {4,5}, {5,6}, {6,7}, {7,4},
+  static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
+                              {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
 
   if ( slice == NULL ) //have to do conversion to float slice-by-slice
@@ -273,21 +289,21 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
         pts[7][2] = pts[0][2] + aspectRatio[2];
 
         //create gradients
-        ComputePointGradient(i,j, dims, aspectRatio, grad[0],
+        ComputePointGradient(i,j, k, dims, aspectRatio, grad[0],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j, dims, aspectRatio, grad[1],
+        ComputePointGradient(i+1,j, k, dims, aspectRatio, grad[1],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j+1, dims, aspectRatio, grad[2],
+        ComputePointGradient(i+1,j+1, k, dims, aspectRatio, grad[2],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j+1, dims, aspectRatio, grad[3],
+        ComputePointGradient(i,j+1, k, dims, aspectRatio, grad[3],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j, dims, aspectRatio, grad[4],
+        ComputePointGradient(i,j, k+1, dims, aspectRatio, grad[4],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j, dims, aspectRatio, grad[5],
+        ComputePointGradient(i+1,j, k+1, dims, aspectRatio, grad[5],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j+1, dims, aspectRatio, grad[6],
+        ComputePointGradient(i+1,j+1, k+1, dims, aspectRatio, grad[6],
                              slice1, slice2, slice3);
-        ComputePointGradient(i,j+1, dims, aspectRatio, grad[7],
+        ComputePointGradient(i,j+1, k+1, dims, aspectRatio, grad[7],
                              slice1, slice2, slice3);
 
         triCase = triCases + index;
@@ -310,7 +326,6 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
               if (point.x[ii] < xmin[ii] ) xmin[ii] = point.x[ii];
               if (point.x[ii] > xmax[ii] ) xmax[ii] = point.x[ii];
               }
-
             math.Normalize(point.n);
 	    // swap bytes if necc
 	    swap.SwapWrite4BERange((float *)(&point),6,outFP);
