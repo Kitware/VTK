@@ -69,7 +69,6 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->IsConnected = 0;
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = 0;
-  this->MaximumMessageSize = 16000;
 }
 
 //----------------------------------------------------------------------------
@@ -107,7 +106,7 @@ static inline int checkForError(int id, int maxId)
 }
 
 template <class T>
-static int SendMessage(T* data, int length, int tag, int sock, int maxSize)
+static int SendMessage(T* data, int length, int tag, int sock)
 {
   // Need to check the return value of these
   send(sock, (char *)&tag, sizeof(int), 0);
@@ -120,7 +119,6 @@ static int SendMessage(T* data, int length, int tag, int sock, int maxSize)
     vtkGenericWarningMacro("Could not send message.");
     return 0;
     }
-  cout << "Sent: " << sent << endl;
   while ( sent < totalLength )
     {
     sent += send ( sock, (char*)data+sent, totalLength-sent, 0 );
@@ -129,7 +127,6 @@ static int SendMessage(T* data, int length, int tag, int sock, int maxSize)
       vtkGenericWarningMacro("Could not send message.");
       return 0;
       }
-    cout << "Sent: " << sent << endl;
     }
 
   return 1;
@@ -144,7 +141,7 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
     return 0;
     }
 
-  return SendMessage(data, length, tag, this->Socket , this->MaximumMessageSize);
+  return SendMessage(data, length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -156,7 +153,7 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
     return 0;
     }
 
-  return SendMessage(data, length, tag, this->Socket , this->MaximumMessageSize);
+  return SendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(char *data, int length, 
@@ -167,7 +164,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
     return 0;
     }
 
-  return SendMessage(data, length, tag, this->Socket, this->MaximumMessageSize);
+  return SendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(float *data, int length, 
@@ -178,7 +175,7 @@ int vtkSocketCommunicator::Send(float *data, int length,
     return 0;
     }
 
-  return SendMessage(data, length, tag, this->Socket , this->MaximumMessageSize);
+  return SendMessage(data, length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -206,7 +203,6 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     }
   int totalLength = length * size;
   int received;
-  cout << "Expecting " << totalLength << endl;
 
   received = recv( this->Socket, data, totalLength, 0 );
   if (received == -1)
@@ -214,7 +210,6 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     vtkErrorMacro("Could not receive message.");
     return 0;
     }
-  cout << "Received: " << received << endl;
   while ( received < totalLength )
     {
     received += recv( this->Socket, &(data[received]), totalLength-received, 0 );
@@ -223,12 +218,8 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
       vtkErrorMacro("Could not receive message.");
       return 0;
       }
-    cout << "Received: " << received << endl;
     }
 
-  cout << "Expected " << totalLength << endl;
-  cout << "Received: " << received << endl;
-  
   // Unless we've dealing with chars, then check byte ordering
   if ( this->SwapBytesInReceivedData && size == 4 )
     {
@@ -341,7 +332,7 @@ int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
   char IAmBE = 0;
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket , this->MaximumMessageSize );
+  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
 
   if ( clientIsBE != IAmBE )
     {
@@ -405,7 +396,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   char IAmBE = 0;
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket , this->MaximumMessageSize );
+  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
 
   char serverIsBE;
   if ( !ReceiveMessage( &serverIsBE, sizeof(char), 1,
