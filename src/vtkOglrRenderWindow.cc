@@ -314,11 +314,11 @@ void vtkOglrRenderWindow::StereoUpdate(void)
       case VTK_STEREO_CRYSTAL_EYES:
 	{
 	glFlush();
-	system("/usr/gfx/setmon STR_TOP");
+	system("/usr/gfx/setmon STR_RECT");
 	glFlush();
 	// make sure we are in full screen
         this->StereoStatus = 1;
-	// this->FullScreenOn();
+	this->FullScreenOn();
 	}
 	break;
       case VTK_STEREO_RED_BLUE:
@@ -339,7 +339,7 @@ void vtkOglrRenderWindow::StereoUpdate(void)
 	glFlush();
 	// make sure we are in full screen
         this->StereoStatus = 0;
-	// this->FullScreenOff();
+	this->FullScreenOff();
 	}
 	break;
       case VTK_STEREO_RED_BLUE:
