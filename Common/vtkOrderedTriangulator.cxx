@@ -346,11 +346,12 @@ public:
 // Classes are used to represent points, faces, and tetras-------------------
 struct vtkOTPoint
 {
-  vtkOTPoint() : Id(0), InternalId(0), Type(Inside) 
+  vtkOTPoint() : Id(0), SortId(0), InternalId(0), Type(Inside) 
     {this->X[0] = this->X[1] = this->X[2] = 0.0;}
   enum PointClassification 
     {Inside=0,Outside=1,Boundary=2,Added=3,NoInsert=4};
   vtkIdType Id; //Id to data outside this class
+  vtkIdType SortId; //Id used to sort in triangulation
   vtkIdType InternalId; //Id (order) of point insertion
   double X[3];
   PointClassification Type; //inside, outside
@@ -587,6 +588,28 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
     }
   
   this->Mesh->Points[idx].Id = id;
+  this->Mesh->Points[idx].SortId = id;
+  this->Mesh->Points[idx].InternalId = -1; //dummy value
+  this->Mesh->Points[idx].X[0] = (double) x[0];
+  this->Mesh->Points[idx].X[1] = (double) x[1];
+  this->Mesh->Points[idx].X[2] = (double) x[2];
+  this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
+  
+  return idx;
+}
+
+vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
+					      float x[3], int type)
+{
+  vtkIdType idx = this->NumberOfPoints++;
+  if ( idx > this->MaximumNumberOfPoints )
+    {
+    vtkErrorMacro(<< "Trying to insert more points than specified");
+    return idx;
+    }
+  
+  this->Mesh->Points[idx].Id = id;
+  this->Mesh->Points[idx].SortId = sortid;
   this->Mesh->Points[idx].InternalId = -1; //dummy value
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
@@ -639,11 +662,11 @@ int __cdecl vtkSortOnPointIds(const void *val1, const void *val2)
 int vtkSortOnPointIds(const void *val1, const void *val2)
 #endif
 {
-  if (((vtkOTPoint *)val1)->Id < ((vtkOTPoint *)val2)->Id)
+  if (((vtkOTPoint *)val1)->SortId < ((vtkOTPoint *)val2)->SortId)
     {
     return (-1);
     }
-  else if (((vtkOTPoint *)val1)->Id > ((vtkOTPoint *)val2)->Id)
+  else if (((vtkOTPoint *)val1)->SortId > ((vtkOTPoint *)val2)->SortId)
     {
     return (1);
     }

@@ -124,6 +124,7 @@ public:
   // can be used prior to the Triangulate() method to update the type of
   // the point with UpdatePointType().
   vtkIdType InsertPoint(vtkIdType id, float x[3], int type);
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, float x[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
