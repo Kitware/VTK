@@ -510,6 +510,7 @@ vtkVRMLExporter vrml
   vrml SetInput renWin
   vrml SetStartWrite {vrml SetFileName cells.wrl}
   vrml SetEndWrite {vrml SetFileName /a/acells.wrl}
+  vrml SetSpeed 5.5
   vrml Write
 
 if { [info command vtkRIBExporter] != "" } {
