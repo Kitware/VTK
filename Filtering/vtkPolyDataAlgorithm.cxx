@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.8");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -88,18 +88,7 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
     // executive
     vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
     output->PrepareForNewData();
-
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-
     int retVal = this->RequestData(request, inputVector, outputVector);
-
-    if(!this->AbortExecute)
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     // Mark the data as up-to-date. I think this should be done in the
     // executive

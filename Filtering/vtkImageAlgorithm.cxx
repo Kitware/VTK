@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.11");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.12");
 
 class vtkImageAlgorithmToDataSetFriendship
 {
@@ -92,8 +92,8 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    // for each output
     int i;
+    // for each output
     for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
@@ -104,18 +104,8 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
         output->PrepareForNewData();
         }
       }
-    
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
 
     this->RequestData(request, inputVector, outputVector);
-
-    if(!this->AbortExecute)
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     // Mark the data as up-to-date.
     for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
