@@ -8,6 +8,5 @@ IF(PYTHON_EXECUTABLE)
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
            "${VTK_SOURCE_DIR}/Parallel"
            vtkMPI.h
-           vtkKdNode.h
            )
 ENDIF(PYTHON_EXECUTABLE)
