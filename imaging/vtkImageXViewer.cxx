@@ -60,6 +60,27 @@ vtkImageXViewer::~vtkImageXViewer()
 {
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// Set the input to the viewer.
+// Set the default region to display as the whole image.  The input should
+// have already been connected to its final source to get this information,
+// otherwise an error will occur.
+void vtkImageXViewer::SetInput(vtkImageSource *input)
+{
+  int bounds[8];
+  
+  vtkDebugMacro(<< "SetInput: (" << input << ")");
+  this->Modified();
+  this->Input = input;
+
+  // Get the default region to display
+  input->UpdateImageInformation(&(this->Region));
+  this->Region.GetImageBounds4d(bounds);
+  this->SetBounds(bounds);
+  this->SetDefaultCoordinate2(bounds[4]);
+  this->SetDefaultCoordinate3(bounds[6]);
+}
 
 
 //----------------------------------------------------------------------------
@@ -320,9 +341,11 @@ void vtkImageXViewer::Render(void)
   // Display the image.
   this->Image = XCreateImage(this->DisplayId, this->VisualId,this->VisualDepth,
 			     ZPixmap, 0, (char *)dataOut, width, height, 8,0);
-  XSync(this->DisplayId, False);
   XPutImage(this->DisplayId, this->WindowId, this->Gc, this->Image, 0, 0,
 	    0, 0, width, height);
+
+  XFlush(this->DisplayId);
+  XSync(this->DisplayId, False);
   
   delete dataOut;	 
   XFree(this->Image);

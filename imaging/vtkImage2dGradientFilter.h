@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImage2dGradientFilter - magnitude and phase of gradient.
 // .SECTION Description
 // vtkImage2dGradientFilter computes a gradient of 2d image using central
-// differences.  The output is always float and has two components.
-// The magnitude is returned in component 0 and the phase [-pi, pi]
-// in component 1.
+// differences.  The output is always float and has three components.
+// The magnitude is returned in component 0 and the direction returned
+// in components 1 and 2 as a normalized vector.
 
 
 #ifndef __vtkImage2dGradientFilter_h

@@ -81,14 +81,14 @@ void vtkImage2dGradientFilter::SetAxes2d(int axis0, int axis1)
 
 //----------------------------------------------------------------------------
 // Description:
-// Both components will always be generated.
+// All components will be generated.
 void vtkImage2dGradientFilter::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int bounds[6];
   
   region->GetBounds3d(bounds);
   bounds[4] = 0;
-  bounds[5] = 1;
+  bounds[5] = 2;
   region->SetBounds3d(bounds);
 }
 
@@ -116,9 +116,9 @@ void vtkImage2dGradientFilter::ComputeOutputImageInformation(
       }
     }
   
-  // from 1 to 2 components
+  // from 0 to 2 components
   bounds[4] = 0;
-  bounds[5] = 1;
+  bounds[5] = 2;
 
   outRegion->SetImageBounds4d(bounds);
 }
@@ -135,13 +135,13 @@ void vtkImage2dGradientFilterExecuteCenter(vtkImage2dGradientFilter *self,
 				     vtkImageRegion *inRegion, T *inPtr, 
 				     vtkImageRegion *outRegion, float *outPtr)
 {
-  double d0, d1;
+  double d0, d1, temp;
   float r0, r1;
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1;
   int outIdx0, outIdx1;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1;
+  float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1;
   T *inPtr0, *inPtr1;
   
@@ -174,15 +174,14 @@ void vtkImage2dGradientFilterExecuteCenter(vtkImage2dGradientFilter *self,
       d1 = (inPtr0[inInc1] - inPtr0[-inInc1]) * r1;
       
       // Set the magnitude
-      *outPtr0 = (float)(hypot(d0, d1));
-      if (d1 == 0.0 && d0 == 0.0)
-	{
-	outPtr0[outInc2] = 0.0;
-	}
-      else
-	{
-	outPtr0[outInc2] = atan2(d1, d0);
-	}
+      outPtr2 = outPtr0;
+      *outPtr2 = (float)(hypot(d0, d1));
+      temp = 1.0 / *outPtr2;
+      // Set the vector
+      outPtr2 += outInc2;
+      *outPtr2 = d0 / temp;
+      outPtr2 += outInc2;
+      *outPtr2 = d1 / temp;
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;
@@ -204,11 +203,12 @@ void vtkImage2dGradientFilterExecuteBoundary(vtkImage2dGradientFilter *self,
 {
   float d0, d1;
   float r0, r1;
+  float temp;
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1;
   int outIdx0, outIdx1;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1;
+  float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1;
   T *inPtr0, *inPtr1;
   // Boundary of input image
@@ -249,16 +249,15 @@ void vtkImage2dGradientFilterExecuteBoundary(vtkImage2dGradientFilter *self,
       d0 *= r0;
       d1 *= r1;
       
-      // Set the magnitude and phase
-      *outPtr0 = (float)(hypot(d0, d1));
-      if (d1 == 0.0 && d0 == 0.0)
-	{
-	outPtr0[outInc2] = 0.0;
-	}
-      else
-	{
-	outPtr0[outInc2] = atan2(d1, d0);
-	}
+      // Set the magnitude
+      outPtr2 = outPtr0;
+      *outPtr2 = (float)(hypot(d0, d1));
+      temp = 1.0 / *outPtr2;
+      // Set the vector
+      outPtr2 += outInc2;
+      *outPtr2 = d0 / temp;
+      outPtr2 += outInc2;
+      *outPtr2 = d1 / temp;
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;

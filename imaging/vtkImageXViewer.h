@@ -104,9 +104,9 @@ public:
   XColor *GetColors();
   vtkGetMacro(NumberColors,int);
 
+  void SetInput(vtkImageSource *Input);
   // Description:
-  // Set/Get the input that will be supplying the image.
-  vtkSetObjectMacro(Input,vtkImageSource);
+  // Get the input that will be supplying the image.
   vtkGetObjectMacro(Input,vtkImageSource);
   
   void Render(void);

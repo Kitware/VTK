@@ -82,7 +82,7 @@ void vtkImage2dNonMaximalSuppressionFilter::SetAxes2d(int axis0, int axis1)
 
 //----------------------------------------------------------------------------
 // Description:
-// Both components will always be generated.
+// All components will be generated.
 void vtkImage2dNonMaximalSuppressionFilter::InterceptCacheUpdate(
 						 vtkImageRegion *region)
 {
@@ -90,7 +90,7 @@ void vtkImage2dNonMaximalSuppressionFilter::InterceptCacheUpdate(
   
   region->GetBounds3d(bounds);
   bounds[4] = 0;
-  bounds[5] = 1;
+  bounds[5] = 2;
   region->SetBounds3d(bounds);
 }
 
@@ -105,14 +105,14 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteCenter3d(
 						    vtkImageRegion *inRegion,
 						    vtkImageRegion *outRegion)
 {
-  float phase;
+  float d0, d1;
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1;
   int outIdx0, outIdx1;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1;
+  float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1, inInc2;
-  float *inPtr0, *inPtr1;
+  float *inPtr0, *inPtr1, *inPtr2;
   int neighbor;
 
   // This filter expects that output and input is type float.
@@ -143,23 +143,27 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteCenter3d(
       {
 	
       // Use phase to determine which 2 of 8 pixels are neighbors
-      phase = inPtr0[inInc2];
+      inPtr2 = inPtr0 + inInc2;
+      d0 = *inPtr2;
+      inPtr2 += inInc2;
+      d1 = *inPtr2;
+      
       neighbor = 0;
       // phase is up or down
-      if (phase > 0.39269908 && phase < 2.7488936)
+      if (d1 > 0.38268343)  // sin 22.5 degrees
 	{
 	neighbor = +inInc1;
 	}
-      else if (phase < -0.39269908 && phase > -2.7488936)
+      else if (d1 < -0.38268343)
 	{
 	neighbor = -inInc1;
 	}
       // phase is left or right
-      if (phase > -1.1780972 && phase < 1.1780972)
+      if (d0 > 0.38268343)  
 	{
 	neighbor += inInc0;
 	}
-      else if (phase > 1.9634954 || phase < -1.9634954)
+      else if (d0 < -0.38268343)  
 	{
 	neighbor -= inInc0;
 	}
@@ -173,8 +177,11 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteCenter3d(
 	{
 	*outPtr0 = *inPtr0;
 	}
-      // Set Phase
-      outPtr0[outInc2] = inPtr0[inInc2];
+      // Set Direction
+      outPtr2 = outPtr0 + outInc2;
+      *outPtr2 = d0;
+      outPtr2 += outInc2;
+      *outPtr2 = d1;
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;
@@ -192,15 +199,15 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
 						    vtkImageRegion *inRegion,
 						    vtkImageRegion *outRegion)
 {
-  float phase;
+  float d0, d1;
   int inImageMin0, inImageMax0, inImageMin1, inImageMax1;
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1;
   int outIdx0, outIdx1;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1;
+  float *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1, inInc2;
-  float *inPtr0, *inPtr1;
+  float *inPtr0, *inPtr1, *inPtr2;
   int neighborA, neighborB;
 
   // This filter expects that output and input is type float.
@@ -234,10 +241,14 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
       {
 	
       // Use phase to determine which 2 of 8 pixels are neighbors
-      phase = inPtr0[inInc2];
+      inPtr2 = inPtr0 + inInc2;
+      d0 = *inPtr2;
+      inPtr2 += inInc2;
+      d1 = *inPtr2;
+
       neighborA = neighborB = 0;
       // phase is up or down
-      if (phase > 0.39269908 && phase < 2.7488936)
+      if (d1 > 0.38268343)  // sin(22.5 degrees)
 	{
 	if (outIdx1 < inImageMax1)
 	  {
@@ -248,7 +259,7 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
 	  neighborB = -inInc1;
 	  }
 	}
-      else if (phase < -0.39269908 && phase > -2.7488936)
+      else if (d1 < -0.38268343)
 	{
 	if (outIdx1 < inImageMax1)
 	  {
@@ -260,7 +271,7 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
 	  }
 	}
       // phase is left or right
-      if (phase > -1.1780972 && phase < 1.1780972)
+      if (d0 > 0.38268343)
 	{
 	if (outIdx0 < inImageMax0)
 	  {
@@ -271,7 +282,7 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
 	  neighborB -= inInc0;
 	  }
 	}
-      else if (phase > 1.9634954 || phase < -1.9634954)
+      else if (d0 < -0.38268343)
 	{
 	if (outIdx0 < inImageMax0)
 	  {
@@ -292,8 +303,11 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteBoundary3d(
 	{
 	*outPtr0 = *inPtr0;
 	}
-      // Set Phase
-      outPtr0[outInc2] = inPtr0[inInc2];
+      // Set Direction
+      outPtr2 = outPtr0 + outInc2;
+      *outPtr2 = d0;
+      outPtr2 += outInc2;
+      *outPtr2 = d1;
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;

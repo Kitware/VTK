@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImage2dNonMaximalSuppressionFilter Sets to zero any gradient
 // that is not a peak.  If a pixel has a neighbor along the gradient
 // that has larger magnitude, the smaller pixel is set to zero.
-// The phase of the image is not touched.  The input and output must be float.
+// The vector of the image is just passed along.  
+// The input and output must be float.
 
 
 #ifndef __vtkImage2dNonMaximalSuppressionFilter_h

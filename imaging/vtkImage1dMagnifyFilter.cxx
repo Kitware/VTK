@@ -37,7 +37,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkImage1dMagnifyFilter.h"
+
 
 
 //----------------------------------------------------------------------------
@@ -64,30 +66,18 @@ void vtkImage1dMagnifyFilter::ComputeRequiredInputRegionBounds(
   outRegion->GetBounds1d(bounds);
   
   // For Min. Round Down
-  if (bounds[0] >= 0)
-    {
-    bounds[0] /= this->MagnificationFactor;
-    }
-  else
-    {
-    bounds[0]= -1-(-bounds[0]-1)/this->MagnificationFactor;
-    }
-  // For Max. Round Down
-  if (bounds[1] >= 0)
-    {
-    bounds[1] /= this->MagnificationFactor;
-    }
-  else
-    {
-    bounds[1]= -1-(-bounds[1]-1)/this->MagnificationFactor;
-    }
-
-  // We need the last pixel if we are interpolating
+  bounds[0] = floor((float)(bounds[0]) / (float)(this->MagnificationFactor));
+  
   if (this->Interpolate)
     {
-    ++bounds[1];
+    // Round Up
+    bounds[1] = ceil((float)(bounds[1]) / (float)(this->MagnificationFactor));
     }
-    
+  else
+    {
+    bounds[1] = floor((float)(bounds[1]) / (float)(this->MagnificationFactor));
+    }
+  
   inRegion->SetBounds1d(bounds);
 }
 
@@ -106,7 +96,15 @@ void vtkImage1dMagnifyFilter::ComputeOutputImageInformation(
 
   // Scale the output bounds
   imageBounds[0] *= this->MagnificationFactor;
-  imageBounds[1] = (imageBounds[1]+1) * this->MagnificationFactor - 1;
+  if (this->Interpolate)
+    {
+    imageBounds[1] *= this->MagnificationFactor;
+    }
+  else
+    {
+    imageBounds[1] = (imageBounds[1]+1) * this->MagnificationFactor - 1;
+    }
+  
   // Change the aspect ratio.
   aspectRatio *= (float)(this->MagnificationFactor);
 
@@ -131,7 +129,7 @@ void vtkImage1dMagnifyFilter::InterceptCacheUpdate(vtkImageRegion *region)
   bounds[0] *= this->MagnificationFactor;
   if (this->Interpolate)
     {
-    bounds[1]= (bounds[1]) * this->MagnificationFactor - 1;
+    bounds[1]= bounds[1] * this->MagnificationFactor;
     }
   else
     {
