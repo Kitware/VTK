@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.17");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.18");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -72,6 +72,9 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->InputVectorsSelection = 0;
 
+  this->LastUsedTimeStep = 0.0;
+
+  this->GenerateNormalsInIntegrate = 1;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
@@ -532,11 +535,22 @@ void vtkStreamTracer::Execute()
   if (seeds)
     {
     float lastPoint[3];
+    vtkInterpolatedVelocityField* func;
+    int maxCellSize = 0;
+    if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
+      {
+      vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
+      func->Delete();
+      return;
+      }
     this->Integrate(this->GetOutput(),
                     seeds, 
                     seedIds, 
                     integrationDirections, 
-                    lastPoint);
+                    lastPoint,
+                    func,
+                    maxCellSize);
+    func->Delete();
     seeds->Delete();
     }
 
@@ -586,7 +600,9 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
                                 vtkDataArray* seedSource, 
                                 vtkIdList* seedIds,
                                 vtkIntArray* integrationDirections,
-                                float lastPoint[3])
+                                float lastPoint[3],
+                                vtkInterpolatedVelocityField* func,
+                                int maxCellSize)
 {
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
@@ -600,15 +616,6 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
 
   int direction=1;
 
-  vtkInterpolatedVelocityField* func;
-  int maxCellSize = 0;
-  if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
-    {
-    vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
-    func->Delete();
-    return;
-    }
-
   float* weights = 0;
   if ( maxCellSize > 0 )
     {
@@ -618,7 +625,6 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
   if (this->GetIntegrator() == 0)
     {
     vtkErrorMacro("No integrator is specified.");
-    func->Delete();
     return;
     }
 
@@ -822,6 +828,7 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
           }
         maxStep = delT.Interval;
         }
+      this->LastUsedTimeStep = delT.Interval;
           
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
@@ -962,57 +969,13 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
     vtkIdType numPts = outputPoints->GetNumberOfPoints();
     if ( numPts > 1 )
       {
-      
       // Assign geometry and attributes
       output->SetLines(outputLines);
-      
-      if (vorticity)
+      if (this->GenerateNormalsInIntegrate)
         {
-        vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
-        vtkFloatArray* normals = vtkFloatArray::New();
-        normals->SetNumberOfComponents(3);
-        normals->SetNumberOfTuples(numPts);
-        
-        lineNormalGenerator->GenerateSlidingNormals(outputPoints,
-                                                    outputLines,
-                                                    normals);
-        lineNormalGenerator->Delete();
-        
-        int j;
-        float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
-        for(i=0; i<numPts; i++)
-          {
-          normals->GetTuple(i, normal);
-          normals->SetName("Normals");
-          vtkDataArray* newVectors = 
-            outputPD->GetVectors(this->InputVectorsSelection);
-          if (newVectors == NULL)
-            { // This should never happen.
-            vtkErrorMacro("Could not find output array.");
-            return;
-            }
-          newVectors->GetTuple(i, velocity);
-          // obtain two unit orthogonal vectors on the plane perpendicular to
-          // the streamline
-          for(j=0; j<3; j++) { local1[j] = normal[j]; }
-          length = vtkMath::Normalize(local1);
-          vtkMath::Cross(local1, velocity, local2);
-          vtkMath::Normalize(local2);
-          // Rotate the normal with theta
-          rotation->GetTuple(i, &theta);
-          costheta = cos(theta);
-          sintheta = sin(theta);
-          for(j=0; j<3; j++)
-            {
-            normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
-            }
-          normals->SetTuple(i, normal);
-          }
-        outputPD->AddArray(normals);
-        outputPD->SetActiveAttribute("Normals", vtkDataSetAttributes::VECTORS);
-        normals->Delete();
+        this->GenerateNormals(output, 0);
         }
-      
+
       outputCD->AddArray(retVals);
       }
     }
@@ -1036,12 +999,145 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
   time->Delete();
 
 
-  func->Delete();
   integrator->Delete();
   cell->Delete();
 
   delete[] weights;
   return;
+}
+
+void vtkStreamTracer::GenerateNormals(vtkPolyData* output, float* firstNormal)
+{
+  // Useful pointers
+  vtkDataSetAttributes* outputPD = output->GetPointData();
+
+  vtkPoints* outputPoints = output->GetPoints();
+  vtkCellArray* outputLines = output->GetLines();
+
+  vtkDataArray* rotation = outputPD->GetArray("Rotation");
+
+  vtkIdType numPts = outputPoints->GetNumberOfPoints();
+  if ( numPts > 1 )
+    {
+    if (this->ComputeVorticity)
+      {
+      vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
+      vtkFloatArray* normals = vtkFloatArray::New();
+      normals->SetNumberOfComponents(3);
+      normals->SetNumberOfTuples(numPts);
+        
+      lineNormalGenerator->GenerateSlidingNormals(outputPoints,
+                                                  outputLines,
+                                                  normals,
+                                                  firstNormal);
+      lineNormalGenerator->Delete();
+
+      int i, j;
+      float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
+      float velocity[3];
+      for(i=0; i<numPts; i++)
+        {
+        normals->GetTuple(i, normal);
+        normals->SetName("Normals");
+        vtkDataArray* newVectors = 
+          outputPD->GetVectors(this->InputVectorsSelection);
+        if (newVectors == NULL)
+          { // This should never happen.
+          vtkErrorMacro("Could not find output array.");
+          return;
+          }
+        newVectors->GetTuple(i, velocity);
+        // obtain two unit orthogonal vectors on the plane perpendicular to
+        // the streamline
+        for(j=0; j<3; j++) { local1[j] = normal[j]; }
+        length = vtkMath::Normalize(local1);
+        vtkMath::Cross(local1, velocity, local2);
+        vtkMath::Normalize(local2);
+        // Rotate the normal with theta
+        rotation->GetTuple(i, &theta);
+        costheta = cos(theta);
+        sintheta = sin(theta);
+        for(j=0; j<3; j++)
+          {
+          normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+          }
+        normals->SetTuple(i, normal);
+        }
+      outputPD->AddArray(normals);
+      outputPD->SetActiveAttribute("Normals", vtkDataSetAttributes::VECTORS);
+      normals->Delete();
+      }
+    }
+}
+
+
+// This is used by sub-classes in certain situations. It
+// does a lot less (for example, does not compute attributes)
+// than Integrate.
+void vtkStreamTracer::SimpleIntegrate(float seed[3], 
+                                      float lastPoint[3], 
+                                      float delt,
+                                      vtkInterpolatedVelocityField* func)
+{
+  vtkIdType numSteps = 0;
+  vtkIdType maxSteps = 20;
+  float error = 0;
+  float stepTaken;
+  float point1[3], point2[3];
+  float velocity[3];
+  float speed;
+
+  memcpy(point1, lastPoint, 3*sizeof(float));
+
+  // Create a new integrator, the type is the same as Integrator
+  vtkInitialValueProblemSolver* integrator = 
+    this->GetIntegrator()->NewInstance();
+  integrator->SetFunctionSet(func);
+
+  while ( 1 )
+    {
+
+    if (numSteps++ > maxSteps)
+      {
+      break;
+      }
+
+    // Calculate the next step using the integrator provided
+    // Break if the next point is out of bounds.
+    if (integrator->ComputeNextStep(point1, point2, 0, delt, 
+                                     stepTaken, 0, 0, 0, error) != 0)
+      {
+      memcpy(lastPoint, point2, 3*sizeof(float));
+      break;
+      }
+
+
+    // This is the next starting point
+    for(int i=0; i<3; i++)
+      {
+      point1[i] = point2[i];
+      }
+
+    // Interpolate the velocity at the next point
+    if ( !func->FunctionValues(point2, velocity) )
+      {
+      memcpy(lastPoint, point2, 3*sizeof(float));
+      break;
+      }
+
+    speed = vtkMath::Norm(velocity);
+
+    // Never call conversion methods if speed == 0
+    if ( (speed == 0) || (speed <= this->TerminalSpeed) )
+      {
+      break;
+      }
+
+    memcpy(point1, point2, 3*sizeof(float));
+    // End Integration
+    }
+
+  integrator->Delete();
 }
 
 void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)

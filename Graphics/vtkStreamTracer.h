@@ -308,9 +308,18 @@ protected:
                  vtkDataArray* seedSource, 
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
-                 float lastPoint[3]);
+                 float lastPoint[3],
+                 vtkInterpolatedVelocityField* func,
+                 int maxCellSize);
+  void SimpleIntegrate(float seed[3], 
+                       float lastPoint[3], 
+                       float delt,
+                       vtkInterpolatedVelocityField* func);
   int CheckInputs(vtkInterpolatedVelocityField*& func,
                   int* maxCellSize);
+  void GenerateNormals(vtkPolyData* output, float* firstNormal);
+
+  int GenerateNormalsInIntegrate;
 
   vtkSetStringMacro(InputVectorsSelection);
   char *InputVectorsSelection;
@@ -321,6 +330,8 @@ protected:
 
   static const float EPSILON;
   float TerminalSpeed;
+
+  float LastUsedTimeStep;
 
 //BTX
   struct IntervalInformation
