@@ -251,6 +251,8 @@ void vtkRenderer::Render(void)
   if ( this->PropArrayCount == 0 )
     {
     vtkDebugMacro( << "There are no visible props!" );
+    this->NumberOfPropsToRayCast = 0;
+    this->NumberOfPropsToRenderIntoImage = 0;
     }
   else
     {
