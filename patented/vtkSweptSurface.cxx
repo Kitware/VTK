@@ -107,7 +107,7 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin,
 
 void vtkSweptSurface::Execute()
 {
-  int i, numPts, numOutPts;
+  int i, numOutPts;
   vtkPointData *pd, *outPD;
   vtkScalars *inScalars, *newScalars;
   float inSpacing[3], inOrigin[3];
@@ -131,7 +131,7 @@ void vtkSweptSurface::Execute()
   outPD = output->GetPointData();
   
   inScalars = pd->GetScalars();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 ||
+  if ( input->GetNumberOfPoints() < 1 ||
   inScalars == NULL )
     {
     vtkErrorMacro(<<"No input scalars defined!");
@@ -264,15 +264,14 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
                                  float inOrigin[3], float inSpacing[3], 
                                  vtkScalars *inScalars, vtkScalars *outScalars)
 {
-  int i, j, k, ii;
+  int i, j, k;
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   float x[4], loc[4], newScalar, scalar;
   int kOffset, jOffset, ijk[3], idx;
-  float delta[3];
-  float xTrans[4], weights[8];
+  float weights[8];
   float *origin, *spacing;
-  float locP1[4], locP2[4], dx, dy, dz, t[3];
+  float locP1[4], locP2[4], t[3];
   float dxdi, dydi, dzdi, dxdj, dydj, dzdj, dxdk, dydk, dzdk;
   vtkMatrix4x4 *matrix;
   int indicies[6];
@@ -397,7 +396,6 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
 {
   int i, ii, n;
   float bounds[6], bbox[24], *fptr, workBounds[6];
-  float *result;
   float x[4], xTrans[4];
   float *origin, *spacing;
 
@@ -516,7 +514,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
     // position2 is [4] for GetPoint() call in GetRelativePosition
     float position2[4], orient2[3];
     vtkTransform *actorTransform = vtkTransform::New();
-    vtkTransform *t, *t2, *transform1, *transform2;
+    vtkTransform *t, *t2, *transform2;
 
     t = vtkTransform::New();
     t2 = vtkTransform::New();
@@ -575,7 +573,6 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
 
     for (transNum=0; transNum < (numTransforms-1); transNum++)
       {
-      transform1 = transform2;
       transform2 = this->Transforms->GetNextItem();
       transform2->GetMatrix(t->GetMatrixPointer());
       for (i = 0; i < 3; i++)
