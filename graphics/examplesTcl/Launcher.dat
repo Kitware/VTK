@@ -1,0 +1,35 @@
+Demo mace.tcl Mace 
+Chapter 2
+Topic Glyphs
+Topic Graphics
+BeginDescription 
+A simple example of using glyphs to create a mace
+EndDescription
+
+Demo vol.tcl Volume Rendering With UI
+Chapter 7
+Topic Volume Rendering
+BeginDescription
+A volume rendering example with controls for viewing slices and changing
+rendering parameters
+EndDescription
+
+Demo bottle.tcl Bottle
+Topic Modelling
+Topic Graphics
+
+Demo volSimple.tcl Simple Volume Rendering Example
+Chapter 7
+
+Demo OBBTree.tcl Oriented Bounding Box Tree
+Topic Graphics
+
+Demo hello.tcl Hello
+Topic Graphics
+Topic Modelling
+Chapter 3
+BeginDescription
+This example loads lines in the shape of the word hello, uses 
+implicit modelling to create a volume from these lines, then uses a contour
+filter to extract a surface from the volume.
+EndDescription
