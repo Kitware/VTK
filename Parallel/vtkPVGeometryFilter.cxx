@@ -107,10 +107,15 @@ void vtkPVGeometryFilter::Execute()
   if (input->IsA("vtkUnstructuredGrid"))
     {
     this->UnstructuredGridExecute((vtkUnstructuredGrid*)input);
+    // I think this filter is misbehaving.
+    this->GetOutput()->CheckAttributes();
     return;
     }
 
+  this->GetInput()->CheckAttributes();
   this->vtkDataSetSurfaceFilter::Execute();
+  // I think this filter is misbehaving.
+  this->GetOutput()->CheckAttributes();
   return;
 }
 
