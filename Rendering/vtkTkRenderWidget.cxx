@@ -957,8 +957,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #endif
 
 
-
-int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
+extern "C" {
+int VTK_TK_EXPORT vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
                          int argc, char **argv)
 {
   int status = 0;
@@ -1062,5 +1062,5 @@ int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp,
   Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height );
   return TCL_OK;
 }
-
+}
 #endif
