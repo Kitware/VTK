@@ -360,9 +360,7 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
     }
   else
     {
-#ifdef VTKJAVADEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
-#endif  
     return NULL;
     }
 }
