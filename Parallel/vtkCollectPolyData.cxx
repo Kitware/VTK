@@ -19,7 +19,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.3");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.4");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,6 @@ void vtkCollectPolyData::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int updateGhostLevel = output->GetUpdateGhostLevel();
   unsigned long size, tmp;
   int numProcs, myId;
   int idx;
