@@ -53,6 +53,8 @@ class vtkPointLocator;
 class vtkScalarTree;
 class vtkSynchronizedTemplates2D;
 class vtkSynchronizedTemplates3D;
+class vtkGridSynchronizedTemplates3D;
+class vtkRectilinearSynchronizedTemplates;
 
 class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
@@ -161,6 +163,8 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
   vtkSynchronizedTemplates2D *SynchronizedTemplates2D;
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
+  vtkGridSynchronizedTemplates3D *GridSynchronizedTemplates;
+  vtkRectilinearSynchronizedTemplates *RectilinearSynchronizedTemplates;
   
 private:
   vtkContourFilter(const vtkContourFilter&);  // Not implemented.

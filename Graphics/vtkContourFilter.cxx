@@ -19,26 +19,30 @@
 #include "vtkCellData.h"
 #include "vtkContourGrid.h"
 #include "vtkContourValues.h"
+#include "vtkCutter.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
+#include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearSynchronizedTemplates.h"
 #include "vtkSimpleScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkCutter.h"
-#include "vtkImageData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.116");
+vtkCxxRevisionMacro(vtkContourFilter, "1.117");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -60,6 +64,8 @@ vtkContourFilter::vtkContourFilter()
 
   this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
   this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
+  this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
+  this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
 }
 
 vtkContourFilter::~vtkContourFilter()
@@ -78,6 +84,8 @@ vtkContourFilter::~vtkContourFilter()
   this->SetInputScalarsSelection(NULL);
   this->SynchronizedTemplates2D->Delete();
   this->SynchronizedTemplates3D->Delete();
+  this->GridSynchronizedTemplates->Delete();
+  this->RectilinearSynchronizedTemplates->Delete();
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -123,9 +131,9 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
     }
 
   // handle 2D images
+  int i;
   if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT)
     {
-    int i;
     int dim = 3;
     int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     if (uExt[0] == uExt[1])
@@ -166,6 +174,46 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
         ProcessRequest(request,inputVector,outputVector);
       }
     } //if image data
+
+  // handle 3D RGrids
+  if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    // if 3D
+    if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
+      {
+      this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->RectilinearSynchronizedTemplates->SetValue(i,values[i]);
+        }
+      this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
+      this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
+      this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      return this->RectilinearSynchronizedTemplates->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    } //if 3D RGrid
+
+  // handle 3D SGrids
+  if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    // if 3D
+    if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
+      {
+      this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->GridSynchronizedTemplates->SetValue(i,values[i]);
+        }
+      this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
+      this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
+      this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      return this->GridSynchronizedTemplates->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    } //if 3D SGrid
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   return 1;
@@ -245,6 +293,46 @@ int vtkContourFilter::RequestData(
       }
     } //if image data
   
+  // handle 3D RGrids
+  if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    // if 3D
+    if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
+      {
+      this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->RectilinearSynchronizedTemplates->SetValue(i,values[i]);
+        }
+      this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
+      this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
+      this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      return this->RectilinearSynchronizedTemplates->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    } // if 3D Rgrid
+  
+  // handle 3D SGrids
+  if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    // if 3D
+    if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
+      {
+      this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->GridSynchronizedTemplates->SetValue(i,values[i]);
+        }
+      this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
+      this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
+      this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      return this->GridSynchronizedTemplates->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    } //if 3D SGrid
+
   vtkIdType cellId;
   int abortExecute=0;
   vtkIdList *cellPts;
