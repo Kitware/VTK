@@ -33,9 +33,6 @@ public:
   vtkTypeRevisionMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionToPiecewiseFunctionFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkSetObjectMacro(Input, vtkPiecewiseFunction);
-  vtkGetObjectMacro(Input, vtkPiecewiseFunction);
-  
   vtkSetMacro(PositionShift, float);
   vtkSetMacro(PositionScale, float);
   vtkSetMacro(ValueShift, float);
