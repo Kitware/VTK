@@ -1,4 +1,5 @@
 PROJECT(VTKTIFF)
+INCLUDE_REGULAR_EXPRESSION("^(tif|fax|port|uv|vtk|tconf|t4|mk).*$")
 
 # library object files common to compression and decompression
 SOURCE_FILES(common_SRCS 
