@@ -58,7 +58,6 @@ vtkImageRegion::vtkImageRegion()
   
   this->SetBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->ResetDefaultCoordinates(5);
   this->SetAspectRatio5d(0.0, 0.0, 0.0, 0.0, 0.0);
   this->SetOrigin5d(0.0, 0.0, 0.0, 0.0, 0.0);
 }
@@ -91,12 +90,6 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << this->Bounds[2] << ", " << this->Bounds[3] << ", ";
   os << this->Bounds[4] << ", " << this->Bounds[5] << ", ";
   os << this->Bounds[6] << ", " << this->Bounds[7] << ")\n";
-  
-  os << indent << "Default Coordinates: (";
-  os << this->DefaultCoordinates[0] << ", ";
-  os << this->DefaultCoordinates[1] << ", ";
-  os << this->DefaultCoordinates[2] << ", ";
-  os << this->DefaultCoordinates[3] << ")\n";
   
   os << indent << "ImageBounds: (";
   os << this->ImageBounds[0] << ", " << this->ImageBounds[1] << ", ";
@@ -512,7 +505,7 @@ void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
   coords[3] = coordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
+  coords[4] = this->Bounds[8];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -524,8 +517,8 @@ void *vtkImageRegion::GetVoidPointer3d(int coordinates[3])
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
+  coords[3] = this->Bounds[6];
+  coords[4] = this->Bounds[8];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -536,9 +529,9 @@ void *vtkImageRegion::GetVoidPointer2d(int coordinates[2])
   
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
-  coords[2] = this->DefaultCoordinates[2];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
+  coords[2] = this->Bounds[4];
+  coords[3] = this->Bounds[6];
+  coords[4] = this->Bounds[8];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -548,10 +541,10 @@ void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = coordinates[0];
-  coords[1] = this->DefaultCoordinates[1];
-  coords[2] = this->DefaultCoordinates[2];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
+  coords[1] = this->Bounds[2];
+  coords[2] = this->Bounds[4];
+  coords[3] = this->Bounds[6];
+  coords[4] = this->Bounds[8];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -603,7 +596,7 @@ void *vtkImageRegion::GetVoidPointer1d(int c0)
 }
 
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer5d()
+void *vtkImageRegion::GetVoidPointer()
 {
   int coords[VTK_IMAGE_DIMENSIONS];
 
@@ -612,58 +605,6 @@ void *vtkImageRegion::GetVoidPointer5d()
   coords[2] = this->Bounds[4];
   coords[3] = this->Bounds[6];
   coords[4] = this->Bounds[8];
-  
-  return this->GetVoidPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer4d()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-
-  coords[0] = this->Bounds[0];
-  coords[1] = this->Bounds[2];
-  coords[2] = this->Bounds[4];
-  coords[3] = this->Bounds[6];
-  coords[4] = this->DefaultCoordinates[4];
-  
-  return this->GetVoidPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer3d()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-
-  coords[0] = this->Bounds[0];
-  coords[1] = this->Bounds[2];
-  coords[2] = this->Bounds[4];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
-  
-  return this->GetVoidPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer2d()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = this->Bounds[0];
-  coords[1] = this->Bounds[2];
-  coords[2] = this->DefaultCoordinates[2];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
-  
-  return this->GetVoidPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer1d()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = this->Bounds[0];
-  coords[1] = this->DefaultCoordinates[1];
-  coords[2] = this->DefaultCoordinates[2];
-  coords[3] = this->DefaultCoordinates[3];
-  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -736,9 +677,6 @@ void vtkImageRegion::SetAxes(int *axes, int dim)
   this->Modified();
   
   // Change the coordinate system of the ivars.
-  vtkImageRegionChangeVectorCoordinateSystem(
-				     this->DefaultCoordinates, this->Axes,
-				     this->DefaultCoordinates, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->AspectRatio, this->Axes,
 					     this->AspectRatio, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->Origin, this->Axes,
@@ -768,25 +706,6 @@ void vtkImageRegion::GetAxes(int *axes, int dim)
 }
 
 
-//----------------------------------------------------------------------------
-// A helper function that sets the DefaultCoordinates to there default values.
-// Maybe DefaultCoordinates should be stored in an array.
-void vtkImageRegion::ResetDefaultCoordinates(int dim)
-{
-  if (dim > 0) 
-    this->DefaultCoordinates[0] = this->Bounds[0];
-  if (dim > 1) 
-    this->DefaultCoordinates[1] = this->Bounds[2];
-  if (dim > 2) 
-    this->DefaultCoordinates[2] = this->Bounds[4];
-  if (dim > 3)
-    this->DefaultCoordinates[3] = this->Bounds[6];
-  if (dim > 4)
-    this->DefaultCoordinates[4] = this->Bounds[8];
-}
-
-
-
 
 
 
@@ -803,7 +722,6 @@ void vtkImageRegion::SetBounds(int *bounds, int dim)
     {
     this->Bounds[idx] = bounds[idx];
     }
-  this->ResetDefaultCoordinates(dim);
   this->Modified();
 }
 
@@ -836,7 +754,6 @@ void vtkImageRegion::SetImageBounds(int *bounds, int dim)
     {
     this->ImageBounds[idx] = bounds[idx];
     }  
-  this->ResetDefaultCoordinates(dim);
   this->Modified();
 }
 

@@ -285,20 +285,6 @@ public:
   vtkImageRegionGetMacro(Increments, int);
   
   // Description:
-  // Set the current volume, image or line.  Used to disambiguate the
-  // 3d, 2d and 1d coordinates.
-  void SetDefaultCoordinate4(int v) {this->DefaultCoordinates[4] = v;};
-  int GetDefaultCoordinate4() {return this->DefaultCoordinates[4];};
-  void SetDefaultCoordinate3(int v) {this->DefaultCoordinates[3] = v;};
-  int GetDefaultCoordinate3() {return this->DefaultCoordinates[3];};
-  void SetDefaultCoordinate2(int v) {this->DefaultCoordinates[2] = v;};
-  int GetDefaultCoordinate2() {return this->DefaultCoordinates[2];};
-  void SetDefaultCoordinate1(int v) {this->DefaultCoordinates[1] = v;};
-  int GetDefaultCoordinate1() {return this->DefaultCoordinates[1];};
-  void SetDefaultCoordinate0(int v) {this->DefaultCoordinates[0] = v;};
-  int GetDefaultCoordinate0() {return this->DefaultCoordinates[0];};
-  
-  // Description:
   // Returns a pointer relative to the current volume, image or line.
   void *GetVoidPointer(int coords[5]){return this->GetVoidPointer5d(coords);};
   void *GetVoidPointer5d(int coordinates[5]);
@@ -315,12 +301,12 @@ public:
   void *GetVoidPointer1d(int c0);
   // Description:
   // Returns pointer at origin of current volume, image or line.
-  void *GetVoidPointer(){return this->GetVoidPointer5d();};
-  void *GetVoidPointer5d();
-  void *GetVoidPointer4d();
-  void *GetVoidPointer3d();
-  void *GetVoidPointer2d();
-  void *GetVoidPointer1d();
+  void *GetVoidPointer();
+  void *GetVoidPointer5d(){return this->GetVoidPointer();};
+  void *GetVoidPointer4d(){return this->GetVoidPointer();};
+  void *GetVoidPointer3d(){return this->GetVoidPointer();};
+  void *GetVoidPointer2d(){return this->GetVoidPointer();};
+  void *GetVoidPointer1d(){return this->GetVoidPointer();};
   
   // Description:
   // Different methods for setting the bounds.
@@ -411,7 +397,6 @@ public:
   
   void Allocate();
   void ReleaseData();
-  void ResetDefaultCoordinates(int dim);
   
   void MakeWritable();
   
@@ -444,7 +429,6 @@ public:
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int DataType;         // Remember the pixel type of this region.
-  int DefaultCoordinates[VTK_IMAGE_DIMENSIONS];
 
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.

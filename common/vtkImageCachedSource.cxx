@@ -137,18 +137,23 @@ void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
 {
   int coordinate4;
-  int *bounds;
+  int bounds[10];
   int min4, max4;
   
-  bounds = region->GetBounds5d();
+  region->GetBounds5d(bounds);
   min4 = bounds[8];
   max4 = bounds[9];
   
   for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
     {
-    region->SetDefaultCoordinate4(coordinate4);
+    bounds[8] = bounds[9] = coordinate4;
+    region->SetBounds5d(bounds);
     this->UpdateRegion4d(region);
     }
+  // restore original bounds
+  bounds[8] = min4;
+  bounds[9] = max4;
+  region->SetBounds5d(bounds);  
 }
 
 
@@ -159,18 +164,23 @@ void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
 {
   int coordinate3;
-  int *bounds;
+  int bounds[8];
   int min3, max3;
   
-  bounds = region->GetBounds4d();
+  region->GetBounds4d(bounds);
   min3 = bounds[6];
   max3 = bounds[7];
   
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
-    region->SetDefaultCoordinate3(coordinate3);
+    bounds[6] = bounds[7] = coordinate3;
+    region->SetBounds4d(bounds);
     this->UpdateRegion3d(region);
     }
+  // restore original bounds
+  bounds[6] = min3;
+  bounds[7] = max3;
+  region->SetBounds4d(bounds);  
 }
 
 
@@ -181,18 +191,23 @@ void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
 {
   int coordinate2;
-  int *bounds;
+  int bounds[6];
   int min2, max2;
   
-  bounds = region->GetBounds3d();
+  region->GetBounds3d(bounds);
   min2 = bounds[4];
   max2 = bounds[5];
   
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
-    region->SetDefaultCoordinate2(coordinate2);
+    bounds[4] = bounds[5] = coordinate2;
+    region->SetBounds3d(bounds);
     this->UpdateRegion2d(region);
     }
+  // restore original bounds
+  bounds[4] = min2;
+  bounds[5] = max2;
+  region->SetBounds3d(bounds);  
 }
 
 
@@ -203,18 +218,23 @@ void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion2d(vtkImageRegion *region)
 {
   int coordinate1;
-  int *bounds;
+  int bounds[4];
   int min1, max1;
   
-  bounds = region->GetBounds2d();
+  region->GetBounds2d(bounds);
   min1 = bounds[2];
   max1 = bounds[3];
   
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
-    region->SetDefaultCoordinate1(coordinate1);
+    bounds[2] = bounds[3] = coordinate1;
+    region->SetBounds2d(bounds);
     this->UpdateRegion1d(region);
     }
+  // restore original bounds
+  bounds[2] = min1;
+  bounds[3] = max1;
+  region->SetBounds2d(bounds);  
 }
 
 
