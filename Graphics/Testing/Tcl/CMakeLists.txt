@@ -95,6 +95,7 @@ IF (VTK_USE_RENDERING)
       testQuadricDecimation
       TestQuadricClustering
       TestStructuredGrid
+      TestTriangleFilter
       TransformConcatenation
       TransformCoverage
       TransformPolyData
