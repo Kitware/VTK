@@ -93,13 +93,11 @@ void vtkPolyDataSource::SetOutput(vtkPolyData *output)
 //----------------------------------------------------------------------------
 void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  int piece, numPieces;
-  int ghostLevel, numGhostLevels;
+  int piece, numPieces, ghostLevel;
   vtkPolyData *output = (vtkPolyData *)data;
   int idx;
 
-  output->GetUpdateExtent(piece, numPieces);
-  output->GetUpdateExtent(ghostLevel, numGhostLevels);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
   
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
@@ -107,7 +105,7 @@ void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
     return;
     }
   
-  if (ghostLevel < 0 || ghostLevel >= numGhostLevels)
+  if (ghostLevel < 0)
     {
     return;
     }
@@ -117,8 +115,7 @@ void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
     {
     if (this->Inputs[idx])
       {
-      this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
-      this->Inputs[idx]->SetUpdateExtent(ghostLevel, numGhostLevels);
+      this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
       }
     }
   

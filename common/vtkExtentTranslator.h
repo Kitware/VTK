@@ -87,6 +87,8 @@ public:
   vtkGetMacro(Piece,int);
   vtkSetMacro(NumberOfPieces,int);
   vtkGetMacro(NumberOfPieces,int);
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
 
 protected:
   vtkExtentTranslator();
@@ -103,6 +105,7 @@ protected:
 
   int Piece;
   int NumberOfPieces;
+  int GhostLevel;
   int Extent[6];
   int WholeExtent[6];
 

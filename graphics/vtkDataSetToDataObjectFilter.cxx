@@ -402,7 +402,7 @@ void vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(
   if (this->GetInput())
     {
     // what should we do here?
-    this->GetInput()->SetUpdateExtent(0, 1);
+    this->GetInput()->SetUpdateExtent(0, 1, 0);
     }
 }
 

@@ -74,6 +74,7 @@ void vtkAttributeDataToFieldDataFilter::Execute()
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
   vtkScalars *scalars;
   vtkVectors *vectors;
+  vtkGhostLevels *ghostLevels;
   vtkTensors *tensors;
   vtkNormals *normals;
   vtkTCoords *tcoords;
@@ -86,7 +87,8 @@ void vtkAttributeDataToFieldDataFilter::Execute()
   output->CopyStructure( input );
 
   if ( inPD->GetScalars() || inPD->GetVectors() || inPD->GetTensors() ||
-       inPD->GetNormals() || inPD->GetTCoords() || inPD->GetFieldData() )
+       inPD->GetNormals() || inPD->GetTCoords() || inPD->GetFieldData() ||
+       inPD->GetGhostLevels() )
     {
     vtkFieldData *fd=vtkFieldData::New();
 
@@ -102,6 +104,12 @@ void vtkAttributeDataToFieldDataFilter::Execute()
       fd->SetArrayName(arrayNum++, "PointVectors");
       }
 
+    if ( ghostLevels=inPD->GetGhostLevels() )
+      {
+      fd->SetArray(arrayNum, ghostLevels->GetData());
+      fd->SetArrayName(arrayNum++, "PointGhostLevels");
+      }
+    
     if ( tensors=inPD->GetTensors() )
       {
       fd->SetArray(arrayNum, tensors->GetData());
@@ -139,7 +147,8 @@ void vtkAttributeDataToFieldDataFilter::Execute()
     }
   
   if ( inCD->GetScalars() || inCD->GetVectors() || inCD->GetTensors() ||
-       inCD->GetNormals() || inCD->GetTCoords() || inCD->GetFieldData() )
+       inCD->GetNormals() || inCD->GetTCoords() || inCD->GetFieldData() ||
+       inCD->GetGhostLevels() )
     {
     vtkFieldData *fd=vtkFieldData::New();
     arrayNum = 0;
@@ -156,6 +165,12 @@ void vtkAttributeDataToFieldDataFilter::Execute()
       fd->SetArrayName(arrayNum++, "CellVectors");
       }
 
+    if ( ghostLevels=inCD->GetGhostLevels() )
+      {
+      fd->SetArray(arrayNum, ghostLevels->GetData());
+      fd->SetArrayName(arrayNum++, "CellGhostLevels");
+      }
+    
     if ( tensors=inCD->GetTensors() )
       {
       fd->SetArray(arrayNum, tensors->GetData());

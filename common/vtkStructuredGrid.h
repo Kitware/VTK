@@ -131,7 +131,7 @@ public:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
-  void SetUpdateExtent(int piece, int numPieces);
+  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
 
   // Description:
   // Call superclass method to avoid hiding

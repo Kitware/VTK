@@ -69,6 +69,8 @@ vtkExtentTranslator::vtkExtentTranslator()
   this->Piece = 0;
   this->NumberOfPieces = 0;
   
+  this->GhostLevel = 0;
+  
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0; 
   this->Extent[1] = this->Extent[3] = this->Extent[5] = -1; 
   this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0; 
@@ -180,6 +182,8 @@ void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Piece: " << this->Piece << endl;
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
 
+  os << indent << "GhostLevel: " << this->GhostLevel << endl;
+  
   os << indent << "Extent: " << this->Extent[0] << ", " 
      << this->Extent[1] << ", " << this->Extent[2] << ", " 
      << this->Extent[3] << ", " << this->Extent[4] << ", " 

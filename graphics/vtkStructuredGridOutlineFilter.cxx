@@ -218,10 +218,10 @@ void vtkStructuredGridOutlineFilter::Execute()
 int vtkStructuredGridOutlineFilter::GetNumberOfStreamDivisions()
 {
   vtkPolyData *output = this->GetOutput();
-  int piece, numPieces;
+  int piece, numPieces, ghostLevel;
   int start, end;
 
-  output->GetUpdateExtent(piece, numPieces);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
   if (piece >= 12)
     { // we do not support more than 12 pieces, so do not execute.
     return 0;
@@ -241,11 +241,11 @@ int vtkStructuredGridOutlineFilter::ComputeDivisionExtents(vtkDataObject *out,
 {
   vtkStructuredGrid *input = this->GetInput();
   vtkPolyData *output = (vtkPolyData *)out;
-  int piece, numPieces;
+  int piece, numPieces, ghostLevel;
   int start, end;
   int *ext, xMax, yMax, zMax;
 
-  output->GetUpdateExtent(piece, numPieces);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
 
   // special case: No output for a piece.
   if (piece >= 12)
@@ -360,7 +360,8 @@ void vtkStructuredGridOutlineFilter::ConvertPiece(int piece, int numPieces,
     start = end = piece;
     return;
     }
-  start = piece * 12 / numPieces;
+  start = piece *
+   / numPieces;
   end = ((piece+1) * 12 / numPieces) - 1;
 }
 

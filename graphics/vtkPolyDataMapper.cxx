@@ -58,6 +58,7 @@ vtkPolyDataMapper::vtkPolyDataMapper()
 {
   this->Piece = 0;
   this->NumberOfPieces = 1;
+  this->GhostLevel = 0;
 }
 
 
@@ -85,7 +86,8 @@ void vtkPolyDataMapper::Update()
 {
   if (this->GetInput() ) 
     {
-    this->GetInput()->SetUpdateExtent(this->Piece, this->NumberOfPieces);
+    this->GetInput()->SetUpdateExtent(this->Piece, this->NumberOfPieces,
+				      this->GhostLevel);
     }
   this->vtkMapper::Update();
 }
@@ -97,4 +99,5 @@ void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Piece : " << this->Piece << endl;
   os << indent << "NumberOfPieces : " << this->NumberOfPieces << endl;
+  os << indent << "GhostLevel: " << this->GhostLevel << endl;
 }

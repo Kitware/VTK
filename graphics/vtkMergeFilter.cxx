@@ -355,7 +355,7 @@ void vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(data))
     input = (vtkDataSet *)(this->Inputs[idx]);
     if (input)
       {
-      input->SetUpdateExtent(0, 1);
+      input->SetUpdateExtent(0, 1, 0);
       }
     }
 }

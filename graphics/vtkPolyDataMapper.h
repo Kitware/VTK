@@ -79,7 +79,12 @@ public:
   vtkGetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-
+  
+  // Description:
+  // Set the number of ghost cells to return.
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
+  
 protected:  
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};
@@ -88,9 +93,7 @@ protected:
 
   int Piece;
   int NumberOfPieces;
-
+  int GhostLevel;
 };
 
 #endif
-
-

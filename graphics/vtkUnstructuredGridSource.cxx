@@ -91,11 +91,11 @@ void vtkUnstructuredGridSource::SetOutput(vtkUnstructuredGrid *output)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridSource::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  int piece, numPieces;
+  int piece, numPieces, ghostLevel;
   vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)data;
   int idx;
 
-  output->GetUpdateExtent(piece, numPieces);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
     
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
@@ -108,7 +108,7 @@ void vtkUnstructuredGridSource::ComputeInputUpdateExtents(vtkDataObject *data)
     {
     if (this->Inputs[idx])
       {
-      this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
+      this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
       }
     }
 }

@@ -91,6 +91,7 @@ void vtkGlyph3D::Execute()
   vtkPointData *pd;
   vtkScalars *inScalars;
   vtkVectors *inVectors;
+  vtkGhostLevels *inGhostLevels;
   vtkNormals *inNormals, *sourceNormals;
   vtkDataArray *newScalarsData, *inScalarsData;
   int numPts, numSourcePts, numSourceCells;
@@ -127,6 +128,7 @@ void vtkGlyph3D::Execute()
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
+  inGhostLevels = pd->GetGhostLevels();
 
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
@@ -187,7 +189,7 @@ void vtkGlyph3D::Execute()
         numSourcePts += this->GetSource(i)->GetNumberOfPoints();
         numSourceCells += this->GetSource(i)->GetNumberOfCells();
         if ( !(sourceNormals = this->GetSource(i)->GetPointData()->GetNormals()) )
-	  {
+          {
           haveNormals = 0;
           }
         }
@@ -251,7 +253,9 @@ void vtkGlyph3D::Execute()
   // Traverse all Input points, transforming Source points and copying
   // point attributes.
   //
-  for (ptIncr=0, inPtId=0; inPtId < numPts; inPtId++, ptIncr += numSourcePts)
+
+  ptIncr=0;
+  for (inPtId=0; inPtId < numPts; inPtId++)
     {
     scalex = scaley = scalez = 1.0;
     if ( ! (inPtId % 10000) )
@@ -259,7 +263,7 @@ void vtkGlyph3D::Execute()
       this->UpdateProgress ((float)inPtId/numPts);
       if (this->GetAbortExecute())
         {
-        break;
+	      break;
         }
       }
 
@@ -268,12 +272,12 @@ void vtkGlyph3D::Execute()
       {
       s = inScalars->GetScalar(inPtId);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
-	   this->ScaleMode == VTK_DATA_SCALING_OFF )
-	{
+	        this->ScaleMode == VTK_DATA_SCALING_OFF )
+        {
         scalex = scaley = scalez = s;
         }
       }
-
+    
     if ( haveVectors )
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
@@ -296,21 +300,21 @@ void vtkGlyph3D::Execute()
         scalex = scaley = scalez = vMag;
         }
       }
-
+    
     // Clamp data scale if enabled
     if ( this->Clamping )
       {
       scalex = (scalex < this->Range[0] ? this->Range[0] :
-               (scalex > this->Range[1] ? this->Range[1] : scalex));
+                (scalex > this->Range[1] ? this->Range[1] : scalex));
       scalex = (scalex - this->Range[0]) / den;
       scaley = (scaley < this->Range[0] ? this->Range[0] :
-               (scaley > this->Range[1] ? this->Range[1] : scaley));
+                (scaley > this->Range[1] ? this->Range[1] : scaley));
       scaley = (scaley - this->Range[0]) / den;
       scalez = (scalez < this->Range[0] ? this->Range[0] :
-               (scalez > this->Range[1] ? this->Range[1] : scalez));
+                (scalez > this->Range[1] ? this->Range[1] : scalez));
       scalez = (scalez - this->Range[0]) / den;
       }
-
+    
     // Compute index into table of glyphs
     if ( this->IndexMode == VTK_INDEXING_OFF )
       {
@@ -326,12 +330,12 @@ void vtkGlyph3D::Execute()
         {
         value = vMag;
         }
-
+      
       index = (int) ((float)(value - this->Range[0]) * 
-		     (numberOfSources-1) / den);
+              (numberOfSources-1) / den);
       index = (index < 0 ? 0 :
-	(index >= numberOfSources ? (numberOfSources-1) : index));
-
+              (index >= numberOfSources ? (numberOfSources-1) : index));
+      
       if ( this->GetSource(index) != NULL )
         {
         sourcePts = this->GetSource(index)->GetPoints();
@@ -340,16 +344,22 @@ void vtkGlyph3D::Execute()
         numSourceCells = this->GetSource(index)->GetNumberOfCells();
         }
       }
-
+    
     // Make sure we're not indexing into empty glyph
     if ( this->GetSource(index) == NULL )
       {
       continue;
       }
 
+    // Check ghost points.
+    if (inGhostLevels && inGhostLevels->GetGhostLevel(inPtId) > 0)
+      {
+      continue;
+      }
+    
     // Now begin copying/transforming glyph
     trans->Identity();
-
+    
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
@@ -362,11 +372,11 @@ void vtkGlyph3D::Execute()
         }
       output->InsertNextCell(cell->GetCellType(),pts);
       }
-
+    
     // translate Source to Input point
     x = input->GetPoint(inPtId);
     trans->Translate(x[0], x[1], x[2]);
-
+    
     if ( haveVectors )
       {
       // Copy Input vector
@@ -385,15 +395,15 @@ void vtkGlyph3D::Execute()
             }
           }
         else
-         {
-         vNew[0] = (v[0]+vMag) / 2.0;
-         vNew[1] = v[1] / 2.0;
-         vNew[2] = v[2] / 2.0;
-         trans->RotateWXYZ((float)180.0,vNew[0],vNew[1],vNew[2]);
-         }
+          {
+          vNew[0] = (v[0]+vMag) / 2.0;
+          vNew[1] = v[1] / 2.0;
+          vNew[2] = v[2] / 2.0;
+          trans->RotateWXYZ((float)180.0,vNew[0],vNew[1],vNew[2]);
+          }
         }
       }
-
+    
     // determine scale factor from scalars if appropriate
     if ( inScalars )
       {
@@ -407,7 +417,7 @@ void vtkGlyph3D::Execute()
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
         {
-        for (i=0; i < numSourcePts; i++)
+	      for (i=0; i < numSourcePts; i++)
           {
           outputPD->CopyTuple(inScalarsData, newScalarsData, inPtId, ptIncr+i);
           }
@@ -420,7 +430,7 @@ void vtkGlyph3D::Execute()
         newScalars->InsertScalar(i+ptIncr, vMag);
         }
       }
-
+    
     // scale data if appropriate
     if ( this->Scaling )
       {
@@ -434,7 +444,7 @@ void vtkGlyph3D::Execute()
         scaley *= this->ScaleFactor;
         scalez *= this->ScaleFactor;
         }
-
+      
       if ( scalex == 0.0 )
         {
         scalex = 1.0e-10;
@@ -449,14 +459,15 @@ void vtkGlyph3D::Execute()
         }
       trans->Scale(scalex,scaley,scalez);
       }
-
+    
     // multiply points and normals by resulting matrix
     trans->MultiplyPoints(sourcePts,newPts);
+    
     if ( haveNormals )
       {
       trans->MultiplyNormals(sourceNormals,newNormals);
       }
-
+    
     // Copy point data from source (if possible)
     if ( pd ) 
       {
@@ -465,8 +476,10 @@ void vtkGlyph3D::Execute()
         outputPD->CopyData(pd,i,ptIncr+i);
         }
       }
-    }
-
+    ptIncr += numSourcePts;
+    } 
+  
+  
   //
   // Update ourselves and release memory
   //
@@ -615,7 +628,8 @@ void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
 
   output = output;
   outPd = this->GetOutput();
-  this->GetSource()->SetUpdateExtent(0, 1);
+  this->GetSource()->SetUpdateExtent(0, 1, 0);
   this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
-                                    outPd->GetUpdateNumberOfPieces());
+                                    outPd->GetUpdateNumberOfPieces(),
+				    outPd->GetUpdateGhostLevel());
 }

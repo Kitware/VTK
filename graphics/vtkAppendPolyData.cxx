@@ -674,11 +674,11 @@ void vtkAppendPolyData::Execute()
 //----------------------------------------------------------------------------
 void vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  int piece, numPieces;
+  int piece, numPieces, ghostLevel;
   vtkPolyData *output = (vtkPolyData *)data;
   int idx;
 
-  output->GetUpdateExtent(piece, numPieces);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
   
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
@@ -699,11 +699,11 @@ void vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
       {
       if (this->ParallelStreaming)
         {
-        this->Inputs[idx]->SetUpdateExtent(piece + idx, numPieces);
+        this->Inputs[idx]->SetUpdateExtent(piece + idx, numPieces, ghostLevel);
         }
       else
         {
-        this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
+        this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
         }
       }
     }

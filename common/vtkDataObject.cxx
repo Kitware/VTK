@@ -144,6 +144,7 @@ void vtkDataObject::Initialize()
   this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
   this->Piece = -1;
   this->NumberOfPieces = 0;
+  this->GhostLevel = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -310,6 +311,7 @@ void vtkDataObject::UpdateData()
       // The alternative is to have it in every execute method.
       this->Piece = this->UpdatePiece;
       this->NumberOfPieces = this->UpdateNumberOfPieces;
+      this->GhostLevel = this->UpdateGhostLevel;
       } 
     } 
 }

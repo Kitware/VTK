@@ -978,7 +978,8 @@ void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
   output = output;
   outPd = this->GetOutput();
   this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
-                                    outPd->GetUpdateNumberOfPieces());
+                                    outPd->GetUpdateNumberOfPieces(),
+				    outPd->GetUpdateGhostLevel());
 }
 
 void vtkGeometryFilter::ExecuteInformation()

@@ -465,7 +465,7 @@ void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents(
     // what should we do here?
     if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)
       {
-      this->GetInput()->SetUpdateExtent(0, 1);
+      this->GetInput()->SetUpdateExtent(0, 1, 0);
       }
     }
 }

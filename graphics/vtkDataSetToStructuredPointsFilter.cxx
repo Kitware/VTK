@@ -81,7 +81,7 @@ void vtkDataSetToStructuredPointsFilter::ComputeInputUpdateExtents(
     return;
     }
   
-  input->SetUpdateExtent(0, 1);
+  input->SetUpdateExtent(0, 1, 0);
 }
 
     

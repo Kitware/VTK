@@ -345,8 +345,8 @@ public:
   // Description:
   // For streaming.  User/next filter specifies which piece they want updated.
   // The source of this poly data has to return exactly this piece.
-  void SetUpdateExtent(int piece, int numPieces);
-  void GetUpdateExtent(int &piece, int &numPieces);
+  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
+  void GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel);
 
   // Description:
   // We need this here to avoid hiding superclass method
@@ -367,6 +367,10 @@ public:
   vtkGetMacro( Piece, int );
   vtkGetMacro( NumberOfPieces, int );
 
+  // Description:
+  // Get the ghost level.
+  vtkGetMacro( GhostLevel, int );
+  
   // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size

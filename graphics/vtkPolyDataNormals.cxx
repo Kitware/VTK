@@ -432,7 +432,7 @@ void vtkPolyDataNormals::Execute()
   output->GetCellData()->SetGhostLevels(input->GetCellData()->GetGhostLevels());
 
   // Remove any ghost cells we inserted.
-  if (ghostLevel > 0)
+  if (ghostLevel > 0 && output->GetCellData()->GetGhostLevels())
     {
     rmGhostCells = vtkRemoveGhostCells::New();
     ghost = vtkPolyData::New();

@@ -826,7 +826,7 @@ void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
 {
   vtkImageData *input = this->GetInput();
   vtkPolyData *output = (vtkPolyData *)out;
-  int piece, numPieces;
+  int piece, numPieces, ghostLevel;
   int *wholeExt;
   int ext[6];
   vtkExtentTranslator *translator = input->GetExtentTranslator();
@@ -840,7 +840,7 @@ void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
   wholeExt = input->GetWholeExtent();
 
   // Get request from output
-  output->GetUpdateExtent(piece, numPieces);
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
 
   // Start with the whole grid.
   input->GetWholeExtent(ext);  

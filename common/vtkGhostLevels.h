@@ -88,6 +88,14 @@ public:
   // Given a list of pt ids, return an array of ghost levels.
   void GetGhostLevels(vtkIdList *ptId, vtkGhostLevels *fn);
 
+  // Description:
+  // Specify the number of ghost levels for this object to hold.
+  void SetNumberOfGhostLevels(int number) 
+    {this->Data->SetNumberOfTuples(number);};
+
+  // Description:
+  // Return number of ghost levels in the array.
+  int GetNumberOfGhostLevels() {return this->Data->GetNumberOfTuples();};
 protected:
   vtkGhostLevels();
   ~vtkGhostLevels() {};
