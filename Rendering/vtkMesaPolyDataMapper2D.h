@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWin32PolyDataMapper2D - 2D PolyData support for windows
+// .NAME vtkMesaPolyDataMapper2D - 2D PolyData support for Mesa
 // .SECTION Description
-// vtkWin32PolyDataMapper2D provides 2D PolyData annotation support for 
-// vtk under windows.  Normally the user should use vtkPolyDataMapper2D 
+// vtkMesaPolyDataMapper2D provides 2D PolyData annotation support for 
+// vtk under Mesa.  Normally the user should use vtkPolyDataMapper2D 
 // which in turn will use this class.
 
 // .SECTION See Also
