@@ -236,13 +236,13 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
 
+IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+  SET_TARGET_PROPERTIES(vtkCommon PROPERTIES LINK_FLAGS "-init _oft_initCom")
+ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+
 IF (UNIX)
   TARGET_LINK_LIBRARIES(vtkCommon ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
 ENDIF (UNIX)
-
-IF (APPLE)
-  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initCom -framework Carbon")
-ENDIF (APPLE)
 
 # Allow the user to customize their build with some local options
 #

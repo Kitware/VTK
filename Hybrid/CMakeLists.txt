@@ -77,11 +77,11 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 
-IF (APPLE)
-  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initHyb")
-ENDIF (APPLE)
-
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
+
+IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+  SET_TARGET_PROPERTIES(vtkHybrid PROPERTIES LINK_FLAGS "-init _oft_initHyb")
+ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
 #

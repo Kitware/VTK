@@ -176,11 +176,11 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 
-IF (APPLE)
-  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initGra")
-ENDIF (APPLE)
-
 ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
+
+IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+  SET_TARGET_PROPERTIES(vtkGraphics PROPERTIES LINK_FLAGS "-init _oft_initGra")
+ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
 #
