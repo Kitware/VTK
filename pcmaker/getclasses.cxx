@@ -446,7 +446,7 @@ void makeMakefile(CPcmakerDlg *vals)
   MakeForce(fname);
 
   // set up the progress indicator
-  total = 2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h;
+  total = 1 + 2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h;
   if (strlen(vals->m_WhereJDK) > 1)
     {
     total = total + num_concrete + num_abstract + num_abstract_h + num_concrete_h;
@@ -588,7 +588,10 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 	  vals->m_WhereVTK);
   fprintf(fp,"   $(BuildCmds)\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx \"$(OUTDIR)\"\n");
+  sprintf(file,"%s\\vtkdll\\vtkPCForce.cxx",vals->m_WhereBuild);
+  OutputDepends(file,fp,vals->m_WhereVTK);
+  vals->m_Progress.OffsetPos(1);
+  fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx $(DEPENDS) \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) vtkPCForce.cxx\n\n");
   fprintf(fp,"\"$(OUTDIR)\\vtkdll.obj\" : %s\\vtkdll\\vtkdll.cpp \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
@@ -887,7 +890,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
     OutputDepends(file,fp,vals->m_WhereVTK);
-    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : %s\\graphics\\vtkTkRenderWidget.cxx $(DEPEND) \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : %s\\graphics\\vtkTkRenderWidget.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
     }

@@ -4,8 +4,8 @@
 #include <fstream.h>
 #include <stdio.h>
 
-static char depends[100][256];
-static char names[100][256];
+static char depends[400][256];
+static char names[400][256];
 static int  num;
 
 void GetDepends(char *file, const char *vtkHome);
