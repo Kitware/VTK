@@ -168,7 +168,7 @@ vtkLargeInteger::vtkLargeInteger(const vtkLargeInteger& n)
 
 vtkLargeInteger::~vtkLargeInteger(void)
 {
-  delete this->Number;
+  delete []this->Number;
 }
 
 char vtkLargeInteger::CastToChar(void) const
@@ -406,7 +406,7 @@ void vtkLargeInteger::Expand(unsigned int n)
       {
       new_number[i] = this->Number[i];
       }
-    delete this->Number;
+    delete []this->Number;
     this->Number = new_number;
     this->Max = n;
     }
