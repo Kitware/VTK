@@ -23,13 +23,13 @@
 #define __vtkImageThreshold_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageThreshold : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageThreshold *New();
-  vtkTypeRevisionMacro(vtkImageThreshold,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -109,10 +109,14 @@ protected:
   
   int OutputScalarType;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int extent[6], int id);
+
 private:
   vtkImageThreshold(const vtkImageThreshold&);  // Not implemented.
   void operator=(const vtkImageThreshold&);  // Not implemented.
