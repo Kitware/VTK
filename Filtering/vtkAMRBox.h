@@ -102,14 +102,6 @@ public:
 
 };
 
-struct vtkAMRLevelInformation
-{
-  unsigned int Level;
-  unsigned int DataSetId;
-  vtkAMRBox Box;
-};
-
-
 #endif
 
 
