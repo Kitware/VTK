@@ -40,6 +40,7 @@ vtkLegendBoxActor legend
     legend SetEntryString 1 "Second entry"
     legend SetEntrySymbol 2 [gs3 GetOutput]
     legend SetEntryString 2 "Third entry"
+    eval legend SetEntryColor 2 [gs3 GetColor]
     legend SetEntrySymbol 3 [gs4 GetOutput]
     legend SetEntryString 3 "Fourth entry"
     legend SetEntrySymbol 4 [gs5 GetOutput]
