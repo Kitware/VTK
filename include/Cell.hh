@@ -21,11 +21,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // cases visualization datasets may explicitly represent cells (e.g., 
 // vlPolyData, vlUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vlStructuredPoints).
+// .SECTION Caveats
+// The #define parameter MAX_CELL_SIZE represents the maximum number of points
+// that a cell can have. This parameter is used throughout the code to specify
+// sizes of arrays and other structures. As a programmer you must make sure
+// that you do not create cells with more than this number of points. (The 
+// problem usually comes in with variable length objects like polylines, 
+// triangle strips, or polygons).
 
 #ifndef __vlCell_h
 #define __vlCell_h
 
-#define MAX_CELL_SIZE 128
+#define MAX_CELL_SIZE 512
 #define TOL 1.e-05 // Tolerance for geometric calculation
 
 #include "Object.hh"
