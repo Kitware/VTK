@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.18");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.19");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -72,8 +72,14 @@ int vtkImageAlgorithm::RequestData(
   vtkInformation *outInfo = 
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-
+  if (outInfo)
+    {
+    this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+    }
+  else
+    {
+    this->ExecuteData(NULL);
+    }
   return 1;
 }
 

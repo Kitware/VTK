@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.29");
+vtkCxxRevisionMacro(vtkImageExport, "1.30");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -106,6 +106,18 @@ void vtkImageExport::SetExportVoidPointer(void *ptr)
     }
   this->ExportVoidPointer = ptr;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// This is the superclasses style of Execute method.  Convert it into
+// an imaging style Execute method.
+int vtkImageExport::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* vtkNotUsed( outputVector ))
+{
+  // we are the end of the pipeline, we do nothing
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -20,7 +20,7 @@ proc TestOne {cname} {
 
    $cname b 
 
-   if {[b IsA "vtkAlgorithm"] && ! [b IsA "vtkBMPReader"] && ! [b IsA "vtkImageExport"] && ! [b IsA "vtkOpenGLTexture"]} {
+   if {[b IsA "vtkAlgorithm"]} {
         catch {b Update}
 	if {[catch {b SetInput emptyPD}] == 0} {
             catch {b Update}

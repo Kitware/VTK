@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.49");
+vtkCxxRevisionMacro(vtkBMPReader, "1.50");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -434,13 +434,19 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   // read the data row by row
   if (self->GetFileDimensionality() == 3)
     {
-    self->OpenAndSeekFile(dataExtent,0);
+    if (!self->OpenAndSeekFile(dataExtent,0))
+      {
+      return;
+      }
     }
   for (idx2 = dataExtent[4]; idx2 <= dataExtent[5]; ++idx2)
     {
     if (self->GetFileDimensionality() == 2)
       {
-      self->OpenAndSeekFile(dataExtent,idx2);
+      if (!self->OpenAndSeekFile(dataExtent,idx2))
+        {
+        return;
+        }
       }
     outPtr1 = outPtr2;
     for (idx1 = dataExtent[2]; 
@@ -516,6 +522,10 @@ void vtkBMPReader::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
 
+  if (this->UpdateExtentIsEmpty(output))
+    {
+    return;
+    }
   if (this->InternalFileName == NULL)
     {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");

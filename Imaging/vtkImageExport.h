@@ -150,6 +150,11 @@ protected:
   vtkImageExport();
   ~vtkImageExport();
   
+  // This is called by the superclass.
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
+
   virtual void UpdateInformationCallback();
   virtual int PipelineModifiedCallback();
   virtual void UpdateDataCallback();  
