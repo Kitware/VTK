@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.132");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.132.2.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -615,6 +615,12 @@ void vtkRenderWindow::DoStereoRender()
   this->StereoUpdate();
   if (this->StereoType != VTK_STEREO_RIGHT)
     { // render the left eye
+    vtkRenderer *aren;
+    for (this->Renderers->InitTraversal(); 
+         (aren = this->Renderers->GetNextItem()); )
+      {
+      aren->GetActiveCamera()->SetLeftEye(1);
+      }
     this->Renderers->Render();
     }
 
@@ -623,6 +629,12 @@ void vtkRenderWindow::DoStereoRender()
     this->StereoMidpoint();
     if (this->StereoType != VTK_STEREO_LEFT)
       { // render the right eye
+    vtkRenderer *aren;
+    for (this->Renderers->InitTraversal(); 
+         (aren = this->Renderers->GetNextItem()); )
+      {
+      aren->GetActiveCamera()->SetLeftEye(0);
+      }
       this->Renderers->Render();
       }
     this->StereoRenderComplete();

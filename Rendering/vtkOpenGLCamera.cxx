@@ -33,7 +33,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.57.2.1");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -198,19 +198,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   if ((ren->GetRenderWindow())->GetErase())
     {
     ren->Clear();
-    }
-
-  // if we have a stereo renderer, draw other eye next time 
-  if (this->Stereo)
-    {
-    if (this->LeftEye)
-      {
-      this->LeftEye = 0;
-      }
-    else
-      {
-      this->LeftEye = 1;
-      }
     }
 
   matrix->Delete();
