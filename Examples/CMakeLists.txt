@@ -1,3 +1,4 @@
 IF (VTK_USE_PARALLEL)
    SUBDIRS(ParallelProcessing)
+   SUBDIRS(Build)
 ENDIF (VTK_USE_PARALLEL)
