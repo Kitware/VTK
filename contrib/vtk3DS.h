@@ -10,13 +10,6 @@ typedef float Vector[3];
 #define Y 1
 #define Z 2
 
-/* Transformation matrix */
-typedef float Matrix[4][4];
-
-static void vect_init (Vector v, float x, float y, float z);
-static void mat_identity (Matrix mat);
-static float mat_inv (Matrix mat1, Matrix mat2);
-
 #endif
 /* Internal bounding modes */
 #define FALSE 0
@@ -68,14 +61,6 @@ typedef struct {
 typedef struct {
     float red, green, blue;
 } Colour;
-
-
-/* Transformation command */
-typedef struct {
-    LIST_FIELDS
-
-    Matrix matrix;
-} Transform;
 
 
 /* Omni light command */
@@ -158,11 +143,6 @@ typedef struct {
     int  faces;            /* Number of faces */
     Face *face;            /* List of object faces */
     Material **mtl;        /* Materials for each face */
-
-    Matrix matrix;         /* Local mesh matrix */
-    Matrix invmatrix;
-    Vector center;         /* Center of object */
-    Vector lengths;        /* Dimensions of object */
 
     int hidden;            /* Hidden flag */
     int shadow;            /* Shadow flag */

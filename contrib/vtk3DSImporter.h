@@ -65,7 +65,6 @@ public:
   SpotLight *SpotLightList;
   Camera    *CameraList;
   Mesh      *MeshList;
-  Transform *TransformList;
   Material  *MaterialList;
   MatProp   *MatPropList;
 

@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkStripper.h"
 
 static int parse_3ds_file (vtk3DSImporter *importer);
 static void parse_3ds (vtk3DSImporter *importer, Chunk *mainchunk);
@@ -82,7 +83,6 @@ vtk3DSImporter::vtk3DSImporter ()
   this->SpotLightList = NULL;
   this->CameraList = NULL;
   this->MeshList = NULL;
-  this->TransformList = NULL;
   this->MaterialList = NULL;
   this->MatPropList = NULL;
 }
@@ -118,6 +118,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
 {
   MatProp *material;
   Mesh *mesh;
+  vtkStripper *polyStripper;
   vtkPolyDataNormals *polyNormals;
   vtkPolyDataMapper *polyMapper;
   vtkPolyData *polyData;
@@ -135,19 +136,22 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
 
     polyData = GeneratePolyData (mesh);
     polyMapper = vtkPolyDataMapper::New ();
+    polyStripper = vtkStripper::New ();
 
     // if ComputeNormals is on, insert a vtkPolyDataNormals filter
     if (this->ComputeNormals)
       {
       polyNormals = vtkPolyDataNormals::New ();
       polyNormals->SetInput (polyData);
-      polyMapper->SetInput (polyNormals->GetOutput ());
+      polyStripper->SetInput (polyNormals->GetOutput ());
       }
     else
       {
-      polyMapper->SetInput (polyData);
+      polyStripper->SetInput (polyData);
       }
     
+    polyMapper->SetInput (polyStripper->GetOutput ());
+    vtkDebugMacro (<< "Importing Actor: " << mesh->name);
     actor = vtkActor::New ();
     actor->SetMapper (polyMapper);
     material = (MatProp *) LIST_FIND (this->MatPropList, mesh->mtl[0]->name);
@@ -204,6 +208,7 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
     aCamera->Roll (camera->bank);
     aCamera->ComputeViewPlaneNormal ();
     renderer->SetActiveCamera (aCamera);
+    vtkDebugMacro (<< "Importing Camera: " << camera->name);
   }
 }
 
@@ -226,6 +231,7 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
                     omniLight->col.green,
                     omniLight->col.blue);
   renderer->AddLight (aLight);
+  vtkDebugMacro (<< "Importing Omni Light: " << omniLight->name);
   }                       
 }
 
@@ -283,6 +289,8 @@ void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
   property->SetSpecular (phong);
   property->SetSpecularPower (phong_size);
   property->SetOpacity (1.0 - m->transparency);
+  vtkDebugMacro (<< "Importing Property: " << m->name);
+  
   m->aProperty = property;
 
   }
@@ -406,12 +414,6 @@ static Mesh *create_mesh (char *name, int vertices, int faces)
 	new_mesh->face = (Face *) malloc (faces * sizeof(*new_mesh->face));
 	new_mesh->mtl = (Material **) malloc (faces * sizeof(*new_mesh->mtl));
     }
-
-    vect_init (new_mesh->center,  0.0, 0.0, 0.0);
-    vect_init (new_mesh->lengths, 0.0, 0.0, 0.0);
-
-    mat_identity (new_mesh->matrix);
-    mat_identity (new_mesh->invmatrix);
 
     new_mesh->hidden = FALSE;
     new_mesh->shadow = TRUE;
@@ -746,18 +748,9 @@ static void parse_smooth_group(vtk3DSImporter *importer)
 {
 }
 
-static void parse_mesh_matrix(vtk3DSImporter *importer, Mesh *mesh)
+static void parse_mesh_matrix(vtk3DSImporter *vtkNotUsed(importer), Mesh *vtkNotUsed(mesh))
 {
-    int i, j;
-
-    if (mesh != NULL) {
-	for (i = 0; i < 4; i++) {
-	    for (j = 0; j < 3; j++)
-		mesh->matrix[i][j] = read_float(importer);
-	}
-
-	mat_inv (mesh->invmatrix, mesh->matrix);
-    }
+  vtkGenericWarningMacro(<< "mesh matrix detected but not used\n");
 }
 
 
@@ -1121,153 +1114,6 @@ static void cleanup_name (char *name)
     strcpy (name, tmp);
 
     free (tmp);
-}
-
-/*************** from vect.c *************/
-#define EPSILON 1e-6
-
-static void   adjoint (Matrix mat);
-static double det4x4 (Matrix mat);
-static double det3x3 (double a1, double a2, double a3, double b1, double b2,
-	       double b3, double c1, double c2, double c3);
-static double det2x2 (double a, double b, double c, double d);
-
-
-static void vect_init (Vector v, float  x, float  y, float  z)
-{
-    v[X] = x;
-    v[Y] = y;
-    v[Z] = z;
-}
-
-
-/* Create an identity matrix */
-static void mat_identity (Matrix mat)
-{
-    int i, j;
-
-    for (i = 0; i < 4; i++)
-	for (j = 0; j < 4; j++)
-	    mat[i][j] = 0.0;
-
-    for (i = 0; i < 4; i++)
-	mat[i][i] = 1.0;
-}
-
-
-/* Matrix inversion code from Graphics Gems */
-
-/* mat1 <-- mat2^-1 */
-static float mat_inv (Matrix mat1, Matrix mat2)
-{
-    int i, j;
-    float det;
-
-    if (mat1 != mat2) {
-	for (i = 0; i < 4; i++)
-	    for (j = 0; j < 4; j++)
-		mat1[i][j] = mat2[i][j];
-    }
-
-    det = det4x4 (mat1);
-
-    if (fabs (det) < EPSILON)
-	return 0.0;
-
-    adjoint (mat1);
-
-    for (i = 0; i < 4; i++)
-	for(j = 0; j < 4; j++)
-	    mat1[i][j] = mat1[i][j] / det;
-
-    return det;
-}
-
-
-static void adjoint (Matrix mat)
-{
-    double a1, a2, a3, a4, b1, b2, b3, b4;
-    double c1, c2, c3, c4, d1, d2, d3, d4;
-
-    a1 = mat[0][0]; b1 = mat[0][1];
-    c1 = mat[0][2]; d1 = mat[0][3];
-
-    a2 = mat[1][0]; b2 = mat[1][1];
-    c2 = mat[1][2]; d2 = mat[1][3];
-
-    a3 = mat[2][0]; b3 = mat[2][1];
-    c3 = mat[2][2]; d3 = mat[2][3];
-
-    a4 = mat[3][0]; b4 = mat[3][1];
-    c4 = mat[3][2]; d4 = mat[3][3];
-
-    /* row column labeling reversed since we transpose rows & columns */
-    mat[0][0]  =  det3x3 (b2, b3, b4, c2, c3, c4, d2, d3, d4);
-    mat[1][0]  = -det3x3 (a2, a3, a4, c2, c3, c4, d2, d3, d4);
-    mat[2][0]  =  det3x3 (a2, a3, a4, b2, b3, b4, d2, d3, d4);
-    mat[3][0]  = -det3x3 (a2, a3, a4, b2, b3, b4, c2, c3, c4);
-
-    mat[0][1]  = -det3x3 (b1, b3, b4, c1, c3, c4, d1, d3, d4);
-    mat[1][1]  =  det3x3 (a1, a3, a4, c1, c3, c4, d1, d3, d4);
-    mat[2][1]  = -det3x3 (a1, a3, a4, b1, b3, b4, d1, d3, d4);
-    mat[3][1]  =  det3x3 (a1, a3, a4, b1, b3, b4, c1, c3, c4);
-
-    mat[0][2]  =  det3x3 (b1, b2, b4, c1, c2, c4, d1, d2, d4);
-    mat[1][2]  = -det3x3 (a1, a2, a4, c1, c2, c4, d1, d2, d4);
-    mat[2][2]  =  det3x3 (a1, a2, a4, b1, b2, b4, d1, d2, d4);
-    mat[3][2]  = -det3x3 (a1, a2, a4, b1, b2, b4, c1, c2, c4);
-
-    mat[0][3]  = -det3x3 (b1, b2, b3, c1, c2, c3, d1, d2, d3);
-    mat[1][3]  =  det3x3 (a1, a2, a3, c1, c2, c3, d1, d2, d3);
-    mat[2][3]  = -det3x3 (a1, a2, a3, b1, b2, b3, d1, d2, d3);
-    mat[3][3]  =  det3x3 (a1, a2, a3, b1, b2, b3, c1, c2, c3);
-}
-
-
-static double det4x4 (Matrix mat)
-{
-    double ans;
-    double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, 			d4;
-
-    a1 = mat[0][0]; b1 = mat[0][1];
-    c1 = mat[0][2]; d1 = mat[0][3];
-
-    a2 = mat[1][0]; b2 = mat[1][1];
-    c2 = mat[1][2]; d2 = mat[1][3];
-
-    a3 = mat[2][0]; b3 = mat[2][1];
-    c3 = mat[2][2]; d3 = mat[2][3];
-
-    a4 = mat[3][0]; b4 = mat[3][1];
-    c4 = mat[3][2]; d4 = mat[3][3];
-
-    ans = a1 * det3x3 (b2, b3, b4, c2, c3, c4, d2, d3, d4) -
-	  b1 * det3x3 (a2, a3, a4, c2, c3, c4, d2, d3, d4) +
-	  c1 * det3x3 (a2, a3, a4, b2, b3, b4, d2, d3, d4) -
-	  d1 * det3x3 (a2, a3, a4, b2, b3, b4, c2, c3, c4);
-
-    return ans;
-}
-
-
-static double det3x3 (double a1, double a2, double a3, double b1, double b2,
-	       double b3, double c1, double c2, double c3)
-{
-    double ans;
-
-    ans = a1 * det2x2 (b2, b3, c2, c3)
-	- b1 * det2x2 (a2, a3, c2, c3)
-	+ c1 * det2x2 (a2, a3, b2, b3);
-
-    return ans;
-}
-
-
-static double det2x2 (double a, double b, double c, double d)
-{
-    double ans;
-    ans = a * d - b * c;
-    return ans;
 }
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
