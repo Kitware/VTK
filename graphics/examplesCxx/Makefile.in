@@ -69,7 +69,7 @@ EXAMPLES = VisQuad \
 	sweptMac \
 	tcutSph \
 	vtkLogo \
-	vol
+	volProt
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
