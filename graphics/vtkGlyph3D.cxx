@@ -41,11 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkGlyph3D.h"
 #include "vtkTransform.h"
-#include "vtkVectors.h"
-#include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkFloatArray.h"
 
 //------------------------------------------------------------------------
 vtkGlyph3D* vtkGlyph3D::New()
@@ -86,19 +85,18 @@ vtkGlyph3D::~vtkGlyph3D()
 void vtkGlyph3D::Execute()
 {
   vtkPointData *pd;
-  vtkScalars *inScalars;
-  vtkVectors *inVectors;
+  vtkDataArray *inScalars;
+  vtkDataArray *inVectors;
   int requestedGhostLevel;
   unsigned char* inGhostLevels=0;
-  vtkNormals *inNormals, *sourceNormals = NULL;
-  vtkDataArray *newScalarsData = NULL, *inScalarsData = NULL;
+  vtkDataArray *inNormals, *sourceNormals = NULL;
   int numPts, numSourcePts, numSourceCells;
   int inPtId, i, index;
   vtkPoints *sourcePts = NULL;
   vtkPoints *newPts;
-  vtkScalars *newScalars=NULL;
-  vtkVectors *newVectors=NULL;
-  vtkNormals *newNormals=NULL;
+  vtkDataArray *newScalars=NULL;
+  vtkDataArray *newVectors=NULL;
+  vtkDataArray *newNormals=NULL;
   float *x, *v = NULL, vNew[3], s = 0.0, vMag = 0.0, value;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
@@ -119,9 +117,9 @@ void vtkGlyph3D::Execute()
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inScalars = pd->GetScalars();
-  inVectors = pd->GetVectors();
-  inNormals = pd->GetNormals();
+  inScalars = pd->GetActiveScalars();
+  inVectors = pd->GetActiveVectors();
+  inNormals = pd->GetActiveNormals();
 
   vtkDataArray* temp = 0;
   if (pd)
@@ -221,7 +219,7 @@ void vtkGlyph3D::Execute()
         {
         numSourcePts += this->GetSource(i)->GetNumberOfPoints();
         numSourceCells += this->GetSource(i)->GetNumberOfCells();
-        if ( !(sourceNormals = this->GetSource(i)->GetPointData()->GetNormals()) )
+        if ( !(sourceNormals = this->GetSource(i)->GetPointData()->GetActiveNormals()) )
           {
           haveNormals = 0;
           }
@@ -234,7 +232,7 @@ void vtkGlyph3D::Execute()
     numSourcePts = sourcePts->GetNumberOfPoints();
     numSourceCells = this->GetSource(0)->GetNumberOfCells();
 
-    sourceNormals = this->GetSource(0)->GetPointData()->GetNormals();
+    sourceNormals = this->GetSource(0)->GetPointData()->GetActiveNormals();
     if ( sourceNormals )
       {
       haveNormals = 1;
@@ -253,35 +251,34 @@ void vtkGlyph3D::Execute()
   newPts->Allocate(numPts*numSourcePts);
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars )
     {
-    newScalars = (vtkScalars *) inScalars->MakeObject ();
-    newScalars->Allocate(numPts*numSourcePts);
-    newScalarsData = newScalars->GetData();
-    inScalarsData = inScalars->GetData();
-    newScalarsData->SetName(inScalarsData->GetName());
+    newScalars =  inScalars->MakeObject ();
+    newScalars->Allocate(inScalars->GetNumberOfComponents()*numPts*numSourcePts);
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts*numSourcePts);
-    newScalars->GetData()->SetName("GlyphScale");
+    newScalars->SetName("GlyphScale");
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts*numSourcePts);
-    newScalars->GetData()->SetName("VectorMagnitude");
+    newScalars->SetName("VectorMagnitude");
     }
   if ( haveVectors )
     {
-    newVectors = vtkVectors::New();
-    newVectors->Allocate(numPts*numSourcePts);
-    newVectors->GetData()->SetName("GlyphVector");
+    newVectors = vtkFloatArray::New();
+    newVectors->SetNumberOfComponents(3);
+    newVectors->Allocate(3*numPts*numSourcePts);
+    newVectors->SetName("GlyphVector");
     }
   if ( haveNormals )
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(numPts*numSourcePts);
-    newNormals->GetData()->SetName("Normals");
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3*numPts*numSourcePts);
+    newNormals->SetName("Normals");
     }
 
   // Setting up for calls to PolyData::InsertNextCell()
@@ -306,7 +303,7 @@ void vtkGlyph3D::Execute()
     // Get the scalar and vector data
     if ( inScalars )
       {
-      s = inScalars->GetScalar(inPtId);
+      s = inScalars->GetComponent(inPtId, 0);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
                 this->ScaleMode == VTK_DATA_SCALING_OFF )
         {
@@ -318,11 +315,11 @@ void vtkGlyph3D::Execute()
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
         {
-        v = inNormals->GetNormal(inPtId);
+        v = inNormals->GetTuple(inPtId);
         }
       else
         {
-        v = inVectors->GetVector(inPtId);
+        v = inVectors->GetTuple(inPtId);
         }
       vMag = vtkMath::Norm(v);
       if ( this->ScaleMode == VTK_SCALE_BY_VECTORCOMPONENTS )
@@ -374,7 +371,7 @@ void vtkGlyph3D::Execute()
       if ( this->GetSource(index) != NULL )
         {
         sourcePts = this->GetSource(index)->GetPoints();
-        sourceNormals = this->GetSource(index)->GetPointData()->GetNormals();
+        sourceNormals = this->GetSource(index)->GetPointData()->GetActiveNormals();
         numSourcePts = sourcePts->GetNumberOfPoints();
         numSourceCells = this->GetSource(index)->GetNumberOfCells();
         }
@@ -424,7 +421,7 @@ void vtkGlyph3D::Execute()
       // Copy Input vector
       for (i=0; i < numSourcePts; i++) 
         {
-        newVectors->InsertVector(i+ptIncr, v);
+        newVectors->InsertTuple(i+ptIncr, v);
         }
       if (this->Orient && (vMag > 0.0))
         {
@@ -454,14 +451,14 @@ void vtkGlyph3D::Execute()
         {
         for (i=0; i < numSourcePts; i++) 
           {
-          newScalars->InsertScalar(i+ptIncr, scalex); // = scaley = scalez
+          newScalars->InsertTuple(i+ptIncr, &scalex); // = scaley = scalez
           }
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
         {
               for (i=0; i < numSourcePts; i++)
           {
-          outputPD->CopyTuple(inScalarsData, newScalarsData, inPtId, ptIncr+i);
+          outputPD->CopyTuple(inScalars, newScalars, inPtId, ptIncr+i);
           }
         }
       }
@@ -469,7 +466,7 @@ void vtkGlyph3D::Execute()
       {
       for (i=0; i < numSourcePts; i++) 
         {
-        newScalars->InsertScalar(i+ptIncr, vMag);
+        newScalars->InsertTuple(i+ptIncr, &vMag);
         }
       }
     
