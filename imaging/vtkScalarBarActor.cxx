@@ -226,6 +226,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int size[2];
   int stringHeight, stringWidth;
   int fontSize;
+  int titleHeight;
   
   if ( ! this->LookupTable )
     {
@@ -325,6 +326,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->TitleMapper->SetItalic(this->Italic);
     this->TitleMapper->SetShadow(this->Shadow);
     this->TitleMapper->SetFontFamily(this->FontFamily);
+
     
     // find the best size for the font
     int tempi[2];
@@ -348,18 +350,27 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     fontSize = target;
     this->TitleMapper->SetFontSize(fontSize);
     this->TitleMapper->GetSize(viewport,tempi);
-    while (tempi[1] < target && fontSize < 100)
+
+    while (tempi[1] < target*this->TitleMapper->
+           GetNumberOfLines(this->TitleMapper->GetInput()) && 
+           fontSize < 100 ) 
       {
       fontSize++;
       this->TitleMapper->SetFontSize(fontSize);
       this->TitleMapper->GetSize(viewport,tempi);
       }
-    while ((tempi[1] > target || tempi[0] > size[0])&& fontSize > 0)
+    
+    while ((tempi[1] > target*this->TitleMapper->
+            GetNumberOfLines(this->TitleMapper->GetInput()) ||
+            tempi[0] > size[0] )
+           && fontSize > 0 )
       {
       fontSize--;
       this->TitleMapper->SetFontSize(fontSize);
       this->TitleMapper->GetSize(viewport,tempi);
       }
+    
+    
     stringHeight = tempi[1];
     if (this->Title == NULL || (strlen(this->Title) == 0))
       {
@@ -391,7 +402,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->TextActors[i]->GetPositionCoordinate()->
 	SetReferenceCoordinate(this->PositionCoordinate);
       }
-
+    
     this->NumberOfLabelsBuilt = this->NumberOfLabels;
 
     // generate points
@@ -411,6 +422,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 	}
       barWidth = size[0] - 4 - stringWidth;
       barHeight = (int)(size[1] - stringHeight*2.2);
+      titleHeight = stringHeight + 
+        (stringHeight / this->TitleMapper->
+         GetNumberOfLines(this->TitleMapper->GetInput()) ) * 1.2; 
+      barHeight = (int)(size[1] - titleHeight);
       delta=(float)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
 	{
@@ -424,7 +439,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       barWidth = size[0];
-      barHeight = (int)(size[1] - stringHeight*2.6);
+      titleHeight = stringHeight + 
+        (stringHeight / this->TitleMapper->
+         GetNumberOfLines(this->TitleMapper->GetInput()) ) * 1.6; 
+      barHeight = (int)(size[1] - titleHeight);
       delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
 	{
@@ -459,13 +477,18 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     //
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
+      int sizeTextData[2];
+      
       // center the title
       this->TitleActor->SetPosition(size[0]/2, size[1] - stringHeight);
+      
       for (i=0; i < this->NumberOfLabels; i++)
 	{
 	val = (float)i/(this->NumberOfLabels-1) *barHeight;
 	this->TextMappers[i]->SetJustificationToLeft();
-	this->TextActors[i]->SetPosition(barWidth+3,val - stringHeight/2);
+        this->TextMappers[i]->GetSize(viewport,sizeTextData);
+        this->TextActors[i]->SetPosition(barWidth+3,
+                                         val - sizeTextData[1]/2);
 	}
       }
     else

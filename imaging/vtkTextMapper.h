@@ -175,6 +175,10 @@ public:
   // Description:
   // Shallow copy of an actor.
   void ShallowCopy(vtkTextMapper *tm);
+  
+  // Description:
+  // Determine the number of lines in the Input string (delimited by "\n").
+  int  GetNumberOfLines(const char *input);
 
 protected:
   vtkTextMapper();
@@ -198,7 +202,6 @@ protected:
   int  NumberOfLines;
   int  NumberOfLinesAllocated;
   vtkTextMapper **TextLines;
-  int  GetNumberOfLines(const char *input);
   char *NextLine(const char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
