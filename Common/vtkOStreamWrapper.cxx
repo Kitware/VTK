@@ -41,8 +41,13 @@ vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
 }
 
 //----------------------------------------------------------------------------
-VTKOSTREAM_OPERATOR(EndlType);
-VTKOSTREAM_OPERATOR(ManipType);
+vtkOStreamWrapper& vtkOStreamWrapper::operator << (const EndlType&)
+{
+  this->ostr << endl;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
 VTKOSTREAM_OPERATOR(const vtkIndent&);
 VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);

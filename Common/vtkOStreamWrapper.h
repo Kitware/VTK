@@ -44,21 +44,13 @@ public:
   vtkOStreamWrapper(ostream& os);
   vtkOStreamWrapper(vtkOStreamWrapper& r);
   
-  // Figure out the types of "endl" and other special types.  We may
-  // have to remove this because endl is implementation-defined by the
-  // compiler.
-#if defined(_MSC_VER)
-  typedef ostream&(__cdecl * EndlType)(ostream&);
-  typedef ios&(__cdecl * ManipType)(ios&);
-#else
-  typedef ostream&(&EndlType)(ostream&);
-  typedef ios&(&ManipType)(ios&);
-#endif
+  // Description:
+  // Type for a fake endl.
+  struct EndlType {};
   
   // Description:
   // Forward this output operator to the real ostream.
-  vtkOStreamWrapper& operator << (EndlType);
-  vtkOStreamWrapper& operator << (ManipType);
+  vtkOStreamWrapper& operator << (const EndlType&);
   vtkOStreamWrapper& operator << (const vtkIndent&);
   vtkOStreamWrapper& operator << (vtkObjectBase&);
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
@@ -107,6 +99,11 @@ public:
   // Description:
   // Forward the flush method to the real ostream.
   void flush();
+  
+  // Description:
+  // Implementation detail to allow macros to provide an endl that may
+  // or may not be used.
+  static void UseEndl(const EndlType&) {}
 protected:
   // Reference to the real ostream.
   ostream& ostr;
