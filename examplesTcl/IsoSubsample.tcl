@@ -21,7 +21,6 @@ reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 reader SetDataSpacing 0.8 0.8 1.5
-reader DebugOn
 
 vtkImageSubsample3D subsample
 subsample SetInput [reader GetOutput]
@@ -40,7 +39,6 @@ iso SetInput [subsample GetOutput]
 #iso SetInput [smooth GetOutput] 
 iso SetValue 0 1150
 iso SetInputMemoryLimit 140
-iso DebugOn
 
 vtkPolyDataMapper isoMapper
 isoMapper SetInput [iso GetOutput]

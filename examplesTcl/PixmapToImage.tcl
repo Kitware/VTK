@@ -4,14 +4,12 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../data/masonry.ppm"
-  #pnmReader SetFileName "../../data/billBoard.pgm"
+  pnmReader SetFileName "../../vtkdata/masonry.ppm"
+  #pnmReader SetFileName "../../vtkdata/billBoard.pgm"
 
 vtkImageXViewer viewer
-  viewer SetAxes 0 1 4
   viewer SetColorWindow 160
   viewer SetColorLevel 80
-  viewer ColorFlagOn
   viewer SetInput [pnmReader GetOutput]
   viewer Render
 
