@@ -28,17 +28,22 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.16");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.17");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
+
+vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
+{
+  this->Triangulator = vtkOrderedTriangulator::New();
+  this->Triangulator->PreSortedOff();
+  this->Triangulator->UseTemplatesOn();
+}
 
 vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
 {
-  if ( this->Triangulator )
-    {
-    this->Triangulator->Delete();
-    this->Triangulator = NULL;
-    }
+  this->Triangulator->Delete();
+  this->Triangulator = NULL;
 }
 
 void vtkDataSetTriangleFilter::Execute()
@@ -50,7 +55,8 @@ void vtkDataSetTriangleFilter::Execute()
     }
   if (input->IsA("vtkStructuredPoints") ||
       input->IsA("vtkStructuredGrid") || 
-      input->IsA("vtkImageData"))
+      input->IsA("vtkImageData") ||
+      input->IsA("vtkRectilinearGrid"))
     {
     this->StructuredExecute();
     }
@@ -89,22 +95,32 @@ void vtkDataSetTriangleFilter::StructuredExecute()
   
   if (input->IsA("vtkStructuredPoints"))
     {
-    ((vtkStructuredPoints*)input)->GetDimensions(dimensions);
+    static_cast<vtkStructuredPoints*>(input)->GetDimensions(dimensions);
     }
   else if (input->IsA("vtkStructuredGrid"))
     {
-    ((vtkStructuredGrid*)input)->GetDimensions(dimensions);
+    static_cast<vtkStructuredGrid*>(input)->GetDimensions(dimensions);
     }
   else if (input->IsA("vtkImageData"))
     {
-    ((vtkImageData*)input)->GetDimensions(dimensions);
+    static_cast<vtkImageData*>(input)->GetDimensions(dimensions);
+    }
+  else if (input->IsA("vtkRectilinearGrid"))
+    {
+    static_cast<vtkRectilinearGrid*>(input)->GetDimensions(dimensions);
     }
   
   dimensions[0] = dimensions[0] - 1;
   dimensions[1] = dimensions[1] - 1;
   dimensions[2] = dimensions[2] - 1;
-  for (k = 0; k < dimensions[2]; k++)
+
+  vtkIdType numSlices=dimensions[2];
+  int abort=0;
+  for (k = 0; k < dimensions[2] && !abort; k++)
     {
+    this->UpdateProgress((float)k / numSlices);
+    abort = this->GetAbortExecute();
+
     for (j = 0; j < dimensions[1]; j++)
       {
       for (i = 0; i < dimensions[0]; i++)
@@ -161,13 +177,17 @@ void vtkDataSetTriangleFilter::StructuredExecute()
   cellPtIds->Delete();
 }
 
+// 3D cells use the ordered triangulator. The ordered triangulator is used
+// to create templates on the fly. Once the templates are created then they
+// are used to produce the final triangulation.
+//
 void vtkDataSetTriangleFilter::UnstructuredExecute()
 {
   vtkPointSet *input = (vtkPointSet*) this->GetInput(); //has to be
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkGenericCell *cell;
-  vtkIdType newCellId, i, j;
+  vtkIdType newCellId, j;
   int k;
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
@@ -188,7 +208,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   cellPts = vtkPoints::New();
   cellPtIds = vtkIdList::New();
 
-
   // Create an array of points
   output->Allocate(input->GetNumberOfCells()*5);
   
@@ -196,18 +215,21 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
 
-  for (i = 0; i < numCells; i++)
+  int abort=0;
+  vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
+  for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++)
     {
-    input->GetCell(i, cell);
+    if ( !(cellId % updateTime) )
+      {
+      this->UpdateProgress((float)cellId / numCells);
+      abort = this->GetAbortExecute();
+      }
+
+    input->GetCell(cellId, cell);
     dim = cell->GetCellDimension();
 
     if ( dim == 3 ) //use ordered triangulation
       {
-      if ( ! this->Triangulator )
-        {
-        this->Triangulator = vtkOrderedTriangulator::New();
-        }
-
       npts = cell->GetNumberOfPoints();
       this->Triangulator->InitTriangulation(cell->GetBounds(),npts);
       for (j=0; j<npts; j++)
@@ -216,14 +238,24 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
         xPtr = cell->Points->GetPoint(j);
         this->Triangulator->InsertPoint(ptId, xPtr, xPtr, 0);
         }//for all cell points
-      this->Triangulator->Triangulate();
+      if ( cell->IsPrimaryCell() ) //use templates topology is fixed
+        {
+        int numPts=cell->GetNumberOfPoints();
+        int numEdges=cell->GetNumberOfEdges();
+        this->Triangulator->TemplateTriangulate(cell->GetCellType(),
+                                                numPts,numEdges);
+        }
+      else //use ordered triangulator
+        {
+        this->Triangulator->Triangulate();
+        }
 
       ncells = output->GetNumberOfCells();
       numTets = this->Triangulator->AddTetras(0,output);
         
       for (j=0; j < numTets; j++)
         {
-        outCD->CopyData(inCD, i, ncells+j);
+        outCD->CopyData(inCD, cellId, ncells+j);
         }
       }
 
@@ -253,7 +285,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
           }
         // copy cell data
         newCellId = output->InsertNextCell(type, dim, pts);
-        outCD->CopyData(inCD, i, newCellId);
+        outCD->CopyData(inCD, cellId, newCellId);
         }
       } //if 2D or less cell
     } //for all cells
