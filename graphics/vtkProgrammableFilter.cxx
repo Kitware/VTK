@@ -229,11 +229,30 @@ void vtkProgrammableFilter::UnRegister(vtkObject *o)
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 6 &&
+      this->OutputPolyData != o && this->OutputStructuredGrid != o &&
+      this->OutputUnstructuredGrid != o && this->OutputStructuredPoints != o &&
+      this->OutputRectilinearGrid != o &&
       this->OutputPolyData->GetNetReferenceCount() == 1 &&
       this->OutputStructuredGrid->GetNetReferenceCount() == 1 &&
       this->OutputUnstructuredGrid->GetNetReferenceCount() == 1 &&
       this->OutputStructuredPoints->GetNetReferenceCount() == 1 &&
       this->OutputRectilinearGrid->GetNetReferenceCount() == 1)
+    {
+    this->OutputPolyData->SetSource(NULL);
+    this->OutputStructuredGrid->SetSource(NULL);
+    this->OutputUnstructuredGrid->SetSource(NULL);
+    this->OutputStructuredPoints->SetSource(NULL);
+    this->OutputRectilinearGrid->SetSource(NULL);
+    }
+  if (this->ReferenceCount == 5 &&
+      (this->OutputPolyData == o || this->OutputStructuredGrid == o ||
+       this->OutputUnstructuredGrid == o || this->OutputRectilinearGrid == o ||
+       this->OutputStructuredPoints == o) &&
+      (this->OutputPolyData->GetNetReferenceCount() +
+       this->OutputStructuredPoints->GetNetReferenceCount() +
+       this->OutputRectilinearGrid->GetNetReferenceCount() +
+       this->OutputStructuredGrid->GetNetReferenceCount() +
+       this->OutputUnstructuredGrid->GetNetReferenceCount()) == 6)
     {
     this->OutputPolyData->SetSource(NULL);
     this->OutputStructuredGrid->SetSource(NULL);

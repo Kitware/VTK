@@ -598,11 +598,30 @@ void vtkMergeFilter::UnRegister(vtkObject *o)
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 6 &&
+      this->PolyData != o && this->StructuredGrid != o &&
+      this->UnstructuredGrid != o && this->StructuredPoints != o &&
+      this->RectilinearGrid != o &&
       this->PolyData->GetNetReferenceCount() == 1 &&
       this->StructuredGrid->GetNetReferenceCount() == 1 &&
       this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
       this->StructuredPoints->GetNetReferenceCount() == 1 &&
       this->RectilinearGrid->GetNetReferenceCount() == 1)
+    {
+    this->PolyData->SetSource(NULL);
+    this->StructuredGrid->SetSource(NULL);
+    this->UnstructuredGrid->SetSource(NULL);
+    this->StructuredPoints->SetSource(NULL);
+    this->RectilinearGrid->SetSource(NULL);
+    }
+  if (this->ReferenceCount == 5 &&
+      (this->PolyData == o || this->StructuredGrid == o ||
+       this->UnstructuredGrid == o || this->RectilinearGrid == o ||
+       this->StructuredPoints == o) &&
+      (this->PolyData->GetNetReferenceCount() +
+       this->StructuredPoints->GetNetReferenceCount() +
+       this->RectilinearGrid->GetNetReferenceCount() +
+       this->StructuredGrid->GetNetReferenceCount() +
+       this->UnstructuredGrid->GetNetReferenceCount()) == 6)
     {
     this->PolyData->SetSource(NULL);
     this->StructuredGrid->SetSource(NULL);
