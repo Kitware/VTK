@@ -51,8 +51,8 @@ void main( int argc, char *argv[] )
 
   // Create the volume and set the mapper and property
   vtkVolume *volume = vtkVolume::New();
-    volume->SetVolumeMapper(volumeMapper);
-    volume->SetVolumeProperty(volumeProperty);
+    volume->SetMapper(volumeMapper);
+    volume->SetProperty(volumeProperty);
 
   // Add this volume to the renderer and get a closer look
   ren1->AddVolume(volume);
