@@ -4,15 +4,17 @@ Notes on usage of LEX and YACC to generate VTK parse files
 LEX:
 ----
 1. vtkParse.l is edited as necessary
-2. LEX is run (on an SGI Irix 6.4 on 1/14/00 by W. Schroeder): lex vtkParse.l
+2. LEX is run (should be flex. Last tested on flex version 2.5.4 on Cygwin, 
+               but it should work on Linux or on anything that uses flex)
 3. LEX spits out lex.yy.c
-4. Manually edit lex.yy.c:
-The line:
-FILE *yyin = {stdin}, *yyout = {stdout};
-should be changed to:
-FILE *yyin, *yyout;
+4. Remove line:
+   #include <unistd.h>
+   Suggested method is to run:
 
-and there are a bunch of other changes that must be made by hand. Your best bet is to keep the old version of the file and perform a diff, and then merge in all the changes. Most of the changes are to prevent compiler warnings.
+   perl -ne "s/\t/   /g; next if /unistd/; print" lex.yy.c > lex.yy.c.new
+   mv lex.yy.c.new lex.yy.c
+
+   This removes the line and replaces tabs with spaces.
 
 YACC:
 -----
