@@ -303,7 +303,7 @@ void vtkDataArray::SetTuple2(const vtkIdType i, float val0, float val1)
 		  << numComp << " != 2");
     }
   tuple[0] = val0;
-  tuple[1] = val0;
+  tuple[1] = val1;
   this->SetTuple(i, tuple);
 }
 void vtkDataArray::SetTuple3(const vtkIdType i, float val0, float val1, 
@@ -393,7 +393,7 @@ void vtkDataArray::InsertTuple2(const vtkIdType i, float val0, float val1)
 		  << numComp << " != 2");
     }
   tuple[0] = val0;
-  tuple[1] = val0;
+  tuple[1] = val1;
   this->InsertTuple(i, tuple);
 }
 void vtkDataArray::InsertTuple3(const vtkIdType i, float val0, float val1, 
