@@ -56,16 +56,4 @@ ADD_TEST(TestSetObjectMacro-Rendering ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
          "${VTK_SOURCE_DIR}/Rendering/vtk\\\\*.h"
          "vtkSetObjectMacro"
-         ${VTK_SOURCE_DIR}/Rendering/vtkExporter.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkFollower.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkImporter.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkLabeledDataMapper.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkLight.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkParallelCoordinatesActor.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkPolyDataMapper2D.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkPolyDataMapper2D.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkRenderWindowInteractor.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkRendererSource.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkScalarBarActor.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkVolumeRayCastMapper.h
          )
