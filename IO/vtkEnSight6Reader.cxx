@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.54.2.1");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.54.2.2");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -278,7 +278,7 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
       }
     else
       {
-      entries = vtkEnSight6ReaderRead2(line, " %12e %12e %12e", 
+      entries = vtkEnSight6ReaderRead2(line, "%12e%12e%12e", 
                                        &point[0], &point[1], &point[2]);
       assert( entries == 3 );
       this->UnstructuredPoints->InsertNextPoint(point);
