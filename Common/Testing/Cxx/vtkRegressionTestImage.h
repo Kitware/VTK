@@ -89,6 +89,8 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
     char* fname=vtkTestUtilities::ExpandDataFileName(argc, argv, argv[imageIndex]);
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
+    // tell it to read the back buffer
+    rt_w2if->ReadFrontBufferOff();
     rt_w2if->SetInput(rw);
     // perform and extra render to make sure it is displayed
     rw->Render();
