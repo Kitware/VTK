@@ -81,6 +81,10 @@ public:
   void operator+=(const vtkFloatVectors& fv){*(this->V) += *(fv.V);};
   void Reset() {this->V->Reset();};
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetReferenceCountedObjectMacro(V, vtkFloatArray);
+  vtkGetObjectMacro(V, vtkFloatArray);
+
 protected:
   vtkFloatArray *V;
 };
