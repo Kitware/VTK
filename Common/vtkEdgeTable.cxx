@@ -21,7 +21,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.34");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.35");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -442,11 +442,47 @@ vtkIdType vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
     ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
       {
       p1 = this->Position[0];
+      cout << this->Position[1] << endl;
       p2 = this->Table[this->Position[0]]->GetId(this->Position[1]);
-      return this->Attributes[this->Position[0]]->GetId(this->Position[1]);
+      if ( this->StoreAttributes == 1 )
+        {
+        return this->Attributes[this->Position[0]]->GetId(this->Position[1]);
+        }
+      else
+        {
+          return (-1);
+        }
       }
     }
 
+  return (-1);
+}
+
+// Traverse list of edges in table. Return the edge as (p1,p2), where p1 and
+// p2 are point id's. Method return value is <0 if the list is exhausted;
+// otherwise a valid id >=0. The value of p1 is guaranteed to be <= p2. The
+// return value is an id that can be used for accessing attributes.
+int vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr)
+{
+  for ( ; this->Position[0] <= this->TableMaxId; 
+  this->Position[0]++, this->Position[1]=(-1) )
+    {
+    if ( this->Table[this->Position[0]] != NULL && 
+    ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
+      {
+      p1 = this->Position[0];
+      p2 = this->Table[this->Position[0]]->GetId(this->Position[1]);
+      if ( this->StoreAttributes == 2 )
+        {
+          this->IsEdge(p1, p2, ptr);
+        }
+      else
+        {
+          ptr = NULL;
+        }
+      return 0;
+      }
+    }
   return (-1);
 }
 

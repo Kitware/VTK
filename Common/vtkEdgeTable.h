@@ -135,6 +135,12 @@ public:
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
   vtkIdType GetNextEdge(vtkIdType &p1, vtkIdType &p2);
 
+  // Description: 
+  // Similar to above, but fills a void* pointer if InitEdgeInsertion()
+  // has been called with storeAttributes==2. A NULL pointer value
+  // is filled otherwise.  Returns -1 if edge does not exist.
+  int GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr);
+
   // Description:
   // Reset the object and prepare for reinsertion of edges. Does not delete
   // memory like the Initialize() method.
