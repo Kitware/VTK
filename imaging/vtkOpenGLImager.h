@@ -62,6 +62,10 @@ public:
   // the imager's actor2D collection.
   int RenderOpaqueGeometry();
 
+  // Description:
+  // Erase the contents of the imager in the window.
+  void Erase();
+
 protected:
   vtkOpenGLImager() {};
   ~vtkOpenGLImager() {};

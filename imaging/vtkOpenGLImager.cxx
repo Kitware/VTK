@@ -69,4 +69,37 @@ int vtkOpenGLImager::RenderOpaqueGeometry()
   return vtkImager::RenderOpaqueGeometry();
 }
 
+void vtkOpenGLImager::Erase()
+{
+  int *size, lowerLeft[2], upperRight[2];
+
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+
+  // determine the inclusive bounds of the viewport
+  // then find the corresponding pixel 
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
+  upperRight[0]--;
+  upperRight[1]--;
+
+  // we will set this for all modes on the sparc
+  glViewport(lowerLeft[0],lowerLeft[1],
+	     (upperRight[0]-lowerLeft[0]+1),
+	     (upperRight[1]-lowerLeft[1]+1));
+  glEnable( GL_SCISSOR_TEST );
+  glScissor(lowerLeft[0],lowerLeft[1],
+	    (upperRight[0]-lowerLeft[0]+1),
+	    (upperRight[1]-lowerLeft[1]+1));
+
+  glClearColor( ((GLclampf)(this->Background[0])),
+                ((GLclampf)(this->Background[1])),
+                ((GLclampf)(this->Background[2])),
+                ((GLclampf)(1.0)) );
+
+  vtkDebugMacro(<< "glClear\n");
+  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
+}
 
