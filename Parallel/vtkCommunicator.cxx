@@ -18,20 +18,26 @@
 #include "vtkCommunicator.h"
 
 #include "vtkCharArray.h"
-#include "vtkDataSetReader.h"
-#include "vtkDataSetWriter.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageClip.h"
+#include "vtkImageData.h"
 #include "vtkIntArray.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkStructuredPointsWriter.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLDataSetWriter.h"
+#include "vtkXMLImageDataReader.h"
+#include "vtkXMLPolyDataReader.h"
+#include "vtkXMLRectilinearGridReader.h"
+#include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.18");
+vtkCxxRevisionMacro(vtkCommunicator, "1.19");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -382,14 +388,11 @@ int vtkCommunicator::WriteObject(vtkDataObject *data)
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
       strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
       strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0 ||
+      strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->WriteDataSet((vtkDataSet*)data);
     }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->WriteImageData((vtkImageData*)data);
-    }
   
   vtkErrorMacro("Cannot marshal object of type "
                 << data->GetClassName());
@@ -402,133 +405,118 @@ int vtkCommunicator::ReadObject(vtkDataObject *data)
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
       strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
       strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0  ||
+      strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->ReadDataSet((vtkDataSet*)data);
-    }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->ReadImageData((vtkImageData*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
                 << data->GetClassName());
-
-  return 1;
+  return 0;
 }
 
-
-int vtkCommunicator::WriteImageData(vtkImageData *data)
+int vtkCommunicator::WriteDataSet(vtkDataSet* data)
 {
-  vtkImageClip *clip;
-  vtkStructuredPointsWriter *writer;
-  int size;
+  // String stream to which we will write the XML.
+  ostrstream ostr;
+  vtkXMLDataSetWriter* writer = vtkXMLDataSetWriter::New();
   
-  // keep Update from propagating
-  vtkImageData *tmp = vtkImageData::New();
-  tmp->ShallowCopy(data);
-  tmp->SetUpdateExtent(data->GetUpdateExtent());
-  
-  clip = vtkImageClip::New();
-  clip->SetInput(tmp);
-  clip->SetOutputWholeExtent(data->GetExtent());
-  writer = vtkStructuredPointsWriter::New();
-  writer->SetFileTypeToBinary();
-  writer->WriteToOutputStringOn();
-  writer->SetInput(clip->GetOutput());
-  writer->Write();
-  size = writer->GetOutputStringLength();
-  
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
-  clip->Delete();
-  writer->Delete();
-  tmp->Delete();
-  
-  return 1;
-}
-
-int vtkCommunicator::ReadImageData(vtkImageData *object)
-{
-  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
-
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
-    {
-    return 0;
-    }
-  
-  reader->ReadFromInputStringOn();
-  
-  vtkCharArray* mystring = vtkCharArray::New();
-  // mystring should not delete the string when it's done,
-  // that's our job.
-  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
-  reader->SetInputArray(mystring);
-  mystring->Delete();
-
-  reader->GetOutput()->Update();
-
-  object->ShallowCopy(reader->GetOutput());
-  object->SetUpdateExtent(reader->GetOutput()->GetUpdateExtent());
-  
-  reader->Delete();
-
-  return 1;
-}
-
-int vtkCommunicator::WriteDataSet(vtkDataSet *data)
-{
-  vtkDataSet *copy;
-  unsigned long size;
-  vtkDataSetWriter *writer = vtkDataSetWriter::New();
-
-  copy = data->NewInstance();
+  // Prevent pipeline update from propagating.
+  vtkDataSet* copy = data->NewInstance();
   copy->ShallowCopy(data);
-
-  // There is a problem with binary files with no data.
-  if (copy->GetNumberOfCells() > 0)
-    {
-    writer->SetFileTypeToBinary();
-    }
-  writer->WriteToOutputStringOn();
-  writer->SetInput(copy);
   
-  writer->Write();
-  size = writer->GetOutputStringLength();
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
+  // We will write the data set to the string stream.
+  writer->SetInput(copy);
+  writer->SetStream(&ostr);
+  
+  // Writing to a string stream only works for inline data with no
+  // compression.
+  writer->SetDataModeToBinary();
+  writer->SetCompressor(0);
+  
+  // Write the data.
+  int result = writer->Write();
+  
+  // Use the string stream's memory as the marshalling buffer.
+  if(result)
+    {
+    this->DeleteAndSetMarshalString(ostr.str(), ostr.pcount());
+    this->MarshalDataLength = ostr.pcount();
+    }
+  
+  // Cleanup.
   writer->Delete();
   copy->Delete();
-
-  return 1;
+  
+  return result;
 }
 
-int vtkCommunicator::ReadDataSet(vtkDataSet *object)
+int vtkCommunicator::ReadDataSet(vtkDataSet* object)
 {
-  vtkDataSet *output;
-  vtkDataSetReader *reader = vtkDataSetReader::New();
-
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
+  // Only read if we have data.
+  if(!this->MarshalString || this->MarshalDataLength <= 0)
     {
     return 0;
     }
   
-  reader->ReadFromInputStringOn();
-
-  vtkCharArray* mystring = vtkCharArray::New();
-  // mystring should not delete the string when it's done,
-  // that's our job.
-  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
-  reader->SetInputArray(mystring);
-  mystring->Delete();
-
-  output = reader->GetOutput();
+  // We will read data from a string stream.
+  istrstream istr(this->MarshalString, this->MarshalDataLength);
+  vtkDataSet* output;
+  vtkXMLDataReader* reader = 0;
+  
+  if(strcmp(object->GetClassName(), "vtkImageData") == 0)
+    {
+    vtkXMLImageDataReader* r = vtkXMLImageDataReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  else if(strcmp(object->GetClassName(), "vtkStructuredPoints") == 0)
+    {
+    vtkXMLImageDataReader* r = vtkXMLImageDataReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  else if(strcmp(object->GetClassName(), "vtkPolyData") == 0)
+    {
+    vtkXMLPolyDataReader* r = vtkXMLPolyDataReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  else if(strcmp(object->GetClassName(), "vtkRectilinearGrid") == 0)
+    {
+    vtkXMLRectilinearGridReader* r = vtkXMLRectilinearGridReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  else if(strcmp(object->GetClassName(), "vtkStructuredGrid") == 0)
+    {
+    vtkXMLStructuredGridReader* r = vtkXMLStructuredGridReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  else if(strcmp(object->GetClassName(), "vtkUnstructuredGrid") == 0)
+    {
+    vtkXMLUnstructuredGridReader* r = vtkXMLUnstructuredGridReader::New();
+    output = r->GetOutput();
+    reader = r;
+    }
+  
+  if(!reader)
+    {
+    vtkErrorMacro("Cannot create reader for " << object->GetClassName());
+    return 0;
+    }
+  
+  reader->SetStream(&istr);
+  
+  // Perform the read.
   output->Update();
-
+  
+  // Hand the data to our caller.
   object->ShallowCopy(output);
-  //object->DataHasBeenGenerated();
-
+  
   reader->Delete();
-
+  
   return 1;
 }
