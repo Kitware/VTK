@@ -20,7 +20,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlFilter_h
 
 #include "Object.hh"
-#include "DataSet.hh"
 
 class vlFilter : virtual public vlObject 
 {
@@ -34,7 +33,8 @@ public:
   void SetEndMethod(void (*f)());
 
 protected:
-  virtual void Execute() = 0;
+  virtual void Execute() 
+    {vlErrorMacro(<< "Execute is a Filter subclass responsability");};
   char Updating;
   void (*StartMethod)();
   void (*EndMethod)();
