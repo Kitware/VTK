@@ -43,7 +43,7 @@ renWin SetSize 512 32
 # Setup camera
 vtkCamera camera
   camera SetClippingRange 11.8369 591.843
-#  camera SetFocalPoint 512 32 0
+  camera SetFocalPoint 512 32 0
   camera SetPosition 512 32 118.369
   camera SetViewAngle 30
   camera SetDistance 118.369
