@@ -94,6 +94,11 @@ public:
   // Return the cell id cached from last evaluation.
   vtkGetMacro(LastCellId, int);
 
+  // Description:
+  // Set the last cell id to -1 so that the next search does not
+  // start from the previous cell
+  void ClearLastCellId() { this->LastCellId = -1; }
+
   // Description: 
   // Returns the interpolation weights cached from last evaluation
   // if the cached cell is valid (returns 1). Otherwise, it does not

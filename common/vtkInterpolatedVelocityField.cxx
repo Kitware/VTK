@@ -138,7 +138,8 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   if (this->Caching)
     {
     // See if the point is in the cached cell
-    if (!(ret=this->GenCell->EvaluatePosition(x, closestpoint, subId,
+    if (this->LastCellId == -1 || 
+	!(ret=this->GenCell->EvaluatePosition(x, closestpoint, subId,
 					      pcoords, dist2, this->Weights))
 	|| ret == -1)
       {
