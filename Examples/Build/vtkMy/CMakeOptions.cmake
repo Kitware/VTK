@@ -37,6 +37,13 @@ IF (USE_VTK_FILE)
          "Build with shared libraries." 
          ${VTK_BUILD_SHARED_LIBS})
 
+  # This value has to be set so that it can be use in vtkmyConfigure.h.in
+  # otherwise the BUILD_SHARED_LIB from VTK's vtkConfigure.h file is picked
+  # first :(
+
+  SET(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL 
+      "Is this VTKMY built with shared libraries.")
+
 ENDIF (USE_VTK_FILE)
 
 #
@@ -54,9 +61,12 @@ ENDIF (USE_VTK_FILE)
 
 IF (VTK_WRAP_TCL)
 
-  OPTION(VTKMY_WRAP_TCL 
+  OPTION(WRAP_TCL 
          "Wrap classes into the TCL interpreted language." 
          ON)
+
+  SET(VTKMY_WRAP_TCL  ${WRAP_TCL} CACHE INTERNAL 
+      "Wrap classes into the TCL interpreted language.")
 
   IF (VTKMY_WRAP_TCL)
 
@@ -84,9 +94,9 @@ IF (VTK_WRAP_TCL)
 
 ELSE (VTK_WRAP_TCL)
 
-  IF (VTKMY_WRAP_TCL)
-    MESSAGE("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have chosen has not support for Tcl (VTK_WRAP_TCL is OFF). Please set VTKMY_WRAP_TCL to OFF.")
-  ENDIF (VTKMY_WRAP_TCL)
+  IF (WRAP_TCL)
+    MESSAGE("Warning. WRAP_TCL is ON but the VTK version you have chosen has not support for Tcl (VTK_WRAP_TCL is OFF). Please set WRAP_TCL to OFF.")
+  ENDIF (WRAP_TCL)
 
 ENDIF (VTK_WRAP_TCL)
 
@@ -96,9 +106,12 @@ ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
 
-  OPTION(VTKMY_WRAP_PYTHON 
+  OPTION(WRAP_PYTHON 
          "Wrap classes into the Python interpreted language." 
          ON)
+
+  SET(VTKMY_WRAP_PYTHON  ${WRAP_PYTHON} CACHE INTERNAL 
+      "Wrap classes into the Python interpreted language.")
 
   IF (VTKMY_WRAP_PYTHON)
 
@@ -133,9 +146,9 @@ IF (VTK_WRAP_PYTHON)
 
 ELSE (VTK_WRAP_PYTHON)
 
-  IF (VTKMY_WRAP_PYTHON)
-    MESSAGE("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have chosen has not support for Python (VTK_WRAP_PYTHON is OFF). Please set VTKMY_WRAP_PYTHON to OFF.")
-  ENDIF (VTKMY_WRAP_PYTHON)
+  IF (WRAP_PYTHON)
+    MESSAGE("Warning. WRAP_PYTHON is ON but the VTK version you have chosen has not support for Python (VTK_WRAP_PYTHON is OFF). Please set WRAP_PYTHON to OFF.")
+  ENDIF (WRAP_PYTHON)
 
 ENDIF (VTK_WRAP_PYTHON)
 
@@ -145,9 +158,12 @@ ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
 
-  OPTION(VTKMY_WRAP_JAVA 
+  OPTION(WRAP_JAVA 
          "Wrap classes into the Java interpreted language." 
          ON)
+
+  SET(VTKMY_WRAP_JAVA  ${WRAP_JAVA} CACHE INTERNAL 
+      "Wrap classes into the Java interpreted language.")
 
   IF (VTKMY_WRAP_JAVA)
 
@@ -200,9 +216,9 @@ IF (VTK_WRAP_JAVA)
 
 ELSE (VTK_WRAP_JAVA)
 
-  IF (VTKMY_WRAP_JAVA)
-    MESSAGE("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have chosen has not support for Java (VTK_WRAP_JAVA is OFF). Please set VTKMY_WRAP_JAVA to OFF.")
-  ENDIF (VTKMY_WRAP_JAVA)
+  IF (WRAP_JAVA)
+    MESSAGE("Warning. WRAP_JAVA is ON but the VTK version you have chosen has not support for Java (VTK_WRAP_JAVA is OFF). Please set WRAP_JAVA to OFF.")
+  ENDIF (WRAP_JAVA)
 
 ENDIF (VTK_WRAP_JAVA)
 

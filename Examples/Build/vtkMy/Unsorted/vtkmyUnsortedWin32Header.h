@@ -25,7 +25,7 @@
 
 #include <vtkmyConfigure.h>
 
-#if defined(WIN32) && !defined(VTK_MY_STATIC)
+#if defined(WIN32) && !defined(VTKMY_STATIC)
 #if defined(vtkmyUnsorted_EXPORTS)
 #define VTK_MY_UNSORTED_EXPORT __declspec( dllexport ) 
 #else

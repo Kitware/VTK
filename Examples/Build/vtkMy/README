@@ -20,7 +20,7 @@ What you should do:
 
 - Build your repository.
 
-- Add the path to your build-dir bin/ directory to your PATH environment variable, so these C++ and Tcl DLL can be found (if any).
+- Add the path to your build-dir bin/ directory to your PATH environment variable (as well as LD_LIBRARY_PATH for Unix users), so these C++ and Tcl DLL can be found (if any).
 
 - Add the path to your vtkMy/Wrapping/Tcl directory to your TCLLIBPATH environment variable. TCLLIBPATH is a space separated set of paths to Tcl libraries. Windows users should use forward slashes (/) instead of the usual backward slashes (\), and should surround the path by quotes (") if it contains any space.
 

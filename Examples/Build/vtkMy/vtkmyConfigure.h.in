@@ -14,7 +14,7 @@
   #define WORDS_LITTLEENDIAN
 #endif
 
-#cmakedefine BUILD_SHARED_LIBS
-#ifndef BUILD_SHARED_LIBS
-#define VTK_MY_STATIC
+#cmakedefine VTKMY_BUILD_SHARED_LIBS
+#ifndef VTKMY_BUILD_SHARED_LIBS
+#define VTKMY_STATIC
 #endif
