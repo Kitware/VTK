@@ -149,20 +149,6 @@ void vtkImageImport::ExecuteInformation()
   // set data type
   output->SetScalarType(this->DataScalarType);
   output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
-
-  // What if we are trying to process a VERY large 2D image?
-  mem = output->GetScalarSize();
-  mem = mem * (this->DataExtent[1] - this->DataExtent[0] + 1);
-  mem = mem * (this->DataExtent[3] - this->DataExtent[2] + 1);
-  mem = mem / 1000;
-  mem = mem * (this->DataExtent[5] - this->DataExtent[4] + 1);
-  if (mem < 1)
-    {
-    mem = 1;
-    }
-  
-  //  output->SetEstimatedWholeMemorySize(mem);
-
 }
 
 //----------------------------------------------------------------------------
