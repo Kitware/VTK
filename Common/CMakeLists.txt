@@ -309,6 +309,7 @@ ENDIF(VTK_WRAP_JAVA)
 
 INSTALL_FILES(/include/vtk .txx
   vtkDataArrayTemplate
+  vtkDataArrayTemplateImplicit
 )
 
 INSTALL_FILES(/lib/vtk/testing FILES
