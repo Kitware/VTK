@@ -101,7 +101,7 @@ public:
 
   // Description:
   // Set/Get angle of rotation.
-  vtkSetClampMacro(Angle,float,0,360.0);
+  vtkSetMacro(Angle,float);
   vtkGetMacro(Angle,float);
 
   // Description:
