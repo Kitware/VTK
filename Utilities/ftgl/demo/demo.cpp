@@ -22,6 +22,8 @@ static FTFont* fonts[5];
 static int width;
 static int height;
 
+static int point_size = 24;
+
 #ifdef __linux__
 const char* DEFAULT_FONT = "/usr/share/fonts/truetype/arial.ttf";
 #else
@@ -63,7 +65,6 @@ my_init( const char* font_filename )
         else {
 			cout << "Reading font " << i << " from " << font_filename << endl;
 
-            int point_size = 24;
             if (!fonts[i]->FaceSize(point_size)) {
                 cerr << "ERROR: Unable to set font face size " << point_size << "\n";
             }
@@ -318,6 +319,11 @@ main(int argc, char **argv)
 			exit( -1 );
 		}
 		filename = argv[ 1 ];
+
+        if ( argc >= 3 ) 
+          {
+          point_size = atoi(argv[2]);
+          }
 	}
 	else 
 	{
