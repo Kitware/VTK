@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.28");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.29");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -102,6 +102,12 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->BorderMapper->SetInput(this->BorderPolyData);
   this->BorderActor = vtkActor2D::New();
   this->BorderActor->SetMapper(this->BorderMapper);
+
+  // Set border mapper coordinate system to Display.
+  vtkCoordinate *coord = vtkCoordinate::New();
+  coord->SetCoordinateSystemToDisplay();
+  this->BorderMapper->SetTransformCoordinate(coord);
+  coord->Delete();
 
   // This is for glyphing the head of the leader
   // A single point with a vector for glyph orientation
