@@ -78,10 +78,6 @@ public:
   virtual void Frame(void);
 
   // Description:
-  // Specify various window parameters.
-  virtual void WindowConfigure(void);
-
-  // Description:
   // Initialize the window for rendering.
   virtual void WindowInitialize(void);
 
@@ -114,20 +110,6 @@ public:
   virtual int      GetDesiredDepth();
 
   // Description:
-  // Set/Get the maximum number of multisamples
-  static void SetGlobalMaximumNumberOfMultiSamples(int val);
-  static int  GetGlobalMaximumNumberOfMultiSamples();
-
-  // Description:
-  // Set / Get the number of multisamples to use for hardware antialiasing.
-  vtkSetMacro(MultiSamples,int);
-  vtkGetMacro(MultiSamples,int);
-
-  // Description:
-  // Update system if needed due to stereo rendering.
-  virtual void StereoUpdate();
-
-  // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
   // overrides the superclass method since this class can actually check
@@ -135,48 +117,9 @@ public:
   virtual void SetStereoCapableWindow(int capable);
 
   // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
-  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
-
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
-  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
-                                int blend=0);
-  virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
-					      int front);
-  virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
-				    int front, int blend=0);  
-
-  // Description:
-  // Set/Get the zbuffer data from an image
-  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
-  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
-
-  // Description:
   // Make this window the current OpenGL context.
   void MakeCurrent();
   
-  // Description:
-  // Register a texture name with this render window.
-  void RegisterTextureResource (GLuint id);
-
-  // Description:
-  // Get the size of the depth buffer.
-  int GetDepthBufferSize();
-  
-protected:
-  vtkXOpenGLRenderWindow();
-  ~vtkXOpenGLRenderWindow();
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);
-  void operator=(const vtkXOpenGLRenderWindow&);
-
-  vtkIdList *TextureResourceIds;
-};
-
-
   // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
@@ -244,9 +187,6 @@ protected:
   // Description:
   // Get the properties available at runtime that would result in 
   // the best Xwindow for 3D rendering.
-  virtual int      GetDesiredDepth()    = 0;
-  virtual Colormap GetDesiredColormap() = 0;
-  virtual Visual  *GetDesiredVisual()   = 0;
   virtual  int GetEventPending();
   
   // Description:
@@ -263,10 +203,10 @@ protected:
   void Render();  
 
 protected:
-  vtkXRenderWindow();
-  ~vtkXRenderWindow();
-  vtkXRenderWindow(const vtkXRenderWindow&);
-  void operator=(const vtkXRenderWindow&);
+  vtkXOpenGLRenderWindow();
+  ~vtkXOpenGLRenderWindow();
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);
+  void operator=(const vtkXOpenGLRenderWindow&);
 
   Window   ParentId;
   Window   WindowId;
@@ -277,5 +217,8 @@ protected:
   int      OwnDisplay;
   int      ScreenSize[2];
   int      CursorHidden;
+};
+
+
 
 #endif

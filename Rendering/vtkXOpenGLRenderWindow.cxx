@@ -186,17 +186,17 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
 vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 {
+  this->ParentId = (Window)NULL;
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
+  this->OwnDisplay = 0;
+  this->CursorHidden = 0;
   this->ContextId = NULL;
-  this->MultiSamples = vtkXOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
   this->OwnWindow = 0;
-  if ( this->WindowName ) 
-    delete [] this->WindowName;
-  this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
-    strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 }
 
 // free up memory & close the window
@@ -258,7 +258,16 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
       }
     }
 
-  this->TextureResourceIds->Delete();
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+    {
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
+    }
 }
 
 // End the rendering process and display the image.
@@ -281,7 +290,7 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 {
   if (!this->WindowId)
     {
-    vtkRenderWindow::SetStereoCapableWindow(capable);
+    vtkOpenGLRenderWindow::SetStereoCapableWindow(capable);
     }
   else
     {
@@ -352,7 +361,6 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
       {
       this->ParentId = RootWindow(this->DisplayId, v->screen);
       }
-    
     this->WindowId = 
       XCreateWindow(this->DisplayId,
 		    this->ParentId,
@@ -583,27 +591,6 @@ void vtkXOpenGLRenderWindow::Start(void)
   this->MakeCurrent();
 }
 
-/*
-void vtkXOpenGLRenderWindow::SetPosition(int x,int y)
-{
-  // if we arent mappen then just set the ivars 
-  if (!this->Mapped)
-    {
-    if ((this->Position[0] != x)||(this->Position[1] != y))
-      {
-      this->Modified();
-      }
-    this->Position[0] = x;
-    this->Position[1] = y;
-    return;
-    }
-
-  XMoveResizeWindow(this->DisplayId,this->WindowId,x,y, 
-                    this->Size[0], this->Size[1]);
-  XSync(this->DisplayId,False);
-}
-*/
-
 
 // Specify the size of the rendering window.
 void vtkXOpenGLRenderWindow::SetSize(int x,int y)
@@ -689,6 +676,10 @@ void vtkXOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkOpenGLRenderWindow::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
+  os << indent << "Color Map: " << this->ColorMap << "\n";
+  os << indent << "Display Id: " << this->GetDisplayId() << "\n";
+  os << indent << "Next Window Id: " << this->NextWindowId << "\n";
+  os << indent << "Window Id: " << this->GetWindowId() << "\n";
 }
 
 // the following can be useful for debugging XErrors
@@ -721,3 +712,344 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 
 
 
+int vtkXOpenGLRenderWindowFoundMatch;
+
+Bool vtkXOpenGLRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event, 
+			      char *arg)
+{
+  Window win = (Window)arg;
+  
+  if ((((XAnyEvent *)event)->window == win) &&
+      ((event->type == ButtonPress)))
+    vtkXOpenGLRenderWindowFoundMatch = 1;
+
+  return 0;
+  
+}
+
+void *vtkXOpenGLRenderWindow::GetGenericContext()
+{
+  static GC gc = (GC) NULL; 
+
+  if (!gc) gc = XCreateGC(this->DisplayId, this->WindowId, 0, 0);
+
+  return (void *) gc;
+
+}
+
+int vtkXOpenGLRenderWindow::GetEventPending()
+{
+  XEvent report;
+  
+  vtkXOpenGLRenderWindowFoundMatch = 0;
+  XCheckIfEvent(this->DisplayId, &report, vtkXOpenGLRenderWindowPredProc, 
+		(char *)this->WindowId);
+  return vtkXOpenGLRenderWindowFoundMatch;
+}
+
+
+// Get the size of the screen in pixels
+int *vtkXOpenGLRenderWindow::GetScreenSize()
+{
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
+    }
+
+  this->ScreenSize[0] = 
+    DisplayWidth(this->DisplayId, DefaultScreen(this->DisplayId));
+  this->ScreenSize[1] = 
+    DisplayHeight(this->DisplayId, DefaultScreen(this->DisplayId));
+
+  return this->ScreenSize;
+}
+
+// Get the current size of the window in pixels.
+int *vtkXOpenGLRenderWindow::GetSize(void)
+{  
+  return this->Size;
+}
+
+// Get the position in screen coordinates (pixels) of the window.
+int *vtkXOpenGLRenderWindow::GetPosition(void)
+{
+  XWindowAttributes attribs;
+  int x,y;
+  Window child;
+  
+  // if we aren't mapped then just return the ivar 
+  if (!this->Mapped)
+    {
+    return(this->Position);
+    }
+
+  //  Find the current window size 
+  XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+  x = attribs.x;
+  y = attribs.y;
+
+  XTranslateCoordinates(this->DisplayId,this->WindowId,
+		 RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+			x,y,&this->Position[0],&this->Position[1],&child);
+
+  return this->Position;
+}
+
+// Get this RenderWindow's X display id.
+Display *vtkXOpenGLRenderWindow::GetDisplayId()
+{
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    this->OwnDisplay = 1;
+    }
+  vtkDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
+
+  return this->DisplayId;
+}
+
+// Get this RenderWindow's parent X window id.
+Window vtkXOpenGLRenderWindow::GetParentId()
+{
+  vtkDebugMacro(<< "Returning ParentId of " << (void *)this->ParentId << "\n");
+  return this->ParentId;
+}
+
+// Get this RenderWindow's X window id.
+Window vtkXOpenGLRenderWindow::GetWindowId()
+{
+  vtkDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n");
+  return this->WindowId;
+}
+
+// Move the window to a new position on the display.
+void vtkXOpenGLRenderWindow::SetPosition(int x, int y)
+{
+  // if we aren't mapped then just set the ivars
+  if (!this->Mapped)
+    {
+    if ((this->Position[0] != x)||(this->Position[1] != y))
+      {
+      this->Modified();
+      }
+    this->Position[0] = x;
+    this->Position[1] = y;
+    return;
+    }
+
+  XMoveWindow(this->DisplayId,this->WindowId,x,y);
+  XSync(this->DisplayId,False);
+}
+
+// Sets the parent of the window that WILL BE created.
+void vtkXOpenGLRenderWindow::SetParentId(Window arg)
+{
+  if (this->ParentId)
+    {
+    vtkErrorMacro("ParentId is already set.");
+    return;
+    }
+  
+  vtkDebugMacro(<< "Setting ParentId to " << (void *)arg << "\n"); 
+
+  this->ParentId = arg;
+}
+
+// Set this RenderWindow's X window id to a pre-existing window.
+void vtkXOpenGLRenderWindow::SetWindowId(Window arg)
+{
+  vtkDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
+
+  this->WindowId = arg;
+
+  if (this->CursorHidden)
+    {
+    this->CursorHidden = 0;
+    this->HideCursor();
+    } 
+}
+
+// Set this RenderWindow's X window id to a pre-existing window.
+void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
+{
+  int tmp;
+  
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
+    }
+
+  sscanf(info,"%i",&tmp);
+ 
+  this->SetWindowId(tmp);
+}
+
+// Sets the X window id of the window that WILL BE created.
+void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
+{
+  int tmp;
+  
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
+    }
+
+  sscanf(info,"%i",&tmp);
+ 
+  this->SetParentId(tmp);
+}
+
+void vtkXOpenGLRenderWindow::SetWindowId(void *arg)
+{
+  this->SetWindowId((Window)arg);
+}
+void vtkXOpenGLRenderWindow::SetParentId(void *arg)
+{
+  this->SetParentId((Window)arg);
+}
+
+
+void vtkXOpenGLRenderWindow::SetWindowName(char * name)
+{
+  XTextProperty win_name_text_prop;
+
+  vtkOpenGLRenderWindow::SetWindowName( name );
+
+  if (this->Mapped)
+    {
+    if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
+      {
+      XFree (win_name_text_prop.value);
+      vtkWarningMacro(<< "Can't rename window"); 
+      return;
+      }
+    
+    XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
+    XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
+    XFree (win_name_text_prop.value);
+    }
+}
+
+
+// Specify the X window id to use if a WindowRemap is done.
+void vtkXOpenGLRenderWindow::SetNextWindowId(Window arg)
+{
+  vtkDebugMacro(<< "Setting NextWindowId to " << (void *)arg << "\n"); 
+
+  this->NextWindowId = arg;
+}
+
+// Set the X display id for this RenderWindow to use to a pre-existing 
+// X display id.
+void vtkXOpenGLRenderWindow::SetDisplayId(Display  *arg)
+{
+  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
+
+  this->DisplayId = arg;
+  this->OwnDisplay = 0;
+}
+void vtkXOpenGLRenderWindow::SetDisplayId(void *arg)
+{
+  this->SetDisplayId((Display *)arg);
+  this->OwnDisplay = 0;
+}
+
+void vtkXOpenGLRenderWindow::Render()
+{
+  XWindowAttributes attribs;
+
+  // To avoid the expensive XGetWindowAttributes call,
+  // compute size at the start of a render and use
+  // the ivar other times.
+  if (this->Mapped)
+    {
+    //  Find the current window size 
+    XGetWindowAttributes(this->DisplayId, 
+		                    this->WindowId, &attribs);
+
+    this->Size[0] = attribs.width;
+    this->Size[1] = attribs.height;
+    }
+
+  // Now do the superclass stuff
+  this->vtkOpenGLRenderWindow::Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkXOpenGLRenderWindow::HideCursor()
+{
+  static char blankBits[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  
+  static XColor black = { 0, 0, 0, 0, 0, 0 };
+ 
+  if (!this->DisplayId || !this->WindowId)
+    {
+    this->CursorHidden = 1;
+    }
+  else if (!this->CursorHidden)
+    {
+    Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
+					       this->WindowId,
+					       blankBits, 16, 16);
+    
+    Cursor blankCursor = XCreatePixmapCursor(this->DisplayId, blankPixmap,
+					     blankPixmap, &black, &black,
+					     7, 7);
+    
+    XDefineCursor(this->DisplayId, this->WindowId, blankCursor);
+    
+    XFreePixmap(this->DisplayId, blankPixmap);
+    
+    this->CursorHidden = 1;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXOpenGLRenderWindow::ShowCursor()
+{
+  if (!this->DisplayId || !this->WindowId)
+    {
+    this->CursorHidden = 0;
+    }
+  else if (this->CursorHidden)
+    {
+    XUndefineCursor(this->DisplayId, this->WindowId);
+    this->CursorHidden = 0;
+    }
+}				   
