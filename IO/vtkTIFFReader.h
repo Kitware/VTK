@@ -59,7 +59,7 @@ class TIFFInternal;
 
 class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
 {
-public:
+  public:
   static vtkTIFFReader *New();
   vtkTypeMacro(vtkTIFFReader,vtkImageReader2);
 
@@ -74,12 +74,34 @@ public:
   void ReadImageInternal( void *, void *outPtr,  
                           int *outExt, unsigned int size );
 
+  //Description: create a clone of this object.
+  virtual vtkImageReader2* MakeObject() { return vtkTIFFReader::New(); }
+
+  // Description: is the given file name a png file?
+  virtual int CanReadFile(const char* fname);
+
+  // Description:
+  // Get the file extensions for this format.
+  // Returns a string with a space separated list of extensions in 
+  // the format .extension
+  virtual const char* GetFileExensions()
+    {
+    return ".tif";
+    }
+
+  // Description: 
+  // Return a descriptive name for the file format that might be useful in a GUI.
+  virtual const char* GetDescriptiveName()
+    {
+    return "TIFF";
+    }
+
   TIFFInternal *GetInternalImage()
     { return this->InternalImage; }
  
 //ETX
 
-protected:
+  protected:
   vtkTIFFReader();
   ~vtkTIFFReader();
 
@@ -91,7 +113,7 @@ protected:
                          unsigned int size );
   
   int EvaluateImageAt( void*, void* ); 
-private:
+  private:
   vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
   void operator=(const vtkTIFFReader&);  // Not implemented.
 
