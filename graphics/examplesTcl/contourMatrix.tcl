@@ -6,11 +6,14 @@ source ../../examplesTcl/vtkInt.tcl
 
 # create pipeline
 #
-vtkStructuredPointsReader reader
+vtkDataSetReader reader
   reader SetFileName "../../../vtkdata/matrix.vtk"
 
+vtkCastToConcrete castToStructuredPoints
+  castToStructuredPoints SetInput [reader GetOutput]
+
 vtkContourFilter contour
-  contour SetInput [reader GetOutput]
+  contour SetInput [castToStructuredPoints GetStructuredPointsOutput]
   contour SetValue 0 .5
 
 vtkDataSetMapper contourMapper
@@ -22,7 +25,7 @@ vtkActor contourActor
   contourActor SetPosition 0 0 5
 
 vtkStructuredPointsGeometryFilter toGeometry
-  toGeometry SetInput [reader GetOutput]  
+  toGeometry SetInput [castToStructuredPoints GetStructuredPointsOutput]
 
 vtkWarpScalar carpet
   carpet SetInput [toGeometry GetOutput]
