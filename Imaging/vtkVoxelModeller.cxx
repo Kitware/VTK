@@ -22,7 +22,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkVoxelModeller, "1.49");
+vtkCxxRevisionMacro(vtkVoxelModeller, "1.50");
 vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
@@ -70,14 +70,43 @@ void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin,
     }
 }
 
-void vtkVoxelModeller::Execute()
+void vtkVoxelModeller::ExecuteInformation()
+{
+  int i;
+  float ar[3], origin[3];
+  vtkImageData *output = this->GetOutput();
+  
+  output->SetScalarType(VTK_BIT);
+  output->SetNumberOfScalarComponents(1);
+  
+  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
+                         0, this->SampleDimensions[1]-1,
+                         0, this->SampleDimensions[2]-1);
+
+  for (i=0; i < 3; i++)
+    {
+    origin[i] = this->ModelBounds[2*i];
+    if ( this->SampleDimensions[i] <= 1 )
+      {
+      ar[i] = 1;
+      }
+    else
+      {
+      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+              / (this->SampleDimensions[i] - 1);
+      }
+    }
+  output->SetOrigin(origin);
+  output->SetSpacing(ar);
+}
+
+void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
 {
   vtkIdType cellNum, i;
   int j, k;
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
-  vtkBitArray *newScalars;
   vtkIdType numPts, idx, numCells;
   int subId;
   int min[3], max[3];
@@ -87,7 +116,9 @@ void vtkVoxelModeller::Execute()
   float *weights=new float[input->GetMaxCellSize()];
   float closestPoint[3];
   float voxelHalfWidth[3], origin[3], spacing[3];
-  vtkStructuredPoints *output=this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkBitArray *newScalars = 
+    vtkBitArray::SafeDownCast(output->GetPointData()->GetScalars());
 
 //
 // Initialize self; create output objects
@@ -96,27 +127,24 @@ void vtkVoxelModeller::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
     this->SampleDimensions[2];
-  newScalars = vtkBitArray::New();
-  newScalars->SetNumberOfTuples(numPts);
   for (i=0; i<numPts; i++)
     {
     newScalars->SetComponent(i,0,0);
     }
 
-  output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds(origin,spacing);
   output->SetSpacing(spacing);
   output->SetOrigin(origin);
-//
-// Voxel widths are 1/2 the height, width, length of a voxel
-//
+  //
+  // Voxel widths are 1/2 the height, width, length of a voxel
+  //
   for (i=0; i < 3; i++)
     {
     voxelHalfWidth[i] = spacing[i] / 2.0;
     }
-//
-// Traverse all cells; computing distance function on volume points.
-//
+  //
+  // Traverse all cells; computing distance function on volume points.
+  //
   numCells = input->GetNumberOfCells();
   for (cellNum=0; cellNum < numCells; cellNum++)
     {
@@ -171,11 +199,6 @@ void vtkVoxelModeller::Execute()
       }
     }
   delete [] weights;
-//
-// Update self
-//
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
 }
 
 // Compute the ModelBounds based on the input geometry.
@@ -286,11 +309,13 @@ void vtkVoxelModeller::Write(char *fname)
   int idx;
   int bitcount;
   unsigned char uc;
-  vtkStructuredPoints *output=this->GetOutput();
+  vtkImageData *output=this->GetOutput();
 
   vtkDebugMacro(<< "Writing Voxel model");
 
   // update the data
+  this->UpdateInformation();
+  output->SetUpdateExtent(output->GetWholeExtent());
   this->Update();
   
   newScalars = output->GetPointData()->GetScalars();
