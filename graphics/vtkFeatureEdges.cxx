@@ -259,8 +259,11 @@ void vtkFeatureEdges::Execute()
   output->SetLines(newLines);
   newLines->Delete();
 
-  if ( this->Coloring ) outCD->SetScalars(newScalars);
-  newScalars->Delete();
+  if ( this->Coloring )
+    {
+    outCD->SetScalars(newScalars);
+    newScalars->Delete();
+    }
 }
 
 void vtkFeatureEdges::CreateDefaultLocator()
