@@ -21,7 +21,7 @@
 #include "vtkTimerLog.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
-#include "vtkGetDataRoot.h"
+#include "vtkTestUtilities.h"
 
 static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;
@@ -236,7 +236,8 @@ int main( int argc, char* argv[] )
   controller->Initialize(&argc, &argv);
 
   // Use this method to get the place of the data directory.
-  char* fname = vtkExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+						     "Data/headsq/quarter");
 
   controller->SetSingleMethod(MyMain, reinterpret_cast<void*>(fname));
 

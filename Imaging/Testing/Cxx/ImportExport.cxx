@@ -11,7 +11,7 @@ int main( int argc, char *argv[] )
 {
  int i,j,k;
  
- char* fname = vtkExpandDataFileName(argc, argv, "Data/headsq/quarter");
+ char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
  
  vtkImageReader *reader = vtkImageReader::New();
  reader->SetDataByteOrderToLittleEndian();
