@@ -25,7 +25,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.36");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.37");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -416,6 +416,36 @@ int vtkEnSightReader::ReadCaseFile()
     return 0;
     }
 
+  for (i = 0; i < this->NumberOfVariables; i++)
+    {
+    delete [] this->VariableFileNames[i];
+    this->VariableFileNames[i] = NULL;
+    delete [] this->VariableDescriptions[i];
+    this->VariableDescriptions[i] = NULL;
+    }
+  delete [] this->VariableFileNames;
+  this->VariableFileNames = NULL;
+  delete [] this->VariableDescriptions;
+  this->VariableDescriptions = NULL;
+  delete [] this->VariableTypes;
+  this->VariableTypes = NULL;
+  
+  for (i = 0; i < this->NumberOfComplexVariables; i++)
+    {
+    delete [] this->ComplexVariableFileNames[2*i];
+    this->ComplexVariableFileNames[2*i] = NULL;
+    delete [] this->ComplexVariableFileNames[2*i+1];
+    this->ComplexVariableFileNames[2*i+1] = NULL;
+    delete [] this->ComplexVariableDescriptions[i];
+    this->ComplexVariableDescriptions[i] = NULL;
+    }
+  delete [] this->ComplexVariableFileNames;
+  this->ComplexVariableFileNames = NULL;
+  delete [] this->ComplexVariableDescriptions;
+  this->ComplexVariableDescriptions = NULL;
+  delete [] this->ComplexVariableTypes;
+  this->ComplexVariableTypes = NULL;
+  
   this->NumberOfVariables = 0;
   this->NumberOfComplexVariables = 0;
   
@@ -1043,7 +1073,7 @@ int vtkEnSightReader::ReadCaseFile()
       numSteps = NULL;
       }
     }
-  
+
   delete this->IS;
   this->IS = NULL;
   return 1;
@@ -1326,7 +1356,7 @@ int vtkEnSightReader::ReadVariableFiles()
 
 //----------------------------------------------------------------------------
 void vtkEnSightReader::AddVariableFileName(char* fileName1,
-                                               char* fileName2)
+                                           char* fileName2)
 {
   int size;
   int i;
