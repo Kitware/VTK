@@ -317,6 +317,7 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
   int npts, idx;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float d, floatLoc[3];
+  float xOut[3];
   static vtkVoxel voxel;
   static vtkCell *cell;
 //
@@ -346,17 +347,17 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
   cell = &voxel;
   for (npts=0,k = loc[2]; k <= loc[2] + 1; k++)
     {
-    x[2] = this->Origin[2] + k * this->AspectRatio[2]; 
+    xOut[2] = this->Origin[2] + k * this->AspectRatio[2]; 
     for (j = loc[1]; j <= loc[1] + 1; j++)
       {
-      x[1] = this->Origin[1] + j * this->AspectRatio[1]; 
+      xOut[1] = this->Origin[1] + j * this->AspectRatio[1]; 
       idx = loc[0] + j*this->Dimensions[0] + k*d01;
       for (i = loc[0]; i <= loc[0] + 1; i++, idx++)
         {
-        x[0] = this->Origin[0] + i * this->AspectRatio[0]; 
+        xOut[0] = this->Origin[0] + i * this->AspectRatio[0]; 
 
         cell->PointIds.SetId(npts,idx);
-        cell->Points.SetPoint(npts++,x);
+        cell->Points.SetPoint(npts++,xOut);
         }
       }
     }
