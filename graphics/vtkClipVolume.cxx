@@ -503,12 +503,12 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
 
         if ( j >= 4 ) 
 	  {
-	  output->InsertNextCell(VTK_TETRA, 4, tPts);
+	  newCellId = output->InsertNextCell(VTK_TETRA, 4, tPts);
 	  outCD->CopyData(inCD, cellId, newCellId);
 	  }
         else 
 	  {
-	  clippedOutput->InsertNextCell(VTK_TETRA, 4, tPts);
+	  newCellId = clippedOutput->InsertNextCell(VTK_TETRA, 4, tPts);
 	  clippedCD->CopyData(inCD, cellId, newCellId);
 	  }
         }
