@@ -16,6 +16,7 @@ This file is part of the vis library
 #ifndef __vlActor_hh
 #define __vlActor_hh
 
+#include "Object.hh"
 #include "Property.hh"
 #include "Mapper.hh"
 
@@ -28,14 +29,18 @@ class vlActor : public vlObject
   vlActor();
   ~vlActor();
   void Render(vlRenderer *ren);
-  int GetVisibility();
-  void SetVisibility(int flag);
+
+  vlGetMacro(Visibility,int);
+  vlSetMacro(Visibility,int);
+  vlBooleanMacro(Visibility,int);
+
   void GetCompositeMatrix(float mat[4][4]);
   void SetMapper(vlMapper *m);
   vlMapper *GetMapper();
   vlProperty *Property; 
+  virtual char *GetClassName() {return "vlActor";};
 
- protected:
+protected:
   vlMapper *Mapper;
   float Origin[3];
   float Position[3];
