@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkEnSightCompoundReader.cxx
+  Module:    vtkEnSightMasterServerReader.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,22 +15,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkEnSightCompoundReader.h"
+#include "vtkEnSightMasterServerReader.h"
 
-#include "vtkCollection.h"
-#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkEnSightCompoundReader, "1.3");
-vtkStandardNewMacro(vtkEnSightCompoundReader);
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.1");
+vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 //----------------------------------------------------------------------------
-vtkEnSightCompoundReader::vtkEnSightCompoundReader()
+vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
 {
   this->PieceCaseFileName = 0;
   this->MaxNumberOfPieces = 0;
@@ -38,13 +32,13 @@ vtkEnSightCompoundReader::vtkEnSightCompoundReader()
 }
 
 //----------------------------------------------------------------------------
-vtkEnSightCompoundReader::~vtkEnSightCompoundReader()
+vtkEnSightMasterServerReader::~vtkEnSightMasterServerReader()
 {
   this->SetPieceCaseFileName(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightCompoundReader::Execute()
+void vtkEnSightMasterServerReader::Execute()
 {
   if ( !this->MaxNumberOfPieces )
     {
@@ -79,7 +73,7 @@ void vtkEnSightCompoundReader::Execute()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightCompoundReader::ExecuteInformation()
+void vtkEnSightMasterServerReader::ExecuteInformation()
 {  
   if ( this->DetermineFileName(-1) != VTK_OK )
     {
@@ -88,7 +82,8 @@ void vtkEnSightCompoundReader::ExecuteInformation()
     }  
 }
 
-int vtkEnSightCompoundReader::DetermineFileName(int piece)
+//----------------------------------------------------------------------------
+int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 {
   char line[1024];
 
@@ -175,12 +170,7 @@ int vtkEnSightCompoundReader::DetermineFileName(int piece)
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightCompoundReader::UpdateInformation()
-{
-  this->ExecuteInformation();
-}
-
-void vtkEnSightCompoundReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Current piece: " << this->CurrentPiece << endl;

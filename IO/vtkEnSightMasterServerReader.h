@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkEnSightCompoundReader.h
+  Module:    vtkEnSightMasterServerReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,24 +15,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEnSightCompoundReader - reader for compund EnSight files
+// .NAME vtkEnSightMasterServerReader - reader for compund EnSight files
 
-#ifndef __vtkEnSightCompoundReader_h
-#define __vtkEnSightCompoundReader_h
+#ifndef __vtkEnSightMasterServerReader_h
+#define __vtkEnSightMasterServerReader_h
 
 #include "vtkGenericEnSightReader.h"
 
 class vtkCollection;
 
-class VTK_IO_EXPORT vtkEnSightCompoundReader : public vtkGenericEnSightReader
+class VTK_IO_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSightReader
 {
 public:
-  vtkTypeRevisionMacro(vtkEnSightCompoundReader, vtkGenericEnSightReader);
+  vtkTypeRevisionMacro(vtkEnSightMasterServerReader, vtkGenericEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkEnSightCompoundReader* New();
-
-  virtual void UpdateInformation();
+  static vtkEnSightMasterServerReader* New();
 
   // Description:
   // Determine which file should be read for piece
@@ -48,8 +46,8 @@ public:
   vtkGetMacro(CurrentPiece, int);
   
 protected:
-  vtkEnSightCompoundReader();
-  ~vtkEnSightCompoundReader();
+  vtkEnSightMasterServerReader();
+  ~vtkEnSightMasterServerReader();
   
   void Execute();
   void ExecuteInformation();
@@ -60,8 +58,8 @@ protected:
   int CurrentPiece;
 
 private:
-  vtkEnSightCompoundReader(const vtkEnSightCompoundReader&);  // Not implemented.
-  void operator=(const vtkEnSightCompoundReader&);  // Not implemented.
+  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&);  // Not implemented.
+  void operator=(const vtkEnSightMasterServerReader&);  // Not implemented.
 };
 
 #endif
