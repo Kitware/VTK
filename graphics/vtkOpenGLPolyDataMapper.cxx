@@ -2711,4 +2711,11 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   aPrim = prims[3];
   aGlFunction = glFunction[3];
   draw3(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
+
+  // enable lighting again if necessary
+  if (!n && rep == VTK_POINTS)
+    {
+    glEnable( GL_LIGHTING);
+    }
 }
+
