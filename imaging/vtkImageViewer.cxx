@@ -80,7 +80,9 @@ vtkImageViewer::vtkImageViewer()
   this->YOffset = 0;
   this->GrayScaleHint = 0;
   
+#if 0
   this->OriginLocation = VTK_IMAGE_VIEWER_LOWER_LEFT;
+#endif
 }
 
 
