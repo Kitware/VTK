@@ -79,8 +79,6 @@ public:
 		   int tag) = 0;
   virtual int Send(float* data, int length, int remoteHandle, 
 		   int tag) = 0;
-  virtual int Send(vtkIdType* data, int length, int remoteHandle, 
-		   int tag) = 0;
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
@@ -96,8 +94,6 @@ public:
   virtual int Receive(char* data, int length, int remoteHandle, 
 		      int tag) = 0;
   virtual int Receive(float* data, int length, int remoteHandle, 
-		      int tag) = 0;
-  virtual int Receive(vtkIdType* data, int length, int remoteHandle, 
 		      int tag) = 0;
 
 protected:
