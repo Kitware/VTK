@@ -62,7 +62,6 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 void vtkDataSetToDataObjectFilter::Execute()
 {
   vtkDataSet *input = (vtkDataSet *)this->GetInput();
-  vtkDataObject *output = (vtkDataObject *)this->GetOutput();
   vtkScalars *scalars;
   vtkVectors *vectors;
   vtkTensors *tensors;

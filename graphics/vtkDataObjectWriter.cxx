@@ -68,7 +68,6 @@ void vtkDataObjectWriter::WriteData()
 {
   FILE *fp;
   vtkFieldData *f=this->Input->GetFieldData();
-  int numTuples=f->GetNumberOfTuples();
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
 
