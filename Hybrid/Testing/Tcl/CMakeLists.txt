@@ -25,6 +25,7 @@ IF (VTK_USE_RENDERING)
       largeImageOffset
       largeImageParallel
       MassProperties
+      ScalarBarWidget
       TestCaptionActor
       TestGridWarp3D
       TestGridWarpCubic
@@ -65,6 +66,7 @@ IF (VTK_USE_RENDERING)
       clipWedge
       depthSort
       MassProperties
+      ScalarBarWidget
       TestICPTransform
       TestPCA
       TestProcrustes
