@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.20");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.21");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -137,7 +137,7 @@ int vtkCocoaRenderWindow::GetEventPending()
 
 //----------------------------------------------------------------------------
 // Begin the rendering process.
-void vtkCocoaRenderWindow::Start(void)
+void vtkCocoaRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
   if (!this->ContextId)
@@ -322,7 +322,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
 
 //----------------------------------------------------------------------------
 // End the rendering process and display the image.
-void vtkCocoaRenderWindow::Frame(void)
+void vtkCocoaRenderWindow::Frame()
 {
   [[(vtkCocoaWindow *)this->WindowId getvtkCocoaGLView] display];
   if (!this->AbortRender && this->DoubleBuffer)
@@ -334,7 +334,7 @@ void vtkCocoaRenderWindow::Frame(void)
  
 //----------------------------------------------------------------------------
 // Update system if needed due to stereo rendering.
-void vtkCocoaRenderWindow::StereoUpdate(void)
+void vtkCocoaRenderWindow::StereoUpdate()
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -402,7 +402,7 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 
 //----------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCocoaRenderWindow::WindowInitialize (void)
+void vtkCocoaRenderWindow::WindowInitialize ()
 {
   static int count = 1;
   char *windowName;
@@ -477,7 +477,7 @@ void vtkCocoaRenderWindow::WindowInitialize (void)
 
 //----------------------------------------------------------------------------
 // Initialize the rendering window.
-void vtkCocoaRenderWindow::Initialize (void)
+void vtkCocoaRenderWindow::Initialize ()
 {
   // make sure we havent already been initialized
   if (this->ContextId)
@@ -501,7 +501,7 @@ void vtkCocoaRenderWindow::UpdateSizeAndPosition(int xPos, int yPos, int xSize, 
 
 //----------------------------------------------------------------------------
 // Get the current size of the window.
-int *vtkCocoaRenderWindow::GetSize(void)
+int *vtkCocoaRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
@@ -517,7 +517,7 @@ int *vtkCocoaRenderWindow::GetSize(void)
 
 //----------------------------------------------------------------------------
 // Get the current size of the screen.
-int *vtkCocoaRenderWindow::GetScreenSize(void)
+int *vtkCocoaRenderWindow::GetScreenSize()
 {
   NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
   int currentScreen = [context currentVirtualScreen];
@@ -531,7 +531,7 @@ int *vtkCocoaRenderWindow::GetScreenSize(void)
 
 //----------------------------------------------------------------------------
 // Get the position in screen coordinates of the window.
-int *vtkCocoaRenderWindow::GetPosition(void)
+int *vtkCocoaRenderWindow::GetPosition()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
