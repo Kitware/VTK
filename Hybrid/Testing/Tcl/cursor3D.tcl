@@ -24,7 +24,12 @@ toplevel .top
 
 set help [label .top.help -text "MiddleMouse (or shift-LeftMouse) in image viewer to place cursor"]
 set displayFrame [frame .top.f1]
-set quitButton [button .top.btn  -text Quit -command exit]
+set quitButton [button .top.btn  -text Quit -command bye]
+wm protocol . WM_DELETE_WINDOW bye 
+proc bye {} {
+    vtkCommand DeleteAllObjects
+    exit
+}
 pack $help
 pack $displayFrame  -fill both -expand t
 pack $quitButton -fill x
