@@ -8,7 +8,7 @@
 
 catch {load vtktcl}
 
-set rtSelector "grep -v 0x | sed -e s/-0/0/g | grep -v Modified"
+set rtSelector "grep -v 0x | sed -e s/-0\ /0\ /g | grep -v Modified"
 set rtComparator "diff"
 
 proc rtOtherTest { fileid } {
