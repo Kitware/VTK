@@ -18,14 +18,16 @@
 // .NAME vtkAxisActor2D - Create an axis with tick marks and labels
 // .SECTION Description
 // vtkAxisActor2D creates an axis with tick marks, labels, and/or a title,
-// depending on the particular instance variable settings. To use this class,
-// you typically specify two points defining the start and end points of the
-// line (x-y definition using vtkCoordinate class), the number of labels, and
-// the data range (min,max). You can also control what parts of the axis are
-// visible including the line, the tick marks, the labels, and the title. It
-// is also possible to control the font family, the font style (bold and/or
-// italic), and whether font shadows are drawn. You can also specify the
-// label format (a printf style format).
+// depending on the particular instance variable settings. vtkAxisActor2D is
+// a 2D actor; that is, it is drawn on the overlay plane and is not
+// occluded by 3D geometry. To use this class, you typically specify two
+// points defining the start and end points of the line (x-y definition using
+// vtkCoordinate class), the number of labels, and the data range
+// (min,max). You can also control what parts of the axis are visible
+// including the line, the tick marks, the labels, and the title. It is also
+// possible to control the font family, the font style (bold and/or italic),
+// and whether font shadows are drawn. You can also specify the label format
+// (a printf style format).
 //
 // This class decides what font size to use and how to locate the labels. It
 // also decides how to create reasonable tick marks and labels. The number
@@ -43,6 +45,7 @@
 // The tick marks are created so that they are perpendicular to the axis.
 
 // .SECTION See Also
+// vtkAxisActor3D can be used to create axes in world coordinate space.
 // vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
 // vtkCoordinate
 
