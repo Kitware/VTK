@@ -91,13 +91,13 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
     {
     if ( scols > pagewid * VTK_MARGIN )
       {
-      scale *= pagewid / scols * VTK_MARGIN;
+      scale = scale*(pagewid * VTK_MARGIN / scols);
       scols = (int)(scale * cols * pixfac);
       srows = (int)(scale * rows * pixfac);
       }
     if ( srows > pagehgt * VTK_MARGIN )
       {
-      scale *= pagehgt / srows * VTK_MARGIN;
+      scale = scale * (pagehgt * VTK_MARGIN / srows);
       scols = (int)(scale * cols * pixfac);
       srows = (int)(scale * rows * pixfac);
       }
