@@ -20,7 +20,7 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.41");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.42");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -172,7 +172,9 @@ void vtkExtractEdges::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
     {
-    this->Locator = vtkMergePoints::New();
+    vtkMergePoints *locator = vtkMergePoints::New();
+    this->SetLocator(locator);
+    locator->Delete();
     }
 }
 

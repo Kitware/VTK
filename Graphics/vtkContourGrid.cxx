@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.16");
+vtkCxxRevisionMacro(vtkContourGrid, "1.17");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -332,6 +332,8 @@ void vtkContourGrid::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     }
 }
 

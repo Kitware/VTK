@@ -32,7 +32,7 @@
 #include "vtkPyramid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.98");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.99");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -673,7 +673,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
 
     if (this->Connectivity)
       {
-      this->Connectivity->Delete();
+      this->Connectivity->UnRegister(this);
       }
     this->Connectivity = grid->Connectivity;
     if (this->Connectivity)
@@ -693,7 +693,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
 
     if (this->Types)
       {
-      this->Types->Delete();
+      this->Types->UnRegister(this);
       }
     this->Types = grid->Types;
     if (this->Types)
@@ -703,7 +703,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
 
     if (this->Locations)
       {
-      this->Locations->Delete();
+      this->Locations->UnRegister(this);
       }
     this->Locations = grid->Locations;
     if (this->Locations)

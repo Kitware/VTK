@@ -18,7 +18,7 @@
 #include "vtkPointSet.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.72");
+vtkCxxRevisionMacro(vtkPointSet, "1.73");
 
 vtkPointSet::vtkPointSet ()
 {
@@ -111,6 +111,8 @@ vtkIdType vtkPointSet::FindPoint(float x[3])
   if ( !this->Locator )
     {
     this->Locator = vtkPointLocator::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     this->Locator->SetDataSet(this);
     }
 
@@ -152,6 +154,8 @@ vtkIdType vtkPointSet::FindCell(float x[3], vtkCell *cell,
   if ( !this->Locator )
     {
     this->Locator = vtkPointLocator::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     this->Locator->SetDataSet(this);
     }
 
@@ -383,10 +387,14 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
       if ( pointSet->GetPoints() != NULL )
         {
         this->Points = pointSet->GetPoints()->MakeObject();
+        this->Points->Register(this);
+        this->Points->Delete();
         }
       else
         {
         this->Points = vtkPoints::New();
+        this->Points->Register(this);
+        this->Points->Delete();
         }
       }
     this->Points->DeepCopy(pointSet->GetPoints());

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.16");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.17");
 vtkStandardNewMacro(vtkClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -358,6 +358,8 @@ void vtkClipDataSet::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     }
 }
 

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.65");
+vtkCxxRevisionMacro(vtkCutter, "1.66");
 vtkStandardNewMacro(vtkCutter);
 
 // Construct with user-specified implicit function; initial value of 0.0; and
@@ -315,6 +315,8 @@ void vtkCutter::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     }
 }
 

@@ -20,7 +20,7 @@
 
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.35");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.36");
 
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
@@ -215,6 +215,8 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
     this->LookupTable->UnRegister(this);
     }
   this->LookupTable = vtkLookupTable::New();
+  this->LookupTable->Register(this);
+  this->LookupTable->Delete();
 }
 
 // Return the method of coloring scalar data.
