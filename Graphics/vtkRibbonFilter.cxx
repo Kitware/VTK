@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.75");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.75.2.1");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -417,7 +417,7 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
     {
     newTCoords->InsertTuple2(offset+k,0.0,0.0);
     }
-  if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
+  if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS && inScalars)
     {
     s0 = inScalars->GetTuple1(pts[0]);
     for (i=1; i < npts; i++)

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.65");
+vtkCxxRevisionMacro(vtkThreshold, "1.65.8.1");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -106,26 +106,17 @@ void vtkThreshold::Execute()
 
   vtkDebugMacro(<< "Executing threshold filter");
   
-  // I am explicitly checking to avoid a warning if the array is not found.
-  if (this->InputScalarsSelection)
+  pointScalars=pd->GetScalars(this->InputScalarsSelection);
+  cellScalars=cd->GetScalars(this->InputScalarsSelection);
+
+  if ( !(pointScalars || cellScalars) )
     {
-    pointScalars=pd->GetArray(this->InputScalarsSelection);
-    cellScalars=cd->GetArray(this->InputScalarsSelection);
-    }
-  else
-    {
-    pointScalars=pd->GetScalars();
-    cellScalars=cd->GetScalars();
+    vtkDebugMacro(<<"No scalar data to threshold");
+    return;
     }
 
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
-
-  if ( !(pointScalars || cellScalars) )
-    {
-    vtkErrorMacro(<<"No scalar data to threshold");
-    return;
-    }
 
   numPts = input->GetNumberOfPoints();
   output->Allocate(input->GetNumberOfCells());

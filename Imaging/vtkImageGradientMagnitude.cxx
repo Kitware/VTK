@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.36");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.36.2.1");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -230,6 +230,10 @@ void vtkImageGradientMagnitude::ThreadedExecute(vtkImageData *inData,
   vtkDataArray *inArray;
   
   inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (!inArray)
+    {
+    return;
+    }
   inPtr = inArray->GetVoidPointer(0);
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);

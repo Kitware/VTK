@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.39");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.39.8.1");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -404,6 +404,12 @@ void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
 
   // Do not copy the array we will be generating.
   inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+
+  if (!inArray)
+    {
+    return;
+    }
+
   // Scalar copy flag trumps the array copy flag.
   if (inArray == input->GetPointData()->GetScalars())
     {

@@ -49,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.82");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.82.2.1");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -648,6 +648,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   if (inScalars == NULL)
     {
     vtkErrorMacro("No scalars for contouring.");
+    return;
     }
   int numComps = inScalars->GetNumberOfComponents();
   
