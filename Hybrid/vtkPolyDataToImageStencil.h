@@ -53,6 +53,7 @@ protected:
   void ExecuteData(vtkDataObject *out);
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
+  void ExecuteInformation();
 
   double Tolerance;
   vtkOBBTree *OBBTree;

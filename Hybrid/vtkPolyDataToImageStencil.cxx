@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.13");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.14");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -152,6 +152,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
   target++;
 
+  // if we have no data then return
+  if (!this->GetInput()->GetNumberOfPoints())
+    {
+    return;
+    }
+  
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
 
@@ -300,6 +306,22 @@ void vtkPolyDataToImageStencil::RemoveReferences()
   this->Superclass::RemoveReferences();
 }
 
+void vtkPolyDataToImageStencil::ExecuteInformation()
+{
+  vtkImageStencilData *output;
+  
+  output = this->GetOutput();
+  
+  // this is an odd source that can produce any requested size.  so its whole
+  // extent is essentially infinite. This would not be a great source to
+  // connect to some sort of writer or viewer. For a sanity check we will
+  // limit the size produced to something reasonable (depending on your
+  // definition of reasonable)
+  output->SetWholeExtent(0, VTK_LARGE_INTEGER >> 2,
+                         0, VTK_LARGE_INTEGER >> 2,
+                         0, VTK_LARGE_INTEGER >> 2);
+}
+
 //----------------------------------------------------------------------------
 int vtkPolyDataToImageStencil::FillInputPortInformation(int port,
                                                         vtkInformation* info)
@@ -311,3 +333,4 @@ int vtkPolyDataToImageStencil::FillInputPortInformation(int port,
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+

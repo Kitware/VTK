@@ -65,7 +65,9 @@ protected:
 
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
-
+  void ExecuteInformation();
+  virtual int FillInputPortInformation(int, vtkInformation*);
+  
   double UpperThreshold;
   double LowerThreshold;
   double Threshold;
