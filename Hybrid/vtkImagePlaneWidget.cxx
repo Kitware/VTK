@@ -43,7 +43,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.69");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.70");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -509,6 +509,16 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "TexturePlane Property: (none)\n";
     }
+
+  if ( this->ColorMap )
+    {
+    os << indent << "ColorMap:\n";
+    this->ColorMap->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "ColorMap: (none)\n";
+    }      
 
   float *o = this->PlaneSource->GetOrigin();
   float *pt1 = this->PlaneSource->GetPoint1();
