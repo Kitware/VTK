@@ -32,7 +32,8 @@ vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
 vtkCellDerivatives \
-vtkCubeAxesActor2D
+vtkCubeAxesActor2D \
+vtkSurfaceReconstructionFilter
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
