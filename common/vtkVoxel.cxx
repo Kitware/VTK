@@ -471,7 +471,7 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts)
       pts.InsertNextPoint(this->Points.GetPoint(p[i]));
       }
 
-    p[0] = 1; p[1] = 3; p[2] = 5; p[3] = 6;
+    p[0] = 0; p[1] = 3; p[2] = 5; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
       ptIds.InsertNextId(this->PointIds.GetId(p[i]));
