@@ -333,7 +333,8 @@ void vtkXRenderWindowInteractor::Disable()
   // Expose events are disabled.
   XtRemoveEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    ButtonReleaseMask | EnterWindowMask,
+		    ButtonReleaseMask | EnterWindowMask |
+                    PointerMotionMask,
                     False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   this->Enabled = 0;
