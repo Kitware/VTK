@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.44");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.45");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -910,7 +910,7 @@ static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face,
 // that is not form the cavity boundary, these are kept track of in
 // a list.
 int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet, 
-                                     double bc[4])
+                                     double [4])
 {
   // Prepare to insert deleted tetras and cavity faces
   //
