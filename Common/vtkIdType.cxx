@@ -19,23 +19,21 @@
 
 #include "vtkIOStream.h"
 
+// Visual Studio 6 does not provide these operators.
+#if defined(VTK_USE_64BIT_IDS) && defined(_MSC_VER) && (_MSC_VER < 1300)
+
 //----------------------------------------------------------------------------
-ostream& operator << (ostream& os, vtkIdTypeHolder idh)
+ostream& vtkIdTypeOutput(ostream& os, __int64 id)
 {
-#if defined(VTK_USE_64BIT_IDS) && defined(_WIN32)
   // _i64toa can use up to 33 bytes (32 + null terminator).
   char buf[33];
   // Convert to string representation in base 10.
-  return (os << _i64toa(idh.Value, buf, 10));
-#else
-  return (os << idh.Value);
-#endif
+  return (os << _i64toa(id, buf, 10));
 }
 
 //----------------------------------------------------------------------------
-istream& operator >> (istream& is, vtkIdTypeHolder idh)
+istream& vtkIdTypeInput(istream& is, __int64& id)
 {
-#if defined(VTK_USE_64BIT_IDS) && defined(_WIN32)
   // Up to 33 bytes may be needed (32 + null terminator).
   char buf[33];
   is.width(33);
@@ -44,10 +42,9 @@ istream& operator >> (istream& is, vtkIdTypeHolder idh)
   if(is >> buf)
     {
     // Convert from string representation to integer.
-    idh.Value = _atoi64(buf);
+    id = _atoi64(buf);
     }
   return is;
-#else
-  return (is >> idh.Value);
-#endif
 }
+
+#endif

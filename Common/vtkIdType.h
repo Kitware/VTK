@@ -45,18 +45,22 @@ typedef long long vtkIdType;
 typedef int vtkIdType;
 #endif // VTK_USE_64BIT_IDS
 
-// Define a wrapper class so that we can define streaming operators
-// for vtkIdType without conflicting with other libraries'
-// implementations.
-class VTK_COMMON_EXPORT vtkIdTypeHolder
+// Visual Studio 6 does not provide these operators.
+#if defined(VTK_USE_64BIT_IDS) && defined(_MSC_VER) && (_MSC_VER < 1300)
+# if !defined(VTK_NO_INT64_OSTREAM_OPERATOR)
+VTK_COMMON_EXPORT ostream& vtkIdTypeOutput(ostream& os, __int64 id);
+inline ostream& operator << (ostream& os, __int64 id)
 {
-public:
-  vtkIdTypeHolder(vtkIdType& v): Value(v) {}
-  vtkIdType& Value;
-private:
-  vtkIdTypeHolder& operator=(const vtkIdTypeHolder&); // Not Implemented.
-};
-VTK_COMMON_EXPORT ostream& operator << (ostream& os, vtkIdTypeHolder idh);
-VTK_COMMON_EXPORT istream& operator >> (istream& is, vtkIdTypeHolder idh);
+  return vtkIdTypeOutput(os, id);
+}
+# endif
+# if !defined(VTK_NO_INT64_ISTREAM_OPERATOR)
+VTK_COMMON_EXPORT istream& vtkIdTypeInput(istream& is, __int64& id);
+inline istream& operator >> (istream& is, __int64& id)
+{
+  return vtkIdTypeInput(is, id);
+}
+# endif
+#endif
 
 #endif

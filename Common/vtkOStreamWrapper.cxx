@@ -70,11 +70,7 @@ VTKOSTREAM_OPERATOR(double);
 VTKOSTREAM_OPERATOR(bool);
 #endif
 #ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
-vtkOStreamWrapper& vtkOStreamWrapper::operator << (vtkIdType a)
-{
-  this->ostr << vtkIdTypeHolder(a);
-  return *this;
-}
+VTKOSTREAM_OPERATOR(vtkIdType);
 #endif
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void* (*a)(void*));
