@@ -76,7 +76,7 @@ vtkImageBlockReader::~vtkImageBlockReader()
 void vtkImageBlockReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  vtkProcessObject::PrintSelf(os,indent);
+  vtkImageSource::PrintSelf(os,indent);
   
   os << indent << "FilePattern: " << this->FilePattern << endl;
   os << indent << "Overlap: " << this->Overlap << endl;
