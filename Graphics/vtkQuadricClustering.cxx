@@ -22,7 +22,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.43");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.44");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -450,10 +450,10 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
       pt1 = points->GetPoint(ptIds[j]);
       binIds[1] = this->HashPoint(pt1);
       this->AddEdge(binIds, pt0, pt1, geometryFlag);
-      ++this->InCellCount;
       pt0 = pt1;
       binIds[0] = binIds[1];
       }
+    ++this->InCellCount;
     }
 }
 //----------------------------------------------------------------------------
@@ -585,8 +585,8 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
       pt = points->GetPoint(ptIds[j]);
       binId = this->HashPoint(pt);
       this->AddVertex(binId, pt, geometryFlag);
-      ++this->InCellCount;
       }
+    ++this->InCellCount;
     }
 }
 //----------------------------------------------------------------------------
