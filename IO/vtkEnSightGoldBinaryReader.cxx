@@ -1080,14 +1080,11 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       {
       output->GetPointData()->AddArray(scalars);
       }
+    delete [] scalarsRead;
     }
   
   fclose(this->IFile);
   this->IFile = NULL;
-  if (scalarsRead)
-    {
-    delete [] scalarsRead;
-    }
   return 1;
 }
 
