@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.62");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.63");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -119,20 +119,8 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Median: " << (this->Median ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
-// This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageShrink3D::InternalRequestUpdateExtent(int *inExt, int *outExt)
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  int outExt[6], inExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
-
   int idx;
   
   for (idx = 0; idx < 3; ++idx)
@@ -149,6 +137,25 @@ void vtkImageShrink3D::RequestUpdateExtent (
       inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
       }
     }
+}
+
+
+//----------------------------------------------------------------------------
+// This method computes the Region of input necessary to generate outRegion.
+void vtkImageShrink3D::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  int outExt[6], inExt[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
+
+  this->InternalRequestUpdateExtent(inExt, outExt);
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
 
@@ -559,9 +566,9 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 // It can handle any type data, but the two datas must have the same 
 // data type.
 void vtkImageShrink3D::ThreadedRequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
@@ -569,9 +576,7 @@ void vtkImageShrink3D::ThreadedRequestData(
   int inExt[6];
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  this->RequestUpdateExtent(request, inputVector, outputVector);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  this->InternalRequestUpdateExtent(inExt, outExt);
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
   if (!inPtr)
     {

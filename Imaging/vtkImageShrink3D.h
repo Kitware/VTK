@@ -86,6 +86,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData, 
                            int ext[6], int id);
 
+  void InternalRequestUpdateExtent(int *inExt, int *outExt);
+
 private:
   vtkImageShrink3D(const vtkImageShrink3D&);  // Not implemented.
   void operator=(const vtkImageShrink3D&);  // Not implemented.
