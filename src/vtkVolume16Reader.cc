@@ -50,6 +50,7 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->DataMask = 0x0000;
   this->HeaderSize = 0;
   this->SwapBytes = 0;
+  this->DataDimensions[0] = this->DataDimensions[1] = 0;
 }
 
 void vtkVolume16Reader::Execute()
