@@ -852,7 +852,7 @@ static void vtkImageDataCopyData(vtkImageData *self, void *outPtr,
 			   extent);
       break;
     default:
-      cerr << "vtkImageDataCopyData: Cannot handle ScalarType.\n\n";
+      vtkGenericWarningMacro("vtkImageDataCopyData: Cannot handle ScalarType.");
     }   
 }
 

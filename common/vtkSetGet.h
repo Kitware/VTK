@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define vtkSetMacro(name,type) \
 void Set##name (type _arg) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg); \
   if (name != _arg) \
     { \
     name = _arg; \
@@ -78,7 +78,7 @@ void Set##name (type _arg) \
 //
 #define vtkGetMacro(name,type) \
 type Get##name () { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << name ); \
   return name; \
   } 
 
@@ -89,7 +89,7 @@ type Get##name () { \
 #define vtkSetStringMacro(name) \
 void Set##name (char* _arg) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if ( name && _arg && (!strcmp(name,_arg))) return; \
   if (name) delete [] name; \
   if (_arg) \
@@ -110,7 +110,7 @@ void Set##name (char* _arg) \
 //
 #define vtkGetStringMacro(name) \
 char* Get##name () { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << name); \
   return name; \
   } 
 
@@ -122,7 +122,7 @@ char* Get##name () { \
 #define vtkSetClampMacro(name,type,min,max) \
 void Set##name (type _arg) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if (name != _arg) \
     { \
     name = (_arg<min?min:(_arg>max?max:_arg)); \
@@ -136,7 +136,7 @@ void Set##name (type _arg) \
 #define vtkSetObjectMacro(name,type) \
 void Set##name (type* _arg) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg); \
   if (name != _arg) \
     { \
     name = _arg; \
@@ -155,7 +155,7 @@ void Set##name (type& _arg) \
 #define vtkSetRefCountedObjectMacro(name,type) \
 void Set##name (type* _arg) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if (name != _arg) \
     { \
     if (name != NULL) name->UnRegister(this); \
@@ -171,7 +171,7 @@ void Set##name (type* _arg) \
 #define vtkGetObjectMacro(name,type) \
 type *Get##name () \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " address " << name << "\n\n"; \
+      vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name " address " << name ); \
   return name; \
   } 
 
@@ -192,7 +192,7 @@ void name##Off () { Set##name((type)0);}
 #define vtkSetVector2Macro(name,type) \
 void Set##name (type _arg1, type _arg2) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")"); \
   if ((name[0] != _arg1)||(name[1] != _arg2)) \
     { \
     this->Modified(); \
@@ -208,12 +208,12 @@ void Set##name (type _arg[2]) \
 #define vtkGetVector2Macro(name,type) \
 type *Get##name () \
 { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name); \
   return name; \
 } \
 void Get##name (type &_arg1, type &_arg2) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
   }; \
@@ -225,7 +225,7 @@ void Get##name (type _arg[2]) \
 #define vtkSetVector3Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)) \
     { \
     this->Modified(); \
@@ -242,12 +242,12 @@ void Set##name (type _arg[3]) \
 #define vtkGetVector3Macro(name,type) \
 type *Get##name () \
 { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name); \
   return name; \
 } \
 void Get##name (type &_arg1, type &_arg2, type &_arg3) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
     _arg3 = name[2]; \
@@ -260,7 +260,7 @@ void Get##name (type _arg[3]) \
 #define vtkSetVector4Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)||(name[3] != _arg4)) \
     { \
     this->Modified(); \
@@ -278,12 +278,12 @@ void Set##name (type _arg[4]) \
 #define vtkGetVector4Macro(name,type) \
 type *Get##name () \
 { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name); \
   return name; \
 } \
 void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
   { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
     _arg3 = name[2]; \
@@ -320,7 +320,7 @@ void Set##name(type data[]) \
 #define vtkGetVectorMacro(name,type,count) \
 type *Get##name () \
 { \
-  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name); \
   return name; \
 } \
 void Get##name (type data[count]) \
@@ -330,12 +330,23 @@ void Get##name (type data[count]) \
 
 #ifdef _WIN32
 //
+// This macro is used for any output that may not be in an instance method
+// vtkGenericWarningMacro(<< "this is debug info" << this->SomeVariable);
+//
+#define vtkGenericWarningMacro(x) \
+{ char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" << x << ends; \
+      vtkmsgbuff = vtkmsg.str(); \
+      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
+      vtkmsg.rdbuf()->freeze(0);}
+
+//
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkDebugMacro(x) \
 { if (Debug) { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
       vtkmsg.rdbuf()->freeze(0);}}
@@ -346,7 +357,7 @@ void Get##name (type data[count]) \
 //
 #define vtkWarningMacro(x) \
       { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       MessageBox(NULL,vtkmsgbuff,"Warning",MB_ICONWARNING | MB_OK); \
       vtkmsg.rdbuf()->freeze(0);}
@@ -357,32 +368,39 @@ void Get##name (type data[count]) \
 //
 #define vtkErrorMacro(x) \
       { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       MessageBox(NULL,vtkmsgbuff,"Error",MB_ICONERROR | MB_OK); \
       vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}
 
 #else
 //
+// This macro is used for any output that may not be in an instance method
+// vtkGenericWarningMacro(<< "this is debug info" << this->SomeVariable);
+//
+#define vtkGenericWarningMacro(x) \
+  cerr << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n  " x << "\n\n"
+
+//
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkDebugMacro(x) \
-  if (Debug) cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+  if (Debug) cerr << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x <<  "\n\n"
 
 //
 // This macro is used to print out warning messages.
 // vtkWarningMacro(<< "Warning message" << variable);
 //
 #define vtkWarningMacro(x) \
-  cerr << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+  cerr << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out errors
 // vtkErrorMacro(<< "Error message" << variable);
 //
 #define vtkErrorMacro(x) \
-  {cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"; vtkObject::BreakOnError();}
+  {cerr << "ERROR In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"; vtkObject::BreakOnError();}
 #endif
 
 //
