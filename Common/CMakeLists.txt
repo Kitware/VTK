@@ -152,6 +152,7 @@ vtkSphericalTransform.cxx
 vtkStructuredData.cxx
 vtkStructuredGrid.cxx
 vtkStructuredPoints.cxx
+vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
 vtkTetra.cxx
