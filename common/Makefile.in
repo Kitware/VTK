@@ -106,6 +106,7 @@ vtkPointLocator \
 vtkPointLocator2D \
 vtkPoints \
 vtkPolyData \
+vtkPolyDataSource \
 vtkPolyLine \
 vtkPolyVertex \
 vtkPolygon \

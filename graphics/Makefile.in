@@ -218,7 +218,6 @@ vtkPolyDataConnectivityFilter \
 vtkPolyDataMapper \
 vtkPolyDataNormals \
 vtkPolyDataReader \
-vtkPolyDataSource \
 vtkPolyDataWriter \
 vtkProbeFilter \
 vtkProgrammableAttributeDataFilter \
