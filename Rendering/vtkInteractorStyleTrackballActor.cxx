@@ -97,8 +97,8 @@ vtkInteractorStyleTrackballActor::~vtkInteractorStyleTrackballActor()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl), 
-						   int vtkNotUsed(shift),
-						   int x, int y) 
+                                                   int vtkNotUsed(shift),
+                                                   int x, int y) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ROTATE)
     {
@@ -133,7 +133,7 @@ void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
-						int oldY)
+                                                int oldY)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
@@ -169,9 +169,9 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
   
   // convert them to display coord
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   this->ComputeWorldToDisplay(outsidept[0], outsidept[1],
-			      outsidept[2], outsidept);
+                              outsidept[2], outsidept);
   
   // get the radius in display coord
   double ftmp[3];
@@ -214,8 +214,8 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
     
     
     this->Prop3DTransform(this->InteractionProp,
-			  this->ObjCenter,
-			  2, rotate, scale);
+                          this->ObjCenter,
+                          2, rotate, scale);
     
     delete [] rotate[0];
     delete [] rotate[1];
@@ -242,17 +242,17 @@ void vtkInteractorStyleTrackballActor::PanXY(int x, int y, int oldX, int oldY)
   this->ObjCenter[1] = center[1];
   this->ObjCenter[2] = center[2];
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   this->FocalDepth = this->DispObjCenter[2];
   
   this->HighlightProp3D(NULL);
   
   this->ComputeDisplayToWorld(double(x), double(y),
-			      this->FocalDepth,
-			      this->NewPickPoint);
+                              this->FocalDepth,
+                              this->NewPickPoint);
   
   this->ComputeDisplayToWorld(double(oldX), double(oldY),
-			      this->FocalDepth, this->OldPickPoint);
+                              this->FocalDepth, this->OldPickPoint);
   
   this->MotionVector[0] = this->NewPickPoint[0] - this->OldPickPoint[0];
   this->MotionVector[1] = this->NewPickPoint[1] - this->OldPickPoint[1];
@@ -264,7 +264,7 @@ void vtkInteractorStyleTrackballActor::PanXY(int x, int y, int oldX, int oldY)
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(this->MotionVector[0], this->MotionVector[1], 
-		 this->MotionVector[2]);
+                 this->MotionVector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
@@ -301,11 +301,11 @@ void vtkInteractorStyleTrackballActor::DollyXY(int vtkNotUsed(dx), int dy)
   
   dollyFactor -= 1.0;
   this->MotionVector[0] = (this->ViewPoint[0] -
-			   this->ViewFocus[0]) * dollyFactor;
+                           this->ViewFocus[0]) * dollyFactor;
   this->MotionVector[1] = (this->ViewPoint[1] -
-			   this->ViewFocus[1]) * dollyFactor;
+                           this->ViewFocus[1]) * dollyFactor;
   this->MotionVector[2] = (this->ViewPoint[2] -
-			   this->ViewFocus[2]) * dollyFactor;
+                           this->ViewFocus[2]) * dollyFactor;
   
   if (this->InteractionProp->GetUserMatrix() != NULL)
     {
@@ -313,7 +313,7 @@ void vtkInteractorStyleTrackballActor::DollyXY(int vtkNotUsed(dx), int dy)
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(this->MotionVector[0], this->MotionVector[1], 
-		 this->MotionVector[2]);
+                 this->MotionVector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
@@ -360,15 +360,15 @@ void vtkInteractorStyleTrackballActor::SpinXY(int x, int y, int oldX, int oldY)
     }
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
   
   // this has to be in the loop
   double newAngle = atan2((double)(y - this->DispObjCenter[1]),
-			  (double)(x - this->DispObjCenter[0]));
+                          (double)(x - this->DispObjCenter[0]));
   double oldAngle = atan2((double)(oldY - this->DispObjCenter[1]),
-			  (double)(oldX - this->DispObjCenter[0]));
+                          (double)(oldX - this->DispObjCenter[0]));
   
   newAngle *= this->RadianToDegree;
   oldAngle *= this->RadianToDegree;
@@ -384,8 +384,8 @@ void vtkInteractorStyleTrackballActor::SpinXY(int x, int y, int oldX, int oldY)
   rotate[0][3] = this->MotionVector[2];
   
   this->Prop3DTransform(this->InteractionProp,
-			this->ObjCenter,
-			1, rotate, scale);
+                        this->ObjCenter,
+                        1, rotate, scale);
   
   delete [] rotate[0];
   delete [] rotate;
@@ -396,7 +396,7 @@ void vtkInteractorStyleTrackballActor::SpinXY(int x, int y, int oldX, int oldY)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
-					       int vtkNotUsed(oldX), int oldY)
+                                               int vtkNotUsed(oldX), int oldY)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -422,8 +422,8 @@ void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
   scale[0] = scale[1] = scale[2] = scaleFactor;
   
   this->Prop3DTransform(this->InteractionProp,
-			this->ObjCenter,
-			0, rotate, scale);
+                        this->ObjCenter,
+                        0, rotate, scale);
   
   this->CurrentRenderer->ResetCameraClippingRange();
   rwi->Render();
@@ -431,7 +431,7 @@ void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift, 
-							int x, int y) 
+                                                        int x, int y) 
 {
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
@@ -463,16 +463,16 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
-						      int vtkNotUsed(shift),
-						      int vtkNotUsed(x),
-						      int vtkNotUsed(y))
+                                                      int vtkNotUsed(shift),
+                                                      int vtkNotUsed(x),
+                                                      int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl, int shift, 
-							  int x, int y) 
+                                                          int x, int y) 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
@@ -499,17 +499,17 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl, int shift,
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-							int vtkNotUsed(shift), 
-							int vtkNotUsed(x),
-							int vtkNotUsed(y))
+                                                        int vtkNotUsed(shift), 
+                                                        int vtkNotUsed(x),
+                                                        int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnRightButtonDown(int vtkNotUsed(ctrl),
-							 int vtkNotUsed(shift), 
-							 int x, int y) 
+                                                         int vtkNotUsed(shift), 
+                                                         int x, int y) 
 {
   if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
@@ -529,9 +529,9 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnRightButtonUp(int vtkNotUsed(ctrl),
-						       int vtkNotUsed(shift), 
-						       int vtkNotUsed(x),
-						       int vtkNotUsed(y))
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
@@ -565,10 +565,10 @@ void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
-						       double *boxCenter,
-						       int numRotation,
-						       double **rotate,
-						       double *scale)
+                                                       double *boxCenter,
+                                                       int numRotation,
+                                                       double **rotate,
+                                                       double *scale)
 {
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
   prop3D->GetMatrix(oldMatrix);
@@ -622,10 +622,10 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
 }
 
 void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
-						       float *boxCenter,
-						       int numRotation,
-						       double **rotate,
-						       double *scale)
+                                                       float *boxCenter,
+                                                       int numRotation,
+                                                       double **rotate,
+                                                       double *scale)
 {
   double boxCenter2[3];
   boxCenter2[0] = boxCenter[0];

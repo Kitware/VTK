@@ -158,8 +158,8 @@ public:
   // Set the window id to a pre-existing window.
   virtual void  SetWindowId(void *);
   
-  void  SetContextId(void *);	// hsr
-  void  SetDeviceContext(void *);	// hsr
+  void  SetContextId(void *);   // hsr
+  void  SetDeviceContext(void *);       // hsr
 
   //ETX
 
@@ -182,7 +182,7 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
+                            int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -217,7 +217,7 @@ public:
   virtual void OpenGLInit();
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
-				int bpp=16, int zbpp=16);
+                                int bpp=16, int zbpp=16);
   
   // Description:
   // Clean up device contexts, rendering contexts, etc.
@@ -257,7 +257,7 @@ protected:
   // the following is used to support rendering into memory
 //  void *MemoryDataHeader;
 //  void *MemoryBuffer;
-//  unsigned char *MemoryData;	// the data in the DIBSection
+//  unsigned char *MemoryData;  // the data in the DIBSection
 //  void *MemoryHdc;
 
   int ScreenMapped;

@@ -123,7 +123,7 @@ void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
-						      void *arg)
+                                                      void *arg)
 {
   this->vtkSetOldCallback(this->MouseMoveTag,
                     vtkCommand::MouseMoveEvent,f,arg);
@@ -138,7 +138,7 @@ void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetButtonPressMethod(void (*f)(void *), 
-						  void *arg)
+                                                  void *arg)
 {
   this->SetLeftButtonPressMethod(f,arg);
   this->SetMiddleButtonPressMethod(f,arg);
@@ -156,7 +156,7 @@ void vtkInteractorStyleUser::SetButtonPressMethodArgDelete(void (*f)(void *))
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetButtonReleaseMethod(void (*f)(void *), 
-						    void *arg)
+                                                    void *arg)
 {
   this->SetLeftButtonReleaseMethod(f,arg);
   this->SetMiddleButtonReleaseMethod(f,arg);
@@ -272,7 +272,7 @@ void vtkInteractorStyleUser::SetTimerMethodArgDelete(void (*f)(void *))
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
-						      void *arg)
+                                                      void *arg)
 {
   this->vtkSetOldCallback(this->UserTag,
                     vtkCommand::UserEvent,f,arg);
@@ -325,10 +325,10 @@ void vtkInteractorStyleUser::OnTimer(void)
       }
     }
   else if (!(this->HasObserver(vtkCommand::MouseMoveEvent) && 
-	     (this->Button == 0 ||
-	      (this->HasObserver(vtkCommand::LeftButtonPressEvent) && this->Button == 1) ||
-	      (this->HasObserver(vtkCommand::MiddleButtonPressEvent) && this->Button == 2) ||
-	      (this->HasObserver(vtkCommand::RightButtonPressEvent) && this->Button == 3))))
+             (this->Button == 0 ||
+              (this->HasObserver(vtkCommand::LeftButtonPressEvent) && this->Button == 1) ||
+              (this->HasObserver(vtkCommand::MiddleButtonPressEvent) && this->Button == 2) ||
+              (this->HasObserver(vtkCommand::RightButtonPressEvent) && this->Button == 3))))
     {
     this->vtkInteractorStyleSwitch::OnTimer();
     }
@@ -340,8 +340,8 @@ void vtkInteractorStyleUser::OnTimer(void)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift, 
-					char keycode, char *keysym, 
-					int vtkNotUsed(repeatcount))
+                                        char keycode, char *keysym, 
+                                        int vtkNotUsed(repeatcount))
 {
   if (this->HasObserver(vtkCommand::KeyPressEvent)) 
     {
@@ -355,8 +355,8 @@ void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift, 
-					  char keycode, char *keysym, 
-					  int vtkNotUsed(repeatcount))
+                                          char keycode, char *keysym, 
+                                          int vtkNotUsed(repeatcount))
 {
   if (this->HasObserver(vtkCommand::KeyReleaseEvent)) 
     {
@@ -371,7 +371,7 @@ void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
-				    int repeatcount) 
+                                    int repeatcount) 
 {
   // do nothing if a KeyPressMethod has been set,
   // otherwise pass the OnChar to the vtkInteractorStyleSwitch.
@@ -567,7 +567,7 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width), 
-					 int vtkNotUsed(height)) 
+                                         int vtkNotUsed(height)) 
 {
   if (this->HasObserver(vtkCommand::ConfigureEvent)) 
     {

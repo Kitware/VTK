@@ -768,7 +768,7 @@ void vtkRenderWindow::StereoUpdate(void)
         break;
       case VTK_STEREO_DRESDEN:
         this->StereoStatus = 1;
-	break;      
+        break;      
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
       }
@@ -782,7 +782,7 @@ void vtkRenderWindow::StereoUpdate(void)
         break;
       case VTK_STEREO_DRESDEN:
         this->StereoStatus = 0;
-	break;
+        break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 0;
         break;
@@ -796,7 +796,7 @@ void vtkRenderWindow::StereoMidpoint(void)
 {
   if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
       (this->StereoType == VTK_STEREO_INTERLACED) ||
-	  (this->StereoType == VTK_STEREO_DRESDEN) )
+          (this->StereoType == VTK_STEREO_DRESDEN) )
     {
     int *size;
     // get the size

@@ -68,8 +68,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimeStamp.h"
 
 // Constants for InterpolationType
-#define	VTK_NEAREST_INTERPOLATION	0
-#define	VTK_LINEAR_INTERPOLATION	1
+#define VTK_NEAREST_INTERPOLATION       0
+#define VTK_LINEAR_INTERPOLATION        1
 
 
 class VTK_RENDERING_EXPORT vtkVolumeProperty : public vtkObject
@@ -88,12 +88,12 @@ public:
   // Description:
   // Set the interpolation type for sampling a volume.
   vtkSetClampMacro( InterpolationType, int,
-	VTK_NEAREST_INTERPOLATION, VTK_LINEAR_INTERPOLATION);
+        VTK_NEAREST_INTERPOLATION, VTK_LINEAR_INTERPOLATION);
   vtkGetMacro(InterpolationType,int);
   void SetInterpolationTypeToNearest() 
-	{this->SetInterpolationType(VTK_NEAREST_INTERPOLATION);};
+        {this->SetInterpolationType(VTK_NEAREST_INTERPOLATION);};
   void SetInterpolationTypeToLinear() 
-	{this->SetInterpolationType(VTK_LINEAR_INTERPOLATION);};
+        {this->SetInterpolationType(VTK_LINEAR_INTERPOLATION);};
   const char *GetInterpolationTypeAsString(void);
 
   // Description:
@@ -212,27 +212,27 @@ protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty();
 
-  int				InterpolationType;
+  int                           InterpolationType;
 
-  int				ColorChannels;
+  int                           ColorChannels;
 
-  vtkPiecewiseFunction		*GrayTransferFunction;
-  vtkTimeStamp			GrayTransferFunctionMTime;
+  vtkPiecewiseFunction          *GrayTransferFunction;
+  vtkTimeStamp                  GrayTransferFunctionMTime;
 
-  vtkColorTransferFunction	*RGBTransferFunction;
-  vtkTimeStamp			RGBTransferFunctionMTime;
+  vtkColorTransferFunction      *RGBTransferFunction;
+  vtkTimeStamp                  RGBTransferFunctionMTime;
 
-  vtkPiecewiseFunction		*ScalarOpacity;
-  vtkTimeStamp			ScalarOpacityMTime;
+  vtkPiecewiseFunction          *ScalarOpacity;
+  vtkTimeStamp                  ScalarOpacityMTime;
 
-  vtkPiecewiseFunction		*GradientOpacity;
-  vtkTimeStamp			GradientOpacityMTime;
+  vtkPiecewiseFunction          *GradientOpacity;
+  vtkTimeStamp                  GradientOpacityMTime;
 
-  int				Shade;
-  float				Ambient;
-  float 			Diffuse;
-  float				Specular;
-  float				SpecularPower;
+  int                           Shade;
+  float                         Ambient;
+  float                         Diffuse;
+  float                         Specular;
+  float                         SpecularPower;
   float                         RGBTextureCoefficient;
 private:
   vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.

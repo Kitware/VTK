@@ -62,7 +62,7 @@ struct vtkFontStruct
 {
   vtkWindow *Window;
   int   Italic;
-  int	Bold;
+  int   Bold;
   int   FontSize;
   int   FontFamily;
   int   ListBase;
@@ -79,8 +79,8 @@ static vtkFontStruct *cache[30] = {
 static int numCached = 0;
 
 int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
-					     vtkViewport *vp, 
-					     Font CurrentFont)
+                                             vtkViewport *vp, 
+                                             Font CurrentFont)
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
@@ -89,21 +89,21 @@ int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   for (i = 0; i < numCached; i++)
     {
     if (cache[i]->Window == win &&
-	cache[i]->Italic == tm->GetItalic() &&
-	cache[i]->Bold == tm->GetBold() &&
-	cache[i]->FontSize == tm->GetFontSize() &&
-	cache[i]->FontFamily == tm->GetFontFamily())
+        cache[i]->Italic == tm->GetItalic() &&
+        cache[i]->Bold == tm->GetBold() &&
+        cache[i]->FontSize == tm->GetFontSize() &&
+        cache[i]->FontFamily == tm->GetFontFamily())
       {
       // make this the most recently used
       if (i != 0)
-	{
-	vtkFontStruct *tmp = cache[i];
-	for (j = i-1; j >= 0; j--)
-	  {
-	  cache[j+1] = cache[j];
-	  }
-	cache[0] = tmp;
-	}
+        {
+        vtkFontStruct *tmp = cache[i];
+        for (j = i-1; j >= 0; j--)
+          {
+          cache[j+1] = cache[j];
+          }
+        cache[0] = tmp;
+        }
       return cache[0]->ListBase;
       }
     }
@@ -116,11 +116,11 @@ int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   if (numCached == 30)
     {
     glXMakeCurrent((Display *)cache[29]->Window->GetGenericDisplayId(),
-		   (Window)cache[29]->Window->GetGenericWindowId(),
-		   cache[29]->ContextId);
+                   (Window)cache[29]->Window->GetGenericWindowId(),
+                   cache[29]->ContextId);
     glDeleteLists(cache[29]->ListBase,255);
     glXMakeCurrent((Display *)win->GetGenericDisplayId(),
-		   (Window)win->GetGenericWindowId(), ctx);
+                   (Window)win->GetGenericWindowId(), ctx);
     numCached = 29;
     }
 
@@ -135,12 +135,12 @@ int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
       done = 1;
       cache[numCached]->ListBase += 260;
       for (i = 0; i < numCached; i++)
-	{
-	if (cache[i]->ListBase == cache[numCached]->ListBase)
-	  {
-	  done = 0;
-	  }
-	}
+        {
+        if (cache[i]->ListBase == cache[numCached]->ListBase)
+          {
+          done = 0;
+          }
+        }
       }
     while (!done);
     }
@@ -181,9 +181,9 @@ void vtkXOpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       // resort them
       numCached--;
       for (j = i; j < numCached; j++)
-	{
-	cache[j] = cache[j+1];
-	}
+        {
+        cache[j] = cache[j+1];
+        }
       cache[numCached] = NULL;
       i--;
       }
@@ -322,7 +322,7 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   if(viewport->GetIsPicking())
     {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-		     1, 1, viewport->GetOrigin(), viewport->GetSize());
+                     1, 1, viewport->GetOrigin(), viewport->GetSize());
     }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -354,8 +354,8 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
     }
   
   glListBase(vtkXOpenGLTextMapper::GetListBaseForFont(this,viewport,
-						      this->CurrentFont));
-	      
+                                                      this->CurrentFont));
+              
   // Set the colors for the shadow
   if (this->Shadow)
     {
@@ -363,8 +363,8 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
     // set the colors for the foreground
     glColor4ub(shadowRed, shadowGreen, shadowBlue, alpha);
     glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
-		  (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
-		  (front)?(-1):(.99999));
+                  (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
+                  (front)?(-1):(.99999));
 
     // Draw the shadow text
     glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  
@@ -375,8 +375,8 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   glColor4ub(red, green, blue, alpha);
 
   glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
-		(2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
-		(front)?(-1):(.99999));
+                (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
+                (front)?(-1):(.99999));
 
   // display a string: // indicate start of glyph display lists 
   glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  

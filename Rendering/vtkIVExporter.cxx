@@ -77,11 +77,11 @@ vtkIVExporter::~vtkIVExporter()
 static char indent[256];
 int indent_now = 0;
 #define VTK_INDENT_MORE { indent[indent_now] = ' '; \
-					  indent_now += 4; \
-				      indent[indent_now] = 0; }
+                                          indent_now += 4; \
+                                      indent[indent_now] = 0; }
 #define VTK_INDENT_LESS { indent[indent_now] = ' '; \
-					  indent_now -= 4; \
-				      indent[indent_now] = 0; }
+                                          indent_now -= 4; \
+                                      indent[indent_now] = 0; }
 
 void vtkIVExporter::WriteData()
 {
@@ -153,18 +153,18 @@ void vtkIVExporter::WriteData()
     {
     // this assumes the aspect ratio is 1
     fprintf(fp,"%sPerspectiveCamera\n%s{\n%s    heightAngle %f\n",
-	    indent, indent, indent,
-	    cam->GetViewAngle()*3.1415926/180.0);
+            indent, indent, indent,
+            cam->GetViewAngle()*3.1415926/180.0);
     }
   VTK_INDENT_MORE;
   fprintf(fp,"%snearDistance %f\n",indent, cam->GetClippingRange()[0]);
   fprintf(fp,"%sfarDistance %f\n",indent, cam->GetClippingRange()[1]);
   fprintf(fp,"%sfocalDistance %f\n",indent, cam->GetDistance());
   fprintf(fp,"%sposition %f %f %f\n", indent, cam->GetPosition()[0],
-    	  cam->GetPosition()[1], cam->GetPosition()[2]);
+          cam->GetPosition()[1], cam->GetPosition()[2]);
   tempf = cam->GetOrientationWXYZ();
   fprintf(fp,"%sorientation %g %g %g %g\n%s}\n", indent,
-	  tempf[1], tempf[2], tempf[3], tempf[0]*3.1415926/180.0, indent);
+          tempf[1], tempf[2], tempf[3], tempf[0]*3.1415926/180.0, indent);
   VTK_INDENT_LESS;
 
   // do the lights first the ambient then the others
@@ -177,7 +177,7 @@ void vtkIVExporter::WriteData()
   VTK_INDENT_MORE;
   fprintf(fp,"#%sambientIntensity 1.0 # ambient light\n", indent);
   fprintf(fp,"#%sambientColor %f %f %f }\n\n", indent,
-	  ren->GetAmbient()[0], ren->GetAmbient()[1], ren->GetAmbient()[2]);
+          ren->GetAmbient()[0], ren->GetAmbient()[1], ren->GetAmbient()[2]);
   VTK_INDENT_LESS;
 
   // make sure we have a default light
@@ -232,19 +232,19 @@ void vtkIVExporter::WriteALight(vtkLight *aLight, FILE *fp)
     else
       { 
       fprintf(fp,"%sSpotLight {\n", indent);
-	  VTK_INDENT_MORE;
+          VTK_INDENT_MORE;
       fprintf(fp,"%sdirection %f %f %f\n", indent, dir[0], dir[1], dir[2]);
       fprintf(fp,"%scutOffAngle %f\n", indent, aLight->GetConeAngle());
-	  // the following ignores linear and quadratic attenuation values
-	  attn = aLight->GetAttenuationValues();
-	  fprintf(fp,"%sdropOffRate %f\n", indent, attn[0]);
+          // the following ignores linear and quadratic attenuation values
+          attn = aLight->GetAttenuationValues();
+          fprintf(fp,"%sdropOffRate %f\n", indent, attn[0]);
       }
     fprintf(fp,"%slocation %f %f %f\n", indent, pos[0], pos[1], pos[2]);
     }
   else
     {
     fprintf(fp,"%sDirectionalLight {\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     fprintf(fp,"%sdirection %f %f %f\n", indent, dir[0], dir[1], dir[2]);
     }
 
@@ -302,7 +302,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"%stranslation %g %g %g\n", indent, tempf[0], tempf[1], tempf[2]);
   tempf = trans->GetOrientationWXYZ();
   fprintf(fp,"%srotation %g %g %g %g\n", indent, tempf[1], tempf[2], 
-	  tempf[3], tempf[0]*3.1415926/180.0);
+          tempf[3], tempf[0]*3.1415926/180.0);
   tempf = trans->GetScale();
   fprintf(fp,"%sscaleFactor %g %g %g\n", indent, tempf[0], tempf[1], tempf[2]);
   fprintf(fp,"%s}\n", indent);
@@ -348,15 +348,15 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   tempf2 = prop->GetAmbient();
   tempf = prop->GetAmbientColor();
   fprintf(fp,"%sambientColor %g %g %g\n", indent,
-	  tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
   tempf2 = prop->GetDiffuse();
   tempf = prop->GetDiffuseColor();
   fprintf(fp,"%sdiffuseColor %g %g %g\n", indent,
-	  tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
   tempf2 = prop->GetSpecular();
   tempf = prop->GetSpecularColor();
   fprintf(fp,"%sspecularColor %g %g %g\n", indent,
-	  tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
   fprintf(fp,"%sshininess %g\n", indent,prop->GetSpecularPower()/128.0);
   fprintf(fp,"%stransparency %g\n", indent,1.0 - prop->GetOpacity());
   fprintf(fp,"%s}\n", indent); // close matrial
@@ -391,7 +391,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-	(scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+        (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }
@@ -411,18 +411,18 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       {
       xsize = size[0];
       if (size[1] == 1)
-	{
-	ysize = size[2];
-	}
+        {
+        ysize = size[2];
+        }
       else
-	{
-	ysize = size[1];
-	if (size[2] != 1)
-	  {
-	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-	  return;
-	  }
-	}
+        {
+        ysize = size[1];
+        if (size[2] != 1)
+          {
+          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+          return;
+          }
+        }
       }
 
     fprintf(fp, "%sTexture2 {\n", indent);
@@ -438,28 +438,28 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"%.2x",*txtrData);
       txtrData++;
       if (bpp > 1)
-	{
-	fprintf(fp,"%.2x",*txtrData);
-	txtrData++;
-	}
+        {
+        fprintf(fp,"%.2x",*txtrData);
+        txtrData++;
+        }
       if (bpp > 2) 
-	{
-	fprintf(fp,"%.2x",*txtrData);
-	txtrData++;
-	}
+        {
+        fprintf(fp,"%.2x",*txtrData);
+        txtrData++;
+        }
       if (bpp > 3) 
-	{
-	fprintf(fp,"%.2x",*txtrData);
-	txtrData++;
-	}
+        {
+        fprintf(fp,"%.2x",*txtrData);
+        txtrData++;
+        }
       if (i%8 == 0)
-	{
-	fprintf(fp,"\n%s    ", indent);
-	}
+        {
+        fprintf(fp,"\n%s    ", indent);
+        }
       else
-	{
-	fprintf(fp," ");
-	}
+        {
+        fprintf(fp," ");
+        }
       }
     VTK_INDENT_LESS;
     fprintf(fp, "%s}\n", indent);
@@ -473,29 +473,29 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   if (pd->GetNumberOfPolys() > 0)
     {
     fprintf(fp,"%sIndexedFaceSet {\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     fprintf(fp,"%scoordIndex  [\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     
     cells = pd->GetPolys();
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ",(int)indx[i]);
-	if (((i+1)%10) == 0)
-	  {
-	  fprintf(fp, "\n%s    ", indent);
-	  }
-	}
+        fprintf(fp,"%i, ",(int)indx[i]);
+        if (((i+1)%10) == 0)
+          {
+          fprintf(fp, "\n%s    ", indent);
+          }
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"%s]\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
     fprintf(fp,"%s}\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
   }
 
   // write out tstrips if any
@@ -510,14 +510,14 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       {
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	if (((i+1)%10) == 0)
-	  {
-	  fprintf(fp, "\n%s    ", indent);
-	  }
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        if (((i+1)%10) == 0)
+          {
+          fprintf(fp, "\n%s    ", indent);
+          }
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"%s]\n", indent);
@@ -538,14 +538,14 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       {
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
-	{
+        {
         // treating vtkIdType as int
-	fprintf(fp,"%i, ", (int)indx[i]);
-	if (((i+1)%10) == 0)
-	  {
-	  fprintf(fp, "\n%s    ", indent);
-	  }
-	}
+        fprintf(fp,"%i, ", (int)indx[i]);
+        if (((i+1)%10) == 0)
+          {
+          fprintf(fp, "\n%s    ", indent);
+          }
+        }
       fprintf(fp,"-1,\n");
       }
     fprintf(fp,"%s]\n", indent);
@@ -568,10 +568,10 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
       for (i = 0; i < npts; i++)
-	{
-	p = points->GetPoint(indx[i]);
-	fprintf (fp,"%s%g %g %g,\n", indent, p[0], p[1], p[2]);
-	}
+        {
+        p = points->GetPoint(indx[i]);
+        fprintf (fp,"%s%g %g %g,\n", indent, p[0], p[1], p[2]);
+        }
       }
     fprintf(fp,"%s]\n", indent);
     VTK_INDENT_LESS;
@@ -584,23 +584,23 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"%srgba [\n", indent);
       VTK_INDENT_MORE;
       for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-	{
-	fprintf(fp,"%s", indent);
-	for (i = 0; i < npts; i++)
-	  {
-	  c = colors->GetPointer(4*indx[i]);
-	  fprintf (fp,"%#lx, ", 
-		   ((unsigned long)c[3] << 24) |
-		   (((unsigned long)c[2])<<16) |
-		   (((unsigned long)c[1])<<8) |
-		   ((unsigned long)c[0]));
+        {
+        fprintf(fp,"%s", indent);
+        for (i = 0; i < npts; i++)
+          {
+          c = colors->GetPointer(4*indx[i]);
+          fprintf (fp,"%#lx, ", 
+                   ((unsigned long)c[3] << 24) |
+                   (((unsigned long)c[2])<<16) |
+                   (((unsigned long)c[1])<<8) |
+                   ((unsigned long)c[0]));
 
-	  if (((i+1)%5) == 0)
-	    {
-	    fprintf(fp, "\n%s", indent);
-	    }
-	  }
-	}
+          if (((i+1)%5) == 0)
+            {
+            fprintf(fp, "\n%s", indent);
+            }
+          }
+        }
       fprintf(fp,"\n%s]\n", indent);
       VTK_INDENT_LESS;
       fprintf(fp,"%s}\n", indent);
@@ -654,29 +654,29 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
   if (normals)
     {
     fprintf(fp,"%sNormal {\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     fprintf(fp,"%svector [\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     for (i = 0; i < normals->GetNumberOfTuples(); i++)
       {
       p = normals->GetTuple(i);
       fprintf (fp,"%s%g %g %g,\n", indent, p[0], p[1], p[2]);
       }
     fprintf(fp,"%s]\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
     fprintf(fp,"%s}\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
   }
 
   // write out the point data
   if (tcoords)
     {
-	fprintf(fp,"%sTextureCoordinateBinding  {\n",indent);
-	VTK_INDENT_MORE;
-	fprintf(fp,"%svalue PER_VERTEX_INDEXED\n",indent);
-	VTK_INDENT_LESS;
-	fprintf(fp,"%s}\n",indent);
-	fprintf(fp,"%sTextureCoordinate2 {\n", indent);
+        fprintf(fp,"%sTextureCoordinateBinding  {\n",indent);
+        VTK_INDENT_MORE;
+        fprintf(fp,"%svalue PER_VERTEX_INDEXED\n",indent);
+        VTK_INDENT_LESS;
+        fprintf(fp,"%s}\n",indent);
+        fprintf(fp,"%sTextureCoordinate2 {\n", indent);
     fprintf(fp,"%spoint [\n", indent);
     for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
       {
@@ -684,32 +684,32 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
       fprintf (fp,"%s%g %g,\n", indent, p[0], p[1]);
       }
     fprintf(fp,"%s]\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
     fprintf(fp,"%s}\n", indent);
-	VTK_INDENT_LESS;
+        VTK_INDENT_LESS;
   }
 
   // write out the point data
   if (colors)
     {
     fprintf(fp,"%sPackedColor {\n", indent);
-	VTK_INDENT_MORE;
+        VTK_INDENT_MORE;
     fprintf(fp,"%srgba [\n", indent);
-	VTK_INDENT_MORE;
-	fprintf(fp,"%s", indent);
+        VTK_INDENT_MORE;
+        fprintf(fp,"%s", indent);
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
       {
       c = colors->GetPointer(4*i);
       fprintf (fp,"%#lx, ", 
-	       ((unsigned long)c[3] << 24) |
-	       (((unsigned long)c[2])<<16) |
-	       (((unsigned long)c[1])<<8) |
-	       ((unsigned long)c[0]));
+               ((unsigned long)c[3] << 24) |
+               (((unsigned long)c[2])<<16) |
+               (((unsigned long)c[1])<<8) |
+               ((unsigned long)c[0]));
 
       if (((i+1)%5)==0)
-	{
-	fprintf(fp, "\n%s", indent);
-	}
+        {
+        fprintf(fp, "\n%s", indent);
+        }
       }
     fprintf(fp,"\n%s]\n", indent);
     VTK_INDENT_LESS;

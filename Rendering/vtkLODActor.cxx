@@ -124,7 +124,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   if (this->MediumMapper)
     {
     if (this->GetMTime() > this->BuildTime || 
-	this->Mapper->GetMTime() > this->BuildTime)
+        this->Mapper->GetMTime() > this->BuildTime)
       {
       this->UpdateOwnLODs();
       }
@@ -146,32 +146,32 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     {
     this->LODMappers->InitTraversal();
     while ((mapper = this->LODMappers->GetNextItem()) != NULL && 
-	   bestTime != 0.0)
+           bestTime != 0.0)
       {
       tempTime = mapper->GetTimeToDraw();
       
       // If the LOD has never been rendered, select it!
       if (tempTime == 0.0)
-	{ 
-	// cerr << "      Has never been rendererd\n";
-	bestMapper = mapper;
-	bestTime = 0.0;
-	}
+        { 
+        // cerr << "      Has never been rendererd\n";
+        bestMapper = mapper;
+        bestTime = 0.0;
+        }
       else
-	{
-	if (bestTime > myTime && tempTime < bestTime)
-	  {
-	  // cerr << "      Less than best in violation\n";
-	  bestMapper = mapper;
-	  bestTime = tempTime;
-	  }
-	if (tempTime > bestTime && tempTime < myTime)
-	  { 
-	  // cerr << "      Larger than best\n";
-	  bestMapper = mapper;
-	  bestTime = tempTime;
-	  }
-	}
+        {
+        if (bestTime > myTime && tempTime < bestTime)
+          {
+          // cerr << "      Less than best in violation\n";
+          bestMapper = mapper;
+          bestTime = tempTime;
+          }
+        if (tempTime > bestTime && tempTime < myTime)
+          { 
+          // cerr << "      Larger than best\n";
+          bestMapper = mapper;
+          bestTime = tempTime;
+          }
+        }
       }
     }
     
@@ -255,7 +255,7 @@ void vtkLODActor::ReleaseGraphicsResources(vtkWindow *renWin)
   
   // broadcast the message down to the individual LOD mappers
   for ( this->LODMappers->InitTraversal();
-	(mapper = this->LODMappers->GetNextItem()); )
+        (mapper = this->LODMappers->GetNextItem()); )
     {
     mapper->ReleaseGraphicsResources(renWin);
     }
@@ -300,7 +300,7 @@ void vtkLODActor::CreateOwnLODs()
   if ( this->LODMappers->GetNumberOfItems() > 0 )
     {
     vtkErrorMacro(<<
-	  "Cannot generate LOD mappers when some have been added already");
+          "Cannot generate LOD mappers when some have been added already");
     return;
     }
   

@@ -51,8 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void
 vtkFillBitmap (Display *dpy, Window win, GC gc,
-	       unsigned int width, unsigned int height,
-	       int x0, int y0, char c, GLubyte *bitmap)
+               unsigned int width, unsigned int height,
+               int x0, int y0, char c, GLubyte *bitmap)
 {
   XImage *image;
   unsigned int x, y;
@@ -70,7 +70,7 @@ vtkFillBitmap (Display *dpy, Window win, GC gc,
   for (y = 0; y < height; y++)
     for (x = 0; x < 8*width; x++)
       if (XGetPixel (image, x, y))
-	bitmap[width*(height - y - 1) + x/8] |= (1 << (7 - (x % 8)));
+        bitmap[width*(height - y - 1) + x/8] |= (1 << (7 - (x % 8)));
   
   XFreePixmap (dpy, pixmap);
   XDestroyImage (image);
@@ -113,22 +113,22 @@ void vtkOSUseXFont( Display *dpy, Font font, int first, int count, int listbase 
     }
 
   /* Save the current packing mode for bitmaps.  */
-  glGetIntegerv	(GL_UNPACK_SWAP_BYTES, &swapbytes);
-  glGetIntegerv	(GL_UNPACK_LSB_FIRST, &lsbfirst);
-  glGetIntegerv	(GL_UNPACK_ROW_LENGTH, &rowlength);
-  glGetIntegerv	(GL_UNPACK_SKIP_ROWS, &skiprows);
-  glGetIntegerv	(GL_UNPACK_SKIP_PIXELS, &skippixels);
-  glGetIntegerv	(GL_UNPACK_ALIGNMENT, &alignment);
+  glGetIntegerv (GL_UNPACK_SWAP_BYTES, &swapbytes);
+  glGetIntegerv (GL_UNPACK_LSB_FIRST, &lsbfirst);
+  glGetIntegerv (GL_UNPACK_ROW_LENGTH, &rowlength);
+  glGetIntegerv (GL_UNPACK_SKIP_ROWS, &skiprows);
+  glGetIntegerv (GL_UNPACK_SKIP_PIXELS, &skippixels);
+  glGetIntegerv (GL_UNPACK_ALIGNMENT, &alignment);
 
   /* Enforce a standard packing mode which is compatible with
      fill_bitmap() from above.  This is actually the default mode,
      except for the (non)alignment.  */
-  glPixelStorei	(GL_UNPACK_SWAP_BYTES, GL_FALSE);
-  glPixelStorei	(GL_UNPACK_LSB_FIRST, GL_FALSE);
-  glPixelStorei	(GL_UNPACK_ROW_LENGTH, 0);
-  glPixelStorei	(GL_UNPACK_SKIP_ROWS, 0);
-  glPixelStorei	(GL_UNPACK_SKIP_PIXELS, 0);
-  glPixelStorei	(GL_UNPACK_ALIGNMENT, 1);
+  glPixelStorei (GL_UNPACK_SWAP_BYTES, GL_FALSE);
+  glPixelStorei (GL_UNPACK_LSB_FIRST, GL_FALSE);
+  glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
+  glPixelStorei (GL_UNPACK_SKIP_ROWS, 0);
+  glPixelStorei (GL_UNPACK_SKIP_PIXELS, 0);
+  glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 
   pixmap = XCreatePixmap (dpy, RootWindow(dpy,DefaultScreen(dpy)), 10, 10, 1);
   values.foreground = BlackPixel (dpy, DefaultScreen (dpy));
@@ -148,13 +148,13 @@ void vtkOSUseXFont( Display *dpy, Font font, int first, int count, int listbase 
       int list = listbase + i;
 
       if (fs->per_char
-	  && (c >= fs->min_char_or_byte2) && (c <= fs->max_char_or_byte2))
-	ch = &fs->per_char[c-fs->min_char_or_byte2];
+          && (c >= fs->min_char_or_byte2) && (c <= fs->max_char_or_byte2))
+        ch = &fs->per_char[c-fs->min_char_or_byte2];
       else
-	ch = &fs->max_bounds;
+        ch = &fs->max_bounds;
       
       /* glBitmap()' parameters:
-	 straight from the glXUseXFont(3) manpage.  */
+         straight from the glXUseXFont(3) manpage.  */
       width = ch->rbearing - ch->lbearing;
       height = ch->ascent + ch->descent;
       x0 = - ch->lbearing;
@@ -167,22 +167,22 @@ void vtkOSUseXFont( Display *dpy, Font font, int first, int count, int listbase 
       y = ch->ascent;
       
       /* Round the width to a multiple of eight.  We will use this also
-	 for the pixmap for capturing the X11 font.  This is slightly
-	 inefficient, but it makes the OpenGL part real easy.  */
+         for the pixmap for capturing the X11 font.  This is slightly
+         inefficient, but it makes the OpenGL part real easy.  */
       bm_width = (width + 7) / 8;
       bm_height = height;
 
       glNewList (list, GL_COMPILE);
       if ((c >= fs->min_char_or_byte2) && (c <= fs->max_char_or_byte2)
-	  && (bm_width > 0) && (bm_height > 0))
-	{
-	memset(bm, '\0', bm_width * bm_height);
-	vtkFillBitmap (dpy, RootWindow(dpy,DefaultScreen(dpy)), 
-		       gc, bm_width, bm_height, x, y, c, bm);
-	glBitmap (width, height, x0, y0, dx, dy, bm);
-	}
+          && (bm_width > 0) && (bm_height > 0))
+        {
+        memset(bm, '\0', bm_width * bm_height);
+        vtkFillBitmap (dpy, RootWindow(dpy,DefaultScreen(dpy)), 
+                       gc, bm_width, bm_height, x, y, c, bm);
+        glBitmap (width, height, x0, y0, dx, dy, bm);
+        }
       else
-	glBitmap (0, 0, 0.0, 0.0, dx, dy, NULL);
+        glBitmap (0, 0, 0.0, 0.0, dx, dy, NULL);
       glEndList ();
     }
 
@@ -219,7 +219,7 @@ struct vtkFontStruct
 {
   vtkWindow *Window;
   int   Italic;
-  int	Bold;
+  int   Bold;
   int   FontSize;
   int   FontFamily;
   int   ListBase;
@@ -227,12 +227,12 @@ struct vtkFontStruct
 };
   
 static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
-				   NULL,NULL,NULL,NULL,NULL};
+                                   NULL,NULL,NULL,NULL,NULL};
 static int numCached = 0;
 
 int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
-					     vtkViewport *vp, 
-					     Font CurrentFont)
+                                             vtkViewport *vp, 
+                                             Font CurrentFont)
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
@@ -241,21 +241,21 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   for (i = 0; i < numCached; i++)
     {
     if (cache[i]->Window == win &&
-	cache[i]->Italic == tm->GetItalic() &&
-	cache[i]->Bold == tm->GetBold() &&
-	cache[i]->FontSize == tm->GetFontSize() &&
-	cache[i]->FontFamily == tm->GetFontFamily())
+        cache[i]->Italic == tm->GetItalic() &&
+        cache[i]->Bold == tm->GetBold() &&
+        cache[i]->FontSize == tm->GetFontSize() &&
+        cache[i]->FontFamily == tm->GetFontFamily())
       {
       // make this the most recently used
       if (i != 0)
-	{
-	vtkFontStruct *tmp = cache[i];
-	for (j = i-1; j >= 0; j--)
-	  {
-	  cache[j+1] = cache[j];
-	  }
-	cache[0] = tmp;
-	}
+        {
+        vtkFontStruct *tmp = cache[i];
+        for (j = i-1; j >= 0; j--)
+          {
+          cache[j+1] = cache[j];
+          }
+        cache[0] = tmp;
+        }
       return cache[0]->ListBase;
       }
     }
@@ -270,32 +270,32 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
     if (cache[9]->Window->GetOffScreenRendering())
       {
       OSMesaMakeCurrent((OSMesaContext)cache[9]->Window->GetGenericContext(),
-			cache[9]->Window->GetGenericWindowId(), 
-			GL_UNSIGNED_BYTE, 
-			cache[9]->Window->GetSize()[0],
-			cache[9]->Window->GetSize()[1]);
+                        cache[9]->Window->GetGenericWindowId(), 
+                        GL_UNSIGNED_BYTE, 
+                        cache[9]->Window->GetSize()[0],
+                        cache[9]->Window->GetSize()[1]);
       }
     else
       {
       // save the current context
       ctx = glXGetCurrentContext();
       glXMakeCurrent((Display *)cache[9]->Window->GetGenericDisplayId(),
-		     (Window)cache[9]->Window->GetGenericWindowId(),
-		     cache[9]->ContextId);
+                     (Window)cache[9]->Window->GetGenericWindowId(),
+                     cache[9]->ContextId);
       }
     glDeleteLists(cache[9]->ListBase,255);
     if (win->GetOffScreenRendering())
       {
       OSMesaMakeCurrent((OSMesaContext)win->GetGenericContext(),
-			win->GetGenericWindowId(), 
-			GL_UNSIGNED_BYTE, 
-			win->GetSize()[0],
-			win->GetSize()[1]);
+                        win->GetGenericWindowId(), 
+                        GL_UNSIGNED_BYTE, 
+                        win->GetSize()[0],
+                        win->GetSize()[1]);
       }
     else
       {
       glXMakeCurrent((Display *)win->GetGenericDisplayId(),
-		     (Window)win->GetGenericWindowId(), ctx);
+                     (Window)win->GetGenericWindowId(), ctx);
       }
     numCached = 9;
     }
@@ -311,12 +311,12 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
       done = 1;
       cache[numCached]->ListBase += 260;
       for (i = 0; i < numCached; i++)
-	{
-	if (cache[i]->ListBase == cache[numCached]->ListBase)
-	  {
-	  done = 0;
-	  }
-	}
+        {
+        if (cache[i]->ListBase == cache[numCached]->ListBase)
+          {
+          done = 0;
+          }
+        }
       }
     while (!done);
     }
@@ -331,7 +331,7 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   if (win->GetOffScreenRendering())
     {
     vtkOSUseXFont((Display *)win->GetGenericDisplayId(),
-		  CurrentFont, 0, 255, cache[numCached]->ListBase); 
+                  CurrentFont, 0, 255, cache[numCached]->ListBase); 
     }  
   else
     {
@@ -364,9 +364,9 @@ void vtkXMesaTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       // resort them
       numCached--;
       for (j = i; j < numCached; j++)
-	{
-	cache[j] = cache[j+1];
-	}
+        {
+        cache[j] = cache[j+1];
+        }
       cache[numCached] = NULL;
       }
     }
@@ -377,7 +377,7 @@ vtkXMesaTextMapper::vtkXMesaTextMapper()
 }
 
 void vtkXMesaTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
-						vtkActor2D* actor)
+                                                vtkActor2D* actor)
 {
   vtkDebugMacro (<< "RenderOpaqueGeometry");
 
@@ -471,8 +471,8 @@ void vtkXMesaTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glDisable( GL_LIGHTING);
 
   glListBase(vtkXMesaTextMapper::GetListBaseForFont(this,viewport,
-						      this->CurrentFont));
-	      
+                                                      this->CurrentFont));
+              
   // Set the colors for the shadow
   if (this->Shadow)
     {

@@ -201,7 +201,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Check to see whether we have to rebuild everything
   if ( viewport->GetMTime() > this->BuildTime || 
        ( viewport->GetVTKWindow() && 
-	 viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
+         viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
@@ -214,8 +214,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
     if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1] ||
-	this->LastOrigin[0] != barOrigin[0] || 
-	this->LastOrigin[1] != barOrigin[1])
+        this->LastOrigin[0] != barOrigin[0] || 
+        this->LastOrigin[1] != barOrigin[1])
       {
       this->Modified();
       }
@@ -232,10 +232,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     if (this->TextMappers != NULL )
       {
       for (i=0; i < this->NumberOfLabelsBuilt; i++)
-	{
-	this->TextMappers[i]->Delete();
-	this->TextActors[i]->Delete();
-	}
+        {
+        this->TextMappers[i]->Delete();
+        this->TextActors[i]->Delete();
+        }
       delete [] this->TextMappers;
       delete [] this->TextActors;
       }
@@ -310,13 +310,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       barHeight = (int)(0.86*size[1]);
       delta=(float)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
-	{
-	x[0] = 0;
-	x[1] = i*delta;
+        {
+        x[0] = 0;
+        x[1] = i*delta;
         pts->SetPoint(2*i,x);
-	x[0] = barWidth;
+        x[0] = barWidth;
         pts->SetPoint(2*i+1,x);
-	}
+        }
       }
     else
       {
@@ -324,13 +324,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       barHeight = (int)(0.4*size[1]);
       delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
-	{
-	x[0] = i*delta;
-	x[1] = barHeight;
+        {
+        x[0] = i*delta;
+        x[1] = barHeight;
         pts->SetPoint(2*i,x);
-	x[1] = 0;
+        x[1] = 0;
         pts->SetPoint(2*i+1,x);
-	}
+        }
       }
 
     //polygons & cell colors
@@ -363,24 +363,24 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->TitleActor->SetPosition(size[0]/2, 0.9*size[1]);
       
       for (i=0; i < this->NumberOfLabels; i++)
-	{
-	val = (float)i/(this->NumberOfLabels-1) *barHeight;
-	this->TextMappers[i]->SetJustificationToLeft();
+        {
+        val = (float)i/(this->NumberOfLabels-1) *barHeight;
+        this->TextMappers[i]->SetJustificationToLeft();
         this->TextMappers[i]->GetSize(viewport,sizeTextData);
         this->TextActors[i]->SetPosition(barWidth+3,
                                          val - sizeTextData[1]/2);
-	}
+        }
       }
     else
       {
       this->TitleActor->SetPosition(size[0]/2, 
                                     barHeight + labelSize[1] + 0.1*size[1]);
       for (i=0; i < this->NumberOfLabels; i++)
-	{
-	val = (float)i/(this->NumberOfLabels-1) * barWidth;
-	this->TextMappers[i]->SetJustificationToCentered();
-	this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
-	}
+        {
+        val = (float)i/(this->NumberOfLabels-1) * barWidth;
+        this->TextMappers[i]->SetJustificationToCentered();
+        this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
+        }
       }
 
     this->BuildTime.Modified();

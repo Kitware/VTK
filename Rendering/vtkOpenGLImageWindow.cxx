@@ -63,10 +63,10 @@ vtkOpenGLImageWindow* vtkOpenGLImageWindow::New()
 
 
 XVisualInfo *vtkOpenGLImageWindowTryForVisual(Display *DisplayId,
-					      int doublebuff)
+                                              int doublebuff)
 {
   int           index;
-  static int	attributes[50];
+  static int    attributes[50];
 
   // setup the default stuff we ask for
   index = 0;
@@ -106,12 +106,12 @@ XVisualInfo *vtkOpenGLImageWindow::GetDesiredVisualInfo()
 
   // try every possibility stoping when we find one that works
   v = vtkOpenGLImageWindowTryForVisual(this->DisplayId,
-				       this->DoubleBuffer);
+                                       this->DoubleBuffer);
 
   if (!v) 
     {
       v = vtkOpenGLImageWindowTryForVisual(this->DisplayId,
-					   !this->DoubleBuffer);
+                                           !this->DoubleBuffer);
       if (v) this->DoubleBuffer = !this->DoubleBuffer;
     }
 
@@ -199,7 +199,7 @@ void vtkOpenGLImageWindow::Frame()
 void vtkOpenGLImageWindow::MakeDefaultWindow()
 {
   XVisualInfo  *v, matcher;
-  XSetWindowAttributes	attr;
+  XSetWindowAttributes  attr;
   int x, y, width, height, nItems;
   XWindowAttributes winattr;
   XSizeHints xsh;
@@ -239,8 +239,8 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
     {
     v = this->GetDesiredVisualInfo();
     this->ColorMap = XCreateColormap(this->DisplayId,
-				     RootWindow( this->DisplayId, v->screen),
-				     v->visual, AllocNone );
+                                     RootWindow( this->DisplayId, v->screen),
+                                     v->visual, AllocNone );
 
     attr.background_pixel = 0;
     attr.border_pixel = 0;
@@ -255,11 +255,11 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
     
     this->WindowId = 
       XCreateWindow(this->DisplayId,
-		    this->ParentId,
-		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
-		    CWBackPixel | CWBorderPixel | CWColormap | 
-		    CWOverrideRedirect | CWEventMask, 
-		    &attr);
+                    this->ParentId,
+                    x, y, width, height, 0, v->depth, InputOutput, v->visual,
+                    CWBackPixel | CWBorderPixel | CWColormap | 
+                    CWOverrideRedirect | CWEventMask, 
+                    &attr);
     XSync(this->DisplayId,False);
     
     XStoreName(this->DisplayId, this->WindowId, this->WindowName);
@@ -269,22 +269,22 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
   else
     {
     XChangeWindowAttributes(this->DisplayId,this->WindowId,
-			    CWOverrideRedirect, &attr);
+                            CWOverrideRedirect, &attr);
     XGetWindowAttributes(this->DisplayId,
-			 this->WindowId,&winattr);
+                         this->WindowId,&winattr);
     matcher.visualid = XVisualIDFromVisual(winattr.visual);
     matcher.screen = DefaultScreen(DisplayId);
     v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
-		       &matcher, &nItems);
+                       &matcher, &nItems);
     }
 
   // RESIZE THE WINDOW TO THE DESIRED SIZE
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
-		((this->Size[0] > 0) ? 
-		 (int)(this->Size[0]) : 256),
-		((this->Size[1] > 0) ? 
-		 (int)(this->Size[1]) : 256));
+                ((this->Size[0] > 0) ? 
+                 (int)(this->Size[0]) : 256),
+                ((this->Size[1] > 0) ? 
+                 (int)(this->Size[1]) : 256));
   XSync(this->DisplayId,False);
 
   this->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
@@ -296,11 +296,11 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
   XMapWindow(this->DisplayId, this->WindowId);
   XSync(this->DisplayId,False);
   XGetWindowAttributes(this->DisplayId,
-		       this->WindowId,&winattr);
+                       this->WindowId,&winattr);
   while (winattr.map_state == IsUnmapped)
     {
     XGetWindowAttributes(this->DisplayId,
-			 this->WindowId,&winattr);
+                         this->WindowId,&winattr);
     };
   
   glMatrixMode( GL_MODELVIEW );
@@ -363,8 +363,8 @@ Colormap vtkOpenGLImageWindow::GetDesiredColormap ()
   v = this->GetDesiredVisualInfo();
 
   this->ColorMap = XCreateColormap(this->DisplayId,
-				   RootWindow( this->DisplayId, v->screen),
-				   v->visual, AllocNone ); 
+                                   RootWindow( this->DisplayId, v->screen),
+                                   v->visual, AllocNone ); 
   if (v)
     {
     XFree(v);
@@ -382,8 +382,8 @@ void vtkOpenGLImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 
 unsigned char *vtkOpenGLImageWindow::GetPixelData(int x1, int y1, 
-						   int x2, int y2, 
-						   int front)
+                                                   int x2, int y2, 
+                                                   int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -438,7 +438,7 @@ unsigned char *vtkOpenGLImageWindow::GetPixelData(int x1, int y1,
     {
     // read in a row of pixels
     glReadPixels(x_low,yloop,(x_hi-x_low+1),1,
-		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     for (xloop = 0; xloop <= x_hi-x_low; xloop++)
       {
       *p_data = buffer[xloop*4]; p_data++;
@@ -462,7 +462,7 @@ unsigned char *vtkOpenGLImageWindow::GetPixelData(int x1, int y1,
 }
 
 void vtkOpenGLImageWindow::SetPixelData(int x1, int y1, int x2, int y2,
-				       unsigned char *data, int front)
+                                       unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -531,8 +531,8 @@ void vtkOpenGLImageWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glPushMatrix();
     glLoadIdentity();
     glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
-		   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
-		   -1.0 );
+                   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
+                   -1.0 );
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
@@ -620,7 +620,7 @@ float *vtkOpenGLImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, in
 }
 
 void vtkOpenGLImageWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				       float *data, int front, int blend)
+                                       float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -672,7 +672,7 @@ void vtkOpenGLImageWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glLoadIdentity();
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
-		 -1.0 );
+                 -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );

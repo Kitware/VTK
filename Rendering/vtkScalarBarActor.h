@@ -189,7 +189,7 @@ protected:
   int   Orientation;
   char  *Title;
 
-  int	Bold;
+  int   Bold;
   int   Italic;
   int   Shadow;
   int   FontFamily;

@@ -73,8 +73,8 @@ vtkOpenGLLight* vtkOpenGLLight::New()
 // Implement base class method.
 void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
 {
-  float	dx, dy, dz;
-  float	color[4];
+  float dx, dy, dz;
+  float color[4];
   float Info[4];
   vtkMatrix4x4 *xform = NULL;
 
@@ -124,11 +124,11 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     glLightfv((GLenum)light_index, GL_POSITION, Info );
 
     glLightf((GLenum)light_index, 
-	     GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
+             GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
     glLightf((GLenum)light_index, 
-	     GL_LINEAR_ATTENUATION, this->AttenuationValues[1]);
+             GL_LINEAR_ATTENUATION, this->AttenuationValues[1]);
     glLightf((GLenum)light_index, 
-	     GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
+             GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
 
     // set up spot parameters if neccesary
     if (this->ConeAngle < 180.0)

@@ -97,7 +97,7 @@ const char *vtkImagingFactoryGetRenderLibrary()
       temp = "Win32OpenGL";
       }
     else if (strcmp("Mesa",temp) && strcmp("OpenGL",temp) && 
-	     strcmp("Win32OpenGL",temp))
+             strcmp("Win32OpenGL",temp))
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
       temp = NULL;

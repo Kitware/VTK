@@ -97,8 +97,8 @@ vtkInteractorStyleJoystickActor::~vtkInteractorStyleJoystickActor()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMouseMove(int vtkNotUsed(ctrl), 
-						  int vtkNotUsed(shift),
-						  int x, int y) 
+                                                  int vtkNotUsed(shift),
+                                                  int x, int y) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ROTATE)
     {
@@ -170,12 +170,12 @@ void vtkInteractorStyleJoystickActor::RotateXY(int x, int y)
   
   // convert to display coord
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   this->ComputeWorldToDisplay(outsidept[0], outsidept[1],
-			      outsidept[2], outsidept);
+                              outsidept[2], outsidept);
   
   this->Radius = sqrt(vtkMath::Distance2BetweenPoints(this->DispObjCenter,
-						      outsidept));
+                                                      outsidept));
   
   this->HighlightProp3D(NULL);
   
@@ -221,8 +221,8 @@ void vtkInteractorStyleJoystickActor::RotateXY(int x, int y)
   
   
   this->Prop3DTransform(this->InteractionProp,
-			this->ObjCenter,
-			2, rotate, scale);
+                        this->ObjCenter,
+                        2, rotate, scale);
   
   delete [] rotate[0];
   delete [] rotate[1];
@@ -248,7 +248,7 @@ void vtkInteractorStyleJoystickActor::PanXY(int x, int y)
   this->ObjCenter[2] = center[2];
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   this->FocalDepth = this->DispObjCenter[2];
   
   this->HighlightProp3D(NULL);
@@ -311,7 +311,7 @@ void vtkInteractorStyleJoystickActor::DollyXY(int vtkNotUsed(x), int y)
   this->ObjCenter[1] = center[1];
   this->ObjCenter[2] = center[2];
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
   
@@ -381,7 +381,7 @@ void vtkInteractorStyleJoystickActor::SpinXY(int vtkNotUsed(x), int y)
     }
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
   
@@ -408,8 +408,8 @@ void vtkInteractorStyleJoystickActor::SpinXY(int vtkNotUsed(x), int y)
   rotate[0][3] = this->MotionVector[2];
 
   this->Prop3DTransform(this->InteractionProp,
-			this->ObjCenter,
-			1, rotate, scale);
+                        this->ObjCenter,
+                        1, rotate, scale);
 
   delete [] rotate[0];
   delete [] rotate;
@@ -437,7 +437,7 @@ void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
   this->ObjCenter[2] = center[2];
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-			      this->ObjCenter[2], this->DispObjCenter);
+                              this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
   
@@ -451,15 +451,15 @@ void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
   scale[0] = scale[1] = scale[2] = scaleFactor;
   
   this->Prop3DTransform(this->InteractionProp,
-			this->ObjCenter,
-			0, rotate, scale);
+                        this->ObjCenter,
+                        0, rotate, scale);
   
   rwi->Render();
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift, 
-						       int x, int y) 
+                                                       int x, int y) 
 {
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
@@ -495,9 +495,9 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
-						     int vtkNotUsed(shift), 
-						     int vtkNotUsed(x), 
-						     int vtkNotUsed(y)) 
+                                                     int vtkNotUsed(shift), 
+                                                     int vtkNotUsed(x), 
+                                                     int vtkNotUsed(y)) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
     {
@@ -513,7 +513,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, int shift, 
-							 int x, int y) 
+                                                         int x, int y) 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
@@ -543,9 +543,9 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, int shift,
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-						       int vtkNotUsed(shift), 
-						       int vtkNotUsed(x),
-						       int vtkNotUsed(y)) 
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y)) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
     {
@@ -560,8 +560,8 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
-							int vtkNotUsed(shift), 
-							int x, int y) 
+                                                        int vtkNotUsed(shift), 
+                                                        int x, int y) 
 {
   if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
@@ -583,9 +583,9 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
-						      int vtkNotUsed(shift), 
-						      int vtkNotUsed(x),
-						      int vtkNotUsed(y)) 
+                                                      int vtkNotUsed(shift), 
+                                                      int vtkNotUsed(x),
+                                                      int vtkNotUsed(y)) 
 {
   this->EndZoom();
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
@@ -620,10 +620,10 @@ void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
-						      double *boxCenter,
-						      int numRotation,
-						      double **rotate,
-						      double *scale)
+                                                      double *boxCenter,
+                                                      int numRotation,
+                                                      double **rotate,
+                                                      double *scale)
 {
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
   prop3D->GetMatrix(oldMatrix);
@@ -677,10 +677,10 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
 }
 
 void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
-						      float *boxCenter,
-						      int numRotation,
-						      double **rotate,
-						      double *scale)
+                                                      float *boxCenter,
+                                                      int numRotation,
+                                                      double **rotate,
+                                                      double *scale)
 {
   double boxCenter2[3];
   boxCenter2[0] = boxCenter[0];

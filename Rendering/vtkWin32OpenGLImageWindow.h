@@ -128,8 +128,8 @@ public:
   virtual void  SetParentId(HWND);
   void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
 
-  void  SetContextId(HGLRC);	// hsr
-  void  SetDeviceContext(HDC);	// hsr
+  void  SetContextId(HGLRC);    // hsr
+  void  SetDeviceContext(HDC);  // hsr
 
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
@@ -140,7 +140,7 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
+                            int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -167,7 +167,7 @@ public:
   virtual void OpenGLInit();
   virtual void SetupPalette(HDC hDC);
   virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug, 
-				int bpp=16, int zbpp=16);
+                                int bpp=16, int zbpp=16);
   
   // Description:
   // Clean up device contexts, rendering contexts, etc.
@@ -191,7 +191,7 @@ protected:
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
   HBITMAP MemoryBuffer;
-  unsigned char *MemoryData;	// the data in the DIBSection
+  unsigned char *MemoryData;    // the data in the DIBSection
   HDC MemoryHdc;
 
   int ScreenMapped;
@@ -203,10 +203,10 @@ protected:
   //BTX
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message, 
-			      WPARAM wParam, LPARAM lParam);
+                              WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
-				  WPARAM wParam, LPARAM lParam);
+                                  WPARAM wParam, LPARAM lParam);
   //ETX
   
 private:

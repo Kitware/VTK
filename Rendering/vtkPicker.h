@@ -110,7 +110,7 @@ public:
   // to maintain backward compatibility.)
   vtkActorCollection *GetActors() {
     if (this->Actors->GetNumberOfItems() != 
-	this->PickedPositions->GetNumberOfPoints()) {
+        this->PickedPositions->GetNumberOfPoints()) {
       vtkWarningMacro(<<"Not all Prop3Ds are actors, use GetProp3Ds instead");}
     return this->Actors; };
 

@@ -109,11 +109,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
           }
         break;
       case VTK_STEREO_LEFT:
-	this->LeftEye = 1;
-	break;
+        this->LeftEye = 1;
+        break;
       case VTK_STEREO_RIGHT:
-	this->LeftEye = 0;
-	break;
+        this->LeftEye = 0;
+        break;
       default:
         break;
       }
@@ -139,7 +139,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
   glMatrixMode( GL_PROJECTION);
   matrix->DeepCopy(this->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],
-						       -1,1));
+                                                       -1,1));
   matrix->Transpose();
   if(ren->GetIsPicking())
     {

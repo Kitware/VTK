@@ -76,7 +76,7 @@ vtkFiniteDifferenceGradientEstimator* vtkFiniteDifferenceGradientEstimator::New(
 template <class T>
 static void ComputeGradients( 
          vtkFiniteDifferenceGradientEstimator *estimator, T *data_ptr,
-	 int thread_id, int thread_count )
+         int thread_id, int thread_count )
 {
   int                 xstep, ystep, zstep;
   int                 x, y, z;
@@ -138,9 +138,9 @@ static void ComputeGradients(
     y_start = bounds[2];
     y_limit = bounds[3]+1;
     z_start = (int)(( (float)thread_id / (float)thread_count ) *
-		    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
+                    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
     z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-		    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
+                    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
     }
   else
     {
@@ -149,9 +149,9 @@ static void ComputeGradients(
     y_start = 0;
     y_limit = size[1];
     z_start = (int)(( (float)thread_id / (float)thread_count ) *
-		    size[2] );
+                    size[2] );
     z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-		    size[2] );
+                    size[2] );
     }
 
   // Do final error checking on limits - make sure they are all within bounds
@@ -178,15 +178,15 @@ static void ComputeGradients(
     for ( y = y_start; y < y_limit; y++ )
       {
       if ( useClip )
-	{
-	xlow = ((clip[2*y])>x_start)?(clip[2*y]):(x_start);
-	xhigh = ((clip[2*y+1]+1)<x_limit)?(clip[2*y+1]+1):(x_limit);
-	}
+        {
+        xlow = ((clip[2*y])>x_start)?(clip[2*y]):(x_start);
+        xhigh = ((clip[2*y+1]+1)<x_limit)?(clip[2*y+1]+1):(x_limit);
+        }
       else
-	{
-	xlow = x_start;
-	xhigh = x_limit;
-	}
+        {
+        xlow = x_start;
+        xhigh = x_limit;
+        }
       offset = z * size[0] * size[1] + y * size[0] + xlow;
       
       // Set some pointers
@@ -195,15 +195,15 @@ static void ComputeGradients(
       gptr = estimator->GradientMagnitudes + offset;
 
       for ( x = xlow; x < xhigh; x++ )
-	{
+        {
 
-	// Use a central difference method if possible,
-	// otherwise use a forward or backward difference if
-	// we are on the edge
+        // Use a central difference method if possible,
+        // otherwise use a forward or backward difference if
+        // we are on the edge
 
-	// Compute the X component
-	if ( x < estimator->SampleSpacingInVoxels ) 
-	  {
+        // Compute the X component
+        if ( x < estimator->SampleSpacingInVoxels ) 
+          {
           if ( zeroPad )
             {
             n[0] = -((float)*(dptr+xstep));
@@ -212,9 +212,9 @@ static void ComputeGradients(
             {
             n[0] = 2.0*((float)*(dptr) - (float)*(dptr+xstep));
             }
-	  }
-	else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
-	  {
+          }
+        else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
+          {
           if ( zeroPad )
             {
             n[0] =  ((float)*(dptr-xstep));
@@ -223,15 +223,15 @@ static void ComputeGradients(
             {
             n[0] = 2.0*((float)*(dptr-xstep) - (float)*(dptr));
             }
-	  }
-	else
-	  {
-	  n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
-	  }
-	
-	// Compute the Y component
-	if ( y < estimator->SampleSpacingInVoxels )
-	  {
+          }
+        else
+          {
+          n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
+          }
+        
+        // Compute the Y component
+        if ( y < estimator->SampleSpacingInVoxels )
+          {
           if ( zeroPad )
             {
             n[1] = -((float)*(dptr+ystep));
@@ -241,8 +241,8 @@ static void ComputeGradients(
             n[1] = 2.0*((float)*(dptr) - (float)*(dptr+ystep)); 
             }
           }
-	else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
-	  {
+        else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
+          {
           if ( zeroPad )
             {
             n[1] =  ((float)*(dptr-ystep));
@@ -251,15 +251,15 @@ static void ComputeGradients(
             {
             n[1] = 2.0*((float)*(dptr-ystep) - (float)*(dptr)); 
             }
-	  }
-	else
-	  {
-	  n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
-	  }
-	
-	// Compute the Z component
-	if ( z < estimator->SampleSpacingInVoxels )
-	  {
+          }
+        else
+          {
+          n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
+          }
+        
+        // Compute the Z component
+        if ( z < estimator->SampleSpacingInVoxels )
+          {
           if ( zeroPad )
             {
             n[2] = -((float)*(dptr+zstep));
@@ -268,9 +268,9 @@ static void ComputeGradients(
             {
             n[2] = 2.0*((float)*(dptr) - (float)*(dptr+zstep)); 
             }
-	  }
-	else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
-	  {
+          }
+        else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
+          {
           if ( zeroPad )
             {
             n[2] =  ((float)*(dptr-zstep));
@@ -279,62 +279,62 @@ static void ComputeGradients(
             {
             n[2] = 2.0*((float)*(dptr-zstep) - (float)*(dptr)); 
             }
-	  }
-	else
-	  {
-	  n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
-	  }
+          }
+        else
+          {
+          n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
+          }
 
-	// Take care of the aspect ratio of the data
-	// Scaling in the vtkVolume is isotropic, so this is the
-	// only place we have to worry about non-isotropic scaling.
-	n[0] /= (2.0 * aspect[0]);
-	n[1] /= (2.0 * aspect[1]);
-	n[2] /= (2.0 * aspect[2]);
-	
-	// Compute the gradient magnitude
-	t = sqrt( (double)( n[0]*n[0] + 
-			    n[1]*n[1] + 
-			    n[2]*n[2] ) );
-	
-	if ( computeGradientMagnitudes )
-	  {
-	  // Encode this into an 8 bit value 
-	  gvalue = (t + bias) * scale; 
-	  
-	  if ( gvalue < 0.0 )
-	    {
-	    *gptr = 0;
-	    }
-	  else if ( gvalue > 255.0 )
-	    {
-	    *gptr = 255;
-	    }
-	  else 
-	    {
-	    *gptr = (unsigned char) gvalue;
-	    }
-	  gptr++;
-	  }
+        // Take care of the aspect ratio of the data
+        // Scaling in the vtkVolume is isotropic, so this is the
+        // only place we have to worry about non-isotropic scaling.
+        n[0] /= (2.0 * aspect[0]);
+        n[1] /= (2.0 * aspect[1]);
+        n[2] /= (2.0 * aspect[2]);
+        
+        // Compute the gradient magnitude
+        t = sqrt( (double)( n[0]*n[0] + 
+                            n[1]*n[1] + 
+                            n[2]*n[2] ) );
+        
+        if ( computeGradientMagnitudes )
+          {
+          // Encode this into an 8 bit value 
+          gvalue = (t + bias) * scale; 
+          
+          if ( gvalue < 0.0 )
+            {
+            *gptr = 0;
+            }
+          else if ( gvalue > 255.0 )
+            {
+            *gptr = 255;
+            }
+          else 
+            {
+            *gptr = (unsigned char) gvalue;
+            }
+          gptr++;
+          }
 
-	// Normalize the gradient direction
-	if ( t > zeroNormalThreshold )
-	  {
-	  n[0] /= t;
-	  n[1] /= t;
-	  n[2] /= t;
-	  }
-	else
-	  {
-	  n[0] = n[1] = n[2] = 0.0;
-	  }
+        // Normalize the gradient direction
+        if ( t > zeroNormalThreshold )
+          {
+          n[0] /= t;
+          n[1] /= t;
+          n[2] /= t;
+          }
+        else
+          {
+          n[0] = n[1] = n[2] = 0.0;
+          }
 
-	// Convert the gradient direction into an encoded index value
-	*nptr = direction_encoder->GetEncodedDirection( n );
-	nptr++;
-	dptr++;
+        // Convert the gradient direction into an encoded index value
+        *nptr = direction_encoder->GetEncodedDirection( n );
+        nptr++;
+        dptr++;
 
-	}
+        }
       }
     }
 }
@@ -382,7 +382,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
     case VTK_UNSIGNED_CHAR:
       {
       unsigned char *ptr = ((vtkUnsignedCharArray *) 
-			    scalars)->GetPointer(0);
+                            scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
@@ -395,7 +395,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
     case VTK_UNSIGNED_SHORT:
       {
       unsigned short *ptr = ((vtkUnsignedShortArray *) 
-			     scalars)->GetPointer(0);
+                             scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
@@ -408,7 +408,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
     case VTK_UNSIGNED_INT:
       {
       unsigned int *ptr = ((vtkUnsignedIntArray *) 
-			   scalars)->GetPointer(0);
+                           scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
@@ -421,7 +421,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
     case VTK_UNSIGNED_LONG:
       {
       unsigned long *ptr = ((vtkUnsignedLongArray *) 
-			    scalars)->GetPointer(0);
+                            scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
@@ -454,14 +454,14 @@ void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   
   this->Threader->SetSingleMethod( vtkSwitchOnDataType,
-				  (vtkObject *)this );
+                                  (vtkObject *)this );
   
   this->Threader->SingleMethodExecute();
 }
 
 // Print the vtkFiniteDifferenceGradientEstimator
 void vtkFiniteDifferenceGradientEstimator::PrintSelf(ostream& os, 
-						     vtkIndent indent)
+                                                     vtkIndent indent)
 {
   this->vtkEncodedGradientEstimator::PrintSelf(os, indent);
   

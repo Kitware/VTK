@@ -70,10 +70,10 @@ public:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data, 
-		  vtkActor2D* actor);
+                  vtkActor2D* actor);
 
-  unsigned char *DataOut;	// the data in the DIBSection
-  void *HBitmap;			// our handle to the DIBSection
+  unsigned char *DataOut;       // the data in the DIBSection
+  void *HBitmap;                        // our handle to the DIBSection
 
 protected:
   vtkQuartzImageMapper();

@@ -221,20 +221,20 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 
   // Create space for the tables
   this->IndexTable = new int [(this->OuterSize + this->InnerSize) * 
-			      (this->OuterSize + this->InnerSize)];
+                              (this->OuterSize + this->InnerSize)];
 
   // Initialize the table to -1 -- we'll use this later to determine which
   // entries are still not filled in
   for ( i = 0; i < ( (this->OuterSize + this->InnerSize) * 
-		     (this->OuterSize + this->InnerSize) ); i ++ )
+                     (this->OuterSize + this->InnerSize) ); i ++ )
     {
       this->IndexTable[i] = -1;
     }
 
   this->DecodedNormal = 
     new float [ 3 * ( 1 + 
-		      2 * this->OuterSize * this->OuterSize +
-		      2 * this->InnerSize * this->InnerSize ) ];
+                      2 * this->OuterSize * this->OuterSize +
+                      2 * this->InnerSize * this->InnerSize ) ];
 
   // Initialize the index
   index = 0;
@@ -266,14 +266,14 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       {
       // compute the x component for this column
       if ( i%2 )
-	{
+        {
         tmp_x = (float)(2*j)/(float)(this->InnerSize) - 
-	  1.0 + (1.0/(float)(this->InnerSize));
-	}
+          1.0 + (1.0/(float)(this->InnerSize));
+        }
       else
-	{
+        {
         tmp_x = (float)(2*j)/(float)(this->InnerSize) - 1.0;
-	}
+        }
  
       // rotate by 45 degrees
       // This rotation intentionally does not preserve length - 
@@ -284,21 +284,21 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       
       // compute the z based on the x and y values
       if ( x >= 0 && y >= 0 )
-	{
-	z = 1.0 - x - y;
-	}
+        {
+        z = 1.0 - x - y;
+        }
       else if ( x >= 0 && y < 0 )
-	{
-	z = 1.0 - x + y;
-	}
+        {
+        z = 1.0 - x + y;
+        }
       else if ( x < 0 && y < 0 )
-	{
-	z = 1.0 + x + y;
-	}
+        {
+        z = 1.0 + x + y;
+        }
       else 
-	{
-	z = 1.0 + x - y;
-	}
+        {
+        z = 1.0 + x - y;
+        }
       
       // Normalize this direction and set the DecodedNormal table for
       // this index to this normal.  Also set the corresponding 
@@ -316,13 +316,13 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5); 
       yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
       if ( xindex > 2*this->InnerSize )
-	{
-	xindex = 2*this->InnerSize;
-	}
+        {
+        xindex = 2*this->InnerSize;
+        }
       if ( yindex > 2*this->InnerSize )
-	{
-	yindex = 2*this->InnerSize;
-	}
+        {
+        yindex = 2*this->InnerSize;
+        }
       this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
 
       // Do the grid location to the left - unless we are at the left
@@ -334,40 +334,40 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       // where we skip over some table index due to precision, and
       // therefore it doesn't have a valid value in it.
       if ( tmp_x > 0 )
-	{
-	x = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
-	y = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
-	xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5); 
-	yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
-	if ( xindex > 2*this->InnerSize )
-	  {
-	  xindex = 2*this->InnerSize;
-	  }
-	if ( yindex > 2*this->InnerSize )
-	  {
-	  yindex = 2*this->InnerSize;
-	  }
-	this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
-	}
+        {
+        x = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
+        y = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
+        xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5); 
+        yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
+        if ( xindex > 2*this->InnerSize )
+          {
+          xindex = 2*this->InnerSize;
+          }
+        if ( yindex > 2*this->InnerSize )
+          {
+          yindex = 2*this->InnerSize;
+          }
+        this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
+        }
 
       // On the odd rows we also need to do the last grid location on
       // the right.
       if ( (i%2) && (j == limit - 1) )
-	{
-	x = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
-	y = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
-	xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5); 
-	yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
-	if ( xindex > 2*this->InnerSize )
-	  {
-	  xindex = 2*this->InnerSize;
-	  }
-	if ( yindex > 2*this->InnerSize )
-	  {
-	  yindex = 2*this->InnerSize;
-	  }
-	this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
-	}
+        {
+        x = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
+        y = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
+        xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5); 
+        yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
+        if ( xindex > 2*this->InnerSize )
+          {
+          xindex = 2*this->InnerSize;
+          }
+        if ( yindex > 2*this->InnerSize )
+          {
+          yindex = 2*this->InnerSize;
+          }
+        this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
+        }
       
       // Increment the index
       index++;
@@ -389,13 +389,13 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
     // Start from the middle going right, copy the value from the left if
     // this entry is not initialized
     for ( i = (this->OuterSize+this->InnerSize)/2; 
-	  i < this->OuterSize + this->InnerSize; i++ )
+          i < this->OuterSize + this->InnerSize; i++ )
       {
       if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
-	{
-	this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
-	  this->IndexTable[j*(this->OuterSize+this->InnerSize)+i-1];
-	}
+        {
+        this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
+          this->IndexTable[j*(this->OuterSize+this->InnerSize)+i-1];
+        }
       }
 
     // Start from the middle going left, copy the value from the right if
@@ -403,10 +403,10 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
     for ( i = (this->OuterSize+this->InnerSize)/2; i >= 0; i-- )
       {
       if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
-	{
-	this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
-	  this->IndexTable[j*(this->OuterSize+this->InnerSize)+i+1];
-	}
+        {
+        this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
+          this->IndexTable[j*(this->OuterSize+this->InnerSize)+i+1];
+        }
       }
     }
 }

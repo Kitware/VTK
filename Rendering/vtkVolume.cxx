@@ -71,7 +71,7 @@ vtkVolume* vtkVolume::New()
 // orientation=(0,0,0).
 vtkVolume::vtkVolume()
 {
-  this->Mapper          	    = NULL;
+  this->Mapper                      = NULL;
   this->Property                    = NULL;
   this->ScalarOpacityArray          = NULL;
   this->RGBArray                    = NULL;
@@ -243,13 +243,13 @@ float *vtkVolume::GetBounds()
     for (n = 0; n < 3; n++)
       {
       if (bbox[i*3+n] < this->Bounds[n*2])
-	{
-	this->Bounds[n*2] = bbox[i*3+n];
-	}
+        {
+        this->Bounds[n*2] = bbox[i*3+n];
+        }
       if (bbox[i*3+n] > this->Bounds[n*2+1])
-	{
-	this->Bounds[n*2+1] = bbox[i*3+n];
-	}
+        {
+        this->Bounds[n*2+1] = bbox[i*3+n];
+        }
       }
     }
 
@@ -487,10 +487,10 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     return;
     }
   else if ( this->ScalarOpacityArray == NULL ||
-	    scalar_opacity_transfer_function->GetMTime() >
-	    this->ScalarOpacityArrayMTime ||
-	    this->Property->GetScalarOpacityMTime() >
-	    this->ScalarOpacityArrayMTime )
+            scalar_opacity_transfer_function->GetMTime() >
+            this->ScalarOpacityArrayMTime ||
+            this->Property->GetScalarOpacityMTime() >
+            this->ScalarOpacityArrayMTime )
     {
     scalar_opacity_tf_needs_updating = 1;
     }
@@ -501,9 +501,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     return;
     }
   else if ( gradient_opacity_transfer_function->GetMTime() >
-	    this->GradientOpacityArrayMTime ||
-	    this->Property->GetGradientOpacityMTime() >
-	    this->GradientOpacityArrayMTime )
+            this->GradientOpacityArrayMTime ||
+            this->Property->GetGradientOpacityMTime() >
+            this->GradientOpacityArrayMTime )
     {
     gradient_opacity_tf_needs_updating = 1;
     }
@@ -512,31 +512,31 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     {
     case 1:
       if ( gray_transfer_function == NULL )
-	{
-	vtkErrorMacro( << "Error: no gray transfer function!" );
-	}
+        {
+        vtkErrorMacro( << "Error: no gray transfer function!" );
+        }
       else if ( this->GrayArray == NULL ||
-		gray_transfer_function->GetMTime() >
-		this->GrayArrayMTime ||
-		this->Property->GetGrayTransferFunctionMTime() >
-		this->GrayArrayMTime )
-	{
-	gray_tf_needs_updating = 1;
-	}
+                gray_transfer_function->GetMTime() >
+                this->GrayArrayMTime ||
+                this->Property->GetGrayTransferFunctionMTime() >
+                this->GrayArrayMTime )
+        {
+        gray_tf_needs_updating = 1;
+        }
       break;
     case 3:
       if ( rgb_transfer_function == NULL )
-	{
-	vtkErrorMacro( << "Error: no color transfer function!" );
-	}
+        {
+        vtkErrorMacro( << "Error: no color transfer function!" );
+        }
       else if ( this->RGBArray == NULL ||
-		rgb_transfer_function->GetMTime() >
-		this->RGBArrayMTime ||
-		this->Property->GetRGBTransferFunctionMTime() >
-		this->RGBArrayMTime )
-	{
-	rgb_tf_needs_updating = 1;
-	}
+                rgb_transfer_function->GetMTime() >
+                this->RGBArrayMTime ||
+                this->Property->GetRGBTransferFunctionMTime() >
+                this->RGBArrayMTime )
+        {
+        rgb_tf_needs_updating = 1;
+        }
       break;
     }
 
@@ -576,45 +576,45 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
       {
       // Get values 0-255 (256 values)
       if ( this->ScalarOpacityArray )
-	{
-	delete [] this->ScalarOpacityArray;
-	}
+        {
+        delete [] this->ScalarOpacityArray;
+        }
 
       this->ScalarOpacityArray = new float[(int)(0x100)];
       scalar_opacity_transfer_function->GetTable( (float)(0x00),
-					   (float)(0xff),  
-					   (int)(0x100), 
-					   this->ScalarOpacityArray );
+                                           (float)(0xff),  
+                                           (int)(0x100), 
+                                           this->ScalarOpacityArray );
       this->ScalarOpacityArrayMTime.Modified();
       }
 
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayArray )
-	{
-	delete [] this->GrayArray;
-	}
+        {
+        delete [] this->GrayArray;
+        }
 
       this->GrayArray = new float[(int)(0x100)];
       gray_transfer_function->GetTable( (float)(0x00),
-					(float)(0xff),  
-					(int)(0x100), 
-					this->GrayArray );
+                                        (float)(0xff),  
+                                        (int)(0x100), 
+                                        this->GrayArray );
       this->GrayArrayMTime.Modified();
       }
 
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBArray )
-	{
-	delete [] this->RGBArray;
-	}
+        {
+        delete [] this->RGBArray;
+        }
       
       this->RGBArray = new float[3 * (int)(0x100)];
       rgb_transfer_function->GetTable( (float)(0x00),
-				       (float)(0xff),  
-				       (int)(0x100), 
-				       this->RGBArray );
+                                       (float)(0xff),  
+                                       (int)(0x100), 
+                                       this->RGBArray );
       this->RGBArrayMTime.Modified();
       }
     }
@@ -626,45 +626,45 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
       {
       // Get values 0-65535 (65536 values)
       if ( this->ScalarOpacityArray )
-	{
-	delete [] this->ScalarOpacityArray;
-	}
+        {
+        delete [] this->ScalarOpacityArray;
+        }
 
       this->ScalarOpacityArray = new float[(int)(0x10000)];
       scalar_opacity_transfer_function->GetTable( (float)(0x0000),
-					   (float)(0xffff),  
-					   (int)(0x10000), 
-					   this->ScalarOpacityArray );
+                                           (float)(0xffff),  
+                                           (int)(0x10000), 
+                                           this->ScalarOpacityArray );
       this->ScalarOpacityArrayMTime.Modified();
       }
 
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayArray )
-	{
-	delete [] this->GrayArray;
-	}
+        {
+        delete [] this->GrayArray;
+        }
 
       this->GrayArray = new float[(int)(0x10000)];
       gray_transfer_function->GetTable( (float)(0x0000),
-					(float)(0xffff),  
-					(int)(0x10000), 
-					this->GrayArray );
+                                        (float)(0xffff),  
+                                        (int)(0x10000), 
+                                        this->GrayArray );
       this->GrayArrayMTime.Modified();
       }
 
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBArray )
-	{
-	delete [] this->RGBArray;
-	}
+        {
+        delete [] this->RGBArray;
+        }
       
       this->RGBArray = new float[3 * (int)(0x10000)];
       rgb_transfer_function->GetTable( (float)(0x0000),
-				       (float)(0xffff),  
-				       (int)(0x10000), 
-				       this->RGBArray );
+                                       (float)(0xffff),  
+                                       (int)(0x10000), 
+                                       this->RGBArray );
       this->RGBArrayMTime.Modified();
       }
     }
@@ -689,7 +689,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
 // step size.  The ScalarOpacityArray reflects step size 1.
 // The CorrectedScalarOpacityArray reflects step size CorrectedStepSize.
 void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
-						  float sample_distance )
+                                                  float sample_distance )
 {
   int i;
   int needsRecomputing;
@@ -709,7 +709,7 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
     {
     // updated scalar opacity xfer function
     needsRecomputing = needsRecomputing || 
-	this->ScalarOpacityArrayMTime > this->CorrectedScalarOpacityArrayMTime;
+        this->ScalarOpacityArrayMTime > this->CorrectedScalarOpacityArrayMTime;
     }
   if (needsRecomputing)
     {
@@ -723,14 +723,14 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
       // this test is to accelerate the Transfer function correction
 
       if (originalAlpha > 0.0001)
-	{
-	correctedAlpha = 
-	  1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
-	}
+        {
+        correctedAlpha = 
+          1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
+        }
       else
-	{
-	correctedAlpha = originalAlpha;
-	}
+        {
+        correctedAlpha = originalAlpha;
+        }
       *(this->CorrectedScalarOpacityArray+i) = correctedAlpha;
       }
     }
@@ -766,9 +766,9 @@ void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
     {
       this->GetBounds();
       os << indent << "Bounds: (" << this->Bounds[0] << ", " 
-	 << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
-	 << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
-	 << this->Bounds[5] << ")\n";
+         << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
+         << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
+         << this->Bounds[5] << ")\n";
     }
   else
     {

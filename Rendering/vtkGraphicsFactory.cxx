@@ -111,7 +111,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
       temp = "Win32OpenGL";
       }
     else if (strcmp("OpenGL",temp) && 
-	     strcmp("Win32OpenGL",temp))
+             strcmp("Win32OpenGL",temp))
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
       temp = NULL;
@@ -237,7 +237,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-	
+        
  vtkGenericWarningMacro("Attempting to create an OpenGL  based object with a VTK that is not linked/configured with OpenGL.");
   abort();
   return 0;

@@ -2547,7 +2547,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   
   // how do we draw points
   void (*draw0)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, 
-		vtkDataArray *,
+                vtkDataArray *,
                 vtkUnsignedCharArray *, vtkDataArray *, vtkOpenGLRenderer *, 
                 int &);
 
@@ -2634,7 +2634,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   // how do we draw tstrips
   void (*draw2)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, 
-		vtkDataArray *,
+                vtkDataArray *,
                 vtkUnsignedCharArray *, vtkDataArray *, vtkOpenGLRenderer *, 
                 int &);
   void (*draw2W)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *,

@@ -122,7 +122,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
 }
 
 void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport, 
-					 vtkActor2D *actor)
+                                         vtkActor2D *actor)
 {
   int i;
   float x[3];
@@ -143,7 +143,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 }
 
 void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
-						vtkActor2D *actor)
+                                                vtkActor2D *actor)
 {
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
   char string[1024], format[1024];
@@ -174,43 +174,43 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     switch (this->LabelMode)
       {
       case VTK_LABEL_IDS:
-	pointIdLabels = 1;
-	break;
+        pointIdLabels = 1;
+        break;
       case VTK_LABEL_SCALARS:
-	if ( pd->GetScalars() )
-	  {
-	  data = pd->GetScalars();
-	  }
-	break;
+        if ( pd->GetScalars() )
+          {
+          data = pd->GetScalars();
+          }
+        break;
       case VTK_LABEL_VECTORS:   
-	if ( pd->GetVectors() )
-	  {
-	  data = pd->GetVectors();
-	  }
-	break;
+        if ( pd->GetVectors() )
+          {
+          data = pd->GetVectors();
+          }
+        break;
       case VTK_LABEL_NORMALS:    
-	if ( pd->GetNormals() )
-	  {
-	  data = pd->GetNormals();
-	  }
-	break;
+        if ( pd->GetNormals() )
+          {
+          data = pd->GetNormals();
+          }
+        break;
       case VTK_LABEL_TCOORDS:    
-	if ( pd->GetTCoords() )
-	  {
-	  data = pd->GetTCoords();
-	  }
-	break;
+        if ( pd->GetTCoords() )
+          {
+          data = pd->GetTCoords();
+          }
+        break;
       case VTK_LABEL_TENSORS:    
-	if ( pd->GetTensors() )
-	  {
-	  data = pd->GetTensors();
-	  }
-	break;
+        if ( pd->GetTensors() )
+          {
+          data = pd->GetTensors();
+          }
+        break;
       case VTK_LABEL_FIELD_DATA:
-	int arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
-			this->FieldDataArray : pd->GetNumberOfArrays() - 1);
-	data = pd->GetArray(arrayNum);
-	break;
+        int arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
+                        this->FieldDataArray : pd->GetNumberOfArrays() - 1);
+        data = pd->GetArray(arrayNum);
+        break;
       }
 
     // determine number of components and check input
@@ -224,11 +224,11 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       tuple = new float[numComp];
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
-	{
-	numComp = 1;
-	activeComp = (this->LabeledComponent < numComp ? 
-		      this->LabeledComponent : numComp - 1);
-	}
+        {
+        numComp = 1;
+        activeComp = (this->LabeledComponent < numComp ? 
+                      this->LabeledComponent : numComp - 1);
+        }
       }
     else
       {
@@ -241,46 +241,46 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       {
       // delete old stuff
       for (i=0; i < this->NumberOfLabelsAllocated; i++)
-	{
-	this->TextMappers[i]->Delete();
-	}
+        {
+        this->TextMappers[i]->Delete();
+        }
       delete [] this->TextMappers;
 
       this->NumberOfLabelsAllocated = this->NumberOfLabels;
       this->TextMappers = new vtkTextMapper * [this->NumberOfLabelsAllocated];
       for (i=0; i<this->NumberOfLabelsAllocated; i++)
-	{
-	this->TextMappers[i] = vtkTextMapper::New();
-	}
+        {
+        this->TextMappers[i] = vtkTextMapper::New();
+        }
       }//if we have to allocate new text mappers
     
     for (i=0; i < this->NumberOfLabels; i++)
       {
       if ( pointIdLabels )
-	{
-	val = (float)i;
+        {
+        val = (float)i;
         sprintf(string, this->LabelFormat, val);
-	}
+        }
       else 
-	{
+        {
         data->GetTuple(i, tuple);
-	if ( numComp == 1)
-	  {
-	  sprintf(string, this->LabelFormat, tuple[activeComp]);
-	  }
-	else
-	  {
-	  strcpy(format, "("); strcat(format, this->LabelFormat);
+        if ( numComp == 1)
+          {
+          sprintf(string, this->LabelFormat, tuple[activeComp]);
+          }
+        else
+          {
+          strcpy(format, "("); strcat(format, this->LabelFormat);
           for (j=0; j<(numComp-1); j++)
-	    {
-	    sprintf(string, format, tuple[j]);
-	    strcpy(format,string); strcat(format,", ");
+            {
+            sprintf(string, format, tuple[j]);
+            strcpy(format,string); strcat(format,", ");
             strcat(format, this->LabelFormat);
-	    }
-	  sprintf(string, format, tuple[numComp-1]);
-	  strcat(string, ")");
-	  }
-	}
+            }
+          sprintf(string, format, tuple[numComp-1]);
+          strcat(string, ")");
+          }
+        }
 
       this->TextMappers[i]->SetInput(string);
       this->TextMappers[i]->SetFontSize(this->FontSize);

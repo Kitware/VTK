@@ -141,9 +141,9 @@ void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
       {
       this->RenderWindow->Register(this);
       if (this->RenderWindow->GetInteractor() != this)
-	{
-	this->RenderWindow->SetInteractor(this);
-	}
+        {
+        this->RenderWindow->SetInteractor(this);
+        }
       }
     }
 }
@@ -163,9 +163,9 @@ void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorStyle *aren)
       {
       this->InteractorStyle->Register(this);
       if (this->InteractorStyle->GetInteractor() != this)
-	{
-	this->InteractorStyle->SetInteractor(this);
-	}
+        {
+        this->InteractorStyle->SetInteractor(this);
+        }
       }
     }
 }

@@ -50,11 +50,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkXImageWindow_h
 #define __vtkXImageWindow_h
 
-#include 	<X11/Xlib.h>
-#include 	<X11/Xutil.h>
-#include 	<X11/cursorfont.h>
-#include 	<X11/X.h>
-#include 	<X11/keysym.h>
+#include        <X11/Xlib.h>
+#include        <X11/Xutil.h>
+#include        <X11/cursorfont.h>
+#include        <X11/X.h>
+#include        <X11/keysym.h>
 
 #include        "vtkImageWindow.h"
 
@@ -175,14 +175,14 @@ protected:
 
   // X stuff
   Window               ParentId;
-  Window	       WindowId;
+  Window               WindowId;
   Display             *DisplayId;
   Visual              *VisualId;
   int                  VisualDepth;
   int                  VisualClass;
   Colormap             ColorMap;
   GC                   Gc;
-  int	               Offset;
+  int                  Offset;
   XColor               Colors[256];
   int                  NumberOfColors;
   Pixmap               Drawable;
@@ -196,9 +196,9 @@ protected:
   Colormap MakeColorMap(Visual *visual);
   void AllocateDirectColorMap();
   void GetShiftsScalesAndMasks(int &rshift, int &gshift, int &bshift,
-			       int &rscale, int &gscale, int &bscale,
-			       unsigned long &rmask, unsigned long &gmask,
-			       unsigned long &bmask);
+                               int &rscale, int &gscale, int &bscale,
+                               unsigned long &rmask, unsigned long &gmask,
+                               unsigned long &bmask);
 private:
   vtkXImageWindow(const vtkXImageWindow&);  // Not implemented.
   void operator=(const vtkXImageWindow&);  // Not implemented.

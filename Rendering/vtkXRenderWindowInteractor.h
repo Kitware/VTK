@@ -191,7 +191,7 @@ protected:
 
   int BreakLoopFlag;
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
-			  XtTimerCallbackProc proc, XtPointer client_data) ;
+                          XtTimerCallbackProc proc, XtPointer client_data) ;
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 

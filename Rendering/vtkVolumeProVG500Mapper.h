@@ -98,9 +98,9 @@ public:
   virtual void Render( vtkRenderer *, vtkVolume * );
   virtual int GetAvailableBoardMemory();
   virtual void GetLockSizesForBoardMemory( unsigned int type,
-					   unsigned int *xSize,
-					   unsigned int *ySize,
-					   unsigned int *zSize );
+                                           unsigned int *xSize,
+                                           unsigned int *ySize,
+                                           unsigned int *zSize );
 protected:
   vtkVolumeProVG500Mapper();
   ~vtkVolumeProVG500Mapper();
@@ -131,17 +131,17 @@ protected:
   // Render the hexagon to the screen
   // Defined in the specific graphics implementation.
   virtual void RenderHexagon( vtkRenderer  * vtkNotUsed(ren), 
-			      vtkVolume    * vtkNotUsed(vol),
-			      VLIPixel     * vtkNotUsed(basePlane),
-			      int          size[2],
-			      VLIVector3D  hexagon[6], 
-			      VLIVector2D  textureCoords[6] ) 
+                              vtkVolume    * vtkNotUsed(vol),
+                              VLIPixel     * vtkNotUsed(basePlane),
+                              int          size[2],
+                              VLIVector3D  hexagon[6], 
+                              VLIVector2D  textureCoords[6] ) 
     {(void)size; (void)hexagon; (void)textureCoords;}
 
   // Make the base plane size a power of 2 for OpenGL
   void CorrectBasePlaneSize( VLIPixel *inBase, int inSize[2],
-			     VLIPixel **outBase, int outSize[2],
-			     VLIVector2D textureCoords[6] );
+                             VLIPixel **outBase, int outSize[2],
+                             VLIVector2D textureCoords[6] );
 
   // Keep track of the size of the data loaded so we know if we can
   // simply update when a change occurs or if we need to release and

@@ -288,7 +288,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
       // Given a Y and Z value, what are the cropping bounds
       // on X.
       if ( cropping )
-	{
+        {
         switch ( axis )
           {
           case 0:
@@ -322,20 +322,20 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
         }
       
       if ( shade )
-	{
-	nptr = encodedNormals + loc;
+        {
+        nptr = encodedNormals + loc;
         
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + loc;
-	  }
-	for ( i = 0; i < size[a0]; i++ )
-	  {
-	  index = 0;
-	  index += ( i >= clipLow );
-	  index += ( i >= clipHigh );
-	  if ( flag[index] )
-	    {
+        if ( gradientMagnitudes )
+          {
+          gptr = gradientMagnitudes + loc;
+          }
+        for ( i = 0; i < size[a0]; i++ )
+          {
+          index = 0;
+          index += ( i >= clipLow );
+          index += ( i >= clipHigh );
+          if ( flag[index] )
+            {
             tmpval = rgbaArray[(*dptr)*4];
             tmpval = tmpval * redDiffuseShadingTable[*nptr] +
               redSpecularShadingTable[*nptr]*255.0;
@@ -372,80 +372,80 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
             *(tptr++) = (unsigned char) tmpval;
             
             }
-	  else
-	    {
-	    memcpy( tptr, zero, 4 );
-	    tptr += 4;
-	    if ( gradientMagnitudes )
-	      {
-	      gptr += inc;
-	      }
-	    }
-	  nptr += inc;
-	  dptr += inc;
-	  }
-	}
+          else
+            {
+            memcpy( tptr, zero, 4 );
+            tptr += 4;
+            if ( gradientMagnitudes )
+              {
+              gptr += inc;
+              }
+            }
+          nptr += inc;
+          dptr += inc;
+          }
+        }
       else
-	{
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + loc;
-	  }
+        {
+        if ( gradientMagnitudes )
+          {
+          gptr = gradientMagnitudes + loc;
+          }
 
-	if ( cropping )
-	  {
-	  for ( i = 0; i < size[a0]; i++ )
-	    {
-	    index = 0;
-	    index += ( i >= clipLow );
-	    index += ( i >= clipHigh );
-	    if ( flag[index] )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      if ( gradientMagnitudes )
-		{
-		*(tptr+3) = (unsigned char)
-		  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-		gptr += inc;
-		}
-	      }
-	    else
-	      {
-	      memcpy( tptr, zero, 4 );
-	      if ( gradientMagnitudes )
-		{
-		gptr += inc;
-		}	      
-	      }
-	    tptr += 4;
-	    dptr += inc;
-	    }
-	  }
-	else
-	  {
-	  if ( gradientMagnitudes )
-	    {
-	    for ( i = 0; i < size[a0]; i++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      *(tptr+3) = (unsigned char)
-		((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-	      gptr += inc;
-	      dptr += inc;
-	      tptr += 4;
-	      }
-	    }
-	  else
-	    {
-	    for ( i = 0; i < size[a0]; i++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      tptr += 4;
-	      dptr += inc;
-	      }
-	    }
-	  }
-	}
+        if ( cropping )
+          {
+          for ( i = 0; i < size[a0]; i++ )
+            {
+            index = 0;
+            index += ( i >= clipLow );
+            index += ( i >= clipHigh );
+            if ( flag[index] )
+              {
+              memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+              if ( gradientMagnitudes )
+                {
+                *(tptr+3) = (unsigned char)
+                  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
+                gptr += inc;
+                }
+              }
+            else
+              {
+              memcpy( tptr, zero, 4 );
+              if ( gradientMagnitudes )
+                {
+                gptr += inc;
+                }             
+              }
+            tptr += 4;
+            dptr += inc;
+            }
+          }
+        else
+          {
+          if ( gradientMagnitudes )
+            {
+            for ( i = 0; i < size[a0]; i++ )
+              {
+              memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+              *(tptr+3) = (unsigned char)
+                ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
+              gptr += inc;
+              dptr += inc;
+              tptr += 4;
+              }
+            }
+          else
+            {
+            for ( i = 0; i < size[a0]; i++ )
+              {
+              memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+              tptr += 4;
+              dptr += inc;
+              }
+            }
+          }
+        }
       }
 
     if ( renWin->CheckAbortStatus() )
@@ -781,7 +781,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
   if ( this->Texture )
     {
     delete [] this->Texture;
-	this->Texture = NULL;
+        this->Texture = NULL;
     }
   this->TextureSize = 0;
   
@@ -809,7 +809,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
     this->Texture = new unsigned char [neededSize];
     this->TextureSize = neededSize;
     
-	int savedDirection = this->MajorDirection;
+        int savedDirection = this->MajorDirection;
 
     switch ( inputType )
       {
@@ -841,7 +841,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
         break;
       }
     
-	this->MajorDirection = savedDirection;
+        this->MajorDirection = savedDirection;
     this->RenderSavedTexture();
     this->TextureMTime.Modified();
     }
@@ -927,7 +927,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
 }
 
 void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
-						 vtkVolume *vol,
+                                                 vtkVolume *vol,
                                                  int majorDirection )
 {
   if ( majorDirection >= 0)

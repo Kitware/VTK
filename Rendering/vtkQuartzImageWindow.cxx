@@ -76,7 +76,7 @@ vtkQuartzImageWindow::vtkQuartzImageWindow()
   this->WindowId = 0;
   this->ParentId = 0;
   this->NextWindowId = 0;
-  this->DeviceContext = 0;		// hsr
+  this->DeviceContext = 0;              // hsr
   this->SetWindowName("Visualization Toolkit - Quartz");
   // we default to double buffered in contrast to other classes
   // mostly because in OpenGL double buffering should be free
@@ -215,8 +215,8 @@ void vtkQuartzImageWindow::Frame()
 
 
 void vtkQuartzImageWindow::SetupPixelFormat(void *hDC, int dwFlags, 
-						  int debug, int bpp, 
-						  int zbpp)
+                                                  int debug, int bpp, 
+                                                  int zbpp)
 {
 //  PIXELFORMATDESCRIPTOR pfd = {
 //    sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -293,7 +293,7 @@ void vtkQuartzImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 
 unsigned char *vtkQuartzImageWindow::GetPixelData(int x1, int y1, int x2,
-							int y2, int front)
+                                                        int y2, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -343,7 +343,7 @@ unsigned char *vtkQuartzImageWindow::GetPixelData(int x1, int y1, int x2,
 }
 
 void vtkQuartzImageWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					    unsigned char *data, int front)
+                                            unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -438,7 +438,7 @@ void vtkQuartzImageWindow::SetNextWindowId(void *arg)
 }
 
 void vtkQuartzImageWindow::SetupMemoryRendering(int xsize, int ysize,
-						      void *aHdc)
+                                                      void *aHdc)
 {
   int dataWidth = ((xsize*3+3)/4)*4;
   
@@ -451,11 +451,11 @@ void vtkQuartzImageWindow::SetupMemoryRendering(int xsize, int ysize,
 //  this->MemoryDataHeader.bmiHeader.biClrUsed = 0;
 //  this->MemoryDataHeader.bmiHeader.biClrImportant = 0;
 //  this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
-	
+        
   // try using a DIBsection
   //this->MemoryBuffer = CreateDIBSection(aHdc,
-//				&this->MemoryDataHeader, DIB_RGB_COLORS, 
-//				(void **)(&(this->MemoryData)),  NULL, 0);
+//                              &this->MemoryDataHeader, DIB_RGB_COLORS, 
+//                              (void **)(&(this->MemoryData)),  NULL, 0);
   
   // Create a compatible device context
 //  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
@@ -488,8 +488,8 @@ void vtkQuartzImageWindow::SetupMemoryRendering(int xsize, int ysize,
   this->DeviceContext = this->MemoryHdc;
   this->DoubleBuffer = 0;
 //  this->SetupPixelFormat(this->DeviceContext, 
-//		PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
-//		this->GetDebug(), 24, 32);
+//              PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
+//              this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
 //  this->ContextId = wglCreateContext(this->DeviceContext);
 //  wglMakeCurrent(this->DeviceContext, this->ContextId);
@@ -535,14 +535,14 @@ void vtkQuartzImageWindow::ResumeScreenRendering()
 }
 
 void vtkQuartzImageWindow::SetContextId(void *arg) // hsr
-{													   // hsr	
-  this->ContextId = arg;							   // hsr
-}													   // hsr
+{                                                                                                          // hsr       
+  this->ContextId = arg;                                                           // hsr
+}                                                                                                          // hsr
 
 void vtkQuartzImageWindow::SetDeviceContext(void *arg) // hsr
-{														 // hsr
-  this->DeviceContext = arg;							 // hsr
-}														 // hsr
+{                                                                                                                // hsr
+  this->DeviceContext = arg;                                                     // hsr
+}                                                                                                                // hsr
 
 float *vtkQuartzImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
@@ -662,7 +662,7 @@ void vtkQuartzImageWindow::SetRGBAPixelData(int x1, int y1,
   glLoadIdentity();
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1), 
-		 -1.0 );
+                 -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );

@@ -90,8 +90,8 @@ void vtkLight::SetDirectionAngle(float elevation, float azimuth)
   azimuth   *= vtkMath::DegreesToRadians();
 
   this->SetPosition(cos(elevation)*sin(azimuth), 
-		    sin(elevation), 
-		    cos(elevation)*cos(azimuth));
+                    sin(elevation), 
+                    cos(elevation)*cos(azimuth));
 
   this->SetFocalPoint(0.0, 0.0, 0.0);
   this->SetPositional(0);

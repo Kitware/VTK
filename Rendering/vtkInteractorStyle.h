@@ -180,9 +180,9 @@ public:
   virtual void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount);
   virtual void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount);
   virtual void OnKeyPress(int ctrl, int shift, char keycode, char *keysym, 
-			  int repeatcount);
+                          int repeatcount);
   virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
-			    int repeatcount);
+                            int repeatcount);
 
   // Description:
   // These are more esoteric events, but are useful in some cases.

@@ -102,8 +102,8 @@ void vtkInteractorStyleUnicam::SetWorldUpVector(float x, float y, float z)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
-						int vtkNotUsed(shift), 
-						int X, int Y) 
+                                                int vtkNotUsed(shift), 
+                                                int X, int Y) 
 {
   this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
   this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
@@ -159,7 +159,7 @@ float vtkInteractorStyleUnicam::WindowAspect()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::NormalizeMouseXY(int X, int Y,
-						float *NX, float *NY)
+                                                float *NX, float *NY)
 {
   float w = Interactor->GetRenderWindow()->GetSize()[0];
   float h = Interactor->GetRenderWindow()->GetSize()[1];
@@ -201,8 +201,8 @@ void vtkInteractorStyleUnicam::OnMouseMove(int ctrl, int shift, int X, int Y)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
-					      int vtkNotUsed(shift), 
-					      int X, int Y) 
+                                              int vtkNotUsed(shift), 
+                                              int X, int Y) 
 {
   this->ButtonDown = VTK_UNICAM_NONE;
 
@@ -257,8 +257,8 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::OnLeftButtonMove(int vtkNotUsed(ctrl),
-						int vtkNotUsed(shift),
-						int X, int Y)
+                                                int vtkNotUsed(shift),
+                                                int X, int Y)
 {
   switch (state) 
     {
@@ -326,8 +326,8 @@ void vtkInteractorStyleUnicam::Choose( int X, int Y )
 // define some utilty functions
 template <class Type>
 inline Type clamp(const Type a,
-		  const Type b,
-		  const Type c) { return a > b ? (a < c ? a : c) : b ; }
+                  const Type b,
+                  const Type c) { return a > b ? (a < c ? a : c) : b ; }
 inline int  Sign (double a)     { return a > 0 ? 1 : a < 0 ? -1 : 0; }
 
 //----------------------------------------------------------------------------
@@ -472,7 +472,7 @@ void vtkInteractorStyleUnicam::Dolly( int X, int Y )
   // 2. now handle side-to-side panning
   float rightV[3], upV[3];
   this->GetRightVandUpV(this->DownPt, this->CurrentCamera,
-			rightV, upV);
+                        rightV, upV);
 
   float offset2[3];
   for(i=0; i<3; i++)
@@ -507,13 +507,13 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
 
   float rightV[3], upV[3];
   this->GetRightVandUpV(this->DownPt, this->CurrentCamera,
-			rightV, upV);
+                        rightV, upV);
 
   float offset[3];
   for(i=0; i<3; i++)
     {
     offset[i] = (-delta[0] * rightV[i] +
-		 -delta[1] * upV   [i]);
+                 -delta[1] * upV   [i]);
     }
 
   this->MyTranslateCamera(offset);
@@ -527,7 +527,7 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
 // projection plane.
 // 
 void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
-					       float *rightV, float *upV)
+                                               float *rightV, float *upV)
 {
   int i;
 
@@ -577,8 +577,8 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
 // and around the vector/axis <ax, ay, az>.
 // 
 void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
-					      float ax, float ay, float az,
-					      float angle)
+                                              float ax, float ay, float az,
+                                              float angle)
 {
   angle *= 180.0 / vtkMath::Pi();   // vtk uses degrees, not radians
 

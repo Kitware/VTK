@@ -9,11 +9,11 @@
 extern "C" {VTK_TK_EXPORT int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp);}
 
 int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-			  int argc, char **argv);
+                          int argc, char **argv);
 int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-			       int argc, char **argv);
+                               int argc, char **argv);
 int vtkTkImageWindowWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-			       int argc, char **argv);
+                               int argc, char **argv);
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
 {
@@ -23,11 +23,11 @@ int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
     }
   
   Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
-		    Tk_MainWindow(interp), NULL);
+                    Tk_MainWindow(interp), NULL);
   Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
-		    vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
+                    vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
   Tcl_CreateCommand(interp, (char *) "vtkTkImageWindowWidget", 
-		    vtkTkImageWindowWidget_Cmd, Tk_MainWindow(interp), NULL);
+                    vtkTkImageWindowWidget_Cmd, Tk_MainWindow(interp), NULL);
   
   return TCL_OK;
 }

@@ -87,7 +87,7 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
+                            int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -96,9 +96,9 @@ public:
                                 int blend=0);
   virtual void ReleaseRGBAPixelData(float *data);
   virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
-					      int front);
+                                              int front);
   virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
-				    int front, int blend=0);  
+                                    int front, int blend=0);  
 
   // Description:
   // Set/Get the zbuffer data from an image

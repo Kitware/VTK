@@ -170,7 +170,7 @@ void vtkRenderer::Render(void)
           light->GetMTime() > this->RenderTime)
         {
         mods = 1;
-	goto completed_mod_check;
+        goto completed_mod_check;
         }
       }
     for (this->Props->InitTraversal(); 
@@ -182,7 +182,7 @@ void vtkRenderer::Render(void)
         if (aProp->GetRedrawMTime() > this->RenderTime)
           {
           mods = 1;
-	  goto completed_mod_check;
+          goto completed_mod_check;
           }
         }
       }
@@ -366,27 +366,27 @@ int vtkRenderer::UpdateLightGeometry()
     lightMatrix = camera->GetCameraLightTransformMatrix();
 
     for(this->Lights->InitTraversal(); 
-	(light = this->Lights->GetNextItem()); )
+        (light = this->Lights->GetNextItem()); )
     {
       if (light->LightTypeIsSceneLight())
-	{
-	  // nothing needs to be done.
-	  ;
-	}
+        {
+          // nothing needs to be done.
+          ;
+        }
       else if (light->LightTypeIsHeadlight())
-	{
-	  // update position and orientation of light to match camera.
-	  light->SetPosition(camera->GetPosition());
-	  light->SetFocalPoint(camera->GetFocalPoint());
-	}
+        {
+          // update position and orientation of light to match camera.
+          light->SetPosition(camera->GetPosition());
+          light->SetFocalPoint(camera->GetFocalPoint());
+        }
       else if (light->LightTypeIsCameraLight())
-	{
-	  light->SetTransformMatrix(lightMatrix);
-	}
+        {
+          light->SetTransformMatrix(lightMatrix);
+        }
       else 
-	{
-	  vtkErrorMacro(<< "light has unknown light type");
-	}
+        {
+          vtkErrorMacro(<< "light has unknown light type");
+        }
     }
   }
   return 1;
@@ -443,7 +443,7 @@ void vtkRenderer::AllocateTime()
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
                              this->AllocatedRenderTime, 
-			     this );  
+                             this );  
     }
 }
 

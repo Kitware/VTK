@@ -78,7 +78,7 @@ public:
 
 //BTX
   void CastRay( VTKVRCDynamicInfo *dynamicInfo,
-		VTKVRCStaticInfo *staticInfo);
+                VTKVRCStaticInfo *staticInfo);
 
   float GetZeroOpacityThreshold( vtkVolume *vol );
 //ETX
@@ -89,9 +89,9 @@ protected:
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
-				   vtkVolume   *vol,
-				   VTKVRCStaticInfo *staticInfo,
-				   vtkVolumeRayCastMapper *mapper );
+                                   vtkVolume   *vol,
+                                   VTKVRCStaticInfo *staticInfo,
+                                   vtkVolumeRayCastMapper *mapper );
 //ETX
   
   int           CompositeMethod;

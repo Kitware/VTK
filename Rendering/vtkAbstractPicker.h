@@ -108,7 +108,7 @@ public:
   // the third value is =0. Return non-zero if something was successfully 
   // picked.
   virtual int Pick(float selectionX, float selectionY, float selectionZ, 
-		   vtkRenderer *renderer) = 0;
+                   vtkRenderer *renderer) = 0;
 
   // Description: Perform pick operation with selection point
   // provided. Normally the first two values for the selection point

@@ -77,8 +77,8 @@ vtkInteractorStyleImage::~vtkInteractorStyleImage()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMouseMove(int vtkNotUsed(ctrl), 
-					   int vtkNotUsed(shift),
-					   int x, int y) 
+                                           int vtkNotUsed(shift),
+                                           int x, int y) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL)
     {
@@ -135,16 +135,16 @@ void vtkInteractorStyleImage::PanXY(int x, int y, int oldX, int oldY)
   cam = this->CurrentRenderer->GetActiveCamera();
   cam->GetFocalPoint(viewFocus);
   this->ComputeWorldToDisplay(viewFocus[0], viewFocus[1],
-			      viewFocus[2], viewFocus);
+                              viewFocus[2], viewFocus);
   focalDepth = viewFocus[2];
 
   this->ComputeDisplayToWorld(double(x), double(y),
-			      focalDepth, newPickPoint);
+                              focalDepth, newPickPoint);
     
   // has to recalc old mouse point since the viewport has moved,
   // so can't move it outside the loop
   this->ComputeDisplayToWorld(double(oldX),double(oldY),
-			      focalDepth, oldPickPoint);
+                              focalDepth, oldPickPoint);
   
   // camera motion is reversed
   motionVector[0] = oldPickPoint[0] - newPickPoint[0];
@@ -154,11 +154,11 @@ void vtkInteractorStyleImage::PanXY(int x, int y, int oldX, int oldY)
   cam->GetFocalPoint(viewFocus);
   cam->GetPosition(viewPoint);
   cam->SetFocalPoint(motionVector[0] + viewFocus[0],
-		     motionVector[1] + viewFocus[1],
-		     motionVector[2] + viewFocus[2]);
+                     motionVector[1] + viewFocus[1],
+                     motionVector[2] + viewFocus[2]);
   cam->SetPosition(motionVector[0] + viewPoint[0],
-		   motionVector[1] + viewPoint[1],
-		   motionVector[2] + viewPoint[2]);
+                   motionVector[1] + viewPoint[1],
+                   motionVector[2] + viewPoint[2]);
       
   vtkRenderWindowInteractor *rwi = this->Interactor;
   if (this->CurrentLight)
@@ -233,7 +233,7 @@ void vtkInteractorStyleImage::SpinXY(int x, int y, int oldX, int oldY)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift, 
-							 int x, int y) 
+                                                         int x, int y) 
 {
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
@@ -280,17 +280,17 @@ void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonUp(int vtkNotUsed(ctrl),
-						       int vtkNotUsed(shift), 
-						       int vtkNotUsed(x),
-						       int vtkNotUsed(y))
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMiddleButtonDown(int vtkNotUsed(ctrl),
-							   int vtkNotUsed(shift), 
-							   int x, int y) 
+                                                           int vtkNotUsed(shift), 
+                                                           int x, int y) 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
@@ -307,9 +307,9 @@ void vtkInteractorStyleImage::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-							 int vtkNotUsed(shift), 
-							 int vtkNotUsed(x),
-							 int vtkNotUsed(y))
+                                                         int vtkNotUsed(shift), 
+                                                         int vtkNotUsed(x),
+                                                         int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }
@@ -335,9 +335,9 @@ void vtkInteractorStyleImage::OnRightButtonDown(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnRightButtonUp(int vtkNotUsed(ctrl),
-							int vtkNotUsed(shift), 
-							int vtkNotUsed(x),
-							int vtkNotUsed(y))
+                                                        int vtkNotUsed(shift), 
+                                                        int vtkNotUsed(x),
+                                                        int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }

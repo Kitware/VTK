@@ -64,7 +64,7 @@ vtkWin32PolyDataMapper2D* vtkWin32PolyDataMapper2D::New()
 
 
 void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, 
-					     vtkActor2D* actor)
+                                             vtkActor2D* actor)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
@@ -186,13 +186,13 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     if (c) 
       {
       if (cellScalars) 
-	{
-	rgba = c->GetPointer(4*cellNum);
-	}
+        {
+        rgba = c->GetPointer(4*cellNum);
+        }
       else
-	{
-	rgba = c->GetPointer(4*pts[j]);
-	}
+        {
+        rgba = c->GetPointer(4*pts[j]);
+        }
       npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
       pen = (HPEN) SelectObject(hdc,npen);
       DeleteObject(pen);
@@ -224,13 +224,13 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     if (c) 
       {
       if (cellScalars) 
-	{
-	rgba = c->GetPointer(4*cellNum);
-	}
+        {
+        rgba = c->GetPointer(4*cellNum);
+        }
       else
-	{
-	rgba = c->GetPointer(4*pts[j]);
-	}
+        {
+        rgba = c->GetPointer(4*pts[j]);
+        }
       npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
       pen =  (HPEN) SelectObject(hdc,npen);   
       DeleteObject(pen);

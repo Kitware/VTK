@@ -208,8 +208,8 @@ void vtkProp3D::AddOrientation (float a1,float a2,float a3)
 
   orient = this->GetOrientation();
   this->SetOrientation(orient[0] + a1,
-		       orient[1] + a2,
-		       orient[2] + a3);
+                       orient[1] + a2,
+                       orient[2] + a3);
 } 
 void vtkProp3D::AddOrientation(float a[3])
 {
@@ -489,7 +489,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
     //Note: the orientation ivar is not used since the
     //orientation is determined from the transform.
     if ( this->UserTransform && 
-	 this->UserTransform->GetMatrix() == this->UserMatrix )
+         this->UserTransform->GetMatrix() == this->UserMatrix )
       {
       this->CachedProp3D->SetUserTransform(this->UserTransform);
       }
@@ -520,8 +520,8 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
     this->CachedProp3D->GetPosition(this->Position);
     this->CachedProp3D->GetScale(this->Scale);
     if ( this->CachedProp3D->UserTransform &&
-	 this->CachedProp3D->UserTransform->GetMatrix() == 
-	 this->CachedProp3D->UserMatrix )
+         this->CachedProp3D->UserTransform->GetMatrix() == 
+         this->CachedProp3D->UserMatrix )
       {
       this->SetUserTransform(this->CachedProp3D->UserTransform);
       }

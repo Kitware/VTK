@@ -239,8 +239,8 @@ public:
   // to create text of different size-factor is usually =1 but you can
   // adjust the font size by making factor larger or smaller.
   static int SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper, 
-			 int *size, float factor, 
-			 int &stringWidth, int &stringHeight);
+                         int *size, float factor, 
+                         int &stringWidth, int &stringHeight);
 
   // Description:
   // Shallow copy of an axis actor. Overloads the virtual vtkProp method.

@@ -92,13 +92,13 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	{
-	}
-	break;
+        {
+        }
+        break;
       case VTK_STEREO_RED_BLUE:
-	{
+        {
         this->StereoStatus = 1;
-	}
+        }
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -106,14 +106,14 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	{
+        {
         this->StereoStatus = 0;
-	}
-	break;
+        }
+        break;
       case VTK_STEREO_RED_BLUE:
-	{
+        {
         this->StereoStatus = 0;
-	}
+        }
       }
     }
 }
@@ -188,8 +188,8 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
 }
 
 unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
-						   int x2, int y2, 
-						   int front)
+                                                   int x2, int y2, 
+                                                   int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -244,7 +244,7 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     {
     // read in a row of pixels
     glReadPixels(x_low,yloop,(x_hi-x_low+1),1,
-		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     for (xloop = 0; xloop <= x_hi-x_low; xloop++)
       {
       *p_data = buffer[xloop*4]; p_data++;
@@ -272,7 +272,7 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 }
 
 void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-				       unsigned char *data, int front)
+                                       unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -341,8 +341,8 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glPushMatrix();
     glLoadIdentity();
     glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
-		   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
-		   -1.0 );
+                   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
+                   -1.0 );
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
@@ -444,7 +444,7 @@ void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
 }
 
 void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				       float *data, int front, int blend)
+                                       float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -496,7 +496,7 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glLoadIdentity();
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
-		 -1.0 );
+                 -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
@@ -517,8 +517,8 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 }
 
 unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
-							   int x2, int y2, 
-							   int front)
+                                                           int x2, int y2, 
+                                                           int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -572,7 +572,7 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 
 
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-		data);
+                data);
 
 
   return data;
@@ -580,8 +580,8 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 
 
 void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
-						 int y2, unsigned char *data, 
-						 int front, int blend)
+                                                 int y2, unsigned char *data, 
+                                                 int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -650,13 +650,13 @@ void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     {
     glDisable(GL_BLEND);
     glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
-		  data);
+                  data);
     glEnable(GL_BLEND);
     }
   else
     {
     glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
-		  data);
+                  data);
     }
 }
 
@@ -701,15 +701,15 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
   glReadPixels( x_low, y_low, 
-		width, height,
-		GL_DEPTH_COMPONENT, GL_FLOAT,
-		z_data );
+                width, height,
+                GL_DEPTH_COMPONENT, GL_FLOAT,
+                z_data );
 
   return z_data;
 }
 
 void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					  float *buffer )
+                                          float *buffer )
 {
   int             y_low;
   int             x_low;

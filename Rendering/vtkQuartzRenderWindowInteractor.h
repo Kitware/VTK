@@ -160,11 +160,11 @@ protected:
   ~vtkQuartzRenderWindowInteractor();
 
   void   *WindowId;
-  void	 *ApplicationId;
+  void   *ApplicationId;
   int     TimerId;
   void   *OldProc;
   int     InstallMessageProc;
-  int	whichButtonDown; //0=none, 1=left, 2=middle, 3=right
+  int   whichButtonDown; //0=none, 1=left, 2=middle, 3=right
 
   //BTX
   // Description:

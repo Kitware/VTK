@@ -93,10 +93,10 @@ public:
   // Set the sorting style - none, front-to-back or back-to-front
   // The default is none
   vtkSetClampMacro( SortingStyle, int,
-	VTK_CULLER_SORT_NONE, VTK_CULLER_SORT_BACK_TO_FRONT );
+        VTK_CULLER_SORT_NONE, VTK_CULLER_SORT_BACK_TO_FRONT );
   vtkGetMacro(SortingStyle,int);
   void SetSortingStyleToNone()
-	{this->SetSortingStyle(VTK_CULLER_SORT_NONE);};
+        {this->SetSortingStyle(VTK_CULLER_SORT_NONE);};
   void SetSortingStyleToBackToFront()
     {this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT);};
   void SetSortingStyleToFrontToBack()
@@ -111,7 +111,7 @@ public:
   // This method should only be called by vtkRenderer as part of
   // the render process
   float Cull( vtkRenderer *ren, vtkProp **propList,
-	      int& listLength, int& initialized );
+              int& listLength, int& initialized );
 //ETX
 
 protected:

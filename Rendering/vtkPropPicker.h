@@ -78,7 +78,7 @@ public:
   // Perform a pick from the user-provided list of vtkProps and not from the
   // list of vtkProps that the render maintains.
   int PickProp(float selectionX, float selectionY, vtkRenderer *renderer, 
-	       vtkPropCollection* pickfrom);  
+               vtkPropCollection* pickfrom);  
 
   // Description:
   // Overide superclasses' Pick() method.
@@ -86,7 +86,7 @@ public:
            vtkRenderer *renderer);  
   int Pick(float selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0], 
-			 selectionPt[1], selectionPt[2], renderer); };  
+                         selectionPt[1], selectionPt[2], renderer); };  
 
 protected:
   vtkPropPicker();

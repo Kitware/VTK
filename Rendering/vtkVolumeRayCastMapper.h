@@ -205,7 +205,7 @@ protected:
   void                         *ScalarDataPointer;
 
   void                         UpdateShadingTables( vtkRenderer *ren, 
-						    vtkVolume *vol );
+                                                    vtkVolume *vol );
 
   void ComputeMatrices( vtkImageData *data, vtkVolume *vol );
   virtual void RenderTexture( vtkVolume *vol, vtkRenderer *ren)=0;

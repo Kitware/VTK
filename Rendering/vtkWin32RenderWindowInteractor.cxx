@@ -342,7 +342,7 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags,
       (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
     {
     this->InteractorStyle->OnEnter(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
-				   X, this->Size[1] - Y - 1);
+                                   X, this->Size[1] - Y - 1);
     this->MouseInWindow = 1;
     }
  
@@ -350,17 +350,17 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags,
       (X < 0 || X >= this->Size[0] || Y < 0 || Y >= this->Size[1]))
     {
     this->InteractorStyle->OnLeave(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
-				   X, this->Size[1] - Y - 1);
+                                   X, this->Size[1] - Y - 1);
     this->MouseInWindow = 0;
     }
 
   this->InteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-				     X, this->Size[1] - Y - 1);
+                                     X, this->Size[1] - Y - 1);
 
 }
 
 void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND wnd, UINT nFlags, 
-						   int X, int Y) 
+                                                   int X, int Y) 
 {
   if (!this->Enabled) 
     {
@@ -372,7 +372,7 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND wnd, UINT nFlags,
   if (this->MouseInWindow)
     {
     this->InteractorStyle->OnLeave(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
-				   X-pos[0], this->Size[1] - (Y-pos[1]) - 1);
+                                   X-pos[0], this->Size[1] - (Y-pos[1]) - 1);
     this->MouseInWindow = 0;
     }
 }
@@ -500,7 +500,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT vCode, UINT nRepCn
     }
   this->InteractorStyle->OnKeyDown(ctrl, shift, (char)nChar, nRepCnt);
   this->InteractorStyle->OnKeyPress(ctrl, shift, (char)nChar, 
-				    keysym, nRepCnt);
+                                    keysym, nRepCnt);
 }
 
 void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT vCode, UINT nRepCnt, UINT nFlags)
@@ -531,7 +531,7 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT vCode, UINT nRepCnt,
     }
   this->InteractorStyle->OnKeyUp(ctrl, shift, (char)nChar, nRepCnt);
   this->InteractorStyle->OnKeyRelease(ctrl, shift, (char)nChar, 
-				      keysym, nRepCnt);
+                                      keysym, nRepCnt);
 }
 
 void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,

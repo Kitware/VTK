@@ -336,7 +336,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // the matrix is valid for perspective and parallel viewing transforms.
   this->PerspectiveMatrix->DeepCopy(
     cam->GetCompositePerspectiveTransformMatrix( aspect[0]/aspect[1], 
-						 0.0, 1.0 ) );
+                                                 0.0, 1.0 ) );
 
   // Compute some matrices from voxels to view and vice versa based 
   // on the whole input
@@ -506,7 +506,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     // then set the execution method and do it.
     this->Threader->SetNumberOfThreads( this->NumberOfThreads );
     this->Threader->SetSingleMethod( VolumeRayCastMapper_CastRays, 
-				     (void *)staticInfo);
+                                     (void *)staticInfo);
     this->Threader->SingleMethodExecute();
 
     if ( !ren->GetRenderWindow()->GetAbortRender() )
@@ -702,7 +702,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
     // -1 to 1 - 2/fullSize. Then ass offsetX (which is 1/fullSize) to 
     // center it.
     viewRay[1] = ((static_cast<float>(j) + static_cast<float>(imageOrigin[1])) /
-		  imageViewportSize[1]) * 2.0 - 1.0 + offsetY;
+                  imageViewportSize[1]) * 2.0 - 1.0 + offsetY;
 
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )
       {
@@ -722,7 +722,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
       // -1 to 1 - 2/fullSize. Then ass offsetX (which is 1/fullSize) to 
       // center it.
       viewRay[0] = ((static_cast<float>(i) + static_cast<float>(imageOrigin[0])) /
-		    imageViewportSize[0]) * 2.0 - 1.0 + offsetX;
+                    imageViewportSize[0]) * 2.0 - 1.0 + offsetX;
       
       // Now transform this point with a z value of 0 for the ray start, and
       // a z value of 1 for the ray end. This corresponds to the near and far
@@ -1626,8 +1626,8 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
 }
 
 void vtkVolumeRayCastMapper::InitializeClippingPlanes( 
-					   VTKVRCStaticInfo *staticInfo,
-					   vtkPlaneCollection *planes )
+                                           VTKVRCStaticInfo *staticInfo,
+                                           vtkPlaneCollection *planes )
 {
   vtkPlane *onePlane;
   float    worldNormal[3], worldOrigin[3];
@@ -1666,8 +1666,8 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
                               worldToVoxelsMatrix );
 
     t = sqrt( clippingPlane[0]*clippingPlane[0] +
-	      clippingPlane[1]*clippingPlane[1] +
-	      clippingPlane[2]*clippingPlane[2] );
+              clippingPlane[1]*clippingPlane[1] +
+              clippingPlane[2]*clippingPlane[2] );
     if ( t )
       {
       clippingPlane[0] /= t;
@@ -1683,8 +1683,8 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
 
 
 int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes( 
-					   VTKVRCDynamicInfo *dynamicInfo, 
-					   VTKVRCStaticInfo *staticInfo )
+                                           VTKVRCDynamicInfo *dynamicInfo, 
+                                           VTKVRCStaticInfo *staticInfo )
 {
   float    *clippingPlane;
   int      i;
@@ -1712,48 +1712,48 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
     if ( dp != 0.0 )
       {
       t = 
-	-( clippingPlane[0]*rayStart[0] + 
-	   clippingPlane[1]*rayStart[1] + 
-	   clippingPlane[2]*rayStart[2] + clippingPlane[3]) / dp; 
+        -( clippingPlane[0]*rayStart[0] + 
+           clippingPlane[1]*rayStart[1] + 
+           clippingPlane[2]*rayStart[2] + clippingPlane[3]) / dp; 
 
       if ( t > 0.0 && t < 1.0 )
-	{
-	point[0] = rayStart[0] + t*rayDir[0];
-	point[1] = rayStart[1] + t*rayDir[1];
-	point[2] = rayStart[2] + t*rayDir[2];
-	
-	if ( dp > 0.0 )
-	  {
+        {
+        point[0] = rayStart[0] + t*rayDir[0];
+        point[1] = rayStart[1] + t*rayDir[1];
+        point[2] = rayStart[2] + t*rayDir[2];
+        
+        if ( dp > 0.0 )
+          {
           rayStart[0] = point[0];
           rayStart[1] = point[1];
           rayStart[2] = point[2];
-	  }
-	else
-	  {
+          }
+        else
+          {
           rayEnd[0] = point[0];
           rayEnd[1] = point[1];
           rayEnd[2] = point[2];
-	  }
+          }
 
-	rayDir[0] = rayEnd[0] - rayStart[0];
-	rayDir[1] = rayEnd[1] - rayStart[1];
-	rayDir[2] = rayEnd[2] - rayStart[2];
+        rayDir[0] = rayEnd[0] - rayStart[0];
+        rayDir[1] = rayEnd[1] - rayStart[1];
+        rayDir[2] = rayEnd[2] - rayStart[2];
 
-	}
+        }
       // If the clipping plane is outside the ray segment, then
       // figure out if that means the ray segment goes to zero (if so
       // return 0) or doesn't affect it (if so do nothing)
       else
-	{
-	if ( dp >= 0.0 && t >= 1.0 )
-	  {
-	  return 0;
-	  }
-	if ( dp <= 0.0 && t <= 0.0 )
-	  {
-	  return 0;
-	  }
-	}
+        {
+        if ( dp >= 0.0 && t >= 1.0 )
+          {
+          return 0;
+          }
+        if ( dp <= 0.0 && t <= 0.0 )
+          {
+          return 0;
+          }
+        }
       }
     }
 
@@ -1785,38 +1785,38 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume(
       diff = 0;
 
       if ( rayStart[loop] < (bounds[2*loop]+0.01) )
-	{
-	diff = (bounds[2*loop]+0.01) - rayStart[loop];
-	}
+        {
+        diff = (bounds[2*loop]+0.01) - rayStart[loop];
+        }
       else if ( rayStart[loop] > (bounds[2*loop+1]-0.01) )
-	{
-	diff = (bounds[2*loop+1]-0.01) - rayStart[loop];
-	}
+        {
+        diff = (bounds[2*loop+1]-0.01) - rayStart[loop];
+        }
       
       if ( diff )
-	{
-	if ( rayDirection[loop] != 0.0 ) 
-	  {
-	  t = diff / rayDirection[loop];
-	  }
-	else
-	  {
-	  t = -1.0;
-	  }
-	
-	if ( t > 0.0 )
-	  {
-	  rayStart[0] += rayDirection[0] * t;
-	  rayStart[1] += rayDirection[1] * t;
-	  rayStart[2] += rayDirection[2] * t;	  	  
-	  }
-	}
+        {
+        if ( rayDirection[loop] != 0.0 ) 
+          {
+          t = diff / rayDirection[loop];
+          }
+        else
+          {
+          t = -1.0;
+          }
+        
+        if ( t > 0.0 )
+          {
+          rayStart[0] += rayDirection[0] * t;
+          rayStart[1] += rayDirection[1] * t;
+          rayStart[2] += rayDirection[2] * t;             
+          }
+        }
       }
     }
 
   // If the voxel still isn't inside the volume, then this ray
   // doesn't really intersect the volume
-	  
+          
   if ( rayStart[0] >= bounds[1] ||
        rayStart[1] >= bounds[3] ||
        rayStart[2] >= bounds[5] ||
@@ -1841,32 +1841,32 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume(
       diff = 0;
       
       if ( rayEnd[loop] < (bounds[2*loop]+0.01) )
-	{
-	diff = (bounds[2*loop]+0.01) - rayEnd[loop];
-	}
+        {
+        diff = (bounds[2*loop]+0.01) - rayEnd[loop];
+        }
       else if ( rayEnd[loop] > (bounds[2*loop+1]-0.01) )
-	{
-	diff = (bounds[2*loop+1]-0.01) - rayEnd[loop];
-	}
+        {
+        diff = (bounds[2*loop+1]-0.01) - rayEnd[loop];
+        }
       
       if ( diff )
-	{
-	if ( rayDirection[loop] != 0.0 ) 
-	  {
-	  t = diff / rayDirection[loop];
-	  }
-	else
-	  {
-	  t = 1.0;
-	  }
-	
-	if ( t < 0.0 )
-	  {
-	  rayEnd[0] += rayDirection[0] * t;
-	  rayEnd[1] += rayDirection[1] * t;
-	  rayEnd[2] += rayDirection[2] * t;
-	  }
-	}
+        {
+        if ( rayDirection[loop] != 0.0 ) 
+          {
+          t = diff / rayDirection[loop];
+          }
+        else
+          {
+          t = 1.0;
+          }
+        
+        if ( t < 0.0 )
+          {
+          rayEnd[0] += rayDirection[0] * t;
+          rayEnd[1] += rayDirection[1] * t;
+          rayEnd[2] += rayDirection[2] * t;
+          }
+        }
       }
     }
   
@@ -1901,7 +1901,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume(
 }
 
 void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren, 
-						  vtkVolume *vol )
+                                                  vtkVolume *vol )
 {
   int                   shading;
   vtkVolumeProperty     *volume_property;
@@ -1915,7 +1915,7 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   if ( shading )
     {
     this->GradientShader->UpdateShadingTable( ren, vol, 
-					      this->GradientEstimator );
+                                              this->GradientEstimator );
     }
 }
 
@@ -1952,7 +1952,7 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->GradientEstimator )
     {
       os << indent << "Gradient Estimator: " << (this->GradientEstimator) <<
-	endl;
+        endl;
     }
   else
     {

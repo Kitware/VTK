@@ -50,9 +50,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // reentrant requirements reasons. At the end, the SpecificFunctionInitialize
 // is called to give the subclass a chance to do its thing.
 void vtkVolumeRayCastFunction::FunctionInitialize( 
-				vtkRenderer *ren, 
-				vtkVolume *vol,
-				VTKVRCStaticInfo *staticInfo )
+                                vtkRenderer *ren, 
+                                vtkVolume *vol,
+                                VTKVRCStaticInfo *staticInfo )
 {
   vtkVolumeRayCastMapper *mapper = 
     vtkVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
@@ -96,7 +96,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
     staticInfo->RGBDataIncrement[0] = 3;
     staticInfo->RGBDataIncrement[1] = 3*staticInfo->RGBDataSize[0];
     staticInfo->RGBDataIncrement[2] = 3*( staticInfo->RGBDataSize[0] * 
-					  staticInfo->RGBDataSize[1] );
+                                          staticInfo->RGBDataSize[1] );
 
     staticInfo->RGBDataPointer = (unsigned char *)
       mapper->GetRGBTextureInput()->GetPointData()->

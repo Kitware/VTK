@@ -291,7 +291,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
         *outPtr = *inPtr;
         outPtr++;
         inPtr++;
-	}
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }

@@ -192,7 +192,7 @@ private:
   
   // font characteristics
   int   NumberOfLabels; //along each axis
-  int	Bold;
+  int   Bold;
   int   Italic;
   int   Shadow;
   int   FontFamily;

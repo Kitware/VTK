@@ -144,21 +144,21 @@ public:
       
       // scale by current values
       if (fabs(window) > 0.01)
-	{
-	dx = dx * window;
-	}
+        {
+        dx = dx * window;
+        }
       else
-	{
-	dx = dx * (window < 0 ? -0.01 : 0.01);
-	}
+        {
+        dx = dx * (window < 0 ? -0.01 : 0.01);
+        }
       if (fabs(level) > 0.01)
-	{
-	dy = dy * level;
-	}
+        {
+        dy = dy * level;
+        }
       else
-	{
-	dy = dy * (level < 0 ? -0.01 : 0.01);
-	}
+        {
+        dy = dy * (level < 0 ? -0.01 : 0.01);
+        }
       
       // abs so that direction does not flip
       if (window < 0.0) 

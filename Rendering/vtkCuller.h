@@ -65,7 +65,7 @@ public:
   // Description:
   // This is called outside the render loop by vtkRenderer
   virtual float Cull( vtkRenderer *ren, vtkProp **propList,
-		      int& listLength, int& initialized )=0;
+                      int& listLength, int& initialized )=0;
 
 protected:
   vtkCuller() {};

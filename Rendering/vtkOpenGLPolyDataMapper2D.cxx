@@ -70,7 +70,7 @@ vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
 
 
 void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
-						     vtkActor2D* actor)
+                                                     vtkActor2D* actor)
 {
   int            numPts;
   vtkPolyData    *input= (vtkPolyData *)this->Input;
@@ -176,7 +176,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   if(viewport->GetIsPicking())
     {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-		     1, 1, viewport->GetOrigin(), viewport->GetSize());
+                     1, 1, viewport->GetOrigin(), viewport->GetSize());
     }
   
   glMatrixMode( GL_MODELVIEW );

@@ -75,7 +75,7 @@ vtkXRenderWindow::~vtkXRenderWindow()
 int vtkXRenderWindowFoundMatch;
 
 Bool vtkXRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event, 
-			      char *arg)
+                              char *arg)
 {
   Window win = (Window)arg;
   
@@ -103,7 +103,7 @@ int vtkXRenderWindow::GetEventPending()
   
   vtkXRenderWindowFoundMatch = 0;
   XCheckIfEvent(this->DisplayId, &report, vtkXRenderWindowPredProc, 
-		(char *)this->WindowId);
+                (char *)this->WindowId);
   return vtkXRenderWindowFoundMatch;
 }
 
@@ -158,8 +158,8 @@ int *vtkXRenderWindow::GetPosition(void)
   y = attribs.y;
 
   XTranslateCoordinates(this->DisplayId,this->WindowId,
-		 RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
-			x,y,&this->Position[0],&this->Position[1],&child);
+                 RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+                        x,y,&this->Position[0],&this->Position[1],&child);
 
   return this->Position;
 }
@@ -358,7 +358,7 @@ void vtkXRenderWindow::Render()
     {
     //  Find the current window size 
     XGetWindowAttributes(this->DisplayId, 
-		                    this->WindowId, &attribs);
+                                    this->WindowId, &attribs);
 
     this->Size[0] = attribs.width;
     this->Size[1] = attribs.height;
@@ -409,12 +409,12 @@ void vtkXRenderWindow::HideCursor()
   else if (!this->CursorHidden)
     {
     Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
-					       this->WindowId,
-					       blankBits, 16, 16);
+                                               this->WindowId,
+                                               blankBits, 16, 16);
     
     Cursor blankCursor = XCreatePixmapCursor(this->DisplayId, blankPixmap,
-					     blankPixmap, &black, &black,
-					     7, 7);
+                                             blankPixmap, &black, &black,
+                                             7, 7);
     
     XDefineCursor(this->DisplayId, this->WindowId, blankCursor);
     
@@ -436,4 +436,4 @@ void vtkXRenderWindow::ShowCursor()
     XUndefineCursor(this->DisplayId, this->WindowId);
     this->CursorHidden = 0;
     }
-}				   
+}                                  

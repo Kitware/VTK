@@ -86,7 +86,7 @@ public:
   // Description:
   // Cause the shading table to be updated
   void UpdateShadingTable( vtkRenderer *ren, vtkVolume *vol,
-			   vtkEncodedGradientEstimator *gradest);
+                           vtkEncodedGradientEstimator *gradest);
 
   // Description:
   // Get the red/green/blue shading table.
@@ -115,14 +115,14 @@ protected:
   // table per volume, and the index value indicated which index table
   // should be used. It is computed in the UpdateShadingTable method.
   void  BuildShadingTable( int index,
-			   float lightDirection[3],
-			   float lightColor[3],
-			   float lightIntensity,
-			   float viewDirection[3],
-			   float material[4],
-			   int twoSided,
-			   vtkEncodedGradientEstimator *gradest,
-			   int updateFlag );
+                           float lightDirection[3],
+                           float lightColor[3],
+                           float lightIntensity,
+                           float viewDirection[3],
+                           float material[4],
+                           int twoSided,
+                           vtkEncodedGradientEstimator *gradest,
+                           int updateFlag );
   
   // The six shading tables (r diffuse ,g diffuse ,b diffuse, 
   // r specular, g specular, b specular ) - with an entry for each

@@ -64,20 +64,20 @@ vtkVolumeProperty* vtkVolumeProperty::New()
 // Construct a new vtkVolumeProperty with default values
 vtkVolumeProperty::vtkVolumeProperty()
 {
-  this->InterpolationType		= VTK_NEAREST_INTERPOLATION;
+  this->InterpolationType               = VTK_NEAREST_INTERPOLATION;
 
-  this->ColorChannels			= 1;
+  this->ColorChannels                   = 1;
 
-  this->GrayTransferFunction		= NULL;
-  this->RGBTransferFunction		= NULL;
-  this->ScalarOpacity			= NULL;
-  this->GradientOpacity			= NULL;
+  this->GrayTransferFunction            = NULL;
+  this->RGBTransferFunction             = NULL;
+  this->ScalarOpacity                   = NULL;
+  this->GradientOpacity                 = NULL;
 
-  this->Shade				= 0;  
-  this->Ambient				= 0.1;
-  this->Diffuse				= 0.7;
-  this->Specular			= 0.2;
-  this->SpecularPower			= 10.0;
+  this->Shade                           = 0;  
+  this->Ambient                         = 0.1;
+  this->Diffuse                         = 0.7;
+  this->Specular                        = 0.2;
+  this->SpecularPower                   = 10.0;
   this->RGBTextureCoefficient           = 0.0;
 }
 
@@ -183,7 +183,7 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
       {
       this->GrayTransferFunction->UnRegister(this);
       }
-    this->GrayTransferFunction	= function;
+    this->GrayTransferFunction  = function;
     if (this->GrayTransferFunction != NULL) 
       {
       this->GrayTransferFunction->Register(this);
@@ -195,7 +195,7 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 
   if (this->ColorChannels != 1 )
     {
-    this->ColorChannels		= 1;
+    this->ColorChannels         = 1;
     this->Modified();
     }
 }
@@ -224,7 +224,7 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
       {
       this->RGBTransferFunction->UnRegister(this);
       }
-    this->RGBTransferFunction	= function;
+    this->RGBTransferFunction   = function;
     if (this->RGBTransferFunction != NULL) 
       {
       this->RGBTransferFunction->Register(this);
@@ -235,7 +235,7 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 
   if (this->ColorChannels != 3 )
     {
-    this->ColorChannels		= 3;
+    this->ColorChannels         = 3;
     this->Modified();
     }
 }
@@ -264,7 +264,7 @@ void vtkVolumeProperty::SetScalarOpacity( vtkPiecewiseFunction *function )
       {
       this->ScalarOpacity->UnRegister(this);
       }
-    this->ScalarOpacity	= function;
+    this->ScalarOpacity = function;
     if (this->ScalarOpacity != NULL) 
       {
       this->ScalarOpacity->Register(this);
@@ -299,7 +299,7 @@ void vtkVolumeProperty::SetGradientOpacity( vtkPiecewiseFunction *function )
       {
       this->GradientOpacity->UnRegister(this);
       }
-    this->GradientOpacity	= function;
+    this->GradientOpacity       = function;
     if (this->GradientOpacity != NULL) 
       {
       this->GradientOpacity->Register(this);
@@ -338,12 +338,12 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   if( this->ColorChannels == 1 )
     {
       os << indent << "Gray Color Transfer Function: "
-	 << this->GrayTransferFunction << "\n";
+         << this->GrayTransferFunction << "\n";
     }
   else if( this->ColorChannels == 3 )
     {
       os << indent << "RGB Color Transfer Function: "
-	 << this->RGBTransferFunction << "\n";
+         << this->RGBTransferFunction << "\n";
     }
 
   os << indent << "Scalar Opacity Transfer Function: "

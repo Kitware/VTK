@@ -184,13 +184,13 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
       // if cell scalars are present, color poly with those, otherwise
       // use the color of the first point
       if (cellScalars) 
-	{
-	rgba = c->GetPointer(4*cellNum);
-	}
+        {
+        rgba = c->GetPointer(4*cellNum);
+        }
       else
-	{
-	rgba = c->GetPointer(4*pts[0]);
-	}
+        {
+        rgba = c->GetPointer(4*pts[0]);
+        }
       aColor.red = (unsigned short) (rgba[0] * 256);
       aColor.green = (unsigned short) (rgba[1] * 256);
       aColor.blue = (unsigned short) (rgba[2] * 256);
@@ -210,7 +210,7 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
       points[j].y = (short)(actorPos[1] - ftmp[1]);
       }
     XFillPolygon(displayId, drawable, gc, points, npts, 
-		 Complex, CoordModeOrigin);
+                 Complex, CoordModeOrigin);
     }
 
   aPrim = input->GetLines();
@@ -235,14 +235,14 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
       {
       ftmp = p->GetPoint(pts[j]);
       if (c && !cellScalars)
-	{
-	rgba = c->GetPointer(4*pts[j]);
-	aColor.red = (unsigned short) (rgba[0] * 256);
-	aColor.green = (unsigned short) (rgba[1] * 256);
-	aColor.blue = (unsigned short) (rgba[2] * 256);
-	XAllocColor(displayId, attr.colormap, &aColor);
-	XSetForeground(displayId, gc, aColor.pixel);
-	}
+        {
+        rgba = c->GetPointer(4*pts[j]);
+        aColor.red = (unsigned short) (rgba[0] * 256);
+        aColor.green = (unsigned short) (rgba[1] * 256);
+        aColor.blue = (unsigned short) (rgba[2] * 256);
+        XAllocColor(displayId, attr.colormap, &aColor);
+        XSetForeground(displayId, gc, aColor.pixel);
+        }
       X = (int)(actorPos[0] + ftmp[0]);
       Y = (int)(actorPos[1] - ftmp[1]);
       XDrawLine(displayId, drawable, gc, lastX, lastY, X, Y);

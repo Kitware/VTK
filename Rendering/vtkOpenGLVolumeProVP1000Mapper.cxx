@@ -163,11 +163,11 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
 #ifdef GL_VERSION_1_1
   glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, 
                 textureSize[0], textureSize[1],
-		0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
+                0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 #else
   glTexImage2D( GL_TEXTURE_2D, 0, 4, 
                 textureSize[0], textureSize[1],
-		0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
+                0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 #endif 
   
   tCoords[0][0] = 0.0;

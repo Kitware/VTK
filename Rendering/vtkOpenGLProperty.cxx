@@ -74,7 +74,7 @@ vtkOpenGLProperty* vtkOpenGLProperty::New()
 
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
-			     vtkRenderer *vtkNotUsed(ren))
+                             vtkRenderer *vtkNotUsed(ren))
 {
   int i;
   GLenum method;
@@ -175,7 +175,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 
 // Implement base class method.
 void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
-			     vtkRenderer *vtkNotUsed(ren))
+                             vtkRenderer *vtkNotUsed(ren))
 {
   int i;
   float Info[4];

@@ -385,16 +385,16 @@ float *vtkActor::GetBounds()
     for (i = 0; i < 8; i++)
       {
       for (n = 0; n < 3; n++)
-	{
-	if (bbox[i*3+n] < this->Bounds[n*2]) 
-	  {
-	  this->Bounds[n*2] = bbox[i*3+n];
-	  }
-	if (bbox[i*3+n] > this->Bounds[n*2+1]) 
-	  {
-	  this->Bounds[n*2+1] = bbox[i*3+n];
-	  }
-	}
+        {
+        if (bbox[i*3+n] < this->Bounds[n*2]) 
+          {
+          this->Bounds[n*2] = bbox[i*3+n];
+          }
+        if (bbox[i*3+n] > this->Bounds[n*2+1]) 
+          {
+          this->Bounds[n*2+1] = bbox[i*3+n];
+          }
+        }
       }
     this->BoundsMTime.Modified();
     }

@@ -69,7 +69,7 @@ public:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data, 
-		  vtkActor2D* actor);
+                  vtkActor2D* actor);
 
 protected:
   vtkMesaImageMapper();

@@ -314,16 +314,16 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           }
         else if ( (prop3D=vtkLODProp3D::SafeDownCast(propCandidate)) != NULL )
           {
-		  LODId = prop3D->GetPickLODID();
+                  LODId = prop3D->GetPickLODID();
           mapper = prop3D->GetLODMapper(LODId);
 
           // if the mapper is a vtkMapper (as opposed to a vtkVolumeMapper), then
           // check the transparency to see if the object is pickable
-		  if ( vtkMapper::SafeDownCast(mapper) != NULL)
-		    {
-		    prop3D->GetLODProperty(LODId, &tempProperty);
+                  if ( vtkMapper::SafeDownCast(mapper) != NULL)
+                    {
+                    prop3D->GetLODProperty(LODId, &tempProperty);
             if ( tempProperty->GetOpacity() <= 0.0 )
-			  {
+                          {
               pickable = 0;
               }
             }

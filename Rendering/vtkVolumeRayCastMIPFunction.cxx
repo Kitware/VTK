@@ -81,8 +81,8 @@ vtkVolumeRayCastMIPFunction* vtkVolumeRayCastMIPFunction::New()
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
 static void CastMaxScalarValueRay( T *data_ptr,
-				   VTKVRCDynamicInfo *dynamicInfo,
-				   VTKVRCStaticInfo *staticInfo )
+                                   VTKVRCDynamicInfo *dynamicInfo,
+                                   VTKVRCStaticInfo *staticInfo )
 {
   float     triMax, triValue;
   int       max = 0;;
@@ -125,7 +125,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
 
     // Access the value at this voxel location
     nnMax = *(data_ptr + voxel[2] * zinc +
-	      voxel[1] * yinc + voxel[0] );
+              voxel[1] * yinc + voxel[0] );
 
     // Increment our position and compute our voxel location
     ray_position[0] += ray_increment[0];
@@ -137,16 +137,16 @@ static void CastMaxScalarValueRay( T *data_ptr,
 
     // For each step along the ray
     for ( loop = 1; loop < num_steps; loop++ )
-      {	    
+      {     
       // Access the value at this voxel location
       nnValue = *(data_ptr + voxel[2] * zinc +
-		  voxel[1] * yinc + voxel[0] );
+                  voxel[1] * yinc + voxel[0] );
 
       // If this is greater than the max, this is the new max.
       if ( nnValue > nnMax )
-	{
-	nnMax = nnValue;
-	}
+        {
+        nnMax = nnValue;
+        }
       
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -206,25 +206,25 @@ static void CastMaxScalarValueRay( T *data_ptr,
 
     // For each step along the ray
     for ( loop = 1; loop < num_steps; loop++ )
-      {	    
+      {     
       // Have we moved into a new voxel? If so we need to recompute A-H
       if ( prev_voxel[0] != voxel[0] ||
-	   prev_voxel[1] != voxel[1] ||
-	   prev_voxel[2] != voxel[2] )
-	{
-	dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+           prev_voxel[1] != voxel[1] ||
+           prev_voxel[2] != voxel[2] )
+        {
+        dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 
-	A = *(dptr);
-	B = *(dptr + Binc);
-	C = *(dptr + Cinc);
-	D = *(dptr + Dinc);
-	E = *(dptr + Einc);
-	F = *(dptr + Finc);
-	G = *(dptr + Ginc);
-	H = *(dptr + Hinc);
+        A = *(dptr);
+        B = *(dptr + Binc);
+        C = *(dptr + Cinc);
+        D = *(dptr + Dinc);
+        E = *(dptr + Einc);
+        F = *(dptr + Finc);
+        G = *(dptr + Ginc);
+        H = *(dptr + Hinc);
 
-	memcpy( prev_voxel, voxel, 3*sizeof(float) );
-	}
+        memcpy( prev_voxel, voxel, 3*sizeof(float) );
+        }
 
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate a value
@@ -235,9 +235,9 @@ static void CastMaxScalarValueRay( T *data_ptr,
 
       // If this value is greater than max, it is the new max
       if ( triValue > triMax )
-	{
-	triMax = triValue;
-	}
+        {
+        triMax = triValue;
+        }
 
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -286,8 +286,8 @@ static void CastMaxScalarValueRay( T *data_ptr,
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
 static void CastMaxOpacityRay( T *data_ptr,
-			       VTKVRCDynamicInfo *dynamicInfo,
-			       VTKVRCStaticInfo *staticInfo )
+                               VTKVRCDynamicInfo *dynamicInfo,
+                               VTKVRCStaticInfo *staticInfo )
 {
   float     max;
   float     opacity;
@@ -340,31 +340,31 @@ static void CastMaxOpacityRay( T *data_ptr,
 
     // For each step along the ray
     for ( loop = 0; loop < num_steps; loop++ )
-      {	    
+      {     
       // We've taken another step
       steps_this_ray++;
       
       // Access the value at this voxel location
       value = *(data_ptr + voxel[2] * zinc +
-		voxel[1] * yinc + voxel[0] );
+                voxel[1] * yinc + voxel[0] );
 
       if ( value < 0 ) 
-	{
-	value = 0;
-	}
+        {
+        value = 0;
+        }
       else if ( value > staticInfo->Volume->GetArraySize() - 1 )
-	{
-	value = staticInfo->Volume->GetArraySize() - 1;
-	}
+        {
+        value = staticInfo->Volume->GetArraySize() - 1;
+        }
 
       opacity = SOTF[(int)value];
  
       // If this is greater than the max, this is the new max.
       if ( opacity > max ) 
-	{
-	max = opacity;
-	max_value = (int) value;
-	}
+        {
+        max = opacity;
+        max_value = (int) value;
+        }
 
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -410,30 +410,30 @@ static void CastMaxOpacityRay( T *data_ptr,
 
     // For each step along the ray
     for ( loop = 0; loop < num_steps; loop++ )
-      {	    
+      {     
       // We've taken another step
       steps_this_ray++;
 
       // Have we moved into a new voxel? If so we need to recompute A-H
       if ( prev_voxel[0] != voxel[0] ||
-	   prev_voxel[1] != voxel[1] ||
-	   prev_voxel[2] != voxel[2] )
-	{
-	dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+           prev_voxel[1] != voxel[1] ||
+           prev_voxel[2] != voxel[2] )
+        {
+        dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 
-	A = *(dptr);
-	B = *(dptr + Binc);
-	C = *(dptr + Cinc);
-	D = *(dptr + Dinc);
-	E = *(dptr + Einc);
-	F = *(dptr + Finc);
-	G = *(dptr + Ginc);
-	H = *(dptr + Hinc);
+        A = *(dptr);
+        B = *(dptr + Binc);
+        C = *(dptr + Cinc);
+        D = *(dptr + Dinc);
+        E = *(dptr + Einc);
+        F = *(dptr + Finc);
+        G = *(dptr + Ginc);
+        H = *(dptr + Hinc);
 
-	prev_voxel[0] = voxel[0];
-	prev_voxel[1] = voxel[1];
-	prev_voxel[2] = voxel[2];
-	}
+        prev_voxel[0] = voxel[0];
+        prev_voxel[1] = voxel[1];
+        prev_voxel[2] = voxel[2];
+        }
 
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate a value
@@ -443,22 +443,22 @@ static void CastMaxOpacityRay( T *data_ptr,
       vtkTrilinFuncMacro( value, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
 
       if ( value < 0 ) 
-	{
-	value = 0;
-	}
+        {
+        value = 0;
+        }
       else if ( value > staticInfo->Volume->GetArraySize() - 1 )
-	{
-	value = staticInfo->Volume->GetArraySize() - 1;
-	}
+        {
+        value = staticInfo->Volume->GetArraySize() - 1;
+        }
 
       opacity = SOTF[(int)value];
  
       // If this is greater than the max, this is the new max.
       if ( opacity > max ) 
-	{
-	max = opacity;
-	max_value = (int) value;
-	}
+        {
+        max = opacity;
+        max_value = (int) value;
+        }
       
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -509,7 +509,7 @@ vtkVolumeRayCastMIPFunction::~vtkVolumeRayCastMIPFunction()
 // determine what type of ray needs to be cast (which is handled
 // by a templated function. 
 void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
-					   VTKVRCStaticInfo *staticInfo)
+                                           VTKVRCStaticInfo *staticInfo)
 {
   void *data_ptr;
   
@@ -520,10 +520,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
     switch ( staticInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-	CastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
-	break;
+        CastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+        break;
       case VTK_UNSIGNED_SHORT:
-	CastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        CastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
       }  
     }
   else
@@ -531,10 +531,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
     switch ( staticInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-	CastMaxOpacityRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
-	break;
+        CastMaxOpacityRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+        break;
       case VTK_UNSIGNED_SHORT:
-	CastMaxOpacityRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        CastMaxOpacityRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
       }  
     }
 }
@@ -550,9 +550,9 @@ float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vtkNotUse
 // to be done here
 void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize( 
                                  vtkRenderer *vtkNotUsed(ren), 
-				 vtkVolume *vtkNotUsed(vol),
-				 VTKVRCStaticInfo *staticInfo,
-				 vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
+                                 vtkVolume *vtkNotUsed(vol),
+                                 VTKVRCStaticInfo *staticInfo,
+                                 vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
   staticInfo->MIPFunction = 1;
   staticInfo->MaximizeOpacity = (this->MaximizeMethod == VTK_MAXIMIZE_OPACITY);

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkWin32ImageWindow_h
 
 
-#include 	"vtkImageWindow.h"
+#include        "vtkImageWindow.h"
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_RENDERING_EXPORT vtkWin32ImageWindow : public vtkImageWindow 
@@ -150,7 +150,7 @@ protected:
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
   HBITMAP MemoryBuffer;
-  unsigned char *MemoryData;	// the data in the DIBSection
+  unsigned char *MemoryData;    // the data in the DIBSection
   HDC MemoryHdc;
   int ScreenMapped;
   int ScreenWindowSize[2];
@@ -158,7 +158,7 @@ protected:
 
   int OwnWindow; // do we create this window ?
 
-  unsigned char *DIBPtr;	// the data in the DIBSection
+  unsigned char *DIBPtr;        // the data in the DIBSection
   int SwapFlag;
   HDC CompatHdc;
   HDC OldHdc;

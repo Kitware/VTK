@@ -253,8 +253,8 @@ void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNot
     {
     status = this->Context->
       SetSuperSamplingFactor( this->SuperSamplingFactor[0],
-			      this->SuperSamplingFactor[1],
-			      this->SuperSamplingFactor[2] );
+                              this->SuperSamplingFactor[1],
+                              this->SuperSamplingFactor[2] );
     if ( status != kVLIOK )
       {
       vtkErrorMacro( << "Could not set the supersampling factor!" );
@@ -317,22 +317,22 @@ void vtkVolumeProVG500Mapper::UpdateLights( vtkRenderer *ren, vtkVolume *vol )
   if ( vol->GetProperty()->GetShade() )
     {
     for(ren->GetLights()->InitTraversal(); 
-	(light = ren->GetLights()->GetNextItem()); )
+        (light = ren->GetLights()->GetNextItem()); )
       {
       status = light->GetSwitch();
       if ( status > 0.0 )
-	{
-	light->GetPosition( position );
-	light->GetFocalPoint( focalPoint );
-	intensity = light->GetIntensity();
-	direction.Assign( (focalPoint[0] - position[0]),
-			  (focalPoint[1] - position[1]),
-			  (focalPoint[2] - position[2]) );
-	direction.Normalize();
-	this->Lights[index]->SetDirection( direction );
-	this->Lights[index]->SetIntensity( intensity );
-	index++;
-	}
+        {
+        light->GetPosition( position );
+        light->GetFocalPoint( focalPoint );
+        intensity = light->GetIntensity();
+        direction.Assign( (focalPoint[0] - position[0]),
+                          (focalPoint[1] - position[1]),
+                          (focalPoint[2] - position[2]) );
+        direction.Normalize();
+        this->Lights[index]->SetDirection( direction );
+        this->Lights[index]->SetIntensity( intensity );
+        index++;
+        }
       }
     }
   
@@ -343,7 +343,7 @@ void vtkVolumeProVG500Mapper::UpdateLights( vtkRenderer *ren, vtkVolume *vol )
 }
 
 void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren), 
-						vtkVolume *vol )
+                                                vtkVolume *vol )
 {
   vtkPiecewiseFunction      *grayFunc;
   vtkPiecewiseFunction      *goFunc;
@@ -375,42 +375,42 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     case 1:
       grayFunc = vol->GetProperty()->GetGrayTransferFunction();
       for ( i= 0; i< 4096; i++)
-	{
+        {
         val = 0.5 + grayFunc->GetValue((float)(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-      	rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] = val;
+        rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] = val;
         
         val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
         val = (val < 0)?(0):(val);
         val = (val > 4095)?(4095):(val);
-  	aTable[i] = val;
-	}
+        aTable[i] = val;
+        }
       break;
     case 3:
       rgbFunc = vol->GetProperty()->GetRGBTransferFunction();
       for ( i= 0; i< 4096; i++)
-	{
+        {
         val = 0.5 + rgbFunc->GetRedValue((float)(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-  	rgbTable[i][0] = val;
+        rgbTable[i][0] = val;
 
         val = 0.5 + rgbFunc->GetGreenValue((float)(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-  	rgbTable[i][1] = val;
+        rgbTable[i][1] = val;
 
         val = 0.5 + rgbFunc->GetBlueValue((float)(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-  	rgbTable[i][2] = val;
+        rgbTable[i][2] = val;
 
         val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
         val = (val < 0)?(0):(val);
         val = (val > 4095)?(4095):(val);
-  	aTable[i] = val;
-	}
+        aTable[i] = val;
+        }
       break;
     }
 
@@ -422,7 +422,7 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
 
   if ( !this->GradientOpacityModulation || !goFunc ||
        ( !strcmp(goFunc->GetType(), "Constant") && 
-	 goFunc->GetValue(0) == 1.0 ))
+         goFunc->GetValue(0) == 1.0 ))
     {
     this->Context->SetGradientOpacityModulation( VLIfalse );
     }
@@ -465,9 +465,9 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     {
     this->Context->
       SetReflectionProperties( vol->GetProperty()->GetDiffuse(),
-			       vol->GetProperty()->GetSpecular(),
-			       vol->GetProperty()->GetAmbient(),
-			       vol->GetProperty()->GetSpecularPower() );
+                               vol->GetProperty()->GetSpecular(),
+                               vol->GetProperty()->GetAmbient(),
+                               vol->GetProperty()->GetSpecularPower() );
     }
   else
     {
@@ -491,11 +491,11 @@ void vtkVolumeProVG500Mapper::UpdateCropping( vtkRenderer * vtkNotUsed(ren), vtk
   crop = new VLICrop;
 
   crop->SetSlabs( this->CroppingRegionPlanes[0], 
-		  this->CroppingRegionPlanes[1],
-		  this->CroppingRegionPlanes[2], 
-		  this->CroppingRegionPlanes[3],
-		  this->CroppingRegionPlanes[4], 
-		  this->CroppingRegionPlanes[5] );
+                  this->CroppingRegionPlanes[1],
+                  this->CroppingRegionPlanes[2], 
+                  this->CroppingRegionPlanes[3],
+                  this->CroppingRegionPlanes[4], 
+                  this->CroppingRegionPlanes[5] );
 
   if ( !this->Cropping )
     {
@@ -506,24 +506,24 @@ void vtkVolumeProVG500Mapper::UpdateCropping( vtkRenderer * vtkNotUsed(ren), vtk
     switch ( this->CroppingRegionFlags )
       {
       case VTK_CROP_SUBVOLUME:
-	crop->SetFlags( VLICrop::kSubVolume );
-	break;
+        crop->SetFlags( VLICrop::kSubVolume );
+        break;
       case VTK_CROP_FENCE:
-	crop->SetFlags( VLICrop::k3DFence );
-	break;
+        crop->SetFlags( VLICrop::k3DFence );
+        break;
       case VTK_CROP_INVERTED_FENCE:
-	crop->SetFlags( VLICrop::k3DFenceInvert );
-	break;
+        crop->SetFlags( VLICrop::k3DFenceInvert );
+        break;
       case VTK_CROP_CROSS:
-	crop->SetFlags( VLICrop::k3DCross );
-	break;
+        crop->SetFlags( VLICrop::k3DCross );
+        break;
       case VTK_CROP_INVERTED_CROSS:
-	crop->SetFlags( VLICrop::k3DCrossInvert );
-	break;
+        crop->SetFlags( VLICrop::k3DCrossInvert );
+        break;
       default:
-	crop->SetFlags( VLICrop::kDisable );
-	vtkErrorMacro( << "Unsupported crop option!" );
-	break;
+        crop->SetFlags( VLICrop::kDisable );
+        vtkErrorMacro( << "Unsupported crop option!" );
+        break;
       }
     }
 
@@ -545,9 +545,9 @@ void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer * vtkNotUsed(ren), vtk
       {
       status = this->Context->RemoveCutPlane( this->Cut );
       if ( status != kVLIOK )
-	{
-	vtkErrorMacro( << "Could not remove cut plane from context" );
-	}
+        {
+        vtkErrorMacro( << "Could not remove cut plane from context" );
+        }
       }
     }
   // If the cut plane is turned on, and the context does not have a cut
@@ -557,9 +557,9 @@ void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer * vtkNotUsed(ren), vtk
     {
     // Update the position/orientation
     status = this->Cut->SetPlane( this->CutPlaneEquation[0],
-				  this->CutPlaneEquation[1],
-				  this->CutPlaneEquation[2],
-				  this->CutPlaneEquation[3] );
+                                  this->CutPlaneEquation[1],
+                                  this->CutPlaneEquation[2],
+                                  this->CutPlaneEquation[3] );
     if ( status != kVLIOK )
       {
       vtkErrorMacro( << "Could not set cut plane equation" );
@@ -584,9 +584,9 @@ void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer * vtkNotUsed(ren), vtk
       {
       status = this->Context->AddCutPlane( this->Cut );
       if ( status != kVLIOK )
-	{
-	vtkErrorMacro( << "Could not remove cut plane from context" );
-	}
+        {
+        vtkErrorMacro( << "Could not remove cut plane from context" );
+        }
       }
     }
 }
@@ -605,8 +605,8 @@ void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *vtkNotUsed(ren), vtkVol
     {
     cursor->SetAttributes( VLICursor::kEnableAll | VLICursor::kDisableCrop );
     cursor->SetPosition( this->CursorPosition[0], 
-			 this->CursorPosition[1],
-			 this->CursorPosition[2] );
+                         this->CursorPosition[1],
+                         this->CursorPosition[2] );
     
     cursor->SetWidth(1.0);
     
@@ -644,9 +644,9 @@ void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *vtkNotUsed(ren), vtkVol
 void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVolume * vol )
 {
   int                       dataSize[3];
-  int			    dataType;
-  unsigned char		    *uc_data_ptr;
-  unsigned short	    *us_data_ptr;
+  int                       dataType;
+  unsigned char             *uc_data_ptr;
+  unsigned short            *us_data_ptr;
   void                      *data_ptr;
   vtkImageData              *input = this->GetInput();
   vtkTransform              *volumeTransform;
@@ -682,57 +682,57 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
     switch ( dataType )
       {
       case VTK_UNSIGNED_CHAR:
-	if ( this->VolumeDataType == VTK_VOLUME_8BIT )
-	  {
-	  uc_data_ptr = (unsigned char *) data_ptr;
-	  this->Volume->UpdateVolume( kVLIVoxelFormatUINT8, uc_data_ptr,
-				      0, 0, 0, 
-				      dataSize[0], 
-				      dataSize[1], 
-				      dataSize[2] );
-	  volumeUpdated = 1;
-	  }
+        if ( this->VolumeDataType == VTK_VOLUME_8BIT )
+          {
+          uc_data_ptr = (unsigned char *) data_ptr;
+          this->Volume->UpdateVolume( kVLIVoxelFormatUINT8, uc_data_ptr,
+                                      0, 0, 0, 
+                                      dataSize[0], 
+                                      dataSize[1], 
+                                      dataSize[2] );
+          volumeUpdated = 1;
+          }
 
       break;
 
       case VTK_UNSIGNED_SHORT:
-	if ( this->VolumeDataType == VTK_VOLUME_12BIT_UPPER ||
-	     this->VolumeDataType == VTK_VOLUME_12BIT_LOWER )
-	  {
-	  us_data_ptr = (unsigned short *) data_ptr;
+        if ( this->VolumeDataType == VTK_VOLUME_12BIT_UPPER ||
+             this->VolumeDataType == VTK_VOLUME_12BIT_LOWER )
+          {
+          us_data_ptr = (unsigned short *) data_ptr;
 
-	  // If our scalar range is above 4095 (doesn't fit in 12 bits)
-	  // then use the upper 12 bits of our 16 bit data, otherwise
-	  // use the lower 12 bits.
-	  input->GetPointData()->GetScalars()->GetRange( range );
-	  if ( range[1] > 4095 )
-	    {
-	    this->Volume->UpdateVolume(kVLIVoxelFormatUINT12U, 
-				       us_data_ptr,
-				       0, 0, 0,
-				       dataSize[0], 
-				       dataSize[1], 
-				       dataSize[2]);
-	    this->VolumeDataType = VTK_VOLUME_12BIT_UPPER;
-	    }
-	  else
-	    {
-	    this->Volume->UpdateVolume(kVLIVoxelFormatUINT12L, 
-				       us_data_ptr,
-				       0, 0, 0,
-				       dataSize[0], 
-				       dataSize[1], 
-				       dataSize[2]);
-	    this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
-	    }
-	  volumeUpdated = 1;
-	  }
-	break;
+          // If our scalar range is above 4095 (doesn't fit in 12 bits)
+          // then use the upper 12 bits of our 16 bit data, otherwise
+          // use the lower 12 bits.
+          input->GetPointData()->GetScalars()->GetRange( range );
+          if ( range[1] > 4095 )
+            {
+            this->Volume->UpdateVolume(kVLIVoxelFormatUINT12U, 
+                                       us_data_ptr,
+                                       0, 0, 0,
+                                       dataSize[0], 
+                                       dataSize[1], 
+                                       dataSize[2]);
+            this->VolumeDataType = VTK_VOLUME_12BIT_UPPER;
+            }
+          else
+            {
+            this->Volume->UpdateVolume(kVLIVoxelFormatUINT12L, 
+                                       us_data_ptr,
+                                       0, 0, 0,
+                                       dataSize[0], 
+                                       dataSize[1], 
+                                       dataSize[2]);
+            this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
+            }
+          volumeUpdated = 1;
+          }
+        break;
 
       default:
-	vtkErrorMacro( << "You must convert your data to unsigned char " <<
-	                   "or unsigned short for a VolumePro mapper" );
-	break;
+        vtkErrorMacro( << "You must convert your data to unsigned char " <<
+                           "or unsigned short for a VolumePro mapper" );
+        break;
       }
     
     if ( volumeUpdated )
@@ -768,45 +768,45 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
     switch ( dataType )
       {
       case VTK_UNSIGNED_CHAR:
-	uc_data_ptr = (unsigned char *) data_ptr;
-	this->Volume = VLIVolume::Create( kVLIVoxelFormatUINT8, uc_data_ptr,
-					  dataSize[0], dataSize[1], 
-					  dataSize[2] );
+        uc_data_ptr = (unsigned char *) data_ptr;
+        this->Volume = VLIVolume::Create( kVLIVoxelFormatUINT8, uc_data_ptr,
+                                          dataSize[0], dataSize[1], 
+                                          dataSize[2] );
 
-	this->VolumeDataType = VTK_VOLUME_8BIT;
+        this->VolumeDataType = VTK_VOLUME_8BIT;
 
       break;
 
       case VTK_UNSIGNED_SHORT:
-	us_data_ptr = (unsigned short *) data_ptr;
+        us_data_ptr = (unsigned short *) data_ptr;
 
-	// If our scalar range is above 4095 (doesn't fit in 12 bits)
-	// then use the upper 12 bits of our 16 bit data, otherwise
-	// use the lower 12 bits.
-	input->GetPointData()->GetScalars()->GetRange( range );
-	if ( range[1] > 4095 )
-	  {
-	  this->Volume = VLIVolume::Create(kVLIVoxelFormatUINT12U, 
-					   us_data_ptr,
-					   dataSize[0], dataSize[1], 
-					   dataSize[2]);
-	  this->VolumeDataType = VTK_VOLUME_12BIT_UPPER;
-	  }
-	else
-	  {
-	  this->Volume = VLIVolume::Create(kVLIVoxelFormatUINT12L, 
-					   us_data_ptr,
-					   dataSize[0], dataSize[1], 
-					   dataSize[2]);
-	  this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
-	  }
+        // If our scalar range is above 4095 (doesn't fit in 12 bits)
+        // then use the upper 12 bits of our 16 bit data, otherwise
+        // use the lower 12 bits.
+        input->GetPointData()->GetScalars()->GetRange( range );
+        if ( range[1] > 4095 )
+          {
+          this->Volume = VLIVolume::Create(kVLIVoxelFormatUINT12U, 
+                                           us_data_ptr,
+                                           dataSize[0], dataSize[1], 
+                                           dataSize[2]);
+          this->VolumeDataType = VTK_VOLUME_12BIT_UPPER;
+          }
+        else
+          {
+          this->Volume = VLIVolume::Create(kVLIVoxelFormatUINT12L, 
+                                           us_data_ptr,
+                                           dataSize[0], dataSize[1], 
+                                           dataSize[2]);
+          this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
+          }
 
-	break;
+        break;
 
       default:
-	vtkErrorMacro( << "You must convert your data to unsigned char " <<
-	                   "or unsigned short for a VolumePro mapper" );
-	break;
+        vtkErrorMacro( << "You must convert your data to unsigned char " <<
+                           "or unsigned short for a VolumePro mapper" );
+        break;
       }
 
     }
@@ -844,7 +844,7 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
     for ( i = 0; i < 4; i++ )
       {
       matrixValues[j*4 + i] = 
-	volumeTransform->GetMatrix()->GetElement( i, j );
+        volumeTransform->GetMatrix()->GetElement( i, j );
       }
 
   // Create the VLIMatrix and set the matrix values, then set this as
@@ -878,8 +878,8 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
     {
     status = 
       this->Volume->SetActiveSubVolumeOrigin( (unsigned int) this->SubVolume[0],
-					      (unsigned int) this->SubVolume[2],
-					      (unsigned int) this->SubVolume[4] );
+                                              (unsigned int) this->SubVolume[2],
+                                              (unsigned int) this->SubVolume[4] );
     if ( status != kVLIOK )
       {
       vtkErrorMacro( << "Could not set the subvolume origin" );
@@ -887,8 +887,8 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
 
     status = this->Volume->
       SetActiveSubVolumeSize( (this->SubVolume[1]-this->SubVolume[0]) + 1,
-			      (this->SubVolume[3]-this->SubVolume[2]) + 1,
-			      (this->SubVolume[5]-this->SubVolume[4]) + 1 );
+                              (this->SubVolume[3]-this->SubVolume[2]) + 1,
+                              (this->SubVolume[5]-this->SubVolume[4]) + 1 );
     if ( status != kVLIOK )
       {
       vtkErrorMacro( << "Could not set the subvolume size" );
@@ -897,10 +897,10 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
 }
 
 void vtkVolumeProVG500Mapper::CorrectBasePlaneSize( VLIPixel *basePlane, 
-					       int size[2],
-					       VLIPixel **newBasePlane,
-					       int newSize[2],
-					       VLIVector2D textureCoords[6] )
+                                               int size[2],
+                                               VLIPixel **newBasePlane,
+                                               int newSize[2],
+                                               VLIVector2D textureCoords[6] )
 {
   int    i;
   double extent[4];
@@ -979,8 +979,8 @@ void vtkVolumeProVG500Mapper::CorrectBasePlaneSize( VLIPixel *basePlane,
     for ( i = 0; i < newSize[1]; i++ )
       {
        memcpy( (*newBasePlane + i*newSize[0]), 
-	       (basePlane + (imageExtent[2]+i)*size[0] + imageExtent[0]), 
-	       requiredSize[0]*4*sizeof(VLIPixel) );
+               (basePlane + (imageExtent[2]+i)*size[0] + imageExtent[0]), 
+               requiredSize[0]*4*sizeof(VLIPixel) );
       }
 
     aspect[0] = (float)size[0] / (float)newSize[0];
@@ -1015,9 +1015,9 @@ int vtkVolumeProVG500Mapper::GetAvailableBoardMemory()
 }
 
 void vtkVolumeProVG500Mapper::GetLockSizesForBoardMemory( unsigned int type,
-						     unsigned int *xSize,
-						     unsigned int *ySize,
-						     unsigned int *zSize )
+                                                     unsigned int *xSize,
+                                                     unsigned int *ySize,
+                                                     unsigned int *zSize )
 {
   VLIConfiguration  *config;
 
@@ -1096,25 +1096,25 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     switch ( status )
       {
       case kVLIErrArgument:
-	vtkErrorMacro( << "Base plane could not be rendered - bad argument!" );
-	break;
+        vtkErrorMacro( << "Base plane could not be rendered - bad argument!" );
+        break;
       case kVLIErrVolumeInvalid:
-	vtkErrorMacro( << "Base plane could not be rendered - invalid volume!" );
-	break;
+        vtkErrorMacro( << "Base plane could not be rendered - invalid volume!" );
+        break;
       case kVLIErrAlloc:
-	vtkErrorMacro( << "Base plane could not be rendered - not enough resources!" );
-	break;
+        vtkErrorMacro( << "Base plane could not be rendered - not enough resources!" );
+        break;
       case kVLIErrBasePlaneAllocation:
-	vtkErrorMacro( << "Base plane could not be rendered - could not allocate base plane!" );
-	break;
+        vtkErrorMacro( << "Base plane could not be rendered - could not allocate base plane!" );
+        break;
       case kVLIErrAccess:
-	vtkErrorMacro( << "Base plane could not be rendered - could not access volume!" );
-	break;
+        vtkErrorMacro( << "Base plane could not be rendered - could not access volume!" );
+        break;
       default:
         // Don't report the error - this volume just won't render
         // this error is occurring occasionally in vli 2.0 
-	//vtkErrorMacro( << "Base plane could not be rendered - unkown error!" );
-	break;	  
+        //vtkErrorMacro( << "Base plane could not be rendered - unkown error!" );
+        break;    
       }
     
     // Release the base plane for use next time
@@ -1124,8 +1124,8 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
 
   status = this->Context->FetchBasePlane(0, baseWidth, baseHeight,
-					 imageWidth, imageHeight,
-					 basePlane, hexagon, textureCoords);
+                                         imageWidth, imageHeight,
+                                         basePlane, hexagon, textureCoords);
   if ( status != kVLIOK )
     {
     vtkErrorMacro( << "Base plane could not be fetched!" );
@@ -1136,9 +1136,9 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   size[1] = baseHeight;
 
   this->CorrectBasePlaneSize( basePlane, size, 
-			      &newBasePlane, newSize, textureCoords );
+                              &newBasePlane, newSize, textureCoords );
   this->RenderHexagon( ren, vol, newBasePlane, 
-		       newSize, hexagon, textureCoords );
+                       newSize, hexagon, textureCoords );
 
   // Release the base plane for use next time
   this->Context->ReleaseBasePlane( 0 );

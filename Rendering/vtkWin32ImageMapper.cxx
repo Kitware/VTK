@@ -76,9 +76,9 @@ unsigned long int vtkWin32ImageMapper::GetMTime()
  */
 template <class T>
 static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
-					float l, T& lower, T& upper,
-					unsigned char &lower_val,
-					unsigned char &upper_val)
+                                        float l, T& lower, T& upper,
+                                        unsigned char &lower_val,
+                                        unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
   double adjustedLower, adjustedUpper;
@@ -187,7 +187,7 @@ static void vtkWin32ImageMapperRenderGray(
   unsigned char lower_val, upper_val;
 
   vtkWin32ImageMapperClamps ( data, cwindow, clevel,
-			      lower, upper, lower_val, upper_val );
+                              lower, upper, lower_val, upper_val );
 
   inMin0 = DisplayExtent[0];
   inMax0 = DisplayExtent[1];
@@ -212,27 +212,27 @@ static void vtkWin32ImageMapperRenderGray(
       while (inPtr0 != endPtr)
         {
         if (*inPtr0 <= lower)
-	      {
-	      *outPtr++ = lower_val;
-	      *outPtr++ = lower_val;
-	      *outPtr++ = lower_val;
-	      }
+              {
+              *outPtr++ = lower_val;
+              *outPtr++ = lower_val;
+              *outPtr++ = lower_val;
+              }
         else if (*inPtr0 >= upper)
-	      {
-	      *outPtr++ = upper_val;
-	      *outPtr++ = upper_val;
-	      *outPtr++ = upper_val;
-	      }
+              {
+              *outPtr++ = upper_val;
+              *outPtr++ = upper_val;
+              *outPtr++ = upper_val;
+              }
         else
-	      {
+              {
           // Because i_lower and sscale are of integer type
-	      // this is fast for all types used by this
-	      // template (float is treated separately).
-	      colorIdx = (int) ((*inPtr0 + cshift)*cscale);
-	      *outPtr++ = colorIdx;
-	      *outPtr++ = colorIdx;
-	      *outPtr++ = colorIdx;
-	      }
+              // this is fast for all types used by this
+              // template (float is treated separately).
+              colorIdx = (int) ((*inPtr0 + cshift)*cscale);
+              *outPtr++ = colorIdx;
+              *outPtr++ = colorIdx;
+              *outPtr++ = colorIdx;
+              }
         inPtr0 += inInc0;
         }
       // rows must be a multiple of four bytes
@@ -258,28 +258,28 @@ static void vtkWin32ImageMapperRenderGray(
       while (inPtr0 != endPtr)
         {
         if (*inPtr0 <= lower)
-	      {
-	      *outPtr++ = rgbalower[2];
-	      *outPtr++ = rgbalower[1];
-	      *outPtr++ = rgbalower[0];
-	      }
+              {
+              *outPtr++ = rgbalower[2];
+              *outPtr++ = rgbalower[1];
+              *outPtr++ = rgbalower[0];
+              }
         else if (*inPtr0 >= upper)
-	      {
-	      *outPtr++ = rgbaupper[2];
-	      *outPtr++ = rgbaupper[1];
-	      *outPtr++ = rgbaupper[0];
-	      }
+              {
+              *outPtr++ = rgbaupper[2];
+              *outPtr++ = rgbaupper[1];
+              *outPtr++ = rgbaupper[0];
+              }
         else
-	      {
+              {
           // Because i_lower and sscale are of integer type
-	      // this is fast for all types used by this
-	      // template (float is treated separately).
-	      colorIdx = (int) ((*inPtr0 + cshift)*cscale);
+              // this is fast for all types used by this
+              // template (float is treated separately).
+              colorIdx = (int) ((*inPtr0 + cshift)*cscale);
           unsigned char *Prgba = lut->MapValue(colorIdx);
-	      *outPtr++ = Prgba[2];
-	      *outPtr++ = Prgba[1];
-	      *outPtr++ = Prgba[0];
-	      }
+              *outPtr++ = Prgba[2];
+              *outPtr++ = Prgba[1];
+              *outPtr++ = Prgba[0];
+              }
         inPtr0 += inInc0;
         }
       // rows must be a multiple of four bytes
@@ -308,7 +308,7 @@ static void vtkWin32ImageMapperRenderShortGray(
   unsigned char lower_val, upper_val;
 
   vtkWin32ImageMapperClamps ( data, cwindow, clevel,
-			      lower, upper, lower_val, upper_val );
+                              lower, upper, lower_val, upper_val );
 
   sscale = cscale*4096.0;
   sshift = sscale*cshift;
@@ -379,28 +379,28 @@ static void vtkWin32ImageMapperRenderShortGray(
       while (inPtr0 != endPtr)
         {
         if (*inPtr0 <= lower)
-	      {
-	      *outPtr++ = rgbalower[2];
-	      *outPtr++ = rgbalower[1];
-	      *outPtr++ = rgbalower[0];
-	      }
+              {
+              *outPtr++ = rgbalower[2];
+              *outPtr++ = rgbalower[1];
+              *outPtr++ = rgbalower[0];
+              }
         else if (*inPtr0 >= upper)
-	      {
-	      *outPtr++ = rgbaupper[2];
-	      *outPtr++ = rgbaupper[1];
-	      *outPtr++ = rgbaupper[0];
-	      }
+              {
+              *outPtr++ = rgbaupper[2];
+              *outPtr++ = rgbaupper[1];
+              *outPtr++ = rgbaupper[0];
+              }
         else
-	      {
+              {
           // Because i_lower and sscale are of integer type
-	      // this is fast for all types used by this
-	      // template (float is treated separately).
+              // this is fast for all types used by this
+              // template (float is treated separately).
           colorIdx = ((*inPtr0) * sscale + sshift) >> 12;
           unsigned char *Prgba = lut->MapValue(colorIdx);
-	      *outPtr++ = Prgba[2];
-	      *outPtr++ = Prgba[1];
-	      *outPtr++ = Prgba[0];
-	      }
+              *outPtr++ = Prgba[2];
+              *outPtr++ = Prgba[1];
+              *outPtr++ = Prgba[0];
+              }
         inPtr0 += inInc0;
         }
       // rows must be a multiple of four bytes
@@ -460,7 +460,7 @@ static void vtkWin32ImageMapperRenderColor(
     }
 
   vtkWin32ImageMapperClamps ( data, cwindow, clevel,
-			      lower, upper, lower_val, upper_val );
+                              lower, upper, lower_val, upper_val );
 
   // Loop through in regions pixels
   redPtr1 = redPtr;
@@ -475,43 +475,43 @@ static void vtkWin32ImageMapperRenderColor(
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
       if (*redPtr0 <= lower)
-	{
-	red = lower_val;
-	}
+        {
+        red = lower_val;
+        }
       else if (*redPtr0 >= upper)
-	{
-	red = upper_val;
-	}
+        {
+        red = upper_val;
+        }
       else
-	{
-	red = (unsigned char)(((float)(*redPtr0) + cshift) * cscale);
-	}
+        {
+        red = (unsigned char)(((float)(*redPtr0) + cshift) * cscale);
+        }
 
       if (*greenPtr0 <= lower)
-	{
-	green = lower_val;
-	}
+        {
+        green = lower_val;
+        }
       else if (*greenPtr0 >= upper)
-	{
-	green = upper_val;
-	}
+        {
+        green = upper_val;
+        }
       else
-	{
-	green = (unsigned char)(((float)(*greenPtr0) + cshift) * cscale);
-	}
+        {
+        green = (unsigned char)(((float)(*greenPtr0) + cshift) * cscale);
+        }
   
       if (*bluePtr0 <= lower)
-	{
-	blue = lower_val;
-	}
+        {
+        blue = lower_val;
+        }
       else if (*bluePtr0 >= upper)
-	{
-	blue = upper_val;
-	}
+        {
+        blue = upper_val;
+        }
       else
-	{
-	blue = (unsigned char)(((float)(*bluePtr0) + cshift) * cscale);
-	}
+        {
+        blue = (unsigned char)(((float)(*bluePtr0) + cshift) * cscale);
+        }
       *outPtr++ = blue;
       *outPtr++ = green;
       *outPtr++ = red;
@@ -689,7 +689,7 @@ void vtkWin32ImageMapper::GenerateBitmapData(
 // Expects data to be X, Y, components
 
 void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
-				     vtkImageData *data, vtkActor2D *actor)
+                                     vtkImageData *data, vtkActor2D *actor)
 {
   int width, height;
   void *inptr;

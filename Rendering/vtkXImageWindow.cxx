@@ -64,12 +64,12 @@ vtkXImageWindow* vtkXImageWindow::New()
 }
 
 void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift, 
-					      int &bshift,
-					      int &rscale, int &gscale, 
-					      int &bscale, 
-					      unsigned long &rmask,
-					      unsigned long &gmask,
-					      unsigned long &bmask)
+                                              int &bshift,
+                                              int &rscale, int &gscale, 
+                                              int &bscale, 
+                                              unsigned long &rmask,
+                                              unsigned long &gmask,
+                                              unsigned long &bmask)
 {
   XWindowAttributes winAttribs;
   XVisualInfo temp1;
@@ -79,14 +79,14 @@ void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift,
     vtkErrorMacro ( << "Attempt to use a NULL WindowId" );
     return;
     }
-	
+        
   XGetWindowAttributes(this->DisplayId, this->WindowId, &winAttribs);
   temp1.visualid = winAttribs.visual->visualid;
   temp1.screen = DefaultScreen(this->DisplayId);
   int nvisuals = 0;
   XVisualInfo* visuals = 
     XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask, &temp1, 
-		   &nvisuals);   
+                   &nvisuals);   
   if (nvisuals == 0)  vtkErrorMacro(<<"Could not get color masks");
   
   rmask = visuals->red_mask;
@@ -158,23 +158,23 @@ void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift,
       {
       // g > r,  g > b
       if (bshift > rshift)
-	{
-	// g > b > r
-	t_gshift = bshift;
-	t_bshift = rshift;
-	gscale = gshift - bshift;
-	bscale = bshift - rshift;
-	rscale = rshift;
-	}
+        {
+        // g > b > r
+        t_gshift = bshift;
+        t_bshift = rshift;
+        gscale = gshift - bshift;
+        bscale = bshift - rshift;
+        rscale = rshift;
+        }
       else
-	{
-	// g > r > b
-	t_gshift = rshift;
-	t_rshift = bshift;
-	gscale = gshift - rshift;
-	rscale = rshift - bshift;
-	bscale = bshift;
-	}
+        {
+        // g > r > b
+        t_gshift = rshift;
+        t_rshift = bshift;
+        gscale = gshift - rshift;
+        rscale = rshift - bshift;
+        bscale = bshift;
+        }
       }
     else
       {
@@ -194,7 +194,7 @@ void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift,
 
 
 unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1, 
-					     int x2, int y2, int)
+                                             int x2, int y2, int)
 {
   vtkDebugMacro (<< "Getting pixel data...");
 
@@ -209,13 +209,13 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
     vtkErrorMacro ( << "Attempt to use NULL WindowId" );
     return (unsigned char*) NULL;
     }
-	
+        
   this->GetShiftsScalesAndMasks(rshift,gshift,bshift,rscale,gscale,bscale,
-				rmask,gmask,bmask);
+                                rmask,gmask,bmask);
 
   // Get the XImage
   XImage* image = XGetImage(this->DisplayId, this->WindowId, x1, y1,
-			    width, height, AllPlanes, XYPixmap);
+                            width, height, AllPlanes, XYPixmap);
 
   // Allocate space for the data
   unsigned char*  data = new unsigned char[width*height*3];
@@ -299,7 +299,7 @@ void vtkXImageWindow::SwapBuffers()
     if (this->DoubleBuffer)
       {
       XCopyArea(this->DisplayId, this->Drawable, this->WindowId, this->Gc, 
-		0, 0, this->Size[0], this->Size[1], 0, 0);
+                0, 0, this->Size[0], this->Size[1], 0, 0);
       swapFlag = 0;
       }
     }
@@ -319,18 +319,18 @@ void *vtkXImageWindow::GetGenericDrawable()
     if (!this->Drawable)
       {
       this->Drawable = XCreatePixmap(this->DisplayId, this->WindowId, 
-				     this->Size[0], this->Size[1],
-				     this->VisualDepth);
+                                     this->Size[0], this->Size[1],
+                                     this->VisualDepth);
       this->PixmapWidth = this->Size[0];
       this->PixmapHeight = this->Size[1];
       }
     else if ((this->PixmapWidth != this->Size[0]) || 
-	     (this->PixmapHeight != this->Size[1]))
+             (this->PixmapHeight != this->Size[1]))
       {
       XFreePixmap(this->DisplayId, this->Drawable);
       this->Drawable = XCreatePixmap(this->DisplayId, this->WindowId, 
-				      this->Size[0], this->Size[1],
-				      this->VisualDepth);       
+                                      this->Size[0], this->Size[1],
+                                      this->VisualDepth);       
       this->PixmapWidth = this->Size[0];
       this->PixmapHeight = this->Size[1];
       }
@@ -463,7 +463,7 @@ void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
     vtkErrorMacro ( << "Attempt to use NULL WindowId" );
     return;
     }
-	
+        
   // Get color masks from visual
   windowID = (Window) this->GetGenericWindowId();
   displayID = (Display*) this->GetGenericDisplayId();
@@ -566,7 +566,7 @@ vtkWarningMacro ("EraseWindow");
     XAllocColor(this->DisplayId,this->ColorMap,&aColor);
     XSetForeground(this->DisplayId, this->Gc, aColor.pixel);
     XFillRectangle(this->DisplayId, this->Drawable, this->Gc, 0, 0, 
-	           this->Size[0], this->Size[1]);
+                   this->Size[0], this->Size[1]);
 
     // Reset the foreground to it's previous color
     XSetForeground (this->DisplayId, this->Gc, oldForeground);
@@ -628,8 +628,8 @@ int *vtkXImageWindow::GetPosition(void)
   y = attribs.y;
 
   XTranslateCoordinates(this->DisplayId,this->WindowId,
-			RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
-			x,y,&this->Position[0],&this->Position[1],&child);
+                        RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+                        x,y,&this->Position[0],&this->Position[1],&child);
 
   return this->Position;
 }
@@ -648,7 +648,7 @@ void vtkXImageWindow::SetPosition(int x, int y)
     this->Position[1] = y;
     return;
     }
-	
+        
   if ( !this->WindowId )
     {
     vtkErrorMacro ( << "Attempt to use NULL WindowId" );
@@ -709,7 +709,7 @@ int* vtkXImageWindow::GetSize()
     vtkDebugMacro (<< "vtkXImageWindow::GetSize - Window not mapped");
     return(this->Size);
     }
-		
+                
   if ( !this->WindowId )
     {
     vtkErrorMacro ( << "Attempt to use NULL WindowId" );
@@ -862,13 +862,13 @@ void vtkXImageWindow::MakeDefaultWindow()
     xsh.height = height;
 
     this->WindowId = XCreateWindow(this->DisplayId, this->ParentId,
-			   x, y, width, height, 0, info.depth, 
-			   InputOutput, info.visual,
-			   CWEventMask | CWBackPixel | CWBorderPixel | 
-			   CWColormap | CWOverrideRedirect, 
-			   &values);
+                           x, y, width, height, 0, info.depth, 
+                           InputOutput, info.visual,
+                           CWEventMask | CWBackPixel | CWBorderPixel | 
+                           CWColormap | CWOverrideRedirect, 
+                           &values);
     XSetStandardProperties(this->DisplayId, this->WindowId,
-			   name, name, None, 0, 0, 0);
+                           name, name, None, 0, 0, 0);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
 
     XSync(this->DisplayId, False);
@@ -877,21 +877,21 @@ void vtkXImageWindow::MakeDefaultWindow()
   else
     {
     XChangeWindowAttributes(this->DisplayId,this->WindowId,
-			    CWOverrideRedirect, &values);
+                            CWOverrideRedirect, &values);
     }
   // Select event types wanted 
   XSelectInput(this->DisplayId, this->WindowId,
-	       ExposureMask | KeyPressMask | ButtonPressMask |
-	       PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
+               ExposureMask | KeyPressMask | ButtonPressMask |
+               PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
   
   // Map Window onto Screen and sysc
   // RESIZE THE WINDOW TO THE DESIRED SIZE
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
-		((this->Size[0] > 0) ? 
-		 (int)(this->Size[0]) : 256),
-		((this->Size[1] > 0) ? 
-		 (int)(this->Size[1]) : 256));
+                ((this->Size[0] > 0) ? 
+                 (int)(this->Size[0]) : 256),
+                ((this->Size[1] > 0) ? 
+                 (int)(this->Size[1]) : 256));
   XSync(this->DisplayId,False);
   XMapWindow(this->DisplayId, this->WindowId);
   
@@ -974,8 +974,8 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
 
   // Get a list of all the possible visuals for this screen.
   visuals = XGetVisualInfo(this->DisplayId,
-			   VisualScreenMask,
-			   &templ, &nvisuals);
+                           VisualScreenMask,
+                           &templ, &nvisuals);
   
   if (nvisuals == 0)
     {
@@ -1069,7 +1069,7 @@ Colormap vtkXImageWindow::GetDesiredColormap ()
     {
     this->ColorMap = 
       XCreateColormap(this->DisplayId, RootWindow(this->DisplayId, v.screen),
-		      v.visual, AllocNone);
+                      v.visual, AllocNone);
     }
   
   return this->ColorMap;  
@@ -1126,10 +1126,10 @@ Colormap vtkXImageWindow::MakeColorMap(Visual *visual)
   // allways use a private colormap
     
   newMap = XCreateColormap(this->DisplayId, 
-			   RootWindow(this->DisplayId, screen),
-			   visual, AllocNone);
+                           RootWindow(this->DisplayId, screen),
+                           visual, AllocNone);
   if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
-			 (unsigned int)this->NumberOfColors+this->Offset))
+                         (unsigned int)this->NumberOfColors+this->Offset))
     {
       vtkErrorMacro(<< "Sorry cann't allocate any more Colors");
       return (Colormap)(NULL);
@@ -1147,23 +1147,23 @@ Colormap vtkXImageWindow::MakeColorMap(Visual *visual)
       value = (int)(65000.0 * (float)(idx - this->Offset) / (float)(this->NumberOfColors-1));
       
       if ( (idx < this->Offset)) 
-	{
-	  this->Colors[idx].pixel = defccells[idx].pixel;
-	  this->Colors[idx].red   = defccells[idx].red ;
-	  this->Colors[idx].green = defccells[idx].green ;
-	  this->Colors[idx].blue  = defccells[idx].blue ;
-	  this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	  XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
-	}
+        {
+          this->Colors[idx].pixel = defccells[idx].pixel;
+          this->Colors[idx].red   = defccells[idx].red ;
+          this->Colors[idx].green = defccells[idx].green ;
+          this->Colors[idx].blue  = defccells[idx].blue ;
+          this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
+          XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
+        }
       else 
-	{
-	  this->Colors[idx].pixel = idx;
-	  this->Colors[idx].red   = value ;
-	  this->Colors[idx].green = value ; 
-	  this->Colors[idx].blue  = value ;
-	  this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	  XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
-	}
+        {
+          this->Colors[idx].pixel = idx;
+          this->Colors[idx].red   = value ;
+          this->Colors[idx].green = value ; 
+          this->Colors[idx].blue  = value ;
+          this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
+          XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
+        }
     }
   XInstallColormap(this->DisplayId, newMap);
   return newMap;
@@ -1197,9 +1197,9 @@ void vtkXImageWindow::AllocateDirectColorMap()
     
   
   newMap = XCreateColormap(this->DisplayId, this->WindowId,
-			   this->VisualId, AllocNone);
+                           this->VisualId, AllocNone);
   if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
-			 (unsigned int)256))
+                         (unsigned int)256))
     {
     vtkErrorMacro(<< "Sorry cann't allocate any more Colors");
     return;

@@ -183,44 +183,44 @@ static void vtkOpenGLImageMapperRender(
     switch (bpp)
       {
       case 1:
-	while (--i >= 0)
-	  {
-	  vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
-	  *ptr++ = tmp;
-	  *ptr++ = tmp;
-	  *ptr++ = tmp;
-	  }
-	break;
-	
+        while (--i >= 0)
+          {
+          vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
+          *ptr++ = tmp;
+          *ptr++ = tmp;
+          *ptr++ = tmp;
+          }
+        break;
+        
       case 2:
-	while (--i >= 0)
-	  {
-	  vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
-	  *ptr++ = tmp;
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  *ptr++ = tmp;
-	  }
-	break;
-	
+        while (--i >= 0)
+          {
+          vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
+          *ptr++ = tmp;
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          *ptr++ = tmp;
+          }
+        break;
+        
       case 3:
-	while (--i >= 0)
-	  {
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  }
-	break;
+        while (--i >= 0)
+          {
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          }
+        break;
 
       default:
-	while (--i >= 0)
-	  {
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-	  inPtr += bpp-4;
-	  }
-	break;
+        while (--i >= 0)
+          {
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
+          inPtr += bpp-4;
+          }
+        break;
       }
     inPtr1 += inInc1;
     }
@@ -235,7 +235,7 @@ static void vtkOpenGLImageMapperRender(
     }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-	       GL_UNSIGNED_BYTE, (void *)newPtr);
+               GL_UNSIGNED_BYTE, (void *)newPtr);
   
   delete [] newPtr;    
 }
@@ -324,44 +324,44 @@ static void vtkOpenGLImageMapperRenderShort(
     switch (bpp)
       {
       case 1:
-	while (--i >= 0)
-	  {
+        while (--i >= 0)
+          {
           vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
-	  *ptr++ = tmp;
-	  *ptr++ = tmp;
-	  *ptr++ = tmp;
-	  }
-	break;
-	
+          *ptr++ = tmp;
+          *ptr++ = tmp;
+          *ptr++ = tmp;
+          }
+        break;
+        
       case 2:
-	while (--i >= 0)
-	  {
-	  vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
-	  *ptr++ = tmp;
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  *ptr++ = tmp;
-	  }
-	break;
-	
+        while (--i >= 0)
+          {
+          vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
+          *ptr++ = tmp;
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          *ptr++ = tmp;
+          }
+        break;
+        
       case 3:
-	while (--i >= 0)
-	  {
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  }
-	break;
-	
+        while (--i >= 0)
+          {
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          }
+        break;
+        
       default:
-	while (--i >= 0)
-	  {
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-	  inPtr += bpp-4;
-	  }
-	break;
+        while (--i >= 0)
+          {
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
+          inPtr += bpp-4;
+          }
+        break;
       }
     inPtr1 += inInc1;
     }
@@ -376,7 +376,7 @@ static void vtkOpenGLImageMapperRenderShort(
     }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-	       GL_UNSIGNED_BYTE, (void *)newPtr);
+               GL_UNSIGNED_BYTE, (void *)newPtr);
 
   delete [] newPtr;
 }
@@ -508,7 +508,7 @@ static void vtkOpenGLImageMapperRenderChar(
       }
 
     glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-		 GL_UNSIGNED_BYTE, (void *)newPtr);
+                 GL_UNSIGNED_BYTE, (void *)newPtr);
 
     delete [] newPtr;
     }
@@ -519,7 +519,7 @@ static void vtkOpenGLImageMapperRenderChar(
 // Expects data to be X, Y, components
 
 void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
-				     vtkImageData *data, vtkActor2D *actor)
+                                     vtkImageData *data, vtkActor2D *actor)
 {
   void *ptr0;
   float shift, scale;
@@ -539,8 +539,8 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   scale = this->GetColorScale();
   
   ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
-				this->DisplayExtent[2], 
-				this->DisplayExtent[4]);
+                                this->DisplayExtent[2], 
+                                this->DisplayExtent[4]);
 
   // push a 2D matrix on the stack
   int *vsize = viewport->GetSize();
@@ -550,7 +550,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   if(viewport->GetIsPicking())
     {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-		     1, 1, viewport->GetOrigin(), vsize);
+                     1, 1, viewport->GetOrigin(), vsize);
     }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -603,28 +603,28 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     {
     case VTK_DOUBLE:  
       vtkOpenGLImageMapperRender(this, data,
-				 (double *)(ptr0),
-				 shift, scale, actorPos, actorPos2, front, vsize);
+                                 (double *)(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize);
       break;
     case VTK_FLOAT:
       vtkOpenGLImageMapperRender(this, data,
-				 (float *)(ptr0),
-				 shift, scale, actorPos, actorPos2, front, vsize);
+                                 (float *)(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize);
       break;
     case VTK_LONG:
       vtkOpenGLImageMapperRender(this, data,
-				 (long *)(ptr0),
-				 shift, scale, actorPos, actorPos2, front, vsize);
+                                 (long *)(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize);
       break;
     case VTK_UNSIGNED_LONG:
       vtkOpenGLImageMapperRender(this, data,
-				 (unsigned long *)(ptr0),
-				 shift, scale, actorPos, actorPos2, front, vsize);
+                                 (unsigned long *)(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize);
       break;
     case VTK_INT:
       vtkOpenGLImageMapperRender(this, data,
-				 (int *)(ptr0),
-				 shift, scale, actorPos, actorPos2, front, vsize);
+                                 (int *)(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize);
       break;
     case VTK_UNSIGNED_INT:
       vtkOpenGLImageMapperRender(this, data,
@@ -646,33 +646,33 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
       break;
     case VTK_UNSIGNED_CHAR:
       if (shift == 0.0 && scale == 1.0)
-	      {
-	      vtkOpenGLImageMapperRenderChar(this, data,
+              {
+              vtkOpenGLImageMapperRenderChar(this, data,
             (unsigned char *)(ptr0),
             actorPos, actorPos2, front, vsize);
-	      }
+              }
       else
-	      {
-	      // RenderShort is Templated, so we can pass unsigned char
-	      vtkOpenGLImageMapperRenderShort(this, data,
+              {
+              // RenderShort is Templated, so we can pass unsigned char
+              vtkOpenGLImageMapperRenderShort(this, data,
             (unsigned char *)(ptr0),
-				    shift, scale, actorPos, actorPos2, front, vsize);
-	      }
+                                    shift, scale, actorPos, actorPos2, front, vsize);
+              }
       break;
     case VTK_CHAR:
       if (shift == 0.0 && scale == 1.0)
-	      {
-	      vtkOpenGLImageMapperRenderChar(this, data,
+              {
+              vtkOpenGLImageMapperRenderChar(this, data,
           (char *)(ptr0),
           actorPos, actorPos2, front, vsize);
-	      }
+              }
       else
-	      {
-	      // RenderShort is Templated, so we can pass unsigned char
-	      vtkOpenGLImageMapperRenderShort(this, data,
-				   (char *)(ptr0),
-				   shift, scale, actorPos, actorPos2, front, vsize);
-	      }
+              {
+              // RenderShort is Templated, so we can pass unsigned char
+              vtkOpenGLImageMapperRenderShort(this, data,
+                                   (char *)(ptr0),
+                                   shift, scale, actorPos, actorPos2, front, vsize);
+              }
       break;
     default:
       vtkErrorMacro ( << "Unsupported image type: " << data->GetScalarType());

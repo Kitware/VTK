@@ -83,7 +83,7 @@ int vtkImager::RenderOpaqueGeometry()
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
   
   for ( this->Props->InitTraversal(); 
-	(tempActor = this->Props->GetNextProp());)
+        (tempActor = this->Props->GetNextProp());)
     {
     // Make sure that the actor is visible before rendering
     if (tempActor->GetVisibility() == 1)
@@ -105,7 +105,7 @@ int vtkImager::RenderTranslucentGeometry()
   vtkDebugMacro (<< "vtkImager::RenderTranslucent");
   
   for ( this->Props->InitTraversal(); 
-	(tempActor = this->Props->GetNextProp());)
+        (tempActor = this->Props->GetNextProp());)
     {
     // Make sure that the actor is visible before rendering
     if (tempActor->GetVisibility() == 1)
@@ -157,8 +157,8 @@ void vtkImager::SetImageWindow(vtkImageWindow* win)
     // context specific) information (such as display lists and texture ids)
     this->Props->InitTraversal();
     for ( aProp = this->Props->GetNextProp();
-	  aProp != NULL;
-	  aProp = this->Props->GetNextProp() )
+          aProp != NULL;
+          aProp = this->Props->GetNextProp() )
       {
       aProp->ReleaseGraphicsResources(this->VTKWindow);
       }

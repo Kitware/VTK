@@ -195,7 +195,7 @@ protected:
   int LabelMode;
 
   int   FontSize;
-  int	Bold;
+  int   Bold;
   int   Italic;
   int   Shadow;
   int   FontFamily;

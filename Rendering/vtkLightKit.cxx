@@ -350,7 +350,7 @@ void vtkLightKit::InitializeWarmthFunctions() {
 
   for(int i = 0; i < 4; i++) {
     this->WarmthFunction[i]->BuildFunctionFromTable(0.0, 1.0, len,
-						   &warmthTable[i], 4);
+                                                   &warmthTable[i], 4);
   }
 }
 

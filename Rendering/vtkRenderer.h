@@ -203,8 +203,8 @@ public:
   // This method is called from ResetCameraClippingRange()
   void ResetCameraClippingRange( float bounds[6] );
   void ResetCameraClippingRange( float xmin, float xmax, 
-				 float ymin, float ymax, 
-				 float zmin, float zmax);
+                                 float ymin, float ymax, 
+                                 float zmin, float zmax);
 
   // Description:
   // Automatically set up the camera based on the visible actors.

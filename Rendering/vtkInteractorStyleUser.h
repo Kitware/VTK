@@ -201,9 +201,9 @@ protected:
 
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   void OnKeyPress(int ctrl, int shift, char keycode, char *keysym,
-		  int repeatcount);
+                  int repeatcount);
   void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
-		    int repeatcount);
+                    int repeatcount);
 
   void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
   void OnLeftButtonUp(int ctrl, int shift, int X, int Y);

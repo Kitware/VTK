@@ -76,7 +76,7 @@ vtkWin32OpenGLImageWindow::vtkWin32OpenGLImageWindow()
   this->WindowId = 0;
   this->ParentId = 0;
   this->NextWindowId = 0;
-  this->DeviceContext = (HDC)0;		// hsr
+  this->DeviceContext = (HDC)0;         // hsr
   this->SetWindowName("Visualization Toolkit - Win32OpenGL");
   // we default to double buffered in contrast to other classes
   // mostly because in OpenGL double buffering should be free
@@ -119,8 +119,8 @@ void vtkWin32OpenGLImageWindow::Clean()
 }
 
 LRESULT APIENTRY vtkWin32OpenGLImageWindow::WndProc(HWND hWnd, UINT message, 
-						     WPARAM wParam, 
-						     LPARAM lParam)
+                                                     WPARAM wParam, 
+                                                     LPARAM lParam)
 {
   vtkWin32OpenGLImageWindow *me = 
     (vtkWin32OpenGLImageWindow *)GetWindowLong(hWnd,GWL_USERDATA);
@@ -257,8 +257,8 @@ void vtkWin32OpenGLImageWindow::Frame()
 
 
 void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
-						  int debug, int bpp, 
-						  int zbpp)
+                                                  int debug, int bpp, 
+                                                  int zbpp)
 {
   PIXELFORMATDESCRIPTOR pfd = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -288,9 +288,9 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
       {
       MessageBox(WindowFromDC(hDC), 
-		 "Invalid pixel format, no OpenGL support",
-		 "Error",
-		 MB_ICONERROR | MB_OK);
+                 "Invalid pixel format, no OpenGL support",
+                 "Error",
+                 MB_ICONERROR | MB_OK);
       exit(1);
       }         
     }
@@ -301,7 +301,7 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     if (pixelFormat == 0)
       {
       MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
-		 MB_ICONERROR | MB_OK);
+                 MB_ICONERROR | MB_OK);
       exit(1);
       }
     DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
@@ -309,7 +309,7 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
       {
       int err = GetLastError();
       MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-		 MB_ICONERROR | MB_OK);
+                 MB_ICONERROR | MB_OK);
       exit(1);
       }
     }
@@ -371,7 +371,7 @@ void vtkWin32OpenGLImageWindow::OpenGLInit()
 
 
 LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message, 
-						WPARAM wParam, LPARAM lParam)
+                                                WPARAM wParam, LPARAM lParam)
 {
   switch (message) 
     {
@@ -384,7 +384,7 @@ LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message,
     case WM_DESTROY:
         this->Clean();
         ReleaseDC(this->WindowId, this->DeviceContext);
-		this->WindowId = NULL;
+                this->WindowId = NULL;
         return 0;
     case WM_SIZE:
         /* track window size changes */
@@ -397,10 +397,10 @@ LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message,
         /* realize palette if this is *not* the current window */
         if (this->ContextId && this->Palette && (HWND) wParam != hWnd) 
           {
-	  SelectPalette(this->DeviceContext, this->OldPalette, FALSE);
+          SelectPalette(this->DeviceContext, this->OldPalette, FALSE);
           UnrealizeObject(this->Palette);
           this->OldPalette = SelectPalette(this->DeviceContext, 
-					   this->Palette, FALSE);
+                                           this->Palette, FALSE);
           RealizePalette(this->DeviceContext);
           this->Render();
           }
@@ -409,10 +409,10 @@ LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message,
         /* realize palette if this is the current window */
         if (this->ContextId && this->Palette) 
           {
-	  SelectPalette(this->DeviceContext, this->OldPalette, FALSE);
+          SelectPalette(this->DeviceContext, this->OldPalette, FALSE);
           UnrealizeObject(this->Palette);
           this->OldPalette = SelectPalette(this->DeviceContext, 
-					   this->Palette, FALSE);
+                                           this->Palette, FALSE);
           RealizePalette(this->DeviceContext);
           this->Render();
           return TRUE;
@@ -501,19 +501,19 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
     if (this->ParentId)
       {
       this->WindowId = CreateWindow(
-	"vtkOpenGLImage", this->WindowName,
-	WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
-	x, y, width, height,
-	this->ParentId, NULL, this->ApplicationInstance, NULL);
+        "vtkOpenGLImage", this->WindowName,
+        WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        x, y, width, height,
+        this->ParentId, NULL, this->ApplicationInstance, NULL);
       }
     else
       {
       this->WindowId = CreateWindow(
-	"vtkOpenGLImage", this->WindowName,
-	WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
-	x,y, width+2*GetSystemMetrics(SM_CXFRAME),
-	height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
-	NULL, NULL, this->ApplicationInstance, NULL);
+        "vtkOpenGLImage", this->WindowName,
+        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        x,y, width+2*GetSystemMetrics(SM_CXFRAME),
+        height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+        NULL, NULL, this->ApplicationInstance, NULL);
       }
     if (!this->WindowId)
       {
@@ -530,9 +530,9 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
   SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
   this->DeviceContext = GetDC(this->WindowId);
   this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-			 PFD_DRAW_TO_WINDOW | 
-			 (this->DoubleBuffer*PFD_DOUBLEBUFFER), 
-			 this->GetDebug(), 32, 32);
+                         PFD_DRAW_TO_WINDOW | 
+                         (this->DoubleBuffer*PFD_DOUBLEBUFFER), 
+                         this->GetDebug(), 32, 32);
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
   wglMakeCurrent(this->DeviceContext, this->ContextId);
@@ -589,7 +589,7 @@ void vtkWin32OpenGLImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 
 unsigned char *vtkWin32OpenGLImageWindow::GetPixelData(int x1, int y1, int x2,
-							int y2, int front)
+                                                        int y2, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -639,7 +639,7 @@ unsigned char *vtkWin32OpenGLImageWindow::GetPixelData(int x1, int y1, int x2,
 }
 
 void vtkWin32OpenGLImageWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					    unsigned char *data, int front)
+                                            unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -734,7 +734,7 @@ void vtkWin32OpenGLImageWindow::SetNextWindowId(HWND arg)
 }
 
 void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
-						      HDC aHdc)
+                                                      HDC aHdc)
 {
   int dataWidth = ((xsize*3+3)/4)*4;
   
@@ -747,11 +747,11 @@ void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
   this->MemoryDataHeader.bmiHeader.biClrUsed = 0;
   this->MemoryDataHeader.bmiHeader.biClrImportant = 0;
   this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
-	
+        
   // try using a DIBsection
   this->MemoryBuffer = CreateDIBSection(aHdc,
-				&this->MemoryDataHeader, DIB_RGB_COLORS, 
-				(void **)(&(this->MemoryData)),  NULL, 0);
+                                &this->MemoryDataHeader, DIB_RGB_COLORS, 
+                                (void **)(&(this->MemoryData)),  NULL, 0);
   
   // Create a compatible device context
   this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
@@ -784,8 +784,8 @@ void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
   this->DeviceContext = this->MemoryHdc;
   this->DoubleBuffer = 0;
   this->SetupPixelFormat(this->DeviceContext, 
-		PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
-		this->GetDebug(), 24, 32);
+                PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
+                this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
   wglMakeCurrent(this->DeviceContext, this->ContextId);
@@ -831,14 +831,14 @@ void vtkWin32OpenGLImageWindow::ResumeScreenRendering()
 }
 
 void vtkWin32OpenGLImageWindow::SetContextId(HGLRC arg) // hsr
-{													   // hsr	
-  this->ContextId = arg;							   // hsr
-}													   // hsr
+{                                                                                                          // hsr       
+  this->ContextId = arg;                                                           // hsr
+}                                                                                                          // hsr
 
 void vtkWin32OpenGLImageWindow::SetDeviceContext(HDC arg) // hsr
-{														 // hsr
-  this->DeviceContext = arg;							 // hsr
-}														 // hsr
+{                                                                                                                // hsr
+  this->DeviceContext = arg;                                                     // hsr
+}                                                                                                                // hsr
 
 float *vtkWin32OpenGLImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
@@ -954,7 +954,7 @@ void vtkWin32OpenGLImageWindow::SetRGBAPixelData(int x1, int y1,
   glLoadIdentity();
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1), 
-		 -1.0 );
+                 -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );

@@ -334,8 +334,8 @@ void vtkCamera::Dolly(double amount)
   double d = this->Distance/amount;
   
   this->SetPosition(this->FocalPoint[0] - d*this->DirectionOfProjection[0],
-		    this->FocalPoint[1] - d*this->DirectionOfProjection[1],
-		    this->FocalPoint[2] - d*this->DirectionOfProjection[2]);
+                    this->FocalPoint[1] - d*this->DirectionOfProjection[1],
+                    this->FocalPoint[2] - d*this->DirectionOfProjection[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -675,7 +675,7 @@ void vtkCamera::SetViewShear(double d[3])
 // Compute the perspective transform matrix. This is used in converting 
 // between view and world coordinates.
 void vtkCamera::ComputePerspectiveTransform(double aspect, 
-					    double nearz, double farz)
+                                            double nearz, double farz)
 {
   this->PerspectiveTransform->Identity();
 
@@ -695,8 +695,8 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     double ymax = (this->WindowCenter[1]+1.0)*height;
 
     this->PerspectiveTransform->Ortho(xmin,xmax,ymin,ymax,
-				      this->ClippingRange[0],
-				      this->ClippingRange[1]);
+                                      this->ClippingRange[0],
+                                      this->ClippingRange[1]);
     }
   else
     {
@@ -712,8 +712,8 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     double ymax = (this->WindowCenter[1]+1.0)*height;
 
     this->PerspectiveTransform->Frustum(xmin, xmax, ymin, ymax,
-					this->ClippingRange[0],
-					this->ClippingRange[1]);
+                                        this->ClippingRange[0],
+                                        this->ClippingRange[1]);
     }
 
   if (this->Stereo)
@@ -723,19 +723,19 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     if (this->LeftEye)
       {
       this->PerspectiveTransform->Stereo(-this->EyeAngle/2,
-					 this->Distance);
+                                         this->Distance);
       }
     else
       {
       this->PerspectiveTransform->Stereo(+this->EyeAngle/2,
-					 this->Distance);
+                                         this->Distance);
       }
     }
 
   if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0) {
     this->PerspectiveTransform->Shear(this->ViewShear[0],
-				      this->ViewShear[1],
-				      this->ViewShear[2]*this->Distance);
+                                      this->ViewShear[1],
+                                      this->ViewShear[2]*this->Distance);
   }
 
 }
@@ -743,8 +743,8 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 //----------------------------------------------------------------------------
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
-						       double nearz,
-						       double farz)
+                                                       double nearz,
+                                                       double farz)
 {
   this->ComputePerspectiveTransform(aspect, nearz, farz);
   
@@ -755,8 +755,8 @@ vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
 //----------------------------------------------------------------------------
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
-								double nearz,
-								double farz)
+                                                                double nearz,
+                                                                double farz)
 {
   // turn off stereo, the CompositePerspectiveTransformMatrix is used for
   // picking, not for rendering.
@@ -765,8 +765,8 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 
   this->Transform->Identity();
   this->Transform->Concatenate(this->GetPerspectiveTransformMatrix(aspect,
-								   nearz,
-								   farz));
+                                                                   nearz,
+                                                                   farz));
   this->Transform->Concatenate(this->GetViewTransformMatrix());
 
   this->Stereo = stereo;
@@ -795,8 +795,8 @@ void vtkCamera::ComputeViewPlaneNormal()
     this->ViewPlaneNormal[2] = 1.0;
     // transform the VPN to world coordinates using inverse of view transform
     this->ViewTransform->GetLinearInverse()->TransformNormal(
-					      this->ViewPlaneNormal,
-					      this->ViewPlaneNormal);
+                                              this->ViewPlaneNormal,
+                                              this->ViewPlaneNormal);
     }
   else
     {
@@ -836,7 +836,7 @@ void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
 
   // get the composite perspective matrix
   vtkMatrix4x4::DeepCopy(*matrix, 
-	this->GetCompositePerspectiveTransformMatrix(aspect,-1,+1));
+        this->GetCompositePerspectiveTransformMatrix(aspect,-1,+1));
   
   // transpose the matrix for use with normals
   vtkMatrix4x4::Transpose(*matrix,*matrix);
@@ -847,8 +847,8 @@ void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
     vtkMatrix4x4::MultiplyPoint(*matrix,normals[i],normals[i]);
 
     f = 1.0/sqrt(normals[i][0]*normals[i][0] +
-		 normals[i][1]*normals[i][1] +
-		 normals[i][2]*normals[i][2]);
+                 normals[i][1]*normals[i][1] +
+                 normals[i][2]*normals[i][2]);
 
     planes[4*i + 0] = normals[i][0]*f;
     planes[4*i + 1] = normals[i][1]*f;

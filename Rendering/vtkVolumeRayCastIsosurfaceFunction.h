@@ -88,8 +88,8 @@ public:
   float       Color[3];
 
 //BTX
-  void CastRay(	VTKVRCDynamicInfo *dynamicInfo,
-		VTKVRCStaticInfo *staticInfo);
+  void CastRay( VTKVRCDynamicInfo *dynamicInfo,
+                VTKVRCStaticInfo *staticInfo);
 //ETX
 
 protected:
@@ -98,9 +98,9 @@ protected:
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
-				   vtkVolume   *vol,
-				   VTKVRCStaticInfo *staticInfo,
-				   vtkVolumeRayCastMapper *mapper );
+                                   vtkVolume   *vol,
+                                   VTKVRCStaticInfo *staticInfo,
+                                   vtkVolumeRayCastMapper *mapper );
 //ETX
 private:
   vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.

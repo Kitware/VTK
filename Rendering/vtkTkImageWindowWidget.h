@@ -63,8 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 struct vtkTkImageWindowWidget
 {
-  Tk_Window  TkWin;		/* Tk window structure */
-  Tcl_Interp *Interp;		/* Tcl interpreter */
+  Tk_Window  TkWin;             /* Tk window structure */
+  Tcl_Interp *Interp;           /* Tcl interpreter */
   int Width;
   int Height;
   vtkImageWindow *ImageWindow;

@@ -76,9 +76,9 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 // removed from the list (and the list length is shortened) to make sure
 // that they are not considered again by another culler or for rendering.
 float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren, 
-				      vtkProp **propList,
-				      int& listLength,
-				      int& initialized )
+                                      vtkProp **propList,
+                                      int& listLength,
+                                      int& initialized )
 {
   vtkProp            *prop;
   float               total_time;
@@ -145,8 +145,8 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
       // a duff dataset like a polydata with no cells will have bad bounds
       if ((bounds[0] == -VTK_LARGE_FLOAT) || (bounds[0] == VTK_LARGE_FLOAT))
         {
-	      coverage = 0.0;
-	      i = 7;
+              coverage = 0.0;
+              i = 7;
         }
       else
         {
@@ -154,12 +154,12 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
         center[1] = (bounds[2] + bounds[3]) / 2.0;
         center[2] = (bounds[4] + bounds[5]) / 2.0;
         radius = 0.5 * sqrt( (double)
-			   ( bounds[1] - bounds[0] ) *
-			   ( bounds[1] - bounds[0] ) +
-			   ( bounds[3] - bounds[2] ) *
-			   ( bounds[3] - bounds[2] ) +
-			   ( bounds[5] - bounds[4] ) *
-			   ( bounds[5] - bounds[4] ) );
+                           ( bounds[1] - bounds[0] ) *
+                           ( bounds[1] - bounds[0] ) +
+                           ( bounds[3] - bounds[2] ) *
+                           ( bounds[3] - bounds[2] ) +
+                           ( bounds[5] - bounds[4] ) *
+                           ( bounds[5] - bounds[4] ) );
         for ( i = 0; i < 6; i++ )
           {
           // Compute how far the center of the sphere is from this plane
@@ -169,11 +169,11 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
           planes[i*4 + 2] * center[2] +
           planes[i*4 + 3];
           // If d < -radius the prop is not within the view frustum
-	      if ( d < -radius )
-	        {
-	        coverage = 0.0;
-	        i = 7;
-	        }
+              if ( d < -radius )
+                {
+                coverage = 0.0;
+                i = 7;
+                }
         // The first four planes are the ones bounding the edges of the
         // view plane (the last two are the near and far planes) The
         // distance from the edge of the sphere to these planes is stored
@@ -182,21 +182,21 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
           {
             screen_bounds[i] = d - radius;
           }
-	      // The fifth plane is the near plane - use the distance to
+              // The fifth plane is the near plane - use the distance to
         // the center (d) as the value to sort by
-	      if ( i == 4 )
-	        {
-	        distanceList[propLoop] = d;
-	        }
+              if ( i == 4 )
+                {
+                distanceList[propLoop] = d;
+                }
         }
       }
       // If the prop wasn't culled during the plane tests...
       if ( coverage > 0.0 )
-	      {
+              {
         // Compute the width and height of this slice through the
         // view frustum that contains the center of the sphere
-	      full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
-	      full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
+              full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
+              full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
         // Subtract from the full width to get the width of the square
         // enclosing the circle slice from the sphere in the plane
         // through the center of the sphere. If the screen bounds for

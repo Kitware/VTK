@@ -231,7 +231,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
   XCharStruct overall;
   // XTextExtents does not require a trip to the server
   XTextExtents(fontStruct, this->Input, strlen(this->Input),
-		    &direction, &ascent, &descent, &overall);
+                    &direction, &ascent, &descent, &overall);
   size[1] = ascent + descent;
   size[0] = overall.width;
   this->CurrentFont = fontStruct->fid;

@@ -815,7 +815,7 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
 // enters or leaves the window.
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnConfigure(int vtkNotUsed(width), 
-				     int vtkNotUsed(height))
+                                     int vtkNotUsed(height))
 {
 }
 //----------------------------------------------------------------------------

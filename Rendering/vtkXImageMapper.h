@@ -100,7 +100,7 @@ public:
   // Description:
   // Returns the color masks used by the window.
   void GetXWindowColorMasks(vtkWindow *window, unsigned long *rmask,
-      			    unsigned long *gmask, unsigned long *bmask);
+                            unsigned long *gmask, unsigned long *bmask);
 
   // Description:
   // Gets the number of colors in the pseudo color map.

@@ -173,8 +173,8 @@ protected:
   // conveinence methods for translating & rotating the camera
   void  MyTranslateCamera(float v[3]);
   void  MyRotateCamera(float cx, float cy, float cz,
-		       float ax, float ay, float az,
-		       float angle);
+                       float ax, float ay, float az,
+                       float angle);
 
   // Given a 3D point & a vtkCamera, compute the vectors that extend
   // from the projection of the center of projection to the center of
@@ -182,7 +182,7 @@ protected:
   // containing the 3D point & with normal parallel to the camera's
   // projection plane.
   void  GetRightVandUpV(float *p, vtkCamera *cam,
-			float *rightV, float *upV);
+                        float *rightV, float *upV);
 
   // takes in pixels, returns normalized window coordinates
   void  NormalizeMouseXY(int X, int Y, float *NX, float *NY);

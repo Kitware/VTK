@@ -67,7 +67,7 @@ vtkWin32ImageWindow* vtkWin32ImageWindow::New()
 
 
 unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1, 
-						 int x2, int y2, int)
+                                                 int x2, int y2, int)
 {
 
   int width  = (abs(x2 - x1)+1);
@@ -129,7 +129,7 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
 
   // Get the bitmap
   BitBlt(compatHdc, 0, 0, width, height, this->DeviceContext,
-	 x_low, y_low, SRCCOPY);
+         x_low, y_low, SRCCOPY);
 
   // Allocate space for the data
   int size = dataWidth*height;
@@ -155,12 +155,12 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
     {
     for (int j = 0; j < width; j++)
       {
-	bbyte = *p_data++;
-	gbyte = *p_data++;
-	rbyte = *p_data++;
-	*p_data2++ = rbyte;
-	*p_data2++ = gbyte;
-	*p_data2++ = bbyte;
+        bbyte = *p_data++;
+        gbyte = *p_data++;
+        rbyte = *p_data++;
+        *p_data2++ = rbyte;
+        *p_data2++ = gbyte;
+        *p_data2++ = bbyte;
       }
 
     // rows must be a multiple of four bytes
@@ -277,7 +277,7 @@ void vtkWin32ImageWindow::EraseWindow()
   rectSize.right = size[0] - 1;
   rectSize.bottom = size[1] - 1;
 
-  COLORREF backColor = GetBkColor(this->DeviceContext);	
+  COLORREF backColor = GetBkColor(this->DeviceContext); 
 
   if (backColor == CLR_INVALID)
     {
@@ -319,7 +319,7 @@ void vtkWin32ImageWindow::SetPosition(int x, int y)
         resizing = 1;
    
         SetWindowPos(this->WindowId,HWND_TOP,x,y,
-		     0, 0, SWP_NOSIZE | SWP_NOZORDER);
+                     0, 0, SWP_NOSIZE | SWP_NOZORDER);
         resizing = 0;
         }
       }
@@ -348,15 +348,15 @@ void vtkWin32ImageWindow::SetSize(int x, int y)
         if (this->ParentId)
           {
           SetWindowPos(this->WindowId,HWND_TOP,0,0,
-		       x, y, SWP_NOMOVE | SWP_NOZORDER);
+                       x, y, SWP_NOMOVE | SWP_NOZORDER);
           }
         else
           {
           SetWindowPos(this->WindowId,HWND_TOP,0,0,
-		       x+2*GetSystemMetrics(SM_CXFRAME),
-		       y+2*GetSystemMetrics(SM_CYFRAME)
-		       + GetSystemMetrics(SM_CYCAPTION),
-		       SWP_NOMOVE | SWP_NOZORDER);
+                       x+2*GetSystemMetrics(SM_CXFRAME),
+                       y+2*GetSystemMetrics(SM_CYFRAME)
+                       + GetSystemMetrics(SM_CYCAPTION),
+                       SWP_NOMOVE | SWP_NOZORDER);
           }
 
 
@@ -413,13 +413,13 @@ void vtkWin32ImageWindowSetupRGBPixelFormat(HDC hDC)
   pixelFormat = ChoosePixelFormat(hDC, &pfd);
   if (pixelFormat == 0) {
   MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
-	     MB_ICONERROR | MB_OK);
+             MB_ICONERROR | MB_OK);
   exit(1);
   }
 
   if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
   MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-	     MB_ICONERROR | MB_OK);
+             MB_ICONERROR | MB_OK);
   exit(1);
   }
 }
@@ -449,20 +449,20 @@ void vtkWin32ImageWindowSetupGrayPixelFormat(HDC hDC)
   pixelFormat = ChoosePixelFormat(hDC, &pfd);
   if (pixelFormat == 0) {
   MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
-	     MB_ICONERROR | MB_OK);
+             MB_ICONERROR | MB_OK);
   exit(1);
   }
 
   if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
   MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-	     MB_ICONERROR | MB_OK);
+             MB_ICONERROR | MB_OK);
   exit(1);
   }
 }
 
 // creates and applies a RGB palette
 void vtkWin32ImageWindowSetupRGBPalette(HDC hDC, 
-					vtkWin32ImageWindow *me)
+                                        vtkWin32ImageWindow *me)
 {
   int pixelFormat = GetPixelFormat(hDC);
   PIXELFORMATDESCRIPTOR pfd;
@@ -516,7 +516,7 @@ void vtkWin32ImageWindowSetupRGBPalette(HDC hDC,
 }
 
 void vtkWin32ImageWindowSetupGrayPalette(HDC hDC, 
-					 vtkWin32ImageWindow *me)
+                                         vtkWin32ImageWindow *me)
 {
   int pixelFormat = GetPixelFormat(hDC);
   PIXELFORMATDESCRIPTOR pfd;
@@ -573,7 +573,7 @@ void vtkWin32ImageWindowSetupGrayPalette(HDC hDC,
 vtkWin32ImageWindow *vtkWin32ImageWindowPtr = NULL;
 
 LRESULT APIENTRY vtkWin32ImageWindowWndProc(HWND hWnd, UINT message, 
-					    WPARAM wParam, LPARAM lParam)
+                                            WPARAM wParam, LPARAM lParam)
 {
   vtkWin32ImageWindow *me =   
     (vtkWin32ImageWindow *)GetWindowLong(hWnd,GWL_USERDATA);
@@ -598,62 +598,62 @@ LRESULT APIENTRY vtkWin32ImageWindowWndProc(HWND hWnd, UINT message,
       //SetBkColor (me->DeviceContext, RGB(me->Background[0], me->Background[1], me->Background[2]));
       SetBkColor (me->DeviceContext, RGB(0,0,0));
       if (me->GetGrayScaleHint())
-	{
-	vtkWin32ImageWindowSetupGrayPixelFormat(me->DeviceContext);
-	vtkWin32ImageWindowSetupGrayPalette(me->DeviceContext,me);
-	}
+        {
+        vtkWin32ImageWindowSetupGrayPixelFormat(me->DeviceContext);
+        vtkWin32ImageWindowSetupGrayPalette(me->DeviceContext,me);
+        }
       else
-	{
-	vtkWin32ImageWindowSetupRGBPixelFormat(me->DeviceContext);
-	vtkWin32ImageWindowSetupRGBPalette(me->DeviceContext,me);
-	}
+        {
+        vtkWin32ImageWindowSetupRGBPixelFormat(me->DeviceContext);
+        vtkWin32ImageWindowSetupRGBPalette(me->DeviceContext,me);
+        }
       return 0;
       }
     case WM_DESTROY:
       if (me->Palette)
-	{
-	DeleteObject(me->Palette);
-	me->Palette = NULL;
-	}
+        {
+        DeleteObject(me->Palette);
+        me->Palette = NULL;
+        }
       ReleaseDC(me->WindowId, me->DeviceContext);
       return 0;
     case WM_SIZE:
       /* track window size changes */
       if (me->DeviceContext) 
-	{
-	me->SetSize((int) LOWORD(lParam),(int) HIWORD(lParam));
-	return 0;
-	}
+        {
+        me->SetSize((int) LOWORD(lParam),(int) HIWORD(lParam));
+        return 0;
+        }
     case WM_PALETTECHANGED:
       /* realize palette if this is *not* the current window */
       if (me->DeviceContext && me->Palette && (HWND) wParam != hWnd) 
-	{
-	UnrealizeObject(me->Palette);
-	SelectPalette(me->DeviceContext, me->Palette, FALSE);
-	RealizePalette(me->DeviceContext);
-	me->Render();
-	break;
-	}
+        {
+        UnrealizeObject(me->Palette);
+        SelectPalette(me->DeviceContext, me->Palette, FALSE);
+        RealizePalette(me->DeviceContext);
+        me->Render();
+        break;
+        }
       break;
     case WM_QUERYNEWPALETTE:
       /* realize palette if this is the current window */
       if (me->DeviceContext && me->Palette) 
-	{
-	UnrealizeObject(me->Palette);
-	SelectPalette(me->DeviceContext, me->Palette, FALSE);
-	RealizePalette(me->DeviceContext);
-	me->Render();
-	return TRUE;
-	}
+        {
+        UnrealizeObject(me->Palette);
+        SelectPalette(me->DeviceContext, me->Palette, FALSE);
+        RealizePalette(me->DeviceContext);
+        me->Render();
+        return TRUE;
+        }
       break;
     case WM_PAINT:
       {
       PAINTSTRUCT ps;
       BeginPaint(hWnd, &ps);
       if (me->DeviceContext) 
-	{
-	me->Render();
-	}
+        {
+        me->Render();
+        }
       EndPaint(hWnd, &ps);
       return 0;
       }
@@ -702,7 +702,7 @@ void vtkWin32ImageWindow::MakeDefaultWindow()
     if (this->ParentId)
       {
       this->ApplicationInstance = 
-	(HINSTANCE)GetWindowLong(this->ParentId,GWL_HINSTANCE);
+        (HINSTANCE)GetWindowLong(this->ParentId,GWL_HINSTANCE);
       }
     else
       {
@@ -741,7 +741,7 @@ void vtkWin32ImageWindow::MakeDefaultWindow()
       this->Size[0] = 256;
       this->Size[1] = 256;
       }
-	
+        
     /* create window */
     // use poor mans mutex
     if (vtkWin32ImageWindowPtr)
@@ -752,20 +752,20 @@ void vtkWin32ImageWindow::MakeDefaultWindow()
     if (this->ParentId)
       {
       this->WindowId = 
-	CreateWindow("vtkImage", this->WindowName,
-		     WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		     0, 0, this->Size[0], this->Size[1],
-		     this->ParentId, NULL, this->ApplicationInstance, NULL);
+        CreateWindow("vtkImage", this->WindowName,
+                     WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+                     0, 0, this->Size[0], this->Size[1],
+                     this->ParentId, NULL, this->ApplicationInstance, NULL);
       }
     else
       {
       this->WindowId = 
-	CreateWindow("vtkImage", this->WindowName,
-		     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		     0, 0, this->Size[0]+2*GetSystemMetrics(SM_CXFRAME),
-		     this->Size[1] + 2*GetSystemMetrics(SM_CYFRAME) + 
-		     GetSystemMetrics(SM_CYCAPTION),
-		     NULL, NULL, this->ApplicationInstance, NULL);
+        CreateWindow("vtkImage", this->WindowName,
+                     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+                     0, 0, this->Size[0]+2*GetSystemMetrics(SM_CXFRAME),
+                     this->Size[1] + 2*GetSystemMetrics(SM_CYFRAME) + 
+                     GetSystemMetrics(SM_CYCAPTION),
+                     NULL, NULL, this->ApplicationInstance, NULL);
       }
     vtkWin32ImageWindowPtr = NULL;
     if (!this->WindowId)
@@ -839,11 +839,11 @@ void vtkWin32ImageWindow::SetupMemoryRendering(int xsize, int ysize,HDC aHdc)
   this->MemoryDataHeader.bmiHeader.biClrUsed = 0;
   this->MemoryDataHeader.bmiHeader.biClrImportant = 0;
   this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
-	
+        
   // try using a DIBsection
   this->MemoryBuffer = CreateDIBSection(aHdc,
-				&this->MemoryDataHeader, DIB_RGB_COLORS, 
-				(void **)(&(this->MemoryData)),  NULL, 0);
+                                &this->MemoryDataHeader, DIB_RGB_COLORS, 
+                                (void **)(&(this->MemoryData)),  NULL, 0);
   
   // Create a compatible device context
   this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);

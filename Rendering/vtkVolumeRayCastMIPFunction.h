@@ -89,7 +89,7 @@ public:
 
 //BTX
   void CastRay( VTKVRCDynamicInfo *dynamicInfo,
-		VTKVRCStaticInfo *staticInfo );
+                VTKVRCStaticInfo *staticInfo );
 //ETX
 
 
@@ -101,9 +101,9 @@ protected:
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
-				   vtkVolume   *vol,
-				   VTKVRCStaticInfo *staticInfo,
-				   vtkVolumeRayCastMapper *mapper );
+                                   vtkVolume   *vol,
+                                   VTKVRCStaticInfo *staticInfo,
+                                   vtkVolumeRayCastMapper *mapper );
 
 //ETX
 private:

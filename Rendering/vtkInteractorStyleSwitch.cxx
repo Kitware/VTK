@@ -87,8 +87,8 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnChar(int ctrl, int shift, 
-				      char keycode,
-				      int repeatcount) 
+                                      char keycode,
+                                      int repeatcount) 
 {
   switch (keycode)
     {
@@ -125,17 +125,17 @@ void vtkInteractorStyleSwitch::OnMouseMove(int ctrl, int shift, int x, int y)
     this->JoystickCamera->OnMouseMove(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnMouseMove(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnMouseMove(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnMouseMove(ctrl, shift, x, y);
     }
@@ -143,7 +143,7 @@ void vtkInteractorStyleSwitch::OnMouseMove(int ctrl, int shift, int x, int y)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnLeftButtonDown(int ctrl, int shift, 
-						int x, int y) 
+                                                int x, int y) 
 {
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
@@ -157,17 +157,17 @@ void vtkInteractorStyleSwitch::OnLeftButtonDown(int ctrl, int shift,
     this->JoystickCamera->OnLeftButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnLeftButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnLeftButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnLeftButtonDown(ctrl, shift, x, y);
     }
@@ -175,7 +175,7 @@ void vtkInteractorStyleSwitch::OnLeftButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnLeftButtonUp(int ctrl, int shift,
-					      int x, int y) 
+                                              int x, int y) 
 {
   if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
     {
@@ -189,17 +189,17 @@ void vtkInteractorStyleSwitch::OnLeftButtonUp(int ctrl, int shift,
     this->JoystickCamera->OnLeftButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnLeftButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnLeftButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnLeftButtonUp(ctrl, shift, x, y);
     }
@@ -207,7 +207,7 @@ void vtkInteractorStyleSwitch::OnLeftButtonUp(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnMiddleButtonDown(int ctrl, int shift, 
-						  int x, int y) 
+                                                  int x, int y) 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
@@ -221,24 +221,24 @@ void vtkInteractorStyleSwitch::OnMiddleButtonDown(int ctrl, int shift,
     this->JoystickCamera->OnMiddleButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnMiddleButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnMiddleButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnMiddleButtonDown(ctrl, shift, x, y);
     }
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnMiddleButtonUp(int ctrl, int shift, 
-						int x, int y) 
+                                                int x, int y) 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
     {
@@ -252,17 +252,17 @@ void vtkInteractorStyleSwitch::OnMiddleButtonUp(int ctrl, int shift,
     this->JoystickCamera->OnMiddleButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnMiddleButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnMiddleButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnMiddleButtonUp(ctrl, shift, x, y);
     }
@@ -270,7 +270,7 @@ void vtkInteractorStyleSwitch::OnMiddleButtonUp(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnRightButtonDown(int ctrl, int shift,
-						 int x, int y)
+                                                 int x, int y)
 {
   if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
@@ -284,24 +284,24 @@ void vtkInteractorStyleSwitch::OnRightButtonDown(int ctrl, int shift,
     this->JoystickCamera->OnRightButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnRightButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnRightButtonDown(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnRightButtonDown(ctrl, shift, x, y);
     }
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnRightButtonUp(int ctrl, int shift,
-					       int x, int y)
+                                               int x, int y)
 {
   if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
@@ -315,17 +315,17 @@ void vtkInteractorStyleSwitch::OnRightButtonUp(int ctrl, int shift,
     this->JoystickCamera->OnRightButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnRightButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_CAMERA)
+           this->CameraOrActor == VTKIS_CAMERA)
     {
     this->TrackballCamera->OnRightButtonUp(ctrl, shift, x, y);
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->TrackballActor->OnRightButtonUp(ctrl, shift, x, y);
     }
@@ -351,7 +351,7 @@ void vtkInteractorStyleSwitch::OnTimer(void)
     this->JoystickCamera->OnTimer();
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-	   this->CameraOrActor == VTKIS_ACTOR)
+           this->CameraOrActor == VTKIS_ACTOR)
     {
     this->JoystickActor->OnTimer();
     }

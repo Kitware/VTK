@@ -95,9 +95,9 @@ public:
   virtual void Render( vtkRenderer *, vtkVolume * );
   virtual int GetAvailableBoardMemory();
   virtual void GetLockSizesForBoardMemory( unsigned int type,
-					   unsigned int *xSize,
-					   unsigned int *ySize,
-					   unsigned int *zSize );
+                                           unsigned int *xSize,
+                                           unsigned int *ySize,
+                                           unsigned int *zSize );
 protected:
   vtkVolumeProVP1000Mapper();
   ~vtkVolumeProVP1000Mapper();

@@ -48,9 +48,9 @@ vtkXImageMapper::~vtkXImageMapper()
  */
 template <class T>
 static void vtkXImageMapperClamps ( vtkImageData *data, float w, 
-				    float l, T& lower, T& upper, 
-				    unsigned char &lower_val, 
-				    unsigned char &upper_val)
+                                    float l, T& lower, T& upper, 
+                                    unsigned char &lower_val, 
+                                    unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
   double adjustedLower, adjustedUpper;
@@ -196,7 +196,7 @@ int vtkXImageMapper::GetXWindowVisualClass(vtkWindow* window)
 }
 
 void vtkXImageMapper::GetXWindowColorMasks(vtkWindow *window, unsigned long *rmask,
-					   unsigned long *gmask, unsigned long *bmask)
+                                           unsigned long *gmask, unsigned long *bmask)
 {
   Window windowID = (Window) window->GetGenericWindowId();
   Display* displayID = (Display*) window->GetGenericDisplayId();
@@ -240,7 +240,7 @@ void vtkXImageMapper::GetXColors(int colors[])
 // A templated function that handles gray scale images.
 template <class T>
 static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper, 
-				      vtkViewport *viewport,
+                                      vtkViewport *viewport,
                                       vtkImageData *data,
                                       T *inPtr, unsigned char *outPtr)
 {
@@ -315,8 +315,8 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   unsigned short* usOutPtr = (unsigned short*) outPtr;
   
   vtkXImageMapperClamps( data, mapper->GetColorWindow(),
-			 mapper->GetColorLevel(), 
-			 lower, upper, lower_val, upper_val);
+                         mapper->GetColorLevel(), 
+                         lower, upper, lower_val, upper_val);
 
   // compute colorsMax, lower and upper pixels.
   if (visualClass == TrueColor)
@@ -343,112 +343,112 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     if (visualClass == TrueColor && visualDepth >= 24)
       {
       while (inPtr0 != endPtr)
-	{
-	*ulOutPtr = 0;
-	if (*inPtr0 <= lower)	  
-	  {
-	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
+        {
+        *ulOutPtr = 0;
+        if (*inPtr0 <= lower)     
+          {
+          *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	else if (*inPtr0 >= upper)
-	  {
-	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
+          }
+        else if (*inPtr0 >= upper)
+          {
+          *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	else
-	  {
-	  colorIdx = (int)((*inPtr0 + shift) * scale);
-	  *ulOutPtr = *ulOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
+          }
+        else
+          {
+          colorIdx = (int)((*inPtr0 + shift) * scale);
+          *ulOutPtr = *ulOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	inPtr0 += inInc0;
-	}
+          }
+        inPtr0 += inInc0;
+        }
       }
     else if (visualClass == TrueColor && visualDepth < 24)
       {
       while (inPtr0 != endPtr)
-	{
-	*usOutPtr = 0;
-	if (*inPtr0 <= lower)	  
-	  {
-	  *usOutPtr = *usOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
-	  *usOutPtr = *usOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
-	  *usOutPtr = *usOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
+        {
+        *usOutPtr = 0;
+        if (*inPtr0 <= lower)     
+          {
+          *usOutPtr = *usOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
+          *usOutPtr = *usOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
+          *usOutPtr = *usOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           usOutPtr++;
-	  }
-	else if (*inPtr0 >= upper)
-	  {
-	  *usOutPtr = *usOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
-	  *usOutPtr = *usOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
-	  *usOutPtr = *usOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
+          }
+        else if (*inPtr0 >= upper)
+          {
+          *usOutPtr = *usOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
+          *usOutPtr = *usOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
+          *usOutPtr = *usOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
           usOutPtr++;
-	  }
-	else
-	  {
-	  colorIdx = (int)((*inPtr0 + shift) * scale);
-	  *usOutPtr = *usOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
-	  *usOutPtr = *usOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
-	  *usOutPtr = *usOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
+          }
+        else
+          {
+          colorIdx = (int)((*inPtr0 + shift) * scale);
+          *usOutPtr = *usOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
+          *usOutPtr = *usOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
+          *usOutPtr = *usOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
           usOutPtr++;
-	  }
-	inPtr0 += inInc0;
-	}
+          }
+        inPtr0 += inInc0;
+        }
       }
     else if (visualClass == DirectColor)
       {
       while (inPtr0 != endPtr)
-	{
+        {
         *ulOutPtr = 0;
-	if (*inPtr0 <= lower) 
-	  {
-	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
+        if (*inPtr0 <= lower) 
+          {
+          *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	else if (*inPtr0 >= upper)
-	  {
-	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
+          }
+        else if (*inPtr0 >= upper)
+          {
+          *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	else
-	  {
-	  colorIdx = (int)((*inPtr0 + shift) * scale);
-	  *ulOutPtr = *ulOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
-	  *ulOutPtr = *ulOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
-	  *ulOutPtr = *ulOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
+          }
+        else
+          {
+          colorIdx = (int)((*inPtr0 + shift) * scale);
+          *ulOutPtr = *ulOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
+          *ulOutPtr = *ulOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
+          *ulOutPtr = *ulOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
           ulOutPtr++;
-	  }
-	inPtr0 += inInc0;
-	}
+          }
+        inPtr0 += inInc0;
+        }
       }
     else if (visualClass == PseudoColor)
       {
       while (inPtr0 != endPtr)
-	{
-	if (*inPtr0 <= lower) 
-	  {
-	  *outPtr++ = lowerPixel;
-	  }
-	else if (*inPtr0 >= upper)
-	  {
-	  *outPtr++ = upperPixel;
-	  }
-	else
-	  {
-	  colorIdx = (int)((*inPtr0 + shift) * scale);
-	  *outPtr++ = (unsigned char)(colors[colorIdx]);
-	  }
-	inPtr0 += inInc0;
-	}
+        {
+        if (*inPtr0 <= lower) 
+          {
+          *outPtr++ = lowerPixel;
+          }
+        else if (*inPtr0 >= upper)
+          {
+          *outPtr++ = upperPixel;
+          }
+        else
+          {
+          colorIdx = (int)((*inPtr0 + shift) * scale);
+          *outPtr++ = (unsigned char)(colors[colorIdx]);
+          }
+        inPtr0 += inInc0;
+        }
       }
     inPtr1 += inInc1;
     }
@@ -460,7 +460,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
 static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
-				       vtkViewport *viewport,
+                                       vtkViewport *viewport,
                                        vtkImageData *data, T *redPtr, int bpp,
                                        unsigned char *outPtr)
 {
@@ -537,8 +537,8 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   unsigned short* usOutPtr = (unsigned short*) outPtr;
 
   vtkXImageMapperClamps ( data, mapper->GetColorWindow(),
-			  mapper->GetColorLevel(), 
-			  lower, upper, lower_val, upper_val);
+                          mapper->GetColorLevel(), 
+                          lower, upper, lower_val, upper_val);
 
   inInc1 = -inInc1;
 
@@ -620,18 +620,18 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
       else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
       if (*redPtr0 <= lower) 
-	{
-	  *outPtr++ = lowerPixel;
-	}
+        {
+          *outPtr++ = lowerPixel;
+        }
       else if (*redPtr0 >= upper)
-	{
-	  *outPtr++ = upperPixel;
-	}
+        {
+          *outPtr++ = upperPixel;
+        }
       else
-	{
-	  colorIdx = (int)((*redPtr0 + shift) * scale);
-	  *outPtr++ = (unsigned char)(colors[colorIdx]);
-	}
+        {
+          colorIdx = (int)((*redPtr0 + shift) * scale);
+          *outPtr++ = (unsigned char)(colors[colorIdx]);
+        }
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
       bluePtr0 += inInc0;
@@ -699,8 +699,8 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
   int dim;
   dim = data->GetNumberOfScalarComponents();
   ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
-				this->DisplayExtent[3], 
-				this->DisplayExtent[4]);
+                                this->DisplayExtent[3], 
+                                this->DisplayExtent[4]);
 
   if (dim > 1)  
     {
@@ -758,43 +758,43 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
       {
       case VTK_DOUBLE:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (double *)(ptr0), this->DataOut);
+                                  (double *)(ptr0), this->DataOut);
         break;
       case VTK_FLOAT:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (float *)(ptr0), this->DataOut);
+                                  (float *)(ptr0), this->DataOut);
         break;
       case VTK_LONG:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (long *)(ptr0), this->DataOut);
+                                  (long *)(ptr0), this->DataOut);
         break;
       case VTK_UNSIGNED_LONG:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (unsigned long *)(ptr0), this->DataOut);
+                                  (unsigned long *)(ptr0), this->DataOut);
         break;
       case VTK_INT:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (int *)(ptr0), this->DataOut);
+                                  (int *)(ptr0), this->DataOut);
         break;
       case VTK_UNSIGNED_INT:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (unsigned int *)(ptr0), this->DataOut);
+                                  (unsigned int *)(ptr0), this->DataOut);
         break;
       case VTK_SHORT:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (short *)(ptr0), this->DataOut);
+                                  (short *)(ptr0), this->DataOut);
         break;
       case VTK_UNSIGNED_SHORT:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (unsigned short *)(ptr0), this->DataOut);
+                                  (unsigned short *)(ptr0), this->DataOut);
         break;
       case VTK_CHAR:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (char *)(ptr0), this->DataOut);
+                                  (char *)(ptr0), this->DataOut);
         break;
       case VTK_UNSIGNED_CHAR:
         vtkXImageMapperRenderGray(this, viewport, data, 
-				  (unsigned char *)(ptr0), this->DataOut);
+                                  (unsigned char *)(ptr0), this->DataOut);
         break;
       }  
     }

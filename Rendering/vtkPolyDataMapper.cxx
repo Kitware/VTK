@@ -137,8 +137,8 @@ float *vtkPolyDataMapper::GetBounds()
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
     if (((this->Bounds[0] == -VTK_LARGE_FLOAT) || 
-	 (this->Bounds[0] == VTK_LARGE_FLOAT)) &&
-	this->NumberOfSubPieces > 1)
+         (this->Bounds[0] == VTK_LARGE_FLOAT)) &&
+        this->NumberOfSubPieces > 1)
       {
       return NULL;
       }

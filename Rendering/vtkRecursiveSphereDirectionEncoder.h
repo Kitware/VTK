@@ -102,7 +102,7 @@ public:
   // of directions is 16643, with 16386 unique directions and a 
   // zero normal.
   vtkSetClampMacro( RecursionDepth, int, 0, 6 );
-  vtkGetMacro( RecursionDepth, int );					     
+  vtkGetMacro( RecursionDepth, int );                                        
 
 protected:
   vtkRecursiveSphereDirectionEncoder();

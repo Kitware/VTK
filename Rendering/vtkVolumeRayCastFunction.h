@@ -177,11 +177,11 @@ public:
   // SpecificFunctionInitialize of the subclass function.
 //BTX
   void FunctionInitialize( vtkRenderer *ren,
-			   vtkVolume   *vol,
-			   VTKVRCStaticInfo *staticInfo );
+                           vtkVolume   *vol,
+                           VTKVRCStaticInfo *staticInfo );
 
   virtual void CastRay( VTKVRCDynamicInfo *dynamicInfo,
-			VTKVRCStaticInfo *staticInfo )=0;
+                        VTKVRCStaticInfo *staticInfo )=0;
 //ETX
 
   // Description:
@@ -198,9 +198,9 @@ protected:
   // initialization that it may need to do
 //BTX
   virtual void SpecificFunctionInitialize( vtkRenderer *ren,
-					   vtkVolume   *vol,
-					   VTKVRCStaticInfo *staticInfo,
-					   vtkVolumeRayCastMapper *mapper )=0;
+                                           vtkVolume   *vol,
+                                           VTKVRCStaticInfo *staticInfo,
+                                           vtkVolumeRayCastMapper *mapper )=0;
 //ETX
 private:
   vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&);  // Not implemented.

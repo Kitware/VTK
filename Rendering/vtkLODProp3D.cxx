@@ -141,7 +141,7 @@ int vtkLODProp3D::GetNextEntryIndex()
   // Search for an available index
   index = 0;
   while ( index < this->NumberOfEntries && this->LODs[index].ID != 
-	  VTK_INDEX_NOT_IN_USE )
+          VTK_INDEX_NOT_IN_USE )
     {
     index++;
     }
@@ -201,36 +201,36 @@ float *vtkLODProp3D::GetBounds()
       {
       vtkProp3D *p = this->LODs[i].Prop3D;
       if ( p->GetMTime() < this->GetMTime() )
-	{
-	p->SetUserMatrix( this->GetMatrix() );
-	}
+        {
+        p->SetUserMatrix( this->GetMatrix() );
+        }
 
       // Get the bounds of this entry
       p->GetBounds(newBounds);
 
       // If this is the first entry, this is the current bounds
       if ( first )
-	{
-	memcpy( this->Bounds, newBounds, 6*sizeof(float) );
-	first = 0;
-	}
+        {
+        memcpy( this->Bounds, newBounds, 6*sizeof(float) );
+        first = 0;
+        }
       // If this is not the first entry, compare these bounds with the
       // current bounds expanding the current ones as necessary
       else
-	{
-	this->Bounds[0] = 
-	  (newBounds[0] < this->Bounds[0])?(newBounds[0]):(this->Bounds[0]);
-	this->Bounds[1] = 
-	  (newBounds[1] > this->Bounds[1])?(newBounds[1]):(this->Bounds[1]);
-	this->Bounds[2] = 
-	  (newBounds[2] < this->Bounds[2])?(newBounds[2]):(this->Bounds[2]);
-	this->Bounds[3] = 
-	  (newBounds[3] > this->Bounds[3])?(newBounds[3]):(this->Bounds[3]);
-	this->Bounds[4] = 
-	  (newBounds[4] < this->Bounds[4])?(newBounds[4]):(this->Bounds[4]);
-	this->Bounds[5] = 
-	  (newBounds[5] > this->Bounds[5])?(newBounds[5]):(this->Bounds[5]);
-	}
+        {
+        this->Bounds[0] = 
+          (newBounds[0] < this->Bounds[0])?(newBounds[0]):(this->Bounds[0]);
+        this->Bounds[1] = 
+          (newBounds[1] > this->Bounds[1])?(newBounds[1]):(this->Bounds[1]);
+        this->Bounds[2] = 
+          (newBounds[2] < this->Bounds[2])?(newBounds[2]):(this->Bounds[2]);
+        this->Bounds[3] = 
+          (newBounds[3] > this->Bounds[3])?(newBounds[3]):(this->Bounds[3]);
+        this->Bounds[4] = 
+          (newBounds[4] < this->Bounds[4])?(newBounds[4]):(this->Bounds[4]);
+        this->Bounds[5] = 
+          (newBounds[5] > this->Bounds[5])?(newBounds[5]):(this->Bounds[5]);
+        }
       }
     }
 
@@ -341,7 +341,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, float time )
 
 // The real method for adding an actor LOD.
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
-			  vtkProperty *back, vtkTexture *t, float time )
+                          vtkProperty *back, vtkTexture *t, float time )
 {
   int          index;
   vtkActor     *actor;
@@ -392,7 +392,7 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, float time )
 
 // The real method for adding a volume LOD.
 int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p, 
-			  float time )
+                          float time )
 {
   int           index;
   vtkVolume     *volume;
@@ -447,7 +447,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
 void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
 {
   *m = NULL;
-	
+        
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -519,11 +519,11 @@ vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 
   if ( this->LODs[index].Prop3DType == VTK_LOD_ACTOR_TYPE )
     {
-	m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
+        m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
     }
   else if ( this->LODs[index].Prop3DType == VTK_LOD_VOLUME_TYPE )
     {
-	m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
+        m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
     }
 
   return m;
@@ -891,43 +891,43 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
       {
       if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
            this->LODs[i].State == 1 )
-	{
-	// Gather some information
-	estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
-	
-	// If we've never rendered this LOD and we have no info on it,
-	// then try it out
-	if ( estimatedTime == 0.0 )
-	  {
-	  index = i;
-	  bestTime = 0.0;
-	  bestLevel = this->GetLODIndexLevel(i);
-	  break;
-	  }
-	
-	// If we do have at least a guess as to the render time, and
-	// this seems like the best we have so far, pick it.
-	// It is the best we have if 
-	//
-	// 1) our estimated time is less than what we are looking for, 
-	//    but greater than any we have selected so far. 
-	//
-	// 2) we have not selected anything else yet 
-	//    (regardless of what the estimated time is)
-	//
-	// 3) it is less than the time of the currently selected LOD 
-	//    if that LOD's time is greater than the time we are targeting.
-	//
-	if ( estimatedTime > 0.0 && 
-	     ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
-	       ( bestTime == -1.0 ) ||
-	       ( estimatedTime < bestTime && bestTime > targetTime ) ) )
-	  {
-	  index = i;
-	  bestTime = estimatedTime;
-	  bestLevel = this->GetLODIndexLevel(i);
-	  }
-	}
+        {
+        // Gather some information
+        estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
+        
+        // If we've never rendered this LOD and we have no info on it,
+        // then try it out
+        if ( estimatedTime == 0.0 )
+          {
+          index = i;
+          bestTime = 0.0;
+          bestLevel = this->GetLODIndexLevel(i);
+          break;
+          }
+        
+        // If we do have at least a guess as to the render time, and
+        // this seems like the best we have so far, pick it.
+        // It is the best we have if 
+        //
+        // 1) our estimated time is less than what we are looking for, 
+        //    but greater than any we have selected so far. 
+        //
+        // 2) we have not selected anything else yet 
+        //    (regardless of what the estimated time is)
+        //
+        // 3) it is less than the time of the currently selected LOD 
+        //    if that LOD's time is greater than the time we are targeting.
+        //
+        if ( estimatedTime > 0.0 && 
+             ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
+               ( bestTime == -1.0 ) ||
+               ( estimatedTime < bestTime && bestTime > targetTime ) ) )
+          {
+          index = i;
+          bestTime = estimatedTime;
+          bestLevel = this->GetLODIndexLevel(i);
+          }
+        }
       }
 
     // If we aren't trying some level for the first time with 0.0 bestTime,
@@ -937,31 +937,31 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
     if ( bestTime != 0.0 )
       {
       for ( i = 0; i < this->NumberOfEntries; i++ )
-	{
-	if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
-	     this->LODs[i].State == 1 )
-	  {
-	  // Gather some information
-	  estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
-	  level = this->GetLODIndexLevel(i);
+        {
+        if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
+             this->LODs[i].State == 1 )
+          {
+          // Gather some information
+          estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
+          level = this->GetLODIndexLevel(i);
 
-	  // Update the index and the level, but not the time. This is
-	  // so that we find the best level that can be rendered
-	  // faster than the LOD selected above.
-	  if ( estimatedTime <= bestTime && level < bestLevel )
-	    {
-	    index = i;
-	    bestLevel = level;
-	    }
-	  }
-	}
+          // Update the index and the level, but not the time. This is
+          // so that we find the best level that can be rendered
+          // faster than the LOD selected above.
+          if ( estimatedTime <= bestTime && level < bestLevel )
+            {
+            index = i;
+            bestLevel = level;
+            }
+          }
+        }
       }
     }
   else
     {
     index = 0;
     while ( index < this->NumberOfEntries && this->LODs[index].ID != 
-	    this->SelectedLODID )
+            this->SelectedLODID )
       {
       index++;
       }
@@ -971,10 +971,10 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
                      this->SelectedLODID );
       index = 0;
       while ( index < this->NumberOfEntries && this->LODs[index].ID != 
-	      VTK_INDEX_NOT_IN_USE )
-	{
-	index++;
-	}
+              VTK_INDEX_NOT_IN_USE )
+        {
+        index++;
+        }
       }
     
     }
@@ -1057,41 +1057,41 @@ int vtkLODProp3D::GetAutomaticPickPropIndex(void)
     for (int i = 0; i < this->NumberOfEntries; i++ )
       {
       if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
-	{
-	// Gather some information
-	estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
-	
-	// If we've never rendered this LOD and we have no info on it,
-	// then try it out
-	if ( estimatedTime == 0.0 )
-	  {
-	  index = i;
-	  bestTime = 0.0;
-	  break;
-	  }
-	
-	// If we do have at least a guess as to the render time, and
-	// this seems like the best we have so far, pick it.
-	// It is the best we have if 
-	//
-	// 1) our estimated time is less than what we are looking for, 
-	//    but greater than any we have selected so far. 
-	//
-	// 2) we have not selected anything else yet 
-	//    (regardless of what the estimated time is)
-	//
-	// 3) it is less than the time of the currently selected LOD 
-	//    if that LOD's time is greater than the time we are targeting.
-	//
-	if ( estimatedTime > 0.0 && 
-	     ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
-	       ( bestTime == -1.0 ) ||
-	       ( estimatedTime < bestTime && bestTime > targetTime ) ) )
-	  {
-	  index = i;
-	  bestTime = estimatedTime;
-	  }
-	}
+        {
+        // Gather some information
+        estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
+        
+        // If we've never rendered this LOD and we have no info on it,
+        // then try it out
+        if ( estimatedTime == 0.0 )
+          {
+          index = i;
+          bestTime = 0.0;
+          break;
+          }
+        
+        // If we do have at least a guess as to the render time, and
+        // this seems like the best we have so far, pick it.
+        // It is the best we have if 
+        //
+        // 1) our estimated time is less than what we are looking for, 
+        //    but greater than any we have selected so far. 
+        //
+        // 2) we have not selected anything else yet 
+        //    (regardless of what the estimated time is)
+        //
+        // 3) it is less than the time of the currently selected LOD 
+        //    if that LOD's time is greater than the time we are targeting.
+        //
+        if ( estimatedTime > 0.0 && 
+             ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
+               ( bestTime == -1.0 ) ||
+               ( estimatedTime < bestTime && bestTime > targetTime ) ) )
+          {
+          index = i;
+          bestTime = estimatedTime;
+          }
+        }
       }
     return index;
 }
@@ -1106,7 +1106,7 @@ int vtkLODProp3D::GetPickLODID(void)
   if (this->AutomaticPickLODSelection)
     {
     if ( this->SelectedLODIndex < 0 ||
-	 this->SelectedLODIndex >= this->NumberOfEntries )
+         this->SelectedLODIndex >= this->NumberOfEntries )
       {
       index = this->GetAutomaticPickPropIndex();
       }
@@ -1114,7 +1114,7 @@ int vtkLODProp3D::GetPickLODID(void)
       {
       index = this->SelectedLODIndex;
       }
-	lodID = this->LODs[index].ID;
+        lodID = this->LODs[index].ID;
     }
   else
     {
@@ -1122,7 +1122,7 @@ int vtkLODProp3D::GetPickLODID(void)
       {
       this->PreviousPickProp->SetPickMethod(NULL, NULL);
       }
-	  lodID = this->SelectedPickLODID;
+          lodID = this->SelectedPickLODID;
     }
 
     return lodID;

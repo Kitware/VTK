@@ -72,7 +72,7 @@ public:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data,
-		  vtkActor2D* actor);
+                  vtkActor2D* actor);
 
   // Description:
   // Compute modified time including lookuptable
@@ -108,8 +108,8 @@ public:
     int DisplayExtent[6], float cwindow, float clevel, float cshift, float cscale,
     vtkLookupTable *lut);
 
-  unsigned char *DataOut;	// the data in the DIBSection
-  HBITMAP HBitmap;			// our handle to the DIBSection
+  unsigned char *DataOut;       // the data in the DIBSection
+  HBITMAP HBitmap;                      // our handle to the DIBSection
 
 protected:
   vtkLookupTable *LookupTable;

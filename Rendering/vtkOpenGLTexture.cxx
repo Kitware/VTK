@@ -326,22 +326,22 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if (this->Quality == VTK_TEXTURE_QUALITY_32BIT)
       {
       switch (bytesPerPixel)
-	{
-	case 1: internalFormat = GL_LUMINANCE8; break;
-	case 2: internalFormat = GL_LUMINANCE8_ALPHA8; break;
-	case 3: internalFormat = GL_RGB8; break;
-	case 4: internalFormat = GL_RGBA8; break;
-	}
+        {
+        case 1: internalFormat = GL_LUMINANCE8; break;
+        case 2: internalFormat = GL_LUMINANCE8_ALPHA8; break;
+        case 3: internalFormat = GL_RGB8; break;
+        case 4: internalFormat = GL_RGBA8; break;
+        }
       }
     else if (this->Quality == VTK_TEXTURE_QUALITY_16BIT)
       {
       switch (bytesPerPixel)
-	{
-	case 1: internalFormat = GL_LUMINANCE4; break;
-	case 2: internalFormat = GL_LUMINANCE4_ALPHA4; break;
-	case 3: internalFormat = GL_RGB4; break;
-	case 4: internalFormat = GL_RGBA4; break;
-	}
+        {
+        case 1: internalFormat = GL_LUMINANCE4; break;
+        case 2: internalFormat = GL_LUMINANCE4_ALPHA4; break;
+        case 3: internalFormat = GL_RGB4; break;
+        case 4: internalFormat = GL_RGBA4; break;
+        }
       }
 #endif
     glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,

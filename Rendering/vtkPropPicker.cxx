@@ -85,7 +85,7 @@ int vtkPropPicker::Pick(float selectionX, float selectionY,
 
 // Pick from the given collection
 int vtkPropPicker::PickProp(float selectionX, float selectionY,
-			    vtkRenderer *renderer, vtkPropCollection* pickfrom)
+                            vtkRenderer *renderer, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp(selectionX, selectionY, renderer);
