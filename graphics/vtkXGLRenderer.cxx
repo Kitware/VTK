@@ -45,6 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLLight.h"
 #include "vtkXGLRenderWindow.h"
 #include "vtkXGLRenderer.h"
+#include "vtkRayCaster.h"
+
 
 
 vtkXGLRenderer::vtkXGLRenderer()
@@ -75,10 +77,20 @@ int vtkXGLRenderer::UpdateActors()
 // Ask volumes to render themselves.
 int vtkXGLRenderer::UpdateVolumes()
 {
-  int count = 0;
+  int volume_count=0;    // Number of visible volumes
 
+  volume_count = this->VisibleVolumeCount();
 
-  return count;
+  // Render the volumes
+  if ( volume_count > 0 )
+    {
+
+    // Render the volume
+    this->RayCaster->Render((vtkRenderer *)this);
+
+    }
+
+  return volume_count;
 }
 
 // Description:
@@ -186,6 +198,10 @@ void vtkXGLRenderer::Render(void)
 {
   int  actor_count;
   int  volume_count;
+  float  scale_factor;
+  float  saved_viewport[4];
+  float  new_viewport[4];
+  int    saved_erase;
 
   vtkXGLRenderWindow *temp;
 
@@ -193,6 +209,8 @@ void vtkXGLRenderer::Render(void)
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
     }
+
+  volume_count = this->VisibleVolumeCount();
 
   // update our Context first
   temp = (vtkXGLRenderWindow *)this->GetRenderWindow();
@@ -207,11 +225,58 @@ void vtkXGLRenderer::Render(void)
     xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, FALSE, 0);
     }
 
+  // If there is a volume renderer, get it's desired viewport size
+  // since it may want to render actors into a smaller area for multires
+  // rendering during motion
+  if ( volume_count > 0 )
+    {
+    // Get the scale factor
+    scale_factor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this);
+
+    // If the volume renderer wants a different resolution than this
+    // renderer was going to produce we need to set up the viewport
+    if ( scale_factor != 1.0 )
+      {
+      // Get the current viewport
+      this->GetViewport( saved_viewport );
+
+      // Create a new viewport size based on the scale factor
+      new_viewport[0] = saved_viewport[0];
+      new_viewport[1] = saved_viewport[1];
+      new_viewport[2] = saved_viewport[0] +
+        scale_factor * ( saved_viewport[2] - saved_viewport[0] );
+      new_viewport[3] = saved_viewport[1] +
+        scale_factor * ( saved_viewport[3] - saved_viewport[1] );
+
+      // Set this as the new viewport.  This will cause the OpenGL
+      // viewport to be set correctly in the camera render method
+      this->SetViewport( new_viewport );
+      }
+    }
+
   // standard render method 
   this->UpdateCameras();
   this->UpdateLights();
 
   actor_count = this->UpdateActors();
+
+  // If we are rendering with a reduced size image for the volume
+  // rendering, then we need to reset the viewport so that the
+  // volume renderer can access the whole window to draw the image.
+  // We'll pop off what we've done so far, then we'll save the state
+  // of the erase variable in the render window. We will then set the
+  // erase variable in the render window to 0, and render the camera
+  // again.  This will set our viewport back to the right size.
+  // Finally, we restore the erase variable in the render window
+  if ( volume_count > 0  && scale_factor != 1.0 )
+    {
+    saved_erase = this->RenderWindow->GetErase();
+    this->RenderWindow->SetErase( 0 );
+    this->SetViewport( saved_viewport );
+    this->ActiveCamera->Render( (vtkRenderer *)this );
+    this->RenderWindow->SetErase( saved_erase );
+    }
+
   volume_count = this->UpdateVolumes();
 
   if ( !(actor_count + volume_count) )
