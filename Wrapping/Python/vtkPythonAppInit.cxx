@@ -144,7 +144,9 @@ int main(int argc, char **argv)
   
   // Get the pointer to path list object, append both paths, and
   // make sure to decrease reference counting for both path strings.
-  PyObject* path = PySys_GetObject("path");
+  char tmpPath[5];
+  sprintf(tmpPath,"path");
+  PyObject* path = PySys_GetObject(tmpPath);
   PyObject* newpath;
   if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_LIBRARY_DIR) )
     {
