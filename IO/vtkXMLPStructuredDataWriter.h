@@ -26,6 +26,7 @@
 #include "vtkXMLPDataWriter.h"
 
 class vtkXMLStructuredDataWriter;
+class vtkExtentTranslator;
 
 class VTK_IO_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
 {

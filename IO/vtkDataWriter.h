@@ -35,6 +35,7 @@ class vtkDataSet;
 class vtkPoints;
 class vtkCellArray;
 class vtkDataArray;
+class vtkFieldData;
 
 class VTK_IO_EXPORT vtkDataWriter : public vtkWriter
 {

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkWriter.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.36");
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
+
+vtkCxxRevisionMacro(vtkWriter, "1.37");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
