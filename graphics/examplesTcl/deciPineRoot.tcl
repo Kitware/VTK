@@ -16,7 +16,6 @@ vtkRenderWindowInteractor iren
 vtkMCubesReader reader
     reader SetFileName "../../../vtkdata/pineRoot/pine_root.tri"
     reader FlipNormalsOff
-    reader DebugOn
 vtkDecimate deci
     deci SetInput [reader GetOutput]
     deci SetTargetReduction 0.9
@@ -25,11 +24,9 @@ vtkDecimate deci
     deci SetErrorIncrement 0.001
     deci SetMaximumIterations 6
     deci SetInitialFeatureAngle 30
-    deci DebugOn
 vtkConnectivityFilter connect
     connect SetInput [deci GetOutput]
     connect SetExtractionModeToLargestRegion
-    connect DebugOn
 vtkDataSetMapper isoMapper
     isoMapper SetInput [connect GetOutput]
     isoMapper ScalarVisibilityOff
