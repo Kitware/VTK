@@ -17,8 +17,8 @@ reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkSphereSource sphere
-sphere SetPhiResolution 30
-sphere SetThetaResolution 30
+sphere SetPhiResolution 12
+sphere SetThetaResolution 12
 sphere SetCenter 128 128 46
 sphere SetRadius 80 
 
@@ -28,6 +28,7 @@ dataToStencil SetInput [sphere GetOutput]
 vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
 stencil SetStencil [dataToStencil GetOutput]
+stencil ReverseStencilOn
 stencil SetBackgroundValue 500
 
 vtkImageViewer viewer
