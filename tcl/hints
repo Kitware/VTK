@@ -2,6 +2,7 @@ vtkAGraymap		GetColor	313 4
 vtkAPixmap 		GetColor	313 4
 vtkBitmap		GetColor	313 4
 vtkCamera		GetOrientation	301 3
+vtkCamera		GetOrientationWXYZ	301 4
 vtkCell  		GetBounds	301 6
 vtkDataSetToDataSetFilter	GetPoint	301 3
 vtkDataSetMapper	GetBounds	301 6
@@ -35,6 +36,7 @@ vtkProp			GetXRange	301 2
 vtkProp			GetYRange	301 2
 vtkProp			GetZRange	301 2
 vtkProp			GetOrientation	301 3
+vtkProp			GetOrientationWXYZ	301 4
 vtkRenderer		GetCenter	301 3
 vtkRenderWindow		GetPosition	304 2
 vtkRenderWindow		GetSize		304 2
@@ -47,6 +49,7 @@ vtkStructuredPoints	GetPoint	301 3
 vtkStreamer		GetStartPosition	301 3
 vtkTCoords		GetTCoord	301 3
 vtkTransform		GetOrientation	301 3
+vtkTransform		GetOrientationWXYZ	301 4
 vtkTransform		GetPosition	301 3
 vtkTransform		GetScale	301 3
 vtkTransform		GetPoint	301 3
@@ -55,6 +58,5 @@ vtkVolume		GetBounds	301 6
 vtkVolume		GetXRange	301 2
 vtkVolume		GetYRange	301 2
 vtkVolume		GetZRange	301 2
-vtkVolume		GetOrientation	301 3
 
 vtkDFALeader		GetTextPosition 301 2
