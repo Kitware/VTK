@@ -16,12 +16,15 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.55");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.56");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -56,21 +59,29 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->NullValue = 0.0;
 }
 
-void vtkGaussianSplatter::ExecuteInformation()
+void vtkGaussianSplatter::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // use model bounds if set
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
+  this->Origin[2] = 0;
   if ( this->ModelBounds[0] < this->ModelBounds[1] &&
        this->ModelBounds[2] < this->ModelBounds[3] &&
        this->ModelBounds[4] < this->ModelBounds[5] )
     {
-    output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
-                      this->ModelBounds[4]);
+    this->Origin[0] = this->ModelBounds[0];
+    this->Origin[1] = this->ModelBounds[2];
+    this->Origin[2] = this->ModelBounds[4];
     }
 
-  // Set volume origin and data spacing
-  output->GetOrigin(this->Origin);
+  outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+
   int i;  
   for (i=0; i<3; i++)
     {
@@ -81,17 +92,30 @@ void vtkGaussianSplatter::ExecuteInformation()
       this->Spacing[i] = 1.0;
       }
     }
-  output->SetSpacing(this->Spacing);
+  outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
   
-  output->SetWholeExtent(0, this->SampleDimensions[0] - 1, 
-                         0, this->SampleDimensions[1] - 1, 
-                         0, this->SampleDimensions[2] - 1);
-  output->SetScalarType(VTK_DOUBLE);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, this->SampleDimensions[0] - 1, 
+               0, this->SampleDimensions[1] - 1, 
+               0, this->SampleDimensions[2] - 1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
-void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
+void vtkGaussianSplatter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  output->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  output->AllocateScalars();
+  
   vtkIdType numPts, numNewPts, ptId, idx, i;
   int j, k;
   int min[3], max[3];
@@ -99,10 +123,12 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
   vtkDataArray *inNormals=NULL;
   vtkDataArray *inScalars=NULL;
   double loc[3], dist2, cx[3];
-  vtkImageData *output = this->AllocateOutputData(outp);
   vtkDoubleArray *newScalars = 
     vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
-  vtkDataSet *input= this->GetInput();
+  
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   
   vtkDebugMacro(<< "Splatting data");
@@ -134,7 +160,7 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
     }
 
   output->SetDimensions(this->GetSampleDimensions());
-  this->ComputeModelBounds();
+  this->ComputeModelBounds(input,output, outInfo);
 
   //  Set up function pointers to sample functions
   //
@@ -243,12 +269,12 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
 
 // Compute the size of the sample bounding box automatically from the
 // input data.
-void vtkGaussianSplatter::ComputeModelBounds()
+void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input, 
+                                             vtkImageData *output,
+                                             vtkInformation *outInfo)
 {
   double *bounds, maxDist;
   int i, adjustBounds=0;
-  vtkImageData *output = this->GetOutput();
-  vtkDataSet *input= this->GetInput();
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
@@ -284,9 +310,11 @@ void vtkGaussianSplatter::ComputeModelBounds()
     }
 
   // Set volume origin and data spacing
-  output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
-                    this->ModelBounds[4]);
-  output->GetOrigin(this->Origin);
+  outInfo->Set(vtkDataObject::ORIGIN(),
+               this->ModelBounds[0],this->ModelBounds[2],
+               this->ModelBounds[4]);
+  memcpy(this->Origin,outInfo->Get(vtkDataObject::ORIGIN()), sizeof(double)*6);
+  output->SetOrigin(this->Origin);
   
   for (i=0; i<3; i++)
     {
@@ -297,6 +325,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
       this->Spacing[i] = 1.0;
       }
     }
+  outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
   output->SetSpacing(this->Spacing);
   
   // Determine the splat propagation distance...used later
@@ -546,3 +575,9 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Null Value: " << this->NullValue << "\n";
 }
 
+int vtkGaussianSplatter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}

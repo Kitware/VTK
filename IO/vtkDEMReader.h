@@ -25,13 +25,13 @@
 #ifndef __vtkDEMReader_h
 #define __vtkDEMReader_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IO_EXPORT vtkDEMReader : public vtkImageSource
+class VTK_IO_EXPORT vtkDEMReader : public vtkImageAlgorithm
 {
 public:
   static vtkDEMReader *New();
-  vtkTypeRevisionMacro(vtkDEMReader,vtkImageSource);
+  vtkTypeRevisionMacro(vtkDEMReader,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -106,7 +106,8 @@ public:
   // Reads the DEM Type A record to compute the extent, origin and
   // spacing of the image data. The number of scalar components is set
   // to 1 and the output scalar type is VTK_FLOAT. 
-  void ExecuteInformation();
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, 
+                           vtkInformationVector *);
 
 protected:
   vtkDEMReader();
@@ -138,7 +139,10 @@ protected:
                                       double spacing[6]);
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
-  void ExecuteData(vtkDataObject *out);
+  void RequestData(  vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector);
+
 private:
   vtkDEMReader(const vtkDEMReader&);  // Not implemented.
   void operator=(const vtkDEMReader&);  // Not implemented.

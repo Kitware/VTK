@@ -64,7 +64,7 @@
 #ifndef __vtkGaussianSplatter_h
 #define __vtkGaussianSplatter_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 #define VTK_ACCUMULATION_MODE_MIN 0
 #define VTK_ACCUMULATION_MODE_MAX 1
@@ -72,10 +72,10 @@
 
 class vtkDoubleArray;
 
-class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkDataSetToImageFilter 
+class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkGaussianSplatter,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkGaussianSplatter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -182,14 +182,20 @@ public:
   // Description:
   // Compute the size of the sample bounding box automatically from the
   // input data. This is an internal helper function.
-  void ComputeModelBounds();
+  void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
+                          vtkInformation *outInfo);
 
 protected:
   vtkGaussianSplatter();
   ~vtkGaussianSplatter() {};
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
+  virtual void RequestData(vtkInformation *, 
+                           vtkInformationVector **, 
+                           vtkInformationVector *);
   void Cap(vtkDoubleArray *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into

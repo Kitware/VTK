@@ -17,9 +17,12 @@
 #include "vtkAbstractTransform.h"
 #include "vtkIdentityTransform.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.14");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.15");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -40,6 +43,7 @@ vtkTransformToGrid::vtkTransformToGrid()
 
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -89,21 +93,31 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkTransformToGrid::ExecuteInformation()
+void vtkTransformToGrid::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+
   if (this->GetInput() == NULL)
     {
     vtkErrorMacro("Missing input");
     return;
     }
 
+  // update the transform, maybe in the future make transforms part of the
+  // pipeline
   this->Input->Update();
 
-  this->GetOutput()->SetWholeExtent(this->GridExtent);
-  this->GetOutput()->SetSpacing(this->GridSpacing);
-  this->GetOutput()->SetOrigin(this->GridOrigin);
-  this->GetOutput()->SetScalarType(this->GridScalarType);
-  this->GetOutput()->SetNumberOfScalarComponents(3);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->GridExtent,6);
+  outInfo->Set(vtkDataObject::SPACING(),this->GridSpacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->GridOrigin,3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->GridScalarType);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),3);
 }
 
 //----------------------------------------------------------------------------
@@ -337,9 +351,19 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
 }       
 
 //----------------------------------------------------------------------------
-void vtkTransformToGrid::ExecuteData(vtkDataObject *output)
+void vtkTransformToGrid::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
-  vtkImageData *grid = this->AllocateOutputData(output);
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *grid = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  grid->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  grid->AllocateScalars();
   int *extent = grid->GetExtent();
 
   double *gridPtr = (double *)grid->GetScalarPointerForExtent(extent);
@@ -382,7 +406,7 @@ void vtkTransformToGrid::ExecuteData(vtkDataObject *output)
 //----------------------------------------------------------------------------
 unsigned long vtkTransformToGrid::GetMTime()
 {
-  unsigned long mtime = this->vtkImageSource::GetMTime();
+  unsigned long mtime = this->Superclass::GetMTime();
 
   if (this->Input)
     {

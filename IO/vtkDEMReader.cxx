@@ -14,9 +14,12 @@
 =========================================================================*/
 #include "vtkImageData.h"
 #include "vtkDEMReader.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.34");
+vtkCxxRevisionMacro(vtkDEMReader, "1.35");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -69,6 +72,8 @@ vtkDEMReader::vtkDEMReader()
     {
     this->SpatialResolution[i] = 0;
     }
+  
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkDEMReader::~vtkDEMReader()
@@ -80,8 +85,14 @@ vtkDEMReader::~vtkDEMReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkDEMReader::ExecuteInformation()
+void vtkDEMReader::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   double spacing[3], origin[3];
   int extent[6];
 
@@ -98,24 +109,31 @@ void vtkDEMReader::ExecuteInformation()
   this->ComputeExtentOriginAndSpacing (extent, origin, spacing);
 
   // fill in the pertinent stuff from the header
-  this->GetOutput()->SetOrigin(origin);
-  this->GetOutput()->SetSpacing(spacing);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 
   this->GetOutput()->SetNumberOfScalarComponents(1);
   this->GetOutput()->SetScalarType(VTK_FLOAT);
 
   // whole dem must be read
-  this->GetOutput()->SetWholeExtent(extent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
 }
 
 
 //----------------------------------------------------------------------------
 // Convert to Imaging API
-void vtkDEMReader::ExecuteData(vtkDataObject *)
+void vtkDEMReader::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  output->SetExtent(output->GetWholeExtent());
+  output->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars();
 
   if (!this->FileName)

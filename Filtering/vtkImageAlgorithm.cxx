@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.8");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -120,8 +120,8 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
           {
           output->Crop();
           }
-        info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
-        info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
+        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
+        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
         output->DataHasBeenGenerated();
         }
       }

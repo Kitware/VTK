@@ -30,6 +30,10 @@ ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
     "vtkImageSource" 
     "vtkImageAlgorithm" 
     H_CONTENTS "${H_CONTENTS}")
+  STRING (REGEX REPLACE 
+    "vtkDataSetToImageFilter" 
+    "vtkImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
 ENDIF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
   
 

@@ -24,15 +24,15 @@
 #ifndef __vtkTransformToGrid_h
 #define __vtkTransformToGrid_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageAlgorithm
 {
 public:
   static vtkTransformToGrid *New();
-  vtkTypeRevisionMacro(vtkTransformToGrid,vtkImageSource);
+  vtkTypeRevisionMacro(vtkTransformToGrid,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -82,9 +82,11 @@ protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
 
-  void ExecuteInformation();
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteData(vtkDataObject *data);
+  void RequestData(vtkInformation *, 
+                   vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   // Internal method to calculate the shift and scale values which
