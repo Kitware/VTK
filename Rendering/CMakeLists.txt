@@ -247,7 +247,7 @@ ELSE (WIN32)
       IF (OPENGL_LIBRARY)
         SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                      vtkXOpenGLRenderWindow.cxx)
-        SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_LIBRARY})
+        SET (KIT_LIBS ${KIT_LIBS} "-lGL")
       ENDIF (OPENGL_LIBRARY)
     ENDIF(VTK_USE_X)
   ELSE (APPLE)
