@@ -41,7 +41,7 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE  
   "ExecuteInformation[ \t]*\\([^,\)]*,[^\)]*\\)"
-  "ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
+  "ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE  
@@ -51,12 +51,12 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE  
   "ExecuteInformation[ \t]*\\([ \t]*\\)"
-  "ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
+  "ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE  
   "ComputeInputUpdateExtent[ \t]*\\([^,]*,[^,\)]*\\)"
-  "RequestUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
+  "RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
   H_CONTENTS "${H_CONTENTS}")
 
 FILE (WRITE ${H_FILE} "${H_CONTENTS}")
