@@ -27,7 +27,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.73");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.74");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -226,7 +226,7 @@ long vtkPLOT3DReader::EstimateSize(int ni, int nj, int nk)
   return size;
 }
 
-int vtkPLOT3DReader::CanReadFile(const char* fname)
+int vtkPLOT3DReader::CanReadBinaryFile(const char* fname)
 {
   FILE* xyzFp;
 

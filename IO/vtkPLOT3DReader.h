@@ -231,7 +231,7 @@ public:
   // Description:
   // Return 1 if the reader can read the given file name. Only meaningful
   // for binary files.
-  virtual int CanReadFile(const char* fname);
+  virtual int CanReadBinaryFile(const char* fname);
 
 //BTX
   enum 
