@@ -78,6 +78,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 
 // Heap to manage memory leaks
+static vtkHeap *vrmlHeap=NULL;
+static void vrmlInitialize()
+{
+  if ( vrmlHeap == NULL )
+    {
+    vrmlHeap = vtkHeap::New();
+    }
+}
+static void *vrmlAllocateMemory(size_t n)
+{
+  return vrmlHeap->AllocateMemory(n);
+}
 static void vrmlCleanUp()
 {
   if ( vrmlHeap )
