@@ -751,7 +751,7 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
 
 }
 
-void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
+void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren, vtkVolume *vol )
 {
   vtkImageData           *input = this->GetInput();
   int                    size[3];
@@ -767,7 +767,10 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 
   // Do we have a texture already, and nothing has changed? If so
   // just render it.
-  if ( this->Texture )
+  if ( this->Texture && !this->Shade &&
+       this->GetMTime() < this->TextureMTime &&
+       this->GetInput()->GetMTime() < this->TextureMTime &&
+       vol->GetProperty()->GetMTime() < this->TextureMTime )
     {
     this->RenderSavedTexture();
     return;
@@ -778,6 +781,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
   if ( this->Texture )
     {
     delete [] this->Texture;
+	this->Texture = NULL;
     }
   this->TextureSize = 0;
   
@@ -797,37 +801,49 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
       this->AxisTextureSize[2][1] *
       this->AxisTextureSize[2][2] ));
   
-  this->SaveTextures = ( neededSize <= this->MaximumStorageSize );
-  
-  // Functionality is not working perfectly yet....
-  this->SaveTextures = 0;
+  this->SaveTextures = 
+    ( neededSize <= this->MaximumStorageSize && !this->Shade );
   
   if ( this->SaveTextures )
     {
     this->Texture = new unsigned char [neededSize];
     this->TextureSize = neededSize;
     
+	int savedDirection = this->MajorDirection;
+
     switch ( inputType )
       {
       case VTK_UNSIGNED_CHAR:
+        this->InitializeRender( ren, vol, VTK_PLUS_X_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned char *)inputPointer, size, 0, 1, this );
+        
+        this->InitializeRender( ren, vol, VTK_PLUS_Y_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned char *)inputPointer, size, 1, 1, this );
+        
+        this->InitializeRender( ren, vol, VTK_PLUS_Z_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned char *)inputPointer, size, 2, 1, this );
         break;
       case VTK_UNSIGNED_SHORT:
+        this->InitializeRender( ren, vol, VTK_PLUS_X_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned short *)inputPointer, size, 0, 1, this );
+
+        this->InitializeRender( ren, vol, VTK_PLUS_Y_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned short *)inputPointer, size, 1, 1, this );
+
+        this->InitializeRender( ren, vol, VTK_PLUS_Z_MAJOR_DIRECTION );
         VolumeTextureMapper2D_TraverseVolume
           ( (unsigned short *)inputPointer, size, 2, 1, this );
         break;
       }
     
+	this->MajorDirection = savedDirection;
     this->RenderSavedTexture();
+    this->TextureMTime.Modified();
     }
   else
     {
@@ -911,72 +927,81 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 }
 
 void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
-						 vtkVolume *vol )
+						 vtkVolume *vol,
+                                                 int majorDirection )
 {
-  float vpn[3], pos[3];
-
-  // Take the vpn, convert it to volume coordinates, and find the major direction
-  vtkMatrix4x4 *volMatrix = vtkMatrix4x4::New();
-  volMatrix->DeepCopy( vol->GetMatrix() );
-  vtkTransform *worldToVoxelsTransform = vtkTransform::New();
-  worldToVoxelsTransform->SetMatrix( volMatrix );
-
-  // Create a transform that will account for the scaling and translation of
-  // the scalar data. The is the volume to voxels matrix.
-  vtkTransform *voxelsTransform = vtkTransform::New();
-  
-  voxelsTransform->Identity();
-  voxelsTransform->Translate(this->GetInput()->GetOrigin());
-  voxelsTransform->Scale(this->GetInput()->GetSpacing());
-  
-  // Now concatenate the volume's matrix with this scalar data matrix
-  worldToVoxelsTransform->PreMultiply();
-  worldToVoxelsTransform->Concatenate( voxelsTransform->GetMatrix() );
-  worldToVoxelsTransform->Inverse();
-  
-  ren->GetActiveCamera()->GetViewPlaneNormal(vpn);
-  ren->GetActiveCamera()->GetPosition(pos);
-  
-  worldToVoxelsTransform->TransformVectorAtPoint( vpn, pos, vpn );
-  
-  volMatrix->Delete();
-  voxelsTransform->Delete();
-  worldToVoxelsTransform->Delete();
-                                                  
-  if ( fabs(vpn[0]) >= fabs(vpn[1]) && fabs(vpn[0]) >= fabs(vpn[2]) )
+  if ( majorDirection >= 0)
     {
-    this->MajorDirection = 
-      (vpn[0]<0.0)?(VTK_MINUS_X_MAJOR_DIRECTION):(VTK_PLUS_X_MAJOR_DIRECTION);
-    }
-  else if ( fabs(vpn[1]) >= fabs(vpn[0]) && fabs(vpn[1]) >= fabs(vpn[2]) )
-    {
-    this->MajorDirection = 
-      (vpn[1]<0.0)?(VTK_MINUS_Y_MAJOR_DIRECTION):(VTK_PLUS_Y_MAJOR_DIRECTION);
+    this->MajorDirection = majorDirection;
     }
   else
     {
-    this->MajorDirection = 
-      (vpn[2]<0.0)?(VTK_MINUS_Z_MAJOR_DIRECTION):(VTK_PLUS_Z_MAJOR_DIRECTION);
+    float vpn[3], pos[3];
+
+    // Take the vpn, convert it to volume coordinates, and find the 
+    // major direction
+    vtkMatrix4x4 *volMatrix = vtkMatrix4x4::New();
+    volMatrix->DeepCopy( vol->GetMatrix() );
+    vtkTransform *worldToVolumeTransform = vtkTransform::New();
+    worldToVolumeTransform->SetMatrix( volMatrix );
+    
+    // Create a transform that will account for the translation of
+    // the scalar data.
+    vtkTransform *volumeTransform = vtkTransform::New();
+    
+    volumeTransform->Identity();
+    volumeTransform->Translate(this->GetInput()->GetOrigin());
+    
+    // Now concatenate the volume's matrix with this scalar data matrix
+    worldToVolumeTransform->PreMultiply();
+    worldToVolumeTransform->Concatenate( volumeTransform->GetMatrix() );
+    worldToVolumeTransform->Inverse();
+    
+    ren->GetActiveCamera()->GetViewPlaneNormal(vpn);
+    ren->GetActiveCamera()->GetPosition(pos);
+    
+    worldToVolumeTransform->TransformVectorAtPoint( vpn, pos, vpn );
+  
+    volMatrix->Delete();
+    volumeTransform->Delete();
+    worldToVolumeTransform->Delete();
+                                                  
+    if ( fabs(vpn[0]) >= fabs(vpn[1]) && fabs(vpn[0]) >= fabs(vpn[2]) )
+      {
+      this->MajorDirection = (vpn[0]<0.0)?
+        (VTK_MINUS_X_MAJOR_DIRECTION):(VTK_PLUS_X_MAJOR_DIRECTION);
+      }
+    else if ( fabs(vpn[1]) >= fabs(vpn[0]) && fabs(vpn[1]) >= fabs(vpn[2]) )
+      {
+      this->MajorDirection = (vpn[1]<0.0)?
+        (VTK_MINUS_Y_MAJOR_DIRECTION):(VTK_PLUS_Y_MAJOR_DIRECTION);
+      }
+    else
+      {
+      this->MajorDirection = (vpn[2]<0.0)?
+        (VTK_MINUS_Z_MAJOR_DIRECTION):(VTK_PLUS_Z_MAJOR_DIRECTION);
+      }
     }
 
-  // Determine the internal skip factor - if there is a limit on the number of planes
-  // we can have (the MaximumNumberOfPlanes value is greater than 0) then increase
-  // this skip factor until we ensure the maximum condition.
+  // Determine the internal skip factor - if there is a limit on the number 
+  // of planes we can have (the MaximumNumberOfPlanes value is greater than 
+  // 0) then increase this skip factor until we ensure the maximum condition.
   this->InternalSkipFactor = 1;
   if ( this->MaximumNumberOfPlanes > 0 )
     {
     int size[3];
     this->GetInput()->GetDimensions( size );
-    while ( (float)size[this->MajorDirection/2] / (float)this->InternalSkipFactor > 
+    while ( (float)size[this->MajorDirection/2] / 
+            (float)this->InternalSkipFactor > 
             (float)this->MaximumNumberOfPlanes )
       {
       this->InternalSkipFactor++;
       }
     }
-  // Assume that the spacing between samples is 1/2 of the maximum - this could be
-  // computed accurately for parallel (but isn't right now). For perspective, this
-  // spacing changes across the image so no one number will be accurate. 1/2 the
-  // maximum is (1 + sqrt(2)) / 2 = 1.2071
+  // Assume that the spacing between samples is 1/2 of the maximum - this 
+  // could be computed accurately for parallel (but isn't right now). For 
+  // perspective, this spacing changes across the image so no one number will 
+  // be accurate. 1/2 the maximum is (1 + sqrt(2)) / 2 = 1.2071
   this->GetInput()->GetSpacing( this->DataSpacing );
   this->SampleDistance = 
     this->DataSpacing[this->MajorDirection/2]*this->InternalSkipFactor*1.2071;

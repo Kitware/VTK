@@ -94,32 +94,6 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   vol->GetMatrix(matrix);
   matrix->Transpose();
 
-  // insert model transformation 
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glMultMatrixd(matrix->Element[0]);
-
-  // Turn lighting off - the polygon textures already have illumination
-  glDisable( GL_LIGHTING );
-
-  // Turn texturing on so that we can draw the textured polygons
-  glEnable( GL_TEXTURE_2D );
-
-  // Turn blending on so that the translucent geometry of the polygons can
-  // be blended with other geoemtry (non-intersecting only)
-  glEnable( GL_BLEND );
-
-#ifdef GL_VERSION_1_1
-  GLuint tempIndex;
-  glGenTextures(1, &tempIndex);
-  glBindTexture(GL_TEXTURE_2D, tempIndex);
-#endif
-
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-  glColor3f( 1.0, 1.0, 1.0 );
-
   // Use the OpenGL clip planes
   clipPlanes = this->ClippingPlanes;
   if ( clipPlanes )
@@ -146,7 +120,34 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
       }
     }
 
-  this->GenerateTexturesAndRenderQuads(); 
+
+  // insert model transformation 
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glMultMatrixd(matrix->Element[0]);
+
+  // Turn lighting off - the polygon textures already have illumination
+  glDisable( GL_LIGHTING );
+
+  // Turn texturing on so that we can draw the textured polygons
+  glEnable( GL_TEXTURE_2D );
+
+  // Turn blending on so that the translucent geometry of the polygons can
+  // be blended with other geoemtry (non-intersecting only)
+  glEnable( GL_BLEND );
+
+#ifdef GL_VERSION_1_1
+  GLuint tempIndex;
+  glGenTextures(1, &tempIndex);
+  glBindTexture(GL_TEXTURE_2D, tempIndex);
+#endif
+
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+  glColor3f( 1.0, 1.0, 1.0 );
+
+  this->GenerateTexturesAndRenderQuads( ren, vol ); 
     
   // pop transformation matrix
   glMatrixMode( GL_MODELVIEW );

@@ -121,9 +121,12 @@ protected:
   vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);
   void operator=(const vtkVolumeTextureMapper2D&);
 
-  void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
+  void InitializeRender( vtkRenderer *ren, vtkVolume *vol )
+    {this->InitializeRender( ren, vol, -1 );}
+  
+  void InitializeRender( vtkRenderer *ren, vtkVolume *vol, int majorDirection );
 
-  void GenerateTexturesAndRenderQuads();
+  void GenerateTexturesAndRenderQuads( vtkRenderer *ren, vtkVolume *vol );
 
   int  MajorDirection;
   int  TargetTextureSize[2];
@@ -135,6 +138,7 @@ protected:
   unsigned char  *Texture;
   int             TextureSize;
   int             SaveTextures;
+  vtkTimeStamp    TextureMTime;
   
   int             AxisTextureSize[3][3];
   void            ComputeAxisTextureSize( int axis, int *size );

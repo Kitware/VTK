@@ -190,18 +190,60 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
      glEnable((GLenum)(GL_CLIP_PLANE0+i));
     }
 
-  for (i = 0; i < numClipPlanes; i++)
-    {    
-    plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
-
-    planeEquation[0] = plane->GetNormal()[0]; 
-    planeEquation[1] = plane->GetNormal()[1]; 
-    planeEquation[2] = plane->GetNormal()[2];
-    planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
-                         planeEquation[1]*plane->GetOrigin()[1]+
-                         planeEquation[2]*plane->GetOrigin()[2]);
-    glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+  if ( clipPlanes )
+    {
+    vtkMatrix4x4 *actorMatrix = vtkMatrix4x4::New();
+    act->GetMatrix( actorMatrix );
+    actorMatrix->Invert();
+    
+    float origin[4], normal[3], point[4];
+    
+    for (i = 0; i < numClipPlanes; i++)
+      {    
+      plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+      
+      plane->GetOrigin(origin);
+      plane->GetNormal(normal);
+      
+      point[0] = origin[0] + normal[0];
+      point[1] = origin[1] + normal[1];
+      point[2] = origin[2] + normal[2];
+      
+      origin[3] = point[3] = 1.0;
+      
+      actorMatrix->MultiplyPoint( origin, origin );
+      actorMatrix->MultiplyPoint( point, point );
+      
+      if ( origin[3] != 1.0 )
+        {
+        origin[0] /= origin[3];
+        origin[1] /= origin[3];
+        origin[2] /= origin[3];
+        }
+      
+      if ( point[3] != 1.0 )
+        {
+        point[0] /= point[3];
+        point[1] /= point[3];
+        point[2] /= point[3];
+        }
+      
+      normal[0] = point[0] - origin[0];
+      normal[1] = point[1] - origin[1];
+      normal[2] = point[2] - origin[2];
+      
+      planeEquation[0] = normal[0];
+      planeEquation[1] = normal[1];
+      planeEquation[2] = normal[2];
+      planeEquation[3] = -(planeEquation[0]*origin[0]+
+                           planeEquation[1]*origin[1]+
+                           planeEquation[2]*origin[2]);
+      glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+      }
+    
+    actorMatrix->Delete();  
     }
+  
 
   //
   // if something has changed regenrate colors and display lists

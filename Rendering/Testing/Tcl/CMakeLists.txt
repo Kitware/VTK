@@ -17,9 +17,11 @@ IF (VTK_USE_RENDERING)
       TestStyleTrackballActor
       TestStyleTrackballCamera
       volRCClipPlanes
-      volTM2DClipPlanes
       volRCCropRegions
+      volRCRotateClip
+      volTM2DClipPlanes
       volTM2DCropRegions
+      volTM2DRotateClip
     )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
