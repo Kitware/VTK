@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.42");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.43");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -31,6 +31,7 @@ vtkImageMathematics::vtkImageMathematics()
   this->ConstantK = 1.0;
   this->ConstantC = 0.0;
   this->DivideByZeroToC = 0;
+  this->NumberOfRequiredInputs = 1;
 }
 
 
