@@ -52,6 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyToPolyFilter) for deriving concrete filters. Instead, it overloads 
 // the Update() method of its superclasses and provides methods for retrieving
 // the output.
+//
+// If you use the GetOutput() method, you will be retrieving the x vector component.
 
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
@@ -73,10 +75,12 @@ public:
   vtkDataSet *GetVyComponent();
   vtkDataSet *GetVzComponent();
 
+  vtkDataSet *GetOutput(int i=0); //default extracts vector component.
+
 protected:
   void Execute();
 
-  vtkDataSet *VxComponent;
+  //Note; inverited ivar Output serves as pointer to VxComponent
   vtkDataSet *VyComponent;
   vtkDataSet *VzComponent;
 };

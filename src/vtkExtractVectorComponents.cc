@@ -42,26 +42,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
-  this->VxComponent = NULL;
   this->VyComponent = NULL;
   this->VzComponent = NULL;
 }
 
 // Description:
+// Get the output dataset containing the indicated component. The component is 
+// specified by an index between (0,2) corresponding to the x, y, or z vector
+// component. By default, the x component is extracted.
+vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
+{
+  if ( i < 0 || i > 2 )
+    {
+    vtkErrorMacro(<<"Vector component must be between (0,2)");
+    if ( i < 0 ) return this->Output;
+    if ( i > 2 ) return this->VzComponent;
+    }
+
+  if ( this->Output == NULL )
+    {
+    vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
+    }
+
+  if ( i == 0 ) return this->Output;
+  else if ( i == 1 ) return this->VyComponent;
+  else return this->VzComponent;
+}
+
+// Description:
 // Get the output dataset representing velocity x-component. If output is NULL
-// then input hasn't been set, which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 0.)
 vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 {
-  if ( this->VxComponent == NULL )
+  if ( this->Output == NULL )
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before VxComponent can be retrieved");
     }
-  return this->VxComponent;
+  return this->Output;
 }
 
 // Description:
 // Get the output dataset representing velocity y-component. If output is NULL
-// then input hasn't been set, which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 1.)
 vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 {
   if ( this->VyComponent == NULL )
@@ -73,7 +99,9 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 
 // Description:
 // Get the output dataset representing velocity z-component. If output is NULL
-// then input hasn't been set, which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 2.)
 vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 {
   if ( this->VzComponent == NULL )
@@ -95,10 +123,10 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 
     if ( this->Input == NULL ) return;
 
-    if ( ! this->VxComponent )
+    if ( ! this->Output )
       {
-      this->VxComponent = this->Input->MakeObject();
-      this->VxComponent->SetSource(this);
+      this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
       this->VyComponent = this->Input->MakeObject();
       this->VyComponent->SetSource(this);
       this->VzComponent = this->Input->MakeObject();
@@ -107,14 +135,14 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
       }
 
     // since the input has changed we might need to create a new output
-    if (!strcmp(this->VxComponent->GetClassName(),this->Input->GetClassName()))
+    if (!strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
       {
-      this->VxComponent->Delete();
+      this->Output->Delete();
       this->VyComponent->Delete();
       this->VzComponent->Delete();
 
-      this->VxComponent = this->Input->MakeObject();
-      this->VxComponent->SetSource(this);
+      this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
       this->VyComponent = this->Input->MakeObject();
       this->VyComponent->SetSource(this);
       this->VzComponent = this->Input->MakeObject();
@@ -132,7 +160,7 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 void vtkExtractVectorComponents::Update()
 {
   // make sure output has been created
-  if ( !this->VxComponent )
+  if ( !this->Output )
     {
     vtkErrorMacro(<< "No output has been created...need to set input");
     return;
@@ -162,7 +190,7 @@ void vtkExtractVectorComponents::Update()
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear just point data output because structure is copied from input
-    this->VxComponent->CopyStructure(this->Input);
+    this->Output->CopyStructure(this->Input);
     this->VyComponent->CopyStructure(this->Input);
     this->VzComponent->CopyStructure(this->Input);
     this->Execute();
@@ -185,7 +213,7 @@ void vtkExtractVectorComponents::Execute()
   vtkDebugMacro(<<"Extracting vector components...");
 
   pd = this->Input->GetPointData();
-  outVx = this->VxComponent->GetPointData();  
+  outVx = this->Output->GetPointData();  
   outVy = this->VyComponent->GetPointData();  
   outVz = this->VzComponent->GetPointData();  
 
