@@ -67,15 +67,30 @@ public:
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   virtual int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
-                                  double *rightPoint, double alpha)=0;
-
+                                      double *rightPoint, double alpha)=0;
+  
+  // Description:
+  // Return the error at the mid-point. The type of error depends on the state
+  // of the concrete error metric. For instance, it can return an absolute
+  // or relative error metric.
+  // See RequiresEdgeSubdivision() for a description of the arguments.
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre clamped_alpha: alpha>0 && alpha<1
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  // \post positive_result: result>=0
+  virtual double GetError(double *leftPoint, double *midPoint,
+                          double *rightPoint, double alpha)=0;
+  
   // Description:
   // The cell that the edge belongs to.
   void SetGenericCell(vtkGenericAdaptorCell *cell);
   vtkGetObjectMacro(GenericCell,vtkGenericAdaptorCell);
 
   // Description:
-  // Set/Get the datatset to be tessellated.
+  // Set/Get the dataset to be tessellated.
   void SetDataSet(vtkGenericDataSet *ds);
   vtkGetObjectMacro(DataSet,vtkGenericDataSet);
 
@@ -85,7 +100,7 @@ protected:
 
   vtkGenericAdaptorCell *GenericCell;
   vtkGenericDataSet *DataSet;
-
+  
 private:
   vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.
   void operator=(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.

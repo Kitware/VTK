@@ -122,6 +122,17 @@ public:
   // before any tessellation of any cell.
   void InitErrorMetrics(vtkGenericDataSet *ds);
   
+  // Description:
+  // If true, measure the quality of the fixed subdivision.
+  int GetMeasurement();
+  void SetMeasurement(int flag);
+  
+  // Description:
+  // Get the maximum error measured after the fixed subdivision.
+  // \pre errors_exists: errors!=0
+  // \pre valid_size: sizeof(errors)==GetErrorMetrics()->GetNumberOfItems()
+  void GetMaxErrors(double *errors);
+  
 protected:
   vtkGenericCellTessellator();
   ~vtkGenericCellTessellator();
@@ -142,7 +153,29 @@ protected:
   // \pre clamped_alpha: alpha>0 && alpha<1
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
-  int RequiresEdgeSubdivision(double *left, double *mid, double *right, double alpha);
+  int RequiresEdgeSubdivision(double *left, double *mid, double *right,
+                              double alpha);
+  
+  
+  // Description:
+  // Update the max error of each error metric according to the error at the
+  // mid-point. The type of error depends on the state
+  // of the concrete error metric. For instance, it can return an absolute
+  // or relative error metric.
+  // See RequiresEdgeSubdivision() for a description of the arguments.
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre clamped_alpha: alpha>0 && alpha<1
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  virtual void UpdateMaxError(double *leftPoint, double *midPoint,
+                              double *rightPoint, double alpha);
+  
+  // Description:
+  // Reset the maximal error of each error metric. The purpose of the maximal
+  // error is to measure the quality of a fixed subdivision.
+  void ResetMaxErrors();
   
   // Description:
   // List of error metrics. Collection of vtkGenericSubdivisionErrorMetric
@@ -156,6 +189,11 @@ protected:
   void SetGenericCell(vtkGenericAdaptorCell *cell);
   
   vtkGenericDataSet *DataSet;
+  
+  int Measurement; // if true, measure the quality of the fixed subdivision.
+  double *MaxErrors; // max error for each error metric, for measuring the
+  // quality of a fixed subdivision.
+  int MaxErrorsCapacity;
   
 private:
   vtkGenericCellTessellator(const vtkGenericCellTessellator&);  // Not implemented.

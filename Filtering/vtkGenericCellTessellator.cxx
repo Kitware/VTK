@@ -33,7 +33,7 @@
 
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.10");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.11");
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //-----------------------------------------------------------------------------
@@ -42,12 +42,19 @@ vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 vtkGenericCellTessellator::vtkGenericCellTessellator()
 {
   this->ErrorMetrics = vtkCollection::New();
+  this->MaxErrorsCapacity=0;
+  this->MaxErrors=0;
+  this->Measurement=0;
 }
 
 //-----------------------------------------------------------------------------
 vtkGenericCellTessellator::~vtkGenericCellTessellator()
 {
   this->SetErrorMetrics( 0 );
+   if(this->MaxErrors!=0)
+     {
+     delete[] this->MaxErrors;
+     }
 }
 
 
@@ -60,7 +67,23 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
      << this->ErrorMetrics << endl;
   
 }
- 
+
+//-----------------------------------------------------------------------------
+// Description:
+// If true, measure the quality of the fixed subdivision.
+int vtkGenericCellTessellator::GetMeasurement()
+{
+  return this->Measurement;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// If true, measure the quality of the fixed subdivision.
+void vtkGenericCellTessellator::SetMeasurement(int flag)
+{
+  this->Measurement=flag;
+}
+
 //-----------------------------------------------------------------------------
 // Description:
 // Does the edge need to be subdivided according to at least one error
@@ -106,6 +129,49 @@ int vtkGenericCellTessellator::RequiresEdgeSubdivision(double *leftPoint,
 
 //-----------------------------------------------------------------------------
 // Description:
+// Update the max error of each error metric according to the error at the
+// mid-point. The type of error depends on the state
+// of the concrete error metric. For instance, it can return an absolute
+// or relative error metric.
+// See RequiresEdgeSubdivision() for a description of the arguments.
+// \pre leftPoint_exists: leftPoint!=0
+// \pre midPoint_exists: midPoint!=0
+// \pre rightPoint_exists: rightPoint!=0
+// \pre clamped_alpha: alpha>0 && alpha<1
+// \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+//          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+void vtkGenericCellTessellator::UpdateMaxError(double *leftPoint,
+                                               double *midPoint,
+                                               double *rightPoint,
+                                               double alpha)
+{
+  assert("pre: leftPoint_exists" && leftPoint!=0);
+  assert("pre: midPoint_exists" && midPoint!=0);
+  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: clamped_alpha" && alpha>0 && alpha<1);
+  
+  this->ErrorMetrics->InitTraversal();
+  vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+  
+  // Once we found at least one error metric that need subdivision,
+  // the subdivision has to be done and there is no need to check for other
+  // error metrics.
+  int i=0;
+  while(e!=0)
+    {
+    double error=e->GetError(leftPoint,midPoint,rightPoint,alpha);
+    assert("check: positive_error" && error>=0);
+    if(error>this->MaxErrors[i])
+      {
+      this->MaxErrors[i]=error;
+      }
+    e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+    ++i;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
 // Init the error metric with the dataset. Should be called in each filter
 // before any tessellation of any cell.
 void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
@@ -117,6 +183,56 @@ void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
     {
     e->SetDataSet(ds);
     e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
+    }
+  
+  if(this->Measurement)
+    {
+    this->ResetMaxErrors();
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Reset the maximal error of each error metric. The purpose of the maximal
+// error is to measure the quality of a fixed subdivision.
+void vtkGenericCellTessellator::ResetMaxErrors()
+{
+  int c=this->ErrorMetrics->GetNumberOfItems();
+  
+  // Allocate the array.
+  if(c>this->MaxErrorsCapacity)
+    {
+    this->MaxErrorsCapacity=c;
+    if(this->MaxErrors!=0)
+      {
+      delete[] this->MaxErrors;
+      }
+    this->MaxErrors=new double[this->MaxErrorsCapacity];
+    }
+  
+  int i=0;
+  while(i<c)
+    {
+    this->MaxErrors[i]=0;
+    ++i;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Get the maximum error measured after the fixed subdivision.
+// \pre errors_exists: errors!=0
+// \pre valid_size: sizeof(errors)==GetErrorMetrics()->GetNumberOfItems()
+void vtkGenericCellTessellator::GetMaxErrors(double *errors)
+{
+  assert("pre: errors_exists" && errors!=0);
+  
+  int c=this->ErrorMetrics->GetNumberOfItems();
+  int i=0;
+  while(i<c)
+    {
+    errors[i]=this->MaxErrors[i];
+    ++i;
     }
 }
 

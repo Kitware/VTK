@@ -86,6 +86,25 @@ public:
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
                               double alpha);
 
+  // Description:
+  // Return the error at the mid-point. It will return an error relative to
+  // the bounding box size if GetRelative() is true, a square absolute error
+  // otherwise.
+  // See RequiresEdgeSubdivision() for a description of the arguments.
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre clamped_alpha: alpha>0 && alpha<1
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  // \post positive_result: result>=0
+  double GetError(double *leftPoint, double *midPoint,
+                  double *rightPoint, double alpha);
+  
+  // Description:
+  // Return the type of output of GetError()
+  int GetRelative();
+  
 protected:
   vtkGeometricErrorMetric();
   virtual ~vtkGeometricErrorMetric();
@@ -99,6 +118,8 @@ protected:
                             double z[3]);
   
   double AbsoluteGeometricTolerance;
+  double SmallestSize;
+  int Relative; // Control the type of output of GetError()
   
 private:
   vtkGeometricErrorMetric(const vtkGeometricErrorMetric&);  // Not implemented.

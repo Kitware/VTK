@@ -79,6 +79,21 @@ public:
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
                               double alpha);
   
+  // Description:
+  // Return the error at the mid-point. The type of error depends on the state
+  // of the concrete error metric. For instance, it can return an absolute
+  // or relative error metric.
+  // See RequiresEdgeSubdivision() for a description of the arguments.
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre clamped_alpha: alpha>0 && alpha<1
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  // \post positive_result: result>=0
+  double GetError(double *leftPoint, double *midPoint,
+                  double *rightPoint, double alpha);
+  
 protected:
   vtkAttributesErrorMetric();
   virtual ~vtkAttributesErrorMetric();
@@ -93,6 +108,8 @@ protected:
   double AbsoluteAttributeTolerance; // cached value computed from
   // AttributeTolerance and active attribute/component
   vtkTimeStamp AbsoluteAttributeToleranceComputeTime;
+  
+  double Range; // cached value computed from active attribute/component
   
   vtkGenericAttributeCollection *AttributeCollection;
 
