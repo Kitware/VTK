@@ -49,6 +49,14 @@ class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
   // Get the last mapper in the list.
   vtkMapper *GetLastItem();
   
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkMapper *GetNextMapper(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkMapper *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:  
   vtkMapperCollection() {};
   ~vtkMapperCollection() {};

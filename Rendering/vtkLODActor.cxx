@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.64");
+vtkCxxRevisionMacro(vtkLODActor, "1.65");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------
@@ -116,8 +116,9 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   bestTime = bestMapper->GetTimeToDraw();
   if (bestTime > myTime)
     {
-    this->LODMappers->InitTraversal();
-    while ((mapper = this->LODMappers->GetNextItem()) != NULL && 
+    vtkCollectionSimpleIterator mit;
+    this->LODMappers->InitTraversal(mit);
+    while ((mapper = this->LODMappers->GetNextMapper(mit)) != NULL && 
            bestTime != 0.0)
       {
       tempTime = mapper->GetTimeToDraw();
@@ -223,8 +224,9 @@ void vtkLODActor::ReleaseGraphicsResources(vtkWindow *renWin)
   vtkActor::ReleaseGraphicsResources(renWin);
   
   // broadcast the message down to the individual LOD mappers
-  for ( this->LODMappers->InitTraversal();
-        (mapper = this->LODMappers->GetNextItem()); )
+  vtkCollectionSimpleIterator mit;
+  for ( this->LODMappers->InitTraversal(mit);
+        (mapper = this->LODMappers->GetNextMapper(mit)); )
     {
     mapper->ReleaseGraphicsResources(renWin);
     }
@@ -364,7 +366,8 @@ void vtkLODActor::ShallowCopy(vtkProp *prop)
     this->SetNumberOfCloudPoints(a->GetNumberOfCloudPoints());
     vtkMapperCollection *c = a->GetLODMappers();
     vtkMapper *map;
-    for ( c->InitTraversal(); (map=c->GetNextItem()); )
+    vtkCollectionSimpleIterator mit;
+    for ( c->InitTraversal(mit); (map=c->GetNextMapper(mit)); )
       {
       this->AddLODMapper(map);
       }
