@@ -191,7 +191,7 @@ void** vtkVoidArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkVoidArray::Resize(const int sz)
+void vtkVoidArray::Resize(int sz)
 {
   void** newArray;
   int newSize = sz*this->NumberOfComponents;
