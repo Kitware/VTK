@@ -973,7 +973,7 @@ int yydebug;                    /*  nonzero means print parse trace     */
 #ifdef __GNUC__
 int yyparse (vtkVRMLImporter*);
 #endif
-
+
 #if __GNUC__ > 1                /* GNU C and GNU C++ define this.  */
 #define __yy_memcpy(FROM,TO,COUNT)      __builtin_memcpy(TO,FROM,COUNT)
 #else                           /* not GNU C or C++ */
@@ -1012,7 +1012,7 @@ __yy_memcpy (char *from, char *to, int count)
 
 #endif
 #endif
-
+
 
 
 int
@@ -1417,7 +1417,7 @@ yyparse(vtkVRMLImporter* self)
   }
   /* the action file gets copied in in place of this dollarsign */
 
-  
+  
   yyvsp -= yylen;
   yyssp -= yylen;
 #ifdef YYLSP_NEEDED
