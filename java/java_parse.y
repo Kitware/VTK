@@ -38,6 +38,7 @@ char temps[80];
 char *funcNames[1000];
 int   funcArgs[1000];
 int   funcArgTypes[1000][11];
+char *funcArgTypeNames[1000][11];
 int  numFuncs = 0;
 #define YYMAXDEPTH 1000
 %}
@@ -775,10 +776,30 @@ int done_one()
 	  {
 	  match = 0;
           }
+	else
+	  {
+	  if (arg_types[j] == 309)
+	    {
+	    if (strcmp(arg_ids[j],funcArgTypeNames[i][j]))
+	      {
+	      match = 0;
+	      }
+	    }
+	  }
 	}
       if (arg_types[10] != funcArgTypes[i][10])
 	{
 	match = 0;
+	}
+      else
+	{
+	if (arg_types[10] == 309)
+	  {
+	  if (strcmp(arg_ids[10],funcArgTypeNames[i][10]))
+	    {
+	    match = 0;
+	    }
+	  }
 	}
       if (match) return 1;
       }
@@ -792,6 +813,9 @@ output_function()
   int i;
   int args_ok = 1;
  
+  fprintf(stderr,"is_virt = %i arg_fail = %i num_args = %i\n",
+	  is_virtual,arg_failure,num_args);
+  
   if (is_virtual) return;
   if (arg_failure) return;
 
@@ -936,8 +960,17 @@ output_function()
 	for (i = 0; i < num_args; i++)
 	  {
 	  funcArgTypes[numFuncs][i] = arg_types[i];
+	  /* if it was a vtk object store the class type */
+	  if (arg_types[i] == 309)
+	    {
+	    funcArgTypeNames[numFuncs][i] = strdup(arg_ids[i]);
+	    }
 	  }
 	funcArgTypes[numFuncs][10] = arg_types[10];
+	if (arg_types[10] == 309)
+	  {
+	  funcArgTypeNames[numFuncs][10] = strdup(arg_ids[10]);
+	  }
 	numFuncs++;
 	}
       }

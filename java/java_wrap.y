@@ -39,6 +39,7 @@ char temps[80];
 char *funcNames[1000];
 int   funcArgs[1000];
 int   funcArgTypes[1000][11];
+char *funcArgTypeNames[1000][11];
 int  numFuncs = 0;
 #define YYMAXDEPTH 1000
 %}
@@ -1081,21 +1082,37 @@ int done_one()
       match = 1;
       for (j = 0; j < num_args; j++)
 	{
-	if (arg_types[j] != funcArgTypes[i][j])
-	  {
-	  if (!(((arg_types[j] == 309)&&(funcArgTypes[i][j] == 109)) ||
+	if ((arg_types[j] != funcArgTypes[i][j]) &&
+	    !(((arg_types[j] == 309)&&(funcArgTypes[i][j] == 109)) ||
 	      ((arg_types[j] == 109)&&(funcArgTypes[i][j] == 309))))
+	  {
+	  match = 0;
+	  }
+	else
+	  {
+	  if (arg_types[j] == 309)
 	    {
-	    match = 0;
+	    if (strcmp(arg_ids[j],funcArgTypeNames[i][j]))
+	      {
+	      match = 0;
+	      }
 	    }
 	  }
 	}
-      if (arg_types[10] != funcArgTypes[i][10])
-	{
-	if (!(((arg_types[10] == 309)&&(funcArgTypes[i][10] == 109)) ||
+      if ((arg_types[10] != funcArgTypes[i][10]) &&
+	  !(((arg_types[10] == 309)&&(funcArgTypes[i][10] == 109)) ||
 	    ((arg_types[10] == 109)&&(funcArgTypes[i][10] == 309))))
+	{
+	match = 0;
+	}
+      else
+	{
+	if (arg_types[10] == 309)
 	  {
-	  match = 0;
+	  if (strcmp(arg_ids[10],funcArgTypeNames[i][10]))
+	    {
+	    match = 0;
+	    }
 	  }
 	}
       if (match) return 1;
@@ -1300,11 +1317,20 @@ output_function()
 	    {
 	    funcArgTypes[numFuncs][i] = 309;
 	    }
+	  /* if it was a vtk object store the class type */
+	  if (funcArgTypes[numFuncs][i] == 309)
+	    {
+	    funcArgTypeNames[numFuncs][i] = strdup(arg_ids[i]);
+	    }
 	  }
 	funcArgTypes[numFuncs][10] = arg_types[10];
 	if (funcArgTypes[numFuncs][10] == 109)
 	  {
 	  funcArgTypes[numFuncs][10] = 309;
+	  }
+	if (funcArgTypes[numFuncs][10] == 309)
+	  {
+	  funcArgTypeNames[numFuncs][10] = strdup(arg_ids[10]);
 	  }
 	numFuncs++;
 	}

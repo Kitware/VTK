@@ -25,10 +25,11 @@ char temps[80];
 char *funcNames[1000];
 int   funcArgs[1000];
 int   funcArgTypes[1000][11];
+char *funcArgTypeNames[1000][11];
 int  numFuncs = 0;
 #define YYMAXDEPTH 1000
 
-# line 45 "java_parse.y"
+# line 46 "java_parse.y"
 typedef union
 #ifdef __cplusplus
 	YYSTYPE
@@ -90,7 +91,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <values.h>
 #endif
 
@@ -130,7 +131,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 620 "java_parse.y"
+# line 621 "java_parse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -289,10 +290,30 @@ int done_one()
 	  {
 	  match = 0;
           }
+	else
+	  {
+	  if (arg_types[j] == 309)
+	    {
+	    if (strcmp(arg_ids[j],funcArgTypeNames[i][j]))
+	      {
+	      match = 0;
+	      }
+	    }
+	  }
 	}
       if (arg_types[10] != funcArgTypes[i][10])
 	{
 	match = 0;
+	}
+      else
+	{
+	if (arg_types[10] == 309)
+	  {
+	  if (strcmp(arg_ids[10],funcArgTypeNames[i][10]))
+	    {
+	    match = 0;
+	    }
+	  }
 	}
       if (match) return 1;
       }
@@ -306,6 +327,9 @@ output_function()
   int i;
   int args_ok = 1;
  
+  fprintf(stderr,"is_virt = %i arg_fail = %i num_args = %i\n",
+	  is_virtual,arg_failure,num_args);
+  
   if (is_virtual) return;
   if (arg_failure) return;
 
@@ -450,8 +474,17 @@ output_function()
 	for (i = 0; i < num_args; i++)
 	  {
 	  funcArgTypes[numFuncs][i] = arg_types[i];
+	  /* if it was a vtk object store the class type */
+	  if (arg_types[i] == 309)
+	    {
+	    funcArgTypeNames[numFuncs][i] = strdup(arg_ids[i]);
+	    }
 	  }
 	funcArgTypes[numFuncs][10] = arg_types[10];
+	if (arg_types[10] == 309)
+	  {
+	  funcArgTypeNames[numFuncs][10] = strdup(arg_ids[10]);
+	  }
 	numFuncs++;
 	}
       }
@@ -1410,7 +1443,7 @@ int yyparse()
 	{
 		
 case 2:
-# line 104 "java_parse.y"
+# line 105 "java_parse.y"
 {
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
@@ -1418,7 +1451,7 @@ case 2:
       fprintf(yyout,"\npackage vtk;\n");
       } break;
 case 3:
-# line 111 "java_parse.y"
+# line 112 "java_parse.y"
 {
       int i;
 
@@ -1434,7 +1467,7 @@ case 3:
       fprintf(yyout,"\n{\n");
       } break;
 case 4:
-# line 126 "java_parse.y"
+# line 127 "java_parse.y"
 {
 	if (!num_superclasses)
 	  {
@@ -1464,133 +1497,133 @@ case 4:
 	fprintf(yyout,"}\n");
       } break;
 case 9:
-# line 159 "java_parse.y"
+# line 160 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 10:
-# line 161 "java_parse.y"
+# line 162 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 11:
-# line 163 "java_parse.y"
+# line 164 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 12:
-# line 165 "java_parse.y"
+# line 166 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 15:
-# line 169 "java_parse.y"
+# line 170 "java_parse.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 173 "java_parse.y"
+# line 174 "java_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 178 "java_parse.y"
+# line 179 "java_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 183 "java_parse.y"
+# line 184 "java_parse.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 188 "java_parse.y"
+# line 189 "java_parse.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 191 "java_parse.y"
+# line 192 "java_parse.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 193 "java_parse.y"
+# line 194 "java_parse.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str); is_abstract = 1;} break;
 case 30:
-# line 205 "java_parse.y"
+# line 206 "java_parse.y"
 { num_args++;} break;
 case 31:
-# line 205 "java_parse.y"
+# line 206 "java_parse.y"
 {num_args++;} break;
 case 33:
-# line 207 "java_parse.y"
+# line 208 "java_parse.y"
 {arg_counts[num_args] = 0; arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 208 "java_parse.y"
+# line 209 "java_parse.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 209 "java_parse.y"
+# line 210 "java_parse.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 218 "java_parse.y"
-{ arg_failure = 1; } break;
-case 44:
 # line 219 "java_parse.y"
 { arg_failure = 1; } break;
+case 44:
+# line 220 "java_parse.y"
+{ arg_failure = 1; } break;
 case 45:
-# line 222 "java_parse.y"
+# line 223 "java_parse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 223 "java_parse.y"
+# line 224 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 47:
-# line 224 "java_parse.y"
+# line 225 "java_parse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 48:
-# line 225 "java_parse.y"
+# line 226 "java_parse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 49:
-# line 227 "java_parse.y"
+# line 228 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 50:
-# line 229 "java_parse.y"
+# line 230 "java_parse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 238 "java_parse.y"
+# line 239 "java_parse.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 239 "java_parse.y"
+# line 240 "java_parse.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 240 "java_parse.y"
+# line 241 "java_parse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 241 "java_parse.y"
+# line 242 "java_parse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 243 "java_parse.y"
+# line 244 "java_parse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 244 "java_parse.y"
+# line 245 "java_parse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 247 "java_parse.y"
+# line 248 "java_parse.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 248 "java_parse.y"
+# line 249 "java_parse.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 249 "java_parse.y"
+# line 250 "java_parse.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 250 "java_parse.y"
+# line 251 "java_parse.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 251 "java_parse.y"
+# line 252 "java_parse.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 252 "java_parse.y"
+# line 253 "java_parse.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 253 "java_parse.y"
+# line 254 "java_parse.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 254 "java_parse.y"
+# line 255 "java_parse.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 255 "java_parse.y"
+# line 256 "java_parse.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
            if ((!arg_ids[10])&&(!num_args))
@@ -1599,31 +1632,31 @@ case 65:
              }
          } break;
 case 68:
-# line 266 "java_parse.y"
+# line 267 "java_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 268 "java_parse.y"
+# line 269 "java_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 271 "java_parse.y"
+# line 272 "java_parse.y"
 {in_public = 1;} break;
 case 72:
-# line 271 "java_parse.y"
-{in_public = 0;} break;
-case 73:
 # line 272 "java_parse.y"
 {in_public = 0;} break;
+case 73:
+# line 273 "java_parse.y"
+{in_public = 0;} break;
 case 76:
-# line 276 "java_parse.y"
+# line 277 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 77:
-# line 277 "java_parse.y"
+# line 278 "java_parse.y"
 {yyval.integer = -1;} break;
 case 78:
-# line 277 "java_parse.y"
+# line 278 "java_parse.y"
 {yyval.integer = -1;} break;
 case 79:
-# line 281 "java_parse.y"
+# line 282 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1635,7 +1668,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 292 "java_parse.y"
+# line 293 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1645,7 +1678,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 301 "java_parse.y"
+# line 302 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -1657,7 +1690,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 312 "java_parse.y"
+# line 313 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-1].str); 
@@ -1667,7 +1700,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 321 "java_parse.y"
+# line 322 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-5].str); 
@@ -1679,7 +1712,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 332 "java_parse.y"
+# line 333 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1691,7 +1724,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 343 "java_parse.y"
+# line 344 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1703,7 +1736,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 354 "java_parse.y"
+# line 355 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1713,7 +1746,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 363 "java_parse.y"
+# line 364 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"%sOn",yypvt[-3].str); 
@@ -1728,7 +1761,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 377 "java_parse.y"
+# line 378 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1747,7 +1780,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 395 "java_parse.y"
+# line 396 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1758,7 +1791,7 @@ case 89:
    output_function();
    } break;
 case 90:
-# line 405 "java_parse.y"
+# line 406 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1779,7 +1812,7 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 425 "java_parse.y"
+# line 426 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1790,7 +1823,7 @@ case 91:
    output_function();
    } break;
 case 92:
-# line 435 "java_parse.y"
+# line 436 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1813,7 +1846,7 @@ case 92:
    output_function();
    } break;
 case 93:
-# line 457 "java_parse.y"
+# line 458 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1824,7 +1857,7 @@ case 93:
    output_function();
    } break;
 case 94:
-# line 467 "java_parse.y"
+# line 468 "java_parse.y"
 { 
    int i;
 
@@ -1848,7 +1881,7 @@ case 94:
    output_function();
    } break;
 case 95:
-# line 490 "java_parse.y"
+# line 491 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-5].str); 
@@ -1859,7 +1892,7 @@ case 95:
    output_function();
    } break;
 case 96:
-# line 500 "java_parse.y"
+# line 501 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1904,7 +1937,7 @@ case 96:
    free(func_name);
    } break;
 case 97:
-# line 544 "java_parse.y"
+# line 545 "java_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
