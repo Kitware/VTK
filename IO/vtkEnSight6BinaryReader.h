@@ -53,6 +53,9 @@ public:
 protected:
   vtkEnSight6BinaryReader();
   ~vtkEnSight6BinaryReader();
+
+  // Returns 1 if successful.  Sets file size as a side action.
+  int OpenFile(const char* filename);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
@@ -126,7 +129,8 @@ protected:
   // Description:
   // Internal function to read in a single integer.
   // Returns zero if there was an error.
-  int ReadInt(int *result);
+  // This also tries to determine the byte order of this file.
+  int ReadIntNumber(int *result);
 
   // Description:
   // Internal function to read in an integer array.
@@ -150,11 +154,15 @@ protected:
   vtkIdTypeArray* UnstructuredNodeIds; // matching of node ids to point ids
   
   int ElementIdsListed;
+
+  // The size of the file is used to choose byte order.
+  int FileSize;
   
-  FILE *IFile;
+  ifstream *IFile;
 private:
   vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&);  // Not implemented.
   void operator=(const vtkEnSight6BinaryReader&);  // Not implemented.
 };
 
 #endif
+
