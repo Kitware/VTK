@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointDataToCellData, "1.29");
+vtkCxxRevisionMacro(vtkPointDataToCellData, "1.30");
 vtkStandardNewMacro(vtkPointDataToCellData);
 
 //----------------------------------------------------------------------------
@@ -41,12 +41,10 @@ int vtkPointDataToCellData::RequestData(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) {return 0;}
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) {return 0;}
 
   vtkIdType cellId, ptId;
   vtkIdType numCells, numPts;
