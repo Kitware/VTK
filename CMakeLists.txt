@@ -124,7 +124,11 @@ IF(WIN32)
   MARK_AS_ADVANCED(VTK_DISPLAY_WIN32_WARNINGS)
 ENDIF(WIN32)
 
-OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
+IF(CMAKE_BUILD_TOOL MATCHES "devenv")
+  OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" ON)
+ELSE(CMAKE_BUILD_TOOL MATCHES "devenv")
+  OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" OFF)
+ENDIF(CMAKE_BUILD_TOOL MATCHES "devenv")
 
 #
 # try to find the data files for VTKData
