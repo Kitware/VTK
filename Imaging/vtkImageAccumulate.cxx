@@ -102,8 +102,8 @@ void vtkImageAccumulate::SetComponentExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::SetComponentExtent(int minX, int maxX, 
-					    int minY, int maxY,
-					    int minZ, int maxZ)
+                                            int minY, int maxY,
+                                            int minZ, int maxZ)
 {
   int extent[6];
   
@@ -130,8 +130,8 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-			       vtkImageData *inData, T *inPtr,
-			       vtkImageData *outData, int *outPtr)
+                               vtkImageData *inData, T *inPtr,
+                               vtkImageData *outData, int *outPtr)
 {
   int min0, max0, min1, max1, min2, max2;
   int idx0, idx1, idx2, idxC;
@@ -148,16 +148,19 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   // Zero count in every bin
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
   memset((void *)outPtr, 0, 
-	 (max0-min0+1)*(max1-min1+1)*(max2-min2+1)*sizeof(int));
+         (max0-min0+1)*(max1-min1+1)*(max2-min2+1)*sizeof(int));
     
   // Get information to march through data 
   numC = inData->GetNumberOfScalarComponents();
-  inData->GetExtent(min0, max0, min1, max1, min2, max2);
+  inData->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
   inData->GetIncrements(inInc0, inInc1, inInc2);
   outExtent = outData->GetExtent();
   outIncs = outData->GetIncrements();
   origin = outData->GetOrigin();
   spacing = outData->GetSpacing();
+
+  vtkGenericWarningMacro(<<"Executing with: " << min0 << "," << max0 << " " 
+  << min1 << "," << max1 << " " << min2 << "," << max2);
   
   target = (unsigned long)((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
   target++;
@@ -169,43 +172,43 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
       {
       if (!(count%target))
-	{
-	self->UpdateProgress(count/(50.0*target));
-	}
+        {
+        self->UpdateProgress(count/(50.0*target));
+        }
       count++;
       inPtr0  = inPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	inPtrC = inPtr0;
-	// find the bin for this pixel.
-	outPtrC = outPtr;
-	for (idxC = 0; idxC < numC; ++idxC)
-	  {
-	  // compute the index
-	  outIdx = (int)(((float)*inPtrC - origin[idxC]) / spacing[idxC]);
-	  if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
-	    {
-	    // Out of bin range
-	    outPtrC = NULL;
-	    break;
-	    }
-	  outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
-	  ++inPtrC;
-	  }
-	if (outPtrC)
-	  {
-	  ++(*outPtrC);
-	  }
-	
-	inPtr0 += inInc0;
-	}
+        {
+        inPtrC = inPtr0;
+        // find the bin for this pixel.
+        outPtrC = outPtr;
+        for (idxC = 0; idxC < numC; ++idxC)
+          {
+          // compute the index
+          outIdx = (int)(((float)*inPtrC - origin[idxC]) / spacing[idxC]);
+          if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+            {
+            // Out of bin range
+            outPtrC = NULL;
+            break;
+            }
+          outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+          ++inPtrC;
+          }
+        if (outPtrC)
+          {
+          ++(*outPtrC);
+          }
+        
+        inPtr0 += inInc0;
+        }
       inPtr1 += inInc1;
       }
     inPtr2 += inInc2;
     }
 }
 
-	
+        
 
 //----------------------------------------------------------------------------
 // This method is passed a input and output Data, and executes the filter
@@ -218,6 +221,8 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   void *outPtr;
   vtkImageData *inData = this->GetInput();
   vtkImageData *outData = this->GetOutput();
+  
+  vtkDebugMacro(<<"Executing image accumulate");
   
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
@@ -238,7 +243,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   if (outData->GetScalarType() != VTK_INT)
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
-		  << " must be int\n");
+                  << " must be int\n");
     return;
     }
   
@@ -256,7 +261,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
 
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input), 
-					    vtkImageData *output)
+                                            vtkImageData *output)
 {
   output->SetWholeExtent(this->ComponentExtent);
   output->SetOrigin(this->ComponentOrigin);
@@ -268,7 +273,7 @@ void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input),
 //----------------------------------------------------------------------------
 // Get ALL of the input.
 void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
-						  int outExt[6])
+                                                  int outExt[6])
 {
   int *wholeExtent;
 
@@ -291,5 +296,10 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
      << this->ComponentSpacing[0] << ", "
      << this->ComponentSpacing[1] << ", "
      << this->ComponentSpacing[2] << " )\n";
+
+  os << indent << "ComponentExtent: ( "
+     << this->ComponentExtent[0] << "," << this->ComponentExtent[1] << " "
+     << this->ComponentExtent[2] << "," << this->ComponentExtent[3] << " "
+     << this->ComponentExtent[4] << "," << this->ComponentExtent[5] << " }\n";
 }
 
