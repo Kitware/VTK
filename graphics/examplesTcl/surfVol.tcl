@@ -99,7 +99,7 @@ vtkVolume16Reader reader
   reader SetTransform si
   reader SetHeaderSize 0
   reader SetDataMask 0x7fff
-  reader SwapBytesOn
+  reader SetDataByteOrderToLittleEndian
   reader Update
 
 vtkImplicitVolume aVolumeModel
