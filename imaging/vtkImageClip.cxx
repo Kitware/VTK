@@ -134,7 +134,7 @@ void vtkImageClip::ExecuteImageInformation()
   if ( ! this->Bypass)
     {
     // Clip the OutputWholeExtent with the input WholeExtent
-    for (idx = 0; idx < 6; ++idx)
+    for (idx = 0; idx < 3; ++idx)
       {
       if (this->OutputWholeExtent[idx*2] >= extent[idx*2] && 
 	  this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
