@@ -243,7 +243,7 @@ void vtkProgrammableSource::UpdateInformation()
 
 }
 
-void vtkProgrammableSource::UpdateData(vtkDataObject *output)
+void vtkProgrammableSource::UpdateData(vtkDataObject *vtkNotUsed(output))
 {
 }
 

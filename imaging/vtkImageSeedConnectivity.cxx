@@ -138,7 +138,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::EnlargeOutputUpdateExtents( vtkDataObject 
-							   *data )
+							   *vtkNotUsed(data))
 {
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
 }

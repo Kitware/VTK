@@ -306,7 +306,7 @@ void vtkSource::TriggerAsynchronousUpdate()
 
 //----------------------------------------------------------------------------
 
-void vtkSource::UpdateData(vtkDataObject *output)
+void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
 {
   int idx;
 
@@ -504,7 +504,7 @@ void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
 // that will produce vtkPolyData or vtkUnstructuredGrid data since the
 // output itself cannot estimate its own size.
 void vtkSource::ComputeEstimatedOutputMemorySize( vtkDataObject *output,
-						  unsigned long *inputSize,
+						  unsigned long *vtkNotUsed(inputSize),
 						  unsigned long size[2] )
 {
   int idx;
