@@ -24,12 +24,11 @@ set noTest {
    HighPassComparison.tcl HybridMedianComparison.tcl IdealHighPass.tcl 
    ImageGradient.tcl LaplacianEdgeEnhance.tcl LaplacianSurfaceEnhance.tcl 
    ShotNoiseInclude.tcl Spectrum.tcl TestContinuousDilate3D.tcl
-   TestContinuousErode3D.tcl TestDilateErode3D.tcl TestDivergence.tcl
-   TestDotProduct.tcl TestEuclideanToPolar.tcl TestFeatureAnd.tcl
-   TestGaussianSource.tcl TestHistogram.tcl TestHistogramEqualization.tcl
+   TestContinuousErode3D.tcl TestDilateErode3D.tcl TestEuclideanToPolar.tcl 
+   TestFeatureAnd.tcl TestHistogram.tcl TestHistogramEqualization.tcl
    TestHybridMedian2D.tcl TestIdealHighPass.tcl TestIdealLowPass.tcl
    TestLaplacian.tcl TestLogarithmicScale.tcl TestMIPFilter.tcl
-   TestOpenClose3D.tcl TestRange3D.tcl TestSinusoidSource.tcl TestSkeleton2D.tcl
+   TestOpenClose3D.tcl TestRange3D.tcl TestSkeleton2D.tcl
    TestSobel2D.tcl TestSobel3D.tcl TestSubsample3D.tcl TestVariance3D.tcl
    TestWriter.tcl Timing.tcl VTKSpectrum.tcl WindowLevelInterface.tcl
    vtkImageInclude.tcl ContinuousClose2D.tcl TkViewer2.tcl Pad.tcl
