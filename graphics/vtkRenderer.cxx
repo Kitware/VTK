@@ -710,7 +710,7 @@ void vtkRenderer::ResetCamera(float bounds[6])
   float center[3];
   float distance;
   float width;
-  float vn[3], *vup;;
+  double vn[3], *vup;;
   
   this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
@@ -745,7 +745,7 @@ void vtkRenderer::ResetCamera(float bounds[6])
     }
 
   // update the camera
-  this->ActiveCamera->SetFocalPoint(center);
+  this->ActiveCamera->SetFocalPoint(center[0],center[1],center[2]);
   this->ActiveCamera->SetPosition(center[0]+distance*vn[0],
 				  center[1]+distance*vn[1],
 				  center[2]+distance*vn[2]);

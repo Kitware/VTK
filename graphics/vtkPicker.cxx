@@ -164,7 +164,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float *viewport;
   float cameraPos[4], cameraFP[4];
   float *displayCoords, *worldCoords;
-  float *clipRange;
+  double *clipRange;
   float ray[3], rayLength;
   int pickable;
   float windowLowerLeft[4], windowUpperRight[4];

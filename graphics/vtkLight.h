@@ -87,11 +87,13 @@ public:
   // Set/Get the position of the light.
   vtkSetVector3Macro(Position,float);
   vtkGetVectorMacro(Position,float,3);
-
+  void SetPosition(double *a) {this->SetPosition(a[0],a[1],a[2]);};
+  
   // Description:
   // Set/Get the point at which the light is shining.
   vtkSetVector3Macro(FocalPoint,float);
   vtkGetVectorMacro(FocalPoint,float,3);
+  void SetFocalPoint(double *a) {this->SetFocalPoint(a[0],a[1],a[2]);};
 
   // Description:
   // Set/Get the brightness of the light (from one to zero).
