@@ -36,6 +36,8 @@ vtkLandmarkTransform \
 vtkMassProperties \
 vtkMultiProcessController \
 vtkOBJReader \
+vtkOutlineCornerFilter \
+vtkOutlineCornerSource \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
