@@ -108,7 +108,7 @@ void vtkImageHistogramExecute(vtkImageHistogram *self,
        outPtr1  += inInc1;
    }
    // get the original histogram ...
-   int  orig_numberofbins = (int)(maximum - minimum+1);
+   int  orig_numberofbins = (int)(maximum +1);
    long *histogram = new long[orig_numberofbins];
    int idx;
    for ( idx =0; idx < orig_numberofbins; idx++) histogram[idx] = 0;
