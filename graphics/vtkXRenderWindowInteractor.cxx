@@ -260,8 +260,7 @@ void  vtkXRenderWindowInteractor::EndRotate()
   if (this->State != VTKXI_ROTATE) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //   this->RenderWindow->Render();
+   this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartZoom()
@@ -277,8 +276,7 @@ void  vtkXRenderWindowInteractor::EndZoom()
   if (this->State != VTKXI_ZOOM) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartPan()
@@ -298,8 +296,7 @@ void  vtkXRenderWindowInteractor::EndPan()
   if (this->State != VTKXI_PAN) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartSpin()
@@ -316,8 +313,7 @@ void  vtkXRenderWindowInteractor::EndSpin()
   if (this->State != VTKXI_SPIN) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartDolly()
@@ -334,8 +330,7 @@ void  vtkXRenderWindowInteractor::EndDolly()
   if (this->State != VTKXI_DOLLY) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartUniformScale()
@@ -352,8 +347,7 @@ void  vtkXRenderWindowInteractor::EndUniformScale()
   if (this->State != VTKXI_USCALE) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),

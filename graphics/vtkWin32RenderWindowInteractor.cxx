@@ -193,8 +193,7 @@ void  vtkWin32RenderWindowInteractor::EndRotate()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartZoom()
@@ -219,8 +218,7 @@ void  vtkWin32RenderWindowInteractor::EndZoom()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartPan()
@@ -248,8 +246,7 @@ void  vtkWin32RenderWindowInteractor::EndPan()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartAnimation()
@@ -272,8 +269,7 @@ void  vtkWin32RenderWindowInteractor::EndAnimation()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartSpin()
@@ -298,8 +294,7 @@ void  vtkWin32RenderWindowInteractor::EndSpin()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartDolly()
@@ -324,8 +319,7 @@ void  vtkWin32RenderWindowInteractor::EndDolly()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  //don't need to render here,  HighlightActor will do it later
-  //  this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 
@@ -351,8 +345,7 @@ void  vtkWin32RenderWindowInteractor::EndUniformScale()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  //don't need to render here,  HighlightActor will do it later
-  //this->RenderWindow->Render();
+  this->RenderWindow->Render();
 }
 
 

@@ -1142,7 +1142,6 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
   delete [] rotate;
   
   this->RenderWindow->Render();
-  //this->HighlightActor( this->InteractionActor );
 }
 
 
@@ -1205,7 +1204,6 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
   delete [] rotate[0];
   delete [] rotate;
   
-  //this->HighlightActor(this->InteractionActor);
   this->RenderWindow->Render();
 }
 
@@ -1242,7 +1240,7 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y) {
                            this->ObjCenter[2]) / this->TrackballFactor;
 
   this->InteractionActor->AddPosition(this->MotionVector);
-  //this->HighlightActor(this->InteractionActor);
+
   this->RenderWindow->Render();
 }
 
@@ -1279,7 +1277,7 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y) {
                            this->ViewFocus[2]) * dollyFactor;
 
   this->InteractionActor->AddPosition(this->MotionVector);
-  //  this->HighlightActor(this->InteractionActor);
+
   this->RenderWindow->Render();
 }
 
@@ -1316,7 +1314,6 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y) {
                        this->ObjCenter,
                        0, rotate, scale);
 
-  //this->HighlightActor(this->InteractionActor);
   this->RenderWindow->Render();
 }
 
@@ -1403,8 +1400,6 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y) {
       delete [] rotate[1];
       delete [] rotate;
       
-      //this->HighlightActor( this->InteractionActor );
-      
       this->OldX = x;
       this->OldY = y;
       this->RenderWindow->Render();
@@ -1469,8 +1464,6 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y) {
     delete [] rotate[0];
     delete [] rotate;
     
-    //this->HighlightActor(this->InteractionActor);
-    
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
@@ -1507,12 +1500,11 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y) {
     this->MotionVector[2] = this->NewPickPoint[2] - this->OldPickPoint[2];
 
     this->InteractionActor->AddPosition(this->MotionVector);
-    //this->HighlightActor(this->InteractionActor);
       
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 
@@ -1541,12 +1533,11 @@ void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y) {
                              this->ViewFocus[2]) * dollyFactor;
     
     this->InteractionActor->AddPosition(this->MotionVector);
-    //    this->HighlightActor(this->InteractionActor);
   
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 // Description:
@@ -1574,12 +1565,10 @@ void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y) {
                          this->ObjCenter,
                          0, rotate, scale);
     
-    //this->HighlightActor(this->InteractionActor);
-    
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  };
+  }
 }
 
 
