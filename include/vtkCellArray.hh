@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of the form: (n,id1,id2,...,idn, n,id1,id2,...,idn, ...)
 // where n is the number of points in the cell, and id is a zero-offset index 
 // into an associated point list.
-//    Advantages of this data structure are its compactness, simplicity, and 
+//
+// Advantages of this data structure are its compactness, simplicity, and 
 // easy interface to external data.  However, it is totally inadequate for 
 // random access.  This functionality (when necessary) is accomplished by 
 // using the vtkCellList and vtkLinkList objects to extend the definition of 
