@@ -41,11 +41,11 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     mapper SetGhostLevel 1
     mapper Update
 
-  file delete -force grid.pvtk
-  file delete -force grid.0.vtk
-  file delete -force grid.1.vtk
-  file delete -force grid.2.vtk
-  file delete -force grid.3.vtk
+  file delete -force comb.pvtk
+  file delete -force comb.0.vtk
+  file delete -force comb.1.vtk
+  file delete -force comb.2.vtk
+  file delete -force comb.3.vtk
 
   vtkActor actor
     actor SetMapper mapper
