@@ -338,6 +338,7 @@ protected:
   float ScalarRange[2];
   float Center[3];
 
+private:
   void InternalCopy(vtkDataSet *src);  
 };
 

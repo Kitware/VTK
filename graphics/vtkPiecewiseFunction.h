@@ -60,7 +60,8 @@ public:
 
   vtkDataObject *MakeObject();
   void Initialize();
-  void DeepCopy( vtkPiecewiseFunction *f );
+  void DeepCopy( vtkDataObject *f );
+  void ShallowCopy( vtkDataObject *f );
 
   // Description:
   // Return what type of dataset this is.

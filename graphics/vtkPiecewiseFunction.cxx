@@ -86,14 +86,40 @@ vtkPiecewiseFunction::~vtkPiecewiseFunction()
     }
 }
 
-void vtkPiecewiseFunction::DeepCopy( vtkPiecewiseFunction *f )
+void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
 {
-  this->ArraySize    = f->ArraySize;
-  this->Clamping     = f->Clamping;
-  this->Function     = new float[this->ArraySize*2]; 
-  this->FunctionSize = f->FunctionSize;
-  memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
-  memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+  vtkPiecewiseFunction *f = vtkPiecewiseFunction::SafeDownCast(o);
+
+  if (f != NULL)
+    {
+    this->ArraySize    = f->ArraySize;
+    this->Clamping     = f->Clamping;
+    this->Function     = new float[this->ArraySize*2]; 
+    this->FunctionSize = f->FunctionSize;
+    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
+    memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+    }
+
+  // Do the superclass
+  this->vtkDataObject::DeepCopy(o);
+}
+
+void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
+{
+  vtkPiecewiseFunction *f = vtkPiecewiseFunction::SafeDownCast(o);
+
+  if (f != NULL)
+    {
+    this->ArraySize    = f->ArraySize;
+    this->Clamping     = f->Clamping;
+    this->Function     = new float[this->ArraySize*2]; 
+    this->FunctionSize = f->FunctionSize;
+    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
+    memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+    }
+
+  // Do the superclass
+  this->vtkDataObject::ShallowCopy(o);
 }
 
 vtkDataObject *vtkPiecewiseFunction::MakeObject()

@@ -515,6 +515,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
 {
   vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)this->GetInput();
   vtkCellArray *Connectivity = input->GetCells();
+  if (Connectivity == NULL) {return;}
   int i, cellId;
   int allVisible;
   int npts, *pts;    
