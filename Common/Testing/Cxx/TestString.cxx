@@ -58,5 +58,11 @@ int main(int, char** argv)
     cout << "Compare does not work" << endl;
     res = 1;
     }
+  char *hello_world = vtkString::Append("Hello", "World");
+  if ( !vtkString::Equals(hello_world, "HelloWorld") )
+    {
+    cout << "Append does not work" << endl;
+    res = 1;
+    }
   return res;
 }

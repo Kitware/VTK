@@ -18,9 +18,10 @@
 #include "vtkString.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkString, "1.2");
+vtkCxxRevisionMacro(vtkString, "1.3");
 vtkStandardNewMacro(vtkString);
  
+//----------------------------------------------------------------------------
 // Description:
 // This method returns the size of string. If the string is empty,
 // it returns 0. It can handle null pointers.
@@ -34,6 +35,7 @@ vtkIdType vtkString::Length(const char* str)
 }
 
   
+//----------------------------------------------------------------------------
 // Description:
 // Copy string to the other string.
 void vtkString::Copy(char* dest, const char* src)
@@ -50,6 +52,7 @@ void vtkString::Copy(char* dest, const char* src)
   strcpy(dest, src);
 }
 
+//----------------------------------------------------------------------------
 // Description:
 // This method makes a duplicate of the string similar to
 // C function strdup but it uses new to create new string, so
@@ -66,6 +69,7 @@ char* vtkString::Duplicate(const char* str)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Description:
 // This method compare two strings. It is similar to strcmp,
 // but it can handle null pointers.
@@ -82,6 +86,7 @@ int vtkString::Compare(const char* str1, const char* str2)
   return strcmp(str1, str2);
 }
 
+//----------------------------------------------------------------------------
 // Description:
 // Check if the first string starts with the second one.
 int vtkString::StartsWith(const char* str1, const char* str2)
@@ -93,6 +98,7 @@ int vtkString::StartsWith(const char* str1, const char* str2)
   return !strncmp(str1, str2, strlen(str2));  
 }
 
+//----------------------------------------------------------------------------
 // Description:
 // Check if the first string starts with the second one.
 int vtkString::EndsWith(const char* str1, const char* str2)
@@ -103,3 +109,29 @@ int vtkString::EndsWith(const char* str1, const char* str2)
     }
   return !strncmp(str1 + (strlen(str1)-strlen(str2)), str2, strlen(str2));
 }
+
+//----------------------------------------------------------------------------
+char* vtkString::Append(const char* str1, const char* str2)
+{
+  if ( !str1 && !str2 )
+    {
+    return 0;
+    }
+  char *newstr = 
+    new char[ vtkString::Length(str1) + vtkString::Length(str1)+1];
+  if ( !newstr )
+    {
+    return 0;
+    }
+  newstr[0] = 0;
+  if ( str1 )
+    {
+    strcat(newstr, str1);
+    }
+  if ( str2 )
+    {
+    strcat(newstr, str2);
+    }
+  return newstr;
+}
+

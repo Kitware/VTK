@@ -67,6 +67,12 @@ public:
   // Description:
   // Check if the first string ends with the second one.
   static int EndsWith(const char* str1, const char* str2);
+
+  // Description:
+  // Append two strings and prroduce new one.  Programmer must delete
+  // the resulting string. The method returns 0 if inputs are empty or
+  // if there was an error.
+  static char* Append(const char* str1, const char* str2);
   
 protected:
   vtkString() {};
