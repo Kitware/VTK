@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.28");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.29");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -297,6 +297,8 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_CEILING:
       case VTK_PARSER_FLOOR:
       case VTK_PARSER_LOGARITHM:
+      case VTK_PARSER_LOGARITHME:
+      case VTK_PARSER_LOGARITHM10:
       case VTK_PARSER_SQUARE_ROOT:
       case VTK_PARSER_SINE:
       case VTK_PARSER_COSINE:
@@ -523,6 +525,22 @@ void vtkFunctionParser::Evaluate()
           return;
           }
         this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+        break;
+      case VTK_PARSER_LOGARITHME:
+        if (this->Stack[stackPosition]<=0)
+          {
+          vtkErrorMacro("Trying to take a logarithm of a negative value");
+          return;
+          }
+        this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+        break;
+      case VTK_PARSER_LOGARITHM10:
+        if (this->Stack[stackPosition]<=0)
+          {
+          vtkErrorMacro("Trying to take a logarithm of a negative value");
+          return;
+          }
+        this->Stack[stackPosition] = log(this->Stack[stackPosition])/log(10);
         break;
       case VTK_PARSER_SQUARE_ROOT:
         if (this->Stack[stackPosition] < 0)
@@ -1521,8 +1539,18 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
     {
     return VTK_PARSER_FLOOR;
     }
+  if (strncmp(&this->Function[currentIndex], "ln", 2) == 0)
+    {
+    return VTK_PARSER_LOGARITHME;
+    }
+  if (strncmp(&this->Function[currentIndex], "log10", 5) == 0)
+    {
+    return VTK_PARSER_LOGARITHM10;
+    }
   if (strncmp(&this->Function[currentIndex], "log", 3) == 0)
     {
+    vtkErrorMacro("The use of log function is being deprecated. "
+                  "Please use log10 or ln instead");
     return VTK_PARSER_LOGARITHM;
     }
   if (strncmp(&this->Function[currentIndex], "sqrt", 4) == 0)
@@ -1593,6 +1621,8 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
 {
   switch (mathFunctionNumber)
     {
+    case VTK_PARSER_LOGARITHME:
+      return 2;
     case VTK_PARSER_ABSOLUTE_VALUE:
     case VTK_PARSER_EXPONENT:
     case VTK_PARSER_LOGARITHM:
@@ -1612,6 +1642,7 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
     case VTK_PARSER_NORMALIZE:
       return 4;
     case VTK_PARSER_FLOOR:
+    case VTK_PARSER_LOGARITHM10:
       return 5;
     default:
       vtkWarningMacro("Unknown math function");
