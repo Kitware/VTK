@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.117");
+vtkCxxRevisionMacro(vtkContourFilter, "1.118");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -275,6 +275,7 @@ int vtkContourFilter::RequestData(
         {
         this->SynchronizedTemplates2D->SetValue(i,values[i]);
         }
+      this->SynchronizedTemplates2D->SelectInputScalars(this->InputScalarsSelection);
       return 
         this->SynchronizedTemplates2D->ProcessRequest(request,inputVector,outputVector);
       }
@@ -288,6 +289,7 @@ int vtkContourFilter::RequestData(
       this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
       this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
       this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
+      this->SynchronizedTemplates3D->SelectInputScalars(this->InputScalarsSelection);
       return 
         this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
       }
@@ -308,6 +310,8 @@ int vtkContourFilter::RequestData(
       this->RectilinearSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->RectilinearSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->RectilinearSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->RectilinearSynchronizedTemplates->SelectInputScalars
+        (this->InputScalarsSelection);
       return this->RectilinearSynchronizedTemplates->
         ProcessRequest(request,inputVector,outputVector);
       }
@@ -328,6 +332,7 @@ int vtkContourFilter::RequestData(
       this->GridSynchronizedTemplates->SetComputeNormals(this->ComputeNormals);
       this->GridSynchronizedTemplates->SetComputeGradients(this->ComputeGradients);
       this->GridSynchronizedTemplates->SetComputeScalars(this->ComputeScalars);
+      this->GridSynchronizedTemplates->SelectInputScalars(this->InputScalarsSelection);
       return this->GridSynchronizedTemplates->
         ProcessRequest(request,inputVector,outputVector);
       }
