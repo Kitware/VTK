@@ -526,13 +526,25 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
 #endif
 
   id = 0;
+  int flag_latch;
 
   while ( id < VTK_MAX_THREADS )
     {
     if ( this->SpawnedThreadActiveFlagLock[id] == NULL )
       {
+      this->SpawnedThreadActiveFlagLock[id] = vtkMutexLock::New();
       break;
       }
+    this->SpawnedThreadActiveFlagLock[id]->Lock();
+    if (this->SpawnedThreadActiveFlag[id] == 0)
+      {
+      // We've got a useable thread id, so grab it
+      this->SpawnedThreadActiveFlag[id] = 1;
+      this->SpawnedThreadActiveFlagLock[id]->Unlock();
+      break;
+      }
+    this->SpawnedThreadActiveFlagLock[id]->Unlock();
+      
     id++;
     }
 
@@ -542,10 +554,6 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
     return -1;
     }
 
-  this->SpawnedThreadActiveFlagLock[id] = vtkMutexLock::New();
-  this->SpawnedThreadActiveFlagLock[id]->Lock();
-  this->SpawnedThreadActiveFlag[id]=1;
-  this->SpawnedThreadActiveFlagLock[id]->Unlock();
 
   this->SpawnedThreadInfoArray[id].UserData        = UserData;
   this->SpawnedThreadInfoArray[id].NumberOfThreads = 1;
