@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.58");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.59");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -504,6 +504,8 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Use Default Normal: " 
      << (this->UseDefaultNormal ? "On\n" : "Off\n");
+  os << indent << "Sides Share Vertices: " 
+     << (this->SidesShareVertices ? "On\n" : "Off\n");
   os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
      ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
      " )\n";
