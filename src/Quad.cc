@@ -20,7 +20,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Polygon.hh"
 #include "Plane.hh"
 #include "vlMath.hh"
-#include "Rect.hh"
 #include "CellArr.hh"
 #include "Line.hh"
 
@@ -228,23 +227,72 @@ void vlQuad::ShapeDerivs(float pcoords[3], float derivs[8])
   derivs[7] = 0.25*rm;
 }
 
-void vlQuad::Contour(float value, vlFloatScalars *cellScalars,
-                     vlFloatPoints *points, vlCellArray *verts,
+//
+// Marching (convex) quadrilaterals
+//
+static int edges[4][2] = { {0,1}, {1,2}, {2,3}, {3,0} };
+
+typedef int EDGE_LIST;
+typedef struct {
+       EDGE_LIST edges[5];
+} LINE_CASES;
+
+static LINE_CASES lineCases[] = { 
+  {-1, -1, -1, -1, -1},
+  {0, 3, -1, -1, -1},
+  {1, 0, -1, -1, -1},
+  {1, 3, -1, -1, -1},
+  {2, 1, -1, -1, -1},
+  {0, 3, 2, 1, -1},
+  {2, 0, -1, -1, -1},
+  {2, 3, -1, -1, -1},
+  {3, 2, -1, -1, -1},
+  {0, 2, -1, -1, -1},
+  {1, 0, 3, 2, -1},
+  {1, 2, -1, -1, -1},
+  {3, 1, -1, -1, -1},
+  {0, 1, -1, -1, -1},
+  {3, 0, -1, -1, -1},
+  {-1, -1, -1, -1, -1}
+};
+
+void vlQuad::Contour(float value, vlFloatScalars *cellScalars, 
+                     vlFloatPoints *points, vlCellArray *verts, 
                      vlCellArray *lines, vlCellArray *polys, 
                      vlFloatScalars *scalars)
 {
-  int i;
-  static vlRectangle rect;
+  static int CASE_MASK[4] = {1,2,4,8};
+  LINE_CASES *lineCase;
+  EDGE_LIST  *edge;
+  int i, j, index, *vert;
+  int pts[2];
+  float t, *x1, *x2, x[3];
 
-  rect.Points.SetPoint(0,this->Points.GetPoint(0));
-  rect.Points.SetPoint(1,this->Points.GetPoint(1));
-  rect.Points.SetPoint(2,this->Points.GetPoint(3));
-  rect.Points.SetPoint(3,this->Points.GetPoint(2));
+  // Build the case table
+  for ( i=0, index = 0; i < 4; i++)
+      if (cellScalars->GetScalar(i) >= value)
+          index |= CASE_MASK[i];
 
-  rect.Contour(value, cellScalars, points, verts, lines,
-                   polys, scalars);
+  lineCase = lineCases + index;
+  edge = lineCase->edges;
 
+  for ( ; edge[0] > -1; edge += 2 )
+    {
+    for (i=0; i<2; i++) // insert line
+      {
+      vert = edges[edge[i]];
+      t = (value - cellScalars->GetScalar(vert[0])) /
+          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      x1 = this->Points.GetPoint(vert[0]);
+      x2 = this->Points.GetPoint(vert[1]);
+      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      pts[i] = points->InsertNextPoint(x);
+      scalars->InsertNextScalar(value);
+      }
+    lines->InsertNextCell(2,pts);
+    }
 }
+
 
 vlCell *vlQuad::GetEdge(int edgeId)
 {
