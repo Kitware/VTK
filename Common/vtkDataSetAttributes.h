@@ -356,54 +356,7 @@ public:
     NOLIMIT
   };
 
-  // This public class is used to perform set operations, other misc. 
-  // operations on fields. For example, vtkAppendFilter uses it to 
-  // determine which attributes the input datasets share in common.
-  class VTK_COMMON_EXPORT FieldList
-  {
-  public:
-    FieldList(int numInputs);
-    ~FieldList();
-
-    void InitializeFieldList(vtkDataSetAttributes* dsa);
-    void IntersectFieldList(vtkDataSetAttributes* dsa);
-
-    //Determine whether data is available
-    int IsAttributePresent(int attrType); //true/false attributes specified
-    int IsFieldPresent(const char *name); //return idx into field arrays
-
-    friend class vtkDataSetAttributes;
-
-  protected:
-    FieldList(const FieldList&) {} //prevent these methods from being used
-    void operator=(const FieldList&) {}
-
-  private:
-    void SetField(int index, vtkDataArray *da);
-    void RemoveField(const char *name);
-    void ClearFields();
-    
-    //These keep track of what is common across datasets
-    char** Fields; //the names of the fields (first five are named attributes)
-    int *FieldTypes; //the types of the fields (first five are named 
-                     //attributes)
-    int *FieldComponents; //the number of components in each  fields 
-                          // (first five are named attributes)
-    int *FieldIndices; //output data array index 
-                       // (first five are named attributes)
-    vtkLookupTable **LUT; //luts associated with each array
-    vtkIdType NumberOfTuples; //a running total of values
-    int NumberOfFields; //the number of fields
-    
-    //For every vtkDataSetAttributes that are processed, keep track of the 
-    //indices into various things. The indices are organized so that the
-    //first NUM_ATTRIBUTES refer to attributes, the next refer to the 
-    //non-attribute fields, for a total of NUM_ATTRIBUTES + NumberOfFields.
-    //CurrentInput is the current input being processed.
-    int **DSAIndices;
-    int NumberOfDSAIndices;
-    int CurrentInput;
-  };
+  class FieldList;
 
   // Description:
   // A special form of CopyAllocate() to be used with FieldLists. Use it 
@@ -460,11 +413,62 @@ private:
 
 //BTX
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
-//ETX
 
 private:
   vtkDataSetAttributes(const vtkDataSetAttributes&);  // Not implemented.
   void operator=(const vtkDataSetAttributes&);  // Not implemented.
+
+public:
+  // This public class is used to perform set operations, other misc. 
+  // operations on fields. For example, vtkAppendFilter uses it to 
+  // determine which attributes the input datasets share in common.
+  class VTK_COMMON_EXPORT FieldList
+  {
+  public:
+    FieldList(int numInputs);
+    ~FieldList();
+
+    void InitializeFieldList(vtkDataSetAttributes* dsa);
+    void IntersectFieldList(vtkDataSetAttributes* dsa);
+
+    //Determine whether data is available
+    int IsAttributePresent(int attrType); //true/false attributes specified
+    int IsFieldPresent(const char *name); //return idx into field arrays
+
+    friend class vtkDataSetAttributes;
+
+  protected:
+    FieldList(const FieldList&) {} //prevent these methods from being used
+    void operator=(const FieldList&) {}
+
+  private:
+    void SetField(int index, vtkDataArray *da);
+    void RemoveField(const char *name);
+    void ClearFields();
+    
+    //These keep track of what is common across datasets
+    char** Fields; //the names of the fields (first five are named attributes)
+    int *FieldTypes; //the types of the fields (first five are named 
+                     //attributes)
+    int *FieldComponents; //the number of components in each  fields 
+                          // (first five are named attributes)
+    int *FieldIndices; //output data array index 
+                       // (first five are named attributes)
+    vtkLookupTable **LUT; //luts associated with each array
+    vtkIdType NumberOfTuples; //a running total of values
+    int NumberOfFields; //the number of fields
+    
+    //For every vtkDataSetAttributes that are processed, keep track of the 
+    //indices into various things. The indices are organized so that the
+    //first NUM_ATTRIBUTES refer to attributes, the next refer to the 
+    //non-attribute fields, for a total of NUM_ATTRIBUTES + NumberOfFields.
+    //CurrentInput is the current input being processed.
+    int **DSAIndices;
+    int NumberOfDSAIndices;
+    int CurrentInput;
+  };
+
+//ETX
 };
 
 #endif

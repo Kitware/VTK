@@ -387,6 +387,27 @@ protected:
 
 //BTX
 
+  struct CopyFieldFlag
+  {
+    char* ArrayName;
+    int IsCopied;
+  };
+
+  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
+  int NumberOfFieldFlags; //the number of fields not to be copied
+  void CopyFieldOnOff(const char* name, int onOff);
+  void ClearFieldFlags();
+  int FindFlag(const char* field);
+  int GetFlag(const char* field);
+  void CopyFlags(const vtkFieldData* source);
+  int DoCopyAllOn;
+  int DoCopyAllOff;
+
+
+private:
+  vtkFieldData(const vtkFieldData&);  // Not implemented.
+  void operator=(const vtkFieldData&);  // Not implemented.
+
 public:
 
   class VTK_COMMON_EXPORT BasicIterator
@@ -460,27 +481,9 @@ public:
     int Detached;
   };
 
-  struct CopyFieldFlag
-  {
-    char* ArrayName;
-    int IsCopied;
-  };
-
-  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
-  int NumberOfFieldFlags; //the number of fields not to be copied
-  void CopyFieldOnOff(const char* name, int onOff);
-  void ClearFieldFlags();
-  int FindFlag(const char* field);
-  int GetFlag(const char* field);
-  void CopyFlags(const vtkFieldData* source);
-  int DoCopyAllOn;
-  int DoCopyAllOff;
 
 //ETX
 
-private:
-  vtkFieldData(const vtkFieldData&);  // Not implemented.
-  void operator=(const vtkFieldData&);  // Not implemented.
 };
 
 
