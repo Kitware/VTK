@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/keysym.h>
 #include "vtkXRenderWindowTclInteractor.h"
 #include "vtkInteractorStyle.h"
-#include "vtkXRenderWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
 #include <math.h>
@@ -92,9 +92,9 @@ extern "C" {TkMainInfo *TkGetMainInfoList();}
 static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 {
   Boolean ctd;
-  vtkXRenderWindow *rw;
+  vtkXOpenGLRenderWindow *rw;
       
-  rw = (vtkXRenderWindow *)
+  rw = (vtkXOpenGLRenderWindow *)
     (((vtkXRenderWindowTclInteractor *)clientData)->GetRenderWindow());
   
   if (rw->GetWindowId() == ((XAnyEvent *)event)->window)
@@ -214,7 +214,7 @@ void vtkXRenderWindowTclInteractor::Initialize(XtAppContext app)
 // Begin processing keyboard strokes.
 void vtkXRenderWindowTclInteractor::Initialize()
 {
-  vtkXRenderWindow *ren;
+  vtkXOpenGLRenderWindow *ren;
   int *size;
 
   // make sure we have a RenderWindow and camera
@@ -225,7 +225,7 @@ void vtkXRenderWindowTclInteractor::Initialize()
     }
 
   this->Initialized = 1;
-  ren = (vtkXRenderWindow *)(this->RenderWindow);
+  ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
 
   // use the same display as tcl/tk
 #if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))

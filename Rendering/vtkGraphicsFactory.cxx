@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
@@ -187,7 +187,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
       {
-      return vtkOpenGLRenderWindow::New();
+      return vtkXOpenGLRenderWindow::New();
       }
     }
 #endif

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/keysym.h>
 #include "vtkXRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
-#include "vtkXRenderWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
 #include <math.h>
@@ -213,7 +213,7 @@ void vtkXRenderWindowInteractor::Initialize()
 {
   static int any_initialized = 0;
   static XtAppContext app;
-  vtkXRenderWindow *ren;
+  vtkXOpenGLRenderWindow *ren;
   int depth;
   Colormap cmap;
   Visual  *vis;
@@ -230,7 +230,7 @@ void vtkXRenderWindowInteractor::Initialize()
     }
 
   this->Initialized = 1;
-  ren = (vtkXRenderWindow *)(this->RenderWindow);
+  ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
   

@@ -131,7 +131,6 @@ IF(UNIX)
     SOURCE_FILES ( Rendering_SRCS
                  vtkXImageWindow
                  vtkXRenderWindowInteractor
-                 vtkXRenderWindow
                  vtkXTextMapper)
   ENDIF(NOT WIN32)
 ENDIF(UNIX)

@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OpenGLRenderWindow.h"
 #define VTK_TK_EXPORT __declspec( dllexport ) 
 #else
-#include "vtkXRenderWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #define VTK_TK_EXPORT
 #endif
 
@@ -672,7 +672,7 @@ static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
-  vtkXRenderWindow *renderWindow;
+  vtkXOpenGLRenderWindow *renderWindow;
   
   if (self->RenderWindow)
     {
@@ -692,7 +692,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     self->RenderWindow = vtkRenderWindow::New();
     self->RenderWindow->Register(NULL);
     self->RenderWindow->Delete();
-    renderWindow = (vtkXRenderWindow *)(self->RenderWindow);
+    renderWindow = (vtkXOpenGLRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
@@ -708,13 +708,13 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
-      renderWindow = (vtkXRenderWindow *)tmp;
+      renderWindow = (vtkXOpenGLRenderWindow *)tmp;
       }
     else
       {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
-      renderWindow = (vtkXRenderWindow *)
+      renderWindow = (vtkXOpenGLRenderWindow *)
 	vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
 				   new_flag);
 #endif
