@@ -25,7 +25,9 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.29");
+#include <sys/stat.h>
+
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.30");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -33,6 +35,7 @@ class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
 
 };
 
+//----------------------------------------------------------------------------
 vtkDICOMImageReader::vtkDICOMImageReader()
 {
   this->Parser = new DICOMParser();
@@ -45,6 +48,7 @@ vtkDICOMImageReader::vtkDICOMImageReader()
   this->DICOMFileNames = new vtkDICOMImageReaderVector();
 }
 
+//----------------------------------------------------------------------------
 vtkDICOMImageReader::~vtkDICOMImageReader()
 {
   delete this->Parser;
@@ -73,6 +77,7 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -95,6 +100,7 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::CanReadFile(const char* fname)
 {
   bool canOpen = this->Parser->OpenFile((char*) fname);
@@ -114,6 +120,7 @@ int vtkDICOMImageReader::CanReadFile(const char* fname)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDICOMImageReader::ExecuteInformation()
 {
   if (this->FileName == NULL && this->DirectoryName == NULL)
@@ -123,6 +130,13 @@ void vtkDICOMImageReader::ExecuteInformation()
 
   if (this->FileName)
     {
+    struct stat fs;
+    if ( stat(this->FileName, &fs) )
+      {
+      vtkErrorMacro("Unable to open file " << this->FileName );
+      return;
+      }
+
     this->DICOMFileNames->clear();
     this->AppHelper->Clear();
     this->Parser->ClearAllDICOMTagCallbacks();
@@ -230,6 +244,7 @@ void vtkDICOMImageReader::ExecuteInformation()
 
 }
 
+//----------------------------------------------------------------------------
 void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
@@ -343,6 +358,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
 {
   int width = this->AppHelper->GetWidth();
@@ -387,6 +403,7 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
   this->vtkImageReader2::ExecuteInformation();
 }
 
+//----------------------------------------------------------------------------
 void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this <<
@@ -420,6 +437,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 double* vtkDICOMImageReader::GetPixelSpacing()
 {
   vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
@@ -444,36 +462,43 @@ double* vtkDICOMImageReader::GetPixelSpacing()
   return this->DataSpacing;
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::GetWidth()
 {
   return this->AppHelper->GetWidth();
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::GetHeight()
 {
   return this->AppHelper->GetHeight();
 }
 
+//----------------------------------------------------------------------------
 float* vtkDICOMImageReader::GetImagePositionPatient()
 {
   return this->AppHelper->GetImagePositionPatient();
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::GetBitsAllocated()
 {
   return this->AppHelper->GetBitsAllocated();
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::GetPixelRepresentation()
 {
   return this->AppHelper->GetPixelRepresentation();
 }
 
+//----------------------------------------------------------------------------
 int vtkDICOMImageReader::GetNumberOfComponents()
 {
   return this->AppHelper->GetNumberOfComponents();
 }
 
+//----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetTransferSyntaxUID()
 {
   vtkstd::string tmp = this->AppHelper->GetTransferSyntaxUID();
@@ -489,16 +514,19 @@ const char* vtkDICOMImageReader::GetTransferSyntaxUID()
   return this->TransferSyntaxUID;
 }
 
+//----------------------------------------------------------------------------
 float vtkDICOMImageReader::GetRescaleSlope()
 {
   return this->AppHelper->GetRescaleSlope();
 }
 
+//----------------------------------------------------------------------------
 float vtkDICOMImageReader::GetRescaleOffset()
 {
   return this->AppHelper->GetRescaleOffset();
 }
 
+//----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetPatientName()
 {
   vtkstd::string tmp = this->AppHelper->GetPatientName();
@@ -514,6 +542,7 @@ const char* vtkDICOMImageReader::GetPatientName()
   return this->PatientName;
 }
 
+//----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetStudyUID()
 {
   vtkstd::string tmp = this->AppHelper->GetStudyUID();
@@ -529,6 +558,7 @@ const char* vtkDICOMImageReader::GetStudyUID()
   return this->StudyUID;
 }
 
+//----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetStudyID()
 {
   vtkstd::string tmp = this->AppHelper->GetStudyID();
@@ -544,6 +574,7 @@ const char* vtkDICOMImageReader::GetStudyID()
   return this->StudyID;
 }
 
+//----------------------------------------------------------------------------
 float vtkDICOMImageReader::GetGantryAngle()
 {
   return this->AppHelper->GetGantryAngle();
