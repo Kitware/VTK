@@ -299,11 +299,6 @@ public:
 
 //ETX
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  virtual vtkMatrix4x4 *GetMatrixPointer() 
-    {VTK_LEGACY_METHOD(GetMatrixPointer,"3.2"); return NULL;}
-#endif
-
 protected:
   vtkProp();
   ~vtkProp();

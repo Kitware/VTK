@@ -125,13 +125,6 @@ public:
   // Get a list of texture coordinates
   void GetTCoords(vtkIdList *ptId, vtkTCoords *fv);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void GetTCoords(vtkIdList& ptId, vtkTCoords& fv) 
-    {VTK_LEGACY_METHOD(GetTCoords,"3.2"); this->GetTCoords(&ptId, &fv);}
-#endif
-  
 protected:
   vtkTCoords();
   ~vtkTCoords() {};

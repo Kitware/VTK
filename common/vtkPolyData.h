@@ -385,19 +385,6 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void GetCellPoints(int cellId, vtkIdList &ptIds)
-    {VTK_LEGACY_METHOD(GetCellPoints,"3.2"); this->GetCellPoints(cellId, &ptIds);}
-  void GetPointCells(int ptId, vtkIdList &cellIds)
-    {VTK_LEGACY_METHOD(GetPointCells,"3.2"); this->GetPointCells(ptId, &cellIds);}
-  int InsertNextCell(int type, vtkIdList &pts) 
-    {VTK_LEGACY_METHOD(InsertNextCell,"3.2"); return this->InsertNextCell(type, &pts);}
-  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList& cellIds)
-    {VTK_LEGACY_METHOD(GetCellEdgeNeighbors,"3.2"); this->GetCellEdgeNeighbors(cellId, p1, p2, &cellIds);}
-#endif
-  
 protected:
   vtkPolyData();
   ~vtkPolyData();
