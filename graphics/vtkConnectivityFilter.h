@@ -93,8 +93,8 @@ public:
 
   // Description:
   // Set the scalar range to use to extract cells based on scalar connectivity.
-  vtkSetVectorMacro(ScalarRange,float,2);
-  vtkGetVectorMacro(ScalarRange,float,2);
+  vtkSetVector2Macro(ScalarRange,float);
+  vtkGetVector2Macro(ScalarRange,float);
 
   // Description:
   // Control the extraction of connected surfaces.
