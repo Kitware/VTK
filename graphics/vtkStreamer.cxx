@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
@@ -125,7 +126,6 @@ vtkStreamer::vtkStreamer()
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
   this->Integrator = vtkRungeKutta2::New();
 
-// berk
   this->SavePointInterval = 0.00001;
 }
 
@@ -266,19 +266,18 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
   vtkStreamPoint           *sNext = 0, *sPtr;
   vtkStreamPoint           pt1, pt2;
   int                      i, ptId;
-  int                      idx, idxNext;
+  int                      idxNext;
   float                    d, step, dir;
-  float                    xNext[3], vel[3];
-  float                    *w;
+  float                    xNext[3], vel[3], *cellVel, derivs[9];
+  float                    *w, pcoords[3];
   float                    coords[4];
   vtkDataSet               *input;
   vtkGenericCell           *cell;
   vtkPointData             *pd;
-  vtkVectors               *inVectors;
   vtkScalars               *inScalars;
+  vtkVectors               *inVectors;
   vtkVectors               *cellVectors;
   vtkScalars               *cellScalars;
-  vtkGenericCell           *gencell = NULL;
   float tOffset;
   int nSavePts = 0;
 
@@ -288,8 +287,8 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 
   input     = self->GetInput();
   pd        = input->GetPointData();
-  inVectors = pd->GetVectors();
   inScalars = pd->GetScalars();
+  inVectors = pd->GetVectors();
 
   cell = vtkGenericCell::New();
   cellVectors = vtkVectors::New();
@@ -323,7 +322,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
       {
       //get starting step
       streamer = self->GetStreamers() + ptId;
-      sPtr = streamer->GetStreamPoint(idx=0);
+      sPtr = streamer->GetStreamPoint(0);
       if ( sPtr->cellId < 0 )
 	{
         continue;
@@ -381,6 +380,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	
 	pt2.cellId = func->GetLastCellId();
 	func->GetLastWeights(w);
+	func->GetLastLocalCoordinates(pcoords);
 	input->GetCell(pt2.cellId, cell);
 	if ( inScalars )
 	  {
@@ -389,6 +389,16 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	    {
 	    pt2.s += cellScalars->GetScalar(i) * w[i];
 	    }
+	  }
+
+	if (self->GetVorticity() && inVectors)
+	  {
+	  inVectors->GetVectors(cell->PointIds, cellVectors);
+	  cellVel = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
+	  cell->Derivatives(0, pcoords, cellVel, 3, derivs);
+          pt2.w[0] = derivs[7] - derivs[5];
+          pt2.w[1] = derivs[2] - derivs[6];
+          pt2.w[2] = derivs[3] - derivs[1];
 	  }
 	
 	pt2.speed = vtkMath::Norm(pt2.v);
@@ -447,10 +457,6 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
   cellVectors->Delete();
   cellScalars->Delete();
   delete[] w;
-  if ( gencell )
-    {
-    gencell->Delete();
-    }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -608,8 +614,19 @@ void vtkStreamer::Integrate()
   //
   if ( this->Vorticity )
     {
-    this->ComputeVorticity();
+    for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
+      {
+      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
+	    i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+	    i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
+        {
+        sPtr->v[0] = sPtr->w[0];
+        sPtr->v[0] = sPtr->w[1];
+        sPtr->v[0] = sPtr->w[2];
+        }
+      }
     }
+
   //
   // Now create appropriate representation
   //
