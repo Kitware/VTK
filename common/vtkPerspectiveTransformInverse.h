@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPerspectiveTransformInverse_h
 
 #include "vtkPerspectiveTransform.h"
+#include "vtkMutexLock.h"
 
 class VTK_EXPORT vtkPerspectiveTransformInverse : public vtkPerspectiveTransform
 {
@@ -102,6 +103,7 @@ protected:
   void operator=(const vtkPerspectiveTransformInverse&) {};
 
   int UpdateRequired;
+  vtkMutexLock *UpdateMutex;
   vtkPerspectiveTransform *Transform;
 };
 

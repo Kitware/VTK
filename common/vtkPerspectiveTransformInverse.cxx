@@ -60,6 +60,7 @@ vtkPerspectiveTransformInverse::vtkPerspectiveTransformInverse()
 {
   this->Transform = NULL;
   this->UpdateRequired = 0;
+  this->UpdateMutex = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +69,10 @@ vtkPerspectiveTransformInverse::~vtkPerspectiveTransformInverse()
   if (this->Transform)
     {
     this->Transform->Delete();
+    }
+  if (this->UpdateMutex)
+    {
+    this->UpdateMutex->Delete();
     }
 }
 
@@ -103,6 +108,7 @@ void vtkPerspectiveTransformInverse::SetInverse(vtkPerspectiveTransform *trans)
   this->MyInverse = trans;
   trans->Register(this);
   this->Transform = (vtkPerspectiveTransform *)trans->MakeTransform();
+
   this->UpdateRequired = 1;
   this->Modified();
 }
@@ -167,35 +173,29 @@ void vtkPerspectiveTransformInverse::DeepCopy(vtkGeneralTransform *transform)
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransformInverse::Update()
 {
-  if (this->MyInverse == NULL)
-    {
-    vtkErrorMacro(<< "Update: Inverse has not been set");
-    return;
-    }
+  // lock the update just in case multiple threads update simultaneously
+  this->UpdateMutex->Lock();
 
-  this->MyInverse->Update();
-
-  if (this->MyInverse->GetMTime() > 
-      this->Transform->GetMTime() || this->UpdateRequired)
+  if (this->MyInverse->GetMTime() > this->Matrix->GetMTime() 
+      || this->UpdateRequired)
     {
     this->Transform->DeepCopy(this->MyInverse);
     this->Transform->Inverse();
+    this->Transform->GetMatrix(this->Matrix);
     this->UpdateRequired = 0;
     }
 
-  this->Transform->Update();
-  this->Matrix->DeepCopy(this->Transform->GetMatrixPointer());
+  this->UpdateMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------
 unsigned long vtkPerspectiveTransformInverse::GetMTime()
 {
   unsigned long result = this->vtkPerspectiveTransform::GetMTime();
-  unsigned long mtime;
 
   if (this->MyInverse)
     {
-    mtime = this->MyInverse->GetMTime();
+    unsigned long mtime = this->MyInverse->GetMTime();
     if (mtime > result)
       {
       result = mtime;

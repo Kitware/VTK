@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkGeneralTransformInverse_h
 
 #include "vtkGeneralTransform.h"
+#include "vtkMutexLock.h"
 
 class VTK_EXPORT vtkGeneralTransformInverse : public vtkGeneralTransform
 {
@@ -118,6 +119,8 @@ protected:
   vtkGeneralTransform *VirtualGetInverse();
 
   int UpdateRequired;
+  vtkMutexLock *UpdateMutex;
+
   vtkGeneralTransform *Transform;
 };
 

@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkLinearTransformInverse_h
 
 #include "vtkLinearTransform.h"
+#include "vtkMutexLock.h"
 
 class VTK_EXPORT vtkLinearTransformInverse : public vtkLinearTransform
 {
@@ -102,6 +103,7 @@ protected:
   void operator=(const vtkLinearTransformInverse&) {};
 
   int UpdateRequired;
+  vtkMutexLock *UpdateMutex;
   vtkLinearTransform *Transform;
 };
 
