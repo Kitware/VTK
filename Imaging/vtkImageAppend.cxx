@@ -18,7 +18,7 @@
 #include "vtkImageAppend.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.22");
+vtkCxxRevisionMacro(vtkImageAppend, "1.23");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -188,9 +188,9 @@ void vtkImageAppend::ComputeInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageAppendExecute(vtkImageAppend *self, int id, 
-                          int inExt[6], vtkImageData *inData, T *inPtr,
-                          int outExt[6], vtkImageData *outData, T *outPtr)
+void vtkImageAppendExecute(vtkImageAppend *self, int id, 
+                           int inExt[6], vtkImageData *inData, T *inPtr,
+                           int outExt[6], vtkImageData *outData, T *outPtr)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;

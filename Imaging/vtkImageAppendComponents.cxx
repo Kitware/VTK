@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.22");
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.23");
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------
@@ -44,10 +44,10 @@ void vtkImageAppendComponents::ExecuteInformation(vtkImageData **inputs,
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
-                                            vtkImageData *inData, 
-                                            vtkImageData *outData, 
-                                            int outComp,
+void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
+                                     vtkImageData *inData, 
+                                     vtkImageData *outData, 
+                                     int outComp,
                                             int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
