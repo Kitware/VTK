@@ -58,4 +58,10 @@ class vtkSbrProperty : public vtkPropertyDevice
   void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);
 };
 
+// hey here are some extra comments
+// I hope they don't have that ugly crap on the
+// end of them
+// but you really can't be sure
+
+
 #endif
