@@ -124,6 +124,15 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
       return PyString_FromString(
 	       vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
       }
+
+    if (strcmp(name,"__members__") == 0)
+      {
+      PyObject *lst = PyList_New(3);
+      PyList_SET_ITEM(lst,0,PyString_FromString("__class__"));
+      PyList_SET_ITEM(lst,1,PyString_FromString("__members__"));
+      PyList_SET_ITEM(lst,2,PyString_FromString("__this__"));
+      return lst;
+      }
     }
 
   while (pyclass != NULL)
@@ -154,7 +163,7 @@ static void PyVTKObject_PyDelete(PyObject *self)
 
 //--------------------------------------------------------------------
 static PyTypeObject PyVTKObjectType = {
-  PyObject_HEAD_INIT(NULL)
+  PyObject_HEAD_INIT(&PyType_Type)
   0,
   "vtkobject",                           // tp_name
   sizeof(PyVTKObject),                   // tp_basicsize
@@ -175,7 +184,7 @@ static PyTypeObject PyVTKObjectType = {
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  0,                                     // tp_doc
+  "A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __this__ (a string that contains the hexidecimal address of the underlying VTK object)"  // tp_doc
 };
 
 int PyVTKObject_Check(PyObject *obj)
@@ -276,6 +285,18 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
       {
       return PyString_FromString(((PyVTKClass *)self)->vtk_doc);
       }
+
+    if (strcmp(name,"__members__") == 0)
+      {
+      PyObject *lst = PyList_New(6);
+      PyList_SET_ITEM(lst,0,PyString_FromString("__bases__"));
+      PyList_SET_ITEM(lst,1,PyString_FromString("__doc__"));
+      PyList_SET_ITEM(lst,2,PyString_FromString("__members__"));
+      PyList_SET_ITEM(lst,3,PyString_FromString("__methods__"));
+      PyList_SET_ITEM(lst,4,PyString_FromString("__module__"));
+      PyList_SET_ITEM(lst,5,PyString_FromString("__name__"));
+      return lst;
+      }
     }
 
   while (pyclass != NULL)
@@ -303,7 +324,7 @@ static void PyVTKClass_PyDelete(PyObject *self)
 
 //--------------------------------------------------------------------
 static PyTypeObject PyVTKClassType = {
-  PyObject_HEAD_INIT(NULL)
+  PyObject_HEAD_INIT(&PyType_Type)
   0,
   "vtkclass",                            // tp_name
   sizeof(PyVTKClass),                    // tp_basicsize
@@ -324,7 +345,7 @@ static PyTypeObject PyVTKClassType = {
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  0,                                     // tp_doc
+  "A generator for VTK objects.  Special attributes are: __doc__ (the docstring for the class), __bases__ (a tuple of base classes), __name__ (the name of class), __module__ (module that the class is defined in), __methods__ (methods for this class, not including inherited methods)." // tp_doc
 };
 
 int PyVTKClass_Check(PyObject *obj)
