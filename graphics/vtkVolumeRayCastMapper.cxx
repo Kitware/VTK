@@ -425,6 +425,12 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
                    data_type );
     }
 
+  if( (this->ScalarDataType != 0) && (this->ScalarDataType != 1) )
+    {
+    vtkErrorMacro( << "The scalar data type: " << data_type <<
+      " is not supported when volume rendering. Please convert the " <<
+      " data to unsigned char or unsigned short.\n" );
+    }
 }
 
 // Description:
