@@ -48,6 +48,7 @@ __fastcall TvtkBorlandRenderWindow::TvtkBorlandRenderWindow(TComponent* Owner)
     FOnVtkClose         = 0;
     FRenderWindow       = 0;
     FRenderer           = 0;
+    FAbortCallback      = vtkAbortCallback::New();
 }
 
 //---------------------------------------------------------------------------
@@ -68,10 +69,12 @@ __fastcall TvtkBorlandRenderWindow::~TvtkBorlandRenderWindow()
       }
     if ( FRenderWindow )
       {
+      FRenderWindow->RemoveObserver(FAbortCallback);
       FRenderWindow->Delete();
       FRenderWindow = 0;
       }
    // ShowMessage("ok render window destroy");
+    FAbortCallback->Delete();
 }
 
 //---------------------------------------------------------------------------
@@ -81,15 +84,13 @@ vtkWin32OpenGLRenderWindow * __fastcall TvtkBorlandRenderWindow::GetRenderWindow
     {
         // Stuff the renderwindow into our window
         FRenderWindow = vtkWin32OpenGLRenderWindow::New();
-        void (*pf) ( void *) = &CheckAbortFunc;
-        FRenderWindow->SetAbortCheckMethod( pf , reinterpret_cast<void *>(FRenderWindow));
-
+        FRenderWindow->AddObserver( vtkCommand::AbortCheckEvent, FAbortCallback);
         FRenderWindow->SetParentId(Parent->Handle);
         FRenderWindow->SetWindowId(Handle);
         FRenderWindow->DoubleBufferOn();
         FRenderWindow->SwapBuffersOn();
-            //Frame to avoid unsightly garbage during initial
-            // display which may be long when a complex scene is first rendered
+        // Frame to avoid unsightly garbage during initial
+        // display which may be long when a complex scene is first rendered
         FRenderWindow->Frame();
         Invalidate();
     }
@@ -357,29 +358,20 @@ void __fastcall TvtkBorlandRenderWindow::MouseUp(TMouseButton button, TShiftStat
 void __fastcall TvtkBorlandRenderWindow::Resize(void)
 {
     if (FInteractor)
-       FInteractor->OnSize(this->Handle, 0, this->Width, this->Height);
+      {
+      FInteractor->OnSize(this->Handle, 0, this->Width, this->Height);
+      }
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TvtkBorlandRenderWindow::WMTimer(TWMTimer &Message)
 {
     if (FInteractor)
+      {
       FInteractor->OnTimer(Handle,Message.TimerID);
+      }
 }
 
-//---------------------------------------------------------------------------
-void CheckAbortFunc(void *ptr)
-{
-  vtkWin32OpenGLRenderWindow* ptrWin = reinterpret_cast<vtkWin32OpenGLRenderWindow*>(ptr);
-  if (ptrWin)
-  {
-    if(ptrWin->GetEventPending())
-    {
-       ptrWin->SetAbortRender( 1 );
-       // Beep();
-     }
-  }
-}
 
 
 

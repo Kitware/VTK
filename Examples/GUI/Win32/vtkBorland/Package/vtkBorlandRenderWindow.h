@@ -7,11 +7,33 @@
 #include <Classes.hpp>
 #include <Forms.hpp>
 
-#include "vtkWin32OpenGLRenderWindow.h";
+#include "vtkCommand.h"
 #include "vtkRenderer.h";
+#include "vtkWin32OpenGLRenderWindow.h";
 #include "vtkWin32RenderWindowInteractor.h";
 
 typedef bool __fastcall (__closure *TvtkBorlandCloseEvent)(TObject *Sender);
+
+// Callback for abort check
+class vtkAbortCallback : public vtkCommand
+{
+public:
+  static vtkAbortCallback *New()
+    { return new vtkAbortCallback; }
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
+    {
+    vtkWin32OpenGLRenderWindow* ptrWin = reinterpret_cast<vtkWin32OpenGLRenderWindow*>(caller);
+    if (ptrWin)
+      {
+      if(ptrWin->GetEventPending())
+        {
+        ptrWin->SetAbortRender( 1 );
+       // Beep();
+        }
+      }
+    }
+  vtkAbortCallback(){};
+};
 
 //---------------------------------------------------------------------------
 enum vtkBorlandInteractorMode { IM_JoystickCamera,IM_JoystickActor,
@@ -64,6 +86,7 @@ protected:
     TvtkBorlandCloseEvent            FOnVtkClose;
     bool                             FUsevtkInteractor;
     vtkBorlandInteractorMode         FInteractorMode;
+    vtkAbortCallback                *FAbortCallback;
 
     //
 public:
