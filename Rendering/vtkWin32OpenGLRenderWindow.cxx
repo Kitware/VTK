@@ -36,7 +36,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.82");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.83");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -908,7 +908,9 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
   this->MemoryDataHeader.bmiHeader.biClrUsed = 0;
   this->MemoryDataHeader.bmiHeader.biClrImportant = 0;
   this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
-
+  this->MemoryDataHeader.bmiHeader.biXPelsPerMeter = 10000;
+  this->MemoryDataHeader.bmiHeader.biYPelsPerMeter = 10000;
+  
   HBITMAP dib = CreateDIBSection(aHdc,
                      &this->MemoryDataHeader, DIB_RGB_COLORS,
                      (void **)(&(this->MemoryData)),  NULL, 0);
