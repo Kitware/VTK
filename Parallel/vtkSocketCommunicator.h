@@ -145,6 +145,8 @@ protected:
 
   int ReceiveMessage(char *data, int size, int length, int tag );
 
+  ofstream *TraceFile;
+
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.

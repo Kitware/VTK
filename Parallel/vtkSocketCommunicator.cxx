@@ -57,7 +57,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.36");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.37");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,9 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = 0;
   this->PerformHandshake = 1;
+
+  this->TraceFile = 0;
+  //this->TraceFile = new ofstream("socket.txt", ios::out);
 }
 
 //----------------------------------------------------------------------------
@@ -76,6 +79,13 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
   if (this->IsConnected)
     {
     vtkCloseSocketMacro(this->Socket);
+    }
+
+  if ( this->TraceFile )
+    {
+    this->TraceFile->close();
+    delete this->TraceFile;
+    this->TraceFile = 0;
     }
 }
 
@@ -147,6 +157,17 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send int    " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    if (length == 3)
+      {
+      *this->TraceFile << "        " << data[0] << ", " << data[1] << ", " 
+                       << data[2] << endl;
+      }
+    }
+
   return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(int), 
                      tag, this->Socket);
 }
@@ -157,6 +178,11 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send ulong  " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return ::SendMessage(reinterpret_cast<char*>(data),length*sizeof(unsigned long), 
                      tag, this->Socket);
 }
@@ -165,6 +191,16 @@ int vtkSocketCommunicator::Send(char *data, int length,
                                 int remoteProcessId, int tag)
 {
   vtkSCCheckForError;
+
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send char   " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    if ( length < 80)
+      {
+      *this->TraceFile << "        " << data << endl;
+      }
+    }
 
   return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
@@ -175,6 +211,12 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send uchar  " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
+
   return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
 
@@ -183,6 +225,12 @@ int vtkSocketCommunicator::Send(float *data, int length,
                                 int remoteProcessId, int tag)
 {
   vtkSCCheckForError;
+
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send float  " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
 
   return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(float), 
                      tag, this->Socket);
@@ -194,6 +242,11 @@ int vtkSocketCommunicator::Send(double *data, int length,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Send double " << length << ", to " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(double), 
                      tag, this->Socket);
 }
@@ -224,6 +277,10 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   if ( total == -1 )
     {
     vtkErrorMacro("Could not receive tag.");
+    if ( this->TraceFile )
+      {
+      *this->TraceFile << "****Could not receive tag" << endl;
+      }
     return 0;
     }
   while ( total < (int)sizeof(int) )
@@ -239,6 +296,12 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     }
   if ( recvTag != tag )
     {
+    if ( this->TraceFile )
+      {
+      *this->TraceFile << "****Tag mismatch: got " << recvTag 
+                       << " expecting " << tag << endl;
+      }
+    vtkErrorMacro("Tag mismatch: got " << recvTag << " expecting " << tag);
     return 0;
     }
   
@@ -246,6 +309,10 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   // we should be able to get all of it in one try.
   if (recv( this->Socket, charTag, sizeof(int), 0 ) == -1)
     {
+    if ( this->TraceFile )
+      {
+      *this->TraceFile << "****Could not receive tag (even though it's already here).\n";
+      }
     vtkErrorMacro("Could not receive tag (even though it's already here).");
     return 0;
     }
@@ -253,6 +320,10 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   total = recv( this->Socket, data, totalLength, 0 );
   if (total == -1)
     {
+    if ( this->TraceFile )
+      {
+      *this->TraceFile << "****Could not receive message." << endl;
+      }
     vtkErrorMacro("Could not receive message.");
     return 0;
     }
@@ -339,7 +410,19 @@ int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Recv int    " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
+
   int retval = this->ReceiveMessage( (char *)data, sizeof(int), length, tag );
+
+  if (this->TraceFile && length == 3)
+    {
+    *this->TraceFile << "        " << data[0] << ", " 
+                     << data[1] << ", " << data[2] << endl;
+    }
 
   if ( tag == vtkMultiProcessController::RMI_TAG )
     {
@@ -355,6 +438,11 @@ int vtkSocketCommunicator::Receive(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Receive ulong  " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return this->ReceiveMessage( (char *)data, sizeof(unsigned long), 
                                length, tag );
 }
@@ -365,7 +453,17 @@ int vtkSocketCommunicator::Receive(char *data, int length,
 {
   vtkSCCheckForError;
 
-  return this->ReceiveMessage( data, sizeof(char), length, tag);
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Recv char   " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
+  int retVal = this->ReceiveMessage( data, sizeof(char), length, tag);
+  if (this->TraceFile &&  length < 80)
+    {
+    *this->TraceFile << "        " << data << endl;
+    }
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
@@ -373,7 +471,11 @@ int vtkSocketCommunicator::Receive(unsigned char *data, int length,
                                    int remoteProcessId, int tag)
 {
   vtkSCCheckForError;
-
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Recv uchar  " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return this->ReceiveMessage( (char *)data, sizeof(char), length, tag);
 }
 
@@ -381,7 +483,11 @@ int vtkSocketCommunicator::Receive(float *data, int length,
                                    int remoteProcessId, int tag)
 {
   vtkSCCheckForError;
-
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Recv float  " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return this->ReceiveMessage( (char *)data, sizeof(float), length, tag);
 }
 
@@ -389,7 +495,11 @@ int vtkSocketCommunicator::Receive(double *data, int length,
                                    int remoteProcessId, int tag)
 {
   vtkSCCheckForError;
-
+  if ( this->TraceFile )
+    {
+    *this->TraceFile << "Recv double " << length << ", from " 
+                     << remoteProcessId << ", tag " << tag << endl;
+    }
   return this->ReceiveMessage( (char *)data, sizeof(double), length, tag);
 }
 
