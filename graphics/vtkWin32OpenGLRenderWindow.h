@@ -193,6 +193,7 @@ public:
   void SetupMemoryRendering(int x, int y, HDC prn);
   void ResumeScreenRendering();
   HDC GetMemoryDC();
+  unsigned char *GetMemoryData(){return this->MemoryData;};  
   
   // Description:
   // Initialize OpenGL for this window.
