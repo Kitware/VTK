@@ -63,7 +63,6 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
   float *tempfp;
   int pos[2];
   int size[2];
-  unsigned char *orignalImage;
   vtkVolume *aVolume;
   float p1World[4], p2World[4];
   int steps;
@@ -371,7 +370,6 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float *bounds;
   float hitPosition[3];
   float t,t2;
-  float closestPoint[3];
   float p1Coords[3], p2Coords[3];
   float origin[3], aspectRatio[3];
   float pcoords[3];
