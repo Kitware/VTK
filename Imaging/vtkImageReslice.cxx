@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.25");
+vtkCxxRevisionMacro(vtkImageReslice, "1.26");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -516,6 +516,8 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
 void vtkImageReslice::ExecuteInformation()
 {
   this->Superclass::ExecuteInformation();
+
+  this->GetIndexMatrix();
 
   vtkImageData *input = this->GetInput();
   vtkImageStencilData *stencil = this->GetStencil();
@@ -1880,7 +1882,7 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
 void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6], 
                                                         int outExt[6])
 {
-  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
+  vtkMatrix4x4 *matrix = this->IndexMatrix;
 
   if (this->GetOptimizedTransform() != NULL)
     { // update the entire input extent
