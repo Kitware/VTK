@@ -43,4 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 #include "vtkTimeStamp.h"
 
-unsigned long vtkTimeStamp::vtkTime = 0;
+void vtkTimeStamp::Modified()
+{
+  static unsigned long vtkTimeStampTime = 0; 
+  this->ModifiedTime = ++vtkTimeStampTime;
+}
