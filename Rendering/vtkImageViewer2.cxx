@@ -20,7 +20,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.8");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.9");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void vtkImageViewer2::Render()
       int ys = ext[3] - ext[2] + 1;
       this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
                                   ys < 100 ? 100 : ys);
-      this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 : xs/2);
+      this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 : (xs-1)/2.0);
       }
     this->Renderer->GetActiveCamera()->ParallelProjectionOn();
     this->FirstRender = 0;  
