@@ -42,7 +42,8 @@
 #define __vtkSynchronizedTemplates2D_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkContourValues.h"
+
+#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkImageData;
 class vtkKitwareContourFilter;

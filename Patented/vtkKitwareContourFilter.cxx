@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.25");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.26");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -323,4 +323,10 @@ void vtkKitwareContourFilter::DataSetContour()
   contour->Update();
   this->SetOutput(output);
   contour->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkKitwareContourFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

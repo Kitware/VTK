@@ -70,7 +70,8 @@
 #define __vtkMarchingContourFilter_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkContourValues.h"
+
+#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkScalarTree;
 

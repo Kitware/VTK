@@ -49,7 +49,8 @@
 #define __vtkMarchingCubes_h
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
-#include "vtkContourValues.h"
+
+#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
 {

@@ -62,6 +62,7 @@ class VTK_PATENTED_EXPORT vtkKitwareContourFilter : public vtkContourFilter
 {
 public:
   vtkTypeRevisionMacro(vtkKitwareContourFilter,vtkContourFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with initial range (0,1) and single contour value

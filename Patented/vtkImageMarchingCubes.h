@@ -53,7 +53,8 @@
 #define __vtkImageMarchingCubes_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkContourValues.h"
+
+#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkFloatArray;
 class vtkImageData;
