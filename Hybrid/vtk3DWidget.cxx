@@ -21,8 +21,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
 #include "vtkDataSet.h"
+#include "vtkCamera.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.12");
+vtkCxxRevisionMacro(vtk3DWidget, "1.13");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -36,6 +39,7 @@ vtk3DWidget::vtk3DWidget()
   this->Priority = 0.5;
   
   this->HandleSize = 0.01;
+  this->ValidPick = 0;
 }
 
 vtk3DWidget::~vtk3DWidget()
@@ -108,6 +112,48 @@ void vtk3DWidget::AdjustBounds(float bounds[6], float newBounds[6], float center
   newBounds[3] = center[1] + this->PlaceFactor*(bounds[3]-center[1]);
   newBounds[4] = center[2] + this->PlaceFactor*(bounds[4]-center[2]);
   newBounds[5] = center[2] + this->PlaceFactor*(bounds[5]-center[2]);
+}
+
+float vtk3DWidget::SizeHandles(float factor)
+{
+  int i;
+  vtkRenderer *renderer;
+  vtkCamera *camera;
+
+  if ( !this->ValidPick || !(renderer=this->CurrentRenderer) || 
+       !(camera=renderer->GetActiveCamera()) )
+    {
+    return (this->HandleSize * this->InitialLength);
+    }
+  else
+    {
+    double radius, z;
+    double windowLowerLeft[4], windowUpperRight[4];
+    float *viewport = renderer->GetViewport();
+    int *winSize = renderer->GetRenderWindow()->GetSize();
+    double focalPoint[4];
+
+    this->ComputeWorldToDisplay(this->LastPickPosition[0], 
+                                this->LastPickPosition[1],
+                                this->LastPickPosition[2], focalPoint);
+    z = focalPoint[2];
+
+    double x = winSize[0] * viewport[0];
+    double y = winSize[1] * viewport[1];
+    this->ComputeDisplayToWorld(x,y,z,windowLowerLeft);
+
+    x = winSize[0] * viewport[2];
+    y = winSize[1] * viewport[3];
+    this->ComputeDisplayToWorld(x,y,z,windowUpperRight);
+
+    for (radius=0.0, i=0; i<3; i++) 
+      {
+      radius += (windowUpperRight[i] - windowLowerLeft[i]) *
+        (windowUpperRight[i] - windowLowerLeft[i]);
+      }
+
+    return ((float)sqrt(radius) * this->HandleSize);
+    }
 }
 
 

@@ -322,10 +322,6 @@ protected:
   void Translate(double *p1, double *p2);
   void Push(double *p1, double *p2);
   
-  // Initial bounds
-  float InitialBounds[6];
-  float InitialLength;
-
   // Plane normal, normalized
   float Normal[3];
 
@@ -341,9 +337,6 @@ protected:
   void CreateDefaultProperties();
   
   void GeneratePlane();
-  
-  // Keep track of last pick position
-  float LastPickPosition[3];
   
 private:
   vtkPlaneWidget(const vtkPlaneWidget&);  //Not implemented

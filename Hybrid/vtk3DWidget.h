@@ -124,9 +124,17 @@ protected:
   int Placed; 
   void AdjustBounds(float bounds[6], float newBounds[6], float center[3]);
   
-  //control the size of handles
+  //control the size of handles (if there are any)
+  float InitialBounds[6];
+  float InitialLength;
   float HandleSize;
+  float SizeHandles(float factor=1.0);
+  virtual void SizeHandles() {}//subclass in turn invokes parent's SizeHandles()
   
+  //used to track the depth of the last pick; also interacts with handle sizing
+  int   ValidPick;
+  float LastPickPosition[3];
+
 private:
   vtk3DWidget(const vtk3DWidget&);  // Not implemented.
   void operator=(const vtk3DWidget&);  // Not implemented.

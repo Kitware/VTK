@@ -31,7 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.12");
+vtkCxxRevisionMacro(vtkPointWidget, "1.13");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -241,6 +241,7 @@ void vtkPointWidget::Highlight(int highlight)
     {
     this->Actor->SetProperty(this->SelectedProperty);
     this->CursorPicker->GetPickPosition(this->LastPickPosition);
+    this->ValidPick = 1;
     }
   else
     {

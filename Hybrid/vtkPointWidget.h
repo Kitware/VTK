@@ -252,10 +252,6 @@ protected:
   void MoveFocus(double *p1, double *p2);
   int TranslationMode;
 
-  // Initial bounds
-  float InitialBounds[6];
-  float InitialLength;
-
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *Property;
@@ -267,9 +263,6 @@ protected:
   int DetermineConstraintAxis(int constraint, double *x);
   int WaitingForMotion;
   int WaitCount;
-  
-  // Keep track of last pick position
-  float LastPickPosition[3];
   
 private:
   vtkPointWidget(const vtkPointWidget&);  //Not implemented

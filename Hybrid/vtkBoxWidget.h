@@ -272,10 +272,6 @@ protected:
                 double *x1, double *x2, double *x3, double *x4,
                 double *x5);
   
-  // Initial bounds
-  float InitialBounds[6];
-  float InitialLength;
-
   // Transform the hexahedral points (used for rotations)
   vtkTransform *Transform;
   
@@ -299,9 +295,6 @@ protected:
   int TranslationEnabled;
   int ScalingEnabled;
   int RotationEnabled;
-  
-  // Keep track of last pick position
-  float LastPickPosition[3];
 
 private:
   vtkBoxWidget(const vtkBoxWidget&);  //Not implemented

@@ -37,7 +37,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.35");
+vtkCxxRevisionMacro(vtkLineWidget, "1.36");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -145,7 +145,6 @@ vtkLineWidget::vtkLineWidget()
   this->ClampToBounds = 0;
 
   //Manage the picking stuff
-  this->ValidPick = 0;
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
   for (i=0; i<2; i++)
@@ -438,52 +437,9 @@ void vtkLineWidget::BuildRepresentation()
 
 void vtkLineWidget::SizeHandles()
 {
-  int i;
-  vtkRenderer *renderer;
-  vtkCamera *camera;
-
-  if ( !this->ValidPick || !(renderer=this->CurrentRenderer) || 
-       !(camera=renderer->GetActiveCamera()) )
-    {
-    for(int i=0; i<2; i++)
-      {
-      this->HandleGeometry[i]->SetRadius(0.015*this->InitialLength);
-      }
-    }
-  else
-    {
-    double radius, z;
-    double windowLowerLeft[4], windowUpperRight[4];
-    float *viewport = renderer->GetViewport();
-    int *winSize = renderer->GetRenderWindow()->GetSize();
-    double focalPoint[4];
-
-    this->ComputeWorldToDisplay(this->LastPickPosition[0], 
-                                this->LastPickPosition[1],
-                                this->LastPickPosition[2], focalPoint);
-    z = focalPoint[2];
-
-    double x = winSize[0] * viewport[0];
-    double y = winSize[1] * viewport[1];
-    this->ComputeDisplayToWorld(x,y,z,windowLowerLeft);
-
-    x = winSize[0] * viewport[2];
-    y = winSize[1] * viewport[3];
-    this->ComputeDisplayToWorld(x,y,z,windowUpperRight);
-
-    for (radius=0.0, i=0; i<3; i++) 
-      {
-      radius += (windowUpperRight[i] - windowLowerLeft[i]) *
-        (windowUpperRight[i] - windowLowerLeft[i]);
-      }
-
-    radius = sqrt(radius) * this->HandleSize;
-
-    for(i=0; i<2; i++)
-      {
-      this->HandleGeometry[i]->SetRadius(radius);
-      }
-    }
+  float radius = this->vtk3DWidget::SizeHandles(1.0);
+  this->HandleGeometry[0]->SetRadius(radius);
+  this->HandleGeometry[1]->SetRadius(radius);
 }
 
 int vtkLineWidget::HighlightHandle(vtkProp *prop)

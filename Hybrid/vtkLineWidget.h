@@ -234,7 +234,7 @@ protected:
   vtkSphereSource   **HandleGeometry;
 
   void BuildRepresentation();
-  void SizeHandles();
+  virtual void SizeHandles();
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
@@ -244,8 +244,6 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
-  int   ValidPick;
-  float LastPickPosition[3];
   float LastPosition[3];
   void  SetLinePosition(float x[3]);
   
@@ -253,8 +251,6 @@ protected:
   void Scale(double *p1, double *p2, int X, int Y);
   
   // Initial bounds
-  float InitialBounds[6];
-  float InitialLength;
   int   ClampToBounds;
   void  ClampPosition(float x[3]);
   int   InBounds(float x[3]);
