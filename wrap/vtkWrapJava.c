@@ -709,6 +709,19 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
 
+    fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
+    fprintf(fp,"{\n  vtkObject *op;\n");
+
+    fprintf(fp,"  vtkJavaCommand *cbc = new vtkJavaCommand;\n");
+    fprintf(fp,"  cbc->AssignJavaVM(env);\n");
+    fprintf(fp,"  cbc->SetGlobalRef(env->NewGlobalRef(id1));\n");
+    fprintf(fp,"  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),vtkJavaUTFToChar(env,id2),\"()V\"));\n");
+    fprintf(fp,"  char    *temp0;\n");
+    fprintf(fp,"  temp0 = vtkJavaUTFToChar(env,id0);\n");
+    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
+    fprintf(fp,"  unsigned long     temp20;\n");
+    fprintf(fp,"  temp20 = op->AddObserver(temp0,cbc);\n");
+    fprintf(fp,"  return temp20;\n}\n");
    }
 }
 
