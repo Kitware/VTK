@@ -45,17 +45,17 @@ vtkThinPlateSplineTransform transform
   transform SetTargetLandmarks p2
   transform SetBasisToR
 
-vtkTransformToGrid grid
-  grid SetInput transform
-  grid SetGridExtent 0 64 0 64 1 93
-  grid SetGridSpacing 4.0 4.0 2.0
-  grid SetGridOrigin -128 -128 -94
-  grid SetGridScalarTypeToUnsignedChar
+vtkTransformToGrid gridThinPlate
+  gridThinPlate SetInput transform
+  gridThinPlate SetGridExtent 0 64 0 64 1 93
+  gridThinPlate SetGridSpacing 4.0 4.0 2.0
+  gridThinPlate SetGridOrigin -128 -128 -94
+  gridThinPlate SetGridScalarTypeToUnsignedChar
 
 vtkGridTransform gridTransform
-  gridTransform SetDisplacementGrid [grid GetOutput]
-  gridTransform SetDisplacementShift [grid GetDisplacementShift]
-  gridTransform SetDisplacementScale [grid GetDisplacementScale]
+  gridTransform SetDisplacementGrid [gridThinPlate GetOutput]
+  gridTransform SetDisplacementShift [gridThinPlate GetDisplacementShift]
+  gridTransform SetDisplacementScale [gridThinPlate GetDisplacementScale]
 
 vtkImageReslice reslice
   reslice SetInput [reader GetOutput]
