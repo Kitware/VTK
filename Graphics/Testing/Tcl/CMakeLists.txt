@@ -15,7 +15,6 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
-      camera
       Canny
       clipArt
       createBFont
