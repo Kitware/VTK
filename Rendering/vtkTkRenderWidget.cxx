@@ -27,6 +27,7 @@
 #else
 #ifdef VTK_USE_CARBON
 #include "vtkCarbonRenderWindow.h"
+#include "tkMacOSXInt.h"
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -215,7 +216,7 @@ int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
     {
     return TCL_ERROR;
     }
-  
+
   // Tcl needs this for setting options and matching event bindings.
   Tk_SetClass(tkwin, (char *) "vtkTkRenderWidget");
   
@@ -322,7 +323,7 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
                                         XEvent *eventPtr) 
 {
   struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
-  
+
   switch (eventPtr->type) 
     {
     case Expose:
@@ -366,7 +367,7 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
 extern "C" {int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp);}
 int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, (char *) "Vtktkrenderwidget", (char *) "1.2") != TCL_OK) 
+  if (Tcl_PkgProvide(interp,(char *)"Vtktkrenderwidget",(char *)"1.2") != TCL_OK) 
     {
     return TCL_ERROR;
     }
@@ -550,9 +551,15 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       }
     if (renderWindow != self->RenderWindow)
       {
-      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
+      if (self->RenderWindow != NULL) 
+        {
+        self->RenderWindow->UnRegister(NULL);
+        }
       self->RenderWindow = (vtkRenderWindow *)(renderWindow);
-      if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
+      if (self->RenderWindow != NULL)
+        {
+        self->RenderWindow->Register(NULL);
+        }
       }
     }
   
@@ -596,12 +603,12 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   self->OldProc = (WNDPROC)vtkGetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
   vtkSetWindowLong(twdPtr->window.handle,4,(LONG)self);
   vtkSetWindowLong(twdPtr->window.handle,GWL_WNDPROC,
-                   (LONG)vtkTkRenderWidgetProc);
+     (LONG)vtkTkRenderWidgetProc);
 
   winPtr->window = (Window)twdPtr;
   
   hPtr = Tcl_CreateHashEntry(&winPtr->dispPtr->winTable,
-                             (char *) winPtr->window, &new_flag);
+        (char *) winPtr->window, &new_flag);
   Tcl_SetHashValue(hPtr, winPtr);
 
   
@@ -618,7 +625,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
      * the window to the WM_COLORMAP_WINDOWS property for its top-level.
      */
     if ((winPtr->parentPtr != NULL) &&
-              (winPtr->atts.colormap != winPtr->parentPtr->atts.colormap)) 
+       (winPtr->atts.colormap != winPtr->parentPtr->atts.colormap)) 
       {
       TkWmAddToColormapWindows(winPtr);
       }
@@ -672,7 +679,9 @@ static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
+  TkWindow *winPtr = (TkWindow *)self->TkWin;
   vtkCarbonRenderWindow *renderWindow;
+  WindowPtr parentWin;
 
   if (self->RenderWindow)
     {
@@ -680,11 +689,6 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     }
   
   dpy = Tk_Display(self->TkWin);
-  
-  if (Tk_WindowId(self->TkWin) != None) 
-    {
-//    XDestroyWindow(dpy, Tk_WindowId(self->TkWin));
-    }
 
   if (self->RW[0] == '\0')
     {
@@ -695,7 +699,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     renderWindow = (vtkCarbonRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
-                               vtkRenderWindowCommand);
+          vtkRenderWindowCommand);
 #endif
     self->RW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
@@ -704,7 +708,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
-        self->RW[2] == 'd' && self->RW[3] == 'r')
+ self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -715,56 +719,86 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       renderWindow = (vtkCarbonRenderWindow *)
-        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-                                   new_flag);
+ vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+       new_flag);
 #endif
       }
     if (renderWindow != self->RenderWindow)
       {
-      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
+      if (self->RenderWindow != NULL) 
+        {
+        self->RenderWindow->UnRegister(NULL);
+        }
       self->RenderWindow = (vtkRenderWindow *)(renderWindow);
-      if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
+      if (self->RenderWindow != NULL) 
+        {
+        self->RenderWindow->Register(NULL);
+        }
       }
     }
 
-  // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( renderWindow->GetWindowId() != (Window)NULL )
-  {
-    return TCL_ERROR;
-  }
+  self->RenderWindow->SetSize(self->Width, self->Height);
+
+  // Set the parent correctly and get the actual OSX window on the screen
+  // Window must be up so that the aglContext can be attached to it
+  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
+    {
+    if (winPtr->parentPtr->window == None)
+      {
+      Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
+      TkMacOSXMakeRealWindowExist((TkWindow *) winPtr->parentPtr);
+      }
+    
+    parentWin = GetWindowFromPort(TkMacOSXGetDrawablePort(
+                                  Tk_WindowId(winPtr->parentPtr)));
+    // Carbon does not have 'sub-windows', so the ParentId is used more
+    // as a flag to indicate that the renderwindow is being used as a sub-
+    // view of its 'parent' window.
+    renderWindow->SetParentId(parentWin);
+    renderWindow->SetWindowId(parentWin);
+    }
 
   // Use the same display
   renderWindow->SetDisplayId(dpy);
 
-  /* Make sure Tk knows to switch to the new colormap when the cursor
-    * is over this window when running in color index mode.
-    */
-  // The visual MUST BE SET BEFORE the window is created.
-  //Tk_SetWindowVisual(self->TkWin, renderWindow->GetDesiredVisual(),
-   //                  renderWindow->GetDesiredDepth(),
-    //                 renderWindow->GetDesiredColormap());
-
-  // Make this window exist, then use that information to make the vtkImageViewer in sync
-  Tk_MakeWindowExist ( self->TkWin );
-  renderWindow->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
-
-  // Set the size
-  self->RenderWindow->SetSize(self->Width, self->Height);
-
-  // Set the parent correctly
-  // Possibly X dependent
-  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin)))
-  {
-    renderWindow->SetParentId((WindowPtr)XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
-  }
-  else
-  {
-    renderWindow->SetParentId((WindowPtr)Tk_WindowId(Tk_Parent(self->TkWin) ));
-  }
-
-  self->RenderWindow->Render();
   XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   
+  /*
+   * Issue a ConfigureNotify event if there were deferred configuration
+   * changes (but skip it if the window is being deleted;  the
+   * ConfigureNotify event could cause problems if we're being called
+   * from Tk_DestroyWindow under some conditions).
+   */
+  if ((winPtr->flags & TK_NEED_CONFIG_NOTIFY)
+      && !(winPtr->flags & TK_ALREADY_DEAD))
+    {
+      XEvent event;
+
+      winPtr->flags &= ~TK_NEED_CONFIG_NOTIFY;
+
+      event.type = ConfigureNotify;
+      event.xconfigure.serial = LastKnownRequestProcessed(winPtr->display);
+      event.xconfigure.send_event = False;
+      event.xconfigure.display = winPtr->display;
+      event.xconfigure.event = winPtr->window;
+      event.xconfigure.window = winPtr->window;
+      event.xconfigure.x = winPtr->changes.x;
+      event.xconfigure.y = winPtr->changes.y;
+      event.xconfigure.width = winPtr->changes.width;
+      event.xconfigure.height = winPtr->changes.height;
+      event.xconfigure.border_width = winPtr->changes.border_width;
+      if (winPtr->changes.stack_mode == Above)
+        {
+        event.xconfigure.above = winPtr->changes.sibling;
+        }
+      else
+        {
+        event.xconfigure.above = None;
+        }
+      event.xconfigure.override_redirect = winPtr->atts.override_redirect;
+      Tk_HandleEvent(&event);
+    }
+
   return TCL_OK;
 }
 
@@ -800,7 +834,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     renderWindow = (vtkXOpenGLRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
-                               vtkRenderWindowCommand);
+          vtkRenderWindowCommand);
 #endif
     self->RW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
@@ -809,7 +843,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
-        self->RW[2] == 'd' && self->RW[3] == 'r')
+ self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -820,8 +854,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       renderWindow = (vtkXOpenGLRenderWindow *)
-        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-                                   new_flag);
+ vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+       new_flag);
 #endif
       }
     if (renderWindow != self->RenderWindow)
@@ -831,13 +865,13 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
       }
     }
-                
-  // If the imageviewer has already created it's window, throw up our hands and quit...
+  
+  // If window already exists, return an error
   if ( renderWindow->GetWindowId() != (Window)NULL )
     {
     return TCL_ERROR;
     }
-        
+ 
   // Use the same display
   renderWindow->SetDisplayId(dpy);
   
@@ -860,7 +894,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   // Possibly X dependent
   if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
     {
-    renderWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
+    renderWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin),
+                                          Tk_ScreenNumber(self->TkWin)));
     }
   else 
     {
