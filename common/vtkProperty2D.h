@@ -70,6 +70,7 @@ public:
   vtkProperty2D();
   ~vtkProperty2D();
   static vtkProperty2D *New() {return new vtkProperty2D;};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetVector3Macro(Color, float);
   vtkGetVectorMacro(Color, float, 3);
