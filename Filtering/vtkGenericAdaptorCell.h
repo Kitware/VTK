@@ -396,12 +396,12 @@ public:
   // NOT THREAD SAFE
   // \post result_exists: result!=0
   // \post valid_size: sizeof(result)>=6
-  virtual double *GetBounds()=0;
+  virtual double *GetBounds();
 
   // Description:
   // Return the bounding box diagonal squared of the current cell.
   // \post positive_result: result>=0
-  virtual double GetLength2()=0;
+  virtual double GetLength2();
 
   // Description:
   // Get the center of the current cell (in parametric coordinates)and place
@@ -530,6 +530,9 @@ protected:
   vtkDoubleArray  *Scalars;
   vtkPointData    *PointData;
   vtkCellData     *CellData;
+  
+  // Cached Bounds.
+  double Bounds[6];
   
 private:
   vtkGenericAdaptorCell(const vtkGenericAdaptorCell&);  // Not implemented.

@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.11");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.12");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -135,10 +135,27 @@ void vtkGenericAdaptorCell::GetBounds(double bounds[6])
 //----------------------------------------------------------------------------
 double *vtkGenericAdaptorCell::GetBounds()
 {
-  static double bounds[6];
-  this->GetBounds(bounds);
+  this->GetBounds(this->Bounds);
   
-  return bounds;
+  return this->Bounds;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return the bounding box diagonal squared of the current cell.
+// \post positive_result: result>=0
+double vtkGenericAdaptorCell::GetLength2()
+{
+  double diff, l=0.0;
+  int i;
+
+  this->GetBounds(this->Bounds);
+  for (i=0; i<3; i++)
+    {
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    l += diff * diff;
+    }
+  return l;
 }
 
 //----------------------------------------------------------------------------
