@@ -165,11 +165,8 @@ a5Actor SetScale .3 .3 .6
 a5Actor RotateY 90
 a5Actor SetPosition -2 0 0
 [a5Actor GetProperty] SetColor 1 0.3 1
-[a5Actor GetProperty] SetSpecularColor 1 1 1
-[a5Actor GetProperty] SetSpecular 0.3
 [a5Actor GetProperty] SetAmbient 0.2
 [a5Actor GetProperty] SetDiffuse 0.8
-[a5Actor GetProperty] SetSpecularPower 20
 
 # focal point
 vtkSphereSource fps
