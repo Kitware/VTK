@@ -82,6 +82,11 @@ vtkLODProp3D::vtkLODProp3D()
   this->AutomaticLODSelection         = 1;
   this->SelectedLODID                 = 1000;
   this->SelectedLODIndex              = -1;
+  this->SelectedPickLODID             = 0;
+  this->AutomaticPickLODSelection     = 1;
+  this->PreviousPickProp              = NULL;
+  this->PreviousPickMethod            = NULL;
+  this->PreviousPickMethodArg         = NULL;
 }
 
 // Destruct the vtkLODProp3D. Delete the vtkProp3Ds that were created
@@ -780,7 +785,6 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   float  targetTime;
   float  estimatedTime;
 
-
   if ( this->AutomaticLODSelection )
     {
     bestTime = -1.0;
@@ -873,5 +877,112 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AutomaticLODSelection: " 
      << (this->AutomaticLODSelection ? "On\n" : "Off\n");
 
+  vtkPropCollection* pc = vtkPropCollection::New();
+  this->GetActors(pc);
+
+  os << indent << "Actors: "; pc->PrintSelf(os, indent);
+  
+
 }
+
+void vtkLODProp3D::GetActors(vtkPropCollection *ac)
+{
+  vtkDebugMacro(<< "vtkLODProp3D::GetActors");
+  if (this->AutomaticPickLODSelection)
+    {
+    int index = 0;
+    if ( this->SelectedLODIndex < 0 ||
+	 this->SelectedLODIndex >= this->NumberOfEntries )
+      {
+      index = this->GetAutomaticPickPropIndex();
+      }
+    else
+      {
+      index = this->SelectedLODIndex;
+      }
+    ac->AddItem(this->LODs[index].Prop3D);
+    }
+  else
+    {
+    if (this->PreviousPickProp)
+      {
+      this->PreviousPickProp->SetPickMethod(NULL, NULL);
+      }
+    ac->AddItem(this->LODs[this->SelectedPickLODID].Prop3D);
+    }
+}
+
+void vtkLODProp3D::SetPickMethod(void (*f)(void *), void *arg)
+{
+  for (int i = 0; i < this->NumberOfLODs; i++) 
+    {
+    this->LODs[i].Prop3D->SetPickMethod(f, arg);
+    }
+}
+
+void vtkLODProp3D::SetPickMethodArgDelete(void (*f)(void *))
+{
+  for (int i = 0; i < this->NumberOfLODs; i++) 
+    {
+    this->LODs[i].Prop3D->SetPickMethodArgDelete(f);
+    }
+}
+
+int vtkLODProp3D::GetAutomaticPickPropIndex(void)
+{
+  float bestTime = -1.0;
+  int index = 0;
+  float targetTime = 0;
+  float estimatedTime = 0.0;
+
+    for (int i = 0; i < this->NumberOfEntries; i++ )
+      {
+      if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
+	{
+	// Gather some information
+	estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
+	
+	// If we've never rendered this LOD and we have no info on it,
+	// then try it out
+	if ( estimatedTime == 0.0 )
+	  {
+	  index = i;
+	  bestTime = 0.0;
+	  break;
+	  }
+	
+	// If we do have at least a guess as to the render time, and
+	// this seems like the best we have so far, pick it.
+	// It is the best we have if 
+	//
+	// 1) our estimated time is less than what we are looking for, 
+	//    but greater than any we have selected so far. 
+	//
+	// 2) we have not selected anything else yet 
+	//    (regardless of what the estimated time is)
+	//
+	// 3) it is less than the time of the currently selected LOD 
+	//    if that LOD's time is greater than the time we are targeting.
+	//
+	if ( estimatedTime > 0.0 && 
+	     ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
+	       ( bestTime == -1.0 ) ||
+	       ( estimatedTime < bestTime && bestTime > targetTime ) ) )
+	  {
+	  index = i;
+	  bestTime = estimatedTime;
+	  }
+	}
+      }
+    return index;
+}
+
+
+void vtkLODProp3D::SetSelectedPickLODID(int id)
+{
+  this->SelectedPickLODID = id;
+  this->Modified();
+}
+
+
 

@@ -163,6 +163,32 @@ public:
   // Get the ID of the previously (during the last render) selected LOD index
   int GetLastRenderedLODID();
 
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. These methods
+  // are used in that process.
+  virtual void GetActors(vtkPropCollection *);
+
+  // Description:
+  // This method is invoked when an instance of vtkProp (or subclass, 
+  // e.g., vtkActor) is picked by vtkPicker.
+  void SetPickMethod(void (*f)(void *), void *arg);
+  void SetPickMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set the id of the LOD that is to be used for picking when  automatic 
+  // LOD pick selection is turned off.
+  void SetSelectedPickLODID(int id);
+  vtkGetMacro( SelectedPickLODID, int );
+
+  // Description:
+  // Turn on / off automatic selection of picking LOD. 
+  // This is on by default. If it is off, then the SelectedLODID is 
+  // rendered regarless of rendering time or desired update rate. 
+  vtkSetClampMacro( AutomaticPickLODSelection, int, 0, 1 );
+  vtkGetMacro( AutomaticPickLODSelection, int );
+  vtkBooleanMacro( AutomaticPickLODSelection, int );
+
 //BTX
 
   // Description:
@@ -198,6 +224,8 @@ protected:
   vtkLODProp3D(const vtkLODProp3D&) {};
   void operator=(const vtkLODProp3D&) {};
 
+  int GetAutomaticPickPropIndex(void);
+
   vtkLODProp3DEntry *LODs;
   int               NumberOfEntries;
   int               NumberOfLODs;
@@ -209,6 +237,11 @@ protected:
 
   int               AutomaticLODSelection;
   int               SelectedLODID;
+  int               SelectedPickLODID;
+  int               AutomaticPickLODSelection;
+  vtkProp*          PreviousPickProp;
+  void (*PreviousPickMethod)(void *);
+  void *            PreviousPickMethodArg;
 };
 
 #endif
