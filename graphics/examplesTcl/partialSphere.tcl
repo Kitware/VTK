@@ -23,14 +23,14 @@ vtkSphereSource sphere4
     sphere4 SetEndTheta 180
     sphere4 SetStartPhi 90
     sphere4 SetEndPhi 135
-vtkAppendPolyData append
-    append AddInput [sphere GetOutput]
-    append AddInput [sphere2 GetOutput]
-    append AddInput [sphere3 GetOutput]
-    append AddInput [sphere4 GetOutput]
+vtkAppendPolyData appendSpheres
+    appendSpheres AddInput [sphere GetOutput]
+    appendSpheres AddInput [sphere2 GetOutput]
+    appendSpheres AddInput [sphere3 GetOutput]
+    appendSpheres AddInput [sphere4 GetOutput]
    
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [append GetOutput]
+    sphereMapper SetInput [appendSpheres GetOutput]
     sphereMapper ScalarVisibilityOff
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
