@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.7");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.8");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -2159,7 +2159,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       }
 
     //float  pc[3];
-    float *pc1  , *pc2;
+    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
     unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
@@ -2270,8 +2270,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
               continue;
               }
       
-            pc1 = pPtr + 3*v1;
-            pc2 = pPtr + 3*v2;
+            //pc1 = pPtr + 3*v1;
+            //pc2 = pPtr + 3*v2;
       
             for (j=0; j<3; j++)
               {
@@ -2653,7 +2653,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       }
 
     //float  pc[3];
-    float *pc1  , *pc2;
+    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
     // tab4: tetrahedron intersection in 4 edges.see (2)
@@ -2776,8 +2776,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
               continue;
               }
       
-            pc1 = pPtr + 3*v1;
-            pc2 = pPtr + 3*v2;
+            //pc1 = pPtr + 3*v1;
+            //pc2 = pPtr + 3*v2;
       
             for (j=0; j<3; j++)
               {
