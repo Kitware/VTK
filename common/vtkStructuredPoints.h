@@ -169,13 +169,7 @@ public:
   // This method is used translparently by the 
   // "SetInput(vtkStructuredPoints *)"
   // method to connect the visualization pipeline to the image pipeline..
-  vtkStructuredPointsToImage *GetStructuredPointsToImage();
-
-  // Description:
-  // Decrease the reference count (release by another object).
-  // Also, we need to check for the reference loop 
-  // StructurePoints<->StructuredPointsToImage to avoid memory leaks.
-  void UnRegister(vtkObject* o);
+  vtkStructuredPointsToImage *MakeStructuredPointsToImage();
 
   // Description:
   // For legacy compatibility. Do not use.

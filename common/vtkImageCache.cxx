@@ -545,20 +545,23 @@ long vtkImageCache::GetUpdateExtentMemorySize()
 //----------------------------------------------------------------------------
 // This method is used translparently by the "SetInput(vtkImageCache *)"
 // method to connect the image pipeline to the visualization pipeline.
-vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
+vtkImageToStructuredPoints *vtkImageCache::MakeImageToStructuredPoints()
 {
   if ( ! this->ImageToStructuredPoints)
     {
     this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
     this->ImageToStructuredPoints->SetInput(this);
     }
-  
+  else
+    {
+    // we must up the ref count because this is a Make method
+    // it will be matched by a Delete
+    this->ImageToStructuredPoints->Register(this);
+    }
   return this->ImageToStructuredPoints;
 }
 
 //----------------------------------------------------------------------------
-// Check to see if we own an ImageToStructuredPoints which has registered
-// this cache.
 void vtkImageCache::UnRegister(vtkObject* o)
 {
   // detect the circular loop source <-> cache

@@ -812,35 +812,20 @@ int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3],
 
 
 //----------------------------------------------------------------------------
-vtkStructuredPointsToImage *vtkStructuredPoints::GetStructuredPointsToImage()
+vtkStructuredPointsToImage *vtkStructuredPoints::MakeStructuredPointsToImage()
 {
   if ( ! this->StructuredPointsToImage)
     {
     this->StructuredPointsToImage = vtkStructuredPointsToImage::New();
     this->StructuredPointsToImage->SetInput(this);
     }
-  
-  return this->StructuredPointsToImage;
-}
-
-//----------------------------------------------------------------------------
-// Check to see if we own a StructuredPointsToImage which has registered
-// this cache.
-void vtkStructuredPoints::UnRegister(vtkObject* o)
-{
-  // this is the special test. I own StructuredPointsToImage, 
-  // but it has registered me.
-  if (this->GetReferenceCount() == 2 && 
-      this->StructuredPointsToImage != NULL &&
-      this->StructuredPointsToImage->GetInput() == this &&
-      this->StructuredPointsToImage != o)
+  else
     {
-    vtkStructuredPointsToImage *temp = this->StructuredPointsToImage;
-    this->StructuredPointsToImage = NULL;    
-    temp->Delete();
+    // we must up the ref count because this is a Make method
+    // it will be matched by a Delete
+    this->StructuredPointsToImage->Register(this);
     }
-
-  this->vtkObject::UnRegister(o);  
+  return this->StructuredPointsToImage;
 }
 
 
