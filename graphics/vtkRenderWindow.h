@@ -398,10 +398,6 @@ protected:
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
-
-  // This is used to try to avoid extra make current calls.
-  // Make current calls are expensive on Win32.
-  static vtkRenderWindow *CurrentRenderWindow;
 };
 
 // Description:

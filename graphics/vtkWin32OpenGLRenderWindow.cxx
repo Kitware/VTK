@@ -57,6 +57,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+// This is used to try to avoid extra make current calls.
+// Make current calls are expensive on Win32.
+// There is a better way... see how unix does it.
+vtkRenderWindow *vtkWin32OpenGLRenderWindow::CurrentRenderWindow = NULL;
+
+
+
 //------------------------------------------------------------------------------
 vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
 {

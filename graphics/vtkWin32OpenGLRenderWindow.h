@@ -265,6 +265,11 @@ protected:
 				  WPARAM wParam, LPARAM lParam);
   //ETX
   
+  
+  // This is used to try to avoid extra make current calls.
+  // Make current calls are expensive on Win32.
+  // I am sure there is a better way that this ...
+  static vtkRenderWindow *CurrentRenderWindow;
 };
 
 
