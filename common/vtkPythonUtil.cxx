@@ -266,6 +266,11 @@ void vtkPythonVoidFunc(void *arg)
     }
   else
     {
+    if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
+      {
+      cerr << "Caught a Ctrl-C within python, exiting program.\n";
+      Py_Exit(1);
+      }
     PyErr_Print();
     }
 }
