@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.60");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.61");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
   for (idx = 0; idx < 3; ++idx)
     {
     // Avoid dividing by 0.
-    if (this->ShrinkFactors[idx])
+      if (this->ShrinkFactors[idx] == 0)
       {
       this->ShrinkFactors[idx] = 1;
       }
