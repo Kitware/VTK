@@ -30,7 +30,7 @@
 #define __vtkImageViewer_h
 
 #include "vtkObject.h"
-#include "vtkImageWindow.h"
+#include "vtkImageMapper.h"
 #include "vtkRenderWindow.h"
 
 class VTK_RENDERING_EXPORT vtkImageViewer : public vtkObject 
@@ -101,13 +101,6 @@ public:
   void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);};
   virtual void SetSize(int a[2]);
   
-  // Description:
-  // Get the internal Window Imager and Mapper
-  vtkImageWindow *GetImageWindow() 
-    {vtkWarningMacro("GetImageWindow deprecated, use GetRenderWindow instead."); return NULL;};
-  vtkImager      *GetImager()
-    {vtkWarningMacro("GetImager deprecated, use GetRenderer instead."); return NULL;};
-
   vtkImageMapper *GetImageMapper() {return this->ImageMapper;};
   vtkActor2D     *GetActor2D() {return this->Actor2D;};
   vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};

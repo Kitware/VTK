@@ -22,11 +22,8 @@ vtkGraphicsFactory
 vtkIVExporter
 vtkImageActor
 vtkImageMapper
-vtkImager
-vtkImagerCollection
 vtkImageViewer
 vtkImageViewer2
-vtkImageWindow
 vtkImagingFactory
 vtkImporter
 vtkInteractorStyle
@@ -109,7 +106,6 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLCamera
                vtkOpenGLImageActor
                vtkOpenGLImageMapper
-               vtkOpenGLImager
                vtkOpenGLLight
                vtkOpenGLPolyDataMapper
                vtkOpenGLPolyDataMapper2D
@@ -145,7 +141,6 @@ IF(UNIX)
   IF(NOT WIN32)
     IF(NOT APPLE)
       SOURCE_FILES ( Rendering_SRCS
-                   vtkXImageWindow
                    vtkXRenderWindowInteractor
                    vtkXTextMapper)
     ENDIF(NOT APPLE)
@@ -157,7 +152,6 @@ IF (WIN32)
   SOURCE_FILES(RenderingOpenGL_SRCS 
                vtkWin32OpenGLRenderWindow 
                vtkWin32RenderWindowInteractor
-               vtkWin32OpenGLImageWindow
                vtkWin32OpenGLTextMapper
                vtkWin32TextMapper)
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
@@ -168,7 +162,6 @@ ELSE (WIN32)
   IF (APPLE)
     SET(HAVE_OPENGL_SRCS ON)
     SOURCE_FILES(RenderingOpenGL_SRCS 
-		 vtkQuartzImageWindow
                  vtkQuartzTextMapper
                  vtkQuartzRenderWindowInteractor
                  vtkQuartzRenderWindow
@@ -181,11 +174,9 @@ ELSE (WIN32)
     IF (OPENGL_LIBRARY)
       SET(HAVE_OPENGL_SRCS ON)
       SOURCE_FILES(RenderingOpenGL_SRCS 
-                   vtkOpenGLImageWindow
                    vtkXOpenGLRenderWindow
                    vtkXOpenGLTextMapper)
       ABSTRACT_FILES(
-                     vtkXImageWindow
                      vtkXTextMapper)
       LINK_LIBRARIES (${OPENGL_LIBRARY} )
      IF(MESA_OS_LIBRARY)
@@ -204,7 +195,6 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaCamera
                  vtkMesaImageActor
                  vtkMesaImageMapper
-                 vtkMesaImager
                  vtkMesaLight
                  vtkMesaPolyDataMapper
                  vtkMesaPolyDataMapper2D
@@ -213,7 +203,6 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaTexture
                  vtkMesaVolumeRayCastMapper
                  vtkMesaVolumeTextureMapper2D
-                 vtkMesaImageWindow
                  vtkMesaRenderWindow
                  vtkXMesaRenderWindow
                  vtkXMesaTextMapper
@@ -263,8 +252,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
      vtkTkRenderWidget 
-     vtkTkImageViewerWidget 
-     vtkTkImageWindowWidget)
+     vtkTkImageViewerWidget)
 
   # add in the Tk values if found
   IF (TK_INCLUDE_PATH)
@@ -309,7 +297,7 @@ IF (VTK_WRAP_TCL)
                COMMANDS
                vtkTkRenderWidget
                vtkTkImageViewerWidget
-               vtkTkImageWindowWidget)
+               )
   ELSE (HAVE_OPENGL_SRCS)
     VTK_WRAP_TCL(vtkRenderingTCL
                SOURCES
@@ -318,7 +306,7 @@ IF (VTK_WRAP_TCL)
                COMMANDS
                vtkTkRenderWidget
                vtkTkImageViewerWidget
-               vtkTkImageWindowWidget)
+               )
   ENDIF (HAVE_OPENGL_SRCS)
   IF (APPLE)
     ADD_LIBRARY(vtkRenderingTCL SHARED RenderingTCL_SRCS)
@@ -379,7 +367,7 @@ IF (VTK_WRAP_PYTHON)
         vtkTkWidgetsInit
         vtkTkRenderWidgetPython
         vtkTkImageViewerWidgetPython
-        vtkTkImageWindowWidgetPython)
+        )
      ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED 
                  RenderingPythonTkWidgets_SRCS)
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 

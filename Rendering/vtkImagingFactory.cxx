@@ -23,38 +23,30 @@
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLImager.h"
-#include "vtkOpenGLImageWindow.h"
 #include "vtkXOpenGLTextMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 
 #ifdef VTK_USE_MESA
 #include "vtkMesaImageMapper.h"
-#include "vtkMesaImager.h"
-#include "vtkMesaImageWindow.h"
 #include "vtkXMesaTextMapper.h"
 #include "vtkMesaPolyDataMapper2D.h"
 #endif
 
 #ifdef _WIN32
 #include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLImager.h"
-#include "vtkWin32OpenGLImageWindow.h"
 #include "vtkWin32OpenGLTextMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
 #else
  #ifdef VTK_USE_QUARTZ
   #include "vtkOpenGLImageMapper.h"
-  #include "vtkOpenGLImager.h"
   #include "vtkOpenGLPolyDataMapper2D.h"
   #include "vtkQuartzTextMapper.h"
-  #include "vtkQuartzImageWindow.h"
   #include "vtkQuartzImageMapper.h"
  #endif
 #endif
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.19");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.20");
 
 const char *vtkImagingFactoryGetRenderLibrary()
 {
@@ -140,14 +132,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkXOpenGLTextMapper::New();
       }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkOpenGLImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImager") == 0)
-      {
-      return vtkOpenGLImager::New();
-      }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
       return vtkOpenGLImageMapper::New();
@@ -165,14 +149,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
       return vtkWin32OpenGLTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkWin32OpenGLImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImager") == 0)
-      {
-      return vtkOpenGLImager::New();
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
@@ -192,14 +168,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkQuartzTextMapper::New();
       }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkQuartzImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImager") == 0)
-      {
-      return vtkOpenGLImager::New();
-      }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
       return vtkOpenGLImageMapper::New();
@@ -218,14 +186,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
       return vtkXMesaTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkMesaImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImager") == 0)
-      {
-      return vtkMesaImager::New();
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
