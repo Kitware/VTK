@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.30");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.31");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -99,7 +99,7 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->LastPosition2[0] = this->LastPosition2[1] = 0;
 
   this->LastSize[0] = this->LastSize[1] = 0;
-  this->LastMaxLabelSize[0] = this->LastMaxLabelSize[1] = 0.0;
+  this->LastMaxLabelSize[0] = this->LastMaxLabelSize[1] = 0;
 }
 
 //----------------------------------------------------------------------------
