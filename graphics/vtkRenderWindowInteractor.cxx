@@ -96,6 +96,14 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
   return new vtkRenderWindowInteractor;
 }
 
+void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
+{
+  this->RenderWindow = aren;
+  if (this->RenderWindow->GetInteractor() != this)
+    {
+    this->RenderWindow->SetInteractor(this);
+    }
+}
 void vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
   vtkRendererCollection *rc;

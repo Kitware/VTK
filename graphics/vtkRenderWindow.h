@@ -270,6 +270,7 @@ public:
   // Description:
   // Get the interactor associated with this render window
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
+  void SetInteractor(vtkRenderWindowInteractor *);
 
 protected:
   virtual void DoStereoRender();

@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Set/Get the rendering window being controlled by this object.
-  vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
+  void SetRenderWindow(vtkRenderWindow *aren);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
 
   // Description:

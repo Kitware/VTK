@@ -191,12 +191,22 @@ vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
   return this->Interactor;
 }
 
+// Description:
+// Set the interactor that will work with this renderer.
+void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
+{
+  this->Interactor = rwi;
+  if (this->Interactor->GetRenderWindow() != this)
+    {
+    this->Interactor->SetRenderWindow(this);
+    }
+}
+
 void vtkRenderWindow::SetWindowName( char * _arg )
 {
-  if (Debug)   
-    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
+  vtkDebugMacro("Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
          << this->GetClassName() << " (" << this << "): setting " 
-         << WindowName  << " to " << _arg << "\n\n";
+         << WindowName  << " to " << _arg << "\n\n");
 
   if ( WindowName && _arg && (!strcmp(WindowName,_arg))) return;
   if (WindowName) delete [] WindowName;
