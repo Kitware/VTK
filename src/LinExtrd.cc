@@ -240,7 +240,7 @@ void vlLinearExtrusionFilter::Execute()
 //
   this->SetPoints(newPts);
   if ( newLines ) this->SetLines(newLines);
-  if ( newPolys ) this->SetPolys(newLines);
+  if ( newPolys ) this->SetPolys(newPolys);
   this->SetStrips(newStrips);
 
   this->Squeeze();
