@@ -26,7 +26,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.111");
+vtkCxxRevisionMacro(vtkDataObject, "1.112");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -974,6 +974,8 @@ VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_EXTENT, IntegerVector);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_PIECE_NUMBER, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_PIECES, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_GHOST_LEVELS, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(SCALAR_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(SCALAR_NUMBER_OF_COMPONENTS, Integer);
 #undef VTK_DATA_OBJECT_DEFINE_KEY_METHOD
 
 //----------------------------------------------------------------------------

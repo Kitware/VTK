@@ -27,7 +27,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.43");
+vtkCxxRevisionMacro(vtkProcessObject, "1.44");
 
 //----------------------------------------------------------------------------
 
@@ -55,9 +55,6 @@ private:
 //----------------------------------------------------------------------------
 vtkProcessObject::vtkProcessObject()
 {
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->ProgressText = NULL;
   this->NumberOfInputs = 0;
   this->NumberOfRequiredInputs = 0;
   this->Inputs = NULL;
@@ -99,8 +96,6 @@ vtkProcessObject::~vtkProcessObject()
     delete [] this->SortedInputs2;
     this->SortedInputs2 = NULL;
     }
-  delete [] this->ProgressText;
-  this->ProgressText = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -375,15 +370,6 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
   this->Inputs[idx] = input;
   this->Modified();
 #endif
-}
-
-// Update the progress of the process object. If a ProgressMethod exists,
-// executes it. Then set the Progress ivar to amount. The parameter amount
-// should range between (0,1).
-void vtkProcessObject::UpdateProgress(double amount)
-{
-  this->Progress = amount;
-  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
 }
 
 //----------------------------------------------------------------------------
@@ -716,17 +702,6 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent <<"No Inputs\n";
     }
-
-  os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
-  os << indent << "Progress: " << this->Progress << "\n";
-  if ( this->ProgressText )
-    {
-    os << indent << "Progress Text: " << this->ProgressText << "\n";
-    }
-  else
-    {
-    os << indent << "Progress Text: (None)\n";
-    }
-
+  
   os << indent << "ErrorCode: " << vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
 }

@@ -326,6 +326,8 @@ public:
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
+  static vtkInformationIntegerKey* SCALAR_TYPE();
+  static vtkInformationIntegerKey* SCALAR_NUMBER_OF_COMPONENTS();
 
 protected:
 

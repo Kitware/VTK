@@ -53,33 +53,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the AbortExecute flag for the process object. Process objects
-  // may handle premature termination of execution in different ways.
-  vtkSetMacro(AbortExecute,int);
-  vtkGetMacro(AbortExecute,int);
-  vtkBooleanMacro(AbortExecute,int);
-
-  // Description:
-  // Set/Get the execution progress of a process object.
-  vtkSetClampMacro(Progress,double,0.0,1.0);
-  vtkGetMacro(Progress,double);
-
-  // Description:
-  // Update the progress of the process object. If a ProgressMethod exists,
-  // executes it.  Then set the Progress ivar to amount. The parameter amount
-  // should range between (0,1).
-  void UpdateProgress(double amount);
-
-  // Description:
-  // Set the current text message associated with the progress state.
-  // This may be used by a calling process/GUI.
-  vtkSetStringMacro(ProgressText);
-  vtkGetStringMacro(ProgressText);
-
-  // left public for performance since it is used in inner loops
-  int AbortExecute;
-
-  // Description:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to construct
   // graphs etc.
@@ -109,10 +82,6 @@ public:
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
-
-  // Progress/Update handling
-  double Progress;
-  char  *ProgressText;
 
   int NumberOfInputs;
   int NumberOfRequiredInputs;

@@ -15,6 +15,7 @@
 #include "vtkAlgorithm.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCommand.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
@@ -25,7 +26,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.14");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -163,6 +164,9 @@ void vtkAlgorithm::ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port)
 //----------------------------------------------------------------------------
 vtkAlgorithm::vtkAlgorithm()
 {
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->ProgressText = NULL;
   this->AlgorithmInternal = new vtkAlgorithmInternals;
   this->GarbageCollecting = 0;
 }
@@ -171,7 +175,19 @@ vtkAlgorithm::vtkAlgorithm()
 vtkAlgorithm::~vtkAlgorithm()
 {
   delete this->AlgorithmInternal;
+  delete [] this->ProgressText;
+  this->ProgressText = NULL;
 }
+
+// Update the progress of the process object. If a ProgressMethod exists,
+// executes it. Then set the Progress ivar to amount. The parameter amount
+// should range between (0,1).
+void vtkAlgorithm::UpdateProgress(double amount)
+{
+  this->Progress = amount;
+  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
+}
+
 
 //----------------------------------------------------------------------------
 void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
@@ -185,6 +201,17 @@ void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Executive: (none)\n";
+    }
+
+  os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
+  os << indent << "Progress: " << this->Progress << "\n";
+  if ( this->ProgressText )
+    {
+    os << indent << "Progress Text: " << this->ProgressText << "\n";
+    }
+  else
+    {
+    os << indent << "Progress Text: (None)\n";
     }
 }
 
