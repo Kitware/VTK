@@ -68,8 +68,14 @@ static int InCircle (float x[3], float x1[3], float x2[3], float x3[3])
   dist2 = (x[0]-center[0]) * (x[0]-center[0]) + 
           (x[1]-center[1]) * (x[1]-center[1]);
 
-  if ( dist2 < (0.99999*radius2) ) return 1;
-  else return 0;
+  if ( dist2 < (0.99999*radius2) )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 #define VTK_DEL2D_TOLERANCE 1.0e-06
@@ -202,9 +208,12 @@ static void CheckEdge(int ptId, float x[3], int p1, int p2, int tri,
     nei = neighbors->GetId(0);
     Mesh->GetCellPoints(nei, npts, pts);
     for (i=0; i<2; i++)
+      {
       if ( pts[i] != p1 && pts[i] != p2 )
+	{
         break;
-
+	}
+      }
     p3 = pts[i];
     points->GetPoint(p3,x3);
 
@@ -371,8 +380,14 @@ void vtkDelaunay2D::Execute()
         Mesh->GetCellPoints(nei[0],numNeiPts,neiPts);
         for (i=0; i<3; i++)
           {
-          if ( neiPts[i] != nei[1] && neiPts[i] != nei[2] ) p1 = neiPts[i];
-          if ( pts[i] != nei[1] && pts[i] != nei[2] ) p2 = pts[i];
+          if ( neiPts[i] != nei[1] && neiPts[i] != nei[2] )
+	    {
+	    p1 = neiPts[i];
+	    }
+          if ( pts[i] != nei[1] && pts[i] != nei[2] )
+	    {
+	    p2 = pts[i];
+	    }
           }
         Mesh->ResizeCellList(p1,1);
         Mesh->ResizeCellList(p2,1);
@@ -426,7 +441,10 @@ void vtkDelaunay2D::Execute()
   if ( !this->BoundingTriangulation || this->Alpha > 0.0 )
     {
     triUse = new char[numTriangles];
-    for (i=0; i<numTriangles; i++) triUse[i] = 1;
+    for (i=0; i<numTriangles; i++)
+      {
+      triUse[i] = 1;
+      }
     }
 
   if ( ! this->BoundingTriangulation )
@@ -473,7 +491,10 @@ void vtkDelaunay2D::Execute()
           }
         else
           {
-          for (j=0; j<3; j++) pointUse[triPts[j]] = 1; 
+          for (j=0; j<3; j++)
+	    {
+	    pointUse[triPts[j]] = 1; 
+	    }
           }
         }//if non-deleted triangle
       }//for all triangles
@@ -551,14 +572,14 @@ void vtkDelaunay2D::Execute()
     {
     vtkCellArray *alphaTriangles = vtkCellArray::New();
     alphaTriangles->Allocate(numTriangles);
-    int *triPts;
+    int *alphaTriPts;
 
     for (i=0; i<numTriangles; i++)
       {
       if ( triUse[i] )
         {
-        Mesh->GetCellPoints(i,npts,triPts);
-        alphaTriangles->InsertNextCell(3,triPts);
+        Mesh->GetCellPoints(i,npts,alphaTriPts);
+        alphaTriangles->InsertNextCell(3,alphaTriPts);
         }
       }
     output->SetPolys(alphaTriangles);

@@ -103,8 +103,14 @@ vtkDecimatePro::vtkDecimatePro()
 vtkDecimatePro::~vtkDecimatePro()
 {
   this->InflectionPoints->Delete();
-  if ( this->Queue ) delete this->Queue;
-  if ( this->VertexError ) this->VertexError->Delete();
+  if ( this->Queue )
+    {
+    delete this->Queue;
+    }
+  if ( this->VertexError )
+    {
+    this->VertexError->Delete();
+    }
   this->Neighbors->Delete();
   this->EdgeLengths->Delete();
   delete this->V;
@@ -148,9 +154,10 @@ void vtkDecimatePro::Execute()
   // Initialize
   bounds = input->GetBounds();
   for (max=0.0, i=0; i<3; i++)
+    {
     max = ((bounds[2*i+1]-bounds[2*i]) > max ? 
            (bounds[2*i+1]-bounds[2*i]) : max);
-
+    }
   this->Error = (this->MaximumError >= VTK_LARGE_FLOAT ? 
            VTK_LARGE_FLOAT : this->MaximumError * max);
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
@@ -171,7 +178,10 @@ void vtkDecimatePro::Execute()
     if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
     this->Mesh = vtkPolyData::New();
     newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
-    for ( i=0; i < numPts; i++ ) newPts->SetPoint(i,inPts->GetPoint(i));
+    for ( i=0; i < numPts; i++ )
+      {
+      newPts->SetPoint(i,inPts->GetPoint(i));
+      }
     newPolys = new vtkCellArray(*(inPolys));
     this->Mesh->SetPoints(newPts);
     this->Mesh->SetPolys(newPolys);
@@ -195,7 +205,10 @@ void vtkDecimatePro::Execute()
     {
     this->VertexError = vtkFloatArray::New();
     this->VertexError->Allocate(numPts,(int) ((float)0.25*numPts));
-    for (i=0; i<numPts; i++) this->VertexError->SetValue(i, 0.0);
+    for (i=0; i<numPts; i++)
+      {
+      this->VertexError->SetValue(i, 0.0);
+      }
     }
 
   // If not deferring splitting and splitting on, we'll start off by 
@@ -254,7 +267,7 @@ void vtkDecimatePro::Execute()
         }
       }
     
-    this->Mesh->GetPoint(ptId,X);
+    this->Mesh->GetPoint(ptId,this->X);
     this->Mesh->GetPointCells(ptId,ncells,cells);
 
     if ( ncells > 0 )
@@ -267,7 +280,10 @@ void vtkDecimatePro::Execute()
 
       if ( collapseId >= 0 )
         {
-        if ( this->AccumulateError ) this->DistributeError(error);
+        if ( this->AccumulateError )
+	  {
+	  this->DistributeError(error);
+	  }
 
         totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2,
                                               CollapseTris);
@@ -318,12 +334,18 @@ void vtkDecimatePro::Execute()
   // Grab the points that are left; copy point data. Remember that splitting 
   // data may have added new points.
   map = new int[totalPts];
-  for (i=0; i < totalPts; i++) map[i] = -1;
+  for (i=0; i < totalPts; i++)
+    {
+    map[i] = -1;
+    }
   numNewPts = 0;
   for (ptId=0; ptId < totalPts; ptId++)
     {
     this->Mesh->GetPointCells(ptId,ncells,cells);
-    if ( ncells > 0 ) map[ptId] = numNewPts++;
+    if ( ncells > 0 )
+      {
+      map[ptId] = numNewPts++;
+      }
     }
 
   outputPD->CopyAllocate(inPD,numNewPts);
@@ -349,7 +371,10 @@ void vtkDecimatePro::Execute()
     if ( this->Mesh->GetCellType(cellId) == VTK_TRIANGLE ) // non-null element
       {
       this->Mesh->GetCellPoints(cellId, npts, pts);
-      for (i=0; i < 3; i++) newCellPts[i] = map[pts[i]];
+      for (i=0; i < 3; i++)
+	{
+	newCellPts[i] = map[pts[i]];
+	}
       newPolys->InsertNextCell(npts,newCellPts);
       }
     }
@@ -401,7 +426,7 @@ void vtkDecimatePro::SplitMesh()
   this->CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
   for ( ptId=0; ptId < this->Mesh->GetNumberOfPoints(); ptId++ )
     {
-    this->Mesh->GetPoint(ptId,X);
+    this->Mesh->GetPoint(ptId,this->X);
     this->Mesh->GetPointCells(ptId,ncells,cells);
 
     if ( ncells > 0 && 
@@ -413,7 +438,7 @@ void vtkDecimatePro::SplitMesh()
     }
 }
 
-#define FEATURE_ANGLE(tri1,tri2) \
+#define VTK_FEATURE_ANGLE(tri1,tri2) \
                       vtkMath::Dot(this->T->Array[tri1].n, this->T->Array[tri2].n)
 //
 // Evalute the local topology/geometry of a vertex. This is a two-pass
@@ -460,7 +485,13 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   // (e.g., polygons ordering/normals remains consistent)
   //
   this->Mesh->GetCellPoints(*tris,numVerts,verts); // get starting point
-  for (i=0; i<3; i++) if (verts[i] == ptId) break;
+  for (i=0; i<3; i++)
+    {
+    if (verts[i] == ptId)
+      {
+      break;
+      }
+    }
   sn.id = startVertex = verts[(i+1)%3];
   this->Mesh->GetPoint(sn.id, sn.x); //grab coordinates here to save GetPoint() calls
 
@@ -626,7 +657,10 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   //  Traverse all polygons and generate normals and areas
   //
   x2 =  this->V->Array[0].x;
-  for (i=0; i<3; i++) v2[i] = x2[i] - X[i];
+  for (i=0; i<3; i++)
+    {
+    v2[i] = x2[i] - X[i];
+    }
 
   this->LoopArea=0.0;
   this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
@@ -645,8 +679,8 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
       v2[j] = x2[j] - X[j];
       }
 
-    this->T->Array[i].area = vtkTriangle::TriangleArea (X, x1, x2);
-    vtkTriangle::TriangleCenter (X, x1, x2, center);
+    this->T->Array[i].area = vtkTriangle::TriangleArea (this->X, x1, x2);
+    vtkTriangle::TriangleCenter (this->X, x1, x2, center);
     this->LoopArea += this->T->Array[i].area;
 
     vtkMath::Cross (v1, v2, normal);
@@ -695,22 +729,32 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     fedges[1] = this->V->MaxId;
     } 
   else
+    {
     numFEdges = 0;
+    }
   //
   //  Compare to cosine of feature angle to avoid cosine extraction
   //
   if ( vtype == VTK_SIMPLE_VERTEX ) // first edge 
-    if ( (this->V->Array[0].FAngle = FEATURE_ANGLE(0,this->T->MaxId)) <= this->CosAngle )
+    {
+    if ( (this->V->Array[0].FAngle = VTK_FEATURE_ANGLE(0,this->T->MaxId)) <= this->CosAngle )
+      {
       fedges[numFEdges++] = 0;
+      }
+    }
 
   for (i=0; i < this->T->MaxId; i++) 
     {
-    if ( (this->V->Array[i+1].FAngle = FEATURE_ANGLE(i,i+1)) <= this->CosAngle ) 
+    if ( (this->V->Array[i+1].FAngle = VTK_FEATURE_ANGLE(i,i+1)) <= this->CosAngle ) 
       {
       if ( numFEdges >= 2 ) 
+	{
         numFEdges++;
+	}
       else 
+	{
         fedges[numFEdges++] = i + 1;
+	}
       }
     }
   //
@@ -718,13 +762,25 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   //
   if ( vtype == VTK_SIMPLE_VERTEX && numFEdges > 0 )
     {
-    if ( numFEdges == 1 ) vtype = VTK_EDGE_END_VERTEX;
-    else if ( numFEdges == 2 ) vtype = VTK_INTERIOR_EDGE_VERTEX;
-    else vtype = VTK_CORNER_VERTEX;
+    if ( numFEdges == 1 )
+      {
+      vtype = VTK_EDGE_END_VERTEX;
+      }
+    else if ( numFEdges == 2 )
+      {
+      vtype = VTK_INTERIOR_EDGE_VERTEX;
+      }
+    else
+      {
+      vtype = VTK_CORNER_VERTEX;
+      }
     }
   else if ( vtype == VTK_BOUNDARY_VERTEX )
     {
-    if ( numFEdges != 2 ) vtype = VTK_CORNER_VERTEX;
+    if ( numFEdges != 2 )
+      {
+      vtype = VTK_CORNER_VERTEX;
+      }
     else
       {//see whether this is the tip of a crack
       if ( this->V->Array[fedges[0]].x[0] == this->V->Array[fedges[1]].x[0] &&
@@ -759,15 +815,22 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     // Half of loop is left connected to current vertex. Second half is
     // split away.
     for ( i=0; i < numTris; i++ ) // find first feature edge
-      if ( this->V->Array[i].FAngle <= this->CosAngle ) break;
-
+      {
+      if ( this->V->Array[i].FAngle <= this->CosAngle )
+	{
+	break;
+	}
+      }
     fedge1 = i;
-    for ( i++, numSplitTris=1; this->V->Array[i].FAngle > this->CosAngle; i++ ) 
-        numSplitTris++;
+    for ( i++, numSplitTris=1; this->V->Array[i].FAngle > this->CosAngle; i++ )
+      {
+      numSplitTris++;
+      }
+
     fedge2 = i;
 
     // Now split region
-    id = this->Mesh->InsertNextLinkedPoint(X,numSplitTris);
+    id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
 
     for ( i=fedge1; i < fedge2; i++ )
       { //disconnect from existing vertex
@@ -778,9 +841,11 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       }
 
     // Compute error and insert the two vertices (old + split)
-    error = ComputeEdgeError(X, this->V->Array[fedge1].x, this->V->Array[fedge2].x);
+    error = ComputeEdgeError(this->X, this->V->Array[fedge1].x, this->V->Array[fedge2].x);
     if ( this->AccumulateError ) 
+      {
       this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
+      }
 
     if ( insert )
       {
@@ -797,18 +862,27 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     // The first piece is left connected to vertex. Just find first 
     // feature/boundary edge. If on boundary, skip boundary piece.
     for ( i=0; i <= this->V->MaxId; i++ ) // find first feature edge
+      {
       if ( this->V->Array[i].FAngle <= this->CosAngle && this->V->Array[i].FAngle != -1.0 ) 
+	{
         break;
-
+	}
+      }
     for ( veryFirst = fedge1 = i; fedge1 < this->V->MaxId; i = fedge1 = fedge2 )
       {
       for (i++, numSplitTris=1; 
-      i <= this->V->MaxId && this->V->Array[i].FAngle > this->CosAngle; i++) numSplitTris++;
+      i <= this->V->MaxId && this->V->Array[i].FAngle > this->CosAngle; i++)
+	{
+	numSplitTris++;
+	}
 
-      if ( (fedge2 = i) > this->V->MaxId ) continue; //must be part of first region
+      if ( (fedge2 = i) > this->V->MaxId )
+	{
+	continue; //must be part of first region
+	}
 
       // Now split region
-      id = this->Mesh->InsertNextLinkedPoint(X,numSplitTris);
+      id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
       for ( j=fedge1; j < fedge2; j++ )
         { //disconnect from existing vertex
         tri = this->T->Array[j].id;
@@ -818,20 +892,32 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
         }
 
       // Compute error for the vertex and insert
-      error = ComputeEdgeError(X, this->V->Array[fedge1].x, this->V->Array[fedge2].x);
+      error = ComputeEdgeError(this->X, this->V->Array[fedge1].x, this->V->Array[fedge2].x);
       if ( this->AccumulateError ) 
+	{
         this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
+	}
 
-      if ( insert ) this->Insert(id,error);    
+      if ( insert )
+	{
+	this->Insert(id,error);    
+	}
       }
 
     // don't forget to compute error for old vertex, and insert into queue
     if ( this->V->Array[0].FAngle == -1.0 )
+      {
       error = ComputeEdgeError(X, this->V->Array[0].x, this->V->Array[veryFirst].x);
+      }
     else
+      {
       error = ComputeEdgeError(X, this->V->Array[veryFirst].x, this->V->Array[fedge1].x);
+      }
 
-    if ( insert ) this->Insert(ptId,error);    
+    if ( insert )
+      {
+      this->Insert(ptId,error);    
+      }
     }
 
   // Default case just splits off triangle(s) that form manifold groups. 
@@ -847,15 +933,23 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     group->Allocate(VTK_MAX_TRIS_PER_VERTEX);
 
      //changes in group size control how to split loop
-    if ( numTris <= 1 ) return; //prevents infinite recursion
+    if ( numTris <= 1 )
+      {
+      return; //prevents infinite recursion
+      }
     maxGroupSize = ( numTris < this->VertexDegree ? numTris : (this->VertexDegree - 1));
 
     if ( type == VTK_NON_MANIFOLD_VERTEX || type == VTK_HIGH_DEGREE_VERTEX )
       ; //use maxGroupSize
     else
+      {
       maxGroupSize /= 2; //prevents infinite recursion
+      }
 
-    for ( i=0; i < numTris; i++ ) triangles->InsertId(i,tris[i]);
+    for ( i=0; i < numTris; i++ )
+      {
+      triangles->InsertId(i,tris[i]);
+      }
 
     // now group into manifold pieces
     for ( i=0, id=ptId; triangles->GetNumberOfIds() > 0; i++ )
@@ -881,11 +975,23 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
             group->InsertNextId(tri);
             triangles->DeleteId(tri);
             this->Mesh->GetCellPoints(tri,nverts,verts);
-            if ( verts[0] != ptId && verts[0] != p[j] ) p[j] = verts[0];
-            else if ( verts[1] != ptId && verts[1] != p[j] ) p[j] = verts[1];
-            else p[j] = verts[2];
+            if ( verts[0] != ptId && verts[0] != p[j] )
+	      {
+	      p[j] = verts[0];
+	      }
+            else if ( verts[1] != ptId && verts[1] != p[j] )
+	      {
+	      p[j] = verts[1];
+	      }
+            else
+	      {
+	      p[j] = verts[2];
+	      }
             }
-          else p[j] = -1;
+          else
+	    {
+	    p[j] = -1;
+	    }
           }
         }//for both directions
 
@@ -901,12 +1007,20 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
           this->Mesh->ReplaceCellPoint(tri, ptId, id);
           }
         if ( this->AccumulateError ) 
+	  {
           this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
-        if ( insert ) this->Insert(id);
+	  }
+        if ( insert )
+	  {
+	  this->Insert(id);
+	  }
         }//if not first group
       }//for all groups
     //Don't forget to reinsert original vertex
-    if ( insert ) this->Insert(ptId);
+    if ( insert )
+      {
+      this->Insert(ptId);
+      }
 
     triangles->Delete();
     cellIds->Delete();
@@ -929,7 +1043,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
   int numVerts=this->V->MaxId+1;
 
   CollapseTris->SetNumberOfIds(2);
-  EdgeLengths->Reset();
+  this->EdgeLengths->Reset();
 
   switch (type)
     {
@@ -937,25 +1051,28 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
     case VTK_SIMPLE_VERTEX: case VTK_EDGE_END_VERTEX: case VTK_INTERIOR_EDGE_VERTEX:
       if ( type == VTK_INTERIOR_EDGE_VERTEX )
         {
-        dist2 = vtkMath::Distance2BetweenPoints(X, this->V->Array[fedges[0]].x);
-        EdgeLengths->Insert(dist2,fedges[0]);
+        dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[fedges[0]].x);
+        this->EdgeLengths->Insert(dist2,fedges[0]);
 
-        dist2 = vtkMath::Distance2BetweenPoints(X, this->V->Array[fedges[1]].x);
-        EdgeLengths->Insert(dist2,fedges[1]);
+        dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[fedges[1]].x);
+        this->EdgeLengths->Insert(dist2,fedges[1]);
         }
       else // Compute the edge lengths
         {
         for ( i=0; i < numVerts; i++ )
           {
-          dist2 = vtkMath::Distance2BetweenPoints(X, this->V->Array[i].x);
-          EdgeLengths->Insert(dist2,i);
+          dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[i].x);
+          this->EdgeLengths->Insert(dist2,i);
           }
         }
 
       // See whether the collapse is okay
-      while ( (maxI = EdgeLengths->Pop(dist2)) >= 0 )
+      while ( (maxI = this->EdgeLengths->Pop(dist2)) >= 0 )
         {
-        if ( this->IsValidSplit(maxI) ) break;
+        if ( this->IsValidSplit(maxI) )
+	  {
+	  break;
+	  }
         }
 
       if ( maxI >= 0 )
@@ -988,13 +1105,25 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       maxI = -1;
       if ( dist2 <= e2dist2 )
         {
-        if ( this->IsValidSplit(0) ) maxI = 0;
-        else if ( this->IsValidSplit(this->V->MaxId) ) maxI = this->V->MaxId;
+        if ( this->IsValidSplit(0) )
+	  {
+	  maxI = 0;
+	  }
+        else if ( this->IsValidSplit(this->V->MaxId) )
+	  {
+	  maxI = this->V->MaxId;
+	  }
         }
       else
         {
-        if ( this->IsValidSplit(this->V->MaxId) ) maxI = this->V->MaxId;
-        else if ( this->IsValidSplit(0) ) maxI = 0;
+        if ( this->IsValidSplit(this->V->MaxId) )
+	  {
+	  maxI = this->V->MaxId;
+	  }
+        else if ( this->IsValidSplit(0) )
+	  {
+	  maxI = 0;
+	  }
         }
 
       if ( maxI >= 0 )
@@ -1025,7 +1154,10 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
         CollapseTris->SetId(1,this->T->Array[this->T->MaxId].id);
         return this->V->Array[0].id;
         }
-      else this->V->MaxId++;
+      else
+	{
+	this->V->MaxId++;
+	}
       break;
 
 
@@ -1084,7 +1216,10 @@ int vtkDecimatePro::IsValidSplit(int index)
       }
 
     vtkMath::Cross (v21,this->Normal,sN);
-    if ( vtkMath::Normalize(sN) == 0.0 ) return 0;
+    if ( vtkMath::Normalize(sN) == 0.0 )
+      {
+      return 0;
+      }
 
     for (sign=0, i=0; i < n1; i++) // first loop 
       {
@@ -1092,12 +1227,19 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l1[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( (absVal = (float) fabs((double)val)) < this->Tolerance ) return 0;
+        if ( (absVal = (float) fabs((double)val)) < this->Tolerance )
+	  {
+	  return 0;
+	  }
         
         if ( !sign )
+	  {
           sign = (val > this->Tolerance ? 1 : -1);
+	  }
         else if ( sign != (val > 0 ? 1 : -1) )
+	  {
           return 0;
+	  }
         }
       }
 
@@ -1108,12 +1250,18 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l2[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( (absVal = (float) fabs((double)val)) < this->Tolerance ) return 0;
-        
+        if ( (absVal = (float) fabs((double)val)) < this->Tolerance )
+	  {
+	  return 0;
+	  }
         if ( !sign )
+	  {
           sign = (val > this->Tolerance ? 1 : -1);
+	  }
         else if ( sign != (val > 0 ? 1 : -1) )
+	  {
           return 0;
+	  }
         }
       }
     }// Check all splits
@@ -1218,7 +1366,10 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
   // Update surrounding vertices. Need to copy verts first because the V/T
   // arrays might change as points are being reinserted.
   //
-  for ( i=0; i < nverts; i++ ) verts[i] = this->V->Array[i].id;
+  for ( i=0; i < nverts; i++ )
+    {
+    verts[i] = this->V->Array[i].id;
+    }
   for ( i=0; i < nverts; i++ )
     {
     this->DeleteId(verts[i]);
@@ -1267,7 +1418,9 @@ int vtkDecimatePro::GetNumberOfInflectionPoints()
 void vtkDecimatePro::InitializeQueue(int numPts)
 {
   if ( !this->PreserveTopology && this->Splitting ) 
+    {
     numPts = (int) ((float)numPts*1.25);
+    }
 
   this->Queue = new vtkPriorityQueue(numPts, (int)((float)0.25*numPts));
 }
@@ -1279,8 +1432,14 @@ int vtkDecimatePro::Pop(float &error)
   // Try returning what's in queue
   if ( (ptId = this->Queue->Pop(error)) >= 0 )
     {
-    if ( error > this->Error ) this->Queue->Reset();
-    else return ptId;
+    if ( error > this->Error )
+      {
+      this->Queue->Reset();
+      }
+    else
+      {
+      return ptId;
+      }
     }
 
   // See whether anything's left and split/re-insert if allowed
@@ -1302,8 +1461,14 @@ int vtkDecimatePro::Pop(float &error)
 
     if ( (ptId = this->Queue->Pop(error)) >= 0 )
       {
-      if ( error > this->Error ) this->Queue->Reset();
-      else return ptId;
+      if ( error > this->Error )
+	{
+	this->Queue->Reset();
+	}
+      else
+	{
+	return ptId;
+	}
       }
     }
 
@@ -1321,8 +1486,14 @@ int vtkDecimatePro::Pop(float &error)
 
     if ( (ptId = this->Queue->Pop(error)) >= 0 )
       {
-      if ( error > this->Error ) this->Queue->Reset();
-      else return ptId;
+      if ( error > this->Error )
+	{
+	this->Queue->Reset();
+	}
+      else
+	{
+	return ptId;
+	}
       }
     }
 
@@ -1337,10 +1508,10 @@ void vtkDecimatePro::Insert(int ptId, float error)
   int fedges[2];
   unsigned short int ncells;
 
-  //Depending on value of error, we need to compute it or just insert the point
+  // on value of error, we need to compute it or just insert the point
   if ( error < -this->Tolerance )
     {
-    this->Mesh->GetPoint(ptId,X);
+    this->Mesh->GetPoint(ptId,this->X);
     this->Mesh->GetPointCells(ptId,ncells,cells);
 
     if ( ncells > 0 )
@@ -1361,16 +1532,23 @@ void vtkDecimatePro::Insert(int ptId, float error)
         {
         simpleType = 1;
         if ( ncells == 1 ) //compute better error for single triangle 
+	  {
           error = ComputeSingleTriangleError(this->X,this->V->Array[0].x, 
                                              this->V->Array[1].x);
+	  }
         else
+	  {
           error = ComputeEdgeError(this->X, this->V->Array[fedges[0]].x, 
                                    this->V->Array[fedges[1]].x);
-        }
+	  }
+	}
 
       if ( simpleType )
         {
-        if ( this->AccumulateError ) error += this->VertexError->GetValue(ptId);
+        if ( this->AccumulateError )
+	  {
+	    error += this->VertexError->GetValue(ptId);
+	  }
         this->Queue->Insert(error,ptId);
         }
 
@@ -1391,7 +1569,7 @@ void vtkDecimatePro::Insert(int ptId, float error)
     //see whether to split it, otherwise it isn't inserted yet
     if ( this->SplitState == VTK_STATE_SPLIT_ALL )
       {
-      this->Mesh->GetPoint(ptId,X);
+      this->Mesh->GetPoint(ptId,this->X);
       this->Mesh->GetPointCells(ptId,ncells,cells);
       if ( ncells > 0 ) 
         {
@@ -1404,7 +1582,10 @@ void vtkDecimatePro::Insert(int ptId, float error)
   // Sometimes the error is computed for us so we insert it appropriately
   else 
     {
-    if ( this->AccumulateError ) error += this->VertexError->GetValue(ptId);
+    if ( this->AccumulateError )
+      {
+	error += this->VertexError->GetValue(ptId);
+      }
     this->Queue->Insert(error,ptId);
     }
 }
