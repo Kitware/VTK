@@ -50,8 +50,9 @@ ENDFOREACH(test)
 # Add other odd tests or executables
 #
 FOREACH (exe
-    TimeRenderer
-    TimeRenderer2
+#    TimeRenderer
+#    TimeRenderer2
+    VTKBenchmark
     )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)
   TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
