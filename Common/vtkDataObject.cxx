@@ -807,6 +807,7 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Global Release Data: " 
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
+  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces << endl;
   os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
   
