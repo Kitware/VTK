@@ -66,6 +66,7 @@ class VTK_EXPORT vtkExtractVectorComponents : public vtkSource
 public:
   static vtkExtractVectorComponents *New();
   vtkTypeMacro(vtkExtractVectorComponents,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the input data or filter.

@@ -344,4 +344,9 @@ vtkDataSet *vtkExtractVectorComponents::GetInput()
   return (vtkDataSet *)(this->Inputs[0]);
 }
 
-
+void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkSource::PrintSelf(os,indent);
+  
+  os << indent << "ExtractToFieldData: " << this->ExtractToFieldData << endl;
+}
