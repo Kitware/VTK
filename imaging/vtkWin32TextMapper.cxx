@@ -48,6 +48,14 @@ vtkWin32TextMapper::vtkWin32TextMapper()
   this->Font = 0;
 }
 
+vtkWin32TextMapper::~vtkWin32TextMapper()
+{
+  if ( this->Font )
+    {
+    DeleteObject( this->Font );
+    }
+}
+
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
   if (this->Input == NULL)
