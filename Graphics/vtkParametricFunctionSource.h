@@ -29,7 +29,7 @@
 // vtkParametricSpline
 //
 // Subclasses of vtkParametricFunction implementing non-orentable surfaces:
-// vtkParametricBoy vtkParametricCrossCap vtkParametricFig8Klein
+// vtkParametricBoy vtkParametricCrossCap vtkParametricFigure8Klein
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
 // Subclasses of vtkParametricFunction implementing orientable surfaces:
