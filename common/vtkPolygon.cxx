@@ -49,9 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkPolygon* vtkPolygon::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,9 +61,6 @@ vtkPolygon* vtkPolygon::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPolygon;
 }
-
-
-
 
 // Instantiate polygon.
 vtkPolygon::vtkPolygon()
@@ -126,10 +121,10 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
     vtkTriangle::ComputeNormal(v0, v1, v2, n);
     return;
     }
-//
-//  Because polygon may be concave, need to accumulate cross products to 
-//  determine true normal.
-//
+
+  //  Because polygon may be concave, need to accumulate cross products to 
+  //  determine true normal.
+  //
   p->GetPoint(pts[0],v1); //set things up for loop
   p->GetPoint(pts[1],v2);
   n[0] = n[1] = n[2] = 0.0;
@@ -159,10 +154,10 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
   int i, numPts;
   float *v0, *v1, *v2;
   float ax, ay, az, bx, by, bz;
-//
-// Polygon is assumed non-convex -> need to accumulate cross products to 
-// find correct normal.
-//
+
+  // Polygon is assumed non-convex -> need to accumulate cross products to 
+  // find correct normal.
+  //
   numPts = p->GetNumberOfPoints();
   v1 = p->GetPoint(0); //set things up for loop
   v2 = p->GetPoint(1);
@@ -186,8 +181,8 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
   vtkMath::Normalize(n);
 }
 
-// Compute the polygon normal from an array of points. This version assumes that
-// the polygon is convex, and looks for the first valid normal.
+// Compute the polygon normal from an array of points. This version assumes
+// that the polygon is convex, and looks for the first valid normal.
 void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
 {
   int i;
@@ -195,10 +190,10 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
   float length;
   float ax, ay, az;
   float bx, by, bz;
-//
-//  Because some polygon vertices are colinear, need to make sure
-//  first non-zero normal is found.
-//
+
+  //  Because some polygon vertices are colinear, need to make sure
+  //  first non-zero normal is found.
+  //
   v1 = pts;
   v2 = pts + 3;
   v3 = pts + 6;
@@ -229,7 +224,6 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
     } //over all points
 }
 
-
 int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
                                  int& vtkNotUsed(subId), float pcoords[3], 
                                  float& minDist2, float *weights)
@@ -252,9 +246,9 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(), 
-			     ((vtkFloatArray *)this->Points->GetData())
-			     ->GetPointer(0), this->GetBounds(),n)
-	== VTK_POLYGON_INSIDE) )
+                             ((vtkFloatArray *)this->Points->GetData())
+                             ->GetPointer(0), this->GetBounds(),n)
+        == VTK_POLYGON_INSIDE) )
     {
     if (closestPoint)
       {
@@ -265,9 +259,9 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
       }
     return 1;
     }
-//
-// If here, point is outside of polygon, so need to find distance to boundary
-//
+
+  // If here, point is outside of polygon, so need to find distance to boundary
+  //
   else
     {
     float t, dist2;
@@ -278,17 +272,18 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
       {
       numPts = this->Points->GetNumberOfPoints();
       for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
-	{
-	dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
-					this->Points->GetPoint((i+1)%numPts),t,closest);
-	if ( dist2 < minDist2 )
-	  {
-	  closestPoint[0] = closest[0]; 
-	  closestPoint[1] = closest[1]; 
-	  closestPoint[2] = closest[2];
-	  minDist2 = dist2;
-	  }
-	}
+        {
+        dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
+                                        this->Points->GetPoint((i+1)%numPts),
+                                        t, closest);
+        if ( dist2 < minDist2 )
+          {
+          closestPoint[0] = closest[0]; 
+          closestPoint[1] = closest[1]; 
+          closestPoint[2] = closest[2];
+          minDist2 = dist2;
+          }
+        }
       }
     return 0;
     }
@@ -321,7 +316,7 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
   float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
   int numPts=this->Points->GetNumberOfPoints();
   float *x1, *x2;
-  //
+
   //  This is a two pass process: first create a p' coordinate system
   //  that is then adjusted to insure that the polygon points are all in
   //  the range 0<=s,t<=1.  The p' system is defined by the polygon normal, 
@@ -336,7 +331,7 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     p10[i] = x2[i] - x1[i];
     }
   vtkMath::Cross (n,p10,p20);
-  //
+
   // Determine lengths of edges
   //
   if ( (l10=vtkMath::Dot(p10,p10)) == 0.0
@@ -344,7 +339,7 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     {
     return 0;
     }
-  //
+
   //  Now evalute all polygon points to determine min/max parametric
   //  coordinate values.
   //
@@ -370,9 +365,9 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     tbounds[0] = (t<tbounds[0]?t:tbounds[0]);
     tbounds[1] = (t>tbounds[1]?t:tbounds[1]);
     }
-//
-//  Re-evaluate coordinate system
-//
+
+  //  Re-evaluate coordinate system
+  //
   for (i=0; i<3; i++) 
     {
     p1[i] = p0[i] + sbounds[1]*p10[i] + tbounds[0]*p20[i];
@@ -437,7 +432,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
     {
     return VTK_POLYGON_OUTSIDE;
     }
-  //
+
   //  Get the maximum component of the normal.
   //
   if ( fabs(n[0]) > fabs(n[1]) )
@@ -477,7 +472,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
     {
     return VTK_POLYGON_FAILURE;
     }
-  //
+
   //  Enough information has been acquired to determine the random ray.
   //  Random rays are generated until one is satisfactory (i.e.,
   //  produces a ray of non-zero magnitude).  Also, since more than one
@@ -495,7 +490,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
   //
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_POLYGON_MAX_ITER)
-	 && (abs(deltaVotes) < VTK_POLYGON_VOTE_THRESHOLD);
+         && (abs(deltaVotes) < VTK_POLYGON_VOTE_THRESHOLD);
        iterNumber++) 
     {
     //
@@ -508,54 +503,54 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
       ray[maxComp] = -(n[comps[0]]*ray[comps[0]] + 
                         n[comps[1]]*ray[comps[1]]) / n[maxComp];
       if ( (mag = vtkMath::Norm(ray)) > rayMag*VTK_TOL )
-	{
-	rayOK = TRUE;
-	}
+        {
+        rayOK = TRUE;
+        }
       }
-    //
+
     //  The ray must be appropriately sized.
     //
     for (i=0; i<3; i++)
       {
       xray[i] = x[i] + (rayMag/mag)*ray[i];
       }
-    //
+
     //  The ray may now be fired against all the edges
     //
     for (numInts=0, testResult=VTK_POLYGON_CERTAIN, i=0; i<numPts; i++) 
       {
       x1 = pts + 3*i;
       x2 = pts + 3*((i+1)%numPts);
-      //
+
       //   Fire the ray and compute the number of intersections.  Be careful
       //   of degenerate cases (e.g., ray intersects at vertex).
       //
       if ((status=vtkLine::Intersection(x,xray,x1,x2,u,v)) == VTK_POLYGON_INTERSECTION) 
-	{
-	if ( (VTK_POLYGON_RAY_TOL < v) && (v < 1.0-VTK_POLYGON_RAY_TOL) )
-	  {
-	  numInts++;
-	  }
-	else
-	  {
-	  testResult = VTK_POLYGON_UNCERTAIN;
-	  }
-	} 
+        {
+        if ( (VTK_POLYGON_RAY_TOL < v) && (v < 1.0-VTK_POLYGON_RAY_TOL) )
+          {
+          numInts++;
+          }
+        else
+          {
+          testResult = VTK_POLYGON_UNCERTAIN;
+          }
+        } 
       else if ( status == VTK_POLYGON_ON_LINE )
-	{
-	testResult = VTK_POLYGON_UNCERTAIN;
-	}
+        {
+        testResult = VTK_POLYGON_UNCERTAIN;
+        }
       }
     if ( testResult == VTK_POLYGON_CERTAIN ) 
       {
       if ( (numInts % 2) == 0)
-	  {
+          {
           --deltaVotes;
-	  }
+          }
       else
-	{
-	++deltaVotes;
-	}
+        {
+        ++deltaVotes;
+        }
       }
     } //try another ray
 
@@ -571,14 +566,13 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
     }
 }
 
-#define VTK_POLYGON_TOLERANCE 1.0e-06
+#define VTK_POLYGON_TOLERANCE 1.0e-09
 
-// Triangulate polygon. Tries to use the fast triangulation technique 
-// first, and if that doesn't work, uses more complex routine that is
-//  guaranteed to work.
+// Triangulate polygon. 
+//
 int vtkPolygon::Triangulate(vtkIdList *outTris)
 {
-  int i, success;
+  int success;
   float *bounds, d;
   int numVerts=this->PointIds->GetNumberOfIds();
   int *verts = new int[numVerts];
@@ -590,285 +584,348 @@ int vtkPolygon::Triangulate(vtkIdList *outTris)
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   this->Tolerance = VTK_POLYGON_TOLERANCE * d;
   this->SuccessfulTriangulation = 1;
-  this->ComputeNormal(this->Points, this->Normal);
 
+  this->Tris->Reset();
+  success = this->EarCutTriangulation();
+  
+  if ( !success ) //degenerate triangle encountered
+    {
+    vtkWarningMacro(<< "Degenerate polygon encountered during triangulation");
+    }
+
+  outTris->DeepCopy(this->Tris);
+  return success;
+}
+
+// Special structures for building loops. This is a double-linked list.
+typedef struct _vtkPolyVertex 
+  {
+  int     id;
+  float   x[3];
+  float   measure;
+  _vtkPolyVertex*    next;
+  _vtkPolyVertex*    previous;
+  } vtkPolyVertex;
+
+class vtkPolyVertexList { //structure to support triangulation
+public:
+  vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts, float tol2);
+  ~vtkPolyVertexList();
+  
+  int ComputeNormal();
+  float ComputeMeasure(vtkPolyVertex *vtx);
+  vtkPolyVertex *GetVertex(int i) {return this->Array + i;}
+  void RemoveVertex(int i, vtkIdList *, vtkPriorityQueue *);
+  int CanRemoveVertex(int id, float tol);
+  
+  int NumberOfVerts;
+  vtkPolyVertex *Array;
+  vtkPolyVertex *Head;
+  float Normal[3];
+};
+    
+// tolerance is squared
+vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
+                                     float tol2)
+{
+  int i;
+  vtkPolyVertex *vtx;
+  int numVerts = ptIds->GetNumberOfIds();
+  this->NumberOfVerts = numVerts; 
+  this->Array = new vtkPolyVertex [numVerts];
+  this->Head = this->Array;
+
+  // now load the data into the array
+  float *x;
   for (i=0; i<numVerts; i++)
     {
-    verts[i] = i;
-    }
-  this->Tris->Reset();
-  outTris->Reset();
-
-  success = this->RecursiveTriangulate(numVerts, verts);
-  delete [] verts;
-  
-  if ( success )
-    {
-    for (i=0; i<this->Tris->GetNumberOfIds(); i++)
+    this->Array[i].id = i;
+    x = pts->GetPoint(i);
+    this->Array[i].x[0] = x[0];
+    this->Array[i].x[1] = x[1];
+    this->Array[i].x[2] = x[2];
+    this->Array[i].next = this->Array + (i+1)%numVerts;
+    if ( i == 0 )
       {
-      outTris->InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
+      this->Array[i].previous = this->Array + numVerts - 1;
       }
-    return 1;
+    else
+      {
+      this->Array[i].previous = this->Array + i - 1;
+      }
     }
-  else //degenerate triangle encountered
+
+  // make sure that there are no coincident vertices
+  for (i=0; i<numVerts; i++)
     {
-    vtkWarningMacro(<< "Degenerate polyogn encountered during triangulation");
+    vtx = this->Array + i;
+    if ( vtkMath::Distance2BetweenPoints(vtx->x,vtx->next->x) < tol2 )
+      {
+      if ( this->Head == vtx->next )
+        {
+        this->Head = vtx->next->next;
+        }
+      vtx->next->next->previous = vtx;
+      vtx->next = vtx->next->next;
+      this->NumberOfVerts--;
+      }
+    }
+}
+
+vtkPolyVertexList::~vtkPolyVertexList()
+{
+  delete [] this->Array;
+}
+
+// Remove the vertex from the polygon (forming a triangle with
+// its previous and next neighbors, and reinsert the neighbors
+// into the priority queue.
+void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris, 
+                                     vtkPriorityQueue *queue)
+{
+  // Create triangle
+  tris->InsertNextId(this->Array[i].id);
+  tris->InsertNextId(this->Array[i].next->id);
+  tris->InsertNextId(this->Array[i].previous->id);
+
+  // remove vertex; special case if single triangle left
+  if ( --this->NumberOfVerts < 3 )
+    {
+    return;
+    }
+  if ( (this->Array + i) == this->Head )
+    {
+    this->Head = this->Array[i].next;
+    }
+  this->Array[i].previous->next = this->Array[i].next;
+  this->Array[i].next->previous = this->Array[i].previous;
+
+  // recompute measure, reinsert into queue
+  // note that id may have been previously deleted (with Pop()) if we
+  // are dealing with a concave polygon and vertex couldn't be split.
+  queue->DeleteId(this->Array[i].previous->id);
+  queue->DeleteId(this->Array[i].next->id);
+  if ( this->ComputeMeasure(this->Array[i].previous) > 0.0 )
+    {
+    queue->Insert(this->Array[i].previous->measure,
+                  this->Array[i].previous->id);
+    }
+  if ( this->ComputeMeasure(this->Array[i].next) > 0.0 )
+    {
+    queue->Insert(this->Array[i].next->measure,
+                  this->Array[i].next->id);
+    }
+}
+
+int vtkPolyVertexList::ComputeNormal()
+{
+  float v1[3], v2[3];
+
+  this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
+  float n[3], *anchor = this->GetVertex(0)->x;
+  for (int i=0; i<this->NumberOfVerts-2; i++)
+    {
+    v1[0] = this->GetVertex(i)->x[0] - anchor[0];
+    v1[1] = this->GetVertex(i)->x[1] - anchor[1];
+    v1[2] = this->GetVertex(i)->x[2] - anchor[2];
+    v2[0] = this->GetVertex(i+1)->x[0] - anchor[0];
+    v2[1] = this->GetVertex(i+1)->x[1] - anchor[1];
+    v2[2] = this->GetVertex(i+1)->x[2] - anchor[2];
+    vtkMath::Cross(v1,v2,n);
+    this->Normal[0] += n[0];
+    this->Normal[1] += n[1];
+    this->Normal[2] += n[2];
+    }
+  if ( vtkMath::Normalize(this->Normal) == 0.0 )
+    {
     return 0;
-    }
-}
-
-// A fast triangulation method. Uses recursive divide and 
-// conquer based on plane splitting  to reduce loop into triangles.  
-// The cell (e.g., triangle) is presumed properly initialized (i.e., 
-// Points and PointIds).
-int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
-{
-  int i,j;
-  int n1, n2;
-  int fedges[2];
-
-  if ( ! this->SuccessfulTriangulation )
-    {
-    return this->SuccessfulTriangulation;
-    }
-
-  switch (numVerts) 
-    {
-    case 0: case 1: case 2:
-      //  In loops of less than 3 vertices no elements are created - shouldn't happen
-      return this->SuccessfulTriangulation;
-
-    case 3:
-      //  A loop of three vertices makes one triangle!
-      this->Tris->InsertNextId(verts[0]);
-      this->Tris->InsertNextId(verts[1]);
-      this->Tris->InsertNextId(verts[2]);
-      return this->SuccessfulTriangulation;
-
-    default:
-      {
-      //  Loops greater than three vertices must be subdivided.  This is
-      //  done by finding the best splitting plane and creating two loops and 
-      //  recursively triangulating.  To find the best splitting plane, try
-      //  all possible combinations, keeping track of the one that gives the
-      //  shortest distance between points.
-      //
-      vtkPriorityQueue *EdgeLengths;
-      int *l1 = new int[numVerts], *l2 = new int[numVerts];
-      int id;
-      float dist2, *p1, *p2;
-
-      // quick fix until constructors are changed
-      EdgeLengths = vtkPriorityQueue::New();
-      EdgeLengths->Allocate(VTK_CELL_SIZE);
-      
-      // find the minimum distance between points as candidates for the split line
-      for (i=0; i<(numVerts-2); i++) 
-        {
-        for (j=i+2; j<numVerts; j++) 
-          {
-          if ( ((j+1) % numVerts) != i ) 
-            {
-            id = j*numVerts + i; //generated id
-	    //we depend on using vtkPoints of type float
-            p1 = this->Points->GetPoint(verts[i]); 
-            p2 = this->Points->GetPoint(verts[j]);
-            dist2 = vtkMath::Distance2BetweenPoints(p1,p2);
-            EdgeLengths->Insert(dist2, id);
-            }
-          }
-        }
-
-      // now see whether we can split loop using priority-ordered 
-      // split candidates
-      while ( (id = EdgeLengths->Pop(dist2)) >= 0 )
-        {
-        fedges[0] = verts[id % numVerts];
-        fedges[1] = verts[id / numVerts];
-
-        if ( this->CanSplitLoop(fedges, numVerts, verts, n1, l1, n2, l2) )
-          {
-          this->RecursiveTriangulate (n1, l1);
-          this->RecursiveTriangulate (n2, l2);
-
-          delete [] l1;
-          delete [] l2;
-	  EdgeLengths->Delete();
-          return this->SuccessfulTriangulation;
-          }
-        }
-      
-      this->SuccessfulTriangulation = 0;
-
-      EdgeLengths->Delete();
-      delete [] l1;
-      delete [] l2;
-      return this->SuccessfulTriangulation;
-      }
-    }
-}
-
-// Determine whether the loop can be split. Determines this by first checking
-// to see whether points in each loop are on opposite sides of the split
-// plane. If so, then the loop can be split; otherwise see whether one of the
-// loops has all its points on one side of the split plane and the split line
-// is inside the polygon.
-int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
-                             int& n1, int *l1, int& n2, int *l2)
-{
-  int i, sign1, sign2, loop1Split=1, loop2Split=1;
-  float *x, val, *sPt, *s2Pt, v21[3], sN[3];
-  float n[3], den;
-
-  //  Create two loops from the one using the splitting vertices provided.
-  this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
-
-  // Create splitting plane.  Splitting plane is parallel to the loop
-  // plane normal and contains the splitting vertices fedges[0] and fedges[1].
-  sPt = this->Points->GetPoint(fedges[0]);
-  s2Pt = this->Points->GetPoint(fedges[1]);
-  for (i=0; i<3; i++)
-    {
-    v21[i] = s2Pt[i] - sPt[i];
-    }
-
-  vtkMath::Cross (v21,this->Normal,sN);
-  if ( (den=vtkMath::Norm(sN)) != 0.0 )
-    {
-    for (i=0; i<3; i++)
-      {
-      sN[i] /= den;
-      }
     }
   else
     {
-    return 0;
+    return 1;
+    }
+}
+  
+// The measure is the ratio of triangle perimeter^2 to area;
+// the sign of the measure is determined by dotting the local
+// vector with the normal (concave features return a negative
+// measure).
+float vtkPolyVertexList::ComputeMeasure(vtkPolyVertex *vtx)
+{
+  float v1[3], v2[3], v3[3], v4[3], area, perimeter;
+
+  for (int i=0; i<3; i++)
+    {
+    v1[i] = vtx->x[i] - vtx->previous->x[i];
+    v2[i] = vtx->next->x[i] - vtx->x[i];
+    v3[i] = vtx->previous->x[i] - vtx->next->x[i];
+    }
+  vtkMath::Cross(v1,v2,v4); //|v4| is twice the area
+  if ( (area=vtkMath::Dot(v4,this->Normal)) < 0.0 )
+    {
+    return (vtx->measure = -1.0); //concave or bad triangle
+    }
+  else if ( area == 0.0 )
+    {
+    return (vtx->measure = -VTK_LARGE_FLOAT); //concave or bad triangle
+    }
+  else
+    {
+    perimeter = vtkMath::Norm(v1) + vtkMath::Norm(v2) + 
+                vtkMath::Norm(v3);
+    return (vtx->measure = perimeter*perimeter/area);
+    }
+}
+
+// returns != 0 if vertex can be removed. Uses half-space
+// comparison to determine whether ear-cut is valid, and may
+// resort to line-plane intersections to resolve possible
+// instersections with ear-cut.
+int vtkPolyVertexList::CanRemoveVertex(int id, float tolerance)
+{
+  int i, sign, currentSign;
+  float v[3], sN[3], *sPt, val, s, t;
+  vtkPolyVertex *currentVtx, *previous, *next, *vtx;
+
+  // Check for simple case
+  if ( this->NumberOfVerts <= 3 )
+    {
+    return 1;
     }
 
-  // Evaluate the vertices in each loop to see which side of the split plane
-  // they are on. We want to see whether this plane cleanly separates the loop
-  // into two halves.
-  for (sign1=0, i=0; i < n1; i++) //first loop
+  // Compute split plane, the point to be cut off
+  // is always on the positive side of the plane.
+  currentVtx = this->Array + id;
+  previous = currentVtx->previous;
+  next = currentVtx->next;
+
+  sPt = previous->x; //point on plane
+  for (i=0; i<3; i++)
     {
-    if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
+    v[i] = next->x[i] - previous->x[i]; //vector passing through point
+    }
+
+  vtkMath::Cross (v,this->Normal,sN);
+  if ( (vtkMath::Normalize(sN)) == 0.0 )
+    {
+    return 0; //bad split, indeterminant
+    }
+
+  // Traverse the other points to see if a) they are all on the
+  // other side of the plane; and if not b) whether they intersect
+  // the split line.
+  int oneNegative=0;
+  val = vtkPlane::Evaluate(sN,sPt,next->next->x);
+  currentSign = (val > tolerance ? 1 : (val < -tolerance ? -1 : 0));
+  oneNegative = (currentSign < 0 ? 1 : 0); //very important
+
+  // Intersections are only computed when the split half-space is crossed
+  for (vtx=next->next->next; vtx != previous; vtx = vtx->next)
+    {
+    val = vtkPlane::Evaluate(sN,sPt,vtx->x);
+    sign = (val > tolerance ? 1 : (val < -tolerance ? -1 : 0));
+    if ( sign != currentSign )
       {
-      x = this->Points->GetPoint(l1[i]);
-      val = vtkPlane::Evaluate(sN,sPt,x);
-      if ( !sign1 )
-	{
-        sign1 = (val > this->Tolerance ? 1 : -1);
-	}
-      else if ( sign1 != (val > 0 ? 1 : -1) )
+      if ( !oneNegative )
         {
-        loop1Split = 0;
-        break;
+        oneNegative = (sign < 0 ? 1 : 0); //very important
         }
-      }
-    }
-
-  for (sign2=0, i=0; i < n2; i++) //second loop
-    {
-    if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
-      {
-      x = this->Points->GetPoint(l2[i]);
-      val = vtkPlane::Evaluate(sN,sPt,x);
-      if ( !sign2 )
-	{
-        sign2 = (val > this->Tolerance ? 1 : -1);
-	}
-      else if ( sign2 != (val > 0 ? 1 : -1) )
+      if (vtkLine::Intersection(sPt,next->x,vtx->x,vtx->previous->x,s,t) != 0 )
         {
-        loop2Split = 0;
-        break;
+        return 0;
         }
-      }
-    }
-
-  // If both loops cleanly split the split line is okay; if only one loop
-  // cleanly split check to see if it is valid. It is valid if the loop normal
-  // points in the same direction as the polygon normal, and no edges of the
-  // other loop intersect the split line.
-  if ( loop1Split && loop2Split ) //both loops cleanly split
-    {
-    if ( sign1 != sign2 )
-      {
-      return 1; //on opposite sides of split plane
-      }
-    else
-      {
-      return 0; //on same side of plsit plane
-      }
-    }
-  else if ( !loop1Split && !loop2Split ) //neither loop cleanly split - skip
-    {
-    return 0;
-    }
-  else //one loop cleanly split - need to do edge intersection/normal check
-    {
-    float u, v, *p1, *p2;
-    int id1, id2, *loop, count, *otherLoop, otherCount;
-    
-    if ( loop1Split )
-      {
-      loop = l1; count = n1;
-      otherLoop = l2; otherCount = n2;
-      }
-    else
-      {
-      loop = l2; count = n2;
-      otherLoop = l1; otherCount = n1;
-      }
-
-    this->ComputeNormal(this->Points, count, loop, n);
-    if ( vtkMath::Dot(n,this->Normal) < 0.0 )
-      {
-      return 0;
-      }
-    // Check line-line intersection
-    for (i=0; i < otherCount; i++)
-      {
-      id1 = otherLoop[i];
-      id2 = otherLoop[(i+1) % otherCount];
-      if ( id1 != fedges[0] && id1 != fedges[1] &&
-      id2 != fedges[0] && id2 != fedges[1] )
+      else
         {
-        p1 = this->Points->GetPoint(id1);
-        p2 = this->Points->GetPoint(id2);
-        if ( vtkLine::Intersection(sPt,s2Pt,p1,p2,u,v) != 0 )
-	  {
-	  return 0;
-	  }
+        currentSign = sign;
         }
-      }
+      }//if crossing occurs
+    }//for the rest of the loop
+
+  if ( !oneNegative )
+    {
+    return 0; //entire loop is on this side of plane
+    }
+  else
+    {
     return 1;
     }
 }
 
-// Creates two loops from splitting plane provided
-void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
-                           int& n1, int *l1, int& n2, int* l2)
+// Triangulation method based on ear-cutting. Triangles, or ears, are
+// cut off from the polygon based on the angle of the vertex. Small
+// angles (narrow triangles) are cut off first. This implementation uses
+// a priority queue to cut off ears with smallest angles. Also, the
+// algorithm works in 3D (the points don't have to be projected into
+// 2D, and the ordering direction of the points is nor important as
+// long as the polygon edges do not self intersect).
+int vtkPolygon::EarCutTriangulation ()
 {
-  int i;
-  int *loop;
-  int *count;
+  vtkPolyVertexList poly(this->PointIds, this->Points, 
+                         this->Tolerance*this->Tolerance);
+  vtkPolyVertex *vtx;
+  int i, id;
 
-  n1 = n2 = 0;
-  loop = l1;
-  count = &n1;
-
-  for (i=0; i < numVerts; i++) 
+  // First compute the polygon normal the correct way
+  //
+  if ( ! poly.ComputeNormal() )
     {
-    loop[(*count)++] = verts[i];
-    if ( verts[i] == fedges[0] || verts[i] == fedges[1] ) 
+    return (this->SuccessfulTriangulation=0);
+    }
+  
+  // Now compute the angles between edges incident to each
+  // vertex. Place the structure into a priority queue (those
+  // vertices with smallest angle are to be removed first).
+  //
+  vtkPriorityQueue *VertexQueue = vtkPriorityQueue::New();
+  VertexQueue->Allocate(poly.NumberOfVerts);
+  for (i=0, vtx=poly.Head; i < poly.NumberOfVerts; i++, vtx=vtx->next)
+    {
+    //concave (negative measure) vertices are not elgible for removal
+    if ( poly.ComputeMeasure(vtx) > 0.0 )
       {
-      loop = (loop == l1 ? l2 : l1);
-      count = (count == &n1 ? &n2 : &n1);
-      loop[(*count)++] = verts[i];
+      VertexQueue->Insert(vtx->measure, vtx->id);
       }
     }
+  
+  // For each vertex in priority queue, and as long as there
+  // are three or more vertices, remove the vertex (if possible)
+  // and create a new triangle. If the number of vertices in the
+  // queue is equal to the number of vertices, then the polygon
+  // is convex and triangle removal can proceed without intersection
+  // checks.
+  //
+  int numInQueue;
+  while ( poly.NumberOfVerts > 2 && 
+          (numInQueue=VertexQueue->GetNumberOfItems()) > 0)
+    {
+    if ( numInQueue == poly.NumberOfVerts ) //convex, pop away
+      {
+      id = VertexQueue->Pop();
+      poly.RemoveVertex(id,this->Tris,VertexQueue);
+      }//convex
+    else
+      {
+      id = VertexQueue->Pop(); //removes it, even if can't be split
+      if ( poly.CanRemoveVertex(id,this->Tolerance) )
+        {
+        poly.RemoveVertex(id,this->Tris,VertexQueue);
+        }
+      }//concave
+    }//while
+  
+  // Clean up
+  VertexQueue->Delete();
 
-  return;
+  if ( poly.NumberOfVerts > 2 ) //couldn't triangulate
+    {
+    return (this->SuccessfulTriangulation=0);
+    }
+  else
+    {
+    return (this->SuccessfulTriangulation=1);
+    }
 }
+
 
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
                              vtkIdList *pts)
@@ -928,9 +985,9 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(closest, this->Points->GetNumberOfPoints(), 
-			     ((vtkFloatArray *)this->Points->GetData())
-			     ->GetPointer(0), this->GetBounds(),n)
-	== VTK_POLYGON_INSIDE) )
+                             ((vtkFloatArray *)this->Points->GetData())
+                             ->GetPointer(0), this->GetBounds(),n)
+        == VTK_POLYGON_INSIDE) )
     {
     return 1;
     }
@@ -950,7 +1007,7 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
   int i, success;
   int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
-  int *polyVerts = new int[numVerts], p1, p2, p3;
+  int p1, p2, p3;
 
   this->TriScalars->SetNumberOfScalars(3);
 
@@ -963,13 +1020,9 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);
 
-  for (i=0; i<numVerts; i++)
-    {
-    polyVerts[i] = i;
-    }
   this->Tris->Reset();
 
-  success = this->RecursiveTriangulate(numVerts, polyVerts);
+  success = this->EarCutTriangulation();
 
   if ( !success ) // Just skip for now.
     {
@@ -1001,7 +1054,6 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
                    lines, polys, inPd, outPd, inCd, cellId, outCd);
       }
     }
-  delete [] polyVerts;
 }
 
 vtkCell *vtkPolygon::GetEdge(int edgeId)
@@ -1035,9 +1087,9 @@ void vtkPolygon::ComputeWeights(float x[3], float *weights)
     if ( weights[i] == 0.0 ) //exact hit
       {
       for (int j=0; j<numPts; j++)
-	{
-	weights[j] = 0.0;
-	}
+        {
+        weights[j] = 0.0;
+        }
       weights[i] = 1.0;
       return;
       }
@@ -1117,29 +1169,21 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);
 
-  for (i=0; i<numVerts; i++)
-    {
-    verts[i] = i;
-    }
   this->Tris->Reset();
 
-  success = this->RecursiveTriangulate(numVerts, verts);
+  success = this->EarCutTriangulation();
 
   if ( !success ) // Use slower but always successful technique.
     {
-    vtkErrorMacro(<<"Couldn't triangulate");
+    vtkErrorMacro(<<"Possible triangulation failure");
     }
-  else // Copy the point id's into the supplied Id array
+  for (i=0; i<this->Tris->GetNumberOfIds(); i++)
     {
-    for (i=0; i<this->Tris->GetNumberOfIds(); i++)
-      {
-      ptIds->InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
-      pts->InsertPoint(i,this->Points->GetPoint(this->Tris->GetId(i)));
-      }
+    ptIds->InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
+    pts->InsertPoint(i,this->Points->GetPoint(this->Tris->GetId(i)));
     }
 
-  delete [] verts;
-  return success;
+  return this->SuccessfulTriangulation;
 }
 
 // Samples at three points to compute derivatives in local r-s coordinate 
@@ -1178,16 +1222,15 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   float *weights = new float[numVerts];
   float *sample = new float[dim*3];
 
-
   //setup parametric system and check for degeneracy
   if ( this->ParameterizePolygon(p0, p10, l10, p20, l20, n) == 0 )
     {
     for ( j=0; j < dim; j++ )
       {
       for ( i=0; i < 3; i++ )
-	{
+        {
         derivs[j*dim + i] = 0.0;
-	}
+        }
       }
     return;
     }
@@ -1248,7 +1291,7 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   int i, success;
   int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
-  int *polyVerts = new int[numVerts], p1, p2, p3;
+  int p1, p2, p3;
 
   this->TriScalars->SetNumberOfScalars(3);
 
@@ -1261,13 +1304,9 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);
 
-  for (i=0; i<numVerts; i++)
-    {
-    polyVerts[i] = i;
-    }
   this->Tris->Reset();
 
-  success = this->RecursiveTriangulate(numVerts, polyVerts);
+  success = this->EarCutTriangulation();
 
   if ( success ) // clip triangles
     {
@@ -1293,7 +1332,6 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
                           inPD, outPD, inCD, cellId, outCD, insideOut);
       }
     }
-  delete [] polyVerts;
 }
 
 // Method intersects two polygons. You must supply the number of points and
@@ -1311,7 +1349,7 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6]
   int i, j;
   float *p1, *p2, ray[3];
   float t;
-  //
+
   //  Intersect each edge of first polygon against second
   //
   vtkPolygon::ComputeNormal(npts2, pts2, n);
@@ -1333,10 +1371,10 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6]
     if ( (vtkPlane::IntersectWithLine(p1,p2,n,pts2,t,x)) == 1 ) 
       {
       if ( (npts2==3
-	    && vtkTriangle::PointInTriangle(x,pts2,pts2+3,pts2+6,tol2))
-	   || (npts2>3
-	       && vtkPolygon::PointInPolygon(x,npts2,pts2,bounds2,n)
-	       ==VTK_POLYGON_INSIDE))
+            && vtkTriangle::PointInTriangle(x,pts2,pts2+3,pts2+6,tol2))
+           || (npts2>3
+               && vtkPolygon::PointInPolygon(x,npts2,pts2,bounds2,n)
+               ==VTK_POLYGON_INSIDE))
         {
         return 1;
         }
@@ -1346,7 +1384,7 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6]
       return 0;
       }
     }
-  //
+
   //  Intersect each edge of second polygon against first
   //
   vtkPolygon::ComputeNormal(npts, pts, n);
@@ -1369,8 +1407,8 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6]
     if ( (vtkPlane::IntersectWithLine(p1,p2,n,pts,t,x)) == 1 ) 
       {
       if ( (npts==3 && vtkTriangle::PointInTriangle(x,pts,pts+3,pts+6,tol2))
-	   || (npts>3 && vtkPolygon::PointInPolygon(x,npts,pts,bounds,n)
-	       ==VTK_POLYGON_INSIDE))
+           || (npts>3 && vtkPolygon::PointInPolygon(x,npts,pts,bounds,n)
+               ==VTK_POLYGON_INSIDE))
         {
         return 1;
         }

@@ -123,33 +123,12 @@ public:
 			    float bounds[6], float n[3]);  
 
   // Description:
-  // Triangulate polygon. Tries to use the fast triangulation technique 
-  // first, and if that doesn't work, uses more complex routine that is
-  //  guaranteed to work.
+  // Triangulate this polygon. The user must provide the vtkIdList outTris.
+  // On output, the outTris list contains the ids of the points defining 
+  // the triangulation. The ids are ordered into groups of three: each 
+  // three-group defines one triangle.
   int Triangulate(vtkIdList *outTris);
   
-  // Description: 
-  // A fast triangulation method. Uses recursive divide and 
-  // conquer based on plane splitting  to reduce loop into triangles.  
-  // The cell (e.g., triangle) is presumed properly initialized (i.e., 
-  // Points and PointIds).
-  int RecursiveTriangulate(int numVerts, int *verts);
-
-  // Description:
-  // Determine whether the loop can be split. Determines this by first checking
-  // to see whether points in each loop are on opposite sides of the split
-  // plane. If so, then the loop can be split; otherwise see whether one of the
-  // loops has all its points on one side of the split plane and the split line
-  // is inside the polygon.
-  int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
-                   int& n2, int *l2);
-
-  // Description:
-  // Creates two loops from splitting plane provided
-  void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
-                  int& n2, int* l2);
-
-
   // Description:
   // Method intersects two polygons. You must supply the number of points and
   // point coordinates (npts, *pts) and the bounding box (bounds) of the two
@@ -170,7 +149,6 @@ public:
     {return this->Triangulate(index, &ptIds, &pts);}
   int Triangulate(vtkIdList &outTris){return this->Triangulate(&outTris);}
   
-
 protected:
   vtkPolygon();
   ~vtkPolygon();
@@ -186,6 +164,14 @@ protected:
   vtkQuad *Quad;
   vtkScalars *TriScalars;
   vtkLine *Line;
+
+  // Helper methods for triangulation------------------------------
+  // Description: 
+  // A fast triangulation method. Uses recursive divide and 
+  // conquer based on plane splitting  to reduce loop into triangles.  
+  // The cell (e.g., triangle) is presumed properly initialized (i.e., 
+  // Points and PointIds).
+  int EarCutTriangulation();
 
 };
 
