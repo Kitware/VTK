@@ -31,7 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.2");
+vtkCxxRevisionMacro(vtkAxesActor, "1.3");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );
@@ -177,6 +177,7 @@ void vtkAxesActor::ShallowCopy(vtkProp *prop)
   vtkAxesActor *a = vtkAxesActor::SafeDownCast(prop);
   if ( a != NULL )
     {
+    this->SetAxisLabels( a->GetAxisLabels() );
     this->SetXAxisLabelText( a->GetXAxisLabelText() );
     this->SetYAxisLabelText( a->GetYAxisLabelText() );
     this->SetZAxisLabelText( a->GetZAxisLabelText() );
@@ -482,6 +483,13 @@ void vtkAxesActor::SetShaftType( int type )
       return;
       }
 
+    if ( type == vtkAxesActor::USER_DEFINED_SHAFT && \
+         this->UserDefinedShaft == NULL)
+      {
+      vtkErrorMacro( "Set the user defined shaft before changing the type." );
+      return;
+      }
+
     this->ShaftType = type;
 
     this->Modified();
@@ -501,8 +509,15 @@ void vtkAxesActor::SetTipType( int type )
       return;
       }
 
+    if ( type == vtkAxesActor::USER_DEFINED_TIP && \
+         this->UserDefinedTip == NULL)
+      {
+      vtkErrorMacro( "Set the user defined tip before changing the type." );
+      return;
+      }
+
     this->TipType = type;
-  
+
     this->Modified();
 
     this->UpdateProps();
