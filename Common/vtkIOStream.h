@@ -41,6 +41,8 @@
 using std::dec;
 using std::hex;
 using std::setw;
+using std::setfill;
+using std::setprecision;
 using std::cerr;
 using std::cout;
 using std::cin;
