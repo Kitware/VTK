@@ -99,6 +99,13 @@ void vtkXTextMapper::SetFontSize(int size)
 
 void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  if (this->Input == NULL)
+    {
+    size[0] = 0;
+    size[1] = 0;
+    return;
+    }
+
   // Get the window info
   vtkWindow*  window = viewport->GetVTKWindow();
   Display* displayId = (Display*) window->GetGenericDisplayId();
@@ -169,7 +176,7 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
   int dir, as, des;
   XCharStruct overall;
   XQueryTextExtents(displayId, font, this->Input, strlen(this->Input),
-		    &dir, &as, &des, &overall);
+		    &dir, &as, &des, &overall);n
   size[1] = as + des;
   size[0] = overall.width;
   this->CurrentFont = font;

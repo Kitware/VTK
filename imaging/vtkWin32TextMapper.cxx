@@ -50,6 +50,13 @@ vtkWin32TextMapper::vtkWin32TextMapper()
 
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  if (this->Input == NULL)
+    {
+    size[0] = 0;
+    size[1] = 0;
+    return;
+    }
+
   if ( this->NumberOfLines > 1 )
     {
     this->GetMultiLineSize(viewport, size);
