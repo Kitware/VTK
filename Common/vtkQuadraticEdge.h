@@ -80,9 +80,14 @@ public:
   // Description:
   // Method required by superclass vtkNonLinearCell. Produces vtkPolyData
   // as a function of the vtkNonLinearCell::Error instance variable.
+  // The second Tessellate() method is empty (intended only for 3D cells).
   virtual void Tesselate(vtkIdType cellId, 
                          vtkDataSet *input, vtkPolyData *output, 
                          vtkPointLocator *locator=NULL);
+  virtual void Tesselate(vtkIdType cellId, 
+                         vtkDataSet *input, vtkUnstructuredGrid *output, 
+                         vtkPointLocator *locator=NULL) {}
+  
   
   // Description:
   // Quadratic edge specific methods. 
