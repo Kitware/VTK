@@ -96,7 +96,6 @@ vtkImageViewer *vtkImageViewer::New()
 #else
   return vtkImageXViewer::New();
 #endif  
-  return NULL;
 }
 
 
