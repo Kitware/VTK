@@ -158,7 +158,7 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
   length = dTheta * sin(0.5*(phi1+phi2));
   length = sqrt(length*length + dPhi*dPhi);
   // How many division do we need.
-  num = length / 0.1;
+  num = (int)(length / 0.1);
 
   // Compute the perpendicular phi theta step.
   thetaOff = dPhi;
