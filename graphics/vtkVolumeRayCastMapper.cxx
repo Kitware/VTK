@@ -69,6 +69,8 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->OpacityTFArray          = NULL;
   this->RGBTFArray              = NULL;
   this->GrayTFArray             = NULL;
+  this->CorrectedOpacityTFArray = NULL;
+  this->CorrectedStepSize       = -1;
 }
 
 // Description:
