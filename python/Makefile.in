@@ -53,19 +53,19 @@ vtkpython: vtkpython$(SHLIB_SUFFIX)
 vtkpython.o: vtkpython.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtkpython.o $(srcdir)/vtkpython.c
 
-vtkTkRenderWidget: 
+vtkTkRenderWidget: ${srcdir}/../graphics/vtkTkRenderWidget.cxx
 	${CXX} -o vtkTkRenderWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../graphics/vtkTkRenderWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageViewerWidget: 
+vtkTkImageViewerWidget: ${srcdir}/../imaging/vtkTkImageViewerWidget.cxx
 	${CXX} -o vtkTkImageViewerWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageViewerWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageWindowWidget: 
+vtkTkImageWindowWidget: ${srcdir}/../imaging/vtkTkImageWindowWidget.cxx
 	${CXX} -o vtkTkImageWindowWidget -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageWindowWidget.cxx ${TK_LIB} ${TCL_LIB} \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
