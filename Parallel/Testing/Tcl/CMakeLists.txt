@@ -54,13 +54,13 @@ IF (VTK_DATA_ROOT)
            -V Baseline/Parallel/TestPDataSetReaderGrid.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   IF(PVTK_EXECUTABLE AND UNIX)
-    ADD_TEST(TestPProbe-image ${MPIRUN} ${MPI_PREFLAGS} ${PVTK_EXECUTABLE}
+    ADD_TEST(TestPProbe-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS} ${PVTK_EXECUTABLE}
              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
              ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
              -D ${VTK_DATA_ROOT}
              -V Baseline/Parallel/TestPPRobe.png
              -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
-             ${MPI_POSTFLAGS})
+             ${VTK_MPI_POSTFLAGS})
   ELSE(PVTK_EXECUTABLE AND UNIX)
     ADD_TEST(TestPProbe-image ${VTK_EXECUTABLE}
              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
