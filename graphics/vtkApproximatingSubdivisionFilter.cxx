@@ -148,9 +148,9 @@ void vtkApproximatingSubdivisionFilter::Execute()
     for (idx = 0; idx < num; ++idx)
       {
       if (ghostLevels->GetGhostLevel(idx) <= updateGhostLevel)
-	{
-	idList->InsertNextId(idx);
-	}
+        {
+        idList->InsertNextId(idx);
+        }
       }
     
     tmpPolys->Allocate(outputPolys->GetNumberOfCells() * 4);
