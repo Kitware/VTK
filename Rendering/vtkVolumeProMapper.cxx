@@ -51,9 +51,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeProVP1000Mapper.h"
 #endif
 
+#include "vtkDebugLeaks.h"
+
+
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.28");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.29");
 
 // Create the mapper. No context has been created, no volume has
 // been created yet.
@@ -141,10 +144,12 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
     }
   
 #if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
+  vtkDebugLeaks::DestructClass("vtkVolumeProMapper");
   return vtkVolumeProVP1000Mapper::New();
 #else
 
 #if defined (VTK_HAVE_VG500) || defined (VTK_FORCE_COMPILE_VG500)
+  vtkDebugLeaks::DestructClass("vtkVolumeProMapper");
   return vtkVolumeProVG500Mapper::New();
 #else
   // if not using vli, then return the stub class, which will render
