@@ -110,7 +110,6 @@ vtkVolumeRayCastFunction.cxx
 vtkVolumeRayCastIsosurfaceFunction.cxx
 vtkVolumeRayCastMIPFunction.cxx
 vtkVolumeRayCastMapper.cxx
-vtkVolumeShearWarpMapper.cxx
 vtkVolumeTextureMapper.cxx
 vtkVolumeTextureMapper2D.cxx
 vtkWindowToImageFilter.cxx
@@ -145,7 +144,6 @@ SET( KitOpenGL_SRCS
   vtkOpenGLTexture.cxx
   vtkOpenGLVolumeRayCastMapper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
-  vtkOpenGLVolumeShearWarpMapper.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
