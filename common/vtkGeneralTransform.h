@@ -196,7 +196,7 @@ protected:
   //-------------------------------------------------------------------------
   // A helper class (not derived from vtkObject) to make it more efficient
   // to derive vtk*TransformConcatenation classes
-  class vtkSimpleTransformConcatenation
+  class VTK_EXPORT vtkSimpleTransformConcatenation
   {
   public:
     static vtkSimpleTransformConcatenation *New(
