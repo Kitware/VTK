@@ -117,7 +117,7 @@ int vlTriangle::_EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Okay, now find closest point to element
 //
-  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
