@@ -1886,7 +1886,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   else
     {
-    fprintf(fp," \"%s\\pcmaker\\tk80.lib\" \"%s\\pcmaker\\tcl80.lib\" \n",
+    fprintf(fp," \"%s\\pcmaker\\tk82.lib\" \"%s\\pcmaker\\tcl82.lib\" \n",
 	    vals->m_WhereVTK, vals->m_WhereVTK);
     }
   fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtktcl.pdb\" /machine:I386\\\n");
@@ -2182,7 +2182,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	fprintf(fp,"LINK32=tlink32.exe\n\n");
 	}
 
-  fprintf(fp,"LINK32_FLAGS=-L$(WHERECOMP)\\lib;..\\vtkdll\\vtkdll.lib;$(WHEREVTK)\\pcmaker\\tk80.lib;$(WHEREVTK)\\pcmaker\\tcl80.lib \\\n");
+  fprintf(fp,"LINK32_FLAGS=-L$(WHERECOMP)\\lib;..\\vtkdll\\vtkdll.lib;$(WHEREVTK)\\pcmaker\\tk82.lib;$(WHEREVTK)\\pcmaker\\tcl82.lib \\\n");
   if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
@@ -2269,9 +2269,9 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
       }
   fprintf(fp,"    ..\\vtkdll\\vtkdll.lib \\\n");
-  fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tk80.lib \\\n");
+  fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tk82.lib \\\n");
 
-  fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tcl80.lib \\\n");
+  fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tcl82.lib \\\n");
 
   fprintf(fp," \n");
   fprintf(fp,"vtktcl.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS) obj\n");
