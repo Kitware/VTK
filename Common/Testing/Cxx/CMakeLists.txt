@@ -19,6 +19,7 @@ ADD_EXECUTABLE(otherLookupTable otherLookupTable)
 
 ADD_TEST(ObjectFactory ${CXX_TEST_PATH}/ObjectFactory)
 ADD_TEST(otherArrays ${CXX_TEST_PATH}/otherArrays)
+ADD_TEST(otherEmptyCell ${CXX_TEST_PATH}/otherEmptyCell)
 ADD_TEST(otherRectilinearGrid ${CXX_TEST_PATH}/otherRectilinearGrid)
 ADD_TEST(otherCellBoundaries ${CXX_TEST_PATH}/otherCellBoundaries)
 ADD_TEST(otherCellDerivatives ${CXX_TEST_PATH}/otherCellDerivatives)
