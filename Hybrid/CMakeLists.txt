@@ -1,13 +1,13 @@
 SET(KIT Hybrid)
 SET(UKIT HYBRID)
-SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL )
+SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL vtkPatentedTCL)
 IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
+  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD vtkPatentedPythonD)
 ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython)
+  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython vtkPatentedPython)
 ENDIF(APPLE)
-SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
+SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava vtkPatentedJava)
+SET(KIT_LIBS vtkRendering vtkIO vtkPatented)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
@@ -29,6 +29,7 @@ vtkCaptionActor2D.cxx
 vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
+vtkExtractCTHPart.cxx
 vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
 vtkImagePlaneWidget.cxx

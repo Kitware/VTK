@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING)
       MassProperties
       OverlayTextOnImage
       TestCaptionActor
+      TestExtractCTHPart
       TestGreedyTerrainDecimation
       TestGridWarp3D
       TestGridWarpCubic
@@ -100,5 +101,5 @@ ADD_TEST(PrintSelf-Hybrid ${TCL_TCLSH}
 
 ADD_TEST(TestSetObjectMacro-Hybrid ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
-	 "${VTK_SOURCE_DIR}/Hybrid/vtk\\\\*.h"
-	 "vtkSetObjectMacro")
+         "${VTK_SOURCE_DIR}/Hybrid/vtk\\\\*.h"
+         "vtkSetObjectMacro")
