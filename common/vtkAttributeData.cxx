@@ -185,6 +185,10 @@ void vtkAttributeData::SetData(vtkDataArray *data)
 // makes sense.
 void vtkAttributeData::DeepCopy(vtkAttributeData *da)
 {
+  if (da == NULL)
+    {
+    return;
+    }
   if ( da->Data != this->Data && da->Data != NULL )
     {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
