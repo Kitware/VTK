@@ -80,6 +80,7 @@ vtkImageRGBToHSV
 vtkImageRange3D
 vtkImageResample
 vtkImageSeedConnectivity
+vtkImageSeparableConvolution
 vtkImageShiftScale
 vtkImageShrink3D
 vtkImageSinusoidSource
