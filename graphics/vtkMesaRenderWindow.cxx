@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMesaPolyDataMapper.h"
 #include "vtkIdList.h"
 
-#define MAX_LIGHTS 8
+#define VTK_MAX_LIGHTS 8
 
 // a couple of routines for offscreen rendering
 void vtkOSMesaDestroyWindow(void *Window) 
@@ -93,7 +93,7 @@ XVisualInfo *vtkMesaRenderWindowTryForVisual(Display *DisplayId,
     }
   attributes[index++] = None;
 
-  return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
+  return glXChooseVisual(this->DisplayId,DefaultScreen(DisplayId),attributes);
 }
 
 XVisualInfo *vtkMesaRenderWindow::GetDesiredVisualInfo()
@@ -184,7 +184,7 @@ vtkMesaRenderWindow::~vtkMesaRenderWindow()
     this->MakeCurrent();
 
     /* first delete all the old lights */
-    for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+    for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
       {
       glDisable((GLenum)cur_light);
       }
@@ -532,7 +532,10 @@ void vtkMesaRenderWindow::SetFullScreen(int arg)
   
   int *temp;
   
-  if (this->FullScreen == arg) return;
+  if (this->FullScreen == arg) 
+    {
+    return;
+    }
   
   if (!this->Mapped)
     {
@@ -617,7 +620,7 @@ void vtkMesaRenderWindow::WindowRemap()
   short cur_light;
 
   /* first delete all the old lights */
-  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
     {
     glDisable((GLenum)cur_light);
     }
@@ -726,7 +729,10 @@ Colormap vtkMesaRenderWindow::GetDesiredColormap ()
 {
   XVisualInfo *v;
   
-  if (this->ColorMap) return this->ColorMap;
+  if (this->ColorMap) 
+    {
+    return this->ColorMap;
+    }
   
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();
