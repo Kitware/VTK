@@ -40,18 +40,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkProp - represents an object for placement in a rendered scene 
 // .SECTION Description
-// vtkProp is an abstract class used to represent an entity in a rendering scene.
-// It handles functions related to the position, orientation and
-// scaling. It combines these instance variables into one 4x4
-// transformation matrix as follows: [x y z 1] = [x y z 1]
+// vtkProp is an abstract class used to represent an entity in a
+// rendering scene.  It handles functions related to the position,
+// orientation and scaling. It combines these instance variables into
+// one 4x4 transformation matrix as follows: [x y z 1] = [x y z 1]
 // Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
-// Trans(position). Both vtkActor and vtkVolume are specializations of class
-// vtkProp. 
-
+// Trans(position). Both vtkActor and vtkVolume are specializations of
+// class vtkProp.
 
 // .SECTION See Also
-// vtkActor vtkVolume
-
+// vtkActor vtkAssembly vtkVolume
 
 #ifndef __vtkProp_h
 #define __vtkProp_h
@@ -64,24 +62,20 @@ class vtkRenderer;
 class VTK_EXPORT vtkProp : public vtkObject
 {
  public:
-
-// Description:
-// Construct with the following defaults: origin(0,0,0) 
-// position=(0,0,0) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). No user defined matrix and no texture map.
+  // Description:
+  // Construct with the following defaults: origin(0,0,0) 
+  // position=(0,0,0) visibility=1 pickable=1 dragable=1
+  // orientation=(0,0,0). No user defined matrix and no texture map.
   vtkProp();
-
   ~vtkProp();
   const char *GetClassName() {return "vtkProp";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren) = 0;
 
-
-// Description:
-// Shallow copy of an prop.
+  // Description:
+  // Shallow copy of an prop.
   vtkProp &operator=(const vtkProp& Prop);
-
 
   // Description:
   // Set/Get/Add the position of the Prop in world coordinates.
@@ -175,38 +169,38 @@ class VTK_EXPORT vtkProp : public vtkObject
   // rotation around axis and arbitrary vector
 
   // Description:
-  // Rotate the prop in degrees about the X axis using the right hand rule. The
-  // axis is the prop's X axis, which can change as other rotations are 
-  // performed.  To rotate about the world X axis use 
-  // RotateWXYZ (angle, 1, 0, 0). This rotation is applied before all others 
-  // in the current transformation matrix.
+  // Rotate the prop in degrees about the X axis using the right hand
+  // rule. The axis is the prop's X axis, which can change as other
+  // rotations are performed.  To rotate about the world X axis use
+  // RotateWXYZ (angle, 1, 0, 0). This rotation is applied before all
+  // others in the current transformation matrix.
   void RotateX(float);
 
   // Description:
-  // Rotate the prop in degrees about the Y axis using the right hand rule. The
-  // axis is the prop's Y axis, which can change as other rotations are 
-  // performed.  To rotate about the world Y axis use 
-  // RotateWXYZ (angle, 0, 1, 0). This rotation
-  // is applied before all others in the current transformation matrix.
+  // Rotate the prop in degrees about the Y axis using the right hand
+  // rule. The axis is the prop's Y axis, which can change as other
+  // rotations are performed.  To rotate about the world Y axis use
+  // RotateWXYZ (angle, 0, 1, 0). This rotation is applied before all
+  // others in the current transformation matrix.
   void RotateY(float);
 
   // Description:
-  // Rotate the prop in degrees about the Z axis using the right hand rule. 
-  // The axis is the prop's Z axis, which can change as other rotations are 
-  // performed.  To rotate about the world Z axis use 
-  // RotateWXYZ (angle, 0, 0, 1). This rotation
-  // is applied before all others in the current transformation matrix.
+  // Rotate the prop in degrees about the Z axis using the right hand
+  // rule. The axis is the prop's Z axis, which can change as other
+  // rotations are performed.  To rotate about the world Z axis use
+  // RotateWXYZ (angle, 0, 0, 1). This rotation is applied before all
+  // others in the current transformation matrix.
   void RotateZ(float);
 
   // Description:
-  // Rotate the prop in degrees about an arbitrary axis specified by the 
-  // last three arguments. The axis is specified in world coordinates. To
-  // rotate an about its model axes, use RotateX, RotateY, RotateZ.
+  // Rotate the prop in degrees about an arbitrary axis specified by
+  // the last three arguments. The axis is specified in world
+  // coordinates. To rotate an about its model axes, use RotateX,
+  // RotateY, RotateZ.
   void RotateWXYZ(float,float,float,float);
 
-
   // set Euler angles - order dependent
-  
+
   // Description:
   // Sets the orientation of the prop.  Orientation is specified as
   // X,Y and Z rotations in that order, but they are performed as
@@ -231,15 +225,17 @@ class VTK_EXPORT vtkProp : public vtkObject
   float *GetOrientationWXYZ();
 
   // Description:
-  // Add to the current orientation. See SetOrientation and GetOrientation for 
-  // more details. This basically does a GetOrientation, adds the passed in
-  // arguments, and then calls SetOrientation.
+  // Add to the current orientation. See SetOrientation and
+  // GetOrientation for more details. This basically does a
+  // GetOrientation, adds the passed in arguments, and then calls
+  // SetOrientation.
   void AddOrientation(float,float,float);
 
   // Description:
-  // Add to the current orientation. See SetOrientation and GetOrientation for 
-  // more details. This basically does a GetOrientation, adds the passed in
-  // arguments, and then calls SetOrientation.
+  // Add to the current orientation. See SetOrientation and
+  // GetOrientation for more details. This basically does a
+  // GetOrientation, adds the passed in arguments, and then calls
+  // SetOrientation.
   void AddOrientation(float a[3]);
 
   // Method invokes PickMethod() if one defined
