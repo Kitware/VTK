@@ -245,6 +245,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     {
     gf = new vtkGeometryFilter;
     gf->SetInput(ds);
+    gf->Update();
     pd = gf->GetOutput();
     }
   else

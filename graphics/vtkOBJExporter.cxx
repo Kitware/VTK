@@ -160,6 +160,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     {
     gf = new vtkGeometryFilter;
     gf->SetInput(ds);
+    gf->Update();
     pd = gf->GetOutput();
     }
   else
@@ -341,6 +342,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   idStart = idNext;
   trans->Delete();
   if (normals) normals->Delete();
+  if (gf) gf->Delete();
 }
 
 

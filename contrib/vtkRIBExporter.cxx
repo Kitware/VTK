@@ -557,6 +557,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
     {
     geometryFilter = new vtkGeometryFilter;
     geometryFilter->SetInput(aDataSet);
+    geometryFilter->Update();
     polyData = geometryFilter->GetOutput();
     }
   else
@@ -570,6 +571,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   fprintf (this->FilePtr, "TransformEnd\n");
 //  RiAttributeEnd ();
   fprintf (this->FilePtr, "AttributeEnd\n");
+  if (geometryFilter) geometryFilter->Delete();
 }
 
 void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, vtkProperty *aProperty)
