@@ -100,6 +100,11 @@ public:
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
 
   // Description:
+  // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
+  virtual unsigned char *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
+  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
+
+  // Description:
   // Set/Get the zbuffer data
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
   virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
