@@ -89,6 +89,9 @@ protected:
   void operator=(const vtkRendererSource&) {};
 
   void Execute();
+  
+  void UpdateInformation();
+  
   vtkRenderer *Input;
   int WholeWindow;
 };

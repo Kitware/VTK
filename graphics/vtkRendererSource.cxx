@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkStructuredInformation.h"
 
 
 //------------------------------------------------------------------------------
@@ -89,6 +89,8 @@ void vtkRendererSource::Execute()
   vtkStructuredPoints *output = this->GetOutput();
   vtkFieldData *zField;
   vtkFloatArray *zArray;
+  vtkRenderWindow *renWin;
+  
 
   vtkDebugMacro(<<"Converting points");
 
@@ -98,6 +100,14 @@ void vtkRendererSource::Execute()
     return;
     }
 
+  renWin = this->Input->GetRenderWindow();
+  if (renWin == NULL)
+    {
+    return;
+    }
+  
+  renWin->Render();
+  
   // calc the pixel range for the renderer
   x1 = this->Input->GetViewport()[0]*
     ((this->Input->GetRenderWindow())->GetSize()[0] - 1);
@@ -188,4 +198,92 @@ unsigned long vtkRendererSource::GetMTime()
     }
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+// Consider renderer for PiplineMTime
+void vtkRendererSource::UpdateInformation()
+{
+  unsigned long t1, t2, size;
+  float locality, l2;
+  int idx;
+  vtkDataObject *pd;
+  vtkStructuredPoints *output = this->GetOutput();
+  vtkRenderer *ren = this->GetInput();
+  vtkActorCollection *actors;
+  vtkActor *actor;
+  vtkMapper *mapper;
+  vtkDataObject *data;
+  float x1,y1,x2,y2;
+  
+  if (output == NULL || ren == NULL || ren->GetRenderWindow() == NULL)
+    {
+    return;
+    }
+  
+  // calc the pixel range for the renderer
+  x1 = ren->GetViewport()[0] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
+  y1 = ren->GetViewport()[1] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
+  x2 = ren->GetViewport()[2] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
+  y2 = ren->GetViewport()[3] *((ren->GetRenderWindow())->GetSize()[1] - 1);
+  if (this->WholeWindow)
+    {
+    x1 = 0;
+    y1 = 0;
+    x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
+    y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
+    }    
+  output->SetWholeExtent(0, x2-x1, 0, y2-y1, 0, 0);
+  output->SetScalarType(VTK_UNSIGNED_CHAR);
+  output->SetNumberOfScalarComponents(3);
+  size = 1 + (unsigned long)((x2-x1+1) * (y2-y1+1) / 1000);
+  output->SetEstimatedWholeMemorySize(size);
+  
+  // Update information on the input and
+  // compute information that is general to vtkDataObject.
+  t1 = this->GetMTime();
+  t2 = ren->GetMTime();
+  if (t2 > t1)
+    {
+    t1 = t2;
+    }
+  actors = ren->GetActors();
+  actors->InitTraversal();
+  while ( (actor = actors->GetNextItem()) )
+    {
+    t2 = actor->GetMTime();
+    if (t2 > t1)
+      {
+      t1 = t2;
+      }
+    mapper = actor->GetMapper();
+    if (mapper)
+      {
+      t2 = mapper->GetMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      data = mapper->GetInput();
+      if (data)
+	{
+	data->UpdateInformation();
+	}
+      t2 = data->GetMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      t2 = data->GetPipelineMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      }  
+    }
+
+  output->SetPipelineMTime(t1);
+  output->GetDataInformation()->SetLocality(0);
+  //output->SetEstimatedWholeMemorySize(size);
+  this->InformationTime.Modified();
 }
