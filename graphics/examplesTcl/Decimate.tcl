@@ -21,16 +21,27 @@ set flipNormals 0
 
 # Instances of vtk objects
 vtkPolyData PolyData
-    PolyData GlobalWarningDisplayOff
+#    PolyData GlobalWarningDisplayOff
 vtkPolyData PreviousPolyData
 vtkPolyData TempPolyData
 vtkCellTypes CellTypes
 
 vtkDecimatePro deci
+    deci SetProgressMethod ShowProgress
 vtkSmoothPolyDataFilter smooth
+    smooth SetStartMethod StartProgress
+    smooth SetProgressMethod ShowProgress
+    smooth SetEndMethod EndProgress
 vtkCleanPolyData cleaner
+    cleaner SetProgressMethod ShowProgress
+vtkPolyDataConnectivityFilter connect
+    connect SetProgressMethod ShowProgress
 vtkTriangleFilter tri
+    tri SetStartMethod StartProgress
+    tri SetProgressMethod ShowProgress
+    tri SetEndMethod EndProgress
 vtkPolyDataNormals normals
+    normals SetProgressMethod ShowProgress
 
 ######################################## Create top-level GUI
 #
@@ -53,6 +64,7 @@ menu .mbar.file.menu
 
 menu .mbar.edit.menu
     .mbar.edit.menu add command -label Clean -command Clean -state disabled
+    .mbar.edit.menu add command -label Connectivity -command Connect -state disabled
     .mbar.edit.menu add command -label Decimate -command Decimate -state disabled
     .mbar.edit.menu add command -label Normals -command Normals -state disabled
     .mbar.edit.menu add command -label Smooth -command Smooth -state disabled
@@ -102,8 +114,10 @@ vtkTkRenderWidget .window -width 300 -height 300
 pack .window -side top -anchor nw -padx 3 -pady 3 -fill both -expand 1
 
 # Status bar
-label .status -text "(No data)"
-pack .status -side top -anchor w -expand 1 -fill x
+frame .bottomF -relief sunken -borderwidth 3
+label .bottomF.status -text "(No data)" -borderwidth 0
+pack .bottomF.status -side top -anchor w -expand 1 -fill x -padx 0 -pady 0
+pack .bottomF  -side top -anchor w -expand 1 -fill x -padx 0 -pady 0
 
 # Graphics objects
 vtkCamera camera
@@ -129,7 +143,7 @@ proc UpdateView {x y z vx vy vz} {
 
 # Procedure opens file and resets view
 proc OpenFile {} {
-    global RenWin
+    global RenWin CurrentFilter
 
     set types {
         {{BYU}                                  {.g}          }
@@ -137,6 +151,7 @@ proc OpenFile {} {
         {{Marching Cubes}                       {.tri}        }
         {{Stereo-Lithography}                   {.stl}        }
         {{Visualization Toolkit (polygonal)}    {.vtk}        }
+        {{Wavefront}                            {.obj}        }
         {{All Files }                           *             }
     }
     set filename [tk_getOpenFile -filetypes $types]
@@ -157,12 +172,18 @@ proc OpenFile {} {
         } elseif { [string match *.tri $filename] } {
             vtkMCubesReader reader
             reader SetFileName $filename
+        } elseif { [string match *.obj $filename] } {
+            vtkOBJReader reader
+            reader SetFileName $filename
         } else {
             puts "Can't read this file"
             return
         }
 
-        reader Update
+	reader SetStartMethod StartProgress
+	reader SetProgressMethod ShowProgress
+	reader SetEndMethod EndProgress
+
         UpdateUndo "reader"
 	UpdateGUI
 
@@ -230,6 +251,10 @@ proc SaveFile {} {
 
 # Enable the undo procedure after filter execution
 proc UpdateUndo {filter} {
+    global CurrentFilter
+
+    set CurrentFilter $filter
+    $filter Update
 
     PreviousPolyData CopyStructure PolyData
     [PreviousPolyData GetPointData] PassData [PolyData GetPointData]
@@ -267,6 +292,7 @@ proc ReleaseData {} {
     [deci GetOutput] Initialize
     [smooth GetOutput] Initialize
     [cleaner GetOutput] Initialize
+    [connect GetOutput] Initialize
     [tri GetOutput] Initialize
     [smooth GetOutput] Initialize
 }
@@ -358,10 +384,12 @@ proc UpdateGUI {} {
 	.mbar.edit.menu entryconfigure 1 -state normal
         if { [CellTypes GetNumberOfTypes] != 1 || [CellTypes GetCellType 0] != 5 } {
 	    .mbar.edit.menu entryconfigure 2 -state disabled
+            .mbar.edit.menu entryconfigure 6 -state normal
             set s [format "Vertices:%d    Cells:%d" \
                    $NumberOfNodes $NumberOfElements]
 	} else {
             .mbar.edit.menu entryconfigure 2 -state normal
+            .mbar.edit.menu entryconfigure 6 -state disabled
             set s [format "Vertices:%d    Triangles:%d" \
                    $NumberOfNodes $NumberOfElements]
 	}
@@ -372,7 +400,7 @@ proc UpdateGUI {} {
 	.mbar.options.menu entryconfigure 1 -state normal
     }
 
-    .status configure -text $s
+    .bottomF.status configure -text $s
 }
 
 ### Procedure manages splitting screen and comparing data
@@ -445,7 +473,6 @@ proc ApplyDecimation {} {
 
     deci SetTargetReduction $deciReduction
     deci SetPreserveTopology $deciPreserve
-    deci Update
 
     UpdateUndo "deci"
     UpdateGUI
@@ -511,7 +538,6 @@ proc ApplySmooth {} {
 
     smooth SetNumberOfIterations [.smooth.f1.num get]
     smooth SetRelaxationFactor [.smooth.f1.fact get]
-    smooth Update
 
     UpdateUndo "smooth"
     UpdateGUI
@@ -568,13 +594,50 @@ proc ApplyClean {} {
 
     cleaner SetInput PolyData
     cleaner SetTolerance [.clean.f1.s get]
-    cleaner Update
 
     UpdateUndo "cleaner"
     UpdateGUI
 
     $RenWin Render
     CloseClean
+}
+########################## The connectivity GUI
+#
+# Procedure defines GUI and behavior for extracting connected data. Connecting
+# means extracting all cells joined at a vertex.
+
+proc Connect {} {
+    UpdateConnectGUI
+    wm deiconify .connect
+}
+proc CloseConnect {} {
+    wm withdraw .connect
+}
+
+toplevel .connect
+wm withdraw .connect
+wm title .connect "Extract Connected Data"
+wm protocol .connect WM_DELETE_WINDOW {wm withdraw .connect}
+
+frame .connect.fb
+button .connect.fb.apply -text Apply -command ApplyConnect
+button .connect.fb.cancel -text Cancel -command CloseConnect
+pack .connect.fb.apply .connect.fb.cancel -side left -expand 1 -fill x
+pack .connect.fb -side top -fill both -expand 1
+
+proc UpdateConnectGUI {} {
+}
+
+proc ApplyConnect {} {
+    global RenWin
+
+    connect SetInput PolyData
+
+    UpdateUndo "connect"
+    UpdateGUI
+
+    $RenWin Render
+    CloseConnect
 }
 ########################## The triangulate GUI
 #
@@ -606,7 +669,6 @@ proc ApplyTri {} {
     global RenWin
 
     tri SetInput PolyData
-    tri Update
 
     UpdateUndo "tri"
     UpdateGUI
@@ -661,7 +723,6 @@ proc ApplyNormals {} {
     normals SetFlipNormals $flipNormals
 
     normals SetInput PolyData
-    normals Update
 
     UpdateUndo "normals"
     UpdateGUI
@@ -824,3 +885,45 @@ proc ApplyProperties {} {
     Render
 }
 
+#------------------------Procedures for ProgressWidget----------------------
+proc StartProgress {} {
+   global BarId
+
+   set height [winfo height .bottomF.status]
+   set width [winfo width .bottomF.status]
+
+   if { ![winfo exists .bottomF.canvas] } {
+      canvas .bottomF.canvas -height $height -width $width -borderwidth 0\
+	    -highlightthickness 0
+   } else {
+      .bottomF.canvas configure -height $height -width $width
+      .bottomF.canvas delete $BarId
+   }
+
+   set BarId [.bottomF.canvas create rect 0 0 0 $height -fill black]
+   pack forget .bottomF.status
+   pack .bottomF.canvas -padx 0 -pady 0
+
+   update
+}
+
+proc ShowProgress {} {
+   global BarId CurrentFilter
+
+   set progress [$CurrentFilter GetProgress]
+   set height [winfo height .bottomF.status]
+   set width [winfo width .bottomF.status]
+
+   .bottomF.canvas delete $BarId
+   set BarId [.bottomF.canvas create rect 0 0 [expr $progress*$width] $height \
+	 -fill black]
+
+   update
+}
+
+proc EndProgress {} {
+   pack forget .bottomF.canvas
+   pack .bottomF.status -side top -anchor w -expand 1 -fill x
+
+   update
+}
