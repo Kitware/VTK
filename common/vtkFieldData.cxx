@@ -210,7 +210,10 @@ void vtkFieldData::SetNumberOfArrays(int num)
       {
       for ( i=0; i<this->NumberOfArrays; i++ )
         {
-        if ( this->ArrayNames[i] != NULL ) delete [] this->ArrayNames[i];
+        if ( this->ArrayNames[i] != NULL )
+	  {
+	  delete [] this->ArrayNames[i];
+	  }
         }
       delete [] this->ArrayNames;
       }
