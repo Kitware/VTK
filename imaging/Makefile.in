@@ -83,6 +83,7 @@ vtkImageShrink3D \
 vtkImageSobel3D \
 vtkImageThreshold \
 vtkImageViewer \
+vtkImageVolume16Reader \
 vtkImageXViewer \
 vtkImageWrapPad 
 

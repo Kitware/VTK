@@ -944,6 +944,11 @@ void vtkImageRegion::Fill(float value)
 // yet.
 void vtkImageRegion::SetScalarType(int type)
 {
+  if (this->ScalarType == type)
+    {
+    return;
+    }
+  
   if (this->Data)
     {
     if (this->Data->AreScalarsAllocated())

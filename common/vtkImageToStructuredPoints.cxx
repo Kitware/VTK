@@ -779,9 +779,9 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
 	dataAxes[2] != VTK_IMAGE_Z_AXIS)
       {
       // Put a special conditional for the most common condition
-      if ((dataAxes[0] == VTK_IMAGE_COMPONENT_AXIS || 
-	   dataAxes[1] == VTK_IMAGE_X_AXIS || 
-	   dataAxes[2] != VTK_IMAGE_Y_AXIS ||
+      if ((dataAxes[0] == VTK_IMAGE_COMPONENT_AXIS &&
+	   dataAxes[1] == VTK_IMAGE_X_AXIS &&
+	   dataAxes[2] == VTK_IMAGE_Y_AXIS &&
 	   dataAxes[3] == VTK_IMAGE_Z_AXIS) && 
 	  (dataExtent[0] == dataExtent[1]))
 	{
