@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.5");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -42,9 +42,6 @@ vtkQuadraticTriangle::vtkQuadraticTriangle()
   for (i = 0; i < 6; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 6; i++)
-    {
     this->PointIds->SetId(i,0);
     }
   

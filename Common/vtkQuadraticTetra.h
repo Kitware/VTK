@@ -109,7 +109,7 @@ protected:
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticTriangle *Face;
-  vtkTetra *Region;
+  vtkTetra *Tetra;
   vtkFloatArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:

@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.7");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -33,7 +33,7 @@ vtkQuadraticTetra::vtkQuadraticTetra()
 {
   this->Edge = vtkQuadraticEdge::New();
   this->Face = vtkQuadraticTriangle::New();
-  this->Region = vtkTetra::New();
+  this->Tetra = vtkTetra::New();
   this->Scalars = vtkFloatArray::New();
   this->Scalars->SetNumberOfTuples(4);
 
@@ -43,9 +43,6 @@ vtkQuadraticTetra::vtkQuadraticTetra()
   for (i = 0; i < 10; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 10; i++)
-    {
     this->PointIds->SetId(i,0);
     }
 }
@@ -54,7 +51,7 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
 {
   this->Edge->Delete();
   this->Face->Delete();
-  this->Region->Delete();
+  this->Tetra->Delete();
   this->Scalars->Delete();
 }
 
@@ -266,7 +263,7 @@ void vtkQuadraticTetra::EvaluateLocation(int& vtkNotUsed(subId),
 int vtkQuadraticTetra::CellBoundary(int subId, float pcoords[3], 
                                     vtkIdList *pts)
 {
-  return this->Region->CellBoundary(subId, pcoords, pts);
+  return this->Tetra->CellBoundary(subId, pcoords, pts);
 }
 
 void vtkQuadraticTetra::Contour(float value, vtkDataArray* cellScalars, 
@@ -281,14 +278,9 @@ void vtkQuadraticTetra::Contour(float value, vtkDataArray* cellScalars,
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Face->Points->SetPoint(0,this->Points->GetPoint(Tetras[i][j]));
-
-      if ( outPd )
-        {
-        this->Face->PointIds->SetId(0,this->PointIds->GetId(Tetras[i][j]));
-        }
-
-      this->Scalars->SetTuple(0,cellScalars->GetTuple(Tetras[i][j]));
+      this->Face->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
+      this->Face->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
+      this->Scalars->SetTuple(j,cellScalars->GetTuple(Tetras[i][j]));
       }
 
     this->Face->Contour(value, this->Scalars, locator, verts,
@@ -445,13 +437,13 @@ void vtkQuadraticTetra::Clip(float value, vtkDataArray* cellScalars,
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Face->Points->SetPoint(0,this->Points->GetPoint(Tetras[i][j]));
-      this->Face->PointIds->SetId(0,this->PointIds->GetId(Tetras[i][j]));
-      this->Scalars->SetTuple(0,cellScalars->GetTuple(Tetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
+      this->Scalars->SetTuple(j,cellScalars->GetTuple(Tetras[i][j]));
       }
 
-    this->Face->Clip(value, this->Scalars, locator, tetras, inPd, outPd, 
-                     inCd, cellId, outCd, insideOut);
+    this->Tetra->Clip(value, this->Scalars, locator, tetras, inPd, outPd, 
+                      inCd, cellId, outCd, insideOut);
     }
 }
 

@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.6");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -38,15 +38,12 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
   for (i = 0; i < 27; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 27; i++)
-    {
     this->PointIds->SetId(i,0);
     }
 
   this->Edge = vtkQuadraticEdge::New();
-  this->Face = vtkQuadraticQuad::New();
-  this->Region = vtkHexahedron::New();
+  this->Quad = vtkQuadraticQuad::New();
+  this->Hex = vtkHexahedron::New();
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
@@ -57,8 +54,8 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
 vtkQuadraticHexahedron::~vtkQuadraticHexahedron()
 {
   this->Edge->Delete();
-  this->Face->Delete();
-  this->Region->Delete();
+  this->Quad->Delete();
+  this->Hex->Delete();
 
   this->PointData->Delete();
   this->CellData->Delete();
@@ -73,44 +70,57 @@ vtkCell *vtkQuadraticHexahedron::MakeObject()
   return (vtkCell *)cell;
 }
 
+static int LinearHexs[8][8] = { {0,8,24,11,16,17,26,20},
+                                {8,1,9,24,22,17,21,26},
+                                {11,24,10,3,20,26,23,19},
+                                {24,9,2,10,26,21,18,23},
+                                {16,22,26,20,4,12,25,15},
+                                {22,17,21,26,12,5,13,25},
+                                {20,26,23,19,15,25,14,7},
+                                {26,21,18,23,25,13,6,14} };
+
+static int HexFaces[6][8] = { {0,4,7,3,16,15,19,11},
+                              {1,2,6,5,9,18,13,17},
+                              {0,1,5,4,8,17,12,16},
+                              {3,7,6,2,19,14,18,10},
+                              {0,3,2,1,11,10,9,8},
+                              {4,5,6,7,12,13,14,15} };
+
+static int HexEdges[12][3] = { {0,1,8}, {1,2,9}, {3,2,10}, {0,3,11},
+                               {4,5,12}, {5,6,13}, {7,6,14}, {4,7,15},
+                               {0,4,16}, {1,5,17}, {3,7,19}, {2,6,18} };
+
+static float MidPoints[7][3] = { {-0.5,0.0,0.0}, {0.5,0.0,0.0}, 
+                                 {0.0,-0.5,0.0}, {0.0,0.5,0.0},
+                                 {0.0,0.0,-0.5}, {0.0,0.0,0.5},
+                                 {0.5,0.5,0.5} };
+
+
 vtkCell *vtkQuadraticHexahedron::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 11 ? 11 : edgeId ));
 
-  // load point id's
-  this->Edge->PointIds->SetId(0,this->PointIds->GetId(edgeId));
-  this->Edge->PointIds->SetId(1,this->PointIds->GetId(edgeId+1));
-  this->Edge->PointIds->SetId(2,this->PointIds->GetId(edgeId+3));
-
-  // load coordinates
-  this->Edge->Points->SetPoint(0,this->Points->GetPoint(edgeId));
-  this->Edge->Points->SetPoint(1,this->Points->GetPoint(edgeId+1));
-  this->Edge->Points->SetPoint(2,this->Points->GetPoint(edgeId+3));
+  for (int i=0; i<3; i++)
+    {
+    this->Edge->PointIds->SetId(i,this->PointIds->GetId(HexEdges[edgeId][i]));
+    this->Edge->Points->SetPoint(i,this->Points->GetPoint(HexEdges[edgeId][i]));
+    }
 
   return this->Edge;
 }
 
 vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId ));
+  faceId = (faceId < 0 ? 0 : (faceId > 11 ? 11 : faceId ));
 
-  // load point id's
-  this->Face->PointIds->SetId(0,this->PointIds->GetId(faceId));
-  this->Face->PointIds->SetId(1,this->PointIds->GetId(faceId+1));
-  this->Face->PointIds->SetId(2,this->PointIds->GetId(faceId+3));
+  for (int i=0; i<8; i++)
+    {
+    this->Quad->PointIds->SetId(i,this->PointIds->GetId(HexFaces[faceId][i]));
+    this->Quad->Points->SetPoint(i,this->Points->GetPoint(HexFaces[faceId][i]));
+    }
 
-  // load coordinates
-  this->Face->Points->SetPoint(0,this->Points->GetPoint(faceId));
-  this->Face->Points->SetPoint(1,this->Points->GetPoint(faceId+1));
-  this->Face->Points->SetPoint(2,this->Points->GetPoint(faceId+3));
-
-  return this->Face;
+  return this->Quad;
 }
-
-static float MidPoints[7][3] = { {-0.5,0.0,0.0}, {0.5,0.0,0.0}, 
-                                 {0.0,-0.5,0.0}, {0.0,0.5,0.0},
-                                 {0.0,0.0,-0.5}, {0.0,0.0,0.5},
-                                 {0.5,0.5,0.5} };
 
 void vtkQuadraticHexahedron::Subdivide(float *weights)
 {
@@ -311,18 +321,8 @@ void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
 int vtkQuadraticHexahedron::CellBoundary(int subId, float pcoords[3], 
                                          vtkIdList *pts)
 {
-  return this->Region->CellBoundary(subId, pcoords, pts);
+  return this->Hex->CellBoundary(subId, pcoords, pts);
 }
-
-static int LinearHexs[8][8] = { {0,8,24,11,16,17,26,20},
-                                {8,1,9,24,22,17,21,26},
-                                {11,24,10,3,20,26,23,19},
-                                {24,9,2,10,26,21,18,23},
-                                {16,22,26,20,4,12,25,15},
-                                {22,17,21,26,12,5,13,25},
-                                {20,26,23,19,15,25,14,7},
-                                {26,21,18,23,25,13,6,14} };
-
 
 void vtkQuadraticHexahedron::Contour(float value, 
                                      vtkDataArray* cellScalars, 
@@ -350,10 +350,12 @@ void vtkQuadraticHexahedron::Contour(float value,
     {
     for (int j=0; j<8; j++)
       {
+      this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
+      this->Hex->PointIds->SetId(j,this->PointIds->GetId(LinearHexs[i][j]));
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
       }
-    this->Region->Contour(value,this->Scalars,locator,verts,lines,polys,
-                          this->PointData,outPd,this->CellData,0,outCd);
+    this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
+                       this->PointData,outPd,this->CellData,0,outCd);
     }
 }
 
@@ -461,17 +463,38 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 
 // Clip this quadratic hex using scalar value provided. Like contouring, 
 // except that it cuts the hex to produce tetrahedra.
-void vtkQuadraticHexahedron::Clip(float vtkNotUsed(value), 
-                                  vtkDataArray* vtkNotUsed(cellScalars), 
-                                  vtkPointLocator* vtkNotUsed(locator),
-                                  vtkCellArray* vtkNotUsed(lines),
-                                  vtkPointData* vtkNotUsed(inPd), 
-                                  vtkPointData* vtkNotUsed(outPd),
-                                  vtkCellData* vtkNotUsed(inCd), 
-                                  vtkIdType vtkNotUsed(cellId), 
-                                  vtkCellData* vtkNotUsed(outCd),
-                                  int vtkNotUsed(insideOut))
+void vtkQuadraticHexahedron::Clip(float value, 
+                                  vtkDataArray* cellScalars, 
+                                  vtkPointLocator* locator,
+                                  vtkCellArray* tets,
+                                  vtkPointData* inPd, 
+                                  vtkPointData* outPd,
+                                  vtkCellData* inCd, 
+                                  vtkIdType cellId, 
+                                  vtkCellData* outCd,
+                                  int insideOut)
 {
+  float weights[20];
+
+  //first define the midquad point
+  this->Subdivide(weights);
+  
+  //interpolate point and cell data
+  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  
+  //contour each linear quad separately
+  vtkDataArray *localScalars = this->PointData->GetScalars();
+  for (int i=0; i<8; i++)
+    {
+    for (int j=0; j<8; j++)
+      {
+      this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
+      this->Hex->PointIds->SetId(j,this->PointIds->GetId(LinearHexs[i][j]));
+      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
+      }
+    this->Hex->Clip(value,localScalars,locator,tets,inPd,outPd,
+                    inCd,0,outCd,insideOut);
+    }
 }
 
 // Compute interpolation functions for the twenty nodes.

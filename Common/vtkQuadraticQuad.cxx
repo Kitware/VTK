@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.6");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -45,9 +45,6 @@ vtkQuadraticQuad::vtkQuadraticQuad()
   for (i = 0; i < 9; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 9; i++)
-    {
     this->PointIds->SetId(i,0);
     }
 }
@@ -87,7 +84,7 @@ vtkCell *vtkQuadraticQuad::GetEdge(int edgeId)
   return this->Edge;
 }
 
-static int linearQuads[4][4] = { {0,4,8,7}, {8,4,1,5}, 
+static int LinearQuads[4][4] = { {0,4,8,7}, {8,4,1,5}, 
                                  {8,5,2,6}, {7,8,6,3} };
 
 void vtkQuadraticQuad::Subdivide(float *weights)
@@ -129,13 +126,13 @@ int vtkQuadraticQuad::EvaluatePosition(float* x,
   for (minDist2=VTK_LARGE_FLOAT, i=0; i < 4; i++)
     {
     this->Quad->Points->SetPoint(
-      0,this->Points->GetPoint(linearQuads[i][0]));
+      0,this->Points->GetPoint(LinearQuads[i][0]));
     this->Quad->Points->SetPoint(
-      1,this->Points->GetPoint(linearQuads[i][1]));
+      1,this->Points->GetPoint(LinearQuads[i][1]));
     this->Quad->Points->SetPoint(
-      2,this->Points->GetPoint(linearQuads[i][2]));
+      2,this->Points->GetPoint(LinearQuads[i][2]));
     this->Quad->Points->SetPoint(
-      3,this->Points->GetPoint(linearQuads[i][3]));
+      3,this->Points->GetPoint(LinearQuads[i][3]));
 
     status = this->Quad->EvaluatePosition(x,closest,ignoreId,pc,dist2,
                                           tempWeights);
@@ -248,10 +245,12 @@ void vtkQuadraticQuad::Contour(float value,
   vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<4; i++)
     {
-    this->Scalars->SetValue(0,localScalars->GetTuple1(linearQuads[i][0]));
-    this->Scalars->SetValue(1,localScalars->GetTuple1(linearQuads[i][1]));
-    this->Scalars->SetValue(2,localScalars->GetTuple1(linearQuads[i][2]));
-    this->Scalars->SetValue(3,localScalars->GetTuple1(linearQuads[i][3]));
+    for (int j=0; j<4; j++)
+      {
+      this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
+      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
+      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearQuads[i][j]));
+      }
     
     this->Quad->Contour(value,this->Scalars,locator,verts,lines,polys,
                         this->PointData,outPd,this->CellData,0,outCd);
@@ -278,10 +277,10 @@ int vtkQuadraticQuad::IntersectWithLine(float* p1,
   //intersect the four linear quads
   for (i=0; i < 4; i++)
     {
-    this->Quad->Points->SetPoint(0,this->Points->GetPoint(linearQuads[i][0]));
-    this->Quad->Points->SetPoint(1,this->Points->GetPoint(linearQuads[i][1]));
-    this->Quad->Points->SetPoint(2,this->Points->GetPoint(linearQuads[i][2]));
-    this->Quad->Points->SetPoint(3,this->Points->GetPoint(linearQuads[i][3]));
+    this->Quad->Points->SetPoint(0,this->Points->GetPoint(LinearQuads[i][0]));
+    this->Quad->Points->SetPoint(1,this->Points->GetPoint(LinearQuads[i][1]));
+    this->Quad->Points->SetPoint(2,this->Points->GetPoint(LinearQuads[i][2]));
+    this->Quad->Points->SetPoint(3,this->Points->GetPoint(LinearQuads[i][3]));
 
     if (this->Quad->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       {
