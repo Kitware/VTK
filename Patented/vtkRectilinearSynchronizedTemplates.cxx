@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.1");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.2");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
       self->UpdateProgress((float)vidx/numContours + 
                            (k-zMin)/((zMax - zMin+1.0)*numContours));
 
-      z = zCoords->GetComponent(k, 0);
+      z = zCoords->GetComponent(k-inExt[4], 0);
       x[2] = z;
 
       // swap the buffers
@@ -417,7 +417,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
         // subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
         inCellId = (xMin-inExt[0]) + (inExt[1]-inExt[0])*( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
 
-        y = yCoords->GetComponent(j, 0);
+        y = yCoords->GetComponent(j-inExt[2], 0);
         xz[1] = y;
         
         s1 = inPtrY;
@@ -437,8 +437,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             if (v0 ^ v1)
               {
               t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
-              x1 = xCoords->GetComponent(i, 0);
-              x2 = xCoords->GetComponent(i+1, 0);
+              x1 = xCoords->GetComponent(i-inExt[0], 0);
+              x2 = xCoords->GetComponent(i-inExt[0]+1, 0);
               x[0] = x1 + t*(x2-x1);
               x[1] = y;
               
@@ -458,9 +458,9 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             if (v0 ^ v2)
               {
               t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
-              x[0] = xCoords->GetComponent(i, 0);
+              x[0] = xCoords->GetComponent(i-inExt[0], 0);
               
-              y2 = yCoords->GetComponent(j+1, 0);
+              y2 = yCoords->GetComponent(j-inExt[2]+1, 0);
               x[1] = y + t*(y2-y);
               
               *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
@@ -479,9 +479,9 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             if (v0 ^ v3)
               {
               t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
-              xz[0] = xCoords->GetComponent(i, 0);
+              xz[0] = xCoords->GetComponent(i-inExt[0], 0);
               
-              z2 = zCoords->GetComponent(k+1, 0);
+              z2 = zCoords->GetComponent(k-inExt[4]+1, 0);
               xz[2] = z + t*(z2-z);
               
               *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
@@ -794,27 +794,33 @@ void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
   
   if (i > extent[0])
     {
-    spacing[0] = xCoords->GetComponent(i, 0) - xCoords->GetComponent(i-1, 0);
+    spacing[0] = xCoords->GetComponent(i-extent[0], 0) -
+      xCoords->GetComponent(i-extent[0]-1, 0);
     }
   if (i < extent[1])
     {
-    spacing[1] = xCoords->GetComponent(i+1, 0) - xCoords->GetComponent(i, 0);
+    spacing[1] = xCoords->GetComponent(i-extent[0]+1, 0) -
+      xCoords->GetComponent(i-extent[0], 0);
     }
   if (j > extent[2])
     {
-    spacing[2] = yCoords->GetComponent(j, 0) - yCoords->GetComponent(j-1, 0);
+    spacing[2] = yCoords->GetComponent(j-extent[2], 0) -
+      yCoords->GetComponent(j-extent[2]-1, 0);
     }
   if (j < extent[3])
     {
-    spacing[3] = yCoords->GetComponent(j+1, 0) - yCoords->GetComponent(j, 0);
+    spacing[3] = yCoords->GetComponent(j-extent[2]+1, 0) -
+      yCoords->GetComponent(j-extent[2], 0);
     }
   if (k > extent[4])
     {
-    spacing[4] = zCoords->GetComponent(k, 0) - zCoords->GetComponent(k-1, 0);
+    spacing[4] = zCoords->GetComponent(k-extent[4], 0) -
+      zCoords->GetComponent(k-extent[4]-1, 0);
     }
   if (k < extent[5])
     {
-    spacing[5] = zCoords->GetComponent(k+1, 0) - zCoords->GetComponent(k, 0);
+    spacing[5] = zCoords->GetComponent(k-extent[4]+1, 0) -
+      zCoords->GetComponent(k-extent[4], 0);
     }
 }
 
