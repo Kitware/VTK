@@ -3,7 +3,11 @@
 //
 #include "PolyData.hh"
 
-// Initialize static member
+//
+// Initialize static member.  This member is used to simplify traversal of lists 
+// of verts, lines, polygons, and triangle strips.  It basically "marks" empty lists
+// so that the traveral method "GetNextCell" works properly.
+//
 vlCellArray vlPolyData::Dummy;
 
 vlPolyData::vlPolyData ()
@@ -53,21 +57,6 @@ void vlPolyData::CellPoints (int cellId, vlIdList& ptId)
 void vlPolyData::PointCoords (vlIdList& ptId, vlFloatPoints& fp)
 {
 
-}
-
-void vlPolyData::SetPoints (vlFloatPoints* pts) 
-{
-  if ( this->Points != pts )
-  {
-    if ( this->Points != 0 ) this->Points->UnRegister((void *)this);
-    this->Points = pts;
-    this->Points->Register((void *)this);
-    this->Modified();
-  }
-}
-vlFloatPoints* vlPolyData::GetPoints()
-{
-  return this->Points;
 }
 
 void vlPolyData::SetVerts (vlCellArray* v) 

@@ -12,9 +12,11 @@ public:
   vlShrinkPolyData() {this->ShrinkFactor = 0.5;};
   ~vlShrinkPolyData() {};
   void Execute();
-  void SetShrinkFactor(float sf);
-  float GetShrinkFactor();
   char *GetClassName() {return "vlShrinkPolyData";};
+
+  vlSetMacro(ShrinkFactor,float);
+  vlGetMacro(ShrinkFactor,float);
+
 private:
   float ShrinkFactor;
 };

@@ -3,20 +3,6 @@
 //
 #include "ShrinkP.hh"
 
-void vlShrinkPolyData::SetShrinkFactor(float sf)
-{
-  if ( this->ShrinkFactor != sf )
-    {
-    this->ShrinkFactor = sf;
-    this->Modified();
-    }
-}
-
-float vlShrinkPolyData::GetShrinkFactor()
-{
-  return this->ShrinkFactor;
-}
-
 //
 // Shrink verts, lines, polygons, triangle strips towards their centroid.
 // Polylines and triangle strips are broken into pieces.

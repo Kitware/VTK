@@ -16,7 +16,7 @@
 class vlPolyData : public vlDataSet 
 {
 public:
-  /* dataset interface */
+  // dataset interface
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
@@ -28,17 +28,23 @@ public:
   void Initialize();
   void PointCoords(vlIdList& ptId, vlFloatPoints& fp);
 
-  /* PolyData specific */
-  void SetPoints (vlFloatPoints* pts);
-  vlFloatPoints *GetPoints();
+  // PolyData specific stuff follows
+  vlSetObjectMacro(Points,vlFloatPoints);
+  vlGetObjectMacro(Points,vlFloatPoints);
+
+  // Can't use macros to support traversal methods
   void SetVerts (vlCellArray* v);
   vlCellArray *GetVerts();
+
   void SetLines (vlCellArray* l);
   vlCellArray *GetLines();
+
   void SetPolys (vlCellArray* p);
   vlCellArray *GetPolys();
+
   void SetStrips (vlCellArray* s);
   vlCellArray *GetStrips();
+
   int NumVerts();
   int NumLines();
   int NumPolys();
