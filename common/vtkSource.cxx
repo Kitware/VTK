@@ -526,7 +526,7 @@ void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
 // that will produce vtkPolyData or vtkUnstructuredGrid data since the
 // output itself cannot estimate its own size.
 void vtkSource::ComputeEstimatedOutputMemorySize( vtkDataObject *output,
-						  unsigned long *vtkNotUsed(inputSize),
+						  unsigned long *inputSize,
 						  unsigned long size[2] )
 {
   int idx;
@@ -543,13 +543,24 @@ void vtkSource::ComputeEstimatedOutputMemorySize( vtkDataObject *output,
     {
     if (this->Outputs[idx])
       {
-      tmp = this->Outputs[idx]->GetEstimatedMemorySize();
+      tmp = 0;
+      if (this->Outputs[idx]->IsA("vtkImageData"))
+        {
+        tmp = this->Outputs[idx]->GetEstimatedMemorySize();
+        }
+      else
+        {
+        if (this->NumberOfInputs)
+          {
+          tmp = inputSize[0];
+          }
+        }
       if ( this->Outputs[idx] == output )
-	{
-	size[0] = tmp;
-	}
-      size[1] += tmp;
+        {
+        size[0] = tmp;
+        }
       }
+    size[1] += tmp;
     }
 }
 
