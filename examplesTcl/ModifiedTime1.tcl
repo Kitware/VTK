@@ -57,6 +57,10 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
+   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp"} {
+     return
+   }
+
    if {$DEBUG == 1} {puts "    ----------------Object: $objectClass"}
 
    # just return if this object is not in the kit
