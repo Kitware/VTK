@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.106");
+vtkCxxRevisionMacro(vtkPolygon, "1.107");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -1237,13 +1237,16 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
   l2 = vtkMath::Normalize(v2);
 
   //compute derivatives along x-y-z axes
+  double ddx, ddy;
   for ( j=0; j < dim; j++ )
     {
-    l1 = (sample[dim+j] - sample[j]) / l1;
-    l2 = (sample[2*dim+j] - sample[j]) / l2;
-    derivs[3*j]     = l1 * v1[0] + l2 * v2[0];
-    derivs[3*j + 1] = l1 * v1[1] + l2 * v2[1];
-    derivs[3*j + 2] = l1 * v1[2] + l2 * v2[2];
+    ddx = (sample[dim+j] - sample[j]) / l1;
+    ddy = (sample[2*dim+j] - sample[j]) / l2;
+
+    //project onto global x-y-z axes
+    derivs[3*j]     = ddx*v1[0] + ddy*v2[0];
+    derivs[3*j + 1] = ddx*v1[1] + ddy*v2[1];
+    derivs[3*j + 2] = ddx*v1[2] + ddy*v2[2];
     }
 
   delete [] weights;
