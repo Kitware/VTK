@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.69");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.70");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -318,8 +318,12 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
 
   double total = polys->GetNumberOfCells();
   double curr = 0;
-  double step = total / 100;
-  double cstep = 0;
+  double step = total / 10;
+  if (step < 1000.0)
+    {
+    step = 1000.0;
+    }
+  double cstep = step;
 
   for ( polys->InitTraversal(); polys->GetNextCell(numPts, ptIds); )
     {
@@ -626,6 +630,15 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
   vtkIdType binId;
 
   numCells = verts->GetNumberOfCells();
+  double cstep = (double)numCells / 10.0;
+  if (cstep < 1000.0)
+    {
+    cstep = 1000.0;
+    }
+  double next = cstep;
+  double curr = 0;
+
+
   verts->InitTraversal();
   for (i = 0; i < numCells; ++i)
     {
@@ -638,9 +651,18 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
       this->AddVertex(binId, pt, geometryFlag);
       }
     ++this->InCellCount;
-    this->UpdateProgress(.2 + .2 * i / static_cast<double>(numCells));
+
+    if ( curr > next )
+      {
+      this->UpdateProgress(.2 + .2 * curr / (double)numCells);
+      next += cstep;
+      }
+    curr += 1;
     }
 }
+
+
+
 //----------------------------------------------------------------------------
 // The error function is the length (point to vert) squared.
 // We ignore constants across all terms.
@@ -780,11 +802,19 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::EndAppend()
 {
-  vtkIdType i, numBuckets, tenth;
+  vtkIdType i, numBuckets;
   int abortExecute=0;
   vtkPoints *outputPoints;
   double newPt[3];
   vtkPolyData *output = this->GetOutput();
+  numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * 
+                this->NumberOfDivisions[2];
+  double step = (double)numBuckets / 10.0;
+  if (step < 1000.0)
+    {
+    step = 1000.0;
+    }
+  double cstep = 0;
   
   // Check for mis use of the Append methods.
   if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
@@ -795,17 +825,16 @@ void vtkQuadricClustering::EndAppend()
 
   outputPoints = vtkPoints::New();
 
-  numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * 
-    this->NumberOfDivisions[2];
-  tenth = numBuckets/10 + 1;
   for (i = 0; !abortExecute && i < numBuckets; i++ )
     {
-    if ( ! (i % tenth) ) 
+    if (cstep > step)
       {
+      cstep = 0;
       vtkDebugMacro(<<"Finding point in bin #" << i);
       this->UpdateProgress (0.8+0.2*i/numBuckets);
       abortExecute = this->GetAbortExecute();
       }
+    ++cstep;
 
     if (this->QuadricArray[i].VertexId != -1)
       {
