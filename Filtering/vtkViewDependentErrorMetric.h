@@ -16,8 +16,9 @@
 // screen-based error during cell tessellation.
 //
 // .SECTION Description
-// It is a concrete error metric, based on a screen error. It can take into
-// account pixel size and camera position.
+// It is a concrete error metric, based on a geometric criterium in 
+// the screen space: the variation of the projected edge from a projected 
+// straight line
 //
 // .SECTION See Also
 // vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
