@@ -28,7 +28,7 @@
 #include "rtOtherTestBase.h"
 
 void SelectorCommand(ostream& strm) {
-  strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v \\(1\\) | grep -v 0x | grep -v Modified | grep -v \"Compute Time:\"";
+  strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v \\(1\\) | grep -v 0x | grep -v Modified | grep -v Array_ | grep -v \"Compute Time:\"";
 }
 
 void ComparatorCommand(ostream& strm) {
