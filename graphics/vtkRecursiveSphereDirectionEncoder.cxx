@@ -76,6 +76,7 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
   int   norm_size;
   int   xindex, yindex;
   int   outer_size, inner_size;
+  float x, y;
 
   if ( this->IndexTableRecursionDepth != this->RecursionDepth )
     {
@@ -96,13 +97,14 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
     t = 1.0 / ( fabs((double)n[2]) + fabs((double)n[0]) + 
 		fabs((double)n[1]) );
     
-    n[0] *= t;
-    n[1] *= t;
+    x = n[0] * t;
+    y = n[1] * t;
 
-    xindex =(int)((float)(n[0]+1 + 1.0 / (float)(2*(inner_size))) * 
-	     (float)(inner_size)); 
-    yindex = (int)((float)(n[1]+1 + 1.0 / (float)(2*(inner_size))) * 
-	     (float)(inner_size));
+    xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
+    yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
+
+    if ( xindex > 2*inner_size ) xindex = 2*inner_size;
+    if ( yindex > 2*inner_size ) yindex = 2*inner_size;
 
     value = this->IndexTable[xindex*(outer_size+inner_size) + yindex];
     
@@ -172,6 +174,7 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
   float   x, y, z, tmp_x, tmp_y;
   float   norm;
   int     outer_size, inner_size;
+  int     limit;
 
   // Free up any memory previously used
   if ( this->IndexTable )
@@ -218,107 +221,94 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 
     // On the odd rows, we are doing the small grid which has
     // inner_size elements in it
-    if ( i%2 )
+    limit = ( i%2 )?(inner_size):(outer_size);
+
+    for ( j = 0; j < limit; j++ )
       {
-      for ( j = 0; j < inner_size; j++ )
+      // compute the x component for this column
+      if ( i%2 )
 	{
-	// compute the x component for this column
         tmp_x = (float)(2*j)/(float)(inner_size) - 
 	  1.0 + (1.0/(float)(inner_size));
-
-	// rotate by 45 degrees
-        x = 0.5 * tmp_x - 0.5 * tmp_y;
-        y = 0.5 * tmp_x + 0.5 * tmp_y;
-
-	// compute the z based on the x and y values
-        if ( x >= 0 && y >= 0 )
-          z = 1.0 - x - y;
-        else if ( x >= 0 && y < 0 )
-          z = 1.0 - x + y;
-        else if ( x < 0 && y < 0 )
-          z = 1.0 + x + y;
-        else 
-          z = 1.0 + x - y;
-
-	// Normalize this direction and set the DecodedNormal table for
-	// this index to this normal.  Also set the corresponding 
-	// entry for this normal with a negative z component
-        norm = sqrt( (double)( x*x + y*y + z*z ) );
-        this->DecodedNormal[3*index + 0] = x / norm;
-        this->DecodedNormal[3*index + 1] = y / norm;
-        this->DecodedNormal[3*index + 2] = z / norm;
-        this->DecodedNormal[3*(index+max_index) + 0] =   x / norm;
-        this->DecodedNormal[3*(index+max_index) + 1] =   y / norm;
-        this->DecodedNormal[3*(index+max_index) + 2] = -(z / norm);
-
-	// For this x,y grid location, set the index
-	// The grid location ranges between 0 and (outer_size+inner_size)
-	// in both x and y
-	xindex = (int)((float)(x + 1 + 1.0 / 
-			 (float)(2*inner_size))*
-			 (float)(inner_size));
-
-	yindex = (int)((float)(y + 1 + 1.0 / 
-			 (float)(2*inner_size))*
-			 (float)(inner_size));
-
-        this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
-
-	// Increment the index
-        index++;
 	}
-      }
-    // On the even rows we are doing the big grid which has
-    // outer_size elements in it
-    else
-      {
-      for ( j = 0; j < outer_size; j++ )
+      else
 	{
-	// compute the x component for this column
         tmp_x = (float)(2*j)/(float)(inner_size) - 1.0;
-
-	// rotate by 45 degrees
-        x = 0.5 * tmp_x - 0.5 * tmp_y;
-        y = 0.5 * tmp_x + 0.5 * tmp_y;
-
-	// compute the z based on the x and y values
-        if ( x >= 0 && y >= 0 )
-          z = 1.0 - x - y;
-        else if ( x >= 0 && y < 0 )
-          z = 1.0 - x + y;
-        else if ( x < 0 && y < 0 )
-          z = 1.0 + x + y;
-        else 
-          z = 1.0 + x - y;
-
-	// Normalize this direction and set the DecodedNormal table for
-	// this index to this normal.  Also set the corresponding 
-	// entry for this normal with a negative z component
-        norm = sqrt( (double)( x*x + y*y + z*z ) );
-        this->DecodedNormal[3*index + 0] = x / norm;
-        this->DecodedNormal[3*index + 1] = y / norm;
-        this->DecodedNormal[3*index + 2] = z / norm;
-        this->DecodedNormal[3*(index+max_index) + 0] =   x / norm;
-        this->DecodedNormal[3*(index+max_index) + 1] =   y / norm;
-        this->DecodedNormal[3*(index+max_index) + 2] = -(z / norm);
-
-	// For this x,y grid location, set the index
-	// The grid location ranges between 0 and 2*NORM_SQR_SIZE - 1
-	// in both x and y
-	xindex = (int)((float)(x + 1 + 1.0 / 
-			 (float)(2*inner_size))*
-			 (float)(inner_size));
-	yindex = (int)((float)(y + 1 + 1.0 / 
-			 (float)(2*inner_size))*
-			 (float)(inner_size));
-
-        this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
-
-	// Increment the index
-        index++;
 	}
+ 
+      // rotate by 45 degrees
+      // This rotation intentionally does not preserve length - 
+      // we could have tmp_x = 1.0 and tmp_y = 1.0, we want this
+      // to lie within [-1.0,1.0] after rotation.
+      x = 0.5 * tmp_x - 0.5 * tmp_y;
+      y = 0.5 * tmp_x + 0.5 * tmp_y;
+      
+      // compute the z based on the x and y values
+      if ( x >= 0 && y >= 0 )
+	z = 1.0 - x - y;
+      else if ( x >= 0 && y < 0 )
+	z = 1.0 - x + y;
+      else if ( x < 0 && y < 0 )
+	z = 1.0 + x + y;
+      else 
+	z = 1.0 + x - y;
+      
+      // Normalize this direction and set the DecodedNormal table for
+      // this index to this normal.  Also set the corresponding 
+      // entry for this normal with a negative z component
+      norm = sqrt( (double)( x*x + y*y + z*z ) );
+      this->DecodedNormal[3*index + 0] = x / norm;
+      this->DecodedNormal[3*index + 1] = y / norm;
+      this->DecodedNormal[3*index + 2] = z / norm;
+      this->DecodedNormal[3*(index+max_index) + 0] =   x / norm;
+      this->DecodedNormal[3*(index+max_index) + 1] =   y / norm;
+      this->DecodedNormal[3*(index+max_index) + 2] = -(z / norm);
+
+      // Figure out the location in the IndexTable. Be careful with
+      // boundary conditions.
+      xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
+      yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
+      if ( xindex > 2*inner_size ) xindex = 2*inner_size;
+      if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+      this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
+
+      // Do the grid location to the left - unless we are at the left
+      // border of the grid. We are computing indices only for the
+      // actual vertices of the subdivided octahedron, but we'll
+      // convert these into the IndexTable coordinates and fill in
+      // the index for the intermediate points on the grid as well.
+      // This way we can't get bitten by a scan-conversion problem
+      // where we skip over some table index due to precision, and
+      // therefore it doesn't have a valid value in it.
+      if ( tmp_x > 0 )
+	{
+	x = 0.5 * (tmp_x - (1.0/(float)inner_size)) - 0.5 * tmp_y;
+	y = 0.5 * (tmp_x - (1.0/(float)inner_size)) + 0.5 * tmp_y;
+	xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
+	yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
+	if ( xindex > 2*inner_size ) xindex = 2*inner_size;
+	if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+	this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
+	}
+
+      // On the odd rows we also need to do the last grid location on
+      // the right.
+      if ( (i%2) && (j == limit - 1) )
+	{
+	x = 0.5 * (tmp_x + (1.0/(float)inner_size)) - 0.5 * tmp_y;
+	y = 0.5 * (tmp_x + (1.0/(float)inner_size)) + 0.5 * tmp_y;
+	xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
+	yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
+	if ( xindex > 2*inner_size ) xindex = 2*inner_size;
+	if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+	this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
+	}
+      
+      // Increment the index
+      index++;
       }
     }
+
 
   // The index table has been initialized for the current recursion
   // depth
