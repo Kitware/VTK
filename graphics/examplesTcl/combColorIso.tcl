@@ -76,7 +76,7 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
-#renWin SetFileName "combIso.tcl.ppm"
+#renWin SetFileName "combColorIso.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
