@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.23");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.24");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -988,6 +988,8 @@ void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
   this->UpdateRepresentation();
+
+  this->SizeHandles();
 }
 
 // Description:
