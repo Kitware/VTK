@@ -156,6 +156,7 @@ IF (VTK_WRAP_JAVA)
   # where to write the resulting .java files
   IF (NOT VTK_JAVA_HOME)
     SET (VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk CACHE PATH "Path to Java install")
+    MARK_AS_ADVANCED(VTK_JAVA_HOME)
   ENDIF (NOT VTK_JAVA_HOME)
   MAKE_DIRECTORY(${VTK_JAVA_HOME})
   IF (WIN32)
