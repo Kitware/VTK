@@ -31,35 +31,30 @@
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkExtractUserDefinedPiece.h"
 #include "vtkCellData.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkIntArray.h"
+#include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkShortArray.h"
-#include "vtkLongArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkSocketController.h"
 #include "vtkDataSetWriter.h"
 #include "vtkDataSetReader.h"
-#include "vtkCharArray.h"
 #include "vtkBoxClipDataSet.h"
 #include "vtkClipDataSet.h"
 #include "vtkBox.h"
-#include "vtkPlanes.h"
 #include "vtkIdList.h"
 #include "vtkPointLocator.h"
-#include "vtkTimerLog.h"
 #include "vtkPlane.h"
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16.2.1")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -101,7 +96,6 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
   this->ClipCells = 0;
 
   this->Timing = 0;
-  this->TimerLog = NULL;
 
   this->UseMinimalMemory = 0;
 }
@@ -143,14 +137,7 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
     {
     delete [] this->GlobalElementIdArrayName;
     }
-  
-  if (this->TimerLog)
-    {
-    this->TimerLog->Delete();
-    this->TimerLog = 0;
-    }
 }
-
 //-------------------------------------------------------------------------
 // Global element and node IDs:
 //   Either the user gives us the names of these arrays, or we find them
@@ -461,14 +448,24 @@ void vtkDistributedDataFilter::SetDivideBoundaryCells(int val)
 // Execute
 //-------------------------------------------------------------------------
 
-void vtkDistributedDataFilter::ComputeInputUpdateExtents( vtkDataObject *o)
+void vtkDistributedDataFilter::ComputeInputUpdateExtents( vtkDataObject *output)
 {
-  vtkDataSetToUnstructuredGridFilter::ComputeInputUpdateExtents(o);
+  int piece, numPieces, ghostLevels;
+  vtkDataSet *input = this->GetInput();
 
-  // Since this filter redistibutes data, ghost cells computed upstream
-  // will not be valid.
+  // We require preceding filters to refrain from creating ghost cells.
 
-  this->GetInput()->SetUpdateGhostLevel( 0);
+  if (this->GetInput() == NULL)
+    {
+    return;
+    }
+  piece = output->GetUpdatePiece();
+  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevels = 0;
+
+  input->SetUpdateExtent(piece, numPieces, ghostLevels);
+
+  input->RequestExactExtentOn();
 }
 
 void vtkDistributedDataFilter::ExecuteInformation()
@@ -570,6 +567,7 @@ void vtkDistributedDataFilter::Execute()
     {
     this->Kdtree->Delete();
     this->Kdtree = NULL;
+
     vtkErrorMacro(<< "vtkDistributedDataFilter::Execute redistribute failure");
     return;
     }
@@ -632,6 +630,10 @@ void vtkDistributedDataFilter::Execute()
     this->Kdtree->Delete();
     this->Kdtree = NULL;
     }
+  else
+    {
+    this->Kdtree->SetDataSet(NULL);
+    }
 }
 vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *set)
 {
@@ -668,7 +670,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
     }
 
   this->Kdtree->SetController(this->Controller);
-  this->Kdtree->SetNumRegionsOrMore(this->NumProcesses);
+  this->Kdtree->SetNumberOfRegionsOrMore(this->NumProcesses);
   this->Kdtree->SetMinCells(2);
 
   this->Kdtree->SetDataSet(set);
@@ -687,6 +689,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
     this->Kdtree = NULL;
     return 1;
     }
+
   return 0;
 }
 int vtkDistributedDataFilter::ClipGridCells(vtkUnstructuredGrid *grid)
@@ -4346,12 +4349,6 @@ int vtkDistributedDataFilter::HasMetadata(vtkDataSet *s)
   return vtkModelMetadata::HasMetadata(vtkUnstructuredGrid::SafeDownCast(s));
 }
 //-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-void vtkDistributedDataFilter::PrintTiming(ostream& os, vtkIndent indent)
-{
-  (void)indent;
-  vtkTimerLog::DumpLogWithIndents(&os, (float)0.0);
-}
 void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {  
   this->Superclass::PrintSelf(os,indent);
@@ -4375,7 +4372,6 @@ void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClipCells: " << this->ClipCells << endl;
 
   os << indent << "Timing: " << this->Timing << endl;
-  os << indent << "TimerLog: " << this->TimerLog << endl;
   os << indent << "UseMinimalMemory: " << this->UseMinimalMemory << endl;
 }
 

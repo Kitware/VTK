@@ -31,6 +31,8 @@
 // and the output is a single vtkUnstructuredGrid containing the
 // cells in the process' assigned regions.
 //
+// This filter is sometimes called "D3" for "distributed data decomposition".
+//
 // .SECTION Caveats
 // The Execute() method must be called by all processes in the
 // parallel application, or it will hang.  If you are not certain
@@ -48,7 +50,6 @@
 class vtkUnstructuredGrid;
 class vtkPKdTree;
 class vtkMultiProcessController;
-class vtkTimerLog;
 class vtkDataArray;
 class vtkIntArray;
 class vtkFloatArray;
@@ -64,7 +65,6 @@ class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataSetToUnstructu
 
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  void PrintTiming(ostream& os, vtkIndent indent);
 
   static vtkDistributedDataFilter *New();
 
@@ -430,8 +430,6 @@ private:
   int DivideBoundaryCells;
 
   int Timing;
-
-  vtkTimerLog *TimerLog;
 
   int UseMinimalMemory;
 

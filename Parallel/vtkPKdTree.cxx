@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.7");
+vtkCxxRevisionMacro(vtkPKdTree, "1.7.2.1");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -224,8 +224,8 @@ void vtkPKdTree::AllCheckParameters()
 
   param[0] = this->ValidDirections;
   param[1] = this->GetMinCells();
-  param[2] = this->GetNumRegionsOrLess();
-  param[3] = this->GetNumRegionsOrMore();
+  param[2] = this->GetNumberOfRegionsOrLess();
+  param[3] = this->GetNumberOfRegionsOrMore();
   param[4] = this->RegionAssignment;
   param[5] = 0;
   param[6] = 0;
@@ -257,8 +257,8 @@ void vtkPKdTree::AllCheckParameters()
 
     this->ValidDirections        = param0[0];
     this->SetMinCells(param0[1]);
-    this->SetNumRegionsOrLess(param0[2]);
-    this->SetNumRegionsOrMore(param0[3]);
+    this->SetNumberOfRegionsOrLess(param0[2]);
+    this->SetNumberOfRegionsOrMore(param0[3]);
     this->RegionAssignment       = param0[4];
     }
   return;
@@ -416,6 +416,8 @@ done:
   FreeObject(this->SubGroup);
 
   this->UpdateBuildTime();
+  
+  this->SetCalculator(this->Top);
 
   return;
 }
