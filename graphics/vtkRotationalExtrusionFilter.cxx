@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRotationalExtrusionFilter.cc
+  Module:    vtkRotationalExtrusionFilter.cxx
   Language:  C++
-  Date:      09 Oct 1995
-  Version:   1.13
-
+  Date:      $Date$
+  Version:   $Revision$
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
