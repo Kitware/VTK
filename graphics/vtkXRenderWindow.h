@@ -69,6 +69,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Xwindow get set functions
+  virtual void *GetGenericDisplayId() {return (void *)this->DisplayId;};
+  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
+  virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   int     *GetSize();
   int     *GetScreenSize();
   int     *GetPosition();
@@ -77,6 +80,7 @@ public:
   void     SetDisplayId(void *);
   Window   GetParentId();
   void     SetParentId(Window);
+  void     SetParentId(void *);
   Window   GetWindowId();
   void     SetWindowId(Window);
   void     SetWindowId(void *);

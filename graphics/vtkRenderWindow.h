@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRenderWindow_h
 #define __vtkRenderWindow_h
 
-#include "vtkObject.h"
+#include "vtkWindow.h"
 #include "vtkRendererCollection.h"
 #include <stdio.h>
 
@@ -68,7 +68,7 @@ class vtkPolyDataMapperDevice;
 #define VTK_STEREO_CRYSTAL_EYES 1
 #define VTK_STEREO_RED_BLUE     2
 
-class VTK_EXPORT vtkRenderWindow : public vtkObject
+class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
   vtkRenderWindow();
@@ -92,13 +92,6 @@ public:
   // to do things like swapping buffers (if necessary) or similar actions.
   virtual void Frame() {};
 
-  virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *) {};
-  virtual void SetParentId(void *) {};
-
-  // useful for scripting languages
-  virtual void SetWindowInfo(char *) {};
-
   // Description:
   // Performed at the end of the rendering process to generate image.
   // This is typically done right before swapping buffers.
@@ -120,18 +113,6 @@ public:
   virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor();
 
   // Description:
-  // Set/Get the position in screen coordinates of the rendering window.
-  virtual int *GetPosition() {return (int *)NULL;};
-  virtual void SetPosition(int,int);
-  virtual void SetPosition(int a[2]);
-
-  // Description:
-  // Set/Get the size of the window in screen coordinates.
-  virtual int *GetSize() {return (int *)NULL;};
-  virtual void SetSize(int,int) {};
-  virtual void SetSize(int a[2]);
-
-  // Description:
   // Turn on/off rendering full screen window size.
   virtual void SetFullScreen(int) {};
   vtkGetMacro(FullScreen,int);
@@ -144,12 +125,6 @@ public:
   vtkSetMacro(Borders,int);
   vtkGetMacro(Borders,int);
   vtkBooleanMacro(Borders,int);
-
-  // Description:
-  // Keep track of whether the rendering window has been mapped to screen.
-  vtkSetMacro(Mapped,int);
-  vtkGetMacro(Mapped,int);
-  vtkBooleanMacro(Mapped,int);
 
   // Description:
   // Turn on/off double buffering.
@@ -181,25 +156,11 @@ public:
   virtual void WindowRemap() {};
   
   // Description:
-  // Turn on/off erasing the screen between images. This allows multiple 
-  // exposure sequences if turned on. You will need to turn double 
-  // buffering off or make use of the SwapBuffers methods to prevent
-  // you from swapping buffers between exposures.
-  vtkSetMacro(Erase,int);
-  vtkGetMacro(Erase,int);
-  vtkBooleanMacro(Erase,int);
-
-  // Description:
   // Turn on/off buffer swapping between images. 
   vtkSetMacro(SwapBuffers,int);
   vtkGetMacro(SwapBuffers,int);
   vtkBooleanMacro(SwapBuffers,int);
   
-  // Description:
-  // Get name of rendering window
-  vtkGetStringMacro(WindowName);
-  virtual void SetWindowName( char * );
-
   // Description:
   // Set/Get the FileName used for saving images. See the SaveImageAsPPM 
   // method.
@@ -291,19 +252,23 @@ public:
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
   void SetInteractor(vtkRenderWindowInteractor *);
 
+  virtual void SetDisplayId(void *) {};
+  virtual void SetWindowId(void *)  {};
+  virtual void SetParentId(void *)  {};
+  virtual void *GetGenericDisplayId() {return NULL;};
+  virtual void *GetGenericWindowId() {return NULL;};
+  virtual void *GetGenericParentId() {return NULL;};
+  virtual void SetWindowInfo(char *) {};
+
 protected:
   virtual void DoStereoRender();
   virtual void DoFDRender();
   virtual void DoAARender();
 
   vtkRendererCollection Renderers;
-  char *WindowName;
-  int Size[2];
-  int Position[2];
   int Borders;
   int FullScreen;
   int OldScreen[5];
-  int Mapped;
   int DoubleBuffer;
   int StereoRender;
   int StereoType;
@@ -317,7 +282,6 @@ protected:
   int SubFrames;               // number of sub frames
   int CurrentSubFrame;         // what one are we on
   unsigned char* ResultFrame;  // used for any non immediate rendering
-  int   Erase;
   int   SwapBuffers;
   float DesiredUpdateRate;
   FILE* PPMImageFilePtr;

@@ -60,13 +60,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeCollection.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
+#include "vtkViewport.h"
 
 class vtkRenderWindow;
 class vtkRayCaster;
 class vtkVolume;
 class vtkRayCaster;
 
-class VTK_EXPORT vtkRenderer : public vtkObject
+class VTK_EXPORT vtkRenderer : public vtkViewport
 {
 public:
   vtkRenderer();
@@ -89,18 +90,6 @@ public:
 
   void SetActiveCamera(vtkCamera *);
   vtkCamera *GetActiveCamera();
-
-  // Description:
-  // Set/Get the background color of the rendering screen using an rgb color
-  // specification.
-  vtkSetVector3Macro(Background,float);
-  vtkGetVectorMacro(Background,float,3);
-
-  // Description:
-  // Set the aspect ratio of the rendered image. This is computed 
-  // automatically and should not be set by the user.
-  vtkSetVector2Macro(Aspect,float);
-  vtkGetVectorMacro(Aspect,float,2);
 
   // Description:
   // Set the intensity of ambient lighting.
@@ -155,6 +144,7 @@ public:
 
   void SetRenderWindow(vtkRenderWindow *);
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
+  virtual vtkWindow *GetVTKWindow();
   
   // Description:
   // Set/get a point location in display (or screen) coordinates.
@@ -177,13 +167,6 @@ public:
   vtkGetVectorMacro(WorldPoint,float,4);
 
   // Description:
-  // Specify the viewport for the renderer to draw in the rendering window. 
-  // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
-  // coordinate is 0 <= coordinate <= 1.0.
-  vtkSetVector4Macro(Viewport,float);
-  vtkGetVectorMacro(Viewport,float,4);
-
-  // Description:
   // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
   // off, then only the side of the surface facing the light(s) will be lit,
   // and the other side dark. If two-sided lighting on, both sides of the 
@@ -192,23 +175,14 @@ public:
   vtkSetMacro(TwoSidedLighting,int);
   vtkBooleanMacro(TwoSidedLighting,int);
 
-  virtual float *GetCenter();
-
   virtual void DisplayToView(); // these get modified in subclasses
   virtual void ViewToDisplay(); // to handle stereo rendering
-  virtual int  IsInViewport(int x,int y); 
   void WorldToView();
   void ViewToWorld();
   void DisplayToWorld();
   void WorldToDisplay();
 
   vtkGetObjectMacro(RayCaster,vtkRayCaster);
-
-  void SetStartRenderMethod(void (*f)(void *), void *arg);
-  void SetEndRenderMethod(void (*f)(void *), void *arg);
-  void SetStartRenderMethodArgDelete(void (*f)(void *));
-  void SetEndRenderMethodArgDelete(void (*f)(void *));
-
   float GetZ (int x, int y);
 
 protected:
@@ -223,25 +197,14 @@ protected:
   vtkVolumeCollection Volumes;
 
   float Ambient[3];  
-  float Background[3];  
   vtkRenderWindow *RenderWindow;
   float DisplayPoint[3];
   float ViewPoint[3];
   float WorldPoint[4];
-  float Viewport[4];
-  float Aspect[2];
-  float Center[2];
   int   SelfCreatedCamera;
   int   SelfCreatedLight;
   float AllocatedRenderTime;
   int   TwoSidedLighting;
-
-  void (*StartRenderMethod)(void *);
-  void (*StartRenderMethodArgDelete)(void *);
-  void *StartRenderMethodArg;
-  void (*EndRenderMethod)(void *);
-  void (*EndRenderMethodArgDelete)(void *);
-  void *EndRenderMethodArg;
 };
 
 // Description:

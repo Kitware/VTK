@@ -85,16 +85,23 @@ public:
   int *GetScreenSize();
   int *GetPosition();
 
+  virtual SetWindowName(char *);
+  
   void SetWindowInfo(char *);
   //BTX
-  HWND      GetWindowId();
-  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
-  void		SetWindowId(HWND);
-  void    SetParentId(void *foo) {this->SetParentId((HWND)foo);};
-  void		SetParentId(HWND);
-  void		SetContextId(HGLRC);	// hsr
-  void		SetDeviceContext(HDC);	// hsr
-  void      SetNextWindowId(HWND);
+  virtual void *GetGenericDisplayId() {return NULL;};
+  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
+  virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
+  virtual void SetDisplayId(void *) {};
+  
+  HWND  GetWindowId();
+  void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+  void  SetWindowId(HWND);
+  void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+  void  SetParentId(HWND);
+  void  SetContextId(HGLRC);	// hsr
+  void  SetDeviceContext(HDC);	// hsr
+  void  SetNextWindowId(HWND);
   //ETX
 
   // supply base class virtual function

@@ -251,6 +251,10 @@ void vtkXRenderWindow::SetWindowId(void *arg)
 {
   this->SetWindowId((Window)arg);
 }
+void vtkXRenderWindow::SetParentId(void *arg)
+{
+  this->SetParentId((Window)arg);
+}
 
 
 void vtkXRenderWindow::SetWindowName(char * name)

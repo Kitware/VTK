@@ -59,10 +59,6 @@ vtkRenderer::vtkRenderer()
   this->Ambient[1] = 1;
   this->Ambient[2] = 1;
 
-  this->Background[0] = 0;
-  this->Background[1] = 0;
-  this->Background[2] = 0;
-
   this->WorldPoint[0] = 0;
   this->WorldPoint[1] = 0;
   this->WorldPoint[2] = 0;
@@ -76,28 +72,15 @@ vtkRenderer::vtkRenderer()
   this->ViewPoint[1] = 0;
   this->ViewPoint[2] = 0;
 
-  this->Viewport[0] = 0;
-  this->Viewport[1] = 0;
-  this->Viewport[2] = 1;
-  this->Viewport[3] = 1;
-
   this->RayCaster = vtkRayCaster::New();
   this->RayCaster->SetRenderer( this );
 
   this->AllocatedRenderTime = 0;
   
-  this->Aspect[0] = this->Aspect[1] = 1.0;
   this->SelfCreatedCamera = 0;
   this->SelfCreatedLight = 0;
   this->CreatedLight = NULL;
   
-  this->StartRenderMethod = NULL;
-  this->StartRenderMethodArgDelete = NULL;
-  this->StartRenderMethodArg = NULL;
-  this->EndRenderMethod = NULL;
-  this->EndRenderMethodArgDelete = NULL;
-  this->EndRenderMethodArg = NULL;
-
   this->TwoSidedLighting = 1;
 }
 
@@ -146,6 +129,11 @@ vtkRenderer *vtkRenderer::New()
 #endif
   
   return new vtkRenderer;
+}
+
+vtkWindow *vtkRenderer::GetVTKWindow()
+{
+  return this->RenderWindow;
 }
 
 // Description:
@@ -486,100 +474,6 @@ void vtkRenderer::WorldToView()
     }
 }
 
-// Description:
-// Return the center of this renderer in display coordinates.
-float *vtkRenderer::GetCenter()
-{
-  int *size;
-  
-  // get physical window dimensions 
-  size = this->RenderWindow->GetSize();
-
-  this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
-		     /2.0*(float)size[0]);
-  this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
-		     /2.0*(float)size[1]);
-
-  return this->Center;
-}
-
-// Description:
-// Is a given display point in this renderer's viewport.
-int vtkRenderer::IsInViewport(int x,int y)
-{
-  int *size;
-  
-  // get physical window dimensions 
-  size = this->RenderWindow->GetSize();
-
-  if ((this->Viewport[0]*size[0] <= x)&&
-      (this->Viewport[2]*size[0] >= x)&&
-      (this->Viewport[1]*size[1] <= y)&&
-      (this->Viewport[3]*size[1] >= y))
-    {
-    return 1;
-    }
-
-  return 0;
-}
-
-// Description:
-// Specify a function to be called before rendering process begins.
-// Function will be called with argument provided.
-void vtkRenderer::SetStartRenderMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->StartRenderMethod || arg != this->StartRenderMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
-      {
-      (*this->StartRenderMethodArgDelete)(this->StartRenderMethodArg);
-      }
-    this->StartRenderMethod = f;
-    this->StartRenderMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkRenderer::SetStartRenderMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->StartRenderMethodArgDelete)
-    {
-    this->StartRenderMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkRenderer::SetEndRenderMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->EndRenderMethodArgDelete)
-    {
-    this->EndRenderMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify a function to be called when rendering process completes.
-// Function will be called with argument provided.
-void vtkRenderer::SetEndRenderMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->EndRenderMethod || arg != EndRenderMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))
-      {
-      (*this->EndRenderMethodArgDelete)(this->EndRenderMethodArg);
-      }
-    this->EndRenderMethod = f;
-    this->EndRenderMethodArg = arg;
-    this->Modified();
-    }
-}
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -589,10 +483,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   this->Actors.PrintSelf(os,indent.GetNextIndent());
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
     << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
-  os << indent << "Aspect: (" << this->Aspect[0] << ", " 
-    << this->Aspect[1] << ")\n";
-  os << indent << "Background: (" << this->Background[0] << ", " 
-    << this->Background[1] << ", "  << this->Background[2] << ")\n";
 
   os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
     << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
@@ -601,30 +491,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ViewPoint: (" << this->ViewPoint[0] << ", " 
     << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";
-  os << indent << "Viewport: (" << this->Viewport[0] << ", " 
-    << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
-      << this->Viewport[3] << ")\n";
 
   os << indent << "Two-sided Lighting: " 
      << (this->TwoSidedLighting ? "On\n" : "Off\n");
-
-  if ( this->StartRenderMethod )
-    {
-    os << indent << "Start Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No Start Render method.\n";
-    }
-
-  if ( this->EndRenderMethod )
-    {
-    os << indent << "End Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No End Render method.\n";
-    }
 
 }
 

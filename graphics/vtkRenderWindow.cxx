@@ -51,21 +51,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // buffering turned on.
 vtkRenderWindow::vtkRenderWindow()
 {
-  this->Size[0] = this->Size[1] = 300;
-  this->Position[0] = this->Position[1] = 0;
   this->Borders = 1;
   this->FullScreen = 0;
   this->OldScreen[0] = this->OldScreen[1] = 0;
   this->OldScreen[2] = this->OldScreen[3] = 300;
   this->OldScreen[4] = 1;
-  this->Mapped = 0;
   this->DoubleBuffer = 1;
   this->StereoRender = 0;
   this->StereoType = VTK_STEREO_RED_BLUE;
   this->StereoStatus = 0;
   this->Interactor = NULL;
-  this->WindowName = new char[strlen("Visualization Toolkit")+1];
-    strcpy( this->WindowName, "Visualization Toolkit" );
   this->AAFrames = 0;
   this->FDFrames = 0;
   this->SubFrames = 0;
@@ -74,7 +69,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = NULL;
   this->FileName = NULL;
-  this->Erase = 1;
   this->SwapBuffers = 1;
   this->PPMImageFilePtr = NULL;
   this->AbortRender = 0;
@@ -96,9 +90,6 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
-
-  if( WindowName ) 
-    delete [] this->WindowName;
 }
 
 // Description:
@@ -243,26 +234,6 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
     {
     this->Interactor->SetRenderWindow(this);
     }
-}
-
-void vtkRenderWindow::SetWindowName( char * _arg )
-{
-  vtkDebugMacro("Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
-         << this->GetClassName() << " (" << this << "): setting " 
-         << WindowName  << " to " << _arg << "\n\n");
-
-  if ( WindowName && _arg && (!strcmp(WindowName,_arg))) return;
-  if (WindowName) delete [] WindowName;
-  if( _arg )
-    {
-    WindowName = new char[strlen(_arg)+1];
-    strcpy(WindowName,_arg);
-    }
-  else
-    {
-    WindowName = NULL;
-    }
-  this->Modified();
 }
 
 void vtkRenderWindow::SetDesiredUpdateRate(float rate)
@@ -700,29 +671,6 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
   this->Renderers.RemoveItem(ren);
 }
 
-void vtkRenderWindow::SetSize(int a[2])
-{
-  this->SetSize(a[0],a[1]);
-}
-
-void vtkRenderWindow::SetPosition(int a[2])
-{
-  this->SetPosition(a[0],a[1]);
-}
-void vtkRenderWindow::SetPosition(int x, int y)
-{
-  // if we arent mappen then just set the ivars 
-  if (!this->Mapped)
-    {
-    if ((this->Position[0] != x)||(this->Position[1] != y))
-      {
-      this->Modified();
-      }
-    this->Position[0] = x;
-    this->Position[1] = y;
-    }
-}
-
 int vtkRenderWindow::CheckAbortStatus()
 {
   if (!this->InAbortCheck)
@@ -741,19 +689,13 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   int *temp;
 
-  vtkObject::PrintSelf(os,indent);
+  vtkWindow::PrintSelf(os,indent);
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
-  os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
-  os << indent << "Window Name: " << this->WindowName << "\n";
-  temp = this->GetPosition();
-  os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
-  temp = this->GetSize();
   os << indent << "Renderers:\n";
   this->Renderers.PrintSelf(os,indent.GetNextIndent());
-  os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 
