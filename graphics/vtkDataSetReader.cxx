@@ -97,7 +97,14 @@ vtkDataSet * vtkDataSetReader::GetOutput()
     }
 
   this->Execute();
-  return (vtkDataSet *)this->Outputs[0];
+  if (this->Outputs == NULL)
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkDataSet *)this->Outputs[0];
+    }
 }
 
 unsigned long int vtkDataSetReader::GetMTime()
