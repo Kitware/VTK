@@ -56,10 +56,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 
 #define VTK_MAJOR_VERSION 4
-#define VTK_MINOR_VERSION 0
+#define VTK_MINOR_VERSION 1
 #define VTK_BUILD_VERSION 1
-#define VTK_VERSION "4.0.1"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1081 $, $Date: 2001-12-10 15:02:47 $ (GMT)"
+#define VTK_VERSION "4.1.1"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1082 $, $Date: 2001-12-10 15:06:01 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
