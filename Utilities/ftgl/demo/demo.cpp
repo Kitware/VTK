@@ -13,7 +13,9 @@ using namespace std;
 #include "FTGLOutlineFont.h"
 #include "FTGLPolygonFont.h"
 #include "FTGLBitmapFont.h"
+#ifndef FTGL_NO_TEXTURE_FONTS
 #include "FTGLTextureFont.h"
+#endif
 #include "FTGLPixmapFont.h"
 
 static FTFont* fonts[5];
@@ -34,6 +36,8 @@ const char* DEFAULT_FONT = "arial.ttf";
 #endif
 #endif
 
+int file_exists( const char * filename );
+
 void
 my_init( const char* font_filename )
 {
@@ -42,11 +46,15 @@ my_init( const char* font_filename )
 
     fonts[0] = new FTGLOutlineFont;
     fonts[1] = new FTGLPolygonFont;
-    //    fonts[2] = new FTGLTextureFont;
-    fonts[2] = new FTGLBitmapFont;
+#ifndef FTGL_NO_TEXTURE_FONTS
+    fonts[2] = new FTGLTextureFont;
+#endif
     fonts[3] = new FTGLBitmapFont;
     fonts[4] = new FTGLPixmapFont;
     for (int i=0; i< 5; i++) {
+#ifdef FTGL_NO_TEXTURE_FONTS
+    if (i == 2) continue;
+#endif
         if (!fonts[i]->Open(font_filename)) {
             cerr << "ERROR: Unable to open file " << font_filename << "\n";
         }
@@ -56,6 +64,20 @@ my_init( const char* font_filename )
             int point_size = 24;
             if (!fonts[i]->FaceSize(point_size)) {
                 cerr << "ERROR: Unable to set font face size " << point_size << "\n";
+            }
+
+            // Try to load AFM font metrics
+            const char* ext = strrchr(font_filename, '.');
+            if (ext && !strcmp(ext, ".pfb"))
+            {
+            char *metrics = new char[strlen(font_filename)];
+            strncpy(metrics, font_filename, ext - font_filename);
+            strcpy(metrics + (ext - font_filename), ".afm");
+            if (file_exists(metrics))
+              {
+              cout << "Attaching font metrics from " << metrics << endl;
+              fonts[i]->Attach(metrics);
+              }
             }
         }
     }
@@ -120,6 +142,9 @@ my_handle_key(unsigned char key, int x, int y)
    case 27:    
 	   {
        for (int i=0; i<5; i++) {
+#ifdef FTGL_NO_TEXTURE_FONTS
+       if (i == 2) continue;
+#endif
            if (fonts[i]) {
                delete fonts[i];
                fonts[i] = 0;
@@ -210,6 +235,9 @@ draw_scene()
                fonts[font]->render(string[j]);
            }
            else {
+#ifdef FTGL_NO_TEXTURE_FONTS
+           if (font == 2) continue;
+#endif
                if (font == 2) {
                    glEnable(GL_TEXTURE_2D);
                    glEnable(GL_BLEND);
