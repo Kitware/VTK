@@ -20,9 +20,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.51");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.52");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -42,10 +43,11 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkIdType numPts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
+  vtkCellData *cd=input->GetCellData();
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  int numEdges, dim;
+  int numEdges;
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
   vtkIdType cellId, ptId, ncells;
@@ -54,12 +56,14 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;
   vtkCell *edge;
-  vtkIdList *cellIds, *cellPts;
+  vtkIdList *cellIds;
   int i, j, k;
   vtkIdType p1, p2;
   vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
+  vtkCellData *outCD=output->GetCellData();
   double tempd;
+  int abort=0;
 
   // Initialize / check input
   //
@@ -109,6 +113,8 @@ void vtkRotationalExtrusionFilter::Execute()
   ncells = (ncells < 100 ? 100 : ncells);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(ncells,2*(this->Resolution+1)));
+  outCD->CopyNormalsOff();
+  outCD->CopyAllocate(cd,ncells);
 
   // copy points
   for (ptId=0; ptId < numPts; ptId++) //base level
@@ -180,122 +186,139 @@ void vtkRotationalExtrusionFilter::Execute()
       }
     }
 
-  // If capping is on, copy 2D cells to output (plus create cap)
-  //
-  if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0 ||
-  this->Translation != 0.0) )
+  // To insure that cell attributes are in consistent order with the
+  // cellId's, we process the verts, lines, polys and strips in order.
+  vtkIdType newCellId=0;
+  int type;
+  if ( newLines ) // there are verts which produce lines
     {
+    for ( cellId=0; cellId < numCells && !abort; cellId++)
+      {
+      type = mesh->GetCellType(cellId);
+      if ( type == VTK_VERTEX || type == VTK_POLY_VERTEX )
+        {
+        mesh->GetCellPoints(cellId,npts,pts);
+        for (i=0; i<npts; i++)
+          {
+          ptId = pts[i];
+          newLines->InsertNextCell(this->Resolution+1);
+          for ( j=0; j<=this->Resolution; j++ )
+            {
+            newLines->InsertCellPoint(ptId + j*numPts);
+            }
+          outCD->CopyData(cd,cellId,newCellId++);
+          }
+        }//if a vertex or polyVertex
+      }//for all cells
+    }//if there are verts generating lines
+  this->UpdateProgress (0.25);
+  abort = this->GetAbortExecute();
+  
+  // If capping is on, copy 2D cells to output (plus create cap). Notice
+  // that polygons are done first, then strips.
+  //
+  if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0 
+                         || this->Translation != 0.0) )
+    {
+    vtkIdType newCellId=0;
     if ( inPolys->GetNumberOfCells() > 0 )
       {
       newPolys = vtkCellArray::New();
       newPolys->Allocate(inPolys->GetSize());
-      for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+
+      for ( cellId=0; cellId < numCells && !abort; cellId++ )
         {
-        newPolys->InsertNextCell(npts,pts);
-        newPolys->InsertNextCell(npts);
-        // note that we need to reverse the vertex order on the far cap
-        for (i=0; i < npts; i++)
+        type = mesh->GetCellType(cellId);
+        if ( type == VTK_TRIANGLE || type == VTK_QUAD || type == VTK_POLYGON )
           {
-          newPolys->InsertCellPoint(pts[i] + this->Resolution*numPts);
+          mesh->GetCellPoints(cellId, npts, pts);
+          newPolys->InsertNextCell(npts,pts);
+          outCD->CopyData(cd,cellId,newCellId++);
           }
         }
       }
-    
-    if ( inStrips->GetNumberOfCells() > 0 )
+
+    for ( cellId=0; cellId < numCells && !abort; cellId++ )
       {
-      for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+      type = mesh->GetCellType(cellId);
+      if ( type == VTK_TRIANGLE_STRIP )
         {
+        mesh->GetCellPoints(cellId, npts, pts);
         newStrips->InsertNextCell(npts,pts);
-        newStrips->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-          {
-          newStrips->InsertCellPoint(pts[i] + this->Resolution*numPts);
-          }
+        outCD->CopyData(cd,cellId,newCellId++);
         }
       }
-    }
+    }//if capping
+  this->UpdateProgress (0.5);
+  abort = this->GetAbortExecute();
 
-  cellIds = vtkIdList::New();
-  cellIds->Allocate(VTK_CELL_SIZE);
-
-  // Loop over all polygons and triangle strips searching for boundary edges. 
-  // If boundary edge found, extrude triangle strip.
+  // Now process lines, polys and/or strips to produce strips
   //
-  int abort=0;
-  vtkIdType progressInterval = numCells/10 + 1;
-  vtkGenericCell *cell = vtkGenericCell::New();
-  for ( cellId=0; cellId < numCells && !abort; cellId++)
+  if ( inLines->GetNumberOfCells() || inPolys->GetNumberOfCells() ||
+       inStrips->GetNumberOfCells() )
     {
-    if ( ! (cellId % progressInterval) ) //manage progress / early abort
-      {
-      this->UpdateProgress (0.6 + 0.4*cellId/numCells);
-      abort = this->GetAbortExecute();
-      }
+    cellIds = vtkIdList::New();
+    cellIds->Allocate(VTK_CELL_SIZE);
+    vtkGenericCell *cell = vtkGenericCell::New();
 
-    mesh->GetCell(cellId,cell);
-    cellPts = cell->GetPointIds();
-
-    if ( (dim=cell->GetCellDimension()) == 0 ) //create lines from points
+    for ( cellId=0; cellId < numCells && !abort; cellId++)
       {
-      for (i=0; i<cellPts->GetNumberOfIds(); i++)
+      type = mesh->GetCellType(cellId);
+      if ( type == VTK_LINE || type == VTK_POLY_LINE )
         {
-        ptId = cellPts->GetId(i);
-        newLines->InsertNextCell(this->Resolution+1);
-
-        for ( j=0; j<=this->Resolution; j++ )
+        mesh->GetCellPoints(cellId,npts,pts);
+        for (i=0; i<(npts-1); i++)
           {
-          newLines->InsertCellPoint(ptId + j*numPts);
-          }
-        }
-      }
-
-    else if ( dim == 1 ) // create strips from lines
-      {
-      for (i=0; i < (cellPts->GetNumberOfIds()-1); i++)
-        {
-        p1 = cellPts->GetId(i);
-        p2 = cellPts->GetId(i+1);
-        newStrips->InsertNextCell(2*(this->Resolution+1));
-        for ( j=0; j<=this->Resolution; j++)
-          {
-          newStrips->InsertCellPoint(p2 + j*numPts);
-          newStrips->InsertCellPoint(p1 + j*numPts);
-          }
-        }
-      }
-
-    else if ( dim == 2 ) // create strips from boundary edges
-      {
-      numEdges = cell->GetNumberOfEdges();
-      for (i=0; i<numEdges; i++)
-        {
-        edge = cell->GetEdge(i);
-        for (j=0; j<(edge->GetNumberOfPoints()-1); j++)
-          {
-          p1 = edge->PointIds->GetId(j);
-          p2 = edge->PointIds->GetId(j+1);
-          mesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
-
-          if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
+          p1 = pts[i];
+          p2 = pts[i+1];
+          newStrips->InsertNextCell(2*(this->Resolution+1));
+          for ( j=0; j<=this->Resolution; j++)
             {
-            newStrips->InsertNextCell(2*(this->Resolution+1));
-            for (k=0; k<=this->Resolution; k++)
+            newStrips->InsertCellPoint(p2 + j*numPts);
+            newStrips->InsertCellPoint(p1 + j*numPts);
+            }
+          outCD->CopyData(cd,cellId,newCellId++);
+          }
+        }//if a line
+
+      else if ( type == VTK_TRIANGLE || type == VTK_QUAD || 
+                type == VTK_POLYGON || type == VTK_TRIANGLE_STRIP ) 
+        {// create strips from boundary edges
+        mesh->GetCell(cellId,cell);
+        numEdges = cell->GetNumberOfEdges();
+        for (i=0; i<numEdges; i++)
+          {
+          edge = cell->GetEdge(i);
+          for (j=0; j<(edge->GetNumberOfPoints()-1); j++)
+            {
+            p1 = edge->PointIds->GetId(j);
+            p2 = edge->PointIds->GetId(j+1);
+            mesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
+
+            if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
               {
-              newStrips->InsertCellPoint(p2 + k*numPts);
-              newStrips->InsertCellPoint(p1 + k*numPts);
-              }
-            } //if boundary edge
-          } //for each sub-edge
-        } //for each edge
-      } //for each polygon or triangle strip
-    } //for each cell
-  cell->Delete();
+              newStrips->InsertNextCell(2*(this->Resolution+1));
+              for (k=0; k<=this->Resolution; k++)
+                {
+                newStrips->InsertCellPoint(p2 + k*numPts);
+                newStrips->InsertCellPoint(p1 + k*numPts);
+                }
+              outCD->CopyData(cd,cellId,newCellId++);
+              } //if boundary edge
+            } //for each sub-edge
+          } //for each edge
+        } //for each polygon or triangle strip
+      }//for all cells
+
+    cellIds->Delete();
+    cell->Delete();
+    } //if strips are being generated
+  this->UpdateProgress (1.00);
 
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
   newPts->Delete();
-  cellIds->Delete();
   mesh->Delete();
 
   if ( newLines ) 
