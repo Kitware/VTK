@@ -333,6 +333,22 @@ void vtkCastToConcrete::UnRegister(vtkObject *o)
     this->StructuredPoints->SetSource(NULL);
     this->RectilinearGrid->SetSource(NULL);
     }
+  if (this->ReferenceCount == 5 &&
+      (this->PolyData == o || this->StructuredGrid == o ||
+       this->UnstructuredGrid == o || this->RectilinearGrid == o ||
+       this->StructuredPoints == o) &&
+      (this->PolyData->GetNetReferenceCount() +
+       this->StructuredPoints->GetNetReferenceCount() +
+       this->RectilinearGrid->GetNetReferenceCount() +
+       this->StructuredGrid->GetNetReferenceCount() +
+       this->UnstructuredGrid->GetNetReferenceCount()) == 6)
+    {
+    this->PolyData->SetSource(NULL);
+    this->StructuredGrid->SetSource(NULL);
+    this->UnstructuredGrid->SetSource(NULL);
+    this->StructuredPoints->SetSource(NULL);
+    this->RectilinearGrid->SetSource(NULL);
+    }
   
   this->vtkObject::UnRegister(o);
 }
