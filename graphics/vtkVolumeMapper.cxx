@@ -48,6 +48,7 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+  this->ClippingRegionFlags = 0x02000;
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
@@ -162,6 +163,14 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Clipping: " << (this->Clipping ? "On\n" : "Off\n");
+
+  os << indent << "Clipping Planes: " << endl 
+     << "In X: " << this->ClippingPlanes[0] << " to " << this->ClippingPlanes[1] << endl 
+     << "In Y: " << this->ClippingPlanes[2] << " to " << this->ClippingPlanes[3] << endl 
+     << "In Z: " << this->ClippingPlanes[4] << " to " << this->ClippingPlanes[5] << endl;
+ 
+  os << indent << "Clipping Region Flags: " << this->ClippingRegionFlags << endl;
+
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
 }
 

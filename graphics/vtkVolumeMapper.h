@@ -64,6 +64,12 @@ class vtkVolume;
 #define VTK_FRAMEBUFFER_VOLUME_MAPPER    1
 #define VTK_SOFTWAREBUFFER_VOLUME_MAPPER 2
 
+#define VTK_CROP_SUBVOLUME              0x0002000
+#define VTK_CROP_FENCE                  0x2ebfeba
+#define VTK_CROP_INVERTED_FENCE         0x5140145
+#define VTK_CROP_CROSS                  0x0417410
+#define VTK_CROP_INVERTED_CROSS         0x7be8bef
+
 class vtkWindow;
 
 class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper
@@ -101,6 +107,22 @@ public:
   void SetClippingPlanes( float p[6] ); 
   float *GetClippingPlanes() { return this->ClippingPlanes; };
 
+  // Description:
+  // Set the flags for the clipping regions. The clipping planes divide the
+  // volume into 27 regions - there is one bit for each region. The regions start
+  // from the one containing voxel (0,0,0), moving along the x axis fastest, the
+  // y axis next, and the z axis slowest. These are represented from the lowest
+  // bit to bit number 27 in the integer containing the flags. There are several
+  // convenience functions to set some common configurations - subvolume (the
+  // default), fence (between any of the clip plane plairs), inverted fence, 
+  // cross (between any two of the clip plane pairs) and inverted cross.
+  vtkSetClampMacro( ClippingRegionFlags, int, 0x0, 0x7ffffff );
+  vtkGetMacro( ClippingRegionFlags, int );
+  void SetClippingRegionFlagsToSubVolume() {this->SetClippingRegionFlags( VTK_CROP_SUBVOLUME );};
+  void SetClippingRegionFlagsToFence() {this->SetClippingRegionFlags( VTK_CROP_FENCE );};
+  void SetClippingRegionFlagsToInvertedFence() {this->SetClippingRegionFlags( VTK_CROP_INVERTED_FENCE );};
+  void SetClippingRegionFlagsToCross() {this->SetClippingRegionFlags( VTK_CROP_CROSS );};
+  void SetClippingRegionFlagsToInvertedCross() {this->SetClippingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
   // Description:
   // Set/Get the rgb texture input data
@@ -154,6 +176,7 @@ protected:
   vtkStructuredPoints  *RGBTextureInput;
   int                  Clipping;
   float                ClippingPlanes[6];
+  int                  ClippingRegionFlags;
   vtkTimeStamp         BuildTime;
 };
 
