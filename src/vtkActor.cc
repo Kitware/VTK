@@ -251,38 +251,38 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
   this->GetOrientation();
   this->Transform.Push();  
   this->Transform.Identity();  
-  this->Transform.PreMultiply();  
+  this->Transform.PostMultiply();  
 
-  // apply user defined matrix last if there is one 
-  if (this->UserMatrix)
-    {
-    this->Transform.Concatenate(*this->UserMatrix);
-    }
-
-  // first translate
-  this->Transform.Translate(this->Position[0],
-			    this->Position[1],
-			    this->Position[2]);
-   
-  // shift to origin
-  this->Transform.Translate(this->Origin[0],
-			    this->Origin[1],
-			    this->Origin[2]);
-   
-  // rotate
-  this->Transform.RotateZ(this->Orientation[2]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateY(this->Orientation[1]);
+  // shift back from origin
+  this->Transform.Translate(-this->Origin[0],
+			    -this->Origin[1],
+			    -this->Origin[2]);
 
   // scale
   this->Transform.Scale(this->Scale[0],
 			this->Scale[1],
 			this->Scale[2]);
 
-  // shift back from origin
-  this->Transform.Translate(-this->Origin[0],
-			    -this->Origin[1],
-			    -this->Origin[2]);
+  // rotate
+  this->Transform.RotateZ(this->Orientation[2]);
+  this->Transform.RotateX(this->Orientation[0]);
+  this->Transform.RotateY(this->Orientation[1]);
+
+  // shift to origin
+  this->Transform.Translate(this->Origin[0],
+			    this->Origin[1],
+			    this->Origin[2]);
+   
+  // first translate
+  this->Transform.Translate(this->Position[0],
+			    this->Position[1],
+			    this->Position[2]);
+  
+  // apply user defined matrix last if there is one 
+  if (this->UserMatrix)
+    {
+    this->Transform.Concatenate(*this->UserMatrix);
+    }
 
   result = this->Transform.GetMatrix();
 
@@ -326,7 +326,7 @@ float *vtkActor::GetBounds()
   bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
   // save the old transform
-  this->Transform.Push();  
+  this->Transform.Push(); 
   this->Transform.Identity();
   this->GetMatrix(matrix);
   this->Transform.Concatenate(matrix);
