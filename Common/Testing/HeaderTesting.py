@@ -95,7 +95,7 @@ class TestVTKFiles:
             self.Print( "There were warnings:" )
         for a in self.Warnings.keys():
             self.Print( "* %s" % a )
-        
+
     def TestFile(self, filename):
         self.FileName = filename
         self.FileLines = []
@@ -109,7 +109,7 @@ class TestVTKFiles:
             self.Print( "Problem reading file: %s" % filename )
             sys.exit(1)
         pass
-            
+
     def CheckIncludes(self):
         count = 0
         lines = []
@@ -159,7 +159,7 @@ class TestVTKFiles:
                         ( self.FileName, self.ParentName ) )
             self.Error("Does not include parent")
         pass
-    
+
     def CheckParent(self):
         classre = "^class(\s*VTK_.*EXPORT|\s*) (vtk[A-Z0-9][^ :\n]*)\s*:\s*public\s*(vtk[^ \n\{]*)"
         cname = ""
@@ -207,7 +207,7 @@ class TestVTKFiles:
         oldlines = []
         typere = "^\s*vtkType(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*;"
         typesplitre = "^\s*vtkType(Revision)*Macro\s*\("
-        
+
         regx = re.compile(typere)
         regxs = re.compile(typesplitre)
         cc = 0
@@ -292,7 +292,7 @@ class TestVTKFiles:
             if regx2.match(lastline + line):
                 foundasgn = foundasgn + 1
             lastline = a
-            
+
         if foundcopy < 1:
             self.Print( "File: %s does not define copy constructor" %
                         self.FileName )
@@ -338,7 +338,7 @@ class TestVTKFiles:
             self.Print( "There should be only:\n %s();" % self.ClassName )
             self.Error("Wierd constructor")
         pass
-    
+
     def CheckPrintSelf(self):
         if not self.ClassName:
             return
@@ -361,9 +361,9 @@ class TestVTKFiles:
                         self.FileName )
             self.Warning("No PrintSelf method")
         pass
-        
 
-## 
+
+##
 test = TestVTKFiles()
 
 ## Check command line arguments
@@ -371,7 +371,7 @@ if len(sys.argv) < 2:
     print "Testing directory not specified..."
     print "Usage: %s <directory> [ exception(s) ]" % sys.argv[0]
     sys.exit(1)
-    
+
 dirname = sys.argv[1]
 exceptions = sys.argv[2:]
 
@@ -383,7 +383,7 @@ for a in os.listdir(dirname):
     ## Skip exceptions
     if a in exceptions:
         continue
-    pathname = '%s/%s' % (dirname, a)    
+    pathname = '%s/%s' % (dirname, a)
     if pathname in exceptions:
         continue
     mode = os.stat(pathname)[stat.ST_MODE]
@@ -404,4 +404,3 @@ for a in os.listdir(dirname):
 test.PrintWarnings()
 test.PrintErrors()
 sys.exit(test.ErrorValue)
-    
