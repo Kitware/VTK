@@ -20,8 +20,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkTextMapper.h"
+#include "vtkPolyDataMapper2D.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.20");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.21");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);

@@ -15,14 +15,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include "vtkWindowToImageFilter.h"
-#include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.13");
+#include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.14");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------

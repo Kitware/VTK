@@ -18,19 +18,19 @@
 //
 // Brute force computation of Bessel functions. Might be better to create a
 // filter (or source) object. Might also consider vtkSampleFunction.
-
-#include "vtkRenderer.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkDataSetMapper.h"
+#include "vtkFloatArray.h"
+#include "vtkPlaneSource.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPlaneSource.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
 #include "vtkWarpScalar.h"
-#include "vtkDataSetMapper.h"
-#include "vtkPolyData.h"
-#include "vtkActor.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

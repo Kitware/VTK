@@ -31,9 +31,10 @@
 #define __vtkImageViewer2_h
 
 #include "vtkObject.h"
-#include "vtkRenderWindow.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapToWindowLevelColors.h"
+
+#include "vtkRenderWindow.h" // For inline methods
+#include "vtkImageActor.h" // For inline methods
+#include "vtkImageMapToWindowLevelColors.h" // For inline methods
 
 class vtkInteractorStyleImage;
 

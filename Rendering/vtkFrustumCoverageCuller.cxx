@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkFrustumCoverageCuller.h"
+
+#include "vtkCamera.h"
+#include "vtkObjectFactory.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.26");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.27");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values

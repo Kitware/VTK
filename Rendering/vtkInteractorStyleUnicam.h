@@ -82,7 +82,8 @@
 #define __vtkInteractorStyleUnicam_h
 
 #include "vtkInteractorStyle.h"
-#include "vtkRenderer.h"
+
+class vtkCamera;
 class vtkWorldPointPicker;
 
 // define 'TheTime()' function-- returns time in elapsed seconds

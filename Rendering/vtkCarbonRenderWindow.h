@@ -24,12 +24,12 @@
 #ifndef __vtkCarbonRenderWindow_h
 #define __vtkCarbonRenderWindow_h
 
-#include <stdlib.h>
 #include "vtkOpenGLRenderWindow.h"
+
+// Carbon and MAC specific
 #include <Carbon/Carbon.h>
 #include <OpenGL/gl.h>
 #include <AGL/agl.h>
-#endif
 
 class vtkIdList;
 
@@ -232,3 +232,4 @@ private:
   void operator=(const vtkCarbonRenderWindow&);  // Not implemented.
 };
 
+#endif

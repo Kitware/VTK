@@ -25,6 +25,7 @@
 
 #include "vtkInteractorStyleUnicam.h"
 
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -34,7 +35,7 @@
 #include "vtkSphereSource.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.26");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.27");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()

@@ -36,10 +36,10 @@
 #define __vtkImageActor_h
 
 #include "vtkProp.h"
-#include "vtkImageData.h"
 
 class vtkPropCollection;
 class vtkRenderer;
+class vtkImageData;
 
 class VTK_RENDERING_EXPORT vtkImageActor : public vtkProp
 {

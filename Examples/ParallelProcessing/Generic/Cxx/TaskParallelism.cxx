@@ -25,9 +25,10 @@
 // See task1.cxx and task2.cxx for the pipelines.
 
 #include "TaskParallelism.h"
+#include "vtkCompositeManager.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCompositeManager.h"
 
 // This function sets up properties common to both processes
 // and executes the task corresponding to the current process

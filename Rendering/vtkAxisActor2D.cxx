@@ -19,8 +19,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkTextMapper.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.24");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.25");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 // Instantiate this object.

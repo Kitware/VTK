@@ -81,6 +81,7 @@
 #define VTK_XYPLOT_COLUMN 1
 
 #include "vtkAxisActor2D.h"
+
 class vtkDataSetCollection;
 class vtkDataObjectCollection;
 class vtkGlyphSource2D;
@@ -89,6 +90,8 @@ class vtkLegendBoxActor;
 class vtkAppendPolyData;
 class vtkPlanes;
 class vtkIntArray;
+class vtkDataSet;
+class vtkDataObject;
 
 class VTK_HYBRID_EXPORT vtkXYPlotActor : public vtkActor2D
 {

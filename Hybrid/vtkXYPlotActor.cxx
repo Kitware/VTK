@@ -16,22 +16,24 @@
 
 =========================================================================*/
 #include "vtkXYPlotActor.h"
-#include "vtkDataSetCollection.h"
-#include "vtkDataObjectCollection.h"
-#include "vtkMath.h"
-#include "vtkGlyph2D.h"
+
 #include "vtkAppendPolyData.h"
-#include "vtkGlyphSource2D.h"
-#include "vtkLegendBoxActor.h"
-#include "vtkPlanes.h"
-#include "vtkPlane.h"
-#include "vtkIntArray.h"
+#include "vtkDataObjectCollection.h"
+#include "vtkDataSetCollection.h"
 #include "vtkFloatArray.h"
+#include "vtkGlyph2D.h"
+#include "vtkGlyphSource2D.h"
+#include "vtkIntArray.h"
+#include "vtkLegendBoxActor.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlanes.h"
+#include "vtkPolyDataMapper2D.h"
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.34");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.35");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 // Instantiate object

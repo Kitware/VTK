@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkMapper.h"
-#include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.98");
+#include "vtkLookupTable.h"
+#include "vtkDataSet.h"
+
+vtkCxxRevisionMacro(vtkMapper, "1.99");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;

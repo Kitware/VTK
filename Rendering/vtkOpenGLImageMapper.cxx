@@ -17,21 +17,24 @@
 =========================================================================*/
 
 #include "vtkOpenGLImageMapper.h"
-#include "vtkProperty2D.h"
-#include "vtkWindow.h"
-#include "vtkViewport.h"
+
 #include "vtkActor2D.h"
+#include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkProperty2D.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
+#include "vtkgluPickMatrix.h"
+
 #ifdef __APPLE__
  #include <OpenGL/gl.h>
 #else
  #include <GL/gl.h>
 #endif
 #include <limits.h>
-#include "vtkObjectFactory.h"
-#include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.47");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.48");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 

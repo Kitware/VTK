@@ -30,8 +30,9 @@
 #define __vtkImageViewer_h
 
 #include "vtkObject.h"
-#include "vtkImageMapper.h"
-#include "vtkRenderWindow.h"
+
+#include "vtkImageMapper.h" // For all the inline methods
+#include "vtkRenderWindow.h" // For all the inline methods
 
 class vtkInteractorStyleImage;
 

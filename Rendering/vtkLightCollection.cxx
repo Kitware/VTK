@@ -16,12 +16,13 @@
 
 =========================================================================*/
 #include "vtkLightCollection.h"
-#include "vtkObjectFactory.h"
 
-#include <stdlib.h>
+#include "vtkObjectFactory.h"
+#include "vtkLight.h"
+
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightCollection, "1.12");
+vtkCxxRevisionMacro(vtkLightCollection, "1.13");
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the list.

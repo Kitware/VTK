@@ -40,10 +40,12 @@
 
 #include "vtkActor.h"
 #include "vtkByteSwap.h"
+#include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkCubeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkFloatArray.h"
+#include "vtkLight.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
@@ -4231,7 +4233,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.51");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.52");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()

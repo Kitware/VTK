@@ -56,7 +56,6 @@
 #define __vtkAssembly_h
 
 #include "vtkProp3D.h"
-#include "vtkAbstractMapper3D.h"
 
 class vtkAssemblyPaths;
 class vtkProp3DCollection;

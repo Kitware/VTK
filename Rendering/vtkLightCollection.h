@@ -28,7 +28,8 @@
 #define __vtkLightC_h
 
 #include "vtkCollection.h"
-#include "vtkLight.h"
+
+class vtkLight;
 
 class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
 {

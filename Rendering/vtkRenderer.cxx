@@ -16,22 +16,22 @@
 
 =========================================================================*/
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkMath.h"
-#include "vtkVolume.h"
-#include "vtkTimerLog.h"
+
+#include "vtkAssemblyNode.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkLight.h"
+#include "vtkMath.h"
 #include "vtkOutputWindow.h"
-#include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
-#include "vtkCommand.h"
+#include "vtkRenderWindow.h"
+#include "vtkTimerLog.h"
+#include "vtkVolume.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-vtkCxxRevisionMacro(vtkRenderer, "1.181");
+vtkCxxRevisionMacro(vtkRenderer, "1.182");
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling

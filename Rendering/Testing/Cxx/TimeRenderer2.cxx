@@ -15,15 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkTriangleFilter.h"
+#include "vtkCamera.h"
+#include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkStripper.h"
 #include "vtkTimerLog.h"
-#include "vtkPlaneSource.h"
-
+#include "vtkTriangleFilter.h"
 
 int main( int argc, char *argv[] )
 {

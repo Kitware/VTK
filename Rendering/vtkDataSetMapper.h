@@ -27,11 +27,10 @@
 #ifndef __vtkDataSetMapper_h
 #define __vtkDataSetMapper_h
 
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkImageData.h"
+#include "vtkMapper.h"
 
+class vtkPolyDataMapper;
+class vtkDataSetSurfaceFilter;
 
 class VTK_RENDERING_EXPORT vtkDataSetMapper : public vtkMapper 
 {

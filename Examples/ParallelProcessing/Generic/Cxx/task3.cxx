@@ -20,6 +20,7 @@
 #include "vtkInputPort.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkPolyDataMapper.h"
 
 // Task 3 for TaskParallelismWithPorts.
 // See TaskParallelismWithPorts.cxx for more information.

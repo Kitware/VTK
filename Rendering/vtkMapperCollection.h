@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
   // Description:
   // Add an mapper to the list.
   void AddItem(vtkMapper *a) {
-    this->vtkCollection::AddItem((vtkObject *)a);};
+    this->vtkCollection::AddItem(static_cast<vtkObject *>(a));};
   
   // Description:
   // Get the next mapper in the list.

@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageViewer.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkInteractorStyleImage.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkImageViewer, "1.41");
+vtkCxxRevisionMacro(vtkImageViewer, "1.42");
 vtkStandardNewMacro(vtkImageViewer);
 
 //----------------------------------------------------------------------------

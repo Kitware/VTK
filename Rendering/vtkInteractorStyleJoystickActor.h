@@ -35,9 +35,10 @@
 #define __vtkInteractorStyleJoystickActor_h
 
 #include "vtkInteractorStyle.h"
-#include "vtkCellPicker.h"
 
-// Motion flags
+class vtkCellPicker;
+
+// motion flags
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {

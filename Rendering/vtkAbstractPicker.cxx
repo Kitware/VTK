@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkAbstractPicker.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
+#include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkAbstractPicker, "1.8");
+vtkCxxRevisionMacro(vtkAbstractPicker, "1.9");
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.

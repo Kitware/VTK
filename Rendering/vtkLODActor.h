@@ -56,10 +56,15 @@
 #define __vtkLODActor_h
 
 #include "vtkActor.h"
-#include "vtkMaskPoints.h"
-#include "vtkOutlineFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkMapperCollection.h"
+
+class vtkMapper;
+class vtkMapperCollection;
+class vtkMaskPoints;
+class vtkOutlineFilter;
+class vtkPolyDataMapper;
+class vtkRenderer;
+class vtkViewport;
+class vtkWindow;
 
 class VTK_RENDERING_EXPORT vtkLODActor : public vtkActor
 {

@@ -44,9 +44,10 @@
 #ifndef __vtkInteractorObserver_h
 #define __vtkInteractorObserver_h
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
+#include "vtkObject.h"
 
+class vtkRenderWindowInteractor;
+class vtkRenderer;
 class vtkCallbackCommand;
 
 class VTK_RENDERING_EXPORT vtkInteractorObserver : public vtkObject

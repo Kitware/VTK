@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkVolumeRayCastMapper.h"
 
+#include "vtkCamera.h"
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
@@ -29,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.84");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.85");
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
                      vtkVolumeRayCastFunction );

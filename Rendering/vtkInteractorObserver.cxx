@@ -20,8 +20,9 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.16");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.17");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {

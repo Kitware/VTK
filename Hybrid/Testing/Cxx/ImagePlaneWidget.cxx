@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkCamera.h"
 #include "vtkCellPicker.h"
+#include "vtkCommand.h"
 #include "vtkImageActor.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImagePlaneWidget.h"
@@ -26,9 +28,9 @@
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextMapper.h"
 #include "vtkVolume16Reader.h"
 

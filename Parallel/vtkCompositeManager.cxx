@@ -18,9 +18,11 @@
 
 #include "vtkCompositeManager.h"
 
+#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCompressCompositer.h"
 #include "vtkFloatArray.h"
+#include "vtkLight.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -40,7 +42,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.30");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.31");
 vtkStandardNewMacro(vtkCompositeManager);
 
 vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);

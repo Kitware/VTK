@@ -31,7 +31,6 @@
 #define __vtkLODProp3D_h
 
 #include "vtkProp3D.h"
-#include "vtkTransform.h"
 
 class vtkRenderer;
 class vtkMapper;

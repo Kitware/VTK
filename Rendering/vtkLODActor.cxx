@@ -17,16 +17,19 @@
 =========================================================================*/
 #include "vtkLODActor.h"
 
+#include "vtkMapperCollection.h"
+#include "vtkMaskPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 
-#include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.60");
+vtkCxxRevisionMacro(vtkLODActor, "1.61");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkInteractorStyleFlight.h"
-#include "vtkMath.h"
-#include "vtkCellPicker.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.23");
+#include "vtkCamera.h"
+#include "vtkCellPicker.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
+
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 //---------------------------------------------------------------------------

@@ -16,15 +16,16 @@
 
 =========================================================================*/
 #include "vtkVolume.h"
-#include "vtkVolumeCollection.h"
-#include "vtkRenderer.h"
-#include "vtkVolumeRayCastMapper.h"
-#include "vtkObjectFactory.h"
 
-#include <stdlib.h>
+#include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkVolumeCollection.h"
+#include "vtkVolumeRayCastMapper.h"
+
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.69");
+vtkCxxRevisionMacro(vtkVolume, "1.70");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 

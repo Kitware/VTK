@@ -28,7 +28,8 @@
 #define __vtkActorC_h
 
 #include "vtkPropCollection.h"
-#include "vtkActor.h"
+#include "vtkActor.h" // For inline methods
+
 class vtkProperty;
 
 class VTK_RENDERING_EXPORT vtkActorCollection : public vtkPropCollection

@@ -17,13 +17,15 @@
 =========================================================================*/
 #include "vtkInteractorStyleTrackballCamera.h"
 
+#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.27");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.28");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------

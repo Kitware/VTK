@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkCamera.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkMath.h"
@@ -24,7 +25,7 @@
 #include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.94");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.95");
 
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 

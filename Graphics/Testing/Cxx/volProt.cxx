@@ -15,19 +15,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
+#include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStructuredPointsReader.h"
-#include "vtkPiecewiseFunction.h"
+#include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastCompositeFunction.h"
-#include "vtkVolumeRayCastMIPFunction.h"
 #include "vtkVolumeRayCastIsosurfaceFunction.h"
-#include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkVolumeRayCastMIPFunction.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolumeTextureMapper2D.h"
-#include "vtkVolume.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

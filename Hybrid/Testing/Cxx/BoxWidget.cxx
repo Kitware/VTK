@@ -15,17 +15,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkBoxWidget.h"
-#include "vtkConeSource.h"
-#include "vtkSphereSource.h"
-#include "vtkGlyph3D.h"
 #include "vtkAppendPolyData.h"
-#include "vtkTransform.h"
+#include "vtkBoxWidget.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkGlyph3D.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTransform.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

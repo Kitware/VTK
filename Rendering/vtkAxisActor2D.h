@@ -53,8 +53,10 @@
 #define __vtkAxisActor2D_h
 
 #include "vtkActor2D.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkTextMapper.h"
+
+class vtkPolyDataMapper2D;
+class vtkPolyData;
+class vtkTextMapper;
 
 #define VTK_MAX_LABELS 25
 

@@ -58,7 +58,10 @@
 #define __vtkAbstractPicker_h
 
 #include "vtkObject.h"
-#include "vtkRenderer.h"
+
+class vtkRenderer;
+class vtkProp;
+class vtkPropCollection;
 
 class VTK_RENDERING_EXPORT vtkAbstractPicker : public vtkObject
 {

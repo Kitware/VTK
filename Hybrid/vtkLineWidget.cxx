@@ -19,6 +19,7 @@
 
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -28,9 +29,10 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.12");
+vtkCxxRevisionMacro(vtkLineWidget, "1.13");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()

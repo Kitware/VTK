@@ -16,11 +16,17 @@
 
 =========================================================================*/
 #include "vtkInteractorStyleTrackballActor.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.26");
+#include "vtkCamera.h"
+#include "vtkCellPicker.h"
+#include "vtkCommand.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp3D.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.27");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------

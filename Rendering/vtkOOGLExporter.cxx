@@ -18,7 +18,9 @@
 #include "vtkOOGLExporter.h"
 
 #include "vtkAssemblyNode.h"
+#include "vtkCamera.h"
 #include "vtkGeometryFilter.h"
+#include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -29,7 +31,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.12");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.13");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()

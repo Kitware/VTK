@@ -16,17 +16,15 @@
 
 =========================================================================*/
 #include "vtkRenderWindow.h"
+
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkMath.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTransform.h"
-#include "vtkMath.h"
-#include "vtkGraphicsFactory.h"
-#include "vtkCommand.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-vtkCxxRevisionMacro(vtkRenderWindow, "1.123");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.124");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 

@@ -22,8 +22,9 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------

@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkWorldPointPicker.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkWorldPointPicker, "1.15");
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+
+vtkCxxRevisionMacro(vtkWorldPointPicker, "1.16");
 vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker()

@@ -28,7 +28,7 @@
 #define __vtkCullerC_h
 
 #include "vtkCollection.h"
-#include "vtkCuller.h"
+#include "vtkCuller.h" // for inline functions
 
 class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
 {

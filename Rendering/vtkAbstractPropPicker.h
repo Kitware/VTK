@@ -70,6 +70,8 @@ class vtkAssembly;
 class vtkActor;
 class vtkVolume;
 class vtkProp3D;
+class vtkAssemblyPath;
+class vtkActor2D;
 
 class VTK_RENDERING_EXPORT vtkAbstractPropPicker : public vtkAbstractPicker
 {

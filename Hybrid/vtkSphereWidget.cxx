@@ -17,18 +17,20 @@
 =========================================================================*/
 #include "vtkSphereWidget.h"
 
-#include "vtkMath.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkSphereSource.h"
-#include "vtkCellPicker.h"
 #include "vtkAssemblyNode.h"
-#include "vtkDoubleArray.h"
-#include "vtkSphere.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkCellPicker.h"
+#include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSphere.h"
+#include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.12");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.13");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()

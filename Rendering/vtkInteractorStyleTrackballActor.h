@@ -35,7 +35,8 @@
 #define __vtkInteractorStyleTrackballActor_h
 
 #include "vtkInteractorStyle.h"
-#include "vtkCellPicker.h"
+
+class vtkCellPicker;
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleTrackballActor : public vtkInteractorStyle
 {

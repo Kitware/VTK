@@ -56,8 +56,7 @@
 #define __vtkMapper_h
 
 #include "vtkAbstractMapper3D.h"
-#include "vtkScalarsToColors.h"
-#include "vtkDataSet.h"
+#include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
@@ -69,6 +68,7 @@
 class vtkWindow;
 class vtkRenderer;
 class vtkActor;
+class vtkDataSet;
 
 class VTK_RENDERING_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
