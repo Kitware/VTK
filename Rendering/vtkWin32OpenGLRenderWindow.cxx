@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.106");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.107");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -369,7 +369,17 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
 
   DescribePixelFormat(this->DeviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
+  const char *glVendor = (const char *) glGetString(GL_VENDOR);
+  const char *glRenderer = (const char *) glGetString(GL_RENDERER);
+  const char *glVersion = (const char *) glGetString(GL_VERSION);
+  const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
+
   ostrstream strm;
+  strm << "OpenGL vendor string:  " << glVendor << endl;
+  strm << "OpenGL renderer string:  " << glRenderer << endl;
+  strm << "OpenGL version string:  " << glVersion << endl;
+  strm << "OpenGL extensions:  " << glExtensions << endl;
+  strm << "PixelFormat Descriptor:" << endl;
   strm << "depth:  " << static_cast<int>(pfd.cDepthBits) << endl;
   if (pfd.cColorBits <= 8)
     {
