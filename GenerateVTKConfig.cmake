@@ -85,7 +85,8 @@ SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS}
   ${VTK_SOURCE_DIR}/Imaging
   ${VTK_SOURCE_DIR}/Graphics
   ${VTK_SOURCE_DIR}/Filtering
-  ${VTK_SOURCE_DIR}/Common)
+  ${VTK_SOURCE_DIR}/Common
+  ${VTK_SOURCE_DIR}/Utilities/zlib)
 
 # Add the system include directories last.
 SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS} ${VTK_INCLUDE_DIRS_SYS})
