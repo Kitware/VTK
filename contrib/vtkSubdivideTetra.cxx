@@ -246,6 +246,7 @@ void vtkSubdivideTetra::Execute()
     output->InsertNextCell(VTK_TETRA, 4, pts);
 
     } //for all cells
+  cell->Delete();
 
   vtkDebugMacro(<<"Subdivided " << numCells << " cells");
 
