@@ -62,6 +62,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiProcessController.h"
 #include "mpi.h"
 
+class vtkMPIOutputWindow;
+
 class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 public:
@@ -93,6 +95,17 @@ public:
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
   virtual void MultipleMethodExecute();
+
+  virtual void Barrier()
+    {
+      MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+  // Description:
+  // This method can be used to tell the controller to create
+  // a special output window in which all messages are preceded
+  // by the process id.
+  void CreateOutputWindow();
 
   //------------------ Communication --------------------
   
@@ -128,6 +141,8 @@ protected:
 
   // Initialize only once.
   static int Initialized;
+
+  vtkMPIOutputWindow* OutputWindow;
 
 };
 

@@ -40,9 +40,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkOutputWindow.h"
 
 int vtkMPIController::Initialized = 0;
+
+// Output window which prints out the process id
+// with the error or warning messages
+class VTK_EXPORT vtkMPIOutputWindow : public vtkOutputWindow
+{
+public:
+  vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
+
+  void DisplayText(const char* t)
+  {
+    if (this->Controller)
+      {
+      cout << "Process id: " << this->Controller->GetLocalProcessId()
+	   << " >> ";
+      }
+    cout << t;
+  }
+
+  vtkMPIOutputWindow()
+  {
+    vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMPIOutputWindow");
+    if (ret)
+      ret->Delete();
+    this->Controller = 0;
+  }
+
+  friend vtkMPIController;
+
+protected:
+
+  vtkMPIController* Controller;
+};
+
+void vtkMPIController::CreateOutputWindow()
+{
+  this->OutputWindow = new vtkMPIOutputWindow;
+  this->OutputWindow->Controller = this;
+  vtkOutputWindow::SetInstance(this->OutputWindow);
+}
 
 //------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::New()
@@ -65,11 +104,16 @@ vtkMPIController::vtkMPIController()
     {
     this->InitializeNumberOfProcesses();
     }
+  this->OutputWindow = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMPIController::~vtkMPIController()
 {
+  if ( this->OutputWindow == vtkOutputWindow::GetInstance() )
+    vtkOutputWindow::SetInstance(0);
+  if (this->OutputWindow)
+    this->OutputWindow->Delete();
 }
 
 //----------------------------------------------------------------------------

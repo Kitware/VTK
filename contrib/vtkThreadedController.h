@@ -61,7 +61,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
 
-
 class vtkThreadedControllerMessage;
 
 
@@ -171,7 +170,6 @@ protected:
   // Trying to track down lockups.
   FILE *LogFile;
   
-
   // The generic send and receive methods.
   int Send(vtkDataObject *object, void *data, int dataLength, 
 	   int remoteProcessId, int tag);

@@ -55,39 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageClip.h"
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 
-// Output window which prints out the process id
-// with the error or warning messages
-class VTK_EXPORT vtkMultiProcessOutputWindow : public vtkOutputWindow
-{
-public:
-  vtkTypeMacro(vtkMultiProcessOutputWindow,vtkOutputWindow);
-
-  void DisplayText(const char* t)
-  {
-    if (this->Controller)
-      {
-      cout << "Process id: " << this->Controller->GetLocalProcessId()
-	   << " >> ";
-      }
-    cout << t;
-  }
-
-  vtkMultiProcessOutputWindow()
-  {
-    vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessOutputWindow");
-    if (ret)
-      ret->Delete();
-    this->Controller = 0;
-  }
-
-  friend vtkMultiProcessController;
-
-protected:
-
-  vtkMultiProcessController* Controller;
-};
 
 
 
@@ -172,8 +140,6 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
 
-  this->OutputWindow = 0;
-  
   // Define an rmi internally to exit from the processing loop.
   this->AddRMI(vtkMultiProcessControllerBreakRMI, this,
 	       VTK_BREAK_RMI_TAG);
@@ -189,10 +155,6 @@ vtkMultiProcessController::~vtkMultiProcessController()
   // deletes string
   this->DeleteAndSetMarshalString(NULL, 0);
 
-  if ( this->OutputWindow == vtkOutputWindow::GetInstance() )
-    vtkOutputWindow::SetInstance(0);
-  if (this->OutputWindow)
-    this->OutputWindow->Delete();
 }
 
 
@@ -222,12 +184,6 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 }
 
 
-void vtkMultiProcessController::CreateOutputWindow()
-{
-  this->OutputWindow = new vtkMultiProcessOutputWindow;
-  this->OutputWindow->Controller = this;
-  vtkOutputWindow::SetInstance(this->OutputWindow);
-}
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)

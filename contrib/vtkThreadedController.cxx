@@ -159,14 +159,6 @@ void vtkThreadedController::CreateProcessControllers()
     }
 }
 
-
-
-
-  
-  
-
-
-
 //----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
 {

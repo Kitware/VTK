@@ -55,8 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
-class vtkMultiProcessOutputWindow;
-
 
 #define VTK_MP_CONTROLLER_MAX_PROCESSES 8192
 #define VTK_MP_CONTROLLER_ANY_SOURCE -1
@@ -141,7 +139,7 @@ public:
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
   virtual void MultipleMethodExecute() = 0;
-  
+
   // Description:
   // Tells you which process [0, NumProcess) you are in.
   virtual int GetLocalProcessId() { return this->LocalProcessId; }
@@ -197,11 +195,6 @@ public:
   vtkGetMacro(ForceDeepCopy, int);
   vtkBooleanMacro(ForceDeepCopy, int);
 
-  // Description:
-  // This method can be used to tell the controller to create
-  // a special output window in which all messages are preceded
-  // by the process id.
-  void CreateOutputWindow();
   
   //------------------ RMIs --------------------
   //BTX
@@ -318,7 +311,6 @@ protected:
   // This flag can force deep copies during send.
   int ForceDeepCopy;
 
-  vtkMultiProcessOutputWindow* OutputWindow;
 };
 
 
