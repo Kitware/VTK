@@ -230,6 +230,10 @@ void vtkImageIterateFilter::IterateRequiredInputUpdateExtent()
     this->Input = this->IterationCaches[idx];
     this->Output = this->IterationCaches[idx+1];
     
+    /* default value */
+    memcpy(this->Input->GetUpdateExtent(), this->Output->GetUpdateExtent(),
+	   6 * sizeof(int));
+    
     this->ComputeRequiredInputUpdateExtent(this->Input->GetUpdateExtent(),
 					   this->Output->GetUpdateExtent());
     }

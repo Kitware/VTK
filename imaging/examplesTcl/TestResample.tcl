@@ -16,16 +16,17 @@ reader ReleaseDataFlagOff
 #reader DebugOn
 
 vtkImageResample magnify
+magnify SetDimensionality 3
 magnify SetInput [reader GetOutput]
-magnify SetFilteredAxes $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
-magnify SetAxisOutputSpacing $VTK_IMAGE_Z_AXIS 4.2
+magnify SetAxisOutputSpacing $VTK_IMAGE_X_AXIS 0.3
 magnify SetAxisOutputSpacing $VTK_IMAGE_Y_AXIS 2.2
+magnify SetAxisOutputSpacing $VTK_IMAGE_Z_AXIS 0.8
 magnify ReleaseDataFlagOff
 
+
 vtkImageViewer viewer
-#viewer DebugOn
 viewer SetInput [magnify GetOutput]
-viewer SetZSlice 125
+viewer SetZSlice 30
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 

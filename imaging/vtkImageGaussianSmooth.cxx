@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 {
-  this->Dimensionality = 1; // note: this overrides Standard deviation.
+  this->Dimensionality = 3; // note: this overrides Standard deviation.
   this->StandardDeviations[0] = 2.0;
   this->StandardDeviations[1] = 2.0;
   this->StandardDeviations[2] = 2.0;

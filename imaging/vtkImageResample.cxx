@@ -38,8 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageResample.h"
+#include <math.h>
 #include "vtkImageCache.h"
+#include "vtkImageResample.h"
+
 
 
 //----------------------------------------------------------------------------
@@ -47,63 +49,296 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageResample::vtkImageResample()
 {
-  int idx;
-  vtkImageResample1D *filter;
-
-  for (idx = 0; idx < 4; ++idx)
-    {
-    filter = vtkImageResample1D::New();
-    this->Filters[idx] = filter;
-    this->MagnificationFactors[idx] = 1.0;
-    this->OutputSpacing[idx] = 0.0;
-    filter->SetMagnificationFactor(this->MagnificationFactors[idx]);
-    filter->SetFilteredAxis(idx);
-    }
-  // Let the superclass set some superclass variables of the filters.
-  this->InitializeFilters();
+  this->MagnificationFactors[0] = 1.0;
+  this->MagnificationFactors[1] = 1.0;
+  this->MagnificationFactors[2] = 1.0;
+  this->OutputSpacing[0] = 0.0; // not specified
+  this->OutputSpacing[1] = 0.0; // not specified
+  this->OutputSpacing[2] = 0.0; // not specified
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple magnify filters (one for each axis).
-void vtkImageResample::SetAxisOutputSpacing(int num, float spacing)
-{
-  if (num < 0 || num > 3)
-    {
-    vtkErrorMacro("SetAxisOutputSpacing: Bad axis " << num);
-    return;
-    }
 
-  if (this->OutputSpacing[num] == spacing)
+//----------------------------------------------------------------------------
+void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
+{
+  if (axis < 0 || axis > 2)
     {
+    vtkErrorMacro("Bad axis: " << axis);
     return;
     }
   
-  this->OutputSpacing[num] = spacing;
-  ((vtkImageResample1D *)this->Filters[num])->SetOutputSpacing(spacing);
-  // subfilter handles modified.
+  if (this->OutputSpacing[axis] != spacing)
+    {
+    this->OutputSpacing[axis] = spacing;
+    this->Modified();
+    if (spacing != 0.0)
+      {
+      // Delay computing the magnification factor.
+      // Input might not be set yet.
+      this->MagnificationFactors[axis] = 0.0; // Not computed yet.
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple magnify filters (one for each axis).
-void vtkImageResample::SetAxisMagnificationFactor(int num, float factor)
+void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
 {
-  if (num < 0 || num > 3)
+  if (axis < 0 || axis > 2)
     {
-    vtkErrorMacro("SetAxisMagnificationFactor: Bad axis " << num);
-    return;
-    }
-
-  if (this->MagnificationFactors[num] == factor)
-    {
+    vtkErrorMacro("Bad axis: " << axis);
     return;
     }
   
-  this->MagnificationFactors[num] = factor;
-  ((vtkImageResample1D *)this->Filters[num])->SetMagnificationFactor(factor);
-  // subfilter handles modified.
+  this->MagnificationFactors[axis] = factor;
+  // Spacing is no longer valid.
+  this->OutputSpacing[axis] = 0.0; // Not computed yet.
 }
+
+//----------------------------------------------------------------------------
+float vtkImageResample::GetAxisMagnificationFactor(int axis)
+{
+  if (axis < 0 || axis > 2)
+    {
+    vtkErrorMacro("Bad axis: " << axis);
+    return 0.0;
+    }
+  
+  if (this->MagnificationFactors[axis] == 0.0)
+    {
+    float *inputSpacing;
+    if ( ! this->Input)
+      {
+      vtkErrorMacro("GetMagnificationFactor: Input not set.");
+      return 0.0;
+      }
+    this->Input->UpdateImageInformation();
+    inputSpacing = this->Input->GetSpacing();
+    this->MagnificationFactors[axis] = 
+      inputSpacing[axis] / this->OutputSpacing[axis];
+    
+    }
+
+  vtkDebugMacro("Returning magnification factor " 
+		<<  this->MagnificationFactors[axis] << " for axis "
+		<< axis);
+  
+  return this->MagnificationFactors[axis];
+}
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method computes the Region of input necessary to generate outRegion.
+// It assumes offset and size are multiples of Magnify Factors.
+void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							int outExt[6])
+{
+  int min, max, axis;
+  float factor;
+ 
+  axis = this->Iteration;
+  factor = this->GetAxisMagnificationFactor(axis);
+
+  vtkDebugMacro("ComputeRequiredInputUpdateExtent (axis " << axis 
+		<< ") factor " << factor);
+  
+  memcpy(inExt, outExt, 6 * sizeof(int));
+  
+  min = outExt[axis*2];
+  max = outExt[axis*2+1];
+
+  min = (int)(floor((float)(min) / factor));
+  max = (int)(ceil((float)(max) / factor));
+
+  inExt[axis*2] = min;
+  inExt[axis*2+1] = max;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Computes any global image information associated with regions.
+void vtkImageResample::ExecuteImageInformation() 
+{
+  int wholeMin, wholeMax, axis, ext[6];
+  float spacing[3], factor;
+
+  axis = this->Iteration;
+  this->Input->GetWholeExtent(ext);
+  wholeMin = ext[axis*2];
+  wholeMax = ext[axis*2+1];
+  
+  this->Input->GetSpacing(spacing);
+
+  // Scale the output extent
+  factor = this->GetAxisMagnificationFactor(axis);
+  wholeMin = (int)(ceil((float)(wholeMin) * factor));
+  wholeMax = (int)(floor((float)(wholeMax) * factor));
+
+  // Change the data spacing
+  spacing[axis] /= factor;
+
+  ext[axis*2] = wholeMin;
+  ext[axis*2+1] = wholeMax;
+  this->Output->SetWholeExtent(ext);
+  this->Output->SetSpacing(spacing);
+  
+  // just in case  the input spacing has changed.
+  if (this->OutputSpacing[axis] != 0.0)
+    {
+    // Cause MagnificationFactor to recompute.
+    this->MagnificationFactors[axis] = 0.0;
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// The templated execute function handles all the data types.
+// 2d even though operation is .
+// Note: Slight misalignment (pixel replication is not nearest neighbor).
+template <class T>
+static void vtkImageResampleExecute(vtkImageResample *self,
+			    vtkImageData *inData, T *inPtr, int inExt[6],
+			    vtkImageData *outData, T *outPtr, int outExt[6])
+{
+  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
+  int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
+  int outIdx0, outIdx1, outIdx2, inIdx0, temp; 
+  int inInc0, inInc1, inInc2, outInc0, outInc1, outInc2;
+  T *inPtr1, *inPtr2, *outPtr1, *outPtr2;
+  float magFactor, factor;
+
+  temp = 0;
+  
+  // permute to make the filtered axis come first.
+  self->PermuteExtent(inExt, inMin0, inMax0, 
+		      inMin1, inMax1, inMin2, inMax2);
+  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
+  self->PermuteExtent(outExt, outMin0, outMax0, 
+		      outMin1, outMax1, outMin2, outMax2);
+  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+
+  // interpolation stuff
+  magFactor = self->GetAxisMagnificationFactor(self->GetIteration());
+  
+  // Loop through filteredAxisFirst
+  inIdx0 = inMin0;
+  for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+    {
+    // compute the left input pixel for this sample
+    temp = (int)(floor((float)(outIdx0) / magFactor));
+    if (temp != inIdx0)
+      {
+      inPtr += inInc0 * (temp - inIdx0);
+      inIdx0 = temp;
+      }
+    // compute the factor for this interpolation
+    factor = ((float)(outIdx0) / magFactor) - (float)(inIdx0);
+
+    // loop through the other axes
+    outPtr1 = outPtr;
+    inPtr1 = inPtr;
+    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+      {
+      outPtr2 = outPtr1;
+      inPtr2 = inPtr1;
+      for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+	{
+	// compute the interpolation
+	if (factor < 0.001)
+	  { // special case for one slice
+	  *outPtr2 = *inPtr2;
+	  }
+	else
+	  {
+	  *outPtr2 = (T)((float)(*inPtr2) 
+			 + (factor * (float)(inPtr2[inInc0] - *inPtr2)));
+	  }
+	
+	// increment
+	inPtr2 += inInc2;
+	outPtr2 += outInc2;
+	}
+      // increment
+      inPtr1 += inInc1;
+      outPtr1 += outInc1;
+      }
+    // increment (input is handled at front of loop)
+    outPtr += outInc0;
+    }
+}
+
+    
+//----------------------------------------------------------------------------
+// Description:
+// This method uses the input data to fill the output data.
+// It can handle any type data, but the two datas must have the same 
+// scalar type.
+void vtkImageResample::ThreadedExecute(vtkImageData *inData, 
+				       vtkImageData *outData, 
+				       int outExt[6], int id)
+{
+  void *inPtr, *outPtr;
+  int inExt[6];
+
+  id = id;
+
+  outPtr = outData->GetScalarPointerForExtent(outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  inPtr = inData->GetScalarPointerForExtent(inExt);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+         << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
+  
+  switch (inData->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageResampleExecute(this, 
+			      inData, (float *)(inPtr), inExt,
+			      outData, (float *)(outPtr), outExt);
+      break;
+    case VTK_INT:
+      vtkImageResampleExecute(this, 
+			  inData, (int *)(inPtr), inExt,
+			  outData, (int *)(outPtr), outExt);
+      break;
+    case VTK_SHORT:
+      vtkImageResampleExecute(this, 
+			  inData, (short *)(inPtr),inExt,
+			  outData, (short *)(outPtr), outExt);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageResampleExecute(this, 
+			  inData, (unsigned short *)(inPtr), inExt, 
+			  outData, (unsigned short *)(outPtr), outExt);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageResampleExecute(this, 
+			  inData, (unsigned char *)(inPtr), inExt, 
+			  outData, (unsigned char *)(outPtr), outExt);
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      return;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 

@@ -67,6 +67,7 @@ vtkImageNonMaximumSuppression \
 vtkImagePermute \
 vtkImager \
 vtkImageReader \
+vtkImageResample \
 vtkImageRFFT \
 vtkImageRGBToHSV \
 vtkImageSeedConnectivity \
@@ -111,8 +112,6 @@ vtkXTextMapper
 #vtkImageNoiseSource \
 #vtkImageOpenClose3D \
 #vtkImageRange3D \
-#vtkImageResample \
-#vtkImageResample1D \
 #vtkImageShortWriter \
 #vtkImageSinusoidSource \
 #vtkImageSkeleton2D \

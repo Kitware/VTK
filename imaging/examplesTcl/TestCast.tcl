@@ -20,7 +20,6 @@ reader SetDataMask 0x7fff
 vtkImageCast cast
 cast SetInput [reader GetOutput]
 cast SetOutputScalarType $VTK_UNSIGNED_CHAR
-cast DebugOn
 
 vtkImageViewer viewer
 viewer SetInput [cast GetOutput]
