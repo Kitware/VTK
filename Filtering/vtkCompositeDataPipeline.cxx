@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.3");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.4");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUEST_COMPOSITE_DATA,Integer);
@@ -309,13 +309,6 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
   if(this->Algorithm && request->Has(REQUEST_COMPOSITE_DATA()))
     {
     this->InSubPass = 1;
-
-    // Get the output port from which the request was made.
-    int outputPort = -1;
-    if(request->Has(FROM_OUTPUT_PORT()))
-      {
-      outputPort = request->Get(FROM_OUTPUT_PORT());
-      }
 
     // Update inputs first.
     if(!this->ForwardUpstream(request))
