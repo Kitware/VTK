@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -430,11 +430,6 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement*)
 }
 
 
-void vtkXMLReader::SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo))
-{
-}
-
-
 //----------------------------------------------------------------------------
 void vtkXMLReader::SetupOutputData()
 {
@@ -688,6 +683,107 @@ void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
   sel->SetArrays(names, numArrays);
   this->DestroyStringArray(numArrays, names);
 }
+
+
+int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA, 
+                                    int association, int numTuples,
+                                    vtkInformationVector *(&infoVector))
+  {
+  if (!eDSA)
+    {
+    return 1;
+    }
+
+  int i, j, components, dataType;
+  const char *name;
+  char *(attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES]);
+  vtkInformation *info = NULL;
+
+  for(i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+    {
+    const char* attrName = vtkDataSetAttributes::GetAttributeTypeAsString(i);
+    name = eDSA->GetAttribute(attrName);
+    if (name)
+      {
+      attributeName[i] = new char[strlen(name)+1];
+      strcpy(attributeName[i], name);
+      }
+    else
+      {
+      attributeName[i] = NULL;
+      }
+    }
+
+  if (!infoVector)
+    {
+    infoVector = vtkInformationVector::New();
+    }
+
+  // Cycle through each data array
+  for(i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
+    {
+    vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
+
+    info = vtkInformation::New();
+    info->Set(vtkDataObject::FIELD_ASSOCIATION(), association);
+    info->Set(vtkDataObject::FIELD_NUMBER_OF_TUPLES(), numTuples);
+
+    name = eNested->GetAttribute( "Name" );
+    if (!name)
+      {
+      this->InformationError = 1;
+      break;
+      }
+    info->Set(vtkDataObject::FIELD_NAME(), name);
+
+    // Search for matching attribute name
+    for (j = 0; j < vtkDataSetAttributes::NUM_ATTRIBUTES; j++)
+      {
+      if (attributeName[j] && !strcmp(name, attributeName[j]))
+        {
+        info->Set(vtkDataObject::FIELD_ATTRIBUTE_TYPE(), j);
+        break;
+        }
+      }
+
+    if (!eNested->GetWordTypeAttribute("type", dataType))
+      {
+      this->InformationError = 1;
+      break;
+      }
+    info->Set(vtkDataObject::FIELD_ARRAY_TYPE(), dataType);
+
+    if (eNested->GetScalarAttribute("NumberOfComponents", components))
+      {
+      info->Set(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS(), components);
+      }
+    else
+      {
+      info->Set(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS(), 1);
+      }
+
+    infoVector->Append( info );
+    info->Delete();
+    }
+
+  for(i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+    {
+    if (attributeName[i])
+      {
+      delete [] attributeName[i];
+      }
+    }
+
+  if (this->InformationError)
+    {
+    info->Delete();
+    infoVector->Delete();
+    return 0;
+    }
+
+  return 1;
+  }
+
 
 //----------------------------------------------------------------------------
 int vtkXMLReader::PointDataArrayIsEnabled(vtkXMLDataElement* ePDA)

@@ -21,8 +21,10 @@
 #include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+#include "vtkInformationVector.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.12");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -73,6 +75,43 @@ void vtkXMLDataReader::DestroyXMLParser()
     }
   this->Superclass::DestroyXMLParser();
 }
+
+
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
+{
+  vtkInformationVector *infoVector = NULL;
+
+  if (this->InformationError)
+    {
+    vtkErrorMacro("Should not still be processing output information if have set InformationError");
+    }
+
+  // Initialize DataArraySelections to anable all that are present
+  this->SetDataArraySelections(this->PointDataElements[0], this->PointDataArraySelection);
+  this->SetDataArraySelections(this->CellDataElements[0], this->CellDataArraySelection);
+
+  // Setup the Field Information for PointData and CellData. We only need the
+  // information from one piece because all pieces have the same set of arrays.
+  if (!this->SetFieldDataInfo(this->PointDataElements[0],
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, this->GetNumberOfPoints(), infoVector))
+    {
+    return;
+    }
+  if (!this->SetFieldDataInfo(this->CellDataElements[0],
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, this->GetNumberOfCells(), infoVector))
+    {
+    return;
+    }
+
+  if (infoVector)
+    {
+    outInfo->Set(vtkDataObject::FIELD_DATA_VECTOR(), infoVector);
+    infoVector->Delete();
+    }
+}
+
 
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
@@ -159,7 +198,6 @@ void vtkXMLDataReader::SetupOutputData()
   vtkXMLDataElement* eCellData = this->CellDataElements[0];
   int i;
   this->NumberOfPointArrays = 0;
-  this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
   if (ePointData)
     {
     for (i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
@@ -184,7 +222,6 @@ void vtkXMLDataReader::SetupOutputData()
     }
 
   this->NumberOfCellArrays = 0;
-  this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
   if (eCellData)
     {
     for (i = 0; i < eCellData->GetNumberOfNestedElements(); i++)

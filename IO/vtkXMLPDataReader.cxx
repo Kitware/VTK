@@ -22,9 +22,11 @@
 #include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataReader.h"
+#include "vtkInformationVector.h"
+#include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -88,7 +90,6 @@ void vtkXMLPDataReader::SetupOutputData()
   
   // Allocate data in the arrays.
   int i;
-  this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
   if(ePointData)
     {
     for(i=0;i < ePointData->GetNumberOfNestedElements();++i)
@@ -111,7 +112,6 @@ void vtkXMLPDataReader::SetupOutputData()
       }
     }
 
-  this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
   if(eCellData)
     {
     for(i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
@@ -149,6 +149,42 @@ int vtkXMLPDataReader::ReadXMLInformation()
   // Now proceed with reading the information.
   return this->Superclass::ReadXMLInformation();
 }
+
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
+{
+  vtkInformationVector *infoVector = NULL;
+
+  if (this->InformationError)
+    {
+    vtkErrorMacro("Should not still be processing output information if have set InformationError");
+    }
+
+  // Initialize DataArraySelections to anable all that are present
+  this->SetDataArraySelections(this->PPointDataElement, this->PointDataArraySelection);
+  this->SetDataArraySelections(this->PCellDataElement, this->CellDataArraySelection);
+
+  // Setup the Field Information for PointData and CellData. We only need the
+  // information from one piece because all pieces have the same set of arrays.
+  if (!this->SetFieldDataInfo(this->PPointDataElement,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, this->GetNumberOfPoints(), infoVector))
+    {
+    return;
+    }
+  if (!this->SetFieldDataInfo(this->PCellDataElement,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, this->GetNumberOfCells(), infoVector))
+    {
+    return;
+    }
+
+  if (infoVector)
+    {
+    outInfo->Set(vtkDataObject::FIELD_DATA_VECTOR(), infoVector);
+    infoVector->Delete();
+    }
+}
+
 
 //----------------------------------------------------------------------------
 int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)

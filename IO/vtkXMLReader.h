@@ -30,6 +30,7 @@ class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkXMLDataElement;
 class vtkXMLDataParser;
+class vtkInformationVector;
 
 class VTK_IO_EXPORT vtkXMLReader : public vtkAlgorithm
 {
@@ -97,7 +98,7 @@ protected:
   virtual void SetupEmptyOutput()=0;
   
   // Setup the output's information.
-  virtual void SetupOutputInformation(vtkInformation *outInfo);
+  virtual void SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo)) {}
   
   // Setup the output's idata with allocation.
   virtual void SetupOutputData();
@@ -138,7 +139,12 @@ protected:
   // Setup the data array selections for the input's set of arrays.
   void SetDataArraySelections(vtkXMLDataElement* eDSA,
                               vtkDataArraySelection* sel);
-  
+
+//BTX
+  int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,  
+    int numTuples, vtkInformationVector *(&infoVector));
+//ETX
+
   // Check whether the given array element is an enabled array.
   int PointDataArrayIsEnabled(vtkXMLDataElement* ePDA);
   int CellDataArrayIsEnabled(vtkXMLDataElement* eCDA);

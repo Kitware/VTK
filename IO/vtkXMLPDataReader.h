@@ -46,6 +46,7 @@ protected:
   
   // Pipeline execute information driver.  Called by vtkXMLReader.
   int ReadXMLInformation();
+  virtual void SetupOutputInformation(vtkInformation *outInfo);
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   
   vtkDataSet* GetPieceInputAsDataSet(int piece);

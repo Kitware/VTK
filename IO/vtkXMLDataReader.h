@@ -47,6 +47,7 @@ protected:
   // Add functionality to methods from superclass.
   virtual void CreateXMLParser();
   virtual void DestroyXMLParser();
+  virtual void SetupOutputInformation(vtkInformation *outInfo);
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputData();
   
@@ -89,7 +90,7 @@ protected:
   int Piece;
   
   // The number of point/cell data arrays in the output.  Valid after
-  // SetupOutputInformation has been called.
+  // SetupOutputData has been called.
   int NumberOfPointArrays;
   int NumberOfCellArrays;  
   

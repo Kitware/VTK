@@ -48,6 +48,7 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
 class vtkStreamingDemandDrivenPipeline;
+class vtkInformationInformationVectorKey;
 
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
@@ -383,6 +384,7 @@ public:
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
   static vtkInformationIntegerKey* SCALAR_TYPE();
   static vtkInformationIntegerKey* SCALAR_NUMBER_OF_COMPONENTS();
+  static vtkInformationInformationVectorKey* FIELD_DATA_VECTOR();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
