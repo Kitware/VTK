@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCaptionActor.h
+  Module:    vtkCaptionActor2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,39 +40,43 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkCaptionActor - draw text label associated with a point
+// .NAME vtkCaptionActor2D - draw text label associated with a point
 // .SECTION Description
-// vtkCaptionActor is a 2D actor that is used to associate text with a
-// point (the AttachmentPoint) in the scene. The caption can be drawn with
-// a rectangular border and a leader (an arrow) connecting the caption to
-// the attachment point.
+// vtkCaptionActor2D is a hybrid 2D/3D actor that is used to associate text 
+// with a point (the AttachmentPoint) in the scene. The caption can be 
+// drawn with a rectangular border and a leader connecting 
+// the caption to the attachment point. Optionally, the leader can be 
+// glyphed at its endpoint to create arrow heads or other indicators.
 // 
 // To use the caption actor, you normally specify the Position and Position2
-// coordinates (these are inherited from the vtkActor2D superclass). (Note that
-// Position2 can be set using vtkActor2D's SetWidth and SetHeight methods.) 
-// Position and Position2 define the size of the caption, and a third point,
-// the AttachmentPoint, defines a point that the caption is associated with.
-// You must also define the caption text, font attributes, whether you want
-// a border around the caption, and whether you want a leader (i.e., arrow)
-// from the caption to the attachment point. The color of the text is 
-// controlled with vtkActor2D's property.
+// coordinates (these are inherited from the vtkActor2D superclass). (Note
+// that Position2 can be set using vtkActor2D's SetWidth() and SetHeight()
+// methods.)  Position and Position2 define the size of the caption, and a
+// third point, the AttachmentPoint, defines a point that the caption is
+// associated with.  You must also define the caption text, font attributes,
+// whether you want a border around the caption, and whether you want a
+// leader from the caption to the attachment point. The color of the text is
+// controlled with vtkActor2D's property. You also indicate whether you want
+// the leader to be 2D or 3D. (2D leaders are always drawn over the
+// underlying geometry. 3D leaders may be occluded by the geometry.) The
+// leader may also be terminated by an optional glyph (e.g., arrow).
 //
 // The trickiest part about using this class is setting Position, Position2,
-// and Attachment point correctly. These are vtkCoordinates, and can be set
-// up in various ways. In default usage, the AttachmentPoint is defined in
-// the world coordinate system, Position is the lower-left corner of the
-// caption and relative to AttachmentPoint (defined in display coordaintes,
-// i.e., pixels), and Position2 is relative to Position and is the
-// upper-right corner (also in display coordinates). However, the user has
-// full control over the coordinates, and can do things like place the
-// caption in a fixed position in the renderer, with the leader moving with
-// the AttachmentPoint.
+// and AttachmentPoint correctly. These instance variables are
+// vtkCoordinates, and can be set up in various ways. In default usage, the
+// AttachmentPoint is defined in the world coordinate system, Position is the
+// lower-left corner of the caption and relative to AttachmentPoint (defined
+// in display coordaintes, i.e., pixels), and Position2 is relative to
+// Position and is the upper-right corner (also in display
+// coordinates). However, the user has full control over the coordinates, and
+// can do things like place the caption in a fixed position in the renderer,
+// with the leader moving with the AttachmentPoint.
 
 // .SECTION See Also
 // vtkLegendBoxActor vtkTextMapper vtkScaledTextActor vtkTextMapper
 
-#ifndef __vtkCaptionActor_h
-#define __vtkCaptionActor_h
+#ifndef __vtkCaptionActor2D_h
+#define __vtkCaptionActor2D_h
 
 #include "vtkActor2D.h"
 #include "vtkTextMapper.h"
@@ -86,13 +90,13 @@ class vtkGlyph3D;
 class vtkAppendPolyData;
 class vtkActor;
 
-class VTK_EXPORT vtkCaptionActor : public vtkActor2D
+class VTK_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkCaptionActor,vtkActor2D);
+  vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkCaptionActor *New();
+  static vtkCaptionActor2D *New();
 
   // Description:
   // Define the text to be placed in the caption. The text can be multiple
@@ -219,15 +223,20 @@ public:
 //ETX
 
 protected:
-  vtkCaptionActor();
-  ~vtkCaptionActor();
-  vtkCaptionActor(const vtkCaptionActor&) {}
-  void operator=(const vtkCaptionActor&) {}
+  vtkCaptionActor2D();
+  ~vtkCaptionActor2D();
+  vtkCaptionActor2D(const vtkCaptionActor2D&) {}
+  void operator=(const vtkCaptionActor2D&) {}
+
+  vtkCoordinate *AttachmentPointCoordinate;
 
   char  *Caption;
   int   Border;
-  vtkCoordinate *AttachmentPointCoordinate;
-
+  int   Leader;
+  int   ThreeDimensionalLeader;
+  float LeaderGlyphSize;
+  vtkPolyData *LeaderGlyph; //what to put on the end of the leader
+  
   int   Padding;
   int   Bold;
   int   Italic;
@@ -236,11 +245,6 @@ protected:
   int   Justification;
   int   VerticalJustification;
 
-  int   Leader;
-  int   ThreeDimensionalLeader;
-  int   LeaderGlyphSize;
-  vtkPolyData *LeaderGlyph; //what to put on the end of the leader
-  
 private:
   vtkTextMapper      *CaptionMapper;
   vtkScaledTextActor *CaptionActor;
@@ -250,11 +254,14 @@ private:
   vtkActor2D          *BorderActor;
 
   vtkPolyData   *HeadPolyData; //single attachment point for glyphing
-  vtkGlyph2D    *HeadGlyph2D; //for 2D leader
-  vtkGlyph3D    *HeadGlyph3D;  //for 3D leader
+  vtkGlyph3D    *HeadGlyph;  //for 3D leader
   vtkPolyData   *LeaderPolyData; //line represents the leader
   vtkAppendPolyData *AppendLeader; //append head and leader
   
+  //coordinates for transformation
+  vtkCoordinate     *ToWorldCoordinate;
+  vtkCoordinate     *MapperCoordinate2D;
+
   //for 2D leader
   vtkPolyDataMapper2D *LeaderMapper2D;
   vtkActor2D          *LeaderActor2D;

@@ -1,6 +1,7 @@
 SOURCE_FILES ( Hybrid_SRCS
 vtk3DSImporter
 vtkArcPlotter 
+vtkCaptionActor2D
 vtkCubeAxesActor2D 
 vtkDepthSortPolyData 
 vtkEarthSource 
