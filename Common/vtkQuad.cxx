@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.85");
+vtkCxxRevisionMacro(vtkQuad, "1.86");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -589,9 +589,8 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
         pcoords[1] = 1.0 - pcoords[1];
         return 1;
         }
-      return 0;
 
-      break;
+      return 0;
     }
 
   return 0;
