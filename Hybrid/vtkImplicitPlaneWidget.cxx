@@ -40,7 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.12");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.13");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -1062,6 +1062,48 @@ void vtkImplicitPlaneWidget::SetDrawPlane(int drawPlane)
       this->CurrentRenderer->RemoveActor(this->CutActor);
       }
     this->Interactor->Render();
+    }
+}
+
+void vtkImplicitPlaneWidget::SetNormalToXAxis (int var)
+{
+  if (this->NormalToXAxis != var)
+    {
+    this->NormalToXAxis = var;
+    this->Modified();
+    }
+  if (var)
+    {
+    this->NormalToYAxisOff();
+    this->NormalToZAxisOff();
+    }
+}
+
+void vtkImplicitPlaneWidget::SetNormalToYAxis (int var)
+{
+  if (this->NormalToYAxis != var)
+    {
+    this->NormalToYAxis = var;
+    this->Modified();
+    }
+  if (var)
+    {
+    this->NormalToXAxisOff();
+    this->NormalToZAxisOff();
+    }
+}
+
+void vtkImplicitPlaneWidget::SetNormalToZAxis (int var)
+{
+  if (this->NormalToZAxis != var)
+    {
+    this->NormalToZAxis = var;
+    this->Modified();
+    }
+  if (var)
+    {
+    this->NormalToXAxisOff();
+    this->NormalToYAxisOff();
     }
 }
 
