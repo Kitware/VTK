@@ -17,29 +17,49 @@ vtkPointLoad ptLoad
     ptLoad SetSampleDimensions 20 20 20
     ptLoad ComputeEffectiveStressOn
     ptLoad SetModelBounds -10 10 -10 10 -10 10
-vtkDataSetWriter wSP
-    wSP SetInput [ptLoad GetOutput]
-    wSP SetFileName wSP.vtk
-    wSP SetTensorsName pointload
-    wSP SetScalarsName effective_stress
-    wSP Write
-vtkDataSetReader rSP
-    rSP SetFileName wSP.vtk
-    rSP SetTensorsName pointload
-    rSP SetScalarsName effective_stress
+
+
+
+#
+# If the current directory is writable, then test the witers
+#
+if {[catch {set channel [open test.tmp w]}] == 0 } {
+   close $channel
+   file delete -force test.tmp
+
+   vtkDataSetWriter wSP
+   wSP SetInput [ptLoad GetOutput]
+   wSP SetFileName wSP.vtk
+   wSP SetTensorsName pointload
+   wSP SetScalarsName effective_stress
+   wSP Write
+
+   vtkDataSetReader rSP
+   rSP SetFileName wSP.vtk
+   rSP SetTensorsName pointload
+   rSP SetScalarsName effective_stress
+   rSP Update
+   
+   set input [rSP GetOutput]
+   
+   file delete -force wSP.vtk
+} else {
+   set input [ptLoad GetOutput]
+}
 
 # Generate hyperstreamlines
 vtkHyperStreamline s1
-    s1 SetInput [rSP GetOutput]
-    s1 SetStartPosition 9 9 -9
-    s1 IntegrateMinorEigenvector
-    s1 SetMaximumPropagationDistance 18.0
-    s1 SetIntegrationStepLength 0.1
-    s1 SetStepLength 0.01
-    s1 SetRadius 0.25
-    s1 SetNumberOfSides 18
-    s1 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
-    s1 Update
+s1 SetInput $input
+s1 SetStartPosition 9 9 -9
+s1 IntegrateMinorEigenvector
+s1 SetMaximumPropagationDistance 18.0
+s1 SetIntegrationStepLength 0.1
+s1 SetStepLength 0.01
+s1 SetRadius 0.25
+s1 SetNumberOfSides 18
+s1 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
+s1 Update
+
 # Map hyperstreamlines
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
@@ -52,7 +72,7 @@ vtkActor s1Actor
     s1Actor SetMapper s1Mapper
 
 vtkHyperStreamline s2
-    s2 SetInput [rSP GetOutput]
+    s2 SetInput $input
     s2 SetStartPosition -9 -9 -9
     s2 IntegrateMinorEigenvector
     s2 SetMaximumPropagationDistance 18.0
@@ -65,13 +85,12 @@ vtkHyperStreamline s2
 vtkPolyDataMapper s2Mapper
     s2Mapper SetInput [s2 GetOutput]
     s2Mapper SetLookupTable lut
-    rSP Update;#force update for scalar range
-    eval s2Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
+    eval s2Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s2Actor
     s2Actor SetMapper s2Mapper
 
 vtkHyperStreamline s3
-    s3 SetInput [rSP GetOutput]
+    s3 SetInput $input
     s3 SetStartPosition 9 -9 -9
     s3 IntegrateMinorEigenvector
     s3 SetMaximumPropagationDistance 18.0
@@ -84,13 +103,12 @@ vtkHyperStreamline s3
 vtkPolyDataMapper s3Mapper
     s3Mapper SetInput [s3 GetOutput]
     s3Mapper SetLookupTable lut
-    rSP Update;#force update for scalar range
-    eval s3Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
+    eval s3Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s3Actor
     s3Actor SetMapper s3Mapper
 
 vtkHyperStreamline s4
-    s4 SetInput [rSP GetOutput]
+    s4 SetInput $input
     s4 SetStartPosition -9 9 -9
     s4 IntegrateMinorEigenvector
     s4 SetMaximumPropagationDistance 18.0
@@ -103,15 +121,14 @@ vtkHyperStreamline s4
 vtkPolyDataMapper s4Mapper
     s4Mapper SetInput [s4 GetOutput]
     s4Mapper SetLookupTable lut
-    rSP Update;#force update for scalar range
-    eval s4Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
+    eval s4Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s4Actor
     s4Actor SetMapper s4Mapper
 
 # plane for context
 #
 vtkStructuredPointsGeometryFilter g
-    g SetInput [rSP GetOutput]
+    g SetInput $input
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 vtkPolyDataMapper gm
@@ -123,7 +140,7 @@ vtkActor ga
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput [rSP GetOutput]
+    outline SetInput $input
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
