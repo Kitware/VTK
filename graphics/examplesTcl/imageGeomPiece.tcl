@@ -46,8 +46,12 @@ vtkVolume16Reader reader
 vtkGeometryFilter geom
 geom SetInput [reader GetOutput]
 
+# regression tests were failing because of quads.
+vtkTriangleFilter tris
+  tris SetInput [geom GetOutput]
+
 vtkPolyDataMapper mapper
-mapper SetInput [geom GetOutput]
+mapper SetInput [tris GetOutput]
 mapper ScalarVisibilityOn
 mapper SetScalarRange 0 1200
 mapper SetPiece 0
