@@ -240,6 +240,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
       return self->vtk_dict;
       }
       
+    /* __methods__ is no longer applicable, methods are in __dict__
     if (strcmp(name,"__methods__") == 0)
       {
       PyMethodDef *meth = pyclass->vtk_methods;
@@ -303,34 +304,42 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
         }
       return lst;
       }
+    */
     }
 
   while (pyclass != NULL)
     {
-    PyMethodDef *m;
+    PyMethodDef *meth;
 
-    if (pyclass->vtk_dict)
+    if (pyclass->vtk_dict == NULL)
       {
-      value = PyDict_GetItem(pyclass->vtk_dict, attr);
-    
-      if (value)
+      pyclass->vtk_dict = PyDict_New();
+
+      for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
         {
-        if (PyCallable_Check(value))
-          {
-          return PyMethod_New(value, (PyObject *)self, (PyObject *)pyclass);
-          }
-        Py_INCREF(value);
-        return value;
+        PyDict_SetItemString(pyclass->vtk_dict,meth->ml_name,
+                             PyCFunction_New(meth, (PyObject *)pyclass));
         }
       }
 
-    for (m = pyclass->vtk_methods; m && m->ml_name; m++)
+    value = PyDict_GetItem(pyclass->vtk_dict, attr);
+    
+    if (value)
       {
-      if (name[0] == m->ml_name[0] && strcmp(name+1, m->ml_name+1) == 0)
+      if (PyCFunction_Check(value))
         {
-        return PyCFunction_New(m, (PyObject *)self);
+        return PyCFunction_New(((PyCFunctionObject *)value)->m_ml,
+                               (PyObject *)self);
         }
-      } 
+      else if (PyCallable_Check(value))
+        {
+        return PyMethod_New(value, (PyObject *)self,
+                            (PyObject *)self->vtk_class);
+        }
+      Py_INCREF(value);
+      return value;
+      }
+
     bases = ((PyVTKClass *)pyclass)->vtk_bases;
     pyclass = NULL;
     if (PyTuple_Size(bases))
@@ -581,26 +590,25 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
   while (pyclass != NULL)
     {
     PyMethodDef *meth;
+    PyObject *value;
 
-    if (pyclass->vtk_dict)
+    if (pyclass->vtk_dict == NULL)
       {
-      PyObject *value;
+      pyclass->vtk_dict = PyDict_New();
 
-      value = PyDict_GetItem(pyclass->vtk_dict, attr);
-    
-      if (value)
+      for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
         {
-        Py_INCREF(value);
-        return value;
+        PyDict_SetItemString(pyclass->vtk_dict,meth->ml_name,
+                             PyCFunction_New(meth, (PyObject *)pyclass));
         }
       }
 
-    for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
+    value = PyDict_GetItem(pyclass->vtk_dict, attr);
+    
+    if (value)
       {
-      if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
-        {
-        return PyCFunction_New(meth, (PyObject *)self);
-        }
+      Py_INCREF(value);
+      return value;
       }
 
     bases = pyclass->vtk_bases;
@@ -645,6 +653,7 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
       return pyclass->vtk_doc;
       }
 
+    /* methods are stored in __dict__, so this is irrelevant
     if (strcmp(name,"__methods__") == 0)
       {
       PyMethodDef *meth = pyclass->vtk_methods;
@@ -695,6 +704,7 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
         }
       return lst;
       }
+    */
     }
 
   PyErr_SetString(PyExc_AttributeError, name);
