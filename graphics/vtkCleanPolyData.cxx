@@ -59,15 +59,15 @@ vtkCleanPolyData::~vtkCleanPolyData()
 void vtkCleanPolyData::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPointData *pd=input->GetPointData();
   int numPts=input->GetNumberOfPoints();
+  vtkPoints *inPts;
   vtkFloatPoints *newPts;
   int numNewPts;
-  
-  vtkPointData *pd;
-  vtkPoints *inPts;
-  int *Index;
-  int i, j, count;
-  int npts, *pts, *updatedPts= new int[input->GetMaxCellSize()];
+  int *updatedPts= new int[input->GetMaxCellSize()];
+  int i, ptId;
+  int npts, *pts;
+  float *x;
   vtkCellArray *inVerts=input->GetVerts(), *newVerts=NULL;
   vtkCellArray *inLines=input->GetLines(), *newLines=NULL;
   vtkCellArray *inPolys=input->GetPolys(), *newPolys=NULL;
@@ -83,91 +83,36 @@ void vtkCleanPolyData::Execute()
     return;
     }
 
-  pd = input->GetPointData();
   outputPD->CopyAllocate(pd);
-
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
 
-  this->Locator->SetDataSet(input);
-
-  // compute absolute tolerance from relative given
+  // Initialize; compute absolute tolerance from relative given
   this->Locator->SetTolerance(this->Tolerance*input->GetLength());
-
-  // compute merge list
-  Index = this->Locator->MergePoints();
-  this->Locator->Initialize(); //release memory.
-  if (this->SelfCreatedLocator) // in case tolerance is changed
-    {
-    this->SelfCreatedLocator = 0;
-    this->Locator->Delete();
-    this->Locator = NULL;
-    }
-//
-//  Load new array of points using index.
-//
   newPts = new vtkFloatPoints(numPts);
+  this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
 
-  for (numNewPts=0, i=0; i < numPts; i++) 
-    {
-    if ( Index[i] == numNewPts ) 
-      {
-      newPts->InsertPoint(numNewPts,inPts->GetPoint(i));
-      outputPD->CopyData(pd,i,numNewPts);
-      numNewPts++;
-      }
-    }
-
-  // need to reclaim space since we've reduced storage req.
-  newPts->Squeeze();
-  outputPD->Squeeze();
-
-  vtkDebugMacro(<<"Removed " << numPts-numNewPts << " points");
-
-//
-// Begin to adjust topology.
-//
+  //
+  // Begin to adjust topology.
+  //
   // Vertices are renumbered and we remove duplicate vertices
   if ( inVerts->GetNumberOfCells() > 0 )
     {
-    int resultingNumPoints;
-    int found;
-    int nnewpts, *newpts;
-    int k;
+    newVerts = new vtkCellArray(inVerts->GetSize());
 
-    newVerts = new vtkCellArray;
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
-      resultingNumPoints = 0;
-      for (j=0; j < npts; j++) 
-	{
-	// is the vertex already there
-	found = 0;
-	for (newVerts->InitTraversal(); newVerts->GetNextCell(nnewpts,newpts);)
-	  {
-	  for (k = 0; k < nnewpts; k++)
-	    {
-	    if (newpts[k] == Index[pts[j]])
-	      {
-	      found = 1;
-	      }
-	    }
-	  }
-	for (k = 0; k < resultingNumPoints; k++)
-	  {
-	  if (updatedPts[k] == Index[pts[j]])
-	    {
-	    found = 1;
-	    }
-	  }
-	if (!found)
-	  {
-	  updatedPts[resultingNumPoints++] = Index[pts[j]];
-	  }
-	}
-      if (resultingNumPoints)
-	{
-	newVerts->InsertNextCell(resultingNumPoints, updatedPts);
-	}
+      for ( numNewPts=0, i=0; i < npts; i++ )
+        {
+        x = inPts->GetPoint(pts[i]);
+
+        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          ptId = this->Locator->InsertNextPoint(x);
+          updatedPts[numNewPts++] = ptId;
+          outputPD->CopyData(pd,pts[i],ptId);
+          }
+        }
+      if ( numNewPts > 0 ) newVerts->InsertNextCell(numNewPts,updatedPts);
       }
     newVerts->Squeeze();
     }
@@ -179,15 +124,23 @@ void vtkCleanPolyData::Execute()
 
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
-      updatedPts[0] = Index[pts[0]];
-      for (count=1, j=1; j < npts; j++) 
-        if ( Index[pts[j]] != Index[pts[j-1]] )
-          updatedPts[count++] = Index[pts[j]];
-
-      if ( count >= 2 ) 
+      for ( numNewPts=0, i=0; i < npts; i++ )
         {
-        newLines->InsertNextCell(count,updatedPts);
+        x = inPts->GetPoint(pts[i]);
+
+        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          ptId = this->Locator->InsertNextPoint(x);
+          outputPD->CopyData(pd,pts[i],ptId);
+          }
+
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
+          {
+          updatedPts[numNewPts++] = ptId;
+          }
         }
+
+      if ( numNewPts > 1 ) newLines->InsertNextCell(numNewPts,updatedPts);
       }
     newLines->Squeeze();
     vtkDebugMacro(<<"Removed " << inLines->GetNumberOfCells() -
@@ -198,21 +151,26 @@ void vtkCleanPolyData::Execute()
   if ( inPolys->GetNumberOfCells() > 0 )
     {
     newPolys = new vtkCellArray(inPolys->GetSize());
-
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
-      updatedPts[0] = Index[pts[0]];
-      for (count=1, j=1; j < npts; j++) 
-        if ( Index[pts[j]] != Index[pts[j-1]] )
-          updatedPts[count++] = Index[pts[j]];
-
-      if ( Index[pts[0]] == Index[pts[npts-1]] ) count--;
-
-      if ( count >= 3 ) 
+      for ( numNewPts=0, i=0; i < npts; i++ )
         {
-        newPolys->InsertNextCell(count,updatedPts);
+        x = inPts->GetPoint(pts[i]);
+
+        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          ptId = this->Locator->InsertNextPoint(x);
+          outputPD->CopyData(pd,pts[i],ptId);
+          }
+
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
+          {
+          updatedPts[numNewPts++] = ptId;
+          }
         }
+      if ( numNewPts > 2 ) newPolys->InsertNextCell(numNewPts,updatedPts);
       }
+
     newPolys->Squeeze();
     vtkDebugMacro(<<"Removed " << inPolys->GetNumberOfCells() -
                  newPolys->GetNumberOfCells() << " polys");
@@ -225,25 +183,35 @@ void vtkCleanPolyData::Execute()
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
-      updatedPts[0] = Index[pts[0]];
-      for (count=1, j=1; j < npts; j++) 
-        if ( Index[pts[j]] != Index[pts[j-1]] )
-          updatedPts[count++] = Index[pts[j]];
-
-      if ( count >= 3 ) 
+      for ( numNewPts=0, i=0; i < npts; i++ )
         {
-        newStrips->InsertNextCell(count,updatedPts);
+        x = inPts->GetPoint(pts[i]);
+
+        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          ptId = this->Locator->InsertNextPoint(x);
+          outputPD->CopyData(pd,pts[i],ptId);
+          }
+
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
+          {
+          updatedPts[numNewPts++] = ptId;
+          }
         }
+
+      if ( numNewPts > 2 ) newStrips->InsertNextCell(numNewPts,updatedPts);
       }
+
     newStrips->Squeeze();
     vtkDebugMacro(<<"Removed " << inStrips->GetNumberOfCells() -
                  newStrips->GetNumberOfCells() << " strips");
     }
-//
-// Update ourselves and release memory
-//
-  delete [] Index;
+
+  //
+  // Update ourselves and release memory
+  //
   delete [] updatedPts;
+  this->Locator->Initialize(); //release memory.
 
   output->SetPoints(newPts);
   newPts->Delete();
