@@ -97,6 +97,15 @@ vtkMatrix4x4            MultiplyFloatPoint      301 4
 vtkMatrix4x4            MultiplyPoint           301 4
 vtkNormals              GetNormal               301 3
 vtkPiecewiseFunction    GetRange                301 2
+vtkPlaneWidget		GetCenter		301 3
+vtkPlaneWidget		GetNormal		301 3
+vtkPlaneWidget		GetOrigin		301 3
+vtkPlaneWidget		GetOrigin		301 3
+vtkPlaneWidget		GetPoint1		301 3
+vtkPlaneWidget		GetPoint2		301 3
+vtkLineWidget           GetPoint1               301 3
+vtkLineWidget           GetPoint2               301 3
+vtkSphereWidget         GetCenter               301 3
 vtkPointSet             GetPoint                301 3
 vtkPoints               GetBounds               301 6
 vtkPoints               GetPoint                301 3
