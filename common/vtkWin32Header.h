@@ -52,14 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // now add in the UNIX / Windows varients
 #ifdef _WIN32
 #include <strstrea.h>
-#include <afxwin.h>  // MFC core and standard components
-#include <afxext.h>  // MFC extensions
-#ifdef stdio
-#undef stdout
-#undef stderr
-#define stdout afxDump
-#define stderr afxDump
-#endif
+#include <windows.h>
 
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4305 )
