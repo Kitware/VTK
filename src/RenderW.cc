@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    RenderW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <stdlib.h>
@@ -51,3 +51,26 @@ void vlRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0],a[1]);
 }
+
+
+void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlRenderWindow::GetClassName()))
+    {
+    int *temp;
+
+    vlObject::PrintSelf(os,indent);
+    
+    os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
+    os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
+    os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
+    os << indent << "Name: " << this->Name << "\n";
+    temp = this->GetPosition();
+    os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
+    temp = this->GetSize();
+    os << indent << "Renderers:\n";
+    this->Renderers.PrintSelf(os,indent.GetNextIndent());
+    os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
+    }
+}
+
