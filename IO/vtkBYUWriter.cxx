@@ -28,7 +28,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.56");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.57");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -69,7 +69,14 @@ vtkBYUWriter::~vtkBYUWriter()
 void vtkBYUWriter::WriteData()
 {
   FILE *geomFp;
-  vtkPolyData *input= this->GetInput();
+  vtkPolyData *input= vtkPolyData::SafeDownCast(this->GetInput());
+
+  if (!input)
+    {
+    vtkErrorMacro("Input is not a vtkPolyData.");
+    return;
+    }
+
   int numPts=input->GetNumberOfPoints();
 
   if ( numPts < 1 )
@@ -175,7 +182,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   vtkIdType *pts = 0;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
-  vtkPolyData *input= this->GetInput();
+  vtkPolyData *input= vtkPolyData::SafeDownCast(this->GetInput());
   //
   // Check input
   //
@@ -264,7 +271,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   int i;
   double *v;
   vtkDataArray *inVectors;
-  vtkPolyData *input= this->GetInput();
+  vtkPolyData *input= vtkPolyData::SafeDownCast(this->GetInput());
 
   if ( this->WriteDisplacement && this->DisplacementFileName &&
   (inVectors = input->GetPointData()->GetVectors()) != NULL )
@@ -313,7 +320,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   int i;
   float s;
   vtkDataArray *inScalars;
-  vtkPolyData *input= this->GetInput();
+  vtkPolyData *input= vtkPolyData::SafeDownCast(this->GetInput());
 
   if ( this->WriteScalar && this->ScalarFileName &&
   (inScalars = input->GetPointData()->GetScalars()) != NULL )
@@ -362,7 +369,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   int i;
   double *t;
   vtkDataArray *inTCoords;
-  vtkPolyData *input= this->GetInput();
+  vtkPolyData *input= vtkPolyData::SafeDownCast(this->GetInput());
 
   if ( this->WriteTexture && this->TextureFileName &&
   (inTCoords = input->GetPointData()->GetTCoords()) != NULL )

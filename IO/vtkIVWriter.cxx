@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.31");
+vtkCxxRevisionMacro(vtkIVWriter, "1.32");
 vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()
@@ -48,7 +48,7 @@ void vtkIVWriter::WriteData()
   vtkDebugMacro("Writing OpenInventor file");
   fprintf(fp,"#Inventor V2.0 ascii\n");
   fprintf(fp,"# OpenInventor file written by the visualization toolkit\n\n");
-  this->WritePolyData(this->GetInput(), fp);
+  this->WritePolyData(vtkPolyData::SafeDownCast(this->GetInput()), fp);
   if (fclose(fp)) 
     {
     vtkErrorMacro(<< this->FileName 

@@ -33,16 +33,13 @@ public:
   vtkTypeRevisionMacro(vtkStructuredPointsWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / get  the input data or filter.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-                               
 protected:
   vtkStructuredPointsWriter() {};
   ~vtkStructuredPointsWriter() {};
 
   void WriteData();
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkStructuredPointsWriter(const vtkStructuredPointsWriter&);  // Not implemented.
@@ -50,5 +47,3 @@ private:
 };
 
 #endif
-
-

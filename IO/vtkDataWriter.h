@@ -206,5 +206,3 @@ private:
 };
 
 #endif
-
-

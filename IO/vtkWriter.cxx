@@ -17,25 +17,51 @@
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
+#include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.41");
+vtkCxxRevisionMacro(vtkWriter, "1.42");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(0);
 }
 
 vtkWriter::~vtkWriter()
 {
 }
 
+void vtkWriter::SetInput(vtkDataObject *input)
+{
+  this->SetInput(0, input);
+}
+
+void vtkWriter::SetInput(int index, vtkDataObject *input)
+{
+  if (input)
+    {
+    this->SetInputConnection(index, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input remove the connection.
+    this->SetInputConnection(index, 0);
+    }
+}
+
 vtkDataObject *vtkWriter::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  return this->GetInput(0);
+}
+
+vtkDataObject *vtkWriter::GetInput(int port)
+{
+  if (this->GetNumberOfInputConnections(port) < 1)
     {
     return NULL;
     }
-  return this->Inputs[0];
+  return this->GetExecutive()->GetInputData(port, 0);
 }
 
 
@@ -55,18 +81,18 @@ void vtkWriter::Write()
     return;
     }
 
-    for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
+    {
+    if (this->GetInput(idx) != NULL)
       {
-    if (this->Inputs[idx] != NULL)
-        {
-      this->Inputs[idx]->Update();
+      this->GetInput(idx)->Update();
       }
     }
 
-  unsigned long lastUpdateTime =  this->Inputs[0]->GetUpdateTime();
-  for (idx = 1; idx < this->NumberOfInputs; ++idx)
+  unsigned long lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
+  for (idx = 1; idx < this->GetNumberOfInputPorts(); ++idx)
     {
-    unsigned long updateTime = this->Inputs[idx]->GetUpdateTime();
+    unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
     if ( updateTime > lastUpdateTime )
       {
       lastUpdateTime = updateTime;
@@ -84,11 +110,11 @@ void vtkWriter::Write()
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   // Release any inputs if marked for release
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
     {
-    if (this->Inputs[idx] && this->Inputs[idx]->ShouldIReleaseData())
+    if (this->GetInput(idx) && this->GetInput(idx)->ShouldIReleaseData())
       {
-      this->Inputs[idx]->ReleaseData();
+      this->GetInput(idx)->ReleaseData();
       }
     }
 

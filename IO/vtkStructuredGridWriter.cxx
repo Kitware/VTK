@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkStructuredGridWriter.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -24,32 +25,13 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.38");
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.39");
 vtkStandardNewMacro(vtkStructuredGridWriter);
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkStructuredGridWriter::SetInput(vtkStructuredGrid *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkStructuredGrid *vtkStructuredGridWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkStructuredGrid *)(this->Inputs[0]);
-}
 
 void vtkStructuredGridWriter::WriteData()
 {
   ostream *fp;
-  vtkStructuredGrid *input= this->GetInput();
+  vtkStructuredGrid *input= vtkStructuredGrid::SafeDownCast(this->GetInput());
   int dim[3];
 
   vtkDebugMacro(<<"Writing vtk structured grid...");
@@ -130,6 +112,12 @@ int vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
   return this->WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);
 }
 
+int vtkStructuredGridWriter::FillInputPortInformation(int,
+                                                      vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  return 1;
+}
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {

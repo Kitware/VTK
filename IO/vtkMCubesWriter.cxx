@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMCubesWriter, "1.32");
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.33");
 vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.
@@ -46,7 +46,13 @@ void vtkMCubesWriter::WriteData()
   vtkPoints *pts;
   vtkDataArray *normals;
   vtkCellArray *polys;
-  vtkPolyData *input=this->GetInput();
+  vtkPolyData *input=vtkPolyData::SafeDownCast(this->GetInput());
+
+  if (!input)
+    {
+    vtkErrorMacro("Input is not a vtkPolyData.");
+    return;
+    }
 
   polys = input->GetPolys();
   pts = input->GetPoints();

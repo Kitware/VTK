@@ -32,16 +32,13 @@ public:
   vtkTypeRevisionMacro(vtkUnstructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the input data or filter.
-  void SetInput(vtkUnstructuredGrid *input);
-  vtkUnstructuredGrid *GetInput();
-
 protected:
   vtkUnstructuredGridWriter() {};
   ~vtkUnstructuredGridWriter() {};
 
   void WriteData();
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&);  // Not implemented.

@@ -33,17 +33,17 @@
 #ifndef __vtkWriter_h
 #define __vtkWriter_h
 
-#include "vtkProcessObject.h"
+#include "vtkAlgorithm.h"
 
 class vtkDataObject;
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class VTK_IO_EXPORT vtkWriter : public vtkProcessObject
+class VTK_IO_EXPORT vtkWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkWriter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -61,9 +61,13 @@ public:
   // string.
   void EncodeArrayName(char* resname, const char* name);
   
-//BTX
+  // Description:
+  // Set/get the input to this writer.
+  void SetInput(vtkDataObject *input);
+  void SetInput(int index, vtkDataObject *input);
   vtkDataObject *GetInput();
-//ETX
+  vtkDataObject *GetInput(int port);
+
 protected:
   vtkWriter();
   ~vtkWriter();
@@ -76,5 +80,3 @@ private:
 };
 
 #endif
-
-

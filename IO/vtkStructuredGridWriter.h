@@ -34,11 +34,6 @@ public:
   vtkTypeRevisionMacro(vtkStructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkStructuredGrid *input);
-  vtkStructuredGrid *GetInput();
-                               
 protected:
   vtkStructuredGridWriter() {};
   ~vtkStructuredGridWriter() {};
@@ -46,11 +41,11 @@ protected:
   void WriteData();
   int WriteBlanking(ostream *fp, vtkStructuredGrid *ds);
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkStructuredGridWriter(const vtkStructuredGridWriter&);  // Not implemented.
   void operator=(const vtkStructuredGridWriter&);  // Not implemented.
 };
 
 #endif
-
-

@@ -15,9 +15,10 @@
 #include "vtkDataObjectWriter.h"
 
 #include "vtkDataObject.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectWriter, "1.15");
+vtkCxxRevisionMacro(vtkDataObjectWriter, "1.16");
 vtkStandardNewMacro(vtkDataObjectWriter);
 
 vtkDataObjectWriter::vtkDataObjectWriter()
@@ -28,23 +29,6 @@ vtkDataObjectWriter::vtkDataObjectWriter()
 vtkDataObjectWriter::~vtkDataObjectWriter()
 {
   this->Writer->Delete();
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObjectWriter::SetInput(vtkDataObject *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject *vtkDataObjectWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataObject *)(this->Inputs[0]);
 }
 
 // Write FieldData data to file
@@ -100,6 +84,10 @@ void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Field Data Name: (None)\n";
     }
-
 }
 
+int vtkDataObjectWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  return 1;
+}

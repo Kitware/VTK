@@ -38,11 +38,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkDataObject *input);
-  vtkDataObject *GetInput();
-              
-  // Description:
   // Methods delegated to vtkDataWriter, see vtkDataWriter.
   void SetFileName(const char *filename) {this->Writer->SetFileName(filename);};
   char *GetFileName() {return this->Writer->GetFileName();};
@@ -61,12 +56,12 @@ protected:
 
   void WriteData();
   vtkDataWriter *Writer;
-  
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkDataObjectWriter(const vtkDataObjectWriter&);  // Not implemented.
   void operator=(const vtkDataObjectWriter&);  // Not implemented.
 };
 
 #endif
-
-

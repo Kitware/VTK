@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkStructuredPointsWriter.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredPoints.h"
 
@@ -24,33 +25,13 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.40");
+vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.41");
 vtkStandardNewMacro(vtkStructuredPointsWriter);
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkStructuredPointsWriter::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkImageData *vtkStructuredPointsWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
 
 void vtkStructuredPointsWriter::WriteData()
 {
   ostream *fp;
-  vtkImageData *input=this->GetInput();
+  vtkImageData *input= vtkImageData::SafeDownCast(this->GetInput());
   int dim[3];
   int *ext;
   double spacing[3], origin[3];
@@ -113,6 +94,13 @@ void vtkStructuredPointsWriter::WriteData()
     }
 
   this->CloseVTKFile(fp);
+}
+
+int vtkStructuredPointsWriter::FillInputPortInformation(int,
+                                                        vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkStructuredPointsWriter::PrintSelf(ostream& os, vtkIndent indent)

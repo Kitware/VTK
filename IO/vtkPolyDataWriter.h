@@ -33,16 +33,13 @@ public:
   vtkTypeRevisionMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkPolyData *input);
-  vtkPolyData *GetInput();
-                               
 protected:
   vtkPolyDataWriter() {};
   ~vtkPolyDataWriter() {};
 
   void WriteData();
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.

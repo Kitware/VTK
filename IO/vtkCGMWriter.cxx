@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.18");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.19");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -528,7 +528,14 @@ int vtkCGMqsortCompare(const void *val1, const void *val2)
 void vtkCGMWriter::WriteData()
 {
   FILE *outf;
-  vtkPolyData *input=this->GetInput();
+  vtkPolyData *input=vtkPolyData::SafeDownCast(this->GetInput());
+
+  if (!input)
+    {
+    vtkErrorMacro("Input is not a vtkPolyData.");
+    return;
+    }
+
   vtkIdType numCells=input->GetNumberOfCells(), cellId;
   vtkIdType numPts=input->GetNumberOfPoints();
 

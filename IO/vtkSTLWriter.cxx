@@ -27,7 +27,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.55");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.56");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()
@@ -39,7 +39,13 @@ void vtkSTLWriter::WriteData()
 {
   vtkPoints *pts;
   vtkCellArray *polys;
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData *input = vtkPolyData::SafeDownCast(this->GetInput());
+
+  if (!input)
+    {
+    vtkErrorMacro("Input is not a vtkPolyData.");
+    return;
+    }
 
   polys = input->GetPolys();
   pts = input->GetPoints();

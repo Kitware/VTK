@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPolyDataWriter.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
@@ -23,32 +24,13 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.24");
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.25");
 vtkStandardNewMacro(vtkPolyDataWriter);
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkPolyDataWriter::SetInput(vtkPolyData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkPolyData *vtkPolyDataWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkPolyData *)(this->Inputs[0]);
-}
 
 void vtkPolyDataWriter::WriteData()
 {
   ostream *fp;
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData *input = vtkPolyData::SafeDownCast(this->GetInput());
 
   vtkDebugMacro(<<"Writing vtk polygonal data...");
 
@@ -142,6 +124,12 @@ void vtkPolyDataWriter::WriteData()
     return;
     }
   this->CloseVTKFile(fp);
+}
+
+int vtkPolyDataWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }
 
 void vtkPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)

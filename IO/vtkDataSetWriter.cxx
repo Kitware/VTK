@@ -17,6 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
@@ -28,32 +29,14 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.38");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.39");
 vtkStandardNewMacro(vtkDataSetWriter);
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkDataSetWriter::SetInput(vtkDataSet *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkDataSet *vtkDataSetWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  return static_cast<vtkDataSet*>(this->Inputs[0]);
-}
 
 void vtkDataSetWriter::WriteData()
 {
   int type;
   vtkDataWriter *writer;
-  vtkDataSet *input = this->GetInput();
+  vtkDataSet *input = vtkDataSet::SafeDownCast(this->GetInput());
   
   vtkDebugMacro(<<"Writing vtk dataset...");
 
@@ -128,6 +111,12 @@ void vtkDataSetWriter::WriteData()
     this->OutputString = writer->RegisterAndGetOutputString();
     }
   writer->Delete();
+}
+
+int vtkDataSetWriter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)

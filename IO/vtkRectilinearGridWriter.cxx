@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkRectilinearGridWriter.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
@@ -23,33 +24,14 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.24");
+vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.25");
 vtkStandardNewMacro(vtkRectilinearGridWriter);
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkRectilinearGridWriter::SetInput(vtkRectilinearGrid *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkRectilinearGrid *vtkRectilinearGridWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkRectilinearGrid *)(this->Inputs[0]);
-}
-
 
 void vtkRectilinearGridWriter::WriteData()
 {
   ostream *fp;
-  vtkRectilinearGrid *input = this->GetInput();
+  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(
+    this->GetInput());
   int dim[3];
 
   vtkDebugMacro(<<"Writing vtk rectilinear grid...");
@@ -120,6 +102,13 @@ void vtkRectilinearGridWriter::WriteData()
     }
 
   this->CloseVTKFile(fp);
+}
+
+int vtkRectilinearGridWriter::FillInputPortInformation(int,
+                                                       vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 void vtkRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)

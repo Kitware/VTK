@@ -33,11 +33,6 @@ public:
   static vtkRectilinearGridWriter *New();
   vtkTypeRevisionMacro(vtkRectilinearGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkRectilinearGrid *input);
-  vtkRectilinearGrid *GetInput();
                                
 protected:
   vtkRectilinearGridWriter() {};
@@ -45,11 +40,11 @@ protected:
 
   void WriteData();
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
   void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
 };
 
 #endif
-
-
