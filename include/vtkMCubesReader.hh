@@ -54,13 +54,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Thus the number of triangles read may be fewer than the number of triangles
 // actually created.
 //
+// The point merging does not take into account that the same point may have
+// different normals. For example, running vtkPolyNormals after vtkContourFilter
+// may split triangles because of the FeatureAngle ivar. Subsequent reading with
+// vtkMCubesReader will merge the points and use the first point's normal. For the
+// most part, this is undesirable.
+//
 // Normals are generated from the gradient of the data scalar values. Hence the 
 // normals may on occasion point in a direction inconsistent with the ordering of 
 // the triangle vertices. If this happens, the resulting surface may be "black".
 // Reverse the sense of the FlipNormals boolean flag to correct this.
 
 // .SECTION See Also
-// vtkMarchingCubes vtkSliceCubes
+// vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkLocator
 
 #ifndef __vtkMCubesReader_h
 #define __vtkMCubesReader_h
