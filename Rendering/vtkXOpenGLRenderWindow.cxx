@@ -216,7 +216,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->OffScreenContextId = NULL;
   this->OffScreenWindow = NULL;
   this->OffScreenRendering = 0;
-  this->ScreenMapped;
+  this->ScreenMapped = this->Mapped;
   this->ScreenDoubleBuffer = this->DoubleBuffer;
 #endif
 }
