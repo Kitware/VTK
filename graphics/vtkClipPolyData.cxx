@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkClipPolyData* vtkClipPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +58,6 @@ vtkClipPolyData* vtkClipPolyData::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkClipPolyData;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
@@ -136,7 +131,7 @@ void vtkClipPolyData::Execute()
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
   vtkScalars *cellScalars; 
-  vtkCell *cell;
+  vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
   vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
   vtkCellArray *clippedPolys=NULL, *clippedList=NULL;
@@ -153,7 +148,6 @@ void vtkClipPolyData::Execute()
   
   vtkDebugMacro(<< "Clipping polygonal data");
   
-  //
   // Initialize self; create output objects
   //
   if ( numPts < 1 || inPts == NULL )
@@ -168,9 +162,6 @@ void vtkClipPolyData::Execute()
     return;
     }
 
-  this->UpdateProgress(0.0f);
-
-  //
   // Create objects to hold output of clip operation
   //
   estimatedSize = numCells;
@@ -254,15 +245,12 @@ void vtkClipPolyData::Execute()
   cellScalars->Allocate(VTK_CELL_SIZE);
   
   // perform clipping on cells
-  updateTime = numCells / 50;  // update every 2%
-  if (updateTime < 1)
+  int abort=0;
+  updateTime = numCells/20 + 1;  // update roughly every 5%
+  cell = vtkGenericCell::New();
+  for (cellId=0; cellId < numCells && !abort; cellId++)
     {
-    updateTime = 1;
-    }
-
-  for (cellId=0; cellId < numCells; cellId++)
-    {
-    cell = input->GetCell(cellId);
+    input->GetCell(cellId,cell);
     cellPts = cell->GetPoints();
     cellIds = cell->GetPointIds();
     numberOfPoints = cellPts->GetNumberOfPoints();
@@ -276,7 +264,6 @@ void vtkClipPolyData::Execute()
 
     switch ( cell->GetCellDimension() )
       {
-
       case 0: //points are generated-------------------------------
         connList = newVerts;
         clippedList = clippedVerts;
@@ -303,11 +290,13 @@ void vtkClipPolyData::Execute()
                  inPD, outPD, inCD, cellId, outClippedCD, !this->InsideOut);
       }
 
-    if (cellId % updateTime == 0)
+    if ( !(cellId % updateTime) )
       {
       this->UpdateProgress((float)cellId / numCells);
+      abort = this->GetAbortExecute();
       }
     } //for each cell
+  cell->Delete();
 
   vtkDebugMacro(<<"Created: " 
                << newPoints->GetNumberOfPoints() << " points, " 
@@ -323,7 +312,6 @@ void vtkClipPolyData::Execute()
                  << clippedPolys->GetNumberOfCells() << " triangles");
     }
 
-  //
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory. 
   //
