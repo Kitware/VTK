@@ -337,6 +337,9 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
       }
     ptr += inc2;
     }
+  
+  // Name the array appropriately.
+  data->GetPointData()->GetScalars()->GetData()->SetName("Iterations");
 }
 
 //----------------------------------------------------------------------------
