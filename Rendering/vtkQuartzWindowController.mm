@@ -6,13 +6,22 @@
 
 -(id)init {
     NSDictionary *nameTable = [NSDictionary dictionaryWithObject: self forKey: @"NSOwner"];
-    if([NSBundle loadNibFile:@"/usr/local/lib/vtkQuartzWindow.nib" externalNameTable:nameTable withZone:[self zone]]) {
+    if([NSBundle loadNibFile:nibFileName externalNameTable:nameTable withZone:[self zone]]) {
         self = [super init];
         } else {
         fprintf(stderr,"No nib file found!\n"); }
     [myvtkQuartzGLView setvtkQuartzWindowController:self];
     [myvtkQuartzWindow setvtkQuartzWindowController:self];
+    [myvtkQuartzWindow makeKeyAndOrderFront: nil];
     return self;
+}
+
+-(void)setNibFileName:(NSString *)theName {
+    nibFileName = theName;
+}
+
+- (NSMenu *)getMyMenu {
+    return myNSMenu;
 }
 
 - (vtkQuartzGLView *)getvtkQuartzGLView {

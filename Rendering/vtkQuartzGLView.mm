@@ -21,8 +21,9 @@
 
   NSOpenGLPixelFormatAttribute attribs[] = 
     {
-        (enum NSOpenGLPixelFormatAttribute)1,
-        (enum NSOpenGLPixelFormatAttribute)0};
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFADepthSize, (enum NSOpenGLPixelFormatAttribute)32,
+        (enum NSOpenGLPixelFormatAttribute)nil};
         
   NSOpenGLPixelFormat *fmt;
 

@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 #import "vtkQuartzWindow.h"
+#import "vtkQuartzGLView.h"
 #import "vtkQuartzWindowController.h"
 
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
@@ -260,8 +261,8 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
                                      this->Position[1],
                                      this->Size[0],
                                      this->Size[1]);
-        [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] setFrame:sizeR\
-ect display:YES];
+        [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] 
+         setFrame:sizeRect display:YES];
         resizing = 0;
         }
       }
@@ -389,13 +390,9 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
   int x, y, width, height;
   static int count = 1;
   char *windowName;
-
-
-//  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-//  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-//  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-//  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
-
+#undef id
+  id item;
+#define id Id
   // create our own window if not already set
   this->OwnWindow = 0;
     // get the application instance if we don't have one already
@@ -417,21 +414,25 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
 
         /* create window */
 	this->WindowId = (void *)[[vtkQuartzWindowController alloc] retain];
-	[(vtkQuartzWindowController *)this->WindowId init];
-	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindow:0];
-	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindowInteractor:0];
-	
         if (!this->WindowId)
         {
             vtkErrorMacro("Could not create window, serious error!");
             return;
         }
-        this->OwnWindow = 1;
+        [(vtkQuartzWindowController *)this->WindowId setNibFileName:@"/tmp/vtkQuartzWindow.nib"];
+	[(vtkQuartzWindowController *)this->WindowId init];
 	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindow:this];
+	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindowInteractor:0];
+        [NSApp setMainMenu:[[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@"mainmenu"]];
+        item = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@"RawApp" action:NULL keyEquivalent:@""];
+        [[NSApp mainMenu] addItem:item];
+        cout<<"Setting main menu to "<<[(vtkQuartzWindowController *)this->WindowId getMyMenu]<<"\n";
+        [NSApp setMainMenu:[(vtkQuartzWindowController *)this->WindowId getMyMenu]];
+	
+        this->OwnWindow = 1;
     }
     this->OpenGLInit();
     this->Mapped = 1;
-    //this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));
 }
 
 // Initialize the rendering window.
@@ -468,8 +469,8 @@ int *vtkQuartzRenderWindow::GetSize(void)
     }
 
     //  Find the current window size
-    this->Size[0] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] frame].size.width;
-    this->Size[1] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] frame].size.height;
+    this->Size[0] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzGLView] frame].size.width;
+    this->Size[1] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzGLView] frame].size.height;
     return this->Size;
 }
 
@@ -737,15 +738,15 @@ void vtkQuartzRenderWindow::SetWindowInfo(void *windowID)
 }
 
 
-void vtkQuartzRenderWindow::SetContextId(void *arg) // hsr
-{													   // hsr	
-  this->ContextId = arg;							   // hsr
-}													   // hsr
+void vtkQuartzRenderWindow::SetContextId(void *arg)
+{
+  this->ContextId = arg;
+}
 
-void vtkQuartzRenderWindow::SetDeviceContext(void *arg) // hsr
-{														 // hsr
-  this->DeviceContext = arg;							 // hsr
-}														 // hsr
+void vtkQuartzRenderWindow::SetDeviceContext(void *arg)
+{
+  this->DeviceContext = arg;
+}
 
 float *vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {

@@ -8,9 +8,15 @@
     @private 
     IBOutlet vtkQuartzGLView *myvtkQuartzGLView;
     IBOutlet vtkQuartzWindow *myvtkQuartzWindow;
+    IBOutlet NSMenu *myNSMenu;
+    NSString *nibFileName;
     void *myVTKRenderWindow;
     void *myVTKRenderWindowInteractor;
 }
+
+- (void)setNibFileName:(NSString *)theName;
+
+- (NSMenu *)getMyMenu;
 
 - (vtkQuartzGLView *)getvtkQuartzGLView;
 
