@@ -214,6 +214,11 @@ vtkThresholdLinkedList *vtkThreshold::ComputeCellsToKeep()
       } // satisfied thresholding
     } // for all cells
 
+  if (this->Connectivity)
+    {
+    return this->ComputeConnectedCells(cellsToKeep);
+    }
+  
   return cellsToKeep;
 }
 
@@ -278,7 +283,7 @@ vtkThreshold::ComputeConnectedCells(vtkThresholdLinkedList *seeds)
 	  end->Next = (vtkThresholdLinkedList *)
 	    malloc(sizeof(vtkThresholdLinkedList));
 	  end->Next->Next = NULL;
-	  end->Id = neighborId;
+	  end->Next->Id = neighborId;
 	  end = end->Next;
 	  visitedList->SetId(neighborId, 0);
 	  }
