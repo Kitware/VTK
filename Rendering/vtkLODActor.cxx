@@ -347,6 +347,7 @@ void vtkLODActor::UpdateOwnLODs()
   this->MediumMapper->ShallowCopy(this->Mapper);
   this->MediumMapper->SetInput(this->MaskPoints->GetOutput());
   this->LowMapper->ShallowCopy(this->Mapper);
+  this->LowMapper->ScalarVisibilityOff();
   this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
 
   this->BuildTime.Modified();
