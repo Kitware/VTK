@@ -65,8 +65,10 @@ public:
 
   // Description:
   // Specify name of file to write.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+  void SetFilename(char *str){this->SetFileName(str);}
+  char *GetFilename(){return this->GetFileName();}  
 
   // Description:
   // Specify Orientation of image. Default is 1.
@@ -83,7 +85,7 @@ public:
 
 protected:
   void WriteData();
-  char *Filename;
+  char *FileName;
   int Orientation;
 };
 

@@ -66,15 +66,24 @@ public:
   // Set/Get the scalar input object from the image pipeline.
   vtkSetObjectMacro(ScalarInput,vtkImageSource);
   vtkGetObjectMacro(ScalarInput,vtkImageSource);
+
   // Description:
   // Set/Get the vector input object from the image pipeline.
   vtkSetObjectMacro(VectorInput,vtkImageSource);
   vtkGetObjectMacro(VectorInput,vtkImageSource);
+
   // Description:
   // Set/Get the flag that tells the object to convert the whole image or not.
   vtkSetMacro(WholeImage,int);
   vtkGetMacro(WholeImage,int);
   vtkBooleanMacro(WholeImage,int);
+
+  // Description:
+  // ColorScalarsOn tells this output to create color scalars.
+  // This object then can be used as input to vtkTIFFWriter.
+  vtkSetMacro(ColorScalars,int);
+  vtkGetMacro(ColorScalars,int);
+  vtkBooleanMacro(ColorScalars,int);
 
   // Set/Get the extent to translate explicitely.
   void SetExtent(int dim, int *extent);
@@ -116,6 +125,7 @@ protected:
   vtkImageSource *ScalarInput;
   vtkImageSource *VectorInput;
   int WholeImage;
+  int ColorScalars;
   int Coordinate3;
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int Axes[VTK_IMAGE_DIMENSIONS];
@@ -127,6 +137,7 @@ protected:
   vtkScalars *ScalarExecute(vtkImageRegion *region);
   int ScalarSplitExecute(vtkImageRegion *outRegion, long volumeLimit);
   vtkVectors *VectorExecute(vtkImageRegion *region);
+  vtkScalars *CopyToColorScalars(vtkImageRegion *region);
 };
 
 #endif

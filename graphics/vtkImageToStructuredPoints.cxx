@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageToStructuredPoints.h"
+#include "vtkBitmap.h"
 
 
 
@@ -52,6 +53,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
   this->ScalarInput = NULL;
   this->VectorInput = NULL;
   this->WholeImage = 1;
+  this->ColorScalars = 0;
   this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
 		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
@@ -400,6 +402,7 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
   
   // If data is not the same size as the region, we need to reformat.
   // Assume that relativeCoordinates == absoluteCoordinates.
+  // (Copy also required if we have to produce colored scalars.)
   dataExtent = region->GetData()->GetExtent();
   regionExtent = region->GetExtent();
   if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
@@ -414,8 +417,16 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
     temp->Delete();
     }
 
-  scalars = region->GetData()->GetPointData()->GetScalars();
-  scalars->Register(this);
+  if (this->ColorScalars)
+    {
+    scalars = this->CopyToColorScalars(region);
+    }
+  else
+    {
+    scalars = region->GetData()->GetPointData()->GetScalars();
+    scalars->Register(this);
+    }
+  
   region->ReleaseData();
   return scalars;
 }
@@ -533,6 +544,54 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion,
   outRegion->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
   return 1;
 }
+
+
+
+
+//----------------------------------------------------------------------------
+// The user wants color scalars. Copy image region to color scalars.
+// We only handle gray maps for now.  Not templated yet either.
+vtkScalars *
+vtkImageToStructuredPoints::CopyToColorScalars(vtkImageRegion *region)
+{
+  int min0, max0, min1, max1, min2, max2;
+  vtkGraymap *scalars;
+  unsigned char *ptr0, *ptr1, *ptr2;
+  int inc0, inc1, inc2;
+  int idx0, idx1, idx2;
+  
+  if (region->GetScalarType() != VTK_UNSIGNED_CHAR)
+    {
+    vtkErrorMacro("CopyToColorScalars: Input must be unsigned char");
+    return NULL;
+    }
+  
+  region->GetExtent(min0, max0, min1, max1, min2, max2);
+  region->GetIncrements(inc0, inc1, inc2);
+  scalars = new vtkGraymap;
+  scalars->Allocate((max0-min0+1)*(max1-min1+1)*(max2-min2+1));
+
+  ptr2 = (unsigned char *)(region->GetScalarPointer());
+  for (idx2 = min2; idx2 <= max2; ++idx2)
+    {
+    ptr1 = ptr2;
+    for (idx1 = min1; idx1 <= max1; ++idx1)
+      {
+      ptr0 = ptr1;
+      for (idx0 = min0; idx0 <= max0; ++idx0)
+	{
+	scalars->InsertNextGrayValue(*ptr0);
+	ptr0 += inc0;
+	}
+      ptr1 += inc1;
+      }
+    ptr2 += inc2;
+    }
+
+  return scalars;
+}
+
+  
 
 
 //============================================================================

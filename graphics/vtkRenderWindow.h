@@ -93,6 +93,7 @@ public:
 
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *) {};
+  virtual void SetParentId(void *) {};
 
   // Description:
   // Performed at the end of the rendering process to generate image.

@@ -43,13 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkTIFFWriter::vtkTIFFWriter()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->Orientation = 1;
 }
 
 vtkTIFFWriter::~vtkTIFFWriter()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
 }
 
 // Description:
@@ -98,16 +98,16 @@ void vtkTIFFWriter::WriteData()
 
   bpp = newScalars->GetNumberOfValuesPerScalar();
 
-  if ( this->Filename == NULL)
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify FileName to write");
     return;
     }
 
-  fp = fopen(this->Filename,"wb");
+  fp = fopen(this->FileName,"wb");
   if (!fp) 
     {
-    vtkErrorMacro(<< "Couldn't open file: " << this->Filename << endl);
+    vtkErrorMacro(<< "Couldn't open file: " << this->FileName << endl);
     return;
     }
 
@@ -140,8 +140,8 @@ void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "FileName: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Orientation: " 
      << this->Orientation << "\n";
 }
