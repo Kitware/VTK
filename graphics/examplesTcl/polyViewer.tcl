@@ -51,7 +51,8 @@ proc UpdateView {x y z vx vy vz} {
     global renWin
 
     set camera [ren GetActiveCamera]
-    $camera SetDirectionOfProjection [expr -$x] [expr -$y] [expr -$z]
+    $camera SetFocalPoint 0 0 0
+    $camera SetPosition $x $y $z
     $camera SetViewUp $vx $vy $vz
     ren ResetCamera
     Render .window

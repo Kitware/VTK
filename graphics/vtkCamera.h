@@ -123,13 +123,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
   vtkGetMacro(Distance,double);
 
   // Description:
-  // Set the vector in the direction from the camera position to the
-  // focal point.  This method will move the focal point.
-  void SetDirectionOfProjection(double x, double y, double z);
-  void SetDirectionOfProjection(double vec[3]) {
-    this->SetDirectionOfProjection(vec[0],vec[1],vec[2]); };
-  void SetDirectionOfProjection(float vec[3]) {
-    this->SetDirectionOfProjection(vec[0],vec[1],vec[2]); };
+  // Get the vector in the direction from the camera position to the
+  // focal point.  This is usually the opposite of the ViewPlaneNormal,
+  // the vector perpendicular to the screen, unless the view is oblique.
   vtkGetVector3Macro(DirectionOfProjection,double);
   void GetDirectionOfProjection(float a[3]) {
     double tmp[3]; this->GetDirectionOfProjection(tmp); 
@@ -238,30 +234,26 @@ class VTK_EXPORT vtkCamera : public vtkObject
   vtkGetVector2Macro(WindowCenter,double);
 
   // Description:
-  // Get/Set the oblique viewing angles.  The first angle, alpha, is 
-  // the angle between the view plane and the direction of projection.
-  // The second angle, phi, is the angle (measured from the horizontal)
-  // that rays along the direction of projection will follow once 
-  // projected onto the 2D screen.  This creates a shear transform
+  // Get/Set the oblique viewing angles.  The first angle, alpha, is the
+  // angle (measured from the horizontal) that rays along the direction
+  // of projection will follow once projected onto the 2D screen.  
+  // The second angle, beta, is the angle between the view plane and
+  // the direction of projection.  This creates a shear transform
   // x' = x + dz*cos(phi)/tan(alpha), y' = dz*sin(phi)/tan(alpha)
   // where dz is the distance of the point from the focal plane.
   // The angles are (90,45) by default.  Oblique projections 
   // commonly use (63.435,30).
-  void SetObliqueAngles(double alpha, double phi);
+  void SetObliqueAngles(double alpha, double beta);
   vtkGetVector2Macro(ObliqueAngles,double);
 
   // Description:
   // Get the ViewPlaneNormal.  This vector will point opposite to
   // the direction of projection, unless you have created an oblique
-  // view. 
-  double *GetViewPlaneNormal();
-  void GetViewPlaneNormal(double a[3]) {
-    double *tmp = this->GetViewPlaneNormal(); 
-    a[0] = tmp[0]; a[1] = tmp[1]; a[2] = tmp[2]; }; 
+  // view using SetObliqueAngles.
+  vtkGetVector3Macro(ViewPlaneNormal,double);
   void GetViewPlaneNormal(float a[3]) {
-    double *tmp = this->GetViewPlaneNormal(); 
+    double tmp[3]; this->GetViewPlaneNormal(tmp); 
     a[0] = tmp[0]; a[1] = tmp[1]; a[2] = tmp[2]; }; 
-  void ComputeViewPlaneNormal();
 
   // Description:
   // Set/Get the separation between eyes (in degrees). This is used
@@ -334,15 +326,19 @@ class VTK_EXPORT vtkCamera : public vtkObject
     return this->ViewTransform->GetOrientationWXYZ(); };
 
   // Description:
-  // These methods have been deprecated in favor of 
-  // SetDirectionOfProjection(), which points in the opposite direction
-  // of the ViewPlaneNormal (except for in obscure cases that most users
-  // don't have to worry about).
+  // These methods have been deprecated.  The view plane normal is 
+  // automatically set from the DirectionOfProjection according to
+  // the ObliqueAngles.
   void SetViewPlaneNormal(double x, double y, double z);
   void SetViewPlaneNormal(const double a[3]) {
     this->SetViewPlaneNormal(a[0], a[1], a[2]); };
   void SetViewPlaneNormal(const float a[3]) {
     this->SetViewPlaneNormal(a[0], a[1], a[2]); };
+
+  // Description:
+  // This method is called automatically whenever necessary, it
+  // should never be used outside of vtkCamera.cxx.  
+  void ComputeViewPlaneNormal();
 
   // Description:
   // For legacy compatibility. Do not use.
@@ -388,12 +384,15 @@ protected:
   double Thickness;
   double Distance;
   double DirectionOfProjection[3];
+  double ViewPlaneNormal[3];
 
   vtkTransform *ViewTransform;
   vtkProjectionTransform *PerspectiveTransform;
   vtkProjectionTransform *Transform;
 
   double FocalDisk;
+
+  int LegacyFlag;
 
   // ViewingRaysMtime keeps track of camera modifications which will 
   // change the calculation of viewing rays for the camera before it is 

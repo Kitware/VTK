@@ -69,6 +69,7 @@ vtkCamera::vtkCamera()
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
+  this->Thickness = 1000.0;
 
   this->ParallelProjection = 0;
   this->ParallelScale = 1.0;
@@ -77,14 +78,11 @@ vtkCamera::vtkCamera()
   this->Stereo = 0;
   this->LeftEye = 1;
 
-  this->Thickness = 1000.0;
-  this->Distance = 1.0;
-
   this->WindowCenter[0] = 0.0;
   this->WindowCenter[1] = 0.0;
   
-  this->ObliqueAngles[0] = 90.0;
-  this->ObliqueAngles[1] = 45.0;
+  this->ObliqueAngles[0] = 45.0;
+  this->ObliqueAngles[1] = 90.0;
 
   this->FocalDisk = 1.0;
 
@@ -92,8 +90,12 @@ vtkCamera::vtkCamera()
   this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkProjectionTransform::New();
 
+  // LegacyFlag is set if an internal-only method is being called externally.
+  this->LegacyFlag = 1;
+
   // initialize the ViewTransform
   this->ComputeViewTransform();
+  this->ComputeDistance();
 }
 
 //----------------------------------------------------------------------------
@@ -139,10 +141,10 @@ void vtkCamera::SetPosition(double x, double y, double z)
   vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", " 
                 << this->Position[1] << ", " << this->Position[2] << ")");
 
+  this->ComputeViewTransform();
   // recompute the focal distance
   this->ComputeDistance();
 
-  this->ComputeViewTransform();
   this->Modified();
 }
 
@@ -162,10 +164,10 @@ void vtkCamera::SetFocalPoint(double x, double y, double z)
 
   vtkDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", " << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
+  this->ComputeViewTransform();
   // recompute the focal distance
   this->ComputeDistance();
 
-  this->ComputeViewTransform();
   this->Modified();
 }
 
@@ -263,26 +265,6 @@ void vtkCamera::SetDistance(double d)
 }  
 
 //----------------------------------------------------------------------------
-// Set the camera->focus direction.
-void vtkCamera::SetDirectionOfProjection(double x, double y, double z)
-{
-  if (x == this->DirectionOfProjection[0] && 
-      y == this->DirectionOfProjection[1] &&
-      z == this->DirectionOfProjection[2])
-    {
-    return;
-    }
-
-  this->DirectionOfProjection[0] = x;
-  this->DirectionOfProjection[1] = y;
-  this->DirectionOfProjection[2] = z;
-
-  // set focal point to match
-  this->Distance = this->Distance*10;
-  this->SetDistance(this->Distance);
-}
-
-//----------------------------------------------------------------------------
 // This method must be called when the focal point or camera position changes
 void vtkCamera::ComputeDistance()
 {
@@ -308,6 +290,9 @@ void vtkCamera::ComputeDistance()
   this->DirectionOfProjection[0] = dx/this->Distance;
   this->DirectionOfProjection[1] = dy/this->Distance;
   this->DirectionOfProjection[2] = dz/this->Distance;
+
+  this->LegacyFlag = 0;
+  this->ComputeViewPlaneNormal();
 } 
 
 //----------------------------------------------------------------------------
@@ -621,14 +606,17 @@ void vtkCamera::SetWindowCenter(double x, double y)
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetObliqueAngles(double alpha, double phi)
+void vtkCamera::SetObliqueAngles(double alpha, double beta)
 {
-  if (this->ObliqueAngles[0] != alpha || this->ObliqueAngles[1] != phi)
+  if (this->ObliqueAngles[0] != alpha || this->ObliqueAngles[1] != beta)
     {
     this->Modified();
     this->ViewingRaysModified();
     this->ObliqueAngles[0] = alpha;
-    this->ObliqueAngles[1] = phi;
+    this->ObliqueAngles[1] = beta;
+
+    this->LegacyFlag = 0;
+    this->ComputeViewPlaneNormal();
     }
 }
 
@@ -693,15 +681,15 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
       }
     }
 
-  if (this->ObliqueAngles[0] != 90.0)
+  if (this->ObliqueAngles[1] != 90.0)
     {
     // apply shear for oblique projections
 
     double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
-    double phi = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
+    double beta = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
 
-    this->PerspectiveTransform->Shear(cos(phi)/tan(alpha),
-				      sin(phi)/tan(alpha),
+    this->PerspectiveTransform->Shear(cos(alpha)/tan(beta),
+				      sin(alpha)/tan(beta),
 				      this->Distance);
     }
 }
@@ -742,40 +730,42 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 }
 
 //----------------------------------------------------------------------------
-double *vtkCamera::GetViewPlaneNormal()
+void vtkCamera::ComputeViewPlaneNormal()
 {
-  // shear the view matrix and extract the third row, the result is the
-  // ViewPlaneNormal.
-  
-  if (this->ObliqueAngles[0] != 90.0)
+  if (this->ObliqueAngles[1] != 90.0)
     {
     double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
-    double phi = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
-    this->Transform->Identity();
-    this->Transform->Shear(cos(phi)/tan(alpha),
-			   sin(phi)/tan(alpha),
-			   this->Distance);
-    this->Transform->Concatenate(this->ViewTransform->GetMatrixPointer());
-    return this->Transform->GetMatrixPointer()->Element[2];
+    double beta = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
+    // set the VPN in camera coordinates
+    this->ViewPlaneNormal[0] = cos(alpha)/tan(beta);
+    this->ViewPlaneNormal[1] = sin(alpha)/tan(beta);
+    this->ViewPlaneNormal[2] = 1.0;
+    // transform the VPN to world coordinates using inverse of view transform
+    this->ViewTransform->GetLinearInverse()->TransformNormal(
+					      this->ViewPlaneNormal,
+					      this->ViewPlaneNormal);
     }
   else
     {
-    return this->ViewTransform->GetMatrixPointer()->Element[2];
+    // VPN is -DOP
+    this->ViewPlaneNormal[0] = -this->DirectionOfProjection[0];
+    this->ViewPlaneNormal[1] = -this->DirectionOfProjection[1];
+    this->ViewPlaneNormal[2] = -this->DirectionOfProjection[2];
     }
-}  
+
+  if (this->LegacyFlag)
+    {
+    vtkWarningMacro(<< "ComputeViewPlaneNormal:  This method is deprecated, the view plan normal is calculated automatically.");
+    }
+  this->LegacyFlag = 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x), 
                                    double vtkNotUsed(y),
                                    double vtkNotUsed(z))
 {
-  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, the direction of projection is set up automatically.");
-}
-
-//----------------------------------------------------------------------------
-void vtkCamera::ComputeViewPlaneNormal()
-{
-  vtkWarningMacro(<< "ComputeViewPlaneNormal:  This method is deprecated, the direction of projection is set up automatically.");
+  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated the view plane normal is calculated automatically.");
 }
 
 //----------------------------------------------------------------------------
@@ -839,24 +829,27 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ClippingRange: (" << this->ClippingRange[0] << ", " 
      << this->ClippingRange[1] << ")\n";
+  os << indent << "DirectionOfProjection: (" << this->DirectionOfProjection[0]
+     << ", " << this->DirectionOfProjection[1] 
+     << ", " << this->DirectionOfProjection[2] << ")\n";
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "EyeAngle: " << this->EyeAngle << "\n";
   os << indent << "FocalDisk: " << this->FocalDisk << "\n";
   os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", " 
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-  os << indent << "Position: (" << this->Position[0] << ", " 
-     << this->Position[1] << ", " << this->Position[2] << ")\n";
+  os << indent << "ObliqueAngles: (" << this->ObliqueAngles[0] << ", " 
+     << this->ObliqueAngles[1] << ")\n";
   os << indent << "ParallelProjection: " << 
     (this->ParallelProjection ? "On\n" : "Off\n");
-  os << indent << "Parallel Scale: " << this->ParallelScale << "\n";
+  os << indent << "ParallelScale: " << this->ParallelScale << "\n";
+  os << indent << "Position: (" << this->Position[0] << ", " 
+     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Stereo: " << (this->Stereo ? "On\n" : "Off\n");
-  os << indent << "ObliqueAngles: " << this->ObliqueAngles[0] << ", " 
-     << this->ObliqueAngles[1] << "\n";
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "ViewAngle: " << this->ViewAngle << "\n";
-  os << indent << "DirectionOfProjection: " << this->DirectionOfProjection[0]
-     << ", " << this->DirectionOfProjection[1] 
-     << ", " << this->DirectionOfProjection[2] << ")\n";
+  os << indent << "ViewPlaneNormal: (" << this->ViewPlaneNormal[0]
+     << ", " << this->ViewPlaneNormal[1] 
+     << ", " << this->ViewPlaneNormal[2] << ")\n";
   os << indent << "ViewUp: (" << this->ViewUp[0] << ", " 
      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", " 
