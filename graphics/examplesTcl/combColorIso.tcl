@@ -37,6 +37,7 @@ vtkCastToConcrete cast2
   cast2 SetInput [probe2 GetOutput]
 
 vtkPolyDataNormals normals
+    normals SetMaxRecursionDepth 100
     normals SetInput [cast2 GetPolyDataOutput]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
