@@ -185,15 +185,20 @@ void vlSbrCamera::Render(vlSbrRenderer *ren)
   // if were on a stereo renderer draw to special parts of screen 
   if (stereo)
     {
-    if (this->LeftEye > 0.0) 
+    switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      viewport[1] = 0.5 + viewport[1]*0.5;
-      viewport[3] = 0.5 + viewport[3]*0.5;
-      }
-    else
-      {
-      viewport[1] = viewport[1]*0.5;
-      viewport[3] = viewport[3]*0.5;
+      case VL_STEREO_CRYSTAL_EYES:
+	if (this->LeftEye > 0.0) 
+	  {
+	  viewport[1] = 0.5 + viewport[1]*0.5;
+	  viewport[3] = 0.5 + viewport[3]*0.5;
+	  }
+	else
+	  {
+	  viewport[1] = viewport[1]*0.5;
+	  viewport[3] = viewport[3]*0.5;
+	  }
+	break;
       }
     }
 
@@ -210,8 +215,20 @@ void vlSbrCamera::Render(vlSbrRenderer *ren)
   // make sure the aspect is up to date
   if (stereo)
     {
-    aspect[0] = view_size[0]/(2.0*view_size[1]);
-    aspect[1] = 1.0;
+    switch ((ren->GetRenderWindow())->GetStereoType())
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	aspect[0] = view_size[0]/(2.0*view_size[1]);
+	aspect[1] = 1.0;
+	}
+	break;
+      default:
+	{
+	aspect[0] = view_size[0]/view_size[1];
+	aspect[1] = 1.0;
+	}
+      }
     }
   else
     {

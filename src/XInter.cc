@@ -333,18 +333,27 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  // prepare the new window
 	  if (me->RenderWindow->GetStereoRender())
 	    {
-	    me->SetupNewWindow(1);
+	    if (me->RenderWindow->GetRemapWindow())
+	      {
+	      me->SetupNewWindow(1);
+	      }
 	    me->RenderWindow->StereoRenderOff();
 	    }
 	  else
 	    {
 	    memcpy(me->PositionBeforeStereo,me->RenderWindow->GetPosition(),
 		   sizeof(int)*2);
-	    me->SetupNewWindow(1);
+	    if (me->RenderWindow->GetRemapWindow())
+	      {
+	      me->SetupNewWindow(1);
+	      }
 	    me->RenderWindow->StereoRenderOn();
 	    }
 	  me->RenderWindow->Render();
-          me->FinishSettingUpNewWindow();
+	  if (me->RenderWindow->GetRemapWindow())
+	    {
+	    me->FinishSettingUpNewWindow();
+	    }
           }
 	  break;
 
