@@ -158,10 +158,10 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   cnt = outData->GetNumberOfScalarComponents();
   inCnt = inData->GetNumberOfScalarComponents();
   
-  // Loop through ouput pixels
-  offset1 = self->Components[0];
-  offset2 = self->Components[1];
-  offset3 = self->Components[2];
+  // Loop through output pixels
+  offset1 = self->GetComponents()[0];
+  offset2 = self->GetComponents()[1];
+  offset3 = self->GetComponents()[2];
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
@@ -292,6 +292,7 @@ void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   os << indent << "Components: ( "
      << this->Components[0] << ", "
      << this->Components[1] << ", "

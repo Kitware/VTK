@@ -66,10 +66,12 @@ public:
   // default middle of the neighborhood 
   void SetKernelSize(int size0, int size1, int size2);
 
-  // used in median calc
-  int NumberOfElements;
+  // Description:
+  // Return the number of elements in the median mask
+  vtkGetMacro(NumberOfElements,int);
   
 protected:
+  int NumberOfElements;
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);

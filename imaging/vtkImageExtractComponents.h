@@ -68,13 +68,14 @@ public:
   void SetComponents(int c1, int c2, int c3);
   vtkGetVector3Macro(Components,int);
   
-  // here for templated function
-  // limited to 3 for now.
+  // Description:
+  // Get the number of componets. This is set implicitly by the SetComponents method.
+  vtkGetMacro(NumberOfComponents,int);
+
+protected:
   int NumberOfComponents;
   int Components[3];
-  
-protected:
-  
+
   void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

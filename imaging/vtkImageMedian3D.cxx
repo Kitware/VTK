@@ -188,6 +188,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 				    int outExt[6], int id)
 {
   int *kernelMiddle, *kernelSize;
+  int NumberOfElements;
   // For looping though output (and input) pixels.
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
@@ -204,7 +205,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   // variables for the median calc
   int UpNum, DownNum, UpMax, DownMax;
   double *Median;
-  double *Sort = new double[(self->NumberOfElements + 8)];
+  double *Sort = new double[(self->GetNumberOfElements() + 8)];
   int *inExt;
   unsigned long count = 0;
   unsigned long target;
@@ -212,8 +213,8 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  kernelMiddle = self->KernelMiddle;
-  kernelSize = self->KernelSize;
+  kernelMiddle = self->GetKernelMiddle();
+  kernelSize = self->GetKernelSize();
   
   numComp = inData->GetNumberOfScalarComponents();
 
@@ -249,6 +250,8 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     (outExt[3] - outExt[2] + 1)/50.0);
   target++;
   
+  NumberOfElements = self->GetNumberOfElements();
+
   // loop through pixel of output
   inPtr = (T *)inData->GetScalarPointer(hoodMin0,hoodMin1,hoodMin2);
   inPtr2 = inPtr;
@@ -279,7 +282,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 	  // Note: For boundary, NumNeighborhood could be changed for
 	  // a faster sort.
 	  DownNum = UpNum = 0;
-          Median = Sort + (self->NumberOfElements / 2) + 4;
+          Median = Sort + (NumberOfElements / 2) + 4;
 	  // loop through neighborhood pixels
 	  tmpPtr2 = inPtr0 + outIdxC;
 	  for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
@@ -293,7 +296,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 		// Add this pixel to the median
 		Median = vtkImageMedian3DAccumulateMedian(UpNum, DownNum, 
 							  UpMax, DownMax,
-							  self->NumberOfElements,
+							  NumberOfElements,
 							  Median,
 							  double(*tmpPtr0));
 		

@@ -66,14 +66,16 @@ public:
   // Get the Kernel size.
   int *GetKernelSize() {return this->KernelSize;}
   
-  // users shouldn't access these directly but templated functions need to
+  // Description:
+  // Get the Kernel middle.
+  int *GetKernelMiddle() {return this->KernelMiddle;}
+
+protected:
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
   int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-protected:
-  
   void ExecuteImageInformation();
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
   void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);

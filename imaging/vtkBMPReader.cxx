@@ -289,6 +289,7 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
   int dataExtent[6];
   int pixelSkip;
   unsigned char *inPtr;
+  unsigned char *Colors;
   unsigned long count = 0;
   unsigned long target;
   
@@ -300,6 +301,9 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
   // get and transform the increments
   data->GetIncrements(inIncr);
   self->ComputeInverseTransformedIncrements(inIncr,outIncr);
+
+  // get the color lut
+  Colors = self->GetColors();
 
   // compute outPtr2 
   outPtr2 = outPtr;
@@ -318,16 +322,16 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = pixelRead * self->DataIncrements[0];  
-  streamSkip0 = self->DataIncrements[1] - streamRead;
-  streamSkip1 = self->DataIncrements[2] - 
-    (dataExtent[3] - dataExtent[2] + 1)* self->DataIncrements[1];
-  pixelSkip = self->Depth/8;
+  streamRead = pixelRead * self->GetDataIncrements()[0];  
+  streamSkip0 = self->GetDataIncrements()[1] - streamRead;
+  streamSkip1 = self->GetDataIncrements()[2] - 
+    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
+  pixelSkip = self->GetDepth()/8;
     
   // read from the bottom up
   if (!self->GetFileLowerLeft()) 
     {
-    streamSkip0 = -streamRead - self->DataIncrements[1];
+    streamSkip0 = -streamRead - self->GetDataIncrements()[1];
     }
   
   // create a buffer to hold a row of the data
@@ -360,26 +364,27 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
       outPtr0 = outPtr1;
       
       // read the row.
-      if ( ! self->File->read((char *)buf, streamRead))
+      if ( ! self->GetFile()->read((char *)buf, streamRead))
 	{
 	vtkGenericWarningMacro("File operation failed. row = " << idx1
 			       << ", Read = " << streamRead
 			       << ", Skip0 = " << streamSkip0
 			       << ", Skip1 = " << streamSkip1
-			       << ", FilePos = " << self->File->tellg());
+			       << ", FilePos = " << self->GetFile()->tellg());
 	return;
 	}
       
+
       // copy the bytes into the typed data
       inPtr = buf;
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
 	{
 	// Copy pixel into the output.
-	if (self->Depth == 8)
+	if (self->GetDepth() == 8)
 	  {
-	  outPtr0[0] = (OT)(self->Colors[inPtr[0]*3]);
-	  outPtr0[1] = (OT)(self->Colors[inPtr[0]*3+1]);
-	  outPtr0[2] = (OT)(self->Colors[inPtr[0]*3+2]);
+	  outPtr0[0] = (OT)(Colors[inPtr[0]*3]);
+	  outPtr0[1] = (OT)(Colors[inPtr[0]*3+1]);
+	  outPtr0[2] = (OT)(Colors[inPtr[0]*3+2]);
 	  }
 	else
 	  {
@@ -392,11 +397,11 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 	outPtr0 += outIncr[0];
 	}
       // move to the next row in the file and data
-      self->File->seekg(self->File->tellg() + streamSkip0, ios::beg);
+      self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
-    self->File->seekg(self->File->tellg() + streamSkip1, ios::beg);
+    self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1, ios::beg);
     outPtr2 += outIncr[2];
     }
 

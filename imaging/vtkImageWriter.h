@@ -103,9 +103,6 @@ public:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
-  // Public for templated function
-  char *InternalFileName;
-
 protected:
   vtkImageCache *Input;
   int FileDimensionality;
@@ -114,6 +111,7 @@ protected:
   char *FileName;
   int FileNumber;
   int FileLowerLeft;
+  char *InternalFileName;
   
   void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
   void RecursiveWrite(int dim, vtkImageCache *cache, 

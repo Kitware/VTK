@@ -192,13 +192,11 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  vtkGetMacro(File,ifstream *);
+  vtkGetVectorMacro(DataIncrements,int,4);
+
   // Warning !!!
   // following should only be used by methods or template helpers, not users
-  ifstream *File;
-  int DataIncrements[4];
-  int DataExtent[6];
-  unsigned short DataMask;  // Mask each pixel with ...
-  int SwapBytes;
   void ComputeInverseTransformedExtent(int inExtent[6],
 				       int outExtent[6]);
   void ComputeInverseTransformedIncrements(int inIncr[3],
@@ -227,6 +225,12 @@ protected:
   char *FilePattern;
   int NumberOfScalarComponents;
   int FileLowerLeft;
+
+  ifstream *File;
+  int DataIncrements[4];
+  int DataExtent[6];
+  unsigned short DataMask;  // Mask each pixel with ...
+  int SwapBytes;
 
   int FileDimensionality;
   int HeaderSize;

@@ -600,6 +600,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   int comp, pixelSkip;
   int filePos, correction;
   unsigned long count = 0;
+  unsigned short DataMask;
   unsigned long target;
   
   // Get the requested extents.
@@ -610,6 +611,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   // get and transform the increments
   data->GetIncrements(inIncr);
   self->ComputeInverseTransformedIncrements(inIncr,outIncr);
+
+  DataMask = self->GetDataMask();
 
   // compute outPtr2 
   outPtr2 = outPtr;
@@ -628,18 +631,18 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = pixelRead * self->DataIncrements[0];  
-  streamSkip0 = self->DataIncrements[1] - streamRead;
-  streamSkip1 = self->DataIncrements[2] - 
-    (dataExtent[3] - dataExtent[2] + 1)* self->DataIncrements[1];
+  streamRead = pixelRead * self->GetDataIncrements()[0];  
+  streamSkip0 = self->GetDataIncrements()[1] - streamRead;
+  streamSkip1 = self->GetDataIncrements()[2] - 
+    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
   pixelSkip = data->GetNumberOfScalarComponents();
     
   // read from the bottom up
   if (!self->GetFileLowerLeft()) 
     {
-    streamSkip0 = -streamRead - self->DataIncrements[1];
-    streamSkip1 = self->DataIncrements[2] + 
-      (dataExtent[3] - dataExtent[2] + 1)* self->DataIncrements[1];
+    streamSkip0 = -streamRead - self->GetDataIncrements()[1];
+    streamSkip1 = self->GetDataIncrements()[2] + 
+      (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
     }
   
     
@@ -673,18 +676,18 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       outPtr0 = outPtr1;
   
       // read the row.
-      if ( ! self->File->read((char *)buf, streamRead))
+      if ( ! self->GetFile()->read((char *)buf, streamRead))
 	{
 	vtkGenericWarningMacro("File operation failed. row = " << idx1
 			       << ", Read = " << streamRead
 			       << ", Skip0 = " << streamSkip0
 			       << ", Skip1 = " << streamSkip1
-			       << ", FilePos = " << self->File->tellg());
+			       << ", FilePos = " << self->GetFile()->tellg());
 	return;
 	}
       
       // handle swapping
-      if (self->SwapBytes)
+      if (self->GetSwapBytes())
 	{
 	vtkByteSwap::SwapVoidRange(buf, pixelRead, sizeof(IT));
 	}
@@ -694,7 +697,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
 	{
 	// Copy pixel into the output.
-	if (self->DataMask == 0xffff)
+	if (DataMask == 0xffff)
 	  {
 	  for (comp = 0; comp < pixelSkip; comp++)
 	    {
@@ -706,7 +709,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 	  // left over from short reader (what about other types.
 	  for (comp = 0; comp < pixelSkip; comp++)
 	    {
-	    outPtr0[comp] = (OT)((short)(inPtr[comp]) & self->DataMask);
+	    outPtr0[comp] = (OT)((short)(inPtr[comp]) & DataMask);
 	    }
 	  }
 	// move to next pixel
@@ -714,12 +717,12 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 	outPtr0 += outIncr[0];
 	}
       // move to the next row in the file and data
-      filePos = self->File->tellg();
+      filePos = self->GetFile()->tellg();
       // watch for case where we might rewind too much
       // if that happens, store the value in correction and apply later
       if (filePos + streamSkip0 >= 0)
 	{
-	self->File->seekg(self->File->tellg() + streamSkip0, ios::beg);
+	self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
 	correction = 0;
 	}
       else
@@ -729,7 +732,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
-    self->File->seekg(self->File->tellg() + streamSkip1 + correction, 
+    self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1 + correction, 
 		      ios::beg);
     outPtr2 += outIncr[2];
     }

@@ -184,8 +184,8 @@ static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   
   
   // Get ivars of this object (easier than making friends)
-  kernelSize = self->KernelSize;
-  kernelMiddle = self->KernelMiddle;
+  kernelSize = self->GetKernelSize();;
+  kernelMiddle = self->GetKernelMiddle();
   hoodMin0 = - kernelMiddle[0];
   hoodMin1 = - kernelMiddle[1];
   hoodMin2 = - kernelMiddle[2];
