@@ -23,13 +23,13 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.3");
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.4");
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
 {
-  this->Tessellator = vtkGenericCellTessellator::New();
+  this->Tessellator = 0;
   this->Attributes = vtkGenericAttributeCollection::New();
   vtkMath::UninitializeBounds(this->Bounds);
 }
@@ -37,7 +37,10 @@ vtkGenericDataSet::vtkGenericDataSet()
 //----------------------------------------------------------------------------
 vtkGenericDataSet::~vtkGenericDataSet()
 {
-  this->Tessellator->Delete();
+  if(this->Tessellator!=0)
+    {
+    this->Tessellator->Delete();
+    }
   this->Attributes->Delete();
 }
 
