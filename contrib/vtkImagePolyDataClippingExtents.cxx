@@ -109,6 +109,56 @@ void vtkImagePolyDataClippingExtents::PrepareForThreadedBuildExtents()
 }
 
 //----------------------------------------------------------------------------
+static inline
+void vtkAddEntryToList(int *&clist, int &clistlen, int &clistmaxlen, int r)
+{
+  if (clistlen >= clistmaxlen)
+    { // need to allocate more space
+    clistmaxlen *= 2;
+    int *newclist = new int[clistmaxlen];
+    for (int k = 0; k < clistlen; k++)
+      {
+      newclist[k] = clist[k];
+      }
+    delete [] clist;
+    clist = newclist;
+    }
+
+  if (clistlen > 0 && r == clist[0])
+    { // chop out zero-length extents
+    clistlen--;
+    }
+  else
+    {
+    clist[clistlen++] = r;
+    }
+}
+
+//----------------------------------------------------------------------------
+static
+void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
+			   int extent[6], float origin[3], float spacing[3],
+			   int state, int dim)
+{
+  int clistmaxlen = 2;
+  clistlen = 0;
+  clist = new int[clistmaxlen];
+
+  if (state <= 0)
+    {
+    clist[clistlen++] = extent[2*dim];
+    }
+
+  int npoints = points->GetNumberOfPoints();
+  for (int idP = 0; idP < npoints; idP++)
+    {
+    float *point = points->GetPoint(idP);
+    int r = (int)ceil((point[dim] - origin[dim])/spacing[dim]);
+    vtkAddEntryToList(clist, clistlen, clistmaxlen, r);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImagePolyDataClippingExtents::ThreadedBuildExtents(int extent[6],
 							   int ThreadId)
 {
@@ -142,68 +192,79 @@ void vtkImagePolyDataClippingExtents::ThreadedBuildExtents(int extent[6],
     int *clippingListLength = this->ClippingListLengths;
     int **clippingList = this->ClippingLists;
 
-    p0[0] = extent[0]*spacing[0] + origin[0];
-    p1[0] = extent[1]*spacing[0] + origin[0];
+    p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
+    p1[0] = p0[1] = extent[2]*spacing[1] + origin[1];
+    p0[2] = extent[4]*spacing[2] + origin[2];
+    p1[2] = extent[5]*spacing[2] + origin[2];
+
+    int state = tree->InsideOrOutside(p0);
+    if (state == 0)
+      {
+      state = -1;
+      }
+
+    int *zlist = 0;
+    int zlistlen = 0;
+    int zlistidx = 0;
+    if (extent[4] != extent[5])
+      {
+      tree->IntersectWithLine(p0, p1, points, 0);
+      vtkTurnPointsIntoList(points, zlist, zlistlen,
+			    extent, origin, spacing, 1, 2);
+      }
 
     for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
       {
-      p0[2] = p1[2] = idZ*spacing[2] + origin[2];
+      if (zlistidx < zlistlen && idZ >= zlist[zlistidx])
+	{
+	state = -state;
+	zlistidx++;
+	}
+
+      p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
+      p0[1] = extent[2]*spacing[1] + origin[1];
+      p1[1] = extent[3]*spacing[1] + origin[1];
+      p1[2] = p0[2] = idZ*spacing[2] + origin[2];
+
+      int *ylist = 0;
+      int ylistlen = 0;
+      int ylistidx = 0;
+      if (extent[2] != extent[3])
+	{
+	tree->IntersectWithLine(p0, p1, points, 0);
+	vtkTurnPointsIntoList(points, ylist, ylistlen,
+			      extent, origin, spacing, 1, 1);
+	}
 
       for (int idY = extent[2]; idY <= extent[3]; idY++)
 	{
+	if (ylistidx < ylistlen && idY >= ylist[ylistidx])
+	  {
+	  state = -state;
+	  ylistidx++;
+	  }
+
 	p0[1] = p1[1] = idY*spacing[1] + origin[1];
-	int clistlen = 0;
-	int clistmaxlen = 2;
-	int *clist = new int[clistmaxlen];
+	p0[2] = p1[2] = idZ*spacing[2] + origin[2];
+	p0[0] = extent[0]*spacing[0] + origin[0];
+	p1[0] = extent[1]*spacing[0] + origin[0];
 
-	int state = tree->IntersectWithLine(p0, p1, points, 0);
-	if (state == 0)
-	  {
-	  state = tree->InsideOrOutside(p0);
-	  }
+	tree->IntersectWithLine(p0, p1, points, 0);
+	vtkTurnPointsIntoList(points, *clippingList++, *clippingListLength++,
+			      extent, origin, spacing, state, 0);
 
-	int lastr = VTK_INT_MIN;
-	if (state <= 0)
-	  {
-	  lastr = extent[0];
-	  clist[clistlen++] = extent[0];
-	  }
-
-	int npoints = points->GetNumberOfPoints();
-	for (int idP = 0; idP < npoints; idP++)
-	  {
-	  float *point = points->GetPoint(idP);
-	  if (clistlen >= clistmaxlen)
-	    { // need to allocate more space
-	    clistmaxlen *= 2;
-	    int *newclist = new int[clistmaxlen];
-	    for (int k = 0; k < clistlen; k++)
-	      {
-	      newclist[k] = clist[k];
-	      }
-	    delete [] clist;
-	    clist = newclist;
-	    }
-
-	  int r = (int)ceil((point[0] - origin[0])/spacing[0]);
-	  if (r == lastr)
-	    { // chop out zero-length extents
-	    clistlen--;
-	    lastr = VTK_INT_MIN;
-	    }
-	  else
-	    {
-	    clist[clistlen++] = r;
-	    lastr = r;
-	    }
-	  }
-
-	*clippingListLength++ = clistlen;
-	*clippingList++ = clist;
 	} // for idY
+      if (ylist)
+	{
+	delete [] ylist;
+	}
 
       } // for idZ
 
+    if (zlist)
+      {
+      delete [] zlist;
+      }
     points->Delete();
     return;
     }
