@@ -21,7 +21,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 // eliminate constructor / destructor calls
 //
-static vtkLine line;
 static vtkMath math;
 
 
@@ -346,6 +345,7 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
   float lineWeights[2];
+  static vtkLine line;
 
   pcoords[1] = pcoords[2] = 0.0;
 
@@ -414,6 +414,7 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
 {
   int i;
   vtkFloatScalars lineScalars(2);
+  static vtkLine line;
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
@@ -435,6 +436,7 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
 int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
                                   float x[3], float pcoords[3], int& subId)
 {
+  static vtkLine line;
   for (subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
     {
     line.Points.SetPoint(0,this->Points.GetPoint(subId));

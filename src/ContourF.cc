@@ -92,6 +92,7 @@ void vtkContourFilter::Execute()
   vtkFloatScalars *newScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPts;
+  cellScalars.ReferenceCountingOff();
 
   vtkDebugMacro(<< "Executing contour filter");
 //

@@ -18,11 +18,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
-//
-// Static minimizes constructor / destructor calls
-//
-static vtkTriangle tri;
-
 // Description:
 // Deep copy of cell.
 vtkTriangleStrip::vtkTriangleStrip(const vtkTriangleStrip& ts)
@@ -39,6 +34,7 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
   int ignoreId, i, return_status, status;
   float tempWeights[3], activeWeights[3];
   float closest[3];
+  static vtkTriangle tri;
 
   pcoords[2] = 0.0;
 
@@ -105,6 +101,7 @@ void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars,
 {
   int i;
   vtkFloatScalars triScalars(3);
+  static vtkTriangle tri;
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
@@ -158,6 +155,8 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
                                        float& t, float x[3], float pcoords[3],
                                        int& subId)
 {
+  static vtkTriangle tri;
+
   for (subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
     {
     tri.Points.SetPoint(0,this->Points.GetPoint(subId));

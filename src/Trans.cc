@@ -365,6 +365,17 @@ void vtkTransform::GetInverse ( vtkMatrix4x4& inverse)
 
 // Description:
 // Get the x, y, z orientation angles from transformation matrix.
+void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
+{
+  float *orientation=this->GetOrientation();
+  rx = orientation[0];
+  ry = orientation[1];
+  rz = orientation[2];
+}
+
+// Description:
+// Get the x, y, z orientation angles from transformation matrix as an array
+// of three floating point values.
 float *vtkTransform::GetOrientation ()
 {
 #define AXIS_EPSILON .01
@@ -485,11 +496,37 @@ void vtkTransform::GetPosition (float & x,float & y,float & z)
 }
 
 // Description:
+// Return the position from the current transformation matrix as an array
+// of three floating point numbers.
+float *vtkTransform::GetPosition()
+{
+  static float pos[3];
+
+  pos[0] = (**this->Stack).Element[0][3];
+  pos[1] = (**this->Stack).Element[1][3];
+  pos[2] = (**this->Stack).Element[2][3];
+
+  return pos;
+}
+
+// Description:
 // Return the x, y, z scale factors of the current transformation matrix.
-void vtkTransform::GetScale ( float & x, float & y, float & z)
+void vtkTransform::GetScale (float& x, float& y, float& z)
+{
+  float *scale=this->GetScale();
+
+  x = scale[0];
+  y = scale[1];
+  z = scale[2];
+}
+
+// Description:
+// Return the scale factors of the current transformation matrix as an
+// array of three float numbers.
+float *vtkTransform::GetScale()
 {
   int	i;
-  float	scale[3];
+  static float scale[3];
   vtkMatrix4x4 temp;
 
   // copy the matrix into local storage
@@ -504,9 +541,8 @@ void vtkTransform::GetScale ( float & x, float & y, float & z)
                      temp.Element[i][1] * temp.Element[i][1] +
                      temp.Element[i][2] * temp.Element[i][2]);
     }
-  x = scale[0];
-  y = scale[1];
-  z = scale[2];
+
+  return scale;
 }
 
 // Description:

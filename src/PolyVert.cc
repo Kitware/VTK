@@ -18,7 +18,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Vertex.hh"
 
-static vtkVertex vertex;
 static vtkMath math;
 
 // Description:
@@ -116,6 +115,8 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
                                     float tol, float& t, float x[3], 
                                     float pcoords[3], int& subId)
 {
+  static vtkVertex vertex;
+
   for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
     {
     vertex.Points.SetPoint(0,this->Points.GetPoint(subId));

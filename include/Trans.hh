@@ -52,13 +52,16 @@ class vtkTransform : public vtkObject
   void RotateWXYZ ( float angle, float x, float y, float z);
   void Scale ( float x, float y, float z);
   void Translate ( float x, float y, float z);
-  void Transpose ();
+  void Transpose();
   void GetTranspose (vtkMatrix4x4& transpose);
-  void Inverse ();
-  void GetInverse ( vtkMatrix4x4& inverse);
+  void Inverse();
+  void GetInverse(vtkMatrix4x4& inverse);
   float *GetOrientation();
-  void GetPosition (float & x,float & y,float & z);
-  void GetScale ( float & x, float & y, float & z);
+  void GetOrientation(float& rx, float& ry, float& rz);
+  float *GetPosition();
+  void GetPosition (float& x, float& y, float& z);
+  float *GetScale();
+  void GetScale (float& sx, float& sy, float& sz);
   void SetMatrix(vtkMatrix4x4& m);
   vtkMatrix4x4& GetMatrix();
   void GetMatrix (vtkMatrix4x4& m);
@@ -75,8 +78,8 @@ class vtkTransform : public vtkObject
  private:
   int PreMultiplyFlag;
   int StackSize;
-  vtkMatrix4x4 ** Stack;
-  vtkMatrix4x4 ** StackBottom;
+  vtkMatrix4x4 **Stack;
+  vtkMatrix4x4 **StackBottom;
   float Point[4];
   float Orientation[3];
 
