@@ -81,7 +81,7 @@ void vtkExtractEdges::Execute()
   vtkCellArray *newLines;
   vtkIdType numCells, cellNum, numPts, newId;
   int edgeNum, numEdgePts, numCellEdges;
-  int i, abort;
+  int i, abort = 0;
   vtkIdType pts[2];
   vtkIdType pt1 = 0, pt2;
   float *x;
