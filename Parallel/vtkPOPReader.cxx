@@ -25,7 +25,7 @@
 #include "vtkImageWrapPad.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.11");
+vtkCxxRevisionMacro(vtkPOPReader, "1.12");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -966,6 +966,7 @@ void vtkPOPReader::PrintSelf(ostream& os, vtkIndent indent)
      << this->ClipExtent[3] << ", " << this->ClipExtent[4] << ", "
      << this->ClipExtent[5] << endl;
 
+  os << indent << "NumberOfGhostLevels = " << this->NumberOfGhostLevels << endl;
 
 }
 
