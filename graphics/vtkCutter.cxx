@@ -270,6 +270,8 @@ void vtkCutter::GenerateValues(int numContours, float range[2])
     }
 
   this->NumberOfContours = numContours;
+
+  this->Modified();
 }
 
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
