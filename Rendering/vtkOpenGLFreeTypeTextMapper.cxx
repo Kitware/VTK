@@ -624,7 +624,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.16");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -725,7 +725,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   
   float llx, lly, llz, urx, ury, urz;
 
-  font->BBox(this->Input, llx, lly, llz, urx, ury, urz);
+  font->BBox(this->Input, llx, lly, llz, urx, ury, urz, false);
 
 #if VTK_FTTM_DEBUG
     printf("vtkOpenGLFreeTypeTextMapper::GetSize: BBox (%d)\n", 
@@ -843,7 +843,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     case VTK_TEXT_LEFT: 
       break;
     case VTK_TEXT_CENTERED:
-      pos[0] = pos[0] - size[0] / 2;      
+      pos[0] = pos[0] - size[0] / 2;
       break;
     case VTK_TEXT_RIGHT: 
       pos[0] = pos[0] - size[0];
