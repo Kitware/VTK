@@ -29,12 +29,6 @@
 
 #include "vtkObject.h"
 
-// To be moved to SetGet.h at some point ?
-
-#define VTK_TEXT_GLOBAL_ANTIALIASING_SOME 0
-#define VTK_TEXT_GLOBAL_ANTIALIASING_NONE 1
-#define VTK_TEXT_GLOBAL_ANTIALIASING_ALL 2
-
 class VTK_RENDERING_EXPORT vtkTextProperty : public vtkObject
 {
 public:

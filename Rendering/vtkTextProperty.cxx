@@ -18,7 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.1");
+vtkCxxRevisionMacro(vtkTextProperty, "1.2");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -57,9 +57,9 @@ int vtkTextProperty::GetGlobalAntiAliasing()
 
 vtkTextProperty::vtkTextProperty()
 {
-  this->Color[0] = 0;
-  this->Color[1] = 0;
-  this->Color[2] = 0;
+  this->Color[0] = 1.0;
+  this->Color[1] = 1.0;
+  this->Color[2] = 1.0;
 
   this->FontFamily = VTK_ARIAL;
   this->FontSize = 12;
