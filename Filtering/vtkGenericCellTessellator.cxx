@@ -358,7 +358,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.4");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.5");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 //-----------------------------------------------------------------------------
@@ -1365,8 +1365,6 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     }
 
   // Init the edge table
-  
-  cout<<"internalPd->GetNumberOfComponents()="<<internalPd->GetNumberOfComponents()<<endl;
   
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
   
