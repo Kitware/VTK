@@ -217,15 +217,15 @@ void vtkStreamer::Integrate()
   vtkVectors *inVectors;
   int numSourcePts;
   vtkStreamPoint *sNext, *sPtr;
-  int i, j, ptId, offset, numSteps, subId;
+  int i, j, ptId, offset, subId;
   vtkCell *cell;
   vtkFloatVectors cellVectors(MAX_CELL_SIZE);
   vtkFloatScalars cellScalars(MAX_CELL_SIZE);
-  float *v, x[3], xNext[3];
+  float *v, xNext[3];
   vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
   float w[MAX_CELL_SIZE], dist2;
-  float closestPoint[3], stepLength;
+  float closestPoint[3];
   
   vtkDebugMacro(<<"Generating streamers");
   this->Initialize();
