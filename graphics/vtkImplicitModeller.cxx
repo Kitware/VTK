@@ -566,6 +566,18 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
     }
 }
 
+char *vtkImplicitModeller::GetProcessModeAsString()
+{
+  if (this->ProcessMode == VTK_CELL_MODE)
+    {
+    return "PerCell";
+    }
+  else
+    {
+    return "PerVoxel";
+    }
+}
+
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
@@ -586,4 +598,5 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
+  os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
 }

@@ -161,10 +161,11 @@ public:
   // when there are a lot of cells (at least a thousand?); relative
   // performance improvement increases with addition cells.  Primitives
   // should not be stripped for best performance of the voxel mode.
-  vtkSetMacro(ProcessMode, int);
+  vtkSetClampMacro(ProcessMode, int, 0, 1);
   vtkGetMacro(ProcessMode, int);
   void SetProcessModeToPerVoxel() {this->SetProcessMode(VTK_VOXEL_MODE);}
   void SetProcessModeToPerCell()  {this->SetProcessMode(VTK_CELL_MODE);}
+  char *GetProcessModeAsString(void);
 
   // Description:
   // Specify the level of the locator to use when using the per voxel
