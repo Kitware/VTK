@@ -78,6 +78,12 @@ public:
   vtkSetMacro(Sigma,float);
 
   // Description:
+  // Turn on/off the generation of displacement vectors.
+  vtkSetMacro(GenerateDisplacementVectors,int);
+  vtkGetMacro(GenerateDisplacementVectors,int);
+  vtkBooleanMacro(GenerateDisplacementVectors,int);
+
+  // Description:
   // Set the source landmarks for the warp.
   vtkSetObjectMacro(SourceLandmarks,vtkPoints);
   vtkGetObjectMacro(SourceLandmarks,vtkPoints);
@@ -96,6 +102,7 @@ protected:
   void Execute();
 
   float Sigma;
+  int GenerateDisplacementVectors;
   vtkPoints *SourceLandmarks;
   vtkPoints *TargetLandmarks;
 };
