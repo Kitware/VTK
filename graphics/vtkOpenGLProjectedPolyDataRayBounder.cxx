@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkRenderer.h"
 #include "vtkRayCaster.h"
