@@ -78,6 +78,8 @@ public:
   // Specify the Image to compare the input to.
   vtkSetObjectMacro(Image,vtkStructuredPoints);
   vtkGetObjectMacro(Image,vtkStructuredPoints);
+  void SetImage(vtkImageCache *cache)
+    {this->SetImage(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // Description:
   // Return the error in comparing the two images.
