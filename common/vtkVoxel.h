@@ -111,8 +111,8 @@ public:
 protected:
   vtkVoxel();
   ~vtkVoxel();
-  vtkVoxel(const vtkVoxel&) {}
-  void operator=(const vtkVoxel&) {}
+  vtkVoxel(const vtkVoxel&);
+  void operator=(const vtkVoxel&);
 
   vtkLine *Line;
   vtkPixel *Pixel;

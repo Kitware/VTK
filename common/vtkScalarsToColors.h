@@ -132,8 +132,8 @@ public:
 protected:
   vtkScalarsToColors() {};
   ~vtkScalarsToColors() {};
-  vtkScalarsToColors(const vtkScalarsToColors &) {};
-  void operator=(const vtkScalarsToColors &) {};
+  vtkScalarsToColors(const vtkScalarsToColors &);
+  void operator=(const vtkScalarsToColors &);
 
 private:
   float RGB[3];
