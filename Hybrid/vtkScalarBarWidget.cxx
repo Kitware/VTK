@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.7");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.8");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -40,10 +40,8 @@ vtkScalarBarWidget::vtkScalarBarWidget()
 
 vtkScalarBarWidget::~vtkScalarBarWidget()
 {
-  if (this->ScalarBarActor)
-    {
-    this->ScalarBarActor->Delete();
-    }
+  this->SetCurrentRenderer(0);
+  this->SetScalarBarActor(0);
 }
 
 void vtkScalarBarWidget::SetEnabled(int enabling)
@@ -64,9 +62,9 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
     
     if ( ! this->CurrentRenderer )
       {
-      this->CurrentRenderer = this->Interactor->FindPokedRenderer(
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
-        this->Interactor->GetLastEventPosition()[1]);
+        this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == NULL)
         {
         return;
@@ -107,7 +105,7 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
     // turn off the line
     this->CurrentRenderer->RemoveActor(this->ScalarBarActor);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->CurrentRenderer = NULL;
+    this->SetCurrentRenderer(NULL);
     }
   
   this->Interactor->Render();

@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.85");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.86");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -245,16 +245,7 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::FindPokedRenderer(int x,int y) 
 {
-  // Release old renderer, if any
-  if (this->CurrentRenderer)
-    {
-    this->CurrentRenderer->UnRegister(this);
-    }
-  this->CurrentRenderer = NULL;
-
-  this->CurrentRenderer = this->Interactor->FindPokedRenderer(x,y);
-
-  this->CurrentRenderer->Register(this);
+  this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(x,y));
 }
 
 //----------------------------------------------------------------------------
