@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.33");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.34");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -410,7 +410,13 @@ void vtkClipDataSet::CreateDefaultLocator()
 void vtkClipDataSet::ClipVolume()
 {
   vtkClipVolume *clipVolume = vtkClipVolume::New();
-  clipVolume->SetInput((vtkImageData *)this->GetInput());
+  
+  // We cannot set the input directly.  This messes up the partitioning.
+  // output->UpdateNumberOfPieces gets set to 1.
+  vtkImageData* tmp = vtkImageData::New();
+  tmp->ShallowCopy(vtkImageData::SafeDownCast(this->GetInput()));
+  
+  clipVolume->SetInput(tmp);
   clipVolume->SetValue(this->Value);
   clipVolume->SetInsideOut(this->InsideOut);
   clipVolume->SetClipFunction(this->ClipFunction);
@@ -426,6 +432,7 @@ void vtkClipDataSet::ClipVolume()
   output->GetPointData()->ShallowCopy(clipOutput->GetPointData());
   output->GetCellData()->ShallowCopy(clipOutput->GetCellData());
   clipVolume->Delete();
+  tmp->Delete();
 }
 
 
