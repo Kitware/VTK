@@ -108,7 +108,7 @@ void vtkImageSpatialFilter::ExecuteInformation()
     }
   else
     {
-    output->SetWholeExtent(input->GetWholeExtent());
+    output->CopyInformation( input );
     }
 }
 //----------------------------------------------------------------------------

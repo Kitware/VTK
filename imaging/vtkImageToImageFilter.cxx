@@ -121,6 +121,10 @@ void vtkImageToImageFilter::ExecuteInformation()
     
     this->ExecuteInformation(input, output);
     }
+  else
+    {
+    output->CopyInformation( input );
+    }
 }
 //----------------------------------------------------------------------------
 void vtkImageToImageFilter::ExecuteInformation(

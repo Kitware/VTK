@@ -1810,7 +1810,7 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
   double size = (float)this->NumberOfScalarComponents;
   int idx;
   
-  switch (this->GetScalarType())
+  switch (this->ScalarType)
     {
     case VTK_FLOAT:
       size *= sizeof(float);
