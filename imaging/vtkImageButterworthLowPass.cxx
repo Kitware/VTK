@@ -204,7 +204,7 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
 	  }
 	else
 	  {
-	  sum0 = 1.0 / (1.0 + pow(sum0, this->Order));
+	  sum0 = 1.0 / (1.0 + pow(sum0, (float)this->Order));
 	  }	
 	
 	// real component
