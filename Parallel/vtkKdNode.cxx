@@ -30,7 +30,7 @@
 #pragma warning ( disable : 4100 )
 #endif
 
-vtkCxxRevisionMacro(vtkKdNode, "1.2");
+vtkCxxRevisionMacro(vtkKdNode, "1.3");
 vtkStandardNewMacro(vtkKdNode);
 
 const char *vtkKdNode::LevelMarker[20]={
@@ -911,27 +911,4 @@ void vtkKdNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max: " << Max[0] << " " << Max[1] << " " << Max[2] << endl;
   os << indent << "MinVal: " << MinVal[0] << " " << MinVal[1] << " " << MinVal[2] << endl;
   os << indent << "MaxVal: " << MaxVal[0] << " " << MaxVal[1] << " " << MaxVal[2] << endl;
-}
-
-vtkKdNode& vtkKdNode::operator=(const vtkKdNode& kd)
-{
-  if (this == &kd)
-    {
-    return *this;
-    }
-
-  for (int i=0; i<3; i++)
-    {
-    this->Min[i] = kd.Min[i];
-    this->Max[i] = kd.Max[i];
-    this->MinVal[i] = kd.MinVal[i];
-    this->MaxVal[i] = kd.MaxVal[i];
-    }
-
-  this->Dim = kd.Dim;
-  this->ID = kd.ID;
-  this->MinID = kd.MinID;
-  this->MaxID = kd.MaxID;
-
-  return *this;
 }
