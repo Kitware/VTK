@@ -10,6 +10,10 @@ IF (HAVE_PNG)
         ${VTK_SOURCE_DIR}/Graphics/Testing/Python/Cone.py
         -D ${VTK_DATA_ROOT}
         -V Baseline/Graphics/Cone.png)
+      ADD_TEST(glyphCombPython-image ${PYTHON_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Graphics/Testing/Python/glyphComb.py
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Graphics/glyphComb.png)
     ENDIF (PYTHON_EXECUTABLE)
   ENDIF (VTK_DATA_ROOT)
 
