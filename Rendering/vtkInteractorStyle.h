@@ -183,6 +183,7 @@ public:
 
   // Description:
   // These are more esoteric events, but are useful in some cases.
+  virtual void OnExpose(int x, int y, int width, int height);
   virtual void OnConfigure(int width, int height);
   virtual void OnEnter(int ctrl, int shift, int x, int y);
   virtual void OnLeave(int ctrl, int shift, int x, int y);

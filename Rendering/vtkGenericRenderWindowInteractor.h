@@ -48,6 +48,7 @@ public:
   virtual void LeftButtonReleaseEvent();
   virtual void MiddleButtonPressEvent();
   virtual void MiddleButtonReleaseEvent();
+  virtual void ExposeEvent();
   virtual void ConfigureEvent();
   virtual void EnterEvent();
   virtual void LeaveEvent();

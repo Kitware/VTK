@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -34,6 +34,7 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->CharTag = 0;
   this->EnterTag = 0;
   this->LeaveTag = 0;
+  this->ExposeTag = 0;
   this->ConfigureTag = 0;
   this->TimerTag = 0;
   this->UserTag = 0;
@@ -99,10 +100,10 @@ void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
-                                                      void *arg)
+                                                void *arg)
 {
   this->vtkSetOldCallback(this->MouseMoveTag,
-                    vtkCommand::MouseMoveEvent,f,arg);
+                          vtkCommand::MouseMoveEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -152,7 +153,7 @@ void vtkInteractorStyleUser::SetButtonReleaseMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->KeyPressTag,
-                    vtkCommand::KeyPressEvent,f,arg);
+                          vtkCommand::KeyPressEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +167,7 @@ void vtkInteractorStyleUser::SetKeyPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetKeyReleaseMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->KeyReleaseTag,
-                    vtkCommand::KeyReleaseEvent,f,arg);
+                          vtkCommand::KeyReleaseEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -180,7 +181,7 @@ void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetEnterMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->EnterTag,
-                    vtkCommand::EnterEvent,f,arg);
+                          vtkCommand::EnterEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -194,7 +195,7 @@ void vtkInteractorStyleUser::SetEnterMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetLeaveMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->LeaveTag,
-                    vtkCommand::LeaveEvent,f,arg);
+                          vtkCommand::LeaveEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -205,10 +206,24 @@ void vtkInteractorStyleUser::SetLeaveMethodArgDelete(void (*f)(void *))
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetExposeMethod(void (*f)(void *), void *arg)
+{
+  this->vtkSetOldCallback(this->ExposeTag,
+                          vtkCommand::ExposeEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetExposeMethodArgDelete(void (*f)(void *))
+{
+  this->vtkSetOldDelete(this->ExposeTag, f);
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetConfigureMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->ConfigureTag,
-                    vtkCommand::ConfigureEvent,f,arg);
+                          vtkCommand::ConfigureEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -222,7 +237,7 @@ void vtkInteractorStyleUser::SetConfigureMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetCharMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->CharTag,
-                    vtkCommand::CharEvent,f,arg);
+                          vtkCommand::CharEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -236,7 +251,7 @@ void vtkInteractorStyleUser::SetCharMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyleUser::SetTimerMethod(void (*f)(void *), void *arg)
 {
   this->vtkSetOldCallback(this->TimerTag,
-                    vtkCommand::TimerEvent,f,arg);
+                          vtkCommand::TimerEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -251,7 +266,7 @@ void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *),
                                                       void *arg)
 {
   this->vtkSetOldCallback(this->UserTag,
-                    vtkCommand::UserEvent,f,arg);
+                          vtkCommand::UserEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
@@ -538,6 +553,18 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnExpose(int vtkNotUsed(x), 
+                                      int vtkNotUsed(y),
+                                      int vtkNotUsed(width), 
+                                      int vtkNotUsed(height))
+{
+  if (this->HasObserver(vtkCommand::ExposeEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::ExposeEvent,NULL);
     }
 }
 

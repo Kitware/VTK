@@ -227,10 +227,14 @@ public:
   vtkGetMacro(Dolly,float);
 
   // Description:
-  // Set/Get information about the current event.   The current x,y postion
-  // is in the EventPosition.   The other information is about key board input.
+  // Set/Get information about the current event.   The current x,y position
+  // is in the EventPosition. The current width/height (if any) is in 
+  // EventSize (Expose event, for example).
+  // The other information is about key board input.
   vtkSetVector2Macro(EventPosition,int);
-  vtkGetVectorMacro(EventPosition,int,2);
+  vtkGetVector2Macro(EventPosition,int);
+  vtkSetVector2Macro(EventSize,int);
+  vtkGetVector2Macro(EventSize,int);
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
   vtkSetMacro(ShiftKey, int);
@@ -314,6 +318,7 @@ protected:
   int   RepeatCount;
   char* KeySym; 
   int   EventPosition[2];
+  int   EventSize[2];
   int   Size[2];
   
   // user methods that can be used to override default behavior

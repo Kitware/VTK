@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.87");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.88");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -50,6 +50,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   this->EventPosition[0] = 0;
   this->EventPosition[1] = 0;
+
+  this->EventSize[0] = 0;
+  this->EventSize[1] = 0;
 
   this->Size[0] = 0;
   this->Size[1] = 0;
@@ -464,6 +467,8 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Enabled: " << this->Enabled << "\n";
   os << indent << "EventPosition: " << "( " << this->EventPosition[0] <<
     ", " << this->EventPosition[1] << " )\n";
+  os << indent << "EventSize: " << "( " << this->EventSize[0] <<
+    ", " << this->EventSize[1] << " )\n";
   os << indent << "Viewport Size: " << "( " << this->Size[0] <<
     ", " << this->Size[1] << " )\n";
   os << indent << "Number of Fly Frames: " << this->NumberOfFlyFrames <<"\n";

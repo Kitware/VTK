@@ -45,6 +45,7 @@ static const char *vtkCommandEventStrings[] = {
   "KeyPressEvent",
   "KeyReleaseEvent",
   "CharEvent",
+  "ExposeEvent",
   "ConfigureEvent",
   "TimerEvent",
   "MouseMoveEvent",

@@ -131,6 +131,7 @@ public:
     KeyPressEvent,
     KeyReleaseEvent,
     CharEvent,
+    ExposeEvent,
     ConfigureEvent,
     TimerEvent,
     MouseMoveEvent,

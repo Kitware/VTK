@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.2");
+vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.3");
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 // Construct object so that light follows camera motion.
 vtkGenericRenderWindowInteractor::vtkGenericRenderWindowInteractor()
@@ -88,6 +88,15 @@ void vtkGenericRenderWindowInteractor::MiddleButtonReleaseEvent()
     return;
     }
   this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+}
+
+void vtkGenericRenderWindowInteractor::ExposeEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::ExposeEvent, NULL);
 }
 
 void vtkGenericRenderWindowInteractor::ConfigureEvent()
