@@ -20,9 +20,14 @@
 #ifdef DICOM_ANSI_STDLIB
   #define dicom_stream std
   #define dicom_stl std
+
+  #include <iostream>
+  #include <fstream>
+  #include <iomanip>
 #else
   #define dicom_stream 
   #define dicom_stl std
+
   #include <fstream.h>
   #include <string.h>
 #endif

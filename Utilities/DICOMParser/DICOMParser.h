@@ -15,7 +15,6 @@
 
 #include <map>
 #include <utility> 
-#include <fstream>
 #include <vector>
 
 #include "DICOMConfig.h"

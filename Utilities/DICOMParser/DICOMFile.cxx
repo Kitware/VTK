@@ -5,9 +5,6 @@
 #pragma warning ( push, 3 )
 #endif 
 
-#include <iostream>
-#include <fstream>
-#include <iomanip>
 #include <stdio.h>
 #include <string>
 

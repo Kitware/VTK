@@ -12,8 +12,6 @@
 #include "DICOMAppHelper.h"
 #include "DICOMCallback.h"
 
-#include <iomanip>
-#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>

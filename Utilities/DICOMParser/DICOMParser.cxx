@@ -20,9 +20,7 @@
 #endif
 
 #include <string>
-#include <fstream>
 #include <map>
-#include <iomanip>
 
 #include "DICOMConfig.h"
 #include "DICOMParser.h"

@@ -7,15 +7,11 @@
 #pragma warning ( push, 3 )
 #endif 
 
-#include <fstream>
 #include <vector>
 #include <string>
-#include <iomanip>
-#include <iostream>
 
 #include "DICOMConfig.h"
 #include "DICOMTypes.h"
-// #include "DICOMParser.h"
 #include "DICOMCallback.h"
 
 class DICOMParser;
