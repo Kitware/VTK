@@ -82,7 +82,7 @@ vlShortArray& vlShortArray::operator=(vlShortArray& sa)
 //
 // Copy on write if used by more than one object
 //
-void vlShortArray::operator+=(vlShortArray& sa)
+vlShortArray& vlShortArray::operator+=(vlShortArray& sa)
 {
   int i, sz;
 

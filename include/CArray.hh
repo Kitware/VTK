@@ -42,7 +42,7 @@ public:
   int InsertNextValue(const int i)
     {this->InsertValue (++this->MaxId,i); return this->MaxId;};
   vlCharArray &operator=(vlCharArray& ia);
-  void operator+=(vlCharArray& ia);
+  vlCharArray &operator+=(vlCharArray& ia);
   void operator+=(const char i) {this->InsertNextValue(i);};
   // operator[] can be used on both left and right side of expression;
   // Note: if used on lh side, user's responsibility to do range checking
