@@ -123,13 +123,13 @@ INCLUDE_REGULAR_EXPRESSION("^((lex|png|j).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
 
-# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros.
+# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
 
 # Compile the extensions into the build tree and load them.
 VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
-                             VTK_CMAKE_EXTENSIONS_COMPILED)
+  VTK_CMAKE_EXTENSIONS_COMPILED)
 IF(VTK_CMAKE_EXTENSIONS_COMPILED)
   VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
 ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
@@ -897,12 +897,14 @@ INSTALL_FILES(/lib/vtk/CMake FILES
   ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake
   ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in
   ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cxx.in)
-FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
-    VTK_GENERATE_JAVA_DEPENDENCIES)
-  INSTALL_FILES(/lib/vtk/CMake FILES
-    "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}"
-    )
-ENDFOREACH(cmd)
+IF (VTK_NEED_LOADED_COMMANDS)
+  FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
+      VTK_GENERATE_JAVA_DEPENDENCIES)
+    INSTALL_FILES(/lib/vtk/CMake FILES
+      "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}"
+      )
+  ENDFOREACH(cmd)
+ENDIF (VTK_NEED_LOADED_COMMANDS)
 
 # Save the compiler settings so another project can import them.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
