@@ -170,6 +170,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
                                       double Min[3],
                                       double Max[3],
                                       double Mean[3],
+                                      double StandardDeviation[3],
                                       long int *VoxelCount)
 {
   int idX, idY, idZ, idxC;
