@@ -120,6 +120,7 @@ void vtkRuledSurfaceFilter::Execute()
         outPD->CopyData(inPD,i,i);
         }
       }
+    newPts->Delete();
     newStrips = vtkCellArray::New();
     newStrips->Allocate(
       2*(this->Resolution[1]+1)*this->Resolution[0]*(numLines-1));
