@@ -17,7 +17,7 @@ vtkSampleFunction sample
 
 vtkThreshold threshold
     threshold SetInput [sample GetOutput]
-    threshold ThresholdByLower 0.5
+    threshold ThresholdByLower 0.19
 
 vtkGeometryFilter geometry
   geometry SetInput [threshold GetOutput]
