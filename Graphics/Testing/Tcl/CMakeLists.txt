@@ -27,6 +27,7 @@ IF (VTK_USE_RENDERING)
       clipQuadraticCells
       clipVolume
       clipVolume2
+
       combStreamers
       combStreamers2
       coneResolution
@@ -105,6 +106,7 @@ IF (VTK_USE_RENDERING)
       progGlyphs
       progGlyphsBySource
       quadricCut
+      QuadricDecimation
       rectGrid
       recursiveDC
       reverseNormals
@@ -137,7 +139,6 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       TestMultiBlockStreamer
-      testQuadricDecimation
       TestQuadricClustering
       testReflect
       TestRuledSurface
