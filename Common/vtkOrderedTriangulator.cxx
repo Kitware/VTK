@@ -45,14 +45,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-#ifdef VTK_USE_ANSI_STDLIB
-#include <new>
-#include <iostream>
+#ifdef _WIN32_WCE
+ #ifndef __PLACEMENT_NEW_INLINE
+ #define __PLACEMENT_NEW_INLINE
+  inline void *__cdecl operator new(size_t, void *_P)
+        {return (_P); }
+  #if     _MSC_VER >= 1200
+   inline void __cdecl operator delete(void *, void *)
+   {return; }
+  #endif
+ #endif
 #else
-#include <new.h>
-#include <iostream.h>
+ #ifdef VTK_USE_ANSI_STDLIB
+  #include <new>
+ #else
+  #include <new.h>
+ #endif
 #endif
-
 
 // TO DO:
 // + In place new to avoid new/delete
@@ -624,7 +633,11 @@ void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
 //------------------------------------------------------------------------
  
 extern "C" {
+#ifdef _WIN32_WCE
+int __cdecl vtkSortOnPointIds(const void *val1, const void *val2)
+#else
 int vtkSortOnPointIds(const void *val1, const void *val2)
+#endif
 {
   if (((vtkOTPoint *)val1)->Id < ((vtkOTPoint *)val2)->Id)
     {
