@@ -121,6 +121,12 @@ vtkImageSpatialFilter
   ABSTRACT
 )
 
+SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS)
+SET(Kit_PYTHON_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_SRCS)
+
 # -----------------------------------------------------------------
 
 # Setup vtkInstantiator registration for this library's classes.
@@ -129,7 +135,7 @@ VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
                        EXPORT_MACRO VTK_${UKIT}_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
   SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_init${KIT}")
@@ -144,8 +150,10 @@ INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS})
+  VTK_WRAP_TCL2(vtk${KIT}TCL SOURCES KitTCL_SRCS 
+                ${Kit_SRCS}
+                COMMANDS ${Kit_TCL_EXTRA_CMDS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
@@ -155,7 +163,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python ${KIT_PYTHON_LIBS})
   ENDIF(NOT APPLE)
@@ -176,8 +184,8 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 

@@ -55,8 +55,8 @@ INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL2(vtk${KIT}TCL SOURCES KitTCL_SRCS 
-                ${Kit_SRCS} ${Kit_TCL_EXTRA_SRCS}
-                COMMANDS ${Kit_TCL_EXTRA_SRCS})
+                ${Kit_SRCS}
+                COMMANDS ${Kit_TCL_EXTRA_CMDS})
   ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
@@ -97,3 +97,4 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+
