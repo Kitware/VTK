@@ -235,6 +235,12 @@ void vtkStreamLine::Execute()
   pts->Delete();
   output->SetLines(newLines);
   newLines->Delete();
+
+  // Delete the streamers since they are no longer needed
+  delete[] this->Streamers;
+  this->Streamers = 0;
+  this->NumberOfStreamers = 0;
+  
   
   output->Squeeze();
 }

@@ -79,8 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToPolyDataFilter.h"
 #include "vtkInitialValueProblemSolver.h"
-
-class vtkMultiThreader;
+#include "vtkMultiThreader.h"
 
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
@@ -246,18 +245,8 @@ public:
   vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
-//BTX
-
-  // Description:
-  // These methods were added to allow access to these variables from the
-  // threads. 
-  // Not intended for general use.
-  vtkGetMacro( NumberOfStreamers, int );
-  vtkStreamArray *GetStreamers() { return this->Streamers; };
-
-//ETX
-
 protected:
+
   vtkStreamer();
   ~vtkStreamer();
   vtkStreamer(const vtkStreamer&) {};
@@ -309,6 +298,14 @@ protected:
   // Useful in reducing the memory footprint. Since the initial
   // value is small, by default, it will store all/most points.
   float SavePointInterval;
+
+  static  VTK_THREAD_RETURN_TYPE ThreadedIntegrate( void *arg );
+
+  // Description:
+  // These methods were added to allow access to these variables from the
+  // threads. 
+  vtkGetMacro( NumberOfStreamers, int );
+  vtkStreamArray *GetStreamers() { return this->Streamers; };
 
   void InitializeThreadedIntegrate();
   vtkMultiThreader           *Threader;

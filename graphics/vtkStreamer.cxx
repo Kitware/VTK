@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStreamer.h"
 #include "vtkMath.h"
-#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 #include "vtkInterpolatedVelocityField.h"
@@ -232,7 +231,7 @@ float *vtkStreamer::GetStartPosition()
 
 static const float VTK_EPSILON=1E-12;
 
-static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
+VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 {
   vtkStreamer              *self;
   int                      thread_count;
@@ -484,11 +483,10 @@ void vtkStreamer::Integrate()
 
   vtkDebugMacro(<<"Generating streamers");
   this->NumberOfStreamers = 0;
-  if ( this->Streamers != NULL ) // reexecuting - delete old stuff
-    {
-    delete [] this->Streamers;
-    this->Streamers = NULL;
-    }
+
+// reexecuting - delete old stuff
+  delete [] this->Streamers;
+  this->Streamers = NULL;
 
   if ( ! (inVectors=pd->GetVectors()) )
     {
@@ -645,7 +643,7 @@ void vtkStreamer::Integrate()
   
   // Set up and execute the thread
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( vtkStreamer_ThreadedIntegrate, (void *)this );
+  this->Threader->SetSingleMethod( vtkStreamer::ThreadedIntegrate, (void *)this );
   this->Threader->SingleMethodExecute();
 
   //

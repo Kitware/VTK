@@ -171,6 +171,11 @@ void vtkStreamPoints::Execute()
     newScalars->Delete();
     }
 
+  // Delete the streamers since they are no longer needed
+  delete[] this->Streamers;
+  this->Streamers = 0;
+  this->NumberOfStreamers = 0;
+
   output->Squeeze();
   pts->Delete();
 }
