@@ -57,9 +57,19 @@ public int getWindowID()
     DrawingSurfaceInfo surfaceInfo =
       ((DrawingSurface)this.getPeer()).getDrawingSurfaceInfo();
     surfaceInfo.lock();
+
+// MS windows support inthe next three lines 	
+//     Win32DrawingSurface wds =
+//       (Win32DrawingSurface)surfaceInfo.getSurface();
+//     int hWnd = wds.getHWnd();
+
+
+// X windows support in the next three lines
     X11DrawingSurface wds =
       (X11DrawingSurface)surfaceInfo.getSurface();
     int hWnd = wds.getDrawable();
+
+
     surfaceInfo.unlock();
     return hWnd;
   }
