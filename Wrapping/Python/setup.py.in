@@ -44,13 +44,21 @@ def get_libs():
     return libs
 
 
-def get_vtkpython():
-    """Returns the appropriate vtkpython executable that is to be
-    installed."""
+def get_scripts():    
+    """Returns the appropriate vtkpython executable and pvtkpython
+    that is to be installed."""
+    scripts = []
     if os.name == 'posix':
-        return os.path.join(build_bin_dir, 'vtkpython')
+        for i in ('vtkpython', 'pvtkpython'):
+            f = os.path.join(build_bin_dir, i)
+            if os.path.exists(f):
+                scripts.append(f)
     else:
-        return os.path.join(build_bin_dir, 'vtkpython.exe')
+        for i in ('vtkpython.exe', 'pvtkpython.exe'):
+            f = os.path.join(build_bin_dir, i)
+            if os.path.exists(f):
+                scripts.append(f)
+    return scripts
 
 
 class my_install_data (install_data):
@@ -109,7 +117,7 @@ setup (name              = "VTK",
                             'vtk_python.vtk.gtk', 'vtk_python.vtk.qt',
                             'vtk_python.vtk.tk', 'vtk_python.vtk.util',
                             'vtk_python.vtk.wx', 'vtk_python.vtk.test'],
-#       scripts           = [get_vtkpython()],
+       scripts           = get_scripts(),
        package_dir       = {'vtk_python': '.'},
        data_files        = [('vtk_python', get_libs()), ('.', ['vtk.pth'])]
        )
