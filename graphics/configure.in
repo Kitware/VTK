@@ -514,6 +514,8 @@ then
     cp $srcdir/depend.make depend.make || exit 1
 fi
 
+AC_CONFIG_SUBDIRS(examplesCxx)
+
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
 

@@ -2471,6 +2471,9 @@ then
     cp $srcdir/depend.make depend.make || exit 1
 fi
 
+subdirs="examplesCxx"
+
+
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
 
@@ -2726,7 +2729,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in tcl; do
+  for ac_config_dir in examplesCxx; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
