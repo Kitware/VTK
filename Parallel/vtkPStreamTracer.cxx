@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.11");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.12");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -339,11 +339,14 @@ void vtkPStreamTracer::Execute()
       append->AddInput(inp);
       }
     }
-  append->Update();
-  vtkPolyData* appoutput = append->GetOutput();
-  output->CopyStructure(appoutput);
-  output->GetPointData()->PassData(appoutput->GetPointData());
-  output->GetCellData()->PassData(appoutput->GetCellData());
+  if (append->GetNumberOfInputs() > 0)
+    {
+    append->Update();
+    vtkPolyData* appoutput = append->GetOutput();
+    output->CopyStructure(appoutput);
+    output->GetPointData()->PassData(appoutput->GetPointData());
+    output->GetCellData()->PassData(appoutput->GetCellData());
+    }
   append->Delete();
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
 
