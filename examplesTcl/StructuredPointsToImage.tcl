@@ -1,3 +1,5 @@
+catch {load vtktcl}
+
 # Convert a structured points data set into an image.
 # Display the image in an XViewer.
 
@@ -7,7 +9,7 @@ source ../imaging/examplesTcl/vtkImageInclude.tcl
 
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
-    v16 SetFilePrefix "../../data/fullHead/headsq";
+    v16 SetFilePrefix "../../vtkdata/fullHead/headsq";
     v16 SetDataOrigin -127.5 -127.5 5.33
     v16 SetImageRange 1 94
     v16 SetDataSpacing 1 1 5.33
