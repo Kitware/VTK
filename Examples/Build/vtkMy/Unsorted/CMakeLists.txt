@@ -41,8 +41,16 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 # Create the vtkmyUnsorted Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
   VTK_WRAP_PYTHON (vtkmyUnsortedPython UnsortedPython_SRCS ${Unsorted_SRCS})
-  ADD_LIBRARY (vtkmyUnsortedPython MODULE ${UnsortedPython_SRCS})
-  TARGET_LINK_LIBRARIES(vtkmyUnsortedPython vtkmyCommonPython vtkmyUnsorted)
+  IF (APPLE)
+    ADD_LIBRARY (vtkmyUnsortedPythonD ${UnsortedPython_SRCS})
+    ADD_LIBRARY (vtkmyUnsortedPython MODULE vtkmyUnsortedPythonInit.cxx)
+    TARGET_LINK_LIBRARIES(vtkmyUnsortedPythonD vtkmyUnsorted vtkmyCommonPythonD)
+    TARGET_LINK_LIBRARIES(vtkmyUnsortedPython vtkmyUnsortedPythonD)
+    INSTALL_TARGETS(/lib/vtk vtkmyUnsortedPythonD)
+  ELSE(APPLE)
+    ADD_LIBRARY (vtkmyUnsortedPython MODULE ${UnsortedPython_SRCS})
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkmyCommonPython vtkmyUnsorted)
+  ENDIF(APPLE)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyUnsorted Java library.

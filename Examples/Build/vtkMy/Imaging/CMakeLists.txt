@@ -25,8 +25,16 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 # Create the vtkmyImaging Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
   VTK_WRAP_PYTHON (vtkmyImagingPython ImagingPython_SRCS ${Imaging_SRCS})
-  ADD_LIBRARY (vtkmyImagingPython MODULE ${ImagingPython_SRCS})
-  TARGET_LINK_LIBRARIES (vtkmyImagingPython vtkmyCommonPython vtkmyImaging)
+  IF (APPLE)
+    ADD_LIBRARY (vtkmyImagingPythonD ${ImagingPython_SRCS})
+    ADD_LIBRARY (vtkmyImagingPython MODULE vtkmyImagingPythonInit.cxx)
+    TARGET_LINK_LIBRARIES(vtkmyImagingPythonD vtkmyImaging vtkmyCommonPythonD vtkImaging vtkImagingPythonD)
+    TARGET_LINK_LIBRARIES(vtkmyImagingPython vtkmyImagingPythonD)
+    INSTALL_TARGETS(/lib/vtk vtkmyImagingPythonD)
+  ELSE(APPLE)
+    ADD_LIBRARY (vtkmyImagingPython MODULE ${ImagingPython_SRCS})
+    TARGET_LINK_LIBRARIES (vtkmyImagingPython vtkmyCommonPython vtkmyImaging)
+  ENDIF(APPLE)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyImaging Java library.
