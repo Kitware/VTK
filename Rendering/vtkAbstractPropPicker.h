@@ -84,7 +84,7 @@ public:
   // set method is used internally to set the path. (Note: the structure of
   // an assembly path is a collection of vtkAssemblyNode, each node pointing
   // to a vtkProp and (possibly) a transformation matrix.)
-  vtkSetObjectMacro(Path,vtkAssemblyPath);
+  virtual void SetPath(vtkAssemblyPath*);
   vtkGetObjectMacro(Path,vtkAssemblyPath);
 
   // The following are convenience methods to maintain API with older

@@ -16,15 +16,18 @@
 
 =========================================================================*/
 #include "vtkAbstractPropPicker.h"
-#include "vtkAssemblyNode.h"
+
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAssembly.h"
-#include "vtkVolume.h"
-#include "vtkPropAssembly.h"
+#include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkPropAssembly.h"
+#include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.4");
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.5");
+
+vtkCxxSetObjectMacro(vtkAbstractPropPicker,Path,vtkAssemblyPath);
 
 vtkAbstractPropPicker::vtkAbstractPropPicker()
 {
