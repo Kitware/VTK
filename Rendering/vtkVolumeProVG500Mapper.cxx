@@ -21,6 +21,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.36");
+vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.37");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
