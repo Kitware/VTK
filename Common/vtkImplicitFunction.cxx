@@ -15,10 +15,10 @@
 #include "vtkImplicitFunction.h"
 
 #include "vtkMath.h"
-#include "vtkAbstractTransform."
+#include "vtkAbstractTransform.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.35");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.36");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
