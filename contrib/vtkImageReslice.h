@@ -44,9 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the reslicing transformation matrix.  The extent, origin, and sampling
 // density of the output data can also be set.
 // .SECTION Caveats
-// Interpolation cannot (yet) be used on a 2D image because the
-// trilinear interpolation requires a cube of eight input voxels for 
-// each output voxel.
+// The OptimizationOn() method may cause this filter to crash VTK (though
+// I haven't had a crash in a while).  Doing crazy things like using
+// nonlinear (i.e. perspective) transformations is also risky, but will
+// work in many cases. 
 // .SECTION see also
 // vtkImageFilter, vtkTransform
 
@@ -71,11 +72,6 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Overload standard modified time function. If Transform is modified,
-  // then this object is modified as well.
-  unsigned long GetMTime();
-
-  // Description:
   // Set reslicing transform (describes the set of axis along which to reslice)
   vtkSetObjectMacro(ResliceTransform,vtkTransform);
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
@@ -87,7 +83,14 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
-  // Allow user to set background 'color'
+  // Turn on and off optimizations (default on, turn them off if
+  // they are not stable on your architechture)
+  vtkSetMacro(Optimization,int);
+  vtkGetMacro(Optimization,int);
+  vtkBooleanMacro(Optimization,int);
+
+  // Description:
+  // Allow user to set background grey level (default black)
   vtkSetMacro(BackgroundLevel, double);
   vtkGetMacro(BackgroundLevel, double);
 
@@ -97,15 +100,18 @@ public:
   vtkGetVector3Macro(OutputSpacing, float);
   vtkSetVector3Macro(OutputOrigin, float);
   vtkGetVector3Macro(OutputOrigin, float);
-  vtkSetVectorMacro(OutputExtent, int, 6);
-  vtkGetVectorMacro(OutputExtent, int, 6);
+  vtkSetVector6Macro(OutputExtent, int);
+  vtkGetVector6Macro(OutputExtent, int);
 
+  // Description:
+  // Helper functions not meant to be used outside this class
   void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
   int FindExtent(int& r1, int& r2, double *point, float *xAxis,
-		      int *inMin, int *inMax, int interpolate);
+		      int *inMin, int *inMax);
 protected:
   vtkTransform *ResliceTransform;
   int Interpolate;
+  int Optimization;
   float OutputOrigin[3];
   float OutputSpacing[3];
   int OutputExtent[6];
