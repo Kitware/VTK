@@ -168,14 +168,16 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // This method is intended to allow the renderer to set the
+  // This method is intended to allow the renderer to add to the
   // EstimatedRenderTime in props that require information that
   // the renderer has in order to do this. For example, props
   // that are rendered with a ray casting method do not know
   // themselves how long it took for them to render. We don't want to
   // cause a this->Modified() when we set this value since it is not
-  // really a
-  virtual void SetEstimatedRenderTime(float t){this->EstimatedRenderTime = t;};
+  // really a modification to the object. (For example, we don't want
+  // to rebuild matrices at every render because the estimated render time
+  // is changing)
+  virtual void AddEstimatedRenderTime(float t){this->EstimatedRenderTime+=t;};
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -183,7 +185,7 @@ public:
   // The renderer may use the allocated rendering time to determine
   // how to render this actor. 
   // The set method is not a macro in order to avoid resetting the mtime of
-  // the actor - otherwise the actor would have been modified during every 
+  // the prop - otherwise the prop would have been modified during every 
   // render.
   // A side effect of this method is to reset the EstimatedRenderTime to
   // 0.0. This way, each of the ways that this prop may be rendered can
