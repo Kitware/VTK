@@ -51,6 +51,7 @@ menu .mbar.file.menu
 		-label "Add VTK Tests With Classname..." \
 	      -command AddClassname
 	set ContribAdded 0
+	set ParallelAdded 0
 	set GraphicsAdded 0
 	set ImagingAdded 0
 	set PatentedAdded 0
@@ -61,6 +62,8 @@ menu .mbar.file.menu
 		      -variable GraphicsAdded -label Graphics -command AddGraphics
 	      .mbar.file.menu.new.vtkadd add checkbutton \
 		      -variable ImagingAdded -label Imaging -command AddImaging
+	      .mbar.file.menu.new.vtkadd add checkbutton \
+		      -variable ParallelAdded -label Parallel -command AddParallel
 	      .mbar.file.menu.new.vtkadd add checkbutton \
 		      -variable PatentedAdded -label Patented -command AddPatented
 	      .mbar.file.menu.new.vtkadd add command -command AddAll \
@@ -100,6 +103,8 @@ menu .mbar.edit.menu.vtkrem
             -label Graphics -command RemoveGraphics
       .mbar.edit.menu.vtkrem add checkbutton -variable ImagingAdded \
             -label Imaging -command RemoveImaging
+      .mbar.edit.menu.vtkrem add checkbutton -variable ParallelAdded \
+            -label Parallel -command RemoveParallel
       .mbar.edit.menu.vtkrem add checkbutton -variable PatentedAdded \
             -label Patented -command RemovePatented
       .mbar.edit.menu.vtkrem add command -command RemoveAll \
@@ -214,12 +219,14 @@ proc CreateRegressionImage {} {
 	puts $rtFile "catch {load vtktcl}"
 	if {[string match \*graphics\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/graphics/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*imaging\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/imaging/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*patented\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/patented/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*contrib\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/contrib/$file.tif
+	} elseif {[string match \*parallel\* $filename]} {
+	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/parallel/$file.tif
 	} else {
 	    set regressionImage $file.tif
 	}
@@ -410,10 +417,11 @@ proc RemoveUntestedTests {} {
 }
 
 proc RemoveAllTests {} {
-   global ContribAdded GraphicsAdded ImagingAdded PatentedAdded
+   global ContribAdded GraphicsAdded ImagingAdded PatentedAdded ParallelAdded
    set ContribAdded 0
    set GraphicsAdded 0
    set ImagingAdded 0
+   set ParallelAdded 0
    set PatentedAdded 0
 
    .list.text delete 1.0 end
@@ -464,6 +472,12 @@ proc AddImaging {} {
    set ImagingAdded 1
 }
 
+proc AddParallel {} {
+   global env ParallelAdded
+   AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/parallel/examplesTcl
+   set ParallelAdded 1
+}
+
 proc AddPatented {} {
    global env PatentedAdded
    AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/patented/examplesTcl
@@ -474,6 +488,7 @@ proc AddAll {} {
    AddContrib
    AddGraphics
    AddImaging
+   AddParallel
    AddPatented
 }
 
@@ -525,6 +540,12 @@ proc RemoveImaging {} {
    set ImagingAdded 0
 }
 
+proc RemoveParallel {} {
+   global env ParallelAdded
+   RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/patented/examplesTcl
+   set ParallelAdded 0
+}
+
 proc RemovePatented {} {
    global env PatentedAdded
    RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/patented/examplesTcl
@@ -535,6 +556,7 @@ proc RemoveAll {} {
    RemoveContrib
    RemoveGraphics
    RemoveImaging
+   RemoveParallel
    RemovePatented
 }
 
