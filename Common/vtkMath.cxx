@@ -1820,6 +1820,17 @@ void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
   vtkOrthogonalize3x3(A,B);
 }
 
+float vtkMath::Norm(const float* x, int n)
+{
+  double sum=0;
+  for (int i=0; i<n; i++)
+    {
+    sum += x[i]*x[i];
+    }
+
+  return sqrt(sum);
+}
+
 //----------------------------------------------------------------------------
 // Extract the eigenvalues and eigenvectors from a 3x3 matrix.
 // The eigenvectors (the columns of V) will be normalized. 

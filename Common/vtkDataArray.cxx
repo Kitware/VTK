@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLookupTable.h"
 #include "vtkCriticalSection.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 
 unsigned long vtkDataArray::ArrayNamePostfix = 0;
 
@@ -496,6 +497,25 @@ void vtkDataArray::CopyComponent(const int j, vtkDataArray *from,
     {
     this->SetComponent(i, j, from->GetComponent(i, fromComponent));
     }
+}
+
+float vtkDataArray::GetMaxNorm()
+{
+  vtkIdType i;
+  float *v, norm, maxNorm;
+  int nComponents = this->GetNumberOfComponents();
+
+  maxNorm = 0.0;
+  for (i=0; i<this->GetNumberOfTuples(); i++)
+    {
+    norm = vtkMath::Norm(this->GetTuple(i), nComponents);
+    if ( norm > maxNorm )
+      {
+      maxNorm = norm;
+      }
+    }
+
+  return maxNorm;
 }
 
 void vtkDataArray::GetRange(float range[2], int comp)

@@ -41,9 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkTexturedSphereSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkTexturedSphereSource* vtkTexturedSphereSource::New()
@@ -76,8 +76,8 @@ void vtkTexturedSphereSource::Execute()
   int numPts;
   int numPolys;
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   vtkIdType pts[3];
@@ -94,10 +94,12 @@ void vtkTexturedSphereSource::Execute()
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numPts);
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(numPts,2);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
   //
@@ -124,10 +126,10 @@ void vtkTexturedSphereSource::Execute()
 	norm = 1.0;
 	}
       x[0] /= norm; x[1] /= norm; x[2] /= norm; 
-      newNormals->InsertNextNormal(x);
+      newNormals->InsertNextTuple(x);
 
       tc[1] = 1.0 - phi/3.1415926;
-      newTCoords->InsertNextTCoord(tc);
+      newTCoords->InsertNextTuple(tc);
       }
     }
   //

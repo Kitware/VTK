@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkThresholdTextureCoords.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkThresholdTextureCoords* vtkThresholdTextureCoords::New()
@@ -112,7 +113,7 @@ void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
 void vtkThresholdTextureCoords::Execute()
 {
   vtkIdType numPts;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkIdType ptId;
   vtkDataArray *inScalars;
   vtkDataSet *input = this->GetInput();
@@ -130,19 +131,20 @@ void vtkThresholdTextureCoords::Execute()
     }
      
   numPts = input->GetNumberOfPoints();
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(this->TextureDimension);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*this->TextureDimension);
 
   // Check that the scalars of each point satisfy the threshold criterion
   for (ptId=0; ptId < numPts; ptId++)
     {
     if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) )
       {
-      newTCoords->InsertTCoord(ptId,this->InTextureCoord);
+      newTCoords->InsertTuple(ptId,this->InTextureCoord);
       }
     else //doesn't satisfy criterion
       {
-      newTCoords->InsertTCoord(ptId,this->OutTextureCoord);
+      newTCoords->InsertTuple(ptId,this->OutTextureCoord);
       }
 
     } //for all points

@@ -67,8 +67,8 @@ void vtkReverseSense::Execute()
 {
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
-  vtkNormals *normals=input->GetPointData()->GetNormals();
-  vtkNormals *cellNormals=input->GetCellData()->GetNormals();
+  vtkDataArray *normals=input->GetPointData()->GetActiveNormals();
+  vtkDataArray *cellNormals=input->GetCellData()->GetActiveNormals();
 
   vtkDebugMacro(<<"Reversing sense of poly data");
 
@@ -118,8 +118,8 @@ void vtkReverseSense::Execute()
     {
     //first do point normals
     vtkIdType numPoints=input->GetNumberOfPoints();
-    vtkNormals *outNormals=(vtkNormals *)normals->MakeObject();
-    outNormals->SetNumberOfNormals(numPoints);
+    vtkDataArray *outNormals=normals->MakeObject();
+    outNormals->SetNumberOfTuples(numPoints);
     float n[3];
 
     progressInterval=numPoints/5+1;
@@ -130,9 +130,9 @@ void vtkReverseSense::Execute()
         this->UpdateProgress (0.6 + 0.2*ptId/numPoints);
         abort = this->GetAbortExecute();
         }
-      normals->GetNormal(ptId,n);
+      normals->GetTuple(ptId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
-      outNormals->SetNormal(ptId,n);
+      outNormals->SetTuple(ptId,n);
       }
 
     output->GetPointData()->SetNormals(outNormals);
@@ -143,8 +143,8 @@ void vtkReverseSense::Execute()
   if ( this->ReverseNormals && cellNormals )
     {
     vtkIdType numCells=input->GetNumberOfCells();
-    vtkNormals *outNormals=(vtkNormals *)cellNormals->MakeObject();
-    outNormals->SetNumberOfNormals(numCells);
+    vtkDataArray *outNormals=cellNormals->MakeObject();
+    outNormals->SetNumberOfTuples(numCells);
     float n[3];
 
     progressInterval=numCells/5+1;
@@ -156,9 +156,9 @@ void vtkReverseSense::Execute()
         abort = this->GetAbortExecute();
         }
 
-      cellNormals->GetNormal(cellId,n);
+      cellNormals->GetTuple(cellId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
-      outNormals->SetNormal(cellId,n);
+      outNormals->SetTuple(cellId,n);
       }
 
     output->GetCellData()->SetNormals(outNormals);

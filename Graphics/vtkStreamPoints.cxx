@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStreamPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkStreamPoints* vtkStreamPoints::New()
@@ -66,8 +67,8 @@ void vtkStreamPoints::Execute()
 {
   vtkStreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
-  vtkVectors *newVectors;
-  vtkScalars *newScalars=NULL;
+  vtkFloatArray *newVectors;
+  vtkFloatArray *newScalars=NULL;
   vtkCellArray *newVerts;
   vtkIdType i, ptId, id;
   int j;
@@ -88,12 +89,13 @@ void vtkStreamPoints::Execute()
   pts->Allocate(2500);
   newPts  = vtkPoints::New();
   newPts ->Allocate(1000);
-  newVectors  = vtkVectors::New();
-  newVectors ->Allocate(1000);
+  newVectors  = vtkFloatArray::New();
+  newVectors->SetNumberOfComponents(3);
+  newVectors ->Allocate(3000);
   if ( input->GetPointData()->GetScalars() || this->SpeedScalars 
     || this->OrientationScalars)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(1000);
     }
   newVerts = vtkCellArray::New();
@@ -129,12 +131,12 @@ void vtkStreamPoints::Execute()
           // add point to line
           id = newPts->InsertNextPoint(x);
 	  pts->InsertNextId(id);
-          newVectors->InsertVector(id,v);
+          newVectors->InsertTuple(id,v);
 
           if ( newScalars ) 
             {
             s = sPrev->s + r * (sPtr->s - sPrev->s);
-            newScalars->InsertScalar(id,s);
+            newScalars->InsertTuple(id,&s);
             }
   
           tOffset += this->TimeIncrement;

@@ -87,6 +87,10 @@ public:
   static void Cross(const double x[3], const double y[3], double z[3]);
 
   // Description:
+  // Compute the norm of n-vector.
+  static float Norm(const float* x, int n); 
+
+  // Description:
   // Compute the norm of 3-vector.
   static float Norm(const float x[3]) {
     return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};

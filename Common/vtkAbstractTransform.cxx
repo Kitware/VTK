@@ -181,10 +181,10 @@ void vtkAbstractTransform::TransformPoints(vtkPoints *in, vtkPoints *out)
 
 void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 							 vtkPoints *outPts,
-							 vtkNormals *inNms, 
-							 vtkNormals *outNms,
-							 vtkVectors *inVrs,
-							 vtkVectors *outVrs)
+							 vtkDataArray *inNms, 
+							 vtkDataArray *outNms,
+							 vtkDataArray *inVrs,
+							 vtkDataArray *outVrs)
 {
   this->Update();
 
@@ -202,18 +202,18 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     
     if (inVrs)
       {
-      inVrs->GetVector(i,coord);
+      inVrs->GetTuple(i,coord);
       vtkMath::Multiply3x3(matrix,coord,coord);
-      outVrs->InsertNextVector(coord);
+      outVrs->InsertNextTuple(coord);
       }
     
     if (inNms)
       {
-      inNms->GetNormal(i,coord);
+      inNms->GetTuple(i,coord);
       vtkMath::Transpose3x3(matrix,matrix);
       vtkMath::LinearSolve3x3(matrix,coord,coord);
       vtkMath::Normalize(coord);
-      outNms->InsertNextNormal(coord);
+      outNms->InsertNextTuple(coord);
       }
     }
 }

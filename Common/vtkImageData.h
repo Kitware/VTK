@@ -146,7 +146,9 @@ public:
   // dataset, compute the gradient vector from the scalar data at that point. 
   // The scalars s are the scalars from which the gradient is to be computed.
   // This method will treat structured point datasets of any dimension.
-  void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
+  void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3])
+    { this->GetPointGradient(i, j, k, s->GetData(), g); }
+  void GetPointGradient(int i, int j, int k, vtkDataArray *s, float g[3]);
 
   // Description:
   // Return the dimensionality of the data.

@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyLine.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkStreamLine* vtkStreamLine::New()
@@ -69,8 +70,8 @@ void vtkStreamLine::Execute()
 {
   vtkStreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
-  vtkVectors *newVectors;
-  vtkScalars *newScalars=NULL;
+  vtkFloatArray *newVectors;
+  vtkFloatArray *newScalars=NULL;
   vtkCellArray *newLines;
   vtkIdType ptId, i, id;
   int j;
@@ -78,7 +79,7 @@ void vtkStreamLine::Execute()
   float tOffset, x[3], v[3], s, r;
   float theta;
   vtkPolyLine* lineNormalGenerator = NULL;
-  vtkNormals* normals = NULL;
+  vtkFloatArray* normals = NULL;
   vtkFloatArray* rotation = 0;
   vtkPolyData *output=this->GetOutput();
   vtkFieldData *fd;
@@ -98,13 +99,15 @@ void vtkStreamLine::Execute()
   //
   newPts  = vtkPoints::New();
   newPts->Allocate(1000);
-  newVectors  = vtkVectors::New();
-  newVectors->Allocate(1000);
+  newVectors  = vtkFloatArray::New();
+  newVectors->SetNumberOfComponents(3);
+  newVectors->Allocate(3000);
   if ( this->Vorticity )
     {
     lineNormalGenerator = vtkPolyLine::New();
-    normals = vtkNormals::New();
-    normals->Allocate(1000);
+    normals = vtkFloatArray::New();
+    normals->SetNumberOfComponents(3);
+    normals->Allocate(3000);
     rotation = vtkFloatArray::New();
     rotation->SetNumberOfComponents(1);
     rotation->Allocate(1000);
@@ -115,7 +118,7 @@ void vtkStreamLine::Execute()
   if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars
     || this->OrientationScalars)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(1000);
     }
   newLines = vtkCellArray::New();
@@ -160,12 +163,12 @@ void vtkStreamLine::Execute()
         // add point to line
         id = newPts->InsertNextPoint(x);
         pts->InsertNextId(id);
-        newVectors->InsertVector(id,v);
+        newVectors->InsertTuple(id,v);
 
         if ( newScalars ) 
           {
           s = sPrev->s + r * (sPtr->s - sPrev->s);
-          newScalars->InsertScalar(id,s);
+          newScalars->InsertTuple(id,&s);
           }
 	
 	if ( this->Vorticity )
@@ -201,8 +204,8 @@ void vtkStreamLine::Execute()
     
     for(i=0; i<nPts; i++)
       {
-      normals->GetNormal(i, normal);
-      newVectors->GetVector(i, v);
+      normals->GetTuple(i, normal);
+      newVectors->GetTuple(i, v);
       // obtain two unit orthogonal vectors on the plane perpendicular to
       // the streamline
       for(j=0; j<3; j++) { local1[j] = normal[j]; }
@@ -217,7 +220,7 @@ void vtkStreamLine::Execute()
 	{
 	normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
 	}
-      normals->SetNormal(i, normal);
+      normals->SetTuple(i, normal);
       }
     output->GetPointData()->SetNormals(normals);
     normals->Delete();

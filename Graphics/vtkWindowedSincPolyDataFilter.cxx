@@ -722,8 +722,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
   
   if ( this->GenerateErrorVectors )
     {
-    vtkVectors *newVectors = vtkVectors::New();
-    newVectors->SetNumberOfVectors(numPts);
+    vtkFloatArray *newVectors = vtkFloatArray::New();
+    newVectors->SetNumberOfComponents(3);
+    newVectors->SetNumberOfTuples(numPts);
     for (i=0; i<numPts; i++)
       {
       inPts->GetPoint(i,x1);
@@ -732,7 +733,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	{
 	x3[j] = x2[j] - x1[j];
 	}
-      newVectors->SetVector(i,x3);
+      newVectors->SetTuple(i,x3);
       }
     output->GetPointData()->SetVectors(newVectors);
     newVectors->Delete();
