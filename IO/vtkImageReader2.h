@@ -219,9 +219,9 @@ protected:
   int SwapBytes;
 
   int FileDimensionality;
-  int HeaderSize;
+  unsigned long HeaderSize;
   int DataScalarType;
-  int ManualHeaderSize;
+  unsigned long ManualHeaderSize;
   int Initialized;
 
   int DataDimensions[3];
