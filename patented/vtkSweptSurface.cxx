@@ -57,9 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSweptSurface* vtkSweptSurface::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -71,9 +69,6 @@ vtkSweptSurface* vtkSweptSurface::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSweptSurface;
 }
-
-
-
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 
@@ -102,7 +97,6 @@ vtkSweptSurface::vtkSweptSurface()
   this->AdjustDistance = 0.040;
 
   this->T = vtkTransform::New();
-
 }
 
 vtkSweptSurface::~vtkSweptSurface()
@@ -126,13 +120,11 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin,
   this->SetModelBounds(bounds);
 }
 
-
 void vtkSweptSurface::ExecuteInformation()
 {
   float origin[3], spacing[3], bbox[24];
   vtkImageData *input = this->GetInput();
   vtkStructuredPoints *output = this->GetOutput();
-
 
   // make sure there is input
   if (input == NULL)
@@ -169,12 +161,9 @@ void vtkSweptSurface::ExecuteInformation()
 
 }
 
-
-
-
 void vtkSweptSurface::Execute()
 {
-  int i, numOutPts;
+  vtkIdType i, numOutPts;
   vtkPointData *pd, *outPD;
   vtkScalars *inScalars, *newScalars;
   float inSpacing[3], inOrigin[3];
@@ -310,13 +299,16 @@ void vtkSweptSurface::Execute()
       time = (float) stepNum / numSteps;
       this->InterpolateStates(position1, position2, orient1, orient2, time,
                                        position, orientation); 
-      this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin, position, orientation),
+      this->SampleInput(this->GetActorMatrixPointer(*actorTransform,
+                                                    actorOrigin, position,
+                                                    orientation),
 			inDim, inOrigin, inSpacing, inScalars, newScalars);
       }
     }
 
   //finish off last step
-  this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin, position2, orient2),
+  this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin,
+                                                position2, orient2),
 		    inDim, inOrigin, inSpacing, inScalars, newScalars);
 
   // Cap if requested
@@ -340,17 +332,18 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   float x[4], loc[4], newScalar, scalar;
-  int kOffset, jOffset, ijk[3], idx;
+  vtkIdType kOffset, idx;
+  int jOffset, ijk[3];
   float weights[8];
   float *origin, *spacing;
   float locP1[4], locP2[4], t[3];
   float dxdi, dydi, dzdi, dxdj, dydj, dzdj, dxdk, dydk, dzdk;
   vtkMatrix4x4 *matrix;
-  int indicies[6];
+  int indices[6];
   // Compute the index bounds of the workspace volume that will cover the
   // input volume
 
-  this->ComputeFootprint (m, inDim, inOrigin, inSpacing, indicies);
+  this->ComputeFootprint (m, inDim, inOrigin, inSpacing, indices);
 
   m->Invert(m,m);
   this->T->SetMatrix(m);
@@ -397,23 +390,23 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
   dydk = locP2[1] - locP1[1];
   dzdk = locP2[2] - locP1[2];
 
-  // Compute starting position that is one step before the first world coordinate
-  // of each row
+  // Compute starting position that is one step before the first world
+  // coordinate of each row
   x[0] = origin[0] - spacing[0];
   x[1] = origin[1];
   x[2] = origin[2];
   matrix->MultiplyPoint(x,locP1);
 
-  for (k=indicies[4]; k<indicies[5]; k++)
+  for (k=indices[4]; k<indices[5]; k++)
     {
     kOffset = k*sliceSize;
-    for (j=indicies[2]; j<indicies[3]; j++)
+    for (j=indices[2]; j<indices[3]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
-      loc[0] = locP1[0] + indicies[0]*dxdi + j*dxdj + k*dxdk;
-      loc[1] = locP1[1] + indicies[0]*dydi + j*dydj + k*dydk;
-      loc[2] = locP1[2] + indicies[0]*dzdi + j*dzdj + k*dzdk;
-      for (i=indicies[0]; i<indicies[1]; i++)
+      loc[0] = locP1[0] + indices[0]*dxdi + j*dxdj + k*dxdk;
+      loc[1] = locP1[1] + indices[0]*dydi + j*dydj + k*dydk;
+      loc[2] = locP1[2] + indices[0]*dzdi + j*dzdj + k*dzdk;
+      for (i=indices[0]; i<indices[1]; i++)
         {
 	loc[0] += dxdi;
 	loc[1] += dydi;
@@ -447,9 +440,10 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 	  newScalar += inScalars->GetScalar(idx+1 + inDim[0]) * weights[3];
 	  newScalar += inScalars->GetScalar(idx + inSliceSize) * weights[4] ;
 	  newScalar += inScalars->GetScalar(idx+1 + inSliceSize) * weights[5];
-	  newScalar += inScalars->GetScalar(idx + inDim[0] + inSliceSize) * weights[6];
-	  newScalar += inScalars->GetScalar(idx+1 + inDim[0] + inSliceSize) * weights[7];
-
+	  newScalar += inScalars->GetScalar(idx + inDim[0] + inSliceSize) *
+            weights[6];
+	  newScalar += inScalars->GetScalar(idx+1 + inDim[0] + inSliceSize) *
+            weights[7];
 
           scalar = outScalars->GetScalar((idx=i+jOffset+kOffset));
           if ( newScalar < scalar )  //union operation
@@ -463,8 +457,8 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 }
 
 void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], 
-                                   float inOrigin[3], float inSpacing[3],
-			           int indicies[6])
+                                        float inOrigin[3], float inSpacing[3],
+                                        int indices[6])
 {
   int i, ii, n;
   float bounds[6], bbox[24], *fptr, workBounds[6];
@@ -524,8 +518,9 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
   // Compute the footprint of the input in the workspace volume
   for (ii = 0; ii < 3; ii++) 
     {
-    indicies[2 * ii] = (int) ((workBounds[2 * ii] - origin[ii]) / spacing[ii]);
-    indicies[2 * ii + 1] = (int) ((workBounds[2 * ii + 1] - origin[ii]) / spacing[ii]) + 1;
+    indices[2 * ii] = (int) ((workBounds[2 * ii] - origin[ii]) / spacing[ii]);
+    indices[2 * ii + 1] = (int) ((workBounds[2 * ii + 1] - origin[ii]) /
+                                 spacing[ii]) + 1;
     }
 }
 
@@ -551,9 +546,9 @@ unsigned long int vtkSweptSurface::GetMTime()
   return mtime;
 }
 
-
 // compute model bounds from geometry and path
-void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbox[24])
+void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
+                                    float bbox[24])
 {
   int i, j, k, ii, idx, dim;
   float *bounds;
@@ -662,7 +657,8 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         {
         this->InterpolateStates(position1, position2, orient1, orient2, k*h,
                                        position, orientation); 
-        t2->SetMatrix(this->GetActorMatrixPointer(*actorTransform, actorOrigin,position,orientation));
+        t2->SetMatrix(this->GetActorMatrixPointer(*actorTransform, actorOrigin,
+                                                  position,orientation));
 
         for (i=0; i<8; i++) //loop over eight corners of bounding box
           {
@@ -721,7 +717,6 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
   vtkDebugMacro(<<"Computed model bounds as (" << xmin[0] << "," << xmax[0]
                 << ", " << xmin[1] << "," << xmax[1]
                 << ", " << xmin[2] << "," << xmax[2] << ")");
-
 
   // set output
   for (i=0; i<3; i++)
@@ -803,7 +798,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
 void vtkSweptSurface::Cap(vtkScalars *s)
 {
   int i,j,k;
-  int idx;
+  vtkIdType idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
 
 // i-j planes
@@ -892,7 +887,6 @@ void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
 void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
 					  float *position)
 {
@@ -903,9 +897,9 @@ void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
   position[2] -= origin[2];
 }
 
-
 void vtkSweptSurface::InterpolateStates(float *pos1, float *pos2, 
-	float *euler1, float *euler2, float t, float *posOut, float *eulerOut)
+                                        float *euler1, float *euler2, float t,
+                                        float *posOut, float *eulerOut)
 {
   for (int i=0; i < 3; i++)
     {
@@ -914,11 +908,11 @@ void vtkSweptSurface::InterpolateStates(float *pos1, float *pos2,
     }
 }
 
-
 // Simulate an actor's transform without all of the baggage of an actor
 vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
-						    float origin[3],
-						    float position[3], float orientation[3])
+                                                     float origin[3],
+                                                     float position[3],
+                                                     float orientation[3])
 {
   t.Identity();  
   t.PostMultiply();  
@@ -940,5 +934,3 @@ vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
 
   return t.GetMatrix();
 }
-
-
