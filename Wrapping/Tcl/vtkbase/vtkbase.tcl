@@ -30,21 +30,31 @@ namespace eval ::vtk {
             if {[info exists env(LD_LIBRARY_PATH)]} {
                 set dirs [concat $dirs [split $env(LD_LIBRARY_PATH) ":"]]
             }
+            if {[info exists env(PATH)]} {
+                set dirs [concat $dirs [split $env(PATH) ":"]]
+            }
         } else {
             set prefix ""
+            if {$tcl_platform(platform) == "windows"} {
+                if {[info exists env(PATH)]} {
+                    set dirs [concat $dirs [split $env(PATH) ";"]]
+                }
+            }
         }
 
         foreach dir $dirs {
             set libname [file join $dir ${prefix}${name}${ext}]
-	    if {[file exists $libname] && ![catch {load $libname} errormsg]} {
-		# WARNING: it HAS to be "" so that pkg_mkIndex work (since
-		# while evaluating a package ::vtk::load_component won't
-		# exist and will default to the unknown() proc that returns ""
-		return ""
-	    }
-            # If not loaded but file was found, oops
-            if {[file exists $libname] && $::vtk::complain_on_loading} {
-                puts stderr $errormsg
+	    if {[file exists $libname]} {
+                if {![catch {load $libname} errormsg]} {
+                    # WARNING: it HAS to be "" so that pkg_mkIndex work (since
+                    # while evaluating a package ::vtk::load_component won't
+                    # exist and will default to the unknown() proc that 
+                    # returns ""
+                    return ""
+                } elseif {$::vtk::complain_on_loading} {
+                    # If not loaded but file was found, oops
+                    puts stderr $errormsg
+                }
             }
         }
 
