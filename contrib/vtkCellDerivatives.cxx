@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkCellDerivatives.h"
+#include "vtkFloatArray.h"
 
 vtkCellDerivatives::vtkCellDerivatives()
 {
