@@ -27,7 +27,7 @@
 #include "vtkPointLocator.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.82");
+vtkCxxRevisionMacro(vtkQuad, "1.83");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -97,7 +97,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
   pt1 = this->Points->GetPoint(0);
   pt2 = this->Points->GetPoint(1);
   pt3 = this->Points->GetPoint(2);
-  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
+  ComputeNormal (this, pt1, pt2, pt3, n);
 
   // Project point to plane
   //
