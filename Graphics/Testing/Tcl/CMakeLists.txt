@@ -54,6 +54,10 @@ IF (VTK_USE_RENDERING)
       eleState
       EnSight6Elements
       EnSightGoldElements
+      EnSightBlow1ASCII
+      EnSightBlow1Bin
+      EnSightBlow2ASCII
+      EnSightBlow2Bin
       EnSightCompound
       extractPolyData
       extractUGrid
