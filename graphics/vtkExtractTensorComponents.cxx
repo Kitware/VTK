@@ -57,6 +57,7 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
   this->ExtractNormals = 0;
   this->ExtractTCoords = 0;
 
+  this->ScalarMode = VTK_EXTRACT_COMPONENT;
   this->ScalarComponents[0] = this->ScalarComponents[1] = 0;
 
   this->VectorComponents[0] = 0; this->VectorComponents[1] = 0;
@@ -78,11 +79,146 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
 //
 void vtkExtractTensorComponents::Execute()
 {
-  //
+  vtkTensors *inTensors;
+  vtkTensor *tensor;
+  vtkPointData *pd = this->Input->GetPointData();
+  vtkPointData *outPD = this->Output->GetPointData();
+  float s, v[3];
+  vtkFloatScalars *newScalars=NULL;
+  vtkFloatVectors *newVectors=NULL;
+  vtkFloatNormals *newNormals=NULL;
+  vtkFloatTCoords *newTCoords=NULL;
+  int ptId, numPts;
+  float sx, sy, sz, txy, tyz, txz;
+
   // Initialize
   //
   vtkDebugMacro(<<"Extracting vector components!");
 
+  inTensors = pd->GetTensors();
+  numPts = this->Input->GetNumberOfPoints();
+
+  if ( !inTensors || numPts < 1 )
+    {
+    vtkErrorMacro(<<"No data to extract!");
+    return;
+    }
+
+  if ( !this->ExtractScalars && !this->ExtractVectors && 
+  !this->ExtractNormals && !this->ExtractTCoords )
+    {
+    vtkWarningMacro(<<"No data is being extracted");
+    }
+
+  outPD->CopyAllOn();
+  if ( !this->PassTensorsToOutput ) outPD->CopyTensorsOff();
+  if ( this->ExtractScalars )
+    {
+    outPD->CopyScalarsOff();
+    newScalars = new vtkFloatScalars(numPts);
+    newScalars->SetNumberOfScalars(numPts);
+    }
+  if ( this->ExtractVectors ) 
+    {
+    outPD->CopyVectorsOff();
+    newVectors = new vtkFloatVectors(numPts);
+    newVectors->SetNumberOfVectors(numPts);
+    }
+  if ( this->ExtractNormals ) 
+    {
+    outPD->CopyNormalsOff();
+    newNormals = new vtkFloatNormals(numPts);
+    newNormals->SetNumberOfNormals(numPts);
+    }
+  if ( this->ExtractTCoords ) 
+    {
+    outPD->CopyTCoordsOff();
+    newTCoords = new vtkFloatTCoords(numPts,this->NumberOfTCoords);
+    newTCoords->SetNumberOfTCoords(numPts);
+    }
+  outPD->PassData(pd);
+
+  // Loop over all points extracting components of tensor
+  //
+  for (ptId=0; ptId < numPts; ptId++)
+    {
+    tensor = inTensors->GetTensor(ptId);
+
+    if ( this->ExtractScalars )
+      {
+      if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
+        {
+        sx = tensor->GetComponent(0,0);
+        sy = tensor->GetComponent(1,1);
+        sz = tensor->GetComponent(2,2);
+        txy = tensor->GetComponent(0,1);
+        tyz = tensor->GetComponent(1,2);
+        txz = tensor->GetComponent(0,2);
+
+        s = sqrt (0.16666667 * ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) + (sz-sx)*(sz-sx) + 
+                                6.0*(txy*txy + tyz*tyz + txz*txz)));
+        }
+
+      else if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
+        {
+        s = tensor->GetComponent(this->ScalarComponents[0],this->ScalarComponents[1]);
+        }
+
+      else //VTK_EXTRACT_EFFECTIVE_DETERMINANT
+        {
+        }
+      newScalars->SetScalar(ptId, s);
+      }//if extract scalars
+
+    if ( this->ExtractVectors ) 
+      {
+      v[0] = tensor->GetComponent(this->VectorComponents[0],this->VectorComponents[1]);
+      v[1] = tensor->GetComponent(this->VectorComponents[2],this->VectorComponents[3]);
+      v[2] = tensor->GetComponent(this->VectorComponents[4],this->VectorComponents[5]);
+      newVectors->SetVector(ptId, v);
+      }
+
+    if ( this->ExtractNormals ) 
+      {
+      v[0] = tensor->GetComponent(this->NormalComponents[0],this->NormalComponents[1]);
+      v[1] = tensor->GetComponent(this->NormalComponents[2],this->NormalComponents[3]);
+      v[2] = tensor->GetComponent(this->NormalComponents[4],this->NormalComponents[5]);
+      newNormals->SetNormal(ptId, v);
+      }
+
+    if ( this->ExtractTCoords ) 
+      {
+      for ( int i=0; i < this->NumberOfTCoords; i++ )
+        {
+        v[i] = tensor->GetComponent(this->TCoordComponents[2*i],this->TCoordComponents[2*i+1]);
+        }
+      newTCoords->SetTCoord(ptId, v);
+      }
+
+    }//for all points
+
+  // Send data to output
+  //
+  if ( this->ExtractScalars )
+    {
+    outPD->SetScalars(newScalars);
+    newScalars->Delete();
+    }
+  if ( this->ExtractVectors ) 
+    {
+    outPD->SetVectors(newVectors);
+    newVectors->Delete();
+    }
+  if ( this->ExtractNormals ) 
+    {
+    outPD->SetNormals(newNormals);
+    newNormals->Delete();
+    }
+  if ( this->ExtractTCoords ) 
+    {
+    outPD->SetTCoords(newTCoords);
+    newTCoords->Delete();
+    }
 }
 
 void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
@@ -93,7 +229,7 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Extract Scalars: " << (this->ExtractScalars ? "On\n" : "Off\n");
   os << indent << "Scalar Components: \n";
-  os << indent << "  (row,column)0: (" 
+  os << indent << "  (row,column): (" 
      << this->ScalarComponents[0] << ", " << this->ScalarComponents[1] << ")\n";
 
   os << indent << "Extract Vectors: " << (this->ExtractVectors ? "On\n" : "Off\n");
@@ -126,3 +262,4 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
      << this->TCoordComponents[4] << ", " << this->TCoordComponents[5] << ")\n";
 
 }
+

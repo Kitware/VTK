@@ -49,17 +49,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // To use this filter, you must set some boolean flags to control
 // which data is extracted from the tensors, and whether you want to
 // pass the tensor data through to the output. Also, you must specify
-// the component range for each type of data you want to extract. The
-// component range is specified by one or more pairs of numbers, each
-// pair specifies a (row,column) position in the 3x3 tensor (numbers
-// are 0-offset -> (0,0) specifies upper left corner).
+// the tensor component(s) for each type of data you want to
+// extract. The tensor component(s) is(are) specified using matrix notation
+// into a 3x3 matrix. That is, use the (row,column) address to specify
+// a particular tensor component; and if the data you are extracting
+// requires more than one component, use a list of addresses. (Note
+// that the addresses are 0-offset -> (0,0) specifies upper left
+// corner of the tensor.)
+//
+// There are two optional methods to extract scalar data. You can
+// extract the determinant of the tensor, or you can extract the
+// effective stress of the tensor. These require that the ivar
+// ExtractScalars is on, and the appropriate scalr extraction mode is
+// set.
 
 #ifndef __vtkExtractTensorComponents_h
 #define __vtkExtractTensorComponents_h
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
+#define VTK_EXTRACT_COMPONENT 0
+#define VTK_EXTRACT_EFFECTIVE_STRESS 1
+#define VTK_EXTRACT_DETERMINANT 2
+
+class vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkExtractTensorComponents();
@@ -84,9 +97,19 @@ public:
   vtkSetVectorMacro(ScalarComponents,int,2);
   vtkGetVectorMacro(ScalarComponents,int,2);
 
+  // Description:
+  // Specify how to extract the scalar. You can extract it as one of
+  // the components of the tensor, as effective stress, or as the
+  // determinant of the tensor. If you extract a copmponent make sure
+  // that you set the ScalarComponents ivar.
+  vtkSetMacro(ScalarMode,int);
+  vtkGetMacro(ScalarMode,int);
+  void ScalarIsComponent() {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
+  void ScalarIsEffectiveStress() {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+  void ScalarIsDeterminant() {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
 
   // Description:
-  // Boolean controls whether scalar data is extracted from tensor.
+  // Boolean controls whether vector data is extracted from tensor.
   vtkSetMacro(ExtractVectors,int);
   vtkGetMacro(ExtractVectors,int);
   vtkBooleanMacro(ExtractVectors,int);
@@ -99,7 +122,7 @@ public:
 
 
   // Description:
-  // Boolean controls whether scalar data is extracted from tensor.
+  // Boolean controls whether normal data is extracted from tensor.
   vtkSetMacro(ExtractNormals,int);
   vtkGetMacro(ExtractNormals,int);
   vtkBooleanMacro(ExtractNormals,int);
@@ -119,7 +142,7 @@ public:
 
 
   // Description:
-  // Boolean controls whether scalar data is extracted from tensor.
+  // Boolean controls whether texture coordinates are extracted from tensor.
   vtkSetMacro(ExtractTCoords,int);
   vtkGetMacro(ExtractTCoords,int);
   vtkBooleanMacro(ExtractTCoords,int);
@@ -146,6 +169,7 @@ protected:
   int ExtractNormals;
   int ExtractTCoords;
 
+  int ScalarMode;
   int ScalarComponents[2];
 
   int VectorComponents[6];
@@ -159,5 +183,4 @@ protected:
 };
 
 #endif
-
 
