@@ -507,6 +507,16 @@ void vtkPDataSetReader::PolyDataExecute()
   updatePiece = output->GetUpdatePiece();
   updateNumberOfPieces = output->GetUpdateNumberOfPieces();
 
+  // Only the first N pieces have anything in them.
+  if (updateNumberOfPieces > this->NumberOfPieces)
+    {
+    updateNumberOfPieces = this->NumberOfPieces;
+    }
+  if (updatePiece >= updateNumberOfPieces)
+    { // This duplicates functionality of the pipeline super classes ...
+    return;
+    }
+
   startPiece = updatePiece * this->NumberOfPieces / updateNumberOfPieces;
   endPiece = ((updatePiece+1) * this->NumberOfPieces / updateNumberOfPieces) - 1;
 
@@ -563,6 +573,15 @@ void vtkPDataSetReader::UnstructuredGridExecute()
   updatePiece = output->GetUpdatePiece();
   updateNumberOfPieces = output->GetUpdateNumberOfPieces();
 
+  // Only the first N pieces have anything in them.
+  if (updateNumberOfPieces > this->NumberOfPieces)
+    {
+    updateNumberOfPieces = this->NumberOfPieces;
+    }
+  if (updatePiece >= updateNumberOfPieces)
+    { // This duplicates functionality of the pipeline super classes ...
+    return;
+    }
   startPiece = updatePiece * updateNumberOfPieces / this->NumberOfPieces;
   endPiece = ((updatePiece+1) * updateNumberOfPieces / this->NumberOfPieces) - 1;
 
