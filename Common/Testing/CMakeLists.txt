@@ -48,6 +48,7 @@ IF(PYTHON_EXECUTABLE)
            vtkObject.h
            vtkObjectBase.h
            vtkOldStyleCallbackCommand.h
+           vtkPython.h
            vtkPythonUtil.h
            vtkRayCastStructures.h
            vtkSetGet.h
