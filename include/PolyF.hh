@@ -11,7 +11,7 @@ class vlPolyFilter : public vlFilter {
 public:
   vlPolyFilter() : Input(0) {};
   ~vlPolyFilter();
-  virtual char *GetClassName() {return "vlPolyFilter";};
+  char *GetClassName() {return "vlPolyFilter";};
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
   void Execute();

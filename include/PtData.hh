@@ -16,6 +16,7 @@ public:
   vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
   void Initialize(vlPointData* const pd=0,const int sze=0,const int ext=1000);
   ~vlPointData();
+  char *GetClassName() {return "vlPointData";};
   vlPointData::vlPointData (const vlPointData& pd);
   virtual void Update() {};
   void CopyData(const vlPointData *const from_pd, const int from_id, 

@@ -17,6 +17,7 @@ public:
   vlDataSet();
   vlDataSet(const vlDataSet& ds);
   ~vlDataSet();
+  char *GetClassName() {return "vlDataSet";};
   virtual int NumCells() = 0;
   virtual int NumPoints() = 0;
   virtual int CellDimension(int cellId) = 0;
@@ -24,12 +25,18 @@ public:
   virtual void Initialize() = 0;
   virtual void PointCoords(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
-
+  void GetBounds(float bounds[6]);
+  void GetCenter(float center[3]);
+  float GetLength();
+  
   void SetPointData (vlPointData* pd);
   vlPointData *GetPointData();
 
-private:
-  vlPointData *PointData;
+protected:
+  vlPointData *PointData;  // Scalars, vectors, etc. associated w/ each point
+  vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
+  float Bounds[6];
+  virtual void ComputeBounds();
 };
 
 #endif

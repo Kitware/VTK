@@ -11,7 +11,7 @@ class vlSource : virtual public vlObject
 public:
   vlSource() : StartMethod(0), EndMethod(0) {};
   ~vlSource() {};
-  virtual char *GetClassName() {return "vlSource";};
+  char *GetClassName() {return "vlSource";};
   virtual void Execute();
   virtual void Update();
   void SetStartMethod(void (*f)());

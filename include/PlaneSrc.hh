@@ -14,7 +14,7 @@ public:
   void Execute();
   void SetResolution(const int xR, const int yR);
   void GetResolution(int& xR,int& yR) {xR=this->XRes; yR=this->YRes;};
-  virtual char *GetClassName() {return "vlPlaneSource";};
+  char *GetClassName() {return "vlPlaneSource";};
 
 private:
   int XRes;

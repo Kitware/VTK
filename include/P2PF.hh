@@ -11,6 +11,7 @@ class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData
 {
 public:
   void Update();
+  char *GetClassName() {return "vlPolyToPolyFilter";};
 };
 
 #endif

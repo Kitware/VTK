@@ -1,8 +1,8 @@
 //
 // Created Line centered at origin
 //
-#ifndef __LineSource_h
-#define __LineSource_h
+#ifndef __vlLineSource_h
+#define __vlLineSource_h
 
 #include "PolySrc.hh"
 
@@ -12,6 +12,7 @@ class vlLineSource : public vlPolySource
 {
 public:
   vlLineSource(int res=1);
+  char *GetClassName() {return "vlLineSource";};
   void Execute();
   void SetPoint1(float *x);
   void GetPoint1(float* &x);

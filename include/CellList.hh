@@ -13,8 +13,8 @@ class vlCellList {
 public:
   vlCellList() : Array(0),Size(0),MaxId(-1),Extend(1000) {};
   vlCellList(const int sz, const int ext);
-  ~vlCellList();
-  virtual char *GetClassName() {return "vlCellList";};
+  virtual ~vlCellList();
+  char *GetClassName() {return "vlCellList";};
   vlCell &GetCell(const int id) {return this->Array[id];};
   short GetCellType(const int id) {return this->Array[id].type;};
   int GetCellLoc(const int id) {return this->Array[id].loc;};

@@ -14,7 +14,7 @@ public:
   void Execute();
   void SetShrinkFactor(float sf);
   float GetShrinkFactor();
-  virtual char *GetClassName() {return "vlShrinkPolyData";};
+  char *GetClassName() {return "vlShrinkPolyData";};
 private:
   float ShrinkFactor;
 };

@@ -1,8 +1,8 @@
 //
 // Created cylinder centered at origin
 //
-#ifndef __CylinderSource_h
-#define __CylinderSource_h
+#ifndef __vlCylinderSource_h
+#define __vlCylinderSource_h
 
 #include "PolySrc.hh"
 
@@ -13,6 +13,7 @@ class vlCylinderSource : public vlPolySource
 public:
   vlCylinderSource() : Resolution(6),Height(1.0),Radius(0.5),Capping(1) {};
   vlCylinderSource(int res) {this->Resolution=res;};
+  char *GetClassName() {return "vlCylinderSource";};
   void Execute();
   void SetHeight(float h);
   float GetHeight();

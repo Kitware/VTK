@@ -20,7 +20,7 @@ public:
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
-  virtual char *GetClassName() {return "vlPolyData";};
+  char *GetClassName() {return "vlPolyData";};
   int NumCells();
   int NumPoints();
   int CellDimension(int cellId);

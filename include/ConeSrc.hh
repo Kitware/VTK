@@ -3,8 +3,8 @@
 // resolution=1, single triangle; resolution=2, two crossed triangles; 
 // resolution > 2, 3D cone.
 //
-#ifndef __ConeSource_h
-#define __ConeSource_h
+#ifndef __vlConeSource_h
+#define __vlConeSource_h
 
 #include "PolySrc.hh"
 
@@ -15,6 +15,7 @@ class vlConeSource : public vlPolySource
 public:
   vlConeSource() : Resolution(6),Height(1.0),Radius(0.5),Capping(1) {};
   vlConeSource(int res) {this->Resolution=res;};
+  char *GetClassName() {return "vlConeSource";};
   void Execute();
   void SetHeight(float h);
   float GetHeight();

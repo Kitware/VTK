@@ -9,8 +9,8 @@
 class vlCubeSource : public vlPolySource 
 {
 public:
-  vlCubeSource();
-  vlCubeSource(float xL, float yL, float zL);
+  vlCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
+  char *GetClassName() {return "vlCubeSource";};
   void Execute();
   float GetXLength();
   void SetXLength(float xL);

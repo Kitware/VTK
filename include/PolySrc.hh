@@ -10,6 +10,7 @@
 class vlPolySource : public vlSource, public vlPolyData 
 {
 public:
+  char *GetClassName() {return "vlPolySource";};
   void Update();
 };
 
