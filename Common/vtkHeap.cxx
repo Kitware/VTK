@@ -18,8 +18,26 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.9");
+vtkCxxRevisionMacro(vtkHeap, "1.10");
 vtkStandardNewMacro(vtkHeap);
+
+struct vtkTestAlignLong
+{
+  char    pad;
+  long    x;
+};
+
+static int vtkGetLongAlignment()
+{
+  struct vtkTestAlignLong    s1;
+  char *               p1;
+  char *               p2;
+  
+  p1 = (char *) &s1;   // Get address of struct
+  p2 = (char *) &s1.x; // Get address of long within struct
+  
+  return (p2 - p1);    // Get member offset/alignment
+}
 
 class VTK_COMMON_EXPORT vtkHeapBlock
 {
@@ -40,7 +58,7 @@ vtkHeap::vtkHeap()
   this->BlockSize = 256000;
   this->NumberOfBlocks = 0;
   this->NumberOfAllocations = 0;
-
+  this->Alignment = vtkGetLongAlignment();
   this->First = 0;
   this->Last = 0;
   this->Current = 0;
@@ -54,9 +72,9 @@ vtkHeap::~vtkHeap()
 
 void* vtkHeap::AllocateMemory(size_t n)
 {
-  if ( n%4 ) //4-byte word alignement
+  if ( n%this->Alignment ) //4-byte word alignement
     {
-    n += 4 - (n%4);
+    n += this->Alignment - (n%this->Alignment);
     }
 
   size_t blockSize = (n > this->BlockSize ? n : this->BlockSize );

@@ -94,12 +94,12 @@ protected:
   size_t BlockSize;
   int    NumberOfAllocations;
   int    NumberOfBlocks;
+  int    Alignment;
 
   // Manage the blocks
   vtkHeapBlock* First;
   vtkHeapBlock* Last;
   vtkHeapBlock* Current;
-
   // Manage the memory in the block
   size_t Position; //the position in the Current block
   
