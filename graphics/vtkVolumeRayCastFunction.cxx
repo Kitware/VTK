@@ -62,13 +62,13 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
 				int tf_array_size )
 {
   // First, just save the stuff that was passed in
-  this->ScalarOpacityTFArray    = scalar_opacity_tf_array;
-  this->CorrectedScalarOpacityTFArray = corrected_scalar_opacity_tf_array;
-  this->GradientOpacityTFArray  = gradient_opacity_tf_array;
-  this->GradientOpacityConstant = gradient_opacity_constant;
-  this->RGBTFArray              = rgb_tf_array;
-  this->GrayTFArray             = gray_tf_array;
-  this->TFArraySize             = tf_array_size;
+  this->ScalarOpacityTFArray             = scalar_opacity_tf_array;
+  this->CorrectedScalarOpacityTFArray    = corrected_scalar_opacity_tf_array;
+  this->GradientOpacityTFArray           = gradient_opacity_tf_array;
+  this->GradientOpacityConstant          = gradient_opacity_constant;
+  this->RGBTFArray                       = rgb_tf_array;
+  this->GrayTFArray                      = gray_tf_array;
+  this->TFArraySize                      = tf_array_size;
 
   // Is shading on?
   this->Shading = vol->GetVolumeProperty()->GetShade();
@@ -88,35 +88,63 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // The size of the scalar input data
   mapper->GetScalarInput()->GetDimensions( this->DataSize );
 
-  // Get the diffuse shading tables from the normal encoder
-  // in the volume ray cast mapper
-  this->RedDiffuseShadingTable = 
-    mapper->GetNormalEncoder()->GetRedDiffuseShadingTable();
-  this->GreenDiffuseShadingTable = 
-    mapper->GetNormalEncoder()->GetGreenDiffuseShadingTable();
-  this->BlueDiffuseShadingTable = 
-    mapper->GetNormalEncoder()->GetBlueDiffuseShadingTable();
-
-  // Get the specular shading tables from the normal encoder
-  // in the volume ray cast mapper
-  this->RedSpecularShadingTable = 
-    mapper->GetNormalEncoder()->GetRedSpecularShadingTable();
-  this->GreenSpecularShadingTable = 
-    mapper->GetNormalEncoder()->GetGreenSpecularShadingTable();
-  this->BlueSpecularShadingTable = 
-    mapper->GetNormalEncoder()->GetBlueSpecularShadingTable();
-
   // Get the encoded normals from the normal encoder in the
-  // volume ray cast mapper
-  this->EncodedNormals = 
-    mapper->GetNormalEncoder()->GetEncodedNormals();
+  // volume ray cast mapper. We need to do this if shading is on
+  // or if we are classifying scalar value into opacity based
+  // on the magnitude of the gradient (since if we need to
+  // calculate the magnitude we might as well just keep the
+  // direction as well.
+  if ( this->Shading )
+    {
+    this->EncodedNormals = 
+      mapper->GetGradientEstimator()->GetEncodedNormals();
 
-  if ( this->GradientOpacityTFArray )
+    // Get the diffuse shading tables from the normal encoder
+    // in the volume ray cast mapper
+    this->RedDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetRedDiffuseShadingTable();
+    this->GreenDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetGreenDiffuseShadingTable();
+    this->BlueDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetBlueDiffuseShadingTable();
+    
+    // Get the specular shading tables from the normal encoder
+    // in the volume ray cast mapper
+    this->RedSpecularShadingTable = 
+      mapper->GetGradientShader()->GetRedSpecularShadingTable();
+    this->GreenSpecularShadingTable = 
+      mapper->GetGradientShader()->GetGreenSpecularShadingTable();
+    this->BlueSpecularShadingTable = 
+      mapper->GetGradientShader()->GetBlueSpecularShadingTable();
+    }
+  else
+    {
+    this->EncodedNormals            = NULL;
+    this->RedDiffuseShadingTable    = NULL;
+    this->GreenDiffuseShadingTable  = NULL;
+    this->BlueDiffuseShadingTable   = NULL;
+    this->RedSpecularShadingTable   = NULL;
+    this->GreenSpecularShadingTable = NULL;
+    this->BlueSpecularShadingTable  = NULL;
+    }
+
+  // We need the gradient magnitudes only if we are classifying opacity
+  // based on them. Otherwise we can just leave them NULL
+  if ( this->GradientOpacityTFArray && 
+       this->GradientOpacityConstant == -1.0 )
+    {
     this->GradientMagnitudes = 
-      mapper->GetNormalEncoder()->GetGradientMagnitudes();
+      mapper->GetGradientEstimator()->GetGradientMagnitudes();
+    }
+  else
+    {
+    this->GradientMagnitudes = NULL;
+    }
 
   // Give the subclass a chance to do any initialization it needs
   // to do
   this->SpecificFunctionInitialize( ren, vol, mapper );
 }
+
+
 

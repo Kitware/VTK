@@ -47,6 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkRayCaster.h"
 #include "vtkVolumeRayCastFunction.h"
+#include "vtkRecursiveSphereDirectionEncoder.h"
+#include "vtkFiniteDifferenceGradientEstimator.h"
 
 // Description:
 // Construct a new vtkVolumeRayCastMapper with default values
@@ -69,6 +71,9 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->DrawTime                      = 0.0;
   this->TotalStepsTaken               = 0;
   this->TotalRaysCast                 = 0;
+  this->DirectionEncoder              = vtkRecursiveSphereDirectionEncoder::New();
+  this->GradientEstimator             = vtkFiniteDifferenceGradientEstimator::New();
+  this->GradientShader                = vtkEncodedGradientShader::New();
 }
 
 // Description:
@@ -92,6 +97,74 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 
   if ( this->CorrectedScalarOpacityTFArray )
     delete [] this->CorrectedScalarOpacityTFArray;
+
+  if ( this->DirectionEncoder )
+    {
+    this->DirectionEncoder->UnRegister(this);
+    this->DirectionEncoder = NULL;
+    }
+
+  if ( this->GradientEstimator )
+    {
+    this->GradientEstimator->UnRegister(this);
+    this->GradientEstimator = NULL;
+    }
+
+  this->GradientShader->Delete();
+}
+
+void vtkVolumeRayCastMapper::SetDirectionEncoder( vtkDirectionEncoder *direnc )
+{
+
+  // If we are setting it to its current value, don't do anything
+  if ( this->DirectionEncoder == direnc )
+    {
+    return;
+    }
+
+  // If we already have a direction encoder, unregister it.
+  if ( this->DirectionEncoder )
+    {
+    this->DirectionEncoder->UnRegister(this);
+    this->DirectionEncoder = NULL;
+    }
+
+  // If we are passing in a non-NULL encoder, register it
+  if ( direnc )
+    {
+    direnc->Register( this );
+    }
+
+  // Actually set the encoder, and consider the object Modified
+  this->DirectionEncoder = direnc;
+  this->Modified();
+}
+
+void vtkVolumeRayCastMapper::SetGradientEstimator( vtkEncodedGradientEstimator *gradest )
+{
+
+  // If we are setting it to its current value, don't do anything
+  if ( this->GradientEstimator == gradest )
+    {
+    return;
+    }
+
+  // If we already have a gradient estimator, unregister it.
+  if ( this->GradientEstimator )
+    {
+    this->GradientEstimator->UnRegister(this);
+    this->GradientEstimator = NULL;
+    }
+
+  // If we are passing in a non-NULL estimator, register it
+  if ( gradest )
+    {
+    gradest->Register( this );
+    }
+
+  // Actually set the estimator, and consider the object Modified
+  this->GradientEstimator = gradest;
+  this->Modified();
 }
 
 void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
@@ -298,11 +371,6 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   vtkTransform           *scalar_transform;
   vtkRayCaster           *ray_caster;
   float                  spacing[3], data_origin[3];
-  unsigned char          *uc_data_ptr;
-  unsigned short         *us_data_ptr;
-  short                  *s_data_ptr;
-  int                    *i_data_ptr;
-  float                  *f_data_ptr;
 
   // Create some objects that we will need later
   transform        = vtkTransform::New();
@@ -1070,7 +1138,7 @@ void vtkVolumeRayCastMapper::RenderPerspectiveImage( vtkRenderer *ren )
 }
 
 void vtkVolumeRayCastMapper::CasterUpdate( vtkRenderer *ren, 
-				       vtkVolume *vol )
+					   vtkVolume *vol )
 {
   this->UpdateShadingTables( ren, vol );
 
@@ -1079,21 +1147,12 @@ void vtkVolumeRayCastMapper::CasterUpdate( vtkRenderer *ren,
 
 
 void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren, 
-					      vtkVolume *vol )
+						  vtkVolume *vol )
 {
-  float                 light_direction[3], material[4], light_color[3];
-  float                 light_position[3], light_focal_point[3];
-  float                 light_intensity, view_direction[3];
-  float                 camera_position[3], camera_focal_point[3], mag;
-  vtkLightCollection    *light_collection;
-  vtkLight              *light;
-  float                 norm;
-  int                   update_flag;
   int                   shading;
   vtkVolumeProperty     *volume_property;
   float                 gradient_opacity_bias;
   float                 gradient_opacity_scale;
-  int                   gradient_opacity_is_constant;
 
   volume_property = vol->GetVolumeProperty();
 
@@ -1102,93 +1161,16 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   gradient_opacity_bias  = volume_property->GetGradientOpacityBias();
   gradient_opacity_scale = volume_property->GetGradientOpacityScale();
 
-  gradient_opacity_is_constant =  
-    ( volume_property->GetGradientOpacity()->GetType() == "Constant" );
+  this->GradientEstimator->SetGradientMagnitudeBias( gradient_opacity_bias );
+  this->GradientEstimator->SetGradientMagnitudeScale( gradient_opacity_scale );
+  this->GradientEstimator->SetScalarInput( this->ScalarInput );
+  this->GradientEstimator->SetDirectionEncoder( this->DirectionEncoder );
 
-  // Update the normals if necessary
-  if ( (shading || !gradient_opacity_is_constant ) && 
-       ( this->NormalEncoder.GetEncodedNormals () == NULL ||
-	 this->NormalEncoder.GetMTime() < this->ScalarInput->GetMTime() ||
-	 this->NormalEncoder.GetGradientMagnitudeBias() != 
-		    gradient_opacity_bias ||
-	 this->NormalEncoder.GetGradientMagnitudeScale() !=
-		    gradient_opacity_scale ) )
-    {
-    this->NormalEncoder.SetGradientMagnitudeBias( gradient_opacity_bias );
-    this->NormalEncoder.SetGradientMagnitudeScale( gradient_opacity_scale );
-    this->NormalEncoder.SetScalarInput( this->ScalarInput );
-    this->NormalEncoder.UpdateNormals();
-    this->NormalEncoder.Modified();
-    }
 
-  // If shading is on, update the shading table
   if ( shading )
     {
-    material[0] = volume_property->GetAmbient();
-    material[1] = volume_property->GetDiffuse();
-    material[2] = volume_property->GetSpecular();
-    material[3] = volume_property->GetSpecularPower();
-
-    // Set up the lights for traversal
-    light_collection = ren->GetLights();
-    light_collection->InitTraversal();
-    
-    // Loop through all lights and compute a shading table. For
-    // the first light, pass in an update_flag of 0, which means
-    // overwrite the shading table.  For each light after that, pass
-    // in an update flag of 1, which means add to the shading table.
-    // Currently, all lights are forced to be directional light sources
-    // regardless of what they really are - in the future, all lights
-    // will be handled - but it will be slow for anything but 
-    // directional lights
-    update_flag = 0;
-    while ( (light = light_collection->GetNextItem()) != NULL  )
-      { 
-      // Get the light color, position, focal point, and intensity
-      light->GetColor( light_color );
-      light->GetPosition( light_position );
-      light->GetFocalPoint( light_focal_point );
-      light_intensity = light->GetIntensity( );
-
-      ren->GetActiveCamera()->GetPosition( camera_position );
-      ren->GetActiveCamera()->GetFocalPoint( camera_focal_point );
-
-      view_direction[0] =  camera_focal_point[0] - camera_position[0];
-      view_direction[1] =  camera_focal_point[1] - camera_position[1];
-      view_direction[2] =  camera_focal_point[2] - camera_position[2];
-
-      mag = sqrt( (double)( 
-	view_direction[0] * view_direction[0] + 
-	view_direction[1] * view_direction[1] + 
-	view_direction[2] * view_direction[2] ) );
-
-      if ( mag )
-	{
-	view_direction[0] /= mag;
-	view_direction[1] /= mag;
-	view_direction[2] /= mag;
-	}
-
-      // Compute the light direction and normalize it
-      light_direction[0] = light_focal_point[0] - light_position[0];
-      light_direction[1] = light_focal_point[1] - light_position[1];
-      light_direction[2] = light_focal_point[2] - light_position[2];
-      
-      norm = sqrt( (double) ( light_direction[0] * light_direction[0] + 
-			      light_direction[1] * light_direction[1] +
-			      light_direction[2] * light_direction[2] ) );
-      
-      light_direction[0] /= -norm;
-      light_direction[1] /= -norm;
-      light_direction[2] /= -norm;
-      
-      // Build / Add to the shading table
-      this->NormalEncoder.BuildShadingTable( light_direction, light_color, 
-					     light_intensity, view_direction,
-					     material, update_flag );
-      
-      update_flag = 1;
-      }
+    this->GradientShader->UpdateShadingTable( ren, vol, 
+					      this->GradientEstimator );
     }
 }
 
@@ -1212,11 +1194,11 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
   // Update the ScalarOpacityTFArray if necessary.  This is necessary if
   // the ScalarOpacityTFArray does not exist, or the transfer function has
   // been modified more recently than the ScalarOpacityTFArray has.
-  scalar_opacity_transfer_function = volume_property->GetScalarOpacity();
+  scalar_opacity_transfer_function   = volume_property->GetScalarOpacity();
   gradient_opacity_transfer_function = volume_property->GetGradientOpacity();
-  rgb_transfer_function     = volume_property->GetRGBTransferFunction();
-  gray_transfer_function    = volume_property->GetGrayTransferFunction();
-  color_channels            = volume_property->GetColorChannels();
+  rgb_transfer_function              = volume_property->GetRGBTransferFunction();
+  gray_transfer_function             = volume_property->GetGrayTransferFunction();
+  color_channels                     = volume_property->GetColorChannels();
 
   if ( this->ScalarInput->GetPointData()->GetScalars() == NULL )
     {
@@ -1289,10 +1271,14 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
 					  (float)(0xff),  
 					  (int)(0x100), 
 					  this->GradientOpacityTFArray );
-    if ( gradient_opacity_transfer_function->GetType() == "Constant" )
+    if ( !strcmp(gradient_opacity_transfer_function->GetType(), "Constant") )
+      {
       this->GradientOpacityConstant = this->GradientOpacityTFArray[128];
+      }
     else
+      {
       this->GradientOpacityConstant = -1.0;
+      }
 
     this->GradientOpacityTFArrayMTime.Modified();
     }
@@ -1505,6 +1491,35 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Data Size: " << "( " << 
     this->ScalarDataSize[0] << ", " << this->ScalarDataSize[1] << ", " <<
     this->ScalarDataSize[2] << " )\n";
+
+  if ( this->DirectionEncoder )
+    {
+      os << indent << "Direction Encoder: " << (this->DirectionEncoder) <<
+	endl;
+    }
+  else
+    {
+      os << indent << "Direction Encoder: (none)" << endl;
+    }
+
+  if ( this->GradientEstimator )
+    {
+      os << indent << "Gradient Estimator: " << (this->GradientEstimator) <<
+	endl;
+    }
+  else
+    {
+      os << indent << "Gradient Estimator: (none)" << endl;
+    }
+
+  if ( this->GradientShader )
+    {
+      os << indent << "Gradient Shader: " << (this->GradientShader) << endl;
+    }
+  else
+    {
+      os << indent << "Gradient Shader: (none)" << endl;
+    }
 
   // These variables should not be printed to the user:
   // this->DataIncrement[0] 

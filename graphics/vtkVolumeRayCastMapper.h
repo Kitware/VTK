@@ -39,25 +39,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkVolumeRayCastMapper - Abstract class for mappers that use Depth 
-// Buffer PARC
+// .NAME vtkVolumeRayCastMapper - Abstract class for ray casting mappers
 // .SECTION Description
-// This is the abstract class for mappers that use Depth Buffer PARC for
-// acceleration. Some common methods such as the distance between samples
-// and the grouping of voxels are defined in this class.  
+// This is the abstract class for mappers that use volumetric ray casting
 // 
 
 // .SECTION see also
-// vtkVolumeMapper vtkMIPDPARCMapper
+// vtkVolumeMapper
 
 #ifndef __vtkVolumeRayCastMapper_h
 #define __vtkVolumeRayCastMapper_h
 
 #include "vtkVolumeMapper.h"
 #include "vtkMultiThreader.h"
-#include "vtkNormalEncoder.h"
 #include "vtkTransform.h"
 #include "vtkRayBounder.h"
+#include "vtkDirectionEncoder.h"
+#include "vtkEncodedGradientEstimator.h"
+#include "vtkEncodedGradientShader.h"
 
 class vtkVolumeRayCastFunction;
 class vtkRenderer;
@@ -133,9 +132,15 @@ public:
   // hardware part of the method.
   vtkGetMacro( CastTime, float );
 
+  // Description:
+  // Get / Set the ray bounder. This is used to clip the rays during
+  // ray casting.
   vtkSetObjectMacro( RayBounder, vtkRayBounder );
   vtkGetObjectMacro( RayBounder, vtkRayBounder );
 
+  // Description:
+  // Get / Set the volume ray cast function. This is used to process
+  // values found along the ray to compute a final pixel value.
   vtkSetObjectMacro( VolumeRayCastFunction, vtkVolumeRayCastFunction );
   vtkGetObjectMacro( VolumeRayCastFunction, vtkVolumeRayCastFunction );
 
@@ -161,89 +166,110 @@ public:
   // Return the scalar value below which all opacities are zero
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
+//BTX - this is for interal use by the ray cast function, not for 
+//      general use
+  // Description:
+  // Provided for the ray cast function to query the data increments
   vtkGetVectorMacro( DataIncrement, int, 3 );
+//ETX
 
-  vtkNormalEncoder *GetNormalEncoder(void) { return &(this->NormalEncoder); }
+  // Description:
+  // Set / Get the direction encoder used to encode normal directions
+  // to fit within two bytes
+  void SetDirectionEncoder( vtkDirectionEncoder *direnc );
+  vtkGetObjectMacro( DirectionEncoder, vtkDirectionEncoder );
+
+  // Description:
+  // Set / Get the gradient estimator used to estimate normals
+  void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
+  vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
+
+  // Description:
+  // Get the gradient shader.
+  vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
+
+
 
 protected:
   // The RGBA and Z (depth) images that are computed during a Render call.
-  float                      *RGBAImage;
-  float                      *ZImage;
+  float                        *RGBAImage;
+  float                        *ZImage;
 
-  int                        DataIncrement[3];
+  int                          DataIncrement[3];
 
-  vtkVolumeRayCastFunction   *VolumeRayCastFunction;
+  vtkVolumeRayCastFunction     *VolumeRayCastFunction;
 
-  // The normal encoder for creating/storing gradients and 
-  // gradient magnitudes
-  vtkNormalEncoder            NormalEncoder;
+  vtkDirectionEncoder          *DirectionEncoder;
+  vtkEncodedGradientEstimator  *GradientEstimator;
+
+  vtkEncodedGradientShader     *GradientShader;
 
   // The distance between sample points along the ray
-  float                      SampleDistance;
+  float                        SampleDistance;
 
   // The view rays, their size, and a transformation that will bring them
   // into the volume's coordinate system. These rays are only valid for 
   // perspective viewing transforms
-  float                      *ViewRays;
-  int                        ViewRaysSize[2];
-  vtkTransform               ViewRaysTransform;
+  float                        *ViewRays;
+  int                          ViewRaysSize[2];
+  vtkTransform                 ViewRaysTransform;
 
   // Accounting information
-  int                        TotalStepsTaken;
-  int                        TotalRaysCast;
-  float                      DrawTime;
-  float                      CastTime;
+  int                          TotalStepsTaken;
+  int                          TotalRaysCast;
+  float                        DrawTime;
+  float                        CastTime;
 
   // Accounting information for steps taken must first be
   // computed per thread id to ensure mutual exclusion. Then these
   // numbers are added to get the TotalStepsTaken
-  int                        TotalStepsTakenPerId[VTK_MAX_THREADS];
-  int                        TotalRaysCastPerId[VTK_MAX_THREADS];
+  int                          TotalStepsTakenPerId[VTK_MAX_THREADS];
+  int                          TotalRaysCastPerId[VTK_MAX_THREADS];
 
 
   // The rgb transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a sample at each scalar value of the rgb transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                       *RGBTFArray;
-  vtkTimeStamp                RGBTFArrayMTime;
+  float                         *RGBTFArray;
+  vtkTimeStamp                  RGBTFArrayMTime;
 
   // The gray transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a sample at each scalar value of the gray transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                       *GrayTFArray;
-  vtkTimeStamp                GrayTFArrayMTime;
+  float                         *GrayTFArray;
+  vtkTimeStamp                  GrayTFArrayMTime;
 
   // The scalar opacity transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a samples at each scalar value of the opacity transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                       *ScalarOpacityTFArray;
-  vtkTimeStamp                ScalarOpacityTFArrayMTime;
+  float                         *ScalarOpacityTFArray;
+  vtkTimeStamp                  ScalarOpacityTFArrayMTime;
 
   // The corrected scalar opacity transfer function array - this is identical
   // to the opacity transfer function array when the step size is 1.
   // In other cases, it is corrected to reflect the new material thickness
   // modelled by a step size different than 1.
-  float                       *CorrectedScalarOpacityTFArray;
+  float                         *CorrectedScalarOpacityTFArray;
 
   // CorrectedStepSize is the step size corrently modelled by
   // CorrectedTFArray.  It is used to determine when the 
   // CorrectedTFArray needs to be updated to match SampleDistance
   // in the volume mapper.
-  float                       CorrectedStepSize;
+  float                         CorrectedStepSize;
 
   // CorrectedSOTFArrayMTime - compared with OpacityTFArrayMTime for update
-  vtkTimeStamp                CorrectedSOTFArrayMTime;
+  vtkTimeStamp                  CorrectedSOTFArrayMTime;
 
   // Number of elements in the rgb, gray, and opacity transfer function arrays
-  int                         TFArraySize;
+  int                           TFArraySize;
 
   // The magnitude of gradient opacity transfer function array
-  float                       GradientOpacityTFArray[256];
-  float                       GradientOpacityConstant;
-  vtkTimeStamp                GradientOpacityTFArrayMTime;
+  float                         GradientOpacityTFArray[256];
+  float                         GradientOpacityConstant;
+  vtkTimeStamp                  GradientOpacityTFArrayMTime;
 
   // These are variables used by the initialize routines to pass
   // information to the render routines. The initialize routines are
@@ -254,39 +280,39 @@ protected:
   // reentrant functions.  The render routines are multi-threaded
   // and cannot call non-reentrant code, and cannot modify instance
   // parameters unless sure of mutual exclusion.
-  int                        ScalarDataSize[3];
-  float                      VolumeScaleFactor;
-  float                      LocalRayScale; // delete this
-  float                      WorldSampleDistance;
-  float                      CameraClippingRange[2];
-  float                      LocalRayDirection[3];
-  float                      LocalRayOrigin[3];
-  float                      LocalUnitRayDirection[3];
-  float                      LocalRayStart[3];
-  float                      XOriginIncrement[3];
-  float                      YOriginIncrement[3];
-  float                      *DepthRangeBufferPointer;
-  int                        ScalarDataType;
-  void                       *ScalarDataPointer;
-  float                      ParallelZScale;
-  float                      ParallelZBias;
-  float                      ZNumerator;
-  float                      ZDenomMult;
-  float                      ZDenomAdd;
-  float                      *RenderZData;
+  int                          ScalarDataSize[3];
+  float                        VolumeScaleFactor;
+  float                        LocalRayScale; // delete this
+  float                        WorldSampleDistance;
+  float                        CameraClippingRange[2];
+  float                        LocalRayDirection[3];
+  float                        LocalRayOrigin[3];
+  float                        LocalUnitRayDirection[3];
+  float                        LocalRayStart[3];
+  float                        XOriginIncrement[3];
+  float                        YOriginIncrement[3];
+  float                        *DepthRangeBufferPointer;
+  int                          ScalarDataType;
+  void                         *ScalarDataPointer;
+  float                        ParallelZScale;
+  float                        ParallelZBias;
+  float                        ZNumerator;
+  float                        ZDenomMult;
+  float                        ZDenomAdd;
+  float                        *RenderZData;
 
-  int                        ClipRayAgainstVolume( float ray_info[12],
-						   float bounds_info[12] );
+  int                          ClipRayAgainstVolume( float ray_info[12],
+						     float bounds_info[12] );
 
-  void                       GeneralImageInitialization( vtkRenderer *ren, 
-							 vtkVolume *vol );
+  void                         GeneralImageInitialization( vtkRenderer *ren, 
+							   vtkVolume *vol );
 
   // Initialize parallel (orthographic) rendering
   // This includes building the transformation matrix from camera to
   // volume space, and setting up all the info needed from other
   // objects. This leaves the RenderParallelImage code reentrant since
   // it relies only on values stored in the depth parc mapper itself.
-  void                       InitializeParallelImage( vtkRenderer *ren ); 
+  void                         InitializeParallelImage( vtkRenderer *ren ); 
 
   // This is the routine that casts rays for a parallel image - 
   // it may run in several simultaneous threads of execution so it
