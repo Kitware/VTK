@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 class vtkDataSet;
+class vtkCellArray;
 
 struct _vtkLink_s {
     unsigned short ncells;
@@ -81,6 +82,10 @@ public:
   // Description:
   // Build the link list array.
   void BuildLinks(vtkDataSet *data);
+
+  // Description:
+  // Build the link list array.
+  void BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity);
 
   // Description:
   // Return a list of cell ids using the point.

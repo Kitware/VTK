@@ -156,6 +156,11 @@ public:
   int GetInsertLocation(int npts) {return (this->InsertLocation - npts - 1);};
   
   // Description:
+  // Get/Set the current traversal location.
+  int GetTraversalLocation() {return this->TraversalLocation;};
+  void SetTraversalLocation(int loc) {this->TraversalLocation = loc;};
+  
+  // Description:
   // Computes the current traversal location within the internal array. Used 
   // in conjunction with GetCell(int loc,...).
   int GetTraversalLocation(int npts) {return(this->TraversalLocation-npts-1);};

@@ -425,6 +425,11 @@ vtkCell *vtkPyramid::GetEdge(int edgeId)
   return this->Line;
 }
 
+int *vtkPyramid::GetFaceArray(int faceId)
+{
+  return faces[faceId];
+}
+
 vtkCell *vtkPyramid::GetFace(int faceId)
 {
   int *verts;

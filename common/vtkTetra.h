@@ -67,6 +67,7 @@ public:
   int GetNumberOfFaces() {return 4;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
+  static int *GetFaceArray(int faceId);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,

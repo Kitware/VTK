@@ -353,6 +353,10 @@ vtkCell *vtkTetra::GetEdge(int edgeId)
   return this->Line;
 }
 
+int *vtkTetra::GetFaceArray(int faceId)
+{
+  return faces[faceId];
+}
 vtkCell *vtkTetra::GetFace(int faceId)
 {
   int *verts;

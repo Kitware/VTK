@@ -483,6 +483,10 @@ vtkCell *vtkHexahedron::GetEdge(int edgeId)
   return this->Line;
 }
 
+int *vtkHexahedron::GetFaceArray(int faceId)
+{
+  return faces[faceId];
+}
 vtkCell *vtkHexahedron::GetFace(int faceId)
 {
   int *verts, i;

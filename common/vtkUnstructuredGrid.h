@@ -100,6 +100,7 @@ public:
   void Initialize();
   int GetMaxCellSize();
   void BuildLinks();
+  vtkCellLinks *GetCellLinks() {return this->Links;};
   void GetCellPoints(int cellId, int& npts, int* &pts);
   void ReplaceCell(int cellId, int npts, int *pts);
   int InsertNextLinkedCell(int type, int npts, int *pts); 
@@ -115,6 +116,14 @@ public:
     {this->GetPointCells(ptId, &cellIds);}
   int InsertNextCell(int type, vtkIdList &pts) {return this->InsertNextCell(type, &pts);}
   
+  // Description:
+  // Topological inquiry to get all cells using list of points exclusive of
+  // cell specified (e.g., cellId).
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
+  virtual void GetCellNeighbors(int cellId, vtkIdList *ptIds, 
+				vtkIdList *cellIds);
+
   // Description:
   // For streaming.  User/next filter specifies which piece the want updated.
   // The source of this poly data has to return exactly this piece.

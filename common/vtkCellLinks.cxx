@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCellLinks.h"
 #include "vtkDataSet.h"
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -199,6 +200,46 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     }
 
   delete [] linkLoc;
+}
+
+// Build the link list array.
+void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
+{
+  int numPts = data->GetNumberOfPoints();
+  int i, j, cellId;
+  unsigned short *linkLoc;
+  int npts, *pts;
+  int loc = Connectivity->GetTraversalLocation();
+  
+  // traverse data to determine number of uses of each point
+  for (Connectivity->InitTraversal(); 
+       Connectivity->GetNextCell(npts,pts);)
+    {
+    for (j=0; j < npts; j++)
+      {
+      this->IncrementLinkCount(pts[j]);      
+      }      
+    }
+
+  // now allocate storage for the links
+  this->AllocateLinks(numPts);
+  this->MaxId = numPts - 1;
+
+  // fill out lists with references to cells
+  linkLoc = new unsigned short[numPts];
+  memset(linkLoc, 0, numPts*sizeof(unsigned short));
+
+  cellId = 0;
+  for (Connectivity->InitTraversal(); 
+       Connectivity->GetNextCell(npts,pts); cellId++)
+    {
+    for (j=0; j < npts; j++)
+      {
+      this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);      
+      }      
+    }
+  delete [] linkLoc;
+  Connectivity->SetTraversalLocation(loc);
 }
 
 // Insert a new point into the cell-links data structure. The size parameter

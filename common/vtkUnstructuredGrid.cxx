@@ -445,7 +445,7 @@ void vtkUnstructuredGrid::BuildLinks()
   this->Links = vtkCellLinks::New();
   this->Links->Allocate(this->GetNumberOfPoints());
   this->Links->Register(this);
-  this->Links->BuildLinks(this);
+  this->Links->BuildLinks(this, this->Connectivity);
   this->Links->Delete();
 }
 
@@ -709,3 +709,58 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   
 }
 
+void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+                                           vtkIdList *cellIds)
+{
+  int i, j, numPts, cellNum;
+  int allFound, oneFound;
+  int numCurrent;
+  int *currentCells;
+  
+  if ( ! this->Links )
+    {
+    this->BuildLinks();
+    }  
+  
+  cellIds->Reset();
+  
+  // load list with candidate cells, remove current cell
+  int ptId = ptIds->GetId(0);
+  int numPrime = this->Links->GetNcells(ptId);
+  int *primeCells = this->Links->GetCells(ptId);
+  numPts=ptIds->GetNumberOfIds();
+                        
+  // for each potential cell
+  for (cellNum = 0; cellNum < numPrime; cellNum++)
+    {
+    // ignore the original cell
+    if (primeCells[cellNum] != cellId)
+      {
+      // are all the remaining face points in the cell ?
+      allFound = 1;
+      for (i=1; i < numPts; i++)
+        {
+        ptId = ptIds->GetId(i);
+        int numCurrent = this->Links->GetNcells(ptId);
+        int *currentCells = this->Links->GetCells(ptId);
+        oneFound = 0;
+        for (j = 0; j < numCurrent; j++)
+          {
+          if (primeCells[cellNum] == currentCells[j])
+            {
+            oneFound = 1;
+            break;
+            }
+          }
+        if (!oneFound)
+          {
+          allFound = 0;
+          }
+        }
+      if (allFound)
+        {
+        cellIds->InsertNextId(primeCells[cellNum]);
+        }
+      }
+    }
+}

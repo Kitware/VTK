@@ -391,6 +391,10 @@ vtkCell *vtkVoxel::GetEdge(int edgeId)
   return this->Line;
 }
 
+int *vtkVoxel::GetFaceArray(int faceId)
+{
+  return faces[faceId];
+}
 vtkCell *vtkVoxel::GetFace(int faceId)
 {
   int *verts, i;

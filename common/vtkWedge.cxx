@@ -463,6 +463,10 @@ vtkCell *vtkWedge::GetEdge(int edgeId)
   return this->Line;
 }
 
+int *vtkWedge::GetFaceArray(int faceId)
+{
+  return faces[faceId];
+}
 vtkCell *vtkWedge::GetFace(int faceId)
 {
   int *verts;
