@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.43");
+vtkCxxRevisionMacro(vtkImageImport, "1.44");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -218,7 +218,6 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
   this->InvokeExecuteDataCallbacks();
   
   vtkImageData *data = vtkImageData::SafeDownCast(output);
-  data->UpdateInformation();
   data->SetExtent(0,0,0,0,0,0);
   data->AllocateScalars();
   void *ptr = this->GetImportVoidPointer();
