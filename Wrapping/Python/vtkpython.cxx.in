@@ -1,9 +1,9 @@
 /* Minimal main program -- everything is loaded from the library */
 
-#include "Python.h"
-#include "iostream.h"
 #include "vtkString.h"
 #include "vtkVersion.h"
+
+#include "Python.h"
 
 extern "C" {
   extern DL_EXPORT(int) Py_Main(int, char **);
