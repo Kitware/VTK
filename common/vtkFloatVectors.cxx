@@ -59,7 +59,7 @@ vtkFloatVectors::vtkFloatVectors(const int sz, const int ext)
 
 vtkFloatVectors::~vtkFloatVectors()
 {
-  this->V = new vtkFloatArray;
+  this->V->Delete ();
 }
 
 
