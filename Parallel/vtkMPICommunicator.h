@@ -246,7 +246,10 @@ public:
 
   friend class vtkMPIController;
 
-  vtkGetObjectMacro(MPIComm,vtkMPICommunicatorOpaqueComm);
+  vtkMPICommunicatorOpaqueComm *GetMPIComm()
+    {
+    return this->MPIComm;
+    }
 //ETX
 
   static char* Allocate(size_t size);
