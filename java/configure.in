@@ -24,6 +24,9 @@ AC_HEADER_STDC
 # get byte swapping info
 AC_C_BIGENDIAN
 
+# Find the X include directories and libraries
+AC_PATH_XTRA
+
 if test $ac_cv_c_bigendian = yes; then
   BIGENDIAN="-DWORDS_BIGENDIAN"
 fi
