@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.19");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.20");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -340,6 +340,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
 // public
 void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
 { 
+  this->SetNumberOfInputConnections(0, n);
   this->SetNumberOfOutputPorts(n);
 
   // initialise the outputs
@@ -355,6 +356,19 @@ void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
 
   // is this the right thing to be doing here? if we don't initialise the outputs here
   // then the filter crashes but vtkPolyData may not be the type of the inputs
+}
+
+//----------------------------------------------------------------------------
+void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkPointSet *p)
+{
+  this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkPointSet* vtkProcrustesAlignmentFilter::GetInput(int idx)
+{
+  return vtkPointSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, idx));
 }
 
 //----------------------------------------------------------------------------

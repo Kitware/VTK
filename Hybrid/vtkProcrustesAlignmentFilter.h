@@ -83,6 +83,16 @@ public:
   // Specify how many pointsets are going to be given as input.
   void SetNumberOfInputs(int n);
 
+  // Description:
+  // Specify the input pointset with index idx.
+  // Call SetNumberOfInputs before calling this function.
+  void SetInput(int idx,vtkPointSet* p);
+
+  // Description:
+  // Retrieve the input point set with index idx (usually only for pipeline
+  // tracing).
+  vtkPointSet* GetInput(int idx);
+
 protected:
   vtkProcrustesAlignmentFilter();
   ~vtkProcrustesAlignmentFilter();

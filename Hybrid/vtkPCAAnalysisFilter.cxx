@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.12");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.13");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -266,18 +266,19 @@ int vtkPCAAnalysisFilter::RequestData(
   
   for (i = 0; i < n; i++)
     {
-    tmpInfo = inputVector[0]->GetInformationObject(i);
-    tmpInput = 0;
-    if (tmpInfo)
+    for (int j = 0; j < s; j++)
       {
-      tmpInput =
-        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
-      }
-    else
-      {
-      continue;
-      }
-    for (int j = 0; j < s; j++) {
+      tmpInfo = inputVector[0]->GetInformationObject(j);
+      tmpInput = 0;
+      if (tmpInfo)
+        {
+        tmpInput = vtkPointSet::SafeDownCast(
+          tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+        }
+      else
+        {
+        continue;
+        }
       double p[3];
       tmpInput->GetPoint(i, p);
       D[i*3  ][j] = p[0];
@@ -424,6 +425,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
 // public
 void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 { 
+  this->SetNumberOfInputConnections(0, n);
   this->SetNumberOfOutputPorts(n);
   
   // initialise the outputs
@@ -439,6 +441,19 @@ void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
   
   // is this the right thing to be doing here? if we don't initialise the outputs here
   // then the filter crashes but vtkPolyData may not be the type of the inputs
+}
+
+//----------------------------------------------------------------------------
+void vtkPCAAnalysisFilter::SetInput(int idx, vtkPointSet *p)
+{
+  this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkPointSet* vtkPCAAnalysisFilter::GetInput(int idx)
+{
+  return vtkPointSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, idx));
 }
 
 //----------------------------------------------------------------------------
