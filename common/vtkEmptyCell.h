@@ -62,7 +62,7 @@ public:
   // Description:
   // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject() {return new vtkEmptyCell(*this);};
-  int GetCellType() {return VTK_VERTEX;};
+  int GetCellType() {return VTK_EMPTY_CELL;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};
