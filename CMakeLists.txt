@@ -2,6 +2,8 @@ PROJECT(VTK)
 
 BUILD_SHARED_LIBRARIES()
 
+SET (LIBRARY_OUTPUT_PATH "" CACHE)
+
 SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
