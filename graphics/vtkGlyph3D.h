@@ -38,13 +38,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkGlyph3D - copy oriented and scaled geometry to every input point
+// .NAME vtkGlyph3D - copy oriented and scaled glyph geometry to every input point
 // .SECTION Description
-// vtkGlyph3D is a filter that copies a geometric representation (specified
-// as polygonal data) to every input point. The geometry may be oriented
-// along the input vectors or normals, and it may be scaled according
-// to scalar data or vector magnitude. The geometry is supplied via the 
-// Source instance variable; the points come from the Input.
+// vtkGlyph3D is a filter that copies a geometric representation (called
+// a glyph) to every point in the input dataset. The glyph is defined with
+// polygonal data from a source filter input. The glyph may be oriented
+// along the input vectors or normals, and it may be scaled according to
+// scalar data or vector magnitude. More than one glyph may be used by
+// creating a table of source objects, each defining a different glyph. If a
+// table of glyphs is defined, then the table can be indexed into by using
+// either scalar value or vector magnitude.
+// 
+// To use this object you'll have to provide an input dataset and a source
+// to define the glyph. Then decide whether you want to scale the glyph and
+// how to scale the glyph (using scalar value or vector magnitude). Next
+// decide whether you want to orient the glyph, and whether to use the
+// vector data or normal data to orient it. Finally, decide whether to use a
+// table of glyphs, or just a single glyph. If you use a table of glyphs,
+// you'll have to decide whether to index into it with scalar value or with
+// vector magnitude.
+// 
+// .SECTION Caveats
+// The scaling of the glyphs is controled by the ScaleFactor ivar multiplied
+// by the scalar value at each point (if VTK_SCALE_BY_SCALAR is set), or
+// multiplied by the vector magnitude (if VTK_SCALE_BY_VECTOR is set). The
+// scale factor can be further controlled by enabling clamping using the
+// Clamping ivar. If clamping is enabled, the scale is normalized by the
+// Range ivar, and then multiplied by the scale factor. The normalization
+// process includes clamping the scale value between (0,1).
+// 
+// Typically this object operates on input data with scalar and/or vector
+// data. However, scalar and/or vector aren't necessary, and it can be used
+// to copy data from a single source to each point. In this case the scale
+// factor can be used to uniformly scale the glyphs.
+//
+// The object uses "vector" data to scale glyphs, orient glyphs, and/or index
+// into a table of glyphs. You can choose to use either the vector or normal
+// data at each input point. Use the method UseVector() to use the vector
+// input data, and UseNormal() to use the normal input data.
+//
+// If you do use a table of glyphs, make sure to set the Range ivar to make
+// sure the index into the glyph table is computed correctly.
+//
+// You can turn off scaling of the glyphs completely by using the Scaling
+// ivar. You can also turn off scaling due to data (either vector or scalar)
+// by using the DataScalingOff() method.
+
 // .SECTION See Also
 // vtkTensorGlyph
 
@@ -55,8 +94,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
+#define VTK_DATA_SCALING_OFF 2
+
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
+
+#define VTK_INDEXING_OFF 0
+#define VTK_INDEXING_BY_SCALAR 1
+#define VTK_INDEXING_BY_VECTOR 2
 
 class vtkGlyph3D : public vtkDataSetToPolyFilter
 {
@@ -69,12 +114,18 @@ public:
   void Update();
 
   // Description:
-  // Specify the geometry to copy to each point.
-  vtkSetObjectMacro(Source,vtkPolyData);
-  vtkGetObjectMacro(Source,vtkPolyData);
+  // Get the number of source objects used to define the glyph
+  // table. Specify the number of sources before defining a table of glyphs.
+  vtkGetMacro(NumberOfSources,int);
+  void SetNumberOfSources(int num);
+
+  // These are used to load the table of sources
+  void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
+  void SetSource(int id, vtkPolyData *pd);
+  vtkPolyData *GetSource(int id=0);
 
   // Description:
-  // Turn on/off scaling of input geometry.
+  // Turn on/off scaling of source geometry.
   vtkSetMacro(Scaling,int);
   vtkBooleanMacro(Scaling,int);
   vtkGetMacro(Scaling,int);
@@ -85,6 +136,7 @@ public:
   vtkGetMacro(ScaleMode,int);
   void ScaleByScalar() {this->SetScaleMode(VTK_SCALE_BY_SCALAR);};
   void ScaleByVector() {this->SetScaleMode(VTK_SCALE_BY_VECTOR);};
+  void DataScalingOff() {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
 
   // Description:
   // Specify scale factor to scale object by.
@@ -103,7 +155,8 @@ public:
   vtkGetMacro(Orient,int);
 
   // Description:
-  // Turn on/off clamping of scalar values to range.
+  // Turn on/off clamping of "scalar" values to range. (Scalar value may be 
+  //  vector magnitude if ScaleByVector() is enabled.)
   vtkSetMacro(Clamping,int);
   vtkBooleanMacro(Clamping,int);
   vtkGetMacro(Clamping,int);
@@ -115,18 +168,29 @@ public:
   void UseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
   void UseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
 
+  // Description:
+  // Index into table of sources by scalar, by vector/normal magnitude, or
+  // no indexing. If indexing is turned off, then the first source glyph in
+  // the table of glyphs is used.
+  vtkSetMacro(IndexMode,int);
+  vtkGetMacro(IndexMode,int);
+  void IndexingByScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
+  void IndexingByVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);};
+  void IndexingOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
+
 protected:
   void Execute();
-  vtkPolyData *Source; // Geometry to copy to each point
+
+  int NumberOfSources; // Number of source objects
+  vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude
   float ScaleFactor; // Scale factor to use to scale geometry
   float Range[2]; // Range to use to perform scalar scaling
   int Orient; // boolean controls whether to "orient" data
   int VectorMode; // Orient/scale via normal or via vector data
-  int Clamping;
+  int Clamping; // whether to clamp scale factor
+  int IndexMode; // what to use to index into glyph table
 };
 
 #endif
-
-
