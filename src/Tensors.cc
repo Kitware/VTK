@@ -22,8 +22,8 @@ vtkTensors::vtkTensors(int dim)
 
 void vtkTensors::GetTensor(int id, vtkTensor &ft)
 {
-  vtkTensor& t = this->GetTensor(id);
-  ft = t;
+  vtkTensor *t = this->GetTensor(id);
+  ft = *t;
 }
 
 void vtkTensors::InsertTensor(int id, float t11, float t12, float t13, 

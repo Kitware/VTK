@@ -22,6 +22,7 @@ vtkWarpScalar::vtkWarpScalar()
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
+  this->XYPlane = 0;
 }
 
 float *vtkWarpScalar::DataNormal(int id, vtkNormals *normals)
@@ -32,6 +33,12 @@ float *vtkWarpScalar::DataNormal(int id, vtkNormals *normals)
 float *vtkWarpScalar::InstanceNormal(int id, vtkNormals *normals)
 {
   return this->Normal;
+}
+
+float *vtkWarpScalar::ZNormal(int id, vtkNormals *normals)
+{
+  static float zNormal[3]={0.0,0.0,1.0};
+  return zNormal;
 }
 
 void vtkWarpScalar::Execute()
@@ -64,6 +71,11 @@ void vtkWarpScalar::Execute()
     this->PointNormal = &vtkWarpScalar::DataNormal;
     vtkDebugMacro(<<"Using data normals");
     }
+  else if ( this->XYPlane )
+    {
+    this->PointNormal = &vtkWarpScalar::ZNormal;
+    vtkDebugMacro(<<"Using x-y plane normal");
+    }
   else
     {
     this->PointNormal = &vtkWarpScalar::InstanceNormal;
@@ -78,7 +90,8 @@ void vtkWarpScalar::Execute()
     {
     x = inPts->GetPoint(ptId);
     n = (this->*(PointNormal))(ptId,inNormals);
-    s = inScalars->GetScalar(ptId);
+    if ( this->XYPlane ) s = x[2];
+    else s = inScalars->GetScalar(ptId);
     for (i=0; i<3; i++)
       {
       newX[i] = x[i] + this->ScaleFactor * s * n[i];
@@ -102,4 +115,5 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Use Normal: " << (this->UseNormal ? "On\n" : "Off\n");
   os << indent << "Normal: (" << this->Normal[0] << ", " 
      << this->Normal[1] << ", " << this->Normal[2] << ")\n";
+  os << indent << "XY Plane: " << (this->XYPlane ? "On\n" : "Off\n");
 }

@@ -15,13 +15,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "FTensors.hh"
 
-vtkTensor &vtkFloatTensors::GetTensor(int i) 
+vtkTensor *vtkFloatTensors::GetTensor(int i) 
 {
   static vtkTensor t;
   t.SetDimension(this->Dimension);
 
   t.T = this->T.GetPtr(this->Dimension*this->Dimension*i);
-  return t;
+  return &t;
 }
 
 vtkTensors *vtkFloatTensors::MakeObject(int sze, int d, int ext)

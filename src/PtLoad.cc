@@ -137,20 +137,21 @@ void vtkPointLoad::Execute()
   xP[1] = (this->ModelBounds[2] + this->ModelBounds[3]) / 2.0;
   xP[2] = this->ModelBounds[5]; // at top of box
 //
-// Traverse all points evaluating implicit function at each point
+// Traverse all points evaluating implicit function at each point. Note that
+// points are evaluated in local coordinate system of applied force.
 //
   twoPi = 2.0*math.Pi();
   P = -this->LoadValue;
 
   for (k=0; k<this->Dimensions[2]; k++)
     {
-    z = this->Origin[2] + k*this->AspectRatio[2];
+    z = xP[2] - (this->Origin[2] + k*this->AspectRatio[2]);
     for (j=0; j<this->Dimensions[1]; j++)
       {
-      y = this->Origin[1] + j*this->AspectRatio[1];
+      y = xP[1] - (this->Origin[1] + j*this->AspectRatio[1]);
       for (i=0; i<this->Dimensions[0]; i++)
         {
-        x = this->Origin[0] + i*this->AspectRatio[0];
+        x = (this->Origin[0] + i*this->AspectRatio[0]) - xP[0];
         rho = sqrt((x-xP[0])*(x-xP[0]) + (y-xP[1])*(y-xP[1]) + 
                    (z-xP[2])*(z-xP[2]));
         if ( rho < 1.0e-10 )
@@ -165,7 +166,7 @@ void vtkPointLoad::Execute()
           tensor.SetComponent(1,2,0.0);
           tensor.SetComponent(2,0,0.0);
           tensor.SetComponent(2,1,0.0);
-          newTensors->InsertNextTensor(tensor);
+          newTensors->InsertNextTensor(&tensor);
           if ( this->ComputeEffectiveStress )
             newScalars->InsertNextScalar(LARGE_FLOAT);
           continue;
@@ -197,13 +198,13 @@ void vtkPointLoad::Execute()
         tensor.SetComponent(0,0, sx);
         tensor.SetComponent(1,1, sy);
         tensor.SetComponent(2,2, sz);
-        tensor.SetComponent(0,1, txy); // symmetric matrix
+        tensor.SetComponent(0,1, txy); // real symmetric matrix
         tensor.SetComponent(1,0, txy);
         tensor.SetComponent(0,2, txz);
         tensor.SetComponent(2,0, txz);
         tensor.SetComponent(1,2, tyz);
         tensor.SetComponent(2,1, tyz);
-        newTensors->InsertNextTensor(tensor);
+        newTensors->InsertNextTensor(&tensor);
 
         if ( this->ComputeEffectiveStress )
           {

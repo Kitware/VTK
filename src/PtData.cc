@@ -313,7 +313,7 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
 {
   int i, j;
   float s, *pv, v[3], *pn, n[3], *ptc, tc[3];
-  static vtkTensor tensor(3), &pt=tensor;
+  static vtkTensor tensor(3), *pt;
   void *ud;
 
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
@@ -391,9 +391,9 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
       pt = cellTensors->GetTensor(i);
       for (j=0; j<cellTensors->GetDimension(); j++) 
         for (int k=0; k<cellTensors->GetDimension(); k++) 
-          tensor.AddComponent(j,k,pt.GetComponent(j,k)*weights[i]);
+          tensor.AddComponent(j,k,pt->GetComponent(j,k)*weights[i]);
       }
-    this->Tensors->InsertTensor(toId,tensor);
+    this->Tensors->InsertTensor(toId,&tensor);
     }
 
   if ( fromPd->UserDefined && this->UserDefined && this->CopyUserDefined )
