@@ -314,6 +314,9 @@ void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
     this->UserMatrix = matrix; 
     this->UserMatrix->Register(this);
     vtkMatrixToLinearTransform *transform = vtkMatrixToLinearTransform::New();
+    // Consistent Register and UnRegisters.
+    transform->Register(this);
+    transform->Delete();
     transform->SetInput(matrix);
     this->UserTransform = transform;
     }

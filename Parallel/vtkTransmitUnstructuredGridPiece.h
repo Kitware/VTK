@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredGridOutlineFilter.h
+  Module:    vtkTransmitUnstructuredGridPiece.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,33 +39,55 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkStructuredGridOutlineFilter - create wireframe outline for structured grid
-// .SECTION Description
-// vtkStructuredGridOutlineFilter is a filter that generates a wireframe 
-// outline of a structured grid (vtkStructuredGrid). Structured data is 
-// topologically a cube, so the outline will have 12 "edges".
+// .NAME vtkTransmitUnstructuredGridPiece - Return specified piece, including specified
+// number of ghost levels.
+// .DESCRIPTION
+// This filter updates the appropriate piece by requesting the piece from 
+// process 0.  Process 0 always updates all of the data.  It is important that 
+// Execute get called on all processes, otherwise the filter will deadlock.
 
-#ifndef __vtkStructuredGridOutlineFilter_h
-#define __vtkStructuredGridOutlineFilter_h
 
-#include "vtkStructuredGridToPolyDataFilter.h"
+#ifndef __vtkTransmitUnstructuredGridPiece_h
+#define __vtkTransmitUnstructuredGridPiece_h
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataFilter
+#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
+#include "vtkMultiProcessController.h"
+
+
+class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
-  static vtkStructuredGridOutlineFilter *New();
-  vtkTypeMacro(vtkStructuredGridOutlineFilter,vtkStructuredGridToPolyDataFilter);
+  static vtkTransmitUnstructuredGridPiece *New();
+  vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridToUnstructuredGridFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // By defualt this filter uses the global controller,
+  // but this method can be used to set another instead.
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
+  // Description:
+  // Turn on/off creating ghost cells (on by default).
+  vtkSetMacro(CreateGhostCells, int);
+  vtkGetMacro(CreateGhostCells, int);
+  vtkBooleanMacro(CreateGhostCells, int);
+  
 protected:
-  vtkStructuredGridOutlineFilter() {};
-  ~vtkStructuredGridOutlineFilter() {};
+  vtkTransmitUnstructuredGridPiece();
+  ~vtkTransmitUnstructuredGridPiece() {};
+  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&);
+  void operator=(const vtkTransmitUnstructuredGridPiece&);
 
+  // Data generation method
   void Execute();
-private:
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkStructuredGridOutlineFilter&);  // Not implemented.
+  void RootExecute();
+  void SatelliteExecute(int procId);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtents(vtkDataObject *out);
+ 
+  int CreateGhostCells;
+  vtkMultiProcessController *Controller;
 };
 
 #endif
-
-

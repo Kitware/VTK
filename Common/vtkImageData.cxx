@@ -1463,6 +1463,7 @@ void *vtkImageData::GetScalarPointerForExtent(int extent[6])
 void *vtkImageData::GetScalarPointer(int coordinates[3])
 {
   vtkDataArray *scalars;
+  int *incs;
   int idx;
     
   // Make sure the scalars have been allocated.
@@ -1492,9 +1493,10 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
     }
   
   // compute the index of the vector.
-  idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
-	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
-	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]);
+  incs = this->GetIncrements();
+  idx = ((coordinates[0] - this->Extent[0]) * incs[0]
+	 + (coordinates[1] - this->Extent[2]) * incs[1]
+	 + (coordinates[2] - this->Extent[4]) * incs[2]);
   
   return scalars->GetVoidPointer(idx);
 }

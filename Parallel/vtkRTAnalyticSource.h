@@ -61,6 +61,7 @@ public:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
 		      int zMin, int zMax);
+  vtkGetVector6Macro(WholeExtent, int);
   
   // Description:
   // Set/Get the center of function.

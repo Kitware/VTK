@@ -1,7 +1,10 @@
 SOURCE_FILES ( Parallel_SRCS
 vtkBranchExtentTranslator 
+vtkClipPlane
 vtkCommunicator 
+vtkCompositeManager 
 vtkCutMaterial 
+vtkCutPlane
 vtkExtractPolyDataPiece 
 vtkExtractUnstructuredGridPiece 
 vtkInputPort 
@@ -9,21 +12,30 @@ vtkMemoryLimitImageDataStreamer
 vtkMultiProcessController 
 vtkOutputPort 
 vtkParallelFactory 
+vtkPDataSetReader
+vtkPDataSetWriter
 vtkPieceScalars 
 vtkPipelineSize 
 vtkPImageWriter 
 vtkPLinearExtrusionFilter
 vtkPPolyDataNormals 
+vtkPOPReader 
 vtkPSphereSource 
+vtkPVGeometryFilter
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
 vtkThreadedController 
+vtkTransmitPolyDataPiece
+vtkTransmitUnstructuredGridPiece
 vtkTreeComposite 
 vtkSocketCommunicator
 vtkSocketController 
 )
 
-ABSTRACT_FILES( vtkCommunicator )
+ABSTRACT_FILES( 
+vtkCommunicator 
+vtkCompositeManager 
+)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)

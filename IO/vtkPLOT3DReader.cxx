@@ -183,11 +183,13 @@ void vtkPLOT3DReader::Execute()
   //
   if ( this->XYZFileName == NULL )
     {
+    output->Initialize();
     vtkErrorMacro(<< "Must specify geometry file");
     return;
     }
   if ( (xyzFp = fopen(this->XYZFileName, "r")) == NULL)
     {
+    output->Initialize();
     vtkErrorMacro(<< "File: " << this->XYZFileName << " not found");
     return;
     }
@@ -206,6 +208,7 @@ void vtkPLOT3DReader::Execute()
   
   if ( error )
     {
+    output->Initialize();
     vtkErrorMacro(<<"Error reading XYZ file");
     return;
     }
@@ -218,6 +221,7 @@ void vtkPLOT3DReader::Execute()
     {
     if ( (QFp = fopen(this->QFileName, "r")) == NULL)
       {
+      output->Initialize();
       vtkErrorMacro(<< "File: " << this->QFileName << " not found");
       return;
       }
@@ -237,6 +241,7 @@ void vtkPLOT3DReader::Execute()
     
     if ( error )
       {
+      output->Initialize();
       vtkErrorMacro(<<"Error reading solution file");
       return;
       }
@@ -264,6 +269,7 @@ void vtkPLOT3DReader::Execute()
     {
     if ( (funcFp = fopen(this->FunctionFileName, "r")) == NULL)
       {
+      output->Initialize();
       vtkErrorMacro(<< "File: " << this->FunctionFileName << " not found");
       return;
       }
@@ -294,6 +300,7 @@ void vtkPLOT3DReader::Execute()
     {
     if ( (funcFp = fopen(this->VectorFunctionFileName, "r")) == NULL)
       {
+      output->Initialize();
       vtkErrorMacro(<< "File: " << this->VectorFunctionFileName << " not found");
       return;
       }
@@ -313,6 +320,7 @@ void vtkPLOT3DReader::Execute()
     
     if ( error )
       {
+      output->Initialize();
       vtkErrorMacro(<<"Error reading vector function file");
       return;
       }
@@ -635,14 +643,17 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   // Register data for use by computation functions
   //
   this->Density = newDensity;
+  this->Density->SetName("Density");
   this->Density->Register(this);
   newDensity->Delete();
 
   this->Momentum = newMomentum;
+  this->Momentum->SetName("Momentum");
   this->Momentum->Register(this);
   newMomentum->Delete();
 
   this->Energy = newEnergy;
+  this->Energy->SetName("Energy");
   this->Energy->Register(this);
   newEnergy->Delete();
 
@@ -816,9 +827,11 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
     temperature->SetValue(i, p*rr*rrgas);
   }
+
   temperature->SetName("Temperature");
   outputPD->AddArray(temperature);
   outputPD->SetActiveScalars("Temperature");
+  
   temperature->Delete();
   vtkDebugMacro(<<"Created temperature scalar");
 }
@@ -857,6 +870,7 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
     pressure->SetValue(i, p);
   }
+
   pressure->SetName("Pressure");
   outputPD->AddArray(pressure);
   outputPD->SetActiveScalars("Pressure");
@@ -946,7 +960,6 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
   kineticEnergy->SetName("Kinetic Energy");
   outputPD->AddArray(kineticEnergy);
   outputPD->SetActiveScalars("Kinetic Energy");
-  
   kineticEnergy->Delete();
   vtkDebugMacro(<<"Created kinetic energy scalar");
 }
@@ -986,7 +999,6 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
   velocityMag->SetName("Velocity Magnitude");
   outputPD->AddArray(velocityMag);
   outputPD->SetActiveScalars("Velocity Magnitude");
-  
   velocityMag->Delete();
   vtkDebugMacro(<<"Created velocity magnitude scalar");
 }
@@ -1037,7 +1049,6 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
   entropy->SetName("Entropy");
   outputPD->AddArray(entropy);
   outputPD->SetActiveScalars("Entropy");
-  
   entropy->Delete();
   vtkDebugMacro(<<"Created entropy scalar");
 }
@@ -1098,7 +1109,6 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
   swirl->SetName("Swirl");
   outputPD->AddArray(swirl);
   outputPD->SetActiveScalars("Swirl");
-  
   swirl->Delete();
   vtkDebugMacro(<<"Created swirl scalar");
 
@@ -1146,7 +1156,6 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
   velocity->SetName("Velocity");
   outputPD->AddArray(velocity);
   outputPD->SetActiveVectors("Velocity");
-  
   velocity->Delete();
   vtkDebugMacro(<<"Created velocity vector");
 }
@@ -1372,17 +1381,16 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         }
       }
     }
-
   vorticity->SetName("Vorticity");
   outputPD->AddArray(vorticity);
   outputPD->SetActiveVectors("Vorticity");
-  
   vorticity->Delete();
   vtkDebugMacro(<<"Created vorticity vector");
 }
 
 void vtkPLOT3DReader::ComputeMomentum(vtkPointData *outputPD)
 {
+  this->Momentum->SetName("Momentum");
   outputPD->SetVectors(this->Momentum);
   vtkDebugMacro(<<"Created momentum vector");
 }
@@ -1607,11 +1615,9 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         }
       }
     }
-
   gradient->SetName("Pressure Gradient");
   outputPD->AddArray(gradient);
   outputPD->SetActiveVectors("Pressure Gradient");
-  
   gradient->Delete();
   vtkDebugMacro(<<"Created pressure gradient vector");
 

@@ -168,7 +168,9 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
   numCellsInLoop = cellIds->GetNumberOfIds();
   if (numCellsInLoop < 1)
       {
-      vtkErrorMacro("numCellsInLoop < 1: " << numCellsInLoop);
+      vtkWarningMacro("numCellsInLoop < 1: " << numCellsInLoop);
+      stencilIds->Reset();
+      return;
       }
   // Find an edge to start with that contains p1
   polys->GetCellPoints (cellIds->GetId(0), ptIds);

@@ -152,6 +152,8 @@ void vtkGlyph3D::Execute()
   if (numPts < 1)
     {
     vtkDebugMacro(<<"No points to glyph!");
+    pts->Delete();
+    trans->Delete();
     return;
     }
 
@@ -181,6 +183,7 @@ void vtkGlyph3D::Execute()
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
+      trans->Delete();
       return;
       }
     else

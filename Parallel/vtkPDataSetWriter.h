@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredGridOutlineFilter.h
+  Module:    vtkPDataSetWriter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,33 +39,72 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkStructuredGridOutlineFilter - create wireframe outline for structured grid
+// .NAME vtkPDataSetWriter - Manages writing pieces of a data set.
 // .SECTION Description
-// vtkStructuredGridOutlineFilter is a filter that generates a wireframe 
-// outline of a structured grid (vtkStructuredGrid). Structured data is 
-// topologically a cube, so the outline will have 12 "edges".
+// vtkPDataSetWriter will write a piece of a file, and will also create
+// a metadata file that lists all of the files in a data set.
 
-#ifndef __vtkStructuredGridOutlineFilter_h
-#define __vtkStructuredGridOutlineFilter_h
 
-#include "vtkStructuredGridToPolyDataFilter.h"
+#ifndef __vtkPDataSetWriter_h
+#define __vtkPDataSetWriter_h
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataFilter
+#include "vtkDataSetWriter.h"
+
+
+class VTK_PARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
-  static vtkStructuredGridOutlineFilter *New();
-  vtkTypeMacro(vtkStructuredGridOutlineFilter,vtkStructuredGridToPolyDataFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
+  static vtkPDataSetWriter *New();
+
+  // Description:
+  // Write the pvtk file and cooresponding vtk files.
+  virtual void Write();
+
+  // Description:
+  // This is how many pieces the whole data set will be divided into.
+  vtkSetMacro(NumberOfPieces, int);
+  vtkGetMacro(NumberOfPieces, int);
+
+  // Description:
+  // Extra ghost cells will be written out to each piece file
+  // if this value is larger than 0.
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
+  
+  // Description:
+  // This is the range of pieces that that this writer is 
+  // responsible for writing.  All pieces must be written
+  // by some process.  The process that writes piece 0 also
+  // writes the pvtk file that lists all the piece file names.
+  vtkSetMacro(StartPiece, int);
+  vtkGetMacro(StartPiece, int);
+  vtkSetMacro(EndPiece, int);
+  vtkGetMacro(EndPiece, int);
+  
+  // Description:
+  // This file pattern uses the file name and piece number
+  // to contruct a file name for the piece file.
+  vtkSetStringMacro(FilePattern);
+  vtkGetStringMacro(FilePattern);
 
 protected:
-  vtkStructuredGridOutlineFilter() {};
-  ~vtkStructuredGridOutlineFilter() {};
+  vtkPDataSetWriter();
+  ~vtkPDataSetWriter();
+  vtkPDataSetWriter(const vtkPDataSetWriter&);
+  void operator=(const vtkPDataSetWriter&);
 
-  void Execute();
-private:
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkStructuredGridOutlineFilter&);  // Not implemented.
+//BTX
+  ostream *vtkPDataSetWriter::OpenFile();
+//ETX
+
+  int StartPiece;
+  int EndPiece;
+  int NumberOfPieces;
+  int GhostLevel;
+
+  char *FilePattern;
 };
 
 #endif
-
-

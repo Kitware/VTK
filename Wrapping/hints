@@ -125,6 +125,7 @@ vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
 vtkScalars              GetRange                301 2
 vtkScalarsToColors      GetColor                301 3
 vtkStreamer             GetStartPosition        301 3
+vtkStructuredGrid       GetDimensions           304 3
 vtkStructuredGrid       GetPoint                301 3
 vtkStructuredGrid       GetScalarRange          301 2
 vtkStructuredPointsGeometryFilter GetExtent     304 6

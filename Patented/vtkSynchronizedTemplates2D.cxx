@@ -465,6 +465,7 @@ void vtkSynchronizedTemplates2D::Execute()
     if (this->ComputeScalars)
       {
       newScalars = inScalars->MakeObject();
+      newScalars->SetName(inScalars->GetName());
       newScalars->Allocate(5000,25000);
       }
     switch (inScalars->GetDataType())

@@ -112,7 +112,7 @@ void vtkLookupTable::SetTableRange(float rmin, float rmax)
     vtkErrorMacro("Bad table range for log scale: ["<<rmin<<", "<<rmax<<"]");
     return;
     }
-  if (rmax == rmin)
+  if (rmax < rmin)
     {
     vtkErrorMacro("Bad table range: ["<<rmin<<", "<<rmax<<"]");
     return;
@@ -394,7 +394,14 @@ unsigned char *vtkLookupTable::MapValue(float v)
     float logRange[2];
     vtkLookupTableLogRange(this->TableRange, logRange);
     shift = -logRange[0];
-    scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+    if (logRange[1] <= logRange[0])
+      {
+      scale = VTK_LARGE_FLOAT;
+      }
+    else
+      {
+      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      }
     /* correct scale
     scale = maxIndex/(logRange[1] - logRange[0]);
     */
@@ -403,7 +410,14 @@ unsigned char *vtkLookupTable::MapValue(float v)
   else
     {   // plain old linear
     shift = -this->TableRange[0];
-    scale = (maxIndex + 1)/(this->TableRange[1] - this->TableRange[0]);
+    if (this->TableRange[1] <= this->TableRange[0])
+      {
+      scale = VTK_LARGE_FLOAT;
+      }
+    else
+      {
+      scale = (maxIndex + 1)/(this->TableRange[1] - this->TableRange[0]);
+      }
     /* correct scale
     scale = maxIndex/(this->TableRange[1] - this->TableRange[0]);
     */
@@ -437,7 +451,14 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
       float logRange[2];
       vtkLookupTableLogRange(range, logRange);
       shift = -logRange[0];
-      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      if (logRange[1] <= logRange[0])
+        {
+        scale = VTK_LARGE_FLOAT;
+        }
+      else
+        {
+        scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+        }
       /* correct scale
       scale = maxIndex/(logRange[1] - logRange[0]);
       */
@@ -494,7 +515,14 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
     else //not log scale
       {
       shift = -range[0];
-      scale = (maxIndex + 1)/(range[1] - range[0]);
+      if (range[1] <= range[0])
+        {
+        scale = VTK_LARGE_FLOAT;
+        }
+      else
+        {
+        scale = (maxIndex + 1)/(range[1] - range[0]);
+        }
       /* correct scale
       scale = maxIndex/(range[1] - range[0]);
       */
@@ -554,7 +582,14 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
       float logRange[2];
       vtkLookupTableLogRange(range, logRange);
       shift = -logRange[0];
-      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      if (logRange[1] <= logRange[0])
+        {
+        scale = VTK_LARGE_FLOAT;
+        }
+      else
+        {
+        scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+        }
       /* correct scale
       scale = maxIndex/(logRange[1] - logRange[0]);
       */
@@ -611,7 +646,14 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
     else //no log scale with blending
       {
       shift = -range[0];
-      scale = (maxIndex + 1)/(range[1] - range[0]);
+      if (range[1] <= range[0])
+        {
+        scale = VTK_LARGE_FLOAT;
+        }
+      else
+        {
+        scale = (maxIndex + 1)/(range[1] - range[0]);
+        }
       /* correct scale
       scale = maxIndex/(range[1] - range[0]);
       */

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Helper class to contain the RMI information.  
 // A subclass of vtkObject so that I can keep them in a collection.
-class VTK_EXPORT vtkMultiProcessControllerRMI : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMultiProcessControllerRMI : public vtkObject
 {
 public:
   static vtkMultiProcessControllerRMI *New(); 

@@ -54,7 +54,7 @@ static vtkSimpleCriticalSection vtkOutputWindowCritSect;
 
 // Output window which prints out the process id
 // with the error or warning messages
-class VTK_EXPORT vtkThreadedControllerOutputWindow : public vtkOutputWindow
+class VTK_PARALLEL_EXPORT vtkThreadedControllerOutputWindow : public vtkOutputWindow
 {
 public:
   vtkTypeMacro(vtkThreadedControllerOutputWindow,vtkOutputWindow);

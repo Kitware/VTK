@@ -17,8 +17,7 @@ SUBDIR_DEPENDS(IO Filtering)
 SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
 SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
-SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Single output directory for building all libraries.")
-SET (VTK_BINARY_PATH ${EXECUTABLE_OUTPUT_PATH} CACHE INTERNAL "Single output directory for building all executables.")
+SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Where VTK libraries are. Used by projects which depend on VTK. Do not remove.")
 
 OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
@@ -211,8 +210,8 @@ ${VTK_SOURCE_DIR}/vtkConfigure.h.in
 ${VTK_BINARY_DIR}/vtkConfigure.h)
 
 CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/UseVTK.cmake 
-${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY)
+${VTK_SOURCE_DIR}/UseVTK.cmake.in 
+${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
 
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkToolkits.h.in 

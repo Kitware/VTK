@@ -5,6 +5,8 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Date:      $Date$
+  Version:   $Revision$
 
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
@@ -238,6 +240,10 @@ public:
   // Update the maximum and minimum component range values. Returns a flag
   // indicating whether the range was updated.
   static int UpdateComponentRange(vtkDataArray *da, vtkIdType compRange[2]);
+
+  // Description:
+  // If output does not need exact extent, the I do not either.
+  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
 
 protected:
   vtkFieldDataToAttributeDataFilter();

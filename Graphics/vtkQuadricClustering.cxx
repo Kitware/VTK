@@ -109,6 +109,11 @@ vtkQuadricClustering::~vtkQuadricClustering()
   this->FeatureEdges = NULL;
   this->FeaturePoints->Delete();
   this->FeaturePoints = NULL;
+  if (this->QuadricArray)
+    {
+    delete [] this->QuadricArray;
+    this->QuadricArray = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -220,6 +225,11 @@ void vtkQuadricClustering::StartAppend(float *bounds)
   this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfZDivisions;   
 
   this->NumberOfBinsUsed = 0;
+  if (this->QuadricArray)
+    {
+    delete [] this->QuadricArray;
+    this->QuadricArray = NULL;
+    }
   this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
                                             this->NumberOfYDivisions *
                                             this->NumberOfZDivisions];
@@ -723,7 +733,7 @@ void vtkQuadricClustering::EndAppend()
 {
   vtkIdType i, numBuckets, tenth;
   int abortExecute=0;
-  vtkPoints *outputPoints = vtkPoints::New();
+  vtkPoints *outputPoints;
   float newPt[3];
   vtkPolyData *output = this->GetOutput();
   
@@ -733,6 +743,8 @@ void vtkQuadricClustering::EndAppend()
     //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
+
+  outputPoints = vtkPoints::New();
 
   numBuckets = this->NumberOfXDivisions * this->NumberOfYDivisions * this->NumberOfZDivisions;
   tenth = numBuckets/10 + 1;
@@ -776,10 +788,12 @@ void vtkQuadricClustering::EndAppend()
   // (in case the user calls this method directly).
   output->DataHasBeenGenerated();
 
-
   // Free the quadric array.
-  delete [] this->QuadricArray;
-  this->QuadricArray = NULL;
+  if (this->QuadricArray)
+    {
+    delete [] this->QuadricArray;
+    this->QuadricArray = NULL;
+    }
 }
 
 
@@ -993,7 +1007,7 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
   vtkIdType   i;
   vtkIdType   outPtId;
   vtkPoints   *inputPoints;
-  vtkPoints   *outputPoints = vtkPoints::New();
+  vtkPoints   *outputPoints;
   vtkPolyData *output = this->GetOutput();
   vtkIdType   numPoints, numBins;
   vtkIdType   binId;
@@ -1016,6 +1030,8 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
     //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
+
+  outputPoints = vtkPoints::New();
 
   // Prepare to copy point data to output
   output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfBinsUsed);
@@ -1077,8 +1093,11 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 
   this->EndAppendVertexGeometry(input);
 
-  delete [] this->QuadricArray;
-  this->QuadricArray = NULL;
+  if (this->QuadricArray)
+    {
+    delete [] this->QuadricArray;
+    this->QuadricArray = NULL;
+    }
 
   delete minError;
 }

@@ -55,7 +55,7 @@
 #include <stdio.h>
 #include "vtkExporter.h"
 
-class VTK_EXPORT vtkOOGLExporter : public vtkExporter
+class VTK_RENDERING_EXPORT vtkOOGLExporter : public vtkExporter
 {
 public:
   static vtkOOGLExporter *New();

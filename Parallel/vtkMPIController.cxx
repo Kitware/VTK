@@ -46,7 +46,7 @@ int vtkMPIController::Initialized = 0;
 
 // Output window which prints out the process id
 // with the error or warning messages
-class VTK_EXPORT vtkMPIOutputWindow : public vtkOutputWindow
+class VTK_PARALLEL_EXPORT vtkMPIOutputWindow : public vtkOutputWindow
 {
 public:
   vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);

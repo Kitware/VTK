@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredGridOutlineFilter.h
+  Module:    vtkPDataSetReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,33 +39,69 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkStructuredGridOutlineFilter - create wireframe outline for structured grid
+// .NAME vtkPDataSetReader - Manages writing pieces of a data set.
 // .SECTION Description
-// vtkStructuredGridOutlineFilter is a filter that generates a wireframe 
-// outline of a structured grid (vtkStructuredGrid). Structured data is 
-// topologically a cube, so the outline will have 12 "edges".
+// vtkPDataSetReader will write a piece of a file, and will also create
+// a metadata file that lists all of the files in a data set.
 
-#ifndef __vtkStructuredGridOutlineFilter_h
-#define __vtkStructuredGridOutlineFilter_h
 
-#include "vtkStructuredGridToPolyDataFilter.h"
+#ifndef __vtkPDataSetReader_h
+#define __vtkPDataSetReader_h
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataFilter
+#include "vtkSource.h"
+#include "vtkDataSet.h"
+
+
+class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkSource
 {
 public:
-  static vtkStructuredGridOutlineFilter *New();
-  vtkTypeMacro(vtkStructuredGridOutlineFilter,vtkStructuredGridToPolyDataFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkPDataSetReader,vtkSource);
+  static vtkPDataSetReader *New();
+  
+  // Description:
+  // This file to open and read.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
+  // Description:
+  // The output of this reader depends on the file choosen.
+  // You cannot get the output until the filename is set.
+  void SetOutput(vtkDataSet *output);
+  virtual vtkDataSet *GetOutput();
+
+  // Description:
+  // We need to define this so that the output gets created.
+  virtual void Update();
+
+  // Description:
+  // This is set when UpdateInformation is called. 
+  // It shows the type of the output.
+  vtkGetMacro(DataType, int);
+  
 protected:
-  vtkStructuredGridOutlineFilter() {};
-  ~vtkStructuredGridOutlineFilter() {};
+  vtkPDataSetReader();
+  ~vtkPDataSetReader();
+  vtkPDataSetReader(const vtkPDataSetReader&);
+  void operator=(const vtkPDataSetReader&);
 
-  void Execute();
-private:
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkStructuredGridOutlineFilter&);  // Not implemented.
+  virtual void ExecuteInformation();
+  virtual void Execute();
+  void PolyDataExecute();
+  void UnstructuredGridExecute();
+
+  vtkDataSet *CheckOutput();
+  void SetNumberOfPieces(int num);
+
+//BTX
+  ifstream *vtkPDataSetReader::OpenFile();
+//ETX
+
+  int VTKFileFlag;
+  char *FileName;
+  int DataType;
+  int NumberOfPieces;
+  char **PieceFileNames;
 };
 
 #endif
-
-
