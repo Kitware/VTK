@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.16");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.17");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -801,6 +801,7 @@ void vtkAVSucdReader::ReadNodeData()
         }
       scalars[i]->Delete();
       }
+      delete[] scalars;
     } // end of ASCII read
   vtkDebugMacro( << "End of ReadNodeData()\n");
 }
@@ -908,6 +909,7 @@ void vtkAVSucdReader::ReadCellData()
         }
       scalars[i]->Delete();
       }
+      delete[] scalars;
     } // end of ASCII read
   vtkDebugMacro( << "End of ReadCellData()\n");
 }
