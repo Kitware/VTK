@@ -504,6 +504,10 @@ vtkFloatPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
   vertexPoints InsertPoint 0 0 0 0
 
+vtkFloatScalars vertexScalars
+  vertexScalars SetNumberOfScalars 1
+  vertexScalars InsertScalar 0 1
+
 vtkVertex aVertex
   [aVertex GetPointIds] SetId 0 0
 
@@ -511,9 +515,23 @@ vtkUnstructuredGrid aVertexGrid
   aVertexGrid Allocate 1 1
   aVertexGrid InsertNextCell [aVertex GetCellType] [aVertex GetPointIds]
   aVertexGrid SetPoints vertexPoints
+  [aVertexGrid GetPointData] SetScalars vertexScalars
+
+vtkContourFilter vertexContours
+  vertexContours SetInput aVertexGrid
+  vertexContours SetValue 0 1
+
+vtkDataSetMapper aVertexContourMapper
+  aVertexContourMapper SetInput [vertexContours GetOutput]
+  aVertexContourMapper ScalarVisibilityOff
+
+vtkActor aVertexContourActor
+  aVertexContourActor SetMapper aVertexContourMapper
+  [aVertexContourActor GetProperty] SetRepresentationToWireframe
 
 vtkDataSetMapper aVertexMapper
   aVertexMapper SetInput aVertexGrid
+  aVertexMapper ScalarVisibilityOff
 
 vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
@@ -526,6 +544,12 @@ vtkFloatPoints polyVertexPoints
   polyVertexPoints InsertPoint 1 1 0 0
   polyVertexPoints InsertPoint 2 1 1 0
 
+vtkFloatScalars polyVertexScalars
+  polyVertexScalars SetNumberOfScalars 3
+  polyVertexScalars InsertScalar 0 1
+  polyVertexScalars InsertScalar 1 0
+  polyVertexScalars InsertScalar 2 0
+
 vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetNumberOfIds 3
   [aPolyVertex GetPointIds] SetId 0 0
@@ -536,13 +560,26 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
   aPolyVertexGrid InsertNextCell [aPolyVertex GetCellType] [aPolyVertex GetPointIds]
   aPolyVertexGrid SetPoints polyVertexPoints
+  [aPolyVertexGrid GetPointData] SetScalars polyVertexScalars
+
+vtkContourFilter polyVertexContours
+  polyVertexContours SetInput aPolyVertexGrid
+  polyVertexContours SetValue 0 0
+
+vtkDataSetMapper aPolyVertexContourMapper
+  aPolyVertexContourMapper SetInput [polyVertexContours GetOutput]
+  aPolyVertexContourMapper ScalarVisibilityOff
+
+vtkActor aPolyVertexContourActor
+  aPolyVertexContourActor SetMapper aPolyVertexContourMapper
+  [aPolyVertexContourActor GetProperty] SetRepresentationToWireframe
 
 vtkDataSetMapper aPolyVertexMapper
   aPolyVertexMapper SetInput aPolyVertexGrid
+  aPolyVertexMapper ScalarVisibilityOff
 
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
-  [aPolyVertexActor GetProperty] BackfaceCullingOn
 
 
 ren1 SetBackground .1 .2 .3
@@ -578,8 +615,10 @@ ren1 AddActor aLineContourActor; [aLineContourActor GetProperty] SetDiffuseColor
 ren1 AddActor aPolyLineActor; [aPolyLineActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyLineContourActor; [aPolyLineContourActor GetProperty] SetDiffuseColor 1 1 1
 
+ren1 AddActor aVertexContourActor; [aVertexContourActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
 
+ren1 AddActor aPolyVertexContourActor; [aPolyVertexContourActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
 
 # places everyone!!
@@ -615,12 +654,16 @@ aPolyLineContourActor AddPosition 2 8 0
 aPolyLineContourActor AddPosition 0 2 0
 aPolyLineActor AddPosition 2 8 0
 
+aVertexContourActor AddPosition 0 12 0
+aVertexContourActor AddPosition 0 2 0
 aVertexActor AddPosition 0 12 0
+
+aPolyVertexContourActor AddPosition 2 12 0
+aPolyVertexContourActor AddPosition 0 2 0
 aPolyVertexActor AddPosition 2 12 0
 
-
 source backdrop.tcl
-BuildBackdrop -1 11 -1 14 -1 2 .1
+BuildBackdrop -1 11 -1 16 -1 2 .1
 
 ren1 AddActor base
 [base GetProperty] SetDiffuseColor .2 .2 .2
