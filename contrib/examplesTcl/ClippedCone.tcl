@@ -83,8 +83,9 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Azimuth -30
 $cam1 Elevation -30
+ren1 ResetCameraClippingRange
 
-iren Initialize
+renWin Render
 
 #renWin SetFileName "ClippedCone.tcl.ppm"
 #renWin SaveImageAsPPM
