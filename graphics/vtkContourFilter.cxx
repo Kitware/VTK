@@ -226,18 +226,21 @@ void vtkContourFilter::Execute()
 //
 // Special method handles structured points
 //
+#ifndef VTK_USE_PATENTED  
+void vtkContourFilter::StructuredPointsContour(int vtkNotUsed(dim)) { }
+#else
 void vtkContourFilter::StructuredPointsContour(int dim)
 {
   vtkPolyData *output;
   vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
-  int i, numContours=this->ContourValues->GetNumberOfContours();
+  int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
 
-#ifdef VTK_USE_PATENTED  
   if ( dim == 2 ) //marching squares
     {
     static vtkMarchingSquares msquares;
-
+    int i;
+    
     msquares.SetInput((vtkStructuredPoints *)this->Input);
     msquares.SetDebug(this->Debug);
     msquares.SetNumberOfContours(numContours);
@@ -251,7 +254,8 @@ void vtkContourFilter::StructuredPointsContour(int dim)
   else //marching cubes
     {
     static vtkMarchingCubes mcubes;
-
+    int i;
+    
     mcubes.SetInput((vtkStructuredPoints *)this->Input);
     mcubes.SetComputeNormals (this->ComputeNormals);
     mcubes.SetComputeGradients (this->ComputeGradients);
@@ -264,12 +268,12 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     mcubes.Update();
     output = mcubes.GetOutput();
     }
-#endif
   
   thisOutput->CopyStructure(output);
   *thisOutput->GetPointData() = *output->GetPointData();
   output->Initialize();
 }
+#endif
 
 // Description:
 // Specify a spatial locator for merging points. By default, 
