@@ -361,13 +361,13 @@ void vtkGeneralTransform::Multiply3x3(const float A[3][3], float B[3][3])
 void vtkGeneralTransform::Transpose3x3(float A[3][3])
 {
   float tmp;
-  tmp = A[0][1];
+  tmp = A[1][0];
   A[1][0] = A[0][1];
   A[0][1] = tmp;
   tmp = A[0][2];
   A[2][0] = A[0][2];
   A[0][2] = tmp;
-  tmp = A[1][2];
+  tmp = A[2][1];
   A[2][1] = A[1][2];
   A[1][2] = tmp;
 }
@@ -376,25 +376,24 @@ void vtkGeneralTransform::Transpose3x3(float A[3][3])
 void vtkGeneralTransform::Invert3x3(float A[3][3])
 {
   int index[3];
-  float C[3][3];
+  float tmp[3][3];
 
-  // transpose
+  // invert one column at a time
+  LUFactor3x3(A,index);
   for (int i = 0; i < 3; i++)
     {
-    C[i][0] = A[0][i];
-    C[i][1] = A[1][i];
-    C[i][2] = A[2][i];
-    A[0][i] = 0.0;
-    A[1][i] = 0.0;
-    A[2][i] = 0.0;
-    A[i][i] = 1.0;
+    float *x = tmp[i];
+    x[0] = x[1] = x[2] = 0.0;
+    x[i] = 1.0;
+    LUSolve3x3(A,index,x);
     }
-
-  // invert one row at a time
-  LUFactor3x3(C,index);
-  LUSolve3x3(C,index,A[0]);
-  LUSolve3x3(C,index,A[1]);
-  LUSolve3x3(C,index,A[2]);
+  for (int j = 0; j < 3; j++)
+    {
+    float *x = tmp[j];
+    A[0][j] = x[0];
+    A[1][j] = x[1];
+    A[2][j] = x[2];      
+    }
 }
 
 //----------------------------------------------------------------------------
