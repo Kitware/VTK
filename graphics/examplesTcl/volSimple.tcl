@@ -1,4 +1,6 @@
 catch {load vtktcl}
+# get the interactor ui
+source ../../examplesTcl/vtkInt.tcl
 
 # Simple volume rendering example.
 vtkSLCReader reader
