@@ -45,12 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
-  this->ScalarOpacityArray      = NULL;
   this->GradientOpacityArray    = NULL;
-  this->RGBArray                = NULL;
-  this->GrayArray               = NULL;
+  this->RGBAArray               = NULL;
   this->ArraySize               = -1;
-  this->GradientOpacityConstant = 0.0;
   this->SampleDistance          = 1.0;
   this->GradientEstimator       = vtkFiniteDifferenceGradientEstimator::New();
   this->GradientShader          = vtkEncodedGradientShader::New();
@@ -61,19 +58,9 @@ vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
   this->SetGradientEstimator( NULL );
   this->GradientShader->Delete();
   
-  if ( this->ScalarOpacityArray )
+  if ( this->RGBAArray )
     {
-    delete [] this->ScalarOpacityArray;
-    }
-
-  if ( this->GrayArray )
-    {
-    delete [] this->GrayArray;
-    }
-
-  if ( this->RGBArray )
-    {
-    delete [] this->RGBArray;
+    delete [] this->RGBAArray;
     }
 }
 
@@ -121,9 +108,12 @@ void vtkVolumeTextureMapper::Update()
 void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 					       vtkVolume *vol )
 {
-  int   size, i;
-  float *tmpArray;
+  int   size, i, j, k;
+  float *AArray;
+  float *RGBArray;
+  float *GArray;
   int   colorChannels;
+  float gradientOpacityConstant;
 
   // Hang on to the render window - we'll need it to test for abort
   this->RenderWindow = ren->GetRenderWindow();
@@ -138,54 +128,49 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   if ( this->ArraySize != size )
     {
-    if ( this->ScalarOpacityArray )
+    if ( this->RGBAArray )
       {
-      delete [] this->ScalarOpacityArray;
+      delete [] this->RGBAArray;
       }
 
-    if ( this->RGBArray )
-      {
-      delete [] this->ScalarOpacityArray;
-      }
-
-    if ( this->GrayArray )
-      {
-      delete [] this->ScalarOpacityArray;
-      }
-
-    this->ScalarOpacityArray   = new unsigned char[size];
-    this->RGBArray             = new unsigned char[3*size];
-    this->GrayArray            = new unsigned char[size];
-    
+    this->RGBAArray             = new unsigned char[4*size];    
     this->ArraySize = size;
-    }
-
-  tmpArray = vol->GetCorrectedScalarOpacityArray();
-  for ( i = 0; i < size; i++ )
-    {
-    this->ScalarOpacityArray[i] = tmpArray[i]*255.99;
     }
 
   this->GradientOpacityArray = vol->GetGradientOpacityArray();
 
+  AArray = vol->GetCorrectedScalarOpacityArray();
+
+  // Being less than 0.0 implies a transfer function, so just multiply by
+  // 1.0 here since the transfer function will supply the true opacity
+  // modulation value
+  gradientOpacityConstant = vol->GetGradientOpacityConstant();
+  if ( gradientOpacityConstant <= 0.0 )
+    {
+    gradientOpacityConstant = 1.0;
+    }
+
   if ( colorChannels == 3 )
     {
-    tmpArray = vol->GetRGBArray();
-    for ( i = 0; i < 3*size; i++ )
+    RGBArray = vol->GetRGBArray();    
+    for ( i=0, j=0, k=0; i < size; i++ )
       {
-      this->RGBArray[i] = tmpArray[i]*255.99;
+      this->RGBAArray[j++] = RGBArray[k++]*255.99;
+      this->RGBAArray[j++] = RGBArray[k++]*255.99;
+      this->RGBAArray[j++] = RGBArray[k++]*255.99;
+      this->RGBAArray[j++] = AArray[i]*255.99*gradientOpacityConstant;
       }
     }
   else if ( colorChannels == 1 )
     {
-    tmpArray = vol->GetGrayArray();
-    for ( i = 0; i < size; i++ )
+    GArray = vol->GetGrayArray();
+    for ( i=0, j=0; i < size; i++ )
       {
-      this->GrayArray[i] = tmpArray[i]*255.99;
+      this->RGBAArray[j++] = GArray[i]*255.99;
+      this->RGBAArray[j++] = AArray[i]*255.99*gradientOpacityConstant;
       }
     }
 
-  this->GradientOpacityConstant = vol->GetGradientOpacityConstant();
 
   this->Shade =  vol->GetProperty()->GetShade();  
 
@@ -225,7 +210,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   // If we have non-constant opacity on the gradient magnitudes,
   // we need to use the gradient magnitudes to look up the opacity
-  if ( this->GradientOpacityConstant == -1.0 )
+  if ( vol->GetGradientOpacityConstant() == -1.0 )
     {
     this->GradientMagnitudes = 
       this->GradientEstimator->GetGradientMagnitudes();

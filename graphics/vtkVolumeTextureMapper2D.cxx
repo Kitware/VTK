@@ -72,9 +72,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   unsigned short   *nptr;
   unsigned char    *gptr;
   float            v[12], t[8];
-  unsigned char    *rgbArray = me->GetRGBArray();
-  unsigned char    *scalarOpacityArray = me->GetScalarOpacityArray();
-  float            gradientOpacityConstant = me->GetGradientOpacityConstant();
+  unsigned char    *rgbaArray = me->GetRGBAArray();
   float            *gradientOpacityArray;
   unsigned char    *gradientMagnitudes;
   unsigned short   *encodedNormals;
@@ -92,6 +90,12 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   int              clipLow, clipHigh;
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
+  unsigned char    zero[4];
+
+  zero[0] = 0.0;
+  zero[1] = 0.0;
+  zero[2] = 0.0;
+  zero[3] = 0.0;
 
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
@@ -160,15 +164,8 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
     }
 
-  if ( gradientOpacityConstant < 0.0 )
-    {
-    gradientMagnitudes = me->GetGradientMagnitudes();
-    gradientOpacityArray = me->GetGradientOpacityArray();
-    }
-  else
-    {
-    gradientMagnitudes = NULL;
-    }
+  gradientMagnitudes = me->GetGradientMagnitudes();
+  gradientOpacityArray = me->GetGradientOpacityArray();
 
   renWin = me->GetRenderWindow();
 
@@ -206,7 +203,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	  index += ( j >= clipHigh );
 	  if ( flag[index] )
 	    {
-	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = rgbaArray[(*dptr)*4];
 	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
 	      redSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -215,7 +212,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 
-	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = rgbaArray[(*dptr)*4 + 1];
 	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
 	      greenSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -224,7 +221,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = rgbaArray[(*dptr)*4 + 2];
 	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
 	      blueSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -233,24 +230,18 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = scalarOpacityArray[(*dptr)];
+	    tmpval = rgbaArray[(*dptr)*4 + 3];
 	    if ( gradientMagnitudes )
 	      {
 	      tmpval *= gradientOpacityArray[*gptr];
 	      gptr += size[0];
 	      }
-	    else
-	      {
-	      tmpval *= gradientOpacityConstant;
-	      }
 	    *(tptr++) = tmpval;
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
+	    memcpy( tptr, zero, 4 );
+	    tptr += 4;
 	    if ( gradientMagnitudes )
 	      {
 	      gptr += size[0];
@@ -267,49 +258,56 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	  gptr = gradientMagnitudes + k*size[0]*size[1] + i;
 	  }
 
-	for ( j = 0; j < size[1]; j++ )
+	if ( cropping )
 	  {
-	  index = 0;
-	  index += ( j >= clipLow );
-	  index += ( j >= clipHigh );
-	  if ( flag[index] )
+	  for ( j = 0; j < size[1]; j++ )
 	    {
-	    if ( gradientOpacityConstant == 1.0 )
+	    index = 0;
+	    index += ( j >= clipLow );
+	    index += ( j >= clipHigh );
+	    if ( flag[index] )
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)];
-	      }
-	    else if ( gradientOpacityConstant >= 0.0 )
-	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
-	      }
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      if ( gradientMagnitudes )
+		{
+		*(tptr+3) = (float)(*tptr+3) * gradientOpacityArray[*gptr];
+		gptr += size[0];
+		}
+	      }	  
 	    else
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = 
-		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      memcpy( tptr, zero, 4 );
+	      if ( gradientMagnitudes )
+		{
+		gptr += size[0];
+		}	      
+	      }
+	    tptr += 4;
+	    dptr += size[0];
+	    }
+	  }
+	else
+	  {
+	  if ( gradientMagnitudes )
+	    {
+	    for ( j = 0; j < size[1]; j++ )
+	      {
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      *(tptr+3) = (float)(*tptr+3) * gradientOpacityArray[*gptr];
 	      gptr += size[0];
+	      tptr += 4;
+	      dptr += size[0];
 	      }
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    if ( gradientMagnitudes )
+	    for ( j = 0; j < size[1]; j++ )
 	      {
-	      gptr += size[0];
-	      }	      
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      tptr += 4;
+	      dptr += size[0];
+	      }
 	    }
-	  dptr += size[0];
 	  }
 	}
       }
@@ -340,9 +338,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   unsigned short *nptr;
   unsigned char  *gptr;
   float          v[12], t[8];
-  unsigned char  *rgbArray = me->GetRGBArray();
-  unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
-  float          gradientOpacityConstant = me->GetGradientOpacityConstant();
+  unsigned char  *rgbaArray = me->GetRGBAArray();
   unsigned short *encodedNormals;
   float          *gradientOpacityArray;
   unsigned char  *gradientMagnitudes;
@@ -360,6 +356,12 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   int            clipLow, clipHigh;
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
+  unsigned char    zero[4];
+
+  zero[0] = 0.0;
+  zero[1] = 0.0;
+  zero[2] = 0.0;
+  zero[3] = 0.0;
 
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
@@ -429,16 +431,9 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
     blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
     }
 
-  if ( gradientOpacityConstant < 0.0 )
-    {
-    gradientMagnitudes = me->GetGradientMagnitudes();
-    gradientOpacityArray = me->GetGradientOpacityArray();
-    }
-  else
-    {
-    gradientMagnitudes = NULL;
-    }
-
+  gradientMagnitudes = me->GetGradientMagnitudes();
+  gradientOpacityArray = me->GetGradientOpacityArray();
+  
   for ( j = jstart; j != jend; j+=jinc )
     {
     for ( k = 0; k < size[2]; k++ )
@@ -473,7 +468,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	  index += ( i >= clipHigh );
 	  if ( flag[index] )
 	    {
-	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = rgbaArray[(*dptr)*4];
 	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
 	      redSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -482,7 +477,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 
-	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = rgbaArray[(*dptr)*4 + 1];
 	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
 	      greenSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -491,7 +486,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 
-	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = rgbaArray[(*dptr)*4 + 2];
 	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
 	      blueSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -500,24 +495,18 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = scalarOpacityArray[(*dptr)];
+	    tmpval = rgbaArray[(*dptr)*4 + 3];
 	    if ( gradientMagnitudes )
 	      {
 	      tmpval *= gradientOpacityArray[*gptr];
 	      gptr++;
 	      }
-	    else
-	      {
-	      tmpval *= gradientOpacityConstant;
-	      }
 	    *(tptr++) = tmpval;
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
+	    memcpy( tptr, zero, 4 );
+	    tptr += 4;
 	    if ( gradientMagnitudes )
 	      {
 	      gptr++;
@@ -534,53 +523,59 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
 	  }
 
-	for ( i = 0; i < size[0]; i++ )
+	if ( cropping )
 	  {
-	  index = 0;
-	  index += ( i >= clipLow );
-	  index += ( i >= clipHigh );
-	  if ( flag[index] )
+	  for ( i = 0; i < size[0]; i++ )
 	    {
-	    if ( gradientOpacityConstant == 1.0 )
+	    index = 0;
+	    index += ( i >= clipLow );
+	    index += ( i >= clipHigh );
+	    if ( flag[index] )
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)];
-	      }
-	    else if ( gradientOpacityConstant >= 0.0 )
-	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      if ( gradientMagnitudes )
+		{
+		*(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
+		gptr++;
+		}
 	      }
 	    else
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = 
-		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      memcpy( tptr, zero, 4 );
+	      if ( gradientMagnitudes )
+		{
+		gptr++;
+		}	      
+	      }
+	    tptr+=4;
+	    dptr++;
+	    }
+	  }
+	else
+	  {
+	  if ( gradientMagnitudes )
+	    {
+	    for ( i = 0; i < size[0]; i++ )
+	      {
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      *(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
 	      gptr++;
+	      tptr+=4;
+	      dptr++;
 	      }
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    if ( gradientMagnitudes )
+	    for ( i = 0; i < size[0]; i++ )
 	      {
-	      gptr++;
-	      }	      
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      tptr+=4;
+	      dptr++;
+	      }
 	    }
-	  dptr++;
 	  }
 	}
       }
-
     if ( renWin->CheckAbortStatus() )
       {
       return;
@@ -607,9 +602,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   unsigned short *nptr;
   unsigned char  *gptr;
   float          v[12], t[8];
-  unsigned char  *rgbArray = me->GetRGBArray();
-  unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
-  float          gradientOpacityConstant = me->GetGradientOpacityConstant();
+  unsigned char  *rgbaArray = me->GetRGBAArray();
   unsigned short *encodedNormals;
   float          *gradientOpacityArray;
   unsigned char  *gradientMagnitudes;
@@ -627,6 +620,12 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   int            clipLow, clipHigh;
   vtkRenderWindow  *renWin = me->GetRenderWindow();
   float            spacing[3], origin[3];
+  unsigned char    zero[4];
+
+  zero[0] = 0.0;
+  zero[1] = 0.0;
+  zero[2] = 0.0;
+  zero[3] = 0.0;
 
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
@@ -696,15 +695,8 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
     }
 
-  if ( gradientOpacityConstant < 0.0 )
-    {
-    gradientMagnitudes = me->GetGradientMagnitudes();
-    gradientOpacityArray = me->GetGradientOpacityArray();
-    }
-  else
-    {
-    gradientMagnitudes = NULL;
-    }
+  gradientMagnitudes = me->GetGradientMagnitudes();
+  gradientOpacityArray = me->GetGradientOpacityArray();
 
   for ( k = kstart; k != kend; k+=kinc )
     {
@@ -740,7 +732,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	  index += ( i >= clipHigh );
 	  if ( flag[index] )
 	    {
-	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = rgbaArray[(*dptr)*4];
 	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
 	      redSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -749,7 +741,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = rgbaArray[(*dptr)*4 + 1];
 	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
 	      greenSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -758,7 +750,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = rgbaArray[(*dptr)*4 + 2];
 	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
 	      blueSpecularShadingTable[*nptr]*255.0;
 	    if ( tmpval > 255.0 )
@@ -767,24 +759,18 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	      }
 	    *(tptr++) = tmpval;
 	    
-	    tmpval = scalarOpacityArray[(*dptr)];
+	    tmpval = rgbaArray[(*dptr)*4 + 3];
 	    if ( gradientMagnitudes )
 	      {
 	      tmpval *= gradientOpacityArray[*gptr];
 	      gptr++;
 	      }
-	    else
-	      {
-	      tmpval *= gradientOpacityConstant;
-	      }
 	    *(tptr++) = tmpval;
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
+	    memcpy( tptr, zero, 4 );
+	    tptr += 4;
 	    if ( gradientMagnitudes )
 	      {
 	      gptr++;
@@ -801,49 +787,56 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
 	  }
 
-	for ( i = 0; i < size[0]; i++ )
+	if ( cropping )
 	  {
-	  index = 0;
-	  index += ( i >= clipLow );
-	  index += ( i >= clipHigh );
-	  if ( flag[index] )
+	  for ( i = 0; i < size[0]; i++ )
 	    {
-	    if ( gradientOpacityConstant == 1.0 )
+	    index = 0;
+	    index += ( i >= clipLow );
+	    index += ( i >= clipHigh );
+	    if ( flag[index] )
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)];
-	      }
-	    else if ( gradientOpacityConstant >= 0.0 )
-	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      if ( gradientMagnitudes )
+		{
+		*(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
+		gptr++;
+		}
 	      }
 	    else
 	      {
-	      *(tptr++) = rgbArray[(*dptr)*3];
-	      *(tptr++) = rgbArray[(*dptr)*3+1];
-	      *(tptr++) = rgbArray[(*dptr)*3+2];
-	      *(tptr++) = 
-		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      memcpy( tptr, zero, 4 );
+	      if ( gradientMagnitudes )
+		{
+		gptr++;
+		}	      
+	      }
+	    tptr += 4;
+	    dptr++;
+	    }
+	  }
+	else
+	  {
+	  if ( gradientMagnitudes )
+	    {
+	    for ( i = 0; i < size[0]; i++ )
+	      {
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      *(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
 	      gptr++;
+	      tptr += 4;
+	      dptr++;
 	      }
 	    }
 	  else
 	    {
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    *(tptr++) = 0;
-	    if ( gradientMagnitudes )
+	    for ( i = 0; i < size[0]; i++ )
 	      {
-	      gptr++;
-	      }	      
+	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+	      tptr += 4;
+	      dptr++;
+	      }
 	    }
-	  dptr++;
 	  }
 	}
       }

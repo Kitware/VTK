@@ -81,11 +81,8 @@ public:
   // Description:
   // Allow access to the arrays / variables from the templated functions in the
   // subclasses.
-  unsigned char *GetScalarOpacityArray(){return this->ScalarOpacityArray;};
   float *GetGradientOpacityArray(){return this->GradientOpacityArray;};
-  unsigned char *GetRGBArray(){return this->RGBArray;};
-  unsigned char *GetGrayArray(){return this->GrayArray;};
-  float GetGradientOpacityConstant(){return this->GradientOpacityConstant;};
+  unsigned char *GetRGBAArray(){return this->RGBAArray;};
   float *GetRedDiffuseShadingTable(){return this->RedDiffuseShadingTable;};
   float *GetGreenDiffuseShadingTable(){return this->GreenDiffuseShadingTable;};
   float *GetBlueDiffuseShadingTable(){return this->BlueDiffuseShadingTable;};
@@ -122,11 +119,8 @@ protected:
   vtkEncodedGradientShader     *GradientShader;
   int                          Shade;
 
-  unsigned char  *ScalarOpacityArray;
   float          *GradientOpacityArray;
-  unsigned char  *RGBArray;
-  unsigned char  *GrayArray;
-  float          GradientOpacityConstant;
+  unsigned char  *RGBAArray;
   int            ArraySize;
 
   float          *RedDiffuseShadingTable;
