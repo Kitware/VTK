@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    PipelineParallelism.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 // This example demonstrates how to write a pipeline parallel application
 // with VTK. It creates two parts of a pipeline on a two different
 // processors and connects them with ports. The two processes can then

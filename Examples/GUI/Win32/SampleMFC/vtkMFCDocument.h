@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkMFCDocument.h
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #if !defined(AFX_VTKMFCDOCUMENT_H__5D36A982_8081_11D2_985E_00A0CC243C06__INCLUDED_)
 #define AFX_VTKMFCDOCUMENT_H__5D36A982_8081_11D2_985E_00A0CC243C06__INCLUDED_
 

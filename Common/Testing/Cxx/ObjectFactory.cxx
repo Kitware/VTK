@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    ObjectFactory.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "vtkObjectFactory.h"
 #include "vtkVersion.h"
 #include "vtkVertex.h"
@@ -21,7 +38,7 @@ public:
   vtkTestVertex() {  }
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.13");
+vtkCxxRevisionMacro(vtkTestVertex, "1.14");
 
 class vtkTestVertex2 : public vtkVertex
 {
@@ -36,7 +53,7 @@ public:
   vtkTestVertex2() { }
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.13");
+vtkCxxRevisionMacro(vtkTestVertex2, "1.14");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
