@@ -359,7 +359,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.1");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.2");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1420,6 +1420,7 @@ vtkIdType vtkSimpleCellTessellator::GetOutputPointId(int inputPointId)
 #ifdef DEBUG_TABLE
   int i=0;
   int c=this->TranslationTableCapacity;
+  cout<<inputPointId<<" ";
   while(i<c)
     {
     cout<<this->TranslationTable[i]<<',';
@@ -1583,7 +1584,7 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
   this->TessellatePoints = points;
   this->TessellatePointData = internalPd;
   
-  this->Reset(); // reset point cell and scalars
+//  this->Reset(); // reset point cell and scalars
   
   this->GenericCell = cell;
   this->AttributeCollection = att;
@@ -1603,14 +1604,19 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
 
   vtkIdType tetra[4];
   this->GenericCell->GetPointIds(tetra);
-  this->TranslateIds(tetra,4);
+  // we cannot call TranslateIds() on tetra here, because we could also
+  // translate the point that does not lie on the face `index'. Hence, the
+  // translation table could have a point that will not be used at the end and
+  // create a hole in the attribute array (an uninitialized element), that
+  // could impact on the computation of the range. Instead we call
+  // GetOuputPointId() on each used point in the following loop.
   int *indexTab=cell->GetFaceArray(index);
   
   for(i=0; i<3; i++)
     {
     point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
     root.SetVertex(i, point);
-    root.SetPointId(i, tetra[indexTab[i]]);
+    root.SetPointId(i, this->GetOutputPointId(tetra[indexTab[i]]));
     }
   
    // Init the edge table
