@@ -660,7 +660,151 @@ int TestWithPointsAndCells(ostream &strm)
     }
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
-
+  
+  
+  strm<<" cell::GetPointIterator() start"<<endl;
+  vtkGenericCellIterator *it=ds->NewCellIterator(-1);
+  it->Begin();
+  count=0;
+  pit=ds->NewPointIterator();
+  int count2=0;
+  while(!it->IsAtEnd())
+    {
+    cab=it->GetCell();
+    cab->GetPointIterator(pit);
+    pit->Begin();
+    switch(count)
+      {
+      case 0: // tetra
+        count2=0;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 1: // triangle
+        count2=4;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 2: // line
+        count2=7;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 3: // vertex
+        count2=9;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 4: // tetra
+        count2=10;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 5: // triangle
+        count2=0;
+        while(!pit->IsAtEnd())
+          {
+          switch(count2)
+            {
+            case 0:
+              MacroTest(strm,indent,"point iterator id",pit->GetId()==11);
+              break;
+            case 1:
+              MacroTest(strm,indent,"point iterator id",pit->GetId()==14);
+              break;
+            case 2:
+              MacroTest(strm,indent,"point iterator id",pit->GetId()==12);
+              break;
+            default:
+              MacroTest(strm,indent,"impossible case",0);
+              break;
+            }
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 6: // line
+        count2=14;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      case 7: // vertex
+        count2=15;
+        while(!pit->IsAtEnd())
+          {
+          MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
+          pit->GetPosition(x);
+          pts->GetPoint(pit->GetId(),y);
+          MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
+          pit->Next();
+          
+          count2++;
+          }
+        break;
+      default:
+        MacroTest(strm,indent,"impossible case",0);
+        break;
+      }
+    ++count;
+    it->Next();
+    }
+  pit->Delete();
+  it->Delete();
+  strm<<" cell::GetPointIterator() end"<<endl;
+  
+  
   double bounds[6];
   double *b;
   double center[3];
@@ -710,7 +854,7 @@ int TestWithPointsAndCells(ostream &strm)
   
   int dim;
   
-  vtkGenericCellIterator *it=ds->NewCellIterator(-1);
+  it=ds->NewCellIterator(-1);
   MacroTest(strm,indent,"cell iterator on all data set cells exists" ,it!=0);
   
   it->Begin();
