@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.118");
+vtkCxxRevisionMacro(vtkSource, "1.119");
 
 #ifndef NULL
 #define NULL 0
@@ -155,17 +155,25 @@ void vtkSource::Update()
        vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
       {
       // The update extent may have been set on the output.
-      if(this->Outputs && this->Outputs[0] &&
-         (vtkSourceToDataObjectFriendship
-          ::UpdateExtentInitialized(this->Outputs[0])))
+      if(this->NumberOfOutputs > 0)
         {
-        int extent[6];
-        this->Outputs[0]->GetUpdateExtent(extent);
-        sddp->GetOutputInformation(0)
-          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
-        sddp->GetOutputInformation(0)
-          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-                1);
+        if(vtkSourceToDataObjectFriendship
+           ::UpdateExtentInitialized(this->Outputs[0]))
+          {
+          int extent[6];
+          this->Outputs[0]->GetUpdateExtent(extent);
+          sddp->GetOutputInformation(0)
+            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+          sddp->GetOutputInformation(0)
+            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+                  1);
+          }
+        else
+          {
+          sddp->GetOutputInformation(0)
+            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+                  0);
+          }
         }
       }
     ddp->Update(this, 0);

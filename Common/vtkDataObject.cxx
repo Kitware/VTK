@@ -26,7 +26,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.109");
+vtkCxxRevisionMacro(vtkDataObject, "1.110");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -264,6 +264,12 @@ void vtkDataObject::Update()
       sddp->GetOutputInformation(index)
         ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
               1);
+      }
+    else
+      {
+      sddp->GetOutputInformation(index)
+        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+              0);
       }
 
     // Update this output.

@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.11");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.12");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,9 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = this->GetOutputInformation(i);
-      if(info->Has(WHOLE_EXTENT()) && !info->Has(UPDATE_EXTENT_INITIALIZED()))
+      if(info->Has(WHOLE_EXTENT()) &&
+         (!info->Has(UPDATE_EXTENT_INITIALIZED()) ||
+          !info->Get(UPDATE_EXTENT_INITIALIZED())))
         {
         int extent[6];
         info->Get(WHOLE_EXTENT(), extent);
