@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBrownianPoints, "1.40");
+vtkCxxRevisionMacro(vtkBrownianPoints, "1.41");
 vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()
@@ -60,7 +60,7 @@ int vtkBrownianPoints::RequestData(
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
-    vtkErrorMacro(<< "No input!\n");
+    vtkDebugMacro(<< "No input!\n");
     return 1;
     }
 
