@@ -1375,8 +1375,8 @@ void vtkMath::LUFactor3x3(double A[3][3], int index[3])
 //----------------------------------------------------------------------------
 // Backsubsitution with an LU-decomposed matrix.  This is the standard
 // LU decomposition, except that the diagonals elements have been inverted.
-template<class T, class T2>
-static inline void vtkLUSolve3x3(T A[3][3], const int index[3], T2 x[3])
+template<class T1, class T2>
+static inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
 {
   T2 sum;
 
@@ -1501,8 +1501,8 @@ void vtkMath::Multiply3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-template<class T, class T2>
-static inline void vtkTranspose3x3(T A[3][3], T2 AT[3][3])
+template<class T1, class T2>
+static inline void vtkTranspose3x3(const T1 A[3][3], T2 AT[3][3])
 {
   T2 tmp;
   tmp = A[1][0];
@@ -1532,7 +1532,7 @@ void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
 
 //----------------------------------------------------------------------------
 template<class T1, class T2>
-static inline void vtkInvert3x3(T1 A[3][3], T2 AI[3][3])
+static inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
 {
   int index[3];
   T2 tmp[3][3];
