@@ -315,7 +315,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           Verts[p1].edges->InsertNextId(p2);
           if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    {
+	    Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    }
           }
 
         if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
@@ -330,13 +332,18 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           Verts[p2].edges->InsertNextId(p1);
           if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-            Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    {
+	    Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    }
           }
         }
       }
 
     //    delete inMesh; // delete this later, windowed sinc smoothing needs it
-    if (toTris) toTris->Delete();
+    if (toTris)
+      {
+      toTris->Delete();
+      }
     neighbors->Delete();
     }//if strips or polys
 
@@ -389,8 +396,14 @@ void vtkWindowedSincPolyDataFilter::Execute()
           }
         else
           {
-          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ) numFEdges++;
-          else numBEdges++;
+          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
+	    {
+	    numFEdges++;
+	    }
+          else
+	    {
+	    numBEdges++;
+	    }
           }
         }//if along edge
       }//if edge vertex
@@ -488,29 +501,42 @@ void vtkWindowedSincPolyDataFilter::Execute()
     f_kpb += c[0];
     fprime_kpb += cprime[0];
     for (i=1; i<= this->NumberOfIterations; i++)
-      if (i==1) {
+      {
+      if (i==1)
+	{
 	f_kpb += c[i]*(1.0 - 0.5*k_pb);
 	fprime_kpb += cprime[i]*(1.0 - 0.5*k_pb);
-      }
-      else {
+	}
+      else
+	{
 	f_kpb += c[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
 	fprime_kpb += cprime[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
+	}
       }
-    
     // if f_kpb is not close enough to 1.0, then adjust sigma
     if (this->NumberOfIterations > 1)
+      {
       if (fabs(f_kpb - 1.0) >= 1e-3)   
+	{
 	sigma -= (f_kpb - 1.0)/fprime_kpb;   // Newton-Rhapson (want f=1)
-      else done = 1;
-    else {
+	}
+      else
+	{
+	done = 1;
+	}
+      }
+    else
+      {
       // Order of Chebyshev is 1. Can't use Newton-Raphson to find an
       // optimal sigma. Object will most likely shrink.
       done = 1;
       sigma = 0.0;
-    }
+      }
   }
   if (fabs(f_kpb - 1.0) >= 1e-3)
+    {
     vtkErrorMacro(<< "An optimal offset for the smoothing filter could not be found.  Unpredictable smoothing/shrinkage may result.");
+    }
 
     
   // first iteration
@@ -533,16 +559,24 @@ void vtkWindowedSincPolyDataFilter::Execute()
       }
       // newPts[one] = newPts[zero] - 0.5 newPts[one]
       for (k=0; k<3; k++)
+	{
 	deltaX[k] = x[k] - 0.5*deltaX[k];
+	}
       newPts[one]->SetPoint(i, deltaX);
 
       // calculate newPts[three] = c0 newPts[zero] + c1 newPts[one]
       for (k=0; k < 3; k++)
+	{
 	deltaX[k] = c[0]*x[k] + c[1]*deltaX[k];
+	}
       if (Verts[i].type == VTK_FIXED_VERTEX)
+	{
 	newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
+	}
       else
+	{
 	newPts[three]->SetPoint(i, deltaX);
+	}
     }//if can move point
     else {
       // point is not allowed to move, just use the old point...
@@ -579,15 +613,21 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	
 	// Taubin:  x2 = (x1 - x0) + (x1 - x2)
 	for (k=0; k<3; k++)
+	  {
 	  deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
+	  }
 	newPts[two]->SetPoint(i, deltaX);
 
 	// smooth the vertex (x3 = x3 + cj x2)
 	p_x3 = newPts[three]->GetPoint(i);
 	for (k=0;k<3;k++) 
+	  {
 	  xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];
+	  }
 	if (Verts[i].type != VTK_FIXED_VERTEX)
+	  {
 	  newPts[three]->SetPoint(i,xNew);
+	  }
 
       }//if can move point
       else  {
@@ -647,7 +687,10 @@ void vtkWindowedSincPolyDataFilter::Execute()
       {
       inPts->GetPoint(i,x1);
       newPts[zero]->GetPoint(i,x2);
-      for (j=0; j<3; j++) x3[j] = x2[j] - x1[j];
+      for (j=0; j<3; j++)
+	{
+	x3[j] = x2[j] - x1[j];
+	}
       newVectors->SetVector(i,x3);
       }
     output->GetPointData()->SetVectors(newVectors);
