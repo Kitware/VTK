@@ -92,7 +92,7 @@ const int VTK_REN_INFO_FLOAT_SIZE =
 const int VTK_LIGHT_INFO_FLOAT_SIZE =
   sizeof(vtkParallelRenderManagerLightInfoFloat)/sizeof(float);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.5");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.6");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -696,135 +696,6 @@ void vtkParallelRenderManager::EndRender()
   this->Lock = 0;
 }
 
-void vtkParallelRenderManager::SatelliteStartRender()
-{
-  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
-  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
-  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
-  struct vtkParallelRenderManagerRendererInfoFloat renInfoFloat;
-  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
-  int i, j;
-
-  vtkDebugMacro("SatelliteStartRender");
-
-  this->FullImageUpToDate = 0;
-  this->ReducedImageUpToDate = 0;
-  this->RenderWindowImageUpToDate = 0;
-
-  if (this->FullImage->GetPointer(0) == this->ReducedImage->GetPointer(0))
-    {
-    // "Un-share" pointer for full/reduced images in case we need separate
-    // arrays this run.
-    this->ReducedImage->Initialize();
-    }
-
-  if (!this->ParallelRendering)
-    {
-    return;
-    }
-
-  this->InvokeEvent(vtkCommand::StartEvent, NULL);
-
-  if (!this->Controller->Receive((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE,
-                                 this->RootProcessId,
-                                 vtkParallelRenderManager::WIN_INFO_INT_TAG))
-    {
-    return;
-    }
-  if (!this->Controller->Receive((float *)(&winInfoFloat),
-                                 VTK_WIN_INFO_FLOAT_SIZE, this->RootProcessId,
-                                 vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
-    {
-    return;
-    }
-  
-  this->ReceiveWindowInformation();
-
-  this->RenderWindow->SetDesiredUpdateRate(winInfoFloat.DesiredUpdateRate);
-  this->UseCompositing = winInfoInt.UseCompositing;
-  this->ImageReductionFactor = winInfoInt.ImageReductionFactor;
-  this->FullImageSize[0] = winInfoInt.FullSize[0];
-  this->FullImageSize[1] = winInfoInt.FullSize[1];
-  this->ReducedImageSize[0] = winInfoInt.ReducedSize[0];
-  this->ReducedImageSize[1] = winInfoInt.ReducedSize[1];
-  this->SetRenderWindowSize();
-
-  vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
-  rens->InitTraversal();
-  for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
-    {
-    if (!this->Controller->Receive((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE,
-                                   this->RootProcessId,
-                                   vtkParallelRenderManager::REN_INFO_INT_TAG))
-      {
-      continue;
-      }
-    if (!this->Controller->Receive((float *)(&renInfoFloat),
-                                   VTK_REN_INFO_FLOAT_SIZE,
-                                   this->RootProcessId,
-                                   vtkParallelRenderManager::REN_INFO_FLOAT_TAG))
-      {
-      continue;
-      }
-
-    vtkLightCollection *lc = NULL;
-    vtkRenderer *ren = rens->GetNextItem();
-    if (ren == NULL)
-      {
-      vtkErrorMacro("Not enough renderers");
-      }
-    else
-      {
-      ren->SetViewport(renInfoFloat.Viewport);
-      ren->SetBackground(renInfoFloat.Background);
-      vtkCamera *cam = ren->GetActiveCamera();
-      cam->SetPosition(renInfoFloat.CameraPosition);
-      cam->SetFocalPoint(renInfoFloat.CameraFocalPoint);
-      cam->SetViewUp(renInfoFloat.CameraViewUp);
-      cam->SetClippingRange(renInfoFloat.CameraClippingRange);
-      lc = ren->GetLights();
-      lc->InitTraversal();
-      }
-
-    for (j = 0; j < renInfoInt.NumberOfLights; j++)
-      {
-      if (ren != NULL && lc != NULL)
-        {
-        vtkLight *light = lc->GetNextItem();
-        if (light == NULL)
-          {
-          // Not enough lights?  Just create them.
-          vtkDebugMacro("Adding light");
-          light = vtkLight::New();
-          ren->AddLight(light);
-          light->Delete();
-          }
-
-        this->Controller->Receive((float *)(&lightInfoFloat),
-                                  VTK_LIGHT_INFO_FLOAT_SIZE,
-                                  this->RootProcessId,
-                                  vtkParallelRenderManager::LIGHT_INFO_FLOAT_TAG);
-        light->SetPosition(lightInfoFloat.Position);
-        light->SetFocalPoint(lightInfoFloat.FocalPoint);
-        }
-      }
-
-    if (ren != NULL)
-      {
-      vtkLight *light;
-      while ((light = lc->GetNextItem()))
-        {
-        // To many lights?  Just remove the extras.
-        ren->RemoveLight(light);
-        }
-      }
-
-    this->ReceiveRendererInformation(ren);
-    }
-
-  this->PreRenderProcessing();
-}
-
 void vtkParallelRenderManager::SatelliteEndRender()
 {
   if (!this->ParallelRendering)
@@ -911,7 +782,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
   int i;
 
   // Get proper renderer.
-  int renderId;
+  int renderId = -1;
   if (!this->Controller->Receive(&renderId, 1, this->RootProcessId,
                                  vtkParallelRenderManager::REN_ID_TAG))
     {
@@ -1683,4 +1554,140 @@ static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)arg;
   self->ComputeVisiblePropBoundsRMI();
+}
+
+
+
+// the variables such as winInfoInt are initialzed prior to use  
+#if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#pragma warning ( disable : 4701 )
+#endif
+
+void vtkParallelRenderManager::SatelliteStartRender()
+{
+  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
+  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
+  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
+  struct vtkParallelRenderManagerRendererInfoFloat renInfoFloat;
+  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
+  int i, j;
+
+  vtkDebugMacro("SatelliteStartRender");
+
+  this->FullImageUpToDate = 0;
+  this->ReducedImageUpToDate = 0;
+  this->RenderWindowImageUpToDate = 0;
+
+  if (this->FullImage->GetPointer(0) == this->ReducedImage->GetPointer(0))
+    {
+    // "Un-share" pointer for full/reduced images in case we need separate
+    // arrays this run.
+    this->ReducedImage->Initialize();
+    }
+
+  if (!this->ParallelRendering)
+    {
+    return;
+    }
+
+  this->InvokeEvent(vtkCommand::StartEvent, NULL);
+
+  if (!this->Controller->Receive((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE,
+                                 this->RootProcessId,
+                                 vtkParallelRenderManager::WIN_INFO_INT_TAG))
+    {
+    return;
+    }
+  if (!this->Controller->Receive((float *)(&winInfoFloat),
+                                 VTK_WIN_INFO_FLOAT_SIZE, this->RootProcessId,
+                                 vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
+    {
+    return;
+    }
+  
+  this->ReceiveWindowInformation();
+
+  this->RenderWindow->SetDesiredUpdateRate(winInfoFloat.DesiredUpdateRate);
+  this->UseCompositing = winInfoInt.UseCompositing;
+  this->ImageReductionFactor = winInfoInt.ImageReductionFactor;
+  this->FullImageSize[0] = winInfoInt.FullSize[0];
+  this->FullImageSize[1] = winInfoInt.FullSize[1];
+  this->ReducedImageSize[0] = winInfoInt.ReducedSize[0];
+  this->ReducedImageSize[1] = winInfoInt.ReducedSize[1];
+  this->SetRenderWindowSize();
+
+  vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+  rens->InitTraversal();
+  for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
+    {
+    if (!this->Controller->Receive((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE,
+                                   this->RootProcessId,
+                                   vtkParallelRenderManager::REN_INFO_INT_TAG))
+      {
+      continue;
+      }
+    if (!this->Controller->Receive((float *)(&renInfoFloat),
+                                   VTK_REN_INFO_FLOAT_SIZE,
+                                   this->RootProcessId,
+                                   vtkParallelRenderManager::REN_INFO_FLOAT_TAG))
+      {
+      continue;
+      }
+
+    vtkLightCollection *lc = NULL;
+    vtkRenderer *ren = rens->GetNextItem();
+    if (ren == NULL)
+      {
+      vtkErrorMacro("Not enough renderers");
+      }
+    else
+      {
+      ren->SetViewport(renInfoFloat.Viewport);
+      ren->SetBackground(renInfoFloat.Background);
+      vtkCamera *cam = ren->GetActiveCamera();
+      cam->SetPosition(renInfoFloat.CameraPosition);
+      cam->SetFocalPoint(renInfoFloat.CameraFocalPoint);
+      cam->SetViewUp(renInfoFloat.CameraViewUp);
+      cam->SetClippingRange(renInfoFloat.CameraClippingRange);
+      lc = ren->GetLights();
+      lc->InitTraversal();
+      }
+
+    for (j = 0; j < renInfoInt.NumberOfLights; j++)
+      {
+      if (ren != NULL && lc != NULL)
+        {
+        vtkLight *light = lc->GetNextItem();
+        if (light == NULL)
+          {
+          // Not enough lights?  Just create them.
+          vtkDebugMacro("Adding light");
+          light = vtkLight::New();
+          ren->AddLight(light);
+          light->Delete();
+          }
+
+        this->Controller->Receive((float *)(&lightInfoFloat),
+                                  VTK_LIGHT_INFO_FLOAT_SIZE,
+                                  this->RootProcessId,
+                                  vtkParallelRenderManager::LIGHT_INFO_FLOAT_TAG);
+        light->SetPosition(lightInfoFloat.Position);
+        light->SetFocalPoint(lightInfoFloat.FocalPoint);
+        }
+      }
+
+    if (ren != NULL)
+      {
+      vtkLight *light;
+      while ((light = lc->GetNextItem()))
+        {
+        // To many lights?  Just remove the extras.
+        ren->RemoveLight(light);
+        }
+      }
+
+    this->ReceiveRendererInformation(ren);
+    }
+
+  this->PreRenderProcessing();
 }
