@@ -12,6 +12,7 @@ VPATH         = @srcdir@
 
 OGLR_OBJ = \
 vtkOpenGLImager \
+vtkOpenGLImageMapper \
 vtkOpenGLPolyDataMapper2D 
 
 ABSTRACT_H = 
