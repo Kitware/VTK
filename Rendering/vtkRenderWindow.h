@@ -300,7 +300,7 @@ public:
   // Description:
   // Are we rendering at the moment 
   virtual int CheckInRenderStatus() { return this->InRender; }
-  virtual int ClearInRenderStatus() { this->InRender = 0; }
+  virtual int ClearInRenderStatus() { return (this->InRender = 0); }
 
   // Description:
   // Specify a function to be called to check and see if an abort
