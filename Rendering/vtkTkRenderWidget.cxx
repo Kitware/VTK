@@ -147,7 +147,9 @@ extern "C" {
     // Usage: vtkImageDataToTkPhoto vtkImageData photo slice
     if ( argc < 4 || argc > 7 )
       {
-      Tcl_SetResult ( interp, "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"", NULL );
+      char *msg = strdup("wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"");
+      Tcl_SetResult ( interp, msg, NULL );
+      free(msg);
       return TCL_ERROR;
       }
 
@@ -190,7 +192,9 @@ extern "C" {
     int components = image->GetNumberOfScalarComponents();
     if ( components != 1 && components != 3 )
       {
-      Tcl_SetResult ( interp, "number of scalar components must be 1, 3, 4", TCL_VOLATILE );
+      char *msg = strdup("number of scalar components must be 1, 3, 4");
+      Tcl_SetResult ( interp, msg, TCL_VOLATILE );
+      free(msg);
       return TCL_ERROR;
       }
 
@@ -240,7 +244,9 @@ extern "C" {
     // pixelSize - address  difference  between  two
     //             horizontally  adjacent pixels
     Tk_PhotoImageBlock block;
-    void *TempPointer;
+    block.width = 0;
+    block.height = 0;
+    void *TempPointer = 0;
     switch ( orientation )
       {
       case VTKIMAGEDATATOTKPHOTO_TRANSVERSE:
@@ -298,7 +304,9 @@ extern "C" {
 
     if ( !valid )
       {
-      Tcl_SetResult ( interp, "slice is outside the image extent", NULL );
+      char *msg = strdup("slice is outside the image extent");
+      Tcl_SetResult ( interp, msg, NULL );
+      free(msg);
       return TCL_ERROR;
       }
 
