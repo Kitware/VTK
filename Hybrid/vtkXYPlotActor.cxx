@@ -38,7 +38,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.38");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.39");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -617,7 +617,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     
     this->XAxis->SetTitle(this->XTitle);
     this->XAxis->SetNumberOfLabels(this->NumberOfXLabels);
-    this->XAxis->SetLabelFormat(this->LabelFormat);
     this->XAxis->SetProperty(this->GetProperty());
 
     lengths = new float[num];
@@ -668,7 +667,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkDebugMacro(<<"Rebuilding y-axis");
     this->YAxis->SetTitle(this->YTitle);
     this->YAxis->SetNumberOfLabels(this->NumberOfYLabels);
-    this->YAxis->SetLabelFormat(this->LabelFormat);
 
     if ( this->YRange[0] >= this->YRange[1] )
       {
@@ -1588,75 +1586,93 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
 void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
                                int pos[2], int pos2[2])
 {
-  int titleSize[2], labelSize[2];
+  int titleSizeX[2], titleSizeY[2], labelSizeX[2], labelSizeY[2];
+  float labelFactorX, labelFactorY;
+  float tickOffsetX, tickOffsetY;
+  float tickLengthX, tickLengthY;
 
-  float labelFactor=this->XAxis->GetLabelFactor();
-  float tickOffset=this->XAxis->GetTickOffset();
-  float tickLength=this->XAxis->GetTickLength();
+  vtkAxisActor2D *axisX;
+  vtkAxisActor2D *axisY;
 
-  char string[512];
+  char str1[512], str2[512];
+
+  if (this->ExchangeAxes)
+    {
+    axisX = this->YAxis;
+    axisY = this->XAxis;
+    }
+  else
+    {
+    axisX = this->XAxis;
+    axisY = this->YAxis;
+    }
 
   // Create a dummy text mapper for getting font sizes
+
   vtkTextMapper *textMapper = vtkTextMapper::New();
   vtkTextProperty *tprop = textMapper->GetTextProperty();
 
   // Get the location of the corners of the box
+
   int *p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
   int *p2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
 
-  // Estimate the padding around the x and y axes
-  if ( !this->ExchangeAxes )
-    {
-    tprop->ShallowCopy(this->YAxis->GetTitleTextProperty());
-    textMapper->SetInput(this->YTitle);
-    }
-  else
-    {
-    tprop->ShallowCopy(this->XAxis->GetTitleTextProperty());
-    textMapper->SetInput(this->XTitle);
-    }
+  // Estimate the padding around the X and Y axes
 
-  vtkAxisActor2D::SetFontSize(viewport, 
-                              textMapper, 
-                              size, 
-                              1.0,
-                              titleSize);
+  tprop->ShallowCopy(axisX->GetTitleTextProperty());
+  textMapper->SetInput(axisX->GetTitle());
+  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, 1.0, titleSizeX);
 
-  sprintf(string, this->LabelFormat, 0.0);
+  tprop->ShallowCopy(axisY->GetTitleTextProperty());
+  textMapper->SetInput(axisY->GetTitle());
+  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, 1.0, titleSizeY);
 
-  tprop->ShallowCopy(this->XAxis->GetLabelTextProperty());
+  // At this point the thing to do would be to actually ask the Y axis
+  // actor to return the largest label.
+  // In the meantime, let's try with the min and max
 
-  textMapper->SetInput(string);
+  sprintf(str1, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0]);
+  sprintf(str2, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1]);
+  tprop->ShallowCopy(axisY->GetLabelTextProperty());
+  labelFactorY = axisY->GetLabelFactor();
+  textMapper->SetInput(strlen(str1) > strlen(str2) ? str1 : str2);
+  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, labelFactorY, 
+                              labelSizeY);
 
-  vtkAxisActor2D::SetFontSize(viewport, 
-                              textMapper, 
-                              size, 
-                              labelFactor,
-                              labelSize);
+  // We do only care of the height of the label in the X axis, so let's
+  // use the min for example
+
+  sprintf(str1, axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0]);
+  tprop->ShallowCopy(axisX->GetLabelTextProperty());
+  labelFactorX = axisX->GetLabelFactor();
+  textMapper->SetInput(str1);
+  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, labelFactorX, 
+                              labelSizeX);
+
+
+  tickOffsetX = axisX->GetTickOffset();
+  tickOffsetY = axisY->GetTickOffset();
+  tickLengthX = axisX->GetTickLength();
+  tickLengthY = axisY->GetTickLength();
 
   // Okay, estimate the size
-  pos[0] = (int)(p1[0] + titleSize[0] + 2.0*tickOffset + tickLength + 
-                 labelSize[0] + this->Border);
-  pos2[0] = (int)(p2[0] - labelSize[0]/2 - tickOffset - this->Border);
-  pos[1] = (int)(p1[1] + titleSize[1] + 2.0*tickOffset + tickLength + 
-                 labelSize[1] + this->Border);
-  pos2[1] = (int)(p2[1] - labelSize[1]/2 - tickOffset - this->Border);
+
+  pos[0] = (int)(p1[0] + titleSizeY[0] + 2.0 * tickOffsetY + tickLengthY + 
+                 labelSizeY[0] + this->Border);
+
+  pos[1] = (int)(p1[1] + titleSizeX[1] + 2.0 * tickOffsetX + tickLengthX + 
+                 labelSizeX[1] + this->Border);
+
+  pos2[0] = (int)(p2[0] - labelSizeY[0] / 2 - tickOffsetY - this->Border);
+
+  pos2[1] = (int)(p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border);
 
   // Now specify the location of the axes
-  if ( !this->ExchangeAxes )
-    {
-    this->XAxis->GetPoint1Coordinate()->SetValue(pos[0], pos[1]);
-    this->XAxis->GetPoint2Coordinate()->SetValue(pos2[0], pos[1]);
-    this->YAxis->GetPoint1Coordinate()->SetValue(pos[0], pos2[1]);
-    this->YAxis->GetPoint2Coordinate()->SetValue(pos[0], pos[1]);
-    }
-  else
-    {
-    this->XAxis->GetPoint1Coordinate()->SetValue(pos[0], pos2[1]);
-    this->XAxis->GetPoint2Coordinate()->SetValue(pos[0], pos[1]);
-    this->YAxis->GetPoint1Coordinate()->SetValue(pos[0], pos[1]);
-    this->YAxis->GetPoint2Coordinate()->SetValue(pos2[0], pos[1]);
-    }
+
+  axisX->GetPoint1Coordinate()->SetValue(pos[0], pos[1]);
+  axisX->GetPoint2Coordinate()->SetValue(pos2[0], pos[1]);
+  axisY->GetPoint1Coordinate()->SetValue(pos[0], pos2[1]);
+  axisY->GetPoint2Coordinate()->SetValue(pos[0], pos[1]);
 
   textMapper->Delete();
 }
@@ -2171,3 +2187,36 @@ int vtkXYPlotActor::GetShadow()
     return 0;
     }
 }
+
+void vtkXYPlotActor::SetLabelFormat(const char* _arg)
+{
+  if (this->LabelFormat == NULL && _arg == NULL) 
+    { 
+    return;
+    }
+
+  if (this->LabelFormat && _arg && (!strcmp(this->LabelFormat,_arg))) 
+    { 
+    return;
+    }
+
+  if (this->LabelFormat) 
+    { 
+    delete [] this->LabelFormat; 
+    }
+
+  if (_arg)
+    {
+    this->LabelFormat = new char[strlen(_arg)+1];
+    strcpy(this->LabelFormat,_arg);
+    }
+  else
+    {
+    this->LabelFormat = NULL;
+    }
+
+  this->XAxis->SetLabelFormat(this->LabelFormat);
+  this->YAxis->SetLabelFormat(this->LabelFormat);
+
+  this->Modified();
+} 

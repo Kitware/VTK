@@ -414,7 +414,7 @@ public:
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
-  vtkSetStringMacro(LabelFormat);
+  virtual void SetLabelFormat (const char* _arg);
   vtkGetStringMacro(LabelFormat);
 
   // Description:
