@@ -20,38 +20,42 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.18");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.19");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor() 
 {
-  int i;
-  
-  this->MotionFactor = 10.0;
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-  this->RadianToDegree = 180.0 / vtkMath::Pi();
+  this->MotionFactor    = 10.0;
+  this->RadianToDegree  = 180.0 / vtkMath::Pi();
   this->InteractionProp = NULL;
 
+  int i;
   for (i = 0; i < 3; i++)
     {
-    this->ViewUp[i] = 0.0;
-    this->ViewLook[i] = 0.0;
-    this->ViewRight[i] = 0.0;
-    this->ObjCenter[i] = 0.0;
+    this->ViewUp[i]        = 0.0;
+    this->ViewLook[i]      = 0.0;
+    this->ViewRight[i]     = 0.0;
+    this->ObjCenter[i]      = 0.0;
     this->DispObjCenter[i] = 0.0;
-    this->NewPickPoint[i] = 0.0;
-    this->OldPickPoint[i] = 0.0;
-    this->MotionVector[i] = 0.0;
-    this->ViewPoint[i] = 0.0;
-    this->ViewFocus[i] = 0.0;
+    this->NewPickPoint[i]  = 0.0;
+    this->OldPickPoint[i]  = 0.0;
+    this->MotionVector[i]  = 0.0;
+    this->ViewPoint[i]     = 0.0;
+    this->ViewFocus[i]     = 0.0;
     }
+
   this->NewPickPoint[3] = 1.0;
   this->OldPickPoint[3] = 1.0;
   
   this->Radius = 0.0;
   
   this->InteractionPicker = vtkCellPicker::New();
+
+  // This prevent vtkInteractorStyle::StartState to fire the timer
+  // that is used to handle joystick mode
+
+  this->NoTimerInStartState = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -63,37 +67,166 @@ vtkInteractorStyleTrackballActor::~vtkInteractorStyleTrackballActor()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl), 
                                                    int vtkNotUsed(shift),
-                                                   int x, int y) 
+                                                   int x, 
+                                                   int y) 
 {
-  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ROTATE)
+  switch (this->State) 
     {
-    this->FindPokedCamera(x, y);
-    this->RotateXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_PAN)
-    {
-    this->FindPokedCamera(x, y);
-    this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
-    {
-    this->FindPokedCamera(x, y);
-    this->DollyXY(this->LastPos[0] - x, this->LastPos[1] - y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
-    {
-    this->FindPokedCamera(x, y);
-    this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SCALE)
-    {
-    this->FindPokedCamera(x, y);
-    this->ScaleXY(x, y, this->LastPos[0], this->LastPos[1]);
+    case VTKIS_ROTATE:
+      this->FindPokedCamera(x, y);
+      this->RotateXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_PAN:
+      this->FindPokedCamera(x, y);
+      this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_DOLLY:
+      this->FindPokedCamera(x, y);
+      this->DollyXY(this->LastPos[0] - x, this->LastPos[1] - y);
+      break;
+
+    case VTKIS_SPIN:
+      this->FindPokedCamera(x, y);
+      this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_USCALE:
+      this->FindPokedCamera(x, y);
+      this->ScaleXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
     }
 
   this->LastPos[0] = x;
   this->LastPos[1] = y;
 }
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, 
+                                                        int shift, 
+                                                        int x, 
+                                                        int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+
+  if (shift)
+    {
+    this->StartPan();
+    }
+  else if (ctrl)
+    {
+    this->StartSpin();
+    }
+  else
+    {
+    this->StartRotate();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
+                                                      int vtkNotUsed(shift),
+                                                      int vtkNotUsed(x),
+                                                      int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_ROTATE:
+      this->EndRotate();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl, 
+                                                          int shift, 
+                                                          int x, 
+                                                          int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+
+  if (ctrl)
+    {
+    this->StartDolly();
+    }
+  else
+    {
+    this->StartPan();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+                                                        int vtkNotUsed(shift), 
+                                                        int vtkNotUsed(x),
+                                                        int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnRightButtonDown(int vtkNotUsed(ctrl),
+                                                         int vtkNotUsed(shift), 
+                                                         int x, 
+                                                         int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+  
+  this->StartUniformScale();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::OnRightButtonUp(int vtkNotUsed(ctrl),
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_USCALE:
+      this->EndUniformScale();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
 
 
 //----------------------------------------------------------------------------
@@ -393,105 +526,6 @@ void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
   this->ResetCameraClippingRange();
   rwi->Render();
 }
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift, 
-                                                        int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
-  if (shift)
-    {
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
-    }
-  else if (this->CtrlKey)
-    {
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_SPIN;
-    }
-  else
-    {
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_ROTATE;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                      int vtkNotUsed(shift),
-                                                      int vtkNotUsed(x),
-                                                      int vtkNotUsed(y))
-{
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl, int shift, 
-                                                          int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
-  if (this->CtrlKey)
-    {
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_ZOOM;
-    }
-  else
-    {
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
-    }
-}
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int vtkNotUsed(x),
-                                                        int vtkNotUsed(y))
-{
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-  
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_SCALE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y))
-{
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballActor::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-}
-
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
 {

@@ -20,15 +20,19 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.16");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.17");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera() 
 {
-  this->MotionFactor = 10.0;
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
+  this->MotionFactor   = 10.0;
   this->RadianToDegree = 180.0 / vtkMath::Pi();
+
+  // This prevent vtkInteractorStyle::StartState to fire the timer
+  // that is used to handle joystick mode
+
+  this->NoTimerInStartState = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -38,34 +42,162 @@ vtkInteractorStyleTrackballCamera::~vtkInteractorStyleTrackballCamera()
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl), 
-                                           int vtkNotUsed(shift),
-                                           int x, int y) 
+                                                    int vtkNotUsed(shift),
+                                                    int x, 
+                                                    int y) 
 { 
-  if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ROTATE)
+  switch (this->State) 
     {
-    this->FindPokedCamera(x, y);
-    this->RotateXY(x - this->LastPos[0], y - this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_PAN)
-    {
-    this->FindPokedCamera(x, y);
-    this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ZOOM)
-    {
-    this->FindPokedCamera(x, y);
-    this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_SPIN)
-    {
-    this->FindPokedCamera(x, y);
-    this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+    case VTKIS_ROTATE:
+      this->FindPokedCamera(x, y);
+      this->RotateXY(x - this->LastPos[0], y - this->LastPos[1]);
+      break;
+
+    case VTKIS_PAN:
+      this->FindPokedCamera(x, y);
+      this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_DOLLY:
+      this->FindPokedCamera(x, y);
+      this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
+      break;
+
+    case VTKIS_SPIN:
+      this->FindPokedCamera(x, y);
+      this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
     }
 
   this->LastPos[0] = x;
   this->LastPos[1] = y;
 }
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, 
+                                                         int shift, 
+                                                         int x, 
+                                                         int y) 
+{ 
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  if (shift) 
+    {
+    if (ctrl) 
+      {
+      this->StartDolly();
+      }
+    else 
+      {
+      this->StartPan();
+      }
+    } 
+  else 
+    {
+    if (ctrl) 
+      {
+      this->StartSpin();
+      }
+    else 
+      {
+      this->StartRotate();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_ROTATE:
+      this->EndRotate();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
+                                                           int vtkNotUsed(shift), 
+                                                           int x, 
+                                                           int y) 
+{
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartPan();
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+                                                         int vtkNotUsed(shift), 
+                                                         int vtkNotUsed(x),
+                                                         int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
+                                                          int vtkNotUsed(shift), 
+                                                          int x, 
+                                                          int y) 
+{
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartDolly();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
+                                                        int vtkNotUsed(shift), 
+                                                        int vtkNotUsed(x),
+                                                        int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+}
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::RotateXY(int dx, int dy)
@@ -213,126 +345,3 @@ void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
   rwi->Render();
 }
 
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift, 
-                                                         int x, int y) 
-{ 
-  this->FindPokedRenderer(x, y);
-
-  if (this->CurrentRenderer == NULL)
-    {
-    vtkErrorMacro("CurrentRenderer is NULL");
-    return;
-    }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
-
-  if (shift)
-    {
-    if (ctrl)
-      {
-//      this->StartDolly();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
-      }
-    else
-      {
-//      this->StartPan();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
-      }
-    }
-  else 
-    {
-    if (this->CtrlKey)
-      {
-//      this->StartSpin();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
-      }
-    else
-      {
-//      this->StartRotate();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_ROTATE;
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y))
-{
-  if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ROTATE) 
-    {
-    //this->EndRotate();
-    } 
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_PAN) 
-    {
-    // this->EndPan();
-    } 
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ZOOM) 
-    {
-    //   this->EndDolly();
-    } 
-  else 
-    {
-    // this->EndSpin();
-    }
-
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
-                                                           int vtkNotUsed(shift), 
-                                                           int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-  
-//  this->StartPan();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
-}
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int vtkNotUsed(x),
-                                                         int vtkNotUsed(y))
-{
-  this->EndPan();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                          int vtkNotUsed(shift), 
-                                                          int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-  
-//  this->StartZoom();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int vtkNotUsed(x),
-                                                        int vtkNotUsed(y))
-{
-//  this->EndZoom();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-
-}
