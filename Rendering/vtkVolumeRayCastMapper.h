@@ -51,8 +51,12 @@ inline int vtkFloorFuncMacro(double x)
   // use limited precision of double to get FPU to do rounding
   //  to the nearest int, the '- 0.5' converts round() to floor()
   double tempval;
+  int result;
   tempval = (x - 0.5) + 6755399441055744.0; // (2**52)*1.5
-  return ((int *)&tempval)[0];
+  result = ((int *)&tempval)[0];
+  // compensate for IEEE 'round-to-nearest,even' rounding mode
+  result += (x - result == 1.0); // if off by 1.0, then add 1
+  return result;
 #else
   // quick-and-dirty, assumes x >= 0
   return (int)(x);
@@ -62,15 +66,7 @@ inline int vtkFloorFuncMacro(double x)
 // Macro for rounding x (for x >= 0)
 inline int vtkRoundFuncMacro(double x)
 {
-#if defined i386 || defined _M_IX86
-  // use limited precision of double to get FPU to do rounding to int
-  double tempval;
-  tempval = x + 6755399441055744.0; // (2**52)*1.5
-  return ((int *)&tempval)[0];
-#else
-  // quick-and-dirty, assumes x >= 0
-  return (int)(x + 0.5);
-#endif
+  return vtkFloorFuncMacro(x + 0.5);
 }
 //ETX
 
