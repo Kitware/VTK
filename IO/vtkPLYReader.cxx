@@ -115,7 +115,6 @@ void vtkPLYReader::Execute()
 
   int i, j, k;
   int numPts, numPolys;
-  PlyProperty **plist;
   vtkPolyData *output = (vtkPolyData *)this->GetOutput();
 
   if (!this->FileName)
@@ -185,7 +184,7 @@ void vtkPLYReader::Execute()
     {
     //get the description of the first element */
     elemName = elist[i];
-    plist = vtkPLY::ply_get_element_description (ply, elemName, &numElems, &nprops);
+    vtkPLY::ply_get_element_description (ply, elemName, &numElems, &nprops);
 
     // if we're on vertex elements, read them in
     if ( elemName && !strcmp ("vertex", elemName) ) 

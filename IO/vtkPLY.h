@@ -201,7 +201,7 @@ public:
   static void ply_put_obj_info(PlyFile *, char *);
   static PlyFile *ply_read(FILE *, int *, char ***);
   static PlyFile *ply_open_for_reading( char *, int *, char ***, int *, float *);
-  static PlyProperty **ply_get_element_description(PlyFile *, char *, int*, int*);
+  static PlyElement *ply_get_element_description(PlyFile *, char *, int*, int*);
   static void ply_get_element_setup( PlyFile *, char *, int, PlyProperty *);
   static void ply_get_property(PlyFile *, char *, PlyProperty *);
   static PlyOtherProp *ply_get_other_properties(PlyFile *, char *, int);
