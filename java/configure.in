@@ -519,13 +519,6 @@ AC_ARG_WITH(volume,
          USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME",
          [vtk_use_volume=no])
 
-AC_ARG_WITH(borescope,
-         [  --with-borescope        include the borescope classes],
-         [vtk_use_borescope=yes] 
-         USE_BORESCOPE_LIBS="-L../borescope -lVTKBorescopeJava"
-         USE_BORESCOPE_FLAG="-I$(srcdir)/../borescope -DUSE_BORESCOPE",
-         [vtk_use_borescope=no]) 
-
 AC_ARG_WITH(contrib,
          [  --with-contrib        include the contrib classes],
          [vtk_use_contrib=yes] 
@@ -579,9 +572,6 @@ AC_SUBST(USE_PATENTED_LIBS)
 
 AC_SUBST(USE_VOLUME_FLAG)
 AC_SUBST(USE_VOLUME_LIBS)
-
-AC_SUBST(USE_BORESCOPE_FLAG)
-AC_SUBST(USE_BORESCOPE_LIBS)
 
 AC_SUBST(USE_CONTRIB_FLAG)
 AC_SUBST(USE_CONTRIB_LIBS)

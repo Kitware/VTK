@@ -114,9 +114,6 @@ extern Vtkgemsiotcl_Init(Tcl_Interp *interp);
 #ifdef USE_GEMSIP
 extern Vtkgemsiptcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_BORESCOPE
-extern Vtkborescopetcl_Init(Tcl_Interp *interp);
-#endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
@@ -175,13 +172,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 #ifdef USE_VOLUME
   if (Vtkvolumetcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef USE_BORESCOPE
-  if (Vtkborescopetcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

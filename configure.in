@@ -83,17 +83,6 @@ AC_SUBST(BUILD_VOLUME)
 AC_SUBST(DEPEND_VOLUME)
 AC_SUBST(CLEAN_VOLUME)
 
-AC_ARG_WITH(borescope,
-         [  --with-borescope        include the borescope classes],
-         borescopedir=borescope
-         BUILD_BORESCOPE=build_borescope
-         DEPEND_BORESCOPE=depend_borescope
-         CLEAN_BORESCOPE=clean_borescope,)
-
-AC_SUBST(BUILD_BORESCOPE)
-AC_SUBST(DEPEND_BORESCOPE)
-AC_SUBST(CLEAN_BORESCOPE)
-
 AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
          contribdir=contrib
@@ -149,7 +138,7 @@ AC_SUBST(BUILD_GEMSVOLUME)
 AC_SUBST(DEPEND_GEMSVOLUME)
 AC_SUBST(CLEAN_GEMSVOLUME)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 

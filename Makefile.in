@@ -32,9 +32,6 @@ CLEAN_PATENTED    = @CLEAN_PATENTED@
 BUILD_VOLUME      = @BUILD_VOLUME@
 DEPEND_VOLUME     = @DEPEND_VOLUME@
 CLEAN_VOLUME      = @CLEAN_VOLUME@
-BUILD_BORESCOPE   = @BUILD_BORESCOPE@
-DEPEND_BORESCOPE  = @DEPEND_BORESCOPE@
-CLEAN_BORESCOPE   = @CLEAN_BORESCOPE@
 BUILD_CONTRIB     = @BUILD_CONTRIB@
 DEPEND_CONTRIB    = @DEPEND_CONTRIB@
 CLEAN_CONTRIB     = @CLEAN_CONTRIB@
@@ -59,7 +56,7 @@ CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 #------------------------------------------------------------------------------
 
 all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
+	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_GEMSVOLUME} ${BUILD_PATENTED} \
 	${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
@@ -86,10 +83,6 @@ build_patented: targets ${BUILD_TCL} ${BUILD_JAVA}
 build_volume: targets ${BUILD_TCL} ${BUILD_JAVA}
 	cd volume;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd volume;    ${MAKE} -${MAKEFLAGS} all
-
-build_borescope: targets ${BUILD_TCL} ${BUILD_JAVA}
-	cd borescope;  ${MAKE} -${MAKEFLAGS} targets.make
-	cd borescope;  ${MAKE} -${MAKEFLAGS} all
 
 build_tcl: targets
 	cd tcl;        ${MAKE} -${MAKEFLAGS} all
@@ -119,14 +112,14 @@ build_contrib: targets ${BUILD_TCL} ${BUILD_JAVA}
 
 # tcl part2
 build_tclbuild_tcl: ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
+	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_GEMSVOLUME} ${BUILD_PATENTED}
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
 # java part2
 build_javabuild_java: ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
+	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_GEMSVOLUME} ${BUILD_PATENTED}
 	cd java;       ${MAKE} -${MAKEFLAGS} vtk
@@ -135,7 +128,7 @@ build_javabuild_java: ${BUILD_TCL} ${BUILD_JAVA} build_common \
 # generate dpend.make files
 
 depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} ${DEPEND_PATENTED} \
-	${DEPEND_BORESCOPE} ${DEPEND_VOLUME} ${DEPEND_GEMSVOLUME} \
+	${DEPEND_VOLUME} ${DEPEND_GEMSVOLUME} \
 	${DEPEND_CONTRIB} ${DEPEND_GEAE} ${DEPEND_GEMSIP} ${DEPEND_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} depend
 
@@ -153,9 +146,6 @@ depend_patented:
 
 depend_volume:
 	cd volume;    ${MAKE} -${MAKEFLAGS} depend
-
-depend_borescope:
-	cd borescope; ${MAKE} -${MAKEFLAGS} depend
 
 depend_contrib:
 	cd contrib; ${MAKE} -${MAKEFLAGS} depend
@@ -175,8 +165,7 @@ depend_gemsvolume:
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
-	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} \
-	${CLEAN_PATENTED} \
+	${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} ${CLEAN_PATENTED} \
 	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
@@ -198,9 +187,6 @@ clean_patented:
 
 clean_volume:
 	cd volume;    ${MAKE} -${MAKEFLAGS} clean
-
-clean_borescope:
-	cd borescope; ${MAKE} -${MAKEFLAGS} clean
 
 clean_contrib:
 	cd contrib;   ${MAKE} -${MAKEFLAGS} clean

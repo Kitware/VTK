@@ -32,8 +32,6 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-volume           include the volume classes"
 ac_help="$ac_help
-  --with-borescope        include the borescope classes"
-ac_help="$ac_help
   --with-contrib          include the contrib classes"
 ac_help="$ac_help
   --with-geae             include the geae classes"
@@ -634,7 +632,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:638: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:636: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -787,20 +785,6 @@ fi
 
 
 
-# Check whether --with-borescope or --without-borescope was given.
-if test "${with_borescope+set}" = set; then
-  withval="$with_borescope"
-  borescopedir=borescope
-         BUILD_BORESCOPE=build_borescope
-         DEPEND_BORESCOPE=depend_borescope
-         CLEAN_BORESCOPE=clean_borescope
-fi
-
-
-
-
-
-
 # Check whether --with-contrib or --without-contrib was given.
 if test "${with_contrib+set}" = set; then
   withval="$with_contrib"
@@ -890,7 +874,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
+subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
 
 
 #------------------------------------------------------------------------------
@@ -1080,9 +1064,6 @@ s%@CLEAN_PATENTED@%$CLEAN_PATENTED%g
 s%@BUILD_VOLUME@%$BUILD_VOLUME%g
 s%@DEPEND_VOLUME@%$DEPEND_VOLUME%g
 s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
-s%@BUILD_BORESCOPE@%$BUILD_BORESCOPE%g
-s%@DEPEND_BORESCOPE@%$DEPEND_BORESCOPE%g
-s%@CLEAN_BORESCOPE@%$CLEAN_BORESCOPE%g
 s%@BUILD_CONTRIB@%$BUILD_CONTRIB%g
 s%@DEPEND_CONTRIB@%$DEPEND_CONTRIB%g
 s%@CLEAN_CONTRIB@%$CLEAN_CONTRIB%g
@@ -1190,7 +1171,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
