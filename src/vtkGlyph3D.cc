@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Description
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
-// orientation is by vector.
+// orientation is by vector. Clamping is turned off.
 vtkGlyph3D::vtkGlyph3D()
 {
   this->Source = NULL;
@@ -58,6 +58,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->Range[1] = 1.0;
   this->Orient = 1;
   this->VectorMode = VTK_USE_VECTOR;
+  this->Clamping = 0;
 }
 
 vtkGlyph3D::~vtkGlyph3D()
@@ -204,10 +205,22 @@ void vtkGlyph3D::Execute()
           
       if (this->Orient && (scale > 0)) 
         {
-        vNew[0] = (v[0]+scale) / 2.0;
-        vNew[1] = v[1] / 2.0;
-        vNew[2] = v[2] / 2.0;
-        trans.RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
+	// if there is no y or z component
+	if (v[1] == 0 && v[2] == 0)
+	  {
+	  // just flip x if we need to
+	  if (v[0] < 0)
+	    {
+	    trans.RotateWXYZ(180.0,0,1,0);
+	    }
+	  }
+	else
+	  {
+	  vNew[0] = (v[0]+scale) / 2.0;
+	  vNew[1] = v[1] / 2.0;
+	  vNew[2] = v[2] / 2.0;
+	  trans.RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
+	  }
         }
       }
 
@@ -215,15 +228,17 @@ void vtkGlyph3D::Execute()
     if ( inScalars != NULL )
       {
       // Copy Input scalar
-      scale = inScalars->GetScalar(inPtId);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
         {
+	scale = inScalars->GetScalar(inPtId);
+	}
+      if (this->Clamping)
+	{
         if ( (den = this->Range[1] - this->Range[0]) == 0.0 ) den = 1.0;
-
+	
         scale = (scale < this->Range[0] ? this->Range[0] :
                  (scale > this->Range[1] ? this->Range[1] : scale));
         scale = (scale - this->Range[0]) / den;
-
         }
 
       for (i=0; i < numSourcePts; i++) 
