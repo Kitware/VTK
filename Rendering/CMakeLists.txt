@@ -172,11 +172,9 @@ ELSE (WIN32)
                  vtkQuartzRenderWindowInteractor
                  vtkQuartzRenderWindow
                  vtkQuartzWindow
-                 vtkQuartzGLView
-                 vtkQuartzWindowController)
+                 vtkQuartzGLView)
     WRAP_EXCLUDE_FILES(vtkQuartzGLView
-		       vtkQuartzWindow
-		       vtkQuartzWindowController)
+		       vtkQuartzWindow)
     LINK_LIBRARIES (${OPENGL_LIBRARY} )
     IF(MESA_OS_LIBRARY)
       LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
