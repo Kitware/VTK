@@ -5,7 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Tim Hutton who developed and contributed this class
+  Thanks:    Tim Hutton and Rasmus Paulsen who developed and contributed this class
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
   All rights reserved.
@@ -25,17 +25,22 @@
 // as the mean must be recomputed after each alignment. 
 //
 // Call SetNumberOfInputs(n) before calling SetInput(0) ... SetInput(n-1).
+//
 // Retrieve the outputs using GetOutput(0) ... GetOutput(n-1).
 //
 // The default (in vtkLandmarkTransform) is for a similarity alignment.
 // For a rigid-body alignment (to build a 'size-and-shape' model) use: 
-// GetLandmarkTransform()->SetModeToRigidBody(). 
+//
+//    GetLandmarkTransform()->SetModeToRigidBody(). 
 //
 // Affine alignments are not normally used but are left in for completeness:
-// GetLandmarkTransform()->SetModeToAffine(). 
+//
+//    GetLandmarkTransform()->SetModeToAffine(). 
 //
 // vtkProcrustesAlignmentFilter is an implementation of:
-// J.C. Gower (1975) Generalized Procrustes Analysis. Psychometrika, 40:33-51.
+//
+//    J.C. Gower (1975) 
+//    Generalized Procrustes Analysis. Psychometrika, 40:33-51.
 //
 // .SECTION Caveats
 // All of the input pointsets must have the same number of points.
