@@ -36,11 +36,13 @@
 #ifndef __vtkMPICommunicator_h
 #define __vtkMPICommunicator_h
 
-#include "mpi.h"
 #include "vtkCommunicator.h"
 
 class vtkMPIController;
 class vtkMPIGroup;
+
+class vtkMPICommunicatorOpaqueRequest;
+class vtkMPICommunicatorOpaqueComm;
 
 class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
@@ -94,10 +96,12 @@ public:
   class VTK_PARALLEL_EXPORT Request
   {
   public:
+    Request();
+    ~Request();
     int Test();
     void Cancel();
     void Wait();
-    MPI_Request Req;
+    vtkMPICommunicatorOpaqueRequest* Req;
   };
 
 //ETX
@@ -136,7 +140,6 @@ public:
   virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
                       int tag);
 #endif
-
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
   virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)
@@ -155,6 +158,23 @@ public:
                      int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
                      int tag, Request& req);
+
+
+  // Description:
+  // Broadcast an array from the given root process.
+  int Broadcast(int* data          , int length, int root);
+  int Broadcast(unsigned long* data, int length, int root);
+  int Broadcast(char* data         , int length, int root);
+  int Broadcast(float* data        , int length, int root);
+
+  
+  // Description:
+  // Gather an array to the given root process (the "to" pointer
+  // must point to an array of length length*numProcesses
+  int Gather(int* data          , int* to          , int length, int root);
+  int Gather(unsigned long* data, unsigned long* to, int length, int root);
+  int Gather(char* data         , char* to         , int length, int root);
+  int Gather(float* data        , float* to        , int length, int root);
 
 //BTX
 
@@ -203,7 +223,7 @@ protected:
   // if the tags are the same.
   void Duplicate(vtkMPICommunicator* source);
 
-  MPI_Comm* Handle;
+  vtkMPICommunicatorOpaqueComm* Comm;
   vtkMPIGroup* Group;
 
   int Initialized;

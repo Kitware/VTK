@@ -202,7 +202,7 @@ protected:
   // Initialize only once.
   static int Initialized;
 
-  static char ProcessorName[MPI_MAX_PROCESSOR_NAME];
+  static char ProcessorName[];
 
 private:
   vtkMPIController(const vtkMPIController&);  // Not implemented.
