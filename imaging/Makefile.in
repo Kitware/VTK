@@ -22,13 +22,9 @@ vtkImageReader \
 vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
 vtkImageTwoOutputFilter \
-vtkImageViewer \
-vtkRobot2D \
-vtkStateSpace 
+vtkImageViewer 
 
 CONCRETE = \
-vtkClaw \
-vtkImage2DRobotSpace \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
@@ -73,7 +69,6 @@ vtkImagePaint \
 vtkImageRDuotone \
 vtkImageRFFT \
 vtkImageRFFT1D \
-vtkImageRobotSpace2D \
 vtkImageScatterPlot \
 vtkImageSeriesReader \
 vtkImageShiftScale \
@@ -81,14 +76,9 @@ vtkImageShortReader \
 vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageSobel3D \
-vtkImageStateSpace \
 vtkImageThreshold \
 vtkImageXViewer \
-vtkImageWrapPad \
-vtkRobotGroup2D \
-vtkRobotJoint2D \
-vtkRobotSegment2D \
-vtkRobotTransform2D 
+vtkImageWrapPad 
 
 #------------------------------------------------------------------------------
 # Include the generated targets
