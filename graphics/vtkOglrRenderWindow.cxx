@@ -197,7 +197,9 @@ vtkOglrRenderWindow::vtkOglrRenderWindow()
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
 
-  strcpy(this->Name,"Visualization Toolkit - OpenGL");
+  if ( this->WindowName ) 
+    delete [] this->WindowName;
+  this->WindowName = strdup("Visualization Toolkit - OpenGL");
 }
 
 // Description:
@@ -449,7 +451,7 @@ void vtkOglrRenderWindow::WindowInitialize (void)
 		    CWBackPixel | CWBorderPixel | CWColormap | 
 		    CWOverrideRedirect | CWEventMask, 
 		    &attr);
-    XStoreName(this->DisplayId, this->WindowId, this->Name);
+    XStoreName(this->DisplayId, this->WindowId, this->WindowName);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
     this->OwnWindow = 1;
     }
@@ -623,6 +625,29 @@ void vtkOglrRenderWindow::WindowRemap()
   // configure the window 
   this->WindowInitialize();
 }
+
+
+/*
+void vtkOglrRenderWindow::SetPosition(int x,int y)
+{
+  // if we arent mappen then just set the ivars 
+  if (!this->Mapped)
+    {
+    if ((this->Position[0] != x)||(this->Position[1] != y))
+      {
+      this->Modified();
+      }
+    this->Position[0] = x;
+    this->Position[1] = y;
+    return;
+    }
+
+  XMoveResizeWindow(this->DisplayId,this->WindowId,x,y, 
+                    this->Size[0], this->Size[1]);
+  XSync(this->DisplayId,False);
+}
+*/
+
 
 // Description:
 // Specify the size of the rendering window.

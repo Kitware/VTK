@@ -133,7 +133,9 @@ vtkGlrRenderWindow::vtkGlrRenderWindow()
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
 
-  strcpy(this->Name,"Visualization Toolkit - GL");
+  if ( this->WindowName ) 
+    delete [] this->WindowName;
+  this->WindowName = strdup("Visualization Toolkit - GL");
 }
 
 // Description:
@@ -411,7 +413,7 @@ void vtkGlrRenderWindow::WindowInitialize (void)
 			       DefaultScreen(this->DisplayId)), 
 		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
 		    CWBorderPixel|CWColormap|CWOverrideRedirect, &attr);
-    XStoreName(this->DisplayId, this->WindowId, this->Name);
+    XStoreName(this->DisplayId, this->WindowId, this->WindowName);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
     this->OwnWindow = 1;
     }

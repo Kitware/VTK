@@ -55,7 +55,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSbrRenderWindow::vtkSbrRenderWindow()
 {
   this->Fd = -1;
-  strcpy(this->Name,"Visualization Toolkit - Starbase");
+  if ( this->WindowName )
+    delete [] this->WindowName;
+  this->WindowName = strdup("Visualization Toolkit - Starbase");
   this->Buffer = 0;
 }
 
@@ -674,7 +676,7 @@ void vtkSbrRenderWindow::WindowInitialize (void)
 			    this->Position[1],
 			    this->Size[0],
 			    this->Size[1],
-			    depth, this->Name)) 
+			    depth, this->WindowName)) 
       {
       vtkErrorMacro(<< "Couldn't create window\n");
       return;
@@ -753,9 +755,9 @@ void vtkSbrRenderWindow::WindowInitialize (void)
 		 (int)(this->Size[1]) : 256));
   XSync(this->DisplayId,False);
 
-  list[0] = this->Name;
+  list[0] = this->WindowName;
   XStringListToTextProperty( list, 1, &window_name );
-  list[0] = this->Name;
+  list[0] = this->WindowName;
   XStringListToTextProperty( list, 1, &icon_name );
     
   size_hints = XAllocSizeHints();
@@ -775,8 +777,8 @@ void vtkSbrRenderWindow::WindowInitialize (void)
   wm_hints = XAllocWMHints();
 
   class_hint = XAllocClassHint();
-  class_hint->res_name = this->Name;
-  class_hint->res_class = this->Name;
+  class_hint->res_name = this->WindowName;
+  class_hint->res_class = this->WindowName;
   
   XSetWMProperties(this->DisplayId, 
 		   this->WindowId, &window_name, &icon_name,
