@@ -26,12 +26,13 @@
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
-#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.24");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.25");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -79,6 +80,10 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
   
   // Need to vary this based on cell size - for now assume 1
   this->SampleDistance = 1.0;
+
+  this->IntersectionLengths = NULL;
+  this->NearIntersections   = NULL;
+  this->FarIntersections    = NULL;
 }
 
 // Destructor - release all memory
@@ -108,7 +113,11 @@ vtkUnstructuredGridBunykRayCastFunction::~vtkUnstructuredGridBunykRayCastFunctio
   
   this->ViewToWorldMatrix->Delete();
   
-  this->SetNumberOfComponents( 0 );  
+  this->SetNumberOfComponents( 0 );
+
+  if (this->IntersectionLengths) this->IntersectionLengths->Delete();
+  if (this->NearIntersections)   this->NearIntersections->Delete();
+  if (this->FarIntersections)    this->FarIntersections->Delete();
 }
 
 void vtkUnstructuredGridBunykRayCastFunction::SetNumberOfComponents( int num )
@@ -260,8 +269,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
   this->Mapper     = vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
   this->Renderer   = ren;
   this->Volume     = vol;
-  this->Scalars    = (void *)this->Mapper->GetInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
-  this->ScalarType =  this->Mapper->GetInput()->GetPointData()->GetScalars()->GetDataType();
+  this->Scalars    = this->Mapper->GetInput()->GetPointData()->GetScalars();
   this->NumberOfComponents = this->Mapper->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents();
   
   
@@ -478,7 +486,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
   // lists instead of one big one
   Triangle *tmpList[VTK_BUNYKRCF_NUMLISTS];
   
-  int i;
+  vtkIdType i;
   for ( i = 0; i < VTK_BUNYKRCF_NUMLISTS; i++ )
     {
     tmpList[i] = NULL;      
@@ -509,7 +517,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     vtkCell *cell = input->GetCell(i);
 
     // Get the four points
-    int pts[4];
+    vtkIdType pts[4];
     pts[0] = cell->GetPointId(0);
     pts[1] = cell->GetPointId(1);
     pts[2] = cell->GetPointId(2);
@@ -519,7 +527,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     int ii, jj;
     for ( jj = 0; jj < 4; jj++ )
       {
-      int tri[3];
+      vtkIdType tri[3];
       int idx = 0;
       for ( ii = 0; ii < 4; ii++ )
         {
@@ -531,19 +539,19 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
       
       if ( tri[0] > tri[1] )
         {
-        int tmptri = tri[0];
+        vtkIdType tmptri = tri[0];
         tri[0] = tri[1];
         tri[1] = tmptri;
         }
       if ( tri[1] > tri[2] )
         {
-        int tmptri = tri[1];
+        vtkIdType tmptri = tri[1];
         tri[1] = tri[2];
         tri[2] = tmptri;
         }
       if ( tri[0] > tri[1] )
         {
-        int tmptri = tri[0];
+        vtkIdType tmptri = tri[0];
         tri[0] = tri[1];
         tri[1] = tmptri;
         }
@@ -652,7 +660,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::ComputeViewDependentInfo()
       P2[0] = T[0];
       P2[1] = T[1];
       P2[2] = T[2];
-      int tmpIndex = triPtr->PointIndex[1];
+      vtkIdType tmpIndex = triPtr->PointIndex[1];
       triPtr->PointIndex[1] = triPtr->PointIndex[2];
       triPtr->PointIndex[2] = tmpIndex;
       }
@@ -1028,11 +1036,11 @@ int  vtkUnstructuredGridBunykRayCastFunction::InTriangle( double x, double y, Tr
     }
 }
 
-int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *triPtr, int tetraIndex )
+int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *triPtr, vtkIdType tetraIndex )
 {
   vtkCell *cell = this->Mapper->GetInput()->GetCell(tetraIndex);
 
-  int pts[4];
+  vtkIdType pts[4];
   pts[0] = cell->GetPointId(0);
   pts[1] = cell->GetPointId(1);
   pts[2] = cell->GetPointId(2);
@@ -1059,12 +1067,19 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
 }
 
 template <class T>
-void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars, 
-                                                     vtkUnstructuredGridBunykRayCastFunction *self,
-                                                     int numComponents,
-                                                     int x, int y, 
-                                                     double bounds[2],
-                                                     float color[4] )
+static vtkIdType TemplateCastRay(const T *scalars, 
+                                 vtkUnstructuredGridBunykRayCastFunction *self,
+                                 int numComponents,
+                                 int x, int y, 
+                                 double farClipZ,
+                                 vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
+                                 vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
+                                 vtkIdType &currentTetra,
+                                 vtkIdType *intersectedCells,
+                                 double *intersectionLengths,
+                                 T *nearIntersections,
+                                 T *farIntersections,
+                                 int maxNumIntersections )
 {
   int imageViewportSize[2];
   self->GetImageViewportSize( imageViewportSize );
@@ -1080,204 +1095,386 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
   
   vtkMatrix4x4 *viewToWorld = self->GetViewToWorldMatrix();
   
-  vtkUnstructuredGridBunykRayCastFunction::Intersection 
-    *intersectionPtr = self->GetIntersectionList( x, y ); 
-
-  vtkUnstructuredGridBunykRayCastFunction::Triangle *currentTriangle;
-  int currentTetra;
-
   vtkUnstructuredGridBunykRayCastFunction::Triangle *nextTriangle;
-  int nextTetra;
+  vtkIdType nextTetra;
 
-  double **colorTable      = self->GetColorTable();
-  double  *colorTableShift = self->GetColorTableShift();
-  double  *colorTableScale = self->GetColorTableScale();
+  vtkIdType numIntersections = 0;
 
-  double inverseUnitDistance = 1.0 / self->GetScalarOpacityUnitDistance();
-  
-  while ( intersectionPtr && color[3] < 1.0 )
+  double nearZ = VTK_FLOAT_MIN;
+  double nearPoint[4];
+  double viewCoords[4];
+  viewCoords[0] = ((float)x / (float)(imageViewportSize[0]-1)) * 2.0 - 1.0;
+  viewCoords[1] = ((float)y / (float)(imageViewportSize[1]-1)) * 2.0 - 1.0;
+  // viewCoords[2] set when an intersection is found.
+  viewCoords[3] = 1.0;
+  if (currentTriangle)
     {
-    currentTriangle = intersectionPtr->TriPtr;
-    currentTetra    = intersectionPtr->TriPtr->ReferredByTetra[0];
-    
-    do
+    // Find intersection in currentTriangle (the entry point).
+    nearZ = -( fx*currentTriangle->A + fy*currentTriangle->B + 
+               currentTriangle->D) / currentTriangle->C;
+
+    viewCoords[2] = nearZ;
+
+    viewToWorld->MultiplyPoint( viewCoords, nearPoint );
+    nearPoint[0] /= nearPoint[3];
+    nearPoint[1] /= nearPoint[3];
+    nearPoint[2] /= nearPoint[3];
+    }
+
+  while (numIntersections < maxNumIntersections)
+    {
+    // If we have exited the mesh (or are entering it for the first time,
+    // find the next intersection with an external face (which has already
+    // been found with rasterization).
+    if (!currentTriangle)
       {
-      vtkUnstructuredGridBunykRayCastFunction::Triangle *candidate[3];
-  
-      int index = 0;
-      int i;
-      for ( i = 0; i < 4; i++ )
+      if (!intersectionPtr)
         {
-        if ( triangles[currentTetra*4+i] != currentTriangle )
-          {
-          if ( index == 3 )
-            {
-            vtkGenericWarningMacro( "Ugh - found too many triangles!" );
-            }
-          else
-            {
-            candidate[index++] = triangles[currentTetra*4+i];
-            }
-          }
+        break;  // No more intersections.
         }
+      currentTriangle = intersectionPtr->TriPtr;
+      currentTetra    = intersectionPtr->TriPtr->ReferredByTetra[0];
+      intersectionPtr = intersectionPtr->Next;
 
-      double minZ = VTK_FLOAT_MAX;
-      int minIdx = -1;
-      
-      double testZ = 
-        -( fx*currentTriangle->A + 
-           fy*currentTriangle->B + 
-           currentTriangle->D) / currentTriangle->C;
-      
-      double tmpP[4], p1[4], p2[4];
-      tmpP[0] = ((float)x / (float)(imageViewportSize[0]-1)) * 2.0 - 1.0;
-      tmpP[1] = ((float)y / (float)(imageViewportSize[1]-1)) * 2.0 - 1.0;
-      tmpP[2] = testZ;
-      tmpP[3] = 1.0;
-      
-      viewToWorld->MultiplyPoint( tmpP, p1 );
-      p1[0] /= p1[3];
-      p1[1] /= p1[3];
-      p1[2] /= p1[3];
-      
-      for ( i = 0; i < 3; i++ )
-        {
-        double ax, ay;
-        ax = points[3*candidate[i]->PointIndex[0]];
-        ay = points[3*candidate[i]->PointIndex[0]+1];
-        
-        if ( self->InTriangle( (fx-ax), (fy-ay), candidate[i] ) )
-          {
-          double tmpZ = 
-            -( fx*candidate[i]->A + 
-               fy*candidate[i]->B + 
-               candidate[i]->D) / candidate[i]->C;
+      // Find intersection in currentTriangle (the entry point).
+      nearZ = -( fx*currentTriangle->A + fy*currentTriangle->B + 
+                 currentTriangle->D) / currentTriangle->C;
+
+      viewCoords[2] = nearZ;
+
+      viewToWorld->MultiplyPoint( viewCoords, nearPoint );
+      nearPoint[0] /= nearPoint[3];
+      nearPoint[1] /= nearPoint[3];
+      nearPoint[2] /= nearPoint[3];
+      }
     
-          if (tmpZ > testZ && tmpZ < minZ)
-            {
-            minZ = tmpZ;
-            minIdx = i;
-            }
+    // Find all triangles that the ray may exit.
+    vtkUnstructuredGridBunykRayCastFunction::Triangle *candidate[3];
+
+    int index = 0;
+    int i;
+    for ( i = 0; i < 4; i++ )
+      {
+      if ( triangles[currentTetra*4+i] != currentTriangle )
+        {
+        if ( index == 3 )
+          {
+          vtkGenericWarningMacro( "Ugh - found too many triangles!" );
+          }
+        else
+          {
+          candidate[index++] = triangles[currentTetra*4+i];
           }
         }
-      
-      if ( minIdx == -1 || minZ > bounds[1] )
+      }
+
+    double farZ = VTK_FLOAT_MAX;
+    int minIdx = -1;
+
+    // Determine which face the ray exits the cell from.
+    for ( i = 0; i < 3; i++ )
+      {
+      double ax, ay;
+      ax = points[3*candidate[i]->PointIndex[0]];
+      ay = points[3*candidate[i]->PointIndex[0]+1];
+
+      // Far intersection is the nearest intersectation that is farther
+      // than nearZ.
+      double tmpZ = 
+        -( fx*candidate[i]->A + 
+           fy*candidate[i]->B + 
+           candidate[i]->D) / candidate[i]->C;
+
+      if (tmpZ > nearZ && tmpZ < farZ)
         {
-        nextTriangle = NULL;
-        nextTetra = -1;
+        farZ = tmpZ;
+        minIdx = i;
         }
-      else
+      }
+
+    if (farZ > farClipZ)
+      {
+      // Exit happened after point of interest.  Bail out now (in case
+      // we wish to restart).
+      return numIntersections;
+      }
+
+    if (minIdx == -1)
+      {
+      // The ray never exited the cell?  Perhaps numerical inaccuracies
+      // got us here.  Just bail out as if we exited the mesh.
+      nextTriangle = NULL;
+      nextTetra = -1;
+      }
+    else
+      {
+      if (intersectedCells)
         {
-        nextTriangle = candidate[minIdx];
-      
-        tmpP[2] = minZ;
-        viewToWorld->MultiplyPoint( tmpP, p2 );
-        p2[0] /= p2[3];
-        p2[1] /= p2[3];
-        p2[2] /= p2[3];
-        double dist = sqrt( (p1[0]-p2[0])*(p1[0]-p2[0]) + 
-                            (p1[1]-p2[1])*(p1[1]-p2[1]) + 
-                            (p1[2]-p2[2])*(p1[2]-p2[2]) );
-        
-        // compute the barycentric weights
-        float ax, ay;
-        double a1, b1, c1;
-        ax = points[3*currentTriangle->PointIndex[0]];
-        ay = points[3*currentTriangle->PointIndex[0]+1];
-        b1 = ((fx-ax)*currentTriangle->P2Y - (fy-ay)*currentTriangle->P2X) / currentTriangle->Denominator;
-        c1 = ((fy-ay)*currentTriangle->P1X - (fx-ax)*currentTriangle->P1Y) / currentTriangle->Denominator;
-        a1 = 1.0 - b1 - c1;
-      
-        double a2, b2, c2;
-        ax = points[3*nextTriangle->PointIndex[0]];
-        ay = points[3*nextTriangle->PointIndex[0]+1];
-        b2 = ((fx-ax)*nextTriangle->P2Y - (fy-ay)*nextTriangle->P2X) / nextTriangle->Denominator;
-        c2 = ((fy-ay)*nextTriangle->P1X - (fx-ax)*nextTriangle->P1Y) / nextTriangle->Denominator;
-        a2 = 1.0 - b2 - c2;
+        intersectedCells[numIntersections] = currentTetra;
+        }
 
-        float newColor1[4] = {0.0,0.0,0.0,0.0};
-        float newColor2[4] = {0.0,0.0,0.0,0.0};
-        
-        float remainingOpacity = 1.0 - color[3];
-        double factor = (dist/2.0) * inverseUnitDistance;
+      nextTriangle = candidate[minIdx];
 
-        int c;
-        for ( c = 0; c < numComponents; c++ )
+      // Compute intersection with exiting face.
+      double farPoint[4];
+      viewCoords[2] = farZ;
+      viewToWorld->MultiplyPoint( viewCoords, farPoint );
+      farPoint[0] /= farPoint[3];
+      farPoint[1] /= farPoint[3];
+      farPoint[2] /= farPoint[3];
+      double dist
+        = sqrt(  (nearPoint[0]-farPoint[0])*(nearPoint[0]-farPoint[0])
+               + (nearPoint[1]-farPoint[1])*(nearPoint[1]-farPoint[1]) 
+               + (nearPoint[2]-farPoint[2])*(nearPoint[2]-farPoint[2]) );
+
+      if (intersectionLengths)
+        {
+        intersectionLengths[numIntersections] = dist;
+        }
+
+      // compute the barycentric weights
+      float ax, ay;
+      double a1, b1, c1;
+      ax = points[3*currentTriangle->PointIndex[0]];
+      ay = points[3*currentTriangle->PointIndex[0]+1];
+      b1 = ((fx-ax)*currentTriangle->P2Y - (fy-ay)*currentTriangle->P2X) / currentTriangle->Denominator;
+      c1 = ((fy-ay)*currentTriangle->P1X - (fx-ax)*currentTriangle->P1Y) / currentTriangle->Denominator;
+      a1 = 1.0 - b1 - c1;
+
+      double a2, b2, c2;
+      ax = points[3*nextTriangle->PointIndex[0]];
+      ay = points[3*nextTriangle->PointIndex[0]+1];
+      b2 = ((fx-ax)*nextTriangle->P2Y - (fy-ay)*nextTriangle->P2X) / nextTriangle->Denominator;
+      c2 = ((fy-ay)*nextTriangle->P1X - (fx-ax)*nextTriangle->P1Y) / nextTriangle->Denominator;
+      a2 = 1.0 - b2 - c2;
+
+      if (nearIntersections)
+        {
+        for (int c = 0; c < numComponents; c++)
           {
           double A, B, C;
           A = *(scalars + numComponents*currentTriangle->PointIndex[0] + c);
           B = *(scalars + numComponents*currentTriangle->PointIndex[1] + c);
           C = *(scalars + numComponents*currentTriangle->PointIndex[2] + c);
-          double v = a1 * A + b1 * B + c1 * C;
-      
-          double *tmpptr = 
-            colorTable[c] +
-            4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
-          
-          float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
-
-          float w =  remainingOpacity * opacity;
-          newColor1[0] += w * *(tmpptr);
-          newColor1[1] += w * *(tmpptr+1);
-          newColor1[2] += w * *(tmpptr+2);
-          newColor1[3] += opacity;
+          nearIntersections[numComponents*numIntersections + c]
+            = static_cast<T>(a1 * A + b1 * B + c1 * C);
           }
+        }
 
-        remainingOpacity *= (1.0 - newColor1[3]);
-        
-        for ( c = 0; c < numComponents; c++ )
+      if (farIntersections)
+        {
+        for (int c = 0; c < numComponents; c++)
           {
           double A, B, C;
           A = *(scalars + numComponents*nextTriangle->PointIndex[0] + c);
           B = *(scalars + numComponents*nextTriangle->PointIndex[1] + c);
           C = *(scalars + numComponents*nextTriangle->PointIndex[2] + c);
-          double v = a2 * A + b2 * B + c2 * C;
-      
-          double *tmpptr = 
-            colorTable[c] +
-            4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
-          
-          float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
-          float w =  remainingOpacity * opacity;
-          newColor2[0] += w * *(tmpptr);
-          newColor2[1] += w * *(tmpptr+1);
-          newColor2[2] += w * *(tmpptr+2);
-          newColor2[3] += opacity;
+          farIntersections[numComponents*numIntersections + c]
+            = static_cast<T>(a2 * A + b2 * B + c2 * C);
           }
+        }
 
-        color[0] += newColor1[0] + newColor2[0];
-        color[1] += newColor1[1] + newColor2[1];
-        color[2] += newColor1[2] + newColor2[2];
-        color[3] = 1.0 - remainingOpacity * (1.0 - newColor2[3]);
-        
-        // The far triangle has one or two tetras in its referred list.
-        // If one, return -1 for next tetra and NULL for next triangle 
-        // since we are exiting. If two, return the one that isn't the 
-        // current one.
-        if ( (nextTriangle)->ReferredByTetra[1] == -1 )
+      numIntersections++;
+
+      // The far triangle has one or two tetras in its referred list.
+      // If one, return -1 for next tetra and NULL for next triangle 
+      // since we are exiting. If two, return the one that isn't the 
+      // current one.
+      if ( (nextTriangle)->ReferredByTetra[1] == -1 )
+        {
+        nextTetra = -1;
+        nextTriangle = NULL;
+        }
+      else
+        {
+        if ( nextTriangle->ReferredByTetra[0] == currentTetra )
           {
-          nextTetra = -1;
-          nextTriangle = NULL;
+          nextTetra = nextTriangle->ReferredByTetra[1];
           }
         else
           {
-          if ( nextTriangle->ReferredByTetra[0] == currentTetra )
-            {
-            nextTetra = nextTriangle->ReferredByTetra[1];
-            }
-          else
-            {
-            nextTetra = nextTriangle->ReferredByTetra[0];
-            }
+          nextTetra = nextTriangle->ReferredByTetra[0];
           }
         }
+
+      nearZ = farZ;
+      nearPoint[0] = farPoint[0];
+      nearPoint[1] = farPoint[1];
+      nearPoint[2] = farPoint[2];
+      nearPoint[3] = farPoint[3];
+      }
+
+    currentTriangle = nextTriangle;
+    currentTetra    = nextTetra;
+    }
+
+  return numIntersections;
+}
+
+void vtkUnstructuredGridBunykRayCastFunction::InitializeRay(int x, int y,
+                                                             double nearClipZ)
+{
+  if (!this->Valid) return;
+
+  this->RayX = x;
+  this->RayY = y;
+
+  this->IntersectionPtr = this->GetIntersectionList(x, y);
+  this->CurrentTriangle = NULL;
+  this->CurrentTetra = -1;
+
+  // Intersect cells until we get to the nearClipZ.
+  TemplateCastRay((const float *)NULL,
+                  this, 0,
+                  this->RayX, this->RayY,
+                  nearClipZ,
+                  this->IntersectionPtr,
+                  this->CurrentTriangle,
+                  this->CurrentTetra,
+                  (vtkIdType *)NULL,
+                  (double *)NULL,
+                  (float *)NULL,
+                  (float *)NULL,
+                  this->Mapper->GetInput()->GetNumberOfCells());
+}
+
+vtkIdType vtkUnstructuredGridBunykRayCastFunction::GetNextIntersections(vtkIdType maxNumIntersections,
+                                                                   vtkIdList *intersectedCells,
+                                                                   vtkDoubleArray *intersectionLengths,
+                                                                   vtkDataArray *scalars,
+                                                                   vtkDataArray *nearIntersections,
+                                                                   vtkDataArray*farIntersections,
+                                                                   double farClipZ)
+{
+  if (!this->Valid) return 0;
+
+  if (intersectedCells)
+    {
+    intersectedCells->SetNumberOfIds(maxNumIntersections);
+    }
+  if (intersectionLengths)
+    {
+    intersectionLengths->SetNumberOfComponents(1);
+    intersectionLengths->SetNumberOfTuples(maxNumIntersections);
+    }
+
+  vtkIdType numIntersections = 0;
+
+  if (!scalars)
+    {
+    numIntersections = TemplateCastRay
+      ((const float *)NULL, this, 0, this->RayX, this->RayY, farClipZ,
+       this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
+       (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
+       (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
+       (float *)NULL, (float *)NULL, maxNumIntersections);
+    }
+  else
+    {
+    if (   (scalars->GetDataType() != nearIntersections->GetDataType())
+        || (scalars->GetDataType() != farIntersections->GetDataType()) )
+      {
+      vtkErrorMacro(<< "Data types for scalars do not match up.");
+      }
+
+    nearIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
+    nearIntersections->SetNumberOfTuples(maxNumIntersections);
+    farIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
+    farIntersections->SetNumberOfTuples(maxNumIntersections);
+
+    switch (scalars->GetDataType())
+      {
+      vtkTemplateMacro
+        (numIntersections = TemplateCastRay
+         ((const VTK_TT *)scalars->GetVoidPointer(0),
+          this, scalars->GetNumberOfComponents(),
+          this->RayX, this->RayY, farClipZ,
+          this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
+          (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
+          (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
+          (VTK_TT *)nearIntersections->GetVoidPointer(0),
+          (VTK_TT *)farIntersections->GetVoidPointer(0), maxNumIntersections));
+      }
+
+    nearIntersections->SetNumberOfTuples(numIntersections);
+    farIntersections->SetNumberOfTuples(numIntersections);
+    }
+
+  if (intersectedCells)
+    {
+    intersectedCells->SetNumberOfIds(numIntersections);
+    }
+  if (intersectionLengths)
+    {
+    intersectionLengths->SetNumberOfTuples(numIntersections);
+    }
+
+  return numIntersections;
+}
+
+template<class T>
+static void TemplateIntegrateColor(vtkIdType numIntersections,
+                                   int numComponents,
+                                   const double *intersectionLengths,
+                                   const T *nearIntersections,
+                                   const T *farIntersections,
+                                   vtkUnstructuredGridBunykRayCastFunction *self,
+                                   float color[4])
+{
+  double **colorTable      = self->GetColorTable();
+  double  *colorTableShift = self->GetColorTableShift();
+  double  *colorTableScale = self->GetColorTableScale();
+
+  double inverseUnitDistance = 1.0 / self->GetScalarOpacityUnitDistance();
+
+  for (vtkIdType i = 0; i < numIntersections; i++)
+    {
+    float newColor1[4] = {0.0,0.0,0.0,0.0};
+    float newColor2[4] = {0.0,0.0,0.0,0.0};
+
+    float remainingOpacity = 1.0 - color[3];
+    double factor = (intersectionLengths[i]/2.0) * inverseUnitDistance;
+
+    int c;
+    for (c = 0; c < numComponents; c++)
+      {
+      double v = nearIntersections[i*numComponents + c];
       
-      currentTriangle = nextTriangle;
-      currentTetra    = nextTetra;
+      double *tmpptr = 
+        colorTable[c] +
+        4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
+
+      float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
+
+      float w =  remainingOpacity * opacity;
+      newColor1[0] += w * *(tmpptr);
+      newColor1[1] += w * *(tmpptr+1);
+      newColor1[2] += w * *(tmpptr+2);
+      newColor1[3] += opacity;
+      }
+
+    remainingOpacity *= (1.0 - newColor1[3]);
+
+    for (c = 0; c < numComponents; c++)
+      {
+      double v = farIntersections[i*numComponents + c];
       
-      } while (currentTriangle && color[3] < 1.0 );
-    
-    intersectionPtr = intersectionPtr->Next;
+      double *tmpptr = 
+        colorTable[c] +
+        4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
+
+      float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
+      float w =  remainingOpacity * opacity;
+      newColor2[0] += w * *(tmpptr);
+      newColor2[1] += w * *(tmpptr+1);
+      newColor2[2] += w * *(tmpptr+2);
+      newColor2[3] += opacity;
+    }
+
+    color[0] += newColor1[0] + newColor2[0];
+    color[1] += newColor1[1] + newColor2[1];
+    color[2] += newColor1[2] + newColor2[2];
+    color[3] = 1.0 - remainingOpacity * (1.0 - newColor2[3]);
     }
 }
 
@@ -1292,16 +1489,47 @@ void vtkUnstructuredGridBunykRayCastFunction::CastRay( int x, int y, double boun
     {
     return;
     }
-  
-  
-  switch ( this->ScalarType )
+
+  if (!this->IntersectionLengths)
     {
-    vtkTemplateMacro7( vtkUnstructuredGridBunykRayCastFunctionCastRay,
-                      (VTK_TT *)this->Scalars, this,
-                       this->NumberOfComponents,
-                       x, y, bounds, color );
+    this->IntersectionLengths = vtkDoubleArray::New();
     }
-  
+  if (!this->NearIntersections || (   this->NearIntersections->GetDataType()
+                                   != this->Scalars->GetDataType() ) )
+    {
+    this->NearIntersections
+      = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
+    }
+  if (!this->FarIntersections || (   this->FarIntersections->GetDataType()
+                                  != this->Scalars->GetDataType() ) )
+    {
+    this->FarIntersections
+      = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
+    }
+
+  this->InitializeRay(x, y, bounds[0]);
+
+  vtkIdType numIntersections;
+  do
+    {
+    numIntersections = this->GetNextIntersections(32, NULL,
+                                                  this->IntersectionLengths,
+                                                  this->Scalars,
+                                                  this->NearIntersections,
+                                                  this->FarIntersections,
+                                                  bounds[1]);
+
+    switch (this->Scalars->GetDataType())
+      {
+      vtkTemplateMacro(TemplateIntegrateColor
+                       (numIntersections,
+                        this->Scalars->GetNumberOfComponents(),
+                        this->IntersectionLengths->GetPointer(0),
+                        (const VTK_TT *)this->NearIntersections->GetVoidPointer(0),
+                        (const VTK_TT *)this->FarIntersections->GetVoidPointer(0),
+                        this, color));
+      }
+    } while ((numIntersections > 0) && (color[3] < 0.99));
 }
 
 void vtkUnstructuredGridBunykRayCastFunction::Finalize( )
