@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.91");
+vtkCxxRevisionMacro(vtkDataWriter, "1.92");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -667,11 +667,17 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     // Buffer size is size of array name times four because 
     // in theory there could be array name consisting of only
     // weird symbols.
-    char *buffer = new char[ strlen(scalars->GetName()) * 4 + 1];
-    this->EncodeArrayName(buffer, scalars->GetName());
-    this->SetScalarsName(buffer);
-    delete [] buffer;
-
+    if (scalars->GetName())
+      {
+      char *buffer = new char[ strlen(scalars->GetName()) * 4 + 1];
+      this->EncodeArrayName(buffer, scalars->GetName());
+      this->SetScalarsName(buffer);
+      delete [] buffer;
+      }
+    else
+      {
+      this->SetScalarsName("scalars");
+      }
     if (numComp == 1) 
       {
       sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n",this->ScalarsName, name);
@@ -750,11 +756,17 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  char *buffer = new char[ strlen(vectors->GetName()) * 4 + 1];
-  this->EncodeArrayName(buffer, vectors->GetName());
-  this->SetVectorsName(buffer);
-  delete [] buffer;
-
+  if (vectors->GetName())
+    {
+    char *buffer = new char[ strlen(vectors->GetName()) * 4 + 1];
+    this->EncodeArrayName(buffer, vectors->GetName());
+    this->SetVectorsName(buffer);
+    delete [] buffer;
+    }
+  else
+    {
+    this->SetVectorsName("vectors");
+    }
   sprintf(format, "%s %s\n", this->VectorsName, "%s");
   return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
@@ -766,10 +778,17 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  char *buffer = new char[ strlen(normals->GetName()) * 4 + 1];
-  this->EncodeArrayName(buffer, normals->GetName());
-  this->SetNormalsName(buffer);
-  delete [] buffer;
+  if (normals->GetName())
+    {
+    char *buffer = new char[ strlen(normals->GetName()) * 4 + 1];
+    this->EncodeArrayName(buffer, normals->GetName());
+    this->SetNormalsName(buffer);
+    delete [] buffer;
+    }
+  else
+    {
+    this->SetNormalsName("normals");
+    }
 
   *fp << "NORMALS ";
   sprintf(format, "%s %s\n", this->NormalsName, "%s");
@@ -784,10 +803,17 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  char *buffer = new char[ strlen(tcoords->GetName()) * 4 + 1];
-  this->EncodeArrayName(buffer, tcoords->GetName());
-  this->SetTCoordsName(buffer);
-  delete [] buffer;
+  if (tcoords->GetName())
+    {
+    char *buffer = new char[ strlen(tcoords->GetName()) * 4 + 1];
+    this->EncodeArrayName(buffer, tcoords->GetName());
+    this->SetTCoordsName(buffer);
+    delete [] buffer;
+    }
+  else
+    {
+    this->SetTCoordsName("tcoords");
+    }
 
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
@@ -802,11 +828,17 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  char *buffer = new char[ strlen(tensors->GetName()) * 4 + 1];
-  this->EncodeArrayName(buffer, tensors->GetName());
-  this->SetTensorsName(buffer);
-  delete [] buffer;
-
+  if (tensors->GetName())
+    {
+    char *buffer = new char[ strlen(tensors->GetName()) * 4 + 1];
+    this->EncodeArrayName(buffer, tensors->GetName());
+    this->SetTensorsName(buffer);
+    delete [] buffer;
+    }
+  else
+    {
+    this->SetTensorsName("tensors");
+    }
   *fp << "TENSORS "; 
   sprintf(format, "%s %s\n", this->TensorsName, "%s");
   return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, 9);
