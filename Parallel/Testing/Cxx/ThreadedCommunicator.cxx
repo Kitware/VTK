@@ -28,6 +28,11 @@ struct GenericCommunicatorArgs_tmp
   char** argv;
 };
 
+void TestBarrier(vtkMultiProcessController *contr, void *arg)
+{
+  contr->Barrier();
+}
+
 void Process1(vtkMultiProcessController *contr, void *arg)
 {
   vtkCommunicator* comm = contr->GetCommunicator();
@@ -299,6 +304,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
 
   contr->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
 
+  iren->Delete();
   ip->Delete();
   renWin->Delete();
 }
@@ -341,7 +347,10 @@ int main(int argc, char** argv)
   contr->SetMultipleMethod(0, Process1, 0);
   contr->SetMultipleMethod(1, Process2, &args);
   contr->MultipleMethodExecute();
-  
+
+  contr->SetSingleMethod(TestBarrier, 0);
+  contr->SingleMethodExecute();
+
   contr->Finalize();
   contr->Delete();
 
