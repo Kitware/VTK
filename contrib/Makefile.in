@@ -33,6 +33,7 @@ vtkImageToPolyDataFilter \
 vtkImageReslice \
 vtkIVWriter \
 vtkLandmarkTransform \
+vtkLightKit \
 vtkMassProperties \
 vtkMultiProcessController \
 vtkOBJReader \
