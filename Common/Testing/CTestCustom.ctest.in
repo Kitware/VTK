@@ -1,6 +1,7 @@
 SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   ${CTEST_CUSTOM_MEMCHECK_IGNORE}
   HeaderTesting-Common
+  HeaderTesting-GenericFiltering
   HeaderTesting-Filtering
   HeaderTesting-Graphics
   HeaderTesting-Hybrid
@@ -10,6 +11,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   HeaderTesting-Patented
   HeaderTesting-Rendering
   PrintSelf-Common
+  PrintSelf-GenericFiltering
   PrintSelf-Filtering
   PrintSelf-Graphics
   PrintSelf-Hybrid
@@ -20,6 +22,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   PrintSelf-Rendering
   SystemInformation
   TestSetObjectMacro-Common
+  TestSetObjectMacro-GenericFiltering
   TestSetObjectMacro-Filtering
   TestSetObjectMacro-Graphics
   TestSetObjectMacro-Hybrid
