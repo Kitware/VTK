@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMergeFilter, "1.68");
+vtkCxxRevisionMacro(vtkMergeFilter, "1.69");
 vtkStandardNewMacro(vtkMergeFilter);
 
 class vtkFieldNode
@@ -483,11 +483,8 @@ int vtkMergeFilter::RequestData(
 int vtkMergeFilter::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
   vtkInformation *inputInfo;
   int idx;
   
