@@ -57,7 +57,7 @@ public:
   static vtkPolyMapper *New();
   char *GetClassName() {return "vtkPolyMapper";};
 
-  virtual void Render(vtkRenderer *ren, vtkActor *a) {};
+  virtual void Render(vtkRenderer *, vtkActor *) {};
   float *GetBounds();
 
   // Description:
