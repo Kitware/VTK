@@ -50,6 +50,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // flux preserving variation is used. The number of sides for the tube also 
 // can be specified. You can also specify which of the sides are visible. This
 // is useful for generating interesting striping effects.
+//
+// This filter is typically used to create thick or dramatic lines. Another
+// common use is to combine this filter with vtkStreamLine to generate
+// streamtubes.
 
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
@@ -60,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // can be removed with vtkCleanPolyData.)
 
 // .SECTION See Also
-// vtkRibbonFilter
+// vtkRibbonFilter vtkStreamLine
 
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h
@@ -130,14 +134,14 @@ public:
   vtkBooleanMacro(Capping,int);
 
   // Description:
-  // Control the striping of the tools. If OnRatio is greater than 1,
+  // Control the striping of the tubes. If OnRatio is greater than 1,
   // then every nth tube side is turned on, beginning with the Offset
   // side.
   vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(OnRatio,int);
 
   // Description:
-  // Control the striping of the tools. The offset sets the
+  // Control the striping of the tubes. The offset sets the
   // first tube side that is visible. Offset is generally used with
   // OnRatio to create nifty striping effects.
   vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
