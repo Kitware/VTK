@@ -302,14 +302,14 @@ void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
 
   input->UpdateInformation();
   input->GetWholeExtent(ext);
-  this->SplitExtent(piece, numPieces, ext);
+  this->SplitExtentTmp(piece, numPieces, ext);
 
   this->SetOutputWholeExtent(ext);
 }
 
 //----------------------------------------------------------------------------
 // Assumes UpdateInformation was called first.
-int vtkImageClip::SplitExtent(int piece, int numPieces, int *ext)
+int vtkImageClip::SplitExtentTmp(int piece, int numPieces, int *ext)
 {
   int numPiecesInFirstHalf;
   int size[3], mid, splitAxis;
