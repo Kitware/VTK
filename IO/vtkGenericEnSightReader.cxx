@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.67");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.68");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -105,6 +105,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
                                             this->SelectionObserver);
   this->SelectionModifiedDoNotCallModified = 0;
   this->TranslationTable = new TranslationTableType;
+
+  this->SetNumberOfOutputPorts(0);
 }
 
 //----------------------------------------------------------------------------
