@@ -34,6 +34,13 @@
 #  define vtkConvertPtrToLong(x) ((long)(x))
 #endif
 
+// The following macro is used to supress missing initializer
+// warnings.  Python documentation says these should not be necessary.
+// We define it as a macro in case the length needs to change across
+// python versions.
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
 //#define VTKPYTHONDEBUG
 
 //--------------------------------------------------------------------
@@ -401,6 +408,7 @@ static PyTypeObject PyVTKObjectType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   "A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), __methods__ (a list of all methods for this object), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)"  // tp_doc
+  ,VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
 int PyVTKObject_Check(PyObject *obj)
@@ -747,6 +755,7 @@ PyTypeObject PyVTKClassMetaType = {
   0,                        /*tp_xxx3*/
   0,                        /*tp_xxx4*/
   "Define the behavior of a particular type of object.",
+  VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
 //--------------------------------------------------------------------
@@ -773,6 +782,7 @@ static PyTypeObject PyVTKClassType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   "A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (user-defined methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), __methods__ (methods for this class, not including inherited methods or user-defined methods), and __module__ (module that the class is defined in)." // tp_doc
+  ,VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
 int PyVTKClass_Check(PyObject *obj)
@@ -1128,6 +1138,7 @@ static PyTypeObject PyVTKSpecialObjectType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   "vtkspecialobject - a vtk object not derived from vtkObjectBase." // tp_doc
+  ,VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
 int PyVTKSpecialObject_Check(PyObject *obj)
