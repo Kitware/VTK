@@ -142,11 +142,11 @@ public:
   // Description:
   // Return output that hasn't been selected (if GenreateUnselectedOutput is
   // enabled).
-  vtkPolyData *GetUnselectedOutput() {return this->UnselectedOutput;};
+  vtkPolyData *GetUnselectedOutput();
 
   // Description:
   // Return the (mesh) edges of the selection region.
-  vtkPolyData *GetSelectionEdges() {return this->SelectionEdges;};
+  vtkPolyData *GetSelectionEdges();
 
   // Overload GetMTime() because we depend on Loop
   unsigned long int GetMTime();
@@ -163,11 +163,7 @@ protected:
   int SelectionMode;
   double ClosestPoint[3];
   int GenerateUnselectedOutput;
-  vtkPolyData *UnselectedOutput;
-  vtkPolyData *SelectionEdges;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 private:
   vtkPolyData *Mesh;
   void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);

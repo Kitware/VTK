@@ -29,7 +29,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.31");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.32");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -44,10 +44,12 @@ vtkSelectPolyData::vtkSelectPolyData()
   this->SelectionMode = VTK_INSIDE_SMALLEST_REGION;
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
   this->GenerateUnselectedOutput = 0;
-  this->UnselectedOutput = vtkPolyData::New();
-  this->UnselectedOutput->SetSource(this);
-  this->SelectionEdges = vtkPolyData::New();
-  this->SelectionEdges->SetSource(this);
+
+  this->vtkSource::SetNthOutput(1,vtkPolyData::New());
+  this->Outputs[1]->Delete();
+
+  this->vtkSource::SetNthOutput(2,vtkPolyData::New());
+  this->Outputs[2]->Delete();
 }
 
 vtkSelectPolyData::~vtkSelectPolyData()
@@ -56,14 +58,26 @@ vtkSelectPolyData::~vtkSelectPolyData()
     {
     this->Loop->Delete();
     }
-  if(this->UnselectedOutput)
+}
+
+vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
+{
+  if (this->NumberOfOutputs < 2)
     {
-    this->UnselectedOutput->Delete();
+    return NULL;
     }
-  if(this->SelectionEdges)
+  
+  return (vtkPolyData *)(this->Outputs[1]);
+}
+
+vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
+{
+  if (this->NumberOfOutputs < 3)
     {
-    this->SelectionEdges->Delete();
+    return NULL;
     }
+  
+  return (vtkPolyData *)(this->Outputs[2]);
 }
 
 void vtkSelectPolyData::Execute()
@@ -90,8 +104,8 @@ void vtkSelectPolyData::Execute()
   // Initialize and check data
   vtkDebugMacro(<<"Selecting data...");
 
-  this->UnselectedOutput->Initialize();
-  this->SelectionEdges->Initialize();
+  this->GetUnselectedOutput()->Initialize();
+  this->GetSelectionEdges()->Initialize();
 
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
@@ -236,8 +250,8 @@ void vtkSelectPolyData::Execute()
     {
     selectionEdges->InsertCellPoint(edgeIds->GetId(i));
     }
-  this->SelectionEdges->SetPoints(inPts);
-  this->SelectionEdges->SetLines(selectionEdges);
+  this->GetSelectionEdges()->SetPoints(inPts);
+  this->GetSelectionEdges()->SetLines(selectionEdges);
   selectionEdges->Delete();
 
   // Phew...we've defined loop, now want to do a fill so we can extract the
@@ -432,9 +446,9 @@ void vtkSelectPolyData::Execute()
           unPolys->InsertNextCell(npts,pts);
           }
         }
-      this->UnselectedOutput->SetPoints(inPts);
-      this->UnselectedOutput->SetPolys(unPolys);
-      this->UnselectedOutput->GetPointData()->PassData(inPD);
+      this->GetUnselectedOutput()->SetPoints(inPts);
+      this->GetUnselectedOutput()->SetPolys(unPolys);
+      this->GetUnselectedOutput()->GetPointData()->PassData(inPD);
       unPolys->Delete();
       }
 
@@ -602,26 +616,3 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-//----------------------------------------------------------------------------
-void vtkSelectPolyData::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->UnselectedOutput, "UnselectedOutput");
-  collector->ReportReference(this->SelectionEdges, "SelectionEdges");
-}
-
-//----------------------------------------------------------------------------
-void vtkSelectPolyData::RemoveReferences()
-{
-  if(this->UnselectedOutput)
-    {
-    this->UnselectedOutput->Delete();
-    this->UnselectedOutput = 0;
-    }
-  if(this->SelectionEdges)
-    {
-    this->SelectionEdges->Delete();
-    this->SelectionEdges = 0;
-    }
-  this->Superclass::RemoveReferences();
-}
