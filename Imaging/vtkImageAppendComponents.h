@@ -25,22 +25,30 @@
 #define __vtkImageAppendComponents_h
 
 
-#include "vtkImageMultipleInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageAppendComponents : public vtkImageMultipleInputFilter
+class VTK_IMAGING_EXPORT vtkImageAppendComponents : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageAppendComponents *New();
-  vtkTypeRevisionMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageAppendComponents,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
   
-  void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
-  void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, 
+                           vtkInformationVector *);
+  
+  void ThreadedRequestData (vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int ext[6], int id);
+
+  // Implement methods required by vtkAlgorithm.
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkImageAppendComponents(const vtkImageAppendComponents&);  // Not implemented.
   void operator=(const vtkImageAppendComponents&);  // Not implemented.

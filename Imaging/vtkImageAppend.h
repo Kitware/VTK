@@ -28,13 +28,13 @@
 #define __vtkImageAppend_h
 
 
-#include "vtkImageMultipleInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageAppend : public vtkImageMultipleInputFilter
+class VTK_IMAGING_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageAppend *New();
-  vtkTypeRevisionMacro(vtkImageAppend,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -65,14 +65,26 @@ protected:
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;
 
-  void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int whichInput);
-  void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};
-  
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+
+  void RequestUpdateExtent(vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+
+  void ThreadedRequestData (vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int ext[6], int id);
+
+  // see vtkAlgorithm for docs.
+  virtual int FillInputPortInformation(int, vtkInformation*);
 
   void InitOutput(int outExt[6], vtkImageData *outData);
+
+  void InternalComputeInputUpdateExtent(
+    int *inExt, int *outExt, int *inWextent, int whichInput);
+  
 private:
   vtkImageAppend(const vtkImageAppend&);  // Not implemented.
   void operator=(const vtkImageAppend&);  // Not implemented.
