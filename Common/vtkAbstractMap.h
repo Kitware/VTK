@@ -57,17 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkAbstractMap_h
 #define __vtkAbstractMap_h
 
-// Since some compilers have problems with keyword typename, we have 
-// to do this with macros.
-// These macros define types for pointers to auxilary functions.
-#define vtkAbstractMapCompareFunction(KeyType, CompareFunction) \
-    int (*CompareFunction)(const KeyType&  k1, const KeyType& k2)
-#define vtkAbstractMapCreateFunction(KeyType, CreateFunction) \
-    void (*CreateFunction)(KeyType& k1, const KeyType& k2)
-#define vtkAbstractMapDeleteFunction(KeyType, DeleteFunction) \
-    void (*DeleteFunction)(KeyType& k1)
-
-
 // This is an item of the map.
 template<class KeyType, class DataType>
 class vtkAbstractMapItem
@@ -101,16 +90,6 @@ public:
     return this->vtkAbstractMap<KeyType,DataType>::IsTypeOf(type);
   }
 
-  // Just to avoid typing over and over, let us define some typedefs.
-  // They will not work in subclasses, but this header file will 
-  // be more readable.
-  typedef vtkAbstractMapCompareFunction(KeyType, KeyCompareFunctionType);
-  typedef vtkAbstractMapCreateFunction(KeyType,  KeyCreateFunctionType);
-  typedef vtkAbstractMapDeleteFunction(KeyType,  KeyDeleteFunctionType);
-  typedef vtkAbstractMapCompareFunction(DataType, DataCompareFunctionType);
-  typedef vtkAbstractMapCreateFunction(DataType,  DataCreateFunctionType);
-  typedef vtkAbstractMapDeleteFunction(DataType,  DataDeleteFunctionType);
-
   // Description:
   // Sets the item at with specific key to data.
   // It overwrites the old item.
@@ -133,56 +112,9 @@ public:
   // will return how many items the container can currently hold.
   virtual vtkIdType GetNumberOfItems() = 0;  
 
-  // Description:
-  // Set compare, create, and delete functions for keys and data.
-  void SetKeyCreateFunction(KeyCreateFunctionType cf)
-  { this->KeyCreateFunction = cf; }
-  void SetKeyCompareFunction(KeyCompareFunctionType cf)
-  { this->KeyCompareFunction = cf;}
-  void SetKeyDeleteFunction(KeyDeleteFunctionType cf)
-  { this->KeyDeleteFunction = cf; }
-  void SetDataCreateFunction(DataCreateFunctionType cf)
-  { this->DataCreateFunction = cf; }
-  void SetDataCompareFunction(DataCompareFunctionType cf)
-  { this->DataCompareFunction = cf;}
-  void SetDataDeleteFunction(DataDeleteFunctionType cf)
-  { this->DataDeleteFunction = cf; }
-
-//protected:
+protected:
   vtkAbstractMap();
-  // Description:
-  // These are pointers to auxilary functions to abstract certain object
-  // operations out of the map.
-  // The create function has to be able to create object out of 
-  // another object. It should efectivly duplicate the object.
-  // The compare function has to compare two object, return 0 if they
-  // are equal, -1 if first one is smaller or 1 if second one is 
-  // smaller. Current implementation of the map, only checks if they
-  // are equal or not.
-  // The delete function has to do all the necessary memory deallocation,
-  // so that map can forget the object.
-  KeyCreateFunctionType  KeyCreateFunction;
-  KeyCompareFunctionType KeyCompareFunction;  
-  KeyDeleteFunctionType  KeyDeleteFunction;  
-  DataCreateFunctionType  DataCreateFunction;
-  DataCompareFunctionType DataCompareFunction;  
-  DataDeleteFunctionType  DataDeleteFunction;  
 };
-
-// Description:
-// This function sets the map to have key of C string.
-// If the key is not a C string (const char*), there will
-// be a compile time error.
-template<class KeyType, class DataType>
-void vtkAbstractMapKeyIsString(vtkAbstractMap<KeyType,DataType>*);
-
-// Description:
-// This function sets the map to have a reference counted data.
-// If the datra is not a reference counted object (pointer with 
-// methods Register(void*) and UnRegister(void*)), there will
-// be a compile time error.
-template<class KeyType, class DataType>
-void vtkAbstractMapDataIsReferenceCounted(vtkAbstractMap<KeyType,DataType>*);
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkAbstractMap.txx"

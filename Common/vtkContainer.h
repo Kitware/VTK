@@ -33,6 +33,7 @@
 // used with debug leaks yet.
 
 #include "vtkObject.h"
+#include "vtkString.h"
 
 #ifndef __vtkContainer_h
 #define __vtkContainer_h
@@ -111,5 +112,90 @@ protected:
   vtkContainer();
   virtual ~vtkContainer();
 };
+
+template<class DType>
+int vtkContainerDefaultCompare(DType& k1, DType& k2)
+{
+  return ( k1 < k2 ) ? ( -1 ) : ( ( k1 == k2 ) ? ( 0 ) : ( 1 ) );
+}
+
+int vtkContainerCompareMethod(vtkObject* d1, vtkObject* d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(char d1, char d2) 
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(short d1, short d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(int d1, int d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(long d1, long d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(unsigned char d1, unsigned char d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(unsigned short d1, unsigned short d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(unsigned int d1, unsigned int d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(unsigned long d1, unsigned long d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(float d1, float d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(double d1, double d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+int vtkContainerCompareMethod(const char* d1, const char* d2)
+{ return strcmp(d1, d2); }
+int vtkContainerCompareMethod(char* d1, char* d2)
+{ return strcmp(d1, d2); }
+int vtkContainerCompareMethod(void* d1, void* d2)
+{ return vtkContainerDefaultCompare(d1,d2); }
+
+template<class DType>
+DType vtkContainerDefaultCreate(DType k2) { return k2; }
+
+vtkObject* vtkContainerCreateMethod(vtkObject* d1)
+{ d1->Register(0); return d1; }
+char vtkContainerCreateMethod(char d1) 
+{ return vtkContainerDefaultCreate(d1); }
+short vtkContainerCreateMethod(short d1)
+{ return vtkContainerDefaultCreate(d1); }
+int vtkContainerCreateMethod(int d1)
+{ return vtkContainerDefaultCreate(d1); }
+long vtkContainerCreateMethod(long d1)
+{ return vtkContainerDefaultCreate(d1); }
+unsigned char vtkContainerCreateMethod(unsigned char d1)
+{ return vtkContainerDefaultCreate(d1); }
+unsigned short vtkContainerCreateMethod(unsigned short d1)
+{ return vtkContainerDefaultCreate(d1); }
+unsigned int vtkContainerCreateMethod(unsigned int d1)
+{ return vtkContainerDefaultCreate(d1); }
+unsigned long vtkContainerCreateMethod(unsigned long d1)
+{ return vtkContainerDefaultCreate(d1); }
+float vtkContainerCreateMethod(float d1)
+{ return vtkContainerDefaultCreate(d1); }
+double vtkContainerCreateMethod(double d1)
+{ return vtkContainerDefaultCreate(d1); }
+const char* vtkContainerCreateMethod(const char* d1)
+{ return vtkString::Duplicate(d1); }
+char* vtkContainerCreateMethod(char* d1)
+{ return vtkString::Duplicate(d1); }
+void* vtkContainerCreateMethod(void* d1)
+{ return vtkContainerDefaultCreate(d1); }
+
+void vtkContainerDeleteMethod(vtkObject* d1) 
+{ d1->UnRegister(0); /* cout << "UR(d1)" << endl; */ }
+void vtkContainerDeleteMethod(char d1) {}
+void vtkContainerDeleteMethod(short d1) {}
+void vtkContainerDeleteMethod(int d1) {}
+void vtkContainerDeleteMethod(long d1) {}
+void vtkContainerDeleteMethod(unsigned char d1) {}
+void vtkContainerDeleteMethod(unsigned short d1) {}
+void vtkContainerDeleteMethod(unsigned int d1) {}
+void vtkContainerDeleteMethod(unsigned long d1) {}
+void vtkContainerDeleteMethod(float d1) {}
+void vtkContainerDeleteMethod(double d1) {}
+void vtkContainerDeleteMethod(const char* d1) 
+{ char *ch = const_cast<char*>(d1); delete [] ch; } 
+void vtkContainerDeleteMethod(char* d1) { delete [] d1; }
+void vtkContainerDeleteMethod(void* d1) {}
+
 
 #endif 
