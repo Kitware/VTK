@@ -10,30 +10,17 @@ vtkRenderWindow renWin
 	renWin SetSize 300 300
 vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
-# camera parameters
-set camera [Ren1 GetActiveCamera]
-	$camera SetPosition 13.36 12.7128 29.5781
-	$camera SetFocalPoint 0 0 0
-	$camera SetViewUp -0.0792596 0.928333 -0.363202
-	$camera SetViewAngle 30
-	$camera SetClippingRange 18.6219 55.3764
 
-vtkRTAnalyticSource pvTemp69
-	pvTemp69 SetWholeExtent -10 10 -10 10 -10 10
-	pvTemp69 SetCenter 0 0 0
-	pvTemp69 SetMaximum 255
-	pvTemp69 SetXFreq 60
-	pvTemp69 SetYFreq 30
-	pvTemp69 SetZFreq 40
-	pvTemp69 SetXMag 10
-	pvTemp69 SetYMag 18
-	pvTemp69 SetZMag 5
-	pvTemp69 SetStandardDeviation 0.5
-  pvTemp69 Update
+vtkImageReader reader
+  reader SetDataByteOrderToLittleEndian
+  reader SetDataExtent 0 63 0 63 1 93
+  reader SetDataSpacing 3.2 3.2 1.5
+  reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
+  reader SetDataMask 0x7fff
 
 vtkMetaImageWriter pvTemp200
   pvTemp200 SetFileName {mhdWriter.mhd}
-  pvTemp200 SetInput [ pvTemp69 GetOutput ]
+  pvTemp200 SetInput [ reader GetOutput ]
   pvTemp200 Write
 vtkMetaImageReader pvTemp90
 	pvTemp90 SetFileName {mhdWriter.mhd}
@@ -49,7 +36,7 @@ vtkLookupTable pvTemp109
 vtkContourFilter pvTemp110
 	pvTemp110 SetInput [pvTemp90 GetOutput 0]
 	pvTemp110 SelectInputScalars {ImageFile}
-	pvTemp110 SetValue 0 148.677
+	pvTemp110 SetValue 0 1150
 	pvTemp110 SetComputeNormals 1
 	pvTemp110 SetComputeGradients 0
 	pvTemp110 SetComputeScalars 0

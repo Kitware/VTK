@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING)
       gaussian
       caffeine
       TestXYZMol
+      TestMHD
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
@@ -35,17 +36,6 @@ IF (VTK_USE_RENDERING)
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
-
-# if we have parallel then add TestMHD 
-IF (VTK_USE_PARALLEL)
-  ADD_TEST(TestMHD-image ${VTK_EXECUTABLE}
-    ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-    ${VTK_SOURCE_DIR}/IO/Testing/Tcl/TestMHD.tcl
-    -D ${VTK_DATA_ROOT}
-    -T ${VTK_BINARY_DIR}/Testing/Temporary
-    -V Baseline/IO/TestMHD.png
-    -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-ENDIF (VTK_USE_PARALLEL)
 
 ADD_TEST(TestEmptyXML ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/IO/Testing/Tcl/TestEmptyXML.tcl)
