@@ -75,6 +75,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
+  // Description:
+  // Instantiate an object.
+  static vtkDicer *New() {return new vtkDicer;};
+
   const char *GetClassName() {return "vtkDicer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
