@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPlaneSource.h"
 #include "vtkLargeInteger.h"
 #include "vtkPSphereSource.h"
+#include "vtkPolyDataMapper.h"
 
 //-------------------------------------------------------------------------
 vtkPipelineSize* vtkPipelineSize::New()
@@ -327,3 +328,65 @@ ComputeDataPipelineSize(vtkDataObject *input, unsigned long sizes[3])
     sizes[2] = size;
     }
 }
+
+
+unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit, 
+                                                    vtkPolyDataMapper *mapper)
+{
+  // find the right number of pieces
+  if (!mapper->GetInput())
+    {
+    return 1;
+    }
+  
+  vtkPolyData *input = mapper->GetInput();
+  unsigned long subDivisions = 1;
+  unsigned long numPieces = mapper->GetNumberOfPieces();
+  unsigned long piece = mapper->GetPiece();
+  unsigned long oldSize, size = 0;
+  float ratio;
+
+  // watch for the limiting case where the size is the maximum size
+  // represented by an unsigned long. In that case we do not want to do the
+  // ratio test. We actual test for size < 0.5 of the max unsigned long which
+  // would indicate that oldSize is about at max unsigned long.
+  unsigned long maxSize;
+  maxSize = (((unsigned long)0x1) << (8*sizeof(unsigned long) - 1));
+  
+  // we also have to watch how many pieces we are creating. Since
+  // NumberOfStreamDivisions is an int, it cannot be more that say 2^31
+  // (which is a bit much anyhow) so we also stop if the number of pieces is
+  // too large. Here we start off with the current number of pieces.
+  int count = log(numPieces)/log(2);
+  
+  // double the number of pieces until the size fits in memory
+  // or the reduction in size falls to 20%
+  do 
+    {
+    oldSize = size;
+    input->SetUpdateExtent(piece*subDivisions, numPieces*subDivisions);
+    input->PropagateUpdateExtent();
+    size = this->GetEstimatedSize(input);
+    // watch for the first time through
+    if (!oldSize)
+      {
+      ratio = 0.5;
+      }
+    // otherwise the normal ratio calculation
+    else
+      {
+      ratio = size/(float)oldSize;
+      }
+    subDivisions = subDivisions*2;
+    count++;
+    vtkWarningMacro(<< size << " " << ratio << " " << count);
+    }
+  while (size > memoryLimit && 
+         (size < maxSize && ratio < 0.8) && count < 29);
+  
+  // undo the last *2
+  subDivisions = subDivisions/2;
+  
+  return subDivisions;
+}
+

@@ -100,7 +100,7 @@ void vtkMemoryLimitImageDataStreamer::UpdateData(vtkDataObject *out)
   // ratio test. We actual test for size < 0.5 of the max unsigned long which
   // would indicate that oldSize is about at max unsigned long.
   unsigned long maxSize;
-  maxSize = (0x1 << (8*sizeof(unsigned long) - 1));
+  maxSize = (((unsigned long)0x1) << (8*sizeof(unsigned long) - 1));
   
   // we also have to watch how many pieces we are creating. Since
   // NumberOfStreamDivisions is an int, it cannot be more that say 2^31

@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 class vtkSource;
 class vtkDataObject;
+class vtkPolyDataMapper;
 
 class VTK_EXPORT vtkPipelineSize : public vtkObject
 {
@@ -61,6 +62,12 @@ public:
   // calculations in here do not take into account the specifics of many
   // sources and filters.
   unsigned long GetEstimatedSize(vtkDataObject *input);
+
+  // Description:
+  // Determine how many subpieces a mapper should use to fit a target memory 
+  // limit. This takes into account the mapper's Piece and NumberOfPieces.
+  unsigned long GetNumberOfSubPieces(unsigned long memoryLimit, 
+                                     vtkPolyDataMapper *mapper);
   
 protected:
   void GenericComputeSourcePipelineSize(vtkSource *src, 

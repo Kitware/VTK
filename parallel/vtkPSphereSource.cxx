@@ -281,7 +281,7 @@ unsigned long vtkPSphereSource::GetEstimatedMemorySize()
   sz = sz + sz2;
 
   // convert to kilobytes
-  sz >> 10;
+  sz >>= 10;
   
   return sz.CastToUnsignedLong();
 }
