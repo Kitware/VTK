@@ -22,7 +22,7 @@
 #include <vtkstd/string>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.8");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.8.2.1");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -53,7 +53,7 @@ void vtkEnSightMasterServerReader::Execute()
 {
   if ( !this->MaxNumberOfPieces )
     {
-    vtkErrorMacro("No pices to read");
+    vtkErrorMacro("No pieces to read");
     return;
     }
 
