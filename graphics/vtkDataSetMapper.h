@@ -53,6 +53,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkPolyMapper.h"
 #include "vtkRenderer.h"
+#include "vtkImageSource.h"
+#include "vtkImageToStructuredPoints.h"
+
 
 class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
 {
@@ -68,6 +71,8 @@ public:
   // Specify the input data to map.
   void SetInput(vtkDataSet *in);
   void SetInput(vtkDataSet& in) {this->SetInput(&in);};
+  void SetInput(vtkImageSource *cache)
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
 
 protected:
   vtkGeometryFilter *GeometryExtractor;

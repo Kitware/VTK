@@ -70,6 +70,8 @@ public:
   unsigned long GetPipelineMTime();
   // Foward filter messages to first fitler
   void SetInput(vtkImageSource *Input);
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Input memory limit causes streaming
   void SetInputMemoryLimit(long limit);
   
@@ -87,6 +89,7 @@ public:
 protected:
   vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];
 };
+
 
 #endif
 

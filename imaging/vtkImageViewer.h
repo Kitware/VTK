@@ -74,6 +74,8 @@ public:
   // Set/Get the input to the viewer.
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
   // Description:
   // Display the wole image or just the region specified by extent.

@@ -67,6 +67,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkLookupTable.h"
 #include "vtkColorScalars.h"
+#include "vtkImageSource.h"
+#include "vtkImageToStructuredPoints.h"
 
 class vtkRenderer;
 class vtkTextureDevice;
@@ -113,7 +115,10 @@ public:
   // Specify the data for the texture map.
   vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
-
+  void SetInput(vtkImageSource *cache)
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}  
+  
+  
   // Description:
   // Specify the lookup table to convert scalars if necessary
   vtkSetObjectMacro(LookupTable,vtkLookupTable);

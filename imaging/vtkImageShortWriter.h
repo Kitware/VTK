@@ -70,6 +70,8 @@ public:
   // Set/Get the input object from the image pipeline.
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Description:
   // Set/Get the flag that tells the object to save the whole image or not.
   vtkSetMacro(WholeImage,int);

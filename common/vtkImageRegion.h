@@ -55,8 +55,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageSetGet.h"
-#include "vtkImageSource.h"
 #include "vtkImageData.h"
+#include "vtkImageSource.h"
 
 
 class VTK_EXPORT vtkImageRegion : public vtkImageSource 

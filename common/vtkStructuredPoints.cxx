@@ -58,6 +58,8 @@ vtkStructuredPoints::vtkStructuredPoints()
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
+
+  this->StructuredPointsToImage = NULL;
 }
 
 vtkStructuredPoints::vtkStructuredPoints(const vtkStructuredPoints& v) :
@@ -75,10 +77,16 @@ vtkDataSet(v)
   this->Origin[0] = v.Origin[0];
   this->Origin[1] = v.Origin[1];
   this->Origin[2] = v.Origin[2];
+
+  this->StructuredPointsToImage = NULL;
 }
 
 vtkStructuredPoints::~vtkStructuredPoints()
 {
+  if (this->StructuredPointsToImage)
+    {
+    this->StructuredPointsToImage->Delete();
+    }
 }
 
 // Description:
@@ -625,6 +633,20 @@ int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3],
   return 1;
 }
 
+
+//----------------------------------------------------------------------------
+vtkStructuredPointsToImage *vtkStructuredPoints::GetStructuredPointsToImage()
+{
+  if ( ! this->StructuredPointsToImage)
+    {
+    this->StructuredPointsToImage = new vtkStructuredPointsToImage;
+    this->StructuredPointsToImage->SetInput(this);
+    }
+  
+  return this->StructuredPointsToImage;
+}
+
+
 void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
@@ -641,4 +663,6 @@ void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
                                   << this->Origin[1] << ", "
                                   << this->Origin[2] << ")\n";
 }
+
+
 

@@ -140,6 +140,7 @@ protected:
   vtkScalars *CopyToColorScalars(vtkImageRegion *region);
 };
 
+
 #endif
 
 

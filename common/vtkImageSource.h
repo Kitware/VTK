@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSource_h
 
 #include "vtkObject.h"
+class vtkImageToStructuredPoints;
 class vtkImageRegion;
 
 
@@ -61,8 +62,10 @@ class VTK_EXPORT vtkImageSource : public vtkObject
 {
 public:
   vtkImageSource();
+  ~vtkImageSource();
   char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
   virtual vtkImageRegion *Update();
   
   // Description:
@@ -83,12 +86,19 @@ public:
   // as a default.
   virtual int GetScalarType() = 0;
 
+  // Description:  
+  // This method is used translparently by the "SetInput(vtkImageSource *)"
+  // method to connect the image pipeline to the visualization pipeline.
+  vtkImageToStructuredPoints *GetImageToStructuredPoints();
+  
 protected:
+  vtkImageToStructuredPoints *ImageToStructuredPoints;
 };
 
 
 
 #include "vtkImageRegion.h"
+#include "vtkImageToStructuredPoints.h"
 
 #endif
 

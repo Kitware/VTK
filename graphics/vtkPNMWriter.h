@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkWriter.h"
 #include "vtkStructuredPoints.h"
+#include "vtkImageSource.h"
 
 class VTK_EXPORT vtkPNMWriter : public vtkWriter
 {
@@ -60,7 +61,12 @@ public:
   void SetInput(vtkStructuredPoints *input);
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
-
+  void SetInput(vtkImageSource *cache)
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+  
+    
+    
+  
   // Description:
   // Specify name of file to write.
   vtkSetStringMacro(Filename);

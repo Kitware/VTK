@@ -39,15 +39,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageSource.h"
+#include "vtkImageToStructuredPoints.h"
 
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
 {
+  this->ImageToStructuredPoints = NULL;
 }
 
 
-
+//----------------------------------------------------------------------------
+vtkImageSource::~vtkImageSource()
+{
+  if (this->ImageToStructuredPoints)
+    {
+    this->ImageToStructuredPoints->Delete();
+    }
+}
 
 
 //----------------------------------------------------------------------------
@@ -98,8 +107,20 @@ vtkImageRegion *vtkImageSource::Update()
   return region;
 }
 
-  
 
+
+
+//----------------------------------------------------------------------------
+vtkImageToStructuredPoints *vtkImageSource::GetImageToStructuredPoints()
+{
+  if ( ! this->ImageToStructuredPoints)
+    {
+    this->ImageToStructuredPoints = new vtkImageToStructuredPoints;
+    this->ImageToStructuredPoints->SetScalarInput(this);
+    }
+  
+  return this->ImageToStructuredPoints;
+}
 
 
 

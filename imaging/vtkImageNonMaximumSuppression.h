@@ -67,7 +67,9 @@ public:
   // Description:
   // Rename the inputs.
   void SetMagnitudeInput(vtkImageSource *input) {this->SetInput1(input);};
+  void SetMagnitudeInput(vtkStructuredPoints *input) {this->SetInput1(input);};
   void SetVectorInput(vtkImageSource *input) {this->SetInput2(input);};
+  void SetVectorInput(vtkStructuredPoints *input) {this->SetInput2(input);};
   
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated

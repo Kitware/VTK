@@ -50,6 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSet.h"
 #include "vtkStructuredData.h"
+class vtkStructuredPointsToImage;
+
 
 class VTK_EXPORT vtkStructuredPoints : public vtkDataSet
 {
@@ -109,11 +111,18 @@ public:
   int ComputePointId(int ijk[3]);
   int ComputeCellId(int ijk[3]);
 
+  // Description:  
+  // This method is used translparently by the 
+  // "SetInput(vtkStructuredPoints *)"
+  // method to connect the visualization pipeline to the image pipeline..
+  vtkStructuredPointsToImage *GetStructuredPointsToImage();
+
 protected:
   int Dimensions[3];
   int DataDescription;
   float Origin[3];
   float AspectRatio[3];
+  vtkStructuredPointsToImage *StructuredPointsToImage;
 };
 
 inline void vtkStructuredPoints::GetPoint(int id, float x[3])
@@ -168,5 +177,11 @@ inline int vtkStructuredPoints::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
+
+
+
+
+
+#include "vtkStructuredPointsToImage.h"
 
 #endif

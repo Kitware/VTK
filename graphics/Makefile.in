@@ -141,7 +141,6 @@ vtkHedgeHog \
 vtkHyperStreamline \
 vtkIVWriter \
 vtkImageDifference \
-vtkImageToStructuredPoints \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \
@@ -223,8 +222,6 @@ vtkStructuredGridWriter \
 vtkStructuredPointsFilter \
 vtkStructuredPointsGeometryFilter \
 vtkStructuredPointsReader \
-vtkStructuredPointsSource \
-vtkStructuredPointsToImage \
 vtkStructuredPointsToPolyDataFilter \
 vtkStructuredPointsToStructuredPointsFilter \
 vtkStructuredPointsWriter \

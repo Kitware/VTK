@@ -74,6 +74,8 @@ public:
   unsigned long GetPipelineMTime();
   // Foward filter messages
   void SetInput(vtkImageSource *Input);
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   void SetAxes(int axis0, int axis1, int axis2);
   // Forward dilateErode messages to both filters.
   void SetKernelSize(int size);

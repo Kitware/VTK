@@ -60,7 +60,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput1(vtkImageSource *input);
+  void SetInput1(vtkStructuredPoints *spts)
+    {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
   virtual void SetInput2(vtkImageSource *input);
+  void SetInput2(vtkStructuredPoints *spts)
+    {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
+
+  
   void UpdatePointData(int dim, vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *outRegion);
   unsigned long int GetPipelineMTime();

@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataSetWriter_h
 
 #include "vtkDataWriter.h"
+#include "vtkImageSource.h"
 
 class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
@@ -58,6 +59,8 @@ public:
 
   void SetInput(vtkDataSet *input);
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
+  void SetInput(vtkImageSource *cache)
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   vtkDataSet *GetInput() {return (vtkDataSet *)this->Input;};
 
 protected:

@@ -59,6 +59,7 @@ vtkIdList \
 vtkImageData \
 vtkImageRegion \
 vtkImageSimpleCache \
+vtkImageToStructuredPoints \
 vtkIndent \
 vtkIntArray \
 vtkIntPoints \
@@ -90,6 +91,8 @@ vtkStack \
 vtkStructuredData \
 vtkStructuredGrid \
 vtkStructuredPoints \
+vtkStructuredPointsSource \
+vtkStructuredPointsToImage \
 vtkTetra \
 vtkTimerLog \
 vtkTimeStamp \

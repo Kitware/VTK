@@ -51,8 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkStructuredPoints.h"
 #include "vtkImageSource.h"
+class vtkStructuredPoints;
+
 
 class VTK_EXPORT vtkStructuredPointsToImage : public vtkImageSource
 {
@@ -80,6 +81,8 @@ protected:
   void ComputeImageInformation(vtkImageRegion *region);
   int ComputeDataType();
 };
+
+#include "vtkStructuredPoints.h"
 
 #endif
 

@@ -94,7 +94,7 @@ public:
   // Set the data scalar type of the regions created by this cache.
   vtkSetMacro(ScalarType,int);
   vtkGetMacro(ScalarType,int);
-  
+
 protected:
   vtkImageCachedSource *Source;
 
@@ -115,6 +115,7 @@ protected:
   // data.  It can also return null if the method
   // fails for any reason.
   virtual void GenerateCachedRegionData(vtkImageRegion *region) = 0;
+  
 };
 
 #endif

@@ -71,6 +71,8 @@ public:
   vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
   
   void SetInput(vtkImageSource *input);
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   void SetAxes(int dim, int *axes);
   
   // Description:
