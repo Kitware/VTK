@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#include "vtkWin32Header.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>

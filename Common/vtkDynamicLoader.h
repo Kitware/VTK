@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # include <dl.h>
   typedef shl_t vtkLibHandle;
 #elif defined(_WIN32)
-# include "windows.h"
+# include "vtkWin32Header.h"
   typedef HMODULE vtkLibHandle;
 #else
   typedef void* vtkLibHandle;
