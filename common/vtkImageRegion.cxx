@@ -57,10 +57,10 @@ vtkImageRegion::vtkImageRegion()
   this->Increments[0] = this->Increments[1] = this->Increments[2]
     = this->Increments[3] = this->Increments[4] = 0;
   
-  this->SetExtent5d(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->SetImageExtent5d(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->SetAspectRatio5d(0.0, 0.0, 0.0, 0.0, 0.0);
-  this->SetOrigin5d(0.0, 0.0, 0.0, 0.0, 0.0);
+  this->SetExtent(0,0, 0,0, 0,0, 0,0, 0,0);
+  this->SetImageExtent(0,0, 0,0, 0,0, 0,0, 0,0);
+  this->SetAspectRatio(0.0, 0.0, 0.0, 0.0, 0.0);
+  this->SetOrigin(0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 
@@ -135,19 +135,19 @@ int vtkImageRegion::GetMemorySize()
   
   switch (this->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       size = sizeof(float);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       size = sizeof(int);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       size = sizeof(short);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       size = sizeof(unsigned short);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       size = sizeof(char);
       break;
     default:
@@ -480,78 +480,38 @@ void vtkImageRegion::GetIncrements(int *increments, int dim)
 // Description:
 // These methods return pointers at locations in the region.  The coordinates
 // of the location are in pixel units and are relative to the
-// origin of the whole image. The region just forwards the message
+// minimum corner of the whole image. The region just forwards the message
 // to its vtkImageData object.
-void *vtkImageRegion::GetScalarPointer5d(int coordinates[5])
+void *vtkImageRegion::GetScalarPointer(int *coordinates, int dim)
 {
-  int temp[VTK_IMAGE_DIMENSIONS];
+  int idx, temp[VTK_IMAGE_DIMENSIONS];
   
   if ( ! this->Data){
     vtkErrorMacro(<<"Data must be set or allocated.");
     return NULL;
   }
 
+  // Copy coordinates.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (idx < dim)
+      {
+      temp[idx] = coordinates[idx];
+      }
+    else
+      {
+      temp[idx] = this->Extent[idx * 2];
+      }
+    }
+  
   // Convert into data coordinates
-  vtkImageRegionChangeVectorCoordinateSystem(coordinates, this->Axes,
+  vtkImageRegionChangeVectorCoordinateSystem(temp, this->Axes,
 					     temp, this->Data->GetAxes());
   
   return this->Data->GetScalarPointer(temp);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer4d(int coordinates[4])
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = coordinates[0];
-  coords[1] = coordinates[1];
-  coords[2] = coordinates[2];
-  coords[3] = coordinates[3];
-  coords[4] = this->Extent[8];
-  
-  return this->GetScalarPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer3d(int coordinates[3])
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = coordinates[0];
-  coords[1] = coordinates[1];
-  coords[2] = coordinates[2];
-  coords[3] = this->Extent[6];
-  coords[4] = this->Extent[8];
-  
-  return this->GetScalarPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer2d(int coordinates[2])
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = coordinates[0];
-  coords[1] = coordinates[1];
-  coords[2] = this->Extent[4];
-  coords[3] = this->Extent[6];
-  coords[4] = this->Extent[8];
-  
-  return this->GetScalarPointer5d(coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer1d(int coordinates[1])
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-  
-  coords[0] = coordinates[0];
-  coords[1] = this->Extent[2];
-  coords[2] = this->Extent[4];
-  coords[3] = this->Extent[6];
-  coords[4] = this->Extent[8];
-  
-  return this->GetScalarPointer5d(coords);
-}
-
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer5d(int c0, int c1, int c2, int c3, int c4)
+void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3, int c4)
 {
   int coords[5];
   coords[0] = c0;
@@ -559,41 +519,41 @@ void *vtkImageRegion::GetScalarPointer5d(int c0, int c1, int c2, int c3, int c4)
   coords[2] = c2;
   coords[3] = c3;
   coords[4] = c4;
-  return this->GetScalarPointer5d(coords);
+  return this->GetScalarPointer(coords, 5);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer4d(int c0, int c1, int c2, int c3)
+void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3)
 {
   int coords[4];
   coords[0] = c0;
   coords[1] = c1;
   coords[2] = c2;
   coords[3] = c3;
-  return this->GetScalarPointer4d(coords);
+  return this->GetScalarPointer(coords, 4);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer3d(int c0, int c1, int c2)
+void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2)
 {
   int coords[3];
   coords[0] = c0;
   coords[1] = c1;
   coords[2] = c2;
-  return this->GetScalarPointer3d(coords);
+  return this->GetScalarPointer(coords, 3);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer2d(int c0, int c1)
+void *vtkImageRegion::GetScalarPointer(int c0, int c1)
 {
   int coords[2];
   coords[0] = c0;
   coords[1] = c1;
-  return this->GetScalarPointer2d(coords);
+  return this->GetScalarPointer(coords, 2);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer1d(int c0)
+void *vtkImageRegion::GetScalarPointer(int c0)
 {
   int coords[1];
   coords[0] = c0;
-  return this->GetScalarPointer1d(coords);
+  return this->GetScalarPointer(coords, 1);
 }
 
 //----------------------------------------------------------------------------
@@ -607,7 +567,7 @@ void *vtkImageRegion::GetScalarPointer()
   coords[3] = this->Extent[6];
   coords[4] = this->Extent[8];
   
-  return this->GetScalarPointer5d(coords);
+  return this->GetScalarPointer(coords, 5);
 }
 
 
@@ -893,11 +853,11 @@ void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
   int idx0, idx1, idx2, idx3, idx4;
   T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
   
-  self->GetIncrements5d(inc0, inc1, inc2, inc3, inc4);
-  self->GetExtent5d(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
+  self->GetIncrements(inc0, inc1, inc2, inc3, inc4);
+  self->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
   
   // loop over 5d space.
-  ptr4 = (T *)(self->GetScalarPointer5d());
+  ptr4 = (T *)(self->GetScalarPointer());
   for (idx4 = min4; idx4 <= max4; ++idx4)
     {
     ptr3 = ptr4;
@@ -937,19 +897,19 @@ void vtkImageRegion::ImportMemory(void *ptr)
   
   switch (this->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageRegionImportMemory(this, (float *)(ptr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageRegionImportMemory(this, (int *)(ptr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageRegionImportMemory(this, (short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageRegionImportMemory(this, (unsigned short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageRegionImportMemory(this, (unsigned char *)(ptr));
       break;
     default:

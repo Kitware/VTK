@@ -65,20 +65,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // These types are returned by GetType to indicate pixel type.
 #define VTK_IMAGE_VOID            0
-#define VTK_IMAGE_FLOAT           1
-#define VTK_IMAGE_INT             2
-#define VTK_IMAGE_SHORT           3
-#define VTK_IMAGE_UNSIGNED_SHORT  4
-#define VTK_IMAGE_UNSIGNED_CHAR   5
+#define VTK_FLOAT           1
+#define VTK_INT             2
+#define VTK_SHORT           3
+#define VTK_UNSIGNED_SHORT  4
+#define VTK_UNSIGNED_CHAR   5
 
 // A macro to get the name of a type
 #define vtkImageDataTypeNameMacro(type) \
 (((type) == VTK_IMAGE_VOID) ? "void" : \
-(((type) == VTK_IMAGE_FLOAT) ? "float" : \
-(((type) == VTK_IMAGE_INT) ? "int" : \
-(((type) == VTK_IMAGE_SHORT) ? "short" : \
-(((type) == VTK_IMAGE_UNSIGNED_SHORT) ? "unsigned short" : \
-(((type) == VTK_IMAGE_UNSIGNED_CHAR) ? "unsigned char" : \
+(((type) == VTK_FLOAT) ? "float" : \
+(((type) == VTK_INT) ? "int" : \
+(((type) == VTK_SHORT) ? "short" : \
+(((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" : \
+(((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" : \
 "Undefined"))))))
 
 

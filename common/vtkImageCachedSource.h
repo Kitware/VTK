@@ -77,24 +77,19 @@ public:
   void SetOutputDataType(int type);
   int  GetOutputDataType();
   
-  virtual void SetAxes1d(int axis0);
-  virtual void SetAxis(int axis0){this->SetAxes1d(axis0);};
-  virtual void SetAxes2d(int axis0,int axis1);
-  virtual void SetAxes3d(int axis0,int axis1,int axis2);
-  virtual void SetAxes4d(int axis0,int axis1,int axis2,int axis3);
-  virtual void SetAxes5d(int axis0,int axis1,int axis2,int axis3,int axis4);
-  virtual void SetAxes(int *axes);
+  // Set/Get the coordinate system for this filter.
+  void SetAxes(int *axes, int dim);
+  vtkImageRegionSetMacro(Axes,int);
+  void GetAxes(int *axes, int dim);
+  vtkImageRegionGetMacro(Axes,int);
 
-  // Description:
-  // Get the axes reordering of this filter.
-  vtkGetVectorMacro(Axes,int,5);
-  
   void DebugOn();
   void DebugOff();
   void SetOutputMemoryLimit(long limit);
 
 protected:
   vtkImageCache *Output;
+  int NumberOfAxes;
   int Axes[VTK_IMAGE_DIMENSIONS];            // reorder the axes
   
   virtual void UpdateRegion5d(vtkImageRegion *region); 

@@ -196,20 +196,20 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
       os << nextIndent << "Scalar Values:\n";
       switch (this->GetType())
 	{
-	case VTK_IMAGE_FLOAT:
+	case VTK_FLOAT:
 	  vtkImageDataPrintScalars(this, (float *)(ptr), os, nextIndent);
 	  break;
-	case VTK_IMAGE_INT:
+	case VTK_INT:
 	  vtkImageDataPrintScalars(this, (int *)(ptr), os, nextIndent);
 	  break;
-	case VTK_IMAGE_SHORT:
+	case VTK_SHORT:
 	  vtkImageDataPrintScalars(this, (short *)(ptr), os, nextIndent);
 	  break;
-	case VTK_IMAGE_UNSIGNED_SHORT:
+	case VTK_UNSIGNED_SHORT:
 	  vtkImageDataPrintScalars(this, (unsigned short *)(ptr), 
 				   os, nextIndent);
 	  break;
-	case VTK_IMAGE_UNSIGNED_CHAR:
+	case VTK_UNSIGNED_CHAR:
 	  vtkImageDataPrintScalars(this, (unsigned char *)(ptr),
 				   os, nextIndent);
 	  break;
@@ -383,27 +383,27 @@ int vtkImageData::Allocate()
     case VTK_IMAGE_VOID:
       vtkErrorMacro(<< "Allocate: Type Unknown");
       break;
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       this->Scalars = new vtkFloatScalars;
       this->Allocated = this->Scalars->Allocate(inc);
       ((vtkFloatScalars *)(this->Scalars))->WritePtr(0,inc);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       this->Scalars = new vtkIntScalars;
       this->Allocated = this->Scalars->Allocate(inc);
       ((vtkIntScalars *)(this->Scalars))->WritePtr(0,inc);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       this->Scalars = new vtkShortScalars;
       this->Allocated =  this->Scalars->Allocate(inc);
       ((vtkShortScalars *)(this->Scalars))->WritePtr(0,inc);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       this->Scalars = new vtkUnsignedShortScalars;
       this->Allocated = this->Scalars->Allocate(inc);
       ((vtkUnsignedShortScalars *)(this->Scalars))->WritePtr(0,inc);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       this->Scalars = new vtkUnsignedCharScalars;
       this->Allocated = this->Scalars->Allocate(inc);
       ((vtkUnsignedCharScalars *)(this->Scalars))->WritePtr(0,inc);
@@ -429,27 +429,27 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
   // Set the proper type.
   if (strcmp(scalars->GetDataType(), "float") == 0)
     {
-    this->Type = VTK_IMAGE_FLOAT;
+    this->Type = VTK_FLOAT;
     num = ((vtkFloatScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "int") == 0)
     {
-    this->Type = VTK_IMAGE_INT;
+    this->Type = VTK_INT;
     num = ((vtkIntScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "short") == 0)
     {
-    this->Type = VTK_IMAGE_SHORT;
+    this->Type = VTK_SHORT;
     num = ((vtkShortScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "unsigned short") == 0)
     {
-    this->Type = VTK_IMAGE_UNSIGNED_SHORT;
+    this->Type = VTK_UNSIGNED_SHORT;
     num = ((vtkUnsignedShortScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "unsigned char") == 0)
     {
-    this->Type = VTK_IMAGE_UNSIGNED_CHAR;
+    this->Type = VTK_UNSIGNED_CHAR;
     num = ((vtkUnsignedCharScalars *)(scalars))->GetNumberOfScalars();
     }
   else
@@ -607,20 +607,20 @@ void vtkImageDataCopyData(vtkImageData *self, void *outPtr,
 {
   switch (self->GetType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageDataCopyData2(self, (float *)(outPtr), inData, inPtr, extent);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageDataCopyData2(self, (int *)(outPtr), inData, inPtr, extent);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageDataCopyData2(self, (short *)(outPtr), inData, inPtr, extent);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageDataCopyData2(self, (unsigned short *)(outPtr), inData, inPtr, 
 			   extent);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageDataCopyData2(self, (unsigned char *)(outPtr), inData, inPtr, 
 			   extent);
       break;
@@ -704,19 +704,19 @@ void vtkImageData::CopyData(vtkImageData *data, int *extent)
   
   switch (data->GetType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageDataCopyData(this,outPtr, data,(float *)(inPtr), extent);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageDataCopyData(this,outPtr, data,(int *)(inPtr), extent);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageDataCopyData(this,outPtr, data,(short *)(inPtr), extent);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageDataCopyData(this,outPtr, data,(unsigned short *)(inPtr),extent);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageDataCopyData(this,outPtr, data,(unsigned char *)(inPtr), extent);
       break;
     default:

@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageCachedSource::vtkImageCachedSource()
 {
   this->Output = NULL;
-  this->SetAxes5d(VTK_IMAGE_X_AXIS,
-		  VTK_IMAGE_Y_AXIS,
-		  VTK_IMAGE_Z_AXIS,
-		  VTK_IMAGE_TIME_AXIS,
-		  VTK_IMAGE_COMPONENT_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS,
+		VTK_IMAGE_Y_AXIS,
+		VTK_IMAGE_Z_AXIS,
+		VTK_IMAGE_TIME_AXIS,
+		VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -141,20 +141,20 @@ void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
   int extent[10];
   int min4, max4;
   
-  region->GetExtent5d(extent);
+  region->GetExtent(extent);
   min4 = extent[8];
   max4 = extent[9];
   
   for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
     {
     extent[8] = extent[9] = coordinate4;
-    region->SetExtent5d(extent);
+    region->SetExtent(extent);
     this->UpdateRegion4d(region);
     }
   // restore original extent
   extent[8] = min4;
   extent[9] = max4;
-  region->SetExtent5d(extent);  
+  region->SetExtent(extent);  
 }
 
 
@@ -168,20 +168,20 @@ void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
   int extent[8];
   int min3, max3;
   
-  region->GetExtent4d(extent);
+  region->GetExtent(extent);
   min3 = extent[6];
   max3 = extent[7];
   
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
     extent[6] = extent[7] = coordinate3;
-    region->SetExtent4d(extent);
+    region->SetExtent(extent);
     this->UpdateRegion3d(region);
     }
   // restore original extent
   extent[6] = min3;
   extent[7] = max3;
-  region->SetExtent4d(extent);  
+  region->SetExtent(extent);  
 }
 
 
@@ -195,20 +195,20 @@ void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
   int extent[6];
   int min2, max2;
   
-  region->GetExtent3d(extent);
+  region->GetExtent(extent);
   min2 = extent[4];
   max2 = extent[5];
   
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
     extent[4] = extent[5] = coordinate2;
-    region->SetExtent3d(extent);
+    region->SetExtent(extent);
     this->UpdateRegion2d(region);
     }
   // restore original extent
   extent[4] = min2;
   extent[5] = max2;
-  region->SetExtent3d(extent);  
+  region->SetExtent(extent);  
 }
 
 
@@ -222,20 +222,20 @@ void vtkImageCachedSource::UpdateRegion2d(vtkImageRegion *region)
   int extent[4];
   int min1, max1;
   
-  region->GetExtent2d(extent);
+  region->GetExtent(extent);
   min1 = extent[2];
   max1 = extent[3];
   
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
     extent[2] = extent[3] = coordinate1;
-    region->SetExtent2d(extent);
+    region->SetExtent(extent);
     this->UpdateRegion1d(region);
     }
   // restore original extent
   extent[2] = min1;
   extent[3] = max1;
-  region->SetExtent2d(extent);  
+  region->SetExtent(extent);  
 }
 
 
@@ -344,116 +344,66 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method is used when the source is treating the data as 1d lines.
-// It chooses the parallel axis.
-void vtkImageCachedSource::SetAxes1d(int axis0)
+void vtkImageCachedSource::SetAxes(int *axes, int dim)
 {
-  int axis1;
-  
-  // Choose the next axis (2d) as the smallest axis.
-  // This is the most efficeint if the data is ordered this way.
-  // Maybe the cache or input should be queried for its data order.
-  axis1 = 0;
-  while (axis1 == axis0)
+  int allAxes[VTK_IMAGE_DIMENSIONS];
+  int idx1, idx2;
+
+  // Copy axes
+  for (idx1 = 0; idx1 < dim; ++idx1)
     {
-    ++axis1;
+    allAxes[idx1] = axes[idx1];
     }
   
-  this->SetAxes2d(axis0, axis1);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is used when the source is treating the data as 2d images.
-// It chooses the parallel plane axes.
-void vtkImageCachedSource::SetAxes2d(int axis0, int axis1)
-{
-  int axis2;
-  
-  // Choose the next axis (3d) as the smallest axis.
-  // This is the most efficeint if the data is ordered this way.
-  // Maybe the cache or input should be queried for its data order.
-  axis2 = 0;
-  while (axis2 == axis0 || axis2 == axis1)
+  // choose the rest of the axes
+  // look through original axes to find ones not taken
+  for (idx1 = 0; 
+       idx1 < VTK_IMAGE_DIMENSIONS && dim < VTK_IMAGE_DIMENSIONS; 
+       ++idx1)
     {
-    ++axis2;
+    for (idx2 = 0; idx2 < dim; ++idx2)
+      {
+      if (allAxes[idx2] == this->Axes[idx1])
+	{
+	break;
+	}
+      }
+    if (idx2 == dim)
+      {
+      allAxes[dim] = this->Axes[idx1];
+      ++dim;
+      }
     }
   
-  this->SetAxes3d(axis0, axis1, axis2);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is used when the source is treating the data as 3d volumes.
-// It chooses the basis of the volume.
-void vtkImageCachedSource::SetAxes3d(int axis0, int axis1, int axis2)
-{
-  int axis3;
-  
-  // Choose the next axis (4d) as the smallest axis (only remaining axis).
-  axis3 = 0;
-  while (axis3 == axis0 || axis3 == axis1 || axis3 == axis2)
+  // Sanity check
+  if (dim != VTK_IMAGE_DIMENSIONS)
     {
-    ++axis3;
+    vtkErrorMacro(<< "SetAxes: Could not complete unspecified axes.");
+    return;
     }
   
-  this->SetAxes4d(axis0, axis1, axis2, axis3);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is used when the source is treating the data as 4d images.
-// It chooses the basis of the 4d space.
-void vtkImageCachedSource::SetAxes4d(int axis0,int axis1,int axis2,int axis3)
-{
-  int axis4;
-  
-  // Choose the next axis (4d) as the smallest axis (only remaining axis).
-  axis4 = 0;
-  while (axis4 == axis0 || axis4 == axis1 || axis4 == axis2 || axis4 == axis3)
+  // Actuall set the axes.
+  for (idx1 = 0; idx1 < VTK_IMAGE_DIMENSIONS; ++idx1)
     {
-    ++axis4;
-    }
-  
-  this->SetAxes5d(axis0, axis1, axis2, axis3, axis4);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is used when the source is treating the data as 5d "image".
-// It chooses the axes that form the basis of the space.
-void vtkImageCachedSource::SetAxes5d(int axis0, int axis1, int axis2, 
-				     int axis3, int axis4)
-{
-  int axes[VTK_IMAGE_DIMENSIONS];
-  
-  axes[0] = axis0;
-  axes[1] = axis1;
-  axes[2] = axis2;
-  axes[3] = axis3;
-  axes[4] = axis4;
-  
-  this->SetAxes(axes);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method always gets called when any of the SetAxes methods are invoked.
-// It is the general SetAxes method
-void vtkImageCachedSource::SetAxes(int *axes)
-{
-  int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Axes[idx] = axes[idx];
+    this->Axes[idx1] = allAxes[idx1];
     }
   this->Modified();
 }
 
 
-    
+
+
+//----------------------------------------------------------------------------
+void vtkImageCachedSource::GetAxes(int *axes, int dim)
+{
+  int idx;
+
+  // Copy axes
+  for (idx = 0; idx < dim; ++idx)
+    {
+    axes[idx] = this->Axes[idx];
+    }
+}
 
 
 

@@ -54,204 +54,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageRegion_h
 
 
+#include "vtkImageSetGet.h"
 #include "vtkImageSource.h"
 #include "vtkImageData.h"
-
-
-// These macro are for creating the many convenience functions used 
-// for accessing instance variables.  They could simplify this class.
-#define vtkImageRegionSetMacro(name,type) \
-void Set##name (type *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##5d(type *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##4d(type *_tmp) { this->Set##name (_tmp, 4);} \
-void Set##name##3d(type *_tmp) { this->Set##name (_tmp, 3);} \
-void Set##name##2d(type *_tmp) { this->Set##name (_tmp, 2);} \
-void Set##name##1d(type *_tmp) { this->Set##name (_tmp, 1);} \
-void Set##name##5d(type _name0,type _name1,type _name2, type _name3,type _name4) \
-{ \
-  type _tmp[5]; \
-  _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
-  _tmp[3] = _name3; _tmp[4] = _name4; \
-  this->Set##name (_tmp,5); \
-} \
-void Set##name##4d(type _name0,type _name1,type _name2, type _name3) \
-{ \
-  type _tmp[4]; \
-  _tmp[0] = _name0; _tmp[1] = _name1; \
-  _tmp[2] = _name2; _tmp[3] = _name3; \
-  this->Set##name (_tmp,4); \
-} \
-void Set##name##3d(type _name0,type _name1,type _name2) \
-{ \
-  type _tmp[3]; \
-  _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
-  this->Set##name (_tmp,3); \
-} \
-void Set##name##2d(type _name0,type _name1) \
-{ \
-  type _tmp[2]; \
-  _tmp[0] = _name0; _tmp[1] = _name1; \
-  this->Set##name (_tmp,2); \
-} \
-void Set##name##1d(type _name0) \
-{ \
-  type _tmp[1]; \
-  _tmp[0] = _name0; \
-  this->Set##name (_tmp,1); \
-} 
-#define vtkImageRegionGetMacro(name,type) \
-type *Get##name () { return this->##name ;}  \
-type *Get##name##5d() { return this->##name ;} \
-type *Get##name##4d() { return this->##name ;} \
-type *Get##name##3d() { return this->##name ;} \
-type *Get##name##2d() { return this->##name ;} \
-type *Get##name##1d() { return this->##name ;} \
-void Get##name (type *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##5d(type *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##4d(type *_tmp) { this->Get##name (_tmp, 4);} \
-void Get##name##3d(type *_tmp) { this->Get##name (_tmp, 3);} \
-void Get##name##2d(type *_tmp) { this->Get##name (_tmp, 2);} \
-void Get##name##1d(type *_tmp) { this->Get##name (_tmp, 1);} \
-void Get##name##5d(type &_name0,type &_name1,type &_name2, \
-		   type &_name3,type &_name4) \
-{ \
-  type _tmp[5]; \
-  this->Get##name (_tmp,5); \
-  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
-  _name3 = _tmp[3]; _name4 = _tmp[4]; \
-} \
-void Get##name##4d(type &_name0,type &_name1,type &_name2,type &_name3) \
-{ \
-  type _tmp[4]; \
-  this->Get##name (_tmp,4); \
-  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; _name3 = _tmp[3]; \
-} \
-void Get##name##3d(type &_name0,type &_name1,type &_name2) \
-{ \
-  type _tmp[3]; \
-  this->Get##name (_tmp,3); \
-  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
-} \
-void Get##name##2d(type &_name0,type &_name1) \
-{ \
-  type _tmp[2]; \
-  this->Get##name (_tmp,2); \
-  _name0 = _tmp[0]; _name1 = _tmp[1]; \
-} \
-void Get##name##1d(type &_name0) \
-{ \
-  type _tmp[1]; \
-  this->Get##name (_tmp,1); \
-  _name0 = _tmp[0]; \
-} 
-#define vtkImageRegionSetExtentMacro(name) \
-void Set##name (int *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##5d(int *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##4d(int *_tmp) { this->Set##name (_tmp, 4);} \
-void Set##name##3d(int *_tmp) { this->Set##name (_tmp, 3);} \
-void Set##name##2d(int *_tmp) { this->Set##name (_tmp, 2);} \
-void Set##name##1d(int *_tmp) { this->Set##name (_tmp, 1);} \
-void Set##name##5d(int _min0,int _max0,int _min1,int _max1, \
- 		   int _min2,int _max2,int _min3,int _max3, \
-		   int _min4,int _max4) \
-{ \
-  int _tmp[10]; \
-  _tmp[0] = _min0; _tmp[1] = _max0; \
-  _tmp[2] = _min1; _tmp[3] = _max1; \
-  _tmp[4] = _min2; _tmp[5] = _max2; \
-  _tmp[6] = _min3; _tmp[7] = _max3; \
-  _tmp[8] = _min4; _tmp[9] = _max4; \
-  this->Set##name (_tmp,5); \
-} \
-void Set##name##4d(int _min0,int _max0,int _min1,int _max1, \
-		   int _min2,int _max2,int _min3,int _max3) \
-{ \
-  int _tmp[8]; \
-  _tmp[0] = _min0; _tmp[1] = _max0; \
-  _tmp[2] = _min1; _tmp[3] = _max1; \
-  _tmp[4] = _min2; _tmp[5] = _max2; \
-  _tmp[6] = _min3; _tmp[7] = _max3; \
-  this->Set##name (_tmp,4); \
-} \
-void Set##name##3d(int _min0,int _max0,int _min1,int _max1, \
-		   int _min2,int _max2) \
-{ \
-  int _tmp[6]; \
-  _tmp[0] = _min0; _tmp[1] = _max0; \
-  _tmp[2] = _min1; _tmp[3] = _max1; \
-  _tmp[4] = _min2; _tmp[5] = _max2; \
-  this->Set##name (_tmp,3); \
-} \
-void Set##name##2d(int _min0,int _max0,int _min1,int _max1) \
-{ \
-  int _tmp[4]; \
-  _tmp[0] = _min0; _tmp[1] = _max0; \
-  _tmp[2] = _min1; _tmp[3] = _max1; \
-  this->Set##name (_tmp,2); \
-} \
-void Set##name##1d(int _min0,int _max0) \
-{ \
-  int _tmp[2]; \
-  _tmp[0] = _min0; _tmp[1] = _max0; \
-  this->Set##name (_tmp,1); \
-} 
-#define vtkImageRegionGetExtentMacro(name) \
-int *Get##name () { return this->##name ;}  \
-int *Get##name##5d() { return this->##name ;} \
-int *Get##name##4d() { return this->##name ;} \
-int *Get##name##3d() { return this->##name ;} \
-int *Get##name##2d() { return this->##name ;} \
-int *Get##name##1d() { return this->##name ;} \
-void Get##name (int *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##5d(int *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##4d(int *_tmp) { this->Get##name (_tmp, 4);} \
-void Get##name##3d(int *_tmp) { this->Get##name (_tmp, 3);} \
-void Get##name##2d(int *_tmp) { this->Get##name (_tmp, 2);} \
-void Get##name##1d(int *_tmp) { this->Get##name (_tmp, 1);} \
-void Get##name##5d(int &_min0,int &_max0,int &_min1,int &_max1, \
-		   int &_min2,int &_max2,int &_min3,int &_max3, \
-		   int &_min4,int &_max4) \
-{ \
-  int _tmp[10]; \
-  this->Get##name (_tmp,5); \
-  _min0 = _tmp[0]; _max0 = _tmp[1]; \
-  _min1 = _tmp[2]; _max1 = _tmp[3]; \
-  _min2 = _tmp[4]; _max2 = _tmp[5]; \
-  _min3 = _tmp[6]; _max3 = _tmp[7]; \
-  _min4 = _tmp[8]; _max4 = _tmp[9]; \
-} \
-void Get##name##4d(int &_min0,int &_max0,int &_min1,int &_max1, \
-		   int &_min2,int &_max2,int &_min3,int &_max3) \
-{ \
-  int _tmp[8]; \
-  this->Get##name##(_tmp,4); \
-  _min0 = _tmp[0]; _max0 = _tmp[1]; \
-  _min1 = _tmp[2]; _max1 = _tmp[3]; \
-  _min2 = _tmp[4]; _max2 = _tmp[5]; \
-  _min3 = _tmp[6]; _max3 = _tmp[7]; \
-} \
-void Get##name##3d(int &_min0,int &_max0,int &_min1,int &_max1, \
-		   int &_min2,int &_max2) \
-{ \
-  int _tmp[6]; \
-  this->Get##name (_tmp,3); \
-  _min0 = _tmp[0]; _max0 = _tmp[1]; \
-  _min1 = _tmp[2]; _max1 = _tmp[3]; \
-  _min2 = _tmp[4]; _max2 = _tmp[5]; \
-} \
-void Get##name##2d(int &_min0,int &_max0,int &_min1,int &_max1) \
-{ \
-  int _tmp[4]; \
-  this->Get##name (_tmp,2); \
-  _min0 = _tmp[0]; _max0 = _tmp[1]; \
-  _min1 = _tmp[2]; _max1 = _tmp[3]; \
-} \
-void Get##name##1d(int &_min0,int &_max0) \
-{ \
-  int _tmp[2]; \
-  this->Get##name (_tmp,1); \
-  _min0 = _tmp[0]; _max0 = _tmp[1]; \
-} 
 
 
 class vtkImageRegion : public vtkImageSource 
@@ -287,27 +92,17 @@ public:
   
   // Description:
   // Returns a pointer relative to the current volume, image or line.
-  void *GetScalarPointer(int coords[5]){return this->GetScalarPointer5d(coords);};
-  void *GetScalarPointer5d(int coordinates[5]);
-  void *GetScalarPointer4d(int coordinates[4]);
-  void *GetScalarPointer3d(int coordinates[3]);
-  void *GetScalarPointer2d(int coordinates[2]);
-  void *GetScalarPointer1d(int coordinates[1]);
+  void *GetScalarPointer(int *coordinates, int dim);
+  void *GetScalarPointer(int coords[5])
+  {return this->GetScalarPointer(coords, 5);};
+  void *GetScalarPointer(int c0, int c1, int c2, int c3, int c4);
+  void *GetScalarPointer(int c0, int c1, int c2, int c3);
+  void *GetScalarPointer(int c0, int c1, int c2);
+  void *GetScalarPointer(int c0, int c1);
+  void *GetScalarPointer(int c0);
   // Description:
-  // Returns a pointer relative to the current volume, image or line.
-  void *GetScalarPointer5d(int c0, int c1, int c2, int c3, int c4);
-  void *GetScalarPointer4d(int c0, int c1, int c2, int c3);
-  void *GetScalarPointer3d(int c0, int c1, int c2);
-  void *GetScalarPointer2d(int c0, int c1);
-  void *GetScalarPointer1d(int c0);
-  // Description:
-  // Returns pointer at origin of current volume, image or line.
+  // Returns pointer to the minimum extent (min0, min1, ...)
   void *GetScalarPointer();
-  void *GetScalarPointer5d(){return this->GetScalarPointer();};
-  void *GetScalarPointer4d(){return this->GetScalarPointer();};
-  void *GetScalarPointer3d(){return this->GetScalarPointer();};
-  void *GetScalarPointer2d(){return this->GetScalarPointer();};
-  void *GetScalarPointer1d(){return this->GetScalarPointer();};
   
   // Description:
   // Different methods for setting the extent.
@@ -410,20 +205,15 @@ public:
   // The extent change, but the data does not.
   void Translate(int *vector, int dim);
   void Translate (int *vector) { this->Translate(vector, 5);};
-  void Translate5d(int *vector) { this->Translate(vector, 5);};
-  void Translate4d(int *vector) { this->Translate(vector, 4);};
-  void Translate3d(int *vector) { this->Translate(vector, 3);};
-  void Translate2d(int *vector) { this->Translate(vector, 2);};
-  void Translate1d(int *vector) { this->Translate(vector, 1);};
-  void Translate5d(int v0,int v1,int v2, int v3,int v4) 
+  void Translate(int v0,int v1,int v2, int v3,int v4) 
   {int v[5];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3;v[4]=v4; this->Translate(v,5);};
-  void Translate4d(int v0,int v1,int v2, int v3) 
+  void Translate(int v0,int v1,int v2, int v3) 
   {int v[4];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3; this->Translate(v,4);};
-  void Translate3d(int v0,int v1,int v2) 
+  void Translate(int v0,int v1,int v2) 
   {int v[3];  v[0]=v0;v[1]=v1;v[2]=v2; this->Translate(v,3);};
-  void Translate2d(int v0,int v1)
+  void Translate(int v0,int v1)
   {int v[2];  v[0]=v0;v[1]=v1; this->Translate(v,2);}; 
-  void Translate1d(int v0) 
+  void Translate(int v0) 
   {int v[1];  v[0]=v0; this->Translate(v,1);};
   
   

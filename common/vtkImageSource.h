@@ -63,7 +63,6 @@ public:
   vtkImageSource();
   char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
   virtual vtkImageRegion *Update();
   
   // Description:

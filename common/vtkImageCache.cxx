@@ -145,7 +145,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     this->Source->UpdateImageInformation(region);
     // Save the ImageExtent to satisfy later calls.
     // Choose some constant coordinate system.
-    region->SetAxes5d(0, 1, 2, 3, 4);
+    region->SetAxes(0, 1, 2, 3, 4);
     region->GetImageExtent(this->ImageExtent);
     region->GetAspectRatio(this->AspectRatio);
     this->ImageInformationTime.Modified();
@@ -159,7 +159,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
   // Image extent Are saved in some constant coordinate system.
-  region->SetAxes5d(0, 1, 2, 3, 4);
+  region->SetAxes(0, 1, 2, 3, 4);
   region->SetImageExtent(this->ImageExtent);
   region->SetAspectRatio(this->AspectRatio);
 
