@@ -108,3 +108,7 @@ void vtkCellArray::SetCells(int ncells, vtkIntArray *cells)
     }
 }
 
+unsigned long vtkCellArray::GetActualMemorySize()
+{
+  return this->Ia->GetActualMemorySize();
+}

@@ -1443,6 +1443,37 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
     }
 }
 
+unsigned long vtkDataSetAttributes::GetActualMemorySize()
+{
+  unsigned long size=0;
+
+  if ( this->Scalars )
+    {
+    size += this->Scalars->GetActualMemorySize();
+    }
+  if ( this->Vectors )
+    {
+    size += this->Vectors->GetActualMemorySize();
+    }
+  if ( this->Normals )
+    {
+    size += this->Normals->GetActualMemorySize();
+    }
+  if ( this->TCoords )
+    {
+    size += this->TCoords->GetActualMemorySize();
+    }
+  if ( this->Tensors )
+    {
+    size += this->Tensors->GetActualMemorySize();
+    }
+  if ( this->FieldData )
+    {
+    size += this->FieldData->GetActualMemorySize();
+    }
+  return size;
+}
+
 void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

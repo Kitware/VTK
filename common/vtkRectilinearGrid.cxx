@@ -1060,8 +1060,28 @@ unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
   return updateSize;
 }
 
+//----------------------------------------------------------------------------
+unsigned long vtkRectilinearGrid::GetActualMemorySize()
+{
+  unsigned long size=this->vtkDataSet::GetActualMemorySize();
 
+  if ( this->XCoordinates ) 
+    {
+    size += this->XCoordinates->GetActualMemorySize();
+    }
 
+  if ( this->YCoordinates ) 
+    {
+    size += this->YCoordinates->GetActualMemorySize();
+    }
+
+  if ( this->ZCoordinates ) 
+    {
+    size += this->ZCoordinates->GetActualMemorySize();
+    }
+
+  return size;
+}
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
@@ -1094,8 +1114,3 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
 
 }
-
-
-
-
-

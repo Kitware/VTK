@@ -107,7 +107,7 @@ void vtkCellTypes::Reset()
 {
   this->MaxId = -1;
 }
-//
+
 // Private function does "reallocate"
 //
 _vtkCell_s *vtkCellTypes::Resize(int sz)
@@ -139,3 +139,9 @@ _vtkCell_s *vtkCellTypes::Resize(int sz)
   return this->Array;
 }
 
+unsigned long vtkCellTypes::GetActualMemorySize()
+{
+  unsigned long size=sizeof(_vtkCell_s)*this->GetNumberOfTypes();
+
+  return (unsigned long) ceil((float)size/1000.0); //kilobytes
+}

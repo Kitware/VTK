@@ -126,6 +126,15 @@ public:
   // Reset to a state of no entries without freeing the memory.
   void Reset();
 
+  // Description:
+  // Return the memory in kilobytes consumed by this cell links array. 
+  // Used to support streaming and reading/writing data. The value 
+  // returned is guaranteed to be greater than or equal to the memory 
+  // required to actually represent the data represented by this object. 
+  // The information returned is valid only after the pipeline has 
+  // been updated.
+  unsigned long GetActualMemorySize();
+  
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   ~vtkCellLinks();

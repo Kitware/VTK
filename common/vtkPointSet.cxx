@@ -357,6 +357,16 @@ int vtkPointSet::GetNetReferenceCount()
 }
 
 
+unsigned long vtkPointSet::GetActualMemorySize()
+{
+  unsigned long size=this->vtkDataSet::GetActualMemorySize();
+  if ( this->Points ) 
+    {
+    size += this->Points->GetActualMemorySize();
+    }
+  return size;
+}
+
 void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);

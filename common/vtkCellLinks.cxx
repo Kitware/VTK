@@ -193,3 +193,19 @@ int vtkCellLinks::InsertNextPoint(int numLinks)
   this->Array[this->MaxId].cells = new int[numLinks];
   return this->MaxId;
 }
+
+unsigned long vtkCellLinks::GetActualMemorySize()
+{
+  unsigned long size=0;
+  int ptId;
+
+  for (ptId=0; ptId < (this->MaxId+1); ptId++)
+    {
+    size += this->GetNcells(ptId);
+    }
+
+  size *= sizeof(int *); //references to cells
+  size += (this->MaxId+1) * sizeof(_vtkLink_s); //list of cell lists
+
+  return (unsigned long) ceil((float)size/1000.0); //kilobytes
+}

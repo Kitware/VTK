@@ -322,7 +322,6 @@ void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
     }
 }
 
-
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(int cellId, float bounds[6])
@@ -659,6 +658,28 @@ unsigned long vtkUnstructuredGrid::GetEstimatedUpdateMemorySize()
   return size;
 }
 
+
+//----------------------------------------------------------------------------
+unsigned long vtkUnstructuredGrid::GetActualMemorySize()
+{
+  unsigned long size=this->vtkPointSet::GetActualMemorySize();
+  if ( this->Connectivity )
+    {
+    size += this->Connectivity->GetActualMemorySize();
+    }
+
+  if ( this->Cells )
+    {
+    size += this->Cells->GetActualMemorySize();
+    }
+
+  if ( this->Links )
+    {
+    size += this->Links->GetActualMemorySize();
+    }
+
+  return size;
+}
 
 void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {

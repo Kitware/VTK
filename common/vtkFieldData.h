@@ -208,6 +208,12 @@ public:
   void ShallowCopy(vtkFieldData &da) {this->ShallowCopy(&da);}
   void GetField(vtkIdList& ptId, vtkFieldData& f) {this->GetField(&ptId, &f);}
   
+  // Description:
+  // Return the memory in kilobytes consumed by this field data. Used to
+  // support streaming and reading/writing data. The value returned is
+  // guaranteed to be greater than or equal to the memory required to
+  // actually represent the data represented by this object.
+  virtual unsigned long GetActualMemorySize();
   
 protected:
   vtkFieldData();

@@ -589,6 +589,21 @@ vtkDataArray *vtkFieldData::GetArray(char *arrayName)
   return NULL;
 }
 
+unsigned long vtkFieldData::GetActualMemorySize()
+{
+  unsigned long size=0;
+
+  for ( int i=0; i < this->NumberOfArrays; i++ )
+    {
+    if ( this->Data[i] != NULL )
+      {
+      size += this->Data[i]->GetActualMemorySize();
+      }
+    }
+
+  return size;
+}
+
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

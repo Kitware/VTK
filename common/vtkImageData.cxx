@@ -1892,3 +1892,10 @@ vtkImageToStructuredPoints *vtkImageData::MakeImageToStructuredPoints()
     }
   return this->ImageToStructuredPoints;
 }
+
+//----------------------------------------------------------------------------
+unsigned long vtkImageData::GetActualMemorySize()
+{
+  return this->vtkDataSet::GetActualMemorySize();
+}
+

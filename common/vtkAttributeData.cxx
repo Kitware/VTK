@@ -217,6 +217,11 @@ void vtkAttributeData::ShallowCopy(vtkAttributeData *da)
   this->SetData(da->GetData());
 }
 
+unsigned long vtkAttributeData::GetActualMemorySize()
+{
+  return this->Data->GetActualMemorySize();
+}
+
 void vtkAttributeData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

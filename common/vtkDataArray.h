@@ -164,8 +164,8 @@ public:
 		       vtkFloatArray &data);
 
   // Description:
-  // Deep copy of data. Copies data from different data arrays even if they are 
-  // different types (using floating-point exchange).
+  // Deep copy of data. Copies data from different data arrays even if
+  // they are different types (using floating-point exchange).
   virtual void DeepCopy(vtkDataArray *da);
 
   // Description:
@@ -208,6 +208,15 @@ public:
   virtual void SetVoidArray(void *vtkNotUsed(array),int vtkNotUsed(size),
 			    int vtkNotUsed(save)) {};
 
+  // Description:
+  // Return the memory in kilobytes consumed by this data array. Used to
+  // support streaming and reading/writing data. The value returned is
+  // guaranteed to be greater than or equal to the memory required to
+  // actually represent the data represented by this object. The 
+  // information returned is valid only after the pipeline has 
+  // been updated.
+  unsigned long GetActualMemorySize();
+  
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);

@@ -69,7 +69,6 @@ public:
   // Copy the geometric structure of an input point set object.
   void CopyStructure(vtkDataSet *pd);
 
-  
   // Description:
   // See vtkDataSet for additional information.
   int GetNumberOfPoints();
@@ -108,6 +107,15 @@ public:
   // any self created loops. This is used in the Source/Data
   // registration to properly free the objects.
   virtual int GetNetReferenceCount();
+
+  // Description:
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated. The memory size
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to represent the data (e.g., extra space in
+  // arrays, etc. are not included in the return value). THIS METHOD
+  // IS THREAD SAFE.
+  unsigned long GetActualMemorySize();
 
 protected:
   vtkPointSet();

@@ -38,18 +38,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPointLocator2D - quickly locate points in 3-space
+// .NAME vtkPointLocator2D - quickly locate points in 2-space
 // .SECTION Description
-// vtkPointLocator2D is a spatial search object to quickly locate points in 3D.
+// vtkPointLocator2D is a spatial search object to quickly locate points in 2D.
 // vtkPointLocator2D works by dividing a specified region of space into a regular
 // array of "rectangular" buckets, and then keeping a list of points that 
-// lie in each bucket. Typical operation involves giving a position in 3D 
+// lie in each bucket. Typical operation involves giving a position in 2D 
 // and finding the closest point.
 //
 // vtkPointLocator2D has two distinct methods of interaction. In the first
 // method, you suppy it with a dataset, and it operates on the points in 
 // the dataset. In the second method, you supply it with an array of points,
 // and the object operates on the array.
+//
+// This class is similar to vtkPointLocator except that it assumes the points
+// are located in 2D (or at least that the z-coordinate is ignored).
 
 // .SECTION Caveats
 // Many other types of spatial locators have been developed such as 
@@ -57,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // operations described here.
 
 // .SECTION See Also
-// vtkCellPicker vtkPointPicker
+// vtkPointLocator vtkCellPicker vtkPointPicker
 
 #ifndef __vtkPointLocator2D_h
 #define __vtkPointLocator2D_h
@@ -94,7 +97,7 @@ public:
   virtual int FindClosestPoint(float x[2]);
 
   // Description:
-  // Determine whether point given by x[3] has been inserted into points list.
+  // Determine whether point given by x[2] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1.
   virtual int IsInsertedPoint(float x[2]);

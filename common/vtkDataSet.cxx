@@ -298,6 +298,14 @@ void vtkDataSet::Squeeze()
   this->PointData->Squeeze();
 }
 
+unsigned long vtkDataSet::GetActualMemorySize()
+{
+  unsigned long size=this->vtkDataObject::GetActualMemorySize();
+  size += this->PointData->GetActualMemorySize();
+  size += this->CellData->GetActualMemorySize();
+  return size;
+}
+
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;

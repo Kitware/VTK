@@ -211,6 +211,15 @@ public:
   void Squeeze() {this->Ia->Squeeze();}
 
   // Description:
+  // Return the memory in kilobytes consumed by this cell array. Used to
+  // support streaming and reading/writing data. The value returned is
+  // guaranteed to be greater than or equal to the memory required to
+  // actually represent the data represented by this object. The 
+  // information returned is valid only after the pipeline has 
+  // been updated.
+  unsigned long GetActualMemorySize();
+  
+  // Description:
   // For legacy compatibility. Do not use.
   int InsertNextCell(vtkIdList &pts);
   

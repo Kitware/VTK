@@ -186,6 +186,15 @@ public:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();  
   
+  // Description:
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated. The memory size
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to represent the data (e.g., extra space in
+  // arrays, etc. are not included in the return value). THIS METHOD
+  // IS THREAD SAFE.
+  unsigned long GetActualMemorySize();
+  
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();

@@ -987,6 +987,12 @@ unsigned long vtkStructuredGrid::GetEstimatedUpdateMemorySize()
 }
 
 //----------------------------------------------------------------------------
+unsigned long vtkStructuredGrid::GetActualMemorySize()
+{
+  return this->vtkPointSet::GetActualMemorySize();
+}
+
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
