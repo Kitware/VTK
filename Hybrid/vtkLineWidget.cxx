@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.23");
+vtkCxxRevisionMacro(vtkLineWidget, "1.24");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -351,6 +351,7 @@ int vtkLineWidget::HighlightHandle(vtkProp *prop)
 
   if ( this->CurrentHandle )
     {
+    this->HandlePicker->GetPickPosition(this->LastPickPosition);
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
     for (int i=0; i<2; i++) //find handle
       {
@@ -368,6 +369,7 @@ void vtkLineWidget::HighlightLine(int highlight)
 {
   if ( highlight )
     {
+    this->LinePicker->GetPickPosition(this->LastPickPosition);
     this->LineActor->SetProperty(this->SelectedLineProperty);
     }
   else
@@ -441,11 +443,11 @@ void vtkLineWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  camera->GetFocalPoint(focalPoint);
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 

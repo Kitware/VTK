@@ -227,6 +227,7 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
+  float LastPickPosition[3];
   
   // Methods to manipulate the hexahedron.
   void MovePoint1(double *p1, double *p2);
