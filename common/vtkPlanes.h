@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Specify the planes - see camera Get frustum planes definition.
-  void SetFrustumPlanes(float aspect, float planes[24]);
+  void SetFrustumPlanes(float planes[24]);
 
   // Description:
   // Return the number of planes in the set of planes.

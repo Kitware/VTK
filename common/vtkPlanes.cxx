@@ -145,7 +145,7 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
     }
 }
 
-void vtkPlanes::SetFrustumPlanes(float aspect, float planes[24])
+void vtkPlanes::SetFrustumPlanes(float planes[24])
 {
   int i;
   float *plane, n[3], x[3];
