@@ -86,12 +86,6 @@ public:
   const char *GetClassName() {return "vtkVolumeRayCastMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 
-  int GetMapperType() { return VTK_RAYCAST_VOLUME_MAPPER; };
-
-  // Description:
-  // This is a ray cast mapper.
-  virtual int IsARayCastMapper() {return 1;};
-
   // Description:
   // Set/Get the distance between samples.  This variable is only
   // used for sampling ray casting methods.  Methods that compute
@@ -115,25 +109,6 @@ public:
   vtkGetObjectMacro( VolumeRayCastFunction, vtkVolumeRayCastFunction );
 
   // Description:
-  // Initialize rendering for this volume.
-  void Render( vtkRenderer *ren, vtkVolume *vol ) {};
-//BTX
-  void InitializeRender( vtkRenderer *ren, vtkVolume *vol,
-			 VTKRayCastVolumeInfo *volumeInfo );
-//ETX
-
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
-
-
-  // Description:
-  // Return the scalar value below which all opacities are zero
-  float GetZeroOpacityThreshold( vtkVolume *vol );
-
-  // Description:
   // Set / Get the gradient estimator used to estimate normals
   void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
   vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
@@ -142,10 +117,47 @@ public:
   // Get the gradient shader.
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
-
 //BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Initialize rendering for this volume.
+  void Render( vtkRenderer *ren, vtkVolume *vol ) {};
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  void InitializeRender( vtkRenderer *ren, vtkVolume *vol,
+			 VTKRayCastVolumeInfo *volumeInfo );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Return the scalar value below which all opacities are zero
+  float GetZeroOpacityThreshold( vtkVolume *vol );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  virtual void GetGradientMagnitudeRange( float range[2] );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void CastViewRay( VTKRayCastRayInfo *rayInfo,
 		    VTKRayCastVolumeInfo *volumeInfo );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  int GetMapperType() { return VTK_RAYCAST_VOLUME_MAPPER; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // This is a ray cast mapper.
+  virtual int IsARayCastMapper() {return 1;};
+
 //ETX
 
 protected:

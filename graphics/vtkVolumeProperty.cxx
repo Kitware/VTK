@@ -113,33 +113,6 @@ void vtkVolumeProperty::UpdateMTimes()
   this->GradientOpacityMTime.Modified();
 }
 
-void vtkVolumeProperty::SetGradientOpacityScale( float v )
-{
-  vtkWarningMacro( << "This is an obsolete method.\n" <<
-    "Set the opacity scale in the vtkEncodedGradientEstimator" );
-}
-
-float vtkVolumeProperty::GetGradientOpacityScale( )
-{
-  vtkWarningMacro( << "This is an obsolete method.\n" <<
-    "Get the opacity scale from the vtkEncodedGradientEstimator" );
-
-  return 0;
-}
-
-void vtkVolumeProperty::SetGradientOpacityBias( float v )
-{
-  vtkErrorMacro( << "This is an obsolete method.\n" <<
-    "Set the opacity bias in the vtkEncodedGradientEstimator" );
-}
-
-float vtkVolumeProperty::GetGradientOpacityBias( )
-{
-  vtkWarningMacro( << "This is an obsolete method.\n" <<
-    "Get the opacity bias from the vtkEncodedGradientEstimator" );
-  return 0.0;
-}
-
 unsigned long int vtkVolumeProperty::GetMTime()
 {
   unsigned long mTime=this->vtkObject::GetMTime();

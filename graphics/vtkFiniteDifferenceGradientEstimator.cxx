@@ -259,7 +259,7 @@ static void ComputeGradients(
 	if ( computeGradientMagnitudes )
 	  {
 	  // Encode this into an 8 bit value 
-	  gvalue = t * normalize_factor * scale + bias; 
+	  gvalue = (t * normalize_factor + bias) * scale; 
 	  
 	  if ( gvalue < 0.0 )
 	    {

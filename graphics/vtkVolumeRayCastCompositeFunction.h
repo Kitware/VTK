@@ -65,11 +65,6 @@ public:
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
-  // Bogus routine right now until I figure out how to get to the
-  // volume's properties from here....
-  float GetZeroOpacityThreshold( vtkVolume *vol );
-
-  // Description:
   // Set the CompositeMethod to either Classify First or Interpolate First
   vtkSetClampMacro( CompositeMethod, int,
         VTK_COMPOSITE_CLASSIFY_FIRST, VTK_COMPOSITE_INTERPOLATE_FIRST );
@@ -83,7 +78,10 @@ public:
 //BTX
   void CastRay( VTKRayCastRayInfo *rayInfo,
 		VTKRayCastVolumeInfo *volumeInfo);
+
+  float GetZeroOpacityThreshold( vtkVolume *vol );
 //ETX
+
 protected:
   vtkVolumeRayCastCompositeFunction();
   ~vtkVolumeRayCastCompositeFunction();

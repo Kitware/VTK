@@ -134,6 +134,22 @@ void vtkVolumeRayCastMapper::SetGradientEstimator( vtkEncodedGradientEstimator *
   this->Modified();
 }
 
+void vtkVolumeRayCastMapper::GetGradientMagnitudeRange( float range[2] )
+{
+  if ( this->GradientEstimator == NULL )
+    {
+    range[0] = 0.0;
+    range[1] = 1.0;
+    }
+  else
+    {
+    range[0] = -(this->GradientEstimator->GetGradientMagnitudeBias());
+    range[1] = 
+      ( 255.0 / 
+	this->GradientEstimator->GetGradientMagnitudeScale() ) -
+      this->GradientEstimator->GetGradientMagnitudeBias();
+    }
+}
 
 void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {

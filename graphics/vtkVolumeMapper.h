@@ -82,6 +82,14 @@ public:
   virtual void Update();
 
   // Description:
+  // Set/Get the input data
+  void SetInput( vtkStructuredPoints * );
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput();
+
+  // Description:
   // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
   vtkSetMacro(Cropping,int);
@@ -129,20 +137,12 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual float *GetBounds();
 
-  virtual int GetMapperType()=0;
-
-  virtual float *GetRGBAPixelData() {return NULL;};
-
-  // Description:
-  // Set/Get the input data
-  void SetInput( vtkStructuredPoints * );
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
-  vtkStructuredPoints *GetInput();
-
 
 //BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  virtual void GetGradientMagnitudeRange( float range[2] )
+    { range[0] = 0.0; range[1] = 1.0; };
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -156,6 +156,18 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Return the type of this mapper. This helps the volume
+  // determine which rendering methods the mapper will respont to.
+  virtual int GetMapperType()=0;
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // If this is a render into image mapper, then we need to be
+  // able to get the image
+  virtual float *GetRGBAPixelData() {return NULL;};
 
 //ETX
 

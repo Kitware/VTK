@@ -70,12 +70,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define	VTK_NEAREST_INTERPOLATION	0
 #define	VTK_LINEAR_INTERPOLATION	1
 
-/****
-// Constants for ShadeType
-#define	VTK_NO_SHADE			0
-#define	VTK_FAST_SHADE			1 // Fastest shading algorithm avail.
-#define	VTK_BEST_SHADE			2 // Best shading algorithm available
-*****/
 
 class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
@@ -83,6 +77,12 @@ public:
   static vtkVolumeProperty *New();
   const char *GetClassName() {return "vtkVolumeProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the modified time for this object (or the properties registered
+  // with this object).
+  unsigned long GetMTime();
+  
 
   // Description:
   // Set the interpolation type for sampling a volume.
@@ -96,14 +96,14 @@ public:
   char *GetInterpolationTypeAsString(void);
 
   // Description:
-  // Get the modified time for this object (or the properties registered
-  // with this object).
-  unsigned long GetMTime();
-  
-  // Description:
   // Set the color of a volume to a gray level transfer function. This 
   // will also set the ColorChannels to 1.
   void SetColor( vtkPiecewiseFunction *function );
+
+  // Description:
+  // Set the color of a volume to an RGB transfer function. This 
+  // will also set the ColorChannels to 3.
+  void SetColor( vtkColorTransferFunction *function );
 
   // Description:
   // Get the number of color channels in the transfer function
@@ -114,21 +114,8 @@ public:
   vtkPiecewiseFunction *GetGrayTransferFunction();
 
   // Description:
-  // Get the time that the GrayTransferFunction was set
-  vtkGetMacro(GrayTransferFunctionMTime, vtkTimeStamp);
-
-  // Description:
-  // Set the color of a volume to an RGB transfer function. This 
-  // will also set the ColorChannels to 3.
-  void SetColor( vtkColorTransferFunction *function );
-
-  // Description:
   // Get the RGB transfer function.
   vtkColorTransferFunction *GetRGBTransferFunction();
-
-  // Description:
-  // Get the time that the RGBTransferFunction was set
-  vtkGetMacro(RGBTransferFunctionMTime, vtkTimeStamp);
 
   // Description:
   // Set the opacity of a volume to an opacity transfer function based
@@ -140,10 +127,6 @@ public:
   vtkPiecewiseFunction *GetScalarOpacity();
 
   // Description:
-  // Get the time that the scalar opacity transfer function was set.
-  vtkGetMacro(ScalarOpacityMTime, vtkTimeStamp);
-
-  // Description:
   // Set the opacity of a volume to an opacity transfer function based
   // on gradient magnitude. 
   void SetGradientOpacity( vtkPiecewiseFunction *function );
@@ -153,11 +136,14 @@ public:
   vtkPiecewiseFunction *GetGradientOpacity();
 
   // Description:
-  // Get the time that the gradient opacity transfer function was set
-  vtkGetMacro(GradientOpacityMTime, vtkTimeStamp);
-
-  // Description:
-  // Set/Get the shading of a volume.
+  // Set/Get the shading of a volume. If shading is turned off, then
+  // the mapper for the volume will not perform shading calculations.
+  // If shading is turned on, the mapper may perform shading 
+  // calculations - in some cases shading does not apply (for example,
+  // in a maximum intensity projection) and therefore shading will
+  // not be performed even if this flag is on. For a compositing type
+  // of mapper, turning shading off is generally the same as setting
+  // ambient=1, diffuse=0, specular=0.
   vtkSetMacro(Shade,int);
   vtkGetMacro(Shade,int);
   vtkBooleanMacro(Shade,int);
@@ -190,21 +176,36 @@ public:
   vtkSetClampMacro(RGBTextureCoefficient,float,0.0,1.0);
   vtkGetMacro(RGBTextureCoefficient,float);
 
+//BTX
   // Description:
-  // The gradient magnitude opacity scale and bias values
-  // should be set in the vtkEncodedGradientEstimator.
-  // Do not use these methods.
-  void SetGradientOpacityScale( float v );
-  float GetGradientOpacityScale( );
-  void SetGradientOpacityBias( float v );
-  float GetGradientOpacityBias( );
-
-  // Description:
-  // UpdateMTimes performed a Modified() on all TimeStamps.
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // UpdateMTimes performes a Modified() on all TimeStamps.
   // This is used by vtkVolume when the property is set, so
   // that any other object that might have been caching
   // information for the property will rebuild.
   void UpdateMTimes(); 
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Get the time that the gradient opacity transfer function was set
+  vtkGetMacro(GradientOpacityMTime, vtkTimeStamp);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Get the time that the scalar opacity transfer function was set.
+  vtkGetMacro(ScalarOpacityMTime, vtkTimeStamp);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Get the time that the RGBTransferFunction was set
+  vtkGetMacro(RGBTransferFunctionMTime, vtkTimeStamp);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Get the time that the GrayTransferFunction was set
+  vtkGetMacro(GrayTransferFunctionMTime, vtkTimeStamp);
+//ETX
+
 
 protected:
   vtkVolumeProperty();

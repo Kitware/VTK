@@ -77,26 +77,6 @@ public:
   // orientation=(0,0,0).
   static vtkVolume *New();
 
-  // Description: 
-  // For some exporters and other other operations we must be
-  // able to collect all the actors or volumes. These methods
-  // are used in that process.
-  void GetVolumes(vtkPropCollection *vc);
-
-  // Description:
-  // Update the volume rendering pipeline by updating the volume mapper
-  void Update();
-
-  // Description:
-  // Get the bounds. GetBounds(),
-  float *GetBounds();
-  float GetMinXBound();
-  float GetMaxXBound();
-  float GetMinYBound();
-  float GetMaxYBound();
-  float GetMinZBound();
-  float GetMaxZBound();
-
   // Description:
   // Set/Get the volume mapper.
   void SetMapper(vtkVolumeMapper *mapper);
@@ -107,13 +87,26 @@ public:
   void SetProperty(vtkVolumeProperty *property);
   vtkVolumeProperty *GetProperty();
 
-  // Description:
-  // Do we need to ray cast this prop?
-  int RequiresRayCasting();
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. This method
+  // is used in that process.
+  void GetVolumes(vtkPropCollection *vc);
 
   // Description:
-  // Does this prop render into an image?
-  int RequiresRenderingIntoImage();
+  // Update the volume rendering pipeline by updating the volume mapper
+  void Update();
+
+  // Description:
+  // Get the bounds - either all six at once 
+  // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
+  float *GetBounds();
+  float GetMinXBound();
+  float GetMaxXBound();
+  float GetMinYBound();
+  float GetMaxYBound();
+  float GetMinZBound();
+  float GetMaxZBound();
 
   // Description:
   // Return the MTime also considering the property etc.
@@ -132,16 +125,23 @@ public:
 
   // Description:
   // For legacy compatibility. Do not use.
-  void SetVolumeProperty(vtkVolumeProperty *property) {this->SetProperty(property);};
-  vtkVolumeProperty *GetVolumeProperty() {return this->GetProperty();};
+  // This method will disappear after vtk 3.0.
+  void SetVolumeProperty(vtkVolumeProperty *property) 
+    {vtkErrorMacro(<<"Obsolete method. Use SetProperty instead");};
+  vtkVolumeProperty *GetVolumeProperty() 
+    {vtkErrorMacro(<<"Obsolete method. Use GetProperty instead"); return NULL;};
 
   // Description:
   // For legacy compatibility. Do not use.
-  vtkVolumeMapper *GetVolumeMapper() {return this->Mapper;};
-  void SetVolumeMapper(vtkVolumeMapper *mapper) {this->SetMapper(mapper);};
+  // This method will disappear after vtk 3.0.
+  vtkVolumeMapper *GetVolumeMapper()
+    {vtkErrorMacro(<<"Obsolete method. Use GetMapper instead"); return NULL;};
+  void SetVolumeMapper(vtkVolumeMapper *mapper) 
+    {vtkErrorMacro(<<"Obsolete method. Use SetMapper instead");};
 
   // Description:
   // For legacy compatibility. Do not use.
+  // This method will disappear after vtk 3.0.
   void SetVolumeProperty(vtkVolumeProperty& property) 
     {this->SetProperty(&property);}
 
@@ -173,6 +173,15 @@ public:
   float *GetRGBAImage();
   float *GetZImage();
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Do we need to ray cast this prop?
+  int RequiresRayCasting();
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Does this prop render into an image?
+  int RequiresRenderingIntoImage();
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
