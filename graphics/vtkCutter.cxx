@@ -129,7 +129,7 @@ void vtkCutter::Execute()
     for (i=0; i<cellPts->GetNumberOfPoints(); i++)
       {
       x = cellPts->GetPoint(i);
-      s = this->CutFunction->EvaluateFunction(x);
+      s = this->CutFunction->FunctionValue(x);
       cellScalars.SetScalar(i,s);
       }
 

@@ -138,7 +138,7 @@ void vtkClipTriangles::Execute()
     for (i=0; i<numberOfPoints; i++)
       {
       x = cellPts->GetPoint(i);
-      s = this->ClipFunction->EvaluateFunction(x);
+      s = this->ClipFunction->FunctionValue(x);
       cellScalars.SetScalar(i,s);
       }
 
