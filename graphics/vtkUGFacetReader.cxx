@@ -105,7 +105,7 @@ void vtkUGFacetReader::Execute()
     }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "r")) == NULL) 
+  if ( (fp = fopen(this->FileName, "rb")) == NULL) 
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return;
@@ -272,7 +272,7 @@ int vtkUGFacetReader::GetNumberOfParts()
     }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "r")) == NULL) 
+  if ( (fp = fopen(this->FileName, "rb")) == NULL) 
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
