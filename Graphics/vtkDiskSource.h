@@ -24,13 +24,13 @@
 #ifndef __vtkDiskSource_h
 #define __vtkDiskSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkDiskSource *New();
-  vtkTypeRevisionMacro(vtkDiskSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkDiskSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,7 +57,7 @@ protected:
   vtkDiskSource();
   ~vtkDiskSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double InnerRadius;
   double OuterRadius;
   int RadialResolution;
@@ -69,5 +69,3 @@ private:
 };
 
 #endif
-
-

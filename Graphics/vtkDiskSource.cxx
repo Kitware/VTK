@@ -16,11 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDiskSource, "1.33");
+vtkCxxRevisionMacro(vtkDiskSource, "1.34");
 vtkStandardNewMacro(vtkDiskSource);
 
 vtkDiskSource::vtkDiskSource()
@@ -29,10 +31,22 @@ vtkDiskSource::vtkDiskSource()
   this->OuterRadius = 0.5;
   this->RadialResolution = 1;
   this->CircumferentialResolution = 6;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkDiskSource::Execute()
+int vtkDiskSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPolys, numPts;
   double x[3];
   int i, j;
@@ -41,7 +55,6 @@ void vtkDiskSource::Execute()
   double cosTheta, sinTheta;
   vtkPoints *newPoints; 
   vtkCellArray *newPolys;
-  vtkPolyData *output = this->GetOutput();
   
   // Set things up; allocate memory
   //
@@ -100,6 +113,8 @@ void vtkDiskSource::Execute()
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
