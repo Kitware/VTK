@@ -25,7 +25,7 @@
 #ifndef __vtkDataSetSurfaceFilter_h
 #define __vtkDataSetSurfaceFilter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 
 class vtkPointData;
@@ -44,11 +44,11 @@ struct vtkFastGeomQuadStruct
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDataSetSurfaceFilter *New();
-  vtkTypeRevisionMacro(vtkDataSetSurfaceFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDataSetSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -65,19 +65,24 @@ protected:
 
   int UseStrips;
   
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void Execute();
-  void StructuredExecute(vtkDataSet *input, int *ext);
-  void UnstructuredGridExecute();
-  void DataSetExecute();
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int StructuredExecute(vtkDataSet *input, vtkPolyData *output, int *ext,
+                         vtkInformation *inInfo);
+  int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
+  int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
+  int FillInputPortInformation(int, vtkInformation *);
 
   // Helper methods.
-  void ExecuteFaceStrips(vtkDataSet *input, int maxFlag, int *ext,
-                         int aAxis, int bAxis, int cAxis);
-  void ExecuteFaceQuads(vtkDataSet *input, int maxFlag, int *ext,
-                        int aAxis, int bAxis, int cAxis);
+  void ExecuteFaceStrips(vtkDataSet *input, vtkPolyData *output,
+                         int maxFlag, int *ext,
+                         int aAxis, int bAxis, int cAxis,
+                         vtkInformation *inInfo);
+  void ExecuteFaceQuads(vtkDataSet *input, vtkPolyData *output,
+                        int maxFlag, int *ext,
+                        int aAxis, int bAxis, int cAxis,
+                        vtkInformation *inInfo);
 
   void InitializeQuadHash(vtkIdType numPoints);
   void DeleteQuadHash();
@@ -117,5 +122,3 @@ private:
 };
 
 #endif
-
-
