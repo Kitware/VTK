@@ -104,7 +104,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
     if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
     (scalars=pd->GetScalars()) )
       {
-      if ( strcmp(scalars->GetScalarType(),"ColorScalars") )
+      if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
         {
         if ( this->Colors == NULL ) 
           {
