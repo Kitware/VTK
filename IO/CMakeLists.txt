@@ -13,7 +13,6 @@ SET(KIT_LIBS vtkFiltering vtkDICOMParser
 
 
 SET( Kit_SRCS
-vtkAVSucdReader.cxx
 vtkBMPReader.cxx
 vtkBMPWriter.cxx
 vtkBYUReader.cxx
