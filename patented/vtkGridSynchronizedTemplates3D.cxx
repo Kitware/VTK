@@ -111,10 +111,6 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
 
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
-  if (this->NumberOfThreads > this->Threader->GetGlobalMaximumNumberOfThreads())
-    {
-    this->NumberOfThreads = this->Threader->GetGlobalMaximumNumberOfThreads();
-    }
   
   for (idx = 0; idx < VTK_MAX_THREADS; ++idx)
     {
@@ -311,13 +307,22 @@ if (NeedGradients) \
     { \
     grad[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
     } \
+  if (ComputeGradients) \
+    { \
+    newGradients->InsertNextVector(grad); \
+    } \
   if (ComputeNormals) \
     { \
     norm[0] = -grad[0];  norm[1] = -grad[1];  norm[2] = -grad[2]; \
     vtkMath::Normalize(norm); \
+    newNormals->InsertNextNormal(norm); \
     }   \
-  }
-
+} \
+if (ComputeScalars) \
+{ \
+  newScalars->InsertNextScalar(value); \
+}
+ 
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images
@@ -358,12 +363,10 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   int edgePtId;
   vtkPointData *inPD = self->GetInput()->GetPointData();
   vtkPointData *outPD = output->GetPointData();  
-  // add point info all together (use to be locks).
-  float fact1, fact2, fact3;
-  float x1[3], x2[3], x3[3];
-  float grad1[3], grad2[3], grad3[3];
-  float norm1[3], norm2[3], norm3[3];
-  int *idPtr1, *idPtr2, *idPtr3;
+  // Temporary point data.
+  float x[3];
+  float grad[3];
+  float norm[3];
   // Used to be passed in as parameteters.
   vtkCellArray *newPolys;
   vtkPoints *newPts;
@@ -377,8 +380,6 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   newNormals = output->GetPointData()->GetNormals();
   newGradients = output->GetPointData()->GetVectors();
 
-  
-  
   // this is an exploded execute extent.
   XMin = exExt[0];
   XMax = exExt[1];
@@ -491,16 +492,15 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 	    if (v0 ^ v1)
 	      {
 	      t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
-	      fact1 = t;
-              x1[0] = p0[0] + t*(p1[0] - p0[0]);
-              x1[1] = p0[1] + t*(p1[1] - p0[1]);
-              x1[2] = p0[2] + t*(p1[2] - p0[2]);
-              idPtr1 = isect2Ptr;
-              VTK_CSP3PA(i+1,j,k,s1,p1,grad1,norm1);
+              x[0] = p0[0] + t*(p1[0] - p0[0]);
+              x[1] = p0[1] + t*(p1[1] - p0[1]);
+              x[2] = p0[2] + t*(p1[2] - p0[2]);
+	      *isect2Ptr = newPts->InsertNextPoint(x);
+	      VTK_CSP3PA(i+1,j,k,s1,p1,grad,norm);
+	      outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
               }
             else
               {
-              idPtr1 = NULL;
               *isect2Ptr = -1;
               }
             }
@@ -512,16 +512,15 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 	    if (v0 ^ v2)
 	      {
 	      t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
-	      fact2 = t;
-	      x2[0] = p0[0] + t*(p2[0] - p0[0]);
-	      x2[1] = p0[1] + t*(p2[1] - p0[1]);
-	      x2[2] = p0[2] + t*(p2[2] - p0[2]);
-	      idPtr2 = (isect2Ptr + 1);
-	      VTK_CSP3PA(i,j+1,k,s2,p2,grad2,norm2);
+	      x[0] = p0[0] + t*(p2[0] - p0[0]);
+	      x[1] = p0[1] + t*(p2[1] - p0[1]);
+	      x[2] = p0[2] + t*(p2[2] - p0[2]);
+	      *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+	      VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
+	      outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+incY, t);	    
 	      }
 	    else
 	      {
-              idPtr2 = NULL;
 	      *(isect2Ptr + 1) = -1;
 	      }
 	    }
@@ -533,72 +532,19 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 	    if (v0 ^ v3)
 	      {
 	      t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
-	      fact3 = t;
-              x3[0] = p0[0] + t*(p3[0] - p0[0]);
-              x3[1] = p0[1] + t*(p3[1] - p0[1]);
-              x3[2] = p0[2] + t*(p3[2] - p0[2]);
-              idPtr3 = isect2Ptr + 2;
-	      VTK_CSP3PA(i,j,k+1,s3,p3,grad3,norm3);
+              x[0] = p0[0] + t*(p3[0] - p0[0]);
+              x[1] = p0[1] + t*(p3[1] - p0[1]);
+              x[2] = p0[2] + t*(p3[2] - p0[2]);
+	      *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
+	      VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
+	      outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+incZ, t);	    
 	      }
 	    else
 	      {
-              idPtr3 = NULL;
 	      *(isect2Ptr + 2) = -1;
 	      }
 	    }
 	  
-          // add all of the points at once to minimize locks
-          if (idPtr1 != NULL)
-            {
-	    *idPtr1 = newPts->InsertNextPoint(x1);
-	    outPD->InterpolateEdge(inPD, *idPtr1, edgePtId, edgePtId+1, fact1);	    
-            if (ComputeScalars) 
-              { 
-              newScalars->InsertNextScalar(value); 
-              }
-            if (ComputeGradients) 
-              {
-              newGradients->InsertNextVector(grad1); 
-              }
-            if (ComputeNormals)
-              {
-	      newNormals->InsertNextNormal(norm1);
-              }
-            }
-          if (idPtr2 != NULL)
-            {
-            *idPtr2 = newPts->InsertNextPoint(x2);
-	    outPD->InterpolateEdge(inPD, *idPtr2, edgePtId, edgePtId+incY, fact2);	    
-            if (ComputeScalars) 
-              { 
-              newScalars->InsertNextScalar(value); 
-              }
-            if (ComputeGradients) 
-              {
-              newGradients->InsertNextVector(grad2); 
-              }
-            if (ComputeNormals)
-              {
-	      newNormals->InsertNextNormal(norm2);
-              }
-            }
-          if (idPtr3 != NULL)
-            {
-            *idPtr3 = newPts->InsertNextPoint(x3);
-	    outPD->InterpolateEdge(inPD, *idPtr3, edgePtId, edgePtId+incZ, fact3);	    
-            if (ComputeScalars) 
-              { 
-              newScalars->InsertNextScalar(value); 
-              }
-            if (ComputeGradients) 
-              {
-              newGradients->InsertNextVector(grad3); 
-              }
-            if (ComputeNormals)
-              {
-	      newNormals->InsertNextNormal(norm3);
-              }
-            }
 	  // To keep track of ids for interpolating attributes.
 	  ++edgePtId;
 	  
@@ -691,11 +637,13 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     newGradients->Allocate(estimatedSize,estimatedSize/2);
     o->GetPointData()->CopyVectorsOff();
     }
+  // It is more efficient to just create the scalar array 
+  // rather than redundantly interpolate the scalars.
+  o->GetPointData()->CopyScalarsOff();
   if (this->ComputeScalars)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(estimatedSize,estimatedSize/2);
-    o->GetPointData()->CopyNormalsOff();
     }
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
   					 estimatedSize,estimatedSize/2);  
@@ -780,6 +728,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
     ContourGrid(this, threadId, exExt, scalars, output);
     image->Delete();
     }
+
 }
 
 
@@ -1049,11 +998,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
   vtkStructuredGrid *input = this->GetInput();
   int numPieces = output->GetUpdateNumberOfPieces();
 
-  // Just in case some one changed the maximum number of threads.
-  if (this->NumberOfThreads > this->Threader->GetGlobalMaximumNumberOfThreads())
-    {
-    this->NumberOfThreads = this->Threader->GetGlobalMaximumNumberOfThreads();
-    }
+  
   if (this->NumberOfThreads == 1)
     {
     // just call the threaded execute directly.
@@ -1069,7 +1014,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
     // Setup threading and the invoke threadedExecute
     this->Threader->SetSingleMethod(vtkGridSyncTempThreadedExecute, this);
     this->Threader->SingleMethodExecute();
-    
+
     // Collect all the data into the output.  Now I cannot use append filter
     // because this filter might be streaming.  (Maybe I could if thread
     // 0 wrote to output, and I copied output to a temp polyData...)
