@@ -434,6 +434,7 @@ virtual void Get##name (type data[count]) \
 // This is to avoid vtkObject #include of vtkOutputWindow
 // while vtkOutputWindow #includes vtkObject
 
+extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 extern VTK_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
 extern VTK_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
 extern VTK_EXPORT void vtkOutputWindowDisplayGenericWarningText(const char*);
