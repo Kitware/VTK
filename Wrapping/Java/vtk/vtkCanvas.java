@@ -106,8 +106,8 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   
   public void mousePressed(MouseEvent e)
   {
-    Lock(); 
     if (ren.VisibleActorCount() == 0) return;
+    Lock(); 
     rw.SetDesiredUpdateRate(5.0);
     lastX = e.getX();
     lastY = e.getY();

@@ -18,20 +18,27 @@ public class Regression
 {
   public static void main (String []args) 
     {
-    vtkTesting.Initialize(args);
+    vtkTesting2.Initialize(args, true);
 
 
     vtkShortArray array = new vtkShortArray();
-    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(3.0);
     array.InsertNextTuple1(1.0);
-    array.InsertNextTuple1(8.0);
-    array.InsertNextTuple1(5.0);
-    array.InsertNextTuple1(8.0);
-    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(4.0);
+    array.InsertNextTuple1(1.0);
     array.InsertNextTuple1(5.0);
     array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(2.0);
+    array.InsertNextTuple1(6.0);
+    array.InsertNextTuple1(5.0);
     array.InsertNextTuple1(3.0);
-    array.InsertNextTuple1(4.0);
+    array.InsertNextTuple1(5.0);
+    array.InsertNextTuple1(8.0);
+    array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(7.0);
+    array.InsertNextTuple1(9.0);
+    array.InsertNextTuple1(3.0);
+    array.InsertNextTuple1(1.0);
     short[] carray = array.GetJavaArray();
     int cc;
     System.out.print("[");
@@ -92,7 +99,7 @@ public class Regression
     vtkUnsignedCharArray nida = (vtkUnsignedCharArray)nimage.GetPointData().GetScalars();
     nida.SetJavaArray(barray);
 
-    int retVal0 = vtkTesting.PASSED;
+    int retVal0 = vtkTesting2.PASSED;
 
     for ( cc = 0; cc <= da.GetMaxId(); cc ++ )
       {
@@ -105,7 +112,7 @@ public class Regression
       else
         {
         System.out.println("Cannot find point " + cc + " in nda");
-        retVal0 = vtkTesting.FAILED;
+        retVal0 = vtkTesting2.FAILED;
         }
       if ( cc <= nida.GetMaxId() )
         {
@@ -114,12 +121,12 @@ public class Regression
       else
         {
         System.out.println("Cannot find point " + cc + " in nida");
-        retVal0 = vtkTesting.FAILED;
+        retVal0 = vtkTesting2.FAILED;
         }
       if ( v1 != v2 || v1 != v3 )
         {
         System.out.println("Wrong point: " + v1 + " <> " + v2 + " <> " + v3);
-        retVal0 = vtkTesting.FAILED;
+        retVal0 = vtkTesting2.FAILED;
         }
       }
 
@@ -128,7 +135,7 @@ public class Regression
     imgDiff.SetImage(image);
     imgDiff.Update();
 
-    int retVal1 = vtkTesting.PASSED;
+    int retVal1 = vtkTesting2.PASSED;
     if ( imgDiff.GetThresholdedError() != 0 )
       {
       System.out.println("Problem with array conversion. Image difference is: " + imgDiff.GetThresholdedError());
@@ -142,23 +149,28 @@ public class Regression
       wr.SetInput(imgDiff.GetOutput());
       wr.SetFileName("diff.png");
       wr.Write();
-      retVal1 = vtkTesting.FAILED;
+      retVal1 = vtkTesting2.FAILED;
       }
 
-    int retVal2 = vtkTesting.RegressionTestImage(renWin, args, 10);
-    if ( retVal2 == vtkTesting.DO_INTERACTOR )
+    int retVal2 = vtkTesting2.PASSED;
+    if ( vtkTesting2.IsInteractive() )
       {
       iren.Start();
       }
-    if ( retVal0 != vtkTesting.PASSED )
+    else
       {
-      vtkTesting.Exit(retVal0);
+      vtkTesting2.RegressionTest(renWin, 10);
       }
-    if ( retVal1 != vtkTesting.PASSED )
+
+    if ( retVal0 != vtkTesting2.PASSED )
       {
-      vtkTesting.Exit(retVal1);
+      vtkTesting2.Exit(retVal0);
       }
-    vtkTesting.Exit(retVal2);
+    if ( retVal1 != vtkTesting2.PASSED )
+      {
+      vtkTesting2.Exit(retVal1);
+      }
+    vtkTesting2.Exit(retVal2);
     }
 }
 

@@ -20,20 +20,14 @@
 #define __vtkTesting_h
 
 #include "vtkObject.h"
+#include <vtkstd/vector> // used for argv
+#include <vtkstd/string> // used for argv
 
-class vtkLine;
-class vtkTriangle;
 class vtkRenderWindow;
 
 //BTX
 struct VTK_RENDERING_EXPORT vtkTestUtilities
 {
-  // Description:
-  // Function necessary for accessing the root directory for VTK data.
-  // Try the -D command line argument or VTK_DATA_ROOT or a default value.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* GetDataRoot(int argc, char* argv[]);
-
   // Description:
   // Given a file name, this function returns a new string which
   // is (in theory) the full path. This path is constructed by
@@ -42,30 +36,8 @@ struct VTK_RENDERING_EXPORT vtkTestUtilities
   // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandDataFileName(int argc, char* argv[], 
-                                         const char* fname,
-                                         int slash = 0);
-  // Description:
-  // Function returning either a command line argument, an environment 
-  // variable or a default value.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* GetArgOrEnvOrDefault(const char* arg, 
-                                           int argc, char* argv[], 
-                                           const char* env, 
-                                           const char* def);
-
-  // Description:
-  // Given a file name, this function returns a new string which
-  // is (in theory) the full path. This path is constructed by
-  // prepending the file name with a command line argument, an environment 
-  // variable or a default value.
-  // If slash is true, appends a slash to the resulting string.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                          int argc, char* argv[], 
-                                                          const char* env, 
-                                                          const char* def, 
-                                                          const char* fname,
-                                                          int slash = 0);
+                                  const char* fname,
+                                  int slash = 0);
 };
 //ETX
 
@@ -94,7 +66,8 @@ public:
   vtkGetMacro(FrontBuffer, int);
 
   // Description:
-  // Perform the test and return result.
+  // Perform the test and return result. At the same time the output will be
+  // written cout and also placed into LastResultText
   virtual int RegressionTest(double thresh);
 
   // Description:
@@ -103,21 +76,67 @@ public:
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
 
   // Description:
-  //
-  vtkSetStringMacro(DataFileName);
-  vtkGetStringMacro(DataFileName);
+  // Set/Get the name of the valid image file
+  vtkSetStringMacro(ValidImageFileName);
+  const char *GetValidImageFileName();
 
+  // Description:
+  // Get the image difference.
+  vtkGetMacro(ImageDifference, double);
+
+  // Description:
+  // Get the text output for the last RegressionTest invocation. This is
+  // useful for scripting languages
+  vtkGetStringMacro(LastResultText);
+  vtkSetStringMacro(LastResultText);
+
+  // Description:
+  // Pass the command line arguments into this class to be processed. Many of
+  // the Get methods such as GetValidImage and GetBaselineRoot rely on the
+  // arguments to be passed in prior to retrieving these values. Just call
+  // AddArgument for each argument that was passed into the command line
+  void AddArgument(const char *argv);
+  
+  // Description:
+  // Get some paramters from the command line arguments, env, or defaults
+  const char *GetDataRoot();
+  vtkSetStringMacro(DataRoot);
+
+  // Description:
+  // Get some paramters from the command line arguments, env, or defaults
+  const char *GetTempDirectory();
+  vtkSetStringMacro(TempDirectory);
+
+  // Description:
+  // Is a valid image specified on the command line areguments?
+  int IsValidImageSpecified();
+
+  // Description:
+  // Is the interactive mode specified?
+  int IsInteractiveModeSpecified();
+  
 protected:
   vtkTesting();
   ~vtkTesting();
 
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
+  virtual int RegressionTest(double thresh,ostream &os);
 
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;
-  char* DataFileName;
-
+  char* ValidImageFileName;
+  double ImageDifference;
+  char *LastResultText;
+  char *TempDirectory;
+  
+//BTX
+  vtkstd::vector<vtkstd::string> Args;
+//ETX
+  char *DataRoot;
+  double StartWallTime;
+  double StartCPUTime;
+  
 private:
   vtkTesting(const vtkTesting&);  // Not implemented.
   void operator=(const vtkTesting&);  // Not implemented.
