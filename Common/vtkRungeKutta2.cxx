@@ -18,7 +18,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta2, "1.7");
+vtkCxxRevisionMacro(vtkRungeKutta2, "1.8");
 vtkStandardNewMacro(vtkRungeKutta2);
 
 vtkRungeKutta2::vtkRungeKutta2() 
@@ -30,21 +30,25 @@ vtkRungeKutta2::~vtkRungeKutta2()
 }
 
 // Calculate next time step
-float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, 
-                                      float* xnext, float t, float delT)
+int vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
+				    float t, float& delT, float& delTActual,
+				    float, float, float, float& error)
 {
   int i, numDerivs, numVals;
+
+  delTActual = delT;
+  error = 0.0;
 
   if (!this->FunctionSet)
     {
     vtkErrorMacro("No derivative functions are provided!");
-    return -1;
+    return NotInitialized;
     }
 
   if (!this->Initialized)
     {
     vtkErrorMacro("Integrator not initialized!");
-    return -1;
+    return NotInitialized;
     }
   
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
@@ -65,7 +69,7 @@ float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev,
     }
   else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
-    return -1;
+    return OutOfDomain;
     }
 
   // Half-step
@@ -78,7 +82,7 @@ float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev,
   // Obtain the derivatives at x_i + dt/2 * dx_i
   if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
     {
-    return -1;
+    return OutOfDomain;
     }
     
   // Calculate x_i using improved values of derivatives
@@ -87,7 +91,6 @@ float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev,
     xnext[i] = xprev[i] + delT*this->Derivs[i];
     }
 
-  // TO DO: Should return estimated error
   return 0;
 }
 

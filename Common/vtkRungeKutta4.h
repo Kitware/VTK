@@ -24,7 +24,7 @@
 // a set of functions at the next time step.
 
 // .SECTION See Also
-// vtkInitialValueProblemSolver vtkRungeKutta2 vtkFunctionSet
+// vtkInitialValueProblemSolver vtkRungeKutta45 vtkRungeKutta2 vtkFunctionSet
 
 #ifndef __vtkRungeKutta4_h
 #define __vtkRungeKutta4_h
@@ -41,19 +41,50 @@ public:
   // Construct a vtkRungeKutta4 with no initial FunctionSet.
   static vtkRungeKutta4 *New();
 
+
   // Description:
-  // Given initial values, xprev , initial time, t and time interval, delT
-  // calculate values of x at t+delT (xnext)
-  // It returns an estimated value for the error (not implemented yet)
-  // or -1 on failure (for example, if the integration moves out of
-  // a data set)
-  virtual float ComputeNextStep(float* xprev, float* xnext, float t,
-                                float delT) 
+  // Given initial values, xprev , initial time, t and a requested time 
+  // interval, delT calculate values of x at t+delT (xnext).
+  // delTActual is always equal to delT.
+  // Since this class can not provide an estimate for the error error
+  // is set to 0.  
+  // maxStep, minStep and maxError are unused.
+  // This method returns an error code representing the nature of
+  // the failure:
+  // OutOfDomain = 1,
+  // NotInitialized = 2,
+  // UnexpectedValue = 3
+  virtual int ComputeNextStep(float* xprev, float* xnext, float t,
+			      float& delT, float maxError, float& error) 
     {
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT);
+      float minStep = delT;
+      float maxStep = delT;
+      float delTActual;
+      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+				   minStep, maxStep, maxError, error);
     }
-  virtual float ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-                                float t, float delT);
+  virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
+			      float t, float& delT, 
+			      float maxError, float& error)
+    {
+      float minStep = delT;
+      float maxStep = delT;
+      float delTActual;
+      return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
+				   minStep, maxStep, maxError, error);
+    }
+  virtual int ComputeNextStep(float* xprev, float* xnext, 
+			      float t, float& delT, float& delTActual,
+			      float minStep, float maxStep,
+			      float maxError, float& error)
+    {
+      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+				   minStep, maxStep, maxError, error);
+    }
+  virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
+			      float t, float& delT, float& delTActual,
+			      float minStep, float maxStep, 
+			      float maxError, float& error);
 
   // Description:
   // Create concrete instance of this object.

@@ -132,6 +132,7 @@ vtkWindowLevelLookupTable
 vtkInterpolatedVelocityField 
 vtkRungeKutta2 
 vtkRungeKutta4 
+vtkRungeKutta45
 vtkXMLFileOutputWindow 
 vtkErrorCode
 )

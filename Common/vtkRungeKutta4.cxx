@@ -18,7 +18,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta4, "1.7");
+vtkCxxRevisionMacro(vtkRungeKutta4, "1.8");
 vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4() 
@@ -59,22 +59,26 @@ void vtkRungeKutta4::Initialize()
 // Press et al. (Cambridge University Press) or
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
-float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
-                                      float* xnext, float t, float delT)
+int vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
+				    float t, float& delT, float& delTActual,
+				    float, float, float, float& error)
 {
 
   int i, numDerivs, numVals;
 
+  delTActual = delT;
+  error = 0;
+
   if (!this->FunctionSet)
     {
     vtkErrorMacro("No derivative functions are provided!");
-    return -1;
+    return NotInitialized;
     }
 
   if (!this->Initialized)
     {
     vtkErrorMacro("Integrator not initialized!");
-    return -1;
+    return NotInitialized;
     }
   
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
@@ -96,7 +100,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
     }
   else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
-    return -1;
+    return OutOfDomain;
     }
 
   for(i=0; i<numVals-1; i++)
@@ -108,7 +112,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
   // 2
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[0]))
     {
-    return -1;
+    return OutOfDomain;
     }
     
   for(i=0; i<numVals-1; i++)
@@ -120,7 +124,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
   // 3
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[1]))
     {
-    return -1;
+    return OutOfDomain;
     }
 
   for(i=0; i<numVals-1; i++)
@@ -132,7 +136,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
   // 4
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[2]))
     {
-    return -1;
+    return OutOfDomain;
     }
 
   for(i=0; i<numDerivs; i++)
@@ -143,7 +147,6 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
                                 this->NextDerivs[2][i]/6.0);
     }
 
-  // TO DO: Should return estimated error
   return 0;
 }
 

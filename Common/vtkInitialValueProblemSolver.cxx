@@ -17,7 +17,7 @@
 =========================================================================*/
 #include "vtkInitialValueProblemSolver.h"
 
-vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.6");
+vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.7");
 
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
 {
@@ -25,6 +25,7 @@ vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
   this->Vals = 0;
   this->Derivs = 0;
   this->Initialized = 0;
+  this->Adaptive = 0;
 }
 
 vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver() 

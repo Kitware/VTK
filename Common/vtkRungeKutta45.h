@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInitialValueProblemSolver.h
+  Module:    vtkRungeKutta45.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,54 +15,60 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInitialValueProblemSolver - Integrate a set of ordinary
-// differential equations (initial value problem) in time.
+// .NAME vtkRungeKutta45 - Integrate an initial value problem using 5th
+// order Runge-Kutta method with adaptive stepsize control.
 
 // .SECTION Description
-// Given a vtkFunctionSet which returns dF_i(x_j, t)/dt given x_j and
-// t, vtkInitialValueProblemSolver computes the value of F_i at t+deltat.
-
-// .SECTION Warning
-// vtkInitialValueProblemSolver and it's subclasses are not thread-safe.
-// You should create a new integrator for each thread.
+// This is a concrete sub-class of vtkInitialValueProblemSolver.
+// It uses a 5th order Runge-Kutta method with stepsize control to obtain 
+// the values of a set of functions at the next time step. The stepsize
+// is adjusted by calculating an estimated error using an embedded 4th
+// order Runge-Kutta formula:
+// Press, W. H. et al., 1992, Numerical Recipes in Fortran, Second
+// Edition, Cambridge University Press
+// Cash, J.R. and Karp, A.H. 1990, ACM Transactions on Mathematical
+// Software, vol 16, pp 201-222
 
 // .SECTION See Also
-// vtkRungeKutta2 vtkRungeKutta4
+// vtkInitialValueProblemSolver vtkRungeKutta4 vtkRungeKutta2 vtkFunctionSet
 
-#ifndef __vtkInitialValueProblemSolver_h
-#define __vtkInitialValueProblemSolver_h
+#ifndef __vtkRungeKutta45_h
+#define __vtkRungeKutta45_h
 
-#include "vtkFunctionSet.h"
+#include "vtkInitialValueProblemSolver.h"
 
-class VTK_COMMON_EXPORT vtkInitialValueProblemSolver : public vtkObject
+class VTK_COMMON_EXPORT vtkRungeKutta45 : public vtkInitialValueProblemSolver
 {
 public:
-  vtkTypeRevisionMacro(vtkInitialValueProblemSolver,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeRevisionMacro(vtkRungeKutta45,vtkInitialValueProblemSolver);
+
+  // Description:
+  // Construct a vtkRungeKutta45 with no initial FunctionSet.
+  static vtkRungeKutta45 *New();
 
   // Description:
   // Given initial values, xprev , initial time, t and a requested time 
   // interval, delT calculate values of x at t+delTActual (xnext).
-  // For certain concrete sub-classes delTActual != delT. This occurs
-  // when the solver supports adaptive stepsize control. If this
-  // is the case, the solver tries to change to stepsize such that
+  // Possibly delTActual != delT. This may occur
+  // because this solver supports adaptive stepsize control. It tries 
+  // to change to stepsize such that
   // the (estimated) error of the integration is less than maxError.
   // The solver will not set the stepsize smaller than minStep or
-  // larger than maxStep.
-  // Also note that delT is an in/out argument. Adaptive solvers
+  // larger than maxStep (note that maxStep and minStep should both
+  // be positive, whereas delT can be negative).
+  // Also note that delT is an in/out argument. vtkRungeKutta45
   // will modify delT to reflect the best (estimated) size for the next
   // integration step.
   // An estimated value for the error is returned (by reference) in error.
-  // Note that only some concrete sub-classes support this. Otherwise,
-  // the error is set to 0.
+  // This is the norm of the error vector if there are more than
+  // one function to be integrated.
   // This method returns an error code representing the nature of
   // the failure:
   // OutOfDomain = 1,
   // NotInitialized = 2,
   // UnexpectedValue = 3
   virtual int ComputeNextStep(float* xprev, float* xnext, float t,
-			      float& delT, float maxError, 
-			      float& error) 
+			      float& delT, float maxError, float& error) 
     {
       float minStep = delT;
       float maxStep = delT;
@@ -71,8 +77,8 @@ public:
 				   minStep, maxStep, maxError, error);
     }
   virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-			      float t, float& delT, float maxError, 
-			      float& error)
+			      float t, float& delT, 
+			      float maxError, float& error)
     {
       float minStep = delT;
       float maxStep = delT;
@@ -89,52 +95,44 @@ public:
 				   minStep, maxStep, maxError, error);
     }
   virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-			      float t, float& delT, float& delTActual, 
+			      float t, float& delT, float& delTActual,
 			      float minStep, float maxStep, 
-			      float maxError, float& error) = 0;
+			      float maxError, float& error);
 
   // Description:
-  // Create concrete instance of the object.
-  virtual vtkInitialValueProblemSolver *MakeObject()=0;
-  
-  // Description:
-  // Set / get the dataset used for the implicit function evaluation.
-  virtual void SetFunctionSet(vtkFunctionSet* functionset);
-  vtkGetObjectMacro(FunctionSet,vtkFunctionSet);
-
-  // Description:
-  // Returns 1 if the solver uses adaptive stepsize control,
-  // 0 otherwise
-  virtual int IsAdaptive() { return this->Adaptive; }
-  
-//BTX
-  enum ErrorCodes
-  {
-    OutOfDomain = 1,
-    NotInitialized = 2,
-    UnexpectedValue = 3
-  };
-//ETX
+  // Create concrete instance of this object.
+  virtual vtkInitialValueProblemSolver* MakeObject() 
+    {
+      return vtkRungeKutta45::New();
+    }
 
 protected:
-  vtkInitialValueProblemSolver();
-  ~vtkInitialValueProblemSolver();
+  vtkRungeKutta45();
+  ~vtkRungeKutta45();
 
   virtual void Initialize();
 
-  vtkFunctionSet* FunctionSet;
+  // Cash-Karp parameters
+  static double A[5];
+  static double B[5][5];
+  static double C[6];
+  static double DC[6];
 
-  float* Vals;
-  float* Derivs;
-  int Initialized;
-  int Adaptive;
+  float* NextDerivs[6];
+
+  int ComputeAStep(float* xprev, float* dxprev, float* xnext, float t, 
+		   float& delT,  float& error);
 
 private:
-  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&);  // Not implemented.
-  void operator=(const vtkInitialValueProblemSolver&);  // Not implemented.
+  vtkRungeKutta45(const vtkRungeKutta45&);  // Not implemented.
+  void operator=(const vtkRungeKutta45&);  // Not implemented.
 };
 
 #endif
+
+
+
+
 
 
 
