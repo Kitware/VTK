@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkConeSource.h"
+#include "vtkFloatArray.h"
+#include "vtkTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.57");
+vtkCxxRevisionMacro(vtkConeSource, "1.58");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -34,6 +36,14 @@ vtkConeSource::vtkConeSource(int res)
   this->Height = 1.0;
   this->Radius = 0.5;
   this->Capping = 1;
+
+  this->Center[0] = 0.0f;
+  this->Center[1] = 0.0f;
+  this->Center[2] = 0.0f;
+  
+  this->Direction[0] = 1.0f;
+  this->Direction[1] = 0.0f;
+  this->Direction[2] = 0.0f;
 }
 
 //----------------------------------------------------------------------------
@@ -82,10 +92,9 @@ void vtkConeSource::Execute()
     {
     angle = 0.0;
     }
-  //
+
   // Set things up; allocate memory
   //
-
   switch ( this->Resolution )
   {
   case 0:
@@ -120,7 +129,7 @@ void vtkConeSource::Execute()
   }
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  //
+
   // Create cone
   //
   x[0] = this->Height / 2.0; // zero-centered
@@ -149,7 +158,6 @@ void vtkConeSource::Execute()
     x[1] = 0.0;
     x[2] = this->Radius;
     pts[2] = newPoints->InsertNextPoint(x);
- 
     newPolys->InsertNextCell(3,pts);
 
   case 1:
@@ -161,13 +169,10 @@ void vtkConeSource::Execute()
     x[1] = this->Radius;
     x[2] = 0.0;
     pts[2] = newPoints->InsertNextPoint(x);
-
     newPolys->InsertNextCell(3,pts);
-
     break;
 
   default: // General case: create Resolution triangles and single cap
-
     // create the bottom.
     if ( createBottom )
       {
@@ -215,7 +220,27 @@ void vtkConeSource::Execute()
       } // createBottom
     
   } //switch
+
+  // A non-default origin and/or direction requires transformation
   //
+  if ( this->Center[0] != 0.0f || this->Center[1] != 0.0f || 
+       this->Center[2] != 0.0f || this->Direction[0] != 1.0f || 
+       this->Direction[1] != 0.0f || this->Direction[2] != 0.0f )
+    {
+    vtkTransform *t = vtkTransform::New();
+    t->Translate(this->Center[0], this->Center[1], this->Center[2]);
+    float vMag = vtkMath::Norm(this->Direction);
+    t->RotateWXYZ((float)180.0, this->Direction[0]+vMag/2.0,
+                  this->Direction[1]/2.0, this->Direction[2]/2.0);
+    float *pts = ((vtkFloatArray *)newPoints->GetData())->GetPointer(0);
+    for (i=0; i<numPts; i++, pts+=3)
+      {
+      t->TransformPoint(pts,pts);
+      }
+    
+    t->Delete();
+    }
+  
   // Update ourselves
   //
   output->SetPoints(newPoints);
@@ -262,4 +287,8 @@ void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Height: " << this->Height << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Center: (" << this->Center[0] << ", " 
+     << this->Center[1] << ", " << this->Center[2] << ")\n";
+  os << indent << "Direction: (" << this->Direction[0] << ", " 
+     << this->Direction[1] << ", " << this->Direction[2] << ")\n";
 }
