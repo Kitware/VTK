@@ -796,13 +796,19 @@ static inline int vtkResliceRound(float x)
   return vtkResliceRound((double)x);
 }
 
-// convert a float into an integer plus a fraction  
-template<class F>
-static inline int vtkResliceFloor(F x, F &f)
+// convert a double into an integer plus a fraction  
+static inline int vtkResliceFloor(double x, double &f)
 {
   int ix = vtkResliceFloor(x);
   f = x - ix;
+  return ix;
+}
 
+// convert a float into an integer plus a fraction  
+static inline int vtkResliceFloor(float x, float &f)
+{
+  int ix = vtkResliceFloor(x);
+  f = x - ix;
   return ix;
 }
 
