@@ -70,7 +70,7 @@ inline void vlTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
 // Compute the area of a triangle in 3D.
 inline float vlTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
 {
-  static vlMath math;
+  vlMath math;
   float a,b,c;
   a = math.Distance2BetweenPoints(p1,p2);
   b = math.Distance2BetweenPoints(p2,p3);

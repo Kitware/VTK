@@ -156,6 +156,19 @@ inline int vlPolyData::IsTriangle(int v1, int v2, int v3)
 }
 
 // Description:
+// Determine whether a point is used by a particular cell. If it is, return
+// non-zero. Make sure BuildCells() has been called first.
+inline int vlPolyData::IsPointUsedByCell(int ptId, int cellId)
+{
+  int npts, *pts;
+  this->GetCellPoints(cellId, npts, pts);
+  for (int i=0; i < npts; i++)
+    if ( pts[i] == ptId ) return 1;
+
+  return 0;
+}
+
+// Description:
 // Determine whether two points form an edge. If they do, return non-zero.
 // Make sure BuildLinks() has been called first.
 inline int vlPolyData::IsEdge(int p1, int p2)
@@ -166,19 +179,6 @@ inline int vlPolyData::IsEdge(int p1, int p2)
   this->GetPointCells(p1,ncells,cells);
   for (i=0; i < ncells; i++)
     if ( this->IsPointUsedByCell(p2,cells[i]) ) return 1;
-
-  return 0;
-}
-
-// Description:
-// Determine whether a point is used by a particular cell. If it is, return
-// non-zero. Make sure BuildCells() has been called first.
-inline int vlPolyData::IsPointUsedByCell(int ptId, int cellId)
-{
-  int npts, *pts;
-  this->GetCellPoints(cellId, npts, pts);
-  for (int i=0; i < npts; i++)
-    if ( pts[i] == ptId ) return 1;
 
   return 0;
 }
