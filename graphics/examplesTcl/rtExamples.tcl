@@ -123,7 +123,7 @@ foreach afile $files {
    if {[imgDiff GetThresholdedError] < 10.0} {
        puts "and Passed"
    } else {
-       puts "but failed with an error of [imgDiff GetThresholdedError] in "
+       puts "but failed with an error of [imgDiff GetThresholdedError]"
          vtkPNMWriter pnmw
          pnmw SetInput [imgDiff GetOutput]
          pnmw SetFileName "$afile.error.ppm"
