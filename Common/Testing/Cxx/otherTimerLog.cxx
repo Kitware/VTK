@@ -42,10 +42,11 @@ void Test(ostream& strm)
   timer1->StopTimer();
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
-  strm << "Test vtkTimerLog End" << endl;
   timer1->DumpLog( "timing" );
   timer1->ResetLog ();
   unlink("timing");
+  timer1->Delete();
+  strm << "Test vtkTimerLog End" << endl;
 }
 
 
