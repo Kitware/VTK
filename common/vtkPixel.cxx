@@ -450,8 +450,8 @@ void vtkPixel::Clip(float vtkNotUsed(value),
 		    vtkPointLocator *vtkNotUsed(locator), 
 		    vtkCellArray *vtkNotUsed(tetras),
 		    vtkPointData *vtkNotUsed(inPd), vtkPointData *vtkNotUsed(outPd),
-		    vtkCellData *vtkNotUsed(inCd), int cellId, 
-		    vtkCellData *vtkNotUsed(outCd), int insideOut)
+		    vtkCellData *vtkNotUsed(inCd), int vtkNotUsed(cellId), 
+		    vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
 {
 
 }

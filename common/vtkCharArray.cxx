@@ -125,8 +125,6 @@ void vtkCharArray::Initialize()
 // Deep copy of another char array.
 void vtkCharArray::DeepCopy(vtkDataArray& ia)
 {
-  int i;
-
   if ( this != &ia )
     {
     if ((this->Array) && (!this->SaveUserArray))

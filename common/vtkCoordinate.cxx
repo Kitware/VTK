@@ -370,7 +370,6 @@ float *vtkCoordinate::GetComputedValue(vtkViewport* viewport)
     {
     case VTK_WORLD:
       return this->GetComputedWorldValue(viewport);
-      break;
     case VTK_VIEW:
     case VTK_NORMALIZED_VIEWPORT:
     case VTK_VIEWPORT:

@@ -210,7 +210,6 @@ void vtkCell::GetBounds(float bounds[6])
 float vtkCell::GetLength2 ()
 {
   float diff, l=0.0;
-  float *bounds;
   int i;
 
   this->GetBounds();

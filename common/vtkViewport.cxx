@@ -356,7 +356,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
-void vtkViewport::LocalDisplayToDisplay(float &u, float &v)
+void vtkViewport::LocalDisplayToDisplay(float &vtkNotUsed(u), float &v)
 {
   int *size;
   
@@ -366,7 +366,7 @@ void vtkViewport::LocalDisplayToDisplay(float &u, float &v)
   v = size[1] - v - 1;
 }
 
-void vtkViewport::DisplayToLocalDisplay(float &u, float &v)
+void vtkViewport::DisplayToLocalDisplay(float &vtkNotUsed(u), float &v)
 {
   int *size;
   
@@ -445,7 +445,7 @@ void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
   v = v / (this->Viewport[3] - this->Viewport[1]);
 }
 
-void vtkViewport::NormalizedViewportToView(float &x, float &y, float &z)
+void vtkViewport::NormalizedViewportToView(float &x, float &y, float &vtkNotUsed(z))
 {
   x = (2.0*x - 1.0)*this->Aspect[0];
   y = (2.0*y - 1.0)*this->Aspect[1];
@@ -506,7 +506,7 @@ void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
   v = v * (size[1] - 1);
 }
 
-void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &z)
+void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed(z))
 {
   x =  (x / this->Aspect[0] + 1.0) / 2.0;
   y =  (y / this->Aspect[1] + 1.0) / 2.0;
