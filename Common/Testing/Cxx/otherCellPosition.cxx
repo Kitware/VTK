@@ -32,6 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkWedge.h"
 #include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
 
@@ -378,6 +379,43 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Wedge
+  vtkWedge *wedge = vtkWedge::New();
+  double wedgeCoords[3], wedgeWeights[8], wedgePosition[3];
+  double wedgePoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {11, 12, 10}, {10, 10, 12},
+                             {12, 10, 12}, {11, 12, 12}, {11, 11, 11}};
+  double wedgeClosest[3];
+
+  wedge->GetPointIds()->SetNumberOfIds(6);
+  wedge->GetPointIds()->SetId(0,0);
+  wedge->GetPointIds()->SetId(1,1);
+  wedge->GetPointIds()->SetId(2,2);
+  wedge->GetPointIds()->SetId(3,3);
+  wedge->GetPointIds()->SetId(4,4);
+  wedge->GetPointIds()->SetId(5,5);
+
+  wedge->GetPoints()->SetPoint(0, 10, 10, 10);
+  wedge->GetPoints()->SetPoint(1, 12, 10, 10);
+  wedge->GetPoints()->SetPoint(2, 11, 12, 10);
+  wedge->GetPoints()->SetPoint(3, 10, 10, 12);
+  wedge->GetPoints()->SetPoint(4, 12, 10, 12);
+  wedge->GetPoints()->SetPoint(5, 11, 12, 12);
+
+  n = sizeof(wedgePoint) / (3 * sizeof(double));
+  for (j = 0; j < n; j++)
+    {
+    wedge->EvaluatePosition (&wedgePoint[j][0], &wedgeClosest[0], subId, &wedgeCoords[0], dist2, &wedgeWeights[0]);
+    strm << "vtkWedge (" << wedgePoint[j][0] << ", " << wedgePoint[j][1] << ", " << wedgePoint[j][2] << ")" << endl;
+    strm << "\tclosest: " << wedgeClosest[0] << ", " << wedgeClosest[1] << ", " << wedgeClosest[2] << endl;
+    strm << "\tcoords: " << wedgeCoords[0] << ", " << wedgeCoords[1] << ", " << wedgeCoords[2] << endl;
+    strm << "\tweights: " << wedgeWeights[0] << ", " << wedgeWeights[1] << ", " << wedgeWeights[2] << ", " << wedgeWeights[3] << endl;
+    strm << "\tsubid: " << subId << endl;
+    strm << "\tdist2: " << dist2 << endl;
+    wedge->EvaluateLocation (subId, wedgeCoords, wedgePosition, wedgeWeights);
+    strm << "\tposition: " << wedgePosition[0] << ", " << wedgePosition[1] << ", " << wedgePosition[2] << endl;
+    strm << endl;
+    }
+
   //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
   double hexahedronCoords[3], hexahedronWeights[8], hexahedronPosition[3];
@@ -529,6 +567,7 @@ int TestOCP(ostream& strm)
   polygon->Delete();
   tetra->Delete();
   voxel->Delete();
+  wedge->Delete();
   hexahedron->Delete();
   penta->Delete();
   hexa->Delete();

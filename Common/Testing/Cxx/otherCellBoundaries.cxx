@@ -32,6 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkWedge.h"
 #include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
 
@@ -324,26 +325,60 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
 
+  //Wedge
+  vtkWedge *wedge = vtkWedge::New();
+  double wedgeCoords[6][3];
+
+  wedge->GetPointIds()->SetNumberOfIds(6);
+  wedge->GetPointIds()->SetId(0,0);
+  wedge->GetPointIds()->SetId(1,1);
+  wedge->GetPointIds()->SetId(2,2);
+  wedge->GetPointIds()->SetId(3,3);
+  wedge->GetPointIds()->SetId(4,4);
+  wedge->GetPointIds()->SetId(5,5);
+
+  wedgeCoords[0][0] = .5; wedgeCoords[0][1] = 0.5; wedgeCoords[0][2] = 0.1;
+  wedgeCoords[1][0] = .9; wedgeCoords[1][1] = 0.9; wedgeCoords[1][2] = 0.5;
+  wedgeCoords[2][0] = .5; wedgeCoords[2][1] = 0.1; wedgeCoords[2][2] = 0.5;
+  wedgeCoords[3][0] = .5; wedgeCoords[3][1] = 0.5; wedgeCoords[3][2] = 0.9;
+  wedgeCoords[4][0] = .1; wedgeCoords[4][1] = 0.5; wedgeCoords[4][2] = 0.5;
+  wedgeCoords[5][0] = .5; wedgeCoords[5][1] = 0.9; wedgeCoords[5][2] = 0.5;
+
+  for (j = 0; j < 6; j++)
+    {
+    wedge->CellBoundary (0, wedgeCoords[j], ids);
+    strm << "vtkWedge \t(" << wedgeCoords[j][0] << ", " << wedgeCoords[j][1] << ", " << wedgeCoords[j][2] << ") = \t";
+    for (i = 0; i < ids->GetNumberOfIds(); i++)
+      {
+      strm << ids->GetId(i) << ", ";
+      }
+    strm << endl;
+    }
+
   //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
-  double hexahedronCoords[6][3];
+  double hexahedronCoords[8][3];
 
-  hexahedron->GetPointIds()->SetNumberOfIds(6);
+  hexahedron->GetPointIds()->SetNumberOfIds(8);
   hexahedron->GetPointIds()->SetId(0,0);
   hexahedron->GetPointIds()->SetId(1,1);
   hexahedron->GetPointIds()->SetId(2,2);
   hexahedron->GetPointIds()->SetId(3,3);
   hexahedron->GetPointIds()->SetId(4,4);
   hexahedron->GetPointIds()->SetId(5,5);
+  hexahedron->GetPointIds()->SetId(6,6);
+  hexahedron->GetPointIds()->SetId(7,7);
 
   hexahedronCoords[0][0] = .5; hexahedronCoords[0][1] = 0.5; hexahedronCoords[0][2] = 0.1;
   hexahedronCoords[1][0] = .9; hexahedronCoords[1][1] = 0.9; hexahedronCoords[1][2] = 0.5;
   hexahedronCoords[2][0] = .5; hexahedronCoords[2][1] = 0.1; hexahedronCoords[2][2] = 0.5;
-  hexahedronCoords[3][0] = .5; hexahedronCoords[3][1] = 0.5; hexahedronCoords[3][2] = 0.9;
-  hexahedronCoords[4][0] = .1; hexahedronCoords[4][1] = 0.5; hexahedronCoords[4][2] = 0.5;
-  hexahedronCoords[5][0] = .5; hexahedronCoords[5][1] = 0.9; hexahedronCoords[5][2] = 0.5;
+  hexahedronCoords[3][0] = .5; hexahedronCoords[3][1] = 0.5; hexahedronCoords[3][2] = 0.1;
+  hexahedronCoords[4][0] = .5; hexahedronCoords[4][1] = 0.5; hexahedronCoords[4][2] = 0.9;
+  hexahedronCoords[5][0] = .9; hexahedronCoords[5][1] = 0.9; hexahedronCoords[5][2] = 0.7;
+  hexahedronCoords[6][0] = .5; hexahedronCoords[6][1] = 0.1; hexahedronCoords[6][2] = 0.7;
+  hexahedronCoords[7][0] = .5; hexahedronCoords[7][1] = 0.5; hexahedronCoords[7][2] = 0.9;
 
-  for (j = 0; j < 6; j++)
+  for (j = 0; j < 8; j++)
     {
     hexahedron->CellBoundary (0, hexahedronCoords[j], ids);
     strm << "vtkHexahedron \t(" << hexahedronCoords[j][0] << ", " << hexahedronCoords[j][1] << ", " << hexahedronCoords[j][2] << ") = \t";
@@ -446,6 +481,7 @@ int TestOCB(ostream& strm)
   polygon->Delete();
   tetra->Delete();
   voxel->Delete();
+  wedge->Delete();
   hexahedron->Delete();
   penta->Delete();
   hexa->Delete();
