@@ -95,8 +95,9 @@ unsigned long vtkSynchronizedTemplates3D::GetMTime()
 
 // Calculate the gradient using central difference.
 template <class T>
-static void ComputePointGradient(int i, int j, int k, T *s, int dims[3], 
-                          int sliceSize, float Spacing[3], float n[3])
+static void vtkSTComputePointGradient(int i, int j, int k, T *s, int dims[3], 
+				      int sliceSize, float Spacing[3], 
+				      float n[3])
 {
   float sp, sm;
 
@@ -166,11 +167,11 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    ComputePointGradient(i, j, k, scalars, dims, zstep, \
+    vtkSTComputePointGradient(i, j, k, scalars, dims, zstep, \
 		       spacing, n0); \
     g0 = 1; \
     } \
-  ComputePointGradient(i2, j2, k2, scalars, dims, zstep, \
+  vtkSTComputePointGradient(i2, j2, k2, scalars, dims, zstep, \
 		       spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
@@ -183,7 +184,7 @@ if (NeedGradients) \
   if (ComputeNormals) \
     { \
     vtkMath::Normalize(n); \
-    n[0] = -n[0];  n[1] = -n[1];  n[2] = -n[2]; \
+    n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2]; \
     newNormals->InsertNextNormal(n); \
     }   \
 } \
