@@ -76,6 +76,8 @@ vtkProperty::vtkProperty()
   this->EdgeVisibility = 0;
   this->BackfaceCulling = 0;
   this->FrontfaceCulling = 0;
+  this->PointSize = 1.0;
+  this->LineWidth = 1.0;
 }
 
 // Assign one property to another. 
@@ -236,4 +238,6 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
      << (this->BackfaceCulling ? "On\n" : "Off\n");
   os << indent << "Frontface Culling: " 
      << (this->FrontfaceCulling ? "On\n" : "Off\n");
+  os << indent << "PointSize: " << this->PointSize << "\n";
+  os << indent << "LineWidth: " << this->LineWidth << "\n";
 }

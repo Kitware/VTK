@@ -125,6 +125,12 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   this->GetColor( color );
   color[3] = 1.0;
   glColor4fv( color );
+
+  // Set the PointSize
+  glPointSize (this->PointSize);
+
+  // Set the LineWidth
+  glLineWidth (this->LineWidth);
 }
 
 // Implement base class method.

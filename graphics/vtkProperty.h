@@ -180,6 +180,18 @@ public:
   vtkGetVectorMacro(EdgeColor,float,3);
 
   // Description:
+  // Set/Get the diameter of a Point. The size is expressed in screen units.
+  // This is only implemented for OpenGL. The default is 1.0.
+  vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(PointSize,float);
+
+  // Description:
+  // Set/Get the width of a Line. The width is expressed in screen units.
+  // This is only implemented for OpenGL. The default is 1.0.
+  vtkSetClampMacro(LineWidth,float,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(LineWidth,float);
+
+  // Description:
   // Turn on/off fast culling of polygons based on orientation of normal 
   // with respect to camera. If backface culling is on, polygons facing
   // away from camera are not drawn.
@@ -206,6 +218,8 @@ protected:
   float Specular;
   float SpecularPower;
   float Opacity;
+  float PointSize;
+  float LineWidth;
   int   Interpolation; 
   int   Representation;
   int   EdgeVisibility;
