@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int main( int argc, char *argv[] )
+int main()
 {
   int i;
   static float x[8][3]={{0,0,0}, {1,0,0}, {1,1,0}, {0,1,0},

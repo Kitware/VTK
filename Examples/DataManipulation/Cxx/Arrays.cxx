@@ -30,7 +30,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int main( int argc, char *argv[] )
+int main()
 {
   int i;
 

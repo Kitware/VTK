@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-int main( int argc, char *argv[] )
+int main()
 {
   // 
   // Next we create an instance of vtkConeSource and set some of its

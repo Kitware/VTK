@@ -25,7 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkCamera.h"
 
-int main(int argc, char *argv[])
+int main()
 {
   // This creates a polygonal cylinder model with eight circumferential facets.
   //

@@ -25,7 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkLight.h"
 
-int main(int argc, char *argv[])
+int main()
 {
   // The following lines create a sphere represented by polygons.
   //

@@ -48,7 +48,7 @@ public:
     }
 };
 
-int main( int argc, char *argv[] )
+int main()
 {
   //
   // The pipeline creation is documented in Step1

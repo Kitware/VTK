@@ -34,7 +34,7 @@
 #include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
 
-int main( int argc, char *argv[] )
+int main()
 {
   int i, j, k, kOffset, jOffset, offset;
   float x[3], v[3], rMin=0.5, rMax=1.0, deltaRad, deltaZ;
