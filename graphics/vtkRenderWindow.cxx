@@ -256,6 +256,7 @@ void vtkRenderWindow::Render()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
+
 }
 
 // Description:
@@ -580,8 +581,39 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkRenderWindow::SaveImageAsPPM()
 {
+  if( this->OpenPPMImageFile() ){
+    this->WritePPMImageFile();
+    this->ClosePPMImageFile();
+  }
+}
+
+
+int vtkRenderWindow::OpenPPMImageFile()
+{
+  //  open the ppm file and write header 
+  if ( this->Filename != NULL && *this->Filename != '\0')
+    {
+    PpmImageFilePtr = fopen(this->Filename,"wb");
+    if (!PpmImageFilePtr)
+      {
+      vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
+      return 0;
+      }
+    return 0;
+  }
+  return 1;
+}
+
+void vtkRenderWindow::ClosePPMImageFile()
+{
+  fclose(PpmImageFilePtr);
+  PpmImageFilePtr = NULL;
+}
+
+
+void vtkRenderWindow::WritePPMImageFile()
+{
   int    *size;
-  FILE   *fp;
   unsigned char *buffer;
   int i;
 
@@ -590,30 +622,24 @@ void vtkRenderWindow::SaveImageAsPPM()
   // get the data
   buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,1);
 
-  //  open the ppm file and write header 
-  if ( this->Filename != NULL && *this->Filename != '\0')
+  if(!PpmImageFilePtr)
     {
-    fp = fopen(this->Filename,"wb");
-    if (!fp)
-      {
-      vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
-      delete [] buffer;
-      return;
-      }
+    vtkErrorMacro(<< "RenderWindow: no image file for writing\n");
+    return;
+    }
  
-    // write out the header info 
-    fprintf(fp,"P6\n%i %i\n255\n",size[0],size[1]);
+  // write out the header info 
+  fprintf(PpmImageFilePtr,"P6\n%i %i\n255\n",size[0],size[1]);
  
-    // now write the binary info 
-    for (i = size[1]-1; i >= 0; i--)
-      {
-      fwrite(buffer + i*size[0]*3,1,size[0]*3,fp);
-      }
-    fclose(fp);
+  // now write the binary info 
+  for (i = size[1]-1; i >= 0; i--)
+    {
+    fwrite(buffer + i*size[0]*3,1,size[0]*3,PpmImageFilePtr);
     }
 
   delete [] buffer;
 }
+
 
 
 // Description:
