@@ -887,17 +887,8 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes *types)
 {
-  int cellId, numCells=this->GetNumberOfCells();
-  unsigned char type;
-  types->Allocate(numCells,1000);
+
+  types->Allocate(this->GetNumberOfCells(),1000);
   vtkDataSet::GetCellTypes(types);
-//   types->Reset();
-//   for (cellId=0; cellId < numCells; cellId++)
-//     {
-//     type = this->GetCellType(cellId);
-//     if ( ! types->IsType(type) )
-//       {
-//       types->InsertNextType(type);
-//       }
-//     }
+
 }
