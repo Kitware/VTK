@@ -70,7 +70,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
     vtkScalars *scalars;
     unsigned char *dataPtr;
     int rowLength;
-    unsigned char *resultData;
+    unsigned char *resultData=NULL;
     int xsize, ysize;
     unsigned short xs,ys;
     GLuint tempIndex;
@@ -82,7 +82,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
     // make sure scalars are non null
     if (!scalars) 
       {
-      vtkErrorMacro(<< "No scalar values found for texture input!\n");
+      vtkErrorMacro(<< "No scalar values found for texture input!");
       return;
       }
 
@@ -119,7 +119,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
         ysize = size[1];
         if (size[2] != 1)
           {
-          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+          vtkErrorMacro(<< "3D texture maps currently are not supported!");
           return;
           }
         }
@@ -138,7 +138,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       }
     if ((xs > 1)||(ys > 1))
       {
-      vtkWarningMacro(<< "Texture map's width and height must be a power of two in OpenGL\n");
+      vtkWarningMacro(<< "Resampling texture to power of two for OpenGL");
+      resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr, 
+                                              bytesPerPixel);
       }
 
     // format the data so that it can be sent to opengl
@@ -148,7 +150,10 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
     rowLength = ((xsize*bytesPerPixel +3 )/4)*4;
     if (rowLength == xsize*bytesPerPixel)
       {
-      resultData = dataPtr;
+      if ( resultData == NULL )
+        {
+        resultData = dataPtr;
+        }
       }
     else
       {
@@ -265,4 +270,89 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
   glDeleteLists(this->Index,1);
 #endif
   this->Index = 0;
+}
+
+static int FindPowerOfTwo(int i)
+{
+  int size;
+
+  for ( i--, size=1; i > 0; size*=2 )
+    {
+    i /= 2;
+    }
+  
+  return size;
+}
+
+// Creates resampled unsigned char texture map that is a power of two in bith x and y.
+unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned char *dptr,
+                                                      int bpp)
+{
+  unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
+  int xsize, ysize, i, j, k, jOffset, iIdx, jIdx;
+  float pcoords[3], hx, hy, rm, sm, w0, w1, w2, w3;
+
+  xsize = FindPowerOfTwo(xs);
+  ysize = FindPowerOfTwo(ys);
+  
+  hx = (float)(xs - 1.0) / (xsize - 1.0);
+  hy = (float)(ys - 1.0) / (ysize - 1.0);
+
+  tptr = p = new unsigned char[xsize*ysize*bpp];
+
+  //Resample from the previous image. Compute parametric coordinates and interpolate
+  for (j=0; j < ysize; j++)
+    {
+    pcoords[1] = j*hy;
+
+    jIdx = (int)pcoords[1];
+    if ( jIdx >= (ys-1) ) //make sure to interpolate correctly at edge
+      {
+      jIdx = ys - 2;
+      pcoords[1] = 1.0;
+      }
+    else
+      {
+      pcoords[1] = pcoords[1] - jIdx;
+      }
+    jOffset = jIdx*xs;
+    sm = 1.0 - pcoords[1];
+
+    for (i=0; i < xsize; i++)
+      {
+      pcoords[0] = i*hx;
+      iIdx = (int)pcoords[0];
+      if ( iIdx >= (xs-1) ) 
+        {
+        iIdx = xs - 2;
+        pcoords[0] = 1.0;
+        }
+      else
+        {
+        pcoords[0] = pcoords[0] - iIdx;
+        }
+      rm = 1.0 - pcoords[0];
+
+      // Get pointers to 4 surrounding pixels
+      p1 = dptr + bpp*(iIdx + jOffset);
+      p2 = p1 + bpp;
+      p3 = p1 + bpp*xs;
+      p4 = p3 + bpp;
+
+      // Compute interpolation weights interpolate components
+      w0 = rm*sm; 
+      w1 = pcoords[0]*sm;
+      w2 = rm*pcoords[1];
+      w3 = pcoords[0]*pcoords[1];
+      for (k=0; k < bpp; k++)
+        {
+        *p++ = p1[k]*w0 + p2[k]*w1 + p3[k]*w2 + p4[k]*w3;
+        }
+      }
+    }
+
+  xs = xsize;
+  ys = ysize;
+  
+  return tptr;
 }

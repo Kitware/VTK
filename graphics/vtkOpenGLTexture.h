@@ -68,7 +68,10 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
- protected:
+protected:
+  unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
+                                      unsigned char *dptr, int bpp);
+
   vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
