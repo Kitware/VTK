@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.113");
+vtkCxxRevisionMacro(vtkMapper, "1.114");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -619,7 +619,10 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars)
     this->ColorCoordinates->SetNumberOfTuples(num);
     float* output = this->ColorCoordinates->GetPointer(0);
     int scalarComponent;
-    if (this->LookupTable->GetVectorMode() == vtkScalarsToColors::MAGNITUDE)
+    // Although I like the feature of applying magnitude to single component
+    // scalars, it is not how the old MapScalars for vertex coloring works.
+    if (this->LookupTable->GetVectorMode() == vtkScalarsToColors::MAGNITUDE &&
+        scalars->GetNumberOfComponents() > 1)
       {
       scalarComponent = -1;
       }
