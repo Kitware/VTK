@@ -179,6 +179,10 @@ public:
   void SetCursorPosition(int x, int y);
 
   // Description:
+  // Change the shape of the cursor
+  virtual void SetCurrentCursor(int);
+
+  // Description:
   // Override the default implementation so that we can actively switch between
   // on and off screen rendering.
   virtual void SetOffScreenRendering(int offscreen);
