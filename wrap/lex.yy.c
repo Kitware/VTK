@@ -4820,21 +4820,11 @@ yyinput()
 {
 	return(input());
 	}
-#if defined(__cplusplus) || defined(__STDC__)
 void yyoutput(int c)
-#else
-yyoutput(c)
-  int c; 
-#endif
 {
 	output(c);
 	}
-#if defined(__cplusplus) || defined(__STDC__)
 void yyunput(int c)
-#else
-yyunput(c)
-   int c; 
-#endif
 {
 	unput(c);
 	}
