@@ -482,7 +482,6 @@ void vtkOglrRenderWindow::WindowInitialize (void)
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
   glEnable( GL_NORMALIZE );
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glAlphaFunc(GL_GREATER,0);
   
   this->Mapped = 1;

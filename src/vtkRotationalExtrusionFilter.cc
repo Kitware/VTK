@@ -3,8 +3,8 @@
   Program:   Visualization Toolkit
   Module:    vtkRotationalExtrusionFilter.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      09 Oct 1995
+  Version:   1.13
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -155,6 +155,7 @@ void vtkRotationalExtrusionFilter::Execute()
         {
         newPolys->InsertNextCell(npts,pts);
         newPolys->InsertNextCell(npts);
+	// note that we need to reverse the vertex order on the far cap
         for (i=0; i < npts; i++)
           newPolys->InsertCellPoint(pts[i] + this->Resolution*numPts);
         }
@@ -201,8 +202,8 @@ void vtkRotationalExtrusionFilter::Execute()
         newStrips->InsertNextCell(2*(this->Resolution+1));
         for ( j=0; j<=this->Resolution; j++)
           {
-          newStrips->InsertCellPoint(p1 + j*numPts);
           newStrips->InsertCellPoint(p2 + j*numPts);
+          newStrips->InsertCellPoint(p1 + j*numPts);
           }
         }
       }
@@ -224,8 +225,8 @@ void vtkRotationalExtrusionFilter::Execute()
             newStrips->InsertNextCell(2*(this->Resolution+1));
             for (k=0; k<=this->Resolution; k++)
               {
-              newStrips->InsertCellPoint(p1 + k*numPts);
               newStrips->InsertCellPoint(p2 + k*numPts);
+              newStrips->InsertCellPoint(p1 + k*numPts);
               }
             } //if boundary edge
           } //for each sub-edge

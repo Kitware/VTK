@@ -71,6 +71,10 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
   // unbind any textures for starters
   texbind(TX_TEXTURE_0,0);
 
+  // turn on/off culling of surface primitives
+  backface(prop->GetBackfaceCulling() ? TRUE : FALSE);
+  frontface(prop->GetFrontfaceCulling() ? TRUE : FALSE);
+
   lmcolor (LMC_NULL);
   mat[1] = prop->GetOpacity();
   mat[15] = prop->GetSpecularPower();

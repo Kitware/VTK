@@ -63,7 +63,12 @@ vtkStructuredPoints::vtkStructuredPoints()
 vtkStructuredPoints::vtkStructuredPoints(const vtkStructuredPoints& v) :
 vtkDataSet(v)
 {
-
+  this->Dimensions[0] = v.Dimensions[0];
+  this->Dimensions[1] = v.Dimensions[1];
+  this->Dimensions[2] = v.Dimensions[2];
+  this->DataDescription = v.DataDescription;
+  
+  this->AspectRatio[0] = v.AspectRatio[0];
   this->AspectRatio[1] = v.AspectRatio[1];
   this->AspectRatio[2] = v.AspectRatio[2];
 

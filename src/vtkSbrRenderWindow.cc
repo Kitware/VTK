@@ -818,13 +818,8 @@ void vtkSbrRenderWindow::WindowInitialize (void)
     buffer_mode(this->Fd, TRUE);
     }
 
-
-  // turn on z buffering and disable backface culling 
-  hidden_surface(this->Fd, TRUE, FALSE);
   clear_control(this->Fd, CLEAR_DISPLAY_SURFACE | CLEAR_ZBUFFER);
   
-  // set back faces of polygons to be rendered same as front 
-  bf_control(this->Fd, TRUE, FALSE);
   // make default polymarker a dot (pixel) 
   marker_type(this->Fd, 0);
 

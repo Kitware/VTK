@@ -454,3 +454,49 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
   return (float)(sum / 4.0);
 }
 #undef VTK_DOT
+
+// Description:
+// Given a 3D point x[3], determine the barycentric coordinates of the point.
+// Barycentric coordinates are a natural coordinate system for simplices that
+// express a position as a linear combination of the vertices. For a 
+// tetrahedron, there are four barycentric coordinates (because there are
+// four vertices), and the sum of the coordinates must equal 1. If a 
+// point x is inside a simplex, then all four coordinates will be strictly 
+// positive.  If three coordinates are zero (so the fourth =1), then the 
+// point x is on a vertex. If two coordinates are zero, the point x is on an 
+// edge (and so on). In this method, you must specify the vertex coordinates
+// x1->x4. Returns 0 if tetrahedron is degenerate.
+int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3], 
+                                float x3[3], float x4[3], float bcoords[4])
+{
+  static vtkMath math;
+  double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];
+  int i;
+
+  //
+  // Homogenize the variables; load into arrays.
+  //
+  a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; a1[3] = x4[0];
+  a2[0] = x1[1]; a2[1] = x2[1]; a2[2] = x3[1]; a2[3] = x4[1];
+  a3[0] = x1[2]; a3[1] = x2[2]; a3[2] = x3[2]; a3[3] = x4[2];
+  a4[0] = 1.0;   a4[1] = 1.0;   a4[2] = 1.0;   a4[3] = 1.0;
+  p[0] = x[0]; p[1] = x[1]; p[2] = x[2]; p[3] = 1.0;
+
+  //
+  //   Now solve system of equations for barycentric coordinates
+  //
+  A[0] = a1;
+  A[1] = a2;
+  A[2] = a3;
+  A[3] = a4;
+
+  if ( math.SolveLinearSystem(A,p,4) )
+    {
+    for (i=0; i<4; i++) bcoords[i] = (float) p[i];
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}

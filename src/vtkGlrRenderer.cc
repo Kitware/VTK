@@ -53,11 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define MAX_LIGHTS 8
 
-static float amb_light_info[] = {
-  AMBIENT, 0.2, 0.2, 0.2,
-  LMNULL
-  };
-
 vtkGlrRenderer::vtkGlrRenderer()
 {
 }
@@ -101,24 +96,34 @@ int vtkGlrRenderer::UpdateCameras ()
 // into graphics pipeline.
 void vtkGlrRenderer::ClearLights (void)
 {
-  short cur_light;
+  short curLight;
+  static float lightInfo[] = {AMBIENT, 0.2, 0.2, 0.2, LMNULL};
+  static float twoSidedLightInfo[] = {AMBIENT, 0.2, 0.2, 0.2, 
+                                      TWOSIDE, 1.0, LMNULL};
 
   // define a lighting model and set up the ambient light.
   // use index 11 for the heck of it. Doesn't matter except for 0.
    
-  // update the ambient light 
-  amb_light_info[1] = this->Ambient[0];
-  amb_light_info[2] = this->Ambient[1];
-  amb_light_info[3] = this->Ambient[2];
-
-  lmdef(DEFLMODEL, 11, 0, amb_light_info);
+  if ( this->TwoSidedLighting )
+    {
+    twoSidedLightInfo[1] = this->Ambient[0];
+    twoSidedLightInfo[2] = this->Ambient[1];
+    twoSidedLightInfo[3] = this->Ambient[2];
+    lmdef(DEFLMODEL, 11, 0, twoSidedLightInfo);
+    }
+  else
+    {
+    lightInfo[1] = this->Ambient[0];
+    lightInfo[2] = this->Ambient[1];
+    lightInfo[3] = this->Ambient[2];
+    lmdef(DEFLMODEL, 11, 0, lightInfo);
+    }
   lmbind(LMODEL, 11);
 
   // now delete all the old lights 
-  for (cur_light = LIGHT0; 
-       cur_light < LIGHT0 + MAX_LIGHTS; cur_light++)
+  for (curLight = LIGHT0; curLight < LIGHT0 + MAX_LIGHTS; curLight++)
     {
-    lmbind(cur_light,0);
+    lmbind(curLight,0);
     }
 
   this->NumberOfLightsBound = 0;
@@ -129,11 +134,11 @@ void vtkGlrRenderer::ClearLights (void)
 int vtkGlrRenderer::UpdateLights ()
 {
   vtkLight *light;
-  short cur_light;
+  short curLight;
   float status;
   int count = 0;
 
-  cur_light= this->NumberOfLightsBound + LIGHT0;
+  curLight= this->NumberOfLightsBound + LIGHT0;
 
   // set the matrix mode for lighting. ident matrix on viewing stack  
   mmode(MVIEWING);
@@ -146,17 +151,17 @@ int vtkGlrRenderer::UpdateLights ()
 
     // if the light is on then define it and bind it. 
     // also make sure we still have room.             
-    if ((status > 0.0)&& (cur_light < (LIGHT0+MAX_LIGHTS)))
+    if ((status > 0.0)&& (curLight < (LIGHT0+MAX_LIGHTS)))
       {
-      light->Render((vtkRenderer *)this,cur_light);
-      lmbind(cur_light, cur_light);
+      light->Render((vtkRenderer *)this,curLight);
+      lmbind(curLight, curLight);
       // increment the current light by one 
-      cur_light++;
+      curLight++;
       count++;
       }
     }
   
-  this->NumberOfLightsBound = cur_light - LIGHT0;
+  this->NumberOfLightsBound = curLight - LIGHT0;
   
   popmatrix();
   return count;

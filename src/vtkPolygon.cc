@@ -3,8 +3,8 @@
   Program:   Visualization Toolkit
   Module:    vtkPolygon.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      11/01/95
+  Version:   1.31
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -74,23 +74,25 @@ vtkPolygon::vtkPolygon(const vtkPolygon& p)
 // that index into the points list.
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 {
-  int     i;
-  float   *v1, *v2, *v3;
-  float    length;
-  float    ax, ay, az;
-  float    bx, by, bz;
+  int i;
+  float v1[3], v2[3], v3[3];
+  float length;
+  float ax, ay, az;
+  float bx, by, bz;
 //
 //  Because some polygon vertices are colinear, need to make sure
 //  first non-zero normal is found.
 //
-  v1 = p->GetPoint(pts[0]);
-  v2 = p->GetPoint(pts[1]);
-  v3 = p->GetPoint(pts[2]);
+  p->GetPoint(pts[0],v1);
+  p->GetPoint(pts[1],v2);
+  p->GetPoint(pts[2],v3);
 
   for (i=0; i<numPts; i++) 
     {
-    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
-    bx = v3[0] - v1[0]; by = v3[1] - v1[1]; bz = v3[2] - v1[2];
+    // order is important!!! to maintain consistency with polygon vertex order 
+    ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
+    bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
+
     n[0] = (ay * bz - az * by);
     n[1] = (az * bx - ax * bz);
     n[2] = (ax * by - ay * bx);
@@ -105,9 +107,9 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
       } 
     else 
       {
-      v1 = v2;
-      v2 = v3;
-      v3 = p->GetPoint(pts[(i+3)%numPts]);
+      v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
+      v2[0] = v3[0]; v2[1] = v3[1]; v2[2] = v3[2];
+      p->GetPoint(pts[(i+3)%numPts],v3);
       }
     }
 }
@@ -128,12 +130,14 @@ void vtkPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
     n[1] = (az * bx - ax * bz);
     n[2] = (ax * by - ay * bx);
 
-    length = sqrt (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-    if (length != 0.0) {
-        n[0] /= length;
-        n[1] /= length;
-        n[2] /= length;
-    }
+    length = sqrt((double) (n[0]*n[0] + n[1]*n[1] + n[2]*n[2]));
+
+    if (length != 0.0) 
+      {
+      n[0] /= length;
+      n[1] /= length;
+      n[2] /= length;
+      }
 }
 
 // Description:
@@ -156,8 +160,9 @@ void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 
   for (i=0; i<numPts; i++) 
     {
-    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
-    bx = v3[0] - v1[0]; by = v3[1] - v1[1]; bz = v3[2] - v1[2];
+    ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
+    bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
+
     n[0] = (ay * bz - az * by);
     n[1] = (az * bx - ax * bz);
     n[2] = (ax * by - ay * bx);
@@ -245,7 +250,7 @@ void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 }
 
 // Description:
-//  Create a local s-t coordinate system for a polygon.
+//  Create a local s-t coordinate system for a polygon
 int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
                                    float *p20,float &l20, float *n)
 {
@@ -601,7 +606,7 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 }
 
 // Description:
-//  Determine whether the loop can be split / build loops.
+//  Determine whether the loop can be split / build loops
 int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
                              int& n1, int *l1, int& n2, int *l2, float& ar)
 {
@@ -670,7 +675,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 }
 
 // Description:
-// Creates two loops from splitting plane provided.
+// Creates two loops from splitting plane provided
 void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
                            int& n1, int *l1, int& n2, int* l2)
 {

@@ -101,7 +101,7 @@ int vtkOglrRenderer::UpdateCameras ()
 // into graphics pipeline.
 void vtkOglrRenderer::ClearLights (void)
 {
-  short cur_light;
+  short curLight;
   float Info[4];
 
   // define a lighting model and set up the ambient light.
@@ -112,15 +112,22 @@ void vtkOglrRenderer::ClearLights (void)
   Info[1] = this->Ambient[1];
   Info[2] = this->Ambient[2];
   Info[3] = 1.0;
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Info);
 
-  // now delete all the old lights 
-  for (cur_light = GL_LIGHT0; 
-       cur_light < GL_LIGHT0 + MAX_LIGHTS; cur_light++)
+  if ( this->TwoSidedLighting )
     {
-    glDisable((GLenum)cur_light);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+    }
+  else
+    {
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
     }
 
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Info);
+  // now delete all the old lights 
+  for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + MAX_LIGHTS; curLight++)
+    {
+    glDisable((GLenum)curLight);
+    }
 
   this->NumberOfLightsBound = 0;
 }
@@ -130,11 +137,11 @@ void vtkOglrRenderer::ClearLights (void)
 int vtkOglrRenderer::UpdateLights ()
 {
   vtkLight *light;
-  short cur_light;
+  short curLight;
   float status;
   int count = 0;
 
-  cur_light= this->NumberOfLightsBound + GL_LIGHT0;
+  curLight= this->NumberOfLightsBound + GL_LIGHT0;
 
   // set the matrix mode for lighting. ident matrix on viewing stack  
   glMatrixMode(GL_MODELVIEW);
@@ -148,17 +155,17 @@ int vtkOglrRenderer::UpdateLights ()
 
     // if the light is on then define it and bind it. 
     // also make sure we still have room.             
-    if ((status > 0.0)&& (cur_light < (GL_LIGHT0+MAX_LIGHTS)))
+    if ((status > 0.0)&& (curLight < (GL_LIGHT0+MAX_LIGHTS)))
       {
-      light->Render((vtkRenderer *)this,cur_light);
-      glEnable((GLenum)cur_light);
+      light->Render((vtkRenderer *)this,curLight);
+      glEnable((GLenum)curLight);
       // increment the current light by one 
-      cur_light++;
+      curLight++;
       count++;
       }
     }
   
-  this->NumberOfLightsBound = cur_light - GL_LIGHT0;
+  this->NumberOfLightsBound = curLight - GL_LIGHT0;
   
   glPopMatrix();
   glEnable(GL_LIGHTING);

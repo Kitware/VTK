@@ -234,8 +234,8 @@ void vtkTubeFilter::Execute()
       for (i=0; i < npts; i++) 
         {
         i2 = i*this->NumberOfSides;
-        newStrips->InsertCellPoint(ptOffset+i2+k);
         newStrips->InsertCellPoint(ptOffset+i2+i1);
+        newStrips->InsertCellPoint(ptOffset+i2+k);
         }
       } //for this line
 

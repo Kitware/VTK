@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object with object color, ambient color, diffuse color,
 // specular color, and edge color white; ambient coefficient=0; diffuse 
 // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
-// and surface representation.
+// and surface representation. Backface and frontface culling are off.
 vtkProperty::vtkProperty()
 {
   this->Color[0] = 1;
@@ -80,6 +80,9 @@ vtkProperty::vtkProperty()
   this->Representation = VTK_SURFACE;
   this->EdgeVisibility = 0;
   this->Backface = 0;
+  this->BackfaceCulling = 0;
+  this->FrontfaceCulling = 0;
+
   this->Device = NULL;
 }
 
@@ -225,4 +228,8 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Specular Color: (" << this->SpecularColor[0] << ", " 
      << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Specular Power: " << this->SpecularPower << "\n";
+  os << indent << "Backface Culling: " 
+     << (this->BackfaceCulling ? "On\n" : "Off\n");
+  os << indent << "Frontface Culling: " 
+     << (this->FrontfaceCulling ? "On\n" : "Off\n");
 }

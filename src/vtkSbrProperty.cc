@@ -74,6 +74,16 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
     EdgeColor = DiffuseColor;
     }
 
+  // turn on z buffering and disable/enable backface culling 
+  if ( ! prop->GetBackfaceCulling() && ! prop->GetFrontfaceCulling() )
+    {
+    hidden_surface(fd, TRUE, FALSE);
+    }
+  else if ( prop->GetBackfaceCulling() )
+    {
+    hidden_surface(fd, TRUE, TRUE);
+    }
+  
   line_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
   fill_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
   perimeter_color(fd, EdgeColor[0], EdgeColor[1], EdgeColor[2]);

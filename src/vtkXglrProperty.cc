@@ -78,9 +78,21 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
   specularColor.g = SpecularColor[1];
   specularColor.b = SpecularColor[2];
 
+  if ( ! prop->GetBackfaceCulling() && ! prop->GetFrontfaceCulling() )
+    {
+    xgl_object_set(*context, XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_OFF, 0);
+    }
+  else if ( prop->GetBackfaceCulling() )
+    {
+    xgl_object_set(*context, XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_BACK, 0);
+    }
+  else //if both front & back culling on, will fall into backface culling
+    { //if you really want both front and back, use the Actor's visibility flag
+    xgl_object_set(*context, XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_FRONT, 0);
+    }
 
   // see if this is a frontface or backface property 
-  if (prop->GetBackface() == 0.0) 
+  if ( ! prop->GetBackface() ) 
     {
     xgl_object_set(*context,
 		   XGL_3D_CTX_SURF_FRONT_AMBIENT, Ambient,

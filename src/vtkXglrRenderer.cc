@@ -162,7 +162,16 @@ void vtkXglrRenderer::Render(void)
   temp = (vtkXglrRenderWindow *)this->GetRenderWindow();
   this->Context = *(temp->GetContext());
 
-  // standard render method 
+  if ( this->TwoSidedLighting )
+    {
+    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, FALSE, 0);
+    }
+  else
+    {
+    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, TRUE, 0);
+    }
+
+  // update our Context first  // standard render method 
   this->DoCameras();
   this->DoLights();
   this->DoActors();

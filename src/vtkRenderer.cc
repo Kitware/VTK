@@ -48,7 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Create a vtkRenderer with a black background, a white ambient light, 
-// backlighting turned on, a viewport of (0,0,1,1).
+// two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
+// turned off.
 vtkRenderer::vtkRenderer()
 {
   this->ActiveCamera = NULL;
@@ -93,6 +94,8 @@ vtkRenderer::vtkRenderer()
   this->EndRenderMethod = NULL;
   this->EndRenderMethodArgDelete = NULL;
   this->EndRenderMethodArg = NULL;
+
+  this->TwoSidedLighting = 1;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -579,6 +582,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
       << this->Viewport[3] << ")\n";
 
+  os << indent << "Two-sided Lighting: " 
+     << (this->TwoSidedLighting ? "On\n" : "Off\n");
+
   if ( this->StartRenderMethod )
     {
     os << indent << "Start Render method defined.\n";
@@ -596,5 +602,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No End Render method.\n";
     }
+
 }
 

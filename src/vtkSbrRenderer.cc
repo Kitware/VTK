@@ -154,6 +154,15 @@ void vtkSbrRenderer::Render(void)
   temp = (vtkSbrRenderWindow *)this->GetRenderWindow();
   this->Fd = temp->GetFd();
 
+  if ( this->TwoSidedLighting )
+    {
+    bf_control(this->Fd, TRUE, FALSE);
+    }
+  else
+    {
+    bf_control(this->Fd, FALSE, FALSE);
+    }
+
   // standard render method 
   this->ClearLights();
   this->DoCameras();

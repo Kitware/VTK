@@ -65,14 +65,30 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
   glDisable(GL_TEXTURE_2D);
 
   glDisable(GL_COLOR_MATERIAL);
+
   Face = GL_FRONT_AND_BACK;
+  // turn on/off backface culling
+  if ( ! prop->GetBackfaceCulling() && ! prop->GetFrontfaceCulling() )
+    {
+    glDisable (GL_CULL_FACE);
+    }
+  else if ( prop->GetBackfaceCulling() )
+    {
+    glCullFace (GL_BACK);
+    glEnable (GL_CULL_FACE);
+    }
+  else //if both front & back culling on, will fall into backface culling
+    { //if you really want both front and back, use the Actor's visibility flag
+    glCullFace (GL_FRONT);
+    glEnable (GL_CULL_FACE);
+    }
 
   Info[3] = prop->GetOpacity();
 
   // deal with blending if necc
   if (Info[3] < 1.0)
     {
-    glEnable( GL_BLEND);
+    glEnable(GL_BLEND);
     }
   else
     {

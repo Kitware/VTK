@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    vtkHyperStreamline.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      06 Nov 1995
+  Version:   1.16
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -643,7 +643,9 @@ void vtkHyperStreamline::BuildTube()
       newStrips->InsertNextCell(npts*2);
       for (i=0; i < npts; i++) 
         {
-        i2 = i*this->NumberOfSides;
+        //make sure strip definition consistent with normals
+        if (this->Streamers[ptId].Direction > 0.0) i2 = i*this->NumberOfSides;
+        else i2 = (npts - i - 1) * this->NumberOfSides;
         newStrips->InsertCellPoint(ptOffset+i2+k);
         newStrips->InsertCellPoint(ptOffset+i2+i1);
         }
