@@ -22,8 +22,8 @@
 #ifndef __vtkImageMaskBits_h
 #define __vtkImageMaskBits_h
 
-
-#include "vtkImageLogic.h"    
+#include "vtkThreadedImageAlgorithm.h"
+#include "vtkImageLogic.h"    // used for VTK_AND etc
 
 class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
