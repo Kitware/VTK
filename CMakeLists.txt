@@ -2,6 +2,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 1.4)
 PROJECT(VTK)
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
+# VTK version number.  An even minor number corresponds to releases.
+SET(VTK_VERSION_MAJOR 4)
+SET(VTK_VERSION_MINOR 1)
+SET(VTK_VERSION_PATCH 1)
+SET(VTK_VERSION_STRING
+    "${VTK_VERSION_MAJOR}.${VTK_VERSION_MINOR}.${VTK_VERSION_PATCH}")
+
 # Figure out which version of the VTK_MAKE_INSTANTIATOR command is
 # available with this version of CMake.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)

@@ -5,11 +5,6 @@
 #-----------------------------------------------------------------------------
 # Settings shared between the build tres and install tree.
 
-# VTK version number.  This should be in the top-level cmake file.
-SET(VTK_VERSION_MAJOR 4)
-SET(VTK_VERSION_MINOR 1)
-SET(VTK_VERSION_PATCH development)
-
 # Determine the preprocessor definitions needed.
 SET(VTK_DEFINITIONS "")
 

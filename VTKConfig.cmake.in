@@ -6,7 +6,7 @@
 #
 # VTK_VERSION_MAJOR   - The VTK major version number.
 # VTK_VERSION_MINOR   - The VTK minor version number (odd for non-release).
-# VTK_VERSION_PATCH   - The VTK patch level ("development" for non-release).
+# VTK_VERSION_PATCH   - The VTK patch level (meaningless for odd minor).
 #
 # VTK_USE_FILE        - A CMake source file that can be included
 #                       to set the include directories, library
