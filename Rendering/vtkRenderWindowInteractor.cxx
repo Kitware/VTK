@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.84");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.85");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -402,7 +402,8 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ControlKey: " << this->ControlKey << "\n";
   os << indent << "ShiftKey: " << this->ShiftKey << "\n";
   os << indent << "KeyCode: " << this->KeyCode << "\n";
-  os << indent << "KeySym: " << this->KeySym << "\n";
+  os << indent << "KeySym: " << (this->KeySym ? this->KeySym : "(null)") 
+     << "\n";
   os << indent << "RepeatCount: " << this->RepeatCount << "\n";
 }
 
