@@ -19,7 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.6");
+vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.7");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
@@ -39,7 +39,7 @@ void vtkRectilinearGridOutlineFilter::ExecuteInformation()
 void vtkRectilinearGridOutlineFilter::Execute()
 {
   float         bounds[6];
-  float         *range;
+  double         *range;
   float         x[3];
   vtkIdType     pts[2];
   vtkPoints*    newPts;
