@@ -132,6 +132,8 @@ private:
 
   double Bounds[6];    
 
+  vtkBSPCuts(const vtkBSPCuts&); // Not implemented
+  void operator=(const vtkBSPCuts&); // Not implemented
 };
 
 #endif
