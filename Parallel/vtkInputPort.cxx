@@ -98,6 +98,7 @@ void vtkInputPort::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "DataTime: " << this->DataTime << endl;
   os << indent << "TransferNeeded: " << this->TransferNeeded << endl;  
+  os << indent << "DoUpdateInformation: " << this->DoUpdateInformation << endl;
 }
 
 //----------------------------------------------------------------------------
