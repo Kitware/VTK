@@ -42,11 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatScalars.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkFloatScalars* vtkFloatScalars::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete class (removed in the near future): " 
+                         <<"use vtkScalars and set DataType to float");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFloatScalars");
   if(ret)

@@ -47,6 +47,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 vtkFloatNormals* vtkFloatNormals::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete class (removed in the near future): " 
+                         <<"use vtkNormals and set DataType to float");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFloatNormals");
   if(ret)

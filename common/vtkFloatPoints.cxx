@@ -47,6 +47,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 vtkFloatPoints* vtkFloatPoints::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete class (removed in the near future): " 
+                         <<"use vtkPoints and set DataType to float");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFloatPoints");
   if(ret)
