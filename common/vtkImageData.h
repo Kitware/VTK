@@ -313,7 +313,7 @@ public:
   
   // Description:
   // Legacy.  Replaced with GetEstimatedUpdateMemorySize.
-  inline long GetUpdateExtentMemorySize() 
+  long GetUpdateExtentMemorySize() 
     {
       vtkWarningMacro("Change GetUpdateExtentMemorySize to GetEstimatedUpdateMemorySize");
       return GetEstimatedUpdateMemorySize();
@@ -321,7 +321,7 @@ public:
 
   // Description:
   // Legacy.  With no cache, this method is no longer needed.
-  inline vtkImageData *UpdateAndReturnData() 
+  vtkImageData *UpdateAndReturnData() 
     {
       vtkWarningMacro("UpdateAndReturnData will no longer be supported.  Just Update, and use the data.");
       this->Update();
