@@ -272,7 +272,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   free(fullName);
   
   /* Generate the implementation  */
-  fullName = malloc(strlen(newArgv[0]) + strlen(headerPath) + 10);
+  fullName = malloc(strlen(newArgv[0]) + strlen(filePath) + 10);
   sprintf(fullName,"%s.cxx",newArgv[0]);
   info->CAPI->AddDefinition(mf, newArgv[1], fullName);  
   sprintf(fullName,"%s/%s.cxx",filePath,newArgv[0]);
