@@ -53,6 +53,8 @@ void vlStructuredPointsWriter::WriteData()
   fprintf(fp,"ORIGIN %f %f %f\n", origin[0], origin[1], origin[2]);
 
   this->WritePointData(fp, input);
+
+  this->CloseVLFile(fp);
 }
 
 void vlStructuredPointsWriter::PrintSelf(ostream& os, vlIndent indent)

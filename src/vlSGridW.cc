@@ -48,6 +48,8 @@ void vlStructuredGridWriter::WriteData()
   this->WritePoints(fp, input->GetPoints());
 
   this->WritePointData(fp, input);
+
+  this->CloseVLFile(fp);
 }
 
 void vlStructuredGridWriter::PrintSelf(ostream& os, vlIndent indent)

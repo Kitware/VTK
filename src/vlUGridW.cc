@@ -69,6 +69,8 @@ void vlUnstructuredGridWriter::WriteData()
     
   delete [] types;
   this->WritePointData(fp, input);
+
+  this->CloseVLFile(fp);  
 }
 
 void vlUnstructuredGridWriter::PrintSelf(ostream& os, vlIndent indent)

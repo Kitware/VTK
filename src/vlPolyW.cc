@@ -49,6 +49,7 @@ void vlPolyWriter::WriteData()
 
   this->WritePointData(fp, input);
 
+  this->CloseVLFile(fp);
 }
 
 void vlPolyWriter::PrintSelf(ostream& os, vlIndent indent)
