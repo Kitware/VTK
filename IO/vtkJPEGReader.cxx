@@ -47,8 +47,43 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.4");
+
+vtkCxxRevisionMacro(vtkJPEGReader, "1.5");
 vtkStandardNewMacro(vtkJPEGReader);
+
+
+// create an error handler for jpeg that
+// can longjmp out of the jpeg library 
+struct vtk_jpeg_error_mgr 
+{
+  struct jpeg_error_mgr pub;    /* "public" fields */
+  jmp_buf setjmp_buffer;        /* for return to caller */
+  vtkJPEGReader* JPEGReader;
+};
+
+// this is called on jpeg error conditions
+METHODDEF(void)
+vtk_jpeg_error_exit (j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  vtk_jpeg_error_mgr * err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
+
+  /* Return control to the setjmp point */
+  longjmp(err->setjmp_buffer, 1);
+}
+
+METHODDEF(void)
+vtk_jpeg_output_message (j_common_ptr cinfo)
+{
+  char buffer[JMSG_LENGTH_MAX];
+
+  /* Create the message */
+  (*cinfo->err->format_message) (cinfo, buffer);
+  vtk_jpeg_error_mgr * err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
+  vtkWarningWithObjectMacro(err->JPEGReader,
+                            "libjpeg error: " <<  buffer);
+}
+
 
 void vtkJPEGReader::ExecuteInformation()
 {
@@ -61,15 +96,33 @@ void vtkJPEGReader::ExecuteInformation()
   FILE *fp = fopen(this->InternalFileName, "rb");
   if (!fp)
     {
-    vtkErrorMacro("Unable to open file " << this->InternalFileName);
+    vtkErrorWithObjectMacro(this, 
+                            "Unable to open file " 
+                            << this->InternalFileName);
     return;
     }
 
   // create jpeg decompression object and error handler
   struct jpeg_decompress_struct cinfo;
-  struct jpeg_error_mgr jerr;
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = this;
 
-  cinfo.err = jpeg_std_error(&jerr);
+  cinfo.err = jpeg_std_error(&jerr.pub); 
+  // for any jpeg error call vtk_jpeg_error_exit
+  jerr.pub.error_exit = vtk_jpeg_error_exit;
+  // for any output message call vtk_jpeg_output_message
+  jerr.pub.output_message = vtk_jpeg_output_message;
+  if (setjmp(jerr.setjmp_buffer))
+    {
+    // clean up
+    jpeg_destroy_decompress(&cinfo);
+    // close the file
+    fclose(fp);
+    // this is not a valid jpeg file 
+    vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
+                            << this->InternalFileName);
+    return;
+    }
   jpeg_create_decompress(&cinfo);
 
   // set the source file
@@ -114,9 +167,25 @@ static void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 
   // create jpeg decompression object and error handler
   struct jpeg_decompress_struct cinfo;
-  struct jpeg_error_mgr jerr;
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = self;
 
-  cinfo.err = jpeg_std_error(&jerr);
+  cinfo.err = jpeg_std_error(&jerr.pub);
+  // for any jpeg error call vtk_jpeg_error_exit
+  jerr.pub.error_exit = vtk_jpeg_error_exit;
+  // for any output message call vtk_jpeg_output_message
+  jerr.pub.output_message = vtk_jpeg_output_message;
+  if (setjmp(jerr.setjmp_buffer))
+    {
+    // clean up
+    jpeg_destroy_decompress(&cinfo);
+    // close the file
+    fclose(fp);
+    vtkErrorWithObjectMacro(self, "libjpeg could not read file: "
+                            << self->GetInternalFileName());
+    // this is not a valid jpeg file
+    return;
+    }
   jpeg_create_decompress(&cinfo);
 
   // set the source file
@@ -230,49 +299,6 @@ void vtkJPEGReader::ExecuteData(vtkDataObject *output)
 }
 
 
-// create an error handler for jpeg that
-// can longjmp out of the jpeg library 
-struct my_error_mgr 
-{
-  struct jpeg_error_mgr pub;    /* "public" fields */
-  jmp_buf setjmp_buffer;        /* for return to caller */
-};
-
-typedef struct my_error_mgr * my_error_ptr;
-/*
- * Here's the routine that will replace the standard error_exit method:
- */
-
-METHODDEF(void)
-my_error_exit (j_common_ptr cinfo)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
-METHODDEF(void)
-my_emit_message (j_common_ptr cinfo, int)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
-METHODDEF(void)
-my_format_message (j_common_ptr cinfo, char*)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
 
 int vtkJPEGReader::CanReadFile(const char* fname)
 {
@@ -285,7 +311,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // read the first two bytes
   char magic[2];
   int n = fread(magic, sizeof(magic), 1, fp);
-  if (n != sizeof(magic)) 
+  if (n != 1) 
     {
     fclose(fp);
     return 0;
@@ -297,23 +323,26 @@ int vtkJPEGReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  
+  // go back to the start of the file
+  fseek(fp, 0, SEEK_SET);
   // magic number is ok, try and read the header
-  struct my_error_mgr jerr;
+  struct vtk_jpeg_error_mgr jerr;
+  jerr.JPEGReader = this;
   struct jpeg_decompress_struct cinfo;
   cinfo.err = jpeg_std_error(&jerr.pub);
-  // for any error condition exit
-  jerr.pub.error_exit = my_error_exit;
-  jerr.pub.emit_message = my_emit_message;
-  jerr.pub.output_message = my_error_exit;
-  jerr.pub.format_message = my_format_message;
+  // for any jpeg error call vtk_jpeg_error_exit
+  jerr.pub.error_exit = vtk_jpeg_error_exit;
+  // for any output message call vtk_jpeg_error_exit
+  jerr.pub.output_message = vtk_jpeg_error_exit;
+  // set the jump point, if there is a jpeg error or warning
+  // this will evaluate to true
   if (setjmp(jerr.setjmp_buffer))
     {
-    /* If we get here, the JPEG code has signaled an error.
-     * We need to clean up the JPEG object, close the input file, and return.
-     */
+    // clean up
     jpeg_destroy_decompress(&cinfo);
+    // close the file
     fclose(fp);
+    // this is not a valid jpeg file
     return 0;
     }
   /* Now we can initialize the JPEG decompression object. */
