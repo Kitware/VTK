@@ -917,7 +917,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   // set up intermediate variables
   double **XXt = new double *[xOrder];     // size x by x
   double **XXtI = new double *[xOrder];    // size x by x
-  double **XYt = new double *[yOrder];     // size x by y
+  double **XYt = new double *[xOrder];     // size x by y
   for (i = 0; i < xOrder; i++)
     {
     XXt[i] = new double[xOrder];
