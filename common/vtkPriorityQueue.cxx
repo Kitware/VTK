@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkPriorityQueue* vtkPriorityQueue::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkPriorityQueue* vtkPriorityQueue::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPriorityQueue;
 }
-
-
-
 
 // Instantiate priority queue with default size and extension size of 1000.
 vtkPriorityQueue::vtkPriorityQueue()
@@ -91,14 +86,14 @@ void vtkPriorityQueue::Allocate(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-// Desctructor for the vtkPriorityQueue class
+// Destructor for the vtkPriorityQueue class
 vtkPriorityQueue::~vtkPriorityQueue()
 {
-  if (this->ItemLocation)
+  if ( this->ItemLocation )
     {
     this->ItemLocation->Delete();
     }
-  if ( this->Array != NULL )
+  if ( this->Array )
     {
     delete [] this->Array;
     }
@@ -177,13 +172,14 @@ int vtkPriorityQueue::Pop(float &priority, int location)
   // move the last item to the location specified and push into the tree
   this->Array[location].id = this->Array[this->MaxId].id;
   this->Array[location].priority = this->Array[this->MaxId].priority;
+
   this->ItemLocation->SetValue(this->Array[location].id,location);
+  this->ItemLocation->SetValue(id,-1);
 
   if ( --this->MaxId <= 0 )
     {
     return id;
     }
-  this->ItemLocation->SetValue(id,-1);
 
   // percolate into the tree
   for ( j=0, i=location; i <= (this->MaxId-1)/2; i=j )

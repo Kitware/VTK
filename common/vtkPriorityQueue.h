@@ -88,14 +88,31 @@ public:
   void Allocate(const int sz, const int ext=1000);
 
   // Description:
+  // Insert id with priority specified. The id is generally an
+  // index like a point id or cell id.
+  void Insert(float priority, int id);
+
+  // Description:
   // Removes item at specified location from tree; then reorders and
   // balances tree. The location == 0 is the root of the tree. If queue
-  // is exhausted, then a value < 0 is returned.
+  // is exhausted, then a value < 0 is returned. (Note: the location
+  // is not the same as deleting an id; id is mapped to location.)
   int Pop(float &priority, int location=0);
   
   // Description:
-  // Same as above but simplified for easier wrapping for Tcl.
+  // Same as above but simplified for easier wrapping into interpreted
+  // languages.
   int Pop(int location=0);
+  
+  // Description:
+  // Peek into the queue without actually removing anything. Returns the
+  // id and the priority.
+  int Peek(float &priority, int location=0);
+  
+  // Description:
+  // Peek into the queue without actually removing anything. Returns the
+  // id.
+  int Peek(int location=0);
   
   // Description:
   // Delete entry in queue with specified id. Returns priority value
@@ -108,17 +125,13 @@ public:
   float GetPriority(int id);
 
   // Description:
-  // Insert id with priority specified.
-  void Insert(float priority, int id);
-
-  // Description:
   // Return the number of items in this queue.
   int GetNumberOfItems() {return this->MaxId+1;};
 
   // Description:
-  // Reset all of the entries in the queue so they don not have a priority
+  // Empty the queue but without releasing memory. This avoids the
+  // overhead of memory allocation/deletion.
   void Reset();
-
 
 protected:
   vtkPriorityQueue();
@@ -158,6 +171,31 @@ inline float vtkPriorityQueue::GetPriority(int id)
     return this->Array[loc].priority;
     }
   return VTK_LARGE_FLOAT;
+}
+
+inline int vtkPriorityQueue::Peek(float &priority, int location)
+{
+  if ( this->MaxId < 0 )
+    {
+    return -1;
+    }
+  else
+    {
+    priority = this->Array[location].priority;
+    return this->Array[location].id;
+    }
+}
+
+inline int vtkPriorityQueue::Peek(int location)
+{
+  if ( this->MaxId < 0 )
+    {
+    return -1;
+    }
+  else
+    {
+    return this->Array[location].id;
+    }
 }
 
 #endif
