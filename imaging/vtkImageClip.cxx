@@ -106,16 +106,26 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageClip::SetOutputWholeExtent(int extent[6])
 {
   int idx;
+  int modified = 0;
   
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->OutputWholeExtent[idx] != extent[idx])
       {
       this->OutputWholeExtent[idx] = extent[idx];
-      this->Modified();
+      modified = 1;
       }
     }
   this->Initialized = 1;
+  if (modified)
+    {
+    this->Modified();
+    vtkImageData *output = this->GetOutput();
+    if (output)
+      {
+      output->SetUpdateExtent(extent);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
