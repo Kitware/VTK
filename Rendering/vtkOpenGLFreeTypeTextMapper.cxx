@@ -45,8 +45,52 @@
 #define VTK_FTTM_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
+// GL2PS related internal helper functions.
+
+void _GetGL2PSFontName(vtkTextProperty *tprop, char *ps_font)
+{
+ // For speed we use ARIAL == 0, COURIER == 1, TIMES == 2
+  static char *family[] = {"Helvetica", "Courier", "Times"};
+  static char *italic[] = {"Oblique", "Oblique", "Italic"};
+  static char *base[] = {"", "", "-Roman"};
+
+  int font = tprop->GetFontFamily();
+
+  if (font > 2)
+    {
+    sprintf(ps_font, "%s", tprop->GetFontFamilyAsString());
+    if (tprop->GetBold())
+      {
+      sprintf(ps_font, "%s%s", ps_font, "Bold");
+      }
+    if (tprop->GetItalic())
+      {
+      sprintf(ps_font, "%s%s", ps_font, "Italic");
+      }        
+      return;
+    }
+  
+  if (tprop->GetBold())
+    {
+    sprintf(ps_font, "%s-%s", family[font], "Bold");
+    if (tprop->GetItalic())
+      {
+      sprintf(ps_font, "%s%s", ps_font, italic[font]);
+      }
+    }
+  else if (tprop->GetItalic())
+    {
+    sprintf(ps_font, "%s-%s", family[font], italic[font]);
+    }
+  else
+    {
+    sprintf(ps_font, "%s%s", family[font], base[font]);
+    }
+}
+
+//----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.31");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.32");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -358,15 +402,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
 #ifdef VTK_USE_GL2PS
   char ps_font[64];
-  sprintf(ps_font, "%s", tprop->GetFontFamilyAsString());
-  if (tprop->GetBold())
-    {
-    sprintf(ps_font, "%s%s", ps_font, "Bold");
-    }
-  if (tprop->GetItalic())
-    {
-    sprintf(ps_font, "%s%s", ps_font, "Italic");
-    }
+  _GetGL2PSFontName(tprop, ps_font);
 #endif // VTK_USE_GL2PS
 
   // Set up the shadow color
