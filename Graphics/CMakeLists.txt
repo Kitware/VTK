@@ -4,6 +4,7 @@ vtkAppendFilter
 vtkAppendPolyData
 vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
+vtkArrowSource
 vtkAssignAttribute
 vtkAttributeDataToFieldDataFilter
 vtkAxes
