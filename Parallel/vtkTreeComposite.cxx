@@ -519,6 +519,7 @@ void vtkTreeComposite::StartInteractor()
 
   this->InitializeRMIs();
   this->Controller->ProcessRMIs();
+  this->RenderWindowInteractor->TerminateApp();
 }
 
 //-------------------------------------------------------------------------
@@ -538,6 +539,7 @@ void vtkTreeComposite::ExitInteractor()
     {
     this->Controller->TriggerRMI(id, vtkMultiProcessController::BREAK_RMI_TAG);
     }
+  this->RenderWindowInteractor->TerminateApp();
 }
 
 
