@@ -45,6 +45,7 @@
 #include "vtkProcessObject.h"
 
 class vtkDataObject;
+class vtkSourceToDataObjectFriendship;
 
 class VTK_FILTERING_EXPORT vtkSource : public vtkProcessObject
 {
@@ -181,6 +182,7 @@ protected:
 
   //BTX
   friend class vtkExecutive;
+  friend class vtkSourceToDataObjectFriendship;
   //ETX
 
 private:

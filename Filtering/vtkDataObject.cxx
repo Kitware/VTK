@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.9");
+vtkCxxRevisionMacro(vtkDataObject, "1.10");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -53,6 +53,34 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
+
+class vtkSourceToDataObjectFriendship
+{
+public:
+  static void SetOutput(vtkSource* source, int i, vtkDataObject* newData)
+    {
+    if(source)
+      {
+      // Make sure there is room in the source for this output.
+      if(i >= source->NumberOfOutputs)
+        {
+        source->SetNumberOfOutputs(i+1);
+        }
+
+      // Update the source's Outputs array.
+      vtkDataObject* oldData = source->Outputs[i];
+      if(newData)
+        {
+        newData->Register(source);
+        }
+      source->Outputs[i] = newData;
+      if(oldData)
+        {
+        oldData->UnRegister(source);
+        }
+      }
+    }
+};
 
 // Initialize static member that controls global data release 
 // after use by filter
@@ -196,6 +224,9 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
   vtkInformation* oldInfo = this->PipelineInformation;
   if(newInfo != oldInfo)
     {
+    // Remove any existing compatibility link to a source.
+    this->Source = 0;
+
     if(newInfo)
       {
       // Reference the new information.
@@ -206,9 +237,23 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
         {
         oldData->SetPipelineInformation(0);
         }
-  
+
       // Tell the new information about this object.
       newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
+
+      // If the new producer is a vtkSource then setup the backward
+      // compatibility link.
+      vtkExecutive* newExec = newInfo->Get(vtkExecutive::EXECUTIVE());
+      int newPort = newInfo->Get(vtkExecutive::PORT_NUMBER());
+      if(newExec)
+        {
+        vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
+        if(newSource)
+          {
+          vtkSourceToDataObjectFriendship::SetOutput(newSource, newPort, this);
+          this->Source = newSource;
+          }
+        }
       }
 
     // Save the pointer to the new information.
@@ -216,21 +261,24 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
 
     if(oldInfo)
       {
+      // If the old producer was a vtkSource then remove the backward
+      // compatibility link.
+      vtkExecutive* oldExec = oldInfo->Get(vtkExecutive::EXECUTIVE());
+      int oldPort = oldInfo->Get(vtkExecutive::PORT_NUMBER());
+      if(oldExec)
+        {
+        vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
+        if(oldSource)
+          {
+          vtkSourceToDataObjectFriendship::SetOutput(oldSource, oldPort, 0);
+          }
+        }
+
       // Remove the old information's reference to us.
       oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
 
       // Remove our reference to the old information.
       oldInfo->UnRegister(this);
-      }
-    
-    // Set the Source ivar for backwards compatibility.
-    this->Source = 0;
-    if(vtkExecutive* executive = this->GetExecutive())
-      {
-      if(vtkAlgorithmOutput* producerPort = executive->GetProducerPort(this))
-        {
-        this->Source = vtkSource::SafeDownCast(producerPort->GetProducer());
-        }
       }
     }
 }
