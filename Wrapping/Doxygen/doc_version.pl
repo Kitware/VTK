@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-28 15:54:08 barre>
+# Time-stamp: <2001-08-17 14:09:42 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -117,7 +117,7 @@ print DEST_FILE
   "  $revision\n",
   "  $date\n",
   "  \@sa VTK home page (Kitware): http://public.kitware.com\n",
-  "  \@sa DOC project (Sebastien Barre): ftp://sic.sp2mi.univ-poitiers.fr/pub/barre/vtk/doc/\n",
+  "  \@sa DOC project (Sebastien Barre): http://www.barre.nom.fr/vtk/doc/README\n",
   "*/\n\n";
 
 close(DEST_FILE);
