@@ -97,16 +97,16 @@ public:
   // when multiple sends or receives exist in the same process.
   virtual int Send(int* data, int length, int remoteProcessId, int tag);
   virtual int Send(unsigned long* data, int length, int remoteProcessId,
-		   int tag);
+                   int tag);
   virtual int Send(char* data, int length, int remoteProcessId, int tag);
   virtual int Send(unsigned char* data, int length, int remoteProcessId, int tag);
   virtual int Send(float* data, int length, int remoteProcessId, 
-		   int tag);
+                   int tag);
   virtual int Send(double* data, int length, int remoteProcessId, 
-		   int tag);
+                   int tag);
 #ifdef VTK_USE_64BIT_IDS
   virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
-		   int tag);
+                   int tag);
 #endif
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
@@ -133,32 +133,32 @@ public:
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message.
   int NoBlockSend(int* data, int length, int remoteProcessId, int tag,
-		  Request& req);
+                  Request& req);
   int NoBlockSend(unsigned long* data, int length, int remoteProcessId,
-		  int tag, Request& req);
+                  int tag, Request& req);
   int NoBlockSend(char* data, int length, int remoteProcessId, 
-		  int tag, Request& req);
+                  int tag, Request& req);
   int NoBlockSend(float* data, int length, int remoteProcessId, 
-		  int tag, Request& req);
+                  int tag, Request& req);
 
   // Description:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.
   virtual int Receive(int* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
   virtual int Receive(unsigned long* data, int length, 
-		      int remoteProcessId, int tag);
+                      int remoteProcessId, int tag);
   virtual int Receive(char* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
   virtual int Receive(unsigned char* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
   virtual int Receive(float* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
   virtual int Receive(double* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
 #ifdef VTK_USE_64BIT_IDS
   virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
-		      int tag);
+                      int tag);
 #endif
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
@@ -171,13 +171,13 @@ public:
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message.
   int NoBlockReceive(int* data, int length, int remoteProcessId, 
-		     int tag, Request& req);
+                     int tag, Request& req);
   int NoBlockReceive(unsigned long* data, int length, 
-		     int remoteProcessId, int tag, Request& req);
+                     int remoteProcessId, int tag, Request& req);
   int NoBlockReceive(char* data, int length, int remoteProcessId, 
-		     int tag, Request& req);
+                     int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
-		     int tag, Request& req);
+                     int tag, Request& req);
 
 //BTX
 

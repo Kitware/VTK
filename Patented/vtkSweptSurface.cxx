@@ -302,14 +302,14 @@ void vtkSweptSurface::Execute()
       this->SampleInput(this->GetActorMatrixPointer(*actorTransform,
                                                     actorOrigin, position,
                                                     orientation),
-			inDim, inOrigin, inSpacing, inScalars, newScalars);
+                        inDim, inOrigin, inSpacing, inScalars, newScalars);
       }
     }
 
   //finish off last step
   this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin,
                                                 position2, orient2),
-		    inDim, inOrigin, inSpacing, inScalars, newScalars);
+                    inDim, inOrigin, inSpacing, inScalars, newScalars);
 
   // Cap if requested
   if ( this->Capping )
@@ -325,9 +325,9 @@ void vtkSweptSurface::Execute()
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3], 
-				  float inOrigin[3], float inSpacing[3], 
-				  vtkDataArray *inScalars, 
-				  vtkDataArray *outScalars)
+                                  float inOrigin[3], float inSpacing[3], 
+                                  vtkDataArray *inScalars, 
+                                  vtkDataArray *outScalars)
 {
   int i, j, k;
   int inSliceSize=inDim[0]*inDim[1];
@@ -409,48 +409,48 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
       loc[2] = locP1[2] + indices[0]*dzdi + j*dzdj + k*dzdk;
       for (i=indices[0]; i<indices[1]; i++)
         {
-	loc[0] += dxdi;
-	loc[1] += dydi;
-	loc[2] += dzdi;
+        loc[0] += dxdi;
+        loc[1] += dydi;
+        loc[2] += dzdi;
 
-	if (loc[0] < 0 || loc[1] < 0 || loc[2] < 0)
-	  {
-	  continue;
-	  }
+        if (loc[0] < 0 || loc[1] < 0 || loc[2] < 0)
+          {
+          continue;
+          }
         ijk[0] = (int)loc[0];
-	ijk[1] = (int)loc[1];
-	ijk[2] = (int)loc[2];
+        ijk[1] = (int)loc[1];
+        ijk[2] = (int)loc[2];
 
         //check and make sure point is inside
         if ( (ijk[0] < inDim[0] - 1) && 
-	     (ijk[1] < inDim[1] - 1) && 
-	     (ijk[2] < inDim[2] - 1))
+             (ijk[1] < inDim[1] - 1) && 
+             (ijk[2] < inDim[2] - 1))
           {
 
           //get scalar values
-	  t[0] = loc[0] - ijk[0];
-	  t[1] = loc[1] - ijk[1];
-	  t[2] = loc[2] - ijk[2];
+          t[0] = loc[0] - ijk[0];
+          t[1] = loc[1] - ijk[1];
+          t[2] = loc[2] - ijk[2];
           vtkVoxel::InterpolationFunctions(t,weights);
 
           //get scalar values
           idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
-	  newScalar = inScalars->GetComponent(idx,0) * weights[0];
-	  newScalar += inScalars->GetComponent(idx+1,0) * weights[1];
-	  newScalar += inScalars->GetComponent(idx + inDim[0],0) * weights[2];
-	  newScalar += inScalars->GetComponent(idx+1 + inDim[0],0) * weights[3];
-	  newScalar += inScalars->GetComponent(idx + inSliceSize,0) * weights[4] ;
-	  newScalar += inScalars->GetComponent(idx+1 + inSliceSize,0) * weights[5];
-	  newScalar += inScalars->GetComponent(idx + inDim[0] + inSliceSize,0) *
+          newScalar = inScalars->GetComponent(idx,0) * weights[0];
+          newScalar += inScalars->GetComponent(idx+1,0) * weights[1];
+          newScalar += inScalars->GetComponent(idx + inDim[0],0) * weights[2];
+          newScalar += inScalars->GetComponent(idx+1 + inDim[0],0) * weights[3];
+          newScalar += inScalars->GetComponent(idx + inSliceSize,0) * weights[4] ;
+          newScalar += inScalars->GetComponent(idx+1 + inSliceSize,0) * weights[5];
+          newScalar += inScalars->GetComponent(idx + inDim[0] + inSliceSize,0) *
             weights[6];
-	  newScalar += inScalars->GetComponent(idx+1 + inDim[0] + inSliceSize,0) *
+          newScalar += inScalars->GetComponent(idx+1 + inDim[0] + inSliceSize,0) *
             weights[7];
 
           scalar = outScalars->GetComponent((idx=i+jOffset+kOffset),0);
           if ( newScalar < scalar )  //union operation
-	    {
+            {
             outScalars->SetComponent(idx,0,newScalar);
-	    }
+            }
           }
         }
       }
@@ -504,13 +504,13 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
     for (n = 0; n < 3; n++)
       {
       if (bbox[i*3+n] < workBounds[n*2]) 
-	{
-	workBounds[n*2] = bbox[i*3+n];
-	}
+        {
+        workBounds[n*2] = bbox[i*3+n];
+        }
       if (bbox[i*3+n] > workBounds[n*2+1]) 
-	{
-	workBounds[n*2+1] = bbox[i*3+n];
-	}
+        {
+        workBounds[n*2+1] = bbox[i*3+n];
+        }
       }
     }
   origin = this->GetOutput()->GetOrigin();
@@ -534,13 +534,13 @@ unsigned long int vtkSweptSurface::GetMTime()
   if (this->Transforms != NULL)
     {
     for (this->Transforms->InitTraversal(); 
-	 (t = this->Transforms->GetNextItem()); )
+         (t = this->Transforms->GetNextItem()); )
       {
       transMtime = t->GetMTime();
       if ( transMtime > mtime )
-	{
-	mtime = transMtime;
-	}
+        {
+        mtime = transMtime;
+        }
       }
     }
   
@@ -620,22 +620,22 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
       x[0] = bbox[i*3]; x[1] = bbox[i*3+1]; x[2] = bbox[i*3+2]; 
       t->MultiplyPoint(x,xTrans);
       if ( xTrans[3] != 0.0 )
-	{
-	for (ii=0; ii<3; ii++)
-	  {
-	  xTrans[ii] /= xTrans[3];
-	  }
-	}
+        {
+        for (ii=0; ii<3; ii++)
+          {
+          xTrans[ii] /= xTrans[3];
+          }
+        }
       for (j=0; j<3; j++)
         {
         if (xTrans[j] < xmin[j])
-	  {
-	  xmin[j] = xTrans[j];
-	  }
+          {
+          xmin[j] = xTrans[j];
+          }
         if (xTrans[j] > xmax[j])
-	  {
-	  xmax[j] = xTrans[j];
-	  }
+          {
+          xmax[j] = xTrans[j];
+          }
         }
       }
 
@@ -666,22 +666,22 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
           x[0] = bbox[i*3]; x[1] = bbox[i*3+1]; x[2] = bbox[i*3+2]; 
           t2->MultiplyPoint(x,xTrans);
           if ( xTrans[3] != 0.0 ) 
-	    {
+            {
             for (ii=0; ii<3; ii++)
-	      {
-	      xTrans[ii] /= xTrans[3];
-	      }
-	    }
+              {
+              xTrans[ii] /= xTrans[3];
+              }
+            }
           for (j=0; j<3; j++)
             {
             if (xTrans[j] < xmin[j])
-	      {
-	      xmin[j] = xTrans[j];
-	      }
+              {
+              xmin[j] = xTrans[j];
+              }
             if (xTrans[j] > xmax[j])
-	      {
-	      xmax[j] = xTrans[j];
-	      }
+              {
+              xmax[j] = xTrans[j];
+              }
             }
           }
         }
@@ -759,17 +759,17 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     if ( xTrans1[3] != 0.0 )
       {
       for (j=0; j<3; j++)
-	{
-	xTrans1[j] /= xTrans1[3];
-	}
+        {
+        xTrans1[j] /= xTrans1[3];
+        }
       }
     t2->MultiplyPoint(x,xTrans2);
     if ( xTrans2[3] != 0.0 )
       {
       for (j=0; j<3; j++)
-	{
-	xTrans2[j] /= xTrans2[3];
-	}
+        {
+        xTrans2[j] /= xTrans2[3];
+        }
       }
     dist2 = vtkMath::Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
     if ( dist2 > maxDist2 )
@@ -889,7 +889,7 @@ void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
-					  float *position)
+                                          float *position)
 {
   // get position relative to the origin (of the geometry)
   t.TransformPoint(origin,position);
@@ -920,8 +920,8 @@ vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
     
   // shift back to actor's origin
   t.Translate(-origin[0],
-	      -origin[1],
-	      -origin[2]);
+              -origin[1],
+              -origin[2]);
 
   // rotate
   t.RotateY(orientation[1]);
@@ -930,8 +930,8 @@ vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
     
   // move back from origin and translate
   t.Translate(origin[0] + position[0],
-	      origin[1] + position[1],
-	      origin[2] + position[2]);
+              origin[1] + position[1],
+              origin[2] + position[2]);
 
   return t.GetMatrix();
 }

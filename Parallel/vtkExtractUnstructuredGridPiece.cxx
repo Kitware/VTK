@@ -86,8 +86,8 @@ void vtkExtractUnstructuredGridPiece::ExecuteInformation()
 }
   
 void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags, 
-					      vtkIdList *pointOwnership,
-					      int piece, int numPieces)
+                                              vtkIdList *pointOwnership,
+                                              int piece, int numPieces)
 {
   vtkUnstructuredGrid *input;
   int j;
@@ -121,9 +121,9 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
       {
       ptId = cellPtIds->GetId(j);
       if (pointOwnership->GetId(ptId) == -1)
-	{
-	pointOwnership->SetId(ptId, idx);
-	}  
+        {
+        pointOwnership->SetId(ptId, idx);
+        }  
       }
     }
   
@@ -204,10 +204,10 @@ void vtkExtractUnstructuredGridPiece::Execute()
     if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {
       if (cellGhostLevels)
- 	{                
- 	cellGhostLevels->InsertNextValue(
- 	  (unsigned char)(cellTags->GetValue(cellId)));
- 	}
+        {                
+        cellGhostLevels->InsertNextValue(
+          (unsigned char)(cellTags->GetValue(cellId)));
+        }
  
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
@@ -220,12 +220,12 @@ void vtkExtractUnstructuredGridPiece::Execute()
           {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
-  	  if (pointGhostLevels)
- 	    {
- 	    pointGhostLevels->InsertNextValue(
- 	      cellTags->GetValue(pointOwnership->GetId(ptId)));
- 	    }
-	  pointMap->SetId(ptId,newId);
+          if (pointGhostLevels)
+            {
+            pointGhostLevels->InsertNextValue(
+              cellTags->GetValue(pointOwnership->GetId(ptId)));
+            }
+          pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
           }
         newCellPts->InsertId(i,newId);

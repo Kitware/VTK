@@ -178,12 +178,12 @@ protected:
   void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkDataArray *in, vtkDataArray *out);
   void ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
-			 float inSpacing[3], int Indicies[6]);
+                         float inSpacing[3], int Indicies[6]);
   void Cap(vtkDataArray *s);
   void GetRelativePosition(vtkTransform &t, float *origin, float *position);
   vtkMatrix4x4* GetActorMatrixPointer(vtkTransform &t,
                                       float origin[3],
-				     float position[3], float orientation[3]);
+                                     float position[3], float orientation[3]);
   virtual void InterpolateStates(float *pos1, float *pos2, float *euler1, 
                                  float *euler2, float t, float *posOut,
                                  float *eulerOut);

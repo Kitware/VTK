@@ -399,7 +399,7 @@ void vtkInputPort::TriggerAsynchronousUpdate()
   // It needs the data time of our output to compare to the mtime
   // of its input to determine if it should send the data (execute).
   this->Controller->Send( &(this->DataTime), 1, this->RemoteProcessId,
-			  vtkInputPort::NEW_DATA_TIME_TAG);
+                          vtkInputPort::NEW_DATA_TIME_TAG);
   
   // This automatically causes to remotePort to send the data.
   // Tell the update method to receive the data.
@@ -434,7 +434,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
   // receive the data
 
   this->Controller->Receive(output, this->RemoteProcessId,
-			    vtkInputPort::DATA_TRANSFER_TAG);
+                            vtkInputPort::DATA_TRANSFER_TAG);
 
   output->SetWholeExtent( wholeExtent );
 
@@ -442,7 +442,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
 
   // Receive the data time
   this->Controller->Receive( &(this->DataTime), 1, this->RemoteProcessId,
-			    vtkInputPort::NEW_DATA_TIME_TAG);
+                            vtkInputPort::NEW_DATA_TIME_TAG);
      
   this->TransferNeeded = 0;
 }

@@ -328,17 +328,17 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
 
         // Build the case table
         for ( ii=0, index = 0; ii < 8; ii++)
-	  {
+          {
           if ( s[ii] >= value )
-	    {
+            {
             index |= CASE_MASK[ii];
-	    }
-	  }
+            }
+          }
 
         if ( index == 0 || index == 255 ) // no surface
-	  {
-	  continue;
-	  }
+          {
+          continue;
+          }
         //create voxel points
         pts[0][0] = origin[0] + i*Spacing[0];
         xp = origin[0] + (i+1)*Spacing[0];
@@ -389,7 +389,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
         ComputePointGradient(i,j+1, k+1, dims, Spacing, grad[7],
                              slice1, slice2, slice3);
 
-	triCase = triCases + index;
+        triCase = triCases + index;
         edge = triCase->edges;
 
         for ( ; edge[0] > -1; edge += 3 )
@@ -407,17 +407,17 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
               point[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
               point[jj+3] = n1[jj] + t * (n2[jj] - n1[jj]);
               if (point[jj] < xmin[jj] )
-		{
-		xmin[jj] = point[jj];
-		}
+                {
+                xmin[jj] = point[jj];
+                }
               if (point[jj] > xmax[jj] )
-		{
-		xmax[jj] = point[jj];
-		}
+                {
+                xmax[jj] = point[jj];
+                }
               }
             vtkMath::Normalize(point+3);
-	    // swap bytes if necessary
-	    vtkByteSwap::SwapWrite4BERange(point,6,outFP);
+            // swap bytes if necessary
+            vtkByteSwap::SwapWrite4BERange(point,6,outFP);
             }
           numTriangles++;
           }//for each triangle
@@ -510,94 +510,94 @@ void vtkSliceCubes::Execute()
     switch (inScalars->GetDataType())
       {
       case VTK_CHAR:
-	{
-	vtkCharArray *scalars = (vtkCharArray *)inScalars;
-	char *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkCharArray *scalars = (vtkCharArray *)inScalars;
+        char *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_UNSIGNED_CHAR:
-	{
-	vtkUnsignedCharArray *scalars = (vtkUnsignedCharArray *)inScalars;
-	unsigned char *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkUnsignedCharArray *scalars = (vtkUnsignedCharArray *)inScalars;
+        unsigned char *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_SHORT:
-	{
-	vtkShortArray *scalars = (vtkShortArray *)inScalars;
-	short *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkShortArray *scalars = (vtkShortArray *)inScalars;
+        short *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_UNSIGNED_SHORT:
-	{
-	vtkUnsignedShortArray *scalars = (vtkUnsignedShortArray *)inScalars;
-	unsigned short *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkUnsignedShortArray *scalars = (vtkUnsignedShortArray *)inScalars;
+        unsigned short *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_INT:
-	{
-	vtkIntArray *scalars = (vtkIntArray *)inScalars;
-	int *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkIntArray *scalars = (vtkIntArray *)inScalars;
+        int *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_UNSIGNED_INT:
-	{
-	vtkUnsignedIntArray *scalars = (vtkUnsignedIntArray *)inScalars;
-	unsigned int *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkUnsignedIntArray *scalars = (vtkUnsignedIntArray *)inScalars;
+        unsigned int *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_LONG:
-	{
-	vtkLongArray *scalars = (vtkLongArray *)inScalars;
-	long *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkLongArray *scalars = (vtkLongArray *)inScalars;
+        long *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_UNSIGNED_LONG:
-	{
-	vtkUnsignedLongArray *scalars = (vtkUnsignedLongArray *)inScalars;
-	unsigned long *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkUnsignedLongArray *scalars = (vtkUnsignedLongArray *)inScalars;
+        unsigned long *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_FLOAT:
-	{
-	vtkFloatArray *scalars = (vtkFloatArray *)inScalars;
-	float *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkFloatArray *scalars = (vtkFloatArray *)inScalars;
+        float *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       case VTK_DOUBLE:
-	{
-	vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars;
-	double *s = scalars->GetPointer(0);
-	numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			       Spacing,this->Value,
-			       xmin,xmax,outFP,this->Reader,this->Debug);
-	}
+        {
+        vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars;
+        double *s = scalars->GetPointer(0);
+        numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
+                               Spacing,this->Value,
+                               xmin,xmax,outFP,this->Reader,this->Debug);
+        }
       break;
       }//switch
     }
@@ -607,8 +607,8 @@ void vtkSliceCubes::Execute()
     vtkFloatArray *scalars = (vtkFloatArray *)inScalars;
     float *s = NULL; //clue to convert data to float
     numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
-			   Spacing,this->Value,
-			   xmin,xmax,outFP,this->Reader,this->Debug);
+                           Spacing,this->Value,
+                           xmin,xmax,outFP,this->Reader,this->Debug);
     }
 
   inScalars->UnRegister(this);
@@ -629,14 +629,14 @@ void vtkSliceCubes::Execute()
       for (i=0; i<3; i++)
         {
         t = origin[i] + (dims[i] - 1)*Spacing[i];
-	vtkByteSwap::SwapWrite4BERange(origin+i,1,outFP);
-	// swap if neccessary
-	vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
+        vtkByteSwap::SwapWrite4BERange(origin+i,1,outFP);
+        // swap if neccessary
+        vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
         }
       for (i=0; i<3; i++)
         {
-	vtkByteSwap::SwapWrite4BERange(xmin+i,1,outFP);
-	vtkByteSwap::SwapWrite4BERange(xmax+i,1,outFP);
+        vtkByteSwap::SwapWrite4BERange(xmin+i,1,outFP);
+        vtkByteSwap::SwapWrite4BERange(xmax+i,1,outFP);
         }
       }
      fclose(outFP);

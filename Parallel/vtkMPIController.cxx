@@ -56,7 +56,7 @@ public:
     if (this->Controller)
       {
       cout << "Process id: " << this->Controller->GetLocalProcessId()
-	   << " >> ";
+           << " >> ";
       }
     cout << t;
   }
@@ -144,7 +144,7 @@ int vtkMPIController::InitializeNumberOfProcesses()
 
   vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
   if ( (err = MPI_Comm_size(*(comm->Handle), 
-			    &(this->MaximumNumberOfProcesses))) 
+                            &(this->MaximumNumberOfProcesses))) 
        != MPI_SUCCESS  )
     {
     char *msg = vtkMPIController::ErrorString(err);

@@ -90,10 +90,10 @@ vtkPDataSetReader::~vtkPDataSetReader()
     for (int i = 0; i < this->NumberOfPieces; ++i)
       {
       if (this->PieceFileNames[i])
-	{
-	delete [] this->PieceFileNames[i];
-	this->PieceFileNames[i] = NULL;
-	}
+        {
+        delete [] this->PieceFileNames[i];
+        this->PieceFileNames[i] = NULL;
+        }
       }
     }
 }

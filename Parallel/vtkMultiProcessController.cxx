@@ -175,7 +175,7 @@ vtkMultiProcessController *vtkMultiProcessController::New()
     }
 
   vtkGenericWarningMacro("environment variable VTK_CONTROLLER set to unknown value "
-		       << temp << ". Try MPI or Threaded");
+                       << temp << ". Try MPI or Threaded");
   return NULL;
 }
 
@@ -247,8 +247,8 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
   if (num < 1 || num > this->MaximumNumberOfProcesses)
     {
     vtkErrorMacro( << num 
-	  << " is an invalid number of processes try a number from 1 to " 
-	  << this->NumberOfProcesses );
+          << " is an invalid number of processes try a number from 1 to " 
+          << this->NumberOfProcesses );
     return;
     }
   
@@ -261,7 +261,7 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
 // Set the user defined method that will be run on NumberOfThreads threads
 // when SingleMethodExecute is called.
 void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f, 
-						 void *data )
+                                                 void *data )
 {
   this->SingleMethod = f;
   this->SingleData   = data;
@@ -273,7 +273,7 @@ void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f,
 // called with index = 0, 1, ..,  NumberOfProcesses-1 to set up all the
 // required user defined methods
 void vtkMultiProcessController::SetMultipleMethod( int index,
-				 vtkProcessFunctionType f, void *data )
+                                 vtkProcessFunctionType f, void *data )
 { 
   // You can only set the method for 0 through NumberOfProcesses-1
   if ( index >= this->NumberOfProcesses ) {
@@ -326,7 +326,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
   if (argLength > 0)
     {
     this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
-				 RMI_ARG_TAG);
+                                 RMI_ARG_TAG);
     } 
 }
 
@@ -339,7 +339,7 @@ void vtkMultiProcessController::ProcessRMIs()
   while (1)
     {
     if (!this->RMICommunicator->Receive(triggerMessage, 3, ANY_SOURCE, 
-					RMI_TAG))
+                                        RMI_TAG))
       {
       break;
       }
@@ -347,10 +347,10 @@ void vtkMultiProcessController::ProcessRMIs()
       {
       arg = new unsigned char[triggerMessage[1]];
       if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
-					  triggerMessage[2], RMI_ARG_TAG))
-	{
-	break;
-	}
+                                          triggerMessage[2], RMI_ARG_TAG))
+        {
+        break;
+        }
       }
     this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1], 
                      triggerMessage[0]);
@@ -392,7 +392,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
   if ( ! found)
     {
     vtkErrorMacro("Process " << this->GetLocalProcessId() << 
-		  " Could not find RMI with tag " << rmiTag);
+                  " Could not find RMI with tag " << rmiTag);
     }
   else
     {

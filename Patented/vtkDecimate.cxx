@@ -269,9 +269,9 @@ void vtkDecimate::Execute()
            reduction < this->TargetReduction && !abortFlag; sub++) 
       {
       for (i=0; i < VTK_NUMBER_STATISTICS; i++)
-	{
-	this->Stats[i] = 0;
-	}
+        {
+        this->Stats[i] = 0;
+        }
       trisEliminated = 0;
       //
       //  For every vertex that is used by two or more elements and has a loop
@@ -280,7 +280,7 @@ void vtkDecimate::Execute()
       for (ptId=0; ptId < numPts && !abortFlag; ptId++)
         {
         if ( ! (ptId % 5000) )
-	  {
+          {
           this->UpdateProgress (reduction / this->TargetReduction);
           if (this->GetAbortExecute())
             {
@@ -288,8 +288,8 @@ void vtkDecimate::Execute()
             break;
             }
 
-	  vtkDebugMacro(<<"vertex #" << ptId);
-	  }
+          vtkDebugMacro(<<"vertex #" << ptId);
+          }
 
         // compute allowable error for this vertex
         Mesh->GetPoint(ptId,X);
@@ -300,13 +300,13 @@ void vtkDecimate::Execute()
         if ( ncells > 0 && 
              (vtype=this->BuildLoop(ptId,ncells,cells)) != VTK_COMPLEX_VERTEX )
           {
-	  //
-	  //  Determine the distance of the vertex to an "average plane"
-	  //  through the loop.  If it's less than the decimation distance
-	  //  criterion, then vertex can be eliminated.  If the vertex is on the
-	  //  boundary, see whether it can be eliminated based on distance to
-	  //  boundary.
-	  //
+          //
+          //  Determine the distance of the vertex to an "average plane"
+          //  through the loop.  If it's less than the decimation distance
+          //  criterion, then vertex can be eliminated.  If the vertex is on the
+          //  boundary, see whether it can be eliminated based on distance to
+          //  boundary.
+          //
           ContinueTriangulating = 0;
           this->EvaluateLoop (vtype, numFEdges, fedges);
 
@@ -319,10 +319,10 @@ void vtkDecimate::Execute()
               verts[i] = this->V->Array + i;
               }
             }
-	  //
-	  //  Note: interior edges can be eliminated if decimation criterion met
-	  //  and flag set.
-	  //
+          //
+          //  Note: interior edges can be eliminated if decimation criterion met
+          //  and flag set.
+          //
           if ( (vtype == VTK_SIMPLE_VERTEX || 
           ( (vtype == VTK_INTERIOR_EDGE_VERTEX ||
              vtype == VTK_CORNER_VERTEX) && !this->PreserveEdges)) &&
@@ -330,11 +330,11 @@ void vtkDecimate::Execute()
             {
             this->Triangulate (numVerts, verts);
             this->Stats[VTK_ELIMINATED_DISTANCE_TO_PLANE]++;
-	    //
-	    //  If the vertex is on an interior edge, then see whether the
-	    //  be eliminated based on distance to line (e.g., edge), and it the
-	    //  loop can be split.  
-	    //
+            //
+            //  If the vertex is on an interior edge, then see whether the
+            //  be eliminated based on distance to line (e.g., edge), and it the
+            //  loop can be split.  
+            //
             }
           else if ( (vtype == VTK_INTERIOR_EDGE_VERTEX || 
                      vtype == VTK_BOUNDARY_VERTEX) &&
@@ -370,41 +370,41 @@ void vtkDecimate::Execute()
             if ( this->CheckError() )
               {
               if ( vtype == VTK_BOUNDARY_VERTEX )
-		{
-		trisEliminated += 1;
-		}
+                {
+                trisEliminated += 1;
+                }
               else
-		{
-		trisEliminated += 2;
-		}
+                {
+                trisEliminated += 2;
+                }
 
               // Update the data structure to reflect deletion of vertex
               Mesh->DeletePoint(ptId);
               for (i=0; i < this->V->GetNumberOfVertices(); i++)
-		{
+                {
                 if ( (size=
                       this->V->Array[i].newRefs-this->V->Array[i].deRefs) > 0 )
-		  {
+                  {
                   Mesh->ResizeCellList(this->V->Array[i].id,size);
-		  }
-		}
+                  }
+                }
               for (i=0; i < this->T->GetNumberOfTriangles(); i++)
-		{
+                {
                 Mesh->RemoveCellReference(this->T->Array[i].id);
-		}
+                }
 
               for (i=0; i < this->T->GetNumberOfTriangles(); i++)
-		{
+                {
                 if ( this->T->Array[i].verts[0] != -1 )
-		  { //replaced with new triangle
+                  { //replaced with new triangle
                   Mesh->ReplaceLinkedCell(this->T->Array[i].id, 3,
                                           this->T->Array[i].verts);
-		  }
+                  }
                 else
-		  {
+                  {
                   Mesh->DeleteCell(this->T->Array[i].id);
-		  }
-		}
+                  }
+                }
               }
             }
           }
@@ -521,9 +521,9 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
     for (ptId=0; ptId < numPts; ptId++)
       {
       if ( map[ptId] > -1 )
-	{
+        {
         newScalars->SetComponent(map[ptId],0,VertexError[ptId]);
-	}
+        }
       }
     }
 
@@ -537,9 +537,9 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
       {
       Mesh->GetCellPoints(cellId, npts, pts);
       for (i=0; i<npts; i++)
-	{
-	newCellPts[i] = map[pts[i]];
-	}
+        {
+        newCellPts[i] = map[pts[i]];
+        }
       newPolys->InsertNextCell(npts,newCellPts);
       }
     }
@@ -903,13 +903,13 @@ void vtkDecimate::EvaluateLoop (int& vtype, vtkIdType& numFEdges,
     if ( (this->V->Array[i+1].FAngle = VTK_FEATURE_ANGLE(i,i+1)) <= CosAngle ) 
       {
       if ( numFEdges >= 2 ) 
-	{
+        {
         numFEdges++;
-	}
+        }
       else 
-	{
+        {
         fedges[numFEdges++] = this->V->Array + (i+1);
-	}
+        }
       }
     }
   //
@@ -980,13 +980,13 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], vtkIdType numVerts,
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
-	{
+        {
         sign = (val > Tolerance ? 1 : -1);
-	}
+        }
       else if ( sign != (val > 0 ? 1 : -1) )
-	{
+        {
         return 0;
-	}
+        }
       }
     }
 
@@ -1000,13 +1000,13 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], vtkIdType numVerts,
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
-	{
+        {
         sign = (val > Tolerance ? 1 : -1);
-	}
+        }
       else if ( sign != (val > 0 ? 1 : -1) )
-	{
+        {
         return 0;
-	}
+        }
       }
     }
   //
@@ -1095,12 +1095,12 @@ void vtkDecimate::Triangulate(vtkIdType numVerts, vtkLocalVertexPtr verts[])
       //  Okay: can create triangle, find a spot to put the triangle.
       //
       for (i=0; i < this->T->MaxId; i++)
-	{
+        {
         if ( this->T->Array[i].verts[0] == -1 )
-	  {
+          {
           break;
-	  }
-	}
+          }
+        }
       for (j=0; j<3; j++) 
         {
         this->T->Array[i].verts[j] = verts[j]->id;
@@ -1154,9 +1154,9 @@ void vtkDecimate::Triangulate(vtkIdType numVerts, vtkLocalVertexPtr verts[])
         edgeError = vtkLine::DistanceToLine(X, fedges[0]->x, fedges[1]->x);
 
         if ( edgeError < MinEdgeError )
-	  {
-	  MinEdgeError = edgeError;
-	  }
+          {
+          MinEdgeError = edgeError;
+          }
         return;
         }
 
@@ -1201,12 +1201,12 @@ int vtkDecimate::CheckError ()
       for (j=0; j<3; j++)
         {
         np[j] = X[j] - x1[j];
-	}
+        }
       error = fabs((double) (vtkMath::Dot(normal,np)));
       if ( error < planeError )
         {
         planeError = error;
-	}
+        }
       }
     }
 

@@ -117,24 +117,24 @@ void vtkCommunicator::DeleteAndSetMarshalString(char *str, int strLength)
 
 // Need to add better error checking
 int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, 
-			  int tag)
+                          int tag)
 {
 
   if (data == NULL)
     {
     this->MarshalDataLength = 0;
     this->Send( &this->MarshalDataLength, 1,      
-		remoteHandle, tag);
+                remoteHandle, tag);
     return 1;
     }
   if (this->WriteObject(data))
     {
     this->Send( &this->MarshalDataLength, 1,      
-		remoteHandle, tag);
+                remoteHandle, tag);
     // then send the string.
 
     this->Send( this->MarshalString, this->MarshalDataLength, 
-		remoteHandle, tag);
+                remoteHandle, tag);
     
     return 1;
     }
@@ -150,7 +150,7 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
     {
     this->MarshalDataLength = 0;
     this->Send( &this->MarshalDataLength, 1,      
-		remoteHandle, tag);
+                remoteHandle, tag);
     return 1;
     }
 
@@ -189,31 +189,31 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 
     case VTK_CHAR:
       return SendDataArray(static_cast<char*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_UNSIGNED_CHAR:
       return SendDataArray(static_cast<unsigned char*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_INT:
       return SendDataArray(static_cast<int*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_UNSIGNED_LONG:
       return SendDataArray(static_cast<unsigned long*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_FLOAT:
       return SendDataArray(static_cast<float*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_DOUBLE:
       return SendDataArray(static_cast<double*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     case VTK_ID_TYPE:
       return SendDataArray(static_cast<vtkIdType*>(data->GetVoidPointer(0)), 
-			  size, remoteHandle, tag, this);
+                          size, remoteHandle, tag, this);
 
     default:
       vtkErrorMacro(<<"Unsupported data type!");
@@ -225,7 +225,7 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 
 
 int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle, 
-			     int tag)
+                             int tag)
 {
   int dataLength;
 
@@ -256,7 +256,7 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
   
   // Receive the string
   this->Receive(this->MarshalString, dataLength, 
-		remoteHandle, tag);
+                remoteHandle, tag);
   this->MarshalDataLength = dataLength;
   
   this->ReadObject(data);
@@ -266,7 +266,7 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
 }
 
 int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, 
-			     int tag)
+                             int tag)
 {
   vtkIdType size;
   int type;
@@ -406,7 +406,7 @@ int vtkCommunicator::WriteObject(vtkDataObject *data)
     }
   
   vtkErrorMacro("Cannot marshal object of type "
-		<< data->GetClassName());
+                << data->GetClassName());
   return 0;
 }
 
@@ -426,7 +426,7 @@ int vtkCommunicator::ReadObject(vtkDataObject *data)
     }
   
   vtkErrorMacro("Cannot marshal object of type "
-		<< data->GetClassName());
+                << data->GetClassName());
 
   return 1;
 }

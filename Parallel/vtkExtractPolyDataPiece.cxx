@@ -87,8 +87,8 @@ void vtkExtractPolyDataPiece::ExecuteInformation()
 }
   
 void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags, 
-					      vtkIdList *pointOwnership,
-					      int piece, int numPieces)
+                                              vtkIdList *pointOwnership,
+                                              int piece, int numPieces)
 {
   vtkPolyData *input;
   vtkIdType idx, j, numCells, ptId;
@@ -121,9 +121,9 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
       {
       ptId = cellPtIds->GetId(j);
       if (pointOwnership->GetId(ptId) == -1)
-	{
-	pointOwnership->SetId(ptId, idx);
-	}  
+        {
+        pointOwnership->SetId(ptId, idx);
+        }  
       }
     }
   
@@ -213,10 +213,10 @@ void vtkExtractPolyDataPiece::Execute()
     if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {
       if (cellGhostLevels)
- 	{                
- 	cellGhostLevels->InsertNextValue(
- 	  (unsigned char)(cellTags->GetValue(cellId)));
- 	}
+        {                
+        cellGhostLevels->InsertNextValue(
+          (unsigned char)(cellTags->GetValue(cellId)));
+        }
  
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
@@ -229,12 +229,12 @@ void vtkExtractPolyDataPiece::Execute()
           {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
-  	  if (pointGhostLevels)
- 	    {
- 	    pointGhostLevels->InsertNextValue(
- 	      cellTags->GetValue(pointOwnership->GetId(ptId)));
- 	    }
-	  pointMap->SetId(ptId,newId);
+          if (pointGhostLevels)
+            {
+            pointGhostLevels->InsertNextValue(
+              cellTags->GetValue(pointOwnership->GetId(ptId)));
+            }
+          pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
           }
         newCellPts->InsertId(i,newId);
@@ -283,8 +283,8 @@ void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
-					    vtkIntArray *cellTags, 
-					    int level)
+                                            vtkIntArray *cellTags, 
+                                            int level)
 {
   vtkIdType numCells, pointId, cellId, i;
   int j, k;

@@ -107,8 +107,8 @@ int vtkBranchExtentTranslator::PieceToExtent()
     this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
     this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
     //cerr << this << " Extent: " << this->Extent[0] << ", " << this->Extent[1] << ", " 
-    //	 << this->Extent[2] << ", " << this->Extent[3] << ", " 
-    //	 << this->Extent[4] << ", " << this->Extent[5] << endl;    
+    //   << this->Extent[2] << ", " << this->Extent[3] << ", " 
+    //   << this->Extent[4] << ", " << this->Extent[5] << endl;    
     return 0;
     }
 
@@ -150,8 +150,8 @@ int vtkBranchExtentTranslator::PieceToExtent()
     this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
     this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
     //cerr << this << " Extent: " << this->Extent[0] << ", " << this->Extent[1] << ", " 
-    //	 << this->Extent[2] << ", " << this->Extent[3] << ", " 
-    //	 << this->Extent[4] << ", " << this->Extent[5] << endl;
+    //   << this->Extent[2] << ", " << this->Extent[3] << ", " 
+    //   << this->Extent[4] << ", " << this->Extent[5] << endl;
     return 0;
     }  
   

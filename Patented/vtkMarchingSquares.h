@@ -101,7 +101,7 @@ public:
   vtkSetVectorMacro(ImageRange,int,6);
   vtkGetVectorMacro(ImageRange,int,6);
   void SetImageRange(int imin, int imax, int jmin, int jmax, 
-		     int kmin, int kmax);
+                     int kmin, int kmax);
 
   // Methods to set contour values
   void SetValue(int i, float value);

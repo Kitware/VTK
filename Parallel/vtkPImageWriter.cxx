@@ -111,7 +111,7 @@ void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
 void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-				    ofstream *file)
+                                    ofstream *file)
 {
   int             min, max, mid;
   vtkImageData    *data;
@@ -149,7 +149,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     if (file->fail())
       {
       vtkErrorMacro("RecursiveWrite: Could not open file " << 
-		    this->InternalFileName);
+                    this->InternalFileName);
       delete file;
       return;
       }
@@ -183,8 +183,8 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   this->GetInput()->GetAxisUpdateExtent(axis, min, max);
   
   vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
-  	<< "), UpdateMemory: " << inputMemorySize 
-  	<< ", Limit: " << this->MemoryLimit << endl);
+        << "), UpdateMemory: " << inputMemorySize 
+        << ", Limit: " << this->MemoryLimit << endl);
   
   if (min == max)
     {

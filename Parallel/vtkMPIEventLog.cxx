@@ -99,7 +99,7 @@ int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
     this->BeginId = MPE_Log_get_event_number();
     this->EndId = MPE_Log_get_event_number();
     MPE_Describe_state(this->BeginId, this->EndId, const_cast<char*>(name), 
-		       const_cast<char*>(desc));
+                       const_cast<char*>(desc));
     }
   MPI_Bcast(&this->BeginId, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&this->EndId, 1, MPI_INT, 0, MPI_COMM_WORLD);

@@ -138,8 +138,8 @@ unsigned long vtkSynchronizedTemplates2D::GetMTime()
 //
 template <class T>
 static void ContourImage(vtkSynchronizedTemplates2D *self,
-			 T *scalars, vtkPoints *newPts,
-			 vtkDataArray *newScalars, vtkCellArray *lines)
+                         T *scalars, vtkPoints *newPts,
+                         vtkDataArray *newScalars, vtkCellArray *lines)
 {
   float *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
@@ -283,123 +283,123 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
       
       // swap the buffers
       if (j%2)
-	{
-	lineCases[13] = dim0*2;
-	lineCases[21] = dim0*2;
-	lineCases[37] = dim0*2;
-	lineCases[63] = dim0*2;
-	isect1Ptr = isect1;
-	isect2Ptr = isect1 + dim0*2;
-	}
+        {
+        lineCases[13] = dim0*2;
+        lineCases[21] = dim0*2;
+        lineCases[37] = dim0*2;
+        lineCases[63] = dim0*2;
+        isect1Ptr = isect1;
+        isect2Ptr = isect1 + dim0*2;
+        }
       else
-	{
-	lineCases[13] = -dim0*2;
-	lineCases[21] = -dim0*2;
-	lineCases[37] = -dim0*2;
-	lineCases[63] = -dim0*2;
-	isect1Ptr = isect1 + dim0*2;
-	isect2Ptr = isect1;
-	}
+        {
+        lineCases[13] = -dim0*2;
+        lineCases[21] = -dim0*2;
+        lineCases[37] = -dim0*2;
+        lineCases[63] = -dim0*2;
+        isect1Ptr = isect1 + dim0*2;
+        isect2Ptr = isect1;
+        }
       
       for (i = min0; i < max0; i++)
-	{
-	s0 = s1;
-	s1 = *(inPtr + inc0);
-	// compute in/out for verts
-	v0 = (s0 < value ? 0 : 1);
-	v1 = (s1 < value ? 0 : 1);
-	if (v0 ^ v1)
-	  {
-	  t = (value - s0) / (s1 - s0);
-	  x[axis0] = origin[axis0] + spacing[axis0]*(i+t);
-	  x[axis1] = y;
-	  *isect2Ptr = newPts->InsertNextPoint(x);
-	  if (newScalars)
-	    {
-	    newScalars->InsertNextTuple(&value);
-	    }
-	  }
-	else
-	  {
-	  *isect2Ptr = -1;
-	  }
-	if (j < max1)
-	  {
-	  s2 = *(inPtr + inc1);
-	  v2 = (s2 < value ? 0 : 1);
-	  if (v0 ^ v2)
-	    {
-	    t = (value - s0) / (s2 - s0);
-	    x[axis0] = origin[axis0] + spacing[axis0]*i;
-	    x[axis1] = y + spacing[axis1]*t;
-	    *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-	    if (newScalars)
-	      {
-	      newScalars->InsertNextTuple(&value);
-	      }
-	    }
-	  else
-	    {
-	    *(isect2Ptr + 1) = -1;
-	    }
-	  }
-	
-	if (j > min1)
-	  {	  
-	  // now add any lines that need to be added
-	  // basically look at the isect values, 
-	  // form an index and lookup the lines
-	  idx = (*isect1Ptr > -1 ? 8 : 0);
-	  idx = idx + (*(isect1Ptr +1) > -1 ? 4 : 0);
-	  idx = idx + (*(isect1Ptr +3) > -1 ? 2 : 0);
-	  idx = idx + (*isect2Ptr > -1 ? 1 : 0);
-	  tablePtr = lineCases + idx*4;
-	  
-	  if (*tablePtr != -1)
-	    {
-	    ptIds[0] = *(isect1Ptr + *tablePtr);
-	    tablePtr++;
-	    ptIds[1] = *(isect1Ptr + *tablePtr);
-	    lines->InsertNextCell(2,ptIds);
-	  tablePtr++;
-	    }
-	  else
-	    {
-	    tablePtr += 2;
-	    }
-	  if (*tablePtr != -1)
-	    {
-	    ptIds[0] = *(isect1Ptr + *tablePtr);
-	    tablePtr++;
-	    ptIds[1] = *(isect1Ptr + *tablePtr);
-	    lines->InsertNextCell(2,ptIds);
-	    }
-	  }
-	inPtr += inc0;
-	isect2Ptr += 2;
-	isect1Ptr += 2;
-	}
+        {
+        s0 = s1;
+        s1 = *(inPtr + inc0);
+        // compute in/out for verts
+        v0 = (s0 < value ? 0 : 1);
+        v1 = (s1 < value ? 0 : 1);
+        if (v0 ^ v1)
+          {
+          t = (value - s0) / (s1 - s0);
+          x[axis0] = origin[axis0] + spacing[axis0]*(i+t);
+          x[axis1] = y;
+          *isect2Ptr = newPts->InsertNextPoint(x);
+          if (newScalars)
+            {
+            newScalars->InsertNextTuple(&value);
+            }
+          }
+        else
+          {
+          *isect2Ptr = -1;
+          }
+        if (j < max1)
+          {
+          s2 = *(inPtr + inc1);
+          v2 = (s2 < value ? 0 : 1);
+          if (v0 ^ v2)
+            {
+            t = (value - s0) / (s2 - s0);
+            x[axis0] = origin[axis0] + spacing[axis0]*i;
+            x[axis1] = y + spacing[axis1]*t;
+            *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+            if (newScalars)
+              {
+              newScalars->InsertNextTuple(&value);
+              }
+            }
+          else
+            {
+            *(isect2Ptr + 1) = -1;
+            }
+          }
+        
+        if (j > min1)
+          {       
+          // now add any lines that need to be added
+          // basically look at the isect values, 
+          // form an index and lookup the lines
+          idx = (*isect1Ptr > -1 ? 8 : 0);
+          idx = idx + (*(isect1Ptr +1) > -1 ? 4 : 0);
+          idx = idx + (*(isect1Ptr +3) > -1 ? 2 : 0);
+          idx = idx + (*isect2Ptr > -1 ? 1 : 0);
+          tablePtr = lineCases + idx*4;
+          
+          if (*tablePtr != -1)
+            {
+            ptIds[0] = *(isect1Ptr + *tablePtr);
+            tablePtr++;
+            ptIds[1] = *(isect1Ptr + *tablePtr);
+            lines->InsertNextCell(2,ptIds);
+          tablePtr++;
+            }
+          else
+            {
+            tablePtr += 2;
+            }
+          if (*tablePtr != -1)
+            {
+            ptIds[0] = *(isect1Ptr + *tablePtr);
+            tablePtr++;
+            ptIds[1] = *(isect1Ptr + *tablePtr);
+            lines->InsertNextCell(2,ptIds);
+            }
+          }
+        inPtr += inc0;
+        isect2Ptr += 2;
+        isect1Ptr += 2;
+        }
       // now compute the last column, use s2 since it is around
       if (j < max1)
-	{
-	s2 = *(inPtr + dim0);
-	v2 = (s2 < value ? 0 : 1);
-	if (v1 ^ v2)
-	  {
-	  t = (value - s1) / (s2 - s1);
-	  x[axis0] = origin[axis0] + spacing[axis0]*max0;
-	  x[axis1] = y + spacing[axis1]*t;
-	  *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-	  if (newScalars)
-	    {
-	    newScalars->InsertNextTuple(&value);
-	    }
-	  }
-	else
-	  {
-	  *(isect2Ptr + 1) = -1;
-	  }
-	}
+        {
+        s2 = *(inPtr + dim0);
+        v2 = (s2 < value ? 0 : 1);
+        if (v1 ^ v2)
+          {
+          t = (value - s1) / (s2 - s1);
+          x[axis0] = origin[axis0] + spacing[axis0]*max0;
+          x[axis1] = y + spacing[axis1]*t;
+          *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+          if (newScalars)
+            {
+            newScalars->InsertNextTuple(&value);
+            }
+          }
+        else
+          {
+          *(isect2Ptr + 1) = -1;
+          }
+        }
       }
     }
 

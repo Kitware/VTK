@@ -216,13 +216,13 @@ void vtkDividingCubes::Execute()
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
-	    {
+            {
             above = 1;
-	    }
+            }
           else if ( voxelScalars->GetComponent(vertNum,0) < this->Value )
-	    {
+            {
             below = 1;
-	    }
+            }
 
           if ( above && below ) // recursively generate points
             { //compute voxel normals and subdivide
@@ -339,13 +339,13 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( this->SubVoxelScalars->GetComponent(vertNum,0) >= this->Value )
-	    {
+            {
             above = 1;
-	    }
+            }
           else if ( this->SubVoxelScalars->GetComponent(vertNum,0) < this->Value )
-	    {
+            {
             below = 1;
-	    }
+            }
           }
 
         if ( (above && below) && !(this->Count++ % this->Increment) )

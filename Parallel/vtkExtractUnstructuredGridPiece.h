@@ -71,7 +71,7 @@ protected:
  
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
-		       int piece, int numPieces);
+                       int piece, int numPieces);
   
   void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags, int ghostLevel);
   

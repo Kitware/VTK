@@ -55,20 +55,20 @@ VTK_CREATE_CREATE_FUNCTION(vtkPSphereSource);
 vtkParallelFactory::vtkParallelFactory()
 {
   this->RegisterOverride("vtkImageWriter",
-			 "vtkPImageWriter",
-			 "Parallel",
-			 1,
-			 vtkObjectFactoryCreatevtkPImageWriter);
+                         "vtkPImageWriter",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPImageWriter);
   this->RegisterOverride("vtkPolyDataNormals",
-			 "vtkPPolyDataNormals",
-			 "Parallel",
-			 1,
-			 vtkObjectFactoryCreatevtkPPolyDataNormals);
+                         "vtkPPolyDataNormals",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPPolyDataNormals);
   this->RegisterOverride("vtkSphereSource",
-			 "vtkPSphereSource",
-			 "Parallel",
-			 1,
-			 vtkObjectFactoryCreatevtkPSphereSource);
+                         "vtkPSphereSource",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPSphereSource);
 }
 
 const char* vtkParallelFactory::GetVTKSourceVersion()

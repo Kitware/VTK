@@ -118,7 +118,7 @@ vtkCompositeManager::~vtkCompositeManager()
 //-------------------------------------------------------------------------
 // We may want to pass the render window as an argument for a sanity check.
 void vtkCompositeManagerStartRender(vtkObject *caller,
-				 unsigned long vtkNotUsed(event), 
+                                 unsigned long vtkNotUsed(event), 
                                  void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
@@ -134,7 +134,7 @@ void vtkCompositeManagerStartRender(vtkObject *caller,
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerEndRender(vtkObject *caller,
-			       unsigned long vtkNotUsed(event), 
+                               unsigned long vtkNotUsed(event), 
                                void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
@@ -151,7 +151,7 @@ void vtkCompositeManagerEndRender(vtkObject *caller,
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
-				    unsigned long vtkNotUsed(event), 
+                                    unsigned long vtkNotUsed(event), 
                                     void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
@@ -161,7 +161,7 @@ void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerResetCamera(vtkObject *caller,
-				 unsigned long vtkNotUsed(event), 
+                                 unsigned long vtkNotUsed(event), 
                                  void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
@@ -260,23 +260,23 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
       {
       // In case a subclass wants to check for aborts.
       this->RenderWindow->SetAbortCheckMethod(vtkCompositeManagerAbortRenderCheck,
-					      (void*)this);
+                                              (void*)this);
       if (this->Controller && this->Controller->GetLocalProcessId() == 0)
         {
         vtkCallbackCommand *cbc;
-	
+        
         cbc= new vtkCallbackCommand;
         cbc->SetCallback(vtkCompositeManagerStartRender);
         cbc->SetClientData((void*)this);
         // renWin will delete the cbc when the observer is removed.
         this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
-	
+        
         cbc = new vtkCallbackCommand;
         cbc->SetCallback(vtkCompositeManagerEndRender);
         cbc->SetClientData((void*)this);
         // renWin will delete the cbc when the observer is removed.
         this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
-	
+        
         // Will make do with first renderer. (Assumes renderer does not change.)
         rens = this->RenderWindow->GetRenderers();
         rens->InitTraversal();
@@ -289,7 +289,7 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
           // ren will delete the cbc when the observer is removed.
           this->ResetCameraClippingRangeTag = 
           ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
-	  
+          
           cbc = new vtkCallbackCommand;
           cbc->SetCallback(vtkCompositeManagerResetCamera);
           cbc->SetClientData((void*)this);
@@ -738,7 +738,7 @@ void vtkCompositeManager::InitializeOffScreen()
   if (this->RenderWindow == NULL || this->Controller == NULL)
     {
     vtkDebugMacro("Missing object: Window = " << this->RenderWindow
-		  << ", Controller = " << this->Controller);
+                  << ", Controller = " << this->Controller);
     return;
     }
   
@@ -861,7 +861,7 @@ void vtkCompositeManager::Composite()
   // Get the z buffer.
   timer->StartTimer();
   localZdata = this->RenderWindow->GetZbufferData(0,0,
-			  this->RendererSize[0]-1, this->RendererSize[1]-1);  
+                          this->RendererSize[0]-1, this->RendererSize[1]-1);  
 
   // If we are process 0 and using double buffering, then we want 
   // to get the back buffer, otherwise we need to get the front.
@@ -878,13 +878,13 @@ void vtkCompositeManager::Composite()
   if (this->UseChar) 
     { 
     localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,
-						  this->RendererSize[0]-1,
-						  this->RendererSize[1]-1, front);
+                                                  this->RendererSize[0]-1,
+                                                  this->RendererSize[1]-1, front);
     } 
   else 
     {
     localPdata = this->RenderWindow->GetRGBAPixelData(0,0,
-			  this->RendererSize[0]-1, this->RendererSize[1]-1, front);
+                          this->RendererSize[0]-1, this->RendererSize[1]-1, front);
     }
   
   timer->StopTimer();
@@ -916,14 +916,14 @@ void vtkCompositeManager::Composite()
       localPdata = this->MagnifyBuffer(localPdata, windowSize);
       
       vtkRenderer* renderer =
-	((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
+        ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
       renderer->SetViewport(0, 0, 1.0, 1.0);
       renderer->GetActiveCamera()->UpdateViewport(renderer);
       }
 
     // Save the ZData for picking.
     memcpy(this->ZData, localZdata, 
-	   this->RendererSize[0]*this->RendererSize[1]*sizeof(float));
+           this->RendererSize[0]*this->RendererSize[1]*sizeof(float));
   
 
     
@@ -931,14 +931,14 @@ void vtkCompositeManager::Composite()
     if (this->UseChar) 
       {
       this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
-					       windowSize[1]-1,
-					       (unsigned char*)localPdata, 0);
+                                               windowSize[1]-1,
+                                               (unsigned char*)localPdata, 0);
       } 
     else 
       {
       this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
-					   windowSize[1]-1,
-					   localPdata, 0);
+                                           windowSize[1]-1,
+                                           localPdata, 0);
       }
     timer->StopTimer();
     this->SetBuffersTime = timer->GetElapsedTime();

@@ -183,21 +183,21 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkSource *src,
 
       // Is the max returned bigger than the max we've seen so far?
       if ( inputPipelineSize[2] > maxSize )
-	{
-	maxSize = inputPipelineSize[2];
-	}
+        {
+        maxSize = inputPipelineSize[2];
+        }
       
       // If we are going to release this input, then its size won't matter
       // downstream from here.
       if ( inputs[idx]->ShouldIReleaseData() )
-	{
-	goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0] - 
+        {
+        goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0] - 
           inputPipelineSize[1];
-	}
+        }
       else
-	{
-	goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0];
-	}
+        {
+        goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0];
+        }
       
       // During execution this filter will need all the input data 
       mySize += inputPipelineSize[0];

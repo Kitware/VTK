@@ -102,7 +102,7 @@ void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
 // Remote method call to UpdateInformation and send the information downstream.
 // This should be a friend.
 void vtkOutputPortUpdateInformationCallBack(void *arg, void *remoteArgs,
-		  	            int remoteArgsLength, int remoteProcessId)
+                                    int remoteArgsLength, int remoteProcessId)
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
@@ -157,7 +157,7 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
 // Remote method call to Update and send data downstream.
 // This should be a friend.
 void vtkOutputPortUpdateCallBack(void *arg, void *remoteArgs, 
-				 int remoteArgsLength, int remoteProcessId)  
+                                 int remoteArgsLength, int remoteProcessId)  
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
@@ -175,7 +175,7 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   // First get the update extent requested.
   int extent[9];
   this->Controller->Receive( extent, 9, remoteProcessId, 
-			    vtkInputPort::UPDATE_EXTENT_TAG);
+                            vtkInputPort::UPDATE_EXTENT_TAG);
   input->SetUpdateExtent( extent );
   input->SetUpdatePiece( extent[6] );
   input->SetUpdateNumberOfPieces( extent[7] );
@@ -193,7 +193,7 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   // We need the data time of the last transfer to compare to the mtime
   // of our input to determine if it should send the data (execute).
   this->Controller->Receive( &(downDataTime), 1, remoteProcessId,
-			     vtkInputPort::NEW_DATA_TIME_TAG);
+                             vtkInputPort::NEW_DATA_TIME_TAG);
 
   // What was the idea of using relesed data here?  It caused a bug for multiple updates.
   // if ( input != NULL && input->GetDataReleased())
@@ -218,7 +218,7 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     // First transfer the new data.
     this->Controller->Send( input, remoteProcessId,
-			    vtkInputPort::DATA_TRANSFER_TAG);
+                            vtkInputPort::DATA_TRANSFER_TAG);
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
     
     // Since this time has to be local to downstream process
@@ -231,19 +231,19 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
     // the InputPort has to store this time.
     downDataTime = this->UpdateTime.GetMTime();
     this->Controller->Send( &downDataTime, 1, remoteProcessId,
-			    vtkInputPort::NEW_DATA_TIME_TAG);
+                            vtkInputPort::NEW_DATA_TIME_TAG);
     }
   else
     {  // Nothing to send.  We have to signal somehow.
     vtkDebugMacro("Promoting NULL (" << input << ") to process " 
-		  << remoteProcessId);
+                  << remoteProcessId);
     this->Controller->Send( (vtkDataObject*)(NULL), remoteProcessId,
-			    vtkInputPort::DATA_TRANSFER_TAG);
+                            vtkInputPort::DATA_TRANSFER_TAG);
     
     // Go through the motions of sending the data time,
     // but just send the same data time back. (nothing changed).
     this->Controller->Send( &downDataTime, 1, remoteProcessId,
-			    vtkInputPort::NEW_DATA_TIME_TAG);
+                            vtkInputPort::NEW_DATA_TIME_TAG);
     }
   
   // Postpone the update if we want pipeline parallism.
@@ -313,7 +313,7 @@ void vtkOutputPort::SetTag(int tag)
   
   this->Tag = tag;
   this->Controller->AddRMI(vtkOutputPortUpdateInformationCallBack, 
-			   (void *)this, tag);
+                           (void *)this, tag);
   this->Controller->AddRMI(vtkOutputPortUpdateCallBack, 
                            (void *)this, tag+1);
 }

@@ -95,15 +95,15 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
        {
        dims[j] = ext[2*j+1]-ext[2*j];
        if ( dims[j] != 0 )
-	 {
-	 dim++;
-	 }
+         {
+         dim++;
+         }
        }
      
      if ((dim == 2) && (dims[2] == 0))
        {
        vtkSynchronizedTemplates2D *syncTemp2D = 
-	 vtkSynchronizedTemplates2D::New();
+         vtkSynchronizedTemplates2D::New();
        syncTemp2D->SetInput((vtkImageData *)input);
        syncTemp2D->SetDebug(this->Debug);
        syncTemp2D->ComputeInputUpdateExtents(data);
@@ -113,7 +113,7 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
      else if (dim == 3)
        {
        vtkSynchronizedTemplates3D *syncTemp3D =
-	 vtkSynchronizedTemplates3D::New();
+         vtkSynchronizedTemplates3D::New();
        syncTemp3D->SetInput((vtkImageData *)input);
        syncTemp3D->SetDebug(this->Debug);
        syncTemp3D->SetComputeNormals (this->ComputeNormals);
@@ -132,9 +132,9 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
      for(int j=0; j<3; j++)
        {
        if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
-	 {
-	 dim++;
-	 }
+         {
+         dim++;
+         }
        }
      if (dim == 3)
        {
@@ -246,8 +246,8 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
       }
          
     syncTemp2D->GetOutput()->SetUpdateExtent(thisOutput->GetUpdatePiece(),
-					     thisOutput->GetUpdateNumberOfPieces(),
-					     thisOutput->GetUpdateGhostLevel());
+                                             thisOutput->GetUpdateNumberOfPieces(),
+                                             thisOutput->GetUpdateGhostLevel());
     syncTemp2D->Update();
     output = syncTemp2D->GetOutput();
     output->Register(this);
@@ -273,8 +273,8 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
       }
 
     syncTemp3D->GetOutput()->SetUpdateExtent(thisOutput->GetUpdatePiece(),
-					     thisOutput->GetUpdateNumberOfPieces(),
-					     thisOutput->GetUpdateGhostLevel());
+                                             thisOutput->GetUpdateNumberOfPieces(),
+                                             thisOutput->GetUpdateGhostLevel());
     syncTemp3D->Update();
     output = syncTemp3D->GetOutput();
     output->Register(this);

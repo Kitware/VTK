@@ -84,8 +84,8 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
 
 //----------------------------------------------------------------------------
 void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, 
-					 int yMin, int yMax,
-					 int zMin, int zMax)
+                                         int yMin, int yMax,
+                                         int zMin, int zMax)
 {
   int modified = 0;
   
@@ -182,26 +182,26 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!(count%target))
-	{
-	this->UpdateProgress(count/(50.0*target));
-	}
+        {
+        this->UpdateProgress(count/(50.0*target));
+        }
       count++;
       y = this->Center[1] - (idxY + outExt[2]);
       y /= (whlExt[3] - whlExt[2]);
       yContrib = y * y;
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	sum = zContrib + yContrib;
-	x = this->Center[0] - (idxX + outExt[0]);
-	x /= (whlExt[1] - whlExt[0]);
-	sum = sum + (x * x);
-	*outPtr = this->Maximum * exp(-sum * temp2) 
-	  + this->XMag*sin(this->XFreq*x)
-	  + this->YMag*sin(this->YFreq*y)
-	  + this->ZMag*cos(this->ZFreq*z);
-	outPtr++;
-	}
+        {
+        // Pixel operation
+        sum = zContrib + yContrib;
+        x = this->Center[0] - (idxX + outExt[0]);
+        x /= (whlExt[1] - whlExt[0]);
+        sum = sum + (x * x);
+        *outPtr = this->Maximum * exp(-sum * temp2) 
+          + this->XMag*sin(this->XFreq*x)
+          + this->YMag*sin(this->YFreq*y)
+          + this->ZMag*cos(this->ZFreq*z);
+        outPtr++;
+        }
       outPtr += outIncY;
       }
     outPtr += outIncZ;

@@ -86,18 +86,18 @@ public:
   // Subclass have to supply these methods to send various arrays of data.
   virtual int Send(int* data, int length, int remoteHandle, int tag) = 0;
   virtual int Send(unsigned long* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
   virtual int Send(unsigned char* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
   virtual int Send(char* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
   virtual int Send(float* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
   virtual int Send(double* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
 #ifdef VTK_USE_64BIT_IDS
   virtual int Send(vtkIdType* data, int length, int remoteHandle, 
-		   int tag) = 0;
+                   int tag) = 0;
 #endif
 
 
@@ -114,20 +114,20 @@ public:
   // Description:
   // Subclass have to supply these methods to receive various arrays of data.
   virtual int Receive(int* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
   virtual int Receive(unsigned long* data, int length, int remoteHandle,
-		      int tag) = 0;
+                      int tag) = 0;
   virtual int Receive(unsigned char* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
   virtual int Receive(char* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
   virtual int Receive(float* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
   virtual int Receive(double* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
 #ifdef VTK_USE_64BIT_IDS
   virtual int Receive(vtkIdType* data, int length, int remoteHandle, 
-		      int tag) = 0;
+                      int tag) = 0;
 #endif
 
 protected:

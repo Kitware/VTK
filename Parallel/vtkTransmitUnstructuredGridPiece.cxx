@@ -159,7 +159,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
   extract->GetOutput()->SetUpdateNumberOfPieces(
-				output->GetUpdateNumberOfPieces());
+                                output->GetUpdateNumberOfPieces());
   extract->GetOutput()->SetUpdatePiece(0);
   extract->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
 

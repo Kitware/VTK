@@ -70,7 +70,7 @@ public:
     if (cont)
       {
       cout << "Process id: " << cont->GetLocalProcessId()
-	   << " >> ";
+           << " >> ";
       }
     cout << t;
     cout.flush();
@@ -176,7 +176,7 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkThreadedController::Initialize(int* vtkNotUsed(argc), 
-				       char*** vtkNotUsed(argv))
+                                       char*** vtkNotUsed(argv))
 {
 }
   
@@ -338,7 +338,7 @@ void vtkThreadedController::Start(int threadId)
     if (this->MultipleMethod[threadId])
       {
       (this->MultipleMethod[threadId])(localController, 
-				       this->MultipleData[threadId]);
+                                       this->MultipleData[threadId]);
       }
     else
       {
@@ -370,7 +370,7 @@ void vtkThreadedController::SingleMethodExecute()
   this->MultipleMethodFlag = 0;
 
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
-				       (void*)this);
+                                       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
 
   // GLOBAL_CONTROLLER will be from thread0 always.
@@ -391,7 +391,7 @@ void vtkThreadedController::MultipleMethodExecute()
   this->MultipleMethodFlag = 1;
 
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
-				       (void*)this);
+                                       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
 
   // GLOBAL_CONTROLLER will be from thread0 always.
