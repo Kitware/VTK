@@ -30,7 +30,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.8");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.9");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkPlaneWidget::vtkPlaneWidget()
@@ -669,14 +669,15 @@ void vtkPlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  this->CurrentCamera = this->Interactor->FindPokedCamera(X,Y);
-  if ( !this->CurrentCamera )
+  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
+  vtkCamera *camera = renderer->GetActiveCamera();
+  if ( !camera )
     {
     return;
     }
 
   // Compute the two points defining the motion vector
-  this->CurrentCamera->GetFocalPoint(focalPoint);
+  camera->GetFocalPoint(focalPoint);
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
@@ -722,7 +723,7 @@ void vtkPlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
     }
   else if ( this->State == vtkPlaneWidget::Rotating )
     {
-    this->CurrentCamera->GetViewPlaneNormal(vpn);
+    camera->GetViewPlaneNormal(vpn);
     this->Rotate(X, Y, prevPickPoint, pickPoint, vpn);
     }
 

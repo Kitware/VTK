@@ -23,7 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.6");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.7");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
@@ -289,8 +289,8 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
 
   // Make sure that we have a camera
   this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
-  this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();
-  if ( !this->CurrentCamera )
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
+  if ( !camera )
     {
     return;
     }
@@ -317,25 +317,25 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
       }
     // Move the camera. 
     // Make sure that we don't hit the north pole singularity.
-    this->CurrentCamera->Azimuth(a);
+    camera->Azimuth(a);
 
     double dop[3], vup[3];
-    this->CurrentCamera->GetDirectionOfProjection(dop);
+    camera->GetDirectionOfProjection(dop);
     vtkMath::Normalize(dop);
-    this->CurrentCamera->GetViewUp(vup);
+    camera->GetViewUp(vup);
     vtkMath::Normalize(vup);
     double angle = acos(vtkMath::Dot(dop,vup)) / vtkMath::DegreesToRadians();
     if ( (angle+e) > 179.0f ) e = 0.0f;
     else if ( (angle+e) < 1.0f ) e = 0.0f;
-    this->CurrentCamera->Elevation(e);
+    camera->Elevation(e);
     }
 
   else if ( this->State == vtkInteractorStyleTerrain::Panning ) //middle mouse
     {
     //Get the vector of motion
     float z, fp[3], focalPoint[3], pos[3], v[3], p1[3], p2[3];
-    this->CurrentCamera->GetPosition(pos);
-    this->CurrentCamera->GetFocalPoint(fp);
+    camera->GetPosition(pos);
+    camera->GetFocalPoint(fp);
     this->ComputeWorldToDisplay(fp[0], fp[1], fp[2], focalPoint);
     z = focalPoint[2];
     this->ComputeDisplayToWorld(double(X), double(Y), z, p1);
@@ -347,8 +347,8 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
       pos[i] += v[i];
       fp[i] += v[i];
       }
-    this->CurrentCamera->SetPosition(pos);
-    this->CurrentCamera->SetFocalPoint(fp);
+    camera->SetPosition(pos);
+    camera->SetFocalPoint(fp);
     }
 
   else if ( this->State == vtkInteractorStyleTerrain::Zooming ) //right mouse
@@ -357,14 +357,14 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
       (double)(this->CurrentRenderer->GetCenter()[1]);
     double zoomFactor = pow((double)1.1, dyf);
           
-    if (this->CurrentCamera->GetParallelProjection())
+    if (camera->GetParallelProjection())
       {
-      this->CurrentCamera->
-        SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
+      camera->
+        SetParallelScale(camera->GetParallelScale()/zoomFactor);
       }
     else
       {
-      this->CurrentCamera->Dolly(zoomFactor);
+      camera->Dolly(zoomFactor);
       this->CurrentRenderer->ResetCameraClippingRange();
       }
     }

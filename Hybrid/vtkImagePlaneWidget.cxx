@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.15");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.16");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -581,14 +581,15 @@ void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z;
 
-  this->CurrentCamera = this->Interactor->FindPokedCamera(X,Y);
-  if ( ! this->CurrentCamera )
+  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
+  vtkCamera *camera = renderer->GetActiveCamera();
+  if ( ! camera )
     {
     return;
     }
 
   // Compute the two points defining the motion vector
-  this->CurrentCamera->GetFocalPoint(focalPoint);
+  camera->GetFocalPoint(focalPoint);
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];

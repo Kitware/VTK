@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.10");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.11");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -405,14 +405,15 @@ void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl),
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z;
 
-  this->CurrentCamera = this->Interactor->FindPokedCamera(X,Y);
-  if ( !this->CurrentCamera )
+  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
+  vtkCamera *camera = renderer->GetActiveCamera();
+  if ( !camera )
     {
     return;
     }
 
   // Compute the two points defining the motion vector
-  this->CurrentCamera->GetFocalPoint(focalPoint);
+  camera->GetFocalPoint(focalPoint);
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
