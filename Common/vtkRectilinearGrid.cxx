@@ -1016,33 +1016,33 @@ void vtkRectilinearGrid::Crop()
     // X
     coords = this->GetXCoordinates();
     newCoords = coords->MakeObject();
-    newCoords->Allocate(uExt[1] - uExt[0] + 1);
+    newCoords->SetNumberOfTuples(uExt[1] - uExt[0] + 1);
     for (idx = uExt[0]; idx <= uExt[1]; ++idx)
       {
-      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
-                           coords->GetTuple(idx));
+      newCoords->InsertComponent(idx-(vtkIdType)uExt[0], 0,
+				 coords->GetComponent(idx,0));
       }
     newGrid->SetXCoordinates(newCoords);
     newCoords->Delete();
     // Y
     coords = this->GetYCoordinates();
     newCoords = coords->MakeObject();
-    newCoords->Allocate(uExt[3] - uExt[2] + 1);
-    for (idx = uExt[0]; idx <= uExt[1]; ++idx)
+    newCoords->SetNumberOfTuples(uExt[3] - uExt[2] + 1);
+    for (idx = uExt[2]; idx <= uExt[3]; ++idx)
       {
-      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
-                           coords->GetTuple(idx));
+      newCoords->InsertComponent(idx-(vtkIdType)uExt[2], 0,
+				 coords->GetComponent(idx,0));
       }
     newGrid->SetYCoordinates(newCoords);
     newCoords->Delete();
     // Z
     coords = this->GetZCoordinates();
     newCoords = coords->MakeObject();
-    newCoords->Allocate(uExt[5] - uExt[4] + 1);
-    for (idx = uExt[0]; idx <= uExt[1]; ++idx)
+    newCoords->SetNumberOfTuples(uExt[5] - uExt[4] + 1);
+    for (idx = uExt[4]; idx <= uExt[5]; ++idx)
       {
-      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
-                           coords->GetTuple(idx));
+      newCoords->InsertComponent(idx-(vtkIdType)uExt[4], 0,
+				 coords->GetComponent(idx,0));
       }
     newGrid->SetZCoordinates(newCoords);
     newCoords->Delete();
@@ -1085,6 +1085,9 @@ void vtkRectilinearGrid::Crop()
       }
 
     this->SetExtent(uExt);
+    this->SetXCoordinates(newGrid->GetXCoordinates());
+    this->SetYCoordinates(newGrid->GetYCoordinates());
+    this->SetZCoordinates(newGrid->GetZCoordinates());    
     inPD->ShallowCopy(outPD);
     inCD->ShallowCopy(outCD);
     newGrid->Delete();
