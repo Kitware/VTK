@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.5");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.6");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -36,8 +36,8 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->KeypressCallbackCommand->SetCallback(vtkInteractorObserver::ProcessEvents);
  
   this->CurrentRenderer = NULL;
-  this->OldX = 0.0;
-  this->OldY = 0.0;
+  this->OldX = 0;
+  this->OldY = 0;
   
   this->Priority = 1.0;
   this->KeyPressActivation = 1;

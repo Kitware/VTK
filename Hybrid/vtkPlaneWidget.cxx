@@ -30,7 +30,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.6");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkPlaneWidget::vtkPlaneWidget()
@@ -286,7 +286,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 }
 
 void vtkPlaneWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                       void* clientdata, void* calldata)
+                                       void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkPlaneWidget* self = reinterpret_cast<vtkPlaneWidget *>( clientdata );
   vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
