@@ -15,11 +15,13 @@
 #include "vtkGenericOutlineFilter.h"
 
 #include "vtkGenericDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGenericOutlineFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericOutlineFilter, "1.2");
 vtkStandardNewMacro(vtkGenericOutlineFilter);
 
 vtkGenericOutlineFilter::vtkGenericOutlineFilter ()
@@ -36,9 +38,22 @@ vtkGenericOutlineFilter::~vtkGenericOutlineFilter ()
     }
 }
 
-void vtkGenericOutlineFilter::Execute()
+int vtkGenericOutlineFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+//  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Creating dataset outline");
 
@@ -46,16 +61,23 @@ void vtkGenericOutlineFilter::Execute()
   // Let OutlineSource do all the work
   //
 
-  this->OutlineSource->SetBounds(this->GetInput()->GetBounds());
+  this->OutlineSource->SetBounds(input->GetBounds());
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
-
+  return 1;
 }
 
 
-void vtkGenericOutlineFilter::ExecuteInformation()
+int vtkGenericOutlineFilter::RequestInformation(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+//  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+//  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   
   vtkDebugMacro(<< "Creating dataset outline");
 
@@ -63,7 +85,22 @@ void vtkGenericOutlineFilter::ExecuteInformation()
   // Let OutlineSource do all the work
   //
   
-  this->vtkSource::ExecuteInformation();
+  int result=this->Superclass::RequestInformation(request,inputVector,
+                                                  outputVector);
 
   this->OutlineSource->UpdateInformation();
+  
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericOutlineFilter::FillInputPortInformation(int port,
+                                                      vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }
