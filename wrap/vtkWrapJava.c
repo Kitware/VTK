@@ -93,7 +93,7 @@ void output_proto_vars(FILE *fp, int i)
     case 6:   fprintf(fp,"jint "); break;
     case 2:     fprintf(fp,"void "); break;
     case 3:     fprintf(fp,"jchar "); break;
-    case 9:     fprintf(fp,"jref "); break;
+    case 9:     fprintf(fp,"jobject "); break;
     case 8: return;
     }
   
