@@ -132,10 +132,11 @@ float *vtkXglrPolyMapper::AddVertex(int npts, int pointSize, int *pts,
   return fTemp;
 }
 
-float *vtkXglrPolyMapper::AddVertexWithNormal(int npts, int pointSize, int *pts,
-					     vtkPoints *p, vtkColorScalars *c,
-					     vtkTCoords *t, vtkNormals *n,
-					     float *polyNorm)
+float *vtkXglrPolyMapper::AddVertexWithNormal(int npts, int pointSize, 
+					      int *pts, vtkPoints *p, 
+					      vtkColorScalars *c,
+					      vtkTCoords *t, vtkNormals *n,
+					      float *polyNorm)
 {
   float *fTemp;
   int j;
@@ -210,6 +211,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   int tDim, adder, pointSize, pointSize2;
   enum Xgl_pt_type ptType, ptType2;
   float *fTemp;
+  int numDataVals;
   
   // free old memory
   if (this->PL)
@@ -286,8 +288,8 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
     }
   if (t)
     {
+    numDataVals = 2;
     pointSize += 2;
-    this->PL[i].num_data_values = 2;
     if (c) 
       {
       ptType = XGL_PT_COLOR_NORMAL_DATA_F3D;
@@ -301,6 +303,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
     }
   else
     {
+    numDataVals = 0;
     if (c) 
       {
       ptType = XGL_PT_COLOR_NORMAL_F3D;
@@ -323,6 +326,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL[i].num_pts = npts;
       this->PL[i].bbox = NULL;
       this->PL[i].pt_type = ptType;
+      this->PL[i].num_data_values = numDataVals;
       
       if (!n) polygon.ComputeNormal(p,npts,pts,polyNorm);
       
@@ -339,6 +343,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL[i].num_pts = npts;
       this->PL[i].bbox = NULL;
       this->PL[i].pt_type = ptType;
+      this->PL[i].num_data_values = numDataVals;
       
       if (!n) polygon.ComputeNormal(p,npts,pts,polyNorm);
       
@@ -357,6 +362,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL2[i].num_pts = npts;
       this->PL2[i].bbox = NULL;
       this->PL2[i].pt_type = ptType2;
+      this->PL2[i].num_data_values = numDataVals;
       
       this->PL2[i].pts.data_f3d = 
 	(Xgl_pt_data_f3d *)this->AddVertex(npts,pointSize2,pts,p,c,t);
@@ -370,6 +376,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL2[i].num_pts = npts;
       this->PL2[i].bbox = NULL;
       this->PL2[i].pt_type = ptType2;
+      this->PL2[i].num_data_values = numDataVals;
       
       this->PL2[i].pts.data_f3d = 
 	(Xgl_pt_data_f3d *)this->AddVertex(npts,pointSize2,pts,p,c,t);
