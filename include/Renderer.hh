@@ -13,6 +13,16 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlRenderer - abstract specification  for renderers
+// .SECTION Description
+// vlRenderer provides an abstract specification for renderers. A renderer
+// is an object that controls the rendering process for objects. Rendering is
+// the process of converting geometry, a specification for lights, and a 
+// camera view into an image. vlRenderer also performs coordinate 
+// transformation between world coordinates, view coordinates (the computer
+// graphics rendering coordinate system), and display coordinates (the actual
+// screen coordinates on the display device).
+
 #ifndef __vlRenderer_hh
 #define __vlRenderer_hh
 
@@ -27,6 +37,108 @@ class vlRenderWindow;
 
 class vlRenderer : public vlObject
 {
+public:
+  vlRenderer();
+  char *GetClassName() {return "vlRenderer";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
+  void AddLights(vlLight *);
+  void AddActors(vlActor *);
+  void RemoveLights(vlLight *);
+  void RemoveActors(vlActor *);
+  vlLightCollection *GetLights();
+  vlActorCollection *GetActors();
+  void SetActiveCamera(vlCamera *);
+  vlCamera *GetActiveCamera();
+
+  // Description:
+  // Set the background color of the rendering screen using an rgb color
+  // specification.
+  vlSetVector3Macro(Background,float);
+  vlGetVectorMacro(Background,float);
+
+  // Description:
+  // Set the aspect ratio of the rendered image.
+  vlSetVector2Macro(Aspect,float);
+  vlGetVectorMacro(Aspect,float);
+
+  // Description:
+  // Set the level of ambient lighting.
+  vlSetVector3Macro(Ambient,float);
+  vlGetVectorMacro(Ambient,float);
+
+  // Description:
+  // Turn on/off whether objects are light from behind with another light.
+  vlSetMacro(BackLight,int);
+  vlGetMacro(BackLight,int);
+  vlBooleanMacro(BackLight,int);
+
+  // Description:
+  // Turn on/off erasing the screen between images. Allows multiple exposure
+  // sequences if turned on.
+  vlSetMacro(Erase,int);
+  vlGetMacro(Erase,int);
+  vlBooleanMacro(Erase,int);
+
+  vlGetMacro(StereoRender,int);
+
+  // Description:
+  // Create an image.
+  virtual void Render() = 0;
+
+  // Description:
+  // Get a device specific geometry representation.
+  virtual vlGeometryPrimitive *GetPrimitive(char *) = 0;
+  
+  // Description:
+  // Ask all actors to build and draw themselves.
+  virtual int UpdateActors(void) = 0;
+
+  // Description:
+  // Ask the camera to load its view matrix.
+  virtual int UpdateCameras(void) = 0;
+
+  // Description:
+  // Ask all lights to load themselves into rendering pipeline.
+  virtual int UpdateLights(void) = 0;
+
+  void DoCameras();
+  void DoLights();
+  void DoActors();
+  void ResetCamera();
+
+  void SetRenderWindow(vlRenderWindow *);
+  vlRenderWindow *GetRenderWindow() {return RenderWindow;};
+  
+  // Description:
+  // Specify a point location in display (or screen) coordinates.
+  vlSetVector3Macro(DisplayPoint,float);
+  vlGetVectorMacro(DisplayPoint,float);
+
+  // Description:
+  // Specify a point location in view coordinates.
+  vlSetVector3Macro(ViewPoint,float);
+  vlGetVectorMacro(ViewPoint,float);
+
+  // Description:
+  // Specify a point location in world coordinates.
+  vlSetVector4Macro(WorldPoint,float);
+  vlGetVectorMacro(WorldPoint,float);
+
+  // Description:
+  // Specify the area for the renderer to draw in the rendering window. 
+  // Coordinates are expressed as (xmin,ymin,xmax,ymax) where each
+  // coordinate is 0 <= coordinate <= 1.0.
+  vlSetVector4Macro(Viewport,float);
+  vlGetVectorMacro(Viewport,float);
+
+  void DisplayToView();
+  void ViewToDisplay();
+  void WorldToView();
+  void ViewToWorld();
+  void DisplayToWorld();
+  void WorldToDisplay();
+
 protected:
   vlCamera *ActiveCamera;
   vlLightCollection Lights;
@@ -42,73 +154,22 @@ protected:
   int   Erase;
   float Aspect[2];
   int StereoRender;
-
-public:
-  vlRenderer();
-  char *GetClassName() {return "vlRenderer";};
-  void PrintSelf(ostream& os, vlIndent indent);
-
-  void AddLights(vlLight *);
-  void AddActors(vlActor *);
-  void RemoveLights(vlLight *);
-  void RemoveActors(vlActor *);
-  vlLightCollection *GetLights() {return &(this->Lights);};
-  vlActorCollection *GetActors() {return &(this->Actors);};
-  void SetActiveCamera(vlCamera *);
-  vlCamera *GetActiveCamera();
-
-  vlSetVector3Macro(Background,float);
-  vlGetVectorMacro(Background,float);
-
-  vlSetVector2Macro(Aspect,float);
-  vlGetVectorMacro(Aspect,float);
-
-  vlSetVector3Macro(Ambient,float);
-  vlGetVectorMacro(Ambient,float);
-
-  vlSetMacro(BackLight,int);
-  vlGetMacro(BackLight,int);
-  vlBooleanMacro(BackLight,int);
-
-  vlSetMacro(Erase,int);
-  vlGetMacro(Erase,int);
-  vlBooleanMacro(Erase,int);
-
-  vlGetMacro(StereoRender,int);
-
-  virtual void Render() = 0;
-  virtual vlGeometryPrimitive *GetPrimitive(char *) = 0;
-  
-  virtual int UpdateActors(void) = 0;
-  virtual int UpdateCameras(void) = 0;
-  virtual int UpdateLights(void) = 0;
-
-  void DoCameras();
-  void DoLights();
-  void DoActors();
-  void ResetCamera();
-
-  void SetRenderWindow(vlRenderWindow *);
-  vlRenderWindow *GetRenderWindow() {return RenderWindow;};
-  
-  vlSetVector3Macro(DisplayPoint,float);
-  vlGetVectorMacro(DisplayPoint,float);
-
-  vlSetVector3Macro(ViewPoint,float);
-  vlGetVectorMacro(ViewPoint,float);
-
-  vlSetVector4Macro(WorldPoint,float);
-  vlGetVectorMacro(WorldPoint,float);
-
-  vlSetVector4Macro(Viewport,float);
-  vlGetVectorMacro(Viewport,float);
-
-  void DisplayToView();
-  void ViewToDisplay();
-  void WorldToView();
-  void ViewToWorld();
-  void DisplayToWorld() {DisplayToView(); ViewToWorld();};
-  void WorldToDisplay() {WorldToView(); ViewToDisplay();};
 };
+
+// Description:
+// Get the list of lights for this renderer.
+inline vlLightCollection *vlRenderer::GetLights() {return &(this->Lights);};
+
+// Description:
+// Get the list of actors for this renderer.
+inline vlActorCollection *vlRenderer::GetActors() {return &(this->Actors);};
+
+// Description:
+// Convert display (or screen) coordinates to world coordinates.
+inline void vlRenderer::DisplayToWorld() {DisplayToView(); ViewToWorld();};
+
+// Description:
+// Convert world point coordinates to display (or screen) coordinates.
+inline void vlRenderer::WorldToDisplay() {WorldToView(); ViewToDisplay();};
 
 #endif

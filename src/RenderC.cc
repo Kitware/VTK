@@ -17,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <iostream.h>
 #include "RenderC.hh"
 
+// Description:
+// Forward the Render() method to each renderer in the list.
 void vlRendererCollection::Render()
 {
   int i;

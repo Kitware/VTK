@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlLightCollection - a list of lights
+// .SECTION Description
+// vlLightCollection represents and provides methods to manipulate list of
+// lights (i.e., vlLight and subclasses). The list is unsorted and duplicate
+// entries are not prevented.
+
 #ifndef __vlLightC_hh
 #define __vlLightC_hh
 
@@ -22,15 +28,42 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlLightCollection : public vlCollection
 {
  public:
-  void AddItem(vlLight *a) {this->vlCollection::AddItem((vlObject *)a);};
-  void RemoveItem(vlLight *a) 
-    {this->vlCollection::RemoveItem((vlObject *)a);};
-  int IsItemPresent(vlLight *a) 
-    {return this->vlCollection::IsItemPresent((vlObject *)a);};
-  vlLight *GetItem(int num) 
-    { return (vlLight *)(this->vlCollection::GetItem(num));};
   char *GetClassName() {return "vlLightCollection";};
+
+  void AddItem(vlLight *a);
+  void RemoveItem(vlLight *a);
+  int IsItemPresent(vlLight *a);
+  vlLight *GetItem(int num);
 };
+
+// Description:
+// Add an light to the list.
+inline void vlLightCollection::AddItem(vlLight *a) 
+{
+  this->vlCollection::AddItem((vlObject *)a);
+}
+
+// Description:
+// Remove an light from the list.
+inline void vlLightCollection::RemoveItem(vlLight *a) 
+{
+  this->vlCollection::RemoveItem((vlObject *)a);
+}
+
+// Description:
+// Determine whether a particular light is present. Returns its position
+// in the list.
+inline int vlLightCollection::IsItemPresent(vlLight *a) 
+{
+  return this->vlCollection::IsItemPresent((vlObject *)a);
+}
+
+// Description:
+// Get an light in the list at a particular location (1<=num<=number items).
+inline vlLight *vlLightCollection::GetItem(int num) 
+{ 
+  return (vlLight *)(this->vlCollection::GetItem(num));
+}
 
 #endif
 

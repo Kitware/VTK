@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlActorCollection - a list of actors
+// .SECTION Description
+// vlActorCollection represents and provides methods to manipulate list of
+// actors (i.e., vlActor and subclasses). The list is unsorted and duplicate
+// entries are not prevented.
+
 #ifndef __vlActorC_hh
 #define __vlActorC_hh
 
@@ -22,15 +28,42 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlActorCollection : public vlCollection
 {
  public:
-  void AddItem(vlActor *a) {this->vlCollection::AddItem((vlObject *)a);};
-  void RemoveItem(vlActor *a) 
-    {this->vlCollection::RemoveItem((vlObject *)a);};
-  int IsItemPresent(vlActor *a) 
-    {return this->vlCollection::IsItemPresent((vlObject *)a);};
-  vlActor *GetItem(int num) 
-    { return (vlActor *)(this->vlCollection::GetItem(num));};
   char *GetClassName() {return "vlActorCollection";};
+
+  void AddItem(vlActor *a);
+  void RemoveItem(vlActor *a);
+  int IsItemPresent(vlActor *a);
+  vlActor *GetItem(int num);
 };
+
+// Description:
+// Add an actor to the list.
+inline void vlActorCollection::AddItem(vlActor *a) 
+{
+  this->vlCollection::AddItem((vlObject *)a);
+}
+
+// Description:
+// Remove an actor from the list.
+inline void vlActorCollection::RemoveItem(vlActor *a) 
+{
+  this->vlCollection::RemoveItem((vlObject *)a);
+}
+
+// Description:
+// Determine whether a particular actor is present. Returns its position
+// in the list.
+inline int vlActorCollection::IsItemPresent(vlActor *a) 
+{
+  return this->vlCollection::IsItemPresent((vlObject *)a);
+}
+
+// Description:
+// Get an actor in the list at a particular location (1<=num<=number items).
+inline vlActor *vlActorCollection::GetItem(int num) 
+{ 
+  return (vlActor *)(this->vlCollection::GetItem(num));
+}
 
 #endif
 

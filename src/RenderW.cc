@@ -17,6 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <string.h>
 #include "RenderW.hh"
 
+// Description:
+// Construct object with screen size 300x300, borders turned on, position
+// at (0,0), and double buffering turned on.
 vlRenderWindow::vlRenderWindow()
 {
   Size[0] = Size[1] = 300;
@@ -32,6 +35,8 @@ vlRenderWindow::vlRenderWindow()
   strcpy(this->Name,"Visualization Library");
 }
 
+// Description:
+// Ask each renderer to render an image. Synchronize this process.
 void vlRenderWindow::Render()
 {
   vlDebugMacro(<< "Starting Render Method.\n");
@@ -40,6 +45,8 @@ void vlRenderWindow::Render()
   this->Frame();
 }
 
+// Description:
+// Add a renderer to the list of renderers.
 void vlRenderWindow::AddRenderers(vlRenderer *ren)
 {
   // we are its parent 
@@ -47,17 +54,20 @@ void vlRenderWindow::AddRenderers(vlRenderer *ren)
   this->Renderers.AddItem(ren);
 }
 
+// Description:
+// Remove a renderer from the list of renderers.
 void vlRenderWindow::RemoveRenderers(vlRenderer *ren)
 {
   // we are its parent 
   this->Renderers.RemoveItem(ren);
 }
 
+// Description:
+// Set the size of the window in screen coordinates.
 void vlRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0],a[1]);
 }
-
 
 void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {

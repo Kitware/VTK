@@ -13,6 +13,16 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlRenderWindow - create a window for renderers to draw into
+// .SECTION Description
+// vlRenderWindow is an abstract object to specify the behavior of a
+// rendering window. A rendering window is a window in a graphical user
+// interface where renderers draw their images. Methods are provided to 
+// synchronize the rendering process, set window size, and control double
+// buffering. Another set of important methods allow the creation of
+// device dependent actors, lights, and cameras. These objects are created
+// depending upon the value of the environment variable "VL_RENDERER".
+
 #ifndef __vlRenderWindow_hh
 #define __vlRenderWindow_hh
 
@@ -42,29 +52,64 @@ public:
   vlRendererCollection *GetRenderers() {return &(this->Renderers);};
 
   virtual void Render();
-  virtual void Frame() = 0;
+
+  // Description:
+  // Initialize rendering process.
   virtual void Start() = 0;
+
+  // Description:
+  // Performed at the end of the rendering process to generate image.
+  virtual void Frame() = 0;
+
+  // Description:
+  // Create a device specific renderer.
   virtual vlRenderer  *MakeRenderer() = 0;
+
+  // Description:
+  // Create a device specific actor.
   virtual vlActor     *MakeActor() = 0;
+
+  // Description:
+  // Create a device specific light.
   virtual vlLight     *MakeLight() = 0;
+
+  // Description:
+  // Create a device specific camera.
   virtual vlCamera    *MakeCamera() = 0;
+
+  // Description:
+  // Get the position in screen coordinates of the rendering window.
   virtual int *GetPosition() = 0;
+
+  // Description:
+  // Get the size of the window in screen coordinates.
   virtual int *GetSize() = 0;
+
+  // Description:
+  // Set the size of the window in screen coordinates.
   virtual void SetSize(int,int) = 0;
   virtual void SetSize(int a[2]);
 
+  // Description:
+  // Turn on/off rendering full screen window size.
   virtual void SetFullScreen(int) = 0;
   vlGetMacro(FullScreen,int);
   vlBooleanMacro(FullScreen,int);
 
+  // Description:
+  // Turn on/off window manager borders.
   vlSetMacro(Borders,int);
   vlGetMacro(Borders,int);
   vlBooleanMacro(Borders,int);
 
+  // Description:
+  // Keep track of whether rendering window has been mapped to screen.
   vlSetMacro(Mapped,int);
   vlGetMacro(Mapped,int);
   vlBooleanMacro(Mapped,int);
 
+  // Description:
+  // Turn on/off double buffering.
   vlSetMacro(DoubleBuffer,int);
   vlGetMacro(DoubleBuffer,int);
   vlBooleanMacro(DoubleBuffer,int);

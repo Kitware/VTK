@@ -17,6 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Camera.hh"
 #include "vlMath.hh"
 
+// Description:
+// Construct camera instance with focal point at origin, and position=(0,0,1).
+// The view up is along the y-axis, view angle is 30 degrees, and the clipping
+// range is (.1,1000).
 vlCamera::vlCamera()
 {
   this->FocalPoint[0] = 0.0;
@@ -41,6 +45,8 @@ vlCamera::vlCamera()
   this->EyeAngle = 2.0;
 }
 
+// Description:
+// Set the position of the camera in global coordinates.
 void vlCamera::SetPosition(float X, float Y, float Z)
 {
   this->Position[0] = X;
@@ -58,11 +64,14 @@ void vlCamera::SetPosition(float X, float Y, float Z)
   
   this->Modified();
 }
+
 void vlCamera::SetPosition(float a[3])
 {
   this->SetPosition(a[0],a[1],a[2]);
 }
 
+// Description:
+// Set the focal point of the camera in global coordinates.
 void vlCamera::SetFocalPoint(float X, float Y, float Z)
 {
   this->FocalPoint[0] = X; 
@@ -80,11 +89,14 @@ void vlCamera::SetFocalPoint(float X, float Y, float Z)
   
   this->Modified();
 }
+
 void vlCamera::SetFocalPoint(float a[3])
 {
   this->SetFocalPoint(a[0],a[1],a[2]);
 }
 
+// Description:
+// Define the up-direction for the camera.
 void vlCamera::SetViewUp(float X, float Y, float Z)
 {
   float dx, dy, dz, norm;
@@ -117,11 +129,15 @@ void vlCamera::SetViewUp(float X, float Y, float Z)
   
   this->Modified();
 }
+
 void vlCamera::SetViewUp(float a[3])
 {
   this->SetViewUp(a[0],a[1],a[2]);
 }
 
+// Description:
+// Specify the location of the front and back clipping planes along the
+// view vector.
 void vlCamera::SetClippingRange(float X, float Y)
 {
   this->ClippingRange[0] = X; 
@@ -162,11 +178,16 @@ void vlCamera::SetClippingRange(float X, float Y)
 
   this->Modified();
 }  
+
 void vlCamera::SetClippingRange(float a[2])
 {
   this->SetClippingRange(a[0],a[1]);
 }
 
+// Description:
+// Set the distance between clipping planes. A side effect of this method is
+// adjust the back clipping plane to be equal to the front clipping plane 
+// plus the thickness.
 void vlCamera::SetThickness(float X)
 {
   if (this->Thickness == X) return;
@@ -189,6 +210,9 @@ void vlCamera::SetThickness(float X)
   this->Modified();
 }  
 
+// Description:
+// Set the distance of the camera from the object. The focal point is modified
+// accordingly.
 void vlCamera::SetDistance(float X)
 {
   if (this->Distance == X) return;
@@ -215,6 +239,8 @@ void vlCamera::SetDistance(float X)
   this->Modified();
 }  
 
+// Description:
+// 
 float vlCamera::GetTwist()
 {
   float *vup, *vn;
@@ -277,6 +303,8 @@ float vlCamera::GetTwist()
   return twist;
 }
 
+// Description:
+// Compute the view plane normal from the position and focal point.
 void vlCamera::CalcViewPlaneNormal()
 {
   float dx,dy,dz;
@@ -301,37 +329,9 @@ void vlCamera::CalcViewPlaneNormal()
   vlDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")\n");
 }
 
-void vlCamera::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlCamera::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
-    
-    // update orientation
-    this->GetOrientation();
 
-    os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
-      << this->ClippingRange[2] << ")\n";
-    os << indent << "Distance: " << this->Distance << "\n";
-    os << indent << "Eye Angle: " << this->EyeAngle << "\n";
-    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
-      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-    os << indent << "Left Eye: " << this->LeftEye << "\n";
-    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
-    os << indent << "Position: (" << this->Position[0] << ", " 
-      << this->Position[1] << ", " << this->Position[2] << ")\n";
-    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
-    os << indent << "Thickness: " << this->Thickness << "\n";
-    os << indent << "Twist: " << this->GetTwist() << "\n";
-    os << indent << "View Angle: " << this->ViewAngle << "\n";
-    os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
-      << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
-    os << indent << "View Up: (" << this->ViewUp[0] << ", " 
-      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
-    }
-}
-
+// Description:
+// Set the roll angle of the camera about the view plane normal.
 void vlCamera::SetRoll(float roll)
 {
   float current;
@@ -379,6 +379,9 @@ float vlCamera::GetRoll()
   return orient[2];
 }
 
+// Description:
+// Compute the camera distance which is the distance between the 
+// focal point and position.
 void vlCamera::CalcDistance ()
 {
   float   *distance;
@@ -419,6 +422,8 @@ void vlCamera::CalcDistance ()
   this->Modified();
 } 
 
+// Description:
+// Return the rotations about the x-y-z axes.
 float *vlCamera::GetOrientation ()
 {
   // calculate a new orientation
@@ -430,6 +435,8 @@ float *vlCamera::GetOrientation ()
   return this->Orientation;
 }
 
+// Description:
+// Compute the perspective transform matrix.
 void vlCamera::CalcPerspectiveTransform ()
 {
   vlMatrix4x4  matrix;
@@ -551,6 +558,8 @@ void vlCamera::CalcPerspectiveTransform ()
 }
 
 
+// Description:
+// Return the perspective transform matrix.
 vlMatrix4x4 &vlCamera::GetPerspectiveTransform()
 {
   // update transform 
@@ -562,6 +571,9 @@ vlMatrix4x4 &vlCamera::GetPerspectiveTransform()
 
 #define SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
 
+// Description:
+// Recompute the view up vector so that it is perpendicular to the
+// view plane normal.
 void vlCamera::OrthogonalizeViewUp()
 {
   float *normal,*up,temp[3],new_up[3];
@@ -579,7 +591,10 @@ void vlCamera::OrthogonalizeViewUp()
   this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);
 }
 
-
+// Description:
+// Move the position of the camera along the view plane normal. Moving
+// towards the focal point is a zoom-in, moving away from the focal point
+// is a zoom-out.
 void vlCamera::Zoom(float amount)
 {
   float	distance;
@@ -595,6 +610,8 @@ void vlCamera::Zoom(float amount)
 }
 
 
+// Description:
+// Rotate the camera about the view up vector.
 void vlCamera::Azimuth (float angle)
 {
   // azimuth is a rotation of camera position about view up vector
@@ -627,6 +644,8 @@ void vlCamera::Azimuth (float angle)
   this->Transform.Pop();
 }
 
+// Description:
+// Rotate the camera around the focal point towards the view up vector.
 void vlCamera::Elevation (float angle)
 {
   double	axis[3];
@@ -668,6 +687,9 @@ void vlCamera::Elevation (float angle)
   this->Transform.Pop();
 }
 
+// Description:
+// Rotate the camera around an axis parallel to the view up vector and 
+// passing through the camera.
 void vlCamera::Yaw (float angle)
 {
   // yaw is a rotation of camera focal_point about view up vector
@@ -700,6 +722,8 @@ void vlCamera::Yaw (float angle)
   this->Transform.Pop();
 }
 
+// Description:
+// Rotate the camera towards the view up vector.
 void vlCamera::Pitch (float angle)
 {
   float	axis[3];
@@ -741,6 +765,8 @@ void vlCamera::Pitch (float angle)
   this->Transform.Pop();
 }
 
+// Description:
+// Rotate the camera around the view plane normal.
 void vlCamera::Roll (float angle)
 {
   
@@ -764,6 +790,8 @@ void vlCamera::Roll (float angle)
   this->Transform.Pop();
 }
 
+// Description:
+// Set the direction that the camera points.
 // adjusts position to be consistent with VPN
 void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
 {
@@ -802,4 +830,33 @@ void vlCamera::SetViewPlaneNormal(float a[3])
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
 }
 
+void vlCamera::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlCamera::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+    
+    // update orientation
+    this->GetOrientation();
 
+    os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
+      << this->ClippingRange[2] << ")\n";
+    os << indent << "Distance: " << this->Distance << "\n";
+    os << indent << "Eye Angle: " << this->EyeAngle << "\n";
+    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+    os << indent << "Left Eye: " << this->LeftEye << "\n";
+    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+    os << indent << "Position: (" << this->Position[0] << ", " 
+      << this->Position[1] << ", " << this->Position[2] << ")\n";
+    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
+    os << indent << "Thickness: " << this->Thickness << "\n";
+    os << indent << "Twist: " << this->GetTwist() << "\n";
+    os << indent << "View Angle: " << this->ViewAngle << "\n";
+    os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
+      << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
+    os << indent << "View Up: (" << this->ViewUp[0] << ", " 
+      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
+    }
+}

@@ -17,6 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <iostream.h>
 #include "Light.hh"
 
+// Description:
+// Create a light with focal point at origin and position=(0,0,1).
+// Light color is white, intensity=1, and the light is turned on.
 vlLight::vlLight()
 {
   this->FocalPoint[0] = 0.0;

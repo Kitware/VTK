@@ -19,6 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Renderer.hh"
 #include "RenderW.hh"
 
+// Description:
+// Create object with black background, ambient light white, backlighting 
+// turned on, erasing turned on, and viewport (0,0,1,1).
 vlRenderer::vlRenderer()
 {
   this->ActiveCamera = NULL;
@@ -51,36 +54,50 @@ vlRenderer::vlRenderer()
   this->Aspect[0] = this->Aspect[1] = 1.0;
 }
 
+// Description:
+// Specify the camera to use.
 void vlRenderer::SetActiveCamera(vlCamera *cam)
 {
   this->ActiveCamera = cam;
 }
 
+// Description:
+// Get the current camera.
 vlCamera *vlRenderer::GetActiveCamera()
 {
   return this->ActiveCamera;
 }
 
+// Description:
+// Add a light to the list of lights.
 void vlRenderer::AddLights(vlLight *light)
 {
   this->Lights.AddItem(light);
 }
 
+// Description:
+// Add an actor to the list of actors.
 void vlRenderer::AddActors(vlActor *actor)
 {
   this->Actors.AddItem(actor);
 }
 
+// Description:
+// Remove a light from the list of lights.
 void vlRenderer::RemoveLights(vlLight *light)
 {
   this->Lights.RemoveItem(light);
 }
 
+// Description:
+// Remove an actor from the list of actors.
 void vlRenderer::RemoveActors(vlActor *actor)
 {
   this->Actors.RemoveItem(actor);
 }
 
+// Description:
+// Process the list of lights during the rendering process.
 void vlRenderer::DoLights()
 {
   vlLight *light1;
@@ -96,6 +113,8 @@ void vlRenderer::DoLights()
     }
 }
 
+// Description:
+// Process the list of cameras during the rendering process.
 void vlRenderer::DoCameras()
 {
   vlCamera *cam1;
@@ -110,6 +129,8 @@ void vlRenderer::DoCameras()
     }
 }
 
+// Description:
+// Process the list of actors during the rendering process.
 void vlRenderer::DoActors()
 {
 
@@ -119,6 +140,9 @@ void vlRenderer::DoActors()
     }
 }
 
+// Description:
+// Automatically set up the camera if no camera has been initially
+// specified.
 void vlRenderer::ResetCamera()
 {
   vlActor *anActor;
@@ -172,13 +196,15 @@ void vlRenderer::ResetCamera()
   this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
 }
   
-  
-
+// Description:
+// Specify the rendering window in which to draw.
 void vlRenderer::SetRenderWindow(vlRenderWindow *renwin)
 {
   this->RenderWindow = renwin;
 }
 
+// Description:
+// Convert display coordinates to view coordinates.
 void vlRenderer::DisplayToView()
 {
   float vx,vy,vz;
@@ -199,6 +225,8 @@ void vlRenderer::DisplayToView()
   this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
 }
 
+// Description:
+// Convert view coordinates to display coordinates.
 void vlRenderer::ViewToDisplay()
 {
   int dx,dy;
@@ -220,7 +248,8 @@ void vlRenderer::ViewToDisplay()
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
 }
 
-
+// Description:
+// Convert view point coordinates to world coordinates.
 void vlRenderer::ViewToWorld()
 {
   vlMatrix4x4 mat;
@@ -244,6 +273,8 @@ void vlRenderer::ViewToWorld()
   this->SetWorldPoint(result);
 }
 
+// Description:
+// Convert world point coordinates to view coordinates.
 void vlRenderer::WorldToView()
 {
   vlMatrix4x4 matrix;
