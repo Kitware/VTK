@@ -671,7 +671,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         // easy way to tget the this pointer during the create call
         // we'll pass the created info back out
         vtkImageWin32ViewerCreateInfo *info = 
-	      vtkImageWin32ViewerCreateInfo::New();
+	         new vtkImageWin32ViewerCreateInfo;
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
         info->DeviceContext = GetDC(hWnd);
         if (vtkImageWin32DoGrey)
