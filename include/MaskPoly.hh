@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Sample subset of points and associated data
-//
+// .NAME vlMaskPolyData - sample subset of input polygonal data
+// .SECTION Description
+// vlMaskPolyData is a filter that sub-samples input polygonal data. The user
+// specifies every nth item, with an initial offset to begin sampling.
+
 #ifndef __vlMaskPolyData_h
 #define __vlMaskPolyData_h
 
@@ -31,10 +31,12 @@ public:
   char *GetClassName() {return "vlMaskPolyData";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
   // Turn on every nth entity
   vlSetClampMacro(OnRatio,int,1,LARGE_INTEGER);
   vlGetMacro(OnRatio,int);
 
+  // Description:
   // Start with this point
   vlSetClampMacro(Offset,int,0,LARGE_INTEGER);
   vlGetMacro(Offset,int);

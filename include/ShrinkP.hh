@@ -15,9 +15,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlShrinkPolyData - shrink cells composing PolyData
 // .SECTION Description
-// vlShrinkPolyData shrinks cells composing PolyData (e.g., vertices, 
-// lines, polygons, and triangle strips) towards their centroid. The
-// centroid of a cell is computed as the average position of the
+// vlShrinkPolyData shrinks cells composing a polygonal dataset (e.g., 
+// vertices, lines, polygons, and triangle strips) towards their centroid. 
+// The centroid of a cell is computed as the average position of the
 // cell points. Shrinking results in disconencting the cells from
 // one another.
 // .SECTION Caveats
@@ -40,6 +40,7 @@ public:
   // Description:
   // Set the fraction of shrink for each cell.
   vlSetClampMacro(ShrinkFactor,float,0.0,1.0);
+
   // Description:
   // Get the fraction of shrink for each cell.
   vlGetMacro(ShrinkFactor,float);

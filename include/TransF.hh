@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -20,14 +18,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vlTransformFilter is a filter to transform point coordinates and 
 // associated point normals and vectors. Other point data is passed
 // through the filter.
-// 
-// An alternative method of transformation is to use vlActors methods
+//   (An alternative method of transformation is to use vlActors methods
 // to scale, rotate, and translate objects. The difference between the
 // two methods is that vlActor's transformation simply effects where
 // objects are rendered (via the graphics pipeline), whereas
 // vlTransformFilter actually modifies point coordinates in the 
 // visualization pipeline. This is necessary for some objects 
-// (e.g., vlProbeFilter) that require point coordinates as input.
+// (e.g., vlProbeFilter) that require point coordinates as input).
 // .EXAMPLE XFormSph.cc
 
 #ifndef __vlTransformFilter_h
@@ -46,6 +43,8 @@ public:
 
   unsigned long int GetMTime();
 
+  // Description:
+  // Specify the transform object used to transform points.
   vlSetObjectMacro(Transform,vlTransform);
   vlGetObjectMacro(Transform,vlTransform);
 

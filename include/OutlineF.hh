@@ -16,7 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlOutlineFilter - create wireframe outline for arbitrary data set
 // .SECTION Description
 // vlOutlineFilter is a filter that generates a wireframe outline of any 
-// data set. The outline consists of the twelve edges of the bounding box.
+// data set. The outline consists of the twelve edges of the dataset 
+// bounding box.
 
 #ifndef __vlOutlineFilter_h
 #define __vlOutlineFilter_h

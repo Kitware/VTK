@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "TranSPts.hh"
 
+// Description:
+// Construct object to use input dimensions as sample dimensions,
+// and to conpute bounds automatically from input. Fill value is set
+// to large positive integer.
 vlTransformStructuredPoints::vlTransformStructuredPoints()
 {
   this->ModelBounds[0] = 0.0;
@@ -55,6 +57,8 @@ void vlTransformStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+// Description:
+// Define pre-transformed size of structured point set.
 void vlTransformStructuredPoints::SetModelBounds(float *bounds)
 {
   vlTransformStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);

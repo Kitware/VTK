@@ -13,9 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PolyToPolyFilter are filters that take PolyData in and generate PolyData
-//
+// .NAME vlPolyToPolyFilter - abstract filter class
+// .SECTION Description
+// vlPolyToPolyFilter is an abstract filter class whose subclasses take
+// as input polygonal data and generate polygonal data on output.
+
 #ifndef __vlPolyToPolyFilter_h
 #define __vlPolyToPolyFilter_h
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,11 +15,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlPointSetToPointSetFilter - abstract filter class 
 // .SECTION Description
-// vlPointSetToPointSetFilter is an abstract filter class that take as 
-// input a vlPointSet (or any subclass of vlPointSet) and generates on 
-// output a vlPointSet. The concrete subclasses of 
-// vlPointSetToPointSetFilter (at a minimum) modify their point
-// coordinates.
+// vlPointSetToPointSetFilter is an abstract filter class whose subclasses
+// take as input a point set and generates a point set on output.
+// At a minimum the concrete subclasses of vlPointSetToPointSetFilter
+// modify their point coordinates. They neve modify their topological form,
+// however.
 
 #ifndef __vlPointSetToPointSetFilter_h
 #define __vlPointSetToPointSetFilter_h

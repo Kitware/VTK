@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,10 +13,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// StructuredPointsToPolyDataFilter are filters that take 
-// StructuredPoints as input and generate PolyData data as output
-//
+// .NAME vlStructuredPointsToPolyDataFilter - abstract filter class
+// .SECTION Description
+// vlStructuredPointsToPolyDataFilter is an abstract filter class whose
+// subclasses take on input structured points and generate polygonal 
+// data on output.
+
 #ifndef __vlStructuredPointsToPolyDataFilter_h
 #define __vlStructuredPointsToPolyDataFilter_h
 
