@@ -137,3 +137,13 @@ void vtkObject::SetDebug(int debugFlag)
   this->Debug = debugFlag;
 }
 
+
+// Description:
+// This method is called when vtkErrorMacro executes. It allows 
+// the debugger to break on error.
+void vtkObject::BreakOnError()
+{
+}
+
+
+

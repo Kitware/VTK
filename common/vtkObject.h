@@ -80,6 +80,8 @@ public:
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
+  static void BreakOnError();
+  
 protected:
   int Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time

@@ -363,7 +363,7 @@ void Get##name (type data[count]) \
       vtkmsgbuff = vtkmsg.str(); \
       vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
       MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONERROR | MB_OK); \
-      delete vtkmsgbuff;}
+      delete vtkmsgbuff; vtkObject::BreakOnError();}
 
 #else
 //
@@ -385,7 +385,7 @@ void Get##name (type data[count]) \
 // vtkErrorMacro(<< "Error message" << variable);
 //
 #define vtkErrorMacro(x) \
-  cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+  {cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"; vtkObject::BreakOnError();}
 #endif
 
 //
