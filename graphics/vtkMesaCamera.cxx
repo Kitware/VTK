@@ -38,11 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
+// Make sure this is first, so any includes of gl.h can be stoped if needed
+#define VTK_IMPLEMENT_MESA_CXX
 
-#include "vtkRenderWindow.h"
-#include "vtkMesaRenderer.h"
+#include <math.h>
 #include "vtkMesaCamera.h"
+#include "vtkRenderWindow.h"
+#include "vtkMesaProperty.h"
+#include "vtkMesaCamera.h"
+#include "vtkMesaLight.h"
+#include "vtkRayCaster.h"
+#include "vtkCuller.h"
+
+
 
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
@@ -50,130 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #else
 #include "GL/gl.h"
 #endif
+// make sure this file is included before the #define takes place
+// so we don't get two vtkMesaCamera classes defined.
+#include "vtkOpenGLCamera.h"
+#include "vtkMesaCamera.h"
 
-
-// Implement base class method.
-void vtkMesaCamera::Render(vtkRenderer *ren)
-{
-  float aspect[2];
-  float *vport;
-  int  *size, lowerLeft[2], upperRight[2];
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-
-  // get the bounds of the window 
-  size = (ren->GetRenderWindow())->GetSize();
-  
-  // find out if we should stereo render
-  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
-  vport = ren->GetViewport();
-
-  lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(vport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(vport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
-
-  // if were on a stereo renderer draw to special parts of screen
-  if (this->Stereo)
-    {
-    switch ((ren->GetRenderWindow())->GetStereoType())
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-        if (this->LeftEye)
-          {
-          glDrawBuffer(GL_BACK_LEFT);
-          }
-        else
-          {
-          glDrawBuffer(GL_BACK_RIGHT);
-          }
-        break;
-      default:
-        break;
-      }
-    }
-  else
-    {
-    if (ren->GetRenderWindow()->GetDoubleBuffer())
-      {
-      glDrawBuffer(GL_BACK);
-      }
-    else
-      {
-      glDrawBuffer(GL_FRONT);
-      }
-    }
-  
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
-    
-  /* for stereo we have to fiddle with aspect */
-  if (this->Stereo)
-    {
-    switch ((ren->GetRenderWindow())->GetStereoType())
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-	  (float)(upperRight[1]-lowerLeft[1]+1);
-	aspect[1] = 1.0;
-	break;
-      default:
-	aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-	  (float)(upperRight[1]-lowerLeft[1]+1);
-	aspect[1] = 1.0;
-      }
-    }
-  else
-    {
-    aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-      (float)(upperRight[1]-lowerLeft[1]+1);
-    aspect[1] = 1.0;
-    }
-  
-  ren->SetAspect(aspect);
-
-  glMatrixMode( GL_PROJECTION);
-  matrix->DeepCopy(this->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],
-						       -1,1));
-  matrix->Transpose();
-  // insert camera view transformation 
-  glLoadMatrixd(matrix->Element[0]);
-
-  // since lookat modifies the model view matrix do a push 
-  // first and set the mmode.  This will be undone in the  
-  // render action after the actors! message sis sent      
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  matrix->DeepCopy(this->GetViewTransformMatrix());
-  matrix->Transpose();
-  
-  // insert camera view transformation 
-  glMultMatrixd(matrix->Element[0]);
-
-  if ((ren->GetRenderWindow())->GetErase()) 
-    {
-    ren->Clear();
-    }
-
-  // if we have a stereo renderer, draw other eye next time 
-  if (this->Stereo)
-    {
-    if (this->LeftEye)
-      {
-      this->LeftEye = 0;
-      }
-    else
-      {
-      this->LeftEye = 1;
-      }
-    }
-
-  matrix->Delete();
-}
+// Make sure vtkMesaCamera is a copy of vtkOpenGLCamera
+// with vtkOpenGLCamera replaced with vtkMesaCamera
+#define vtkOpenGLCamera vtkMesaCamera
+#include "vtkOpenGLCamera.cxx"
+#undef vtkOpenGLCamera

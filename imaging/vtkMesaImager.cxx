@@ -6,7 +6,8 @@
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,10 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// Make sure this is first, so any includes of gl.h can be stoped if needed
+#define VTK_IMPLEMENT_MESA_RENDERER
 
+#include <math.h>
 #include "vtkMesaImager.h"
-#include "vtkImageWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkMesaProperty.h"
+#include "vtkMesaCamera.h"
+#include "vtkMesaLight.h"
+#include "vtkRayCaster.h"
+#include "vtkCuller.h"
+
+
 
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
@@ -48,82 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #else
 #include "GL/gl.h"
 #endif
+// make sure this file is included before the #define takes place
+// so we don't get two vtkMesaImager classes defined.
+#include "vtkOpenGLImager.h"
+#include "vtkMesaImager.h"
 
-
-//------------------------------------------------------------------------------
-vtkMesaImager* vtkMesaImager::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaImager");
-  if(ret)
-    {
-    return (vtkMesaImager*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMesaImager;
-}
-
-
-
-
-int vtkMesaImager::RenderOpaqueGeometry()
-{
-  int *size, lowerLeft[2], upperRight[2];
-
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
-
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
-
-  // we will set this for all modes on the sparc
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
-  return vtkImager::RenderOpaqueGeometry();
-}
-
-void vtkMesaImager::Erase()
-{
-  int *size, lowerLeft[2], upperRight[2];
-
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
-
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
-
-  // we will set this for all modes on the sparc
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
-
-  glClearColor( ((GLclampf)(this->Background[0])),
-                ((GLclampf)(this->Background[1])),
-                ((GLclampf)(this->Background[2])),
-                ((GLclampf)(1.0)) );
-
-  vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
-}
-
+// Make sure vtkMesaImager is a copy of vtkOpenGLImager
+// with vtkOpenGLImager replaced with vtkMesaImager
+#define vtkOpenGLImager vtkMesaImager
+#include "vtkOpenGLImager.cxx"
+#undef vtkOpenGLImager

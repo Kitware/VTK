@@ -43,7 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLActor.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 
 

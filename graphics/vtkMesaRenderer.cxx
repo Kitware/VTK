@@ -38,6 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// Make sure this is first, so any includes of gl.h can be stoped if needed
+#define VTK_IMPLEMENT_MESA_RENDERER
+
 #include <math.h>
 #include "vtkMesaRenderer.h"
 #include "vtkRenderWindow.h"
@@ -47,224 +50,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRayCaster.h"
 #include "vtkCuller.h"
 
+
+
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
 #include "mesagl.h"
 #else
 #include "GL/gl.h"
 #endif
+// make sure this file is included before the #define takes place
+// so we don't get two vtkMesaRenderer classes defined.
+#include "vtkOpenGLRenderer.h"
+#include "vtkMesaRenderer.h"
 
-
-#define VTK_MAX_LIGHTS 8
-
-vtkMesaRenderer::vtkMesaRenderer()
-{
-  this->NumberOfLightsBound = 0;
-}
-
-// Internal method temporarily removes lights before reloading them
-// into graphics pipeline.
-void vtkMesaRenderer::ClearLights (void)
-{
-  short curLight;
-  float Info[4];
-
-  // define a lighting model and set up the ambient light.
-  // use index 11 for the heck of it. Doesn't matter except for 0.
-   
-  // update the ambient light 
-  Info[0] = this->Ambient[0];
-  Info[1] = this->Ambient[1];
-  Info[2] = this->Ambient[2];
-  Info[3] = 1.0;
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Info);
-
-  if ( this->TwoSidedLighting )
-    {
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-    }
-  else
-    {
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
-    }
-
-  // now delete all the old lights 
-  for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + VTK_MAX_LIGHTS; curLight++)
-    {
-    glDisable((GLenum)curLight);
-    }
-
-  this->NumberOfLightsBound = 0;
-}
-
-// Ask lights to load themselves into graphics pipeline.
-int vtkMesaRenderer::UpdateLights ()
-{
-  vtkLight *light;
-  short curLight;
-  float status;
-  int count;
-
-  // Check if a light is on. If not then make a new light.
-  count = 0;
-  curLight= this->NumberOfLightsBound + GL_LIGHT0;
-
-  for(this->Lights->InitTraversal(); 
-      (light = this->Lights->GetNextItem()); )
-    {
-    status = light->GetSwitch();
-    if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
-      {
-      curLight++;
-      count++;
-      }
-    }
-
-  if( !count )
-    {
-    vtkDebugMacro(<<"No lights are on, creating one.");
-    this->CreateLight();
-    }
-
-  count = 0;
-  curLight= this->NumberOfLightsBound + GL_LIGHT0;
-
-  // set the matrix mode for lighting. ident matrix on viewing stack  
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  for(this->Lights->InitTraversal(); 
-      (light = this->Lights->GetNextItem()); )
-    {
-
-    status = light->GetSwitch();
-
-    // if the light is on then define it and bind it. 
-    // also make sure we still have room.             
-    if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
-      {
-      light->Render((vtkRenderer *)this,curLight);
-      glEnable((GLenum)curLight);
-      // increment the current light by one 
-      curLight++;
-      count++;
-      }
-    }
-  
-  this->NumberOfLightsBound = curLight - GL_LIGHT0;
-  
-  glPopMatrix();
-  glEnable(GL_LIGHTING);
-  return count;
-}
-
-// Concrete open gl render method.
-void vtkMesaRenderer::DeviceRender(void)
-{
-  float  scaleFactor;
-  float  saved_viewport[4];
-  float  new_viewport[4];
-  int    saved_erase;
-
-  scaleFactor = 1.0;
-
-  // If there is a volume renderer, get its desired viewport size
-  // since it may want to render actors into a smaller area for multires
-  // rendering during motion
-  if ( ( this->NumberOfPropsToRayCast + 
-	 this->NumberOfPropsToRenderIntoImage ) > 0 )
-    {
-    // Get the scale factor 
-    scaleFactor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this );
-    
-    // If the volume renderer wants a different resolution than this
-    // renderer was going to produce we need to set up the viewport
-    if ( scaleFactor != 1.0 )
-      {
-      // Get the current viewport 
-      this->GetViewport( saved_viewport );
-      
-      // Create a new viewport size based on the scale factor
-      new_viewport[0] = saved_viewport[0];
-      new_viewport[1] = saved_viewport[1];
-      new_viewport[2] = saved_viewport[0] + 
-	scaleFactor * ( saved_viewport[2] - saved_viewport[0] );
-      new_viewport[3] = saved_viewport[1] + 
-	scaleFactor * ( saved_viewport[3] - saved_viewport[1] );
-      
-      // Set this as the new viewport.  This will cause the Mesa
-      // viewport to be set correctly in the camera render method
-      this->SetViewport( new_viewport );
-      }
-    }
-
-  // standard render method 
-  this->ClearLights();
-
-  this->UpdateCamera();
-  this->UpdateLights();
-
-  // set matrix mode for actors 
-  glMatrixMode(GL_MODELVIEW);
-
-  this->UpdateGeometry();
-
-  // If we are rendering with a reduced size image for the volume
-  // rendering, then we need to reset the viewport so that the
-  // volume renderer can access the whole window to draw the image.
-  // We'll pop off what we've done so far, then we'll save the state
-  // of the erase variable in the render window. We will then set the
-  // erase variable in the render window to 0, and render the camera
-  // again.  This will set our viewport back to the right size.
-  // Finally, we restore the erase variable in the render window
-  if ( scaleFactor != 1.0 )
-    {
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    saved_erase = this->RenderWindow->GetErase();
-    this->RenderWindow->SetErase( 0 );
-    this->SetViewport( saved_viewport );
-    this->ActiveCamera->Render( (vtkRenderer *)this );
-    this->RenderWindow->SetErase( saved_erase );
-    }
-
-  // Let the ray caster do its thing - this will both update
-  // props that are rendered using ray casting, and props that
-  // are rendered into an image. The final image is merges with the
-  // results of the geometry rendering, and then placed up on the
-  // screen.
-  if ( ( this->NumberOfPropsToRayCast + 
-	 this->NumberOfPropsToRenderIntoImage ) > 0 )
-    {
-    this->RayCaster->Render( (vtkRenderer *)this,
-			     this->NumberOfPropsToRayCast,
-			     this->RayCastPropArray,
-			     this->NumberOfPropsToRenderIntoImage,
-			     this->RenderIntoImagePropArray );
-    }
-
-  // clean up the model view matrix set up by the camera 
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-}
-
-void vtkMesaRenderer::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->vtkRenderer::PrintSelf(os,indent);
-
-  os << indent << "Number Of Lights Bound: " << 
-    this->NumberOfLightsBound << "\n";
-}
-
-void vtkMesaRenderer::Clear(void)
-{
-  glClearColor( ((GLclampf)(this->Background[0])),
-                ((GLclampf)(this->Background[1])),
-                ((GLclampf)(this->Background[2])),
-                ((GLclampf)(1.0)) );
-
-  glClearDepth( (GLclampd)( 1.0 ) );
-  vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-}
-
+// Make sure vtkMesaRenderer is a copy of vtkOpenGLRenderer
+// with vtkOpenGLRenderer replaced with vtkMesaRenderer
+#define vtkOpenGLRenderer vtkMesaRenderer
+#include "vtkOpenGLRenderer.cxx"
+#undef vtkOpenGLRenderer

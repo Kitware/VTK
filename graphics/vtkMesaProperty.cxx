@@ -38,9 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// Make sure this is first, so any includes of gl.h can be stoped if needed
+#define VTK_IMPLEMENT_MESA_CXX
+
 #include <math.h>
-#include "vtkMesaRenderer.h"
+#include "vtkMesaMesaProperty.h"
+#include "vtkRenderWindow.h"
 #include "vtkMesaProperty.h"
+#include "vtkMesaCamera.h"
+#include "vtkMesaLight.h"
+#include "vtkRayCaster.h"
+#include "vtkCuller.h"
+
+
 
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
@@ -48,127 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #else
 #include "GL/gl.h"
 #endif
+// make sure this file is included before the #define takes place
+// so we don't get two vtkMesaMesaProperty classes defined.
+#include "vtkOpenGLMesaProperty.h"
+#include "vtkMesaMesaProperty.h"
 
-// Implement base class method.
-void vtkMesaProperty::Render(vtkActor *vtkNotUsed(anActor),
-			     vtkRenderer *vtkNotUsed(ren))
-{
-  int i;
-  GLenum method;
-  float Info[4];
-  GLenum Face;
-  float  color[4];
-
-  // unbind any textures for starters
-  glDisable(GL_TEXTURE_2D);
-
-  // disable alpha testing (this may have been enabled
-  // by another actor in MesaTexture)
-  glDisable (GL_ALPHA_TEST);
-
-  glDisable(GL_COLOR_MATERIAL);
-
-  Face = GL_FRONT_AND_BACK;
-  // turn on/off backface culling
-  if ( ! this->BackfaceCulling && ! this->FrontfaceCulling)
-    {
-    glDisable (GL_CULL_FACE);
-    }
-  else if ( this->BackfaceCulling)
-    {
-    glCullFace (GL_BACK);
-    glEnable (GL_CULL_FACE);
-    }
-  else //if both front & back culling on, will fall into backface culling
-    { //if you really want both front and back, use the Actor's visibility flag
-    glCullFace (GL_FRONT);
-    glEnable (GL_CULL_FACE);
-    }
-
-  Info[3] = this->Opacity;
-
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Ambient*this->AmbientColor[i];
-    }
-  glMaterialfv( Face, GL_AMBIENT, Info );
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Diffuse*this->DiffuseColor[i];
-    }
-  glMaterialfv( Face, GL_DIFFUSE, Info );
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Specular*this->SpecularColor[i];
-    }
-  glMaterialfv( Face, GL_SPECULAR, Info );
-
-  Info[0] = this->SpecularPower;
-  glMaterialfv( Face, GL_SHININESS, Info );
-
-  // set interpolation 
-  switch (this->Interpolation) 
-    {
-    case VTK_FLAT:
-      method = GL_FLAT;
-      break;
-    case VTK_GOURAUD:
-    case VTK_PHONG:
-      method = GL_SMOOTH;
-      break;
-    default:
-      method = GL_SMOOTH;
-      break;
-    }
-  
-  glShadeModel(method);
-
-  // The material properties set above are used if shading is
-  // enabled. This color set here is used if shading is 
-  // disabled. Shading is disabled in the 
-  // vtkMesaPolyDataMapper::Draw() method if points or lines
-  // are encountered without normals. 
-  this->GetColor( color );
-  color[3] = 1.0;
-  glColor4fv( color );
-
-  // Set the PointSize
-  glPointSize (this->PointSize);
-
-  // Set the LineWidth
-  glLineWidth (this->LineWidth);
-}
-
-// Implement base class method.
-void vtkMesaProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
-			     vtkRenderer *vtkNotUsed(ren))
-{
-  int i;
-  float Info[4];
-  GLenum Face;
-
-  Face = GL_BACK;
-
-  Info[3] = this->Opacity;
-
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Ambient*this->AmbientColor[i];
-    }
-  glMaterialfv( Face, GL_AMBIENT, Info );
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Diffuse*this->DiffuseColor[i];
-    }
-  glMaterialfv( Face, GL_DIFFUSE, Info );
-  for (i=0; i < 3; i++) 
-    {
-    Info[i] = this->Specular*this->SpecularColor[i];
-    }
-  glMaterialfv( Face, GL_SPECULAR, Info );
-
-  Info[0] = this->SpecularPower;
-  glMaterialfv( Face, GL_SHININESS, Info );
-
-}
-
+// Make sure vtkMesaMesaProperty is a copy of vtkOpenGLMesaProperty
+// with vtkOpenGLMesaProperty replaced with vtkMesaMesaProperty
+#define vtkOpenGLMesaProperty vtkMesaMesaProperty
+#include "vtkOpenGLMesaProperty.cxx"
+#undef vtkOpenGLMesaProperty

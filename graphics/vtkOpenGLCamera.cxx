@@ -43,7 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLCamera.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 #include "vtkgluPickMatrix.h"

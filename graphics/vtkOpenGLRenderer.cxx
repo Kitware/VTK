@@ -46,7 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLLight.h"
 #include "vtkRayCaster.h"
 #include "vtkCuller.h"
+
+// if this .cxx file is being used to implement
+// the mesa renderer, then do not include GL/gl.h
+// because with the mesa renderer we need to include
+// mesagl.h instead
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 
 class vtkGLPickInfo

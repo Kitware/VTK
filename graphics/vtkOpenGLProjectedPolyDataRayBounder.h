@@ -58,8 +58,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkPolyData.h"
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 
 class vtkWindow;
 

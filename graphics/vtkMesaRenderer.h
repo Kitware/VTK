@@ -38,10 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkMesaRenderer - Mesa renderer
+// .NAME vtkMesaRenderer - OpenGL renderer
 // .SECTION Description
 // vtkMesaRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkMesaRenderer interfaces to the Mesa graphics library.
+// vtkRenderer. vtkMesaRenderer interfaces to the mesa graphics library.
+// This file is created, by a copy of vtkOpenGLRenderer
 
 #ifndef __vtkMesaRenderer_h
 #define __vtkMesaRenderer_h
@@ -55,7 +56,7 @@ protected:
   int NumberOfLightsBound;
 
 public:
-  static vtkMesaRenderer *New() {return new vtkMesaRenderer;};
+  static vtkMesaRenderer *New();
   const char *GetClassName() {return "vtkMesaRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -76,20 +77,22 @@ public:
   
 protected:
   vtkMesaRenderer();
-  ~vtkMesaRenderer() {};
+  ~vtkMesaRenderer();
   vtkMesaRenderer(const vtkMesaRenderer&) {};
   void operator=(const vtkMesaRenderer&) {};
+
   //BTX
   // Picking functions to be implemented by sub-classes
-  // Stubs for now, until this gets fixed right
-  virtual void DevicePickRender(){};
-  virtual void StartPick(unsigned int pickFromSize){};
-  virtual void SetPickId(unsigned int pickID){};
-  virtual void DonePick(){};
-  virtual unsigned int GetPickedID(){return 0;};
-  virtual float GetPickedZ(){return 0;};
+  virtual void DevicePickRender();
+  virtual void StartPick(unsigned int pickFromSize);
+  virtual void SetPickId(unsigned int pickID);
+  virtual void DonePick();
+  virtual unsigned int GetPickedID();
+  virtual float GetPickedZ();
+  // Ivars used in picking
+  class vtkGLPickInfo* PickInfo;
   //ETX
-
+  float PickedZ;
 };
 
 #endif

@@ -50,8 +50,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkIdList.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include "GL/gl.h"
 #include "GL/glu.h"
+#endif
 #include "vtkObjectFactory.h"
 
 

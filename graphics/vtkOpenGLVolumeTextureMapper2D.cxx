@@ -42,8 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMatrix4x4.h"
 #include "vtkVolume.h"
 #include "vtkTimerLog.h"
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 
 

@@ -38,11 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// Make sure this is first, so any includes of gl.h can be stoped if needed
+#define VTK_IMPLEMENT_MESA_CXX
+
 #include <math.h>
-
-
-#include "vtkMesaRenderer.h"
 #include "vtkMesaActor.h"
+#include "vtkRenderWindow.h"
+#include "vtkMesaProperty.h"
+#include "vtkMesaCamera.h"
+#include "vtkMesaLight.h"
+#include "vtkRayCaster.h"
+#include "vtkCuller.h"
+
+
 
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
@@ -50,44 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #else
 #include "GL/gl.h"
 #endif
+// make sure this file is included before the #define takes place
+// so we don't get two vtkMesaActor classes defined.
+#include "vtkOpenGLActor.h"
+#include "vtkMesaActor.h"
 
-// Actual actor render method.
-void vtkMesaActor::Render(vtkRenderer *ren, vtkMapper *mapper)
-{
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float opacity;
-
-  // get opacity
-  opacity = this->GetProperty()->GetOpacity();
-  if (opacity == 1.0)
-    {
-    glDepthMask (GL_TRUE);
-    }
-  else
-    {
-    glDepthMask (GL_FALSE);
-    }
-
-  // build transformation 
-  this->GetMatrix(matrix);
-  matrix->Transpose();
-
-  // insert model transformation 
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glMultMatrixd(matrix->Element[0]);
-
-  // send a render to the mapper; update pipeline
-  mapper->Render(ren,this);
-
-  // pop transformation matrix
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-  if (opacity != 1.0)
-    {
-    glDepthMask (GL_TRUE);
-    }
-  matrix->Delete();
-}
-
+// Make sure vtkMesaActor is a copy of vtkOpenGLActor
+// with vtkOpenGLActor replaced with vtkMesaActor
+#define vtkOpenGLActor vtkMesaActor
+#include "vtkOpenGLActor.cxx"
+#undef vtkOpenGLActor

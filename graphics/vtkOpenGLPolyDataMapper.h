@@ -49,7 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyDataMapper.h"
 #include <stdlib.h>
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 
 class vtkProperty;
 class vtkRenderWindow;
