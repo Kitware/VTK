@@ -117,9 +117,9 @@ public:
   // to get it. The returned property will be NULL if the id is not valid,
   // or the property is of the wrong type for the corresponding Prop3D.
   void SetLODProperty( int id, vtkProperty  *p );
-  void GetLODProperty( int id, vtkProperty  *p );
+  void GetLODProperty( int id, vtkProperty  **p );
   void SetLODProperty( int id, vtkVolumeProperty  *p );
-  void GetLODProperty( int id, vtkVolumeProperty  *p );
+  void GetLODProperty( int id, vtkVolumeProperty  **p );
 
   // Description:
   // Methods to set / get the mapper of an LOD. Since the LOD could be
@@ -127,15 +127,15 @@ public:
   // to get it. The returned mapper will be NULL if the id is not valid,
   // or the mapper is of the wrong type for the corresponding Prop3D.
   void SetLODMapper( int id, vtkMapper  *m );
-  void GetLODMapper( int id, vtkMapper  *m );
+  void GetLODMapper( int id, vtkMapper  **m );
   void SetLODMapper( int id, vtkVolumeMapper  *m );
-  void GetLODMapper( int id, vtkVolumeMapper  *m );
+  void GetLODMapper( int id, vtkVolumeMapper  **m );
 
   // Description:
   // Methods to set / get the texture of an LOD. This method is only
   // valid for LOD ids that are Actors (not Volumes)
   void SetLODTexture( int id, vtkTexture *t );
-  void GetLODTexture( int id, vtkTexture *t );
+  void GetLODTexture( int id, vtkTexture **t );
 
   // Description:
   // Access method that can be used to find out the estimated render time

@@ -377,7 +377,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
 }
 
 // Get the mapper for an LOD that is an actor
-void vtkLODProp3D::GetLODMapper( int id, vtkMapper *m )
+void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -392,7 +392,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkMapper *m )
     return;
     }
 
-  m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
+  *m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
 }
 
 // Set the mapper for an LOD that is a volume
@@ -415,7 +415,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkVolumeMapper *m )
 }
 
 // Get the mapper for an LOD that is an actor
-void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper *m )
+void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper **m )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -430,7 +430,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper *m )
     return;
     }
 
-  m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
+  *m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
 }
 
 // Set the property for an LOD that is an actor
@@ -453,7 +453,7 @@ void vtkLODProp3D::SetLODProperty( int id, vtkProperty *p )
 }
 
 // Get the property for an LOD that is an actor
-void vtkLODProp3D::GetLODProperty( int id, vtkProperty *p )
+void vtkLODProp3D::GetLODProperty( int id, vtkProperty **p )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -468,7 +468,7 @@ void vtkLODProp3D::GetLODProperty( int id, vtkProperty *p )
     return;
     }
 
-  p = ((vtkActor *)this->LODs[index].Prop3D)->GetProperty();
+  *p = ((vtkActor *)this->LODs[index].Prop3D)->GetProperty();
 }
 
 // Set the property for an LOD that is a volume
@@ -491,7 +491,7 @@ void vtkLODProp3D::SetLODProperty( int id, vtkVolumeProperty *p )
 }
 
 // Get the property for an LOD that is an actor
-void vtkLODProp3D::GetLODProperty( int id, vtkVolumeProperty *p )
+void vtkLODProp3D::GetLODProperty( int id, vtkVolumeProperty **p )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -506,7 +506,7 @@ void vtkLODProp3D::GetLODProperty( int id, vtkVolumeProperty *p )
     return;
     }
 
-  p = ((vtkVolume *)this->LODs[index].Prop3D)->GetProperty();
+  *p = ((vtkVolume *)this->LODs[index].Prop3D)->GetProperty();
 }
 
 // Set the texture for an LOD that is an actor
@@ -529,7 +529,7 @@ void vtkLODProp3D::SetLODTexture( int id, vtkTexture *t )
 }
 
 // Get the texture for an LOD that is an actor
-void vtkLODProp3D::GetLODTexture( int id, vtkTexture *t )
+void vtkLODProp3D::GetLODTexture( int id, vtkTexture **t )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -544,7 +544,7 @@ void vtkLODProp3D::GetLODTexture( int id, vtkTexture *t )
     return;
     }
 
-  t = ((vtkActor *)this->LODs[index].Prop3D)->GetTexture();
+  *t = ((vtkActor *)this->LODs[index].Prop3D)->GetTexture();
 }
 
 // Release any graphics resources that any of the LODs might be using
