@@ -134,6 +134,37 @@ public:
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
   Widget GetWidget() {return this->top;};
+
+  // Description
+  // This method will store the top level shell widget for the interactor.
+  // This method and the method invocation sequence applies for:
+  //     1 vtkRenderWindow-Interactor pair in a nested widget heirarchy
+  //     multiple vtkRenderWindow-Interactor pairs in the same top level shell
+  // It is not needed for
+  //     1 vtkRenderWindow-Interactor pair as the direct child of a top level shell
+  //     multiple vtkRenderWindow-Interactor pairs, each in its own top level shell
+  //
+  // The method, along with EnterNotify event, changes the keyboard focus among
+  // the widgets/vtkRenderWindow(s) so the Interactor(s) can receive the proper
+  // keyboard events. The following calls need to be made:
+  //     vtkRenderWindow's display ID need to be set to the top level shell's
+  //           display ID.
+  //     vtkXRenderWindowInteractor's Widget has to be set to the vtkRenderWindow's
+  //           container widget
+  //     vtkXRenderWindowInteractor's TopLevel has to be set to the top level
+  //           shell widget
+  // note that the procedure for setting up render window in a widget needs to
+  // be followed.  See vtkRenderWindowInteractor's SetWidget method.
+  //
+  // If multiple vtkRenderWindow-Interactor pairs in SEPARATE windows are desired,
+  // do not set the display ID (Interactor will create them as needed.  Alternatively,
+  // create and set distinct DisplayID for each vtkRenderWindow. Using the same
+  // display ID without setting the parent widgets will cause the display to be
+  // reinitialized every time an interactor is initialized), do not set the
+  // widgets (so the render windows would be in their own windows), and do
+  // not set TopLevelShell (each has its own top level shell already)
+  virtual void SetTopLevelShell(Widget);
+  Widget GetTopLevelShell() {return this->TopLevelShell;};
   
   // Description:
   // Functions that are used internally.
@@ -148,6 +179,7 @@ protected:
   Widget oldTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
+  Widget TopLevelShell;
 
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
 			  XtTimerCallbackProc proc, XtPointer client_data) ;
