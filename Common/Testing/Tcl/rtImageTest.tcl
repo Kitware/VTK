@@ -206,12 +206,12 @@ if {$validImageFound != 0} {
 
 	       # write out the image that was generated
 	       rt_shrink SetInput [rt_id GetInput]
-	       rt_pngw_dashboard SetFileName $validImage.small.png
+	       rt_pngw_dashboard SetFileName $validImage.test.small.png
 	       rt_pngw_dashboard Write
 
 	       # write out the valid image that matched
 	       rt_shrink SetInput [rt_id GetImage]
-	       rt_pngw_dashboard SetFileName $validImage.test.small.png
+	       rt_pngw_dashboard SetFileName $validImage.small.png
 	       rt_pngw_dashboard Write
 
 	   }
