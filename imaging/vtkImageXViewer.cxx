@@ -177,8 +177,8 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   visualDepth = self->GetVisualDepth();
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
-  lower = -shift;
-  upper = lower + colorsMax/scale;
+  lower = (T)(-shift);
+  upper = (T)(lower + colorsMax/scale);
   
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
@@ -211,7 +211,7 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 	  }
 	else
 	  {
-	  colorIdx = ((*inPtr0 - lower) * scale);
+	  colorIdx = (int)((*inPtr0 - lower) * scale);
 	  *outPtr++ = colorIdx;
 	  *outPtr++ = colorIdx;
 	  *outPtr++ = colorIdx;
@@ -239,7 +239,7 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 	  }
 	else
 	  {
-	  colorIdx = ((*inPtr0 - lower) * scale);
+	  colorIdx = (int)((*inPtr0 - lower) * scale);
 	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
 	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
 	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
@@ -262,7 +262,7 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 	  }
 	else
 	  {
-	  colorIdx = ((*inPtr0 - lower) * scale);
+	  colorIdx = (int)((*inPtr0 - lower) * scale);
 	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
 	  }
 	inPtr0 += inInc0;
@@ -349,22 +349,12 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
   void *ptr0, *ptr1, *ptr2;
   int extent[6];
   
-  // Compute the displayed size
-  region->GetExtent(3, extent);
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
-
   if ( ! region)
     {
     // open the window anyhow if not yet open
     // use default size if not specified
     if (!this->WindowId)
       {
-      if (this->Size[0] == 0 )
-	{
-	this->Size[0] = width;
-	this->Size[1] = height;
-	}
       if (this->Size[0] == 0 )
 	{
 	this->Size[0] = 256;
@@ -375,6 +365,11 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
       }
     return;
     }
+
+  // Compute the displayed size
+  region->GetExtent(3, extent);
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
 
   // In case a window has not been set.
   if ( ! this->WindowId)

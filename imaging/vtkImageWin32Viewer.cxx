@@ -407,11 +407,6 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
   HDC compatDC;
   HBITMAP hOldBitmap;
 
-  // Determine the size of the displayed region.
-  region->GetExtent(3, extent);
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
-
   if ( ! region)
     {
     // open the window anyhow if one has not been set.
@@ -428,6 +423,11 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
     return;
     }
   
+  // Determine the size of the displayed region.
+  region->GetExtent(3, extent);
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
+
   // In case a window has not been set.
   if (!this->DeviceContext)
     {
