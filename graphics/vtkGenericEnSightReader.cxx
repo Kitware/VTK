@@ -759,6 +759,8 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CaseFileName: "
      << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;
+  os << indent << "FilePath: "
+     << (this->FilePath ? this->FilePath : "(none)") << endl;
   os << indent << "NumberOfComplexScalarsPerNode: "
      << this->NumberOfComplexScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerElement :"
