@@ -151,6 +151,9 @@ public:
 
 protected:
   vtkSimpleCriticalSection   SimpleCriticalSection;
+  vtkCriticalSection() {};
+  vtkCriticalSection(const vtkCriticalSection&);
+  void operator=(const vtkCriticalSection&);
 };
 
 

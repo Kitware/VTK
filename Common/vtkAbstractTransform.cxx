@@ -395,6 +395,10 @@ public:
     return new vtkSimpleTransform; };
   vtkAbstractTransform *MakeTransform() { return vtkSimpleTransform::New(); };
   void Inverse() { this->Matrix->Invert(); this->Modified(); };
+protected:
+  vtkSimpleTransform() {};
+  vtkSimpleTransform(const vtkSimpleTransform&);
+  void operator=(const vtkSimpleTransform&);
 };
 
 //----------------------------------------------------------------------------
