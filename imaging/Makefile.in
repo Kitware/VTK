@@ -63,7 +63,6 @@ vtkImageT2MedianFilter.o \
 vtkImageT2TestFilter.o \
 vtkImageThresholdFilter.o \
 vtkImageUpperThresholdFilter.o \
-vtkImageVolumeShortReader.o \
 vtkImageVolumeShortWriter.o \
 vtkImageXViewer.o 
 
@@ -121,7 +120,6 @@ tcl/vtkImageT2MedianFilterTcl.o \
 tcl/vtkImageT2TestFilterTcl.o \
 tcl/vtkImageThresholdFilterTcl.o \
 tcl/vtkImageUpperThresholdFilterTcl.o \
-tcl/vtkImageVolumeShortReaderTcl.o \
 tcl/vtkImageVolumeShortWriterTcl.o \
 tcl/vtkImageXViewerTcl.o 
 
@@ -179,7 +177,6 @@ vtkImageT2MedianFilter.h \
 vtkImageT2TestFilter.h \
 vtkImageThresholdFilter.h \
 vtkImageUpperThresholdFilter.h \
-vtkImageVolumeShortReader.h \
 vtkImageVolumeShortWriter.h \
 vtkImageXViewer.h 
 
@@ -393,9 +390,6 @@ tcl/vtkImageThresholdFilterTcl.cxx: vtkImageThresholdFilter.h ../tcl/cpp_parse
 
 tcl/vtkImageUpperThresholdFilterTcl.cxx: vtkImageUpperThresholdFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageUpperThresholdFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageUpperThresholdFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageUpperThresholdFilterTcl.cxx
-
-tcl/vtkImageVolumeShortReaderTcl.cxx: vtkImageVolumeShortReader.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageVolumeShortReaderTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageVolumeShortReader.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageVolumeShortReaderTcl.cxx
 
 tcl/vtkImageVolumeShortWriterTcl.cxx: vtkImageVolumeShortWriter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageVolumeShortWriterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageVolumeShortWriter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageVolumeShortWriterTcl.cxx

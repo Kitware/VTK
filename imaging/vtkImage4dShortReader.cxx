@@ -187,7 +187,7 @@ void vtkImage4dShortReader::Initialize()
   this->File->close();
   delete this->File;
   this->File = NULL;
-  this->Initialized;
+  this->Initialized = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -453,8 +453,9 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
 void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
 {
   void *ptr;
-  int image = region->GetDefaultCoordinate2();
-  int component = region->GetDefaultCoordinate3();
+  int *bounds = region->GetBounds();
+  int image = bounds[4];
+  int component = bounds[6];
   // Note: reverse the order of component axis and Z axis
   int fileNumber = image * this->Dimensions[3] + component + this->First;
 

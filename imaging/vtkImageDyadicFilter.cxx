@@ -334,18 +334,16 @@ void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate4, min4, max4;
-  int *inBounds1, *inBounds2, *outBounds;
+  int inBounds[10], outBounds[10];
   
   // Get the bounds of the forth dimension to be eliminated.
-  inBounds1 = inRegion1->GetBounds5d();
-  inBounds2 = inRegion2->GetBounds5d();
-  outBounds = outRegion->GetBounds5d();
+  inRegion1->GetBounds5d(inBounds);
+  outRegion->GetBounds5d(outBounds);
 
   // This method assumes that the fifth axis of in and out have same bounds.
   min4 = outBounds[8];
   max4 = outBounds[9];
-  if (min4 != inBounds1[8] || max4 != inBounds1[9] ||
-      min4 != inBounds2[8] || max4 != inBounds2[9]) 
+  if (min4 != inBounds[8] || max4 != inBounds[9])
     {
     vtkErrorMacro(<< "Execute5d: Cannot break 5d images into 4d images.");
     return;
@@ -355,11 +353,24 @@ void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
   for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
     {
     // set up the 4d regions.
-    inRegion1->SetDefaultCoordinate4(coordinate4);
-    inRegion1->SetDefaultCoordinate4(coordinate4);
-    outRegion->SetDefaultCoordinate4(coordinate4);
+    inBounds[8] = coordinate4;
+    inBounds[9] = coordinate4;
+    inRegion1->SetBounds5d(inBounds);
+    inRegion2->SetBounds5d(inBounds);
+    outBounds[8] = coordinate4;
+    outBounds[9] = coordinate4;
+    outRegion->SetBounds5d(outBounds);
+    // set up the 4d regions.
     this->Execute4d(inRegion1, inRegion2, outRegion);
     }
+  // restore the original bounds
+  inBounds[8] = min4;
+  inBounds[9] = max4;
+  outBounds[8] = min4;
+  outBounds[9] = max4; 
+  inRegion1->SetBounds5d(inBounds);
+  inRegion2->SetBounds5d(inBounds);
+  outRegion->SetBounds5d(outBounds);
 }
   
   
@@ -375,18 +386,16 @@ void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate3, min3, max3;
-  int *inBounds1, *inBounds2, *outBounds;
+  int inBounds[8], outBounds[8];
   
   // Get the bounds of the third dimension to be eliminated.
-  inBounds1 = inRegion1->GetBounds4d();
-  inBounds2 = inRegion2->GetBounds4d();
-  outBounds = outRegion->GetBounds4d();
+  inRegion1->GetBounds4d(inBounds);
+  outRegion->GetBounds4d(outBounds);
 
   // This method assumes that the third axis of in and out have same bounds.
   min3 = outBounds[6];
   max3 = outBounds[7];
-  if (min3 != inBounds1[6] || max3 != inBounds1[7] ||
-      min3 != inBounds2[6] || max3 != inBounds2[7])
+  if (min3 != inBounds[6] || max3 != inBounds[7])
     {
     vtkErrorMacro(<< "Execute4d: Cannot break 4d images into volumes.");
     return;
@@ -396,11 +405,24 @@ void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1,
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
     // set up the 3d regions.
-    inRegion1->SetDefaultCoordinate3(coordinate3);
-    inRegion1->SetDefaultCoordinate3(coordinate3);
-    outRegion->SetDefaultCoordinate3(coordinate3);
+    // set up the 3d regions.
+    inBounds[6] = coordinate3;
+    inBounds[7] = coordinate3;
+    inRegion1->SetBounds4d(inBounds);
+    inRegion2->SetBounds4d(inBounds);
+    outBounds[6] = coordinate3;
+    outBounds[7] = coordinate3;
+    outRegion->SetBounds4d(outBounds);
     this->Execute3d(inRegion1, inRegion2, outRegion);
     }
+  // restore the original bounds
+  inBounds[6] = min3;
+  inBounds[7] = max3;
+  outBounds[6] = min3;
+  outBounds[7] = max3; 
+  inRegion1->SetBounds4d(inBounds);
+  inRegion1->SetBounds4d(inBounds);
+  outRegion->SetBounds4d(outBounds);  
 }
   
   
@@ -416,18 +438,16 @@ void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate2, min2, max2;
-  int *inBounds1, *inBounds2, *outBounds;
+  int inBounds[6], outBounds[6];
   
   // Get the bounds of the third dimension to be eliminated.
-  inBounds1 = inRegion1->GetBounds3d();
-  inBounds2 = inRegion2->GetBounds3d();
-  outBounds = outRegion->GetBounds3d();
+  inRegion1->GetBounds3d(inBounds);
+  outRegion->GetBounds3d(outBounds);
 
   // This method assumes that the third axis of in and out have same bounds.
   min2 = outBounds[4];
   max2 = outBounds[5];
-  if (min2 != inBounds1[4] || max2 != inBounds1[5] ||
-      min2 != inBounds2[4] || max2 != inBounds2[5]) 
+  if (min2 != inBounds[4] || max2 != inBounds[5])
     {
     vtkErrorMacro(<< "Execute3d: Cannot break volumes into images.");
     return;
@@ -437,11 +457,23 @@ void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1,
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
     // set up the 2d regions.
-    inRegion1->SetDefaultCoordinate2(coordinate2);
-    inRegion2->SetDefaultCoordinate2(coordinate2);
-    outRegion->SetDefaultCoordinate2(coordinate2);
+    inBounds[4] = coordinate2;
+    inBounds[5] = coordinate2;
+    inRegion1->SetBounds3d(inBounds);
+    inRegion2->SetBounds3d(inBounds);
+    outBounds[4] = coordinate2;
+    outBounds[5] = coordinate2;
+    outRegion->SetBounds3d(outBounds);
     this->Execute2d(inRegion1, inRegion2, outRegion);
     }
+  // restore the original bounds
+  inBounds[4] = min2;
+  inBounds[5] = max2;
+  outBounds[4] = min2;
+  outBounds[5] = max2; 
+  inRegion1->SetBounds3d(inBounds);
+  inRegion2->SetBounds3d(inBounds);
+  outRegion->SetBounds3d(outBounds);
 }
   
   
@@ -457,18 +489,16 @@ void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate1, min1, max1;
-  int *inBounds1, *inBounds2, *outBounds;
+  int inBounds[4], outBounds[4];
   
   // Get the bounds of the third dimension to be eliminated.
-  inBounds1 = inRegion1->GetBounds2d();
-  inBounds2 = inRegion2->GetBounds2d();
-  outBounds = outRegion->GetBounds2d();
+  inRegion1->GetBounds2d(inBounds);
+  outRegion->GetBounds2d(outBounds);
 
   // This method assumes that the second axis of in and out have same bounds.
   min1 = outBounds[2];
   max1 = outBounds[3];
-  if (min1 != inBounds1[2] || max1 != inBounds1[3] ||
-      min1 != inBounds2[2] || max1 != inBounds2[3]) 
+  if (min1 != inBounds[2] || max1 != inBounds[3])
     {
     vtkErrorMacro(<< "Execute2d: Cannot break images into lines.");
     return;
@@ -478,11 +508,23 @@ void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1,
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
     // set up the 1d regions.
-    inRegion1->SetDefaultCoordinate1(coordinate1);
-    inRegion2->SetDefaultCoordinate1(coordinate1);
-    outRegion->SetDefaultCoordinate1(coordinate1);
+    inBounds[2] = coordinate1;
+    inBounds[3] = coordinate1;
+    inRegion1->SetBounds2d(inBounds);
+    inRegion2->SetBounds2d(inBounds);
+    outBounds[2] = coordinate1;
+    outBounds[3] = coordinate1;
+    outRegion->SetBounds2d(outBounds);
     this->Execute1d(inRegion1, inRegion2, outRegion);
     }
+  // restore the original bounds
+  inBounds[2] = min1;
+  inBounds[3] = max1;
+  outBounds[2] = min1;
+  outBounds[3] = max1; 
+  inRegion1->SetBounds2d(inBounds);
+  inRegion2->SetBounds2d(inBounds);
+  outRegion->SetBounds2d(outBounds);
 }
   
   

@@ -108,7 +108,6 @@ void vtkImage2dAnisotropicDiffusionFilter::Execute2d(vtkImageRegion *inRegion,
 
   inRegion->GetAspectRatio2d(ar0, ar1);
   inRegion->GetBounds3d (bounds);
-  bounds[4] = bounds[5] = inRegion->GetDefaultCoordinate2 ();
 
   // make the temporary regions to iterate over.
   in = new vtkImageRegion;

@@ -192,9 +192,10 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
   int inc0, inc1;
   T *ptr0, *ptr1;
   unsigned char *buf, *pbuf, temp;
+  int *bounds = region->GetBounds();
   
   sprintf(self->FileName, "%s.%d", self->FileRoot, 
-	  region->GetDefaultCoordinate2() + self->First);
+	  bounds[4] + self->First);
   if (self->Debug)
     {
     cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 

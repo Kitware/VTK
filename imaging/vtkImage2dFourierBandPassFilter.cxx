@@ -101,6 +101,7 @@ void vtkImage2dFourierBandPassFilter::Execute1d(vtkImageRegion *inRegion,
   if (bounds[0] != 0 || bounds[1] != 1)
     {
     vtkErrorMacro(<< "Execute1d: Components mismatch");
+    return;
     }
   
   // this filter expects that input is the same type as output (float).
@@ -114,16 +115,16 @@ void vtkImage2dFourierBandPassFilter::Execute1d(vtkImageRegion *inRegion,
   imageBounds = inRegion->GetImageBounds();
   freq = 0;
   mid = (float)(imageBounds[3]) / 2.0;
-  temp = (float)(inRegion->GetDefaultCoordinate1());
+  temp = (float)(imageBounds[2]);
   if (temp > mid)
     {
-    temp = (float)(imageBounds[3]) - temp;
+    temp = (float)(bounds[2]) - temp;
     }
   temp = temp / mid;
   freq += temp * temp;
 
   mid = (float)(imageBounds[5]) / 2.0;
-  temp = (float)(inRegion->GetDefaultCoordinate2());
+  temp = (float)(bounds[4]);
   if (temp > mid)
     {
     temp = (float)(imageBounds[5]) - temp;

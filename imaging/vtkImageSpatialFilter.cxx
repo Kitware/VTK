@@ -301,10 +301,21 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
     // set up the 3d regions.
-    inRegion->SetDefaultCoordinate3(coordinate3);
-    outRegion->SetDefaultCoordinate3(coordinate3);
+    inBounds[6] = coordinate3;
+    inBounds[7] = coordinate3;
+    inRegion->SetBounds4d(inBounds);
+    outBounds[6] = coordinate3;
+    outBounds[7] = coordinate3;
+    outRegion->SetBounds4d(outBounds);
     this->ExecuteCenter3d(inRegion, outRegion);
     }
+  // restore the original bounds
+  inBounds[6] = min3;
+  inBounds[7] = max3;
+  outBounds[6] = min3;
+  outBounds[7] = max3; 
+  inRegion->SetBounds4d(inBounds);
+  outRegion->SetBounds4d(outBounds);
 }
 
 
@@ -337,10 +348,21 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
     // set up the 2d regions.
-    inRegion->SetDefaultCoordinate2(coordinate2);
-    outRegion->SetDefaultCoordinate2(coordinate2);
+    inBounds[4] = coordinate2;
+    inBounds[5] = coordinate2;
+    inRegion->SetBounds3d(inBounds);
+    outBounds[4] = coordinate2;
+    outBounds[5] = coordinate2;
+    outRegion->SetBounds3d(outBounds);
     this->ExecuteCenter2d(inRegion, outRegion);
     }
+  // restore the original bounds
+  inBounds[4] = min2;
+  inBounds[5] = max2;
+  outBounds[4] = min2;
+  outBounds[5] = max2; 
+  inRegion->SetBounds3d(inBounds);
+  outRegion->SetBounds3d(outBounds);
 }
   
 //----------------------------------------------------------------------------
@@ -371,10 +393,21 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
     // set up the 1d regions.
-    inRegion->SetDefaultCoordinate1(coordinate1);
-    outRegion->SetDefaultCoordinate1(coordinate1);
+    inBounds[2] = coordinate1;
+    inBounds[3] = coordinate1;
+    inRegion->SetBounds2d(inBounds);
+    outBounds[2] = coordinate1;
+    outBounds[3] = coordinate1;
+    outRegion->SetBounds2d(outBounds);
     this->ExecuteCenter1d(inRegion, outRegion);
     }
+  // restore the original bounds
+  inBounds[2] = min1;
+  inBounds[3] = max1;
+  outBounds[2] = min1;
+  outBounds[3] = max1; 
+  inRegion->SetBounds2d(inBounds);
+  outRegion->SetBounds2d(outBounds);
 }
  
 //----------------------------------------------------------------------------

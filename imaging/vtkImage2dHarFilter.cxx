@@ -220,11 +220,7 @@ void vtkImage2dHarFilter::Execute2d(vtkImageRegion *inRegion,
 	tempRegion = new vtkImageRegion;
 	tempRegion->SetDataType(outRegion->GetDataType());
 	// A sore point with me (default coordinates !!!)
-	tempRegion->SetBounds4d(outMin0, outMax0, outMin1, outMax1,
-				outRegion->GetDefaultCoordinate2(),
-				outRegion->GetDefaultCoordinate2(),
-				outRegion->GetDefaultCoordinate3(),
-				outRegion->GetDefaultCoordinate3());
+	tempRegion->SetBounds(outRegion->GetBounds());
 	}
       else
 	{
