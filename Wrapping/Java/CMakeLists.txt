@@ -19,6 +19,7 @@ IF(JAVA_COMPILE)
               SimpleVTK
               Regression
               TestVTKCanvas
+              TestInternalFrames
               AxesActor)
         ADD_CUSTOM_COMMAND(SOURCE VTKJava
                          COMMAND ${JAVA_COMPILE}
