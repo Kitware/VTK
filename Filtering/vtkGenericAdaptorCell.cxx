@@ -32,7 +32,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.15");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.16");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -52,6 +52,7 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->InternalPoints->SetNumberOfComponents(3);
   this->InternalScalars = vtkDoubleArray::New();
   this->InternalCellArray = vtkCellArray::New();
+  this->InternalIds = vtkIdList::New();
 
   this->PointDataScalars = vtkDoubleArray::New();
   this->PointData->SetScalars( this->PointDataScalars );
@@ -73,7 +74,7 @@ vtkGenericAdaptorCell::~vtkGenericAdaptorCell()
   this->InternalPoints->Delete();
   this->InternalScalars->Delete();
   this->InternalCellArray->Delete();
-  
+  this->InternalIds->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -471,7 +472,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
                                        vtkPointLocator *locator,
                                        vtkCellArray *cellArray,
                                        vtkPointData *internalPd,
-                                       vtkIdList *internalIds,
                                        vtkPointData *pd,
                                        vtkCellData *cd)
 {
@@ -480,7 +480,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   assert("pre: points_exist" && points!=0);
   assert("pre: cellArray_exists" && cellArray!=0);
   assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: internalIds_exists" && internalIds!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exist" && cd!=0);
   
@@ -550,14 +549,14 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         this->InternalCellArray->GetNextCell(npts, pts);)
       {
       assert("check: is_a_simplex" && npts == valid_npts);
-      internalIds->Reset();
+      this->InternalIds->Reset();
 //      cellArray->InsertNextCell(npts, pts );
       
       for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
         {
         vtkIdType ptId;
         ptId=points->InsertNextPoint(point );
-        internalIds->InsertId(i,ptId);
+        this->InternalIds->InsertId(i,ptId);
         // for each point-centered attribute
         j=0;
         while(j<c)
@@ -568,7 +567,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
           }
         ++dataIndex;
         }
-      cellArray->InsertNextCell(internalIds );
+      cellArray->InsertNextCell(this->InternalIds );
       
       }
     }
@@ -578,14 +577,14 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         this->InternalCellArray->GetNextCell(npts, pts);)
       {
       assert("check: is_a_simplex" && npts == valid_npts);
-      internalIds->Reset();
+      this->InternalIds->Reset();
 //      cellArray->InsertNextCell(npts, pts );
       
       for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
         {
         vtkIdType ptId;
         int newpoint=locator->InsertUniquePoint(point,ptId);
-        internalIds->InsertId(i,ptId);
+        this->InternalIds->InsertId(i,ptId);
         if(newpoint)
           {
           // for each point-centered attribute
@@ -599,7 +598,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
           }
         ++dataIndex;
         }
-      cellArray->InsertNextCell(internalIds );
+      cellArray->InsertNextCell(this->InternalIds );
       }
     }
 }
@@ -612,7 +611,6 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
                                             vtkPointLocator *locator,
                                             vtkCellArray *cellArray,
                                             vtkPointData *internalPd,
-                                            vtkIdList *internalIds,
                                             vtkPointData *pd,
                                             vtkCellData *cd )
 {
@@ -623,7 +621,6 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   assert("pre: points_exist" && points!=0);
   assert("pre: cellArray_exists" && cellArray!=0);
   assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: internalIds_exists" && internalIds!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exists" && cd!=0);
   
@@ -690,14 +687,14 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
         this->InternalCellArray->GetNextCell(npts, pts);)
       {
       assert("check: is_a_triangle" && npts == 3);
-      internalIds->Reset();
+      this->InternalIds->Reset();
 //      cellArray->InsertNextCell(npts, pts );
       
       for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
         {
         vtkIdType ptId;
         ptId=points->InsertNextPoint(point );
-        internalIds->InsertId(i,ptId);
+        this->InternalIds->InsertId(i,ptId);
         // for each point-centered attribute
         j=0;
         while(j<c)
@@ -708,7 +705,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
           }
         ++dataIndex;
         }
-      cellArray->InsertNextCell(internalIds );
+      cellArray->InsertNextCell(this->InternalIds );
       
       }
     }
@@ -718,14 +715,14 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
         this->InternalCellArray->GetNextCell(npts, pts);)
       {
       assert("check: is_a_triangle" && npts == 3);
-      internalIds->Reset();
+      this->InternalIds->Reset();
 //      cellArray->InsertNextCell(npts, pts );
       
       for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
         {
         vtkIdType ptId;
         int newpoint=locator->InsertUniquePoint(point,ptId);
-        internalIds->InsertId(i,ptId);
+        this->InternalIds->InsertId(i,ptId);
         if(newpoint)
           {
           // for each point-centered attribute
@@ -739,7 +736,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
           }
         ++dataIndex;
         }
-      cellArray->InsertNextCell(internalIds );
+      cellArray->InsertNextCell(this->InternalIds );
       }
     }
 }

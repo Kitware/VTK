@@ -31,7 +31,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.10");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.11");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -156,7 +156,6 @@ void vtkGenericDataSetTessellator::Execute()
     this->Locator->InitPointInsertion (newPts, input->GetBounds());
     locator=this->Locator;
     }
-  vtkIdList *internalIds = vtkIdList::New();
   
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next(), count++)
     {
@@ -168,7 +167,8 @@ void vtkGenericDataSetTessellator::Execute()
       
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
-                     newPts, locator, conn, this->internalPD, internalIds, outputPD, outputCD);    
+                     newPts, locator, conn, this->internalPD,outputPD,
+                     outputCD);    
     numNew = conn->GetNumberOfCells() - numInserted;
     numInserted = conn->GetNumberOfCells();
     
@@ -211,7 +211,6 @@ void vtkGenericDataSetTessellator::Execute()
     outputCD->AddArray(cellIdArray);
     cellIdArray->Delete();
     }
-  internalIds->Delete();
   
   output->SetPoints(newPts);
   output->SetCells(types, locs, conn);

@@ -37,7 +37,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.5");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.6");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -285,8 +285,6 @@ void vtkGenericGeometryFilter::Execute()
   faceList->SetNumberOfIds(3);
 
   input->GetTessellator()->InitErrorMetrics(input);
-
-  vtkIdList *internalIds = vtkIdList::New();
   
   for (cellId = 0, cellIt->Begin(); !cellIt->IsAtEnd() && !abort; 
     cellIt->Next(), cellId++)
@@ -311,7 +309,8 @@ void vtkGenericGeometryFilter::Execute()
         case 2:
             if ( cell->IsOnBoundary() )
               {
-              cell->Tessellate(input->GetAttributes(), input->GetTessellator(), newPts, locator,cellArray, this->internalPD,internalIds,
+              cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
+                               newPts, locator,cellArray, this->internalPD,
                                outputPD, outputCD); //newScalars );
               }
           break;
@@ -322,8 +321,10 @@ void vtkGenericGeometryFilter::Execute()
             {
             if ( cell->IsFaceOnBoundary(j) )
               {
-              cell->TriangulateFace(input->GetAttributes(), input->GetTessellator(),
-                                    j, newPts, locator, cellArray,this->internalPD, internalIds, outputPD, outputCD );
+              cell->TriangulateFace(input->GetAttributes(),
+                                    input->GetTessellator(),
+                                    j, newPts, locator, cellArray,
+                                    this->internalPD,outputPD, outputCD );
               }
             }
           break;
@@ -331,8 +332,6 @@ void vtkGenericGeometryFilter::Execute()
         } //switch
       } //if visible
     } //for all cells
-  
-  internalIds->Delete();
   cellIt->Delete();
   vtkDebugMacro(<<"Extracted " << newPts->GetNumberOfPoints() << " points,"
                 << output->GetNumberOfCells() << " cells.");

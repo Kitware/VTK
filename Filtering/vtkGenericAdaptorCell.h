@@ -468,7 +468,6 @@ public:
                           vtkPointLocator *locator,
                           vtkCellArray* cellArray,
                           vtkPointData *internalPd,
-                          vtkIdList *internalIds,
                           vtkPointData *pd, vtkCellData* cd);
 
   // The following methods are for the internals of the tesselation algorithm
@@ -509,7 +508,6 @@ public:
                                vtkPointLocator *locator,
                                vtkCellArray *cellArray,
                                vtkPointData *internalPd,
-                               vtkIdList *internalIds,
                                vtkPointData *pd, vtkCellData *cd );
   
   // Description:
@@ -544,8 +542,9 @@ protected:
   vtkDoubleArray  *InternalPoints;
   vtkCellArray    *InternalCellArray;
   vtkDoubleArray  *InternalScalars;
-  
   vtkDoubleArray  *PointDataScalars;
+  
+  vtkIdList        *InternalIds; // used by Tessellate() and TriangulateFace()
   
   //Attributes to mimic the vtk cell look and feel, internal use only
   vtkDoubleArray  *Scalars;
