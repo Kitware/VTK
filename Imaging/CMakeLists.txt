@@ -119,7 +119,7 @@ ADD_LIBRARY(vtkImaging Imaging_SRCS)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
