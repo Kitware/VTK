@@ -273,7 +273,7 @@ vtkFieldData *vtkFieldData::MakeObject()
   int i;
   vtkDataArray *data;
   
-  f->SetNumberOfArrays(this->GetNumberOfArrays());
+  f->AllocateArrays(this->GetNumberOfArrays());
   for ( i=0; i < this->GetNumberOfArrays(); i++ )
     {
     data = this->Data[i]->MakeObject();
@@ -286,7 +286,7 @@ vtkFieldData *vtkFieldData::MakeObject()
 }
 
 // Set the number of arrays used to define the field.
-void vtkFieldData::SetNumberOfArrays(int num)
+void vtkFieldData::AllocateArrays(int num)
 {
   int i;
   
@@ -358,7 +358,7 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
     }
   else if (i >= this->NumberOfArrays)
     {
-    this->SetNumberOfArrays(i+1);
+    this->AllocateArrays(i+1);
     this->NumberOfActiveArrays = i+1;
     }
 
@@ -389,7 +389,7 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
     }
 }
 
-// 
+
 int vtkFieldData::GetNumberOfArrays()
 {
   return this->NumberOfActiveArrays;
@@ -411,7 +411,7 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
 {
   vtkDataArray *data, *newData;
 
-  this->SetNumberOfArrays(f->GetNumberOfArrays());
+  this->AllocateArrays(f->GetNumberOfArrays());
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
     {
     data = f->GetArray(i);
@@ -426,7 +426,7 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
 // Copy a field by reference counting the data arrays.
 void vtkFieldData::ShallowCopy(vtkFieldData *f)
 {
-  this->SetNumberOfArrays(f->GetNumberOfArrays());
+  this->AllocateArrays(f->GetNumberOfArrays());
   this->NumberOfActiveArrays = 0;
 
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
@@ -505,10 +505,14 @@ vtkDataArray *vtkFieldData::GetArray(const char *arrayName, int &index)
   int i;
   const char *name;
   index = -1;
+  if (!arrayName)
+    {
+    return NULL;
+    }
   for (i=0; i < this->GetNumberOfArrays(); i++)
     {
     name = this->GetArrayName(i);
-    if ( !strcmp(name,arrayName) )
+    if ( name && !strcmp(name,arrayName) )
       {
       index = i;
       return this->GetArray(i);
@@ -571,23 +575,20 @@ unsigned long int vtkFieldData::GetMTime()
 {
   unsigned long int mTime = this->MTime;
   unsigned long int otherMTime;
+  vtkDataArray* da;
 
-  if ( this->NumberOfActiveArrays > 0 )
+  for(int i=0; i < this->NumberOfActiveArrays; i++)
     {
-    vtkFieldData::Iterator it(this);
-    vtkDataArray* da;
-    for(da=it.Begin(); !it.End(); da=it.Next())
+    if ((da=this->Data[i]))
       {
-      if (da)
+      otherMTime = da->GetMTime();
+      if ( otherMTime > mTime )
 	{
-	otherMTime = da->GetMTime();
-	if ( otherMTime > mTime )
-	  {
-	  mTime = otherMTime;
-	  }
+	mTime = otherMTime;
 	}
       }
     }
+
   return mTime;
 }
 

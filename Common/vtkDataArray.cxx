@@ -74,14 +74,6 @@ vtkDataArray::vtkDataArray(vtkIdType numComp)
 
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Name = 0;
-  DataArrayCritSec.Lock();
-  ostrstream buf;
-  buf << "Array_";
-  buf << vtkDataArray::ArrayNamePostfix << ends; 
-  vtkDataArray::ArrayNamePostfix++;
-  this->SetName(buf.str());
-  delete[] buf.str();
-  DataArrayCritSec.Unlock();
 }
 
 vtkDataArray::~vtkDataArray()
@@ -95,16 +87,14 @@ vtkDataArray::~vtkDataArray()
 
 void vtkDataArray::SetName(const char* name)
 {
-  if (!name)
-    {
-    vtkWarningMacro("Array name can not be NULL.");
-    return;
-    }
   delete[] this->Name;
   this->Name = 0;
-  int size = strlen(name);
-  this->Name = new char[size+1];
-  strcpy(this->Name, name);
+  if (name)
+    {
+    int size = strlen(name);
+    this->Name = new char[size+1];
+    strcpy(this->Name, name);
+    }
 }
 
 const char* vtkDataArray::GetName()
@@ -732,7 +722,7 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Name: " << this->Name << "\n";
+  os << indent << "Name: " << this->GetName() << "\n";
   os << indent << "Number Of Components: " << this->NumberOfComponents << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
   os << indent << "Size: " << this->Size << "\n";

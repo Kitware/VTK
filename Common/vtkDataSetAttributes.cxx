@@ -80,9 +80,10 @@ vtkDataSetAttributes::vtkDataSetAttributes()
     this->CopyAttributeFlags[attributeType] = 1;
     this->Attributes[attributeType] = 0;
     }
-  this->CopyFieldOffFlags = 0;
+  this->CopyFieldFlags = 0;
   this->NumberOfFieldFlags = 0;
   this->TargetIndices=0;
+  this->CopyAllOn();
 }
 
 // Destructor for the vtkDataSetAttributes objects.
@@ -94,58 +95,66 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
   this->TargetIndices = 0;
 }
 
-void vtkDataSetAttributes::CopyFieldOn(const char* field)
+void vtkDataSetAttributes::CopyFieldOnOff(const char* field, int onOff)
 {
-  int idx;
-  // If it is off
-  if ((idx=this->FindOffFlag(field)) != -1)
+  if (!field) { return; }
+  
+  int index;
+  // If the array is in the list, simply set IsCopied to onOff
+  if ((index=this->FindFlag(field)) != -1)
     {
-    // Remove it from the list of off flags
-    delete[] this->CopyFieldOffFlags[idx];
-    for(int i=idx+1; i<this->NumberOfFieldFlags; i++)
-      {
-      this->CopyFieldOffFlags[i-1] = this->CopyFieldOffFlags[i];
-      }
-    this->NumberOfFieldFlags--;
+    this->CopyFieldFlags[index].IsCopied = onOff;
     }
-}
-
-void vtkDataSetAttributes::CopyFieldOff(const char* field)
-{
-  // If it is not already off
-  if (this->FindOffFlag(field) == -1)
+  else
     {
-    // We need to reallocate the list of fields which
-    // will not be copied
-    char** newFlags = new char*[this->NumberOfFieldFlags+1];
-    // Copy old flags (pointer copy)
+    // We need to reallocate the list of fields
+    vtkDataSetAttributes::CopyFieldFlag* newFlags =
+      new vtkDataSetAttributes::CopyFieldFlag[this->NumberOfFieldFlags+1];
+    // Copy old flags (pointer copy for name)
     for(int i=0; i<this->NumberOfFieldFlags; i++)
       {
-      newFlags[i] = this->CopyFieldOffFlags[i];
+      newFlags[i].ArrayName = this->CopyFieldFlags[i].ArrayName;
+      newFlags[i].IsCopied = this->CopyFieldFlags[i].IsCopied;
       }
-    // Copy new flags (strcpy)
-    char* newFlag = new char[strlen(field)+1];
-    strcpy(newFlag, field);
-    newFlags[this->NumberOfFieldFlags] = newFlag;
-
+    // Copy new flag (strcpy)
+    char* newName = new char[strlen(field)+1];
+    strcpy(newName, field);
+    newFlags[this->NumberOfFieldFlags].ArrayName = newName;
+    newFlags[this->NumberOfFieldFlags].IsCopied = onOff;
     this->NumberOfFieldFlags++;
-    delete[] this->CopyFieldOffFlags;
-    this->CopyFieldOffFlags = newFlags;
+    delete[] this->CopyFieldFlags;
+    this->CopyFieldFlags = newFlags;
     }
 }
 
-// Find if field is in the list of fields which will not be
-// copied. Returns the index of the field or 0.
-int vtkDataSetAttributes::FindOffFlag(const char* field)
+// Find if field is in CopyFieldFlags.
+// If it is, it returns the index otherwise it returns -1
+int vtkDataSetAttributes::FindFlag(const char* field)
 {
   for(int i=0; i<this->NumberOfFieldFlags; i++)
     {
-    if (!strcmp(field, this->CopyFieldOffFlags[i]))
+    if (this->CopyFieldFlags[i].ArrayName &&
+	!strcmp(field, this->CopyFieldFlags[i].ArrayName))
       {
       return i;
       }
     }
   return -1;
+}
+
+// If there is no flag for this array, return -1.
+// If there is one: return 0 if off, 1 if on
+int vtkDataSetAttributes::GetFlag(const char* field)
+{
+  int index = this->FindFlag(field);
+  if ( index == -1 )
+    {
+    return -1;
+    }
+  else 
+    {
+    return  this->CopyFieldFlags[index].IsCopied;
+    }
 }
 
 // Deallocate and clear the list of fields.
@@ -155,32 +164,34 @@ void vtkDataSetAttributes::ClearFieldFlags()
     {
     for(int i=0; i<this->NumberOfFieldFlags; i++)
       {
-      delete[] this->CopyFieldOffFlags[i];
+      delete[] this->CopyFieldFlags[i].ArrayName;
       }
     }
-  delete[] this->CopyFieldOffFlags;
-  this->CopyFieldOffFlags=0;
+  delete[] this->CopyFieldFlags;
+  this->CopyFieldFlags=0;
   this->NumberOfFieldFlags=0;
 }
 
 // Copy the fields list (with strcpy)
-void vtkDataSetAttributes::CopyFieldFlags(const vtkDataSetAttributes* source)
+void vtkDataSetAttributes::CopyFlags(const vtkDataSetAttributes* source)
 {
   this->ClearFieldFlags();
   this->NumberOfFieldFlags = source->NumberOfFieldFlags;
   if ( this->NumberOfFieldFlags > 0 )
     {
-    this->CopyFieldOffFlags = new char*[this->NumberOfFieldFlags];
+    this->CopyFieldFlags = new 
+      vtkDataSetAttributes::CopyFieldFlag[this->NumberOfFieldFlags];
     for(int i=0; i<this->NumberOfFieldFlags; i++)
       {
-      this->CopyFieldOffFlags[i] = 
-        new char[strlen(source->CopyFieldOffFlags[i])+1];
-      strcpy(this->CopyFieldOffFlags[i], source->CopyFieldOffFlags[i]);
+      this->CopyFieldFlags[i].ArrayName = 
+        new char[strlen(source->CopyFieldFlags[i].ArrayName)+1];
+      strcpy(this->CopyFieldFlags[i].ArrayName, 
+	     source->CopyFieldFlags[i].ArrayName);
       }
     }
   else
     {
-    this->CopyFieldOffFlags = 0;
+    this->CopyFieldFlags = 0;
     }
 }
 
@@ -193,7 +204,8 @@ void vtkDataSetAttributes::CopyAllOn()
   this->CopyNormalsOn();
   this->CopyTCoordsOn();
   this->CopyTensorsOn();
-  this->ClearFieldFlags();
+  this->DoCopyAllOn = 1;
+  this->DoCopyAllOff = 0;
 }
 
 // Turn off copying of all data.
@@ -204,11 +216,8 @@ void vtkDataSetAttributes::CopyAllOff()
   this->CopyNormalsOff();
   this->CopyTCoordsOff();
   this->CopyTensorsOff();
-  int numArrays=this->GetNumberOfArrays();
-  for(int i=0; i < numArrays; i++)
-    {
-    this->CopyFieldOff(this->GetArrayName(i));
-    }
+  this->DoCopyAllOn = 0;
+  this->DoCopyAllOff = 1;
 }
 
 // Deep copy of data (i.e., create new data arrays and
@@ -218,57 +227,95 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
 {
   this->Initialize(); //free up memory
 
-  // Invoke parent's DeepCopy with a default iterator
-  // This will copy all the existing fields.
-  // 
-  this->vtkFieldData::DeepCopy(fd);
-
   vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
+  // If the source is a vtkDataSetAttributes
   if (dsa)
     {
-    // Copy the active attributes from source
-    int index;
+    int numArrays = fd->GetNumberOfArrays();
+    int attributeType;
+    vtkDataArray *data, *newData;
+
+    // Allocate space for numArrays
+    this->AllocateArrays(numArrays);
+    for ( int i=0; i < numArrays; i++ )
+      {
+      data = fd->GetArray(i);
+      newData = data->MakeObject(); //instantiate same type of object
+      newData->DeepCopy(data);
+      newData->SetName(data->GetName());
+      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
+	{
+	// If this array is an attribute in the source, make it so
+	// in the target as well.
+	this->SetAttribute(newData, attributeType);
+	}
+      else
+	{
+	this->AddArray(newData);
+	}
+      newData->Delete();
+      }
+    // Copy the copy flags
     for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
-    index = dsa->AttributeIndices[attributeType];
-    if (index != -1)
-      {
-      this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
+      this->CopyAttributeFlags[attributeType] = 
+	dsa->CopyAttributeFlags[attributeType];
       }
-    this->CopyAttributeFlags[attributeType] = dsa->CopyAttributeFlags[attributeType];
-      }
-    this->CopyFieldFlags(dsa);
+    this->CopyFlags(dsa);
     }
+  // If the source is field data, do a field data copy
+  else
+    {
+    this->vtkFieldData::DeepCopy(fd);
+    }
+	  
 }
 
 // Shallow copy of data (i.e., use reference counting).
 void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 {
-  // Invoke parent's shallow copy
-  this->vtkFieldData::ShallowCopy(fd);
+  this->Initialize(); //free up memory
 
   vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
+  // If the source is a vtkDataSetAttributes
   if (dsa)
     {
-    // Copy the active attributes from source as well as the attribute
-    // data
-    int index;
-    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+    int numArrays = fd->GetNumberOfArrays();
+    int attributeType;
+    vtkDataArray *data, *newData;
+
+    // Allocate space for numArrays
+    this->AllocateArrays(numArrays);
+    this->NumberOfActiveArrays = 0;
+    for ( int i=0; i < numArrays; i++ )
       {
-      index = dsa->AttributeIndices[attributeType];
-      if (index != -1)
-        {
-        this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
+      this->NumberOfActiveArrays++;
+      this->SetArray(i, fd->GetArray(i));
+      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
+	{
+	// If this array is an attribute in the source, make it so
+	// in the target as well.
+	this->SetActiveAttribute(i, attributeType);
+	// Copy the attribute data too
         this->Attributes[attributeType] = dsa->Attributes[attributeType];
         if (this->Attributes[attributeType])
           {
           this->Attributes[attributeType]->Register(this);
           }
-        }
-      this->CopyAttributeFlags[attributeType] = 
-        dsa->CopyAttributeFlags[attributeType];
+	}
       }
-    this->CopyFieldFlags(dsa);
+    // Copy the copy flags
+    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+      {
+      this->CopyAttributeFlags[attributeType] = 
+	dsa->CopyAttributeFlags[attributeType];
+      }
+    this->CopyFlags(dsa);
+    }
+  // If the source is field data, do a field data copy
+  else
+    {
+    this->vtkFieldData::ShallowCopy(fd);
     }
 }
 
@@ -311,7 +358,12 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
   int index, i, numArrays = 0;
   for(i=0; i<pd->GetNumberOfArrays(); i++)
     {
-    if ( (this->FindOffFlag(pd->GetArrayName(i)) == -1) && pd->GetArray(i))
+    const char* arrayName = pd->GetArrayName(i);
+    // If there is no blocker for the given array
+    // and both CopyAllOff and CopyOn for that array are not true
+    if ( (this->GetFlag(arrayName) != 0) &&
+	 !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
+	 pd->GetArray(i))
       {
       copyFlags[numArrays] = i;
       numArrays++;
@@ -388,7 +440,7 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 
   if ( it.GetListSize() > this->NumberOfArrays )
     {
-    this->SetNumberOfArrays(it.GetListSize());
+    this->AllocateArrays(it.GetListSize());
     }
   if (it.GetListSize() == 0)
     {
@@ -406,31 +458,21 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
       }
     }
 
-  int i;
+  int i, arrayIndex;
   for(i=it.BeginIndex(); !it.End(); i=it.NextIndex())
     {
-    this->AddArray(pd->GetArray(i));
-    }
-
-  int index;
-  // Pass all the required attribute datas by reference
-  for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
-    {
-    if (this->CopyAttributeFlags[attributeType])
+     arrayIndex = this->AddArray(pd->GetArray(i));
+    // If necessary, make the array an attribute
+    if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) && 
+	 this->CopyAttributeFlags[attributeType] )
       {
-      index = pd->AttributeIndices[attributeType];
-      if (index != -1)
-        {
-        if (pd->GetArray(index))
-          {
-          this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
-          this->Attributes[attributeType] = pd->Attributes[attributeType];
-          if (this->Attributes[attributeType])
-            {
-            this->Attributes[attributeType]->Register(this);
-            }
-          }
-        }
+      this->SetActiveAttribute(arrayIndex, attributeType);
+      // Also pass the attribute data
+      this->Attributes[attributeType] = pd->Attributes[attributeType];
+      if (this->Attributes[attributeType])
+	{
+	this->Attributes[attributeType]->Register(this);
+	}
       }
     }
 }
@@ -438,8 +480,8 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.
-void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
-                                        vtkIdType ext)
+void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, 
+					vtkIdType sze, vtkIdType ext)
 {
   vtkDataArray* newDA;
   int i;
@@ -473,9 +515,12 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
   // If we are not copying on self
   if ( pd != this )
     {
+    int attributeType;
+
     for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
         i=this->RequiredArrays.NextIndex())
       {
+      // Create all required arrays
       da = pd->GetArray(i);
       newDA = da->MakeObject();
       newDA->SetName(da->GetName());
@@ -489,25 +534,19 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
         }
       newDA->SetLookupTable(da->GetLookupTable());
       this->TargetIndices[i] = this->AddArray(newDA);
+      // If necessary, make the array an attribute
+      if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) && 
+	   this->CopyAttributeFlags[attributeType] )
+	{
+	this->SetActiveAttribute(this->TargetIndices[i], attributeType);
+	}
       newDA->Delete();
-      }
-
-    int index;
-    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
-      {
-      if (this->CopyAttributeFlags[attributeType])
-        {
-        index = pd->AttributeIndices[attributeType];
-        
-        if (index != -1)
-          {
-          this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
-          }
-        }
       }
     }
   else
     {
+    // If copying on self, resize the arrays and initialize
+    // TargetIndices
     for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
         i=this->RequiredArrays.NextIndex())
       {
@@ -1608,55 +1647,23 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << ")" << endl;
   
   // Now print the various attributes
-  if ( this->Attributes[SCALARS] )
+  vtkDataArray* da;
+  int attributeType;
+  for (attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
-    os << indent << "Scalars:\n";
-    this->Attributes[SCALARS]->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Scalars: (none)\n";
-    }
-
-  if ( this->Attributes[VECTORS] )
-    {
-    os << indent << "Vectors:\n";
-    this->Attributes[VECTORS]->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Vectors: (none)\n";
+    os << indent << vtkDataSetAttributes::AttributeNames[attributeType]
+       << ": ";
+    if ( (da=this->GetActiveAttribute(attributeType)) )
+      {
+      cout << endl;
+      da->PrintSelf(os, indent.GetNextIndent());
+      }
+    else
+      {
+      os << "(none)" << endl;
+      }
     }
 
-  if ( this->Attributes[NORMALS] )
-    {
-    os << indent << "Normals:\n";
-    this->Attributes[NORMALS]->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Normals: (none)\n";
-    }
-
-  if ( this->Attributes[TCOORDS] )
-    {
-    os << indent << "Texture Coordinates:\n";
-    this->Attributes[TCOORDS]->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Texture Coordinates: (none)\n";
-    }
-
-  if ( this->Attributes[TENSORS] )
-    {
-    os << indent << "Tensors:\n";
-    this->Attributes[TENSORS]->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Tensors: (none)\n";
-    }
 }
 
 void vtkDataSetAttributes::GetAttributeIndices(int* indexArray)
@@ -1755,7 +1762,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
         if ( this->CopyAttributeFlags[i] )
           {
           list.FieldIndices[i] = this->AddArray(newDA);
-          this->SetActiveAttribute(list.Fields[i], i);
+          this->SetActiveAttribute(list.FieldIndices[i], i);
           }
         else
           {
@@ -1764,7 +1771,8 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
         }
       else //check if this field is to be copied
         {
-        if ( this->FindOffFlag(list.Fields[i]) == -1 )
+	if ( (this->GetFlag(list.Fields[i]) != 0) &&
+	     !(this->DoCopyAllOff && (this->GetFlag(list.Fields[i]) != 1)) )
           {
           list.FieldIndices[i] = this->AddArray(newDA);
           }
@@ -2000,11 +2008,11 @@ void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
     this->Fields[index] = 0;
     }
   
+  this->FieldTypes[index] = dataType;
+  this->FieldComponents[index] = da->GetNumberOfComponents();
+  this->LUT[index] = lut;
   if (name)
     {
-    this->FieldTypes[index] = dataType;
-    this->FieldComponents[index] = da->GetNumberOfComponents();
-    this->LUT[index] = lut;
     int len = strlen(name);
     if (len > 0)
       {
@@ -2012,6 +2020,11 @@ void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
       strcpy(this->Fields[index], name);
       }
     }
+  else
+    {
+    this->Fields[index] = 0;
+    }
+    
 }
 
 void vtkDataSetAttributes::FieldList::RemoveField(const char *name)

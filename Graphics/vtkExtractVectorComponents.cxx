@@ -231,7 +231,16 @@ void vtkExtractVectorComponents::Execute()
     }
 
   const char* name = vectors->GetName();
-  char* newName = new char[strlen(name)+10];
+  char* newName=0;
+  if (name)
+    {
+    newName = new char[strlen(name)+10];
+    }
+  else
+    {
+    newName = new char[10];
+    name = "";
+    }
 
   if (vectors)
     {

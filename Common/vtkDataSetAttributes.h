@@ -265,8 +265,8 @@ public:
 
   // Description:
   // Turn on/off the copying of the field specified by name.
-  void CopyFieldOn(const char* name);
-  void CopyFieldOff(const char* name);
+  void CopyFieldOn(const char* name) { this->CopyFieldOnOff(name, 1); }
+  void CopyFieldOff(const char* name) { this->CopyFieldOnOff(name, 0); }
 
   // Description:
   // Turn on copying of all data.
@@ -410,11 +410,19 @@ protected:
   vtkAttributeData* Attributes[NUM_ATTRIBUTES]; //pointer to attributes arrays
   int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
   int CopyAttributeFlags[NUM_ATTRIBUTES]; //copy flag for attribute data
-  char** CopyFieldOffFlags; //the names of fields not to be copied
-  int NumberOfFieldFlags; //the number of fields not to be copied
 
 //BTX
+
+  struct CopyFieldFlag
+  {
+    char* ArrayName;
+    int IsCopied;
+  };
+  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
+  int NumberOfFieldFlags; //the number of fields not to be copied
+
   vtkFieldData::BasicIterator RequiredArrays;
+
 //ETX
 
   int* TargetIndices;
@@ -430,11 +438,14 @@ private:
   void SetAttributeData(vtkAttributeData* newAtt, int attributeType);
   vtkAttributeData* GetAttributeData(int attributeType);
   int SetActiveAttribute(int index, int attributeType);
-  int FindOffFlag(const char* field);
+  int FindFlag(const char* field);
+  int GetFlag(const char* field);
   static int CheckNumberOfComponents(vtkDataArray* da, int attributeType);
-  void CopyFieldFlags(const vtkDataSetAttributes* source);
+  void CopyFlags(const vtkDataSetAttributes* source);
   void ClearFieldFlags();
-
+  void CopyFieldOnOff(const char* name, int onOff);
+  int DoCopyAllOn;
+  int DoCopyAllOff;
 //BTX
 
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);

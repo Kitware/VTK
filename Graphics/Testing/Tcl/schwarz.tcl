@@ -126,6 +126,7 @@ vtkPolyData model
 vtkMath rn
 
 vtkUnsignedCharArray cellColors
+#cellColors SetName "test"
   cellColors SetNumberOfComponents 3
   cellColors SetNumberOfTuples [model GetNumberOfCells]
 for { set i 0 } { $i < [model GetNumberOfCells] } { incr i } {
@@ -134,10 +135,7 @@ for { set i 0 } { $i < [model GetNumberOfCells] } { incr i } {
     cellColors InsertComponent $i 2 [rn Random 100 255]
 }
 
-vtkScalars cellScalars
-  cellScalars SetData cellColors
-
-[model GetCellData] SetScalars cellScalars
+[model GetCellData] SetScalars cellColors
 
 vtkTransform t0
   t0 Identity

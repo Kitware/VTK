@@ -93,19 +93,28 @@ public:
   vtkFieldData *MakeObject();
 
   // Description:
-  // SetNumberOfArrays actually sets the number of
+  // AllocateOfArrays actually sets the number of
   // vtkDataArray pointers in the vtkFieldData object, not the
   // number of used pointers (arrays). Adding more arrays will
   // cause the object to dynamically adjust the number of pointers
-  // if it needs to extend. Therefore, SetNumberOfArrays can
+  // if it needs to extend. Although AllocateArrays can
   // be used if the number of arrays which will be added is
-  // known but it is not required.
-  void SetNumberOfArrays(int num);
+  // known, it can be omitted with a small computation cost.
+  void AllocateArrays(int num);
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+  void SetNumberOfArrays(int num)
+    {
+      vtkWarningMacro("This method will be deprecated. Please use "
+		      "AllocateArrays() instead.");
+      this->AllocateArrays(num);
+    }
+#endif
 
   // Description:
   // Get the number of arrays of data available.
   // This does not include NULL array pointers therefore after
-  // fd->SetNumberOfArrays(n); nArrays = GetNumberOfArrays()
+  // fd->AllocateArray(n); nArrays = GetNumberOfArrays()
   // nArrays is not necessarily equal to n.
   int GetNumberOfArrays();
 
