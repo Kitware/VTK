@@ -777,7 +777,7 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
       }
     else
       {
-      this->ApplicationInstance = AfxGetInstanceHandle();
+      this->ApplicationInstance = GetModuleHandle(NULL);
       }
     }
   if (!this->WindowId)

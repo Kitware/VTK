@@ -71,9 +71,9 @@ public:
   //BTX
   HWND      GetWindowId();
   void      SetDisplayId(void *foo) {};
-  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+//  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
   void      SetWindowId(HWND);
-  void      SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+//  void      SetParentId(void *foo) {this->SetParentId((HWND)foo);};
   void      SetParentId(HWND);
   void      SetDeviceContext(HDC);
   //ETX

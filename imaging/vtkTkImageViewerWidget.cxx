@@ -39,10 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include <tcl.h>
-#include <tk.h>
 
 #include "vtkTkImageViewerWidget.h"
+#include <tcl.h>
+#include <tk.h>
 
 #ifdef _WIN32
 #include "vtkImageWin32Viewer.h"

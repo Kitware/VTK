@@ -57,8 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTkImageViewerWidget_h
 #define __vtkTkImageViewerWidget_h
 
-#include "vtkTclUtil.h"
 #include "vtkImageViewer.h"
+#include "vtkTclUtil.h"
 
 struct vtkTkImageViewerWidget
 {
