@@ -28,6 +28,6 @@ CONFIGURE_FILE(${DICOMParser_SOURCE_DIR}/DICOMCMakeConfig.h.in
 
 ADD_LIBRARY(vtkDICOMParser DICOMFile.cxx DICOMParser.cxx DICOMAppHelper.cxx)
 
-INSTALL_TARGETS(/lib/VTK vtkDICOMParser)
-INSTALL_FILES(/include/VTK/Utilities/DICOMParser "(\\.h|\\.txx)$")
+INSTALL_TARGETS(/lib/vtk vtkDICOMParser)
+INSTALL_FILES(/include/vtk "(\\.h|\\.txx)$")
 
