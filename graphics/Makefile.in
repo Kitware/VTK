@@ -77,6 +77,7 @@ vtkStructuredGridToStructuredGridFilter \
 vtkStructuredPointsToPolyDataFilter \
 vtkStructuredPointsToStructuredPointsFilter \
 vtkStructuredPointsToUnstructuredGridFilter \
+vtkUnstructuredGridToPolyDataFilter \
 vtkUnstructuredGridToUnstructuredGridFilter \
 vtkVolumeMapper \
 vtkVolumeRayCastFunction \
