@@ -58,16 +58,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // during the hierarchical traversal process.
 
 // .SECTION Caveats
-// The application of properties is order dependent!!! By order we mean the
-// order in which the assemblies are rendered. Each time an assembly is 
-// rendered, it propagates its properties through its part hierarchy. As a
-// result, if an assembly (or actor) is part of two different assemblies
-// (say a1 and a2), and the list of actors is reversed (say from a1,a2 to
-// a2,a1), then the final image may change.
+// Collections of assemblies are slower to render than an equivalent list
+// of actors. This is because to support arbitrary nesting of assemblies, 
+// the state of the assemblies (i.e., transformations and properties) must
+// be propagated through the assembly hierarchy. 
 //
-// Actor's that form parts of assemblies cannot use the UserDefined matrix
-// defined in vtkActor. This is because this ivar is used during the assembly
-// concatenation process.
+// Assemblies can consist of hierarchies of assemblies, where one actor or
+// assembly used in one hierarchy is also used in other hierarchies. However, 
+// make that there are no cycles (e.g., parent->child->parent), this will
+// cause program failure.
  
 // .SECTION See Also
 // vtkActor vtkTransform vtkMapper vtkPolyMapper
@@ -77,10 +76,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkActor.hh"
 
+class vtkAssemblyPaths;
+
 class vtkAssembly : public vtkActor
 {
 public:
   vtkAssembly();
+  ~vtkAssembly();
   char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -109,24 +111,80 @@ public:
   vtkBooleanMacro(ApplyProperty,int);
 
   void Render(vtkRenderer *ren);
-  virtual void ApplyTransformation();
-  virtual void ApplyProperties();
 
-  vtkActorCollection *GetComposingParts();
+  void InitPartTraversal();
+  vtkActor *GetNextPart();
+
   float *GetBounds();
+  unsigned long int GetMTime();
 
 protected:
   vtkActorCollection Parts;
   int ApplyTransform;
   int ApplyProperty;
-  vtkTimeStamp RenderTime;
 
-  void AddComposingParts(vtkActorCollection &);
+  vtkActor CurrentActor; //used to propagate state
+  vtkProperty CurrentProperty;
+  vtkMatrix4x4 CurrentMatrix;
+
+  vtkAssemblyPaths *Paths;
+  void ApplyTransformation();
+  void ApplyProperties();
+  void BuildPath(vtkActorCollection *path);
+  vtkActor *ApplyTransformation(vtkActorCollection *path);
+  vtkActor *ApplyProperties(vtkActorCollection *path);
+
 };
 
 // Description:
 // Get the list of parts for this assembly.
 inline vtkActorCollection *vtkAssembly::GetParts() {return &(this->Parts);};
+
+
+//BTX - begin tcl exclude
+// class is a list of lists of actors; each list of actors represents a
+// a sequence of actors in an assembly. The list of actors is represented 
+// as an actor collection.
+class vtkAssemblyPaths : public vtkCollection
+{
+ public:
+  char *GetClassName() {return "vtkAssemblyPaths";};
+
+  void AddItem(vtkActorCollection *a);
+  void RemoveItem(vtkActorCollection *a);
+  int IsItemPresent(vtkActorCollection *a);
+  vtkActorCollection *GetNextItem();
+};
+
+// Description:
+// Add an actor to the list.
+inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 
+{
+  this->vtkCollection::AddItem((vtkObject *)a);
+}
+
+// Description:
+// Remove an actor from the list.
+inline void vtkAssemblyPaths::RemoveItem(vtkActorCollection *a) 
+{
+  this->vtkCollection::RemoveItem((vtkObject *)a);
+}
+
+// Description:
+// Determine whether a particular actor is present. Returns its position
+// in the list.
+inline int vtkAssemblyPaths::IsItemPresent(vtkActorCollection *a) 
+{
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+}
+
+// Description:
+// Get the next actor in the list.
+inline vtkActorCollection *vtkAssemblyPaths::GetNextItem() 
+{ 
+  return (vtkActorCollection *)(this->GetNextItemAsObject());
+}
+//ETX end tcl exclude
 
 #endif
 

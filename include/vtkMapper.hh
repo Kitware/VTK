@@ -106,6 +106,11 @@ public:
   virtual float *GetBounds() = 0;
 
   float *GetCenter();
+
+  // Description:
+  // Update the network connected to this mapper.
+  virtual void Update();
+
   virtual vtkDataSet *GetInput() {return this->Input;};
 
 protected:

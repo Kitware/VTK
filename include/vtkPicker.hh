@@ -101,6 +101,11 @@ public:
   vtkGetVectorMacro(MapperPosition,float,3);
 
   // Description:
+  // Return assembly that was picked. The assembly may be the same as the 
+  // actor.
+  vtkGetObjectMacro(Assembly,vtkActor);
+
+  // Description:
   // Return actor that was picked.
   vtkGetObjectMacro(Actor,vtkActor);
 
@@ -120,8 +125,10 @@ public:
   int Pick(float selectionPt[3], vtkRenderer *renderer);  
 
 protected:
-  void MarkPicked(vtkActor *a, vtkMapper *m, float tMin, float mapperPos[3]);
-  virtual void IntersectWithLine(float p1[3], float p2[3], float tol, vtkActor *a, vtkMapper *m);
+  void MarkPicked(vtkActor *assem, vtkActor *a, vtkMapper *m, 
+                  float tMin, float mapperPos[3]);
+  virtual void IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                 vtkActor *assem, vtkActor *a, vtkMapper *m);
   virtual void Initialize();
 
   vtkRenderer *Renderer; //pick occurred in this renderer's viewport
@@ -129,6 +136,7 @@ protected:
   float Tolerance; //tolerance for computation (% of window)
   float PickPosition[3]; //selection point in world coordinates
   float MapperPosition[3]; //selection point in untransformed coordinates
+  vtkActor *Assembly; //selected assembly
   vtkActor *Actor; //selected actor
   vtkMapper *Mapper; //selected mapper
   vtkDataSet *DataSet; //selected dataset

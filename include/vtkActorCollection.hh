@@ -62,6 +62,7 @@ class vtkActorCollection : public vtkCollection
   void RemoveItem(vtkActor *a);
   int IsItemPresent(vtkActor *a);
   vtkActor *GetNextItem();
+  vtkActor *GetLastItem();
 };
 
 // Description:
@@ -91,6 +92,14 @@ inline int vtkActorCollection::IsItemPresent(vtkActor *a)
 inline vtkActor *vtkActorCollection::GetNextItem() 
 { 
   return (vtkActor *)(this->GetNextItemAsObject());
+}
+
+// Description:
+// Get the last actor in the list.
+inline vtkActor *vtkActorCollection::GetLastItem() 
+{ 
+  if ( this->Bottom == NULL ) return NULL;
+  else return (vtkActor *)(this->Bottom->Item);
 }
 
 #endif

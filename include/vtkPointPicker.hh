@@ -67,7 +67,7 @@ protected:
   int PointId; //picked point
 
   void IntersectWithLine(float p1[3], float p2[3], float tol, 
-                         vtkActor *a, vtkMapper *m);
+                         vtkActor *assem, vtkActor *a, vtkMapper *m);
   void Initialize();
 
 };

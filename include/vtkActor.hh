@@ -76,6 +76,8 @@ class vtkActor : public vtkObject
 
   virtual void Render(vtkRenderer *ren);
 
+  vtkActor &operator=(const vtkActor& actor);
+
   // Description: 
   // Set/Get the property object that controls this
   // actors surface properties.  This should be an instance of a
@@ -160,15 +162,6 @@ class vtkActor : public vtkObject
   vtkGetMacro(Dragable,int);
   vtkBooleanMacro(Dragable,int);
 
-  // Description:
-  // Subclasses of vtkActor can be composed of one or more parts. A part is an
-  // actor or subclass of actor(e.g., assembly). To support this, we return a
-  // list of all parts that compose this actor. (This differs from the
-  // vtkAssembly::GetParts() method, which returns a list of the parts that
-  // form the first level of a hierarchy of actors.)
-  virtual vtkActorCollection *GetComposingParts();
-  virtual void AddComposingParts(vtkActorCollection &);
-
   vtkMatrix4x4& GetMatrix();
   virtual void GetMatrix(vtkMatrix4x4& m);
 
@@ -190,6 +183,25 @@ class vtkActor : public vtkObject
   void AddOrientation(float,float,float);
   void AddOrientation(float a[3]);
 
+  // Description:
+  // Subclasses of vtkActor can be composed of one or more parts. A part is an
+  // actor or subclass of actor (e.g., vtkAssembly). The methods 
+  // InitPartTraversal() and GetNextPart() allow you to get at the parts
+  // that compose the actor. To use these methods - first invoke 
+  // InitPartTraversal() followed by repeated calls to GetNextPart(). 
+  // GetNextPart() returns a NULL pointer when the list is exhausted. (These
+  // methods differ from the vtkAssembly::GetParts() method, which returns 
+  // a list of the parts that are first level children of the assembly.)
+  virtual void InitPartTraversal() {this->TraversalLocation = 0;};
+  virtual vtkActor *GetNextPart();
+
+  // Description:
+  // Update visualization pipeline and any other parts of actor that are
+  // necessary.
+  virtual void Update();
+
+  unsigned long int GetMTime();//overload superclasses' implementation
+
 protected:
   vtkMatrix4x4 *UserMatrix;
   vtkProperty *Property; 
@@ -207,12 +219,10 @@ protected:
   int SelfCreatedProperty;
   float Center[3];
   vtkActorDevice *Device;
-  vtkActorCollection ComposingParts;
-};
 
-inline vtkActorCollection *vtkActor::GetComposingParts() 
-{
-  return &(this->ComposingParts);
+  // this stuff supports multiple-part actors (e.g. assemblies)
+  int TraversalLocation;
+
 };
 
 #endif
