@@ -65,7 +65,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 // var args
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
