@@ -78,8 +78,7 @@ public:
 
   // this method is not recommended for use, but lots of old style filters
   // use it
-  vtkDataObject *GetInput() { return this->GetInput(0); }
-  vtkDataObject *GetInput(int port);
+  vtkDataObject *GetInput();
 
   // Description:
   // see vtkAlgorithm for details
