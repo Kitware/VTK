@@ -94,9 +94,7 @@ float *vtkPolyMapper::GetBounds()
 //
 void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
-  vtkPointData *pd;
-  vtkScalars *scalars = NULL;
-  int i, numPts;
+  int numPts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkColorScalars *colors;
 //
@@ -115,48 +113,14 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
-//
-// Now send data down to primitives and draw it
-//
+  //
+  // Now send data down to primitives and draw it
+  //
   if ( this->GetMTime() > this->BuildTime || 
   input->GetMTime() > this->BuildTime || 
   this->LookupTable->GetMTime() > this->BuildTime )
     {
-//
-// create colors
-//
-    if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
-    (scalars=pd->GetScalars()) )
-      {
-      if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
-        {
-        if ( this->Colors == NULL ) 
-          {
-          this->Colors = colors = (vtkColorScalars *) new vtkAPixmap(numPts);
-          }
-        else
-          {
-          int numColors=this->Colors->GetNumberOfColors();
-          colors = this->Colors;
-          if ( numColors < numPts ) colors->Allocate(numPts);
-          }
-
-        this->LookupTable->SetTableRange(this->ScalarRange);
-        for (i=0; i < numPts; i++)
-          {
-          colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
-          }
-        }
-      else //color scalar
-        {
-        colors = (vtkColorScalars *)scalars;
-        }
-      }
-    else
-      {
-      if ( this->Colors ) this->Colors->Delete();
-      this->Colors = colors = NULL;
-      }
+    colors = this->GetColors();
 
     if (!this->Device) 
       {
@@ -169,6 +133,59 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   // draw the primitives
   this->Device->Draw(ren,act);
+}
+
+vtkColorScalars *vtkPolyMapper::GetColors()
+{
+  vtkPointData *pd;
+  vtkScalars *scalars;
+  int numColors, i, numPts;
+  vtkColorScalars *colors;
+  vtkPolyData *input = (vtkPolyData *)this->Input;
+  
+  // make sure we have a lookup table
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  this->LookupTable->Build();
+
+  //
+  // create colors
+  //
+  numPts = input->GetNumberOfPoints();
+  if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
+       (scalars=pd->GetScalars()) )
+    {
+    if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
+      {
+      if ( this->Colors == NULL ) 
+	{
+	this->Colors = new vtkAPixmap(numPts);
+	}
+      else
+	{
+	int numColors=this->Colors->GetNumberOfColors();
+	if ( numColors < numPts ) this->Colors->Allocate(numPts);
+	}
+      
+      this->LookupTable->SetTableRange(this->ScalarRange);
+      for (i=0; i < numPts; i++)
+	{
+	this->Colors->SetColor(i,this->LookupTable->
+			       MapValue(scalars->GetScalar(i)));
+	}
+      colors = this->Colors;
+      }
+    else //color scalar
+      {
+      colors = (vtkColorScalars *)scalars;
+      }
+    }
+  else
+    {
+    if ( this->Colors ) this->Colors->Delete();
+    this->Colors = colors = NULL;
+    }
+  
+  return colors;
 }
 
 void vtkPolyMapper::PrintSelf(ostream& os, vtkIndent indent)
