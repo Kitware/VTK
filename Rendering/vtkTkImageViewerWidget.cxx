@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "vtkTkImageViewerWidget.h"
+#include "vtkRenderWindowInteractor.h"
 
 #ifdef _WIN32
 #pragma warning ( disable : 4273 )
@@ -271,7 +272,17 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
 
   if (self->ImageViewer)
     {
-    if (self->ImageViewer->GetReferenceCount() > 1)
+    int netRefCount = 0;
+    netRefCount =  self->ImageViewer->GetReferenceCount();
+    /*
+    if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
+        self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
+        self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
+      {
+      netRefCount = netRefCount - 1;
+      }
+    */
+    if (netRefCount > 1)
       {
       vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
       return;

@@ -20,7 +20,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.10");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.11");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -97,16 +97,16 @@ public:
         this->IV->GetInput()->SetUpdateExtent(this->IV->GetInput()->GetWholeExtent());
         this->IV->GetInput()->Update();
         float *range = this->IV->GetInput()->GetScalarRange();
-        this->IV->GetWindowLevel()->SetWindow(range[1] - range[0]);
-        this->IV->GetWindowLevel()->SetLevel(0.5 * (range[1] + range[0]));
+        this->IV->SetColorWindow(range[1] - range[0]);
+        this->IV->SetColorLevel(0.5 * (range[1] + range[0]));
         this->IV->Render();
         return;
         }
 
       if (callData)
         {
-        this->InitialWindow = this->IV->GetWindowLevel()->GetWindow();
-        this->InitialLevel = this->IV->GetWindowLevel()->GetLevel();
+        this->InitialWindow = this->IV->GetColorWindow();
+        this->InitialLevel = this->IV->GetColorLevel();
         return;
         }
       
@@ -167,8 +167,8 @@ public:
         newLevel = 0.01*(newLevel < 0 ? -1 : 1);
         }
       
-      this->IV->GetWindowLevel()->SetWindow(newWindow);
-      this->IV->GetWindowLevel()->SetLevel(newLevel);
+      this->IV->SetColorWindow(newWindow);
+      this->IV->SetColorLevel(newLevel);
       this->IV->Render();
     }
   

@@ -33,6 +33,8 @@
 #include "vtkImageMapper.h"
 #include "vtkRenderWindow.h"
 
+class vtkInteractorStyleImage;
+
 class VTK_RENDERING_EXPORT vtkImageViewer : public vtkObject 
 {
 public:
@@ -101,11 +103,17 @@ public:
   void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);};
   virtual void SetSize(int a[2]);
   
-  vtkImageMapper *GetImageMapper() {return this->ImageMapper;};
-  vtkActor2D     *GetActor2D() {return this->Actor2D;};
-  vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
-  vtkRenderer     *GetRenderer() {return this->Renderer;};
+  // Description:
+  // Get the internal objects
+  vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
+  vtkGetObjectMacro(ImageMapper,vtkImageMapper);
+  vtkGetObjectMacro(Actor2D,vtkActor2D);
   
+  // Description:
+  // Create and attach an interactor for this window
+  void SetupInteractor(vtkRenderWindowInteractor *);
+
 protected:
   vtkImageViewer();
   ~vtkImageViewer();
@@ -114,6 +122,9 @@ protected:
   vtkRenderer *Renderer;
   vtkImageMapper *ImageMapper;
   vtkActor2D     *Actor2D;
+  int FirstRender;
+  vtkRenderWindowInteractor *Interactor;
+  vtkInteractorStyleImage *InteractorStyle;
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.
   void operator=(const vtkImageViewer&);  // Not implemented.
