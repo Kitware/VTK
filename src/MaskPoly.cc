@@ -56,10 +56,6 @@ void vlMaskPolyData::Execute()
     vlErrorMacro (<<"No PolyData to mask!");
     return;
     }
-
-  this->SetPoints(this->Input->GetPoints());
-  pd = this->Input->GetPointData();
-  this->PointData = *pd;
 //
 // Allocate space
 //
@@ -112,6 +108,11 @@ void vlMaskPolyData::Execute()
 //
 // Update ourselves
 //
+  // pass through points and point data
+  this->SetPoints(this->Input->GetPoints());
+  pd = this->Input->GetPointData();
+  this->PointData = *pd;
+
   newVerts->Squeeze();
   this->SetVerts(newVerts);
 
