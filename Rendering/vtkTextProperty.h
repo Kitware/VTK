@@ -38,7 +38,7 @@ public:
   static vtkTextProperty *New();
 
   // Description:
-  // Set the color of the text..
+  // Set the color of the text.
   vtkSetVector3Macro(Color,double);
   vtkGetVectorMacro(Color,double,3);
 
@@ -59,7 +59,7 @@ public:
   char *GetFontFamilyAsString();
 
   // Description:
-  // Set/Get the font size (in pixels).
+  // Set/Get the font size (in points).
   vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(FontSize, int);
 
@@ -76,10 +76,16 @@ public:
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/disable text shadows.
+  // Enable/disable text shadow.
   vtkSetMacro(Shadow, int);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
+
+  // Description:
+  // Set/Get the shadow offset, i.e. the distance from the text to
+  // its shadow, in the same unit as FontSize.
+  vtkSetVector2Macro(ShadowOffset,int);
+  vtkGetVectorMacro(ShadowOffset,int,2);
 
   // Description:
   // Get the shadow color. It is computed from the Color ivar
@@ -142,6 +148,7 @@ protected:
   int   Bold;
   int   Italic;
   int   Shadow;
+  int   ShadowOffset[2];
   int   Justification;
   int   VerticalJustification;
   double Orientation;

@@ -15,7 +15,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.10");
+vtkCxxRevisionMacro(vtkTextProperty, "1.11");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -33,6 +33,8 @@ vtkTextProperty::vtkTextProperty()
   this->Bold = 0;
   this->Italic = 0;
   this->Shadow = 0;
+  this->ShadowOffset[0] = 1;
+  this->ShadowOffset[1] = -1;
 
   this->Justification = VTK_TEXT_LEFT;
   this->VerticalJustification = VTK_TEXT_BOTTOM;
@@ -101,6 +103,8 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
   os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
   os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
+  os << indent << "ShadowOffset: (" << this->ShadowOffset[0] << ", " 
+    << this->ShadowOffset[1] << ")\n";
 
   os << indent << "Justification: " 
      << this->GetJustificationAsString() << "\n";

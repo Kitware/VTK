@@ -91,7 +91,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.41");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.42");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -413,7 +413,9 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // Required for clipping to work correctly
 
     glRasterPos2i(0, 0);
-    glBitmap(0, 0, 0, 0, xoff + 1, yoff - 1, NULL);
+    glBitmap(0, 0, 0, 0, 
+             xoff + tprop->GetShadowOffset()[0], 
+             yoff + tprop->GetShadowOffset()[1], NULL);
     
     // Draw the shadow text
     
