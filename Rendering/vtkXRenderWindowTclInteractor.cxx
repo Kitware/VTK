@@ -12,23 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkActor.h"
+#include "vtkActorCollection.h"
+#include "vtkObjectFactory.h"
+#include "vtkOldStyleCallbackCommand.h"
+#include "vtkPoints.h"
+#include "vtkXOpenGLRenderWindow.h"
+#include "vtkXRenderWindowTclInteractor.h"
+#include <X11/Shell.h>
+#include <X11/X.h>
+#include <X11/keysym.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <X11/X.h>
-#include <X11/keysym.h>
-#include "vtkXRenderWindowTclInteractor.h"
-#include "vtkXOpenGLRenderWindow.h"
-#include "vtkActor.h"
-#include <X11/Shell.h>
-#include <math.h>
-#include "tk.h"
-#include "vtkActorCollection.h"
-#include "vtkPoints.h"
-#include "vtkOldStyleCallbackCommand.h"
-#include "vtkObjectFactory.h"
+#include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.45");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.46");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct

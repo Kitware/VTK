@@ -18,24 +18,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkImageData.h"
 #include "vtkTclUtil.h"
-
-// This widget requires access to structures that are normally 
-// not visible to Tcl/Tk applications. For this reason you must
-// have access to tkInt.h
-// #include "tkInt.h"
-#ifdef _WIN32
-extern "C"
-{
-#include "tkWinInt.h" 
-}
-#endif
+#include "vtkTkInternals.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
 #ifdef VTK_USE_CARBON
 #include "vtkCarbonRenderWindow.h"
-#include "tkMacOSXInt.h"
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif

@@ -10,3 +10,9 @@ ENDIF("${TK_INTERNAL_PATH}" MATCHES "Rendering/tkInternals/tk84")
 IF("${TK_INTERNAL_PATH}" MATCHES "Rendering/tkInternals/tk84OSX")
   SUBDIRS(tk84OSX)
 ENDIF("${TK_INTERNAL_PATH}" MATCHES "Rendering/tkInternals/tk84OSX")
+
+CONFIGURE_FILE(
+  ${VTK_SOURCE_DIR}/Rendering/tkInternals/.NoDartCoverage
+  ${VTK_BINARY_DIR}/Rendering/tkInternals/.NoDartCoverage)
+
+
