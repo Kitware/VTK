@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-02-04 19:09:39 barre>
+# modified by S. Barre (Time-stamp: <2002-02-08 17:20:57 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -245,6 +245,8 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --files_out '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c)$' \
         --gnuplot_file "$DOXTEMP/contrib/history.plt" \
         --history_img "$DOXTEMP/contrib/history.png" \
+        --history_img2y "$DOXTEMP/contrib/history2y.png" \
+        --history_img6m "$DOXTEMP/contrib/history6m.png" \
         --history_dir "$DOXTEMP/contrib" \
         --history_max_nb 12 \
         --lines_add 1.0 \
