@@ -8,6 +8,7 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}     
+    ImagePlaneWidget.cxx
     PushTest.cxx
     TestScalarBarWidget.cxx
     TestLineWidget.cxx
