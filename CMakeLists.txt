@@ -742,12 +742,25 @@ IF (VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
   ENDIF (APPLE)
   IF (try_file)
     VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
-    SET (TCL_TK_VERSION "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
-    FIND_PATH(TK_INTERNAL_PATH 
-              ${try_file}
-              "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSION}"
-              DOC "The path to the Tk internal headers (${try_file}).")
-    MARK_AS_ADVANCED(TK_INTERNAL_PATH)
+    SET (TCL_TK_VERSION  "${TCL_TK_MAJOR_VERSION}${TCL_TK_MINOR_VERSION}")
+    SET (TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
+    SET (DOC_STRING "The path to the Tk internal headers (${try_file}).")
+    # Let's ease the pain: most users have the internal path set 
+    # correctly, so if it's the case, let's change the location on their
+    # behalf to the new location. That code should be removed in a week
+    # or so (mid january)
+    SET (TK_INTERNAL_PATH_LEGACY 
+         "${VTK_SOURCE_DIR}/Rendering/tkInternals/tk${TCL_TK_VERSION}")
+    SET (TK_INTERNAL_PATH_TRY 
+         "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSIOND}")
+    IF ("${TK_INTERNAL_PATH}" MATCHES "${TK_INTERNAL_PATH_LEGACY}")
+      SET(TK_INTERNAL_PATH  
+          ${TK_INTERNAL_PATH_TRY} CACHE PATH ${DOC_STRING} FORCE)
+    ELSE ("${TK_INTERNAL_PATH}" MATCHES "${TK_INTERNAL_PATH_LEGACY}")
+      FIND_PATH(TK_INTERNAL_PATH 
+                ${try_file} ${TK_INTERNAL_PATH_TRY} DOC ${DOC_STRING})
+      MARK_AS_ADVANCED(TK_INTERNAL_PATH)
+    ENDIF ("${TK_INTERNAL_PATH}" MATCHES "${TK_INTERNAL_PATH_LEGACY}")
   ENDIF (try_file)
 ENDIF(VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
 
