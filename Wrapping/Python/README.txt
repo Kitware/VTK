@@ -8,6 +8,9 @@ Every effort has been taken to keep the changes backwards compatible
 so your old code should work without any problems.  However, we
 recommend that you use the new package structure.
 
+The file README_WRAP.txt provides a detailed description of how VTK
+objects are accessed and modified through Python.
+
 
 Contents
 ^^^^^^^^
@@ -54,9 +57,9 @@ Installation
 
      *nix:
 
-      Under Unix the way to do this is to export LD_LIBRARY_PATH (or
+      Under Unix the way to do this is to set the LD_LIBRARY_PATH (or
       equivalent) to the directory that contains the libvtk*.so
-      libraries.  You must also export your PYTHONPATH to _both_ the
+      libraries.  You must also set your PYTHONPATH to _both_ the
       directory that contains all the libvtk*Python.so files _and_ the
       Wrapping/Python directory.  Under bash/sh something like so
       needs to be done::
@@ -64,9 +67,14 @@ Installation
         $ export LD_LIBRARY_PATH=$VTK_ROOT/lib
         $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:$VTK_ROOT/lib
 
-      where VTK_ROOT is the directory where your VTK sources are the
-      VTK_ROOT/lib directory is where the libraries are built.  Change
-      this to suit your configuration.
+      and under csh::
+
+        $ setenv LD_LIBRARY_PATH ${VTK_ROOT}/lib
+        $ setenv PYTHONPATH ${VTK_ROOT}/Wrapping/Python:${VTK_ROOT}/lib
+
+      where VTK_ROOT is the directory where your VTK sources are and
+      VTK_ROOT/lib is where the libraries are built.  Change this to
+      suit your configuration.
 
      Win32:
 
