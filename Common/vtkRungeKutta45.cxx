@@ -18,7 +18,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.5");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.6");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
@@ -180,11 +180,11 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     if (shouldBreak)
       {
       if ( (retVal = 
-	    this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)) )
-	{
-	delTActual = delT;
-	return retVal;
-	}
+            this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)) )
+        {
+        delTActual = delT;
+        return retVal;
+        }
       break;
       }
     }

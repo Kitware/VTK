@@ -61,37 +61,37 @@ public:
   // NotInitialized = 2,
   // UnexpectedValue = 3
   virtual int ComputeNextStep(float* xprev, float* xnext, float t,
-			      float& delT, float maxError, 
-			      float& error) 
+                              float& delT, float maxError, 
+                              float& error) 
     {
       float minStep = delT;
       float maxStep = delT;
       float delTActual;
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
-				   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error);
     }
   virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-			      float t, float& delT, float maxError, 
-			      float& error)
+                              float t, float& delT, float maxError, 
+                              float& error)
     {
       float minStep = delT;
       float maxStep = delT;
       float delTActual;
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
-				   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error);
     }
   virtual int ComputeNextStep(float* xprev, float* xnext, 
-			      float t, float& delT, float& delTActual,
-			      float minStep, float maxStep,
-			      float maxError, float& error)
+                              float t, float& delT, float& delTActual,
+                              float minStep, float maxStep,
+                              float maxError, float& error)
     {
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
-				   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error);
     }
   virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-			      float t, float& delT, float& delTActual, 
-			      float minStep, float maxStep, 
-			      float maxError, float& error) = 0;
+                              float t, float& delT, float& delTActual, 
+                              float minStep, float maxStep, 
+                              float maxError, float& error) = 0;
 
   // Description:
   // Create concrete instance of the object.

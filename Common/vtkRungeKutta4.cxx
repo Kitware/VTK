@@ -18,7 +18,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta4, "1.9");
+vtkCxxRevisionMacro(vtkRungeKutta4, "1.10");
 vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4() 
@@ -60,8 +60,8 @@ void vtkRungeKutta4::Initialize()
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
 int vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-				    float t, float& delT, float& delTActual,
-				    float, float, float, float& error)
+                                    float t, float& delT, float& delTActual,
+                                    float, float, float, float& error)
 {
 
   int i, numDerivs, numVals;

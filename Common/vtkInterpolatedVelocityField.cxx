@@ -18,7 +18,7 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.13");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.14");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
@@ -117,37 +117,37 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 
       // if not, find and get it
       if (this->LastCellId != - 1 )
-	{
-	this->CacheMiss++;
+        {
+        this->CacheMiss++;
 
-	this->DataSet->GetCell(this->LastCellId, this->Cell);
-	
-	this->LastCellId = 
-	  this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
-				  subId, this->LastPCoords, this->Weights);
-	if (this->LastCellId != - 1)
-	  {
-	  this->DataSet->GetCell(this->LastCellId, this->GenCell);
-	  }
-	else
-	  {
-	  return 0;
-	  }
-	}
+        this->DataSet->GetCell(this->LastCellId, this->Cell);
+        
+        this->LastCellId = 
+          this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
+                                  subId, this->LastPCoords, this->Weights);
+        if (this->LastCellId != - 1)
+          {
+          this->DataSet->GetCell(this->LastCellId, this->GenCell);
+          }
+        else
+          {
+          return 0;
+          }
+        }
       else
-	{
-	this->LastCellId = 
-	  this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
-				  subId, this->LastPCoords, this->Weights);
-	if (this->LastCellId != - 1)
-	  {
-	  this->DataSet->GetCell(this->LastCellId, this->GenCell);
-	  }
-	else
-	  {
-	  return 0;
-	  }
-	}
+        {
+        this->LastCellId = 
+          this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
+                                  subId, this->LastPCoords, this->Weights);
+        if (this->LastCellId != - 1)
+          {
+          this->DataSet->GetCell(this->LastCellId, this->GenCell);
+          }
+        else
+          {
+          return 0;
+          }
+        }
       }
     else
       {
