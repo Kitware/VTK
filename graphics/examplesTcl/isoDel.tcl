@@ -19,15 +19,14 @@ vtkPLOT3DReader pl3d
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
-
 vtkContourFilter iso
     iso SetInput [pl3d GetOutput]
-    iso SetValue 0 .203
+    iso SetValue 0 .205
 
 vtkDelaunay3D del
     del SetInput  [iso GetOutput]
     del BoundingTriangulationOff
-    del SetAlpha .8
+    del SetAlpha .9
 
 vtkDataSetMapper isoMapper
     isoMapper SetInput [del GetOutput]
@@ -63,10 +62,9 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
-#renWin SetFileName "combIso.tcl.ppm"
+renWin SetFileName "isoDel.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
 
