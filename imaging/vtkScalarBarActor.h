@@ -212,6 +212,9 @@ private:
   int LastSize[2];
   int LastOrigin[2];
 
+  void SizeTitle(int *titleSize, int *size, vtkViewport *viewport);
+  void AllocateAndSizeLabels(int *labelSize, int *size,
+                             vtkViewport *viewport, float *range);
 };
 
 

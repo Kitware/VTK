@@ -191,10 +191,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int renderedSomething = 0;
   int i;
   int size[2];
-  int stringHeight, stringWidth;
-  int fontSize;
-  int titleHeight;
-  int numLines;
   
   if ( ! this->LookupTable )
     {
@@ -296,112 +292,22 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->TitleMapper->SetFontFamily(this->FontFamily);
 
     
-    // find the best size for the font
-    int tempi[2];
-    int target;
-    if ( this->Orientation == VTK_ORIENT_VERTICAL )
-      {
-      target = (int)(size[1]*0.05 + 0.05*size[0]);
-      }
-    else
-      {
-      target = (int)(size[1]*0.07 + size[0]*0.03);
-      }
-    if (this->Title == NULL || (strlen(this->Title) == 0))
-      {
-      // dummy up a title to force a fontsize calculation (the same font
-      // size is used for title and ticks, so if we dummy up a title, the
-      // font size selected for the ticks will be same regardless of whether
-      // a title is supplied or not)
-      this->TitleMapper->SetInput("foo");
-      }
-    fontSize = target;
-    this->TitleMapper->SetFontSize(fontSize);
-    this->TitleMapper->GetSize(viewport,tempi);
-
-    while (tempi[1] < target*this->TitleMapper->
-           GetNumberOfLines(this->TitleMapper->GetInput()) && 
-           fontSize < 100 ) 
-      {
-      fontSize++;
-      this->TitleMapper->SetFontSize(fontSize);
-      this->TitleMapper->GetSize(viewport,tempi);
-      }
+    // find the best size for the title font
+    int titleSize[2];
+    this->SizeTitle(titleSize, size, viewport);
     
-    while ((tempi[1] > target*this->TitleMapper->
-            GetNumberOfLines(this->TitleMapper->GetInput()) ||
-            tempi[0] > size[0] )
-           && fontSize > 0 )
-      {
-      fontSize--;
-      this->TitleMapper->SetFontSize(fontSize);
-      this->TitleMapper->GetSize(viewport,tempi);
-      }
-    
-    
-    stringHeight = tempi[1];
-    if (this->Title == NULL || (strlen(this->Title) == 0))
-      {
-      // if no title was originally specified, then we used a dummy
-      // title above to force a font size selection.  We need to reset
-      // the title and indicate that no space is needed for the title
-      this->TitleMapper->SetInput( this->Title );
-      stringHeight = 0;
-      }
-      
-    this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
-    this->TextActors = new vtkActor2D * [this->NumberOfLabels];
-    char string[512];
-    float val;
-    for (i=0; i < this->NumberOfLabels; i++)
-      {
-      this->TextMappers[i] = vtkTextMapper::New();
-      val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
-      sprintf(string, this->LabelFormat, val);
-      this->TextMappers[i]->SetInput(string);
-      this->TextMappers[i]->SetFontSize(fontSize);
-      this->TextMappers[i]->SetBold(this->Bold);
-      this->TextMappers[i]->SetItalic(this->Italic);
-      this->TextMappers[i]->SetShadow(this->Shadow);
-      this->TextMappers[i]->SetFontFamily(this->FontFamily);
-      this->TextActors[i] = vtkActor2D::New();
-      this->TextActors[i]->SetMapper(this->TextMappers[i]);
-      this->TextActors[i]->SetProperty(this->GetProperty());
-      this->TextActors[i]->GetPositionCoordinate()->
-	SetReferenceCoordinate(this->PositionCoordinate);
-      }
-    
+    // find the best size for the ticks
+    int labelSize[2];
+    this->AllocateAndSizeLabels(labelSize, size, viewport,range);
     this->NumberOfLabelsBuilt = this->NumberOfLabels;
-
+    
     // generate points
     float x[3]; x[2] = 0.0;
     float delta;
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      // need to find maximum width
-      stringWidth = 0;
-      for (i=0; i < this->NumberOfLabels; i++)
-	{
-	this->TextMappers[i]->GetSize(viewport,tempi);
-	if (stringWidth < tempi[0])
-	  {
-	  stringWidth = tempi[0];
-	  }
-	}
-      barWidth = size[0] - 4 - stringWidth;
-      barHeight = (int)(size[1] - stringHeight*2.2);
-      numLines = this->TitleMapper->GetNumberOfLines(
-                                      this->TitleMapper->GetInput());
-      if (numLines != 0)
-        {
-        titleHeight = (int)(stringHeight + (stringHeight / numLines) * 1.2); 
-        }
-      else
-        {
-        titleHeight = 0;
-        }
-
-      barHeight = (int)(size[1] - titleHeight);
+      barWidth = size[0] - 4 - labelSize[0];
+      barHeight = (int)(0.86*size[1]);
       delta=(float)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
 	{
@@ -415,17 +321,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       barWidth = size[0];
-      numLines = this->TitleMapper->GetNumberOfLines(
-                                      this->TitleMapper->GetInput());
-      if (numLines != 0)
-        {
-        titleHeight = (int)(stringHeight + (stringHeight / numLines) * 1.6); 
-        }
-      else
-        {
-        titleHeight = 0;
-        }
-      barHeight = (int)(size[1] - titleHeight);
+      barHeight = (int)(0.4*size[1]);
       delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
 	{
@@ -458,12 +354,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // Now position everything properly
     //
+    float val;
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       int sizeTextData[2];
       
       // center the title
-      this->TitleActor->SetPosition(size[0]/2, size[1] - stringHeight);
+      this->TitleActor->SetPosition(size[0]/2, 0.9*size[1]);
       
       for (i=0; i < this->NumberOfLabels; i++)
 	{
@@ -476,12 +373,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     else
       {
-      this->TitleActor->SetPosition(size[0]/2, size[1] - stringHeight);
+      this->TitleActor->SetPosition(size[0]/2, 
+                                    barHeight + labelSize[1] + 0.1*size[1]);
       for (i=0; i < this->NumberOfLabels; i++)
 	{
 	val = (float)i/(this->NumberOfLabels-1) * barWidth;
 	this->TextMappers[i]->SetJustificationToCentered();
-	this->TextActors[i]->SetPosition(val, barHeight + 0.2*stringHeight);
+	this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
 	}
       }
 
@@ -583,3 +481,154 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);
 }
+
+
+void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, int *size,
+                                              vtkViewport *viewport,
+                                              float *range)
+{
+  labelSize[0] = 0;
+  labelSize[1] = 0;
+  int fontSize;
+  int tempi[2];
+  
+  this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
+  this->TextActors = new vtkActor2D * [this->NumberOfLabels];
+  char string[512];
+  float val;
+  int targetWidth, targetHeight;
+  int i;
+  
+  for (i=0; i < this->NumberOfLabels; i++)
+    {
+    this->TextMappers[i] = vtkTextMapper::New();
+    val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+    sprintf(string, this->LabelFormat, val);
+    this->TextMappers[i]->SetInput(string);
+    this->TextMappers[i]->SetBold(this->Bold);
+    this->TextMappers[i]->SetItalic(this->Italic);
+    this->TextMappers[i]->SetShadow(this->Shadow);
+    this->TextMappers[i]->SetFontFamily(this->FontFamily);
+    this->TextActors[i] = vtkActor2D::New();
+    this->TextActors[i]->SetMapper(this->TextMappers[i]);
+    this->TextActors[i]->SetProperty(this->GetProperty());
+    this->TextActors[i]->GetPositionCoordinate()->
+      SetReferenceCoordinate(this->PositionCoordinate);
+    }
+  if (this->NumberOfLabels)
+    {
+    if ( this->Orientation == VTK_ORIENT_VERTICAL )
+      {
+      targetWidth = (int)(0.6*size[0]);
+      targetHeight = (int)(0.86*size[1]/this->NumberOfLabels);
+      }
+    else
+      {
+      targetWidth = (int)(size[0]*0.8/this->NumberOfLabels);
+      targetHeight = (int)(0.25*size[1]);
+      }
+    fontSize = targetWidth;
+    for (i=0; i < this->NumberOfLabels; i++)
+      {
+      this->TextMappers[i]->SetFontSize(fontSize);
+      this->TextMappers[i]->GetSize(viewport,tempi);
+      if (labelSize[0] < tempi[0])
+        {
+        labelSize[0] = tempi[0];
+        }
+      if (labelSize[1] < tempi[1])
+        {
+        labelSize[1] = tempi[1];
+        }
+      }
+    
+    while (labelSize[0] < targetWidth && labelSize[1] < targetHeight && 
+           fontSize < 100 ) 
+      {
+      fontSize++;
+      labelSize[0] = 0;
+      labelSize[1] = 0;
+      for (i=0; i < this->NumberOfLabels; i++)
+        {
+        this->TextMappers[i]->SetFontSize(fontSize);
+        this->TextMappers[i]->GetSize(viewport,tempi);
+        if (labelSize[0] < tempi[0])
+          {
+          labelSize[0] = tempi[0];
+          }
+        if (labelSize[1] < tempi[1])
+          {
+          labelSize[1] = tempi[1];
+          }
+        }
+      }
+    
+    while ((labelSize[0] > targetWidth || 
+            labelSize[1] > targetHeight) && fontSize > 0 )
+      {
+      fontSize--;
+      labelSize[0] = 0;
+      labelSize[1] = 0;
+      for (i=0; i < this->NumberOfLabels; i++)
+        {
+        this->TextMappers[i]->SetFontSize(fontSize);
+        this->TextMappers[i]->GetSize(viewport,tempi);
+        if (labelSize[0] < tempi[0])
+          {
+          labelSize[0] = tempi[0];
+          }
+        if (labelSize[1] < tempi[1])
+          {
+          labelSize[1] = tempi[1];
+          }
+        }
+      }
+    }
+}
+
+
+void vtkScalarBarActor::SizeTitle(int *titleSize, int *size, 
+                                  vtkViewport *viewport)
+{
+  int targetWidth, targetHeight;
+  titleSize[0] = 0;    
+  titleSize[1] = 0;
+  int fontSize;
+  int tempi[2];
+  
+  if (this->Title != NULL && (strlen(this->Title) != 0))
+    {
+    if ( this->Orientation == VTK_ORIENT_VERTICAL )
+      {
+      targetWidth = size[0];
+      targetHeight = (int)(0.1*size[1]);
+      }
+    else
+      {
+      targetWidth = size[0];
+      targetHeight = (int)(0.25*size[1]);
+      }
+    fontSize = targetWidth;
+    this->TitleMapper->SetFontSize(fontSize);
+    this->TitleMapper->GetSize(viewport,tempi);
+    
+    while (tempi[1] < targetHeight && tempi[0] < targetWidth 
+           && fontSize < 100 ) 
+      {
+      fontSize++;
+      this->TitleMapper->SetFontSize(fontSize);
+      this->TitleMapper->GetSize(viewport,tempi);
+      }
+    
+    while ((tempi[1] > targetHeight || tempi[0] > targetWidth )
+           && fontSize > 0 )
+      {
+      fontSize--;
+      this->TitleMapper->SetFontSize(fontSize);
+      this->TitleMapper->GetSize(viewport,tempi);
+      }
+    titleSize[0] = tempi[0];
+    titleSize[1] = tempi[1];
+    }
+}
+
