@@ -48,7 +48,7 @@ ren$vectorFunction AddActor actor$vectorFunction
 
 vtkTextMapper textMapper$vectorFunction
   textMapper$vectorFunction SetInput [lindex $vectorLabels $i]
-  textMapper$vectorFunction SetFontSize 10
+  textMapper$vectorFunction SetFontSize 14
   textMapper$vectorFunction SetFontFamilyToArial
 vtkActor2D text$vectorFunction
   text$vectorFunction SetMapper textMapper$vectorFunction
