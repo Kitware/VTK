@@ -32,7 +32,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.40");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.41");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -193,18 +193,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff +size[1], 0, 1);
-    
-    // add this check here for GL_SELECT mode
-    // If we are not picking, then don't write to the zbuffer
-    // since we are writing an overlay. This will allow us to put 
-    // up translucent overlays and still have intermixed geometry
-    // work with volume rendering behind it. 
-    GLint param[1];
-    glGetIntegerv(GL_RENDER_MODE, param);
-    if(param[0] != GL_SELECT )
-      {
-      glDepthMask(GL_FALSE);
-      }
     }  
   else
     {
