@@ -80,7 +80,7 @@ ren1 AddActor blobby
 ren1 SetBackground 1 1 1
 renWin Render 
 
-set subIters 20.0
+set subIters 4.0
 for {set i 0} {$i < 2} {incr i} {
    for {set j 1} {$j <= $subIters} {incr j} {
       set t [expr $i + $j/$subIters]

@@ -308,7 +308,7 @@ vtkRenderWindowInteractor iren
 #vtkButterflySubdivisionFilter subdivide
 vtkLoopSubdivisionFilter subdivide
   subdivide SetInput model
-  subdivide SetNumberOfSubdivisions 6
+  subdivide SetNumberOfSubdivisions 4
 
 vtkDataSetMapper mapper
    mapper SetInput [subdivide GetOutput]

@@ -13,8 +13,8 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 set RESOLUTION 64
-set START_SLICE 1
-set END_SLICE 93
+set START_SLICE 50
+set END_SLICE 60
 set PIXEL_SIZE 3.2
 set centerX [expr ( $RESOLUTION / 2 )]
 set centerY [expr ( $RESOLUTION / 2 )]
