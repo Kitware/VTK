@@ -25,13 +25,13 @@
 #ifndef __vtkMaskPoints_h
 #define __vtkMaskPoints_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   static vtkMaskPoints *New();
-  vtkTypeRevisionMacro(vtkMaskPoints,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMaskPoints,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,7 +68,7 @@ protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int OnRatio;     // every OnRatio point is on; all others are off.
   vtkIdType Offset;      // offset (or starting point id)
@@ -81,5 +81,3 @@ private:
 };
 
 #endif
-
-

@@ -16,13 +16,15 @@
 
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.45");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.46");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -36,16 +38,27 @@ vtkMaskPoints::vtkMaskPoints()
 }
 
 //----------------------------------------------------------------------------
-void vtkMaskPoints::Execute()
+int vtkMaskPoints::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *newPts;
   vtkPointData *pd;
   vtkIdType numNewPts;
   double x[3];
   vtkIdType ptId, id;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  vtkDataSet *input= this->GetInput();
   vtkIdType numPts=input->GetNumberOfPoints();
   
   // Check input
@@ -54,7 +67,7 @@ void vtkMaskPoints::Execute()
 
   if ( numPts < 1 )
     {
-    return;
+    return 0;
     }
 
   pd = input->GetPointData();
@@ -148,8 +161,9 @@ void vtkMaskPoints::Execute()
 
   vtkDebugMacro(<<"Masked " << numPts << " original points to " 
                 << id+1 << " points");
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
