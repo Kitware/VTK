@@ -124,7 +124,6 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   unsigned long count = 0;
   unsigned long target;
   int interpolate;
-  T *inPtrOrig, *outPtrOrig;
   int magXIdx, magX;
   int magYIdx, magY;
   int magZIdx, magZ;
@@ -134,8 +133,9 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
   int interpSetup;
   int *wExtent;
-  T *maxInPtr; 
-
+  T *minInPtr; 
+  int *inDimensions;
+  
   interpolate = self->GetInterpolate();
   magX = self->GetMagnificationFactors()[0];
   magY = self->GetMagnificationFactors()[1];
@@ -156,15 +156,14 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 
   // where do we have to stop interpolations due to boundaries
   wExtent = inData->GetExtent();
-  maxInPtr = (T*)inData->GetScalarPointer(wExtent[1],wExtent[3],wExtent[5]);
-
+  minInPtr = (T*)inData->GetScalarPointer(wExtent[0],wExtent[2],wExtent[4]);
+  inDimensions = inData->GetDimensions();
+  
   // Loop through ouput pixels
-  inPtrOrig = inPtr;
-  outPtrOrig = outPtr;
   for (idxC = 0; idxC < maxC; idxC++)
     {
-    inPtrZ = inPtrOrig + idxC;
-    outPtr = outPtrOrig + idxC;
+    inPtrZ = inPtr + idxC;
+    outPtr = outPtr + idxC;
     magZIdx = magZ - outExt[4]%magZ - 1;
     for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
       {
@@ -204,14 +203,26 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	    if (!interpSetup) 
 	      {
 	      int tiX, tiY, tiZ;
+	      int numPixels = inPtrX - minInPtr;
 	      
 	      dataP = *inPtrX;
-	      if (inPtrX + inIncX <= maxInPtr) tiX = inIncX;
-	      else tiX = 0;
-	      if (inPtrX + inIncY <= maxInPtr) tiY = inIncY;
-	      else tiY = 0;
-	      if (inPtrX + inIncZ <= maxInPtr) tiZ = inIncZ;
-	      else tiZ = 0;
+
+	      if ((numPixels+1)%inDimensions[0]) tiX = 0;
+	      else
+		{
+		tiX = inIncX;
+		}
+	      if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) tiY = 0;
+	      else
+		{
+		tiY = inIncY;
+		}
+	      if (((numPixels/inDimensions[0])/inDimensions[1] + 1) >= 
+		  inDimensions[2]) tiZ = 0;
+	      else
+		{
+		tiZ = inIncZ;
+		}
 	      dataPX = *(inPtrX + tiX);
 	      dataPY = *(inPtrX + tiY);
 	      dataPZ = *(inPtrX + tiZ);
