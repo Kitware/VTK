@@ -19,11 +19,13 @@ IF (VTK_USE_RENDERING)
       clipArt
       createBFont
       cylMap
+      dataSetSurfaceFilter
       Delaunay2D
       dicer
       EnSight6Elements
       EnSightGoldElements
       extractUGrid
+      extractVectors
       glyph2D
       KlineBottle
       nacaBinary
@@ -40,6 +42,7 @@ IF (VTK_USE_RENDERING)
       spToPd
       teapotHulls
       TenEllip
+      testDataSetTriangleFilter
       testQuadricDecimation
       triangularTCoords
       ugFacet
