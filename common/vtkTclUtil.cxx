@@ -556,7 +556,7 @@ void vtkTclDeleteCommandStruct(ClientData cd)
   delete cs;
 }
 
-void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
+void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
                      ClientData (*NewCommand)(),
                      int (*CommandFunction)(ClientData cd,
 					    Tcl_Interp *interp,
@@ -565,7 +565,7 @@ void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
   vtkTclCommandStruct *cs = new vtkTclCommandStruct;
   cs->NewCommand = NewCommand;
   cs->CommandFunction = CommandFunction;
-  Tcl_CreateCommand(interp,cname,vtkTclNewInstanceCommand,
+  Tcl_CreateCommand(interp,(char *) cname,vtkTclNewInstanceCommand,
                    (ClientData *)cs,
                    (Tcl_CmdDeleteProc *)vtkTclDeleteCommandStruct);
 }

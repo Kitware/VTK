@@ -78,7 +78,7 @@ extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd,
 						  int argc, char *argv[]);
 extern VTKTCL_EXPORT void vtkTclDeleteCommandStruct(ClientData cd);
 extern VTKTCL_EXPORT 
-void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
+void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 		     ClientData (*NewCommand)(),
 		     int (*CommandFunction)(ClientData cd,
 					    Tcl_Interp *interp,
@@ -102,11 +102,11 @@ public:
       
       if (res == TCL_ERROR)
         {
-        if (Tcl_GetVar(this->Interp,"errorInfo",0))
+        if (Tcl_GetVar(this->Interp,(char *) "errorInfo",0))
           {
           vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                                  this->StringCommand << endl <<
-                                 Tcl_GetVar(this->Interp,"errorInfo",0) <<
+                                 Tcl_GetVar(this->Interp,(char *) "errorInfo",0) <<
                                  " at line number " << this->Interp->errorLine);
           }
         else
