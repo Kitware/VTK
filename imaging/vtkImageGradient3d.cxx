@@ -228,7 +228,7 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
 // templated function for the input region type.  The output region
 // must be of type float.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion, 
+void vtkImageGradient3d::Execute(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -237,7 +237,7 @@ void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion,
   // this filter expects that output is type float.
   if (outRegion->GetDataType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute4d: output DataType, "
+    vtkErrorMacro(<< "Execute: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
                   << ", must be float");
     return;
@@ -271,7 +271,7 @@ void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion,
 			  outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute4d: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown DataType");
       return;
     }
 }

@@ -79,7 +79,7 @@ protected:
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

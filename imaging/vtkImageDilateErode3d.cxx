@@ -294,7 +294,7 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
   // Error checking on mask
   if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
     {
-    vtkErrorMacro(<< "Execute3d: Bad Mask");
+    vtkErrorMacro(<< "Execute: Bad Mask");
     return;
     }
 
@@ -345,7 +345,7 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageDilateErode3d::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageDilateErode3d::Execute(vtkImageRegion *inRegion, 
 					    vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -357,7 +357,7 @@ void vtkImageDilateErode3d::Execute3d(vtkImageRegion *inRegion,
   // Error checking on mask
   if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
     {
-    vtkErrorMacro(<< "Execute3d: Bad Mask");
+    vtkErrorMacro(<< "Execute: Bad Mask");
     return;
     }
 

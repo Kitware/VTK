@@ -71,7 +71,7 @@ protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
   
-  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

@@ -143,7 +143,7 @@ void vtkImageHarrWavelet2dExecute(vtkImageHarrWavelet2d *self,
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageHarrWavelet2d::Execute(vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion)
 {
   vtkImageRegion *tempRegion = NULL;
@@ -153,13 +153,13 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
   int levelIdx;
   
   
-  vtkDebugMacro(<< "Execute2d: inRegion = " << inRegion 
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
   if (inRegion->GetDataType() != outRegion->GetDataType())
     {
-    vtkErrorMacro(<< "Execute2d: input DataType, " << inRegion->GetDataType()
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
                   << ", must match out DataType " << outRegion->GetDataType());
     return;
     }
@@ -206,7 +206,7 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
 				   outRegion, (unsigned char *)(outPtr));
 	break;
       default:
-	vtkErrorMacro(<< "Execute2d: Unknown DataType");
+	vtkErrorMacro(<< "Execute: Unknown DataType");
 	return;
       }
     

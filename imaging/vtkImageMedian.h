@@ -72,7 +72,7 @@ protected:
   int UpNum;
   int DownNum;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };
 

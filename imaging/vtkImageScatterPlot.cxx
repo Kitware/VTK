@@ -171,7 +171,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
   // We need an input (error checking)
   if ( ! this->Input)
     {
-    vtkErrorMacro(<< "UpdateRegion4d: Input not set.");
+    vtkErrorMacro(<< "UpdateRegion: Input not set.");
     }
   
   // this filter expects that output is unsigned short

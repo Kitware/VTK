@@ -58,7 +58,7 @@ public:
   char *GetClassName() {return "vtkImageArithmetic";};
 
 protected:
-  void Execute2d(vtkImageRegion *inRegion1, 
+  void Execute(vtkImageRegion *inRegion1, 
 		 vtkImageRegion *inRegion2, 
 		 vtkImageRegion *outRegion);
 };

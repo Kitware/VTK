@@ -54,7 +54,7 @@ vtkImageArithmetic::vtkImageArithmetic()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageArithmeticExecute2d(vtkImageArithmetic *self,
+void vtkImageArithmeticExecute(vtkImageArithmetic *self,
 				       vtkImageRegion *in1Region, T *in1Ptr,
 				       vtkImageRegion *in2Region, T *in2Ptr,
 				       vtkImageRegion *outRegion, T *outPtr)
@@ -109,7 +109,7 @@ void vtkImageArithmeticExecute2d(vtkImageArithmetic *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1, 
+void vtkImageArithmetic::Execute(vtkImageRegion *inRegion1, 
 					 vtkImageRegion *inRegion2, 
 					 vtkImageRegion *outRegion)
 {
@@ -130,31 +130,31 @@ void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1,
   switch (inRegion1->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageArithmeticExecute2d(this, 
+      vtkImageArithmeticExecute(this, 
 			  inRegion1, (float *)(inPtr1), 
 			  inRegion2, (float *)(inPtr2), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageArithmeticExecute2d(this, 
+      vtkImageArithmeticExecute(this, 
 			  inRegion1, (int *)(inPtr1), 
 			  inRegion2, (int *)(inPtr2), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageArithmeticExecute2d(this, 
+      vtkImageArithmeticExecute(this, 
 			  inRegion1, (short *)(inPtr1), 
 			  inRegion2, (short *)(inPtr2), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageArithmeticExecute2d(this, 
+      vtkImageArithmeticExecute(this, 
 			  inRegion1, (unsigned short *)(inPtr1), 
 			  inRegion2, (unsigned short *)(inPtr2), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageArithmeticExecute2d(this, 
+      vtkImageArithmeticExecute(this, 
 			  inRegion1, (unsigned char *)(inPtr1), 
 			  inRegion2, (unsigned char *)(inPtr2), 
 			  outRegion, (unsigned char *)(outPtr));

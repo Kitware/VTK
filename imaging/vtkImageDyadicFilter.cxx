@@ -48,12 +48,15 @@ vtkImageDyadicFilter::vtkImageDyadicFilter()
   this->Input1 = NULL;
   this->Input2 = NULL;
   this->UseExecuteMethodOn();
+  this->InputMemoryLimit = 100000;   // 100 MBytes
 }
 
 //----------------------------------------------------------------------------
 void vtkImageDyadicFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageCachedSource::PrintSelf(os,indent);
+  os << indent << "Input1: (" << this->Input1 << ")\n";
+  os << indent << "Input2: (" << this->Input2 << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -167,29 +170,15 @@ void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method gets the input regions from the inputs, uses the cache to
-// allocate the output region, and calls the execute method to fill the 
-// out region.  If either of the input requests fail, the whole update
-// fails.  If dynamic splitting turns out to be important, it
-// could be imp[lemented for this class, but would be more complex
-// that the vtkImageFilter class.
-void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
+// This method is called by the cache.  It calls the
+// UpdatePointData(vtkImageRegion *) method or the 
+// Execute(vtkImageRegion *, vtkImageRegion *) method depending of whether
+// UseExecuteMethod is on.  ImageInformation has already been
+// updated by this point, and outRegion is in local coordinates.
+void 
+vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion1, *inRegion2;
-  
-  if (this->Debug)
-    {
-    int *b = outRegion->GetExtent();
-    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
-	 << this->GetClassName() << " (" << this << "): "
-	 << "GenerateRegion: " << b[0] << "," << b[1] << ", "
-	 << b[2] << "," << b[3] << ", " 
-	 << b[4] << "," << b[5] << ", "
-	 << b[6] << "," << b[7] << "\n\n";
-    }
-  
-  // To avoid doing this for each execute1d ...
-  this->UpdateImageInformation(outRegion);  // probably already has ImageExtent
   
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
@@ -207,28 +196,52 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
   // Determine whether to use the execute methods or the generate methods.
   if ( ! this->UseExecuteMethod)
     {
-    this->UpdateRegion5d(outRegion);
+    this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+    return;
+    }
+  
+  // Make sure the Input has been set.
+  if ( ! this->Input1 || ! this->Input2)
+    {
+    vtkErrorMacro(<< "Input is not set.");
     return;
     }
   
   // Make the input regions that will be used to generate the output region
   inRegion1 = new vtkImageRegion;
   inRegion2 = new vtkImageRegion;
-  
   // Fill in image information
   this->Input1->UpdateImageInformation(inRegion1);
   this->Input2->UpdateImageInformation(inRegion2);
-  
   // Translate to local coordinate system
-  inRegion1->SetAxes(this->Axes);
-  inRegion2->SetAxes(this->Axes);
+  inRegion1->SetAxes(this->Axes, VTK_IMAGE_DIMENSIONS);
+  inRegion2->SetAxes(this->Axes, VTK_IMAGE_DIMENSIONS);
   
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
-  inRegion1->SetExtent(outRegion->GetExtent());
-  inRegion2->SetExtent(outRegion->GetExtent());
+  inRegion1->SetExtent(outRegion->GetExtent(), VTK_IMAGE_DIMENSIONS);
+  inRegion2->SetExtent(outRegion->GetExtent(), VTK_IMAGE_DIMENSIONS);
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion1, inRegion2);
 
+  // Cheap and dirty streaming 
+  // No split order instance variable, and can not split into two ...
+  if (inRegion1->GetMemorySize() > this->InputMemoryLimit || 
+      inRegion2->GetMemorySize() > this->InputMemoryLimit)
+    {
+    inRegion1->Delete();
+    inRegion2->Delete();
+    if (axisIdx == 0)
+      {
+      vtkErrorMacro(<< "UpdatePointData: Memory Limit "
+                    << this->InputMemoryLimit << " must be really small");
+      }
+    else
+      {
+      this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+      }
+    return;
+    }
+  
   // Use the input to fill the data of the region.
   this->Input1->UpdateRegion(inRegion1);
   this->Input2->UpdateRegion(inRegion2);
@@ -236,10 +249,17 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
   // Make sure the region was not too large 
   if ( ! inRegion1->IsAllocated() || ! inRegion2->IsAllocated())
     {
-    // Call alternative slower generate that breaks the task into pieces 
+    // Try Streaming
     inRegion1->Delete();
     inRegion2->Delete();
-    outRegion->SetSplitFactor(2);
+    if (axisIdx == 0)
+      {
+      vtkErrorMacro(<< "UpdatePointData: Could not get input.");
+      }
+    else
+      {
+      this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+      }
     return;
     }
   
@@ -247,7 +267,7 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
   this->Output->AllocateRegion(outRegion);
 
   // fill the output region 
-  this->Execute5d(inRegion1, inRegion2, outRegion);
+  this->Execute(axisIdx, inRegion1, inRegion2, outRegion);
 
   // free the input regions
   inRegion1->Delete();
@@ -326,225 +346,70 @@ void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a 5d input and output region, and executes the filter
-// algorithm to fill the output from the input.  The default Execute5d
-// method breaks the 5d regions into 4d "images".  The regions have been
-// converted to this filters coordinates before this method is called.
-void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
+// This execute method recursively loops over extra dimensions and
+// calls the subclasses Execute method with lower dimensional regions.
+void vtkImageDyadicFilter::Execute(int axisIdx, vtkImageRegion *inRegion1,
 				     vtkImageRegion *inRegion2,
 				     vtkImageRegion *outRegion)
 {
-  int coordinate4, min4, max4;
-  int inExtent[10], outExtent[10];
+  int coordinate, min, max;
+  int inExtent[axisIdx*2], outExtent[axisIdx*2];
+  
+
+  // Terminate recursion?
+  if (axisIdx <= this->NumberOfAxes)
+    {
+    this->Execute(inRegion1, inRegion2, outRegion);
+    return;
+    }
   
   // Get the extent of the forth dimension to be eliminated.
-  inRegion1->GetExtent(inExtent, 5);
-  outRegion->GetExtent(outExtent, 5);
+  inRegion1->GetExtent(inExtent, axisIdx);
+  outRegion->GetExtent(outExtent, axisIdx);
 
   // This method assumes that the fifth axis of in and out have same extent.
-  min4 = outExtent[8];
-  max4 = outExtent[9];
-  if (min4 != inExtent[8] || max4 != inExtent[9])
+  min = outExtent[axisIdx*2 - 2];
+  max = outExtent[axisIdx*2 - 1];
+  if (min != inExtent[axisIdx*2 - 2] || max != inExtent[axisIdx*2 - 1])
     {
-    vtkErrorMacro(<< "Execute5d: Cannot break 5d images into 4d images.");
+    vtkErrorMacro(<< "Execute: Extra axis can not be eliminated.");
     return;
     }
   
-  // loop over 4d volumes
-  for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
+  // loop over the samples along the extra axis.
+  for (coordinate = min; coordinate <= max; ++coordinate)
     {
-    // set up the 4d regions.
-    inExtent[8] = coordinate4;
-    inExtent[9] = coordinate4;
-    inRegion1->SetExtent(inExtent, 5);
-    inRegion2->SetExtent(inExtent, 5);
-    outExtent[8] = coordinate4;
-    outExtent[9] = coordinate4;
-    outRegion->SetExtent(outExtent, 5);
-    // set up the 4d regions.
-    this->Execute4d(inRegion1, inRegion2, outRegion);
+    // set up the lower dimensional regions.
+    inExtent[2*axisIdx - 2] = inExtent[2*axisIdx - 1] = coordinate;
+    inRegion1->SetExtent(inExtent, axisIdx);
+    inRegion2->SetExtent(inExtent, axisIdx);
+    outExtent[2*axisIdx - 2] = outExtent[2*axisIdx - 1] = coordinate;
+    outRegion->SetExtent(outExtent, axisIdx);
+    this->Execute(axisIdx - 1, inRegion1, inRegion2, outRegion);
     }
   // restore the original extent
-  inExtent[8] = min4;
-  inExtent[9] = max4;
-  outExtent[8] = min4;
-  outExtent[9] = max4; 
-  inRegion1->SetExtent(inExtent, 5);
-  inRegion2->SetExtent(inExtent, 5);
-  outRegion->SetExtent(outExtent, 5);
-}
-  
-  
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is passed a 4d input and output region, and executes the filter
-// algorithm to fill the output from the input.  The default Execute4d
-// method breaks the 4d regions into 3d volumes.  The regions have been
-// converted to this filters coordinates before this method is called.
-void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1, 
-				     vtkImageRegion *inRegion2, 
-				     vtkImageRegion *outRegion)
-{
-  int coordinate3, min3, max3;
-  int inExtent[8], outExtent[8];
-  
-  // Get the extent of the third dimension to be eliminated.
-  inRegion1->GetExtent(inExtent, 4);
-  outRegion->GetExtent(outExtent, 4);
-
-  // This method assumes that the third axis of in and out have same extent.
-  min3 = outExtent[6];
-  max3 = outExtent[7];
-  if (min3 != inExtent[6] || max3 != inExtent[7])
-    {
-    vtkErrorMacro(<< "Execute4d: Cannot break 4d images into volumes.");
-    return;
-    }
-  
-  // loop over 3d volumes
-  for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
-    {
-    // set up the 3d regions.
-    // set up the 3d regions.
-    inExtent[6] = coordinate3;
-    inExtent[7] = coordinate3;
-    inRegion1->SetExtent(inExtent, 4);
-    inRegion2->SetExtent(inExtent, 4);
-    outExtent[6] = coordinate3;
-    outExtent[7] = coordinate3;
-    outRegion->SetExtent(outExtent, 4);
-    this->Execute3d(inRegion1, inRegion2, outRegion);
-    }
-  // restore the original extent
-  inExtent[6] = min3;
-  inExtent[7] = max3;
-  outExtent[6] = min3;
-  outExtent[7] = max3; 
-  inRegion1->SetExtent(inExtent, 4);
-  inRegion1->SetExtent(inExtent, 4);
-  outRegion->SetExtent(outExtent, 4);  
-}
-  
-  
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is passed a 3d input and output region, and executes the filter
-// algorithm to fill the output from the input.  The default Execute3d
-// method breaks the volumes into images.  The regions have been converted to
-// this filters coordinates before this method is called.
-void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1, 
-				     vtkImageRegion *inRegion2, 
-				     vtkImageRegion *outRegion)
-{
-  int coordinate2, min2, max2;
-  int inExtent[6], outExtent[6];
-  
-  // Get the extent of the third dimension to be eliminated.
-  inRegion1->GetExtent(inExtent, 3);
-  outRegion->GetExtent(outExtent, 3);
-
-  // This method assumes that the third axis of in and out have same extent.
-  min2 = outExtent[4];
-  max2 = outExtent[5];
-  if (min2 != inExtent[4] || max2 != inExtent[5])
-    {
-    vtkErrorMacro(<< "Execute3d: Cannot break volumes into images.");
-    return;
-    }
-  
-  // loop over 2d images
-  for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
-    {
-    // set up the 2d regions.
-    inExtent[4] = coordinate2;
-    inExtent[5] = coordinate2;
-    inRegion1->SetExtent(inExtent, 3);
-    inRegion2->SetExtent(inExtent, 3);
-    outExtent[4] = coordinate2;
-    outExtent[5] = coordinate2;
-    outRegion->SetExtent(outExtent, 3);
-    this->Execute2d(inRegion1, inRegion2, outRegion);
-    }
-  // restore the original extent
-  inExtent[4] = min2;
-  inExtent[5] = max2;
-  outExtent[4] = min2;
-  outExtent[5] = max2; 
-  inRegion1->SetExtent(inExtent, 3);
-  inRegion2->SetExtent(inExtent, 3);
-  outRegion->SetExtent(outExtent, 3);
-}
-  
-  
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is passed a 2d input and output region, and executes the filter
-// algorithm to fill the output from the input.  The default Execute2d
-// method breaks the images into lines.  The regions have been converted to
-// this filters coordinates before this method is called.
-void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1, 
-				     vtkImageRegion *inRegion2, 
-				     vtkImageRegion *outRegion)
-{
-  int coordinate1, min1, max1;
-  int inExtent[4], outExtent[4];
-  
-  // Get the extent of the third dimension to be eliminated.
-  inRegion1->GetExtent(inExtent, 2);
-  outRegion->GetExtent(outExtent, 2);
-
-  // This method assumes that the second axis of in and out have same extent.
-  min1 = outExtent[2];
-  max1 = outExtent[3];
-  if (min1 != inExtent[2] || max1 != inExtent[3])
-    {
-    vtkErrorMacro(<< "Execute2d: Cannot break images into lines.");
-    return;
-    }
-  
-  // loop over 1d lines
-  for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
-    {
-    // set up the 1d regions.
-    inExtent[2] = coordinate1;
-    inExtent[3] = coordinate1;
-    inRegion1->SetExtent(inExtent, 2);
-    inRegion2->SetExtent(inExtent, 2);
-    outExtent[2] = coordinate1;
-    outExtent[3] = coordinate1;
-    outRegion->SetExtent(outExtent, 2);
-    this->Execute1d(inRegion1, inRegion2, outRegion);
-    }
-  // restore the original extent
-  inExtent[2] = min1;
-  inExtent[3] = max1;
-  outExtent[2] = min1;
-  outExtent[3] = max1; 
-  inRegion1->SetExtent(inExtent, 2);
-  inRegion2->SetExtent(inExtent, 2);
-  outRegion->SetExtent(outExtent, 2);
+  inExtent[2*axisIdx - 2] = min;
+  inExtent[2*axisIdx - 1] = max;
+  outExtent[2*axisIdx - 2] = min;
+  outExtent[2*axisIdx - 1] = max; 
+  inRegion1->SetExtent(inExtent, axisIdx);
+  inRegion2->SetExtent(inExtent, axisIdx);
+  outRegion->SetExtent(outExtent, axisIdx);
 }
   
   
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a 2d input and output region, and executes the filter
-// algorithm to fill the output from the input.  The default Execute2d
-// method breaks the images into lines.  The regions have been converted to
-// this filters coordinates before this method is called.
-void vtkImageDyadicFilter::Execute1d(vtkImageRegion *inRegion1, 
-				     vtkImageRegion *inRegion2, 
-				     vtkImageRegion *outRegion)
+// The execute method created by the subclass.
+void vtkImageDyadicFilter::Execute(vtkImageRegion *inRegion1, 
+				    vtkImageRegion *inRegion2, 
+				    vtkImageRegion *outRegion)
 {
-  inRegion1 = inRegion1;
-  inRegion2 = inRegion2;
-  outRegion = outRegion;
-  
-  vtkErrorMacro(<< "Execute1d: Filter does not specify an execute method.");
+  inRegion1 = inRegion2 = outRegion;
+  vtkErrorMacro(<< "Subclass needs to suply an execute function.");
 }
+
+  
 
 
 

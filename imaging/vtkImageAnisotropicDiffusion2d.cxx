@@ -97,7 +97,7 @@ void vtkImageAnisotropicDiffusion2d::SetNumberOfIterations(int num)
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
-void vtkImageAnisotropicDiffusion2d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageAnisotropicDiffusion2d::Execute(vtkImageRegion *inRegion, 
 						     vtkImageRegion *outRegion)
 {
   int idx;

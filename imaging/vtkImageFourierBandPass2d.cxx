@@ -85,7 +85,7 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
 // Description:
 // This function zeros a portion of the image.  Zero is assumed
 // to be the origin. (1d easy but slow)
-void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion, 
+void vtkImageFourierBandPass2d::Execute(vtkImageRegion *inRegion, 
 						vtkImageRegion *outRegion)
 {
   float *inPtr = (float *)(inRegion->GetScalarPointer());
@@ -100,7 +100,7 @@ void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion,
   extent = inRegion->GetExtent();
   if (extent[0] != 0 || extent[1] != 1)
     {
-    vtkErrorMacro(<< "Execute1d: Components mismatch");
+    vtkErrorMacro(<< "Execute: Components mismatch");
     return;
     }
   

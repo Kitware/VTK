@@ -72,7 +72,7 @@ protected:
   float LowPass;
   float HighPass;
   
-  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

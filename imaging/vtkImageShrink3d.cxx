@@ -215,19 +215,19 @@ void vtkImageShrink3dExecute(vtkImageShrink3d *self,
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
 // data type.
-void vtkImageShrink3d::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageShrink3d::Execute(vtkImageRegion *inRegion, 
 				       vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
   
-  vtkDebugMacro(<< "Execute3d: inRegion = " << inRegion 
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
   << ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
   if (inRegion->GetDataType() != outRegion->GetDataType())
     {
-    vtkErrorMacro(<< "Execute3d: input DataType, " << inRegion->GetDataType()
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
                   << ", must match out DataType " << outRegion->GetDataType());
     return;
     }
@@ -260,7 +260,7 @@ void vtkImageShrink3d::Execute3d(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute3d: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown DataType");
       return;
     }
 }

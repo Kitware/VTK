@@ -447,18 +447,18 @@ vtkImageFourierWavelet2dExecute(vtkImageFourierWavelet2d *self,
 //----------------------------------------------------------------------------
 // Description:
 // Execute can handle any input data type, but the output is always floats.
-void vtkImageFourierWavelet2d::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageFourierWavelet2d::Execute(vtkImageRegion *inRegion, 
 					       vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
   
-  vtkDebugMacro(<< "Execute3d: inRegion = " << inRegion 
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that output is float.
   if (outRegion->GetDataType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute2d: Output must be floats");
+    vtkErrorMacro(<< "Execute: Output must be floats");
     return;
     }
 
@@ -493,7 +493,7 @@ void vtkImageFourierWavelet2d::Execute3d(vtkImageRegion *inRegion,
 				    outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute3d: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown DataType");
       return;
     }
 }

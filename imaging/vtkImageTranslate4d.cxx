@@ -103,7 +103,7 @@ void vtkImageTranslate4d::ComputeRequiredInputRegionExtent(
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
+void vtkImageTranslate4dExecute(vtkImageTranslate4d *self,
 					vtkImageRegion *inRegion, T *inPtr,
 					vtkImageRegion *outRegion, T *outPtr)
 {
@@ -164,7 +164,7 @@ void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageTranslate4d::Execute4d(vtkImageRegion *inRegion, 
+void vtkImageTranslate4d::Execute(vtkImageRegion *inRegion, 
 					  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -184,27 +184,27 @@ void vtkImageTranslate4d::Execute4d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageTranslate4dExecute4d(this, 
+      vtkImageTranslate4dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageTranslate4dExecute4d(this, 
+      vtkImageTranslate4dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageTranslate4dExecute4d(this, 
+      vtkImageTranslate4dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageTranslate4dExecute4d(this, 
+      vtkImageTranslate4dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageTranslate4dExecute4d(this, 
+      vtkImageTranslate4dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;

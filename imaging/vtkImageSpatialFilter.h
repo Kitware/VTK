@@ -62,7 +62,7 @@ public:
   vtkImageSpatialFilter();
   char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the Spatial kernel size and middle.
   vtkGetVector3Macro(KernelSize,int);
@@ -81,8 +81,8 @@ public:
   
   
 protected:
-  int   KernelSize[4];
-  int   KernelMiddle[4];      // Index of kernel origin
+  int   KernelSize[VTK_IMAGE_DIMENSIONS];
+  int   KernelMiddle[VTK_IMAGE_DIMENSIONS];      // Index of kernel origin
   int   HandleBoundaries;     // Shrink kernel at boundaries?
   int   UseExecuteCenter;     // Will the subclass have special execute method.
 
@@ -91,16 +91,12 @@ protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
   
-  virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  virtual void ExecuteCenter4d(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion);
-  virtual void ExecuteCenter3d(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion);
-  virtual void ExecuteCenter2d(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion);
-  virtual void ExecuteCenter1d(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion);
+  void Execute(int axisIdx,vtkImageRegion *inRegion,vtkImageRegion *outRegion);
+  void ExecuteCenter(int axisIdx, vtkImageRegion *inRegion,
+		     vtkImageRegion *outRegion);  
   
+  virtual void ExecuteCenter(vtkImageRegion *inRegion, 
+			     vtkImageRegion *outRegion);  
 };
 
 #endif

@@ -72,26 +72,26 @@ protected:
   float *BoundaryFactors;     // Used to scale boundary-truncated kernel
   int   BoundaryRescale;  // Kernel is rescaled at boundaries
 
-  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   
   // for templated function.
-  friend void vtkImageConvolution1dExecute1d(
+  friend void vtkImageConvolution1dExecute(
 			   vtkImageConvolution1d *self,
 			   vtkImageRegion *inRegion, float *inPtr,
 			   vtkImageRegion *outRegion, float *outPtr);
-  friend void vtkImageConvolution1dExecute1d(
+  friend void vtkImageConvolution1dExecute(
 			   vtkImageConvolution1d *self,
 			   vtkImageRegion *inRegion, int *inPtr,
 			   vtkImageRegion *outRegion, int *outPtr);
-  friend void vtkImageConvolution1dExecute1d(
+  friend void vtkImageConvolution1dExecute(
 			   vtkImageConvolution1d *self,
 			   vtkImageRegion *inRegion, short *inPtr,
 			   vtkImageRegion *outRegion, short *outPtr);
-  friend void vtkImageConvolution1dExecute1d(
+  friend void vtkImageConvolution1dExecute(
 			   vtkImageConvolution1d *self,
 			   vtkImageRegion *inRegion, unsigned short *inPtr,
 			   vtkImageRegion *outRegion, unsigned short *outPtr);
-  friend void vtkImageConvolution1dExecute1d(
+  friend void vtkImageConvolution1dExecute(
 			   vtkImageConvolution1d *self,
 			   vtkImageRegion *inRegion, unsigned char *inPtr,
 			   vtkImageRegion *outRegion, unsigned char *outPtr);

@@ -206,7 +206,7 @@ void vtkImageToStructuredPoints::Execute()
   region->SetExtent(regionExtent, 4);
 
   // Update the data for the region.
-  if ( region->GetVolume() < this->InputMemoryLimit)
+  if ( region->GetMemorySize() < this->InputMemoryLimit)
     {
     this->Input->UpdateRegion(region);
     }
@@ -310,7 +310,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   splitExtent[splitAxisIdx * 2 + 1] = (min + max) / 2;
   inRegion->SetExtent(splitExtent);
   outRegion->SetExtent(splitExtent);
-  if ( inRegion->GetVolume() < this->InputMemoryLimit)
+  if ( inRegion->GetMemorySize() < this->InputMemoryLimit)
     {
     vtkDebugMacro (<<"Updating Split Region: extent: " <<
          splitExtent[0] << ", " <<
@@ -342,7 +342,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   splitExtent[splitAxisIdx * 2 + 1] = max;
   inRegion->SetExtent(splitExtent);
   outRegion->SetExtent(splitExtent);
-  if ( inRegion->GetVolume() < this->InputMemoryLimit)
+  if ( inRegion->GetMemorySize() < this->InputMemoryLimit)
     {
     vtkDebugMacro (<<"Updating Split Region: extent are: " <<
          splitExtent[0] << ", " <<

@@ -71,7 +71,7 @@ protected:
   float Shift;
   float Scale;
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

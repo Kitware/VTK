@@ -80,7 +80,7 @@ protected:
   float DiffusionThreshold;
   float DiffusionFactor;  
   
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Iterate(vtkImageRegion *in, vtkImageRegion *out, float ar0, float ar1);
 };
 

@@ -59,7 +59,7 @@ vtkImageDilateValue1d::vtkImageDilateValue1d()
 // Note that input pixel is offset from output pixel.
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
-void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
+void vtkImageDilateValue1dExecute(vtkImageDilateValue1d *self,
 					  vtkImageRegion *inRegion, T *inPtr,
 					  vtkImageRegion *outRegion, T *outPtr)
 {
@@ -89,7 +89,7 @@ void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
     // just some error checking
     if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
-      cerr << "vtkImageDilateValue1dExecute1d: Boundaries not handled.";
+      cerr << "vtkImageDilateValue1dExecute: Boundaries not handled.";
       return;
       }
     }
@@ -174,7 +174,7 @@ void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
 // Description:
 // This method is passed a input and output region, and executes the Conv1d
 // algorithm to fill the output from the input.
-void vtkImageDilateValue1d::Execute1d(vtkImageRegion *inRegion, 
+void vtkImageDilateValue1d::Execute(vtkImageRegion *inRegion, 
 					    vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
@@ -199,24 +199,24 @@ void vtkImageDilateValue1d::Execute1d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageDilateValue1dExecute1d(this, inRegion, (float *)(inPtr), 
+      vtkImageDilateValue1dExecute(this, inRegion, (float *)(inPtr), 
 				 outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageDilateValue1dExecute1d(this, inRegion, (int *)(inPtr),
+      vtkImageDilateValue1dExecute(this, inRegion, (int *)(inPtr),
 				 outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageDilateValue1dExecute1d(this, inRegion, (short *)(inPtr),
+      vtkImageDilateValue1dExecute(this, inRegion, (short *)(inPtr),
 				 outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageDilateValue1dExecute1d(this,
+      vtkImageDilateValue1dExecute(this,
 				 inRegion, (unsigned short *)(inPtr), 
 				 outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageDilateValue1dExecute1d(this,
+      vtkImageDilateValue1dExecute(this,
 				 inRegion, (unsigned char *)(inPtr),
 				 outRegion, (unsigned char *)(outPtr));
       break;

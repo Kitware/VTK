@@ -72,7 +72,7 @@ protected:
   float LowerThreshold;
   
   void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };
 

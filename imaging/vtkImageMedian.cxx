@@ -235,7 +235,7 @@ void vtkImageMedianExecute(vtkImageMedian *self,
 // Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageMedian::Execute(vtkImageRegion *inRegion, 
 				     vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();

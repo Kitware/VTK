@@ -163,9 +163,9 @@ void vtkImageConvolution1d::SetKernel(float *kernel, int size)
 // It also handles ImageExtent by truncating the kernel.  
 // It renormalizes the truncated kernel if Normalize is on.
 template <class T>
-void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
-					  vtkImageRegion *inRegion, T *inPtr,
-					  vtkImageRegion *outRegion, T *outPtr)
+void vtkImageConvolution1dExecute(vtkImageConvolution1d *self,
+				  vtkImageRegion *inRegion, T *inPtr,
+				  vtkImageRegion *outRegion, T *outPtr)
 {
   int outIdx, kernelIdx;
   int outMin, outMax;
@@ -178,7 +178,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
   
   if ( ! self->Kernel)
     {
-    cerr << "vtkImageConvolution1dExecute1d: Kernel not set";
+    cerr << "vtkImageConvolution1dExecute: Kernel not set";
     return;
     }
 
@@ -200,7 +200,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     // just some error checking
     if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
-      cerr << "vtkImageConvolution1dExecute1d: Boundaries not handled.";
+      cerr << "vtkImageConvolution1dExecute: Boundaries not handled.";
       return;
       }
     }
@@ -296,8 +296,8 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
 // Description:
 // This method is passed a input and output region, and executes the Conv1d
 // algorithm to fill the output from the input.
-void vtkImageConvolution1d::Execute1d(vtkImageRegion *inRegion, 
-					    vtkImageRegion *outRegion)
+void vtkImageConvolution1d::Execute(vtkImageRegion *inRegion, 
+				    vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
 
@@ -321,24 +321,24 @@ void vtkImageConvolution1d::Execute1d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageConvolution1dExecute1d(this, inRegion, (float *)(inPtr), 
+      vtkImageConvolution1dExecute(this, inRegion, (float *)(inPtr), 
 				 outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageConvolution1dExecute1d(this, inRegion, (int *)(inPtr),
+      vtkImageConvolution1dExecute(this, inRegion, (int *)(inPtr),
 				 outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageConvolution1dExecute1d(this, inRegion, (short *)(inPtr),
+      vtkImageConvolution1dExecute(this, inRegion, (short *)(inPtr),
 				 outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageConvolution1dExecute1d(this,
+      vtkImageConvolution1dExecute(this,
 				 inRegion, (unsigned short *)(inPtr), 
 				 outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageConvolution1dExecute1d(this,
+      vtkImageConvolution1dExecute(this,
 				 inRegion, (unsigned char *)(inPtr),
 				 outRegion, (unsigned char *)(outPtr));
       break;

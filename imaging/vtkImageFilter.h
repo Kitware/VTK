@@ -40,26 +40,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageFilter - Generic filter that has one input..
 // .SECTION Description
-// vtkImageFilter is a filter class that can dynamically split up a task
-// if a region is too large.  This functionality is hidden
-// in this superclass so filter writers never need to worry about this
-// feature.  The filter designer can supply the functions:
-//   1: UpdateImageInformation: Given the ImageExtent of the input, this function
-// returns the ImageExtent of the output.
-//   2: GetRequiredRegionExtent:  Returns the offset and size of the input
-// region required to generate the given output region.
-//   3: Execute3d: Given an input region and an output region, this method
-// fills in the output using the input.
-//   4: Execute2d: Same as Execute3d, but the method assumes the regions
-// have a single image.
-//   5: Execute1d: Same as Execute3d and Execute2d, but the method assumes
-// the regions are one dimensional lines.
-//   If this structure does not suit the filter designer, the
-// UpdateRegion method can be overwritten, and the subclass can get
-// its input regions on its own.  If an input generate fails,  the filter
-// can split the task its self, or simple fail the whole generate leaving
-// the task of splitting the problem to  the consumer.  This method has
-// to deal with the full dimensionality of the data.
+// vtkImageFilter is a filter class that can hide som of the pipeline 
+// complexity.  This super class will loop over extra dimensions so the
+// subclass can deal with simple low dimensional regions.
+// The subclass can implement a filer in two different ways.  It can
+// create an "Update(vtkImageRegion *out)" method, and get the input
+// region itself. Or, it can create an "Execute(vtkImageRegion *in, *out)"
+// and let the superclass get the input.  The execute method requires the
+// UseExecuteMethod is on and also requires some helper method.  
+// "ComputeRequiredInputExtent(vtkImageRegion *out, *in)" must set the
+// extent of in required to compute out. 
+// The advantage of using the execute method is that this super class
+// will automatically break the execution into pieces if the 
+// InputMemroyLimit is violated or the input request fails.
+// This creates streaming where the pipeline processes images
+// in dynamically sized pieces.
 
 
 
@@ -78,7 +73,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(vtkImageSource *input);
-  void UpdateRegion(vtkImageRegion *outRegion);
+  void UpdatePointData(int axisIdx, vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
@@ -90,10 +85,17 @@ public:
   // Get input to this filter.
   vtkGetObjectMacro(Input,vtkImageSource);
 
+  // Description:
+  // Set/Get input memory limit.  Make this smaller to stream.
+  vtkSetMacro(InputMemoryLimit,long);
+  vtkGetMacro(InputMemoryLimit,long);
+  
 protected:
   vtkImageSource *Input;     // the input to the filter
   int UseExecuteMethod;      // Use UpdateRegion or Execute method?
 
+  long InputMemoryLimit;
+  
   // Description:
   // These are conveniance functions for writing filters that have their
   // own UpdateRegion methods.  They create the region object as well as 
@@ -102,17 +104,13 @@ protected:
   // Used in vtkImageScatterPlot.
   vtkImageRegion *GetInputRegion(int *extent, int dim);    
   
-  void UpdateRegionTiled(vtkImageRegion *outRegion);
-  virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
-  virtual void Execute5d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  virtual void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  virtual void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  virtual void Execute1d(vtkImageRegion *inRegion,vtkImageRegion *outRegion);
+  virtual void Execute(int axisIdx, vtkImageRegion *inRegion, 
+		       vtkImageRegion *outRegion);
+  virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

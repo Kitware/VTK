@@ -59,7 +59,7 @@ vtkImageMipFilter::vtkImageMipFilter()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
+void vtkImageMipFilterExecute(vtkImageMipFilter *self,
 				   vtkImageRegion *inRegion, T *inPtr,
 				   vtkImageRegion *outRegion, T *outPtr)
 {
@@ -136,7 +136,7 @@ void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageMipFilter::Execute(vtkImageRegion *inRegion, 
 				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -156,27 +156,27 @@ void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageMipFilterExecute3d(this, 
+      vtkImageMipFilterExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageMipFilterExecute3d(this, 
+      vtkImageMipFilterExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageMipFilterExecute3d(this, 
+      vtkImageMipFilterExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMipFilterExecute3d(this, 
+      vtkImageMipFilterExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMipFilterExecute3d(this, 
+      vtkImageMipFilterExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;

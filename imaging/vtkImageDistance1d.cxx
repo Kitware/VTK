@@ -87,7 +87,7 @@ void vtkImageDistance1d::ComputeRequiredInputRegionExtent(
 // Description:
 // This method is passed a input and output region, and executes the
 // distance algorithm.
-void vtkImageDistance1d::Execute1d(vtkImageRegion *inRegion, 
+void vtkImageDistance1d::Execute(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
   unsigned char *inPtr, *outPtr;

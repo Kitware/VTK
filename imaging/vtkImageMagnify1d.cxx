@@ -200,19 +200,19 @@ void vtkImageMagnify1dExecute(vtkImageMagnify1d *self,
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
 // data type.
-void vtkImageMagnify1d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageMagnify1d::Execute(vtkImageRegion *inRegion, 
 				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
   
-  vtkDebugMacro(<< "Execute2d: inRegion = " << inRegion 
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
   if (inRegion->GetDataType() != outRegion->GetDataType())
     {
-    vtkErrorMacro(<< "Execute2d: input DataType, " << inRegion->GetDataType()
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
                   << ", must match out DataType " << outRegion->GetDataType());
     return;
     }
@@ -245,7 +245,7 @@ void vtkImageMagnify1d::Execute2d(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute2d: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown DataType");
       return;
     }
 }

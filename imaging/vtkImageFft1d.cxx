@@ -166,7 +166,7 @@ void vtkImageFft1d::ComputeRequiredInputRegionExtent(
 // This templated execute method handles any type input, but the output
 // is always floats. Axis 0 should be components. FFT is performed on axis 1.
 template <class T>
-void vtkImageFft1dExecute2d(vtkImageFft1d *self,
+void vtkImageFft1dExecute(vtkImageFft1d *self,
 				  vtkImageRegion *inRegion, T *inPtr,
 				  vtkImageRegion *outRegion, float *outPtr)
 {
@@ -270,7 +270,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
 // Description:
 // This method is passed input and output regions, and executes the fft
 // algorithm to fill the output from the input.
-void vtkImageFft1d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageFft1d::Execute(vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
@@ -292,23 +292,23 @@ void vtkImageFft1d::Execute2d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_FLOAT:
-      vtkImageFft1dExecute2d(this, inRegion, (float *)(inPtr), 
+      vtkImageFft1dExecute(this, inRegion, (float *)(inPtr), 
 				   outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageFft1dExecute2d(this, inRegion, (int *)(inPtr),
+      vtkImageFft1dExecute(this, inRegion, (int *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageFft1dExecute2d(this, inRegion, (short *)(inPtr),
+      vtkImageFft1dExecute(this, inRegion, (short *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageFft1dExecute2d(this, inRegion, (unsigned short *)(inPtr), 
+      vtkImageFft1dExecute(this, inRegion, (unsigned short *)(inPtr), 
 				   outRegion, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageFft1dExecute2d(this, inRegion, (unsigned char *)(inPtr),
+      vtkImageFft1dExecute(this, inRegion, (unsigned char *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;
     default:

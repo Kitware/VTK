@@ -222,7 +222,7 @@ void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
 //----------------------------------------------------------------------------
 // Description:
 // This method executes the filter for boundary pixels.
-void vtkImageNonMaximalSuppression3d::Execute4d(vtkImageRegion *inRegion,
+void vtkImageNonMaximalSuppression3d::Execute(vtkImageRegion *inRegion,
 						     vtkImageRegion *outRegion)
 {
   float d0, d1, d2;

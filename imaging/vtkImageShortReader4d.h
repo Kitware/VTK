@@ -107,19 +107,19 @@ public:
   vtkGetMacro(HeaderSize, int);
   
   // Templated function that reads into different data types.
-  friend void vtkImageShortReader4dGenerateRegion2d(
+  friend void vtkImageShortReader4dGenerateRegion(
 			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, float *ptr);
-  friend void vtkImageShortReader4dGenerateRegion2d(
+  friend void vtkImageShortReader4dGenerateRegion(
 			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, int *ptr);
-  friend void vtkImageShortReader4dGenerateRegion2d(
+  friend void vtkImageShortReader4dGenerateRegion(
 			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, short *ptr);
-  friend void vtkImageShortReader4dGenerateRegion2d(
+  friend void vtkImageShortReader4dGenerateRegion(
 			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageShortReader4dGenerateRegion2d(
+  friend void vtkImageShortReader4dGenerateRegion(
 			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, unsigned char *ptr);
   
@@ -149,7 +149,7 @@ protected:
   double PixelMax;
 
   void Initialize();
-  void UpdateRegion2d(vtkImageRegion *outRegion);    
+  void UpdatePointData(vtkImageRegion *outRegion);    
 };
 
 #endif

@@ -467,7 +467,7 @@ void vtkImageIslandRemoval2dExecute(vtkImageIslandRemoval2d *self,
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageIslandRemoval2d::Execute(vtkImageRegion *inRegion, 
 					      vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
@@ -476,7 +476,7 @@ void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion,
   // this filter expects that input is the same type as output.
   if (inRegion->GetDataType() != outRegion->GetDataType())
     {
-    vtkErrorMacro(<< "Execute2d: input DataType, " 
+    vtkErrorMacro(<< "Execute: input DataType, " 
                   << vtkImageDataTypeNameMacro(inRegion->GetDataType())
                   << ", must match out DataType "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType()));
@@ -514,7 +514,7 @@ void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion,
 			   outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute2d: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown DataType");
       return;
     }  
 }
