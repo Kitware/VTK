@@ -44,7 +44,7 @@ public:
 
   // Description:
   // Limit the number of points that can be passed through.
-  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,0,VTK_LARGE_ID);
+  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,1,VTK_LARGE_ID);
   vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
 
   // Description:
