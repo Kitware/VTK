@@ -86,6 +86,13 @@ vtkPOPReader::vtkPOPReader()
   this->VFlowFileOffset = 0;
 
   this->DepthValues = vtkFloatArray::New();
+
+  this->ClipExtent[0] = -VTK_LARGE_INTEGER;
+  this->ClipExtent[1] = VTK_LARGE_INTEGER;
+  this->ClipExtent[2] = -VTK_LARGE_INTEGER;
+  this->ClipExtent[3] = VTK_LARGE_INTEGER;
+  this->ClipExtent[4] = -VTK_LARGE_INTEGER;
+  this->ClipExtent[5] = VTK_LARGE_INTEGER;
 } 
 
 //----------------------------------------------------------------------------
@@ -186,9 +193,35 @@ void vtkPOPReader::ExecuteInformation()
   
   xDim = this->Dimensions[0]+1;
   yDim = this->Dimensions[1];
-  zDim = this->DepthValues->GetNumberOfTuples();
-  
-  this->GetOutput()->SetWholeExtent(0, xDim-1, 0, yDim-1, 0, zDim-1);
+  zDim = this->DepthValues->GetNumberOfTuples();  
+
+  // Clip should be no larger than the whole extent.
+  if (this->ClipExtent[0] < 0)
+    {
+    this->ClipExtent[0] = 0;
+    }
+  if (this->ClipExtent[2] < 0)
+    {
+    this->ClipExtent[2] = 0;
+    }
+  if (this->ClipExtent[4] < 0)
+    {
+    this->ClipExtent[4] = 0;
+    }
+  if (this->ClipExtent[1] > xDim-1)
+    {
+    this->ClipExtent[1] = xDim-1;
+    }
+  if (this->ClipExtent[3] > yDim-1)
+    {
+    this->ClipExtent[3] = yDim-1;
+    }
+  if (this->ClipExtent[5] > zDim-1)
+    {
+    this->ClipExtent[5] = zDim-1;
+    }
+
+  this->GetOutput()->SetWholeExtent(this->ClipExtent);
 }
 
 //----------------------------------------------------------------------------
@@ -908,6 +941,11 @@ void vtkPOPReader::ReadFlow()
 void vtkPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredGridSource::PrintSelf(os,indent);
+
+  os << indent << "ClipExtent: " << this->ClipExtent[0] << ", "
+     << this->ClipExtent[1] << ", " << this->ClipExtent[2] << ", "
+     << this->ClipExtent[3] << ", " << this->ClipExtent[4] << ", "
+     << this->ClipExtent[5] << endl;
 
 }
 

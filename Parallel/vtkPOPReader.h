@@ -82,6 +82,12 @@ public:
   vtkSetMacro(Radius, float);
   vtkGetMacro(Radius, float);
   
+  // Description:
+  // Because the data can be so large, here is an option to clip
+  // while reading.
+  vtkSetVector6Macro(ClipExtent, int);
+  vtkGetVector6Macro(ClipExtent, int);
+
 protected:
   vtkPOPReader();
   ~vtkPOPReader();
@@ -129,6 +135,7 @@ protected:
   int IsFileName(char *name);
   char *MakeFileName(char *name);
 
+  int ClipExtent[6];
 };
 
 #endif
