@@ -101,6 +101,7 @@ IF (VTK_USE_RENDERING)
       subPixelPositionMin
       teapotHulls
       TenEllip
+      TestBandedContourFilter
       TestButtonSource
       TestCellDerivs
       testDataSetTriangleFilter
