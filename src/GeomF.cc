@@ -212,10 +212,10 @@ void vlGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Cell Minimum : " << this->CellMinimum << "\n";
   os << indent << "Cell Maximum : " << this->CellMaximum << "\n";
 
-  os << indent << "Extent: (" 
-     << this->Extent[0] << ", " << this->Extent[1] << ")\n("
-     << this->Extent[2] << ", " << this->Extent[3] << ")\n(" 
-     << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+  os << indent << "Extent: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 
   os << indent << "PointClipping: " << (this->PointClipping ? "On\n" : "Off\n");
   os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
