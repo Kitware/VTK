@@ -197,7 +197,7 @@ void vtkXGLRenderWindow::Render()
 	}
       
       this->CurrentSubFrame = 0;
-      this->Renderers->Render2D();
+      this->Renderers->RenderOverlay();
       this->CopyResultFrame();
 
       // free any memory
@@ -243,7 +243,7 @@ void vtkXGLRenderWindow::Render()
       this->AccumulationBuffer = NULL;
       }
     
-    this->Renderers->Render2D();
+    this->Renderers->RenderOverlay();
     this->CopyResultFrame();
     }  
 
