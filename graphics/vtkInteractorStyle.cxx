@@ -1022,6 +1022,7 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Current Actor: (none)\n";
     }
 
+  os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Actor Picked: " <<
     (this->ActorPicked ? "Yes\n" : "No\n");
 }
