@@ -748,6 +748,7 @@ void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Consider Anisotropy: " 
      << (this->ConsiderAnisotropy ? "On\n" : "Off\n");
   
+  os << indent << "Initialize: " << this->Initialize << "\n";
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
 
   os << indent << "Algorithm: ";

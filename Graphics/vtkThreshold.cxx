@@ -291,6 +291,9 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Array Name: " 
+     << (this->ArrayName ? this->ArrayName : "(unspecified)") << "\n";
+
   os << indent << "All Scalars: " << this->AllScalars << "\n";;
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     {

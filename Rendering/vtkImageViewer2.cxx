@@ -101,6 +101,7 @@ void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << *this->RenderWindow << endl;
   os << indent << *this->Renderer << endl;
   os << indent << *this->ImageActor << endl;
+  os << indent << *this->WindowLevel << endl;
 }
 
 

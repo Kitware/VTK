@@ -274,6 +274,9 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Lookup Table: (none)\n";
     }
+
+  os << indent << "Scalar Mode: " << this->ScalarMode << "\n";
+
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 

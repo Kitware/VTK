@@ -79,6 +79,7 @@ class VTK_IO_EXPORT vtkPLYWriter : public vtkPolyDataWriter
 public:
   static vtkPLYWriter *New();
   vtkTypeMacro(vtkPLYWriter,vtkPolyDataWriter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // If the file type is binary, then the user can specify which

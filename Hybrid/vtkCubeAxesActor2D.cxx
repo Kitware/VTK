@@ -700,6 +700,14 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
+  os << indent << "UseRanges: " << (this->UseRanges ? "On\n" : "Off\n");
+  os << indent << "Ranges: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Ranges[0] << ", " 
+     << this->Ranges[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Ranges[2] << ", " 
+     << this->Ranges[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Ranges[4] << ", " 
+     << this->Ranges[5] << ")\n";
 
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
   os << indent << "X Label: " << this->XLabel << "\n";

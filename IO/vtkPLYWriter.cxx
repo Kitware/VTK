@@ -325,3 +325,18 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
       }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkPolyDataWriter::PrintSelf(os,indent);
+
+  os << indent << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(none)") << "\n";
+  os << indent << "Component: " << this->Component << "\n";
+  os << indent << "ColorMode: " << this->ColorMode << "\n";
+  os << indent << "DataByteOrder: " << this->DataByteOrder << "\n";
+  os << indent << "Color: " << (int)this->Color[0] << " " 
+     << (int)this->Color[1] << " "
+     << (int)this->Color[2] << "\n";
+  os << indent << "LookupTable: " << this->LookupTable << "\n";
+}

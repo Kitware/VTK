@@ -1104,6 +1104,7 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << "\n";
+  os << indent << "Transform: " << (this->Transform ? "specified" : "none") << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Bounding Triangulation: "

@@ -443,6 +443,7 @@ void vtkMergeFields::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Field location: " << this->FieldLocation << endl;
   os << indent << "Linked list head: " << this->Head << endl;
   os << indent << "Linked list tail: " << this->Tail << endl;
+  os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   os << indent << "Components: " << endl;
   this->PrintAllComponents(os, indent.GetNextIndent());
 }
