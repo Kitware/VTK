@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.42");
+vtkCxxRevisionMacro(vtkImageReslice, "1.43");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1575,14 +1575,13 @@ int vtkResliceGetNextExtent(vtkImageStencilData *stencil,
 // for cases where the transformation places the output extent completely
 // outside of the input extent.
 void vtkImageResliceClearExecute(vtkImageReslice *self,
-                                 vtkImageData *inData, void *inPtr,
+                                 vtkImageData *, void *,
                                  vtkImageData *outData, void *outPtr,
                                  int outExt[6], int id)
 {
   int numscalars;
-  int idX, idY, idZ;
+  int idY, idZ;
   int outIncX, outIncY, outIncZ, scalarSize;
-  int inExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
   void *background;
