@@ -135,6 +135,7 @@ void vtkExtractVOI::ExecuteInformation()
   wholeExtent[5] = outDims[2] - 1;
   
   output->SetWholeExtent( wholeExtent );
+  output->SetScalarType( input->GetScalarType() );
 }
 
 void vtkExtractVOI::Execute()
