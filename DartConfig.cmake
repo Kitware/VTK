@@ -7,8 +7,8 @@ SET (TRIGGER_SITE
        "http://${DROP_SITE}/cgi-bin/Submit-vtk-TestingResults.pl")
 
 # Dart server configuration 
-SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/vtknew/")
-SET (CVS_WEB_CVSROOT "vtknew")
+SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/VTK/")
+SET (CVS_WEB_CVSROOT "VTK")
 SET (DOXYGEN_URL "http://${DROP_SITE}/" )
 SET (GNATS_WEB_URL "http://${DROP_SITE}/")
 
