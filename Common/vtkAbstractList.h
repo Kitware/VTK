@@ -53,26 +53,31 @@ public:
   typedef int (*CompareFunction)(DType item1, DType item2);
 
   // Description:
-  // Append an Item to the end of the list
-  virtual unsigned long AppendItem(DType a) = 0;
+  // Append an Item to the end of the list.
+  // It returns VTK_OK if successfull.
+  virtual int AppendItem(DType a) = 0;
   
   // Description:
   // Remove an Item from the list
-  virtual unsigned long RemoveItem(unsigned long id) = 0;
+  // It returns VTK_OK if successfull.
+  virtual int RemoveItem(unsigned long id) = 0;
   
   // Description:
   // Return an item that was previously added to this list. 
+  // It returns VTK_OK if successfull.
   virtual int GetItem(unsigned long id, DType& ret) = 0;
       
   // Description:
   // Find an item in the list. Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
+  // It returns VTK_OK if successfull.
   virtual int Find(DType a, unsigned long &res) = 0;
 
   // Description:
   // Find an item in the list using a comparison routine. 
   // Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
+  // It returns VTK_OK if successfull.
   virtual int Find(DType a, CompareFunction compare, unsigned long &res) = 0;
   
 protected:

@@ -66,28 +66,28 @@
 #define VTK_OPAQUE         14
 
 // Some constant required for correct template performance
-#define VTK_BIT_MIN 0
-#define VTK_BIT_MAX 1
-#define VTK_CHAR_MIN -128
-#define VTK_CHAR_MAX 127
-#define VTK_UNSIGNED_CHAR_MIN 0
-#define VTK_UNSIGNED_CHAR_MAX 255
-#define VTK_SHORT_MIN -32768
-#define VTK_SHORT_MAX 32767
+#define VTK_BIT_MIN            0
+#define VTK_BIT_MAX            1
+#define VTK_CHAR_MIN          -128
+#define VTK_CHAR_MAX           127
+#define VTK_UNSIGNED_CHAR_MIN  0
+#define VTK_UNSIGNED_CHAR_MAX  255
+#define VTK_SHORT_MIN         -32768
+#define VTK_SHORT_MAX          32767
 #define VTK_UNSIGNED_SHORT_MIN 0
 #define VTK_UNSIGNED_SHORT_MAX 65535
-#define VTK_INT_MIN (-VTK_LARGE_INTEGER-1)
-#define VTK_INT_MAX VTK_LARGE_INTEGER
-#define VTK_UNSIGNED_INT_MIN 0
-#define VTK_UNSIGNED_INT_MAX 4294967295UL
-#define VTK_LONG_MIN (-VTK_LARGE_INTEGER-1)
-#define VTK_LONG_MAX VTK_LARGE_INTEGER
-#define VTK_UNSIGNED_LONG_MIN 0
-#define VTK_UNSIGNED_LONG_MAX 4294967295UL
-#define VTK_FLOAT_MIN -VTK_LARGE_FLOAT
-#define VTK_FLOAT_MAX VTK_LARGE_FLOAT
-#define VTK_DOUBLE_MIN -1.0e+99L
-#define VTK_DOUBLE_MAX  1.0e+99L
+#define VTK_INT_MIN          (-VTK_LARGE_INTEGER-1)
+#define VTK_INT_MAX            VTK_LARGE_INTEGER
+#define VTK_UNSIGNED_INT_MIN   0
+#define VTK_UNSIGNED_INT_MAX   4294967295UL
+#define VTK_LONG_MIN         (-VTK_LARGE_INTEGER-1)
+#define VTK_LONG_MAX           VTK_LARGE_INTEGER
+#define VTK_UNSIGNED_LONG_MIN  0
+#define VTK_UNSIGNED_LONG_MAX  4294967295UL
+#define VTK_FLOAT_MIN         -VTK_LARGE_FLOAT
+#define VTK_FLOAT_MAX          VTK_LARGE_FLOAT
+#define VTK_DOUBLE_MIN        -1.0e+99L
+#define VTK_DOUBLE_MAX         1.0e+99L
 
 // These types are returned to distinguish data object types
 #define VTK_POLY_DATA          0
@@ -95,10 +95,14 @@
 #define VTK_STRUCTURED_GRID    2
 #define VTK_RECTILINEAR_GRID   3
 #define VTK_UNSTRUCTURED_GRID  4
-#define VTK_PIECEWISE_FUNCTION  5
-#define VTK_IMAGE_DATA 6
-#define VTK_DATA_OBJECT 7
-#define VTK_DATA_SET 8
+#define VTK_PIECEWISE_FUNCTION 5
+#define VTK_IMAGE_DATA         6
+#define VTK_DATA_OBJECT        7
+#define VTK_DATA_SET           8
+
+// These types define error codes for vtk functions
+#define VTK_OK                 1
+#define VTK_ERROR              2
 
 // A macro to get the name of a type
 #define vtkImageScalarTypeNameMacro(type) \
