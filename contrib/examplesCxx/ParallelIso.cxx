@@ -4,8 +4,8 @@
 #include "vtkImageReader.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkAppendPolyData.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkConeSource.h"
@@ -100,7 +100,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   if (myid != 0)
     {
     // Remote process! Send data throug port.
-    vtkUpStreamPort *upPort = vtkUpStreamPort::New();
+    vtkOutputPort *upPort = vtkOutputPort::New();
     
     // last, set up a RMI call back to change the iso surface value.
     controller->AddRMI(set_iso_val_rmi, (void *)iso, 300);
@@ -119,7 +119,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     {
     int i, j;
     vtkAppendPolyData *app = vtkAppendPolyData::New();
-    vtkDownStreamPort *downPort;
+    vtkInputPort *downPort;
     vtkRenderer *ren = vtkRenderer::New();
     vtkRenderWindow *renWindow = vtkRenderWindow::New();
     vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
@@ -138,8 +138,8 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     
     for (i = 1; i < numProcs; ++i)
       {
-      downPort = vtkDownStreamPort::New();
-      downPort->SetUpStreamProcessId(i);
+      downPort = vtkInputPort::New();
+      downPort->SetRemoteProcessId(i);
       downPort->SetTag(999);
       app->AddInput(downPort->GetPolyDataOutput());
       // referenced by app ...
@@ -236,6 +236,8 @@ void main( int argc, char *argv[] )
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 
   controller->Initialize(argc, argv);
+  // Needed for threaded controller.
+  // controller->SetNumberOfProcesses(2);
   controller->SetSingleMethod(process, NULL);
   controller->SingleMethodExecute();
 

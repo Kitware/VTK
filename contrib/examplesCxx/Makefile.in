@@ -25,8 +25,8 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 #-----------------------------------------------------------------------------
 
 EXAMPLES = TestMPI TestController TestPolyDataPort TestStructuredPointsPort \
-           TestImagePort TestStructuredGridPort GridIso \
-	   ParallelIso GridIso TimeIso StreamPort
+           TestImagePort TestStructuredGridPort \
+	   ParallelIso TimeIso StreamPort
 
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -73,10 +73,6 @@ TestStructuredGridPort: TestStructuredGridPort.o
 
 ParallelIso: ParallelIso.o
 	${CXX} -o ParallelIso ${CXX_FLAGS} ParallelIso.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-GridIso: GridIso.o
-	${CXX} -o GridIso ${CXX_FLAGS} GridIso.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 TimeIso: TimeIso.o
