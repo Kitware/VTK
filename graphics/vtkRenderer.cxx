@@ -663,6 +663,9 @@ void vtkRenderer::ResetCamera(float bounds[6])
 				  center[1]+distance*vn[1],
 				  center[2]+distance*vn[2]);
   this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
+
+  // setup default parallel scale
+  this->ActiveCamera->SetParallelScale(width);
 }
   
 // Alternative version of ResetCamera(bounds[6]);
