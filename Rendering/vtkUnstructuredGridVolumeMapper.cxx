@@ -20,11 +20,12 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.2");
 
 // Construct a vtkUnstructuredGridVolumeMapper with empty scalar input and clipping off.
 vtkUnstructuredGridVolumeMapper::vtkUnstructuredGridVolumeMapper()
 {
+  this->BlendMode = vtkUnstructuredGridVolumeMapper::COMPOSITE_BLEND;
 }
 
 vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper()
@@ -65,5 +66,7 @@ vtkUnstructuredGrid *vtkUnstructuredGridVolumeMapper::GetInput()
 void vtkUnstructuredGridVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Blend Mode: " << this->BlendMode << endl;
 }
 

@@ -42,6 +42,48 @@ public:
   vtkTypeRevisionMacro(vtkUnstructuredGridVolumeMapper,vtkAbstractVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
+  // Description:
+  // Set/Get the input data
+  virtual void SetInput( vtkUnstructuredGrid * );
+  virtual void SetInput( vtkDataSet * );
+  vtkUnstructuredGrid *GetInput();
+
+  vtkSetMacro( BlendMode, int );
+  void SetBlendModeToComposite()
+    { this->SetBlendMode( vtkUnstructuredGridVolumeMapper::COMPOSITE_BLEND ); }
+  void SetBlendModeToMaximumIntensity()
+    { this->SetBlendMode( vtkUnstructuredGridVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
+  vtkGetMacro( BlendMode, int );
+  
+
+//BTX  
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Render the volume
+  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  
+  enum 
+  {
+    COMPOSITE_BLEND,
+    MAXIMUM_INTENSITY_BLEND
+  };
+  
+//ETX
+  
+protected:
+  vtkUnstructuredGridVolumeMapper();
+  ~vtkUnstructuredGridVolumeMapper();
+
+  int   BlendMode;
   
 private:
   vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.

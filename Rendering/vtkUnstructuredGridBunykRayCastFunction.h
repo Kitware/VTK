@@ -82,6 +82,221 @@ public:
   static vtkUnstructuredGridBunykRayCastFunction *New();
   vtkTypeRevisionMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+//BTX
+  // Description:
+  // Called by the ray cast mapper at the start of rendering
+  virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol );
+  
+  // Description:
+  // Called by the ray cast mapper at the end of rendering
+  virtual void Finalize();
+  
+  // Description:
+  // Called by the ray cast mapper once per ray
+  virtual void CastRay( int x, int y, double bounds[2], float color[4] );
+
+  // Used to store each triangle - made public because of the 
+  // templated function
+  class Triangle {
+  public:
+    int       PointIndex[3];
+    int       ReferredByTetra[2];
+    double    P1X, P1Y;
+    double    P2X, P2Y;
+    double    Denominator;
+    double    A, B, C, D;
+    Triangle *Next; 
+  };
+  
+  // Used to store each intersection for the pixel rays - made
+  // public because of the templated function
+  class Intersection {
+  public:
+    Triangle     *TriPtr;
+    double        Z;
+    Intersection *Next;
+  };
+  
+  // Description:
+  // Is the point x, y, in the given triangle? Public for
+  // access from the templated function.
+  int  InTriangle( double x, double y,
+                   Triangle *triPtr );
+  
+
+  // Description:
+  // Access to an internal structure for the templated method.  
+  double *GetPoints() {return this->Points;}
+  
+  // Description:
+  // Access to an internal structure for the templated method.
+  vtkGetObjectMacro( ViewToWorldMatrix, vtkMatrix4x4 );
+  
+  // Description:
+  // Access to an internal structure for the templated method.
+  vtkGetVectorMacro( ImageOrigin, int, 2 );
+
+  // Description:
+  // Access to an internal structure for the templated method.
+  Triangle **GetTetraTriangles () {return this->TetraTriangles;}
+  
+  // Description:
+  // Access to an internal structure for the templated method.
+  Intersection *GetIntersectionList( int x, int y ) { return this->Image[y*this->ImageSize[0] + x]; }
+
+  double **GetColorTable() {return this->ColorTable;}
+  double *GetColorTableShift() {return this->ColorTableShift;}
+  double *GetColorTableScale() {return this->ColorTableScale;}
+  
+//ETX
+  
+protected:
+  vtkUnstructuredGridBunykRayCastFunction();
+  ~vtkUnstructuredGridBunykRayCastFunction();
+
+  // These are cached during the initialize method so that they do not
+  // need to be passed into subsequent CastRay calls.
+  vtkRenderer                             *Renderer;
+  vtkVolume                               *Volume;
+  vtkUnstructuredGridVolumeRayCastMapper  *Mapper;
+  void                                    *Scalars;
+  int                                      ScalarType;
+  
+  // Computed during the initialize method - if something is
+  // wrong (no mapper, no volume, no input, etc.) then no rendering
+  // will actually be performed.
+  int                                      Valid;
+
+  // These are the transformed points
+  int      NumberOfPoints;
+  double  *Points;
+
+  // This is the matrix that will take a transformed point back
+  // to world coordinates
+  vtkMatrix4x4 *ViewToWorldMatrix;
+
+
+  // This is the intersection list per pixel in the image
+  Intersection    **Image;
+  
+  // This is the size of the image we are computing (which does
+  // not need to match the screen size)
+  int               ImageSize[2];
+  
+  // Since we may only be computing a subregion of the "full" image,
+  // this is the origin of the region we are computing. We must
+  // subtract this origin from any pixel (x,y) locations before 
+  // accessing the pixel in this->Image (which represents only the
+  // subregion)
+  int               ImageOrigin[2];
+  
+  // This is the full size of the image
+  int               ImageViewportSize[2];
+
+  // This table holds the mapping from scalar value to color/opacity.
+  // There is one table per component.
+  double         **ColorTable;
+  int             *ColorTableSize;
+  
+  // This is the shift/scale that needs to be applied to the scalar value
+  // to map it into the (integer) range of the color table. There is one
+  // shift/scale value per component.
+  double           *ColorTableShift;
+  double           *ColorTableScale;
+  
+  // These are some values saved during the computation of the ColorTable.
+  // These saved values help us determine if anything changed since the
+  // last time the functions were updated - if so we need to recreate them,
+  // otherwise we can just keep using the current ones.
+  vtkColorTransferFunction **SavedRGBFunction;
+  vtkPiecewiseFunction     **SavedGrayFunction;
+  vtkPiecewiseFunction     **SavedScalarOpacityFunction;
+  int                       *SavedColorChannels;
+  double                    *SavedScalarOpacityDistance;
+  double                     SavedSampleDistance;
+  int                        SavedBlendMode;
+  int                        SavedNumberOfComponents;
+  vtkUnstructuredGrid       *SavedParametersInput;
+  vtkTimeStamp               SavedParametersMTime;
+
+  // These are values saved for the building of the TriangleList. Basically
+  // we need to check if the data has changed in some way.
+  vtkUnstructuredGrid       *SavedTriangleListInput;
+  vtkTimeStamp               SavedTriangleListMTime;
+  
+  // The sample distance is computed when building the triangle
+  // structure as the average length of a side of a triangle
+  double                     SampleDistance;
+  
+//BTX  
+  // This is a memory intensive algorithm! For each tetra in the 
+  // input data we create up to 4 triangles (we don't create duplicates)
+  // This is the TriangleList. Then, for each tetra we keep track of
+  // the pointer to each of its four triangles - this is the 
+  // TetraTriangles. We also keep a duplicate list of points 
+  // (transformed into view space) - these are the Points. 
+  Triangle **TetraTriangles;
+  Triangle  *TriangleList;
+  
+  // Compute whether a boundary triangle is front facing by
+  // looking at the fourth point in the tetra to see if it is
+  // in front (triangle is backfacing) or behind (triangle is
+  // front facing) the plane containing the triangle.
+  int  IsTriangleFrontFacing( Triangle *triPtr, int tetraIndex );
+  
+  // The image contains lists of intersections per pixel - we
+  // need to clear this during the initialization phase for each
+  // render.
+  void ClearImage();
+  
+  // This is the memory buffer used to build the intersection
+  // lists. We do our own memory management here because allocating
+  // a bunch of small elements during rendering is too slow.
+  Intersection *IntersectionBuffer[VTK_BUNYKRCF_MAX_ARRAYS];
+  int           IntersectionBufferCount[VTK_BUNYKRCF_MAX_ARRAYS];
+  
+  // This method replaces new for creating a new element - it
+  // returns one from the big block already allocated (it 
+  // allocates another big block if necessary)
+  void         *NewIntersection();  
+
+  // This method is used during the initialization process to
+  // check the validity of the objects - missing information
+  // such as the volume, renderer, mapper, etc. will be flagged
+  // and reported.
+  int          CheckValidity(vtkRenderer *ren,
+                             vtkVolume   *vol);
+  
+  // This method is used during the initialization process to
+  // transform the points to view coordinates
+  void          TransformPoints();
+
+  // This method is used during the initialization process to 
+  // create the list of triangles if the data has changed
+  void          UpdateTriangleList();
+  
+  // This method is used during the initialization process to
+  // update the view dependent information in the triangle list
+  void          ComputeViewDependentInfo();
+  
+  // This method is used during the initialization process to
+  // compute the intersections for each pixel with the boundary
+  // triangles.
+  void          ComputePixelIntersections();
+
+  // This method is used during the initialization process to
+  // update the arrays holding the mapping from scalar value
+  // to color/opacity
+  void          UpdateColorTable();
+
+  // This method is used to change the number of components
+  // for which information is being cached. This will delete
+  // the color table and all saved arrays for computing it, 
+  // and will reconstruct them with the right size.
+  void          SetNumberOfComponents( int num );
+  
+//ETX
   
 private:
   vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
