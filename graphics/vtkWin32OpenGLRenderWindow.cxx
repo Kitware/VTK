@@ -867,6 +867,7 @@ int vtkWin32OpenGLRenderWindow::GetDepthBufferSize()
 
   if ( this->Mapped )
     {
+    this->MakeCurrent();
     size = 0;
     glGetIntegerv( GL_DEPTH_BITS, &size );
     return (int) size;
