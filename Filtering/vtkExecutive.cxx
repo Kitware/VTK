@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.15");
+vtkCxxRevisionMacro(vtkExecutive, "1.16");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -577,7 +577,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
       }
 
     // Copy information from the requesting output to all inputs.
-    if(outputPort < this->GetNumberOfOutputPorts())
+    if(outputPort >= 0 && outputPort < this->GetNumberOfOutputPorts())
       {
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
       int length = request->Length(KEYS_TO_COPY());
