@@ -262,29 +262,33 @@ public:
         reinterpret_cast<vtkImageTracerWidget*>(caller);
       if(!tracerWidget) { return; }
 
-      int npts = tracerWidget->GetNumberOfHandles();
-      int closed = tracerWidget->GetIsClosed();
+      int closed = tracerWidget->IsClosed();
+      SplineWidget->SetClosed(closed);
 
-      if (npts < 3 || !closed)
+      if (!closed)
         {
         Actor->SetInput(Extract->GetOutput());
         }
+
+      int npts = tracerWidget->GetNumberOfHandles();
       if (npts < 2) { return; }
 
-      SplineWidget->SetClosed(closed);
-      SplineWidget->SetNumberOfHandles(npts);
       tracerWidget->GetPath(PathPoly);
-
-      for (int i = 0; i < npts; i++)
+      vtkPoints* points = PathPoly->GetPoints();
+      if (!points){ return; }      
+      npts = points->GetNumberOfPoints();
+      if(closed){--npts;}  
+      SplineWidget->SetNumberOfHandles(npts);
+      for (int i = 0; i < npts; ++i)
         {
-        SplineWidget->SetHandlePosition(i,PathPoly->GetPoints()->GetPoint(i));
+        SplineWidget->SetHandlePosition(i,points->GetPoint(i));
         }
 
       if (closed)
         {
         SplineWidget->GetPolyData(SplinePoly);
-        Actor->SetInput(Stencil->GetOutput());
-        Stencil->Update();
+        Stencil->Update();  
+        Actor->SetInput(Stencil->GetOutput());        
         }
     }
 
@@ -314,21 +318,26 @@ public:
       if(!splineWidget) { return; }
 
       int npts = splineWidget->GetNumberOfHandles();
-      Points->SetNumberOfPoints(npts);
+      int closed = (splineWidget->GetClosed() && npts > 2) ? 1 : 0;
 
-      for (int i = 0; i < npts; i++)
+      Points->Reset();
+      for (int i = 0; i < npts; ++i)
         {
-        Points->SetPoint(i,splineWidget->GetHandlePosition(i));
+        Points->InsertNextPoint(splineWidget->GetHandlePosition(i));
+        }
+
+      if (closed)
+        {
+        if (TracerWidget->GetAutoClose())
+          { 
+          Points->InsertNextPoint(splineWidget->GetHandlePosition(0));
+          }
+         splineWidget->GetPolyData(SplinePoly);
+         Stencil->Update();
+         Actor->SetInput(Stencil->GetOutput());        
         }
 
       TracerWidget->InitializeHandles(Points);
-
-      if (splineWidget->GetClosed())
-        {
-        splineWidget->GetPolyData(SplinePoly);
-        Actor->SetInput(Stencil->GetOutput());
-        Stencil->Update();
-        }
     }
 
   vtkSW2Callback():Points(0),TracerWidget(0),Actor(0),Stencil(0),SplinePoly(0){}
@@ -344,7 +353,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  // Increase polygon offsets to support some OpenGL drivers
+ // Increase polygon offsets to support some OpenGL drivers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(10,10);
 
@@ -429,6 +438,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 // its handles set by the tracer widget.
 //
   vtkSplineWidget* splineWidget = vtkSplineWidget::New();
+    splineWidget->SetCurrentRenderer(ren2);
     splineWidget->SetDefaultRenderer(ren2);
     splineWidget->SetInput(extract->GetOutput());
     splineWidget->SetInteractor(iren);
