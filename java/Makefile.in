@@ -83,7 +83,7 @@ LDLIBS = -L../common \
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 
 
-all:  java_parse java_wrap vtk/vtkPanel.class
+all:  java_parse java_wrap 
 
 vtk/vtkPanel.class: vtk/vtkPanel.java
 	${JAVAC} -d ${JAVA_CLASS_HOME} ${srcdir}/vtk/vtkPanel.java
