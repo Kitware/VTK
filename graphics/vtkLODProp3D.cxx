@@ -827,5 +827,11 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
   vtkProp3D::PrintSelf(os,indent);
 
   os << indent << "Number Of LODs: " << this->NumberOfLODs << endl;
+
+  os << indent << "Selected LOD ID: " << this->SelectedLODID << endl;
+
+  os << indent << "AutomaticLODSelection: " 
+     << (this->AutomaticLODSelection ? "On\n" : "Off\n");
+
 }
 
