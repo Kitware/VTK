@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.6");
+vtkCxxRevisionMacro(vtkMeshQuality, "1.7");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,6 @@ void vtkMeshQuality::Execute()
     }
   scalars->SetNumberOfTuples(numCells);
   
-  double p1[3],p2[3],p3[3],p4[3]; 
   double dp1[3],dp2[3],dp3[3],dp4[3];
   double volume, ratio;
   double incenter[3], circenter[3];
@@ -68,14 +67,10 @@ void vtkMeshQuality::Execute()
   for (j=0; j<numCells; j++)
     {
     input->GetCellPoints(j,id);
-    input->GetPoint(id->GetId(0),p1);
-    dp1[0]=p1[0]; dp1[1]=p1[1]; dp1[2]=p1[2];
-    input->GetPoint(id->GetId(1),p2);
-    dp2[0]=p2[0]; dp2[1]=p2[1]; dp2[2]=p2[2];
-    input->GetPoint(id->GetId(2),p3);
-    dp3[0]=p3[0]; dp3[1]=p3[1]; dp3[2]=p3[2];
-    input->GetPoint(id->GetId(3),p4);
-    dp4[0]=p4[0]; dp4[1]=p4[1]; dp4[2]=p4[2];
+    input->GetPoint(id->GetId(0),dp1);
+    input->GetPoint(id->GetId(1),dp2);
+    input->GetPoint(id->GetId(2),dp3);
+    input->GetPoint(id->GetId(3),dp4);
     
     if (this->Volume && this->Ratio)
       {
