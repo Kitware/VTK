@@ -37,7 +37,7 @@
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.24");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.25");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -339,7 +339,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // If we support Mangle Mesa, VTK_IMPLEMENT_MESA_CXX will be defined to
   // compile this unit as a Mesa text mapper. In that case, provide a
   // context to FTGL to switch dynamically to Mangle Mesa rendering.
-  printf("RenderOverlay: Mangle\n");
   struct FTGLRenderContext ftgl_context_mesa;
   ftgl_context_mesa.UseMangleMesa = 1;
   ftgl_context = &ftgl_context_mesa;
