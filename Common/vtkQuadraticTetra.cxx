@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.6");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -433,8 +433,8 @@ void vtkQuadraticTetra::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-// Clip this line using scalar value provided. Like contouring, except
-// that it cuts the line to produce other lines.
+// Clip this quadratic tetra using the scalar value provided. Like contouring,
+// except that it cuts the tetra to produce other tetra.
 void vtkQuadraticTetra::Clip(float value, vtkDataArray* cellScalars, 
                             vtkPointLocator* locator, vtkCellArray* tetras,
                             vtkPointData* inPd, vtkPointData* outPd,
@@ -461,7 +461,8 @@ int vtkQuadraticTetra::GetParametricCenter(float pcoords[3])
   return 0;
 }
 
-// Compute interpolation functions. Node [2] is the mid-edge node.
+// Compute interpolation functions. First four nodes are the 
+// tetrahedron corner vertices; the others are mid-edge nodes.
 void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3], 
                                                float weights[3])
 {

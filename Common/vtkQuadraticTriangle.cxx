@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.4");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -262,8 +262,9 @@ void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 }
 
 
-// Clip this line using scalar value provided. Like contouring, except
-// that it cuts the line to produce other lines.
+// Clip this quadratic triangle using the scalar value provided. Like 
+// contouring, except that it cuts the triangle to produce other quads
+// and triangles.
 void vtkQuadraticTriangle::Clip(float value, 
                                 vtkDataArray* cellScalars, 
                                 vtkPointLocator* locator,
@@ -300,7 +301,8 @@ int vtkQuadraticTriangle::GetParametricCenter(float pcoords[3])
   return 0;
 }
 
-// Compute interpolation functions. Node [2] is the mid-edge node.
+// Compute interpolation functions. The first three nodes are the triangle
+// vertices; the others are mid-edge nodes.
 void vtkQuadraticTriangle::InterpolationFunctions(float pcoords[3], 
                                                   float weights[3])
 {

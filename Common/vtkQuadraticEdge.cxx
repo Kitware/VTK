@@ -23,7 +23,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.11");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.12");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -243,8 +243,8 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
 }
 
 
-// Clip this line using scalar value provided. Like contouring, except
-// that it cuts the line to produce other lines.
+// Clip this quadratic edge using scalar value provided. Like contouring, 
+// except that it cuts the edge to produce linear line segments.
 void vtkQuadraticEdge::Clip(float value, vtkDataArray *cellScalars, 
                             vtkPointLocator *locator, vtkCellArray *lines,
                             vtkPointData *inPd, vtkPointData *outPd,

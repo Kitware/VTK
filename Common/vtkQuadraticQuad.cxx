@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.5");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -410,8 +410,8 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
 }
 
 
-// Clip this line using scalar value provided. Like contouring, except
-// that it cuts the line to produce other lines.
+// Clip this quadratic quad using scalar value provided. Like contouring, 
+// except that it cuts the quad to produce other quads and triangles.
 void vtkQuadraticQuad::Clip(float value, 
                             vtkDataArray* cellScalars, 
                             vtkPointLocator* locator,
@@ -439,7 +439,8 @@ void vtkQuadraticQuad::Clip(float value,
     }
 }
 
-// Compute interpolation functions. Node [2] is the mid-edge node.
+// Compute interpolation functions. The first four nodes are the corner
+// vertices; the others are mid-edge nodes.
 void vtkQuadraticQuad::InterpolationFunctions(float pcoords[3], 
                                               float weights[8])
 {
