@@ -64,7 +64,41 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
 //----------------------------------------------------------------------------
 void vtkImageSinusoidSource::SetDirection(int num, float *v)
 {
+  float sum = 0.0;
+  int idx;
+  
+  this->Modified();
+  if (num > 4)
+    {
+    vtkWarningMacro("SetDirection: Dimesionality has too many dimensions"
+		    << num);
+    num = 4;
+    }
+
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->Direction[idx] = v[idx];
+    sum += v[idx] * v[idx];
+    }
+  for (idx = num; idx < 4; ++idx)
+    {
+    this->Direction[idx] = 0.0;
+    }
+  
+  if (sum == 0.0)
+    {
+    vtkErrorMacro("Zero direction vector");
+    return;
+    }
+  
+  // normalize
+  sum = 1.0 / sqrt(sum);
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->Direction[idx] *= sum;
+    }
 }
+
 //----------------------------------------------------------------------------
 void vtkImageSinusoidSource::SetWholeExtent(int dim, int *extent)
 {
@@ -113,9 +147,16 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
   region->GetIncrements(inc);
   ptr = (float *)(region->GetScalarPointer());
   
-  temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
   for (idx = min; idx <= max; ++idx)
     {
+    // find dot product
+    sum = 0.0;
+    for (idx2 = 0; idx2 < 4; ++idx2)
+      {
+      }
+    
+    
+    ptr += inc;
     }
 }
 
