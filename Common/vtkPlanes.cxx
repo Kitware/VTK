@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPlanes, "1.12");
+vtkCxxRevisionMacro(vtkPlanes, "1.13");
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);
 
@@ -313,12 +313,11 @@ vtkPlane *vtkPlanes::GetPlane(int i)
   
   if ( i >= 0 && i < this->GetNumberOfPlanes() )
     {
-    vtkPlane *plane = vtkPlane::New();
     this->Normals->GetTuple(i,normal);
     this->Points->GetPoint(i,point);
-    plane->SetNormal(normal);
-    plane->SetOrigin(point);
-    return plane;
+    this->Plane->SetNormal(normal);
+    this->Plane->SetOrigin(point);
+    return this->Plane;
     }
   else
     {
