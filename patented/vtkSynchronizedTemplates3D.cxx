@@ -106,6 +106,11 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
 
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+  if (this->NumberOfThreads > this->Threader->GetGlobalMaximumNumberOfThreads())
+    {
+    this->NumberOfThreads = this->Threader->GetGlobalMaximumNumberOfThreads();
+    }
+  
   for (idx = 0; idx < VTK_MAX_THREADS; ++idx)
     {
     this->Threads[idx] = NULL;
@@ -238,9 +243,7 @@ if (ComputeScalars) \
 //
 template <class T>
 static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
-			 vtkImageData *data, vtkPoints *newPts, 
-			 vtkScalars *newScalars, vtkCellArray *polys, 
-			 vtkNormals *newNormals, vtkVectors *newGradients, 
+			 vtkImageData *data, vtkPolyData *output,
 			 T *ptr, int threadId)
 {
   int xdim = exExt[1] - exExt[0] + 1;
@@ -271,6 +274,22 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int ptIds[3];
   float value;
   int *wholeExt;
+  // We need to know the edgePointId's for interpolating attributes.
+  int edgePtId;
+  vtkPointData *inPD = self->GetInput()->GetPointData();
+  vtkPointData *outPD = output->GetPointData();  
+  // Use to be arguments
+  vtkScalars *newScalars;
+  vtkNormals *newNormals;
+  vtkVectors *newGradients;
+  vtkPoints *newPts;
+  vtkCellArray *newPolys;
+
+  newPts = output->GetPoints();
+  newPolys = output->GetPolys();
+  newScalars = output->GetPointData()->GetScalars();
+  newNormals = output->GetPointData()->GetNormals();
+  newGradients = output->GetPointData()->GetVectors();  
   
   // this is an exploded execute extent.
   xMin = exExt[0];
@@ -337,7 +356,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       // swap the buffers
       if (k%2)
         {
-	      offsets[8] = (zstep - xdim)*3;
+	offsets[8] = (zstep - xdim)*3;
         offsets[9] = (zstep - xdim)*3 + 1;
         offsets[10] = (zstep - xdim)*3 + 4;
         offsets[11] = zstep*3;
@@ -357,6 +376,9 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       inPtrY = inPtrZ;
       for (j = yMin; j <= yMax; j++)
         {
+	// Should not impact perfomance here/
+	edgePtId = j*yInc + k*zInc;
+
         y = origin[1] + j*spacing[1];
         xz[1] = y;
         s1 = inPtrY;
@@ -380,6 +402,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
               x[1] = y;
               *isect2Ptr = newPts->InsertNextPoint(x);
               VTK_CSP3PA(i+1,j,k,s1);
+	      outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);	      
               }
             else
               {
@@ -397,6 +420,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 	      x[1] = y + spacing[1]*t;
 	      *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
 	      VTK_CSP3PA(i,j+1,k,s2);
+	      outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+yInc, t);	    
 	      }
 	    else
 	      {
@@ -414,12 +438,15 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 	      xz[2] = z + spacing[2]*t;
 	      *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
 	      VTK_CSP3PA(i,j,k+1,s3);
+	      outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+zInc, t);	    
 	      }
 	    else
 	      {
 	      *(isect2Ptr + 2) = -1;
 	      }
 	    }
+	  // To keep track of ids for interpolating attributes.
+	  ++edgePtId;
 	  
 	  // now add any polys that need to be added
 	  // basically look at the isect values, 
@@ -450,7 +477,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 	      tablePtr++;
 	      ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
 	      tablePtr++;
-	      polys->InsertNextCell(3,ptIds);
+	      newPolys->InsertNextCell(3,ptIds);
 	      }
 	    }
 	  ++inPtrX;
@@ -496,26 +523,24 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 						 int *exExt, int threadId)
 {
-  vtkPoints *newPts;
-  vtkCellArray *newPolys;
   void *ptr;
   vtkPolyData *output = this->GetOutput();
-  vtkScalars *newScalars;
-  vtkNormals *newNormals;
-  vtkVectors *newGradients;
   
 
   vtkDebugMacro(<< "Executing 3D structured contour");
   
-  // The first thread always writes into the output.
-  // Other threads must create a temporary polydata as output.
-  if (threadId > 0)
-    {
-    output = this->Threads[threadId] = vtkPolyData::New();
+  
+  if (this->NumberOfThreads == 1)
+    { // Special case when only one thread (fast, no copy).
+    output = this->GetOutput();
     this->InitializeOutput(exExt, output);
     }
-
-  vtkDebugMacro(<< "Executing 3D structured contour");
+  else
+    { // For thread saftey, each writes into a separate output which are merged later.
+    output = vtkPolyData::New();
+    this->InitializeOutput(exExt, output);
+    this->Threads[threadId] = output;
+    }
   
   if ( exExt[0] == exExt[1] || exExt[2] == exExt[3] || exExt[4] == exExt[5] )
     {
@@ -523,13 +548,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     return;
     }
   
-  newPts = output->GetPoints();
-  newPolys = output->GetPolys();
-  newScalars = output->GetPointData()->GetScalars();
-  newNormals = output->GetPointData()->GetNormals();
-  newGradients = output->GetPointData()->GetVectors();
-
-
   //
   // Check data type and execute appropriate function
   //
@@ -538,11 +556,10 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     ptr = data->GetScalarPointerForExtent(exExt);
     switch (data->GetScalarType())
       {
-      vtkTemplateMacro10(ContourImage, this, exExt, data, newPts, newScalars, 
-                         newPolys, newNormals, newGradients,(VTK_TT *)ptr,
-                         threadId);
+      vtkTemplateMacro6(ContourImage, this, exExt, data, output, 
+                         (VTK_TT *)ptr, threadId);
       }
-    }
+    }  
   else //multiple components - have to convert
     {
     vtkErrorMacro("Cannot handle multiple components yet.");
@@ -608,11 +625,11 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkScalars *newScalars;
-  vtkNormals *newNormals;
-  vtkVectors *newGradients;
-  long estimatedSize;
-
+  vtkScalars *newScalars = NULL;
+  vtkNormals *newNormals = NULL;
+  vtkVectors *newGradients = NULL;
+  long estimatedSize;  
+  
   estimatedSize = (int) pow ((double) 
       ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
   if (estimatedSize < 1024)
@@ -624,36 +641,29 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
 
+  o->GetPointData()->CopyAllOn();
   if (this->ComputeNormals)
     {
     newNormals = vtkNormals::New();
     newNormals->Allocate(estimatedSize,estimatedSize/2);
+    o->GetPointData()->CopyNormalsOff();
     }
-  else
-    {
-    newNormals = NULL;
-    }
-  
   if (this->ComputeGradients)
     {
     newGradients = vtkVectors::New();
     newGradients->Allocate(estimatedSize,estimatedSize/2);
+    o->GetPointData()->CopyVectorsOff();
     }
-  else
-    {
-    newGradients = NULL;
-    }
-
   if (this->ComputeScalars)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(estimatedSize,estimatedSize/2);
+    o->GetPointData()->CopyScalarsOff();
     }
-  else
-    {
-    newScalars = NULL;
-    }
-
+  
+  o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
+  					 estimatedSize,estimatedSize/2);
+  
   o->SetPoints(newPts);
   newPts->Delete();
 
@@ -725,39 +735,30 @@ void vtkSynchronizedTemplates3D::Execute()
 {
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
-  vtkPoints *outPts;
   vtkPointData *outPD;
-  vtkCellArray *outTris;
-  vtkScalars *outScalars;
-  vtkVectors *outGrads;
-  vtkNormals *outNormals;
   vtkPolyData *threadOut;
   vtkPointData *threadPD;
   vtkCellArray *threadTris;
-  vtkScalars *threadScalars;
-  vtkVectors *threadGrads;
-  vtkNormals *threadNormals;
   vtkImageData *input = this->GetInput();
   int *ext = input->GetWholeExtent();
 
-  this->InitializeOutput(ext, output);
-
-  outPts = output->GetPoints();
-  outPD = output->GetPointData();
-  outTris = output->GetPolys();
-  outScalars = outPD->GetScalars();
-  outGrads = outPD->GetVectors();
-  outNormals = outPD->GetNormals();
-
+  // Just in case some one changed the maximum number of threads.
+  if (this->NumberOfThreads > this->Threader->GetGlobalMaximumNumberOfThreads())
+    {
+    this->NumberOfThreads = this->Threader->GetGlobalMaximumNumberOfThreads();
+    }
   if (this->NumberOfThreads == 1)
     {
-    // just call the threaded execute directly.
+    // Just call the threaded execute directly.
     this->ThreadedExecute(this->GetInput(), this->ExecuteExtent, 0);
     }
   else
     {
+    int totalCells, totalPoints;
+    vtkPoints *newPts;
+    vtkCellArray *newPolys;
+    
     this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-
     // Setup threading and the invoke threadedExecute
     this->Threader->SetSingleMethod(vtkSyncTempThreadedExecute, this);
     this->Threader->SingleMethodExecute();
@@ -765,33 +766,43 @@ void vtkSynchronizedTemplates3D::Execute()
     // Collect all the data into the output.  Now I cannot use append filter
     // because this filter might be streaming.  (Maybe I could if thread
     // 0 wrote to output, and I copied output to a temp polyData...)
-    for (idx = 1; idx < this->NumberOfThreads; ++idx)
+    
+    // Determine the total number of points.
+    totalCells = totalPoints = 0;
+    for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
       threadOut = this->Threads[idx];
+      totalPoints += threadOut->GetNumberOfPoints();
+      totalCells += threadOut->GetNumberOfCells();
+      }
+    // Allocate the necessary points and polys
+    newPts = vtkPoints::New();
+    newPts->Allocate(totalPoints, 1000);
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(newPolys->EstimateSize(totalCells, 3));
+    output->SetPoints(newPts);
+    output->SetPolys(newPolys);
+  
+    // Allocate point data for copying.
+    // Could anything bad happen if the piece happens to be empty?
+    outPD = output->GetPointData();
+    outPD->CopyAllOn();
+    outPD->CopyAllocate(threadOut->GetPointData(), totalPoints, 1000);
+    // Now copy all.
+    for (idx = 0; idx < this->NumberOfThreads; ++idx)
+      {
+      threadOut = this->Threads[idx];
+      // Sanity check? We should never have a null thread output.
       if (threadOut != NULL)
-	{
+	{ 
 	offset = output->GetNumberOfPoints();
 	threadPD = threadOut->GetPointData();
-	threadScalars = threadPD->GetScalars();
-	threadGrads = threadPD->GetVectors();
-	threadNormals = threadPD->GetNormals();
 	num = threadOut->GetNumberOfPoints();
 	for (ptIdx = 0; ptIdx < num; ++ptIdx)
 	  {
 	  newIdx = ptIdx + offset;
-	  outPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
-	  if (outScalars)
-	    {
-	    outScalars->InsertScalar(newIdx, threadScalars->GetScalar(ptIdx));
-	    }
-	  if (outGrads)
-	    {
-	      outGrads->InsertVector(newIdx, threadGrads->GetVector(ptIdx));
-	    }
-	  if (outNormals)
-	    {
-	      outNormals->InsertNormal(newIdx, threadNormals->GetNormal(ptIdx));
-	    }
+	  newPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
+	  outPD->CopyData(threadPD, ptIdx, newIdx);
 	  }
 	// copy the triangles.
 	threadTris = threadOut->GetPolys();
@@ -804,13 +815,15 @@ void vtkSynchronizedTemplates3D::Execute()
 	    newCellPts[0] = cellPts[0] + offset;
 	    newCellPts[1] = cellPts[1] + offset;
 	    newCellPts[2] = cellPts[2] + offset;
-	    outTris->InsertNextCell(3, newCellPts); 
+	    newPolys->InsertNextCell(3, newCellPts); 
 	    }
 	  }
 	threadOut->Delete();
 	threadOut = this->Threads[idx] = NULL;         
 	}
       }
+    newPolys->Delete();
+    newPts->Delete();
     }
   output->Squeeze();
 }
