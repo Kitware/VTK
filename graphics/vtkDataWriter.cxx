@@ -203,7 +203,7 @@ ostream *vtkDataWriter::OpenVTKFile()
       }
     else
       { 
-      fptr = new ofstream(this->FileName, ios::out | ios::bin);
+      fptr = new ofstream(this->FileName, ios::out | ios::binary);
       }
     }
 
