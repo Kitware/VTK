@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.17.2.3");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.17.2.4");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1619,8 +1619,8 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->ReceiveWindowInformation();
 
   this->RenderWindow->SetDesiredUpdateRate(winInfoDouble.DesiredUpdateRate);
-  this->UseCompositing = winInfoInt.UseCompositing;
-  this->ImageReductionFactor = winInfoInt.ImageReductionFactor;
+  this->SetUseCompositing(winInfoInt.UseCompositing);
+  this->SetImageReductionFactor(winInfoInt.ImageReductionFactor);
   this->FullImageSize[0] = winInfoInt.FullSize[0];
   this->FullImageSize[1] = winInfoInt.FullSize[1];
   this->ReducedImageSize[0] = winInfoInt.ReducedSize[0];
