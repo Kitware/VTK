@@ -117,6 +117,7 @@ public:
   // Description:
   // For internal use only
   void InternalGrab(LPVIDEOHDR VideoHdrPtr);
+  void OnParentWndDestroy();
 
 protected:
   vtkWin32VideoSource();
@@ -133,14 +134,13 @@ protected:
 
   int Preview;
 
-  int FatalVFWError;
-
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr, 
 			int start, int count);
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();
+
 private:
   vtkWin32VideoSource(const vtkWin32VideoSource&);  // Not implemented.
   void operator=(const vtkWin32VideoSource&);  // Not implemented.

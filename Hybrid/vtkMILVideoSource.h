@@ -252,6 +252,7 @@ protected:
   int MILSysInternallyAllocated;
 
   int FatalMILError;
+
 private:
   vtkMILVideoSource(const vtkMILVideoSource&);  // Not implemented.
   void operator=(const vtkMILVideoSource&);  // Not implemented.

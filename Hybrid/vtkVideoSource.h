@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkVideoSource_h
 
 #include "vtkTimerLog.h"
-#include "vtkMutexLock.h"
+#include "vtkCriticalSection.h"
 #include "vtkMultiThreader.h"
 #include "vtkImageSource.h"
 #include "vtkScalarsToColors.h"
@@ -82,10 +82,9 @@ public:
   virtual void Stop();
 
   // Description:
-  // Rewind to the frame that has the earliest timestamp.  Subsequent grab 
-  // and record operations will start on the following frame, therefore
-  // if you want to re-record over the this frame you must call Seek(-1)
-  // before calling Grab() or Record().
+  // Rewind to the frame with the earliest timestamp.  Record operations
+  // will start on the following frame, therefore if you want to re-record
+  // over this frame you must call Seek(-1) before calling Grab() or Record().
   virtual void Rewind();
 
   // Description:
@@ -200,9 +199,15 @@ public:
   vtkGetMacro(Opacity,float);  
 
   // Description:
-  // Get the number of frames captured since the beginning of the 
-  // last Record session.
+  // This value is incremented each time a frame is grabbed.
+  // reset it to zero (or any other value) at any time.
   vtkGetMacro(FrameCount, int);
+  vtkSetMacro(FrameCount, int);
+
+  // Description:
+  // Get the frame index relative to the 'beginning of the tape'.  This
+  // value wraps back to zero if it increases past the FrameBufferSize.
+  vtkGetMacro(FrameIndex, int);
 
   // Description:
   // Get a time stamp in seconds (resolution of milliseconds) for
@@ -216,6 +221,7 @@ public:
   // Initialize the hardware.  This is called automatically
   // on the first Update or Grab.
   virtual void Initialize();
+  virtual int GetInitialized() { return this->Initialized; };
 
   // Description:
   // Release the video driver.  This is called automatically
@@ -262,6 +268,7 @@ protected:
   int Playing;
   float FrameRate;
   int FrameCount;
+  int FrameIndex;
   double StartTimeStamp;
 
   int AutoAdvance;
@@ -281,7 +288,7 @@ protected:
 
   // A mutex for the frame buffer: must be applied when any of the
   // below data is modified.
-  vtkMutexLock *FrameBufferMutex;
+  vtkCriticalSection *FrameBufferMutex;
 
   // set according to the needs of the hardware:
   // number of bits per framebuffer pixel
@@ -305,6 +312,7 @@ protected:
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
 				int start, int count);
+
 private:
   vtkVideoSource(const vtkVideoSource&);  // Not implemented.
   void operator=(const vtkVideoSource&);  // Not implemented.

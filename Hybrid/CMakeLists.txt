@@ -25,21 +25,12 @@ vtkXYPlotActor
 vtkWeightedTransformFilter 
 )
 
-WRAP_EXCLUDE_FILES(vtkVRML)
-
 IF (WIN32)
   OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" OFF)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    SOURCE_FILES ( Hybrid_SRCS
-      vtkWin32VideoSource
-      )
-    LINK_LIBRARIES (
-      vfw32
-      )
+    SOURCE_FILES (Hybrid_SRCS vtkWin32VideoSource)
   ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
-ENDIF (WIN32)
 
-IF (WIN32)
   OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
   IF (VTK_USE_MATROX_IMAGING)
     FIND_LIBRARY(MIL_LIBRARY MIL
@@ -49,17 +40,13 @@ IF (WIN32)
     FIND_PATH(MIL_INCLUDE_PATH mil.h
       "C:/Program Files/Matrox Imaging/mil/include"
       )
-    SOURCE_FILES ( Hybrid_SRCS
-      vtkMILVideoSource
-      )
-    INCLUDE_DIRECTORIES(
-      ${MIL_INCLUDE_PATH}
-      )
-    LINK_LIBRARIES (
-      ${MIL_LIBRARY}
-      )
+    SOURCE_FILES (Hybrid_SRCS vtkMILVideoSource)
+    INCLUDE_DIRECTORIES (${MIL_INCLUDE_PATH})
+    LINK_LIBRARIES (${MIL_LIBRARY})
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
+
+WRAP_EXCLUDE_FILES(vtkVRML)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
@@ -81,6 +68,15 @@ IF (VTK_WRAP_TCL)
                          vtkFilteringTCL 
                          vtkCommonTCL
                          ${TCL_LIBRARY})
+  IF (WIN32)
+    IF (VTK_USE_VIDEO_FOR_WINDOWS)
+      TARGET_LINK_LIBRARIES (vtkHybridTCL vfw32)
+    ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
+    IF (VTK_USE_MATROX_IMAGING)
+      TARGET_LINK_LIBRARIES (vtkHybridTCL ${MIL_LIBRARY})
+    ENDIF (VTK_USE_MATROX_IMAGING)
+  ENDIF (WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkHybridTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -106,6 +102,15 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  IF (WIN32)
+    IF (VTK_USE_VIDEO_FOR_WINDOWS)
+      TARGET_LINK_LIBRARIES (vtkHybridPython vfw32)
+    ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
+    IF (VTK_USE_MATROX_IMAGING)
+      TARGET_LINK_LIBRARIES (vtkHybridPython ${MIL_LIBRARY})
+    ENDIF (VTK_USE_MATROX_IMAGING)
+  ENDIF (WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkHybridPython)
 ENDIF (VTK_WRAP_PYTHON)
 
@@ -120,6 +125,15 @@ IF (VTK_WRAP_JAVA)
                          vtkRenderingJava
                          vtkIOJava
 			 ${OPENGL_LIBRARY})
+  IF (WIN32)
+    IF (VTK_USE_VIDEO_FOR_WINDOWS)
+      TARGET_LINK_LIBRARIES (vtkHybridJava vfw32)
+    ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
+    IF (VTK_USE_MATROX_IMAGING)
+      TARGET_LINK_LIBRARIES (vtkHybridJava ${MIL_LIBRARY})
+    ENDIF (VTK_USE_MATROX_IMAGING)
+  ENDIF (WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkHybridJava)
 ENDIF (VTK_WRAP_JAVA)
 
@@ -132,6 +146,15 @@ vtkIO
 vtkRendering
 vtkHybrid
 )
+
+IF (WIN32)
+  IF (VTK_USE_VIDEO_FOR_WINDOWS)
+    LINK_LIBRARIES (vfw32)
+  ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
+  IF (VTK_USE_MATROX_IMAGING)
+    LINK_LIBRARIES (${MIL_LIBRARY})
+  ENDIF (VTK_USE_MATROX_IMAGING)
+ENDIF (WIN32)
 
 INSTALL_TARGETS(/lib/vtk vtkHybrid)
 INSTALL_FILES(/include/vtk .h Hybrid_SRCS)

@@ -191,6 +191,7 @@ vtkVideoSource::vtkVideoSource()
   this->FrameRate = 30;
 
   this->FrameCount = 0;
+  this->FrameIndex = -1;
 
   this->StartTimeStamp = 0;
 
@@ -224,7 +225,7 @@ vtkVideoSource::vtkVideoSource()
   this->PlayerThreader = vtkMultiThreader::New();
   this->PlayerThreadId = -1;
 
-  this->FrameBufferMutex = vtkMutexLock::New();
+  this->FrameBufferMutex = vtkCriticalSection::New();
 
   this->FrameBufferSize = 0;
   this->FrameBuffer = NULL;
@@ -302,6 +303,8 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FrameRate: " << this->FrameRate << "\n";
 
   os << indent << "FrameCount: " << this->FrameCount << "\n";
+
+  os << indent << "FrameIndex: " << this->FrameIndex << "\n";
 
   os << indent << "Recording: " << (this->Recording ? "On\n" : "Off\n");
 
@@ -495,8 +498,12 @@ void vtkVideoSource::InternalGrab()
   this->FrameBufferMutex->Lock();
 
   if (this->AutoAdvance)
-    { 
+    {
     this->AdvanceFrameBuffer(1);
+    if (this->FrameIndex + 1 < this->FrameBufferSize)
+      {
+      this->FrameIndex++;
+      }
     }
 
   index = this->FrameBufferIndex % this->FrameBufferSize;
@@ -701,33 +708,44 @@ void vtkVideoSource::Stop()
 } 
 
 //----------------------------------------------------------------------------
-// Rewind back to the frame just before the frame with the earliest timestamp.
+// Rewind back to the frame with the earliest timestamp.
 void vtkVideoSource::Rewind()
 {
   this->FrameBufferMutex->Lock();
 
   double *stamp = this->FrameBufferTimeStamps;
-  double lowest = 2147483647L;
-  int index = this->FrameBufferIndex;
-  int i;
+  double lowest = 0;
+  int i, j;
 
+  if (this->FrameBufferSize)
+    {
+    lowest = stamp[this->FrameBufferIndex];
+    }
   for (i = 0; i < this->FrameBufferSize; i++)
     {
-    if (stamp[i] != 0.0 && stamp[i] <= lowest)
+    j = (this->FrameBufferIndex + i + 1) % this->FrameBufferSize;
+    if (stamp[j] != 0.0 && stamp[j] <= lowest)
       {
-      lowest = stamp[i];
-      index = i;
+      lowest = stamp[j];
       }
-    if (stamp[i] != 0.0 && stamp[i] < 980000000.0)
+    else
       {
-      vtkWarningMacro("Rewind: bogus time stamp!");
+      break;
       }
     }
-
-  if (index != this->FrameBufferIndex)
+  j = (this->FrameBufferIndex + i) % this->FrameBufferSize;
+  if (stamp[j] != 0.0 && stamp[j] < 980000000.0)
     {
-    this->FrameBufferIndex = index;
-    this->Modified();
+    vtkWarningMacro("Rewind: bogus time stamp!");
+    }
+  else
+    {
+    this->AdvanceFrameBuffer(-i);
+    this->FrameIndex = (this->FrameIndex - i) % this->FrameBufferSize;
+    while (this->FrameIndex < 0)
+      {
+      this->FrameIndex += this->FrameBufferSize;
+      }
     }
 
   this->FrameBufferMutex->Unlock();
@@ -741,26 +759,45 @@ void vtkVideoSource::FastForward()
 
   double *stamp = this->FrameBufferTimeStamps;
   double highest = 0;
-  int index = this->FrameBufferIndex;
-  int i;
+  int i, j;
 
+  if (this->FrameBufferSize)
+    {
+    highest = stamp[this->FrameBufferIndex];
+    }
   for (i = 0; i < this->FrameBufferSize; i++)
     {
-    if (stamp[i] != 0.0 && stamp[i] >= highest)
+    j = (this->FrameBufferIndex - i - 1) % this->FrameBufferSize;
+    while (j < 0)
       {
-      highest = stamp[i];
-      index = i;
+      j += this->FrameBufferSize;
       }
-    if (stamp[i] != 0.0 && stamp[i] < 980000000.0)
+    if (stamp[j] != 0.0 && stamp[j] >= highest)
       {
-      vtkWarningMacro("FastForward: bogus time stamp!");
+      highest = stamp[j];
+      }
+    else
+      {
+      break;
       }
     }
-
-  if (index != this->FrameBufferIndex)
+  j = (this->FrameBufferIndex - i) % this->FrameBufferSize;
+  while (j < 0)
     {
-    this->FrameBufferIndex = index;
-    this->Modified();
+    j += this->FrameBufferSize;
+    }
+  if (stamp[j] != 0.0 && stamp[j] < 980000000.0)
+    {
+    vtkWarningMacro("FastForward: bogus time stamp!");
+    }
+  else
+    {
+    this->AdvanceFrameBuffer(i);
+    this->FrameIndex = (this->FrameIndex + i) % this->FrameBufferSize;
+    while (this->FrameIndex < 0)
+      {
+      this->FrameIndex += this->FrameBufferSize;
+      }
     }
 
   this->FrameBufferMutex->Unlock();
@@ -771,7 +808,12 @@ void vtkVideoSource::FastForward()
 void vtkVideoSource::Seek(int n)
 { 
   this->FrameBufferMutex->Lock();
-  this->AdvanceFrameBuffer(n); 
+  this->AdvanceFrameBuffer(n);
+  this->FrameIndex = (this->FrameIndex + n) % this->FrameBufferSize;
+  while (this->FrameIndex < 0)
+    {
+    this->FrameIndex += this->FrameBufferSize;
+    }
   this->FrameBufferMutex->Unlock();
   this->Modified(); 
 }
@@ -865,6 +907,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     if (bufsize > 0)
       {
       this->FrameBufferIndex = 0;
+      this->FrameIndex = -1;
       this->FrameBuffer = new void *[bufsize];
       this->FrameBufferTimeStamps = new double[bufsize];
       for (i = 0; i < bufsize; i++)
@@ -922,10 +965,15 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     if (bufsize > 0)
       {
       this->FrameBufferIndex = this->FrameBufferIndex % bufsize;
+      if (this->FrameIndex >= bufsize)
+	{
+	this->FrameIndex = bufsize - 1;
+	}
       }
     else
       {
       this->FrameBufferIndex = 0;
+      this->FrameIndex = -1;
       }
 
     this->FrameBufferSize = bufsize;

@@ -80,8 +80,6 @@ vtkWin32VideoSource::vtkWin32VideoSource()
   this->WndClassName[0] = '\0';
 
   this->Preview = 0;
-
-  this->FatalVFWError = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -115,7 +113,7 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
     (GetWindowLong(hwnd,GWL_USERDATA));
 
   switch(message) {
-
+  
   case WM_MOVE:
     //cerr << "WM_MOVE\n";
     break;
@@ -125,18 +123,17 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
     break;
     
   case WM_DESTROY:
-    //cerr << "WM_DESTROY\n";    
+    //cerr << "WM_DESTROY\n";
+    self->OnParentWndDestroy();
     break;
 
   case WM_CLOSE:
     //cerr << "WM_CLOSE\n";
     self->PreviewOff();
-    break;
-
-  default:
-    return(DefWindowProc(hwnd, message, wParam, lParam));
+    return 0;
   }
-  return 0;
+
+  return(DefWindowProc(hwnd, message, wParam, lParam));
 }
 
 //----------------------------------------------------------------------------
@@ -205,7 +202,7 @@ void vtkWin32VideoSource::Initialize()
 {
   int i;
 
-  if (this->Initialized || this->FatalVFWError)
+  if (this->Initialized)
     {
     return;
     }
@@ -262,7 +259,7 @@ void vtkWin32VideoSource::Initialize()
 
   // set up the parent window, but don't show it
   this->ParentWnd = CreateWindow(
-		"VTKVideo",
+		this->WndClassName,
 		"VTK Video Window",
 		style,
                 0, 0, 
@@ -443,6 +440,16 @@ void vtkWin32VideoSource::SetPreview(int p)
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::ReleaseSystemResources()
 {
+  // destruction of ParentWnd causes OnParentWndDestroy to be called
+  if (this->ParentWnd)
+    {
+    DestroyWindow(this->ParentWnd);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWin32VideoSource::OnParentWndDestroy()
+{
   if (this->Playing || this->Recording)
     {
     this->Stop();
@@ -455,20 +462,14 @@ void vtkWin32VideoSource::ReleaseSystemResources()
     //MessageBox(this->ParentWnd, "DestroyWindow(this->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     DestroyWindow(this->CapWnd);
     this->CapWnd = NULL;
-    }
-  if (this->ParentWnd)
-    {
-    //MessageBox(this->ParentWnd, "DestroyWindow(this->ParentWnd)", "", MB_OK | MB_ICONEXCLAMATION);
-    DestroyWindow(this->ParentWnd);
-    this->ParentWnd = NULL;
-    }
+  }
   if (this->WndClassName[0] != '\0')
     {
     UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
     this->WndClassName[0] = '\0';
     }
 
-  this->FatalVFWError = 1;
+  this->ParentWnd = NULL;
   this->Initialized = 0;
 }
 
@@ -477,6 +478,8 @@ void vtkWin32VideoSource::ReleaseSystemResources()
 // vtkVideoSource framebuffer (don't do the unpacking yet)
 void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
 {
+  // cerr << "Grabbed\n";
+
   // the VIDEOHDR has the following contents, for quick ref:
   //
   // lpData                 pointer to locked data buffer
@@ -495,6 +498,10 @@ void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
   if (this->AutoAdvance)
     {
     this->AdvanceFrameBuffer(1);
+    if (this->FrameIndex + 1 < this->FrameBufferSize)
+      {
+      this->FrameIndex++;
+      }
     }
 
   int index = this->FrameBufferIndex;
@@ -505,7 +512,7 @@ void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
 
   unsigned char *ptr = (unsigned char *)
     ((reinterpret_cast<vtkUnsignedCharArray*>(this->FrameBuffer[index])) \
-     ->GetPointer(0));
+      ->GetPointer(0));
 
   // the DIB has rows which are multiples of 4 bytes
   int outBytesPerRow = ((this->FrameBufferExtent[1]-
@@ -862,12 +869,12 @@ void vtkWin32VideoSource::VideoFormatDialog()
     return;
     }
 
-  if (!this->CapDriverCaps.fHasDlgVideoFormat)
-    {
-    MessageBox(this->ParentWnd, "The video device has no Format dialog.", "", 
-	       MB_OK | MB_ICONEXCLAMATION);
-    return;
-    }
+  //if (!this->CapDriverCaps.fHasDlgVideoFormat)
+  //  {
+  //  MessageBox(this->ParentWnd,"The video device has no Format dialog.","", 
+  //             MB_OK | MB_ICONEXCLAMATION);
+  //  return;
+  //  }
 
   capGetStatus(this->CapWnd,&this->CapStatus,sizeof(CAPSTATUS));
   if (this->CapStatus.fCapturingNow)
@@ -895,12 +902,12 @@ void vtkWin32VideoSource::VideoSourceDialog()
     return;
     }
 
-  if (!this->CapDriverCaps.fHasDlgVideoSource)
-    {
-    MessageBox(this->ParentWnd, "The video device has no Source dialog.", "", 
-	       MB_OK | MB_ICONEXCLAMATION);
-    return;
-    }
+  //if (!this->CapDriverCaps.fHasDlgVideoSource)
+  //  {
+  //  MessageBox(this->ParentWnd,"The video device has no Source dialog.","", 
+  //             MB_OK | MB_ICONEXCLAMATION);
+  //  return;
+  //  }
 
   capGetStatus(this->CapWnd,&this->CapStatus,sizeof(CAPSTATUS));
   if (this->CapStatus.fCapturingNow)
