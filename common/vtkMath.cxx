@@ -55,7 +55,7 @@ long vtkMath::Seed = 1177; // One authors home address
 //
 // Some useful macros
 //
-#define Sign(x)              (( (x) < 0 )?( -1 ):( 1 ))
+#define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 // avoid dll boundary problems
 
 // Generate random numbers between 0.0 and 1.0.
@@ -676,7 +676,7 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
       }
     else //single real and complex conjugate pair
       {
-      A = -Sign(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
+      A = -VTK_SIGN(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
 
       if( A == 0.0 )
 	{
@@ -743,7 +743,7 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
 
     if( determinant >= 0.0 )
       {
-      Q = -0.5 * (c2 + Sign(c2)*sqrt(determinant));
+      Q = -0.5 * (c2 + VTK_SIGN(c2)*sqrt(determinant));
 
       *r1 = Q / c1;
 

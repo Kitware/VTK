@@ -270,14 +270,20 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 //
   if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
     {
-    if ( ! this->WriteTCoordData(fp, tcoords, numPts) ) return 0;
+    if ( ! this->WriteTCoordData(fp, tcoords, numPts) )
+      {
+      return 0;
+      }
     }
 //
 // Write tensors
 //
   if ( tensors && tensors->GetNumberOfTensors() > 0 )
     {
-    if ( ! this->WriteTensorData(fp, tensors, numPts) ) return 0;
+    if ( ! this->WriteTensorData(fp, tensors, numPts) )
+      {
+      return 0;
+      }
     }
 
 //
@@ -285,7 +291,10 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 //
   if ( field && field->GetNumberOfTuples() > 0 )
     {
-    if ( ! this->WriteFieldData(fp, field) ) return 0;
+    if ( ! this->WriteFieldData(fp, field) )
+      {
+      return 0;
+      }
     }
 
   return 1;
@@ -305,7 +314,10 @@ static void WriteDataArray(FILE *fp, T *data, int fileType, char *format, int nu
 	{
 	idx = i + j*numComp;
 	fprintf (fp, format, *data++);
-	if ( !((idx+1)%9) ) fprintf (fp,"\n");
+	if ( !((idx+1)%9) )
+	  {
+	  fprintf (fp,"\n");
+	  }
 	}
       }
     }
@@ -350,7 +362,10 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 	    idx = i + j*numComp;
 	    s = ((vtkBitArray *)data)->GetValue(i);
 	    fprintf (fp, "%d ", (s!=0.0?1:0));
-	    if ( !((idx+1)%6) ) fprintf (fp,"\n");
+	    if ( !((idx+1)%6) )
+	      {
+	      fprintf (fp,"\n");
+	      }
 	    }
 	  }
 	}
@@ -466,9 +481,18 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
 {
   int ncoords=coords->GetNumberOfScalars();
   
-  if ( axes == 0 ) fprintf (fp, "X_COORDINATES %d ", ncoords);
-  else if ( axes == 1) fprintf (fp, "Y_COORDINATES %d ", ncoords);
-  else fprintf (fp, "Z_COORDINATES %d ", ncoords);
+  if ( axes == 0 )
+    {
+    fprintf (fp, "X_COORDINATES %d ", ncoords);
+    }
+  else if ( axes == 1)
+    {
+    fprintf (fp, "Y_COORDINATES %d ", ncoords);
+    }
+  else
+    {
+    fprintf (fp, "Z_COORDINATES %d ", ncoords);
+    }
 
   return this->WriteArray(fp, coords->GetDataType(), coords->GetData(), "%s\n", ncoords, 1);
 }
@@ -482,9 +506,13 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
   int dataType = scalars->GetDataType();
 
   if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) <= 0 )
+    {
     name = "default";
+    }
   else 
+    {
     name = this->LookupTableName;
+    }
 
   if ( dataType != VTK_UNSIGNED_CHAR )
     {
@@ -511,7 +539,10 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
 	  {
 	  fprintf (fp, "%g ", (float)data[nvs*i+j]/255.0);
 	  }
-        if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
+        if ( i != 0 && !(i%2) )
+	  {
+	  fprintf (fp,"\n");
+	  }
         }
       }
     else // binary type
@@ -590,7 +621,10 @@ int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f)
   int numComp, numTuples, numFieldComp=f->GetNumberOfComponents();
   vtkDataArray *array;
 
-  if ( numArrays < 1 ) return 1;
+  if ( numArrays < 1 )
+    {
+    return 1;
+    }
   fprintf (fp, "FIELD %s %d\n", this->FieldDataName, numArrays);
   
   for (i=0; i < numArrays; i++)
@@ -617,7 +651,10 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetNumberOfConnectivityEntries();
 
-  if ( ncells < 1 ) return 1;
+  if ( ncells < 1 )
+    {
+    return 1;
+    }
 
   fprintf (fp, "%s %d %d\n", label, ncells, size);
 
@@ -653,7 +690,10 @@ void vtkDataWriter::WriteData()
 void vtkDataWriter::CloseVTKFile(FILE *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
-  if ( fp != NULL ) fclose(fp);
+  if ( fp != NULL )
+    {
+    fclose(fp);
+    }
 }
 
 void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -664,48 +704,84 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   if ( this->FileType == VTK_BINARY )
+    {
     os << indent << "File Type: BINARY\n";
+    }
   else
+    {
     os << indent << "File Type: ASCII\n";
+    }
 
   if ( this->Header )
+    {
     os << indent << "Header: " << this->Header << "\n";
+    }
   else
+    {
     os << indent << "Header: (None)\n";
+    }
 
   if ( this->ScalarsName )
+    {
     os << indent << "Scalars Name: " << this->ScalarsName << "\n";
+    }
   else
+    {
     os << indent << "Scalars Name: (None)\n";
+    }
 
   if ( this->VectorsName )
+    {
     os << indent << "Vectors Name: " << this->VectorsName << "\n";
+    }
   else
+    {
     os << indent << "Vectors Name: (None)\n";
+    }
 
   if ( this->NormalsName )
+    {
     os << indent << "Normals Name: " << this->NormalsName << "\n";
+    }
   else
+    {
     os << indent << "Normals Name: (None)\n";
+    }
 
   if ( this->TensorsName )
+    {
     os << indent << "Tensors Name: " << this->TensorsName << "\n";
+    }
   else
+    {
     os << indent << "Tensors Name: (None)\n";
+    }
 
   if ( this->TCoordsName )
+    {
     os << indent << "Texture Coords Name: " << this->TCoordsName << "\n";
+    }
   else
+    {
     os << indent << "Texture Coordinates Name: (None)\n";
+    }
 
   if ( this->LookupTableName )
+    {
     os << indent << "Lookup Table Name: " << this->LookupTableName << "\n";
+    }
   else
+    {
     os << indent << "Lookup Table Name: (None)\n";  
+    }
 
   if ( this->FieldDataName )
+    {
     os << indent << "Field Data Name: " << this->FieldDataName << "\n";
+    }
   else
+    {
     os << indent << "Field Data Name: (None)\n";
+    }
 
 }

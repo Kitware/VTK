@@ -81,11 +81,19 @@ void vtkDataObjectReader::Execute()
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
-  if ( this->Debug ) this->Reader->DebugOn();
-  else this->Reader->DebugOff();
+  if ( this->Debug )
+    {
+    this->Reader->DebugOn();
+    }
+  else
+    {
+    this->Reader->DebugOff();
+    }
 
   if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
-      return;
+    {
+    return;
+    }
 
   // Read field data until end-of-file
   //
@@ -139,12 +147,20 @@ void vtkDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->Reader->GetFileName() ? this->Reader->GetFileName() : "(none)") << "\n";
 
   if ( this->Reader->GetFileType() == VTK_BINARY )
+    {
     os << indent << "File Type: BINARY\n";
+    }
   else
+    {
     os << indent << "File Type: ASCII\n";
+    }
 
   if ( this->Reader->GetFieldDataName() )
+    {
     os << indent << "Field Data Name: " << this->Reader->GetFieldDataName() << "\n";
+    }
   else
+    {
     os << indent << "Field Data Name: (None)\n";
+    }
 }

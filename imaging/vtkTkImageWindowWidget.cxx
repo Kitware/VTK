@@ -17,9 +17,7 @@
     EnterWindowMask|LeaveWindowMask|PointerMotionMask|ExposureMask|	\
     VisibilityChangeMask|FocusChangeMask|PropertyChangeMask|ColormapChangeMask
 
-#ifndef MAX
-#define MAX(a,b)	(((a)>(b))?(a):(b))
-#endif
+#define VTK_MAX(a,b)	(((a)>(b))?(a):(b))
     
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
@@ -98,8 +96,8 @@ int vtkTkImageWindowWidget_Widget(ClientData clientData, Tcl_Interp *interp,
   Tk_Preserve((ClientData)self);
   
   // Handle render call to the widget
-  if (strncmp(argv[1], "render", MAX(1, strlen(argv[1]))) == 0 || 
-      strncmp(argv[1], "Render", MAX(1, strlen(argv[1]))) == 0) 
+  if (strncmp(argv[1], "render", VTK_MAX(1, strlen(argv[1]))) == 0 || 
+      strncmp(argv[1], "Render", VTK_MAX(1, strlen(argv[1]))) == 0) 
     {
     // make sure we have a window
     if (self->ImageWindow == NULL)
@@ -109,7 +107,7 @@ int vtkTkImageWindowWidget_Widget(ClientData clientData, Tcl_Interp *interp,
     self->ImageWindow->Render();
     }
   // Handle configure method
-  else if (!strncmp(argv[1], "configure", MAX(1, strlen(argv[1])))) 
+  else if (!strncmp(argv[1], "configure", VTK_MAX(1, strlen(argv[1])))) 
     {
     if (argc == 2) 
       {

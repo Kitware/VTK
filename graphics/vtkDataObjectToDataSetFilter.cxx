@@ -130,18 +130,45 @@ vtkDataObjectToDataSetFilter::~vtkDataObjectToDataSetFilter()
   
   for (i=0; i<3; i++) 
     if ( this->PointArrays[i] != NULL )
+      {
       delete [] this->PointArrays[i];
-
-  if ( this->VertsArray != NULL ) delete [] this->VertsArray;
-  if ( this->LinesArray != NULL ) delete [] this->LinesArray;
-  if ( this->PolysArray != NULL ) delete [] this->PolysArray;
-  if ( this->StripsArray != NULL ) delete [] this->StripsArray;
-  if ( this->CellTypeArray != NULL ) delete [] this->CellTypeArray;
-  if ( this->CellConnectivityArray != NULL ) delete [] this->CellConnectivityArray;
-
-  if ( this->DimensionsArray != NULL ) delete [] this->DimensionsArray;
-  if ( this->SpacingArray != NULL ) delete [] this->SpacingArray;
-  if ( this->OriginArray != NULL ) delete [] this->OriginArray;
+      }
+  if ( this->VertsArray != NULL )
+    {
+    delete [] this->VertsArray;
+    }
+  if ( this->LinesArray != NULL )
+    {
+    delete [] this->LinesArray;
+    }
+  if ( this->PolysArray != NULL )
+    {
+    delete [] this->PolysArray;
+    }
+  if ( this->StripsArray != NULL )
+    {
+    delete [] this->StripsArray;
+    }
+  if ( this->CellTypeArray != NULL )
+    {
+    delete [] this->CellTypeArray;
+    }
+  if ( this->CellConnectivityArray != NULL )
+    {
+    delete [] this->CellConnectivityArray;
+    }
+  if ( this->DimensionsArray != NULL )
+    {
+    delete [] this->DimensionsArray;
+    }
+  if ( this->SpacingArray != NULL )
+    {
+    delete [] this->SpacingArray;
+    }
+  if ( this->OriginArray != NULL )
+    {
+    delete [] this->OriginArray;
+    }
 }
 
 // Stuff related to filter interface------------------------------------------
@@ -169,7 +196,10 @@ void vtkDataObjectToDataSetFilter::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -183,7 +213,10 @@ void vtkDataObjectToDataSetFilter::Update()
       this->Input->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
 
     // reset Abort flag
     this->AbortExecute = 0;
@@ -195,12 +228,21 @@ void vtkDataObjectToDataSetFilter::Update()
     this->UnstructuredGrid->Initialize();
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
 void vtkDataObjectToDataSetFilter::Execute()
@@ -1017,7 +1059,10 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
         carray->Delete();
         }
       }
-    if ( typesAllocated ) delete [] types;
+    if ( typesAllocated )
+      {
+      delete [] types;
+      }
     }
   
   return ncells;
