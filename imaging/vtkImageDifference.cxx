@@ -189,8 +189,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       {
       vtkErrorMacro(<< "Execute: Missing data");
       }
-    this->ErrorPerThread[id] = 1;
-    this->ThresholdedErrorPerThread[id] = 1;
+    this->ErrorPerThread[id] = 1000;
+    this->ThresholdedErrorPerThread[id] = 1000;
     return;
     }
 
@@ -202,8 +202,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       {
       vtkErrorMacro(<< "Execute: Expecting 3 components (RGB)");
       }
-    this->ErrorPerThread[id] = 1;
-    this->ThresholdedErrorPerThread[id] = 1;
+    this->ErrorPerThread[id] = 1000;
+    this->ThresholdedErrorPerThread[id] = 1000;
     return;
     }
     
@@ -216,8 +216,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	{
 	vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
 	}
-      this->ErrorPerThread[id] = 1;
-      this->ThresholdedErrorPerThread[id] = 1;
+      this->ErrorPerThread[id] = 1000;
+      this->ThresholdedErrorPerThread[id] = 1000;
       return;
       }
   
@@ -378,6 +378,11 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
+    for (int i = 0; i < this->NumberOfThreads; i++)
+      {
+      this->ErrorPerThread[i] = 1000;
+      this->ThresholdedErrorPerThread[i] = 1000;
+      }
     vtkErrorMacro("ExecuteInformation: Input are not the same size.");
     return;
     }
