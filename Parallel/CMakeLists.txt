@@ -39,14 +39,18 @@ vtkCompositeManager
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
+  SOURCE_FILES ( Parallel_SRCS
+    vtkMPICommunicator 
+    vtkMPIController  
+    vtkMPIGroup)
+
   IF (MPI_LIBRARY)
-    SOURCE_FILES ( Parallel_SRCS
-      vtkMPICommunicator 
-      vtkMPIController 
-      vtkMPIGroup)
-  LINK_LIBRARIES (${MPI_LIBRARY})
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+    LINK_LIBRARIES (${MPI_LIBRARY})
   ENDIF (MPI_LIBRARY)
+  IF (MPI_EXTRA_LIBRARY)
+    LINK_LIBRARIES (${MPI_EXTRA_LIBRARY})
+  ENDIF (MPI_EXTRA_LIBRARY)
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF (VTK_USE_MPI)
 
 ADD_LIBRARY(vtkParallel Parallel_SRCS)
