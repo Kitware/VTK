@@ -82,7 +82,7 @@ public:
   // Description:
   // Set/Get the priority at which events are processed. This is used when
   // multiple interactor observers are used simultaneously. The default value
-  // is 1.0 (highest priority.) Note that when multiple interactor observer
+  // is 0.0 (lowest priority.) Note that when multiple interactor observer
   // have the same priority, then the last observer added will process the
   // event first. (Note: once the SetInteractor() method has been called,
   // changing the priority does not effect event processing. You will have
