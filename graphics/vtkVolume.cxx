@@ -393,6 +393,21 @@ int vtkVolume::InitializeRayCasting( vtkViewport *vp )
   return 1;
 }
 
+void vtkVolume::InitializeTextureMapping( vtkViewport *vp, 
+	float sampleDistance )
+{
+  vtkRenderer  *ren;
+  float        cameraPosition[3], *volumePosition;
+
+  this->Update();
+
+  ren = (vtkRenderer *)vp;
+
+  this->UpdateTransferFunctions( ren );
+
+  this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
+}
+
 int vtkVolume::CastViewRay( VTKRayCastRayInfo *rayInfo )
 {
   ((vtkVolumeRayCastMapper *)this->Mapper)->
@@ -725,7 +740,6 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
 
   ray_scale = sample_distance;
 
-
   // step size changed
   needsRecomputing =  
       this->CorrectedStepSize-ray_scale >  0.0001;
@@ -743,6 +757,7 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
     {
     this->CorrectedScalarOpacityArrayMTime.Modified();
     this->CorrectedStepSize = ray_scale;
+
     for (i = 0;i < this->ArraySize;i++)
       {
       originalAlpha = *(this->ScalarOpacityArray+i);

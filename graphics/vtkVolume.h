@@ -186,6 +186,14 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support for texture mapping if the mapper requires it -
+  // currently this only initializes transfer functions
+  virtual void InitializeTextureMapping( vtkViewport *viewport, 
+		float sampleDistance );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Support for ray casting if the mapper requires it - 
   // cast a ray that is defined in viewing coordinates 
   virtual int CastViewRay( VTKRayCastRayInfo *rayInfo );
