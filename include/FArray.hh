@@ -37,6 +37,7 @@ public:
   float *GetArray() {return this->Array;};
   void Reset() {this->MaxId = -1;};
   virtual char *GetClassName() {return "vlFloatArray";};
+  void PrintSelf(ostream& os);
 
 private:
   float *Array;   // pointer to data

@@ -24,8 +24,8 @@ class vlObject
 public:
   vlObject();
   virtual ~vlObject();
-  void Register(const void* p) {this->RefCount++;};
-  void UnRegister(const void* p) {if (--this->RefCount <= 0) delete this;};
+  void Register(void* p);
+  void UnRegister(void* p);
   int  GetRefCount() {return this->RefCount;};
   void DebugOn();
   void DebugOff();
@@ -34,6 +34,12 @@ public:
   void Modified() {Mtime.Modified();};
   virtual char *GetClassName() {return "vlObject";};
 
+  void Print(ostream& os) 
+    {this->PrintHeader(os); this->PrintSelf(os); this->PrintTrailer(os);};
+  virtual void PrintHeader(ostream& os);
+  virtual void PrintSelf(ostream& os);
+  virtual void PrintTrailer(ostream& os);
+
 protected:
   int Debug;       // Enable debug messages
   vlTimeStamp Mtime; // Keep track of modification time
@@ -41,6 +47,7 @@ protected:
 private:
   int RefCount;    // Number of uses of this object by other objects
 
+friend ostream& operator<<(ostream& os, vlObject& o) {o.Print(os);return os;}
 };
 
 #endif

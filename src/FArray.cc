@@ -82,7 +82,15 @@ vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
 
   return *this;
 }
+void vlFloatArray::PrintSelf(ostream& os)
+{
+  os << "    Array: " << this->Array << "\n";
+  os << "    Size: " << this->Size << "\n";
+  os << "    MaxId: " << this->MaxId << "\n";
+  os << "    Extend size: " << this->Extend << "\n";
 
+  vlObject::PrintSelf(os);
+}
 
 //
 // Private function does "reallocate"
