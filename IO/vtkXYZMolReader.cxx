@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXYZMolReader, "1.4");
+vtkCxxRevisionMacro(vtkXYZMolReader, "1.5");
 vtkStandardNewMacro(vtkXYZMolReader);
 
 //----------------------------------------------------------------------------
@@ -156,21 +156,13 @@ int vtkXYZMolReader::GetLine2(const char* line, char *name)
     {
     return 0;
     }
-  int cc;
-  for ( cc = 0; cc < static_cast<int>(strlen(dummy)); ++cc )
-    {
-    if ( dummy[cc] != ' ' && dummy[cc] != '\t' && dummy[cc] != '\n' &&
-        dummy[cc] != '\r' )
-      {
-      return 0;
-      }
-    }
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkXYZMolReader::GetAtom(const char* line, char* atom, float *x)
 {
+  //cout << "Lookinf for atom: " << line << endl;
   char dummy[1024] = "";
   if ( !line || sscanf(line, "%s %f %f %f%s", atom, x, x+1, x+2, dummy) < 4)
     {
@@ -297,12 +289,9 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
       }
     else if ( have_header )
       {
-      if ( ccnt == 0 && this->GetLine2(lptr, comment) )
+      if ( this->GetAtom(lptr, atom, pos) )
         {
-        vtkDebugMacro("Have comment");
-        }
-      else if ( this->GetAtom(lptr, atom, pos) )
-        {
+        //cout << "Found atom: " << atom << endl;
         if ( ccnt >= num )
           {
           vtkErrorMacro("Expecting " << num << " atoms, found: " << ccnt);
@@ -313,11 +302,16 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
           if ( selectstep == timestep -1 )
             {
             // Got atom with full signature
+            //cout << "Insert atom: " << atom << endl;
             this->InsertAtom(atom, pos);
             rcnt ++;
             }
           ccnt ++;
           }
+        }
+      else if ( ccnt == 0 && this->GetLine2(lptr, comment) )
+        {
+        vtkDebugMacro("Have comment");
         }
       else
         {
