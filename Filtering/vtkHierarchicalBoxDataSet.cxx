@@ -21,7 +21,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.3");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           {
           for (int iy=box.LoCorner[1]; iy<=box.HiCorner[1]; iy++)
             {
-            for (int ix=box.LoCorner[0]; ix<box.HiCorner[0]; ix++)
+            for (int ix=box.LoCorner[0]; ix<=box.HiCorner[0]; ix++)
               {
               // Blank if cell is covered by a box of higher level
               if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
