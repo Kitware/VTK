@@ -180,6 +180,7 @@ public:
   // Interpolate the attribute `a' at local position `pcoords' of the cell into
   // `val'.
   // \pre a_exists: a!=0
+  // \pre a_is_point_centered: a->GetCentering()==vtkPointCentered
   // \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
   //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
   // \pre val_exists: val!=0
@@ -189,12 +190,13 @@ public:
 
   // Description:
   // Interpolate the whole collection of attributes `c' at local position
-  // `pcoords' of the cell into `val'.
+  // `pcoords' of the cell into `val'. Only point centered attributes are
+  // taken into account.
   // \pre c_exists: c!=0
   // \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
   //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
   // \pre val_exists: val!=0
-  // \pre valid_size: sizeof(val)==c->GetNumberOfComponents()
+  // \pre valid_size: sizeof(val)==c->GetNumberOfPointCenteredComponents()
   virtual void InterpolateTuple(vtkGenericAttributeCollection *c, double pcoords[3],
                                 double *val);
 #if 0

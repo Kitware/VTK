@@ -71,7 +71,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.3");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.4");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -408,12 +408,13 @@ void vtkBridgeCell::EvaluateLocation(int subId,
   this->AllocateWeights();
   this->Cell->EvaluateLocation(subId,pcoords,x,this->Weights);
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Interpolate the attribute `a' at local position `pcoords' of the cell into
 // `val'.
 // \pre a_exists: a!=0
+// \pre a_is_point_centered: a->GetCentering()==vtkPointCentered
 // \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
 //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
 // \pre val_exists: val!=0
@@ -422,6 +423,7 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
                                      double *val)
 {
   assert("pre: a_exists" && a!=0);
+  assert("a_is_point_centered" && a->GetCentering()==vtkPointCentered);
   assert("pre: clamped_point" && (pcoords[0]>=0 && pcoords[0]<=1
              && pcoords[1]>=0 && pcoords[1]<=1 && pcoords[2]>=0
                                   && pcoords[2]<=1));
@@ -471,12 +473,13 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
 //-----------------------------------------------------------------------------
 // Description:
 // Interpolate the whole collection of attributes `c' at local position
-// `pcoords' of the cell into `val'.
+// `pcoords' of the cell into `val'. Only point centered attributes are
+// taken into account.
 // \pre c_exists: c!=0
 // \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
 //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
 // \pre val_exists: val!=0
-// \pre valid_size: sizeof(val)==c->GetNumberOfComponents()
+// \pre valid_size: sizeof(val)==c->GetNumberOfPointCenteredComponents()
 void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
                                      double pcoords[3],
                                      double *val)
@@ -494,8 +497,11 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
   int count=c->GetNumberOfAttributes();
   while(i<count)
     {
-    InterpolateTuple(c->GetAttribute(i),pcoords,p);
-    p=p+c->GetAttribute(i)->GetNumberOfComponents();
+    if(c->GetAttribute(i)->GetCentering()==vtkPointCentered)
+      {
+      this->InterpolateTuple(c->GetAttribute(i),pcoords,p);
+      p=p+c->GetAttribute(i)->GetNumberOfComponents();
+      }
     ++i;
     }
 }
