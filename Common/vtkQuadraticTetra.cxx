@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.14");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -524,7 +524,7 @@ float vtkQuadraticTetra::GetParametricDistance(float pcoords[3])
 
   pc[0] = pcoords[0];
   pc[1] = pcoords[1];
-  pc[2] = pcoords[1];
+  pc[2] = pcoords[2];
   pc[3] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
   for (i=0; i<4; i++)
