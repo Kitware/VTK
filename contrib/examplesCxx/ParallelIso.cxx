@@ -17,6 +17,15 @@
 #include "vtkMath.h"
 
 
+
+
+#define ISO_START 1500.0
+#define ISO_STEP  500.0
+#define ISO_NUM   7
+
+
+
+
 // callback to test streaming / ports by seeing what extents are being read in.
 void reader_start_callback(void *arg)
 {
@@ -32,26 +41,22 @@ void reader_start_callback(void *arg)
 
 
 // call back to set the iso surface value.
-void callback(void *arg, int id)
+void set_iso_val_rmi(void *arg, int id)
 { 
   float val;
-  vtkMultiProcessController *controller;
-  vtkSynchronizedTemplates3D *iso = (vtkSynchronizedTemplates3D*)(arg);
-  
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  // receive the iso surface value from the main thread.
-  controller->Receive(&val, 1, id, 100);
-  iso->SetValue(0, val);
-  
-  controller->UnRegister(NULL);
-}
 
+  vtkSynchronizedTemplates3D *iso;
+  iso = (vtkSynchronizedTemplates3D *)arg;
+  val = iso->GetValue(0);
+  iso->SetValue(0, val + ISO_STEP);
+}
 
 // call back to exit program
 // This should really be embedded in the controller.
 void exit_callback(void *arg, int id)
 { 
   // clean up controller ?
+  MPI_Finalize();
   exit(0);
 }
 
@@ -79,21 +84,13 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   
   iso = vtkSynchronizedTemplates3D::New();
   iso->SetInput(reader->GetOutput());
-  iso->SetValue(0, 500);
+  iso->SetValue(0, ISO_START);
   iso->ComputeScalarsOff();
   iso->ComputeGradientsOff();
   // This should be automatically determined by controller.
   iso->SetNumberOfThreads(1);
   
   // Compute a different color for each process.
-  if (numProcs == 1) 
-    {
-    val = 0.0;
-    } 
-  else 
-    {
-    val = (float)(myid) / (float)(numProcs-1);
-    }
   elev = vtkElevationFilter::New();
   elev->SetInput(iso->GetOutput());
   vtkMath::RandomSeed(myid * 100);
@@ -106,7 +103,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     vtkUpStreamPort *upPort = vtkUpStreamPort::New();
     
     // last, set up a RMI call back to change the iso surface value.
-    controller->AddRMI(callback, (void *)iso, 300);
+    controller->AddRMI(set_iso_val_rmi, (void *)iso, 300);
     controller->AddRMI(exit_callback, (void *)iso, 666);
   
     upPort->SetInput(elev->GetPolyDataOutput());
@@ -120,7 +117,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     }
   else
     {
-    int i;
+    int i, j;
     vtkAppendPolyData *app = vtkAppendPolyData::New();
     vtkDownStreamPort *downPort;
     vtkRenderer *ren = vtkRenderer::New();
@@ -150,7 +147,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       downPort = NULL;
       }
     
-    putenv("DISPLAY=:0.0");
+    //putenv("DISPLAY=:0.0");
     
     renWindow->AddRenderer(ren);
     iren->SetRenderWindow(renWindow);
@@ -178,18 +175,14 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     ren->SetActiveCamera(cam);
     
     // loop through some iso surface values.
-    val = 500.0;
-    while (val < 1800.0)
+    for (j = 0; j < ISO_NUM; ++j)
       {
-      cerr << "------------------------------------------iso value: " << val << endl;
       // set the local value
-      iso->SetValue(0, val);
+      set_iso_val_rmi((void*)iso, 0);
       for (i = 1; i < numProcs; ++i)
 	{
 	// trigger the RMI to change the iso surface value.
 	controller->TriggerRMI(i, 300);      
-	// send the value
-	controller->Send(&val, 1, i, 100);
 	}
       
       timer->StartTimer();
@@ -207,12 +200,12 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       }
     
     // just exit
-    for (i = 1; i < numProcs; ++i)
-      {
-      // trigger the RMI to exit
-      controller->TriggerRMI(i, 666);      
-      }
-    exit(0);
+    //for (i = 1; i < numProcs; ++i)
+    //  {
+    //  // trigger the RMI to exit
+    //  controller->TriggerRMI(i, 666);      
+    //  }
+    //exit(0);
     
     //  Begin mouse interaction
     iren->Start();
@@ -239,7 +232,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
-  int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 
