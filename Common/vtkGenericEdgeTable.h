@@ -28,7 +28,6 @@
 #define __vtkGenericEdgeTable_h
 
 #include "vtkObject.h"
-#include "vtkPoints.h"
 
 class vtkEdgeTableEdge;
 class vtkEdgeTablePoints;
