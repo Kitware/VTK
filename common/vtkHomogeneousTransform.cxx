@@ -163,12 +163,12 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts,
 // inverse of the derivative of the forward transform. 
 void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts, 
 							    vtkPoints *outPts,
-							    vtkNormals *inNms, 
-							    vtkNormals *outNms,
-							    vtkVectors *inVrs, 
-							    vtkVectors *outVrs)
+							    vtkDataArray *inNms, 
+							    vtkDataArray *outNms,
+							    vtkDataArray *inVrs, 
+							    vtkDataArray *outVrs)
 {
-  int n = inNms->GetNumberOfNormals();
+  int n = inNms->GetNumberOfTuples();
   double (*M)[4] = this->Matrix->Element;
   double L[4][4];
   double inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
@@ -193,7 +193,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 
     if (inVrs)
       { 
-      inVrs->GetVector(i,inVec);
+      inVrs->GetTuple(i,inVec);
 
       // do the linear homogeneous transformation
       outVec[0] = M[0][0]*inVec[0] + M[0][1]*inVec[1] + M[0][2]*inVec[2];
@@ -207,12 +207,12 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       outVec[1] = (outVec[1]-w*outPnt[1])*f;
       outVec[2] = (outVec[2]-w*outPnt[2])*f;
 
-      outVrs->InsertNextVector(outVec);
+      outVrs->InsertNextTuple(outVec);
       }
 
     if (inNms)
       { 
-      inNms->GetNormal(i,inNrm);
+      inNms->GetTuple(i,inNrm);
 
       // calculate the w component of the normal
       w = -(inNrm[0]*inPnt[0] + inNrm[1]*inPnt[1] + inNrm[2]*inPnt[2]);
@@ -224,7 +224,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 
       // re-normalize
       vtkMath::Normalize(outNrm);
-      outNms->InsertNextNormal(outNrm);
+      outNms->InsertNextTuple(outNrm);
       }
     }
 }
