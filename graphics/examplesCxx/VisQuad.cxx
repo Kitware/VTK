@@ -31,21 +31,21 @@ main ()
     contours->SetInput(sample->GetOutput());
     contours->GenerateValues(5, 0.0, 1.2);
 
-  contMapper = new vtkPolyMapper;
+  contMapper = vtkPolyMapper::New();
     contMapper->SetInput(contours->GetOutput());
     contMapper->SetScalarRange(0.0, 1.2);
 
-  contActor = new vtkActor;
+  contActor = vtkActor::New();
     contActor->SetMapper(contMapper);
 
   // Create outline
   outline = new vtkOutlineFilter;
     outline->SetInput(sample->GetOutput());
 
-  outlineMapper = new vtkPolyMapper;
+  outlineMapper = vtkPolyMapper::New();
     outlineMapper->SetInput(outline->GetOutput());
 
-  outlineActor = new vtkActor;
+  outlineActor = vtkActor::New();
     outlineActor->SetMapper(outlineMapper);
     outlineActor->GetProperty()->SetColor(0,0,0);
 
