@@ -78,7 +78,7 @@ void vtkImageGradient::SetFilteredAxes(int num, int *axes)
 //----------------------------------------------------------------------------
 void vtkImageGradient::ExecuteImageInformation()
 {
-  int extent[4];
+  int extent[8];
   int idx;
 
   this->Input->GetWholeExtent(extent);
@@ -104,7 +104,7 @@ void vtkImageGradient::ExecuteImageInformation()
 // This method computes the input extent necessary to generate the output.
 void vtkImageGradient::ComputeRequiredInputUpdateExtent()
 {
-  int extent[4];
+  int extent[8];
   int *wholeExtent;
   int idx, axis;
 
