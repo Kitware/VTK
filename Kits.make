@@ -50,8 +50,8 @@ libVTK$(ME)$(SHLIB_SUFFIX): ${KIT_OBJ}
 #
 build_tcl: ${TCL_LIB_FILE}
 
-tcl/${ME}Init.cxx: ../tcl/kit_init ${KIT_NEWS} Makefile
-	../tcl/kit_init VTK${ME}Tcl ${KIT_NEWS} > tcl/${ME}Init.cxx
+tcl/${ME}Init.cxx: ../wrap/vtkWrapTclInit ${KIT_NEWS} Makefile
+	../wrap/vtkWrapTclInit VTK${ME}Tcl ${KIT_NEWS} > tcl/${ME}Init.cxx
 
 libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} 
 	${AR} cr libVTK${ME}Tcl.a tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
@@ -82,8 +82,8 @@ libVTK$(ME)Java$(SHLIB_SUFFIX): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 #
 build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} libVTK${ME}Python${SHLIB_SUFFIX}
 
-python/${ME}Init.cxx: ../python/kit_init ${KIT_NEWS} Makefile
-	../python/kit_init libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx
+python/${ME}Init.cxx: ../wrap/vtkWrapPythonInit ${KIT_NEWS} Makefile
+	../wrap/vtkWrapPythonInit libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx
 
 libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
 	${PYTHON_O_ADD} ${PYTHON_WRAP}

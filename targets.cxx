@@ -120,8 +120,8 @@ int main (int argc, char *argv[])
     if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/tcl/cpp_parse.y ",
-	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome);
+      fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/wrap/vtkParse.y %s/wrap/vtkWrapTcl.c",
+	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome, vtkHome);
       sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
       fprintf(fp,"\n");
@@ -174,22 +174,22 @@ int main (int argc, char *argv[])
   /* some more tcl rules */
   for (i = concrete_start; i <= concrete_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapTcl ../wrap/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/wrap/vtkWrapTcl ${srcdir}/%s.h ${srcdir}/../wrap/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_start; i <= abstract_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapTcl ../wrap/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/wrap/vtkWrapTcl ${srcdir}/%s.h ${srcdir}/../wrap/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
   for (i = concrete_h_start; i <= concrete_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapTcl ../wrap/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/wrap/vtkWrapTcl ${srcdir}/%s.h ${srcdir}/../wrap/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_h_start; i <= abstract_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapTcl ../wrap/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/wrap/vtkWrapTcl ${srcdir}/%s.h ${srcdir}/../wrap/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
 
@@ -234,9 +234,9 @@ int main (int argc, char *argv[])
     if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/java/java_parse ../tcl/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
+      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/wrap/vtkParseJava ../wrap/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/wrap/vtkParseJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
-      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/java/java_wrap ../tcl/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
+      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapJava ../wrap/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/wrap/vtkWrapJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > java/%sJava.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
@@ -258,7 +258,7 @@ int main (int argc, char *argv[])
     if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"python/%sPython.cxx: %s.h ${VTK_OBJ}/python/python_wrap ../tcl/hints\n\trm -f python/%sPython.cxx; ${VTK_OBJ}/python/python_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > python/%sPython.cxx\n",
+      fprintf(fp,"python/%sPython.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapPython ../wrap/hints\n\trm -f python/%sPython.cxx; ${VTK_OBJ}/wrap/vtkWrapPython ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > python/%sPython.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
