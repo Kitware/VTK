@@ -1,12 +1,21 @@
 PROJECT (VTKFREETYPE)
 
+#
+# Dependency mask
+#
 INCLUDE_REGULAR_EXPRESSION(".*")
 
+#
+# Include paths
+#
 INCLUDE_DIRECTORIES (
   ${VTKFREETYPE_SOURCE_DIR}/include
   ${VTKFREETYPE_SOURCE_DIR}/src
 )
 
+#
+# Source files
+#
 SOURCE_FILES (FREETYPE_SRCS
   src/base/ftinit.c
   src/base/ftbase.c
@@ -32,12 +41,18 @@ SOURCE_FILES (FREETYPE_SRCS
   src/type42/type42.c
 )
 
+#
+# Static or shared lib flags
+#
 IF (BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DVTKFREETYPE_DLL)
 ELSE (BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DVTKFREETYPE_STATIC)
 ENDIF (BUILD_SHARED_LIBS)
 
+#
+# Win32 flags and specific drivers
+#
 IF (WIN32)
   SOURCE_FILES (FREETYPE_SRCS builds/win32/ftdebug.c)
   INCLUDE_DIRECTORIES (
@@ -51,6 +66,9 @@ ELSE (WIN32)
   SOURCE_FILES (FREETYPE_SRCS src/base/ftdebug.c)
 ENDIF (WIN32)
 
+#
+# Unix flags and specific drivers
+#
 IF (UNIX)
   # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
     ADD_DEFINITIONS(-D_HPUX_SOURCE)
@@ -66,16 +84,26 @@ ELSE (UNIX)
   SOURCE_FILES (FREETYPE_SRCS src/base/ftsystem.c)
 ENDIF (UNIX)
 
+#
+# Apple flags and specific drivers
+#
 IF (APPLE)
   ADD_DEFINITIONS(-DTARGET_API_MAC_CARBON)
   SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET (CMAKE_SHLIB_LINK_FLAGS "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
+  SET (CMAKE_SHLIB_LINK_FLAGS 
+   "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
   SOURCE_FILES (FREETYPE_SRCS src/base/ftmac.c)
 ENDIF (APPLE)
 
+#
+# Define the library (and install it)
+#
 ADD_LIBRARY (vtkfreetype FREETYPE_SRCS)
+INSTALL_TARGETS (/lib/vtk vtkfreetype)
 
+#
+# Do not cover this lib
+#
 CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/.NoDartCoverage
                 ${VTKFREETYPE_BINARY_DIR}/.NoDartCoverage)
 
-INSTALL_TARGETS (/lib/vtk vtkfreetype)
