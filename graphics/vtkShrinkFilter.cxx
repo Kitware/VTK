@@ -77,6 +77,9 @@ void vtkShrinkFilter::Execute()
   vtkDataSet *input= this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
 
+  int   tenth;
+  float decimal;
+
   vtkDebugMacro(<<"Shrinking cells");
 
   numCells=input->GetNumberOfCells();
@@ -102,10 +105,20 @@ void vtkShrinkFilter::Execute()
   // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
   // then create new vertices shrunk towards center.
   //
+
+  tenth   = numCells / 10;
+  decimal = 0.0;
+
   for (cellId=0; cellId < numCells; cellId++)
     {
     input->GetCellPoints(cellId, ptIds);
     numIds = ptIds->GetNumberOfIds();
+
+    if (cellId % tenth == 0) 
+      {
+	decimal += 0.1;
+	this->UpdateProgress (decimal);
+      }
 
     // get the center of the cell
     center[0] = center[1] = center[2] = 0.0;

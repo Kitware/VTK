@@ -81,14 +81,14 @@ vtkSelectVisiblePoints::~vtkSelectVisiblePoints()
 
 void vtkSelectVisiblePoints::Execute()
 {
-  int ptId, id, visible;
+  int ptId, id, visible, tenth;
   vtkPoints *outPts;
   vtkDataSet *input= this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   int numPts=input->GetNumberOfPoints();
-  float x[4], dx[3], z, diff;
+  float x[4], dx[3], z, diff, decimal;
   int selection[4];
   
   if ( this->Renderer == NULL )
@@ -144,6 +144,9 @@ void vtkSelectVisiblePoints::Execute()
       ->GetZbufferData(selection[0], selection[2], selection[1], selection[3]);
     }
   
+  tenth   = numPts / 10;
+  decimal = 0.0;
+
   x[3] = 1.0;
   for (id=(-1), ptId=0; ptId < numPts; ptId++)
     {
@@ -159,6 +162,12 @@ void vtkSelectVisiblePoints::Execute()
     this->Renderer->ViewToDisplay();
     this->Renderer->GetDisplayPoint(dx);
     visible = 0;
+
+    if (ptId % tenth == 0) 
+      {
+	decimal += 0.1;
+	this->UpdateProgress(decimal);
+      }
 
     // check whether visible and in selection window 
     if ( dx[0] >= selection[0] && dx[0] <= selection[1] &&

@@ -268,7 +268,7 @@ void vtkPolyDataNormals::Execute()
     {
     if ((cellId % 1000) == 0)
       {
-      this->UpdateProgress ((float) cellId / (float) numPolys);
+      this->UpdateProgress (0.333 + 0.333 * (float) cellId / (float) numPolys);
       }
     poly->ComputeNormal(inPts, npts, pts, n);
     PolyNormals->SetNormal(cellId,n);
@@ -334,7 +334,7 @@ void vtkPolyDataNormals::Execute()
     outPD->CopyNormalsOff();
     outPD->PassData(pd);
     }
-  this->UpdateProgress(0.66);
+  this->UpdateProgress(0.80);
 
   //
   //  Finally, traverse all elements, computing polygon normals and
