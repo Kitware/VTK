@@ -66,6 +66,7 @@ typedef LARGE_INTEGER kwsysProcessTime;
 typedef struct kwsysProcessPipeData_s kwsysProcessPipeData;
 static DWORD WINAPI kwsysProcessPipeThread(LPVOID ptd);
 static void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td);
+static int kwsysProcessInitialize(kwsysProcess* cp);
 static int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
                               PHANDLE readEnd);
 static void kwsysProcessDestroy(kwsysProcess* cp, int event);
@@ -211,7 +212,6 @@ struct kwsysProcess_s
   
   /* Buffer for error messages (possibly from Win9x child).  */
   char ErrorMessage[KWSYSPE_PIPE_BUFFER_SIZE+1];
-  int ErrorMessageLength;
 
   /* Windows process information data.  */
   PROCESS_INFORMATION* ProcessInformation;
@@ -777,49 +777,15 @@ void kwsysProcess_Execute(kwsysProcess* cp)
     {
     return;
     }
-  
-  /* Reset internal status flags.  */
-  cp->TimeoutExpired = 0;
-  cp->Terminated = 0;
-  cp->Killed = 0;
-  cp->ExitException = kwsysProcess_Exception_None;
-  cp->ExitCode = 1;
-  cp->ExitValue = 1;
-  
-  /* Reset error data.  */
-  cp->ErrorMessage[0] = 0;
-  cp->ErrorMessageLength = 0;
-  
-  /* Allocate process information for each process.  */
-  cp->ProcessInformation =
-    (PROCESS_INFORMATION*)malloc(sizeof(PROCESS_INFORMATION) *
-                                 cp->NumberOfCommands);
-  if(!cp->ProcessInformation)
+
+  /* Initialize the control structure for a new process.  */
+  if(!kwsysProcessInitialize(cp))
     {
-    kwsysProcessCleanup(cp, 1);
+    strcpy(cp->ErrorMessage, "Out of memory");
+    cp->State = kwsysProcess_State_Error;
     return;
     }
-  ZeroMemory(cp->ProcessInformation,
-             sizeof(PROCESS_INFORMATION) * cp->NumberOfCommands);
-  if(cp->CommandExitCodes)
-    {
-    free(cp->CommandExitCodes);
-    }
-  cp->CommandExitCodes = (DWORD*)malloc(sizeof(DWORD)*cp->NumberOfCommands);
-  if(!cp->CommandExitCodes)
-    {
-    kwsysProcessCleanup(cp, 1);
-    return;
-    }
-  ZeroMemory(cp->CommandExitCodes, sizeof(DWORD)*cp->NumberOfCommands);
-
-  /* Allocate event wait array.  The first event is cp->Full, the rest
-     are the process termination events.  */
-  cp->ProcessEvents = (PHANDLE)malloc(sizeof(HANDLE)*(cp->NumberOfCommands+1));
-  ZeroMemory(cp->ProcessEvents, sizeof(HANDLE) * (cp->NumberOfCommands+1));
-  cp->ProcessEvents[0] = cp->Full;
-  cp->ProcessEventsLength = cp->NumberOfCommands+1;
-
+  
   /* Reset the Win9x resume and kill events.  */
   if(cp->Win9x)
     {
@@ -1306,6 +1272,56 @@ void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td)
 }
 
 /*--------------------------------------------------------------------------*/
+/* Initialize a process control structure for kwsysProcess_Execute.  */
+int kwsysProcessInitialize(kwsysProcess* cp)
+{
+  /* Reset internal status flags.  */
+  cp->TimeoutExpired = 0;
+  cp->Terminated = 0;
+  cp->Killed = 0;
+  cp->ExitException = kwsysProcess_Exception_None;
+  cp->ExitCode = 1;
+  cp->ExitValue = 1;
+  
+  /* Reset error data.  */
+  cp->ErrorMessage[0] = 0;
+  
+  /* Allocate process information for each process.  */
+  cp->ProcessInformation =
+    (PROCESS_INFORMATION*)malloc(sizeof(PROCESS_INFORMATION) *
+                                 cp->NumberOfCommands);
+  if(!cp->ProcessInformation)
+    {
+    return 0;
+    }
+  ZeroMemory(cp->ProcessInformation,
+             sizeof(PROCESS_INFORMATION) * cp->NumberOfCommands);
+  if(cp->CommandExitCodes)
+    {
+    free(cp->CommandExitCodes);
+    }
+  cp->CommandExitCodes = (DWORD*)malloc(sizeof(DWORD)*cp->NumberOfCommands);
+  if(!cp->CommandExitCodes)
+    {
+    return 0;
+    }
+  ZeroMemory(cp->CommandExitCodes, sizeof(DWORD)*cp->NumberOfCommands);
+
+  /* Allocate event wait array.  The first event is cp->Full, the rest
+     are the process termination events.  */
+  cp->ProcessEvents = (PHANDLE)malloc(sizeof(HANDLE)*(cp->NumberOfCommands+1));
+  if(!cp->ProcessEvents)
+    {
+    return 0;
+    }
+  ZeroMemory(cp->ProcessEvents, sizeof(HANDLE) * (cp->NumberOfCommands+1));
+  cp->ProcessEvents[0] = cp->Full;
+  cp->ProcessEventsLength = cp->NumberOfCommands+1;
+
+  return 1;
+}
+
+/*--------------------------------------------------------------------------*/
 int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
                        PHANDLE readEnd)
 {
@@ -1428,7 +1444,6 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
            the last error while cleaning up the forwarding executable
            so the cleanup our caller does reports the proper error.  */
         DWORD error = GetLastError();
-        cp->ErrorMessageLength = nRead;
         kwsysProcessCleanupHandle(&cp->ProcessInformation[index].hThread);
         kwsysProcessCleanupHandle(&cp->ProcessInformation[index].hProcess);
         CloseHandle(errorReadEnd);
@@ -1526,7 +1541,7 @@ void kwsysProcessCleanup(kwsysProcess* cp, int error)
   if(error)
     {
     /* Construct an error message if one has not been provided already.  */
-    if(!cp->ErrorMessageLength)
+    if(cp->ErrorMessage[0] == 0)
       {
       /* Format the error message.  */
       DWORD original = GetLastError();
