@@ -16,8 +16,12 @@ CONCRETE_H =
 
 ABSTRACT = 
 
+
 CONCRETE = \
-vtkAsynchronousBuffer \
+vtkThreadedController \
+vtkMultiProcessController \
+vtkOutputPort \
+vtkInputPort \
 vtkDEMReader \
 vtkEarthSource \
 vtkImageReslice \

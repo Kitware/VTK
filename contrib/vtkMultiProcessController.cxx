@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
+#include "vtkMultiThreader.h"
 #include "vtkThreadedController.h"
 //#include "vtkMPIController.h"
 
@@ -132,6 +133,13 @@ vtkMultiProcessController::~vtkMultiProcessController()
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {
+  // If some one is using multiple processes, 
+  // limit the number of threads to 1
+  if (vtkMultiThreader::GetGlobalMaximumNumberOfThreads() == 0)
+    {
+    vtkMultiThreader::SetGlobalMaximumNumberOfThreads(1);
+    }
+  
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessController");
   if(ret)
