@@ -20,12 +20,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlDataSetFilter::vlDataSetFilter()
 {
-  this->Input = 0;
+  this->Input = NULL;
 }
 
 vlDataSetFilter::~vlDataSetFilter()
 {
-  if ( this->Input != 0 )
+  if ( this->Input != NULL )
     {
     this->Input->UnRegister(this);
     }

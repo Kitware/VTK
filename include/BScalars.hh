@@ -29,8 +29,9 @@ class vlBitScalars : public vlScalars
 public:
   vlBitScalars() {};
   vlScalars *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return S.Initialize(sz,ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   vlBitScalars(const vlBitScalars& cs) {this->S = cs.S;};
   vlBitScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlBitScalars() {};

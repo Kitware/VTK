@@ -20,8 +20,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlDataSetMapper::vlDataSetMapper()
 {
-  this->Input = 0;
-  this->Mapper = 0;
+  this->Input = NULL;
+  this->Mapper = NULL;
 }
 
 vlDataSetMapper::~vlDataSetMapper()

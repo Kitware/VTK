@@ -63,7 +63,7 @@ void vlCylinderSource::Execute()
   newTCoords = new vlFloatTCoords(numPts,2);
 
   newPolys = new vlCellArray;
-  newPolys->Initialize(newPolys->EstimateSize(numPolys,this->Resolution));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
 //
 // Generate points and point data for sides
 //

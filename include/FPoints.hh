@@ -29,8 +29,9 @@ class vlFloatPoints : public vlPoints
 public:
   vlFloatPoints() {};
   vlPoints *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return this->P.Initialize(3*sz,3*ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->P.Allocate(3*sz,3*ext);};
+  void Initialize() {return this->P.Initialize();};
   vlFloatPoints(const vlFloatPoints& fp) {this->P = fp.P;};
   vlFloatPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
   ~vlFloatPoints() {};

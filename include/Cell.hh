@@ -67,7 +67,8 @@ public:
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared  of point x[3] to cell (in particular, the sub-cell 
   // indicated), and interpolation weights in cell.
-  virtual int EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+  virtual int EvaluatePosition(float x[3], float closestPoint[3], 
+                               int& subId, float pcoords[3], 
                                float& dist2, float weights[MAX_CELL_SIZE]) = 0;
 
   // Determine global coordinate from subId and parametric coordinates

@@ -24,8 +24,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlBitArray : public vlObject 
 {
 public:
-  vlBitArray():Array(0),Size(0),MaxId(-1),Extend(1000) {};
-  int Initialize(const int sz, const int ext);
+  vlBitArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  void Initialize();
+  int Allocate(const int sz, const int ext);
   vlBitArray(const int sz, const int ext);
   vlBitArray(const vlBitArray& ia);
   ~vlBitArray();

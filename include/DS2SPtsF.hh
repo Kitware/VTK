@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlDataSetToStructuredPointsFilter_h
 
 #include "DataSetF.hh"
-#include "SPoints.hh"
+#include "StrPts.hh"
 
 class vlDataSetToStructuredPointsFilter : public vlStructuredPoints, public vlDataSetFilter
 {

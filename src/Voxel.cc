@@ -26,12 +26,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlBrick::EvaluatePosition(float x[3], float closestPoint[3],
+                              int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
-  float closestPoint[3];
   float l21, l31, l41;
   vlMath math;  
 
@@ -54,6 +54,7 @@ int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
+    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
     dist2 = 0.0; // inside brick
     this->ShapeFunctions(pcoords,weights);
     return 1;

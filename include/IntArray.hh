@@ -24,8 +24,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlIntArray : public vlObject 
 {
 public:
-  vlIntArray():Array(0),Size(0),MaxId(-1),Extend(1000) {};
-  int Initialize(const int sz, const int ext);
+  vlIntArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  void Initialize();
+  int Allocate(const int sz, const int ext);
   vlIntArray(const int sz, const int ext);
   vlIntArray(const vlIntArray& ia);
   ~vlIntArray();

@@ -19,16 +19,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include "BArray.hh"
 
-vlBitArray::Initialize(const int sz, const int ext)
+vlBitArray::Allocate(const int sz, const int ext)
 {
-  if ( this->Array != 0 ) delete [] this->Array;
+  if ( this->Array != NULL ) delete [] this->Array;
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new char[(sz+7)/8]) == 0 ) return 0;
+  if ( (this->Array = new char[(sz+7)/8]) == NULL ) return 0;
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
+}
+
+void vlBitArray::Initialize()
+{
+  if ( this->Array != NULL )
+    {
+    delete [] this->Array;
+    this->Array = NULL;
+    }
+  this->Size = 0;
+  this->MaxId = -1;
 }
 
 vlBitArray::vlBitArray(const int sz, const int ext)
@@ -120,7 +131,7 @@ char *vlBitArray::Resize(const int sz)
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  if ( (newArray = new char[(newSize+7)/8]) == 0 )
+  if ( (newArray = new char[(newSize+7)/8]) == NULL )
     {
     vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;

@@ -31,8 +31,9 @@ class vlCharScalars : public vlScalars
 public:
   vlCharScalars() {};
   vlScalars *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return S.Initialize(sz,ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   vlCharScalars(const vlCharScalars& cs) {this->S = cs.S;};
   vlCharScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlCharScalars() {};

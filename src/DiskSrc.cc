@@ -51,7 +51,7 @@ void vlDiskSource::Execute()
   numPolys = this->RadialResolution * this->CircumferentialResolution;
   newPoints = new vlFloatPoints(numPts);
   newPolys = new vlCellArray;
-  newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Create disk
 //

@@ -26,8 +26,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlCharArray : public vlObject 
 {
 public:
-  vlCharArray():Array(0),Size(0),MaxId(-1),Extend(1000) {};
-  int Initialize(const int sz, const int ext);
+  vlCharArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  void Initialize();
+  int Allocate(const int sz, const int ext);
   vlCharArray(const int sz, const int ext);
   vlCharArray(const vlCharArray& ia);
   ~vlCharArray();

@@ -29,8 +29,9 @@ class vlFloatScalars : public vlScalars
 public:
   vlFloatScalars() {};
   vlScalars *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return S.Initialize(sz,ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   vlFloatScalars(const vlFloatScalars& fs) {this->S = fs.S;};
   vlFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlFloatScalars() {};

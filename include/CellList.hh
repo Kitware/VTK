@@ -28,7 +28,7 @@ struct vlCell_s {
 
 class vlCellList : public vlObject {
 public:
-  vlCellList() : Array(0),Size(0),MaxId(-1),Extend(1000) {};
+  vlCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vlCellList(const int sz, const int ext);
   ~vlCellList();
   char *GetClassName() {return "vlCellList";};

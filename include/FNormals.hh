@@ -29,8 +29,9 @@ class vlFloatNormals : public vlNormals
 public:
   vlFloatNormals() {};
   vlNormals *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return this->N.Initialize(3*sz,3*ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->N.Allocate(3*sz,3*ext);};
+  void Initialize() {return this->N.Initialize();};
   vlFloatNormals(const vlFloatNormals& fn) {this->N = fn.N;};
   vlFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
   ~vlFloatNormals() {};

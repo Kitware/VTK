@@ -74,11 +74,7 @@ vlCell_s *vlCellList::Resize(const int sz)
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  if ( (newArray = new vlCell_s[newSize]) == 0 )
-  {
-    vlErrorMacro(<< "Cannot allocate memory\n");
-    return 0;
-  }
+  newArray = new vlCell_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
       newArray[i] = this->Array[i];

@@ -49,20 +49,20 @@ void vlConeSource::Execute()
     numPts = 2;
     numLines =  1;
     newLines = new vlCellArray;
-    newLines->Initialize(newLines->EstimateSize(numLines,numPts));
+    newLines->Allocate(newLines->EstimateSize(numLines,numPts));
   
   case 1: case 2:
     numPts = 2*this->Resolution + 1;
     numPolys = this->Resolution;
     newPolys = new vlCellArray;
-    newPolys->Initialize(newPolys->EstimateSize(numPolys,3));
+    newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
     break;
 
   default:
     numPts = this->Resolution + 1;
     numPolys = this->Resolution + 1;
     newPolys = new vlCellArray;
-    newPolys->Initialize(newPolys->EstimateSize(numPolys,this->Resolution));
+    newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }
   newPoints = new vlFloatPoints(numPts);

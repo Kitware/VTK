@@ -28,8 +28,9 @@ class vlCellArray : public vlObject
 {
 public:
   vlCellArray() : NumberOfCells(0), Location(0) {};
-  int Initialize(const int sz, const int ext=1000) 
-    {return this->Ia.Initialize(sz,ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->Ia.Allocate(sz,ext);};
+  void Initialize() {return this->Ia.Initialize();};
   vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
   vlCellArray(const vlCellArray& ca);
   ~vlCellArray() {};

@@ -46,7 +46,7 @@ void vlCubeSource::Execute()
   newNormals = new vlFloatNormals(numPts);
 
   newPolys = new vlCellArray;
-  newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and normals
 //
@@ -59,8 +59,8 @@ void vlCubeSource::Execute()
       {
       for (x[2]=(-this->ZLength/2.0), k=0; k<2; k++, x[2]+=this->ZLength)
         {
-            newPoints->InsertNextPoint(x);
-            newNormals->InsertNextNormal(n);
+        newPoints->InsertNextPoint(x);
+        newNormals->InsertNextNormal(n);
         }
       }
     }
@@ -76,8 +76,8 @@ void vlCubeSource::Execute()
       {
       for (x[2]=(-this->ZLength/2.0), k=0; k<2; k++, x[2]+=this->ZLength)
         {
-            newPoints->InsertNextPoint(x);
-            newNormals->InsertNextNormal(n);
+        newPoints->InsertNextPoint(x);
+        newNormals->InsertNextNormal(n);
         }
       }
     }
@@ -93,8 +93,8 @@ void vlCubeSource::Execute()
       {
       for (x[0]=(-this->XLength/2.0), k=0; k<2; k++, x[0]+=this->XLength)
         {
-            newPoints->InsertNextPoint(x);
-            newNormals->InsertNextNormal(n);
+        newPoints->InsertNextPoint(x);
+        newNormals->InsertNextNormal(n);
         }
       }
     }
@@ -123,3 +123,4 @@ void vlCubeSource::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Z Length: " << this->ZLength << "\n";
     }
 }
+

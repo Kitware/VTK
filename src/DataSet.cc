@@ -28,7 +28,7 @@ vlDataSet::vlDataSet ()
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 1.0;
 
-  this->Mapper = 0;
+  this->Mapper = NULL;
 }
 
 void vlDataSet::Initialize()
