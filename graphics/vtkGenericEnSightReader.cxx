@@ -340,6 +340,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             return VTK_ENSIGHT_GOLD_BINARY;
             } //end if binary
           
+          fclose(this->IFile);
+          this->IFile = NULL;
 	  delete [] fileName;
           return VTK_ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
@@ -418,6 +420,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           return VTK_ENSIGHT_6_BINARY;
           } //end if binary
         
+        fclose(this->IFile);
+        this->IFile = NULL;
 	delete [] fileName;
         return VTK_ENSIGHT_6;
         } // if we found the geometry section in the case file
