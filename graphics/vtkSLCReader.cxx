@@ -50,7 +50,7 @@ vtkSLCReader::vtkSLCReader()
 
 // Decodes an array of eight bit run-length encoded data.
 unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
-					       int size )
+                                               int size )
 {
   unsigned char           *curr_ptr;
   unsigned char           *decode_ptr;
@@ -74,17 +74,17 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
     if( current_value & 0x80 )
     {
       while( remaining-- )
-	{
+        {
         *(decode_ptr++) = *(curr_ptr++);
-	}
+        }
     }
     else
     {
       current_value = *(curr_ptr++);
       while ( remaining-- )
-	{
+        {
         *(decode_ptr++) = current_value;
-	}
+        }
     }
 
   }
@@ -99,39 +99,39 @@ void vtkSLCReader::Execute()
 
   vtkScalars *newScalars;
 
-  int	temp;
-  int	data_compression;
-  int	plane_size;
-  int	volume_size;
+  int   temp;
+  int   data_compression;
+  int   plane_size;
+  int   volume_size;
   float f[3];
-  int	size[3];
-  int	magic_num;
-  int	z_counter;
-  int	icon_width, icon_height;
-  int	voxel_count;
-  int	compressed_size;
-  int	i;
+  int   size[3];
+  int   magic_num;
+  int   z_counter;
+  int   icon_width, icon_height;
+  int   voxel_count;
+  int   compressed_size;
+  int   i;
 
-  unsigned char	*icon_ptr = NULL;
-  unsigned char	*compressed_ptr = NULL;
-  unsigned char	*scan_ptr = NULL;
-  unsigned char	*sptr = NULL;
+  unsigned char *icon_ptr = NULL;
+  unsigned char *compressed_ptr = NULL;
+  unsigned char *scan_ptr = NULL;
+  unsigned char *sptr = NULL;
 
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   // Initialize
   if ((fp = fopen(this->FileName, "rb")) == NULL)
-  {
+    {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
-  }
+    }
 
   fscanf( fp, "%d", &magic_num );
   if( magic_num != 11111 )
-  {
+    {
     vtkErrorMacro(<< "SLC magic number is not correct");
     return;
-  }
+    }
 
   f[0] = f[1] = f[2] = 0.0;
   output->SetOrigin(f);
@@ -175,24 +175,29 @@ void vtkSLCReader::Execute()
 
   // Read In Data Plane By Plane
   for( z_counter=0; z_counter<size[2]; z_counter++ )
-  {
+    {
+    if ( !(z_counter % 10) && !z_counter )
+      {
+      this->UpdateProgress((float)z_counter/size[2]);
+      }
+
     // Read a single plane into temp memory
     switch( data_compression )
-    {
+      {
       case 0:
 
         if( !scan_ptr )
-	  {
+          {
           scan_ptr = new unsigned char[plane_size];
-	  }
+          }
 
         if( fread( scan_ptr, 1, plane_size, fp ) != (unsigned int)plane_size )
-	{
+	  {
           vtkErrorMacro( << 
-	    "Unable to read slice " << z_counter << " from SLC File" );
-	  newScalars->Delete();
-	  return;
-	}
+            "Unable to read slice " << z_counter << " from SLC File" );
+          newScalars->Delete();
+          return;
+	  }
 
         break;
 
@@ -208,33 +213,32 @@ void vtkSLCReader::Execute()
         compressed_ptr = new unsigned char[compressed_size];
 
         if( fread(compressed_ptr, 1, compressed_size, fp) != 
-	    (unsigned int)compressed_size )
-	{
+            (unsigned int)compressed_size )
+	  {
           vtkErrorMacro( << "Unable to read compressed slice " << 
-	    z_counter << " from SLC File" );
-	  newScalars->Delete();
-	  return;
-	}
+            z_counter << " from SLC File" );
+          newScalars->Delete();
+          return;
+	  }
 
-	scan_ptr = this->Decode8BitData( compressed_ptr, plane_size );
-
+        scan_ptr = this->Decode8BitData( compressed_ptr, plane_size );
 	delete [] compressed_ptr;
 
         break;
       default:
         vtkErrorMacro(<< "Unknown SLC compression type: " << 
-	  data_compression );
+          data_compression );
         break;
-    }
+      }
 
     sptr = scan_ptr;
 
     // Copy plane into volume
     for( i=0; i<plane_size; i++ )
-    {
-    newScalars->SetScalar( (z_counter*plane_size + i), *sptr++ );
+      {
+      newScalars->SetScalar( (z_counter*plane_size + i), *sptr++ );
+      }
     }
-  }
 
   delete [] scan_ptr;
 
