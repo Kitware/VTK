@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.4");
+vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.5");
 vtkStandardNewMacro(vtkCocoaTextMapper);
 
 vtkCocoaTextMapper::vtkCocoaTextMapper()
@@ -322,4 +322,8 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 
 }
 
-
+//----------------------------------------------------------------------------
+void vtkCocoaTextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
