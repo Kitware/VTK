@@ -46,19 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <tk.h>
 #include <string.h>
 
-extern Tcl_Interp *vtkGlobalTclInterp;
-extern int vtkTclEval(char *str);
-extern char *vtkTclGetResult();
-extern int vtkTclDeleteObjectFromHash(ClientData cd);
-extern void vtkTclGenericDeleteObject(ClientData cd);
-extern void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
+#ifdef WIN32
+#define VTKTCL_EXPORT __declspec( dllexport )
+#else
+#define VTKTCL_EXPORT
+#endif
+
+extern VTKTCL_EXPORT Tcl_Interp *vtkGlobalTclInterp;
+extern VTKTCL_EXPORT int vtkTclEval(char *str);
+extern VTKTCL_EXPORT char *vtkTclGetResult();
+extern VTKTCL_EXPORT int vtkTclDeleteObjectFromHash(ClientData cd);
+extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
+extern VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]));
-extern void *vtkTclGetPointerFromObject(char *name,char *result_type,
+extern VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
 					Tcl_Interp *interp);
-extern void vtkTclVoidFunc(void *);
-extern void vtkTclVoidFuncArgDelete(void *);
-extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);
-extern int  vtkTclInDelete();
+extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
+extern VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *);
+extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);
+extern VTKTCL_EXPORT int  vtkTclInDelete();
 
 typedef  struct _vtkTclVoidFuncArg 
 {
