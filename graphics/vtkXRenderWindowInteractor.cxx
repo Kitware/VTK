@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/Shell.h>
 #include <math.h>
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkXRenderWindowInteractor* vtkXRenderWindowInteractor::New()

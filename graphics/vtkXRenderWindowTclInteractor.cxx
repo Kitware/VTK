@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tk.h"
 #include "vtkActorCollection.h"
 #include "vtkPoints.h"
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
 
