@@ -69,7 +69,7 @@ public:
   vtkVolumeCollection *GetVolumes();
 
   // Description:
-  // Render its volumes to create a coposite image.
+  // Render its volumes to create a composite image.
   virtual void Render(vtkRenderer *);
 
   // Description:

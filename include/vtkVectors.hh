@@ -78,7 +78,7 @@ public:
   virtual float *GetVector(int id) = 0;
 
   // Description:
-  // Copy vector componenets into user provided array v[3] for specified
+  // Copy vector components into user provided array v[3] for specified
   // point id.
   virtual void GetVector(int id, float v[3]);
 
