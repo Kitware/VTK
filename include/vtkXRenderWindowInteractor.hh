@@ -104,6 +104,7 @@ protected:
   Widget oldTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
+  int WaitingForMarker;
 };
 
 #endif
