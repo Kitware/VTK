@@ -73,6 +73,7 @@ public:
   // Adds an input to the first null position in the input list.
   // Expands the list memory if necessary
   virtual void AddInput(vtkImageData *input);
+  virtual void RemoveInput(vtkImageData *input);
   
   // Description:
   // Get one input to this filter.
