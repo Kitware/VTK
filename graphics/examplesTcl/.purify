@@ -118,6 +118,15 @@ suppress umr __glKonTexChecksum
 suppress umr __glKonTexEvaluateCubicSpline
 suppress umr bindTexTable
 
+suppress umc _inet_isaddr; _gethostbyname_r; _X11TransSocketINETConnect
+suppress umc _sendmsg; _X11TransSocketWritev; _X11TransWritev
+
+suppress ipr strstr; Tcl_CreateCommand; Vtkpatentedtcl_Init
+suppress ipr HashString; Tcl_CreateCommand; Vtkpatentedtcl_Init
+suppress ipr StringCreate; Tcl_CreateCommand; Vtkpatentedtcl_Init
+suppress ipr strcpy; StringCreate; Tcl_CreateCommand; Vtkpatentedtcl_Init
+
+
 suppress mse *
 
 suppress mse _open
