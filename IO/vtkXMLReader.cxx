@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLReader, "1.11");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -53,13 +53,7 @@ vtkXMLReader::vtkXMLReader()
   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
                                              this->SelectionObserver);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
-                                            this->SelectionObserver);
-  
-  // Setup a callback for when the XMLParser's data reading routines
-  // report progress.
-  this->DataProgressObserver = vtkCallbackCommand::New();
-  this->DataProgressObserver->SetCallback(&vtkXMLReader::DataProgressCallbackFunction);
-  this->DataProgressObserver->SetClientData(this);
+                                            this->SelectionObserver);  
 }
 
 //----------------------------------------------------------------------------
@@ -73,7 +67,6 @@ vtkXMLReader::~vtkXMLReader()
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->PointDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
-  this->DataProgressObserver->Delete();
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
 }
@@ -167,8 +160,6 @@ void vtkXMLReader::CreateXMLParser()
     this->DestroyXMLParser();
     }
   this->XMLParser = vtkXMLDataParser::New();
-  this->XMLParser->AddObserver(vtkCommand::ProgressEvent,
-                               this->DataProgressObserver);
 }
 
 //----------------------------------------------------------------------------
@@ -179,7 +170,6 @@ void vtkXMLReader::DestroyXMLParser()
     vtkErrorMacro("DestroyXMLParser() called with no current XMLParser.");
     return;
     }
-  this->XMLParser->RemoveObserver(this->DataProgressObserver);
   this->XMLParser->Delete();
   this->XMLParser = 0;
 }
@@ -738,17 +728,4 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
       this->UpdateProgress(rounded);
       }
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLReader::DataProgressCallbackFunction(vtkObject*, unsigned long,
-                                                void* clientdata, void*)
-{
-  reinterpret_cast<vtkXMLReader*>(clientdata)->DataProgressCallback();
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLReader::DataProgressCallback()
-{
-  // Do nothing.
 }

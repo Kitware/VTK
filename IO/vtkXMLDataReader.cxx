@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkXMLDataReader.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
@@ -24,7 +25,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -36,18 +37,44 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->NumberOfPointArrays = 0;
   this->NumberOfCellArrays = 0;
   this->InReadData = 0;
+  
+  // Setup a callback for when the XMLParser's data reading routines
+  // report progress.
+  this->DataProgressObserver = vtkCallbackCommand::New();
+  this->DataProgressObserver->SetCallback(&vtkXMLDataReader::DataProgressCallbackFunction);
+  this->DataProgressObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::~vtkXMLDataReader()
 {
+  if(this->XMLParser) { this->DestroyXMLParser(); }
   if(this->NumberOfPieces) { this->DestroyPieces(); }
+  this->DataProgressObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::CreateXMLParser()
+{
+  this->Superclass::CreateXMLParser();
+  this->XMLParser->AddObserver(vtkCommand::ProgressEvent,
+                               this->DataProgressObserver);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::DestroyXMLParser()
+{
+  if(this->XMLParser)
+    {
+    this->XMLParser->RemoveObserver(this->DataProgressObserver);
+    }
+  this->Superclass::DestroyXMLParser();
 }
 
 //----------------------------------------------------------------------------
@@ -364,6 +391,13 @@ int vtkXMLDataReader::ReadData(vtkXMLDataElement* da, void* data, int wordType,
     }
   this->InReadData = 0;
   return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::DataProgressCallbackFunction(vtkObject*, unsigned long,
+                                                    void* clientdata, void*)
+{
+  reinterpret_cast<vtkXMLDataReader*>(clientdata)->DataProgressCallback();
 }
 
 //----------------------------------------------------------------------------

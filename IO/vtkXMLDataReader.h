@@ -45,9 +45,11 @@ public:
   
 protected:
   vtkXMLDataReader();
-  ~vtkXMLDataReader();
+  ~vtkXMLDataReader();  
   
   // Add functionality to methods from superclass.
+  virtual void CreateXMLParser();
+  virtual void DestroyXMLParser();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputInformation();  
   void SetupOutputData();
@@ -72,8 +74,11 @@ protected:
   
   // Read data from a given element.
   int ReadData(vtkXMLDataElement* da, void* data, int wordType, int startWord,
-               int numWords);
+               int numWords);  
   
+  // Callback registered with the DataProgressObserver.
+  static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,
+                                           void*);
   // Progress callback from XMLParser.
   virtual void DataProgressCallback();
   
@@ -95,6 +100,10 @@ protected:
   // Flag for whether DataProgressCallback should actually update
   // progress.
   int InReadData;
+  
+  // The observer to report progress from reading data from XMLParser.
+  vtkCallbackCommand* DataProgressObserver;  
+  
 private:
   vtkXMLDataReader(const vtkXMLDataReader&);  // Not implemented.
   void operator=(const vtkXMLDataReader&);  // Not implemented.

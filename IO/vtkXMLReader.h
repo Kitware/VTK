@@ -123,8 +123,8 @@ protected:
   // Internal utility methods.
   int OpenVTKFile();
   void CloseVTKFile();
-  void CreateXMLParser();
-  void DestroyXMLParser();
+  virtual void CreateXMLParser();
+  virtual void DestroyXMLParser();
   void SetupCompressor(const char* type);
   int CanReadFileVersionString(const char* version);
   
@@ -153,11 +153,6 @@ protected:
   static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
                                         void* clientdata, void* calldata);
   
-  // Callback registered with the DataProgressObserver.
-  static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                           void*);
-  virtual void DataProgressCallback();
-  
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
   
@@ -174,9 +169,6 @@ protected:
   // The observer to modify this object when the array selections are
   // modified.
   vtkCallbackCommand* SelectionObserver;
-  
-  // The observer to report progress from reading data from XMLParser.
-  vtkCallbackCommand* DataProgressObserver;  
   
   // Whether there was an error reading the file in ExecuteInformation.
   int InformationError;
