@@ -49,6 +49,7 @@ vtkFieldDataSource::vtkFieldDataSource()
 vtkFieldDataSource::~vtkFieldDataSource()
 {
   this->Output->Delete();
+  this->Output = NULL;
 }
 
 void vtkFieldDataSource::PrintSelf(ostream& os, vtkIndent indent)
