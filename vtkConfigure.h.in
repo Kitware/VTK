@@ -71,6 +71,9 @@
 #cmakedefine VTK_USE_CARBON
 #cmakedefine VTK_USE_COCOA
 
+/* Whether to enable the vtkAlgorithm/vtkExecutive-based pipeline.  */
+#cmakedefine VTK_USE_EXECUTIVES
+
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */
 
