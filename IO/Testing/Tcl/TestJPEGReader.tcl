@@ -14,6 +14,7 @@ viewer SetColorLevel 127.5
 
 #make interface
 viewer Render
+$reader Delete
 
 
 

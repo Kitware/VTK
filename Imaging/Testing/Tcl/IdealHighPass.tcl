@@ -32,6 +32,7 @@ viewer SetColorLevel 0
 
 
 viewer Render
+$reader Delete
 
 
 
