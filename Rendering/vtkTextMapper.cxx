@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.50");
+vtkCxxRevisionMacro(vtkTextMapper, "1.51");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -36,7 +36,10 @@ vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 vtkTextMapper::vtkTextMapper()
 {
   this->Input = (char*)NULL;
-  this->TextProperty = vtkTextProperty::New();
+  // consistent Register/unregister
+  this->TextProperty = NULL;
+  this->SetTextProperty(vtkTextProperty::New());
+  this->TextProperty->Delete();
 
   this->TextLines = NULL;
   this->NumberOfLines = 0;
