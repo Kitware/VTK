@@ -146,8 +146,6 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
       {
       this->SkipTimeStep();
       }
-    
-    this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
@@ -319,18 +317,18 @@ void vtkEnSight6BinaryReader::SkipTimeStep()
     
     if (strncmp(line, "block", 5) == 0)
       {
-      this->SkipStructuredGrid(line);
+      lineRead = this->SkipStructuredGrid(line);
       }
     else
       {
-      this->SkipUnstructuredGrid(line);
+      lineRead = this->SkipUnstructuredGrid(line);
       }
     }
   this->ReadLine(line); // END TIME STEP
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
+int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
   int lineRead = 1;
@@ -364,11 +362,12 @@ void vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
     }
   
   // reading next line to check for EOF
-  this->ReadLine(line);
+  lineRead = this->ReadLine(line);
+  return lineRead;
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
+int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
   int i;
@@ -648,6 +647,8 @@ void vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
       }
     lineRead = this->ReadLine(line);
     }
+  
+  return lineRead;
 }
 
 //----------------------------------------------------------------------------
@@ -734,7 +735,6 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
       
       this->ReadLine(line); // END TIME STEP
       }
-    
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
@@ -822,6 +822,58 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     return 0;
     }
 
+  if (this->UseFileSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      this->ReadLine(line); // skip the description line
+      
+      fgetpos(this->IFile, &pos);
+      this->ReadLine(line); // 1st data line or part #
+      if (strncmp(line, "part", 4) != 0)
+	{
+	fsetpos(this->IFile, &pos);
+	if (!measured)
+	  {
+	  numPts = this->UnstructuredPoints->GetNumberOfPoints();
+	  }
+	else
+	  {
+	  numPts = this->GetOutput(this->NumberOfGeometryParts)->
+	    GetNumberOfPoints();
+	  }
+
+	scalarsRead = new float[numPts];
+	this->ReadFloatArray(scalarsRead, numPts);
+	
+	delete [] scalarsRead;
+	}
+      
+      // scalars for structured parts
+      while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
+	{
+	this->ReadLine(line); // block
+	numPts = this->GetOutput(partId)->GetNumberOfPoints();
+	scalarsRead = new float[numPts];
+	this->ReadFloatArray(scalarsRead, numPts);
+
+	delete [] scalarsRead;
+	}
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
@@ -848,7 +900,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     else
       {
       partId = this->UnstructuredPartIds->GetId(0);
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetArray(description));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->
+				 GetArray(description));
       }
     scalarsRead = new float[numPts];
     this->ReadFloatArray(scalarsRead, numPts);
@@ -965,6 +1018,59 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
     return 0;
     }
 
+  if (this->UseFileSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      this->ReadLine(line); // skip the description line
+      
+      fgetpos(this->IFile, &pos);
+      this->ReadLine(line); // 1st data line or part #
+      if (strncmp(line, "part", 4) != 0)
+	{
+	fsetpos(this->IFile, &pos);
+	if (!measured)
+	  {
+	  numPts = this->UnstructuredPoints->GetNumberOfPoints();
+	  }
+	else
+	  {
+	  numPts = this->GetOutput(this->NumberOfGeometryParts)->
+	    GetNumberOfPoints();
+	  }
+	
+	vectorsRead = new float[numPts*3];
+	this->ReadFloatArray(vectorsRead, numPts*3);
+
+	delete [] vectorsRead;
+	}
+      
+      // vectors for structured parts
+      while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
+	{
+	this->ReadLine(line); // block
+	numPts = this->GetOutput(partId)->GetNumberOfPoints();
+	vectorsRead = new float[numPts*3];
+	
+	this->ReadFloatArray(vectorsRead, numPts*3);
+
+	delete [] vectorsRead;
+	}
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
@@ -1086,6 +1192,50 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
     return 0;
     }
 
+  if (this->UseTimeSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      this->ReadLine(line); // skip the description line
+      
+      fgetpos(this->IFile, &pos);
+      this->ReadLine(line); // 1st data line or part #
+      if (strncmp(line, "part", 4) != 0)
+	{
+	fsetpos(this->IFile, &pos);
+	numPts = this->UnstructuredPoints->GetNumberOfPoints();
+	tensorsRead = new float[numPts*6];
+	this->ReadFloatArray(tensorsRead, numPts*6);
+
+	delete [] tensorsRead;
+	}
+      
+      // vectors for structured parts
+      while (this->ReadLine(line) &&
+	     strncmp(line, "part", 4) == 0)
+	{
+	this->ReadLine(line); // block
+	numPts = this->GetOutput(partId)->GetNumberOfPoints();
+	tensorsRead = new float[numPts*6];
+	this->ReadFloatArray(tensorsRead, numPts*6);
+
+	delete [] tensorsRead;
+	}      
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
@@ -1197,6 +1347,68 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
     return 0;
     }
 
+  if (this->UseFileSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      this->ReadLine(line); // skip the description line
+      lineRead = this->ReadLine(line);
+      
+      while (lineRead && strncmp(line, "part", 4) == 0)
+	{
+	sscanf(line, " part %d", &partId);
+	partId--; // EnSight starts #ing with 1.
+	numCells = this->GetOutput(partId)->GetNumberOfCells();
+	this->ReadLine(line); // element type or "block"
+	
+	// need to find out from CellIds how many cells we have of this element
+	// type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+	if (strcmp(line, "block") != 0)
+	  {
+	  while ((lineRead = this->ReadLine(line)) &&
+		 strncmp(line, "part", 4) != 0)
+	    {
+	    elementType = this->GetElementType(line);
+	    if (elementType < 0)
+	      {
+	      vtkErrorMacro("invalid element type");
+	      fclose(this->IFile);
+	      this->IFile = NULL;
+	      return 0;
+	      }
+	    idx = this->UnstructuredPartIds->IsId(partId);
+	    numCellsPerElement = this->CellIds[idx][elementType]->
+	      GetNumberOfIds();
+	    scalarsRead = new float[numCellsPerElement];
+	    this->ReadFloatArray(scalarsRead, numCellsPerElement);
+
+	    delete [] scalarsRead;
+	    } // end while
+	  }
+	else
+	  {
+	  scalarsRead = new float[numCells];
+	  this->ReadFloatArray(scalarsRead, numCells);
+
+	  delete [] scalarsRead;
+	  lineRead = this->ReadLine(line);
+	  }
+	}
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadLine(line);
   
@@ -1237,6 +1449,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
         idx = this->UnstructuredPartIds->IsId(partId);
         numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
         scalarsRead = new float[numCellsPerElement];
+	this->ReadFloatArray(scalarsRead, numCellsPerElement);
         for (i = 0; i < numCellsPerElement; i++)
           {
           scalars->InsertComponent(this->CellIds[idx][elementType]->GetId(i),
@@ -1312,6 +1525,25 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
     return 0;
     }
 
+  if (this->UseFileSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadLine(line);
   
@@ -1419,6 +1651,68 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
     return 0;
     }
 
+  if (this->UseTimeSets)
+    {
+    for (i = 0; i < timeStep - 1; i++)
+      {
+      this->ReadLine(line);
+      while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+	{
+	this->ReadLine(line);
+	}
+      this->ReadLine(line); // skip the description line
+      lineRead = this->ReadLine(line);
+      
+      while (lineRead && strncmp(line, "part", 4) == 0)
+	{
+	sscanf(line, " part %d", &partId);
+	partId--; // EnSight starts #ing with 1.
+	numCells = this->GetOutput(partId)->GetNumberOfCells();
+	this->ReadLine(line); // element type or "block"
+	
+	// need to find out from CellIds how many cells we have of this element
+	// type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+	if (strcmp(line, "block") != 0)
+	  {
+	  while ((lineRead = this->ReadLine(line)) &&
+		 strncmp(line, "part", 4) != 0)
+	    {
+	    elementType = this->GetElementType(line);
+	    if (elementType < 0)
+	      {
+	      vtkErrorMacro("invalid element type");
+	      fclose(this->IFile);
+	      this->IFile = NULL;
+	      return 0;
+	      }
+	    idx = this->UnstructuredPartIds->IsId(partId);
+	    numCellsPerElement = this->CellIds[idx][elementType]->
+	      GetNumberOfIds();
+	    tensorsRead = new float[numCellsPerElement*6];
+	    this->ReadFloatArray(tensorsRead, numCellsPerElement*6);
+
+	    delete [] tensorsRead;
+	    } // end while
+	  }
+	else
+	  {
+	  tensorsRead = new float[numCells*6];
+	  this->ReadFloatArray(tensorsRead, numCells*6);
+
+	  delete [] tensorsRead;
+	  lineRead = this->ReadLine(line);
+	  }
+	}
+      
+      this->ReadLine(line); // END TIME STEP
+      }
+    this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      {
+      this->ReadLine(line);
+      }
+    }
+  
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadLine(line);
   
