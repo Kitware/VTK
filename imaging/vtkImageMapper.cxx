@@ -179,7 +179,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   if (pos[1] < 0) 
     {
     this->PositionAdjustment[1] = -1*pos[1];
-    displayExtent[2] -= pos[0];
+    displayExtent[2] -= pos[1];
     }
   if ((pos[1] + wholeExtent[3] - wholeExtent[2] + 1) > 
       (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
