@@ -74,7 +74,9 @@ protected:
   vlStructuredPointsCollection InputList;
 
   // pointer to operation function
+  //BTX
   void (vlBooleanStructuredPoints::*Operator)();
+  //ETX
 
   // boolean is performed on this resolution in this space
   int SampleDimensions[3];

@@ -48,7 +48,10 @@ protected:
   float LowerThreshold;
   float UpperThreshold;
 
+  //BTX
   int (vlThreshold::*ThresholdFunction)(float s);
+  //ETX
+
   int Lower(float s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(float s) {return ( s >= this->LowerThreshold ? 
