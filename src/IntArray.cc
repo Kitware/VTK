@@ -83,6 +83,15 @@ void vlIntArray::operator+=(vlIntArray& ia)
 
 }
 
+void vlIntArray::PrintSelf(ostream& os)
+{
+  os << "    Array: " << this->Array << "\n";
+  os << "    Size: " << this->Size << "\n";
+  os << "    MaxId: " << this->MaxId << "\n";
+  os << "    Extend size: " << this->Extend << "\n";
+
+  vlObject::PrintSelf(os);
+}
 //
 // Private function does "reallocate"
 //

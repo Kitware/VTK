@@ -37,6 +37,7 @@ public:
   int *GetArray() {return this->Array;};
   void Reset() {this->MaxId = -1;};
   virtual char *GetClassName() {return "vlIntArray";};
+  void PrintSelf(ostream& os);
 
 private:
   int *Array;   // pointer to data
