@@ -801,19 +801,21 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     xloop,yloop;
   unsigned long   *buffer;
   unsigned char   *p_data = NULL;
-
+  long lastBuffer;
+  
   // set the current window 
   GLXwinset(this->DisplayId,this->WindowId);
 
   if (this->DoubleBuffer)
     {
+    lastBuffer = getbuffer();
     if (front)
       {
       frontbuffer(TRUE);
       }
     else
       {
-      backbuffer(FALSE);
+      backbuffer(TRUE);
       }
     }
   dither(DT_OFF);
@@ -861,4 +863,15 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   delete [] buffer;
 
   dither(DT_ON);
+  if (this->DoubleBuffer)
+    {
+    if (lastBuffer == FRNTBUFFER)
+      {
+      frontbuffer(TRUE);
+      }
+    else
+      {
+      backbuffer(TRUE);
+      }
+    }
 }
