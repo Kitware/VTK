@@ -20,6 +20,8 @@ vtkSharedMemoryCommunicator
 vtkThreadedController 
 vtkTreeComposite 
 vtkRemoveGhostCells 
+vtkSocketCommunicator
+vtkSocketController 
 )
 
 ABSTRACT_FILES( vtkCommunicator )
@@ -37,6 +39,10 @@ IF (VTK_USE_MPI)
 ENDIF (VTK_USE_MPI)
 
 ADD_LIBRARY(vtkParallel Parallel_SRCS)
+
+IF (WIN32)
+  LINK_LIBRARIES( wsock32 )
+ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS Parallel_SRCS)
