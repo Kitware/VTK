@@ -92,6 +92,7 @@ vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
 vtkProp \
+vtkPropAssembly \
 vtkProperty2D \
 vtkPyramid \
 vtkQuad \
