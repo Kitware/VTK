@@ -12,9 +12,10 @@ suppress umc memcpy; SetupStacks
 suppress umc memcpy; vtkIntArray::DeepCopy
 suppress umc memcpy; __glXFillImage
 suppress umc memcpy; __glXSendLargeCommand
-suppress umc memcpy; vtkUnsignedCharArray::ResizeAndExtend(const int)
-suppress umc memcpy; vtkIntArray::ResizeAndExtend(const int)
-suppress umc memcpy; vtkFloatArray::ResizeAndExtend(const int)
+suppress umc memcpy; vtkUnsignedCharArray::ResizeAndExtend(const long)
+suppress umc memcpy; vtkIntArray::ResizeAndExtend(const long)
+suppress umc memcpy; vtkFloatArray::ResizeAndExtend(const long)
+suppress umc memcpy; vtkIdTypeArray::ResizeAndExtend(const long)
 suppress umc vtkCellTypes::Resize(int)
 suppress umc XNextEvent
 suppress umc _XEventToWire
