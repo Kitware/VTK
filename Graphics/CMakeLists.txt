@@ -111,6 +111,7 @@ vtkStructuredGridOutlineFilter
 vtkStructuredPointsGeometryFilter
 vtkSubPixelPositionEdgels
 vtkSubdivideTetra 
+vtkSuperquadricSource 
 vtkSurfaceReconstructionFilter 
 vtkTensorGlyph
 vtkTextSource

@@ -12,7 +12,6 @@ vtkRenderLargeImage
 vtkRIBExporter 
 vtkRIBLight 
 vtkRIBProperty 
-vtkSuperquadricSource 
 vtkThinPlateSplineTransform 
 vtkTransformToGrid 
 vtkVideoSource 
