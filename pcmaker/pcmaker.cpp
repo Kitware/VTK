@@ -299,6 +299,9 @@ BOOL CPcmakerApp::InitInstance()
     dlg.adlg.m_EXTRA_LINK_FLAGS = "";
     dlg.adlg.m_LibPrefix  = "vtk";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
+    dlg.m_BuildJava = TRUE;
+    dlg.m_BuildPython = TRUE;
+    dlg.m_BuildTcl = TRUE;
     dlg.DoOKStuff();
     }
    else if (strncmp(m_lpCmdLine, "qualityNT", 9) == 0)  // skip any trailing characters
