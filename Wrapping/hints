@@ -15,8 +15,7 @@ vtkAssembly             GetBounds               301 6
 vtkCamera               GetOrientation          301 3
 vtkCamera               GetOrientationWXYZ      301 4
 vtkCell                 GetBounds               301 6
-vtkColorTransferFunction GetColor               301 3
-vtkColorTransferFunction GetValue               301 3
+vtkColorTransferFunction GetColor               307 3
 vtkCoordinate           GetComputedDisplayValue 304 2
 vtkCoordinate           GetComputedFloatDisplayValue 301 2
 vtkCoordinate           GetComputedFloatViewportValue 301 2
@@ -96,8 +95,8 @@ vtkLinearTransform      TransformNormal         307 3
 vtkLinearTransform      TransformVector         307 3
 vtkLinearTransform      TransformVector         307 3
 vtkLODProp3D            GetBounds               301 6
-vtkLookupTable          GetColor                301 3
-vtkLookupTable          GetTableValue           301 4
+vtkLookupTable          GetColor                307 3
+vtkLookupTable          GetTableValue           307 4
 vtkMapper               GetBounds               301 6
 vtkMath                 SolveCubic              307 3
 vtkMath                 SolveLinear             307 1
@@ -106,7 +105,7 @@ vtkMatrix4x4            MultiplyDoublePoint     307 4
 vtkMatrix4x4            MultiplyFloatPoint      301 4
 vtkMatrix4x4            MultiplyPoint           301 4
 vtkNormals              GetNormal               301 3
-vtkPiecewiseFunction    GetRange                301 2
+vtkPiecewiseFunction    GetRange                307 2
 vtkPlaneWidget		GetCenter		301 3
 vtkPlaneWidget		GetNormal		301 3
 vtkPlaneWidget		GetOrigin		301 3
@@ -143,7 +142,7 @@ vtkRayCaster            GetParallelStartPosition 301 3
 vtkRectilinearGrid      GetPoint                301 3
 vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
 vtkRenderer		ComputeVisiblePropBounds    301 6
-vtkScalarsToColors      GetColor                301 3
+vtkScalarsToColors      GetColor                307 3
 vtkSplineWidget         GetHandlePosition       301 3
 vtkStreamer             GetStartPosition        301 3
 vtkStructuredGrid       GetDimensions           304 3
