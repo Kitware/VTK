@@ -133,6 +133,7 @@ void vtkGetGhostCells::Execute()
   int numPoints;
   int i, j;
   vtkPoints *points = vtkPoints::New();
+  vtkPoints *locPoints;
   vtkGenericCell *cell = vtkGenericCell::New();
   float point[3];
   float bounds[6], localBounds[6];
@@ -182,7 +183,9 @@ void vtkGetGhostCells::Execute()
   for (i = 0; i < numInputs; i++)
     {
     locators[i] = vtkPointLocator::New();
-    locators[i]->InitPointInsertion(vtkPoints::New(), bounds);
+    locPoints = vtkPoints::New();
+    locators[i]->InitPointInsertion(locPoints, bounds);
+    locPoints->Delete();
     numPoints = this->GetInput(i)->GetNumberOfPoints();
     for (j = 0; j < numPoints; j++)
       {
@@ -213,6 +216,10 @@ void vtkGetGhostCells::Execute()
   
   points->Delete();
   ghostLevels->Delete();
+  for (i = 0; i < numInputs; i++)
+    {
+    locators[i]->Delete();
+    }
   free(locators);
   cell->Delete();
 }
