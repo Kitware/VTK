@@ -132,11 +132,11 @@ static void vtkImageConvolution1DExecuteCenter(vtkImageConvolution1D *self,
 					vtkImageRegion *inRegion, T *inPtr,
 					vtkImageRegion *outRegion, T *outPtr)
 {
-  int outIdx, kernelIdx;
+  int outIdx;
   int outMin, outMax;
   int inInc, outInc;
   T *tmpPtr;
-  float *kernelPtr;
+  float *kernelPtr, *kernelEnd;
   float sum;
   int stride, size;
   
@@ -154,16 +154,15 @@ static void vtkImageConvolution1DExecuteCenter(vtkImageConvolution1D *self,
   size = self->KernelSize[0];
 
   // loop through output pixels
+  kernelEnd = self->Kernel + size;
   for (outIdx = outMin ; outIdx <= outMax; ++outIdx)
     {
     // loop for convolution 
     sum = 0.0;
-    kernelPtr = self->Kernel;
     tmpPtr = inPtr;
-    for (kernelIdx = 0; kernelIdx < size; ++kernelIdx)
+    for (kernelPtr = self->Kernel; kernelPtr < kernelEnd; ++kernelPtr)
       {
       sum += *kernelPtr * (float)(*tmpPtr);
-      ++kernelPtr;
       tmpPtr += inInc;
       }
     *outPtr = (T)(sum);

@@ -142,6 +142,15 @@ void vtkImageSeriesReader::Initialize()
 }
 
 //----------------------------------------------------------------------------
+void vtkImageSeriesReader::SetImageRange(int start, int end)
+{
+  this->First = start;
+  this->DataDimensions[2] = end - start + 1;
+  this->DataExtent[4] = 0;
+  this->DataExtent[5] = end - start;
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This method sets the file prefix.
 void vtkImageSeriesReader::SetFilePrefix(char *prefix)

@@ -143,8 +143,8 @@ void vtkImageCast::Execute(vtkImageRegion *inRegion,
 				vtkImageRegion *outRegion) {
   void *inPtr = inRegion->GetScalarPointer();
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  vtkDebugMacro(<< "Execute: inRegion = " << *inRegion 
+		<< ", outRegion = " << *outRegion);
 
   switch (inRegion->GetScalarType())
     {

@@ -65,6 +65,10 @@ public:
   // (i.e. do the files start with the number 0 or 1?).
   vtkSetMacro(First,int);
   vtkGetMacro(First,int);
+  
+  // Description:
+  // Sets the range of the file image extensions.
+  void SetImageRange(int start, int end);
 
 protected:
   
