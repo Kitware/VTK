@@ -1937,7 +1937,7 @@ else
 fi
 done
 
-for ac_hdr in /usr/openwin/share/include/GL/gl.h
+for ac_hdr in /usr/openwin/share/include/GL/glxmd.h
 do
 ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6

@@ -74,7 +74,7 @@ AC_ARG_WITH(mesa,
 
 OGLR_INCLUDE=""
 AC_CHECK_HEADERS(GL/gl.h, [use_oglr=yes])
-AC_CHECK_HEADERS(/usr/openwin/share/include/GL/gl.h, 
+AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h, 
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/usr/openwin/share/include/")
 
