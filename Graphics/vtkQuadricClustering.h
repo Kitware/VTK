@@ -278,7 +278,7 @@ protected:
   //BTX
   struct PointQuadric 
   {
-    PointQuadric():Dimension(255),VertexId(-1) {}
+    PointQuadric():VertexId(-1),Dimension(255) {}
     
     vtkIdType VertexId;
     // Dimension is supposed to be a flag representing the dimension of the

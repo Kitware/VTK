@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.54");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.55");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void vtkQuadricClustering::Execute()
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::StartAppend(float *bounds)
 {
-  vtkIdType i, numBins;
+  vtkIdType i;
 
   // Copy over the bounds.
   for (i = 0; i < 6; ++i)
@@ -247,8 +247,6 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     vtkErrorMacro("Could not allocate quadric grid.");
     return;
     }
-  numBins = this->NumberOfDivisions[0] * 
-            this->NumberOfDivisions[1] * this->NumberOfDivisions[2];
 
   // Allocate CellData here.
   if (this->CopyCellData && this->GetInput())
