@@ -90,7 +90,6 @@ static void ComputeGradients(
   unsigned short      *nptr;
   float               n[3], t;
   float               gvalue;
-  float               normalize_factor;
   float               zeroNormalThreshold;
   int                 useBounds;
   int                 bounds[6];
@@ -163,10 +162,6 @@ static void ComputeGradients(
   y_limit = (y_limit>size[1])?(size[1]):(y_limit);
   z_limit = (z_limit>size[2])?(size[2]):(z_limit);
 
-
-  // Normalization factor used for magnitude of gradient so that the
-  // magnitude is based on a unit distance normal
-  normalize_factor = 1.0 / ( 2.0 * ( aspect[0] * aspect[1] * aspect[2] ) );
 
   direction_encoder = estimator->GetDirectionEncoder();
 
@@ -248,9 +243,9 @@ static void ComputeGradients(
 	// Take care of the aspect ratio of the data
 	// Scaling in the vtkVolume is isotropic, so this is the
 	// only place we have to worry about non-isotropic scaling.
-	n[0] *= aspect[1] * aspect[2];
-	n[1] *= aspect[0] * aspect[2];
-	n[2] *= aspect[0] * aspect[1];
+	n[0] /= (2.0 * aspect[0]);
+	n[1] /= (2.0 * aspect[1]);
+	n[2] /= (2.0 * aspect[2]);
 	
 	// Compute the gradient magnitude
 	t = sqrt( (double)( n[0]*n[0] + 
@@ -260,7 +255,7 @@ static void ComputeGradients(
 	if ( computeGradientMagnitudes )
 	  {
 	  // Encode this into an 8 bit value 
-	  gvalue = (t * normalize_factor + bias) * scale; 
+	  gvalue = (t + bias) * scale; 
 	  
 	  if ( gvalue < 0.0 )
 	    {
@@ -291,6 +286,13 @@ static void ComputeGradients(
 
 	// Convert the gradient direction into an encoded index value
 	*nptr = direction_encoder->GetEncodedDirection( n );
+
+	if ( *nptr == 52685 )
+	  {
+	    vtkGenericWarningMacro( << "computed 52685 due to " << n[0] << " " << n[1] << " " << n[2] );
+	    vtkGenericWarningMacro( << direction_encoder->GetNumberOfEncodedDirections() );
+	*nptr = direction_encoder->GetEncodedDirection( n );
+	  }
 
 	nptr++;
 	dptr++;
