@@ -293,8 +293,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
   switch (uMsg)
     {
     case WM_PAINT: 
-      me->GetRenderWindow()->Render();
-      return DefWindowProc(hWnd,uMsg,wParam,lParam);
+      //me->GetRenderWindow()->Render();
+      return me->OldProc(hWnd,uMsg,wParam,lParam);
+      //return DefWindowProc(hWnd,uMsg,wParam,lParam);
       break;
 	    
     case WM_SIZE: 
