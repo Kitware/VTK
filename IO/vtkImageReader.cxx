@@ -78,286 +78,24 @@ vtkImageReader::vtkImageReader()
 {
   int idx;
   
-  this->FilePrefix = NULL;
-  this->FilePattern = new char[strlen("%s.%d") + 1];
-  strcpy (this->FilePattern, "%s.%d");
-  this->File = NULL;
-
-  this->DataScalarType = VTK_SHORT;
-  this->NumberOfScalarComponents = 1;
-  
   for (idx = 0; idx < 3; ++idx)
     {
-    this->DataIncrements[idx] = 1;
-    this->DataExtent[idx*2] = this->DataExtent[idx*2 + 1] = 0;
     this->DataVOI[idx*2] = this->DataVOI[idx*2 + 1] = 0;
-    this->DataSpacing[idx] = 1.0;
-    this->DataOrigin[idx] = 0.0;
     }
-  this->DataIncrements[3] = 1;
-  
-  this->FileName = NULL;
-  this->InternalFileName = NULL;
-  
-  this->HeaderSize = 0;
-  this->ManualHeaderSize = 0;
   
   // Left over from short reader
   this->DataMask = 0xffff;
-  this->SwapBytes = 0;
   this->Transform = NULL;
-  this->FileLowerLeft = 0;
-  this->FileDimensionality = 2;
-
-  this->FileNameSliceOffset = 0;
-  this->FileNameSliceSpacing = 1;
-
 }
 
 //----------------------------------------------------------------------------
 vtkImageReader::~vtkImageReader()
 { 
-  if (this->File)
-    {
-    this->File->close();
-    delete this->File;
-    this->File = NULL;
-    }
-  
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }
-  if (this->FilePattern)
-    {
-    delete [] this->FilePattern;
-    this->FilePattern = NULL;
-    }
-  if (this->InternalFileName)
-    {
-    delete [] this->InternalFileName;
-    this->InternalFileName = NULL;
-    }
-  
   this->SetTransform(NULL);
 }
 
-//----------------------------------------------------------------------------
-// This function sets the name of the file. 
-void vtkImageReader::ComputeInternalFileName(int slice)
-{
-  // delete any old filename
-  if (this->InternalFileName)
-    {
-    delete [] this->InternalFileName;
-    this->InternalFileName = NULL;
-    }
-
-  
-  if (!this->FileName && !this->FilePattern)
-    {
-    vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
-    return;
-    }
-
-  // make sure we figure out a filename to open
-  if (this->FileName)
-    {
-    this->InternalFileName = new char [strlen(this->FileName) + 10];
-    sprintf(this->InternalFileName,"%s",this->FileName);
-    }
-  else 
-    {
-    int slicenum = slice*FileNameSliceSpacing + FileNameSliceOffset;
-
-    if (this->FilePrefix)
-      {
-      this->InternalFileName = new char [strlen(this->FilePrefix) +
-                                        strlen(this->FilePattern) + 10];
-
-      sprintf (this->InternalFileName, this->FilePattern,
-               this->FilePrefix, slicenum);
-      }
-    else
-      {
-      this->InternalFileName = new char [strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern, "",slicenum);
-      }
-    }
-}
 
 
-//----------------------------------------------------------------------------
-// This function sets the name of the file. 
-void vtkImageReader::SetFileName(const char *name)
-{
-  if ( this->FileName && name && (!strcmp(this->FileName,name)))
-    {
-    return;
-    }
-  if (!name && !this->FileName)
-    {
-    return;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }
-  if (name)
-    {
-    this->FileName = new char[strlen(name) + 1];
-    strcpy(this->FileName, name);
-    }
-  else
-    {
-    this->FileName = NULL;
-    }
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// This function sets the prefix of the file name. "image" would be the
-// name of a series: image.1, image.2 ...
-void vtkImageReader::SetFilePrefix(const char *prefix)
-{
-  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix)))
-    {
-    return;
-    }
-  if (!prefix && !this->FilePrefix)
-    {
-    return;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }  
-  this->FilePrefix = new char[strlen(prefix) + 1];
-  strcpy(this->FilePrefix, prefix);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// This function sets the pattern of the file name which turn a prefix
-// into a file name. "%s.%3d" would be the
-// pattern of a series: image.001, image.002 ...
-void vtkImageReader::SetFilePattern(const char *pattern)
-{
-  if ( this->FilePattern && pattern && 
-       (!strcmp(this->FilePattern,pattern)))
-    {
-    return;
-    }
-  if (!pattern && !this->FilePattern)
-    {
-    return;
-    }
-  if (this->FilePattern)
-    {
-    delete [] this->FilePattern;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
-  this->FilePattern = new char[strlen(pattern) + 1];
-  strcpy(this->FilePattern, pattern);
-  this->Modified();
-}
-
-void vtkImageReader::SetDataByteOrderToBigEndian()
-{
-#ifndef VTK_WORDS_BIGENDIAN
-  this->SwapBytesOn();
-#else
-  this->SwapBytesOff();
-#endif
-}
-
-void vtkImageReader::SetDataByteOrderToLittleEndian()
-{
-#ifdef VTK_WORDS_BIGENDIAN
-  this->SwapBytesOn();
-#else
-  this->SwapBytesOff();
-#endif
-}
-
-void vtkImageReader::SetDataByteOrder(int byteOrder)
-{
-  if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    {
-    this->SetDataByteOrderToBigEndian();
-    }
-  else
-    {
-    this->SetDataByteOrderToLittleEndian();
-    }
-}
-
-int vtkImageReader::GetDataByteOrder()
-{
-#ifdef VTK_WORDS_BIGENDIAN
-  if ( this->SwapBytes )
-    {
-    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
-  else
-    {
-    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
-#else
-  if ( this->SwapBytes )
-    {
-    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
-  else
-    {
-    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
-#endif
-}
-
-const char *vtkImageReader::GetDataByteOrderAsString()
-{
-#ifdef VTK_WORDS_BIGENDIAN
-  if ( this->SwapBytes )
-    {
-    return "LittleEndian";
-    }
-  else
-    {
-    return "BigEndian";
-    }
-#else
-  if ( this->SwapBytes )
-    {
-    return "BigEndian";
-    }
-  else
-    {
-    return "LittleEndian";
-    }
-#endif
-}
 
 
 //----------------------------------------------------------------------------
@@ -365,74 +103,15 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageSource::PrintSelf(os,indent);
+  vtkImageReader2::PrintSelf(os,indent);
 
-  // this->File, this->Colors need not be printed  
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "FilePrefix: " << 
-    (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
-  os << indent << "FilePattern: " << 
-    (this->FilePattern ? this->FilePattern : "(none)") << "\n";
-  os << indent << "FileNameSliceOffset: " << this->FileNameSliceOffset << "\n";
-  os << indent << "FileNameSliceSpacing: " << this->FileNameSliceSpacing << "\n";
-
-  os << indent << "FileNameSliceOffset: " 
-     << this->FileNameSliceOffset << "\n";
-  os << indent << "FileNameSliceSpacing: " 
-     << this->FileNameSliceSpacing << "\n";
-
-  os << indent << "DataScalarType: " 
-     << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
-  os << indent << "NumberOfScalarComponents: " 
-     << this->NumberOfScalarComponents << "\n";
- 
   os << indent << "Data Mask: " << this->DataMask << "\n";
-
-  os << indent << "File Dimensionality: " << this->FileDimensionality << "\n";
-
-  os << indent << "File Lower Left: " << 
-    (this->FileLowerLeft ? "On\n" : "Off\n");
-
-  os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
-
-  os << indent << "DataIncrements: (" << this->DataIncrements[0];
-  for (idx = 1; idx < 2; ++idx)
-    {
-    os << ", " << this->DataIncrements[idx];
-    }
-  os << ")\n";
-  
-  os << indent << "DataExtent: (" << this->DataExtent[0];
-  for (idx = 1; idx < 6; ++idx)
-    {
-    os << ", " << this->DataExtent[idx];
-    }
-  os << ")\n";
-  
   os << indent << "DataVOI: (" << this->DataVOI[0];
   for (idx = 1; idx < 6; ++idx)
     {
     os << ", " << this->DataVOI[idx];
     }
   os << ")\n";
-  
-  os << indent << "DataSpacing: (" << this->DataSpacing[0];
-  for (idx = 1; idx < 3; ++idx)
-    {
-    os << ", " << this->DataSpacing[idx];
-    }
-  os << ")\n";
-  
-  os << indent << "DataOrigin: (" << this->DataOrigin[0];
-  for (idx = 1; idx < 3; ++idx)
-    {
-    os << ", " << this->DataOrigin[idx];
-    }
-  os << ")\n";
-  
-  os << indent << "HeaderSize: " << this->HeaderSize << "\n";
-
   if ( this->Transform )
     {
     os << indent << "Transform: " << this->Transform << "\n";
@@ -440,15 +119,6 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Transform: (none)\n";
-    }
-
-  if ( this->InternalFileName )
-    {
-    os << indent << "Internal File Name: " << this->InternalFileName << "\n";
-    }
-  else
-    {
-    os << indent << "Internal File Name: (none)\n";
     }
 }
 
@@ -491,127 +161,6 @@ void vtkImageReader::ExecuteInformation()
 }
 
 
-//----------------------------------------------------------------------------
-// Manual initialization.
-void vtkImageReader::SetHeaderSize(unsigned long size)
-{
-  if (size != this->HeaderSize)
-    {
-    this->HeaderSize = size;
-    this->Modified();
-    }
-  this->ManualHeaderSize = 1;
-}
-  
-
-//----------------------------------------------------------------------------
-// This function opens a file to determine the file size, and to
-// automatically determine the header size.
-void vtkImageReader::ComputeDataIncrements()
-{
-  int idx;
-  unsigned long fileDataLength;
-  
-  // Determine the expected length of the data ...
-  switch (this->DataScalarType)
-    {
-    case VTK_FLOAT:
-      fileDataLength = sizeof(float);
-      break;
-    case VTK_DOUBLE:
-      fileDataLength = sizeof(double);
-      break;
-    case VTK_INT:
-      fileDataLength = sizeof(int);
-      break;
-    case VTK_SHORT:
-      fileDataLength = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      fileDataLength = sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      fileDataLength = sizeof(unsigned char);
-      break;
-    default:
-      vtkErrorMacro(<< "Unknown DataScalarType");
-      return;
-    }
-
-  fileDataLength *= this->NumberOfScalarComponents;
-  
-  // compute the fileDataLength (in units of bytes)
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->DataIncrements[idx] = fileDataLength;
-    fileDataLength = fileDataLength *
-      (this->DataExtent[idx*2+1] - this->DataExtent[idx*2] + 1);
-    }
-  this->DataIncrements[3] = fileDataLength;
-}
-
-
-void vtkImageReader::OpenFile()
-{
-  if (!this->FileName && !this->FilePattern)
-    {
-    vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
-    return;
-    }
-
-  // Close file from any previous image
-  if (this->File)
-    {
-    this->File->close();
-    delete this->File;
-    this->File = NULL;
-    }
-  
-  // Open the new file
-  vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
-#ifdef _WIN32
-  this->File = new ifstream(this->InternalFileName, ios::in | ios::binary);
-#else
-  this->File = new ifstream(this->InternalFileName, ios::in);
-#endif
-  if (! this->File || this->File->fail())
-    {
-    vtkErrorMacro(<< "Initialize: Could not open file " << 
-    this->InternalFileName);
-    return;
-    }
-}
-
-
-unsigned long vtkImageReader::GetHeaderSize()
-{
-  return this->GetHeaderSize(this->DataExtent[4]);
-}
-
-unsigned long vtkImageReader::GetHeaderSize(int idx)
-{
-  if (!this->FileName && !this->FilePattern)
-    {
-    vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
-    return 0;
-    }
-  if ( ! this->ManualHeaderSize)
-    {
-    this->ComputeDataIncrements();
-
-    // make sure we figure out a filename to open
-    this->ComputeInternalFileName(idx);
-    this->OpenFile();
-    
-    // Get the size of the header from the size of the image
-    this->File->seekg(0,ios::end);
-    
-    return (unsigned long)((unsigned long)this->File->tellg() - 
-      (unsigned long)this->DataIncrements[this->GetFileDimensionality()]);
-    }
-
-  return this->HeaderSize;
-}
 
 void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
@@ -882,23 +431,6 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
 
 
 
-//----------------------------------------------------------------------------
-// Set the data type of pixles in the file.  
-// As a convienience, the OutputScalarType is set to the same value.
-// If you want the output scalar type to have a different value, set it
-// after this method is called.
-void vtkImageReader::SetDataScalarType(int type)
-{
-  if (type == this->DataScalarType)
-    {
-    return;
-    }
-  
-  this->Modified();
-  this->DataScalarType = type;
-  // Set the default output scalar type
-  this->GetOutput()->SetScalarType(this->DataScalarType);
-}
 
 
 void vtkImageReader::ComputeTransformedSpacing (float Spacing[3])

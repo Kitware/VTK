@@ -40,11 +40,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageReader2 - Superclass of binary file readers.
 // .SECTION Description
-// vtkImageReader2 is a slightly simplified version of vtkImageReader, it 
-// is a good superclass for streaming readers 
+// vtkImageReader2 is the parent class for vtkImageReader.  It 
+// is a good super class for streaming readers that do not require
+// a mask or transform on the data.  vtkImageReader was implemented
+// before vtkImageReader2, vtkImageReader2 is intended to have 
+// a simpler interface.
 
 // .SECTION See Also
-// vtkBMPReader vtkPNMReader vtkTIFFReader
+// vtkJPEGReader vtkPNGReader vtkImageReader vtkGESignaReader
 
 #ifndef __vtkImageReader2_h
 #define __vtkImageReader2_h
@@ -125,13 +128,13 @@ public:
 
   // Description:
   // Get the size of the header computed by this object.
-  int GetHeaderSize();
-  int GetHeaderSize(int slice);
+  unsigned long GetHeaderSize();
+  unsigned long GetHeaderSize(unsigned long slice);
 
   // Description:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
-  void SetHeaderSize(int size);
+  void SetHeaderSize(unsigned long size);
   
   // Description:
   // These methods should be used instead of the SwapBytes methods.
@@ -150,6 +153,20 @@ public:
   int GetDataByteOrder();
   void SetDataByteOrder(int);
   const char *GetDataByteOrderAsString();
+
+  // Description:
+  // When reading files which start at an unusual index, this can be added
+  // to the slice number when generating the file name (default = 0)
+  vtkSetMacro(FileNameSliceOffset,int);
+  vtkGetMacro(FileNameSliceOffset,int);
+
+  // Description:
+  // When reading files which have regular, but non contiguous slices
+  // (eg filename.1,filename.3,filename.5)
+  // a spacing can be specified to skip missing files (default = 1)
+  vtkSetMacro(FileNameSliceSpacing,int);
+  vtkGetMacro(FileNameSliceSpacing,int);
+
 
   // Description:
   // Set/Get the byte swapping to explicitly swap the bytes of a file.
@@ -203,6 +220,9 @@ protected:
   float DataSpacing[3];
   float DataOrigin[3];
 
+  int FileNameSliceOffset;
+  int FileNameSliceSpacing;
+  
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();
