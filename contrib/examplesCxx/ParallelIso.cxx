@@ -60,6 +60,7 @@ void process( vtkMultiProcessController *controller,
   vtkElevationFilter *elev;
   int myid, numProcs;
   float val;
+  int numTris;
   
   myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
@@ -173,15 +174,16 @@ void process( vtkMultiProcessController *controller,
       timer->StartTimer();
       app->Update();
       timer->StopTimer();
+      numTris = iso->GetOutput()->GetNumberOfCells();
+      val = iso->GetValue(0);
       cerr << "Update " << val << " took " << timer->GetElapsedTime() 
-	   << " seconds\n";
+	   << " seconds to produce " << numTris << " triangles\n";
       
       // now render the results
       renWindow->Render();
       //sprintf(filename, "iso%d.ppm", (int)(val));
       //renWindow->SetFileName(filename);
       //renWindow->SaveImageAsPPM();
-      val += 400.0;
       }
     
     // just exit

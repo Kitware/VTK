@@ -13,7 +13,7 @@
 // arbitrary tags for communication
 #define GRID_TAG         123
 
-VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
+void process_a(vtkMultiProcessController *controller,void *vtkNotUsed(arg) )
 {
   vtkPLOT3DReader *pl3d = vtkPLOT3DReader::New();
   pl3d->SetXYZFileName("../../../vtkdata/combxyz.bin");
@@ -31,18 +31,15 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   pl3d->Delete();
   upStreamPort->Delete();
 
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
+void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
   int myid, otherid;
   
-  putenv("DISPLAY=:0.0");
+  //putenv("DISPLAY=:0.0");
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
   if (myid == 0)
     {
@@ -96,7 +93,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   iso->Delete();
   downStreamPort->Delete();
 
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -104,15 +100,15 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(1, process_a, NULL);
   controller->SetMultipleMethod(0, process_b, NULL);
+  controller->SetMultipleMethod(1, process_a, NULL);
   controller->MultipleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
 }
 
 

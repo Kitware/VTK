@@ -10,6 +10,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
 
+
 void process_a( vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
   vtkConeSource *cone = vtkConeSource::New();
@@ -52,6 +53,8 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
   downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 4);
   downStreamPort->Update();  
 
+  vtkPolyData *data =   downStreamPort->GetPolyDataOutput();
+  
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInput(downStreamPort->GetPolyDataOutput());
 
@@ -84,6 +87,9 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
     {
     //  Begin mouse interaction
     iren->Start();
+    // I think an 'e' press should cause this method to return and exit gracefully.
+    // It doesn't!
+    controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
     }
   
   // Clean up
@@ -112,8 +118,8 @@ void main( int argc, char *argv[] )
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(1, process_a, NULL);
-  controller->SetMultipleMethod(0, process_b, save_filename);
+  controller->SetMultipleMethod(0, process_b, NULL);
+  controller->SetMultipleMethod(1, process_a, save_filename);
   controller->MultipleMethodExecute();
 
   controller->Delete();

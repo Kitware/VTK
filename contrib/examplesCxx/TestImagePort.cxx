@@ -58,6 +58,7 @@ void process_b( vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
   vtkInputPort *downStreamPort = vtkInputPort::New();
   downStreamPort->SetRemoteProcessId(otherid);
   downStreamPort->SetTag(999);
+  //downStreamPort->GetImageDataOutput()->Update();
 
   vtkTexture *atext = vtkTexture::New();
   atext->SetInput(downStreamPort->GetImageDataOutput());
@@ -108,8 +109,8 @@ void main( int argc, char *argv[] )
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(1, process_a, NULL);
   controller->SetMultipleMethod(0, process_b, NULL);
+  controller->SetMultipleMethod(1, process_a, NULL);
   controller->MultipleMethodExecute();
 }
 
