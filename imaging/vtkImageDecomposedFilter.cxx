@@ -177,6 +177,20 @@ void vtkImageDecomposedFilter::SetInput(vtkImageCache *input)
 void vtkImageDecomposedFilter::SetFilteredAxes(int num, int *axes)
 {
   int idxFilter, idxAxis, flag;
+
+  flag = 0;
+  for (idxAxis = 0; idxAxis < num; ++idxAxis)
+    {
+    if (this->FilteredAxes[idxAxis] != axes[idxAxis])
+      {
+      flag = 1;
+      }
+    }
+
+  if (flag == 0 && num == this->NumberOfFilteredAxes)
+    {
+      return;
+    }
   
   this->vtkImageFilter::SetFilteredAxes(num, axes);
   for (idxFilter = 0; idxFilter < 4; ++idxFilter)
@@ -310,6 +324,31 @@ void vtkImageDecomposedFilter::SetStartMethod(void (*f)(void *), void *arg)
 
 //----------------------------------------------------------------------------
 // Description:
+// Specify function to be called while object executes.
+void vtkImageDecomposedFilter::SetProgressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ProgressMethod || arg != this->ProgressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
+      {
+      (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
+      }
+    this->ProgressMethod = f;
+    this->ProgressMethodArg = arg;
+    for (int i = 0; i < 4; i++)
+      {
+      if (this->Filters[i])
+        {
+        this->Filters[i]->SetProgressMethod(f, arg);
+        }
+      }
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
 // Specify function to be called after object executes.
 void vtkImageDecomposedFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
@@ -322,17 +361,30 @@ void vtkImageDecomposedFilter::SetEndMethod(void (*f)(void *), void *arg)
       }
     this->EndMethod = f;
     this->EndMethodArg = arg;
-    if (this->Filters[this->NumberOfFilteredAxes - 1])
+    if (this->Filters[3])
       {
-      this->Filters[this->NumberOfFilteredAxes - 1]->SetEndMethod(f, arg);
+      this->Filters[3]->SetEndMethod(f, arg);
       }
     this->Modified();
     }
 }
 
 
+float vtkImageDecomposedFilter::GetProgress ()
+{
+  int idx;
+  int count = 0;
+  float progress = 0.0;
 
+  // determine dimensionality
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Filters[idx]->GetBypass() == 0)
+      {
+      ++count;
+      progress += this->Filters[idx]->GetProgress();
+      }
+    }
 
-
-
-
+  return progress;
+}

@@ -78,7 +78,10 @@ public:
     {this->SetFilteredAxes(dim, this->FilteredAxes);}
   
   void SetStartMethod(void (*f)(void *), void *arg);
+  void SetProgressMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
+
+  float GetProgress();		
   
 protected:
   vtkImageFilter *Filters[4];
