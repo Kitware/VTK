@@ -72,9 +72,17 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkRenderer);
 
+  // Description:
+  // Use the entire RenderWindow as a data source or just the Renderer.
+  // The default is zero, just the Renderer.
+  vtkSetMacro(WholeWindow,int);
+  vtkGetMacro(WholeWindow,int);
+  vtkBooleanMacro(WholeWindow,int);
+  
 protected:
   void Execute();
   vtkRenderer *Input;
+  int WholeWindow;
 };
 
 #endif
