@@ -334,18 +334,32 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
     }
   
   vtkScalars *newScalars = vtkScalars::New();
-  newScalars->SetNumberOfComponents(numComp);
-  newScalars->SetDataType(this->GetComponentsType(numComp, fieldArray));
-  newScalars->SetNumberOfScalars(num);
-  
-  for ( i=0; i < numComp; i++ )
+  for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
-    if ( this->ConstructArray(newScalars->GetData(), i, fieldArray[i], arrayComp[i],
-                              componentRange[i][0], componentRange[i][1],
-                              normalize[i]) == 0 )
+    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    }
+  
+  // see whether we can reuse the data array from the field
+  if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
+       fieldArray[0]->GetNumberOfTuples() == num )
+    {
+    newScalars->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newScalars->SetNumberOfComponents(numComp);
+    newScalars->SetDataType(this->GetComponentsType(numComp, fieldArray));
+    newScalars->SetNumberOfScalars(num);
+  
+    for ( i=0; i < numComp; i++ )
       {
-      newScalars->Delete();
-      return;
+      if ( this->ConstructArray(newScalars->GetData(), i, fieldArray[i], arrayComp[i],
+				componentRange[i][0], componentRange[i][1],
+				normalize[i]) == 0 )
+	{
+	newScalars->Delete();
+	return;
+	}
       }
     }
   
@@ -452,17 +466,26 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
     }
   
   vtkVectors *newVectors = vtkVectors::New();
-  newVectors->SetDataType(this->GetComponentsType(3, fieldArray));
-  newVectors->SetNumberOfVectors(num);
-  
-  for ( i=0; i < 3; i++ )
+  if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
+       fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
+       fieldArray[0]->GetNumberOfTuples() == num )
     {
-    if ( this->ConstructArray(newVectors->GetData(), i, fieldArray[i], arrayComp[i],
-                              componentRange[i][0], componentRange[i][1],
-                              normalize[i]) == 0 )
+    newVectors->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newVectors->SetDataType(this->GetComponentsType(3, fieldArray));
+    newVectors->SetNumberOfVectors(num);
+
+    for ( i=0; i < 3; i++ )
       {
-      newVectors->Delete();
-      return;
+      if ( this->ConstructArray(newVectors->GetData(), i, fieldArray[i], arrayComp[i],
+				componentRange[i][0], componentRange[i][1],
+				normalize[i]) == 0 )
+	{
+	newVectors->Delete();
+	return;
+	}
       }
     }
   
@@ -569,17 +592,26 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
     }
   
   vtkNormals *newNormals = vtkNormals::New();
-  newNormals->SetDataType(this->GetComponentsType(3, fieldArray));
-  newNormals->SetNumberOfNormals(num);
-  
-  for ( i=0; i < 3; i++ )
+  if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
+       fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
+       fieldArray[0]->GetNumberOfTuples() == num )
     {
-    if ( this->ConstructArray(newNormals->GetData(), i, fieldArray[i], arrayComp[i],
-                              componentRange[i][0], componentRange[i][1],
-                              normalize[i]) == 0 )
+    newNormals->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newNormals->SetDataType(this->GetComponentsType(3, fieldArray));
+    newNormals->SetNumberOfNormals(num);
+
+    for ( i=0; i < 3; i++ )
       {
-      newNormals->Delete();
-      return;
+      if ( this->ConstructArray(newNormals->GetData(), i, fieldArray[i], arrayComp[i],
+				componentRange[i][0], componentRange[i][1],
+				normalize[i]) == 0 )
+	{
+	newNormals->Delete();
+	return;
+	}
       }
     }
   
@@ -689,18 +721,32 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
     }
   
   vtkTCoords *newTCoords = vtkTCoords::New();
-  newTCoords->SetNumberOfComponents(numComp);
-  newTCoords->SetDataType(this->GetComponentsType(numComp, fieldArray));
-  newTCoords->SetNumberOfTCoords(num);
-  
-  for ( i=0; i < numComp; i++ )
+  for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
-    if ( this->ConstructArray(newTCoords->GetData(), i, fieldArray[i], arrayComp[i],
-                              componentRange[i][0], componentRange[i][1],
-                              normalize[i]) == 0 )
+    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    }
+  
+  // see whether we can reuse the data array from the field
+  if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
+       fieldArray[0]->GetNumberOfTuples() == num )
+    {
+    newTCoords->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newTCoords->SetNumberOfComponents(numComp);
+    newTCoords->SetDataType(this->GetComponentsType(numComp, fieldArray));
+    newTCoords->SetNumberOfTCoords(num);
+
+    for ( i=0; i < numComp; i++ )
       {
-      newTCoords->Delete();
-      return;
+      if ( this->ConstructArray(newTCoords->GetData(), i, fieldArray[i], arrayComp[i],
+				componentRange[i][0], componentRange[i][1],
+				normalize[i]) == 0 )
+	{
+	newTCoords->Delete();
+	return;
+	}
       }
     }
   
@@ -805,17 +851,31 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     }
   
   vtkTensors *newTensors = vtkTensors::New();
-  newTensors->SetDataType(this->GetComponentsType(9, fieldArray));
-  newTensors->SetNumberOfTensors(num);
-  
-  for ( i=0; i < 9; i++ )
+  for (i=1; i < 9; i++) //see whether all the data is from the same array
     {
-    if ( this->ConstructArray(newTensors->GetData(), i, fieldArray[i], arrayComp[i],
-                              componentRange[i][0], componentRange[i][1],
-                              normalize[i]) == 0 )
+    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    }
+  
+  // see whether we can reuse the data array from the field
+  if ( i >= 9 && fieldArray[0]->GetNumberOfComponents() == 9 && 
+       fieldArray[0]->GetNumberOfTuples() == num )
+    {
+    newTensors->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    newTensors->SetDataType(this->GetComponentsType(9, fieldArray));
+    newTensors->SetNumberOfTensors(num);
+
+    for ( i=0; i < 9; i++ )
       {
-      newTensors->Delete();
-      return;
+      if ( this->ConstructArray(newTensors->GetData(), i, fieldArray[i], arrayComp[i],
+				componentRange[i][0], componentRange[i][1],
+				normalize[i]) == 0 )
+	{
+	newTensors->Delete();
+	return;
+	}
       }
     }
   
