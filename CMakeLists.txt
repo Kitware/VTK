@@ -24,6 +24,13 @@ IF (VTK_WRAP_TCL)
   SUBDIRS(Wrapping/Tcl)
 ENDIF (VTK_WRAP_TCL)
 
+# add some testing dependencies
+IF(BUILD_TESTING)
+  IF (DART_ROOT)
+    SUBDIRS(Graphics/Testing)
+  ENDIF (DART_ROOT)
+ENDIF(BUILD_TESTING)
+
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkConfigure.h.in 
 ${VTK_BINARY_DIR}/vtkConfigure.h)
