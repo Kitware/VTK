@@ -37,6 +37,8 @@
 #include <string.h>
 #endif
 
+#include <unistd.h> /* getopt */
+
 #include "tif_fax3.h"
 
 #define streq(a,b)      (strcmp(a,b) == 0)
