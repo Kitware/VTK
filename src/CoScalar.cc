@@ -55,7 +55,7 @@ int vlColorScalars::InsertNextScalar(float s)
 
 // Description:
 // Given list of point id's, return colors for each point.
-void vlColorScalars::GetColors(vlIdList& ptId, vlPixmap& p)
+void vlColorScalars::GetColors(vlIdList& ptId, vlAPixmap& p)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {

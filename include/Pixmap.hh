@@ -51,54 +51,50 @@ public:
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
-  void GetColor(int id, unsigned char rgb[3]);
-  void SetColor(int id, unsigned char rgb[3]);
-  void InsertColor(int id, unsigned char rgb[3]);
-  int InsertNextColor(unsigned char rgb[3]);
+  void GetColor(int id, unsigned char rgba[4]);
+  void SetColor(int id, unsigned char rgba[4]);
+  void InsertColor(int id, unsigned char rgba[4]);
+  int InsertNextColor(unsigned char rgba[4]);
 
 protected:
   vlCharArray S;
 };
 
 // Description:
-// Return a rgb triplet at array location i.
-inline unsigned char *vlPixmap::GetColor(int i) {return this->S.GetPtr(3*i);};
-
-// Description:
-// Set a rgb value at a particular array location. Does not do range 
+// Set a rgba color value at a particular array location. Does not do range 
 // checking.
-inline void vlPixmap::SetColor(int i, unsigned char rgb[3]) 
+inline void vlPixmap::SetColor(int i, unsigned char rgba[4]) 
 {
   i *= 3; 
-  this->S[i] = rgb[0]; 
-  this->S[i+1] = rgb[1]; 
-  this->S[i+2] = rgb[2];
+  this->S[i] = rgba[0]; 
+  this->S[i+1] = rgba[1]; 
+  this->S[i+2] = rgba[2];
 }
 
 // Description:
-// Insert a rgb value at a particular array location. Does range checking
-// and will allocate additional memory if necessary.
-inline void vlPixmap::InsertColor(int i, unsigned char *rgb) 
+// Insert a rgba color value at a particular array location. Does range 
+// checking and will allocate additional memory if necessary.
+inline void vlPixmap::InsertColor(int i, unsigned char rgba[4]) 
 {
-  this->S.InsertValue(3*i+2, rgb[2]);
-  this->S[3*i] = rgb[0];
-  this->S[3*i+1] = rgb[1];
+  this->S.InsertValue(3*i+2, rgba[2]);
+  this->S[3*i] = rgba[0];
+  this->S[3*i+1] = rgba[1];
 }
 
 // Description:
-// Insert a rgb value at the next available slot in the array. Will allocate
+// Insert a rgba value at the next available slot in the array. Will allocate
 // memory if necessary.
-inline int vlPixmap::InsertNextColor(unsigned char *rgb) 
+inline int vlPixmap::InsertNextColor(unsigned char *rgba) 
 {
   int id = this->S.GetMaxId() + 3;
-  this->S.InsertValue(id,rgb[2]);
-  this->S[id-2] = rgb[0];
-  this->S[id-1] = rgb[1];
+  this->S.InsertValue(id,rgba[2]);
+  this->S[id-2] = rgba[0];
+  this->S[id-1] = rgba[1];
   return id/3;
 }
 
 // Description:
-// Get pointer to rgb data at location "id" in the array. Meant for reading 
+// Get pointer to rgba data at location "id" in the array. Meant for reading 
 // data. 
 inline unsigned char *vlPixmap::GetPtr(const int id)
 {
@@ -108,7 +104,7 @@ inline unsigned char *vlPixmap::GetPtr(const int id)
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the locaation you 
-// wish to write into; number is the number of rgb triplets to write.
+// wish to write into; number is the number of rgba triplets to write.
 inline unsigned char *vlPixmap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(3*id,3*number);

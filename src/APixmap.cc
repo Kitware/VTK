@@ -29,15 +29,6 @@ vlAPixmap& vlAPixmap::operator=(const vlAPixmap& fs)
 }
 
 // Description:
-// Return a unsigned char rgba for a particular point id.
-// (Note: this interface varies from superclass vlColorScalars.
-// A pointer to four values are returned: rgba.)
-unsigned char *vlAPixmap::GetColor(int id)
-{
-  return this->S.GetPtr(4*id);
-}
-
-// Description:
 // Copy rgba components into user provided array rgba[4] for specified
 // point id. (Note: this interface varies from superclass vlColorScalars.
 // Four values are returned: rgba.)

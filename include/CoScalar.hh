@@ -20,24 +20,21 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //    In order to be a vlScalar subclass, vlColorScalars must be able to 
 // return a single value given a point id. By default, this operation is 
 // performed by computing intensity as the single value. Concrete subclasses 
-// of vlColorScalars may have additional  methods to convert multi-dimensional
+// of vlColorScalars may have additional methods to convert multi-dimensional
 // color information into a single scalar value.
 // .SECTION Caveats
-// Derived classes of vlColorScalars loosely interpret the meaning of "rgb".
-// For example, when inserting a grayscale value, the "r" value is interpreted
-// as the gray value. However, when getting the color, each of "r", "g", and 
-// "b" is set to the gray value. Thus when getting color, assume that the rgb
-// value is correct.
-//    The derived class vlAPixmap must be used with caution. It operates on 
-// rgba[4] data. If you might be using this class, make sure that the array
-// rgb is dimensioned to [4]  to avoid memory corruption.
+// Derived classes of vlColorScalars treat colors differently. All derived 
+// classes will return a rgba (red-green-blue-alpha transparency) array in
+// response to "GetColor()" methods. However, when setting colors, the rgba
+// data may be converted to internal form. For example, a vlGrayMap just
+// takes the maximum component of rgb and uses that as its gray value.
 
 #ifndef __vlColorScalars_h
 #define __vlColorScalars_h
 
 #include "Scalars.hh"
 
-class vlPixmap;
+class vlAPixmap;
 
 class vlColorScalars : public vlScalars 
 {
@@ -58,34 +55,35 @@ public:
   int GetNumberOfColors() {return this->GetNumberOfScalars();};  
 
   // Description:
-  // Return a unsigned char rgb for a particular point id.
+  // Return a unsigned char rgba for a particular point id.
   virtual unsigned char *GetColor(int id) = 0;
 
   // Description:
-  // Copy rgb components into user provided array rgb[3] for specified
-  // point id.
-  virtual void GetColor(int id, unsigned char rgb[3]) = 0;
+  // Copy color components into user provided array rgba[4] for specified
+  // point id. The number of components returned is the number of values 
+  // per point.
+  virtual void GetColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:
   // Insert color into object. No range checking performed (fast!).
-  virtual void SetColor(int id, unsigned char rgb[3]) = 0;
+  virtual void SetColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:
   // Insert color into object. Range checking performed and memory
   // allocated as necessary.
-  virtual void InsertColor(int id, unsigned char rgb[3]) = 0;
+  virtual void InsertColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:
   // Insert color into next available slot. Returns point id of slot.
-  virtual int InsertNextColor(unsigned char rgb[3]) = 0;
+  virtual int InsertNextColor(unsigned char rgba[4]) = 0;
 
-  void GetColors(vlIdList& ptId, vlPixmap& p);
+  void GetColors(vlIdList& ptId, vlAPixmap& ap);
 
 };
 
 // These include files are placed here so that if CoScalar.hh is included 
 // all other classes necessary for compilation are also included. 
 #include "IdList.hh"
-#include "Pixmap.hh"
+#include "APixmap.hh"
 
 #endif

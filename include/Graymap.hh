@@ -51,10 +51,10 @@ public:
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
-  void GetColor(int id, unsigned char rgb[3]);
-  void SetColor(int id, unsigned char g[1]);
-  void InsertColor(int id, unsigned char g[1]);
-  int InsertNextColor(unsigned char g[1]);
+  void GetColor(int id, unsigned char rgba[4]);
+  void SetColor(int id, unsigned char rgba[4]);
+  void InsertColor(int id, unsigned char rgba[4]);
+  int InsertNextColor(unsigned char rgba[4]);
 
 protected:
   vlCharArray S;

@@ -21,22 +21,23 @@ vlScalars *vlAGraymap::MakeObject(int sze, int ext)
 }
 
 // Description:
-// Return a unsigned char gray for a particular point id.
-// (Note: gray value converted into full rgb triplet.)
+// Return a unsigned char rgba color value for a particular point id.
 unsigned char *vlAGraymap::GetColor(int id)
 {
-  static unsigned char rgb[3];
-  rgb[0] = rgb[1] = rgb[2] = this->S[2*id];
-  return rgb;
+  static unsigned char rgba[4];
+  rgba[0] = rgba[1] = rgba[2] = this->S[2*id];
+  rgba[3] = this->S[2*id+1];
+  
+  return rgba;
 }
 
 // Description:
-// Copy gray components into user provided array for specified
+// Copy rgba color value components into user provided array for specified
 // point id.
-// (Note: gray value converted into full rgb triplet.)
-void vlAGraymap::GetColor(int id, unsigned char rgb[3])
+void vlAGraymap::GetColor(int id, unsigned char rgba[3])
 {
-  rgb[0] = rgb[1] = rgb[2] = this->S[2*id];
+  rgba[0] = rgba[1] = rgba[2] = this->S[2*id];
+  rgba[3] = this->S[2*id+1];
 }
 
 // Description:

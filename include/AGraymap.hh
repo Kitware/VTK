@@ -53,42 +53,45 @@ public:
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
-  void GetColor(int id, unsigned char rgb[3]);
-  void SetColor(int id, unsigned char ga[2]);
-  void InsertColor(int id, unsigned char ga[2]);
-  int InsertNextColor(unsigned char ga[2]);
+  void GetColor(int id, unsigned char rgba[4]);
+  void SetColor(int id, unsigned char rgba[4]);
+  void InsertColor(int id, unsigned char rgba[4]);
+  int InsertNextColor(unsigned char rgba[4]);
 
 protected:
   vlCharArray S;
 };
 
 // Description:
-// Set a intensity/alpha value at a particular array location. Does not do 
+// Set a rgba color value at a particular array location. Does not do 
 // range checking.
-inline void vlAGraymap::SetColor(int i, unsigned char ga[2]) 
+inline void vlAGraymap::SetColor(int i, unsigned char rgba[4]) 
 {
   i *= 2; 
-  this->S[i] = ga[0]; 
-  this->S[i+1] = ga[1]; 
+  this->S[i] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                    (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  this->S[i+1] = rgba[3]; 
 }
 
 // Description:
-// Insert a intensity/alpha value at a particular array location. Does range 
+// Insert a rgba color value at a particular array location. Does range 
 // checking and will allocate additional memory if necessary.
-inline void vlAGraymap::InsertColor(int i, unsigned char *ga) 
+inline void vlAGraymap::InsertColor(int i, unsigned char rgba[4]) 
 {
-  this->S.InsertValue(2*i+1, ga[1]);
-  this->S[2*i] = ga[0];
+  this->S.InsertValue(2*i+1, rgba[3]);
+  this->S[2*i] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                      (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
 }
 
 // Description:
-// Insert a intensity/alpha value at the next available slot in the array. Will
+// Insert a rgba color value at the next available slot in the array. Will
 // allocate memory if necessary.
-inline int vlAGraymap::InsertNextColor(unsigned char *ga) 
+inline int vlAGraymap::InsertNextColor(unsigned char rgba[4]) 
 {
   int id = this->S.GetMaxId() + 1;
-  this->S.InsertValue(id,ga[1]);
-  this->S[id-1] = ga[0];
+  this->S.InsertValue(id,rgba[3]);
+  this->S[id-1] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
 
   return id/2;
 }

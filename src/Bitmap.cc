@@ -29,50 +29,46 @@ vlBitmap& vlBitmap::operator=(const vlBitmap& fs)
 }
 
 // Description:
-// Return a color for a particular point id.
-// (Note: gray value converted into full rgb triplet.)
+// Return a rgba color for a particular point id.
 unsigned char *vlBitmap::GetColor(int id)
 {
-  static unsigned char rgb[3];
-  rgb[0] = rgb[1] = rgb[2] = this->S.GetValue(id);
-  return rgb;
+  static unsigned char rgba[4];
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
+  rgba[3] = 255;
+  return rgba;
 }
 
 // Description:
-// Copy gray components into user provided array for specified
-// point id.
-// (Note: gray value converted into full rgb triplet.)
-void vlBitmap::GetColor(int id, unsigned char rgb[3])
+// Get rgba color value for id indicated.
+void vlBitmap::GetColor(int id, unsigned char rgba[4])
 {
-  rgb[0] = rgb[1] = rgb[2] = this->S.GetValue(id);
+  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
+  rgba[3] = 255;
 }
 
 // Description:
-// Insert gray value into object. No range checking performed (fast!).
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here b[1]) is inserted.)
-void vlBitmap::SetColor(int id, unsigned char b[1])
+// Insert rgba color value into object. No range checking performed (fast!).
+void vlBitmap::SetColor(int id, unsigned char rgba[4])
 {
-  this->S.SetValue(id,b[0]);
+  unsigned char b=rgba[0]|rgba[1]|rgba[2];
+  this->S.SetValue(id,b);
 }
 
 // Description:
-// Insert gray value into object. Range checking performed and memory
+// Insert rgba color value into object. Range checking performed and memory
 // allocated as necessary.
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here b[1]) is inserted.)
-void vlBitmap::InsertColor(int id, unsigned char b[1])
+void vlBitmap::InsertColor(int id, unsigned char rgba[4])
 {
-  this->S.InsertValue(id,b[0]);
+  unsigned char b=rgba[0]|rgba[1]|rgba[2];
+  this->S.InsertValue(id,b);
 }
 
 // Description:
-// Insert gray value into next available slot. Returns point id of slot.
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here b[1]) is inserted.)
-int vlBitmap::InsertNextColor(unsigned char b[1])
+// Insert rgba color value into next available slot. Returns point id of slot.
+int vlBitmap::InsertNextColor(unsigned char rgba[4])
 {
-  int id = this->S.InsertNextValue(b[0]);
+  unsigned char b=rgba[0]|rgba[1]|rgba[2];
+  int id = this->S.InsertNextValue(b);
   return id;
 }
 

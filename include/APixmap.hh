@@ -62,6 +62,13 @@ protected:
 };
 
 // Description:
+// Return a rgba color at array location i.
+inline unsigned char *vlAPixmap::GetColor(int i) 
+{
+  return this->S.GetPtr(4*i);
+}
+
+// Description:
 // Get pointer to rgba data at location "id" in the array. Meant for reading 
 // data. 
 inline unsigned char *vlAPixmap::GetPtr(const int id)

@@ -29,15 +29,30 @@ vlPixmap& vlPixmap::operator=(const vlPixmap& fs)
 }
 
 // Description:
-// Copy rgba components into user provided array rgb[3] for specified
-// point id. (Note: this interface varies from superclass vlColorScalars.
-// Four values are returned: rgb.)
-void vlPixmap::GetColor(int id, unsigned char rgb[3])
+// Return a rgba color at array location i.
+unsigned char *vlPixmap::GetColor(int i) 
+{
+  static unsigned char rgba[4];
+  unsigned char *_rgb;
+  _rgb = this->S.GetPtr(3*i);
+  rgba[0] = _rgb[0];
+  rgba[1] = _rgb[1];
+  rgba[2] = _rgb[2];
+  rgba[3] = 255;
+
+  return rgba;
+}
+
+// Description:
+// Copy rgba components into user provided array rgb[4] for specified
+// point id. 
+void vlPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgb;
 
   _rgb = this->S.GetPtr(3*id);
-  rgb[0] = _rgb[0];
-  rgb[1] = _rgb[1];
-  rgb[2] = _rgb[2];
+  rgba[0] = _rgb[0];
+  rgba[1] = _rgb[1];
+  rgba[2] = _rgb[2];
+  rgba[3] = 255;
 }

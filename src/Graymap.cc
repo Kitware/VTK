@@ -29,50 +29,52 @@ vlGraymap& vlGraymap::operator=(const vlGraymap& fs)
 }
 
 // Description:
-// Return a unsigned char gray for a particular point id.
-// (Note: gray value converted into full rgb triplet.)
+// Return a rgba color for a particular point id.
+// (Note: gray value converted into full rgba. )
 unsigned char *vlGraymap::GetColor(int id)
 {
-  static unsigned char rgb[3];
-  rgb[0] = rgb[1] = rgb[2] = this->S[id];
-  return rgb;
+  static unsigned char rgba[4];
+  rgba[0] = rgba[1] = rgba[2] = this->S[id];
+  rgba[3] = 255;
+  return rgba;
 }
 
 // Description:
 // Copy gray components into user provided array for specified
-// point id.
-// (Note: gray value converted into full rgb triplet.)
-void vlGraymap::GetColor(int id, unsigned char rgb[3])
+// point id. (Note: gray value converted into full rgba color value.)
+void vlGraymap::GetColor(int id, unsigned char rgba[4])
 {
-  rgb[0] = rgb[1] = rgb[2] = this->S[id];
+  rgba[0] = rgba[1] = rgba[2] = this->S[id];
+  rgba[3] = 255;
 }
 
 // Description:
 // Insert gray value into object. No range checking performed (fast!).
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here g[1]) is inserted.)
-void vlGraymap::SetColor(int id, unsigned char g[1])
+// (Note: rgba color value converted to grayscale).
+void vlGraymap::SetColor(int id, unsigned char rgba[4])
 {
-  this->S[id] = g[0];
+  this->S[id] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                     (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
 }
 
 // Description:
-// Insert gray value into object. Range checking performed and memory
-// allocated as necessary.
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here g[1]) is inserted.)
-void vlGraymap::InsertColor(int id, unsigned char g[1])
+// Insert rgba color value into object. Range checking performed and memory
+// allocated as necessary. (Note: rgba converted to gray value).
+void vlGraymap::InsertColor(int id, unsigned char rgba[4])
 {
-  this->S.InsertValue(id,g[0]);
+  unsigned char g=(rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  this->S.InsertValue(id,g);
 }
 
 // Description:
-// Insert gray value into next available slot. Returns point id of slot.
-// (Note: interface varies from superclass vlColorScalars. Only first
-// component of rgb[3] (here g[1]) is inserted.)
-int vlGraymap::InsertNextColor(unsigned char g[1])
+// Insert rgba color value into next available slot. Returns point id of slot.
+// (Note: rgba converted to gray value).
+int vlGraymap::InsertNextColor(unsigned char rgba[4])
 {
-  int id = this->S.InsertNextValue(g[0]);
+  unsigned char g=(rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  int id = this->S.InsertNextValue(g);
   return id;
 }
 
