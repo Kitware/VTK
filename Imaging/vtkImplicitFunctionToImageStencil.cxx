@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.8");
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.9");
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil,Input, vtkImplicitFunction);
 
@@ -58,6 +58,12 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
   double threshold = this->Threshold;
+
+  // if the input is not set then punt
+  if (!function)
+    {
+    return;
+    }
 
   // for conversion of (idX,idY,idZ) into (x,y,z)
   double point[3];
@@ -114,4 +120,20 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
         }
       } // for idY    
     } // for idZ
+}
+
+void vtkImplicitFunctionToImageStencil::ExecuteInformation()
+{
+  vtkImageStencilData *output;
+  
+  output = this->GetOutput();
+  
+  // this is an odd source that can produce any requested size.  so its whole
+  // extent is essentially infinite. This would not be a great source to
+  // connect to some sort of writer or viewer. For a sanity check we will
+  // limit the size produced to something reasonable (depending on your
+  // definition of reasonable)
+  output->SetWholeExtent(0, VTK_LARGE_INTEGER >> 2,
+                         0, VTK_LARGE_INTEGER >> 2,
+                         0, VTK_LARGE_INTEGER >> 2);
 }

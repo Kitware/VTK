@@ -52,6 +52,8 @@ protected:
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
 
+  void ExecuteInformation();
+  
   vtkImplicitFunction *Input;
   double Threshold;
 private:
