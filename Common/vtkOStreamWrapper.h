@@ -44,8 +44,21 @@ public:
   vtkOStreamWrapper(ostream& os);
   vtkOStreamWrapper(vtkOStreamWrapper& r);
   
+  // Figure out the types of "endl" and other special types.  We may
+  // have to remove this because endl is implementation-defined by the
+  // compiler.
+#if defined(_MSC_VER)
+  typedef ostream&(__cdecl * EndlType)(ostream&);
+  typedef ios&(__cdecl * ManipType)(ios&);
+#else
+  typedef ostream&(&EndlType)(ostream&);
+  typedef ios&(&ManipType)(ios&);
+#endif
+  
   // Description:
   // Forward this output operator to the real ostream.
+  vtkOStreamWrapper& operator << (EndlType);
+  vtkOStreamWrapper& operator << (ManipType);
   vtkOStreamWrapper& operator << (const vtkIndent&);
   vtkOStreamWrapper& operator << (vtkObjectBase&);
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
@@ -72,8 +85,6 @@ public:
   vtkOStreamWrapper& operator << (float* (*)(void*));
   vtkOStreamWrapper& operator << (const char* (*)(void*));
   vtkOStreamWrapper& operator << (void (*)(void*, int*));
-  vtkOStreamWrapper& operator << (ostream& (&)(ostream&));
-  vtkOStreamWrapper& operator << (ios& (&)(ios&));
   
   // Description:
   // Forward the write method to the real stream.

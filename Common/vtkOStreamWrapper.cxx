@@ -41,6 +41,8 @@ vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
 }
 
 //----------------------------------------------------------------------------
+VTKOSTREAM_OPERATOR(EndlType);
+VTKOSTREAM_OPERATOR(ManipType);
 VTKOSTREAM_OPERATOR(const vtkIndent&);
 VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);
@@ -71,8 +73,6 @@ VTKOSTREAM_OPERATOR_FUNC(int* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(float* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(const char* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*, int*));
-VTKOSTREAM_OPERATOR_FUNC(ostream& (&a)(ostream&));
-VTKOSTREAM_OPERATOR_FUNC(ios& (&a)(ios&));
 
 //----------------------------------------------------------------------------
 vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str,
