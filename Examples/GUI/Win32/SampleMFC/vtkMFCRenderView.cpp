@@ -48,13 +48,13 @@ vtkMFCRenderView::~vtkMFCRenderView()
 
 
 BEGIN_MESSAGE_MAP(vtkMFCRenderView, vtkMFCView)
-	//{{AFX_MSG_MAP(vtkMFCRenderView)
-	ON_WM_CREATE()
-	ON_WM_SIZE()
-	//}}AFX_MSG_MAP
-	ON_COMMAND(ID_FILE_PRINT, vtkMFCRenderView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, vtkMFCRenderView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, vtkMFCRenderView::OnFilePrintPreview)
+  //{{AFX_MSG_MAP(vtkMFCRenderView)
+  ON_WM_CREATE()
+  ON_WM_SIZE()
+  //}}AFX_MSG_MAP
+  ON_COMMAND(ID_FILE_PRINT, vtkMFCRenderView::OnFilePrint)
+  ON_COMMAND(ID_FILE_PRINT_DIRECT, vtkMFCRenderView::OnFilePrint)
+  ON_COMMAND(ID_FILE_PRINT_PREVIEW, vtkMFCRenderView::OnFilePrintPreview)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     // get printer pixels per inch
     int cxInch = pDC->GetDeviceCaps(LOGPIXELSX);
     int cyInch = pDC->GetDeviceCaps(LOGPIXELSY);
-		scale = cxInch/this->GetPrintDPI();
+    scale = cxInch/this->GetPrintDPI();
 
     //
     // Best Fit case -- create a rectangle which preserves
@@ -105,7 +105,7 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     //
     rcDest.bottom = rcDest.left = 0;
     if (((float)cyDIB*(float)cxPage/(float)cxInch) > 
-	      ((float)cxDIB*(float)cyPage/(float)cyInch))
+        ((float)cxDIB*(float)cyPage/(float)cyInch))
       {
       rcDest.top = cyPage;
       rcDest.right = ((float)(cyPage*cxInch*cxDIB)) /
@@ -118,7 +118,7 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
         ((float)(cxInch*cxDIB));
       } 
     
-    CRect	rcDestLP(rcDest);
+    CRect rcDestLP(rcDest);
     pDC->DPtoLP(rcDestLP);
     int DPI = this->RenderWindow->GetDPI();
     
@@ -142,7 +142,7 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
   else
     {
     this->RenderWindow->Render();
-    }	
+    }
   CView::OnDraw(pDC);
 }
 
@@ -199,6 +199,7 @@ LRESULT vtkMFCRenderView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
     case WM_RBUTTONDOWN: 
     case WM_RBUTTONUP: 
     case WM_MOUSEMOVE:
+    case WM_MOUSEWHEEL:
     case WM_CHAR:
     case WM_TIMER:
       if (this->Interactor->GetInitialized())
@@ -218,7 +219,7 @@ void vtkMFCRenderView::OnSize(UINT nType, int cx, int cy)
   // TODO: Add your message handler code here
   if (this->Interactor->GetInitialized())
     {
-    this->Interactor->SetSize(cx,cy);		
+    this->Interactor->SetSize(cx,cy);
     }
 }
 
@@ -228,5 +229,5 @@ BOOL vtkMFCRenderView::OnPreparePrinting(CPrintInfo* pInfo)
   // default preparation
   pInfo->SetMinPage(1);
   pInfo->SetMaxPage(1);
-  return DoPreparePrinting(pInfo);	
+  return DoPreparePrinting(pInfo);
 }
