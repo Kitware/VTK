@@ -35,7 +35,6 @@ reslice SetOutputSpacing 0.52 2.2 1.6
 #reslice SetOutputExtent 0 255 0 100 0 10
 
 [reslice GetOutput] UpdateInformation
-puts [[reslice GetOutput] GetOrigin]
 
 vtkImageViewer viewer
 viewer SetInput [reslice GetOutput]
