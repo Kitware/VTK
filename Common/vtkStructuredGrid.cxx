@@ -28,7 +28,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.93");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.94");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 #define vtkAdjustBoundsMacro( A, B ) \
@@ -1008,6 +1008,7 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 
   this->DataDescription = src->DataDescription;
   this->Blanking = src->Blanking;
+  this->SetPointVisibility(src->PointVisibility);
 
   // Update dimensions
   this->GetDimensions();
