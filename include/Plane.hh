@@ -15,10 +15,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlPlane - perform various plane computations
+// .SECTION Description
+// vlPlane provides methods for various plane computations. These include
+// projecting points onto a plane, evaluating the plane equation, and 
+// returning plane normal.
 
-//
-// Object for computation on plane
-//
 #ifndef __vlPlane_h
 #define __vlPlane_h
 
@@ -39,6 +41,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
+  void EvaluateNormal(float x, float y, float z, float n[3]);
 
   vlSetVector3Macro(Normal,float);
   vlGetVectorMacro(Normal,float);

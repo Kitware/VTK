@@ -17,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Cutter.hh"
 
+// Description:
+// Construct with user-specified implicit function.
 vlCutter::vlCutter(vlImplicitFunction *cf)
 {
   this->CutFunction = cf;
@@ -26,6 +28,20 @@ vlCutter::vlCutter(vlImplicitFunction *cf)
 vlCutter::~vlCutter()
 {
   if ( this->CutFunction ) this->CutFunction->UnRegister(this);
+}
+
+unsigned long vlCutter::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long cutFuncMTime;
+
+  if ( this->CutFunction != NULL )
+    {
+    cutFuncMTime = this->CutFunction->GetMTime();
+    mTime = ( cutFuncMTime > mTime ? cutFuncMTime : mTime );
+    }
+
+  return mTime;
 }
 
 //

@@ -15,9 +15,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Uses user-specified implicit function f(x,y,z)=0 to cut datasets.
-//
+// .NAME vlCutter - Cut vlDataSets with user-specified implicit function
+// .SECTION Description
+// vlCutter is a filter to cut any subclass of vlImplicitFunction to 
+// cut arbitrary vlDataSets. That is, a polygonal surface is created
+// corresponding to the implicit function F(x,y,z) = 0.
+
 #ifndef __vlCutter_h
 #define __vlCutter_h
 
@@ -27,9 +30,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlCutter : public vlDataSetToPolyFilter
 {
 public:
-  vlCutter(vlImplicitFunction *cf=0);
+  vlCutter(vlImplicitFunction *cf=NULL);
   ~vlCutter();
   char *GetClassName() {return "vlCutter";};
+
+  unsigned long int GetMTime();
 
   vlSetObjectMacro(CutFunction,vlImplicitFunction);
   vlGetObjectMacro(CutFunction,vlImplicitFunction);

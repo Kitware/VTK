@@ -19,6 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "Quadric.hh"
 
+// Description
+// Construct quadric with all coefficients = 1.
 vlQuadric::vlQuadric()
 {
   this->Coefficients[0] = 1.0;
@@ -33,6 +35,8 @@ vlQuadric::vlQuadric()
   this->Coefficients[9] = 1.0;
 }
 
+// Description
+// Evaluate quadric equation.
 float vlQuadric::Evaluate(float x, float y, float z)
 {
   float *a = this->Coefficients;
@@ -41,6 +45,8 @@ float vlQuadric::Evaluate(float x, float y, float z)
            a[6]*x + a[7]*y + a[8]*z + a[9] );
 }
 
+// Description
+// Set the 10 coefficients of the quadric equation.
 void vlQuadric::SetCoefficients(float a[10])
 {
   int i;
@@ -57,6 +63,20 @@ void vlQuadric::SetCoefficients(float a[10])
     }
 }
 
+// Description
+// Evaluate the normal to the quadric equation.
+void vlQuadric::EvaluateNormal(float x, float y, float z, float n[3])
+{
+  float *a=this->Coefficients;
+
+  n[0] = 2.0*a[0]*x + a[3]*y + a[5]*z + a[6];
+  n[1] = 2.0*a[1]*y + a[3]*x + a[4]*z + a[7];
+  n[2] = 2.0*a[2]*z + a[4]*y + a[5]*x + a[8];
+}
+
+
+// Description
+// Set the 10 coefficients of the quadric equation.
 void vlQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
                                 float a5,float a6,float a7,float a8, float a9)
 {

@@ -15,9 +15,10 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract interface for implicit functions
-//
+// .NAME vlImplicitFunction - abstract interface for implicit functions
+// .SECTION Description
+// vlImplicitFunction specifies an abstract interface for implicit 
+// functions. Implicit functions are of the form F(x,y,z) = 0.
 #ifndef __vlImplicitFunction_h
 #define __vlImplicitFunction_h
 
@@ -29,6 +30,7 @@ public:
   char *GetClassName() {return "vlImplicitFunction";};
 
   virtual float Evaluate(float x, float y, float z) = 0;
+  virtual void EvaluateNormal(float x, float y, float z, float n[3]) = 0;
 };
 
 #endif
