@@ -58,22 +58,75 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4305 )
 #pragma warning ( disable : 4309 )
-
-#ifndef VTKSTATIC
-#ifdef VTKDLL
-#define VTK_EXPORT __declspec( dllexport ) 
-#else
-#define VTK_EXPORT __declspec( dllimport )
-#endif
-#else
-#define VTK_EXPORT
 #endif
 
-// If not Windows, then -------------------------------------------
+#if defined(WIN32) && !defined(VTKSTATIC)
+ #if defined(vtkCommon_EXPORTS) || defined(VTKDLL)
+  #define VTK_COMMON_EXPORT __declspec( dllexport ) 
+  #define VTK_EXPORT __declspec( dllexport )
+ #else
+  #define VTK_COMMON_EXPORT __declspec( dllimport ) 
+  #define VTK_EXPORT __declspec( dllimport )
+ #endif
+
+ #if defined(vtkFiltering_EXPORTS) || defined(VTKDLL)
+  #define VTK_FILTERING_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_FILTERING_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkImaging_EXPORTS) || defined(VTKDLL)
+  #define VTK_IMAGING_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_IMAGING_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkGraphics_EXPORTS) || defined(VTKDLL)
+  #define VTK_GRAPHICS_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_GRAPHICS_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkIO_EXPORTS) || defined(VTKDLL)
+  #define VTK_IO_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_IO_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkRendering_EXPORTS) || defined(VTKDLL)
+  #define VTK_RENDERING_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_RENDERING_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkHybrid_EXPORTS) || defined(VTKDLL)
+  #define VTK_HYBRID_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_HYBRID_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkParallel_EXPORTS) || defined(VTKDLL)
+  #define VTK_PARALLEL_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_PARALLEL_EXPORT __declspec( dllimport ) 
+ #endif
+
+ #if defined(vtkPatented_EXPORTS) || defined(VTKDLL)
+  #define VTK_PATENTED_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_PATENTED_EXPORT __declspec( dllimport ) 
+ #endif
 #else
-
-#define VTK_EXPORT
-
+ #define VTK_COMMON_EXPORT
+ #define VTK_FILTERING_EXPORT
+ #define VTK_GRAPHICS_EXPORT
+ #define VTK_IMAGING_EXPORT
+ #define VTK_IO_EXPORT
+ #define VTK_RENDERING_EXPORT
+ #define VTK_HYBRID_EXPORT
+ #define VTK_PARALLEL_EXPORT
+ #define VTK_PATENTED_EXPORT
+ #define VTK_EXPORT
 #endif
 
 #endif
