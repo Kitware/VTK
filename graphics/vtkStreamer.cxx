@@ -584,8 +584,7 @@ void vtkStreamer::Integrate()
   gcell->Delete();
   
   // Set up and execute the thread
-  // this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetNumberOfThreads( 1 );
+  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   this->Threader->SetSingleMethod( vtkStreamer_ThreadedIntegrate, (void *)this );
   this->Threader->SingleMethodExecute();
 
