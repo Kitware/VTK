@@ -134,7 +134,6 @@ public:
   // rotated glyphs (e.g., crosses, arrows, etc.)
   vtkSetMacro(RotationAngle,float);
   vtkGetMacro(RotationAngle,float);
-  vtkBooleanMacro(RotationAngle,float);
 
   // Description:
   // Specify the type of glyph to generate.
