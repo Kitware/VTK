@@ -313,6 +313,24 @@ public:
   // the renderers Prop list.
   vtkAssemblyPath* PickProp(float selectionX, float selectionY);
 
+  // Description:
+  // Turn on/off the automatic repositioning of lights as the camera moves.
+  // If LightFollowCamera is on, lights that are designated as Headlights
+  // or CameraLights will be adjusted to move with this renderer's camera.
+  // If LightFollowCamera is off, the lights will not be adjusted.  
+  //
+  // (Note: In previous versions of vtk, this light-tracking
+  // functionality was part of the interactors, not the renderer.  For
+  // backwards compatibility, the older, more limited interactor
+  // behavior is enabled by default.  This mode has the possibly
+  // unexpected property of turning the first light into a headlight,
+  // no matter what its light type is.  To disable this mode, turn the
+  // interactor's LightFollowCamera flag OFF, and leave the renderer's
+  // LightFollowCamera flag ON.)
+  vtkSetMacro(LightFollowCamera,int);
+  vtkGetMacro(LightFollowCamera,int);
+  vtkBooleanMacro(LightFollowCamera,int);
+
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -344,6 +362,8 @@ protected:
   vtkTimeStamp       RenderTime;
 
   float              LastRenderTimeInSeconds;
+
+  int                LightFollowCamera;
 
   // Allocate the time for each prop
   void               AllocateTime();
@@ -389,11 +409,14 @@ protected:
   virtual int UpdateCamera(void);
 
   // Description:
+  // Update the geometry of the lights in the scene that are not in world space
+  // (for instance, Headlights or CameraLights that are attached to the camera).
+  virtual int UpdateLightGeometry(void);
+
+  // Description:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) {return 0;};
-
-
 };
 
 // Description:

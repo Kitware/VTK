@@ -42,8 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkCamera.h"
 #include "vtkMath.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkTimeStamp.h"
 #include "vtkGraphicsFactory.h"
 

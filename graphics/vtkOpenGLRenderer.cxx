@@ -235,6 +235,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
   this->ClearLights();
 
   this->UpdateCamera();
+  this->UpdateLightGeometry();
   this->UpdateLights();
 
   // set matrix mode for actors 
@@ -383,6 +384,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   this->ClearLights();
 
   this->UpdateCamera();
+  this->UpdateLightGeometry();
   this->UpdateLights();
 
   // set matrix mode for actors 

@@ -69,7 +69,18 @@ vtkLight::vtkLight()
   this->AttenuationValues[2] = 0;
   this->Exponent = 1;
 
+  this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
+
   this->TransformMatrix = (vtkMatrix4x4 *)NULL;
+}
+
+vtkLight::~vtkLight()
+{
+  if(TransformMatrix != NULL)
+    {
+      TransformMatrix->UnRegister(this);
+      TransformMatrix = NULL;
+    }
 }
 
 // return the correct type of light 
@@ -80,22 +91,58 @@ vtkLight *vtkLight::New()
   return (vtkLight*)ret;
 }
 
+void vtkLight::SetLightTypeToHeadlight() 
+{
+  this->LightType = VTK_LIGHT_TYPE_HEADLIGHT;
+}
+
+void vtkLight::SetLightTypeToCameraLight() 
+{
+  this->LightType = VTK_LIGHT_TYPE_CAMERA_LIGHT;
+}
+
+void vtkLight::SetLightTypeToSceneLight() 
+{
+  this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
+}
+
+int vtkLight::LightTypeIsHeadlight()
+{
+  return this->LightType == VTK_LIGHT_TYPE_HEADLIGHT;
+}
+
+int vtkLight::LightTypeIsCameraLight()
+{
+  return this->LightType == VTK_LIGHT_TYPE_CAMERA_LIGHT;
+}
+
+int vtkLight::LightTypeIsSceneLight()
+{
+  return this->LightType == VTK_LIGHT_TYPE_SCENE_LIGHT;
+}
+
 void vtkLight::GetTransformedPosition(float a[3]) 
 {
-  float f[4];
+  if(this->TransformMatrix)
+  {
+    float f[4];
+    f[0] = this->Position[0];
+    f[1] = this->Position[1];
+    f[2] = this->Position[2];
+    f[3] = 1.0;
 
-  f[0] = this->Position[0];
-  f[1] = this->Position[1];
-  f[2] = this->Position[2];
-  f[3] = 1.0;
-
-  if(this->TransformMatrix) {
     this->TransformMatrix->MultiplyPoint(f, f);
-  }
 
-  a[0] = f[0];
-  a[1] = f[1];
-  a[2] = f[2];
+    a[0] = f[0];
+    a[1] = f[1];
+    a[2] = f[2];
+  }
+  else
+  {
+    a[0] = this->Position[0];
+    a[1] = this->Position[1];
+    a[2] = this->Position[2];
+  }
 }
 
 void vtkLight::GetTransformedPosition(float &x, float &y, float &z) 
@@ -116,20 +163,26 @@ float *vtkLight::GetTransformedPosition()
 
 void vtkLight::GetTransformedFocalPoint(float a[3]) 
 {
-  float f[4];
+  if(this->TransformMatrix)
+  {
+    float f[4];
+    f[0] = this->FocalPoint[0];
+    f[1] = this->FocalPoint[1];
+    f[2] = this->FocalPoint[2];
+    f[3] = 1.0;
 
-  f[0] = this->FocalPoint[0];
-  f[1] = this->FocalPoint[1];
-  f[2] = this->FocalPoint[2];
-  f[3] = 1.0;
-
-  if(this->TransformMatrix) {
     this->TransformMatrix->MultiplyPoint(f, f);
-  }
 
-  a[0] = f[0];
-  a[1] = f[1];
-  a[2] = f[2];
+    a[0] = f[0];
+    a[1] = f[1];
+    a[2] = f[2];
+  }
+  else
+  {
+    a[0] = this->FocalPoint[0];
+    a[1] = this->FocalPoint[1];
+    a[2] = this->FocalPoint[2];
+  }
 }
 
 void vtkLight::GetTransformedFocalPoint(float &x, float &y, float &z)
@@ -179,6 +232,20 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Positional: " << (this->Positional ? "On\n" : "Off\n");
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
 
+  os << indent << "LightType: ";
+  if (this->LightTypeIsHeadlight()) 
+    {
+      os << "Headlight\n";
+    }
+  else if (this->LightTypeIsCameraLight())
+    {
+      os << "CameraLight\n";
+    }
+  else if (this->LightTypeIsSceneLight())
+    {
+      os << "SceneLight\n";
+    }
+
   os << indent << "TransformMatrix: ";
   if(this->TransformMatrix != NULL)
     {
@@ -205,7 +272,7 @@ void vtkLight::WriteSelf(ostream& os)
   os << this->ConeAngle << " ";
   os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
      << this->AttenuationValues[2] << " ";
-  // XXX - TransformMatrix ???
+  // XXX - LightType, TransformMatrix ???
 }
 
 void vtkLight::ReadSelf(istream& is)
@@ -220,7 +287,7 @@ void vtkLight::ReadSelf(istream& is)
   is >> this->ConeAngle;
   is >> this->AttenuationValues[0] >> this->AttenuationValues[1] 
      >> this->AttenuationValues[2];
-  // XXX - TransformMatrix ???
+  // XXX - LightType, TransformMatrix ???
 }
 
 
