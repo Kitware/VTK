@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.65");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.66");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -348,7 +348,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
                 {
                 this->SetGeometryFileName(subLine);
                 }
-              else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
+              else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
                 {
                 this->SetGeometryFileName(subLine);
                 }
@@ -446,7 +446,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             {
             this->SetGeometryFileName(subLine);
             }
-          else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
+          else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
             {
             this->SetGeometryFileName(subLine);
             }
