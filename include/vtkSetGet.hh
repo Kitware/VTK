@@ -35,6 +35,8 @@ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
 PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+  vtkDebugMacro(<< "
+
 
 
 =========================================================================*/
@@ -205,6 +207,23 @@ void Set##name (type _arg[2]) \
   Set##name (_arg[0], _arg[1]); \
   } 
 
+#define vtkGetVector2Macro(name,type) \
+type *Get##name () \
+{ \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  return name; \
+} \
+void Get##name (type &_arg1, type &_arg2) \
+  { \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")\n\n"; \
+    _arg1 = name[0]; \
+    _arg2 = name[1]; \
+  }; \
+void Get##name (type _arg[2]) \
+  { \
+  Get##name (_arg[0], _arg[1]);\
+  } 
+
 #define vtkSetVector3Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3) \
   { \
@@ -220,6 +239,24 @@ void Set##name (type _arg1, type _arg2, type _arg3) \
 void Set##name (type _arg[3]) \
   { \
   Set##name (_arg[0], _arg[1], _arg[2]);\
+  } 
+
+#define vtkGetVector3Macro(name,type) \
+type *Get##name () \
+{ \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  return name; \
+} \
+void Get##name (type &_arg1, type &_arg2, type &_arg3) \
+  { \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n\n"; \
+    _arg1 = name[0]; \
+    _arg2 = name[1]; \
+    _arg3 = name[2]; \
+  }; \
+void Get##name (type _arg[3]) \
+  { \
+  Get##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vtkSetVector4Macro(name,type) \
@@ -238,6 +275,25 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
 void Set##name (type _arg[4]) \
   { \
   Set##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
+  } 
+
+#define vtkGetVector4Macro(name,type) \
+type *Get##name () \
+{ \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
+  return name; \
+} \
+void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
+  { \
+  if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n\n"; \
+    _arg1 = name[0]; \
+    _arg2 = name[1]; \
+    _arg3 = name[2]; \
+    _arg4 = name[3]; \
+  }; \
+void Get##name (type _arg[4]) \
+  { \
+  Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 //
