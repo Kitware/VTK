@@ -258,7 +258,7 @@ void vtkMatrix4x4::operator= (vtkMatrix4x4& source)
 }
 
 // Description:
-// 
+// Transpose the matrix. 
 void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {
   int i, j;
