@@ -111,14 +111,14 @@ class_def : CLASS VTK_ID
 	{
 	fprintf(yyout,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",superclasses[i],superclasses[i]);
 	}
-      fprintf(yyout,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",class_name,class_name);
-      fprintf(yyout,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name);
+      fprintf(yyout,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",class_name,class_name);
+      fprintf(yyout,"\nint VTKTCL_EXPORT %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name);
       fprintf(yyout,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete())\n    {\n");
       fprintf(yyout,"    Tcl_DeleteCommand(interp,argv[0]);\n");
       fprintf(yyout,"    return TCL_OK;\n    }\n");
       fprintf(yyout,"   return %sCppCommand((%s *)cd,interp, argc, argv);\n}\n",class_name,class_name);
 
-      fprintf(yyout,"\nint %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name,class_name);
+      fprintf(yyout,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name,class_name);
       fprintf(yyout,"  int    tempi;\n");
       fprintf(yyout,"  double tempd;\n");
       fprintf(yyout,"  static char temps[80];\n");
