@@ -12,7 +12,7 @@ vtkVolume16Reader v16
     v16 SetDataByteOrderToLittleEndian
     v16 SetFilePrefix "../../../vtkdata/fullHead/headsq"
     v16 SetDataSpacing 0.8 0.8 1.5
-    v16 SetImageRange 30 50;#uncomment for the whole head
+    v16 SetImageRange 30 50;
     v16 SetDataMask 0x7fff
 
 # write isosurface to file
@@ -50,8 +50,7 @@ ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 eval ren1 SetBackground $slate_grey
 [ren1 GetActiveCamera] Zoom 1.5
-[ren1 GetActiveCamera] Azimuth 180
-[ren1 GetActiveCamera] Elevation -90
+[ren1 GetActiveCamera] Elevation 90
 
 # render the image
 #
