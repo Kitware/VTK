@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.14");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.15");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -43,7 +43,7 @@ vtkDICOMImageReader::vtkDICOMImageReader()
   this->AppHelper = new DICOMAppHelper();
   this->DirectoryName = NULL;
   this->DICOMFileNames = new vtkDICOMImageReaderVector();
-
+  this->FileName = NULL;
 }
 
 vtkDICOMImageReader::~vtkDICOMImageReader()
@@ -373,7 +373,11 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
     }
   this->DirectoryName = new char[len+1];
   strcpy(this->DirectoryName, dn);
-  this->FileName = NULL;
+  if (this->FileName != NULL)
+    {
+    delete [] this->FileName;
+    this->FileName = NULL;
+    }
   this->Modified();
 }
 
