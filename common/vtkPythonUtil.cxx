@@ -194,7 +194,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, void *ptr,
 // should we delete this object
 int vtkPythonShouldIDeleteObject(PyObject *obj)
 {
-  if ((int)(vtkDeleteLookup->GetHashTableValue((void *)obj)))
+  if (vtkDeleteLookup->GetHashTableValue((void *)obj))
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Decided to delete obj = " << obj);
