@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 
 # create a scene with one of each cell type
 
-vtkFloatPoints voxelPoints
+vtkPoints voxelPoints
   voxelPoints SetNumberOfPoints 8
   voxelPoints InsertPoint 0 0 0 0
   voxelPoints InsertPoint 1 1 0 0
@@ -23,7 +23,7 @@ vtkFloatPoints voxelPoints
   voxelPoints InsertPoint 6 0 1 1
   voxelPoints InsertPoint 7 1 1 1
 
-vtkFloatScalars voxelScalars
+vtkScalars voxelScalars
   voxelScalars SetNumberOfScalars 8
   voxelScalars InsertScalar 0 0
   voxelScalars InsertScalar 1 1
@@ -71,7 +71,7 @@ vtkActor aVoxelContourActor
   aVoxelContourActor SetMapper aVoxelContourMapper
   [aVoxelContourActor GetProperty] BackfaceCullingOn
 
-vtkFloatPoints hexahedronPoints
+vtkPoints hexahedronPoints
   hexahedronPoints SetNumberOfPoints 8
   hexahedronPoints InsertPoint 0 0 0 0
   hexahedronPoints InsertPoint 1 1 0 0
@@ -82,7 +82,7 @@ vtkFloatPoints hexahedronPoints
   hexahedronPoints InsertPoint 6 1 1 1
   hexahedronPoints InsertPoint 7 0 1 1
   
-vtkFloatScalars hexahedronScalars
+vtkScalars hexahedronScalars
   hexahedronScalars SetNumberOfScalars 8
   hexahedronScalars InsertScalar 0 0
   hexahedronScalars InsertScalar 1 1
@@ -132,14 +132,14 @@ vtkActor aHexahedronContourActor
   [aHexahedronContourActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints tetraPoints
+vtkPoints tetraPoints
   tetraPoints SetNumberOfPoints 4
   tetraPoints InsertPoint 0 0 0 0
   tetraPoints InsertPoint 1 1 0 0
   tetraPoints InsertPoint 2 .5 1 0
   tetraPoints InsertPoint 3 .5 .5 1
 
-vtkFloatScalars tetraScalars
+vtkScalars tetraScalars
   tetraScalars SetNumberOfScalars 4
   tetraScalars InsertScalar 0 1
   tetraScalars InsertScalar 1 0
@@ -178,14 +178,117 @@ vtkActor aTetraActor
   [aTetraActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints pixelPoints
+vtkPoints wedgePoints
+  wedgePoints SetNumberOfPoints 6
+  wedgePoints InsertPoint 0 0 0 0
+  wedgePoints InsertPoint 1 0 1 0
+  wedgePoints InsertPoint 2 0 .5 .5
+  wedgePoints InsertPoint 3 1 0 0
+  wedgePoints InsertPoint 4 1 1 0
+  wedgePoints InsertPoint 5 1 .5 .5
+
+vtkScalars wedgeScalars
+  wedgeScalars SetNumberOfScalars 6
+  wedgeScalars InsertScalar 0 1
+  wedgeScalars InsertScalar 1 1
+  wedgeScalars InsertScalar 2 0
+  wedgeScalars InsertScalar 3 1
+  wedgeScalars InsertScalar 4 1
+  wedgeScalars InsertScalar 5 0
+
+vtkWedge aWedge
+  [aWedge GetPointIds] SetId 0 0
+  [aWedge GetPointIds] SetId 1 1
+  [aWedge GetPointIds] SetId 2 2
+  [aWedge GetPointIds] SetId 3 3
+  [aWedge GetPointIds] SetId 4 4
+  [aWedge GetPointIds] SetId 5 5
+
+
+vtkUnstructuredGrid aWedgeGrid
+  aWedgeGrid Allocate 1 1
+  aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
+  aWedgeGrid SetPoints wedgePoints
+  [aWedgeGrid GetPointData] SetScalars wedgeScalars
+
+vtkContourFilter wedgeContours
+  wedgeContours SetInput aWedgeGrid
+  wedgeContours SetValue 0 .5
+
+vtkDataSetMapper aWedgeContourMapper
+  aWedgeContourMapper SetInput [wedgeContours GetOutput]
+  aWedgeContourMapper ScalarVisibilityOff
+
+vtkDataSetMapper aWedgeMapper
+  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper ScalarVisibilityOff
+
+vtkActor aWedgeContourActor
+  aWedgeContourActor SetMapper aWedgeContourMapper
+
+vtkActor aWedgeActor
+  aWedgeActor SetMapper aWedgeMapper
+  [aWedgeActor GetProperty] SetRepresentationToWireframe
+
+
+vtkPoints pyramidPoints
+  pyramidPoints SetNumberOfPoints 5
+  pyramidPoints InsertPoint 0 0 0 0
+  pyramidPoints InsertPoint 1 1 0 0
+  pyramidPoints InsertPoint 2 1 1 0
+  pyramidPoints InsertPoint 3 0 1 0
+  pyramidPoints InsertPoint 4 .5 .5 1
+
+vtkScalars pyramidScalars
+  pyramidScalars SetNumberOfScalars 5
+  pyramidScalars InsertScalar 0 1
+  pyramidScalars InsertScalar 1 1
+  pyramidScalars InsertScalar 2 1
+  pyramidScalars InsertScalar 3 1
+  pyramidScalars InsertScalar 4 0
+
+vtkPyramid aPyramid
+  [aPyramid GetPointIds] SetId 0 0
+  [aPyramid GetPointIds] SetId 1 1
+  [aPyramid GetPointIds] SetId 2 2
+  [aPyramid GetPointIds] SetId 3 3
+  [aPyramid GetPointIds] SetId 4 4
+
+
+vtkUnstructuredGrid aPyramidGrid
+  aPyramidGrid Allocate 1 1
+  aPyramidGrid InsertNextCell [aPyramid GetCellType] [aPyramid GetPointIds]
+  aPyramidGrid SetPoints pyramidPoints
+  [aPyramidGrid GetPointData] SetScalars pyramidScalars
+
+vtkContourFilter pyramidContours
+  pyramidContours SetInput aPyramidGrid
+  pyramidContours SetValue 0 .5
+
+vtkDataSetMapper aPyramidContourMapper
+  aPyramidContourMapper SetInput [pyramidContours GetOutput]
+  aPyramidContourMapper ScalarVisibilityOff
+
+vtkDataSetMapper aPyramidMapper
+  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper ScalarVisibilityOff
+
+vtkActor aPyramidContourActor
+  aPyramidContourActor SetMapper aPyramidContourMapper
+
+vtkActor aPyramidActor
+  aPyramidActor SetMapper aPyramidMapper
+  [aPyramidActor GetProperty] SetRepresentationToWireframe
+
+
+vtkPoints pixelPoints
   pixelPoints SetNumberOfPoints 4
   pixelPoints InsertPoint 0 0 0 0
   pixelPoints InsertPoint 1 1 0 0
   pixelPoints InsertPoint 2 0 1 0
   pixelPoints InsertPoint 3 1 1 0
 
-vtkFloatScalars pixelScalars
+vtkScalars pixelScalars
   pixelScalars SetNumberOfScalars 4
   pixelScalars InsertScalar 0 1
   pixelScalars InsertScalar 1 0
@@ -225,14 +328,14 @@ vtkActor aPixelActor
   [aPixelActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints quadPoints
+vtkPoints quadPoints
   quadPoints SetNumberOfPoints 4
   quadPoints InsertPoint 0 0 0 0
   quadPoints InsertPoint 1 1 0 0
   quadPoints InsertPoint 2 1 1 0
   quadPoints InsertPoint 3 0 1 0
 
-vtkFloatScalars quadScalars
+vtkScalars quadScalars
   quadScalars SetNumberOfScalars 4
   quadScalars InsertScalar 0 1
   quadScalars InsertScalar 1 0
@@ -272,13 +375,13 @@ vtkActor aQuadActor
   [aQuadActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints trianglePoints
+vtkPoints trianglePoints
   trianglePoints SetNumberOfPoints 3
   trianglePoints InsertPoint 0 0 0 0
   trianglePoints InsertPoint 1 1 0 0
   trianglePoints InsertPoint 2 .5 .5 0
 
-vtkFloatScalars triangleScalars
+vtkScalars triangleScalars
   triangleScalars SetNumberOfScalars 3
   triangleScalars InsertScalar 0 1
   triangleScalars InsertScalar 1 0
@@ -316,14 +419,14 @@ vtkActor aTriangleActor
   [aTriangleActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints polygonPoints
+vtkPoints polygonPoints
   polygonPoints SetNumberOfPoints 4
   polygonPoints InsertPoint 0 0 0 0
   polygonPoints InsertPoint 1 1 0 0
   polygonPoints InsertPoint 2 1 1 0
   polygonPoints InsertPoint 3 0 1 0
 
-vtkFloatScalars polygonScalars
+vtkScalars polygonScalars
   polygonScalars SetNumberOfScalars 4
   polygonScalars InsertScalar 0 1
   polygonScalars InsertScalar 1 0
@@ -364,7 +467,7 @@ vtkActor aPolygonActor
   [aPolygonActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints triangleStripPoints
+vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
   triangleStripPoints InsertPoint 0 0 1 0
   triangleStripPoints InsertPoint 1 0 0 0
@@ -372,7 +475,7 @@ vtkFloatPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 0
   triangleStripPoints InsertPoint 4 2 1 0
 
-vtkFloatScalars triangleStripScalars
+vtkScalars triangleStripScalars
   triangleStripScalars SetNumberOfScalars 5
   triangleStripScalars InsertScalar 0 1
   triangleStripScalars InsertScalar 1 0
@@ -414,12 +517,12 @@ vtkActor aTriangleStripActor
   [aTriangleStripActor GetProperty] BackfaceCullingOn
   [aTriangleStripActor GetProperty] SetRepresentationToWireframe
 
-vtkFloatPoints linePoints
+vtkPoints linePoints
   linePoints SetNumberOfPoints 2
   linePoints InsertPoint 0 0 0 0
   linePoints InsertPoint 1 1 1 0
 
-vtkFloatScalars lineScalars
+vtkScalars lineScalars
   lineScalars SetNumberOfScalars 2
   lineScalars InsertScalar 0 1
   lineScalars InsertScalar 1 0
@@ -455,13 +558,13 @@ vtkActor aLineActor
   [aLineActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints polyLinePoints
+vtkPoints polyLinePoints
   polyLinePoints SetNumberOfPoints 3
   polyLinePoints InsertPoint 0 0 0 0
   polyLinePoints InsertPoint 1 1 1 0
   polyLinePoints InsertPoint 2 1 0 0
 
-vtkFloatScalars polyLineScalars
+vtkScalars polyLineScalars
   polyLineScalars SetNumberOfScalars 3
   polyLineScalars InsertScalar 0 1
   polyLineScalars InsertScalar 1 0
@@ -500,11 +603,11 @@ vtkActor aPolyLineActor
   [aPolyLineActor GetProperty] SetRepresentationToWireframe
 
 
-vtkFloatPoints vertexPoints
+vtkPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
   vertexPoints InsertPoint 0 0 0 0
 
-vtkFloatScalars vertexScalars
+vtkScalars vertexScalars
   vertexScalars SetNumberOfScalars 1
   vertexScalars InsertScalar 0 1
 
@@ -594,6 +697,12 @@ ren1 AddActor aHexahedronContourActor; [aHexahedronContourActor GetProperty] Set
 ren1 AddActor aTetraActor; [aTetraActor GetProperty] SetDiffuseColor 0 1 0
 ren1 AddActor aTetraContourActor; [aTetraContourActor GetProperty] SetDiffuseColor 0 1 0
 
+ren1 AddActor aWedgeActor; [aWedgeActor GetProperty] SetDiffuseColor 0 1 1
+ren1 AddActor aWedgeContourActor; [aWedgeContourActor GetProperty] SetDiffuseColor 0 1 1
+
+ren1 AddActor aPyramidActor; [aPyramidActor GetProperty] SetDiffuseColor 1 0 1
+ren1 AddActor aPyramidContourActor; [aPyramidContourActor GetProperty] SetDiffuseColor 1 0 1
+
 ren1 AddActor aPixelActor; [aPixelActor GetProperty] SetDiffuseColor 0 1 1
 ren1 AddActor aPixelContourActor; [aPixelContourActor GetProperty] SetDiffuseColor 0 1 1
 
@@ -630,6 +739,12 @@ aHexahedronActor AddPosition 2 0 0
 aTetraContourActor AddPosition 4 0 0
 aTetraContourActor AddPosition 0 2 0
 aTetraActor AddPosition 4 0 0
+aWedgeContourActor AddPosition 6 0 0
+aWedgeContourActor AddPosition 0 2 0
+aWedgeActor AddPosition 6 0 0
+aPyramidContourActor AddPosition 8 0 0
+aPyramidContourActor AddPosition 0 2 0
+aPyramidActor AddPosition 8 0 0
 
 aPixelContourActor AddPosition 0 4 0
 aPixelContourActor AddPosition 0 2 0
