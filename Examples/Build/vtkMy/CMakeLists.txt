@@ -50,7 +50,7 @@ IF (VTKMY_CAN_BUILD)
   # Build examples too ?
   #
 
-  OPTION(BUILD_EXAMPLES "Build examples." OFF)
+  OPTION(BUILD_EXAMPLES "Build examples." ON)
   IF (BUILD_EXAMPLES)
     SUBDIRS(Examples)
   ENDIF (BUILD_EXAMPLES)

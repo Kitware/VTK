@@ -56,7 +56,7 @@ IF (VTK_WRAP_TCL)
 
   OPTION(VTKMY_WRAP_TCL 
          "Wrap classes into the TCL interpreted language." 
-         OFF)
+         ON)
 
   IF (VTKMY_WRAP_TCL)
 
@@ -98,7 +98,7 @@ IF (VTK_WRAP_PYTHON)
 
   OPTION(VTKMY_WRAP_PYTHON 
          "Wrap classes into the Python interpreted language." 
-         OFF)
+         ON)
 
   IF (VTKMY_WRAP_PYTHON)
 
@@ -147,7 +147,7 @@ IF (VTK_WRAP_JAVA)
 
   OPTION(VTKMY_WRAP_JAVA 
          "Wrap classes into the Java interpreted language." 
-         OFF)
+         ON)
 
   IF (VTKMY_WRAP_JAVA)
 
