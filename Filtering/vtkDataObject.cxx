@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.4");
+vtkCxxRevisionMacro(vtkDataObject, "1.5");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -65,6 +65,8 @@ vtkDataObject::vtkDataObject()
   this->PipelineInformation = 0;
 
   this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 
   // We have to assume that if a user is creating the data on their own,
   // then they will fill it with valid data.

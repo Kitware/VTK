@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.4");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -182,6 +182,8 @@ vtkAlgorithm::vtkAlgorithm()
   this->AlgorithmInternal = new vtkAlgorithmInternals;
   this->GarbageCollecting = 0;
   this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 //----------------------------------------------------------------------------
