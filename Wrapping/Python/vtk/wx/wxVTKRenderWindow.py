@@ -7,6 +7,7 @@ Find wxPython info at http://wxPython.org
 
 Created by David Gobbi, December 2001
 Based on vtkTkRenderWindget.py
+
 """
 
 """
@@ -65,6 +66,11 @@ _Mode:                 Current mode: 'Rotate', 'Zoom', 'Pan'
 _LastX, _LastY:        The (x,y) coordinates of the previous event
 _CurrentRenderer:      The renderer that was most recently clicked in
 _CurrentCamera:        The camera for the current renderer
+
+----------------------------------------
+Private Members:
+
+__Handle:              Handle to the window containing the vtkRenderWindow
 
 """
 
@@ -161,7 +167,10 @@ class wxVTKRenderWindow(baseClass):
             position = kw['position']
             del kw['position']
 
-        size = wxDefaultSize
+        try:
+            size = parent.GetSize()
+        except AttributeError:
+            size = wxDefaultSize
 
         if kw.has_key('size'):
             size = kw['size']
@@ -204,11 +213,11 @@ class wxVTKRenderWindow(baseClass):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        self.__Created = 0
+        self.__handle = None
         # Tell the RenderWindow to render inside the wxWindow.
         if self.GetHandle():
-            self.__Created = 1
-            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
+            self.__handle = self.GetHandle()
+            self._RenderWindow.SetWindowInfo(str(self.__handle))
 
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -270,8 +279,8 @@ class wxVTKRenderWindow(baseClass):
                 height = event.GetSize().height
             self._RenderWindow.SetSize(width, height)
         self.OnSize(event)
-        if self.__Created:
-            self._RenderWindow.Render()
+
+        self.Render()
 
     def OnSize(self, event):
         pass
@@ -439,11 +448,16 @@ class wxVTKRenderWindow(baseClass):
             light.SetPosition(self._CurrentCamera.GetPosition())
             light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
 
-        if self.__Created:
+        if self.__handle and self.__handle == self.GetHandle():
             self._RenderWindow.Render()
+            
         elif self.GetHandle():
-            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
-            self.__Created = 1
+            # this means the user has reparented us
+            # let's adapt to the new situation by doing the WindowRemap dance
+            self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
+            self._RenderWindow.WindowRemap()
+            # store the new situation
+            self.__handle = self.GetHandle()
             self._RenderWindow.Render()
 
     def UpdateRenderer(self,event):

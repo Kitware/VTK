@@ -157,10 +157,10 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        self.__Created = 0
+        self.__handle = None
         # Tell the RenderWindow to render inside the wxWindow.
         if self.GetHandle():
-            self.__Created = 1
+            self.__handle = self.GetHandle()            
             self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
 
         self._Iren = vtk.vtkGenericRenderWindowInteractor()
@@ -226,7 +226,7 @@ class wxVTKRenderWindowInteractor(baseClass):
             height = event.GetSize().height
         self._Iren.SetSize(width, height)
         self._Iren.ConfigureEvent()
-        # this will check for __Created
+        # this will check for __handle
         self.Render()
 
     def OnMotion(self, event):
@@ -326,8 +326,18 @@ class wxVTKRenderWindowInteractor(baseClass):
                 # if it's not enabeld, RenderAllowed will be false
                 RenderAllowed = topParent.IsEnabled()
             
-        if self.__Created and RenderAllowed:
-            self._RenderWindow.Render()
+        if RenderAllowed:
+            if self.__handle and self.__handle == self.GetHandle():
+                self._RenderWindow.Render()
+
+            elif self.GetHandle():
+                # this means the user has reparented us; let's adapt to the
+                # new situation by doing the WindowRemap dance
+                self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
+                self._RenderWindow.WindowRemap()
+                # store the new situation
+                self.__handle = self.GetHandle()
+                self._RenderWindow.Render()
 
     def SetRenderWhenDisabled(self, newValue):
         """Change value of __RenderWhenDisabled ivar.
