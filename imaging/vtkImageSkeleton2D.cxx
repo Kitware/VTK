@@ -41,52 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSkeleton2D.h"
 
 
-// 0 => remove pixel
-// 1 => remove if prunning
-// 2 => do not remove
-// 4 8 3
-// 5   7
-// 1 6 2
-static unsigned char VTK_IMAGE_SKELETON2D_CASES[] = 
-{
-  1, 1, 1, 2,   1, 2, 2, 2,    // 0-7
-  1, 2, 2, 2,   2, 2, 2, 2,    // 8-15
-  1, 0, 2, 0,   2, 0, 2, 0,    // 16-23
-  0, 0, 0, 0,   0, 0, 0, 0,    // 24-31
-  1, 0, 0, 0,   2, 0, 0, 0,    // 32-39
-  2, 0, 0, 0,   2, 0, 0, 0,    // 40-47
-  0, 0, 0, 0,   0, 0, 0, 0,    // 48-55
-  0, 0, 0, 0,   0, 0, 0, 0,    // 56-63
-  1, 2, 0, 0,   0, 0, 0, 0,    // 64-71
-  2, 2, 0, 0,   0, 0, 0, 0,    // 72-79
-  2, 0, 0, 0,   0, 0, 0, 0,    // 80-87
-  0, 0, 0, 0,   0, 0, 0, 0,    // 88-95
-  0, 0, 0, 0,   0, 0, 0, 0,    // 99-103
-  0, 0, 0, 0,   0, 0, 0, 0,    // 104-111
-  0, 0, 0, 0,   0, 0, 0, 0,    // 112-119
-  0, 0, 0, 0,   0, 0, 0, 1,    // 120-127
-
-  1, 2, 2, 2,   0, 0, 0, 0,    // 128-135
-  0, 0, 0, 0,   0, 0, 0, 0,    // 136-143
-  0, 0, 0, 0,   0, 0, 0, 0,    // 144-151
-  0, 0, 0, 0,   0, 0, 0, 0,    // 152-159
-  2, 0, 0, 0,   0, 0, 0, 0,    // 160-167
-  0, 0, 0, 0,   0, 0, 0, 0,    // 168-175
-  0, 0, 0, 0,   0, 0, 0, 0,    // 176-183
-  0, 0, 0, 0,   0, 0, 0, 0,    // 184-191
-  0, 0, 0, 0,   0, 0, 0, 0,    // 192-199
-  0, 0, 0, 0,   0, 0, 0, 0,    // 200-207
-  0, 0, 0, 0,   0, 0, 0, 0,    // 208-215
-  0, 0, 0, 0,   0, 0, 0, 0,    // 216-223
-  0, 0, 0, 0,   0, 0, 0, 0,    // 224-231
-  0, 0, 0, 0,   0, 0, 0, 0,    // 232-239
-  2, 2, 2, 2,   2, 2, 2, 2,    // 240-247
-  2, 2, 2, 2,   2, 2, 2, 2     // 248-255
-};
-
-  
-  
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -129,7 +83,10 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   T *inPtr0, *inPtr1;
   T *outPtr0, *outPtr1;
   int wholeMin0, wholeMax0, wholeMin1, wholeMax1;
-  int number, prune = self->GetPrune();
+  int prune = self->GetPrune();
+  float n[8];
+
+  //inRegion->MakeDataWritable();
   
   // Get information to march through data
   inRegion->GetIncrements(inInc0, inInc1); 
@@ -137,7 +94,56 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
   inRegion->GetExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1);
   
-  // loop through pixel of output
+  // erode input
+  inPtr1 = inPtr;
+  for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
+    {
+    inPtr0 = inPtr1;
+    for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
+      {
+      // Center pixel has to be on.
+      if (*inPtr0)
+	{
+	// neighbors independant of boundaries
+	n[0] = (idx0>wholeMin0) ? *(inPtr0-inInc0) : 0;
+	n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
+	  ? *(inPtr0-inInc0-inInc1) : 0;
+	n[2] = (idx1>wholeMin1) ? *(inPtr0-inInc1) : 0;
+	n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
+	  ? *(inPtr0-inInc1+inInc0) : 0;
+	n[4] = (idx0<wholeMax0) ? *(inPtr0+inInc0) : 0;
+	n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
+	  ? *(inPtr0+inInc0+inInc1) : 0;
+	n[6] = (idx1<wholeMax1) ? *(inPtr0+inInc1) : 0;
+	n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
+	  ? *(inPtr0+inInc1-inInc0) : 0;
+
+	// one of four face neighbors has to be off
+	if (n[0] == 0 || n[2] == 0 ||
+	    n[4] == 0 || n[6] == 0)
+	  { // remaining pixels need to be face connected.
+	  // across corners
+	  if ((n[0] <= 1 || n[2] <= 1 || n[1] > 1) &&
+	      (n[2] <= 1 || n[4] <= 1 || n[3] > 1) &&
+	      (n[4] <= 1 || n[6] <= 1 || n[5] > 1) &&
+	      (n[6] <= 1 || n[0] <= 1 || n[7] > 1))
+	    {
+	    // opposite faces
+	    if ((n[0] <= 1 || n[4] <= 1 || n[2] > 1 || n[6] > 1) &&
+		(n[2] <= 1 || n[6] <= 1 || n[0] > 1 || n[4] > 1))
+	      {
+	      // check for pruning???
+	      *inPtr0 = 1;
+	      }
+	    }
+	  }
+	}
+      
+      inPtr0 += inInc0;
+      }
+    inPtr1 += inInc1;
+    }
+  // copy to output
   outPtr1 = outPtr;
   inPtr1 = inPtr;
   for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
@@ -146,55 +152,15 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
     inPtr0 = inPtr1;
     for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
       {
-      *outPtr0 = *inPtr0;
-      
-      if (*inPtr0)
+      if (*inPtr <= 1)
 	{
-	number = 0;
-	// corners
-	if (idx0 > wholeMin0 && idx1 > wholeMin1 && *(inPtr0-inInc0-inInc1))
-	  {
-	  number += 1;
-	  }
-	if (idx0 < wholeMax0 && idx1 > wholeMin1 && *(inPtr0+inInc0-inInc1))
-	  {
-	  number += 2;
-	  }
-	if (idx0 < wholeMax0 && idx1 < wholeMax1 && *(inPtr0+inInc0+inInc1))
-	  {
-	  number += 4;
-	  }
-	if (idx0 > wholeMin0 && idx1 < wholeMax1 && *(inPtr0-inInc0+inInc1))
-	  {
-	  number += 8;
-	  }
-	// edges
-	if (idx0 > wholeMin0 && *(inPtr0-inInc0))
-	  {
-	  number += 16;
-	  }
-	if (idx1 > wholeMin1 && *(inPtr0-inInc1))
-	  {
-	  number += 32;
-	  }
-	if (idx0 < wholeMax0 && *(inPtr0+inInc0))
-	  {
-	  number += 64;
-	  }
-	if (idx1 < wholeMax1 && *(inPtr0+inInc1))
-	  {
-	  number += 128;
-	  }
-	// set output pixel;
-	if (VTK_IMAGE_SKELETON2D_CASES[number] == 0)
-	  {
-	  *outPtr0 = (T)(0);
-	  }
-	if (prune && VTK_IMAGE_SKELETON2D_CASES[number] == 1)
-	  {
-	  *outPtr0 = (T)(0);
-	  }
+	*outPtr0 = *inPtr0;
 	}
+      else
+	{
+	*outPtr0 = 255;
+	}
+      *outPtr0 = *inPtr1;
       
       inPtr0 += inInc0;
       outPtr0 += outInc0;      

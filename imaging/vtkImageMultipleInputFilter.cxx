@@ -352,34 +352,27 @@ void vtkImageMultipleInputFilter::Update()
       }
     }
     
-  // Compute the required input region extents.
-  // Copy to fill in extent of extra dimensions.
+  // Get the Input Regions
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     this->Inputs[idx]->SetUpdateExtent(this->Output->GetUpdateExtent());
-    }
-  this->ComputeRequiredInputUpdateExtent(this->Output, this->Inputs);
-
-  // ... no streaming implemented yet ...
-  
-  // Get the input regions
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-      this->Inputs[idx]->Update();
-      this->Regions[idx] = this->Inputs[idx]->GetScalarRegion();
-      this->Regions[idx]->SetAxes(5, this->ExecutionAxes);
-      // Make sure we got the input.
-      if ( ! this->Regions[idx]->AreScalarsAllocated())
+    this->ComputeRequiredInputUpdateExtent(idx);
+    // ... no streaming implemented yet ...
+    this->Inputs[idx]->Update();
+    this->Regions[idx] = this->Inputs[idx]->GetScalarRegion();
+    this->Regions[idx]->SetAxes(5, this->ExecutionAxes);
+    // Make sure we got the input.
+    if ( ! this->Regions[idx]->AreScalarsAllocated())
+      {
+      vtkErrorMacro("Update: Could not get input " << idx);
+      for (idx2 = 0; idx2 <= idx; ++idx2)
 	{
-	vtkErrorMacro("Update: Could not get input " << idx);
-	for (idx2 = 0; idx2 <= idx; ++idx2)
-	  {
-	  this->Regions[idx2]->Delete();
-	  this->Regions[idx2] = NULL;
-	  }
-	this->Updating = 0;
-	return;
-	}   
+	this->Regions[idx2]->Delete();
+	this->Regions[idx2] = NULL;
+	}
+      this->Updating = 0;
+      return;
+      } 
     }
 
   // The StartMethod call is placed here to be after updating the input.
@@ -438,9 +431,8 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
   if ( ! this->Bypass)
     {
     // Let the subclass modify the default.
-    this->ExecuteImageInformation(this->Inputs, this->Output);
+    this->ExecuteImageInformation();
     }
-  
   
   // If the ScalarType of the output has not been set yet,
   // set it to be the same as input.
@@ -459,13 +451,9 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
-void vtkImageMultipleInputFilter::ExecuteImageInformation(vtkImageCache **ins,
-							  vtkImageCache *out)
+void vtkImageMultipleInputFilter::ExecuteImageInformation()
 {
   // Default: Image information does not change (do nothing).
-  // Avoid warnings
-  ins = ins;
-  out = out;
 }
 
 
@@ -478,16 +466,10 @@ void vtkImageMultipleInputFilter::ExecuteImageInformation(vtkImageCache **ins,
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(
-					       vtkImageCache *out,
-					       vtkImageCache **ins)
+void 
+vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(int whichInput)
 {
-  int idx;
-  
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    ins[idx]->SetUpdateExtent(out->GetUpdateExtent());
-    }
+  whichInput = whichInput;
 }
 
 

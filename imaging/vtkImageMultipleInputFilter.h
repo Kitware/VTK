@@ -110,9 +110,8 @@ protected:
   void SetNumberOfInputs(int num);
 
   virtual void SetFilteredAxes(int num, int *axes);
-  virtual void ExecuteImageInformation(vtkImageCache **ins, vtkImageCache *out);
-  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
-						vtkImageCache **ins);
+  virtual void ExecuteImageInformation();
+  virtual void ComputeRequiredInputUpdateExtent(int whichInput);
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion **inRegions,
 				    vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion **inRegions, vtkImageRegion *outRegion);
