@@ -123,7 +123,7 @@ public:
 
   // Description:
   // Overide the default locator.  Useful for changing the number of
-  // bins or specifying a more aggressive locator.
+  // bins for performance or specifying a more aggressive locator.
   void SetLocator(vtkPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
