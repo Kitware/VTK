@@ -317,6 +317,26 @@ public:
   vtkGetMacro(DesiredUpdateRate,float);
 
   // Description:
+  // Get the number of layers for renderers.  Each renderer should have
+  // its layer set individually.
+  vtkGetMacro(NumLayers, int);
+
+  // Description:
+  // Sets the number of layers in the render window.  The z-buffer partitioning
+  // is done automatically.
+  void  SetLayers(int);
+
+  // Description:
+  // Sets the number of layers in the render window and how the z-buffer should
+  // be partitioned.  The array of cutoffs for each layer should have
+  // (NumLayers-1) elements, as 0. and 1. are assumed.
+  void  SetLayers(int, float *);
+
+  // Description:
+  // Get the portion of the z-buffer assigned to layer argument.
+  void  GetLayer(int layer, float &min, float &max);
+  
+  // Description:
   // Get the interactor associated with this render window
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
   void SetInteractor(vtkRenderWindowInteractor *);
@@ -384,6 +404,8 @@ protected:
   int   InAbortCheck;
   int   InRender;
   int   NeverRendered;
+  float  *Layers;
+  int     NumLayers;
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
