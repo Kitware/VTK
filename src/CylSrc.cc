@@ -63,7 +63,7 @@ int vlCylinderSource::GetCapping()
 void vlCylinderSource::Execute()
 {
   float angle= 2.0*3.141592654/this->Resolution;
-  int numVerts, numPolys, numPts;
+  int numPolys, numPts;
   float xbot[3], tcbot[2], nbot[3];
   float xtop[3], tctop[2], ntop[3];
   int i, idx;
@@ -80,12 +80,12 @@ void vlCylinderSource::Execute()
 
   if ( this->Capping )
     {
-    numVerts = 4*this->Resolution;
+    numPts = 4*this->Resolution;
     numPolys = this->Resolution + 2;
     }
   else 
     {
-    numVerts = 2*this->Resolution;
+    numPts = 2*this->Resolution;
     numPolys = this->Resolution;
     }
 
@@ -136,8 +136,8 @@ void vlCylinderSource::Execute()
     {
     pts[0] = 2*i;
     pts[1] = pts[0] + 1;
-    pts[2] = (pts[1] + 2) % this->Resolution;
-    pts[3] = pts[3] - 1;
+    pts[2] = (pts[1] + 2) % (2*this->Resolution);
+    pts[3] = pts[2] - 1;
     newPolys->InsertNextCell(4,pts);
     }
 //
