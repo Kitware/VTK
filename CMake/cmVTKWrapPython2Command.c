@@ -151,7 +151,11 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     }
   else
     {
+      /* Don't include the Init.cxx file in the library on OSX */
+      /* It is linked into a MODULE separate from the rest of the dylib */
+#if !defined(__APPLE__)
     sprintf(sourceListValue,"%sInit.cxx",newArgv[0]);
+#endif
     }
 
   /* get the classes for this lib */
