@@ -1405,6 +1405,8 @@ int vtkEnSightReader::ReadVariableFiles()
 	  break;
 	}
       }
+    delete [] fileName;
+    delete [] fileName2;
     }
   
   return 1;
