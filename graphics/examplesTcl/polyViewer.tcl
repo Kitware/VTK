@@ -45,18 +45,18 @@ pack .window -side top -anchor nw -padx 3 -pady 3 -fill both -expand 1
 
 # Procedure to set particular views
 proc UpdateView {x y z vx vy vz} {
-    global ren renWin
+    global renWin
 
-    set camera [$ren GetActiveCamera]
+    set camera [ren GetActiveCamera]
     $camera SetViewPlaneNormal $x $y $z
     $camera SetViewUp $vx $vy $vz
-    $ren ResetCamera
+    ren ResetCamera
     Render
 }
 
 # Procedure opens file and resets view
 proc OpenFile {} {
-    global ren renWin reader
+    global renWin reader
 
     set types {
         {{BYU}                                  {.g}          }
@@ -66,8 +66,8 @@ proc OpenFile {} {
     }
     set filename [tk_getOpenFile -filetypes $types]
     if { $filename != "" } {
-        $ren RemoveActor bannerActor
-        $ren RemoveActor actor
+        ren RemoveActor bannerActor
+        ren RemoveActor actor
         if { [string match *.g $filename] } {
             set reader byu
             byu SetGeometryFileName $filename
@@ -85,11 +85,11 @@ proc OpenFile {} {
         mapper SetInput [$reader GetOutput]
         $reader Update
         if { [[$reader GetOutput] GetNumberOfCells] <= 0 } {
-            $ren AddActor bannerActor
+            ren AddActor bannerActor
         } else {
-            $ren AddActor actor
+            ren AddActor actor
         }
-        $ren ResetCamera
+        ren ResetCamera
         $renWin Render
     }
 }
