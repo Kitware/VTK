@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImagePermute* vtkImagePermute::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -123,13 +123,12 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
 				   vtkImageData *outData, T *outPtr,
 				   int outExt[6], int id)
 {
-  int idxX, idxY, idxZ;
+  int idxX, idxY, idxZ, idxC;
   int maxX, maxY, maxZ;
   int inInc[3];
   int inInc0, inInc1, inInc2;
   int outIncX, outIncY, outIncZ;
   T *inPtr0, *inPtr1, *inPtr2;
-  int scalarSize;
   unsigned long count = 0;
   unsigned long target;
   
@@ -144,7 +143,6 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
   inData->GetIncrements(inInc0, inInc1, inInc2);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outIncX = inData->GetNumberOfScalarComponents();
-  scalarSize = sizeof(T)*outIncX;
   
   // adjust the increments for the permute
   int *fe = self->GetFilteredAxes();
@@ -154,6 +152,9 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
   inInc0 = inInc[fe[0]];
   inInc1 = inInc[fe[1]];
   inInc2 = inInc[fe[2]];
+
+  // turn into a 'continuous' increment
+  inInc0 -= outIncX;
     
   // Loop through ouput pixels
   inPtr2 = inPtr;
@@ -171,12 +172,26 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
 	count++;
 	}
       inPtr0 = inPtr1;
-      for (idxX = 0; idxX <= maxX; idxX++)
+      if (outIncX == 1) // optimization for single component
 	{
-	// Pixel operation
-	memcpy((void *)outPtr,(void *)inPtr0,scalarSize);
-	outPtr += outIncX;
-	inPtr0 += inInc0;
+	for (idxX = 0; idxX <= maxX; idxX++)
+	  {
+	  // Pixel operation
+	  *outPtr++ = *inPtr0++;
+	  inPtr0 += inInc0;
+	  }
+	}
+      else // multiple components
+	{
+	for (idxX = 0; idxX <= maxX; idxX++)
+	  {
+	  // Pixel operation
+	  for (idxC = 0; idxC < outIncX; idxC++)
+	    { 
+	    *outPtr++ = *inPtr0++;
+	    }
+	  inPtr0 += inInc0;
+	  }
 	}
       outPtr += outIncY;
       inPtr1 += inInc1;
