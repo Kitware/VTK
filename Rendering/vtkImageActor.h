@@ -53,7 +53,7 @@ public:
 
   // Description:
   // Set/Get the image data input for the image actor.  
-  vtkSetObjectMacro(Input,vtkImageData);
+  virtual void SetInput(vtkImageData *);
   vtkGetObjectMacro(Input,vtkImageData);
 
   // Description:

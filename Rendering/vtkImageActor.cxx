@@ -19,7 +19,7 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.10");
+vtkCxxRevisionMacro(vtkImageActor, "1.11");
 
 vtkImageActor* vtkImageActor::New()
 {
@@ -47,6 +47,7 @@ vtkImageActor::~vtkImageActor()
 {
   if (this->Input)
     {
+    this->Input->RemoveConsumer(this);
     this->GetInput()->UnRegister(this);
     this->Input = NULL;
     }
@@ -238,3 +239,25 @@ int vtkImageActor::GetWholeZMax()
   extent = this->GetInput()->GetWholeExtent();
   return extent[5];
 }
+
+void vtkImageActor::SetInput(vtkImageData *args)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this         
+  << "): setting Input to " << args );     
+  if (this->Input != args)                                       
+    {                                                           
+    if (this->Input != NULL) 
+      { 
+      this->Input->RemoveConsumer(this);
+      this->Input->UnRegister(this); 
+      }   
+    this->Input = args;                                          
+    if (this->Input != NULL) 
+      { 
+      this->Input->Register(this); 
+      this->Input->AddConsumer(this);
+      }     
+    this->Modified();                                           
+    }                                                           
+}
+
