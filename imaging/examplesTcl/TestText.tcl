@@ -42,7 +42,7 @@ renWin SetSize 250 125
 [ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 
-#renWin SetFileName "strip.tcl.ppm"
+#renWin SetFileName "TestText.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # render the image
