@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.5");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.6");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -132,6 +132,8 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
     {
     if(ret->CanReadFile(path))
       {
+      ret->Register(ret); // up the reference count for return as this is
+      // like a new call
       return ret;
       }
     }
