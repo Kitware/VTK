@@ -133,7 +133,7 @@ void vtkCamera::SetPosition(double X, double Y, double Z)
   this->Modified();
 }
 
-void vtkCamera::SetPosition(double a[3])
+void vtkCamera::SetPosition(const double a[3])
 {
   this->SetPosition(a[0],a[1],a[2]);
 }
@@ -159,7 +159,7 @@ void vtkCamera::SetFocalPoint(double X, double Y, double Z)
   this->Modified();
 }
 
-void vtkCamera::SetFocalPoint(double a[3])
+void vtkCamera::SetFocalPoint(const double a[3])
 {
   this->SetFocalPoint(a[0],a[1],a[2]);
 }
@@ -200,7 +200,7 @@ void vtkCamera::SetViewUp(double X, double Y, double Z)
   this->Modified();
 }
 
-void vtkCamera::SetViewUp(double a[3])
+void vtkCamera::SetViewUp(const double a[3])
 {
   this->SetViewUp(a[0],a[1],a[2]);
 }
@@ -255,7 +255,7 @@ void vtkCamera::SetClippingRange(double X, double Y)
   this->Modified();
 }  
 
-void vtkCamera::SetClippingRange(double a[2])
+void vtkCamera::SetClippingRange(const double a[2])
 {
   this->SetClippingRange(a[0],a[1]);
 }
@@ -1037,7 +1037,7 @@ void vtkCamera::SetViewPlaneNormal(double X,double Y,double Z)
   this->Modified();
 }
 
-void vtkCamera::SetViewPlaneNormal(double a[3])
+void vtkCamera::SetViewPlaneNormal(const double a[3])
 {
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
 }

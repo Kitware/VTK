@@ -70,19 +70,19 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get the position of the camera in world coordinates.
-  void SetPosition(float a[3]) {this->SetPosition(a[0], a[1], a[2]);};
+  void SetPosition(const float a[3]) {this->SetPosition(a[0], a[1], a[2]);};
   void SetPosition(double x, double y, double z);
-  void SetPosition(double a[3]);
+  void SetPosition(const double a[3]);
   vtkGetVectorMacro(Position,double,3);
   void GetPosition(float a[3]) { a[0] = this->Position[0];
       a[1] = this->Position[1]; a[2] = this->Position[2];};
 
   // Description:
   // Set/Get the focal point of the camera in world coordinates
-  void SetFocalPoint(float a[3]) {
+  void SetFocalPoint(const float a[3]) {
     this->SetFocalPoint(a[0], a[1], a[2]);};
   void SetFocalPoint(double x, double y, double z);
-  void SetFocalPoint(double a[3]);
+  void SetFocalPoint(const double a[3]);
   vtkGetVectorMacro(FocalPoint,double,3);
   void GetFocalPoint(float a[3]) { a[0] = this->FocalPoint[0];
       a[1] = this->FocalPoint[1]; a[2] = this->FocalPoint[2];};
@@ -90,7 +90,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the view up direction for the camera.
   void SetViewUp(double vx, double vy, double vz);
-  void SetViewUp(double a[3]);
+  void SetViewUp(const double a[3]);
   vtkGetVectorMacro(ViewUp,double,3);
   void GetViewUp( float a[3] ) { a[0] = this->ViewUp[0];
       a[1] = this->ViewUp[1]; a[2] = this->ViewUp[2]; };
@@ -104,7 +104,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // really could be 1.0 can have a big impact on your z-buffer resolution
   // farther away.
   void SetClippingRange(double front, double back);
-  void SetClippingRange(double a[2]);
+  void SetClippingRange(const double a[2]);
   vtkGetVectorMacro(ClippingRange,double,2);
   void GetClippingRange(float a[2]) { a[0] = this->ClippingRange[0];
       a[1] = this->ClippingRange[1];};
@@ -192,7 +192,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Set/Get the direction that the camera points.
   // Adjusts position to be consistent with the view plane normal.
   void SetViewPlaneNormal(double x, double y, double z);
-  void SetViewPlaneNormal(double a[3]);
+  void SetViewPlaneNormal(const double a[3]);
   vtkGetVectorMacro(ViewPlaneNormal,double,3);
   void GetViewPlaneNormal(float a[3]) { a[0] = this->ViewPlaneNormal[0];
       a[1] = this->ViewPlaneNormal[1]; a[2] = this->ViewPlaneNormal[2];};
