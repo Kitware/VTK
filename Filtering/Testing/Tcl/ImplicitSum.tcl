@@ -5,7 +5,6 @@
 package require vtk
 package require vtkinteraction
 package require vtktesting
-# load libvtkMHUnsortedTCL.so
 
 vtkCone geomObject1
 

@@ -4,7 +4,6 @@
 package require vtk
 package require vtkinteraction
 package require vtktesting
-# load libvtkMHUnsortedTCL.so
 
 vtkPerlinNoise perlin
 perlin SetFrequency 2 1.25 1.5
