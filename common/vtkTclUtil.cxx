@@ -487,7 +487,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   ClientData temp;
   if (!strcmp("ListInstances",argv[1]))
     {
-    vtkTclListInstances(interp,cs->CommandFunction);
+    vtkTclListInstances(interp,(ClientData) cs->CommandFunction);
     return TCL_OK;
     }
   temp = cs->NewCommand();
