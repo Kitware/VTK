@@ -43,33 +43,36 @@ vtkCellPicker picker
 
 # The 3 image plane widgets are used to probe the dataset.
 #
-vtkImagePlaneWidget planeWidgetX 
-  planeWidgetX SetInput [v16 GetOutput]    
-  planeWidgetX SetInteractor iren  
-  planeWidgetX SetPlaneOrientationToXAxes    
-  planeWidgetX SetSliceIndex 32  
-  planeWidgetX SetPicker picker  
+vtkImagePlaneWidget planeWidgetX
+  planeWidgetX SetInput [v16 GetOutput]
+  planeWidgetX SetInteractor iren
+  planeWidgetX SetPlaneOrientationToXAxes
+  planeWidgetX SetSliceIndex 32
+  planeWidgetX SetPicker picker
+  planeWidgetX SetKeyPressActivationValue "x"
   set prop1 [planeWidgetX GetPlaneProperty]
-  $prop1 SetColor 1 0 0  
-  planeWidgetX On  
+  $prop1 SetColor 1 0 0
+  planeWidgetX On
 
-vtkImagePlaneWidget planeWidgetY 
-  planeWidgetY SetInput [v16 GetOutput]    
-  planeWidgetY SetInteractor iren  
-  planeWidgetY SetPlaneOrientationToYAxes    
-  planeWidgetY SetSliceIndex 32  
-  planeWidgetY SetPicker picker  
+vtkImagePlaneWidget planeWidgetY
+  planeWidgetY SetInput [v16 GetOutput]
+  planeWidgetY SetInteractor iren
+  planeWidgetY SetPlaneOrientationToYAxes
+  planeWidgetY SetSliceIndex 32
+  planeWidgetY SetPicker picker
+  planeWidgetY SetKeyPressActivationValue "y"
   set prop2 [planeWidgetY GetPlaneProperty]
-  $prop2 SetColor 1 1 0  
+  $prop2 SetColor 1 1 0
   planeWidgetY SetLookupTable [planeWidgetX GetLookupTable]
-  planeWidgetY On  
+  planeWidgetY On
 
-vtkImagePlaneWidget planeWidgetZ 
-  planeWidgetZ SetInput [v16 GetOutput]    
-  planeWidgetZ SetInteractor iren  
-  planeWidgetZ SetPlaneOrientationToZAxes    
-  planeWidgetZ SetSliceIndex 46  
-  planeWidgetZ SetPicker picker  
+vtkImagePlaneWidget planeWidgetZ
+  planeWidgetZ SetInput [v16 GetOutput]
+  planeWidgetZ SetInteractor iren
+  planeWidgetZ SetPlaneOrientationToZAxes
+  planeWidgetZ SetSliceIndex 46
+  planeWidgetZ SetPicker picker
+  planeWidgetZ SetKeyPressActivationValue "z"
   set prop3 [planeWidgetZ GetPlaneProperty]
   $prop3 SetColor 0 0 1
   planeWidgetZ SetLookupTable [planeWidgetX GetLookupTable]
