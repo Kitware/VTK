@@ -16,7 +16,7 @@ set current_font_size 16
 set min_font_size 3
 set max_font_size 50
 
-set default_text "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz 0123456789 !@#$%^&*()-=_+[]{};':\",./<>?"
+set default_text "ABCDEFGHIJKLMnopqrstuvwxyz 0123456789 !@#$%()-=_+[]{};:,./<>?"
 # set default_text "The quick red fox"
 
 set text_color [list [expr 246 / 255.0] [expr 255 / 255.0] [expr 11 / 255.0]]
