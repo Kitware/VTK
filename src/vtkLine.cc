@@ -222,7 +222,8 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
 }
 
 // Description:
-// Compute distance to finite line.
+// Compute distance to finite line. Returns parametric coordinate t 
+// and point location on line.
 float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3], 
                               float &t, float closestPoint[3])
 {
