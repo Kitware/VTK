@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.29");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.30");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -253,7 +253,10 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   // free the cursors
   if (this->DisplayId)
     {
-    XUndefineCursor(this->DisplayId,this->WindowId);
+    if (this->WindowId)
+      {
+      XUndefineCursor(this->DisplayId,this->WindowId);
+      }
     if (this->XCArrow)
       {
       XFreeCursor(this->DisplayId,this->XCArrow);
