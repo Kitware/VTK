@@ -744,7 +744,7 @@ int vtkMesaRenderWindow::GetDesiredDepth()
 Visual *vtkMesaRenderWindow::GetDesiredVisual ()
 {
   XVisualInfo *v;
-  Visual *vis;
+  Visual *vis = NULL;
   
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();

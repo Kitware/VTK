@@ -85,7 +85,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
 				   VTKRayCastVolumeInfo *volumeInfo )
 {
   float     triMax, triValue;
-  int       max;
+  int       max = 0;;
   float     max_opacity;
   int       loop;
   int       xinc, yinc, zinc;

@@ -386,9 +386,6 @@ void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D)
     }
   else 
     {
-    this->PickedRenderer = this->CurrentRenderer;
-    this->Outline->SetBounds(prop3D->GetBounds());
-    this->OutlineActor->VisibilityOn();
     }
 }
 

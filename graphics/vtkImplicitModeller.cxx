@@ -489,8 +489,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     vtkImplicitModellerAppendInfo info;
     float minZ, maxZ;
     int slabMin, slabMax, slabSize, i;
-    vtkClipPolyData **minClipper, **maxClipper; 
-    vtkPlane ** minPlane, **maxPlane;
+    vtkClipPolyData **minClipper = NULL, **maxClipper = NULL; 
+    vtkPlane ** minPlane = NULL, **maxPlane = NULL;
     
     // Use a MultiThreader here, splitting the volume into slabs to be processed
     // by the separate threads

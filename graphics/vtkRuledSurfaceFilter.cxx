@@ -79,7 +79,7 @@ vtkRuledSurfaceFilter::~vtkRuledSurfaceFilter()
 
 void vtkRuledSurfaceFilter::Execute()
 {
-  vtkPoints *inPts, *newPts;
+  vtkPoints *inPts, *newPts = NULL;
   int i, numPts, numLines;
   vtkCellArray *inLines, *newPolys, *newStrips;
   vtkPolyData *input = this->GetInput();

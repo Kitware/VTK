@@ -159,7 +159,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
   static int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
   static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
-  int bestDirection;
+  int bestDirection = 0;
   float error, bestError;
 
   forward  = new int *[ydim];

@@ -109,7 +109,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   float CosEdgeAngle; // Cosine of angle between adjacent edges
   int iterationNumber, abortExecute;
   int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
-  vtkPolyData *inMesh, *Mesh;
+  vtkPolyData *inMesh = NULL, *Mesh;
   vtkPoints *inPts;
   vtkTriangleFilter *toTris=NULL;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
@@ -499,7 +499,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   // Calculate the optimal sigma (offset or fudge factor for the filter).
   // This is a Newton-Raphson Search.
-  float f_kpb, fprime_kpb;
+  float f_kpb = 0.0, fprime_kpb;
   int done = 0;
   sigma = 0.0;
 

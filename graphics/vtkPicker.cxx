@@ -139,7 +139,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   int i;
   vtkProp *prop;
   vtkCamera *camera;
-  vtkAbstractMapper3D *mapper;
+  vtkAbstractMapper3D *mapper = NULL;
   float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
   int picked=0;
   int *winSize;

@@ -75,7 +75,7 @@ vtkKochanekSpline::vtkKochanekSpline ()
 // Evaluate a 1D Spline
 float vtkKochanekSpline::Evaluate (float t)
 {
-  int i, index;
+  int i, index = 0;
   int size = this->PiecewiseFunction->GetSize ();
   float *intervals;
   float *coefficients;

@@ -57,7 +57,7 @@ void vtkApproximatingSubdivisionFilter::Execute()
   int level;
   vtkPoints *outputPts;
 
-  vtkCellArray *outputPolys;
+  vtkCellArray *outputPolys = NULL;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD;
@@ -187,8 +187,8 @@ void vtkApproximatingSubdivisionFilter::Execute()
 int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, int p1, int p2, vtkIntArray *edgeData, vtkIdList *cellIds)
 {
  
-  int edgeId;
-  int currentCellId;
+  int edgeId = 0;
+  int currentCellId = 0;
   int i;
   int numEdges;
   int tp1, tp2;

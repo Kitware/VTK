@@ -177,7 +177,7 @@ const char *vtkPiecewiseFunction::GetType()
 {
   int   i;
   float value;
-  float prev_value;
+  float prev_value = 0.0;
   int   function_type;
 
   this->Update();
@@ -722,7 +722,7 @@ void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
 						   float* table, int stride )
 {
   int i;
-  float inc;
+  float inc = 0.0;
   float *tptr = table;
 
   if (size > this->ArraySize)

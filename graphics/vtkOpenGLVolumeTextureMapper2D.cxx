@@ -78,7 +78,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
   vtkPlaneCollection *clipPlanes;
   vtkPlane           *plane;
-  int                i, numClipPlanes;
+  int                i, numClipPlanes = 0;
   double             planeEquation[4];
 
   this->Timer->StartTimer();

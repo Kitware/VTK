@@ -142,8 +142,8 @@ void vtkInterpolatingSubdivisionFilter::Execute()
 int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, int p1, int p2, vtkIntArray *edgeData, vtkIdList *cellIds)
 {
  
-  int edgeId;
-  int currentCellId;
+  int edgeId = 0;
+  int currentCellId = 0;
   int i;
   int numEdges;
   int tp1, tp2;

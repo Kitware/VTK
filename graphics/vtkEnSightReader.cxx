@@ -1005,7 +1005,7 @@ void vtkEnSightReader::AddVariableType()
 {
   int size;
   int i;
-  int *types;
+  int *types = NULL;
   
   // Figure out what the size of the variable type array is.
   if (this->VariableMode < 8)

@@ -2364,7 +2364,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   int cellNum = 0;
   int cellNormals = 0;
   int resolve=0, zResolve=0;
-  double zRes;
+  double zRes = 0.0;
   
   // get the property 
   prop = act->GetProperty();

@@ -79,8 +79,8 @@ void vtkStreamLine::Execute()
   vtkIdList *pts;
   float tOffset, x[3], v[3], s, r;
   float theta;
-  vtkPolyLine* lineNormalGenerator;
-  vtkNormals* normals;
+  vtkPolyLine* lineNormalGenerator = NULL;
+  vtkNormals* normals = NULL;
   vtkFloatArray* rotation = 0;
   vtkPolyData *output=this->GetOutput();
 
