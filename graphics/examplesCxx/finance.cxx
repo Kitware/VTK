@@ -9,8 +9,8 @@
 #include "vtkAxes.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatScalars.h"
+#include "vtkPoints.h"
+#include "vtkScalars.h"
 
 static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s);
 static int ParseFile(FILE *file, char *tag, float *data);
@@ -21,13 +21,6 @@ main ()
   int npts;
   vtkDataSet *dataSet;
   
-  // graphics stuff
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
-
   // read data
   dataSet = ReadFinancialData("MONTHLY_PAYMENT","INTEREST_RATE",
                               "LOAN_AMOUNT","TIME_LATE");
@@ -39,17 +32,15 @@ main ()
     popSplatter->SetSampleDimensions(50,50,50);
     popSplatter->SetRadius(0.05);
     popSplatter->ScalarWarpingOff();
-    popSplatter->DebugOn();
   vtkContourFilter *popSurface = vtkContourFilter::New();
     popSurface->SetInput(popSplatter->GetOutput());
     popSurface->SetValue(0,0.01);
-    popSurface->DebugOn();
   vtkPolyDataMapper *popMapper = vtkPolyDataMapper::New();
     popMapper->SetInput(popSurface->GetOutput());
     popMapper->ScalarVisibilityOff();
   vtkActor *popActor = vtkActor::New();
     popActor->SetMapper(popMapper);
-    popActor->GetProperty()->SetRepresentationToWireframe();
+    popActor->GetProperty()->SetOpacity(0.3);
     popActor->GetProperty()->SetColor(.9,.9,.9);
 
   // construct pipeline for delinquent population
@@ -58,11 +49,9 @@ main ()
     lateSplatter->SetSampleDimensions(50,50,50);
     lateSplatter->SetRadius(0.05);
     lateSplatter->SetScaleFactor(0.005);
-    lateSplatter->DebugOn();
   vtkContourFilter *lateSurface = vtkContourFilter::New();
     lateSurface->SetInput(lateSplatter->GetOutput());
     lateSurface->SetValue(0,0.01);
-    lateSurface->DebugOn();
   vtkPolyDataMapper *lateMapper = vtkPolyDataMapper::New();
     lateMapper->SetInput(lateSurface->GetOutput());
     lateMapper->ScalarVisibilityOff();
@@ -85,12 +74,19 @@ main ()
   vtkActor *axesActor = vtkActor::New();
     axesActor->SetMapper(axesMapper);
 
-  //set up renderer
-  renderer->AddActor(popActor);
+  // graphics stuff
+  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
+    renWin->AddRenderer(renderer);
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+    iren->SetRenderWindow(renWin);
+
+  // read data  //set up renderer
   renderer->AddActor(lateActor);
   renderer->AddActor(axesActor);
+  renderer->AddActor(popActor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(1000,1000);
+  renWin->SetSize(500,500);
 
   // interact with data
   iren->Initialize();
