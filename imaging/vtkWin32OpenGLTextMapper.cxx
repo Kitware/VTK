@@ -338,10 +338,15 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
 
   // When picking draw the bounds of the text as a rectangle,
   // as text only picks when the pick point is exactly on the
-  // origin of the text
+  // origin of the text 
   if(viewport->GetIsPicking())
     {
-    glRectf(rect.left, rect.bottom, rect.right, rect.top);
+    float width = 2.0 * ((float)rect.right - rect.left) / vsize[0];
+    float height = 2.0 * ((float)rect.top - rect.bottom) / vsize[1];
+    float x1 = (2.0 * (GLfloat)(rect.left) / vsize[0] - 1);
+    float y1 = (2.0 * (GLfloat)(rect.bottom) / vsize[1] - 1);
+    glRectf(x1, y1, x1+width, y1+height);
+
     // Clean up and return after drawing the rectangle
     glMatrixMode( GL_PROJECTION);
     glPopMatrix();
