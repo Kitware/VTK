@@ -13,11 +13,14 @@
 
 =========================================================================*/
 // .NAME vtkCompositer - Super class for composite algorthms.
+//
 // .SECTION Description
 // vtkCompositer operates in multiple processes.  Each compositer has 
-// a render window.  They use vtkMultiProcessControllers to comunicate 
+// a render window.  They use vtkMultiProcessControllers to communicate 
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency well.
+//
+// .SECTION See Also
 // vtkCompositeManager.
 
 #ifndef __vtkCompositer_h
