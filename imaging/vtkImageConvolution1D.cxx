@@ -303,7 +303,7 @@ void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
     // Rescale if flag is on
     if (self->BoundaryRescale)
       {
-      *outPtr *= (T)(self->KernelArea / area);
+      *outPtr = (T) ((float) *outPtr * (self->KernelArea / area));
       }
     
     outPtr += outInc;
