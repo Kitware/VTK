@@ -54,6 +54,9 @@ vtkScaledTextActor::vtkScaledTextActor()
   this->LastOrigin[1] = 0;
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
+
+  this->MinimumSize[0] = 10;
+  this->MinimumSize[1] = 10;  
 }
 
 vtkScaledTextActor::~vtkScaledTextActor()
@@ -150,7 +153,16 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->LastOrigin[1] = textOrigin[1];
     this->LastSize[0] = size[0];
     this->LastSize[1] = size[1];
-    
+
+    // limit by minimum size
+    if (this->MinimumSize[0] > size[0])
+      {
+      size[0] = this->MinimumSize[0];
+      }
+    if (this->MinimumSize[1] > size[1])
+      {
+      size[1] = this->MinimumSize[1];
+      }    
     // Update all the composing objects
     // find the best size for the font
     int tempi[2];
@@ -214,6 +226,7 @@ void vtkScaledTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
+  os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
 }
 
 vtkCoordinate *vtkScaledTextActor::GetPosition2Coordinate() 

@@ -91,10 +91,18 @@ public:
   void SetHeight(float h);
   float GetHeight();
   
+  // Description:
+  // Set/Get the minimum size in pixels for this actor.
+  // Defaults to 10,10
+  vtkSetVector2Macro(MinimumSize,int);
+  vtkGetVector2Macro(MinimumSize,int);
+  
 protected:
   vtkScaledTextActor();
   ~vtkScaledTextActor();
 
+  int MinimumSize[2];
+  
   vtkActor2D *TextActor;
   vtkCoordinate *Position2Coordinate;
   vtkTimeStamp  BuildTime;
