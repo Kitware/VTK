@@ -560,7 +560,7 @@ int vtkImageReader::GetHeaderSize(int idx)
     this->File->seekg(0,ios::end);
     
     return this->File->tellg() - 
-      this->DataIncrements[this->GetFileDimensionality()];
+      (int)this->DataIncrements[this->GetFileDimensionality()];
     }
   
   return this->HeaderSize;
