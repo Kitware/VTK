@@ -72,40 +72,44 @@ void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *out)
   vtkStructuredGrid *input = this->GetInput();
   vtkStructuredGrid *output = this->GetOutput();
   int ext[6];
+  int *wholeExt;
   
   output->GetUpdateExtent(ext);
-  ext[0] = ext[0] / this->SampleRate[0];
-  ext[1] = ext[1] / this->SampleRate[0];
-  ext[2] = ext[2] / this->SampleRate[1];
-  ext[3] = ext[3] / this->SampleRate[1];
-  ext[4] = ext[4] / this->SampleRate[2];
-  ext[5] = ext[5] / this->SampleRate[2];
+  ext[0] = ext[0] * this->SampleRate[0];
+  ext[1] = ext[1] * this->SampleRate[0];
+  ext[2] = ext[2] * this->SampleRate[1];
+  ext[3] = ext[3] * this->SampleRate[1];
+  ext[4] = ext[4] * this->SampleRate[2];
+  ext[5] = ext[5] * this->SampleRate[2];
   
-  if (ext[0] < this->VOI[0])
-    {
-    ext[0] = this->VOI[0];
-    }
-  if (ext[1] > this->VOI[1])
-    {
-    ext[1] = this->VOI[1];
-    }
   
-  if (ext[2] < this->VOI[2])
+  wholeExt = input->GetWholeExtent();
+  
+  if (ext[0] < wholeExt[0])
     {
-    ext[2] = this->VOI[2];
+    ext[0] = wholeExt[0];
     }
-  if (ext[3] > this->VOI[3])
+  if (ext[1] > wholeExt[1])
     {
-    ext[3] = this->VOI[3];
+    ext[1] = wholeExt[1];
     }
   
-  if (ext[4] < this->VOI[4])
+  if (ext[2] < wholeExt[2])
     {
-    ext[4] = this->VOI[4];
+    ext[2] = wholeExt[2];
     }
-  if (ext[5] > this->VOI[5])
+  if (ext[3] > wholeExt[3])
     {
-    ext[5] = this->VOI[5];
+    ext[3] = wholeExt[3];
+    }
+  
+  if (ext[4] < wholeExt[4])
+    {
+    ext[4] = wholeExt[4];
+    }
+  if (ext[5] > wholeExt[5])
+    {
+    ext[5] = wholeExt[5];
     }  
   
   input->SetUpdateExtent(ext);
