@@ -56,6 +56,7 @@ class VTK_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkWindow();
+  ~vtkWindow();
   const char *GetClassName() {return "vtkWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
