@@ -76,9 +76,9 @@ void vtkVectorTopology::Execute()
   vtkVectors *inVectors;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output=(vtkPolyData *)this->GetOutput();
   vtkPointData *outputPD=output->GetPointData();
   float *weights=new float[input->GetMaxCellSize()];
 //
