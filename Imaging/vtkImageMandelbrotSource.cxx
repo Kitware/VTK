@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.31");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.32");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -40,8 +40,8 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
 
   this->SizeCX[0] = 2.5; 
   this->SizeCX[1] = 2.5; 
-  this->SizeCX[2] = 2.5; 
-  this->SizeCX[3] = 2.5; 
+  this->SizeCX[2] = 2.0; 
+  this->SizeCX[3] = 1.5; 
   
   this->ConstantSize = 1;
 
@@ -126,6 +126,30 @@ void vtkImageMandelbrotSource::SetWholeExtent(int extent[6])
       }
     }
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageMandelbrotSource::SetProjectionAxes(int x, int y, int z)
+{
+  double saveSize[4];
+
+  if (this->ProjectionAxes[0] == x && this->ProjectionAxes[1] == y && 
+      this->ProjectionAxes[2] == z)
+    {
+    return;
+    }
+
+  this->Modified();
+  this->GetSizeCX(saveSize);
+  this->ProjectionAxes[0] = x;
+  this->ProjectionAxes[1] = y; 
+  this->ProjectionAxes[2] = z;
+  if (this->ConstantSize)
+    {
+    this->SetSizeCX(saveSize[0], saveSize[1], saveSize[2], saveSize[3]);
+    }
+}
+
 
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::SetWholeExtent(int minX, int maxX, 

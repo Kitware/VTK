@@ -58,7 +58,8 @@ public:
   // Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
   // to the axes of the 3D Volume. 
   // 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
-  vtkSetVector3Macro(ProjectionAxes, int);
+  void SetProjectionAxes(int x, int y, int z);
+  void SetProjectionAxes(int *a) {this->SetProjectionAxes(a[0],a[1],a[2]);}
   vtkGetVector3Macro(ProjectionAxes, int);
 
   // Description:
