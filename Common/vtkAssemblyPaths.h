@@ -58,6 +58,14 @@ public:
   // of the paths.
   virtual unsigned long GetMTime();
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkAssemblyPath *GetNextPath(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkAssemblyPaths() {};
   ~vtkAssemblyPaths() {};

@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.54");
+vtkCxxRevisionMacro(vtkAssembly, "1.55");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -95,7 +95,8 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
     / (double)(this->Paths->GetNumberOfItems());
   
   // render the Paths
-  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
     if ( prop3D->GetVisibility() )
@@ -133,7 +134,8 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
     / (double)(this->Paths->GetNumberOfItems());
   
   // render the Paths
-  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
     if ( prop3D->GetVisibility() )
@@ -168,7 +170,8 @@ void vtkAssembly::GetActors(vtkPropCollection *ac)
   vtkAssemblyPath *path;
 
   this->UpdatePaths();
-  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
     if ( (actor = vtkActor::SafeDownCast(prop3D)) != NULL )
@@ -185,7 +188,8 @@ void vtkAssembly::GetVolumes(vtkPropCollection *ac)
   vtkAssemblyPath *path;
 
   this->UpdatePaths();
-  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
     if ( (volume = vtkVolume::SafeDownCast(prop3D)) != NULL )
@@ -297,7 +301,8 @@ double *vtkAssembly::GetBounds()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 
-  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
     if ( prop3D->GetVisibility() )

@@ -28,8 +28,8 @@
 #define __vtkAssemblyPath_h
 
 #include "vtkCollection.h"
+#include "vtkAssemblyNode.h" // used for inlines
 
-class vtkAssemblyNode;
 class vtkMatrix4x4;
 class vtkTransform;
 class vtkProp;
@@ -85,6 +85,14 @@ public:
   // Override the standard GetMTime() to check for the modified times
   // of the nodes in this path.
   virtual unsigned long GetMTime();
+
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie));};
+  //ETX
 
 protected:
   vtkAssemblyPath();

@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.201");
+vtkCxxRevisionMacro(vtkRenderer, "1.202");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -393,8 +393,9 @@ void vtkRenderer::AllocateTime()
   totalTime = this->PropArrayCount;
   this->ComputeAspect();
 
-  for (this->Cullers->InitTraversal(); 
-       (aCuller=this->Cullers->GetNextItem());)
+  vtkCollectionSimpleIterator sit;    
+  for (this->Cullers->InitTraversal(sit); 
+       (aCuller=this->Cullers->GetNextCuller(sit));)
     {
     totalTime = 
       aCuller->Cull((vtkRenderer *)this, 
