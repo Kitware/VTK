@@ -33,7 +33,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.101");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.102");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -926,4 +926,104 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIntArray *array)
       array->InsertNextValue(cellId);
       }
     }
+}
+
+
+void vtkUnstructuredGrid::RemoveGhostCells(int level)
+{
+  vtkUnstructuredGrid* newGrid = vtkUnstructuredGrid::New();
+  vtkDataArray* temp;
+  unsigned char* cellGhostLevels;
+
+  vtkIdType cellId, newCellId;
+  vtkIdList *cellPts, *pointMap;
+  vtkIdList *newCellPts;
+  vtkCell *cell;
+  vtkPoints *newPoints;
+  int i, ptId, newId, numPts;
+  int numCellPts;
+  float *x;
+  vtkPointData*   pd    = this->GetPointData();
+  vtkPointData*   outPD = newGrid->GetPointData();
+  vtkCellData*    cd    = this->GetCellData();
+  vtkCellData*    outCD = newGrid->GetCellData();
+
+
+  // Get a pointer to the cell ghost level array.
+  temp = this->CellData->GetArray("vtkGhostLevels");
+  if (temp == NULL)
+    {
+    vtkDebugMacro("Could not find cell ghost level array.");
+    return;
+    }
+  if ( (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+       || (temp->GetNumberOfComponents() != 1)
+       || (temp->GetNumberOfTuples() < this->GetNumberOfCells()))
+    {
+    vtkErrorMacro("Poorly formed ghost level array.");
+    return;
+    }
+  cellGhostLevels =((vtkUnsignedCharArray*)temp)->GetPointer(0);
+
+
+  // Now threshold based on the cell ghost level array.
+  outPD->CopyAllocate(pd);
+  outCD->CopyAllocate(cd);
+
+  numPts = this->GetNumberOfPoints();
+  newGrid->Allocate(this->GetNumberOfCells());
+  newPoints = vtkPoints::New();
+  newPoints->Allocate(numPts);
+
+  pointMap = vtkIdList::New(); //maps old point ids into new
+  pointMap->SetNumberOfIds(numPts);
+  for (i=0; i < numPts; i++)
+    {
+    pointMap->SetId(i,-1);
+    }
+
+
+  newCellPts = vtkIdList::New();     
+
+  // Check that the scalars of each cell satisfy the threshold criterion
+  for (cellId=0; cellId < this->GetNumberOfCells(); cellId++)
+    {
+    cell = this->GetCell(cellId);
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();
+        
+    if ( cellGhostLevels[cellId] < level ) // Keep the cell.
+      {
+      for (i=0; i < numCellPts; i++)
+        {
+        ptId = cellPts->GetId(i);
+        if ( (newId = pointMap->GetId(ptId)) < 0 )
+          {
+          x = this->GetPoint(ptId);
+          newId = newPoints->InsertNextPoint(x);
+          pointMap->SetId(ptId,newId);
+          outPD->CopyData(pd,ptId,newId);
+          }
+        newCellPts->InsertId(i,newId);
+        }
+      newCellId = newGrid->InsertNextCell(cell->GetCellType(),newCellPts);
+      outCD->CopyData(cd,cellId,newCellId);
+      newCellPts->Reset();
+      } // satisfied thresholding
+    } // for all cells
+
+  // now clean up / update ourselves
+  pointMap->Delete();
+  newCellPts->Delete();
+  
+  newGrid->SetPoints(newPoints);
+  newPoints->Delete();
+
+  this->CopyStructure(newGrid);
+  this->GetPointData()->ShallowCopy(newGrid->GetPointData());
+  this->GetCellData()->ShallowCopy(newGrid->GetCellData());
+  newGrid->Delete();
+  newGrid = NULL;
+
+  this->Squeeze();
 }

@@ -22,8 +22,9 @@
 #include "vtkVoxel.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
+#include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.52");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.53");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 //----------------------------------------------------------------------------
@@ -808,53 +809,22 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces,
                                          int ghostLevel)
 {
-  int ext[6], zdim, min, max, oldZMin, oldZMax;
+  int ext[6];
   
-  // Lets just divide up the z axis.
+  this->UpdateInformation();
   this->GetWholeExtent(ext);
-  zdim = ext[5] - ext[4] + 1;
-  
-  oldZMin = ext[4];
-  oldZMax = ext[5];
-  
-  if (piece >= zdim)
-    {
-    // empty
-    this->SetUpdateExtent(0, -1, 0, -1, 0, -1);
-    return;
-    }
-  
-  if (numPieces > zdim)
-    {
-    numPieces = zdim;
-    }
-  
-  min = ext[4] + piece * zdim / numPieces;
-  max = ext[4] + (piece+1) * zdim / numPieces - 1;
-  
-  ext[4] = min;
-  ext[5] = max;
+  this->ExtentTranslator->SetWholeExtent(ext);
+  this->ExtentTranslator->SetPiece(piece);
+  this->ExtentTranslator->SetNumberOfPieces(numPieces);
+  this->ExtentTranslator->SetGhostLevel(ghostLevel);
+  this->ExtentTranslator->PieceToExtent();
+  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
 
-  if (ext[4] - ghostLevel >= oldZMin)
-    {
-    ext[4] = ext[4] - ghostLevel;
-    }
-  else
-    {
-    ext[4] = oldZMin;
-    }
-  
-  if (ext[5] + ghostLevel <= oldZMax)
-    {
-    ext[5] = ext[5] + ghostLevel;
-    }
-  else
-    {
-    ext[5] = oldZMax;
-    }
-  
-  this->SetUpdateExtent(ext);
+  this->UpdatePiece = piece;
+  this->UpdateNumberOfPieces = numPieces;
+  this->UpdateGhostLevel = ghostLevel;
 }
+
 
 //----------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetActualMemorySize()
@@ -953,28 +923,33 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
 void vtkRectilinearGrid::Crop()
 {
   int i, j, k;
+  // What we want.
   int uExt[6];
+  // What we have.
+  int ext[6];
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
     uExt[i*2] = this->UpdateExtent[i*2];
-    if (uExt[i*2] < this->Extent[i*2])
+    ext[i*2] = this->Extent[i*2];
+    if (uExt[i*2] < ext[i*2])
       {
-      uExt[i*2] = this->Extent[i*2];
+      uExt[i*2] = ext[i*2];
       }
     uExt[i*2+1] = this->UpdateExtent[i*2+1];
-    if (uExt[i*2+1] > this->Extent[i*2+1])
+    ext[i*2+1] = this->Extent[i*2+1];
+    if (uExt[i*2+1] > ext[i*2+1])
       {
-      uExt[i*2+1] = this->Extent[i*2+1];
+      uExt[i*2+1] = ext[i*2+1];
       }
     }
   
   // If extents already match, then we need to do nothing.
-  if (this->Extent[0] == uExt[0] && this->Extent[1] == uExt[1]
-      && this->Extent[2] == uExt[2] && this->Extent[3] == uExt[3]
-      && this->Extent[4] == uExt[4] && this->Extent[5] == uExt[5])
+  if (ext[0] == uExt[0] && ext[1] == uExt[1]
+      && ext[2] == uExt[2] && ext[3] == uExt[3]
+      && ext[4] == uExt[4] && ext[5] == uExt[5])
     {
     return;
     }
@@ -1012,7 +987,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[0]; idx <= uExt[1]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[0], 0,
-                                 coords->GetComponent(idx,0));
+                    coords->GetComponent(idx-(vtkIdType)ext[0],0));
       }
     newGrid->SetXCoordinates(newCoords);
     newCoords->Delete();
@@ -1023,7 +998,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[2]; idx <= uExt[3]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[2], 0,
-                                 coords->GetComponent(idx,0));
+                    coords->GetComponent(idx-(vtkIdType)ext[2],0));
       }
     newGrid->SetYCoordinates(newCoords);
     newCoords->Delete();
@@ -1034,7 +1009,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[4]; idx <= uExt[5]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[4], 0,
-                                 coords->GetComponent(idx,0));
+                    coords->GetComponent(idx-(vtkIdType)ext[4],0));
       }
     newGrid->SetZCoordinates(newCoords);
     newCoords->Delete();
