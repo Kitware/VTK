@@ -85,6 +85,17 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
+  // Set/Get the desired update rate.
+  vtkSetMacro(DesiredUpdateRate,float);
+  vtkGetMacro(DesiredUpdateRate,float);
+
+  // Description:
+  // Set/Get the desired update rate when movement has stopped.
+  // A value of zero indicates full resolution.
+  vtkSetMacro(StillUpdateRate,float);
+  vtkGetMacro(StillUpdateRate,float);
+
+  // Description:
   // See whether interactor has been initialized yet.
   vtkGetMacro(Initialized,int);
 
@@ -117,14 +128,16 @@ protected:
   vtkCamera   *CurrentCamera;
   vtkLight    *CurrentLight;
   vtkRenderer *CurrentRenderer;
-  int LightFollowCamera;
+  int   LightFollowCamera;
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
-  int Size[2];
+  int   Size[2];
   int   State;
   float FocalDepth;
-  int Initialized;
+  int   Initialized;
+  float DesiredUpdateRate;
+  float StillUpdateRate;
 
   // for picking actors
   vtkPicker *Picker;
