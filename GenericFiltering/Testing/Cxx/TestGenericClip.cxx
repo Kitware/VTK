@@ -21,6 +21,9 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
+//#define WITH_GEOMETRY_FILTER
+//#define WRITE_GENERIC_RESULT
+
 #include "vtkActor.h"
 #include "vtkDebugLeaks.h"
 #include "vtkPointData.h"
@@ -44,6 +47,12 @@
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
 #include "vtkSimpleCellTessellator.h"
+#include "vtkXMLUnstructuredGridWriter.h"
+
+#ifdef WITH_GEOMETRY_FILTER
+#include "vtkGeometryFilter.h"
+#include "vtkPolyDataMapper.h"
+#endif
 
 int TestGenericClip(int argc, char* argv[])
 {
@@ -61,7 +70,8 @@ int TestGenericClip(int argc, char* argv[])
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
   
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
+//char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -76,7 +86,7 @@ int TestGenericClip(int argc, char* argv[])
   // Set the error metric thresholds:
   // 1. for the geometric error metric
   vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
-  geometricError->SetRelativeGeometricTolerance(0.01,ds);
+  geometricError->SetRelativeGeometricTolerance(0.01,ds); // 0.001
   
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
@@ -90,7 +100,7 @@ int TestGenericClip(int argc, char* argv[])
   
   cout<<"input unstructured grid: "<<ds<<endl;
   
-  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(100);
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetSubdivisionLevels(0,100);
 
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
@@ -98,8 +108,8 @@ int TestGenericClip(int argc, char* argv[])
   // Create the filter
   
   vtkPlane *implicitPlane = vtkPlane::New();
-  implicitPlane->SetOrigin(0.5, 0, 0);
-  implicitPlane->SetNormal(1, 1, 1);
+  implicitPlane->SetOrigin(0.5, 0, 0); // (0.5, 0, 0);
+  implicitPlane->SetNormal(1, 1, 1); // (1, 1, 1);
   
   vtkGenericClip *clipper = vtkGenericClip::New();
   clipper->SetInput(ds);
@@ -117,9 +127,18 @@ int TestGenericClip(int argc, char* argv[])
   vtkLookupTable *lut = vtkLookupTable::New(); 
   lut->SetHueRange (0.667, 0.0);
   
+  
+#ifdef WITH_GEOMETRY_FILTER
+  vtkGeometryFilter *geom = vtkGeometryFilter::New();
+  geom->SetInput(clipper->GetOutput());
+  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  mapper->SetInput( geom->GetOutput() );
+  geom->Delete();
+#else
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetLookupTable(lut);
   mapper->SetInput( clipper->GetOutput() );
+#endif
+  mapper->SetLookupTable(lut);
   
   if(clipper->GetOutput()->GetPointData()!=0)
     {
@@ -133,6 +152,17 @@ int TestGenericClip(int argc, char* argv[])
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
+  
+#ifdef WRITE_GENERIC_RESULT
+  // Save the result of the filter in a file
+  vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
+  writer->SetInput(clipper->GetOutput());
+  writer->SetFileName("clipped.vtu");
+  writer->SetDataModeToAscii();
+  writer->Write();
+  writer->Delete();
+#endif // #ifdef WRITE_GENERIC_RESULT
+
   
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
