@@ -145,11 +145,11 @@ void vtkLegendBoxActor::InitializeEntries()
       if ( this->Symbol[i] )
         {
         this->Symbol[i]->Delete();
-        this->Transform[i]->Delete();
-        this->SymbolTransform[i]->Delete();
-        this->SymbolMapper[i]->Delete();
-        this->SymbolActor[i]->Delete();
         }
+      this->Transform[i]->Delete();
+      this->SymbolTransform[i]->Delete();
+      this->SymbolMapper[i]->Delete();
+      this->SymbolActor[i]->Delete();
       if ( this->TextMapper[i] )
         {
         this->TextMapper[i]->Delete();
