@@ -77,6 +77,7 @@ vtkGlyph3D.o \
 vtkHedgeHog.o \
 vtkHyperStreamline.o \
 vtkImageDifference.o \
+vtkImageToStructuredPoints.o \
 vtkImplicitBoolean.o \
 vtkImplicitModeller.o \
 vtkImplicitTextureCoords.o \
@@ -270,6 +271,7 @@ tcl/vtkGlyph3DTcl.o \
 tcl/vtkHedgeHogTcl.o \
 tcl/vtkHyperStreamlineTcl.o \
 tcl/vtkImageDifferenceTcl.o \
+tcl/vtkImageToStructuredPointsTcl.o \
 tcl/vtkImplicitBooleanTcl.o \
 tcl/vtkImplicitModellerTcl.o \
 tcl/vtkImplicitTextureCoordsTcl.o \
@@ -467,6 +469,7 @@ vtkGlyph3D.h \
 vtkHedgeHog.h \
 vtkHyperStreamline.h \
 vtkImageDifference.h \
+vtkImageToStructuredPoints.h \
 vtkImplicitBoolean.h \
 vtkImplicitModeller.h \
 vtkImplicitTextureCoords.h \
@@ -588,6 +591,7 @@ vtkWarpScalar.h \
 vtkWarpTo.h \
 vtkWarpVector.h \
 vtkXRenderWindowInteractor.h 
+
 
 # The following is all boiler plate 
 #------------------------------------------------------------------------------
@@ -881,6 +885,9 @@ tcl/vtkHyperStreamlineTcl.cxx: vtkHyperStreamline.h ../tcl/cpp_parse
 
 tcl/vtkImageDifferenceTcl.cxx: vtkImageDifference.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImageDifferenceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImageDifference.h $(srcdir)/../tcl/hints 1 > tcl/vtkImageDifferenceTcl.cxx
+
+tcl/vtkImageToStructuredPoints.cxx: vtkImageToStructuredPoints.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageToStructuredPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageToStructuredPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageToStructuredPointsTcl.cxx
 
 tcl/vtkImplicitBooleanTcl.cxx: vtkImplicitBoolean.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImplicitBooleanTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitBoolean.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitBooleanTcl.cxx
@@ -1349,3 +1356,5 @@ tcl/vtkXglrRendererTcl.cxx: vtkXglrRenderer.h ../tcl/cpp_parse
 
 tcl/vtkXglrTextureTcl.cxx: vtkXglrTexture.h ../tcl/cpp_parse 
 	rm -f tcl/vtkXglrTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrTextureTcl.cxx
+
+
