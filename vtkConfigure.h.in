@@ -48,5 +48,7 @@
 
 #cmakedefine VTK_DISPLAY_WIN32_WARNINGS
 
+#cmakedefine VTK_USE_FREETYPE
+
 /* compiler used */
 #define VTK_CXX_COMPILER "${CMAKE_CXX_COMPILER}"
