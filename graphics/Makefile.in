@@ -97,6 +97,7 @@ vtkCellLocator \
 vtkCellPicker \
 vtkCleanPolyData \
 vtkClipPolyData \
+vtkClipVolume \
 vtkColorTransferFunction \
 vtkCone \
 vtkConeSource \
@@ -238,6 +239,7 @@ vtkStructuredPointsGeometryFilter \
 vtkStructuredPointsReader \
 vtkStructuredPointsToPolyDataFilter \
 vtkStructuredPointsToStructuredPointsFilter \
+vtkStructuredPointsToUnstructuredGridFilter \
 vtkStructuredPointsWriter \
 vtkSubPixelPositionEdgels \
 vtkTensorGlyph \
