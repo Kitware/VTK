@@ -127,9 +127,9 @@ public:
 
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
-  // For a non-zero alpha value, only edges or triangles contained within
-  // a sphere centered at mesh vertices will be output. Otherwise, only
-  // triangles will be output.
+  // For a non-zero alpha value, only edges, faces, or tetra contained 
+  // within the circumsphere (of radius alpha) will be output. Otherwise,
+  // only tetrahedra will be output.
   vtkSetClampMacro(Alpha,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Alpha,float);
 
