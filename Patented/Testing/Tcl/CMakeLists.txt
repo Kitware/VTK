@@ -14,9 +14,6 @@ IF (VTK_USE_RENDERING)
       iceCream
       imageMCAll
       mcubes
-      nc
-      sweepAuto
-      sweptVtk
       sync3dAll
       TestDiscreteMarchingCubes
       TestGridSynchronizedTemplates3D
