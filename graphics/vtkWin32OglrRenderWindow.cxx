@@ -73,6 +73,13 @@ vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
   this->WindowName = strdup("Visualization Toolkit - Win32OpenGL");
 }
 
+int vtkWin32OglrRenderWindow::GetEventPending()
+{
+  MSG msg;
+  
+  return PeekMessage(&msg,this->WindowId,WM_LBUTTONDOWN,WM_MBUTTONDOWN,PM_NOREMOVE);
+}
+
 // Description:
 // Begin the rendering process.
 void vtkWin32OglrRenderWindow::Start(void)
@@ -160,7 +167,7 @@ static void vtkWin32OglrSwapBuffers(HDC hdc)
 void vtkWin32OglrRenderWindow::Frame(void)
 {
   glFlush();
-  if (this->DoubleBuffer)
+  if (!this->AbortRender && this->DoubleBuffer)
     {
     vtkWin32OglrSwapBuffers(wglGetCurrentDC());
     vtkDebugMacro(<< " SwapBuffers\n");
