@@ -275,6 +275,7 @@ IF (VTK_WRAP_TCL)
     ENDIF (TK_INTERNAL_PATH) 
     # for builds against the source tree on windows
     FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
+    MARK_AS_ADVANCED(TK_XLIB_PATH)
     IF (TK_XLIB_PATH)
       INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
     ENDIF (TK_XLIB_PATH) 

@@ -5,6 +5,7 @@ OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL "Is this VTK built with shared libraries.")
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
+MARK_AS_ADVANCED(VTK_USE_64BIT_IDS)
 
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 
@@ -21,6 +22,7 @@ SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Where VTK libraries
 
 OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
+MARK_AS_ADVANCED(VTK_DEBUG_LEAKS)
 OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
 OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
 IF (APPLE)
@@ -47,6 +49,7 @@ IF (VTK_USE_PARALLEL)
 ENDIF (VTK_USE_PARALLEL)
 
 OPTION (VTK_MANGLE_MESA "Use mangled Mesa with OpenGL" OFF)
+MARK_AS_ADVANCED(VTK_MANGLE_MESA)
 IF (VTK_MANGLE_MESA)
   FIND_PATH(MESA_MANGLE_PATH gl_mangle.h )
   FIND_LIBRARY(MESA_LIBRARY MesaGL
@@ -166,24 +169,28 @@ IF (VTK_USE_RENDERING)
 
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
-  FIND_PATH(OSMESA_INCLUDE_PATH GL/osmesa.h 
-  /usr/include 
-  /usr/local/include 
-  /usr/openwin/share/include 
-  /opt/graphics/OpenGL/include 
-  /usr/X11R6/include 
-  )
-
-  FIND_LIBRARY(MESA_OS_LIBRARY OSMesa
-  /usr/lib 
-  /usr/local/lib 
-  /opt/graphics/OpenGL/lib 
-  /usr/openwin/lib 
-  /usr/X11R6/lib
-  )
   IF(UNIX)
     OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." OFF)
   ENDIF(UNIX)
+
+  IF (VTK_OPENGL_HAS_OSMESA OR VTK_MANGLE_MESA)
+    FIND_PATH(OSMESA_INCLUDE_PATH GL/osmesa.h 
+      /usr/include 
+      /usr/local/include 
+      /usr/openwin/share/include 
+      /opt/graphics/OpenGL/include 
+      /usr/X11R6/include 
+    )
+
+    FIND_LIBRARY(MESA_OS_LIBRARY OSMesa
+      /usr/lib 
+      /usr/local/lib 
+      /opt/graphics/OpenGL/lib 
+      /usr/openwin/lib 
+      /usr/X11R6/lib
+    )
+  ENDIF (VTK_OPENGL_HAS_OSMESA OR VTK_MANGLE_MESA)
+
   SUBDIRS(Rendering)
   SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
 ENDIF (VTK_USE_RENDERING)
@@ -312,6 +319,7 @@ INSTALL_FILES(/include/vtk .txt CMakeCache)
 
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
+
 
 
 
