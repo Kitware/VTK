@@ -29,6 +29,7 @@ IF(PYTHON_EXECUTABLE)
            vtkDataArrayTemplate.h
            vtkDataObjectCollection.h
            vtkDataSetCollection.h
+           vtkDebugLeaks.h
            vtkDebugLeaksManager.h
            vtkDynamicLoader.h
            vtkErrorCode.h

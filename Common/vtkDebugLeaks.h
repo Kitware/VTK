@@ -39,7 +39,6 @@ class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
 public: 
   static vtkDebugLeaks *New();
   vtkTypeRevisionMacro(vtkDebugLeaks,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Call this when creating a class of a given name.
