@@ -147,12 +147,18 @@ void vtkCollection::RemoveItem(vtkObject *a)
 // Remove all objects from the list.
 void vtkCollection::RemoveAllItems()
 {
-  int i;
+  vtkCollectionElement *elem;
 
-  for (i = this->NumberOfItems - 1; i >= 0; i--)
+  while (this->NumberOfItems )
     {
-    this->RemoveItem(i);
+    elem = this->Top;
+    this->Top = elem->Next;
+    this->Current = elem->Next;
+    this->DeleteElement(elem);
+    this->NumberOfItems--;    
     }
+  
+  this->Modified();
 }
 
 // Search for an object and return location in list. If location == 0,
