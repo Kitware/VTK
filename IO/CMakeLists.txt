@@ -37,6 +37,7 @@ vtkEnSightGoldBinaryReader.cxx
 vtkEnSightGoldReader.cxx
 vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
+vtkFacetWriter.cxx
 vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
