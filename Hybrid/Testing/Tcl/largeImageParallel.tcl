@@ -49,5 +49,8 @@ vtkImageViewer viewer
   viewer SetColorLevel 127.5
   viewer Render
 
-
+# on several opengl X window unix implementations
+# multiple context deletes cause errors
+# so we leak teh renWin1 in this test for unix
+if { $tcl_platform(platform) == "unix" } {renWin1 Register ren1}
 

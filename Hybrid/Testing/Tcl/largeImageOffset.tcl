@@ -49,4 +49,6 @@ vtkImageViewer viewer
   viewer SetColorLevel 127.5
   viewer Render
 
-
+if {$tcl_platform(platform) == "unix"} {
+  renWin1 Register ren1
+}
