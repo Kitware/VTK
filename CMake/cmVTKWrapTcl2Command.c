@@ -265,13 +265,13 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     for(i = 1; i < numSources; ++i)
       {
       void *curr = info->CAPI->GetSource(mf,sources[i]);
-      const char *cdir = info->CAPI->SourceFileGetFullPath (cdata->SourceFiles[i]);
 
       /* if we should wrap the class */
       if (!curr ||
           !info->CAPI->SourceFileGetPropertyAsBool(curr,"WRAP_EXCLUDE"))
         {
         void *file = info->CAPI->CreateSourceFile();
+        const char *cdir = info->CAPI->SourceFileGetFullPath (file);
         char *srcName;
         char *hname;
         srcName = info->CAPI->GetFilenameWithoutExtension(sources[i]);
