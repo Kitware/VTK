@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.4");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.5");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -130,7 +130,6 @@ void vtkAnimationScene::FinalizeChildren()
 //----------------------------------------------------------------------------
 void vtkAnimationScene::Play()
 {
-  cout << "LOOP: " << this->Loop << endl;
   if (this->InPlay)
     {
     return;
