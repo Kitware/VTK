@@ -164,6 +164,7 @@
 "vtkViewportCoordinateMacro"     return(ViewportCoordinateMacro);
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
 "vtkTypeMacro"         return(TypeMacro);
+"vtkTypeRevisionMacro" return(TypeMacro);
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 
