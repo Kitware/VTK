@@ -8,6 +8,13 @@ IF (VTK_USE_RENDERING)
         ContinuousClose2D
         IdealHighPass
         LaplacianEdgeEnhance
+        ResliceColorWrap
+        ResliceInterpolationModes
+        ResliceInterpolationOblique
+        ResliceOptimizationOff
+        ReslicePermuteResample
+        ResliceWrapOblique
+        ResliceWrapPad
         Spectrum
         TestAnisotropicDiffusion2D
         TestAnisotropicDiffusion3D
