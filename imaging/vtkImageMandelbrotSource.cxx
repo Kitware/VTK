@@ -202,8 +202,6 @@ void vtkImageMandelbrotSource::ExecuteInformation()
       {
       origin[idx] = this->OriginCX[axis];
       spacing[idx] = this->SampleCX[axis];
-      // I want unevent sampling not Sample.
-      spacing[idx] = 1.0;
       }
     else
       {
