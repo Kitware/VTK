@@ -42,6 +42,7 @@ EXAMPLES = VisQuad \
 	Model \
 	MotBlur \
 	Normals \
+	RGrid \
 	SGrid \
 	Sample \
 	StrSph \
@@ -138,6 +139,9 @@ MotBlur: MotBlur.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 Normals: Normals.o ${VTKLIB}
 	${CXX} -o Normals ${CXX_FLAGS} Normals.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+RGrid: RGrid.o ${VTKLIB}
+	${CXX} -o RGrid ${CXX_FLAGS} RGrid.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 SGrid: SGrid.o ${VTKLIB}
 	${CXX} -o SGrid ${CXX_FLAGS} SGrid.o ${XLDFLAGS} ${LDLIBS} \
