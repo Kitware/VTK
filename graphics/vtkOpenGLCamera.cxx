@@ -101,6 +101,12 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
           glDrawBuffer(GL_BACK_RIGHT);
           }
         break;
+      case VTK_STEREO_LEFT:
+	this->LeftEye = 1;
+	break;
+      case VTK_STEREO_RIGHT:
+	this->LeftEye = 0;
+	break;
       default:
         break;
       }
