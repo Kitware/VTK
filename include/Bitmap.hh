@@ -45,6 +45,8 @@ public:
   vlBitmap &operator=(const vlBitmap& fs);
   void operator+=(const vlBitmap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
@@ -56,5 +58,22 @@ public:
 protected:
   vlBitArray S;
 };
+
+// Description:
+// Get pointer to byte containing bit in question. You will have to decompose
+// byte to obtain appropriate bit value.
+inline unsigned char *vlBitmap::GetPtr(const int id)
+{
+  return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of rgba colors to write.
+inline unsigned char *vlBitmap::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(id,number);
+}
 
 #endif

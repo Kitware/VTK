@@ -41,13 +41,13 @@ public:
   int GetNumberOfValuesPerPoint() {return 1;};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
-  unsigned char *GetUCharPtr() {return S.GetPtr(0);};
 
   // miscellaneous
   vlGraymap &operator=(const vlGraymap& fs);
   void operator+=(const vlGraymap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
-  unsigned char *WriteInto(int id, int number);
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
@@ -61,11 +61,20 @@ protected:
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary).
-inline unsigned char *vlGraymap::WriteInto(int id, int number)
+// Get pointer to rgb data at location "id" in the array. Meant for reading 
+// data. 
+inline unsigned char *vlGraymap::GetPtr(const int id)
 {
-  return this->S.WriteInto(id, number);
+  return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of rgb triplets to write.
+inline unsigned char *vlGraymap::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(id,number);
 }
 
 #endif

@@ -38,9 +38,10 @@ public:
 
   // access/insertion methods
   int GetValue(const int id);
-  int *GetPtr(const int id);
   vlIntArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
+  int *GetPtr(const int id);
+  int *WritePtr(const int id, const int number);
 
   // special operators
   vlIntArray &operator=(const vlIntArray& ia);
@@ -52,7 +53,6 @@ public:
   void Squeeze();
   int GetSize();
   int GetMaxId();
-  int *GetArray();
   void Reset();
 
 private:
@@ -70,6 +70,17 @@ inline int vlIntArray::GetValue(const int id) {return this->Array[id];};
 // Description:
 // Get the address of a particular data index.
 inline int *vlIntArray::GetPtr(const int id) {return this->Array + id;};
+
+// Description:
+// Get the address of a particular data index. Make sure data is allocated
+// for the number of items requested. Set MaxId according to the number of
+// data values requested.
+inline int *vlIntArray::WritePtr(const int id, const int number)
+{
+  if ( (id + number) > this->Size ) this->Resize(id+number);
+  this->MaxId = id + number - 1;
+  return this->Array + id;
+}
 
 // Description:
 // Insert data at a specified position in the array.
@@ -113,11 +124,6 @@ inline int vlIntArray::GetSize() {return this->Size;};
 // Description:
 // Returning the maximum index of data inserted so far.
 inline int vlIntArray::GetMaxId() {return this->MaxId;};
-
-// Description:
-// Get the pointer to the array. Useful for interfacing to C or 
-// FORTRAN routines.
-inline int *vlIntArray::GetArray() {return this->Array;};
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like

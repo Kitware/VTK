@@ -42,64 +42,73 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/2;};
   void Squeeze() {this->S.Squeeze();};
   int GetNumberOfValuesPerPoint() {return 2;};
-  unsigned char *GetUCharPtr() {return S.GetPtr(0);};
 
   // miscellaneous
   vlAGraymap &operator=(const vlAGraymap& fs);
   void operator+=(const vlAGraymap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
-  unsigned char *WriteInto(int id, int number);
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
+
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgb[3]);
-  void SetColor(int id, unsigned char rgb[3]);
-  void InsertColor(int id, unsigned char rgb[3]);
-  int InsertNextColor(unsigned char rgb[3]);
+  void SetColor(int id, unsigned char ga[2]);
+  void InsertColor(int id, unsigned char ga[2]);
+  int InsertNextColor(unsigned char ga[2]);
 
 protected:
   vlCharArray S;
 };
 
 // Description:
-// Set a rgb value at a particular array location. Does not do range 
-// checking.
-inline void vlAGraymap::SetColor(int i, unsigned char rgb[3]) 
+// Set a intensity/alpha value at a particular array location. Does not do 
+// range checking.
+inline void vlAGraymap::SetColor(int i, unsigned char ga[2]) 
 {
   i *= 2; 
-  this->S[i] = rgb[0]; 
-  this->S[i+1] = rgb[1]; 
-  this->S[i+2] = rgb[2];
+  this->S[i] = ga[0]; 
+  this->S[i+1] = ga[1]; 
 }
 
 // Description:
-// Insert a rgb value at a particular array location. Does range checking
-// and will allocate additional memory if necessary.
-inline void vlAGraymap::InsertColor(int i, unsigned char *rgb) 
+// Insert a intensity/alpha value at a particular array location. Does range 
+// checking and will allocate additional memory if necessary.
+inline void vlAGraymap::InsertColor(int i, unsigned char *ga) 
 {
-  this->S.InsertValue(2*i+2, rgb[2]);
-  this->S[2*i] = rgb[0];
-  this->S[2*i+1] = rgb[1];
+  this->S.InsertValue(2*i+1, ga[1]);
+  this->S[2*i] = ga[0];
 }
 
 // Description:
-// Insert a rgb value at the next available slot in the array. Will allocate
-// memory if necessary.
-inline int vlAGraymap::InsertNextColor(unsigned char *rgb) 
+// Insert a intensity/alpha value at the next available slot in the array. Will
+// allocate memory if necessary.
+inline int vlAGraymap::InsertNextColor(unsigned char *ga) 
 {
-  int id = this->S.GetMaxId() + 2;
-  this->S.InsertValue(id,rgb[2]);
-  this->S[id-2] = rgb[0];
-  this->S[id-1] = rgb[1];
+  int id = this->S.GetMaxId() + 1;
+  this->S.InsertValue(id,ga[1]);
+  this->S[id-1] = ga[0];
+
   return id/2;
 }
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary).
-inline unsigned char *vlAGraymap::WriteInto(int id, int number)
+// Get pointer to ga data at location "id" in the array. Meant for reading 
+// data. 
+inline unsigned char *vlAGraymap::GetPtr(const int id)
 {
-  return this->S.WriteInto(id, number);
+  return this->S.GetPtr(2*id);
 }
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of ga colors to write.
+inline unsigned char *vlAGraymap::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(2*id,2*number);
+}
+
 
 #endif

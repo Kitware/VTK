@@ -39,9 +39,10 @@ public:
 
   // access/insertion methods
   int GetValue(const int id);
-  unsigned char *GetPtr(const int id);
   vlBitArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
 
   // special operators
   vlBitArray &operator=(const vlBitArray& ia);
@@ -53,7 +54,6 @@ public:
   void Squeeze();
   int GetSize();
   int GetMaxId();
-  unsigned char *GetArray();
   void Reset();
 
 private:
@@ -66,10 +66,21 @@ private:
 
 // Description:
 // Get the address of a particular data index.
-inline unsigned char *vlBitArray::GetPtr(const int id) 
+inline unsigned char *vlBitArray::GetPtr(const int id)
 {
   return this->Array + id/8;
 };
+
+// Description:
+// Get the address of a particular data index. Make sure data is allocated
+// for the number of items requested. Set MaxId according to the number of
+// data values requested.
+inline unsigned char *vlBitArray::WritePtr(const int id, const int number)
+{
+  if ( (id + number) > this->Size ) this->Resize(id+number);
+  this->MaxId = id + number - 1;
+  return this->Array + id/8;
+}
 
 // Description:
 // Insert data at a specified position in the array. Does not perform
@@ -116,11 +127,6 @@ inline int vlBitArray::GetSize() {return this->Size;}
 // Description:
 // Returning the maximum index of data inserted so far.
 inline int vlBitArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Get the pointer to the array. Useful for interfacing to C or 
-// FORTRAN routines.
-inline unsigned char *vlBitArray::GetArray() {return this->Array;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like

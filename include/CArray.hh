@@ -38,22 +38,21 @@ public:
 
   // access/insertion methods
   unsigned char GetValue(const int id);
-  unsigned char *GetPtr(const int id);
   vlCharArray &InsertValue(const int id, const unsigned char c);
   int InsertNextValue(const unsigned char c);
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
 
   // special operators
   vlCharArray &operator=(const vlCharArray& ia);
   void operator+=(const vlCharArray& ia);
   void operator+=(const unsigned char c);
   unsigned char& operator[](const int i);
-  unsigned char *WriteInto(const int i,  const int number);
 
   // miscellaneous methods
   void Squeeze();
   int GetSize();
   int GetMaxId();
-  unsigned char *GetArray();
   void Reset();
 
 private:
@@ -71,6 +70,17 @@ inline unsigned char vlCharArray::GetValue(const int id) {return this->Array[id]
 // Description:
 // Get the address of a particular data index.
 inline unsigned char *vlCharArray::GetPtr(const int id) {return this->Array + id;};
+
+// Description:
+// Get the address of a particular data index. Make sure data is allocated
+// for the number of items requested. Set MaxId according to the number of
+// data values requested.
+inline unsigned char *vlCharArray::WritePtr(const int id, const int number) 
+{
+  if ( (id + number) > this->Size ) this->Resize(id+number);
+  this->MaxId = id + number - 1;
+  return this->Array + id;
+}
 
 // Description:
 // Insert data at a specified position in the array.
@@ -116,23 +126,8 @@ inline int vlCharArray::GetSize() {return this->Size;};
 inline int vlCharArray::GetMaxId() {return this->MaxId;};
 
 // Description:
-// Get the pointer to the array. Useful for interfacing to C or 
-// FORTRAN routines.
-inline unsigned char *vlCharArray::GetArray() {return this->Array;};
-
-// Description:
 // Reuse the memory allocated by this object. Objects appears like
 // no data has been previously inserted.
 inline void vlCharArray::Reset() {this->MaxId = -1;};
-
-// Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary).
-inline unsigned char *vlCharArray::WriteInto(const int id, const int number)
-{
-  if ( (id + number) >= this->Size ) this->Resize(id+number);
-  this->MaxId = id + number - 1;
-  return this->Array + id;
-}
 
 #endif

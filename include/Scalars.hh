@@ -81,10 +81,10 @@ public:
   virtual void Squeeze() = 0;
 
   // Description:
-  // Get data as pointer to unsigned char. Used for high performance texture
-  // and color manipulation. Not supported for all scalar types: check for
-  // NULL return value. 
-  virtual unsigned char *GetUCharPtr() {return NULL;};
+  // Get data as pointer to unsigned char at specified location.  Used for 
+  // high performance texture and color manipulation. Not supported for 
+  // all scalar types: check for NULL return value. 
+  virtual unsigned char *GetPtr(const int id) {return NULL;};
 
   void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
   virtual void ComputeRange();

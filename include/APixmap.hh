@@ -42,12 +42,13 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/4;};
   void Squeeze() {this->S.Squeeze();};
   int GetNumberOfValuesPerPoint() {return 4;};
-  unsigned char *GetUCharPtr() {return S.GetPtr(0);};
 
   // miscellaneous
   vlAPixmap &operator=(const vlAPixmap& fs);
   void operator+=(const vlAPixmap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
@@ -59,5 +60,22 @@ public:
 protected:
   vlCharArray S;
 };
+
+// Description:
+// Get pointer to rgba data at location "id" in the array. Meant for reading 
+// data. 
+inline unsigned char *vlAPixmap::GetPtr(const int id)
+{
+  return this->S.GetPtr(4*id);
+}
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of rgba colors to write.
+inline unsigned char *vlAPixmap::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(4*id,4*number);
+}
 
 #endif

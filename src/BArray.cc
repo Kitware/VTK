@@ -129,8 +129,8 @@ void vlBitArray::PrintSelf(ostream& os, vlIndent indent)
 }
 
 //
-// Private function does "reallocate"
-//
+// Private function does "reallocate". Sz is the number of "bits", and we
+// can allocate only 8-bit bytes.
 unsigned char *vlBitArray::Resize(const int sz)
 {
   unsigned char *newArray;

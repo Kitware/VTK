@@ -38,9 +38,10 @@ public:
 
   // access/insertion methods
   short GetValue(const int id);
-  short *GetPtr(const int id);
   vlShortArray &InsertValue(const int id, const short i);
   int InsertNextValue(const int short);
+  short *GetPtr(const int id);
+  short *WritePtr(const int id, const int number);
 
   // special operators
   vlShortArray &operator=(const vlShortArray& ia);
@@ -70,6 +71,17 @@ inline short vlShortArray::GetValue(const int id) {return this->Array[id];};
 // Description:
 // Get the address of a particular data index.
 inline short *vlShortArray::GetPtr(const int id) {return this->Array + id;};
+
+// Description:
+// Get the address of a particular data index. Make sure data is allocated
+// for the number of items requested. Set MaxId according to the number of
+// data values requested.
+inline short *vlShortArray::WritePtr(const int id, const int number) 
+{
+  if ( (id + number) > this->Size ) this->Resize(id+number);
+  this->MaxId = id + number - 1;
+  return this->Array + id;
+}
 
 // Description:
 // Insert data at a specified position in the array.
