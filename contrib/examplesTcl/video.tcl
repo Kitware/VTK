@@ -75,13 +75,15 @@ pack .rate.scale -side left
 pack .rate -side top 
 
 proc SetFrame { f } {
+    global win
+
     win SetZSlice $f  
     win Render
 }
 
 frame .viewframe
 label .viewframe.label -text "Frame #" 
-scale .viewframe.scale -from 0 -to 49 -orient horizontal
+scale .viewframe.scale -from 0 -to 49 -orient horizontal -command SetFrame
 
 pack .viewframe.label -side left 
 pack .viewframe.scale -side left 
