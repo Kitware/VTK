@@ -105,6 +105,7 @@ protected:
   Display *DisplayId;
   Colormap ColorMap;
   int      OwnWindow;
+  int      OwnDisplay;
   int      ScreenSize[2];
 
 };

@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkXRenderWindow::vtkXRenderWindow()
 {
+  vtkDebugMacro(<< "vtkXRenderWindow::vtkXRenderWindow");
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->ParentId = (Window)NULL;
@@ -53,10 +54,21 @@ vtkXRenderWindow::vtkXRenderWindow()
   this->ColorMap = (Colormap)NULL;
   this->ScreenSize[0] = 0;
   this->ScreenSize[1] = 0;
+  this->OwnDisplay = 0;
 }
 
 vtkXRenderWindow::~vtkXRenderWindow()
 {
+  vtkDebugMacro(<< "vtkXRenderWindow::~vtkXRenderWindow");
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+    {
+    XCloseDisplay(this->DisplayId);
+    }
 }
 
 int vtkXRenderWindowFoundMatch;
@@ -106,6 +118,10 @@ int *vtkXRenderWindow::GetScreenSize()
     if (this->DisplayId == NULL) 
       {
       vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
       }
     }
 
@@ -249,6 +265,10 @@ void vtkXRenderWindow::SetWindowInfo(char *info)
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
     }
 
   sscanf(info,"%i",&tmp);
@@ -304,10 +324,12 @@ void vtkXRenderWindow::SetDisplayId(Display  *arg)
   vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
 
   this->DisplayId = arg;
+  this->OwnDisplay = 0;
 }
 void vtkXRenderWindow::SetDisplayId(void *arg)
 {
   this->SetDisplayId((Display *)arg);
+  this->OwnDisplay = 0;
 }
 
 void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
