@@ -314,9 +314,11 @@
  * stdlib.h like it should (I think).  Or perhaps this is a C++
  * "feature"?
  */
+#if 0
 #ifdef __TURBOC__
 #  include <mem.h>
 #  include "alloc.h"
+#endif
 #endif
 
 #if defined(_MSC_VER) && (defined(WIN32) || defined(_Windows) || \
