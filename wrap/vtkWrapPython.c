@@ -508,10 +508,10 @@ static const char *quote_string(const char *comment, int maxlen)
       sprintf(&result[j],"\\%3.3o",comment[i]);
       j += 4;
       }
-    if (j >= maxlen - 5)
+    if (j >= maxlen - 21)
       {      
-      sprintf(&result[j-strlen(" ...\\n [Truncated]\\n")],
-	      " ...\\n [Truncated]\\n");
+      sprintf(&result[j]," ...\\n [Truncated]\\n");
+      j += strlen(" ...\\n [Truncated]\\n");
       break;
       }
     }
