@@ -49,6 +49,7 @@ IF (VTK_USE_PARALLEL)
     ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
 
     TARGET_LINK_LIBRARIES (pvtkpython
+    ${PYTHON_LIBRARY}
       vtkCommon
       vtkFiltering
       vtkIO
