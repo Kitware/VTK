@@ -51,6 +51,7 @@ vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageAppend \
 vtkImageAppendComponents \
+vtkImageBlend \
 vtkImageButterworthHighPass \
 vtkImageButterworthLowPass \
 vtkImageCacheFilter \
