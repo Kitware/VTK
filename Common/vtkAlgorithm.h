@@ -121,15 +121,15 @@ public:
   // Description:
   // Set the connection for the given input port index.  Removes
   // any other connections.
-  void SetInputConnection(int index, vtkAlgorithmOutput* input);
+  virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
   // Add a connection to the given input port index.
-  void AddInputConnection(int index, vtkAlgorithmOutput* input);
+  virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
   // Remove a connection from the given input port index.
-  void RemoveInputConnection(int index, vtkAlgorithmOutput* input);
+  virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
   // Get a proxy object corresponding to the given output port of this
@@ -189,6 +189,12 @@ protected:
   // Helper methods to check input/output port index ranges.
   int InputPortIndexInRange(int index, const char* action);
   int OutputPortIndexInRange(int index, const char* action);
+
+  // Description:
+  // Replace the Nth connection on the given input port.  This should
+  // not be used to remove an input, so the pointer cannot be NULL.
+  // For use only by subclasses.
+  void SetNthInputConnection(int port, int index, vtkAlgorithmOutput* input);
 
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();

@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.8");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -250,8 +250,7 @@ int vtkAlgorithm::ProcessUpstreamRequest(vtkInformation*,
     vtkErrorMacro("ProcessUpstreamRequest called with NULL output vector.");
     return 0;
     }
-  inVector->DeepCopy(outVector);
-  return 0;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -269,8 +268,7 @@ int vtkAlgorithm::ProcessDownstreamRequest(vtkInformation*,
     vtkErrorMacro("ProcessDownstreamRequest called with NULL output vector.");
     return 0;
     }
-  outVector->DeepCopy(inVector);
-  return 0;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -339,24 +337,24 @@ vtkDataObject* vtkAlgorithm::GetOutput(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::SetInputConnection(int index, vtkAlgorithmOutput* input)
+void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
 {
-  if(!this->InputPortIndexInRange(index, "connect"))
+  if(!this->InputPortIndexInRange(port, "connect"))
     {
     return;
     }
 
   // Check if the connection is already present.
   if(input &&
-     this->AlgorithmInternal->InputPorts[index].size() == 1 &&
-     this->AlgorithmInternal->InputPorts[index].Find(input->GetProducer(),
-                                                     input->GetIndex()) !=
-     this->AlgorithmInternal->InputPorts[index].end())
+     this->AlgorithmInternal->InputPorts[port].size() == 1 &&
+     this->AlgorithmInternal->InputPorts[port].Find(input->GetProducer(),
+                                                    input->GetIndex()) !=
+     this->AlgorithmInternal->InputPorts[port].end())
     {
     // The connection is the only one present.  No change is needed.
     return;
     }
-  else if(!input && this->AlgorithmInternal->InputPorts[index].empty())
+  else if(!input && this->AlgorithmInternal->InputPorts[port].empty())
     {
     // New connection is NULL and there are no connections to remove.
     return;
@@ -371,86 +369,125 @@ void vtkAlgorithm::SetInputConnection(int index, vtkAlgorithmOutput* input)
   vtkAlgorithmIgnoreUnused(&producer);
 
   // Remove all other connections.
-  if(!this->AlgorithmInternal->InputPorts[index].empty())
+  if(!this->AlgorithmInternal->InputPorts[port].empty())
     {
-    vtkAlgorithm::ConnectionRemoveAllInput(this, index);
+    vtkAlgorithm::ConnectionRemoveAllInput(this, port);
     }
 
   // Add the new connection.
   if(input)
     {
     vtkAlgorithm::ConnectionAdd(input->GetProducer(), input->GetIndex(),
-                                this, index);
+                                this, port);
     }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::AddInputConnection(int index, vtkAlgorithmOutput* input)
+void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
-  if(!this->InputPortIndexInRange(index, "connect"))
+  if(!this->InputPortIndexInRange(port, "connect"))
     {
     return;
     }
 
   // Check if the connection is already present.
   if(!input ||
-     this->AlgorithmInternal->InputPorts[index].Find(input->GetProducer(),
-                                                     input->GetIndex()) !=
-     this->AlgorithmInternal->InputPorts[index].end())
+     this->AlgorithmInternal->InputPorts[port].Find(input->GetProducer(),
+                                                    input->GetIndex()) !=
+     this->AlgorithmInternal->InputPorts[port].end())
     {
     return;
     }
 
   // Add the new connection.
   vtkAlgorithm::ConnectionAdd(input->GetProducer(), input->GetIndex(),
-                              this, index);
+                              this, port);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::RemoveInputConnection(int index, vtkAlgorithmOutput* input)
+void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
 {
-  if(!this->InputPortIndexInRange(index, "disconnect"))
+  if(!this->InputPortIndexInRange(port, "disconnect"))
     {
     return;
     }
 
   // Check if the connection is present.
   if(!input ||
-     this->AlgorithmInternal->InputPorts[index].Find(input->GetProducer(),
-                                                     input->GetIndex()) ==
-     this->AlgorithmInternal->InputPorts[index].end())
+     this->AlgorithmInternal->InputPorts[port].Find(input->GetProducer(),
+                                                    input->GetIndex()) ==
+     this->AlgorithmInternal->InputPorts[port].end())
     {
     return;
     }
 
   // Remove the connection.
   vtkAlgorithm::ConnectionRemove(input->GetProducer(), input->GetIndex(),
-                                 this, index);
+                                 this, port);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int index)
+void vtkAlgorithm::SetNthInputConnection(int port, int index,
+                                         vtkAlgorithmOutput* input)
 {
-  if(!this->OutputPortIndexInRange(index, "get"))
+  if(!this->InputPortIndexInRange(port, "replace connection"))
+    {
+    return;
+    }
+
+  // Check if the connection index exists.
+  if(!input || index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    return;
+    }
+
+  // Add the new connection.
+  int oldNumberOfConnections = this->GetNumberOfInputConnections(port);
+  this->AddInputConnection(port, input);
+  if(this->GetNumberOfInputConnections(port) > oldNumberOfConnections)
+    {
+    // The connection was really added.  Swap it into the correct
+    // connection index.
+    vtkAlgorithmInternals::PortEntry temp =
+      this->AlgorithmInternal->InputPorts[port][index];
+    this->AlgorithmInternal->InputPorts[port][index] =
+      this->AlgorithmInternal->InputPorts[port][oldNumberOfConnections];
+    this->AlgorithmInternal->InputPorts[port][oldNumberOfConnections] = temp;
+
+    // Now remove the connection that was previously at this index.
+    this->RemoveInputConnection(port,
+                                temp.Algorithm->GetOutputPort(temp.PortIndex));
+    }
+  else
+    {
+    // The connection was already present.
+    vtkErrorMacro("SetNthInputConnection cannot duplicate another input.");
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get"))
     {
     return 0;
     }
 
   // Create the vtkAlgorithmOutput proxy object if there is not one.
-  if(!this->AlgorithmInternal->Outputs[index].GetPointer())
+  if(!this->AlgorithmInternal->Outputs[port].GetPointer())
     {
     vtkAlgorithmOutput* output = vtkAlgorithmOutput::New();
     output->SetProducer(this);
-    output->SetIndex(index);
-    this->AlgorithmInternal->Outputs[index] = output;
+    output->SetIndex(port);
+    this->AlgorithmInternal->Outputs[port] = output;
     output->Delete();
     }
 
   // Return the proxy object instance.
-  return this->AlgorithmInternal->Outputs[index].GetPointer();
+  return this->AlgorithmInternal->Outputs[port].GetPointer();
 }
 
 //----------------------------------------------------------------------------
@@ -465,8 +502,7 @@ vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
     vtkInformation* info = vtkInformation::New();
     if(!this->FillInputPortInformation(port, info))
       {
-      info->Delete();
-      return 0;
+      info->Clear();
       }
     this->AlgorithmInternal->InputPorts[port].Information = info;
     info->Delete();
@@ -486,8 +522,7 @@ vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
     vtkInformation* info = vtkInformation::New();
     if(!this->FillOutputPortInformation(port, info))
       {
-      info->Delete();
-      return 0;
+      info->Clear();
       }
     this->AlgorithmInternal->OutputPorts[port].Information = info;
     info->Delete();
@@ -498,14 +533,14 @@ vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
 //----------------------------------------------------------------------------
 int vtkAlgorithm::FillInputPortInformation(int, vtkInformation*)
 {
-  vtkErrorMacro("vtkAlgorithm subclasses must have FillInputPortInformation.");
+  vtkErrorMacro("FillInputPortInformation is not implemented.");
   return 0;
 }
 
 //----------------------------------------------------------------------------
 int vtkAlgorithm::FillOutputPortInformation(int, vtkInformation*)
 {
-  vtkErrorMacro("vtkAlgorithm subclasses must have FillOutputPortInformation.");
+  vtkErrorMacro("FillOutputPortInformation is not implemented.");
   return 0;
 }
 
@@ -522,7 +557,7 @@ int vtkAlgorithm::GetNumberOfInputConnections(int port)
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
-  if(!this->InputPortIndexInRange(index, "get number of connections for"))
+  if(!this->InputPortIndexInRange(port, "get number of connections for"))
     {
     return 0;
     }
@@ -634,5 +669,7 @@ void vtkAlgorithm::GarbageCollectionStarting()
 void vtkAlgorithm::RemoveReferences()
 {
   this->AlgorithmInternal->Executive = 0;
+  this->AlgorithmInternal->InputPorts.clear();
+  this->AlgorithmInternal->OutputPorts.clear();
   this->Superclass::RemoveReferences();
 }
