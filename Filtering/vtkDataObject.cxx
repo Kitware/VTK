@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.11");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.12");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -80,8 +80,6 @@ vtkDataObject::vtkDataObject()
   this->RequestExactExtent = 0;
   
   this->Locality = 0.0;
-
-  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 
   this->GarbageCollecting = 0;
 }

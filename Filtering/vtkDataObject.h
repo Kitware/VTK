@@ -417,9 +417,6 @@ protected:
   // This does not include the MTime of this data object.
   unsigned long PipelineMTime;
 
-  // Was the update extent propagated down the pipeline
-  int LastUpdateExtentWasOutsideOfTheExtent;
-  
   // A value indicating whether we have a port upstream and how
   // many filters removed it is.  
   // 0.0 : no ports.
