@@ -169,9 +169,12 @@ private:
 
   int IndependentVariables; //use column or row
   int N; //the number of independent variables
-  vtkAxisActor2D **Axes;
+  vtkAxisActor2D **Axes; //an array of axes
   float *Mins; //minimum data value along this row/column
   float *Maxs; //maximum data value along this row/column
+  int   *Xs; //axes x-values (in viewport coordinates)
+  int   YMin; //axes y-min-value (in viewport coordinates)
+  int   YMax; //axes y-max-value (in viewport coordinates)
 
   char *Title;
   vtkTextMapper *TitleMapper;
@@ -187,7 +190,8 @@ private:
 
   vtkTimeStamp  BuildTime;
 
-  void PlaceAxes(vtkViewport *viewport, int *size);
+  void Initialize();
+  int PlaceAxes(vtkViewport *viewport, int *size);
 };
 
 

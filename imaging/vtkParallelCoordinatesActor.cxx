@@ -63,11 +63,11 @@ vtkParallelCoordinatesActor* vtkParallelCoordinatesActor::New()
 vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 {
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
-  this->PositionCoordinate->SetValue(0.25,0.25);
+  this->PositionCoordinate->SetValue(0.1,0.1);
   
   this->Position2Coordinate = vtkCoordinate::New();
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(0.5, 0.5);
+  this->Position2Coordinate->SetValue(0.9, 0.8);
   this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
   
   this->Input = NULL;
@@ -76,9 +76,11 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->Axes = NULL; 
   this->Mins = NULL;
   this->Maxs = NULL;
+  this->Xs = NULL;
 
   this->Title = NULL;
   this->TitleMapper = vtkTextMapper::New();
+  this->TitleMapper->SetJustificationToCentered();
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -110,19 +112,7 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
     this->Input = NULL;
     }
 
-  if ( this->Axes )
-    {
-    for (int i=0; i<this->N; i++)
-      {
-      this->Axes[i]->Delete();
-      }
-    delete [] this->Axes;
-    this->Axes = NULL;
-    delete [] this->Mins;
-    this->Mins = NULL;
-    delete [] this->Maxs;
-    this->Maxs = NULL;
-    }
+  this->Initialize();
   
   if (this->Title)
     {
@@ -137,6 +127,27 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
     }
 }
 
+// Free-up axes and related stuff
+void vtkParallelCoordinatesActor::Initialize()
+{
+  if ( this->Axes )
+    {
+    for (int i=0; i<this->N; i++)
+      {
+      this->Axes[i]->Delete();
+      }
+    delete [] this->Axes;
+    this->Axes = NULL;
+    delete [] this->Mins;
+    this->Mins = NULL;
+    delete [] this->Maxs;
+    this->Maxs = NULL;
+    delete [] this->Xs;
+    this->Xs = NULL;
+    }
+  this->N = 0;
+}
+
 // Plot scalar data for each input dataset.
 int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
 {
@@ -149,16 +160,16 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
     return 0;
     }
 
-  for (int i=0; i<this->N; i++)
-    {
-    renderedSomething += this->Axes[i]->RenderOverlay(viewport);
-    }
-  
   if ( this->Title != NULL )
     {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
 
+  for (int i=0; i<this->N; i++)
+    {
+    renderedSomething += this->Axes[i]->RenderOverlay(viewport);
+    }
+  
   return renderedSomething;
 }
 
@@ -175,7 +186,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if ( !this->Input  )
     {
     vtkErrorMacro(<< "Nothing to plot!");
-    return 0;
+    return renderedSomething;
     }
 
   // Check modified time to see whether we have to rebuild.
@@ -192,40 +203,117 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkDebugMacro(<<"Rebuilding plot");
 
-    this->PlaceAxes(viewport, size);
-    
-    // manage title
-    if ( this->Title != NULL )
+    if ( !this->PlaceAxes(viewport, size) )
       {
-      this->TitleMapper->SetInput(this->Title);
-      this->TitleMapper->SetBold(this->Bold);
-      this->TitleMapper->SetItalic(this->Italic);
-      this->TitleMapper->SetShadow(this->Shadow);
-      this->TitleMapper->SetFontFamily(this->FontFamily);
-      vtkAxisActor2D::SetFontSize(viewport, this->TitleMapper, size, 1.0,
-                                  stringWidth, stringHeight);
-      this->TitleActor->GetPositionCoordinate()->SetValue(
-        pos[0]+0.5*(pos2[0]-pos[0])-stringWidth/2.0,pos2[1]-stringHeight/2.0);
-      this->TitleActor->SetProperty(this->GetProperty());
+      return renderedSomething;
       }
+
+    this->TitleMapper->SetInput(this->Title);
+    this->TitleMapper->SetBold(this->Bold);
+    this->TitleMapper->SetItalic(this->Italic);
+    this->TitleMapper->SetShadow(this->Shadow);
+    this->TitleMapper->SetFontFamily(this->FontFamily);
+    vtkAxisActor2D::SetFontSize(viewport, this->TitleMapper, size, 1.0,
+                                stringWidth, stringHeight);
+    this->TitleActor->GetPositionCoordinate()->
+      SetValue((this->Xs[0]+this->Xs[this->N-1])/2.0,YMax+stringHeight/2.0);
+    this->TitleActor->SetProperty(this->GetProperty());
 
     this->BuildTime.Modified();
     }//if need to rebuild the plot
-  
-  for (int i=0; i<this->N; i++)
-    {
-    renderedSomething += this->Axes[i]->RenderOverlay(viewport);
-    }
+
   if ( this->Title != NULL )
     {
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
 
+  for (int i=0; i<this->N; i++)
+    {
+    renderedSomething += this->Axes[i]->RenderOpaqueGeometry(viewport);
+    }
+
   return renderedSomething;
 }
 
-void vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
+
+int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
 {
+  int i;
+  vtkDataObject *input = this->GetInput();
+  vtkFieldData *field = input->GetFieldData();
+  
+  this->Initialize();
+
+  if ( ! field )
+    {
+    return 0;
+    }
+  
+  // Determine the number of independent variables
+  if ( this->IndependentVariables == VTK_IV_COLUMN )
+    {
+    int minTuples = VTK_LARGE_INTEGER;
+    int numTuples;
+    vtkDataArray *array;
+    for (i=0; i<field->GetNumberOfArrays(); i++)
+      {
+      array = field->GetArray(i);
+      numTuples = array->GetNumberOfTuples();
+      if ( numTuples < minTuples )
+        {
+        minTuples = numTuples;
+        }
+      }
+    
+    this->N = minTuples;
+    }
+  else //row
+    {
+    this->N = field->GetNumberOfComponents();
+    }
+
+  if ( this->N <= 0 || this->N >= VTK_LARGE_INTEGER )
+    {
+    this->N = 0;
+    vtkErrorMacro(<<"No field data to plot");
+    return 0;
+    }
+  
+  // Allocate space and create axes
+  this->Axes = new vtkAxisActor2D* [this->N];
+  for (i=0; i<this->N; i++)
+    {
+    this->Axes[i] = vtkAxisActor2D::New();
+    this->Axes[i]->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
+    this->Axes[i]->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
+    this->Axes[i]->SetRange(0.0,1.0);
+    this->Axes[i]->SetNumberOfLabels(this->NumberOfLabels);
+    this->Axes[i]->SetBold(this->Bold);
+    this->Axes[i]->SetItalic(this->Italic);
+    this->Axes[i]->SetShadow(this->Shadow);
+    this->Axes[i]->SetFontFamily(this->FontFamily);
+    this->Axes[i]->SetLabelFormat(this->LabelFormat);
+    this->Axes[i]->SetProperty(this->GetProperty());
+    }
+  this->Mins = new float [this->N];
+  this->Maxs = new float [this->N];
+  this->Xs = new int [this->N];
+
+  // Get the location of the corners of the box
+  int *p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
+  int *p2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
+
+  // Specify the positions for the axes
+  this->YMin = p1[1];
+  this->YMax = p2[1];
+  for (i=0; i<this->N; i++)
+    {
+    this->Xs[i] = p1[0] + (float)i/((float)this->N-1) * (p2[0]-p1[0]);
+    this->Axes[i]->GetPoint1Coordinate()->SetValue(this->Xs[i], YMin);
+    this->Axes[i]->GetPoint2Coordinate()->SetValue(this->Xs[i], YMax);
+    }
+
+  return 1;
 }
 
 
