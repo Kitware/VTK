@@ -15,7 +15,6 @@ reader SetDataMask 0x7fff
 vtkImageShrink3D shrink
 shrink SetInput [reader GetOutput]
 shrink SetShrinkFactors 2 2 2
-puts [shrink GetShrinkFactors]
 #shrink SetProgressMethod {set pro [shrink GetProgress]; puts "Completed $pro"; flush stdout}
 #shrink Update
 shrink SetNumberOfThreads 1
