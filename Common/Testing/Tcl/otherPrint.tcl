@@ -24,7 +24,7 @@ proc rtOtherTest { fileid } {
 	catch {
            $a b
            b Print
-           if {[b IsA $a] == 0} {puts "  IsA failed!!!"}
+           if {[b IsA $a] == 0} {puts stderr "$a failed IsA test!!!"}
            b GetClassName
            b Delete
         }
