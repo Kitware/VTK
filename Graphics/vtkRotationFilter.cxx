@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.5");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.6");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -77,6 +77,12 @@ int vtkRotationFilter::RequestData(
   vtkCellData *inCD = input->GetCellData();
   vtkCellData *outCD = output->GetCellData();
 
+  if (!this->GetNumberOfCopies())
+    {
+    vtkErrorMacro("No number of copy set!");
+    return 1;
+    }
+
   double tuple[3];
   vtkPoints *outPoints;
   double point[3], center[3];
@@ -88,12 +94,6 @@ int vtkRotationFilter::RequestData(
 
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-
-  if (!this->GetNumberOfCopies())
-    {
-    vtkErrorMacro("No number of copy set!");
-    return 1;
-    }
 
   if (this->CopyInput)
     {
