@@ -1,10 +1,15 @@
 #
 # vtk library makefile
 #
+#
+# vtk library makefile
+#
 # NOTE !!! when adding a class, it must be added in four locations
 # It must be in the SRC_OBJ list, TCL_OBJ list and TCL_RULES
 # If it is a concrete class then it should be added to TCL_NEWS
-# as well.
+# as well. At the end of this file there are a number of makefile
+# rules to build the tcl wrappers. On the command line there is a 1 
+# if the class is concrete or a 0 if it is abstract.
 #
 ME = Graphics
 
