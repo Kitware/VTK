@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageRGBToHSV.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.22");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.23");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -33,105 +34,83 @@ vtkImageRGBToHSV::vtkImageRGBToHSV()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
-                                    vtkImageData *inData, T *inPtr,
-                                    vtkImageData *outData, T *outPtr,
-                                    int outExt[6], int id)
+                                    vtkImageData *inData,
+                                    vtkImageData *outData,
+                                    int outExt[6], int id, T *)
 {
-  int idxC, idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
+  int idxC, maxC;
   float R, G, B, H, S, V;
   float max = self->GetMaximum();
   float temp;
   
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents()-1;
-  maxX = outExt[1] - outExt[0]; 
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
   
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // Pixel operation
+      R = (float)(*inSI); inSI++;
+      G = (float)(*inSI); inSI++;
+      B = (float)(*inSI); inSI++;
+      // Saturation
+      temp = R;
+      if (G < temp)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        temp = G;
         }
-      for (idxX = 0; idxX <= maxX; idxX++)
+      if (B < temp)
         {
-        // Pixel operation
-        R = (float)(*inPtr); inPtr++;
-        G = (float)(*inPtr); inPtr++;
-        B = (float)(*inPtr); inPtr++;
-        // Saturation
-        temp = R;
-        if (G < temp)
-          {
-          temp = G;
-          }
-        if (B < temp)
-          {
-          temp = B;
-          }
-        float sumRGB = R+G+B;
-        if(sumRGB == 0.0)
-          {
-          S = 0.0;
-          }
-        else
-          {
-          S = max * (1.0 - (3.0 * temp / sumRGB));
-          }
-        
-        temp = (float)(R + G + B);
-        // Value is easy
-        V = temp / 3.0;
-        
-        // Hue
-        temp = sqrt((R-G)*(R-G) + (R-B)*(G-B));
-        if(temp != 0.0)
-          {
-          temp = acos((0.5 * ((R-G) + (R-B))) / temp);
-          }
-        if (G >= B)
-          {
-          H = max * (temp / 6.2831853);
-          }
-        else
-          {
-          H = max * (1.0 - (temp / 6.2831853));
-          }
-        
-        // assign output.
-        *outPtr = (T)(H); outPtr++;
-        *outPtr = (T)(S); outPtr++;
-        *outPtr = (T)(V); outPtr++;
-
-        for (idxC = 3; idxC <= maxC; idxC++)
-          {
-          *outPtr++ = *inPtr++;
-          }
+        temp = B;
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      float sumRGB = R+G+B;
+      if(sumRGB == 0.0)
+        {
+        S = 0.0;
+        }
+      else
+        {
+        S = max * (1.0 - (3.0 * temp / sumRGB));
+        }
+      
+      temp = (float)(R + G + B);
+      // Value is easy
+      V = temp / 3.0;
+      
+      // Hue
+      temp = sqrt((R-G)*(R-G) + (R-B)*(G-B));
+      if(temp != 0.0)
+        {
+        temp = acos((0.5 * ((R-G) + (R-B))) / temp);
+        }
+      if (G >= B)
+        {
+        H = max * (temp / 6.2831853);
+        }
+      else
+        {
+        H = max * (1.0 - (temp / 6.2831853));
+        }
+      
+      // assign output.
+      *outSI = (T)(H); outSI++;
+      *outSI = (T)(S); outSI++;
+      *outSI = (T)(V); outSI++;
+      
+      for (idxC = 3; idxC <= maxC; idxC++)
+        {
+        *outSI++ = *inSI++;
+        }
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -140,17 +119,14 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
@@ -168,8 +144,8 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageRGBToHSVExecute, this, inData,(VTK_TT *)(inPtr), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro6(vtkImageRGBToHSVExecute, this, inData, 
+                      outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
