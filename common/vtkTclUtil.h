@@ -14,6 +14,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 
+#ifndef __vtkTclInclude_h
+#define __vtkTclInclude_h
+
 #include <tcl.h>
 #include <tk.h>
 #include <string.h>
@@ -39,4 +42,5 @@ typedef  struct _vtkTclVoidFuncArg
 } vtkTclVoidFuncArg;
 
 
+#endif
 
