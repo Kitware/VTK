@@ -406,7 +406,6 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
 
 static void PlaceCamera (FILE *filePtr, RtPoint, RtPoint, float);
 static void AimZ (FILE *filePtr, RtPoint);
-static vtkMath math;
 
 void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
 {
@@ -420,8 +419,7 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
   direction[0] = focalPoint[0] - position[0];
   direction[1] = focalPoint[1] - position[1];
   direction[2] = focalPoint[2] - position[2];
-  math.Normalize (direction);
-  
+  vtkMath::Normalize (direction);
 
   RtFloat angle = aCamera->GetViewAngle ();
   fprintf (this->FilePtr, "Projection \"perspective\" \"fov\" [%f]\n", angle);
