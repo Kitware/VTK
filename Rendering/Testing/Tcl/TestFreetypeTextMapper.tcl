@@ -9,7 +9,7 @@ set text_color [list [expr 246 / 255.0] [expr 255 / 255.0] [expr 11 / 255.0]]
 set bg_color [list [expr 56 / 255.0] [expr 56 / 255.0] [expr 154 / 255.0]]
 
 vtkRenderWindow renWin
-    renWin SetSize 790 350
+    renWin SetSize 790 351
 
 vtkRenderer ren1
     eval ren1 SetBackground $bg_color
