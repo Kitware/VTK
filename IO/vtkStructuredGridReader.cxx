@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridReader, "1.53");
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.54");
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()
@@ -36,7 +36,7 @@ vtkStructuredGridReader::~vtkStructuredGridReader()
 {
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkStructuredGrid *vtkStructuredGridReader::GetOutput()
 {
   if (this->NumberOfOutputs < 1)
@@ -48,12 +48,13 @@ vtkStructuredGrid *vtkStructuredGridReader::GetOutput()
 }
 
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkStructuredGridReader::SetOutput(vtkStructuredGrid *output)
 {
   this->vtkSource::SetNthOutput(0, output);
 }
 
+//-----------------------------------------------------------------------------
 // We just need to read the dimensions
 void vtkStructuredGridReader::ExecuteInformation()
 {
@@ -102,6 +103,13 @@ void vtkStructuredGridReader::ExecuteInformation()
         break;
         }
 
+      // Have to read field data because it may be binary.
+      if (! strncmp(this->LowerCase(line), "field", 5))
+        {
+        vtkFieldData* fd = this->ReadFieldData();
+        fd->Delete(); 
+        }
+
       if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
         {
         int ext[6];
@@ -130,6 +138,7 @@ void vtkStructuredGridReader::ExecuteInformation()
   this->CloseVTKFile ();
 }
 
+//-----------------------------------------------------------------------------
 void vtkStructuredGridReader::Execute()
 {
   int numPts=0, npts=0, numCells=0, ncells;
