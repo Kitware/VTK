@@ -60,13 +60,19 @@ vtkPlanes* vtkPlanes::New()
 
 vtkPlanes::vtkPlanes()
 {
+  int i;
+
   this->Points = NULL;
   this->Normals = NULL;
   this->Plane = vtkPlane::New();
 
-  for (int i=0; i<24; i++)
+  for (i=0; i<24; i++)
     {
     this->Planes[i] = 0.0;
+    }
+  for (i=0; i<6; i++)
+    {
+    this->Bounds[i] = 0.0;
     }
 }
 
@@ -85,7 +91,8 @@ vtkPlanes::~vtkPlanes()
 
 void vtkPlanes::SetNormals(vtkDataArray* normals)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Normals to " << normals ); 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting Normals to " << normals ); 
 
   if (normals->GetNumberOfComponents() != 3)
     {
@@ -218,6 +225,98 @@ void vtkPlanes::SetFrustumPlanes(float planes[24])
   
   pts->Delete(); //ok reference counting
   normals->Delete();
+}
+
+void vtkPlanes::SetBounds(float bounds[6])
+{
+  int i;
+  float n[3], x[3];
+
+  for (i=0; i<6; i++)
+    {
+    if ( this->Bounds[i] != bounds[i] )
+      {
+      break;
+      }
+    }
+  if ( i >= 6 )
+    {
+    return; //same as before don't modify
+    }
+
+  // okay, need to allocate stuff
+  this->Modified();
+  vtkPoints *pts = vtkPoints::New();
+  vtkFloatArray *normals = vtkFloatArray::New();
+
+  pts->SetNumberOfPoints(6);
+  normals->SetNumberOfComponents(3);
+  normals->SetNumberOfTuples(6);
+  this->SetPoints(pts);
+  this->SetNormals(normals);
+
+  // Define the six planes
+  // The x planes
+  n[0] = -1.0;
+  n[1] = 0.0;
+  n[2] = 0.0;
+  x[0] = this->Bounds[0];
+  x[1] = 0.0;
+  x[2] = 0.0;
+  pts->SetPoint(0,x);
+  normals->SetTuple(0,n);
+
+  n[0] = 1.0;
+  x[0] = this->Bounds[1];
+  pts->SetPoint(1,x);
+  normals->SetTuple(1,n);
+  
+  // The y planes
+  n[0] = 0.0;
+  n[1] = -1.0;
+  n[2] = 0.0;
+  x[0] = 0.0;
+  x[1] = this->Bounds[2];
+  x[2] = 0.0;
+  pts->SetPoint(2,x);
+  normals->SetTuple(2,n);
+
+  n[1] = 1.0;
+  x[1] = this->Bounds[3];
+  pts->SetPoint(3,x);
+  normals->SetTuple(3,n);
+  
+  // The z planes
+  n[0] = 0.0;
+  n[1] = 0.0;
+  n[2] = -1.0;
+  x[0] = 0.0;
+  x[1] = 0.0;
+  x[2] = this->Bounds[4];
+  pts->SetPoint(4,x);
+  normals->SetTuple(4,n);
+
+  n[2] = 1.0;
+  x[2] = this->Bounds[5];
+  pts->SetPoint(5,x);
+  normals->SetTuple(5,n);
+  
+  pts->Delete(); //ok reference counting
+  normals->Delete();
+}
+
+void vtkPlanes::SetBounds(float xmin, float xmax, float ymin, float ymax,
+                          float zmin, float zmax)
+{
+  float bounds[6];
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
+
+  this->SetBounds(bounds);
 }
 
 int vtkPlanes::GetNumberOfPlanes()
