@@ -1,15 +1,19 @@
 """
 A simple VTK input file for PyQt, the qt bindings for python.
 See http://www.trolltech.com for qt documentation, and
-http://www.thekompany.com for the qt python bindings.
+http://www.river-bank.demon.co.uk or http://www.thekompany.com
+for the qt python bindings.
 
 Created by David Gobbi, December 2001
 Based on vtkTkRenderWindget.py
+
+Changes by Gerard Vermeulen Feb. 2003
+ Win32 support
 """
 
 """
-This class works only with the UNIX version of Qt.
-It does not work under the Win32 version of Qt.
+This class should work with both the UNIX version of Qt and also on
+Win32.
 
 Depending on the OpenGL graphics drivers, it may not
 be possible to have more than one QVTKRenderWidget
@@ -20,6 +24,10 @@ will probably require a QVTKRenderWidget that is written in
 C++ and then wrapped to be made available through python,
 similar to the vtkTkRenderWidget.  
 """
+
+# Problems on Win32:
+# 1. The widget is not cleaned up properly and crashes the
+#    application.
 
 import math, os, sys
 from qt import *
@@ -106,16 +114,20 @@ class QVTKRenderWidget(QWidget):
             if self.__connected == 0:
                 size = self.size()
                 self._RenderWindow.SetSize(size.width(),size.height())
-                self._RenderWindow.SetWindowInfo(str(self.winId()))
+                self._RenderWindow.SetWindowInfo(str(int(self.winId())))
                 self.__connected = 1
 
+
+    def show(self):
+        QWidget.show(self)
+        self.repaint() # needed for initial contents display on Win32
 
     def paintEvent(self,ev):
         if self.isVisible():
             if self.__connected == 0:
                 size = self.size()
                 self._RenderWindow.SetSize(size.width(),size.height())
-                self._RenderWindow.SetWindowInfo(str(self.winId()))
+                self._RenderWindow.SetWindowInfo(str(int(self.winId())))
                 self.__connected = 1
         if self.__connected:
             self.Render()

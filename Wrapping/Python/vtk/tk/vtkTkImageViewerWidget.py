@@ -69,10 +69,11 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         # stuff for window level text.
         mapper = vtkTextMapper()
         mapper.SetInput("none")
-        mapper.SetFontFamilyToTimes()
-        mapper.SetFontSize(18)
-        mapper.BoldOn()
-        mapper.ShadowOn()
+        t_prop = mapper.GetTextProperty()
+        t_prop.SetFontFamilyToTimes()
+        t_prop.SetFontSize(18)
+        t_prop.BoldOn()
+        t_prop.ShadowOn()
         
         self._LevelMapper = mapper
 
@@ -88,10 +89,11 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
                 
         mapper = vtkTextMapper()
         mapper.SetInput("none")
-        mapper.SetFontFamilyToTimes()
-        mapper.SetFontSize(18)
-        mapper.BoldOn()
-        mapper.ShadowOn()
+        t_prop = mapper.GetTextProperty()
+        t_prop.SetFontFamilyToTimes()
+        t_prop.SetFontSize(18)
+        t_prop.BoldOn()
+        t_prop.ShadowOn()
         
         self._WindowMapper = mapper
 

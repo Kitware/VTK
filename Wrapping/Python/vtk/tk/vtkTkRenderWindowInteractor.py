@@ -282,7 +282,7 @@ def vtkRenderWindowInteractorConeExample():
     def quit(obj=root):
         obj.quit()
 
-    pane.SetExitMethod(quit)
+    pane.AddObserver("ExitEvent", lambda o,e,q=quit: q())
 
     ren = vtk.vtkRenderer()
     pane.GetRenderWindow().AddRenderer(ren)
