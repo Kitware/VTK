@@ -404,6 +404,19 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
     }
   else
     {
+    float coneAngle = aLight->GetConeAngle ();
+    float exponent = aLight->GetExponent ();
+    fprintf (this->FilePtr, "LightSource \"spotlight\" %d ", count);
+    fprintf (this->FilePtr, "\"intensity\" [%f] ", Intensity);
+    fprintf (this->FilePtr, "\"lightcolor\" [%f %f %f] ",
+	color[0], color[1], color[2]);
+    fprintf (this->FilePtr, "\"from\" [%f %f %f] ",
+	Position[0], Position[1], Position[2]);
+    fprintf (this->FilePtr, "\"to\" [%f %f %f]\n",
+	FocalPoint[0], FocalPoint[1], FocalPoint[2]);
+    fprintf (this->FilePtr, "\"coneangle\" [%f]\n", coneAngle);
+    fprintf (this->FilePtr, "\"beamdistribution\" [%f]\n", exponent);
+    fprintf (this->FilePtr, "\"conedeltaangle\" [%f]\n", 0.0);
     }
   if (strcmp ("vtkRIBLight", aLight->GetClassName ()) == 0)
     {

@@ -97,6 +97,7 @@ typedef struct {
     float  hotspot;        /* Hotspot angle (degrees) */
     float  falloff;        /* Falloff angle (degrees) */
     int    shadow_flag;    /* Shadow flag (not used) */
+    vtkLight *aLight;
 } SpotLight;
 
 

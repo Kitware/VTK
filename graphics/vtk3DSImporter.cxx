@@ -250,9 +250,10 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
 void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
 {
   OmniLight *omniLight;
+  SpotLight *spotLight;
   vtkLight *aLight;
 
-  // just walk the list of omni lights, creating lymb lights
+  // just walk the list of omni lights, creating vtk lights
   for (omniLight = this->OmniList; omniLight != (OmniLight *) NULL; omniLight = (OmniLight *) omniLight->next)
   {
 
@@ -266,6 +267,26 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
                     omniLight->col.blue);
   renderer->AddLight (aLight);
   vtkDebugMacro (<< "Importing Omni Light: " << omniLight->name);
+  }                       
+
+  // now walk the list of spot lights, creating vtk lights
+  for (spotLight = this->SpotLightList; spotLight != (SpotLight *) NULL; spotLight = (SpotLight *) spotLight->next)
+  {
+
+  spotLight->aLight = aLight = vtkLight::New ();
+  aLight->PositionalOn ();
+  aLight->SetPosition (spotLight->pos[0],
+                       spotLight->pos[1],
+                       spotLight->pos[2]);
+  aLight->SetFocalPoint (spotLight->target[0],
+			 spotLight->target[1],
+			 spotLight->target[2]);
+  aLight->SetColor (spotLight->col.red,
+                    spotLight->col.green,
+                    spotLight->col.blue);
+  aLight->SetConeAngle (spotLight->falloff);
+  renderer->AddLight (aLight);
+  vtkDebugMacro (<< "Importing Spot Light: " << spotLight->name);
   }                       
 }
 
@@ -790,7 +811,7 @@ static void parse_smooth_group(vtk3DSImporter *vtkNotUsed(importer))
 
 static void parse_mesh_matrix(vtk3DSImporter *vtkNotUsed(importer), Mesh *vtkNotUsed(mesh))
 {
-  vtkGenericWarningMacro(<< "mesh matrix detected but not used\n");
+  //  vtkGenericWarningMacro(<< "mesh matrix detected but not used\n");
 }
 
 
@@ -1148,12 +1169,20 @@ static void cleanup_name (char *name)
 vtk3DSImporter::~vtk3DSImporter()
 {
   OmniLight *omniLight;
+  SpotLight *spotLight;
+
   // walk the light list and delete vtk objects
   for (omniLight = this->OmniList; omniLight != (OmniLight *) NULL; omniLight = (OmniLight *) omniLight->next)
     {
     omniLight->aLight->Delete();
     }
   LIST_KILL (this->OmniList);
+
+  // walk the spot light list and delete vtk objects
+  for (spotLight = this->SpotLightList; spotLight != (SpotLight *) NULL; spotLight = (SpotLight *) spotLight->next)
+    {
+    spotLight->aLight->Delete();
+    }
   LIST_KILL (this->SpotLightList);
 
   Camera *camera;
