@@ -60,6 +60,7 @@ vtkImageGaussianSmooth \
 vtkImageGaussianSmooth1D \
 vtkImageGaussianSource \
 vtkImageGradient \
+vtkImageGradientDerivative \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
 vtkImageHistogram \

@@ -174,6 +174,15 @@ void vtkImageSeriesReader::SetImageRange(int start, int end)
 // This method sets the file prefix.
 void vtkImageSeriesReader::SetFilePrefix(char *prefix)
 {
+  if ( prefix == NULL && this->FilePrefix == NULL)
+    {
+    return;
+    }
+  if ( prefix && this->FilePrefix && strcmp(prefix, this->FilePrefix) == 0)
+    {
+    return;
+    }
+  
   if (this->FilePrefix)
     {
     delete [] this->FilePrefix;
@@ -189,6 +198,15 @@ void vtkImageSeriesReader::SetFilePrefix(char *prefix)
 // This method sets the file pattern.
 void vtkImageSeriesReader::SetFilePattern(char *pattern)
 {
+  if ( pattern == NULL && this->FilePattern == NULL)
+    {
+    return;
+    }
+  if ( pattern && this->FilePattern && strcmp(pattern, this->FilePattern) == 0)
+    {
+    return;
+    }
+  
   if (this->FilePattern)
     {
     delete [] this->FilePattern;

@@ -233,18 +233,27 @@ void vtkImageReader::GetDataMemoryOrder(int dim, int *axes)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetDataDimensions(int num, int *size)
 {
-  int idx;
+  int idx, modified = 0;
   
   for (idx = 0; idx < num; ++idx)
     {
+    if (this->DataDimensions[idx] != size[idx] ||
+	this->DataExtent[idx*2+1] != this->DataExtent[idx*2] + size[idx] - 1)
+      {
+      modified = 1;
+      }
+    
     this->DataDimensions[idx] = size[idx];
     // Also set the image extent (do not modify mins)
     this->DataExtent[idx*2+1] = this->DataExtent[idx*2] + size[idx] - 1;
     }
-
-  this->Initialized = 0;
-  this->Modified();
+  if (modified)
+    {
+    this->Initialized = 0;
+    this->Modified();
+    }
 }
+
 //----------------------------------------------------------------------------
 void vtkImageReader::GetDataDimensions(int num, int *size)
 {
@@ -299,13 +308,20 @@ void vtkImageReader::GetDataExtent(int num, int *extent)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetDataSpacing(int num, float *ratio)
 {
-  int idx;
+  int idx, modified = 0;
   
   for (idx = 0; idx < num; ++idx)
     {
+    if (this->DataSpacing[idx] != ratio[idx])
+      {
+      modified = 1;
+      }
     this->DataSpacing[idx] = ratio[idx];
     }
-  this->Modified();
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 //----------------------------------------------------------------------------
 void vtkImageReader::GetDataSpacing(int num, float *ratio)
@@ -321,13 +337,20 @@ void vtkImageReader::GetDataSpacing(int num, float *ratio)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetDataOrigin(int num, float *origin)
 {
-  int idx;
+  int idx, modified = 0;
   
   for (idx = 0; idx < num; ++idx)
     {
+    if (this->DataOrigin[idx] != origin[idx])
+      {
+      modified = 1;
+      }
     this->DataOrigin[idx] = origin[idx];
     }
-  this->Modified();
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 //----------------------------------------------------------------------------
 void vtkImageReader::GetDataOrigin(int num, float *origin)
@@ -750,6 +773,11 @@ void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
 void vtkImageReader::SetDataScalarType(int type)
 {
   vtkImageCache *cache;
+  
+  if (type == this->DataScalarType)
+    {
+    return;
+    }
   
   this->Modified();
   this->DataScalarType = type;
