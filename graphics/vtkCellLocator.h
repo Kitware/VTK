@@ -63,6 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkLocator.h"
 
+class vtkNeighborCells;
+
 class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
@@ -96,6 +98,24 @@ public:
 				int &subId, int &cellId);
 
   // Description:
+  // Return the closest point and the cell which is closest to the point x.
+  // The closest point is somewhere on a cell, it need not be one of the
+  // vertices of the cell.
+  void FindClosestPoint(float x[3], float closestPoint[3], int &cellId,
+			int &subId, float& dist2);
+  
+  // Description:
+  // Return the closest point within a specified radius and the cell which is
+  // closest to the point x. The closest point is somewhere on a cell, it
+  // need not be one of the vertices of the cell. This method returns 1 if
+  // a point is found within the specified radius. If there are no cells within
+  // the specified radius, the method returns 0 and the values of closestPoint,
+  // cellId, subId, and dist2 are undefined.
+  int FindClosestPointWithinRadius(float x[3], float radius,
+				   float closestPoint[3], int &cellId,
+				   int &subId, float& dist2);
+  
+  // Description:
   // Get the cells in a particular bucket.
   virtual vtkIdList *GetCells(int bucket);
 
@@ -106,6 +126,15 @@ public:
   void GenerateRepresentation(int level, vtkPolyData *pd);
   
 protected:
+  void GetBucketNeighbors(int ijk[3], int ndivs, int level);
+  void GetOverlappingBuckets(float x[3], int ijk[3], float dist, int level);
+
+  void ClearCellHasBeenVisited();
+  void ClearCellHasBeenVisited(int id);
+
+  float Distance2ToBucket(float x[3], int ijk[3], int nei[3]);
+  float Distance2ToBounds(float x[3], float bounds[6]);
+  
   int NumberOfCellsPerBucket; // cells per octant
   int NumberOfOctants; // number of octants in tree
   float Bounds[6]; // bounding box root octant
@@ -119,6 +148,10 @@ protected:
   int GenerateIndex(int offset, int numDivs, int i, int j, int k, int &idx);
   void GenerateFace(int face, int numDivs, int i, int j, int k,
                     vtkPoints *pts, vtkCellArray *polys);
+
+  vtkNeighborCells *Buckets;
+  unsigned char *CellHasBeenVisited;
+  unsigned char QueryNumber;
 };
 
 #endif
