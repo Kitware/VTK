@@ -3,60 +3,44 @@ catch {load vtktcl}
 # It then reads the new data set from disk and displays it.
 # Dont forget to delete the test files after the script is finished.
 
-
 source vtkImageInclude.tcl
 
 # Image pipeline
 
 vtkImageReader reader
-#reader DebugOn
-reader SetDataByteOrderToLittleEndian
-reader SetDataExtent 0 255 0 255 1 33
-reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
-reader SetDataMask 0x7fff
-reader DebugOn
+  reader SetDataByteOrderToLittleEndian
+  reader SetDataExtent 0 255 0 255 1 33
+  reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader SetDataMask 0x7fff
 
 vtkImageThreshold thresh
-thresh SetInput [reader GetOutput]
-thresh ThresholdByUpper 1000.0
-thresh SetInValue 0.0
-thresh SetOutValue 250.0
-thresh ReplaceOutOn
-thresh SetOutputScalarTypeToUnsignedChar
+  thresh SetInput [reader GetOutput]
+  thresh ThresholdByUpper 1000.0
+  thresh SetInValue 0.0
+  thresh SetOutValue 250.0
+  thresh ReplaceOutOn
+  thresh SetOutputScalarTypeToUnsignedChar
 
 vtkImageWriter writer
-writer SetInput [thresh GetOutput]
-writer SetFilePrefix "test"
-writer SetFileDimensionality 2
-writer SetFilePattern "%s.%d"
-writer DebugOn
-writer Write
-
-
-
-
+  writer SetInput [thresh GetOutput]
+  writer SetFilePrefix "test"
+  writer SetFileDimensionality 3
+  writer SetFilePattern "%s.xxx"
+  writer Write
 
 vtkImageReader reader2
-#reader2 DebugOn
-reader2 SetDataScalarTypeToUnsignedChar
-reader2 ReleaseDataFlagOff
-reader2 SetDataByteOrderToBigEndian
-reader2 SetDataExtent 0 255 0 255 1 33
-reader2 SetFilePrefix "test"
+  reader2 SetDataScalarTypeToUnsignedChar
+  reader2 ReleaseDataFlagOff
+  reader2 SetDataExtent 0 255 0 255 1 33
+  reader2 SetFilePrefix "test"
+  reader2 SetFilePattern "%s.xxx"
+  reader2 SetFileDimensionality 3
 
 vtkImageViewer viewer
-#viewer DebugOn
-viewer SetInput [reader2 GetOutput]
-viewer SetZSlice 22
-viewer SetColorWindow 300
-viewer SetColorLevel 150
-
+  viewer SetInput [reader2 GetOutput]
+  viewer SetZSlice 22
+  viewer SetColorWindow 300
+  viewer SetColorLevel 150
 
 # make interface
 source WindowLevelInterface.tcl
-
-
-
-
-
-
