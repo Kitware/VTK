@@ -152,7 +152,6 @@ void vtkRenderer::Render(void)
   double   t1, t2;
   int      i;
   vtkProp  *aProp;
-  float    *oldTimes = NULL;
 
   t1 = vtkTimerLog::GetCurrentTime();
 
@@ -229,7 +228,6 @@ void vtkRenderer::Render(void)
     this->PropArray                = new vtkProp *[this->Props->GetNumberOfItems()];
     this->RayCastPropArray         = new vtkProp *[this->Props->GetNumberOfItems()];
     this->RenderIntoImagePropArray = new vtkProp *[this->Props->GetNumberOfItems()];
-    oldTimes                       = new   float  [this->Props->GetNumberOfItems()];
     }
   else
     {
@@ -244,7 +242,6 @@ void vtkRenderer::Render(void)
     {
     if ( aProp->GetVisibility() )
       {
-      oldTimes[this->PropArrayCount] = aProp->GetEstimatedRenderTime();
       this->PropArray[this->PropArrayCount++] = aProp;
       }
     }
@@ -274,8 +271,7 @@ void vtkRenderer::Render(void)
     {
     for ( i = 0; i < this->PropArrayCount; i++ )
       {
-      this->PropArray[i]->SetAllocatedRenderTime(0.0 );
-      this->PropArray[i]->AddEstimatedRenderTime( oldTimes[i] );
+      this->PropArray[i]->RestoreEstimatedRenderTime();
       }
     }
 
@@ -286,7 +282,6 @@ void vtkRenderer::Render(void)
     delete [] this->PropArray;
     delete [] this->RayCastPropArray;
     delete [] this->RenderIntoImagePropArray;
-    delete [] oldTimes;
 
     this->PropArray                = NULL;
     this->RayCastPropArray         = NULL;
@@ -483,7 +478,7 @@ void vtkRenderer::AllocateTime()
     // to the renderer's AllocatedRenderTime.
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
-                             this->AllocatedRenderTime * this->TimeFactor );  
+                             this->AllocatedRenderTime * this->TimeFactor, vp );  
     }
 
   // Since we now have allocated render times, we can select an LOD

@@ -112,7 +112,7 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
     prop = path->GetLastNode()->GetProp();
     if ( prop->GetVisibility() )
       {
-      prop->SetAllocatedRenderTime(fraction);
+      prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderTranslucentGeometry(ren);
       prop->PokeMatrix(NULL);
@@ -142,7 +142,7 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
     prop = path->GetLastNode()->GetProp();
     if ( prop->GetVisibility() )
       {
-      prop->SetAllocatedRenderTime(fraction);
+      prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderOpaqueGeometry(ren);
       prop->PokeMatrix(NULL);
@@ -171,7 +171,7 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
     prop = path->GetLastNode()->GetProp();
     if ( prop->GetVisibility() )
       {
-      prop->SetAllocatedRenderTime(fraction);
+      prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderOverlay(ren);
       prop->PokeMatrix(NULL);

@@ -809,7 +809,7 @@ int vtkLODProp3D::InitializeRayCasting( vtkViewport *viewport)
 
 // Override the method from vtkProp - add to both this prop and the prop of
 // the selected LOD
-void vtkLODProp3D::AddEstimatedRenderTime( float t )
+void vtkLODProp3D::AddEstimatedRenderTime( float t, vtkViewport *vp )
 {
   // Add to this prop's estimated render time
   this->EstimatedRenderTime += t;
@@ -831,12 +831,22 @@ void vtkLODProp3D::AddEstimatedRenderTime( float t )
   
   // Now that error checking is done, add to the estimated render time
   // of the selected LOD
-  this->LODs[this->SelectedLODIndex].Prop3D->AddEstimatedRenderTime(t);
+  this->LODs[this->SelectedLODIndex].Prop3D->AddEstimatedRenderTime(t, vp);
+}
+
+void vtkLODProp3D::RestoreEstimatedRenderTime()
+{
+  // restore the EstimatedTime of the last LOD to be rendered
+  if ( this->SelectedLODIndex >= 0 &&
+       this->SelectedLODIndex < this->NumberOfEntries )
+    {
+    this->LODs[this->SelectedLODIndex].Prop3D->RestoreEstimatedRenderTime();
+    }
 }
 
 // Set the allocated render time - this is where the decision is made
 // as to which LOD to select
-void vtkLODProp3D::SetAllocatedRenderTime( float t )
+void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
 {
   int    i;
   int    index = -1;
@@ -844,19 +854,22 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   float  bestLevel;
   float  targetTime;
   float  estimatedTime;
+  float  newTime;
 
   // update the EstimatedTime of the last LOD to be rendered
   if ( this->SelectedLODIndex >= 0 &&
        this->SelectedLODIndex < this->NumberOfEntries )
     {
-    // For stability, blend in the new time - 75% old + 25% new
-    estimatedTime = 
-      this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
+    // For stability, blend in the new time - 25% old + 75% new
+    newTime = 
+      this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime(vp);
     this->LODs[this->SelectedLODIndex].EstimatedTime = 
-	0.75 * this->LODs[this->SelectedLODIndex].EstimatedTime +
-	0.25 * estimatedTime;
+      0.25 * this->LODs[this->SelectedLODIndex].EstimatedTime +
+      0.75 * newTime;
     }
-
+  
+  this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
+  
   if ( this->AutomaticLODSelection )
     {
     bestTime = -1.0;
@@ -956,7 +969,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
     }
 
   this->SelectedLODIndex = index;
-  this->LODs[this->SelectedLODIndex].Prop3D->SetAllocatedRenderTime( t );
+  this->LODs[this->SelectedLODIndex].Prop3D->SetAllocatedRenderTime( t, vp );
   this->EstimatedRenderTime = 0.0;
   this->AllocatedRenderTime = t;
 
@@ -966,6 +979,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
     {
     p->SetUserMatrix( this->GetMatrixPointer()) ;
     }
+
 }
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -983,6 +997,7 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
      << (this->AutomaticPickLODSelection ? "On\n" : "Off\n");
 
   os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << endl;
+  
 }
 
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)

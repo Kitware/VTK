@@ -261,6 +261,13 @@ public:
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Override in order to take into account screen coverage
+  void AddEstimatedRenderTime( float t, vtkViewport *vp );
+  float GetEstimatedRenderTime( vtkViewport *vp );
+  
 //ETX
 
 protected:
@@ -316,6 +323,9 @@ protected:
   float                        GradientOpacityConstant;
   vtkTimeStamp                 GradientOpacityArrayMTime;
 
+  // Function to compute screen coverage of this volume
+  float ComputeScreenCoverage( vtkViewport *vp );
+  
   VTKRayCastVolumeInfo *VolumeInfo;
 
 };

@@ -219,9 +219,24 @@ public:
   // The value is returned in seconds. For simple geometry the accuracy may
   // not be great due to buffering. For ray casting, which is already
   // multi-resolution, the current resolution of the image is factored into
-  // the time.
-  vtkGetMacro( EstimatedRenderTime, float );
-
+  // the time. We need the viewport for viewing parameters that affect timing.
+  // The no-arguments version simply returns the value of the variable with
+  // no estimation.
+  virtual float GetEstimatedRenderTime( vtkViewport * )
+    { return this->EstimatedRenderTime; };
+  virtual float GetEstimatedRenderTime(){ return this->EstimatedRenderTime; };
+      
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
+  // When the EstimatedRenderTime is first set to 0.0 (in the
+  // SetAllocatedRenderTime method) the old value is saved. This
+  // method is used to restore that old value should the render be
+  // aborted.
+  virtual void RestoreEstimatedRenderTime()
+    { this->EstimatedRenderTime = this->SavedEstimatedRenderTime; };
+  
+  
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -234,21 +249,21 @@ public:
   // really a modification to the object. (For example, we don't want
   // to rebuild matrices at every render because the estimated render time
   // is changing)
-  virtual void AddEstimatedRenderTime(float t){this->EstimatedRenderTime+=t;};
+  virtual void AddEstimatedRenderTime(float t, vtkViewport *vp)
+    {this->EstimatedRenderTime+=t;};
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // The renderer may use the allocated rendering time to determine
-  // how to render this actor. 
-  // The set method is not a macro in order to avoid resetting the mtime of
-  // the prop - otherwise the prop would have been modified during every 
-  // render.
+  // how to render this actor. Therefore it might need the information
+  // provided in the viewport.
   // A side effect of this method is to reset the EstimatedRenderTime to
   // 0.0. This way, each of the ways that this prop may be rendered can
   // be timed and added together into this value.
-  virtual void SetAllocatedRenderTime(float t) {
+  virtual void SetAllocatedRenderTime(float t, vtkViewport *v) {
     this->AllocatedRenderTime = t;
+    this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
     this->EstimatedRenderTime = 0.0;
   };
 
@@ -289,6 +304,7 @@ protected:
 
   float AllocatedRenderTime;
   float EstimatedRenderTime;
+  float SavedEstimatedRenderTime;
   float RenderTimeMultiplier;
 
   // support multi-part props and access to paths of prop

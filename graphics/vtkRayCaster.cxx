@@ -1456,11 +1456,11 @@ void vtkRayCaster::Render( vtkRenderer *ren,
     renderTime = this->TotalRenderTime / (float)(softwareCount + raycastCount);
     for ( i = 0; i < this->SoftwareBufferPropCount; i++ )
       {
-      this->SoftwareProps[i]->AddEstimatedRenderTime( renderTime );
+      this->SoftwareProps[i]->AddEstimatedRenderTime( renderTime, ren );
       }  
     for ( i = 0; i < this->RayCastPropCount; i++ )
       {
-      this->RayCastProps[i]->AddEstimatedRenderTime( renderTime );
+      this->RayCastProps[i]->AddEstimatedRenderTime( renderTime, ren );
       }  
     }
   
