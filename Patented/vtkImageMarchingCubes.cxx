@@ -32,16 +32,18 @@
 =========================================================================*/
 #include "vtkImageMarchingCubes.h"
 
+#include "vtkCellArray.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMarchingCubesCases.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.51");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.52");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------

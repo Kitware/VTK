@@ -28,6 +28,8 @@
 =========================================================================*/
 #include "vtkSynchronizedTemplates3D.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
@@ -38,6 +40,7 @@
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 #include "vtkStructuredGrid.h"
@@ -49,7 +52,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.64");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.65");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------

@@ -32,6 +32,7 @@
 =========================================================================*/
 #include "vtkMarchingCubes.h"
 
+#include "vtkCellArray.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -41,6 +42,7 @@
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 #include "vtkStructuredPoints.h"
@@ -49,7 +51,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.82");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.83");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:

@@ -37,10 +37,11 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkDividingCubes, "1.47");
+vtkCxxRevisionMacro(vtkDividingCubes, "1.48");
 vtkStandardNewMacro(vtkDividingCubes);
 
 // Description:
