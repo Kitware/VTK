@@ -739,7 +739,7 @@ void vtkAppendPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
     }
   //
   os << indent << "UserManagedInputs: "
-     << this->UserManagedInputs << endl;
+     << this->UserManagedInputs << vtkEndl;
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
