@@ -78,14 +78,17 @@ public:
   vtkSetMacro(Phase, float);
   vtkGetMacro(Phase, float);
 
+  vtkSetMacro(Amplitude, float);
+  vtkGetMacro(Amplitude, float);
+
   void UpdateImageInformation();
 
 private:
-  float StandardDeviation;
   int WholeExtent[8];
   float Direction[4];
   float Period;
   float Phase;
+  float Amplitude;
 
   void Execute(vtkImageRegion *outRegion);
 };

@@ -45,17 +45,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageSinusoidSource::vtkImageSinusoidSource()
 {
-  this->Maximum = 10.0;
-  this->Center[0] = 0.0;
-  this->Center[1] = 0.0;
-  this->Center[2] = 0.0;
-  this->Center[3] = 0.0;
+  this->Direction[0] = 1.0;
+  this->Direction[1] = 0.0;
+  this->Direction[2] = 0.0;
+  this->Direction[3] = 0.0;
+  
+  this->Amplitude = 255.0;
+  this->Phase = 0.0;
+  this->Period = 20.0;
 
   this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
   this->WholeExtent[6] = 0;  this->WholeExtent[7] = 0;
-  this->StandardDeviation = 100.0;
   
   this->SetOutputScalarType(VTK_FLOAT);
   this->SetExecutionAxes(VTK_IMAGE_X_AXIS);
@@ -134,7 +136,7 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
   float *ptr;
   int idx, inc, extent[8];
   int idx2;
-  float sum, temp, temp2;
+  float sum;
 
   if (region->GetScalarType() != VTK_FLOAT)
     {
@@ -153,8 +155,11 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
     sum = 0.0;
     for (idx2 = 0; idx2 < 4; ++idx2)
       {
+      sum += (float)(extent[idx*2]) * this->Direction[idx];
       }
     
+    *ptr = this->Amplitude * 
+      cos((6.2831853 * sum / this->Period) + this->Phase);
     
     ptr += inc;
     }
