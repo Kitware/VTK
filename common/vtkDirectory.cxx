@@ -37,9 +37,9 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-// First windows style directory access
+// First microsoft compilers
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #include <io.h>
 #include <ctype.h>
@@ -106,7 +106,7 @@ int vtkDirectory::Open(const char* name)
 
 #else
 
-// Unix style directory access
+// Now the POSIX style directory access
 
 #include <sys/types.h>
 #include <dirent.h>
