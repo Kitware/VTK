@@ -195,10 +195,12 @@ void vtkPlaneSource::SetNormal(float N[3])
   if ( vtkMath::Normalize(n) == 0.0 )
     {
     vtkErrorMacro(<<"Specified zero normal");
+    transform->Delete();
     return;
     }
   if ( !this->UpdatePlane(v1,v2) )
     {
+    transform->Delete();
     return;
     }
   
@@ -206,6 +208,7 @@ void vtkPlaneSource::SetNormal(float N[3])
   vtkMath::Cross(this->Normal,n,rotVector);
   if ( vtkMath::Normalize(rotVector) == 0.0 )
     {
+    transform->Delete();
     return; //no rotation
     }
   theta = acos((double)vtkMath::Dot(this->Normal,n)) / vtkMath::DegreesToRadians();
