@@ -870,7 +870,7 @@ void vtkStructuredGrid::ShallowCopy(vtkDataObject *dataObject)
 
   if ( grid != NULL )
     {
-    this->InternalCopy(grid);
+    this->InternalStructuredGridCopy(grid);
     }
 
   // Do superclass
@@ -884,7 +884,7 @@ void vtkStructuredGrid::DeepCopy(vtkDataObject *dataObject)
 
   if ( grid != NULL )
     {
-    this->InternalCopy(grid);
+    this->InternalStructuredGridCopy(grid);
     }
 
   // Do superclass
@@ -893,7 +893,7 @@ void vtkStructuredGrid::DeepCopy(vtkDataObject *dataObject)
 
 //----------------------------------------------------------------------------
 // This copies all the local variables (but not objects).
-void vtkStructuredGrid::InternalCopy(vtkStructuredGrid *src)
+void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 {
   int idx;
 

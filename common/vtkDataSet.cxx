@@ -332,7 +332,7 @@ void vtkDataSet::ShallowCopy(vtkDataObject *dataObject)
 
   if ( dataSet != NULL )
     {
-    this->InternalCopy(dataSet);
+    this->InternalDataSetCopy(dataSet);
     this->CellData->ShallowCopy(dataSet->GetCellData());
     this->PointData->ShallowCopy(dataSet->GetPointData());
     }
@@ -347,7 +347,7 @@ void vtkDataSet::DeepCopy(vtkDataObject *dataObject)
  
   if ( dataSet != NULL )
     {
-    this->InternalCopy(dataSet);
+    this->InternalDataSetCopy(dataSet);
     this->CellData->DeepCopy(dataSet->GetCellData());
     this->PointData->DeepCopy(dataSet->GetPointData());
     }
@@ -358,7 +358,7 @@ void vtkDataSet::DeepCopy(vtkDataObject *dataObject)
 
 //----------------------------------------------------------------------------
 // This copies all the local variables (but not objects).
-void vtkDataSet::InternalCopy(vtkDataSet *src)
+void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
 {
   int idx;
 

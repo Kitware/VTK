@@ -586,7 +586,7 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
 //----------------------------------------------------------------------------
 void vtkDataObject::ShallowCopy(vtkDataObject *src)
 {
-  this->InternalCopy(src);
+  this->InternalDataObjectCopy(src);
 
   this->SetFieldData(src->GetFieldData());
 }
@@ -596,7 +596,7 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 {
   vtkFieldData *srcFieldData = src->GetFieldData();
   
-  this->InternalCopy(src);
+  this->InternalDataObjectCopy(src);
 
   if (srcFieldData)
     {
@@ -612,7 +612,7 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::InternalCopy(vtkDataObject *src)
+void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 {
   int idx;
 

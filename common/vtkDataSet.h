@@ -339,7 +339,7 @@ protected:
   float Center[3];
 
 private:
-  void InternalCopy(vtkDataSet *src);  
+  void InternalDataSetCopy(vtkDataSet *src);  
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

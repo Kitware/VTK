@@ -1714,7 +1714,7 @@ void vtkImageData::ShallowCopy(vtkDataObject *dataObject)
 
   if ( imageData != NULL )
     {
-    this->InternalCopy(imageData);
+    this->InternalImageDataCopy(imageData);
     }
 
   // Do superclass
@@ -1728,7 +1728,7 @@ void vtkImageData::DeepCopy(vtkDataObject *dataObject)
 
   if ( imageData != NULL )
     {
-    this->InternalCopy(imageData);
+    this->InternalImageDataCopy(imageData);
     }
 
   // Do superclass
@@ -1737,7 +1737,7 @@ void vtkImageData::DeepCopy(vtkDataObject *dataObject)
 
 //----------------------------------------------------------------------------
 // This copies all the local variables (but not objects).
-void vtkImageData::InternalCopy(vtkImageData *src)
+void vtkImageData::InternalImageDataCopy(vtkImageData *src)
 {
   int idx;
 

@@ -351,7 +351,9 @@ protected:
   int NumberOfScalarComponents;
 
   void ComputeIncrements();
-  void InternalCopy(vtkImageData *src);
+
+private:
+  void InternalImageDataCopy(vtkImageData *src);
 };
 
 

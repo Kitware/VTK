@@ -388,7 +388,7 @@ protected:
 
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
-  void InternalCopy(vtkDataObject *src);
+  void InternalDataObjectCopy(vtkDataObject *src);
 };
 
 #endif
