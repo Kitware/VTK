@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream.h>
 #include "vtkProcessObject.h"
 #include "vtkImageFlip.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
 
 class VTK_EXPORT vtkImageExport : public vtkProcessObject
 {
