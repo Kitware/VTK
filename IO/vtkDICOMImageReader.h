@@ -24,12 +24,14 @@
 #ifndef __vtkDICOMImageReader_h
 #define __vtkDICOMImageReader_h
 
-#include "DICOMParser.h"
-#include "DICOMAppHelper.h"
+// #include "DICOMParser.h"
+// #include "DICOMAppHelper.h"
 #include "vtkImageReader2.h"
 
 //BTX
 class myvector;
+class DICOMParser;
+class DICOMAppHelper;
 //ETX
 
 class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
