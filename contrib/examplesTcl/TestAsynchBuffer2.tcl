@@ -1,7 +1,7 @@
 # This example provides interactive isosurface value selection
 # using a low res data set.  The high res version is computed
 # when the mouse is released.  The computation of the high res
-# surface can be interupted with another mouse selection.  
+# surface can be interrupted with another mouse selection.  
 # It uses an asynch buffer so the interaction continues 
 # while the high res surface is being computed.
 
@@ -38,7 +38,7 @@ vtkImageShrink3D shrink
   shrink SetInput [reader GetOutput]
   shrink SetShrinkFactors 4 4 4
   shrink AveragingOff
-  shrink Update
+ shrink Update
 
 
 set IsoValue 1150

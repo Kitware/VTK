@@ -1,5 +1,6 @@
-# this example lets the user interact with a sphere,
-# while an iso surface is being comp[uted in another thread.
+# this example uses AsynchornousBuffer to allow interaction while
+# an iso surface is being computed.  A tempory low resolution object
+# is created as a stand in.
 
 
 catch {load vtktcl}
@@ -18,26 +19,18 @@ vtkLight lgt
 
 # create pipeline
 #
-vtkMergePoints locator
-  locator SetDivisions 64 64 46
-  locator RetainCellListsOff
-  locator SetNumberOfPointsPerBucket 2
-  locator AutomaticOff
 
-vtkVolume16Reader v16
-    v16 SetDataDimensions 128 128 
-    [v16 GetOutput] SetOrigin 0.0 0.0 0.0
-    v16 SetDataByteOrderToLittleEndian
-    v16 SetFilePrefix "../../../vtkdata/headsq/half"
-    v16 SetImageRange 1 93
-    v16 SetDataSpacing 1.6 1.6 1.5
+vtkImageReader reader
+    reader SetDataByteOrderToLittleEndian
+    reader SetDataExtent 0 127 0 127 1 93
+    reader SetFilePrefix "../../../vtkdata/headsq/half"
+    reader SetDataSpacing 1.6 1.6 1.5
 
-vtkMarchingCubes iso
-    iso SetInput [v16 GetOutput]
+vtkImageMarchingCubes iso
+    iso SetInput [reader GetOutput]
     iso SetValue 0 1150
-    iso ComputeGradientsOn
+    iso ComputeNormalsOn
     iso ComputeScalarsOff
-    iso SetLocator locator
 
 vtkVectorNorm gradient
   gradient SetInput [iso GetOutput]
@@ -69,7 +62,7 @@ set isoProp [isoActor GetProperty]
 eval $isoProp SetColor $antique_white
 
 vtkOutlineFilter outline
-    outline SetInput [v16 GetOutput]
+    outline SetInput [reader GetOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
