@@ -67,8 +67,10 @@ vtkVolumeCollection
 ABSTRACT = \
 vtkDataWriter \
 vtkExporter \
+vtkImporter \
 vtkMapper \
 vtkProp \
+vtkSpline \
 vtkVolumeMapper \
 vtkVolumeRayCastFunction \
 vtkVolumeReader \
@@ -77,6 +79,7 @@ vtkXRenderWindow
 
 # put all concrete classes here
 CONCRETE = \
+vtk3DSImporter \
 vtkActor \
 vtkAppendFilter \
 vtkAppendPolyData \
@@ -88,6 +91,7 @@ vtkBooleanStructuredPoints \
 vtkBooleanTexture \
 vtkBrownianPoints \
 vtkCamera \
+vtkCardinalSpline \
 vtkCastToConcrete \
 vtkCellLocator \
 vtkCellPicker \
@@ -146,6 +150,7 @@ vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkIVExporter \
+vtkKochanekSpline \
 vtkLODActor \
 vtkLight \
 vtkLineSource \
@@ -274,6 +279,7 @@ vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpScalar \
 vtkWarpTo \
+vtkWorldPointPicker \
 vtkWarpVector  ${GRAPHICS_API_OBJ}
 
 
