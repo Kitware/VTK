@@ -282,7 +282,6 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
     {
     int numArrays = fd->GetNumberOfArrays();
     int attributeType;
-    vtkDataArray *data, *newData;
 
     // Allocate space for numArrays
     this->AllocateArrays(numArrays);
