@@ -1174,6 +1174,10 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
           CollapseTris->SetId(1,this->T->Array[this->T->MaxId].id);
           pt2 = this->V->Array[this->V->MaxId].id;
           }
+        else
+          {
+          CollapseTris->SetNumberOfIds(1);
+          }
         }
       else
         {
