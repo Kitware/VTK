@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.50");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.51");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -67,6 +67,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->ResliceInterpolate       = VTK_LINEAR_RESLICE;
   this->UserPickerEnabled        = 0;
   this->UserLookupTableEnabled   = 0;
+  this->UserControlledLookupTable= 0;
   this->DisplayText              = 0;
   this->CurrentCursorPosition[0] = 0;
   this->CurrentCursorPosition[1] = 0;
@@ -505,6 +506,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->DisplayText ? "On\n" : "Off\n") ;
   os << indent << "Interaction: "
      << (this->Interaction ? "On\n" : "Off\n") ;
+  os << indent << "User Controlled Lookup Table: " 
+     << (this->UserControlledLookupTable ? "On\n" : "Off\n") ;
 }
 
 void vtkImagePlaneWidget::BuildRepresentation()
@@ -874,7 +877,10 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
     {
     this->CurrentWindow = window;
     this->CurrentLevel = level;
-    this->LookupTable->SetTableRange(rmin,rmax);
+    if (!this->UserControlledLookupTable)
+      {
+      this->LookupTable->SetTableRange(rmin,rmax);
+      }
     }
 }
 
@@ -1122,8 +1128,11 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   float range[2];
   this->ImageData->GetScalarRange(range);
 
-  this->LookupTable->SetTableRange(range[0],range[1]);
-  this->LookupTable->Build();
+  if (!this->UserControlledLookupTable)
+    {
+    this->LookupTable->SetTableRange(range[0],range[1]);
+    this->LookupTable->Build();
+    }
 
   this->OriginalWindow = range[1] - range[0];
   this->OriginalLevel = 0.5*(range[0] + range[1]);
@@ -1440,13 +1449,15 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
       }
     }
 
-  this->LookupTable->SetNumberOfColors( 256);
-  this->LookupTable->SetHueRange( 0, 0);
-  this->LookupTable->SetSaturationRange( 0, 0);
-  this->LookupTable->SetValueRange( 0 ,1);
-  this->LookupTable->SetAlphaRange( 1, 1);
-  this->LookupTable->Build();
-
+  if (!this->UserControlledLookupTable)
+    {
+    this->LookupTable->SetNumberOfColors( 256);
+    this->LookupTable->SetHueRange( 0, 0);
+    this->LookupTable->SetSaturationRange( 0, 0);
+    this->LookupTable->SetValueRange( 0 ,1);
+    this->LookupTable->SetAlphaRange( 1, 1);
+    this->LookupTable->Build();
+    }
   this->ColorMap->SetLookupTable(this->LookupTable);
   this->Texture->SetLookupTable(this->LookupTable);
 
@@ -1455,14 +1466,17 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
     return;
     }
 
-  float range[2];
-  this->ImageData->GetScalarRange(range);
+  if (!this->UserControlledLookupTable)
+    {
+    float range[2];
+    this->ImageData->GetScalarRange(range);
 
-  this->LookupTable->SetTableRange(range[0],range[1]);
-  this->LookupTable->Build();
+    this->LookupTable->SetTableRange(range[0],range[1]);
+    this->LookupTable->Build();
 
-  this->OriginalWindow = range[1] - range[0];
-  this->OriginalLevel = 0.5*(range[0] + range[1]);
+    this->OriginalWindow = range[1] - range[0];
+    this->OriginalLevel = 0.5*(range[0] + range[1]);
+    }
 }
 
 void vtkImagePlaneWidget::SetSlicePosition(float position)
@@ -2263,13 +2277,15 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
 
 void vtkImagePlaneWidget::GenerateTexturePlane()
 {
-  this->LookupTable->SetNumberOfColors( 256);
-  this->LookupTable->SetHueRange( 0, 0);
-  this->LookupTable->SetSaturationRange( 0, 0);
-  this->LookupTable->SetValueRange( 0 ,1);
-  this->LookupTable->SetAlphaRange( 1, 1);
-  this->LookupTable->Build();
-
+  if (!this->UserControlledLookupTable)
+    {
+    this->LookupTable->SetNumberOfColors( 256);
+    this->LookupTable->SetHueRange( 0, 0);
+    this->LookupTable->SetSaturationRange( 0, 0);
+    this->LookupTable->SetValueRange( 0 ,1);
+    this->LookupTable->SetAlphaRange( 1, 1);
+    this->LookupTable->Build();
+    }
   this->SetResliceInterpolate(this->ResliceInterpolate);
 
   this->ColorMap->SetLookupTable(this->LookupTable);
