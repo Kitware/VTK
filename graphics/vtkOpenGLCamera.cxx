@@ -67,10 +67,10 @@ vtkOpenGLCamera* vtkOpenGLCamera::New()
 
 int vtkOpenGLCamera::GetDepthBufferSize()
 {
-  int size;
+  GLint size;
 
   glGetIntegerv( GL_DEPTH_BITS, &size );
-  return size;
+  return (int) size;
 }
 
 // Implement base class method.
