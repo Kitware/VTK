@@ -242,43 +242,43 @@ void vtkFeatureEdges::Execute()
 
       if ( this->BoundaryEdges && numNei < 1 )
         {
-	if (ghostLevels && ghostLevels[cellId] > 0)
-	  {
-	  continue;
-	  }
-	else
-	  {
-	  numBEdges++;
-	  scalar = 0.0;
-	  }
+        if (ghostLevels && ghostLevels[cellId] > 0)
+          {
+          continue;
+          }
+        else
+          {
+          numBEdges++;
+          scalar = 0.0;
+          }
         }
 
       else if ( this->NonManifoldEdges && numNei > 1 )
         {
         // check to make sure that this edge hasn't been created before
         for (j=0; j < numNei; j++)
-	  {
+          {
           if ( neighbors->GetId(j) < cellId )
-	    {
+            {
             break;
-	    }
-	  }
+            }
+          }
         if ( j >= numNei )
           {
-	  if (ghostLevels && ghostLevels[cellId] > 0)
-	    {
-	    continue;
-	    }
-	  else
-	    {
-	    numNonManifoldEdges++;
-	    scalar = 0.222222;
-	    }
+          if (ghostLevels && ghostLevels[cellId] > 0)
+            {
+            continue;
+            }
+          else
+            {
+            numNonManifoldEdges++;
+            scalar = 0.222222;
+            }
           }
         else
-	  {
-	  continue;
-	  }
+          {
+          continue;
+          }
         }
       else if ( this->FeatureEdges && 
                 numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
@@ -286,37 +286,37 @@ void vtkFeatureEdges::Execute()
         if ( vtkMath::Dot(polyNormals->GetNormal(nei),
                           polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
-	  if (ghostLevels && ghostLevels[cellId] > 0)
-	    {
-	    continue;
-	    }
-	  else
-	    {
-	    numFedges++;
-	    scalar = 0.444444;
-	    }
+          if (ghostLevels && ghostLevels[cellId] > 0)
+            {
+            continue;
+            }
+          else
+            {
+            numFedges++;
+            scalar = 0.444444;
+            }
           }
         else
-	  {
-	  continue;
-	  }
+          {
+          continue;
+          }
         }
       else if ( this->ManifoldEdges )
         {
-	if (ghostLevels && ghostLevels[cellId] > 0)
-	  {
-	  continue;
-	  }
-	else
-	  {
-	  numManifoldEdges++;
-	  scalar = 0.666667;
-	  }
+        if (ghostLevels && ghostLevels[cellId] > 0)
+          {
+          continue;
+          }
+        else
+          {
+          numManifoldEdges++;
+          scalar = 0.666667;
+          }
         }
       else
-	{
-	continue;
-	}
+        {
+        continue;
+        }
 
       // Add edge to output
       Mesh->GetPoint(p1, x1);
@@ -335,9 +335,9 @@ void vtkFeatureEdges::Execute()
       newId = newLines->InsertNextCell(2,lineIds);
       outCD->CopyData (cd,cellId,newId);
       if ( this->Coloring )
-	{
-	newScalars->InsertScalar(newId, scalar);
-	}
+        {
+        newScalars->InsertScalar(newId, scalar);
+        }
       }
     }
 
