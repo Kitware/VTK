@@ -27,7 +27,7 @@ IF (APPLE)
   ENDIF (CMAKE_HAS_X)
 ELSE(APPLE)
   IF (CMAKE_HAS_X)
-    SET(VTK_USE_X ON)
+    OPTION(VTK_USE_X "Build classes for the X11 window manager" ON)
   ENDIF (CMAKE_HAS_X)
 ENDIF(APPLE)
 

@@ -139,15 +139,11 @@ vtkVolumeTextureMapper
 )
 
 
-IF(UNIX)
-  IF(NOT WIN32)
-    IF(NOT APPLE)
-      SOURCE_FILES ( Rendering_SRCS
-                   vtkXRenderWindowInteractor.cxx
-                   vtkXTextMapper.cxx)
-    ENDIF(NOT APPLE)
-  ENDIF(NOT WIN32)
-ENDIF(UNIX)
+IF(VTK_USE_X)
+  SOURCE_FILES ( Rendering_SRCS
+               vtkXRenderWindowInteractor.cxx
+               vtkXTextMapper.cxx)
+ENDIF(VTK_USE_X)
 
 IF (WIN32)
   SET(HAVE_OPENGL_SRCS ON)
