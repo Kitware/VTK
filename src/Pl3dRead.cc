@@ -465,9 +465,8 @@ void vlPLOT3DReader::ComputeDensity()
 
 void vlPLOT3DReader::ComputeTemperature()
 {
-  float rr, u, v, w, v2, p, d, rrgas;
+  float *m, e, rr, u, v, w, v2, p, d, rrgas;
   int i;
-  float *m, e;
   vlFloatScalars *temperature;
 //
 //  Check that the required data is available
@@ -504,6 +503,39 @@ void vlPLOT3DReader::ComputeTemperature()
 
 void vlPLOT3DReader::ComputePressure()
 {
+  float *m, e, u, v, w, v2, p, d, t, rr;
+  int i;
+  vlFloatScalars *pressure;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL || 
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute pressure");
+    return;
+    }
+
+  pressure = new vlFloatScalars(this->NumPts);
+//
+//  Compute the pressure
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    e = this->Energy->GetScalar(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    p = (this->Gamma-1.) * (e - 0.5 * d * v2);
+    pressure->SetScalar(i, p);
+  }
+  this->PointData.SetScalars(pressure);
+  vlDebugMacro(<<"Created pressure scalar");
 }
 
 void vlPLOT3DReader::ComputeEnthalpy()
