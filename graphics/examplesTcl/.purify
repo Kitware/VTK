@@ -120,14 +120,26 @@ suppress umr __glKonTexChecksum
 suppress umr __glKonTexEvaluateCubicSpline
 suppress umr bindTexTable
 
+suppress umc _syscall; _sysmp; _sysmp; _getpagesize
+suppress umr _sendmsg; _X11TransSocketWritev
+suppress umr isNotProxy; isLocal; CreateContext; glXCreateContext
 suppress umc _inet_isaddr; _gethostbyname_r; _X11TransSocketINETConnect
 suppress umc _sendmsg; _X11TransSocketWritev; _X11TransWritev
+
+suppress fmm __dl__GPv; strstreambuf::overflow(int)
+suppress fmm __dl__GPv; vtkObjectCppCommand(vtkObject*,Tcl_Interp*,int,char**)
 
 suppress ipr strstr; Tcl_CreateCommand; Vtkpatentedtcl_Init
 suppress ipr HashString; Tcl_CreateCommand; Vtkpatentedtcl_Init
 suppress ipr StringCreate; Tcl_CreateCommand; Vtkpatentedtcl_Init
+suppress ipr strlen; StringCreate; Tcl_CreateCommand; Vtkpatentedtcl_Init
 suppress ipr strcpy; StringCreate; Tcl_CreateCommand; Vtkpatentedtcl_Init
 
+suppress ipr strstr; Tcl_CreateCommand; Vtkcontribtcl_Init
+suppress ipr HashString; Tcl_CreateCommand; Vtkcontribtcl_Init
+suppress ipr StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
+suppress ipr strlen; StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
+suppress ipr strcpy; StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
 
 suppress mse *
 
