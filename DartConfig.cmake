@@ -21,8 +21,8 @@ SET (GNATS_WEB_URL "http://${DROP_SITE}/")
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/TestingResults/Icons/Logo.gif COPYONLY)
 
 # Continuous email delivery variables
-SET (DELIVER_CONTINUOUS_EMAIL "Off")
 SET (CONTINUOUS_FROM "lorensen@crd.ge.com")
 SET (SMTP_MAILHOST "public.kitware.com")
 SET (CONTINUOUS_MONITOR_LIST "lorensen@crd.ge.com millerjv@crd.ge.com")
 SET (CONTINUOUS_BASE_URL "http://public.kitware.com/VTK/Testing")
+
