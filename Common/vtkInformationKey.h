@@ -27,6 +27,7 @@
 #define __vtkInformationKey_h
 
 #include "vtkObjectBase.h"
+#include "vtkObject.h" // Need vtkTypeRevisionMacro
 
 class VTK_EXPORT vtkInformationKey : public vtkObjectBase
 {
