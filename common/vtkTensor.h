@@ -57,6 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensor
 {
 public:
+  void Delete() {delete this;};
   inline vtkTensor(int dim=3);
   static vtkTensor *New() {return new vtkTensor;};
   void Initialize();
