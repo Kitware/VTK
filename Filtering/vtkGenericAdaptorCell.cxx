@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.3");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.4");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -420,6 +420,9 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   assert("pre: cellArray_exists" && cellArray!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exist" && cd!=0);
+  
+  (void)cd; // We should copy the attribute centered on cell into created
+  // sub-cells.
   
   this->Reset();
 
