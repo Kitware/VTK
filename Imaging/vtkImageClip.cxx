@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.48");
+vtkCxxRevisionMacro(vtkImageClip, "1.49");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -181,6 +181,10 @@ void vtkImageClip::ExecuteData(vtkDataObject *)
   vtkImageData *inData = this->GetInput();
   
   vtkDebugMacro(<<"Executing image clip");
+  if (inData == NULL)
+    {
+    return;
+    }
 
   inExt  = inData->GetExtent(); 
 
