@@ -22,6 +22,8 @@
 #include "vtkToolkits.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkTreeComposite.h"
+#include "vtkObjectFactory.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -33,7 +35,8 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.20");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.21");
+vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -59,9 +62,14 @@ struct vtkCompositeRendererInfo
 //-------------------------------------------------------------------------
 vtkCompositeManager::vtkCompositeManager()
 {
+  this->Compositer = vtkTreeComposite::New();
+  this->Compositer->Register(this);
+  this->Compositer->Delete();
+
   this->RenderWindow = NULL;
   this->RenderWindowInteractor = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller->Register(this);
 
   this->RendererSize[0] = this->RendererSize[1] = 0;
 
@@ -73,7 +81,8 @@ vtkCompositeManager::vtkCompositeManager()
   this->LocalPData = this->LocalZData = NULL;
   
   this->Lock = 0;
-  this->UseChar = 0;
+  this->UseChar = 1;
+  this->UseRGB = 1;
   this->UseCompositing = 1;
   
   this->ReductionFactor = 1;
@@ -101,6 +110,17 @@ vtkCompositeManager::~vtkCompositeManager()
 
   this->SetRendererSize(0,0);
   
+  if (this->Controller)
+    {
+    this->Controller->UnRegister(this);
+    this->Controller = NULL;
+    }
+  if (this->Compositer)
+    {
+    this->Compositer->UnRegister(this);
+    this->Compositer = NULL;
+    }
+
   if (this->Lock)
     {
     vtkErrorMacro("Destructing while locked!");
@@ -341,6 +361,30 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
 #endif
         }
       }
+    }
+}
+
+
+//-------------------------------------------------------------------------
+void vtkCompositeManager::SetController(vtkMultiProcessController *mpc)
+{
+  if (this->Controller == mpc)
+    {
+    return;
+    }
+  if (mpc)
+    {
+    mpc->Register(this);
+    }
+  if (this->Controller)
+    {
+    this->Controller->UnRegister(this);
+    }
+  this->Controller = mpc;
+
+  if (this->Compositer)
+    {
+    this->Compositer->SetController(mpc);
     }
 }
 
@@ -899,49 +943,102 @@ void vtkCompositeManager::DeleteArray(vtkDataArray* da)
 
 void vtkCompositeManager::SetUseChar(int useChar)
 {
-  if (useChar != this->UseChar)
+  if (useChar == this->UseChar)
     {
-    this->UseChar = useChar;
-    if (this->PData)
+    return;
+    }
+  this->Modified();
+  this->UseChar = useChar;
+
+  // Cannot use float RGB (must be float RGBA).
+  if (this->UseChar == 0)
+    {
+    this->UseRGB = 0;
+    }
+  
+  this->ReallocPDataArrays();
+}
+
+
+void vtkCompositeManager::SetUseRGB(int useRGB)
+{
+  if (useRGB == this->UseRGB)
+    {
+    return;
+    }
+  this->Modified();
+  this->UseRGB = useRGB;
+
+  // Cannot use float RGB (must be char RGB).
+  if (useRGB)
+    {  
+    this->UseChar = 1;
+    }
+
+  this->ReallocPDataArrays();
+}
+
+// Only reallocs arrays if they have been allocated already.
+void vtkCompositeManager::ReallocPDataArrays()
+{
+  int numComps = 4;
+  int size;
+
+  if (this->UseRGB)
+    {
+    numComps = 3;
+    }
+
+  if (this->PData)
+    {
+    if (this->UseChar)
       {
-      if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->PData))
-	{
-	int size = this->PData->GetNumberOfTuples();
-	vtkCompositeManager::DeleteArray(this->PData);
-	this->PData = vtkUnsignedCharArray::New();
-	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 4, size);
-	}
-      else if (!useChar && !vtkFloatArray::SafeDownCast(this->PData))
-	{
-	int size = this->PData->GetNumberOfTuples();
-	vtkCompositeManager::DeleteArray(this->PData);
-	this->PData = vtkFloatArray::New();
-	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 4, size);
-	}
+      size = this->PData->GetNumberOfTuples();
+      vtkCompositeManager::DeleteArray(this->PData);
+      this->PData = vtkUnsignedCharArray::New();
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData),
+                                                   numComps, size);
       }
-    if (this->LocalPData)
+    else 
       {
-      if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->LocalPData))
-	{
-	int size = this->LocalPData->GetNumberOfTuples();
-	vtkCompositeManager::DeleteArray(this->LocalPData);
-	this->LocalPData = vtkUnsignedCharArray::New();
-	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 4, size);
-	}
-      else if (!useChar && !vtkFloatArray::SafeDownCast(this->LocalPData))
-	{
-	int size = this->LocalPData->GetNumberOfTuples();
-	vtkCompositeManager::DeleteArray(this->LocalPData);
-	this->LocalPData = vtkFloatArray::New();
-	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 4, size);
-	}
+      size = this->PData->GetNumberOfTuples();
+      vtkCompositeManager::DeleteArray(this->PData);
+      this->PData = vtkFloatArray::New();
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData),
+                                            numComps, size);
       }
-    this->Modified();
+    }
+  if (this->LocalPData)
+    {
+    if (this->UseChar)
+      {
+      size = this->LocalPData->GetNumberOfTuples();
+      vtkCompositeManager::DeleteArray(this->LocalPData);
+      this->LocalPData = vtkUnsignedCharArray::New();
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData),
+                                                   numComps, size);
+      }
+    else
+      {
+      size = this->LocalPData->GetNumberOfTuples();
+      vtkCompositeManager::DeleteArray(this->LocalPData);
+      this->LocalPData = vtkFloatArray::New();
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData),
+                                            numComps, size);
+      }
     }
 }
 
 void vtkCompositeManager::SetRendererSize(int x, int y)
 {
+  int numComps = 4;  
+  
+  // 3 for RGB,  4 for RGBA (RGB option only for char).
+  if (this->UseRGB)
+    {
+    numComps = 3;
+    }
+
   if (this->RendererSize[0] == x && this->RendererSize[1] == y)
     {
     return;
@@ -953,28 +1050,32 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
     if (this->UseChar)
       {
       if (!this->PData)
-	{
-	this->PData = vtkUnsignedCharArray::New();
-	}
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 4, numPixels);
+        {
+        this->PData = vtkUnsignedCharArray::New();
+        }
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 
+                                                   numComps, numPixels);
       if (!this->LocalPData)
-	{
-	this->LocalPData = vtkUnsignedCharArray::New();
-	}
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 4, numPixels);
+        {
+        this->LocalPData = vtkUnsignedCharArray::New();
+        }
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 
+                                                   numComps, numPixels);
       }
     else
       {
       if (!this->PData)
-	{
-	this->PData = vtkFloatArray::New();
-	}
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 4, numPixels);
+        {
+        this->PData = vtkFloatArray::New();
+        }
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 
+                                            numComps, numPixels);
       if (!this->LocalPData)
-	{
-	this->LocalPData = vtkFloatArray::New();
-	}
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 4, numPixels);
+        {
+        this->LocalPData = vtkFloatArray::New();
+        }
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 
+                                            numComps, numPixels);
       }
 
     if (!this->ZData)
@@ -1091,12 +1192,23 @@ void vtkCompositeManager::Composite()
 
   // Get the pixel data.
   if (this->UseChar) 
-    { 
-    this->RenderWindow->GetRGBACharPixelData(0,0,
-					     this->RendererSize[0]-1,
-					     this->RendererSize[1]-1, 
-					     front,
-					     static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+    {
+    if (this->LocalPData->GetNumberOfComponents() == 4)
+      {
+      this->RenderWindow->GetRGBACharPixelData(0,0,
+			  		     this->RendererSize[0]-1,
+				  	     this->RendererSize[1]-1, 
+					       front,
+					       static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      }
+    else if (this->LocalPData->GetNumberOfComponents() == 3)
+      {
+      this->RenderWindow->GetPixelData(0,0,
+			  		     this->RendererSize[0]-1,
+				  	     this->RendererSize[1]-1, 
+					       front,
+					       static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      }
     } 
   else 
     {
@@ -1114,10 +1226,8 @@ void vtkCompositeManager::Composite()
   
   // Let the subclass use its owns composite algorithm to
   // collect the results into "localPData" on process 0.
-  this->CompositeBuffer(this->RendererSize[0], this->RendererSize[1], 
-                        this->UseChar,
-                        this->LocalPData, this->LocalZData,
-                        this->PData, this->ZData);
+  this->Compositer->CompositeBuffer(this->LocalPData, this->LocalZData,
+                                    this->PData, this->ZData);
     
   timer->StopTimer();
   this->CompositeTime = timer->GetElapsedTime();
@@ -1136,14 +1246,14 @@ void vtkCompositeManager::Composite()
       // localPdata gets freed (new memory is allocated and returned.
       // windowSize get modified.
       if (this->UseChar)
-	{
-	magPdata = vtkUnsignedCharArray::New();
-	}
+        {
+        magPdata = vtkUnsignedCharArray::New();
+        }
       else
-	{
-	magPdata = vtkFloatArray::New();
-	}
-      magPdata->SetNumberOfComponents(4);
+        {
+        magPdata = vtkFloatArray::New();
+        }
+      magPdata->SetNumberOfComponents(this->LocalPData->GetNumberOfComponents());
       this->MagnifyBuffer(this->LocalPData, magPdata, windowSize);
       
       vtkRenderer* renderer =
@@ -1156,18 +1266,25 @@ void vtkCompositeManager::Composite()
     timer->StartTimer();
     if (this->UseChar) 
       {
+      vtkUnsignedCharArray* buf;
       if (magPdata)
-	{
-	this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
-						 windowSize[1]-1,
-						 static_cast<vtkUnsignedCharArray*>(magPdata), 0);
-	}
+        {
+        buf = static_cast<vtkUnsignedCharArray*>(magPdata);
+	      }
       else
-	{
-	this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
-						 windowSize[1]-1,
-						 static_cast<vtkUnsignedCharArray*>(this->LocalPData), 0);
-	}
+        {
+        buf = static_cast<vtkUnsignedCharArray*>(this->LocalPData);
+        }
+      if (this->LocalPData->GetNumberOfComponents() == 4)
+        {
+        this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
+                                  windowSize[1]-1, buf, 0);
+        }
+      else if (this->LocalPData->GetNumberOfComponents() == 3)
+        {
+        this->RenderWindow->SetPixelData(0, 0, windowSize[0]-1, 
+                                  windowSize[1]-1, buf, 0);
+        }
       } 
     else 
       {
@@ -1216,45 +1333,78 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
   // Local increments for input.
   int   pInIncY; 
   float *newLocalPData;
+  int numComp = localP->GetNumberOfComponents();
   
   xInDim = this->RendererSize[0];
   yInDim = this->RendererSize[1];
   xOutDim = windowSize[0] = this->ReductionFactor * this->RendererSize[0];
   yOutDim = windowSize[1] = this->ReductionFactor * this->RendererSize[1];
   
-  magP->SetNumberOfComponents(4);
+  magP->SetNumberOfComponents(numComp);
   magP->SetNumberOfTuples(xOutDim*yOutDim);
   newLocalPData = reinterpret_cast<float*>(magP->GetVoidPointer(0));
   float* localPdata = reinterpret_cast<float*>(localP->GetVoidPointer(0));
 
   if (this->UseChar)
     {
-    // Get the last pixel.
-    rowp = localPdata;
-    pp2 = newLocalPData;
-    for (y = 0; y < yInDim; y++)
+    if (numComp == 4)
       {
-      // Duplicate the row rowp N times.
-      for (yi = 0; yi < this->ReductionFactor; ++yi)
+      // Get the last pixel.
+      rowp = localPdata;
+      pp2 = newLocalPData;
+      for (y = 0; y < yInDim; y++)
         {
-        pp1 = rowp;
-        for (x = 0; x < xInDim; x++)
+        // Duplicate the row rowp N times.
+        for (yi = 0; yi < this->ReductionFactor; ++yi)
           {
-          // Duplicate the pixel p11 N times.
-          for (xi = 0; xi < this->ReductionFactor; ++xi)
+          pp1 = rowp;
+          for (x = 0; x < xInDim; x++)
             {
-            *pp2++ = *pp1;
+            // Duplicate the pixel p11 N times.
+            for (xi = 0; xi < this->ReductionFactor; ++xi)
+              {
+              *pp2++ = *pp1;
+              }
+            ++pp1;
             }
-          ++pp1;
           }
+        rowp += xInDim;
         }
-      rowp += xInDim;
+      }
+    else if (numComp == 3)
+      { // RGB char pixel data.
+      // Get the last pixel.
+      pInIncY = numComp * xInDim;
+      unsigned char* crowp = reinterpret_cast<unsigned char*>(localPdata);
+      unsigned char* cpp2 = reinterpret_cast<unsigned char*>(newLocalPData);
+      unsigned char *cpp1, *csubp;
+      for (y = 0; y < yInDim; y++)
+        {
+        // Duplicate the row rowp N times.
+        for (yi = 0; yi < this->ReductionFactor; ++yi)
+          {
+          cpp1 = crowp;
+          for (x = 0; x < xInDim; x++)
+            {
+            // Duplicate the pixel p11 N times.
+            for (xi = 0; xi < this->ReductionFactor; ++xi)
+              {
+              csubp = cpp1;
+              *cpp2++ = *csubp++;
+              *cpp2++ = *csubp++;
+              *cpp2++ = *csubp;
+              }
+            cpp1 += numComp;
+            }
+          }
+        crowp += pInIncY;
+        }
       }
     }
   else
     {
     // Get the last pixel.
-    pInIncY = 4 * xInDim;
+    pInIncY = numComp * xInDim;
     rowp = localPdata;
     pp2 = newLocalPData;
     for (y = 0; y < yInDim; y++)
@@ -1269,12 +1419,15 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
           for (xi = 0; xi < this->ReductionFactor; ++xi)
             {
             subp = pp1;
-            *pp2++ = *subp++;
+            if (numComp == 4)
+              {
+              *pp2++ = *subp++;
+              }
             *pp2++ = *subp++;
             *pp2++ = *subp++;
             *pp2++ = *subp;
             }
-          pp1 += 4;
+          pp1 += numComp;
           }
         }
       rowp += pInIncY;

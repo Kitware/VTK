@@ -23,7 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTreeComposite.h"
+#include "vtkCompositeManager.h"
 #include "vtkDebugLeaks.h"
 #include "vtkParallelFactory.h"
 #include "vtkRegressionTestImage.h"
@@ -136,7 +136,7 @@ void proc1( vtkMultiProcessController *controller, void *arg )
   iren->SetRenderWindow(renWin);
 
   // The only thing we have to do to get parallel execution.
-  vtkTreeComposite*  treeComp = vtkTreeComposite::New();
+  vtkCompositeManager*  treeComp = vtkCompositeManager::New();
   treeComp->SetController(controller);
   treeComp->SetRenderWindow(renWin);
 

@@ -2,6 +2,7 @@ SOURCE_FILES ( Parallel_SRCS
 vtkBranchExtentTranslator.cxx
 vtkCommunicator.cxx
 vtkCompositeManager.cxx
+vtkCompositer.cxx
 vtkCutMaterial.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
@@ -34,7 +35,6 @@ vtkSocketController.cxx
 
 ABSTRACT_FILES(
 vtkCommunicator
-vtkCompositeManager
 )
 
 IF (VTK_USE_MPI)

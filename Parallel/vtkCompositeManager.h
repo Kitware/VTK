@@ -36,6 +36,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkCompositer.h"
 #include "vtkMultiProcessController.h"
 
 class vtkTimerLog;
@@ -45,6 +46,7 @@ class vtkDataArray;
 class VTK_PARALLEL_EXPORT vtkCompositeManager : public vtkObject
 {
 public:
+  static vtkCompositeManager *New();
   vtkTypeRevisionMacro(vtkCompositeManager,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -97,6 +99,15 @@ public:
   vtkBooleanMacro(UseChar, int);
 
   // Description:
+  // This flag tells the compositier to get the color buffer as RGB instead of RGBA.
+  // We do not use the alpha value so it is not important to get.  ATI Radeon
+  // cards / drivers do not properly get the color buffer as RGBA.  This flag turns
+  // the UseChar flag on because VTK does not have methods to get the pixel data as RGB float.
+  void SetUseRGB(int useRGB);
+  vtkGetMacro(UseRGB, int);
+  vtkBooleanMacro(UseRGB, int);
+
+  // Description:
   // This flag turns the compositer on or off.
   vtkSetMacro(UseCompositing, int);
   vtkGetMacro(UseCompositing, int);
@@ -119,7 +130,7 @@ public:
   // the global controller by default)
   // If not using the default, this must be called before any
   // other methods.
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 //BTX
@@ -160,11 +171,6 @@ protected:
   vtkCompositeManager(const vtkCompositeManager&);
   void operator=(const vtkCompositeManager&);
   
-  // A compositing algorithm to be implemented by the subclass.
-  virtual void CompositeBuffer(int width, int height, int useCharFlag,
-                               vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                               vtkDataArray *pTmp, vtkFloatArray *zTmp) = 0;
-
   void SetRendererSize(int x, int y);
   void MagnifyBuffer(vtkDataArray *localPdata, vtkDataArray* magPdata,
 		     int windowSize[2]);
@@ -174,6 +180,7 @@ protected:
 			       int size);
   static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
 				      int numComp, int size);
+  void ReallocPDataArrays();
   
   vtkRenderWindow* RenderWindow;
   vtkRenderWindowInteractor* RenderWindowInteractor;
@@ -186,12 +193,16 @@ protected:
   unsigned long ResetCameraTag;
   unsigned long ResetCameraClippingRangeTag;
   int UseChar;
+  int UseRGB;
   int UseCompositing;
   
   // Convenience method used internally. It set up the start observer
   // and allows the render window's interactor to be set before or after
   // the compositer's render window (not exactly true).
   void SetRenderWindowInteractor(vtkRenderWindowInteractor *iren);
+
+  // This object does the parallel communication for compositing.
+  vtkCompositer *Compositer;
 
   // Arrays for compositing.
   vtkDataArray *PData;
