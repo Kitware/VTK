@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.73");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.74");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -78,7 +78,8 @@ void vtkProbeFilter::Execute()
     }
 
   pd = source->GetPointData();
-
+  int size = input->GetNumberOfPoints();
+  
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
   if (mcs<=256)
@@ -99,7 +100,7 @@ void vtkProbeFilter::Execute()
   // Allocate storage for output PointData
   //
   outPD = output->GetPointData();
-  outPD->InterpolateAllocate(pd);
+  outPD->InterpolateAllocate(pd, size, size);
 
   // Use tolerance as a function of size of source data
   //
