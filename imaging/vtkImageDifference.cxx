@@ -154,7 +154,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   int ar1, ag1, ab1, ar2, ag2, ab2;
   int inMinX, inMaxX, inMinY, inMaxY;
   int *inExt;
-
+  int matched;
+  
   id = id;
   this->Error = 0;
   this->ThresholdedError = 0;
@@ -225,11 +226,20 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	/* check the exact match pixel */
 	vtkImageDifferenceComputeError(in1Ptr0,in2Ptr0);
 	
+	// do a quick check to see if this match is exact, if so
+	// we can save some seious time by skipping the eight
+	// connected neighbors
+	matched = 0;
+	if ((tr <= 0)&&(tg <= 0)&&(tb <= 0))
+	  {
+	  matched = 1;
+	  }
+	
 	/* If AllowShift, then we examine neighboring pixels to 
 	   find the least difference.  This feature is used to 
 	   allow images to shift slightly between different graphics
 	   systems, like between opengl and starbase. */
-	if (this->AllowShift) 
+	if (!matched && this->AllowShift) 
 	  {
 	  /* lower row */
  	  if (idx1 > inMinY)
