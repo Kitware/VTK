@@ -225,22 +225,6 @@ public:
   virtual void SetInput(vtkPointSet *input);
   vtkPointSet *GetInput();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetLocator(vtkPointLocator& locator) 
-    {VTK_LEGACY_METHOD(SetLocator,"3.2"); this->SetLocator(&locator);}
-  vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
-                                          vtkPoints &boundingTetraPts, 
-                                          float bounds[6], vtkPoints* &pts) 
-    {VTK_LEGACY_METHOD(InitPointInsertion,"3.2"); 
-    return this->InitPointInsertion(numPtsToInsert, numTetra, 
-                                    &boundingTetraPts, bounds, pts);}
-  void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-                   int id, float x[3], vtkIdList &holeTetras) 
-    {VTK_LEGACY_METHOD(InsertPoint,"3.2"); this->InsertPoint(Mesh, points, id, x, &holeTetras);}
-#endif
-  
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D();

@@ -176,15 +176,6 @@ public:
   virtual vtkActor *GetNextPart();
   virtual int GetNumberOfParts();
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetProperty(vtkProperty& lut) 
-    {VTK_LEGACY_METHOD(SetProperty,"3.2"); this->SetProperty(&lut);};
-  void SetBackfaceProperty(vtkProperty& lut) 
-    {VTK_LEGACY_METHOD(SetBackfaceProperty,"3.2"); this->SetBackfaceProperty(&lut);};
-#endif
-  
 protected:
   vtkActor();
   ~vtkActor();

@@ -95,13 +95,6 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Shallow copy of a follower. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void GetMatrix(vtkMatrix4x4 &m) 
-    {VTK_LEGACY_METHOD(GetMatrix,"3.2"); this->GetMatrix(&m);}
-#endif
-  
 protected:
   vtkFollower();
   ~vtkFollower();

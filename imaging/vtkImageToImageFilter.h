@@ -99,25 +99,6 @@ public:
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
   
-//BTX
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Legacy !!!!!!!!!!!!!!! ---------------------------------
-  
-  // Description:
-  // Legacy method.  May go away at any time. It should be called 
-  // UpdateInformation.
-  virtual void UpdateImageInformation() 
-    {VTK_LEGACY_METHOD(UpdateInformation,"3.2"); this->UpdateInformation();}
-  
-  // Description:
-  // Legacy method.  May go away at any time. You should call ExecuteInformation
-  // which should call vtkImageToImageFilter::ExecuteInformation to set up defaults,
-  // and the change what needs to be changed.
-  virtual void ExecuteImageInformation() 
-    { this->LegacyHack = 0; }
-  int LegacyHack;
-#endif
-//ETX
 protected:
   vtkImageToImageFilter();
   ~vtkImageToImageFilter();
