@@ -54,13 +54,25 @@ class vtkObserver
  public:
   vtkObserver():Command(0),Event(0),Tag(0),Next(0) {}
   ~vtkObserver();
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   float Priority;
   vtkCommand *Command;
   unsigned long Event;
   unsigned long Tag;
   vtkObserver *Next;
 };
+
+void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "vtkObserver (" << this << ")\n";
+  indent = indent.GetNextIndent();
+  os << indent << "Event: " << this->Event << "\n";
+  os << indent << "EventName: " << vtkCommand::GetStringFromEventId(this->Event) << "\n";
+  os << indent << "Command: " << this->Command << "\n";
+  os << indent << "Priority: " << this->Priority << "\n";
+  os << indent << "Tag: " << this->Tag << "\n";
+}
 
 class vtkSubjectHelper
 {
@@ -275,7 +287,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.71\n";
+  os << "vtkObject 1.72\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -455,20 +467,19 @@ vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
 
 void vtkSubjectHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Registered Events: ";
+  os << indent << "Registered Observers:\n";
+  indent = indent.GetNextIndent();
   vtkObserver *elem = this->Start;
   if ( !elem )
     {
-    os << "(none)\n";
+    os << indent << "(none)\n";
     return;
     }
   
-  os << "( ";
   for ( ; elem; elem=elem->Next )
     {
-    os << vtkCommand::GetStringFromEventId(elem->Event) << " ";
+    elem->PrintSelf(os, indent);
     }  
-  os << ")\n";
 }
 
 //--------------------------------vtkObject observer-----------------------
