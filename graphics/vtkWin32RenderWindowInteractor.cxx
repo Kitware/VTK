@@ -531,8 +531,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         if (me->StartInteractionPickMethod)
           {
 	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
-          }
-        
+          }        
 	me->InteractionPicker->Pick(LOWORD(lParam), 
                                     me->Size[1]-HIWORD(lParam)-1,
                                     0.0, me->CurrentRenderer);
