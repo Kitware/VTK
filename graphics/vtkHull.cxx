@@ -231,9 +231,11 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
   numTriangles = 8*pow( 4.0, (double)level );
 
   // Create room for the triangles and points
+  // We will also need to keep track of which points are
+  // duplicates so keep a validPoint array for this
   points = new float[3*numTriangles];
-  validPoint = new int[3*numTriangles];
   triangles = new int[3*numTriangles];
+  validPoint = new int[3*numTriangles];
 
 
   // Add the initial points
@@ -330,6 +332,7 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
 
   delete points;
   delete triangles;
+  delete validPoint;
 
 }
 
@@ -454,7 +457,10 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
       {
       // Stop if we have removed too many vertices and no longer have
       // a polygon
-      if ( vert_count <= 2 ) break;
+      if ( vert_count <= 2 ) 
+	{
+	break;
+	}
       // Otherwise, if this is not the plane we are working on, clip
       // it by this plane.
       if ( i != j )
