@@ -27,7 +27,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.10");
+vtkCxxRevisionMacro(vtkCurvatures, "1.11");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ void vtkCurvatures::GetMaximumCurvature()
       vtkDebugMacro(<< "Maximum Curvature undefined at point: " << i);
       // k_max can be any real number. Undefined points will be indistinguishable
       // from points that actually have a k_max == 0
-      k_max = NULL;
+      k_max = 0;
       }
     maximumCurvature->SetComponent(i, 0, k_max);
     }
@@ -400,7 +400,7 @@ void vtkCurvatures::GetMinimumCurvature()
       vtkDebugMacro(<< "Minimum Curvature undefined at point: " << i);
       // k_min can be any real number. Undefined points will be indistinguishable
       // from points that actually have a k_min == 0
-      k_min = NULL;
+      k_min = 0;
       }
     minimumCurvature->SetComponent(i, 0, k_min);
     }
