@@ -377,7 +377,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   int numVerts, numNei, numFEdges;
   static vtkIdList nei(VTK_MAX_TRIS_PER_VERTEX);
   vtkLocalTri t;
-  vtkLocalVertex sn;
+  vtkProLocalVertex sn;
   int startVertex, nextVertex;
   int i, j, *verts, numNormals, vtype;
   float *x1, *x2, *normal;

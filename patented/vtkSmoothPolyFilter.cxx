@@ -72,7 +72,7 @@ vtkSmoothPolyFilter::vtkSmoothPolyFilter()
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 // Special structure for marking vertices
-typedef struct _vtkLocalVertex 
+typedef struct _vtkMeshVertex 
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
