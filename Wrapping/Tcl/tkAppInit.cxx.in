@@ -174,7 +174,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
    */
 
   static char script[] = "\
-foreach dir {\"${VTK_SOURCE_DIR}/Wrapping/Tcl\" \"${CMAKE_INSTALL_PREFIX}/lib/vtk/tcl\"} { \n\
+foreach dir [list \"${VTK_SOURCE_DIR}/Wrapping/Tcl\" \"${CMAKE_INSTALL_PREFIX}/lib/vtk/tcl\" [file join [file join [file dirname [file dirname [info nameofexecutable]]] Wrapping] Tcl] \"C:/Program Files/vtk40/Wrapping/Tcl\"] { \n\
     if {[file isdirectory $dir]} { \n\
         lappend auto_path $dir \n\
     } \n\
@@ -186,11 +186,11 @@ proc package {args} {\n\
         if {[lindex $args 0] == \"require\"} {\n\
             set expecting \"can't find package vtk\";\n\
             if {![string compare -length [string length $expecting] $catch_res $expecting]} {\n\
-                set msg \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes either the {VTK_SOURCE_DIR}/Wrapping/Tcl or the {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory\";\n\
+                set msg \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes the path to your VTK Wrapping/Tcl directory (example: C:/Program Files/vtk40/Wrapping/Tcl). You might find it under your VTK binary or source installation directory, or under your site-specific {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory.\";\n\
                 if {[info exists env(TCLLIBPATH)]} {\n\
-                  append msg \" (current value is: $env(TCLLIBPATH))\";\n\
+                  append msg \" The TCLLIBPATH current value is: $env(TCLLIBPATH))\";\n\
                 } \n\
-                set errorInfo \"$msg. More informations can be found in the {VTK_SOURCE_DIR}/Wrapping/Tcl/README file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
+                set errorInfo \"$msg. The TCLLIBPATH variable is a set of space separated paths (hence, path containing spaces should be surrounded by quotes first). Windows users should use forward (Unix-style) slashes '/' instead of the usual backward slashes. More informations can be found in the Wrapping/Tcl/README source file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
             }\n\
         }\n\
         error $catch_res $errorInfo;\n\
