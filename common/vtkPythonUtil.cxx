@@ -167,8 +167,8 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
 {
   int i; 
   void *ptr;
-  char typeCheck[64];
-  if (*len < 64)
+  char typeCheck[128];
+  if (*len < 128)
     {
     i = sscanf(ptrText,"_%lx_%s",&ptr,typeCheck);
     if (strcmp(type,typeCheck) == 0)
@@ -301,6 +301,11 @@ void vtkPythonVoidFunc(void *arg)
   arglist = Py_BuildValue("()");
 
   result = PyEval_CallObject(func, arglist);
+  if (PyErr_Occurred())
+    {
+    PyErr_Print();
+    }
+
   Py_XDECREF(result);
   Py_DECREF(arglist);
 }
