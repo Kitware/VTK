@@ -20,6 +20,9 @@
 // insertion of color values, or by specifying  hue, saturation, value, and 
 // alpha range and generating a table.
 //
+// .SECTION Caveats
+// You need to explicitely call Build() when constructing the LUT by hand.
+//
 // .SECTION See Also
 // vtkLogLookupTable vtkWindowLevelLookupTable
 
