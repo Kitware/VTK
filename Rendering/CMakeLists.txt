@@ -38,7 +38,6 @@ vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
 vtkGenericRenderWindowInteractor.cxx
 vtkGraphicsFactory.cxx
-vtkIVExporter.cxx
 vtkImageActor.cxx
 vtkImageMapper.cxx
 vtkImageViewer.cxx
@@ -68,8 +67,6 @@ vtkLightCollection.cxx
 vtkLightKit.cxx
 vtkMapper.cxx
 vtkMapperCollection.cxx
-vtkOBJExporter.cxx
-vtkOOGLExporter.cxx
 vtkParallelCoordinatesActor.cxx
 vtkPicker.cxx
 vtkPointPicker.cxx
@@ -99,7 +96,6 @@ vtkUnstructuredGridBunykRayCastFunction.cxx
 vtkUnstructuredGridVolumeMapper.cxx
 vtkUnstructuredGridVolumeRayCastFunction.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
-vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
 vtkVolumeMapper.cxx
@@ -122,12 +118,6 @@ IF (VTK_HAVE_VP1000)
     vtkOpenGLVolumeProVP1000Mapper.cxx
     )
 ENDIF (VTK_HAVE_VP1000)
-
-IF(VTK_USE_GL2PS)
-  SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
-  SET(Kit_GL2PS_SRCS ${VTK_SOURCE_DIR}/Utilities/gl2ps/gl2ps.c)
-  ADD_DEFINITIONS(-DGL2PS_HAVE_ZLIB)
-ENDIF(VTK_USE_GL2PS)
 
 SET( KitOpenGL_SRCS
   vtkOpenGLActor.cxx
