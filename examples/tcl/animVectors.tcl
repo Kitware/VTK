@@ -1,0 +1,141 @@
+# get the interactor ui
+source vtkInt.tcl
+source "colors.tcl"
+
+# First create the render master
+vtkRenderMaster rm;
+
+# Now create the RenderWindow, Renderer and both Actors
+#
+set renWin [rm MakeRenderWindow];
+set ren1   [$renWin MakeRenderer];
+set iren [$renWin MakeRenderWindowInteractor];
+
+# read data
+#
+vtkStructuredPointsReader reader;
+    reader SetFilename "../../data/carotid.vtk"
+    reader DebugOn;
+vtkThresholdPoints threshold;
+    threshold SetInput [reader GetOutput];
+    threshold ThresholdByUpper 200;
+
+vtkLineSource line;
+    line SetResolution 1;
+vtkGlyph3D lines;
+    lines SetInput [threshold GetOutput];
+    lines SetSource [line GetOutput];
+    lines SetScaleFactor 0.005;
+    lines ScaleByScalar;
+    lines Update;#make range current
+vtkPolyMapper vectorMapper;
+    vectorMapper SetInput [lines GetOutput];
+    eval vectorMapper SetScalarRange [[lines GetOutput] GetScalarRange];
+vtkActor vectorActor;
+    vectorActor SetMapper vectorMapper;
+
+# 8 texture maps
+vtkStructuredPointsReader tmap1;
+  tmap1 SetFilename "../../data/vecTex/vecAnim1.vtk";
+  tmap1 DebugOn;
+vtkTexture texture1;
+  texture1 SetInput [tmap1 GetOutput];
+  texture1 InterpolateOff;
+  texture1 RepeatOff;
+
+vtkStructuredPointsReader tmap2;
+  tmap2 SetFilename "../../data/vecTex/vecAnim2.vtk";
+  tmap2 DebugOn;
+vtkTexture texture2;
+  texture2 SetInput [tmap2 GetOutput];
+  texture2 InterpolateOff;
+  texture2 RepeatOff;
+
+vtkStructuredPointsReader tmap3;
+  tmap3 SetFilename "../../data/vecTex/vecAnim3.vtk";
+  tmap3 DebugOn;
+vtkTexture texture3;
+  texture3 SetInput [tmap3 GetOutput];
+  texture3 InterpolateOff;
+  texture3 RepeatOff;
+
+vtkStructuredPointsReader tmap4;
+  tmap4 SetFilename "../../data/vecTex/vecAnim4.vtk";
+  tmap4 DebugOn;
+vtkTexture texture4;
+  texture4 SetInput [tmap4 GetOutput];
+  texture4 InterpolateOff;
+  texture4 RepeatOff;
+
+vtkStructuredPointsReader tmap5;
+  tmap5 SetFilename "../../data/vecTex/vecAnim5.vtk";
+  tmap5 DebugOn;
+vtkTexture texture5;
+  texture5 SetInput [tmap5 GetOutput];
+  texture5 InterpolateOff;
+  texture5 RepeatOff;
+
+vtkStructuredPointsReader tmap6;
+  tmap6 SetFilename "../../data/vecTex/vecAnim6.vtk";
+  tmap6 DebugOn;
+vtkTexture texture6;
+  texture6 SetInput [tmap6 GetOutput];
+  texture6 InterpolateOff;
+  texture6 RepeatOff;
+
+vtkStructuredPointsReader tmap7;
+  tmap7 SetFilename "../../data/vecTex/vecAnim7.vtk";
+  tmap7 DebugOn;
+vtkTexture texture7;
+  texture7 SetInput [tmap7 GetOutput];
+  texture7 InterpolateOff;
+  texture7 RepeatOff;
+
+vtkStructuredPointsReader tmap8;
+  tmap8 SetFilename "../../data/vecTex/vecAnim8.vtk";
+  tmap8 DebugOn;
+vtkTexture texture8;
+  texture8 SetInput [tmap8 GetOutput];
+  texture8 InterpolateOff;
+  texture8 RepeatOff;
+
+vectorActor SetTexture texture1;
+
+# Add the actors to the renderer, set the background and size
+#
+$ren1 AddActors vectorActor;
+$ren1 SetBackground 1 1 1;
+$renWin SetSize 750 750;
+
+$iren Initialize;
+$renWin Render;
+
+# render the image
+#
+$iren SetUserMethod {wm deiconify .vtkInteract};
+
+$renWin Render;
+
+# prevent the tk window from showing up then start the event loop
+wm withdraw .
+
+# go into loop
+
+for {set i 0} {$i<100} {incr i} {
+    vectorActor SetTexture texture1; $renWin Render;
+    vectorActor SetTexture texture2; $renWin Render;
+    vectorActor SetTexture texture3; $renWin Render;
+    vectorActor SetTexture texture4; $renWin Render;
+    vectorActor SetTexture texture5; $renWin Render;
+    vectorActor SetTexture texture6; $renWin Render;
+    vectorActor SetTexture texture7; $renWin Render;
+    vectorActor SetTexture texture8; $renWin Render;
+    vectorActor SetTexture texture1; $renWin Render;
+    vectorActor SetTexture texture2; $renWin Render;
+    vectorActor SetTexture texture3; $renWin Render;
+    vectorActor SetTexture texture4; $renWin Render;
+    vectorActor SetTexture texture5; $renWin Render;
+    vectorActor SetTexture texture6; $renWin Render;
+    vectorActor SetTexture texture7; $renWin Render;
+    vectorActor SetTexture texture8; $renWin Render;
+} 
