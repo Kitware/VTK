@@ -73,8 +73,8 @@ static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
 // Forward prototypes
 extern "C"
 {
-  static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
-                                               XEvent *eventPtr);
+  void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
+                                        XEvent *eventPtr);
 }
 
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self);
@@ -292,7 +292,7 @@ int vtkTkImageViewerWidget_Height( const struct vtkTkImageViewerWidget *self)
 
 extern "C"
 {
-  static void vtkTkImageViewerWidget_Destroy(char *memPtr)
+  void vtkTkImageViewerWidget_Destroy(char *memPtr)
   {
     struct vtkTkImageViewerWidget *self = (struct vtkTkImageViewerWidget *)memPtr;
     
@@ -326,8 +326,8 @@ extern "C"
 // Possibly X dependent
 extern "C"
 {
-  static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
-                                               XEvent *eventPtr) 
+  void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
+                                        XEvent *eventPtr) 
   {
     struct vtkTkImageViewerWidget *self = 
       (struct vtkTkImageViewerWidget *)clientData;

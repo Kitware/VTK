@@ -24,7 +24,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.24");
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.25");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
@@ -76,7 +76,7 @@ typedef struct _vtkSortValues {
 
 extern "C" 
 {  
-  static int CompareBackToFront(const void *val1, const void *val2)
+  int vtkCompareBackToFront(const void *val1, const void *val2)
   {
     if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
       {
@@ -95,7 +95,7 @@ extern "C"
 
 extern "C" 
 {
-  static int CompareFrontToBack(const void *val1, const void *val2)
+  int vtkCompareFrontToBack(const void *val1, const void *val2)
   {
     if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
       {
@@ -205,11 +205,13 @@ void vtkDepthSortPolyData::Execute()
   // Sort the depths
   if ( this->Direction == VTK_DIRECTION_FRONT_TO_BACK )
     {
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), CompareFrontToBack);
+    qsort((void *)depth, numCells, sizeof(vtkSortValues), 
+          vtkCompareFrontToBack);
     }
   else
     {
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), CompareBackToFront);
+    qsort((void *)depth, numCells, sizeof(vtkSortValues), 
+          vtkCompareBackToFront);
     }
   this->UpdateProgress(0.60);
 

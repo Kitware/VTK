@@ -31,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.40");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.41");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -73,7 +73,7 @@ static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 
 extern "C"
 {
-  static void vtkXTclTimerProc(ClientData clientData)
+  void vtkXTclTimerProc(ClientData clientData)
   {
     XtIntervalId id;
     

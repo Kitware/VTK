@@ -71,8 +71,8 @@ static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
 // Foward prototypes
 extern "C"
 {
-  static void vtkTkRenderWidget_EventProc(ClientData clientData, 
-                                          XEvent *eventPtr);
+  void vtkTkRenderWidget_EventProc(ClientData clientData, 
+                                   XEvent *eventPtr);
 }
 
 static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self);
@@ -302,7 +302,7 @@ int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
  */
 extern "C"
 {
-  static void vtkTkRenderWidget_Destroy(char *memPtr)
+  void vtkTkRenderWidget_Destroy(char *memPtr)
   {
     struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
     
@@ -333,8 +333,8 @@ extern "C"
 // Possibly X dependent
 extern "C"
 {
-  static void vtkTkRenderWidget_EventProc(ClientData clientData, 
-                                          XEvent *eventPtr) 
+  void vtkTkRenderWidget_EventProc(ClientData clientData, 
+                                   XEvent *eventPtr) 
   {
     struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
     
