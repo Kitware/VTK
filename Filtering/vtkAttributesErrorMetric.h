@@ -27,7 +27,6 @@
 #include "vtkGenericSubdivisionErrorMetric.h"
 
 class vtkGenericAttributeCollection;
-class vtkGenericAdaptorCell;
 class vtkGenericDataSet;
 
 class VTK_FILTERING_EXPORT vtkAttributesErrorMetric : public vtkGenericSubdivisionErrorMetric
