@@ -711,6 +711,14 @@ void vtkRectilinearGrid::ComputeBounds()
 {
   float tmp;
 
+  if (this->XCoordinates == NULL || this->YCoordinates == NULL || 
+      this->ZCoordinates == NULL)
+    {
+    this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = this->Bounds[3]
+      = this->Bounds[4] = this->Bounds[5] = 0.0;
+    return;
+    }
+  
   this->Bounds[0] = this->XCoordinates->GetScalar(0);
   this->Bounds[2] = this->YCoordinates->GetScalar(0);
   this->Bounds[4] = this->ZCoordinates->GetScalar(0);
