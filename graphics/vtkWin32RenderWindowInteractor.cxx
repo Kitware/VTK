@@ -553,7 +553,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
-              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+	      double dtmp[3];
+	      dtmp[0] = pickPoint[0];
+	      dtmp[1] = pickPoint[1];
+	      dtmp[2] = pickPoint[2];
+              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
               if (distToCamera > d)
                 {
                 distToCamera = d;
@@ -720,7 +724,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
-              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+	      double dtmp[3];
+	      dtmp[0] = pickPoint[0];
+	      dtmp[1] = pickPoint[1];
+	      dtmp[2] = pickPoint[2];
+              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
               if (distToCamera > d)
                 {
                 distToCamera = d;
@@ -844,7 +852,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
-              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+	      double dtmp[3];
+	      dtmp[0] = pickPoint[0];
+	      dtmp[1] = pickPoint[1];
+	      dtmp[2] = pickPoint[2];
+              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
               if (distToCamera > d)
                 {
                 distToCamera = d;

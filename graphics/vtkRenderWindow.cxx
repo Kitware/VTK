@@ -492,7 +492,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition((float [3])dpoint);
+	acam->GetPosition(dpoint);
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -526,7 +526,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition((float [3])dpoint);
+	acam->GetPosition(dpoint);
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -588,7 +588,7 @@ void vtkRenderWindow::DoFDRender()
     double *vpn;
     double *dpoint;
     vtkTransform *aTrans = vtkTransform::New();
-    float offsets[2];
+    double offsets[2];
     double *orig;
 
     // get the size
