@@ -168,7 +168,6 @@ vtkOBJExporter \
 vtkOutlineFilter \
 vtkOutlineSource \
 vtkPLOT3DReader \
-vtkPNMWriter \
 vtkPicker \
 vtkPiecewiseFunction \
 vtkPlaneSource \
