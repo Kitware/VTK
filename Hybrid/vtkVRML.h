@@ -123,7 +123,36 @@ public:
         delete[] Data;
         }
     }
-  void Reserve(int newSize);
+  void Reserve(int newSize)
+    {
+    T *temp;
+    int oldSize;
+    if(newSize >= Allocated)
+      {
+      oldSize=Allocated;
+      Allocated=newSize+DEFAULTINCREMENT;
+      temp=Data;
+      if (!this->UseNew)
+	{
+	void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
+	Data=new(mem) T[Allocated];
+	}
+      else
+	{
+	Data=new T[Allocated];
+	}
+      if(Data==(T *)'\0')
+	{
+	return;
+	}
+      memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
+      if (this->UseNew)
+	{
+	delete[] temp;
+	}
+      }
+    }
+  
   void Demand(int newSize)
     {
       Reserve(newSize);
@@ -183,37 +212,6 @@ public:
 
   int UseNew;
 };
-
-template <class T> 
-void VectorType<T>::Reserve(int newSize)
-{
-  T *temp;
-  int oldSize;
-  if(newSize >= Allocated)
-    {
-    oldSize=Allocated;
-    Allocated=newSize+DEFAULTINCREMENT;
-    temp=Data;
-    if (!this->UseNew)
-      {
-      void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
-      Data=new(mem) T[Allocated];
-      }
-    else
-      {
-      Data=new T[Allocated];
-      }
-    if(Data==(T *)'\0')
-      {
-      return;
-      }
-    memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
-    if (this->UseNew)
-      {
-      delete[] temp;
-      }
-    }
-}
 
 static const char standardNodes[][2042] = {
   "#VRML V2.0 utf8 \n\
