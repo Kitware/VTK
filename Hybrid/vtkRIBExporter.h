@@ -105,6 +105,14 @@ public:
   vtkGetMacro(Background,int);
   vtkBooleanMacro(Background,int);
 
+  // Description:
+  // Set or get the ExportArrays. If ExportArrays is set, then
+  // all point data, field data, and cell data arrays will get 
+  // exported together with polygons.
+  vtkSetClampMacro(ExportArrays, int, 0, 1);
+  vtkBooleanMacro(ExportArrays, int);
+  vtkGetMacro(ExportArrays, int);
+
 protected:
   vtkRIBExporter();
   ~vtkRIBExporter();
@@ -112,6 +120,11 @@ protected:
   int Background;
   int Size[2];
   int PixelSamples[2];
+
+  // Description:
+  // This variable defines whether the arrays are exported or not.
+  int ExportArrays;
+
   // Description:
   // Write the RIB header.
   void WriteHeader (vtkRenderer *aRen);
@@ -131,7 +144,10 @@ protected:
   void WriteActor(vtkActor *anActor);
   
   // Description:
-  // Modify array name so that you can use it in shader.
+  // Since additional variables are sent to the shader as
+  // variables, and their names are used in the shader, these
+  // names have to follow C naming convention. This method
+  // modifies array name so that you can use it in shader.
   void ModifyArrayName(char *newname, const char* name);
 
   char *GetTextureName (vtkTexture *aTexture);

@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.41");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.42");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];
@@ -45,6 +45,7 @@ vtkRIBExporter::vtkRIBExporter()
   this->Size[0] = this->Size[1] = -1;
   this->PixelSamples[0] = this->PixelSamples[1] = 2;
   this->Background = 0;
+  this->ExportArrays = 0;
 }
 
 vtkRIBExporter::~vtkRIBExporter()
@@ -583,14 +584,14 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   // insert model transformation 
   fprintf (this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-        matrix->Element[0][0], matrix->Element[0][1], 
-        matrix->Element[0][2], matrix->Element[0][3],
-        matrix->Element[1][0], matrix->Element[1][1], 
-        matrix->Element[1][2], matrix->Element[1][3],
-        matrix->Element[2][0], matrix->Element[2][1], 
-        matrix->Element[2][2], matrix->Element[2][3],
-        matrix->Element[3][0], matrix->Element[3][1], 
-        matrix->Element[3][2], matrix->Element[3][3]);
+           matrix->Element[0][0], matrix->Element[0][1], 
+           matrix->Element[0][2], matrix->Element[0][3],
+           matrix->Element[1][0], matrix->Element[1][1], 
+           matrix->Element[1][2], matrix->Element[1][3],
+           matrix->Element[2][0], matrix->Element[2][1], 
+           matrix->Element[2][2], matrix->Element[2][3],
+           matrix->Element[3][0], matrix->Element[3][1], 
+           matrix->Element[3][2], matrix->Element[3][3]);
 
   // we really want polydata
   if ( aDataSet->GetDataObjectType() != VTK_POLY_DATA )
@@ -606,43 +607,46 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
     }
 
   // Let us start with point data and then we can copy to other
-  vtkPointData *pointData = polyData->GetPointData();
-  if ( pointData && pointData->GetNumberOfArrays() )
+  if ( this->ExportArrays )
     {
-    int cc;
-    for ( cc = 0; cc< pointData->GetNumberOfArrays(); cc ++ )
+    vtkPointData *pointData = polyData->GetPointData();
+    if ( pointData && pointData->GetNumberOfArrays() )
       {
-      vtkDataArray *array = pointData->GetArray(cc);
-      char buffer[1024];
-      this->ModifyArrayName(buffer, array->GetName());
-      fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
-              buffer);
+      int cc;
+      for ( cc = 0; cc< pointData->GetNumberOfArrays(); cc ++ )
+        {
+        vtkDataArray *array = pointData->GetArray(cc);
+        char buffer[1024];
+        this->ModifyArrayName(buffer, array->GetName());
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+                buffer);
+        }
       }
-    }
-  vtkCellData *cellData = polyData->GetCellData();
-  if ( cellData && cellData->GetNumberOfArrays() )
-    {
-    int cc;
-    for ( cc = 0; cc< cellData->GetNumberOfArrays(); cc ++ )
+    vtkCellData *cellData = polyData->GetCellData();
+    if ( cellData && cellData->GetNumberOfArrays() )
       {
-      vtkDataArray *array = cellData->GetArray(cc);
-      char buffer[1024];
-      this->ModifyArrayName(buffer, array->GetName());
-      fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
-              buffer);
+      int cc;
+      for ( cc = 0; cc< cellData->GetNumberOfArrays(); cc ++ )
+        {
+        vtkDataArray *array = cellData->GetArray(cc);
+        char buffer[1024];
+        this->ModifyArrayName(buffer, array->GetName());
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+                buffer);
+        }
       }
-    }
-  vtkFieldData *fieldData = polyData->GetFieldData();
-  if ( fieldData && fieldData->GetNumberOfArrays() )
-    {
-    int cc;
-    for ( cc = 0; cc< fieldData->GetNumberOfArrays(); cc ++ )
+    vtkFieldData *fieldData = polyData->GetFieldData();
+    if ( fieldData && fieldData->GetNumberOfArrays() )
       {
-      vtkDataArray *array = fieldData->GetArray(cc);
-      char buffer[1024];
-      this->ModifyArrayName(buffer, array->GetName());
-      fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
-              buffer);
+      int cc;
+      for ( cc = 0; cc< fieldData->GetNumberOfArrays(); cc ++ )
+        {
+        vtkDataArray *array = fieldData->GetArray(cc);
+        char buffer[1024];
+        this->ModifyArrayName(buffer, array->GetName());
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+                buffer);
+        }
       }
     }
 
@@ -812,80 +816,82 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
         }
       fprintf (this->FilePtr, "] ");
       }
-    
-    if ( pointData )
-      {
-      int cc, aa;
-      ostrstream str;
-      for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
-        {
-        vtkDataArray *array = pointData->GetArray(cc);
-        char buffer[1024];
-        this->ModifyArrayName(buffer, array->GetName());
-        str << "\"" << buffer << "\" [";
-        for (kk = 0; kk < npts; kk++)
-          {
-          float* tuple = array->GetTuple(pts[kk]);
-          for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
-            {
-            str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
-            }
-          }
-        str << "] ";
-        }
-      str << ends;
-      fprintf ( this->FilePtr, "%s", str.str() );
-      str.rdbuf()->freeze(0);      
-      }
 
-    if ( cellData )
+    if ( this->ExportArrays )
       {
-      int cc, aa;
-      ostrstream str;
-      for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
+      if ( pointData )
         {
-        vtkDataArray *array = cellData->GetArray(cc);
-        char buffer[1024];
-        this->ModifyArrayName(buffer, array->GetName());
-        str << "\"" << buffer << "\" [";
-        for (kk = 0; kk < npts; kk++)
+        int cc, aa;      ostrstream str;
+        for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
           {
-          float* tuple = array->GetTuple(pts[kk]);
-          for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+          vtkDataArray *array = pointData->GetArray(cc);
+          char buffer[1024];
+          this->ModifyArrayName(buffer, array->GetName());
+          str << "\"" << buffer << "\" [";
+          for (kk = 0; kk < npts; kk++)
             {
-            str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+            float* tuple = array->GetTuple(pts[kk]);
+            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+              {
+              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              }
             }
+          str << "] ";
           }
-        str << "] ";
+        str << ends;
+        fprintf ( this->FilePtr, "%s", str.str() );
+        str.rdbuf()->freeze(0);      
         }
-      str << ends;
-      fprintf ( this->FilePtr, "%s", str.str() );
-      str.rdbuf()->freeze(0);      
-      }
 
-    if ( fieldData )
-      {
-      int cc, aa;
-      ostrstream str;
-      for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
+      if ( cellData )
         {
-        vtkDataArray *array = fieldData->GetArray(cc);
-        char buffer[1024];
-        this->ModifyArrayName(buffer, array->GetName());
-        str << "\"" << buffer << "\" [";
-        for (kk = 0; kk < npts; kk++)
+        int cc, aa;
+        ostrstream str;
+        for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
           {
-          float* tuple = array->GetTuple(pts[kk]);
-          for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+          vtkDataArray *array = cellData->GetArray(cc);
+          char buffer[1024];
+          this->ModifyArrayName(buffer, array->GetName());
+          str << "\"" << buffer << "\" [";
+          for (kk = 0; kk < npts; kk++)
             {
-            str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+            float* tuple = array->GetTuple(pts[kk]);
+            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+              {
+              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              }
             }
+          str << "] ";
           }
-        str << "] ";
+        str << ends;
+        fprintf ( this->FilePtr, "%s", str.str() );
+        str.rdbuf()->freeze(0);      
         }
-      str << ends;
-      fprintf ( this->FilePtr, "%s", str.str() );
-      str.rdbuf()->freeze(0);      
+
+      if ( fieldData )
+        {
+        int cc, aa;
+        ostrstream str;
+        for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
+          {
+          vtkDataArray *array = fieldData->GetArray(cc);
+          char buffer[1024];
+          this->ModifyArrayName(buffer, array->GetName());
+          str << "\"" << buffer << "\" [";
+          for (kk = 0; kk < npts; kk++)
+            {
+            float* tuple = array->GetTuple(pts[kk]);
+            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+              {
+              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              }
+            }
+          str << "] ";
+          }
+        str << ends;
+        fprintf ( this->FilePtr, "%s", str.str() );
+        str.rdbuf()->freeze(0);      
+        }
       }
 
     fprintf (this->FilePtr, "\n");
@@ -1061,81 +1067,83 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         fprintf (this->FilePtr, "] ");
         }
 
-      if ( pointData )
+      if ( this->ExportArrays )
         {
-        int cc, aa;
-        ostrstream str;
-        for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
+        if ( pointData )
           {
-          vtkDataArray *array = pointData->GetArray(cc);
-          char buffer[1024];
-          this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
-          for (kk = 0; kk < npts; kk++)
+          int cc, aa;
+          ostrstream str;
+          for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
             {
-            float* tuple = array->GetTuple(pts[kk]);
-            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+            vtkDataArray *array = pointData->GetArray(cc);
+            char buffer[1024];
+            this->ModifyArrayName(buffer, array->GetName());
+            str << "\"" << buffer << "\" [";
+            for (kk = 0; kk < npts; kk++)
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              float* tuple = array->GetTuple(pts[kk]);
+              for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+                {
+                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                }
               }
+            str << "] ";
             }
-          str << "] ";
+          str << ends;
+          fprintf ( this->FilePtr, "%s", str.str() );
+          str.rdbuf()->freeze(0);      
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
-        }
 
-      if ( cellData )
-        {
-        int cc, aa;
-        ostrstream str;
-        for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
+        if ( cellData )
           {
-          vtkDataArray *array = cellData->GetArray(cc);
-          char buffer[1024];
-          this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
-          for (kk = 0; kk < npts; kk++)
+          int cc, aa;
+          ostrstream str;
+          for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
             {
-            float* tuple = array->GetTuple(pts[kk]);
-            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+            vtkDataArray *array = cellData->GetArray(cc);
+            char buffer[1024];
+            this->ModifyArrayName(buffer, array->GetName());
+            str << "\"" << buffer << "\" [";
+            for (kk = 0; kk < npts; kk++)
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              float* tuple = array->GetTuple(pts[kk]);
+              for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+                {
+                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                }
               }
+            str << "] ";
             }
-          str << "] ";
+          str << ends;
+          fprintf ( this->FilePtr, "%s", str.str() );
+          str.rdbuf()->freeze(0);      
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
-        }
 
-      if ( fieldData )
-        {
-        int cc, aa;
-        ostrstream str;
-        for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
+        if ( fieldData )
           {
-          vtkDataArray *array = fieldData->GetArray(cc);
-          char buffer[1024];
-          this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
-          for (kk = 0; kk < npts; kk++)
+          int cc, aa;
+          ostrstream str;
+          for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
             {
-            float* tuple = array->GetTuple(pts[kk]);
-            for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+            vtkDataArray *array = fieldData->GetArray(cc);
+            char buffer[1024];
+            this->ModifyArrayName(buffer, array->GetName());
+            str << "\"" << buffer << "\" [";
+            for (kk = 0; kk < npts; kk++)
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              float* tuple = array->GetTuple(pts[kk]);
+              for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
+                {
+                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                }
               }
+            str << "] ";
             }
-          str << "] ";
+          str << ends;
+          fprintf ( this->FilePtr, "%s", str.str() );
+          str.rdbuf()->freeze(0);      
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
         }
-
       fprintf (this->FilePtr, "\n");
       // Get ready for next triangle
       p1 = p2;
@@ -1173,6 +1181,8 @@ void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Size: " << this->Size[0] << " " << this->Size[1] << "\n";
   os << indent << "PixelSamples: " << this->PixelSamples[0] << " " 
      << this->PixelSamples[1] << "\n";
+  os << indent << "Export Arrays: " << (this->ExportArrays ? "On" : "Off")
+     << "\n";
 }
 
 void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
