@@ -38,6 +38,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->AlphaRange[0] = 1.0;
   this->AlphaRange[1] = 1.0;
 
+  this->Table.ReferenceCountingOff();
 };
 
 // Description:
