@@ -1101,7 +1101,6 @@ vtkProp* vtkRenderer::PickProp(float selectionX, float selectionY)
 void vtkRenderer::PickRender()
 {
   double   t1, t2;
-  int      i;
   vtkProp  *aProp;
   vtkPropCollection* props;
   if(this->PickFromProps)
