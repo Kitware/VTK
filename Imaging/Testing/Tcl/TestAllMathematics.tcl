@@ -40,6 +40,7 @@ Max \
 ATAN \
 ATAN2 \
 MultiplyByK \
+ReplaceCByK \
 AddConstant"
 
 foreach operator $mathematics {
@@ -47,8 +48,8 @@ foreach operator $mathematics {
       mathematic${operator} SetInput1 [sphere1 GetOutput]
       mathematic${operator} SetInput2 [sphere2 GetOutput]
       mathematic${operator} SetOperationTo${operator}
-      mathematic${operator} SetConstantK .21
-      mathematic${operator} SetConstantC .1
+      mathematic${operator} SetConstantK .3
+      mathematic${operator} SetConstantC .75
     vtkImageMapper mapper${operator}
       mapper${operator} SetInput [mathematic${operator} GetOutput]
       mapper${operator} SetColorWindow 2.0
@@ -63,7 +64,7 @@ foreach operator $mathematics {
 set column 1
 set row 1
 set deltaX [expr 1.0/6.0]
-set deltaY [expr 1.0/3.0]
+set deltaY [expr 1.0/4.0]
 
 foreach operator $mathematics {
     imager${operator} SetViewport [expr ($column - 1) * $deltaX] [expr ($row - 1) * $deltaY] [expr $column * $deltaX] [expr $row * $deltaY]
