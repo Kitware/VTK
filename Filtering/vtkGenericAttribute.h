@@ -91,9 +91,9 @@ class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
                         double range[2]) = 0;
   
   // Description:
-  // Euclidean Norm.
+  // Return the maximum euclidean norm for the tuples.
   // \post positive_result: result>=0
-  virtual double GetNorm()=0;
+  virtual double GetMaxNorm()=0;
   
   // Description:
   // Attribute at all points of cell `c'.
