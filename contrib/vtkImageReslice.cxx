@@ -927,8 +927,6 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 				    T *background, int numscalars, 
 				    int inExt[6], int inInc[3])
 {
-  int factX[4],factY[4],factZ[4];
-
   float fx,fy,fz;
   int floorX = vtkResliceFloor(point[0],fx);
   int floorY = vtkResliceFloor(point[1],fy);
@@ -964,14 +962,8 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     float vY,vZ,val;
     T *inPtr1, *inPtr2;
     int i,j,k,l,jl,jm,kl,km,ll,lm;
+    int factX[4],factY[4],factZ[4];
     
-    for (i = 0; i < 4; i++)
-      {
-      factX[i] = (inIdX-1+i)*inInc[0];
-      factY[i] = (inIdY-1+i)*inInc[1];
-      factZ[i] = (inIdZ-1+i)*inInc[2];
-      }
-
     // depending on whether we are at the edge of the 
     // input extent, choose the appropriate interpolation
     // method to use
@@ -990,6 +982,23 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     vtkImageResliceSetInterpCoeffs(fY,&kl,&km,fy,interpModeY);
     vtkImageResliceSetInterpCoeffs(fZ,&jl,&jm,fz,interpModeZ);
 
+    for (i = 0; i < 4; i++)
+      {
+      factX[i] = (inIdX+i-1)*inInc[0];
+      factY[i] = (inIdY+i-1)*inInc[1];
+      factZ[i] = (inIdZ+i-1)*inInc[2];
+      }
+
+    // set things up so that we can unroll the inner X loop safely
+    for (l = 0; l < ll; l++)
+      {
+      factX[l] = inIdX*inInc[0];
+      }
+    for (l = lm; l < 4; l++)
+      {
+      factX[l] = inIdX*inInc[0];
+      }
+
     // Finally, here is the tricubic interpolation
     // (or cubic-cubic-linear, or cubic-nearest-cubic, etc)
     do
@@ -1002,11 +1011,10 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 	for (k = kl; k < km; k++)
 	  {
 	  inPtr2 = inPtr1 + factY[k];
-	  vY = 0;
-	  for (l = ll; l < lm; l++)
-	    {
-	    vY += *(inPtr2+factX[l]) * fX[l]; 
-	    }
+	  vY = *(inPtr2+factX[0]) * fX[0] +
+	       *(inPtr2+factX[1]) * fX[1] +
+	       *(inPtr2+factX[2]) * fX[2] +
+	       *(inPtr2+factX[3]) * fX[3];
 	  vZ += vY*fY[k]; 
 	  }
 	val += vZ*fZ[j];
@@ -1036,7 +1044,7 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   float fX[4],fY[4],fZ[4];
   float vY,vZ,val;
   T *inPtr1, *inPtr2;
-  int i,j,k,l;
+  int i,j,k,jl,jm,kl,km;
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -1066,25 +1074,24 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
     }
 
   vtkImageResliceSetInterpCoeffs(fX,&i,&i,fx,7);
-  vtkImageResliceSetInterpCoeffs(fY,&i,&i,fy,7);
-  vtkImageResliceSetInterpCoeffs(fZ,&i,&i,fz,7);
+  vtkImageResliceSetInterpCoeffs(fY,&kl,&km,fy,6+(fy != 0));
+  vtkImageResliceSetInterpCoeffs(fZ,&jl,&jm,fz,6+(fz != 0));
 
   // Finally, here is the tricubic interpolation
   do
     {
     val = 0;
-    for (j = 0; j < 4; j++)
+    for (j = jl; j < jm; j++)
       {
       inPtr1 = inPtr + factZ[j];
       vZ = 0;
-      for (k = 0; k < 4; k++)
+      for (k = kl; k < km; k++)
 	{
 	inPtr2 = inPtr1 + factY[k];
-	vY = 0;
-	for (l = 0; l < 4; l++)
-	  {
-	  vY += *(inPtr2+factX[l]) * fX[l]; 
-	  }
+	vY = *(inPtr2+factX[0]) * fX[0] +
+	     *(inPtr2+factX[1]) * fX[1] +
+	     *(inPtr2+factX[2]) * fX[2] +
+	     *(inPtr2+factX[3]) * fX[3];
 	vZ += vY*fY[k]; 
 	}
       val += vZ*fZ[j];
@@ -1361,7 +1368,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
 {
   int i,j,k;
   int idX,idY,idZ;
-  float xAxis[4], yAxis[4], zAxis[4], origin[4], dpoint[4];
+  float xAxis[4], yAxis[4], zAxis[4], origin[4];
   float point[4],f;
 
   int wrap = (this->GetWrap() || this->GetInterpolate());
@@ -1391,9 +1398,9 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
     
     for (j = 0; j < 4; j++) 
       {
-      dpoint[j] = origin[j] + idZ*zAxis[j];
-      dpoint[j] = dpoint[j] + idY*yAxis[j];
-      point[j] = dpoint[j] + idX*xAxis[j];
+      point[j] = origin[j] + idZ*zAxis[j];
+      point[j] = point[j] + idY*yAxis[j];
+      point[j] = point[j] + idX*xAxis[j];
       }
     
     f = 1.0f/point[3];
@@ -1479,14 +1486,14 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
 // find approximate intersection of line with the plane x = x_min,
 // y = y_min, or z = z_min (lower limit of data extent) 
 
-static int intersectionLow(double *point, double *axis, int *sign,
+static int intersectionLow(float *point, float *axis, int *sign,
 			   int *limit, int ai, int *outExt)
 {
   // approximate value of r
   int r;
   float f,p;
-  double rd = (limit[ai]*point[3]-point[ai])
-    /(axis[ai]-limit[ai]*axis[3]) + 0.5;
+  float rd = (limit[ai]*point[3]-point[ai])
+    /(axis[ai]-limit[ai]*axis[3]) + 0.5f;
    
   if (rd < outExt[2*ai]) 
     {
@@ -1540,13 +1547,13 @@ static int intersectionLow(double *point, double *axis, int *sign,
 }
 
 // same as above, but for x = x_max
-static int intersectionHigh(double *point, double *axis, int *sign, 
+static int intersectionHigh(float *point, float *axis, int *sign, 
 			    int *limit, int ai, int *outExt)
 {
   int r;
   float f,p;
-  double rd = (limit[ai]*point[3]-point[ai])
-      /(axis[ai]-limit[ai]*axis[3]) + 0.5; 
+  float rd = (limit[ai]*point[3]-point[ai])
+      /(axis[ai]-limit[ai]*axis[3]) + 0.5f; 
     
   if (rd < outExt[2*ai])
     { 
@@ -1599,7 +1606,7 @@ static int intersectionHigh(double *point, double *axis, int *sign,
   return r;
 }
 
-static int isBounded(double *point, double *xAxis, int *inMin, 
+static int isBounded(float *point, float *xAxis, int *inMin, 
 		     int *inMax, int ai, int r)
 {
   int bi = ai+1; 
@@ -1628,8 +1635,7 @@ static int isBounded(double *point, double *xAxis, int *inMin,
 
 // this huge mess finds out where the current output raster
 // line intersects the input volume 
-int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, 
-                                double *xAxis, 
+int vtkImageReslice::FindExtent(int& r1, int& r2, float *point, float *xAxis, 
 				int *inMin, int *inMax, int *outExt)
 {
   int i, ix, iy, iz;
@@ -1899,9 +1905,9 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   unsigned long count = 0;
   unsigned long target;
   int r1,r2;
-  double inPoint0[4];
-  double inPoint1[4];
-  double xAxis[4], yAxis[4], zAxis[4], origin[4];
+  float inPoint0[4];
+  float inPoint1[4];
+  float xAxis[4], yAxis[4], zAxis[4], origin[4];
   float inPoint[4],f;
   T *background;
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
@@ -2498,7 +2504,7 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	{
 	traversal[j][4*i+l] = inId[1]*inInc[k];
 	}
-      for (l = low[j][i]; l <= high[j][i]; l++)
+      for (l = low[j][i]; l < high[j][i]; l++)
 	{ 
 	traversal[j][4*i+l] = inId[l]*inInc[k];
 	}

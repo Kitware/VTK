@@ -153,7 +153,7 @@ public:
   vtkBooleanMacro(Optimization,int);
 
   // Description:
-  // Set the background color (for multi-component imagesa.)
+  // Set the background color (for multi-component images).
   vtkSetVector4Macro(BackgroundColor, float);
   vtkGetVector4Macro(BackgroundColor, float);
 
@@ -183,7 +183,7 @@ public:
   // Description:
   // Helper functions not meant to be used outside this class. 
   vtkMatrix4x4 *GetIndexMatrix();
-  int FindExtent(int& r1, int& r2, double *point, double *xAxis,
+  int FindExtent(int& r1, int& r2, float *point, float *xAxis,
 		      int *inMin, int *inMax, int *outExt);
 //ETX
 protected:
