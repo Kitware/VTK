@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.5");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.6");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -324,12 +324,17 @@ void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
 // public
 void vtkProcrustesAlignmentFilter::SetInput(int idx,vtkPointSet* p) 
 { 
+  if(idx<0 || idx>=this->vtkProcessObject::GetNumberOfInputs())
+    {
+    vtkErrorMacro(<<"Index out of bounds in SetInput!");
+    return;
+    }
+  
   this->vtkProcessObject::SetNthInput(idx,p);
-  // (let vtkProcessObject deal with out of range issues)
 }
 
 //----------------------------------------------------------------------------
-// protected
+// public
 vtkPointSet* vtkProcrustesAlignmentFilter::GetInput(int idx) 
 {
   if(idx<0 || idx>=this->vtkProcessObject::GetNumberOfInputs())
@@ -345,8 +350,13 @@ vtkPointSet* vtkProcrustesAlignmentFilter::GetInput(int idx)
 // public
 vtkPointSet* vtkProcrustesAlignmentFilter::GetOutput(int idx) 
 { 
+  if(idx<0 || idx>=this->vtkSource::GetNumberOfOutputs())
+    {
+    vtkErrorMacro(<<"Index out of bounds in GetOutput!");
+    return NULL;
+    }
+  
   return static_cast<vtkPointSet*>(this->vtkSource::GetOutput(idx));
-  // (let vtkSource deal with out of range issues)
 }
 
 //----------------------------------------------------------------------------

@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Tim Hutton and Rasmus Paulsen who developed and contributed this class
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
   All rights reserved.
@@ -44,6 +43,9 @@
 //
 // .SECTION Caveats
 // All of the input pointsets must have the same number of points.
+//
+// .SECTION Thanks
+// Tim Hutton and Rasmus Paulsen who developed and contributed this class
 //
 // .SECTION See Also
 // vtkLandmarkTransform
@@ -88,6 +90,10 @@ public:
   // Retrieve the output point set with index idx.
   vtkPointSet* GetOutput(int idx);
 
+  // Description:
+  // A wrapper function for accessing the inputs within the filter and subclasses.
+  vtkPointSet* GetInput(int idx);
+
 protected:
   vtkProcrustesAlignmentFilter();
   ~vtkProcrustesAlignmentFilter();
@@ -95,10 +101,6 @@ protected:
   // Description:
   // Usual data generation method.
   void Execute();
-
-  // Description:
-  // A wrapper function for accessing the inputs within the filter and subclasses.
-  vtkPointSet* GetInput(int idx);
 
   vtkLandmarkTransform *LandmarkTransform;
 
