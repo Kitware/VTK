@@ -20,7 +20,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.11");
+vtkCxxRevisionMacro(vtkPNGReader, "1.12");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -287,6 +287,8 @@ void vtkPNGReader::ExecuteData(vtkDataObject *output)
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
     }
+
+  data->GetPointData()->GetScalars()->SetName("PNGImage");
 
   this->ComputeDataIncrements();
   

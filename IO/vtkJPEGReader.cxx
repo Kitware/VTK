@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.11");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.12");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -263,6 +263,8 @@ void vtkJPEGReader::ExecuteData(vtkDataObject *output)
 
   this->ComputeDataIncrements();
   
+  data->GetPointData()->GetScalars()->SetName("JPEGImage");
+
   // Call the correct templated function for the output
   void *outPtr;
 

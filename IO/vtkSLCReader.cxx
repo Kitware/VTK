@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.42");
+vtkCxxRevisionMacro(vtkSLCReader, "1.43");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -146,6 +146,8 @@ void vtkSLCReader::ExecuteData(vtkDataObject* )
   
   output->SetExtent(output->GetWholeExtent());
   output->AllocateScalars();
+  output->GetPointData()->GetScalars()->SetName("SLCImage");
+
   FILE *fp;
 
   int   temp;

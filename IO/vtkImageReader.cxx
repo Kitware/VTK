@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.103");
+vtkCxxRevisionMacro(vtkImageReader, "1.104");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -413,6 +413,8 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
     }
 
   ext = data->GetExtent();
+
+  data->GetPointData()->GetScalars()->SetName("ImageFile");
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
         << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);

@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.33");
+vtkCxxRevisionMacro(vtkBMPReader, "1.34");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -458,6 +458,8 @@ void vtkBMPReader::ExecuteData(vtkDataObject *output)
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
     }
+
+  data->GetPointData()->GetScalars()->SetName("BMPImage");
 
   this->ComputeDataIncrements();
   

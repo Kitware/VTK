@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.12");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.13");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -434,6 +434,8 @@ void vtkGESignaReader::ExecuteData(vtkDataObject *output)
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
     }
+
+  data->GetPointData()->GetScalars()->SetName("GESignalImage");
 
   this->ComputeDataIncrements();
   
