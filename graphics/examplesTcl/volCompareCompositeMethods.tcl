@@ -116,15 +116,14 @@ ren1 AddActor actor1
 ren1 AddActor actor2
 
 renWin SetSize 400 200
-renWin Render
 
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
 
 [ren1 GetActiveCamera] ParallelProjectionOn
 [ren1 GetActiveCamera] SetParallelScale 500
 [ren1 GetActiveCamera] Elevation -30
 
+renWin Render
 
 vtkLight light
 light SetPosition -1 1 1
