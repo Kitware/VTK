@@ -68,9 +68,9 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
 
-  if ( this->WindowName )
-    delete [] this->WindowName;
-  this->WindowName = strdup("Visualization Toolkit - Win32OpenGL");
+  if ( this->WindowName ) delete [] this->WindowName;
+  this->WindowName = new char[strlen("Visualization Toolkit - Win32OpenGL")+1];
+    strcpy( this->WindowName, "Visualization Toolkit - Win32OpenGL" );
 }
 
 int vtkWin32OpenGLRenderWindow::GetEventPending()

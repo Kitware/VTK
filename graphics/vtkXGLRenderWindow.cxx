@@ -63,7 +63,8 @@ vtkXGLRenderWindow::vtkXGLRenderWindow()
   this->SetRas = NULL;
   if ( this->WindowName )
     delete [] this->WindowName;
-  this->WindowName = strdup("Visualization Toolkit - XGL");
+  this->WindowName = new char[strlen("Visualization Toolkit - XGL")+1];
+    strcpy( this->WindowName, "Visualization Toolkit - XGL" );
 }
 
 // Description:

@@ -175,7 +175,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   if ( this->WindowName ) 
     delete [] this->WindowName;
-  this->WindowName = strdup("Visualization Toolkit - OpenGL");
+  this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
+    strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 }
 
 // Description:

@@ -57,7 +57,8 @@ vtkStarbaseRenderWindow::vtkStarbaseRenderWindow()
   this->Fd = -1;
   if ( this->WindowName )
     delete [] this->WindowName;
-  this->WindowName = strdup("Visualization Toolkit - Starbase");
+  this->WindowName = new char[strlen("Visualization Toolkit - Starbase")+1];
+    strcpy( this->WindowName, "Visualization Toolkit - Starbase" );
   this->Buffer = 0;
 }
 
