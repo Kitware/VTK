@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkTensor.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.2");
+vtkCxxRevisionMacro(vtkCurvatures, "1.3");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -236,8 +236,8 @@ void vtkCurvatures::GetGaussCurvature()
     vtkTriangle* facet = vtkTriangle::New();
 
     // other data
-    int Nf   = output->GetNumberOfCells ();
-    int Nv   = output->GetNumberOfPoints();
+    vtkIdType Nf   = output->GetNumberOfCells ();
+    vtkIdType Nv   = output->GetNumberOfPoints();
 
     double* K = new double[Nv];
     double* dA = new double[Nv];
@@ -252,7 +252,7 @@ void vtkCurvatures::GetGaussCurvature()
 
     double A, alpha0, alpha1, alpha2;
 
-    int f, *vert;
+    vtkIdType f, *vert;
     facets->InitTraversal();
     while (facets->GetNextCell(f,vert))
       {
