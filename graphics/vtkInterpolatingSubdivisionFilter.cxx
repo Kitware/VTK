@@ -51,7 +51,7 @@ vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
 
 void vtkInterpolatingSubdivisionFilter::Execute()
 {
-  int numCells;
+  int numPts, numCells;
   int level;
   vtkPoints *outputPts;
   vtkCellArray *outputPolys;
@@ -62,6 +62,15 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   vtkIntArray *edgeData;
 
   vtkDebugMacro(<< "Generating subdivision surface using interpolating scheme");
+
+  numPts=input->GetNumberOfPoints();
+  numCells=input->GetNumberOfCells();
+
+  if (numPts < 1 || numCells < 1)
+    {
+    vtkErrorMacro(<<"No data to interpolate!");
+    return;
+    }
 
   //
   // Initialize and check input
@@ -156,7 +165,7 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, 
       }
     }
     // found the edge, return the stored value
-    return edgeData->GetComponent(currentCellId,edgeId);
+    return (int) edgeData->GetComponent(currentCellId,edgeId);
 }
 
 int vtkInterpolatingSubdivisionFilter::InterpolatePosition (

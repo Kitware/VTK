@@ -64,6 +64,15 @@ void vtkApproximatingSubdivisionFilter::Execute()
 
   vtkDebugMacro(<< "Generating subdivision surface using approximating scheme");
 
+  numPts=input->GetNumberOfPoints();
+  numCells=input->GetNumberOfCells();
+
+  if (numPts < 1 || numCells < 1)
+    {
+    vtkErrorMacro(<<"No data to approximate!");
+    return;
+    }
+
   //
   // Initialize and check input
   //
@@ -159,7 +168,7 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, 
       }
     }
     // found the edge, return the stored value
-    return edgeData->GetComponent(currentCellId,edgeId);
+    return (int) edgeData->GetComponent(currentCellId,edgeId);
 }
 
 int vtkApproximatingSubdivisionFilter::InterpolatePosition (
