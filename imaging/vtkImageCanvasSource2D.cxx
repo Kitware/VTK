@@ -188,7 +188,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   min1 = (min1 > extent[3]) ? extent[3] : min1;
   max1 = (max1 > extent[3]) ? extent[3] : max1;
   
-  ptr = this->ImageData->GetScalarPointer(min0, min1, 0);
+  ptr = this->ImageData->GetScalarPointer(min0, min1, extent[4]);
   switch (this->ImageData->GetScalarType())
     {
     case VTK_DOUBLE:
@@ -408,7 +408,7 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
       {
       if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
 	{
-	ptr = (T *)(image->GetScalarPointer(idx0, idx1, 0));
+	ptr = (T *)(image->GetScalarPointer(idx0, idx1, min2));
 	if (ptr)
 	  {
 	  pf = drawColor;
@@ -443,7 +443,7 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
       {
       if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
 	{
-	ptr = (T *)(image->GetScalarPointer(idx0, idx1, 0));
+	ptr = (T *)(image->GetScalarPointer(idx0, idx1, min2));
 	if (ptr)
 	  {
 	  pf = drawColor;
@@ -518,7 +518,7 @@ static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
 
   if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
     {
-    ptr = (T *)(image->GetScalarPointer(p0, p1, 0));
+    ptr = (T *)(image->GetScalarPointer(p0, p1, min2));
 
     pf = drawColor;
     // Assign color to pixel.
@@ -602,7 +602,7 @@ static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
     p1 = c1+(int)(y);
     if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
       {
-      ptr = (T *)(image->GetScalarPointer(p0, p1, 0));
+      ptr = (T *)(image->GetScalarPointer(p0, p1, min2));
 
       pf = drawColor;
       // Assign color to pixel.
@@ -771,7 +771,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
       }
     }
 
-  ptr = this->ImageData->GetScalarPointer(b0, b1, 0);
+  ptr = this->ImageData->GetScalarPointer(b0, b1, extent[4]);
   a0 -= b0;
   a1 -= b1;
   switch (this->ImageData->GetScalarType())
@@ -1321,8 +1321,9 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
 void vtkImageCanvasSource2D::FillPixel(int x, int y)
 {
   void *ptr;
+  int *ext = this->ImageData->GetExtent();
   
-  ptr = this->ImageData->GetScalarPointer(x, y, 0);
+  ptr = this->ImageData->GetScalarPointer(x, y, ext[4]);
 
   switch (this->ImageData->GetScalarType())
     {
