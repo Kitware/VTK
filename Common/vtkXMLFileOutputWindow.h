@@ -26,9 +26,9 @@
 // 
 //   DisplayGenericWarningText - <GenericWarning>
 // 
-//   DisplayDebugText - <Debug.
+//   DisplayDebugText - <Debug>
 // 
-// The method DisplayTag outputs the text unprocessed.  To use this
+// The method DisplayTag outputs the text unprocessed. To use this
 // class, instantiate it and then call SetInstance(this).
 
 
@@ -59,13 +59,13 @@ public:
   // Put the text into the log file without processing it.
   virtual void DisplayTag(const char*);
 
-
  protected:
   vtkXMLFileOutputWindow() {}; 
   virtual ~vtkXMLFileOutputWindow() {}; 
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);
+
 private:
   vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&);  // Not implemented.
   void operator=(const vtkXMLFileOutputWindow&);  // Not implemented.
