@@ -1,0 +1,252 @@
+<HTML>
+<header>
+<title>VTK README</title>
+<!-- Created by: will schroeder,  July-1997 -->
+<!-- Changed by: kenneth m martin,  5-Jun-1998 -->
+<!-- Changed by: will schroeder,  30-Dec-2000 -->
+<!-- Changed by: Bill Hoffman,  15-Jun-2000 -->
+
+</header>
+<body>
+
+<h1>
+<IMG ALIGN="middle" SRC=vtkLogo.jpg>
+Welcome To The Visualization Toolkit
+</h1>
+    <UL>
+    <LI> <A HREF="#Copyright">Copyright Notice</A>
+    <LI> <A HREF="#Introduction">Introduction</A>
+    <LI> <A HREF="#Documentation">Documentation</A>
+    <LI> <A HREF="#Installation">Installation</A>
+        <UL>
+        <LI> <A HREF="#Unix">Unix Installation</A>
+        <LI> <A HREF="#Cygwin">Cygwin Installation</A>
+        <LI> <A HREF="#PC">PC Installation</A>
+        </UL>
+    <LI> <A HREF="#Execution">Execution</A>
+    <LI> <A HREF="#Problems">Common Problems</A>
+    <LI> <A HREF="#NewClass">Adding A New Class</A>
+    </UL>
+<HR>
+<h1><A NAME="Copyright">Copyright Notice</h1>
+<pre>
+Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
+   of any contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+ * Modified source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</pre>
+
+<HR>
+<h1><A NAME="Introduction">Introduction</h1>
+The origin of VTK is with the textbook "The Visualization Toolkit, an
+Object-Oriented Approach to 3D Graphics" published by Prentice Hall
+(ISBN 013199837-4). VTK has grown (since its initial release in 1994)
+to a world-wide user base in the commercial, academic, and research 
+communities.<p>
+
+This is VTK version 3.2. For more information and a FAQ see our web page at
+<A HREF="http://www.kitware.com">http://www.kitware.com</A><p>
+
+<HR>
+<h1><A NAME="Documentation">Documentation</h1>
+
+The ideal way to learn about the software is from the book it is designed to
+support.  You should be able to get the book from any local bookstore or from
+our web page. The web page also contains some html reference pages for the
+objects in VTK as well as a FAQ.
+<pre>
+  The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics
+  by Will Schroeder, Ken Martin and Bill Lorensen.
+  Prentice Hall, Second Edition.
+  <A HREF="http://public.kitware.com/vtkhtml/buyBooks.html">http://public.kitware.com/vtkhtml/buyBooks.html</A>
+
+</pre>
+You can also order the VTK User's Guide from Kitware,Inc. See the
+web page <A HREF="http://www.kitware.com/products/vtkguide.html">http://www.kitware.com/products/vtkguide.html</A><p>
+
+<HR>
+<h1><A NAME="Installation">Installation</h1>
+
+The Visualization Toolkit can be built on both Unix and PC 
+(Windows 95/98/NT/2000) systems.  VTK uses <A HREF="http://public.kitware.com/CMake">CMake</A>
+for its build process.  To build VTK for UNIX or Windows, you will first have to install CMake.
+You can download CMake from: <A HREF="http://public.kitware.com/CMake"</A>http://public.kitware.com/CMake </A>
+The following instructions assume that cmake is already installed.
+<p>
+
+<h3><A NAME="Unix">Unix Installation</h3>
+The following instructions only apply to UNIX systems.  
+The windows source distribution will be released in a different file.<p>
+
+First we will give you the quick and dirty way to build VTK.
+If you have OpenGL do the following:<p>
+
+If you will be using C++ as your development language:
+<pre>
+  1) untar the src files
+  2) untar the data files
+  3) cd vtk
+  4) cmake
+  5) read and edit CMakeCache.txt adding options like python or tcl/tk support.
+  6) cmake
+  7) make
+</pre>
+
+It is a very good idea to tell cmake what C and C++ compilers
+you will be using. This can avoid many build problems.
+On most systems you can pass this information to configure in the 
+following way:
+<pre>
+env CXX=/your/C++/compiler CC=/your/c/compiler cmake
+</pre>
+otherwise you must set CXX and CC in your environment and then
+run configure.<p>
+
+
+Now here is the slightly more detailed description of the build process.<p>
+
+There are a couple of options in building the software that you need to
+decide on. First you need to decide if you are going to use the Mesa
+rendering library developed by Brian Paul.  This is a software renderer that
+VTK can use on Xwindows based workstations.  If your workstation doesn't
+support OpenGL then you will need Mesa because you have
+no other choice :-) If you want to build the VTK interpreter then you will
+need to have Tcl8.2.3 and Tk8.2.3. <p>
+
+Look to http://www.scriptics.com/ for information about getting
+Tcl and Tk. To obtain a copy of Mesa, written by Brian Paul, you can
+visit http://www.ssec.wisc.edu/~brianp/Mesa.html.<p>
+
+To build VTK in the distribution directory just type cmake
+You can turn on tcl or mesa by editing the CMakeCache.txt file
+if you would like to use those packages as well. Building VTK for multiple 
+architectures will be discussed later.<p>
+
+If you are planning to build VTK for multiple architectures then you can
+either make a copy of the entire VTK tree for each architecture and then
+follow the instructions above. Or if you have gmake, you can have one copy of
+the VTK tree and compile it in a different manner. Instead of running
+cmake from the VTK directory, create a new directory where you have some
+free disk space (not in the VTK tree), a possible name would be
+vtk-solaris. cd into this directory and then run configure similar to the
+following example:
+<pre>
+ls /home/joe_user
+    vtk vtk-solaris vtk-sgi
+
+cd vtk-solaris
+cmake /home/joe_user/vtk
+</pre>
+This will create makefiles in the vtk-solaris directory.  Then you can run
+gmake in vtk-solaris to compile VTK.  Repeate this process for each
+architecture you wish to build.<p>
+
+<h3><A NAME="Cygwin">Cygwin Installation</h3>
+The build process for Cygwin is almost exactly the same as the UNIX build process.
+However, you have to make sure that the -mwin32 and -mwindows flags are passed to the compiler.
+
+If you will be using C++ as your development language:
+<pre>
+  1) untar the src files
+  2) untar the data files
+  3) cd vtk
+  4) (export CXXFLAGS="-mwin32 -mwindows"; cmake )
+  5) read and edit CMakeCache.txt adding options like python or tcl/tk support.
+  6) cmake
+  7) make
+</pre>
+
+
+<h3><A NAME="PC">PC Installation</h3>
+    The PC build process uses the CMake GUI CMakeSetup. Then you use the compiler make utility
+    to compile as follows.
+    <pre>
+    1. Install vtk3.2 distribution by unzipping into the appropriate directory.
+
+    2. Execute CMakeSetup. This will pop-up a little
+       GUI that allows you to tailor the build. It then starts
+       building .dsw and .dsp files for microsoft, or makefiles for borland.
+        You'll have to tell CMakeSetup
+       where you've placed your VTK source code, and where to build
+       the object code and dll's (we'll call it "vtkbin").
+
+    3. When CMakeSetup completes, start up msdev and load VTK.dsw.
+       Select ALL_BUILD project, and build it.
+
+</pre>
+We recommend a 300MByte minimum swap size or you'll have trouble
+during the link phase.<p>
+
+<HR>
+<h1><A NAME="Execution">Execution</h1>
+
+Many of the examples require the data found in vtk20data.part1.tar.gz
+through vtk20data.part4.tar.gz, plus the additional file
+MissingData.tar.gz. (These files can be found at
+ftp://public.kitware.com/pub/vtk, or in the vtkdata/ directory if this
+document is part of the CD-ROM distribution.) 
+The examples that require data look for it in ../../../vtkdata.
+<p>
+
+To run the cc examples just type their name.  To run the tcl examples,
+(assuming that you built the tcl stuff) type 
+<pre>
+../../../vtk/tcl/vtk mace.tcl 
+</pre>
+
+<HR>
+<h1><A NAME="Problems">Common Problems</h1>
+  <ul>
+  <li>I got a "warning: no configuration information is in tcl" from configure.
+      This is correct and is supposed to happen.
+  <li>Strange compile errors on Unix. Make sure that you specify the
+      environment variables CXX and CC prior to running configure.
+      (If you have already run configure, do a "make clean" to remove
+      the cached configure information.)
+  <li>Errors on Tcl or Tk include files. Make sure that you edit
+      CMakeCache.txt to point to the correct location.
+  <li>Errors on Tcl or Tk libraries. Make sure that you edit
+      CMakeCache.txt to point to the correct location.
+  <li>Link errors on Windows platforms. Make sure that the swap space is
+      at least 300 MByte.
+  </ul>
+
+<HR>
+<h1><A NAME="NewClass">Adding A New Class</h1>
+<pre>
+1) create the .cxx and .h file for the new class in one of the existing 
+   directories. We recommend that you use the local/ directory.
+2) edit CMakeLists.txt for that directory and follow the instructions in
+   there. You will need to add the class in only one place.
+3) you will need to rerun cmake (Unix) or CMakeSetup (Windows)
+4) then make/gmake (Unix) or msdev (Windows).
+</pre>
+
+</body>
+</HTML>

@@ -25,6 +25,9 @@
 #define VTK_HP_PTHREADS
 #endif
 
-#ifdef __CYGWIN__
-#define _WIN32
+#cmakedefine BUILD_SHARED_LIBS
+#ifdef BUILD_SHARED_LIBS
+#define VTKDLL
+#else
+#define VTKSTATIC
 #endif
