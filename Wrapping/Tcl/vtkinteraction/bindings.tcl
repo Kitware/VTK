@@ -97,6 +97,7 @@ namespace eval ::vtk {
         if {[$renwin GetInteractor] == ""} {
             set iren [vtkGenericRenderWindowInteractor ${renwin}_iren]
             $iren SetRenderWindow $renwin
+            $iren Initialize
         }
 
         # Mouse motion

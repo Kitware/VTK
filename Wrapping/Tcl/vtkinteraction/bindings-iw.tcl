@@ -198,6 +198,10 @@ namespace eval ::vtk {
                 [$istyle AddObserver RightButtonPressEvent \
                 "::vtk::cb_istyleimg_right_button_press_event $istyle"]
 
+        ::vtk::set_widget_variable_value $istyle RightButtonReleaseEventTag \
+                [$istyle AddObserver RightButtonReleaseEvent \
+                "::vtk::cb_istyleimg_right_button_release_event $istyle"]
+
         ::vtk::set_widget_variable_value $istyle StartPickEventTag \
                 [$istyle AddObserver StartPickEvent \
                 "::vtk::cb_istyleimg_start_pick_event $istyle $vtkiw"]
