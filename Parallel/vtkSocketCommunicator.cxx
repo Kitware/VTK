@@ -57,7 +57,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.38");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.39");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -372,7 +372,7 @@ int vtkSocketCommunicator::ReceiveMessage(char *data, int *length,
 
   *length = recv( this->Socket, data, maxlength, 0 );
 
-#ifdef _MSC_VER 
+#if defined(_MSC_VER) || defined(__MINGW32__)
   if ( GetLastError( ) == WSAECONNRESET )
     {
     if ( this->IsConnected )

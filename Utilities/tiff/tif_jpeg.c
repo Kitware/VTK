@@ -48,11 +48,6 @@
 #undef FAR
 #endif
 
-/* The windows RPCNDR.H file defines boolean. */
-#ifdef __RPCNDR_H__
-#define HAVE_BOOLEAN
-#endif
-
 #include "jpeglib.h"
 #include "jerror.h"
 

@@ -21,9 +21,12 @@
 #undef INCOMPLETE_TYPES_BROKEN
 
 
-#ifdef _WIN32
+#if defined(_WIN32) && !(defined(__CYGWIN__) || defined(__MINGW32__))
 /* Define "boolean" as unsigned char, not int, per Windows custom */
-#if !(defined__RPCNDR_H__) || defined(__CYGWIN__)  /* don't conflict if rpcndr.h already read unless building under cygwin */
+/* don't conflict if rpcndr.h already read; Note that the w32api headers
+   used by Cygwin and Mingw do not define "boolean", so jmorecfg.h
+   handles it later. */
+#ifndef __RPCNDR_H__
 typedef unsigned char boolean;
 #endif
 #define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */

@@ -26,6 +26,8 @@
 // this is needed for the unlink call
 #if defined(__CYGWIN__)
 #include <sys/unistd.h>
+#elif defined(_WIN32)
+#include <io.h>
 #endif
 
 void otherTimerLogTest(ostream& strm)
