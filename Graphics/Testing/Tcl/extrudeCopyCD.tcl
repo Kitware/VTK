@@ -22,10 +22,6 @@ set model [app GetOutput]
 vtkLinearExtrusionFilter extrude
   extrude SetInput $model
 
-# disconnect the triangle filter from the model so we can
-# alter it.
-app SetOutput {}
-
 # create random cell scalars for the model before extrusion.
 
 vtkMath rn

@@ -48,8 +48,8 @@ protected:
   vtkPLinearExtrusionFilter();
   ~vtkPLinearExtrusionFilter() {};
 
-  void Execute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int PieceInvariant;
 private:

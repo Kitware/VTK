@@ -19,11 +19,13 @@
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.60");
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.61");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
@@ -81,10 +83,22 @@ double *vtkLinearExtrusionFilter::ViaPoint(double x[3], vtkIdType vtkNotUsed(id)
   return xNew;
 }
 
-void vtkLinearExtrusionFilter::Execute()
+int vtkLinearExtrusionFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells;
-  vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *inNormals=NULL;
   vtkPolyData *mesh;
@@ -101,7 +115,6 @@ void vtkLinearExtrusionFilter::Execute()
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;
   vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   // Here is a big pain about ordering of cells. (Copy CellData)
   vtkIdList *lineIds;
@@ -118,7 +131,7 @@ void vtkLinearExtrusionFilter::Execute()
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to extrude!");
-    return;
+    return 0;
     }
   //
   // Decide which vector to use for extrusion
@@ -219,7 +232,6 @@ void vtkLinearExtrusionFilter::Execute()
   lineIds = vtkIdList::New();
   polyIds = vtkIdList::New();
   stripIds = vtkIdList::New();
-
 
   // If capping is on, copy 2D cells to output (plus create cap)
   //
@@ -383,9 +395,9 @@ void vtkLinearExtrusionFilter::Execute()
   newStrips->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
-
-
 
 void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -411,4 +423,3 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }
-

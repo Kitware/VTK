@@ -14,10 +14,13 @@
 =========================================================================*/
 #include "vtkPLinearExtrusionFilter.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPLinearExtrusionFilter, "1.5");
+vtkCxxRevisionMacro(vtkPLinearExtrusionFilter, "1.6");
 vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 
 //----------------------------------------------------------------------------
@@ -30,46 +33,63 @@ vtkPLinearExtrusionFilter::vtkPLinearExtrusionFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkPLinearExtrusionFilter::Execute()
+int vtkPLinearExtrusionFilter::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  this->vtkLinearExtrusionFilter::Execute();
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (!this->vtkLinearExtrusionFilter::RequestData(request,
+                                                   inputVector, outputVector))
+    {
+    return 0;
+    }
 
   if (this->PieceInvariant)
     {
-    output->RemoveGhostCells(output->GetUpdateGhostLevel() + 1);
+    output->RemoveGhostCells(
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
     }
+
+  return 1;
 }
 
-
 //--------------------------------------------------------------------------
-void 
-vtkPLinearExtrusionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkPLinearExtrusionFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
-  int ghostLevel = output->GetUpdateGhostLevel();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (input == NULL)
-    {
-    return;
-    }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+
+  int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
   if (this->PieceInvariant)
     {
-    input->SetUpdatePiece(piece);
-    input->SetUpdateNumberOfPieces(numPieces);
-    input->SetUpdateGhostLevel(ghostLevel + 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel + 1);
     }
   else
     {
-    input->SetUpdatePiece(piece);
-    input->SetUpdateNumberOfPieces(numPieces);
-    input->SetUpdateGhostLevel(ghostLevel);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel);
     }
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkPLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -79,4 +99,3 @@ void vtkPLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PieceInvariant: "
      << this->PieceInvariant << "\n";
 }
-
