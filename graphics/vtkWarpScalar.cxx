@@ -121,13 +121,22 @@ void vtkWarpScalar::Execute()
     if ( ! (ptId % 10000) ) 
       {
       this->UpdateProgress ((float)ptId/numPts);
-      if (this->GetAbortExecute()) break;
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
       }
 
     x = inPts->GetPoint(ptId);
-    n = (this->*(PointNormal))(ptId,inNormals);
-    if ( this->XYPlane ) s = x[2];
-    else s = inScalars->GetScalar(ptId);
+    n = (this->*(this->PointNormal))(ptId,inNormals);
+    if ( this->XYPlane )
+      {
+      s = x[2];
+      }
+    else
+      {
+      s = inScalars->GetScalar(ptId);
+      }
     for (i=0; i<3; i++)
       {
       newX[i] = x[i] + this->ScaleFactor * s * n[i];

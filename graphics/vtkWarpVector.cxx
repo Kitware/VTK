@@ -74,7 +74,10 @@ void vtkWarpVector::Execute()
     if ( ! (ptId % 10000) ) 
       {
       this->UpdateProgress ((float)ptId/numPts);
-      if (this->GetAbortExecute()) break;
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
       }
 
     x = inPts->GetPoint(ptId);

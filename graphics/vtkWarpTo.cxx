@@ -81,7 +81,10 @@ void vtkWarpTo::Execute()
       {
       x = inPts->GetPoint(ptId);
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
-      if (mag < minMag) minMag = mag;
+      if (mag < minMag)
+	{
+	minMag = mag;
+	}
       }
     }
   
