@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.81");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.82");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -2008,7 +2008,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 
 int vtkImagePlaneWidget::UpdateContinuousCursor(double *q)
 {
-  double x[3], tol2;
+  double tol2;
   vtkCell *cell;
   vtkPointData *pd;
   int subId;
@@ -2083,9 +2083,9 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
     }
 
   this->CurrentImageValue = this->ImageData->GetScalarComponentAsDouble( \
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],0);
+                   static_cast<int>(this->CurrentCursorPosition[0]),
+                   static_cast<int>(this->CurrentCursorPosition[1]),
+                   static_cast<int>(this->CurrentCursorPosition[2]),0);
   return 1;
 }
 
