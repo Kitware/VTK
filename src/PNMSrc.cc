@@ -141,7 +141,7 @@ int vlPNMSource::ReadBinaryPBM(FILE *fp, vlBitmap* bitmap, int numPts,
 //
   for (j=0; j<ysize; j++)
     {
-    cptr = graymap->WritePtr(numPts-(ysize-(j+1))*packedXSize,packedXSize);
+    cptr = bitmap->WritePtr(numPts-(ysize-(j+1))*packedXSize,packedXSize);
     if ( ! fread(cptr,1,packedXSize,fp) )
       {
       vlErrorMacro(<<"Error reaading raw pbm data!");
