@@ -34,7 +34,7 @@
 #ifndef __vtkSplineFilter_h
 #define __vtkSplineFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SUBDIVIDE_SPECIFIED 0
 #define VTK_SUBDIVIDE_LENGTH    1
@@ -51,10 +51,10 @@ class vtkPointData;
 class vtkPoints;
 class vtkSpline;
 
-class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSplineFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkSplineFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -129,7 +129,7 @@ protected:
   ~vtkSplineFilter();
   
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int       MaximumNumberOfSubdivisions;
   int       Subdivide;
