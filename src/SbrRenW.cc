@@ -1059,7 +1059,8 @@ int front)
 
   /* now read the binary info one row at a time */
   p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
+  for (yloop = (this->Size[1] - y_hi - 1); 
+       yloop <= (this->Size[1] - y_low -1); yloop++)
     {
     if (this->NumPlanes == 24)
       {
@@ -1235,7 +1236,8 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   
   /* now write the binary info one row at a time */
   p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
+  for (yloop = (this->Size[1] - y_hi - 1); 
+       yloop <= (this->Size[1] - y_low -1); yloop++)
     {
     if (this->NumPlanes == 24)
       {
