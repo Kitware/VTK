@@ -18,6 +18,31 @@ IF(VTK_USE_CARBON)
   ENDIF(VTK_APPLE_RESOURCE)
 ENDIF(VTK_USE_CARBON)
 
+ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
+
+SET(VTK_PYTHON_LIBRARY_FILES "")
+FOREACH(file
+  vtkpython
+  )
+  SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
+  SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
+  ADD_CUSTOM_COMMAND(SOURCE ${src}
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS -c "\"import" "py_compile;py_compile.compile('${src}','${tgt}','${tgt}')\""
+    TARGET vtkpython_pyc
+    OUTPUTS ${tgt}
+    )
+  SET(VTK_PYTHON_LIBRARY_FILES ${VTK_PYTHON_LIBRARY_FILES} ${tgt})
+ENDFOREACH(file)
+
+ADD_CUSTOM_COMMAND(
+  SOURCE vtkpython_pyc
+  COMMAND echo 
+  ARGS ".."
+  DEPENDS ${VTK_PYTHON_LIBRARY_FILES}
+  TARGET vtkpython_pyc
+  )
+
 FIND_LIBRARY(UTIL_LIBRARY
   NAMES util
   PATHS /usr/lib
