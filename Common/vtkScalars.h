@@ -129,8 +129,7 @@ public:
 
   // Description:
   // Set/Get the active scalar component. This ivar specifies which
-  // value (or component) to use with multivalued scalars. Currently,
-  // a scalar can have at most four components (assumed RGBA).
+  // value (or component) to use with multivalued scalars.
   vtkSetMacro(ActiveComponent, int);
   vtkGetMacro(ActiveComponent, int);
 
@@ -232,7 +231,7 @@ inline vtkAttributeData *vtkScalars::MakeObject()
 
 inline void vtkScalars::SetNumberOfComponents(int num)
 {
-  num = (num < 1 ? 1 : (num > 4 ? 4 : num));
+  num = (num < 1 ? 1 : num);
   this->Data->SetNumberOfComponents(num);
 }
 

@@ -101,11 +101,6 @@ void vtkScalars::SetData(vtkDataArray *data)
 {
   if ( data != this->Data && data != NULL )
     {
-    if (data->GetNumberOfComponents() > 4 )
-      {
-      vtkErrorMacro(<<"Tuple dimension for scalars must be <= 4");
-      return;
-      }
     this->Data->UnRegister(this);
     this->Data = data;
     this->Data->Register(this);
