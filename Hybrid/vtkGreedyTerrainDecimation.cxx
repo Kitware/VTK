@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.13");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.14");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -140,6 +140,7 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
     }
 
   numPts = numTris/2 + 1;
+  numPts = (numPts < 4 ? 4 : numPts); //insure enough storage for initial four corner points
   return;
 }
 
