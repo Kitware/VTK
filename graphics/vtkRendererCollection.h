@@ -65,17 +65,6 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
     this->vtkCollection::AddItem((vtkObject *)a);};
   
   // Description:
-  // Remove a Renderer from the list.
-  void RemoveItem(vtkRenderer *a) {
-    this->vtkCollection::RemoveItem((vtkObject *)a);};
-  
-  // Description:
-  // Determine whether a particular Renderer is present. Returns its
-  // position in the list.
-  int IsItemPresent(vtkRenderer *a) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
-  
-  // Description:
   // Get the next Renderer in the list. Return NULL when at the end of the 
   // list.
   vtkRenderer *GetNextItem() {

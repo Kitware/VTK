@@ -64,15 +64,6 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
   void AddItem(vtkLight *a);
 
   // Description:
-  // Remove a light from the list.
-  void RemoveItem(vtkLight *a);
-
-  // Description:
-  // Determine whether a particular light is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkLight *a);
-
-  // Description:
   // Get the next light in the list. NULL is returned when the collection is 
   // exhausted.
   vtkLight *GetNextItem();

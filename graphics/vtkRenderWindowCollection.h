@@ -66,17 +66,6 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
     this->vtkCollection::AddItem((vtkObject *)a);};
   
   // Description:
-  // Remove a RenderWindow from the list.
-  void RemoveItem(vtkRenderWindow *a) {
-    this->vtkCollection::RemoveItem((vtkObject *)a);};
-  
-  // Description:
-  // Determine whether a particular RenderWindow is present. Returns its
-  // position in the list.
-  int IsItemPresent(vtkRenderWindow *a) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
-  
-  // Description:
   // Get the next RenderWindow in the list. Return NULL when at the end of the 
   // list.
   vtkRenderWindow *GetNextItem() {

@@ -64,17 +64,6 @@ public:
     this->vtkCollection::AddItem((vtkObject *)pd);};
 
   // Description:
-  // Remove an poly data from the list.
-  void RemoveItem(vtkPolyData *pd) {
-    this->vtkCollection::RemoveItem((vtkObject *)pd);};
-
-  // Description:
-  // Determine whether a particular poly data is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkPolyData *pd) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)pd);};
-
-  // Description:
   // Get the next poly data in the list.
   vtkPolyData *GetNextItem() { 
     return (vtkPolyData *)(this->GetNextItemAsObject());};

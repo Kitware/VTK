@@ -65,17 +65,6 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
     this->vtkCollection::AddItem((vtkObject *)a);};
   
   // Description:
-  // Remove an mapper from the list.
-  void RemoveItem(vtkMapper *a) {
-    this->vtkCollection::RemoveItem((vtkObject *)a);};
-
-  // Description:
-  // Determine whether a particular mapper is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkMapper *a) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
-  
-  // Description:
   // Get the next mapper in the list.
   vtkMapper *GetNextItem() { 
     return (vtkMapper *)(this->GetNextItemAsObject());};

@@ -66,17 +66,6 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
     this->vtkCollection::AddItem((vtkObject *)a);};
     
   // Description:
-  // Remove a Volume from the list.
-  void RemoveItem(vtkVolume *a) {
-    this->vtkCollection::RemoveItem((vtkObject *)a);};
-  
-  // Description:
-  // Determine whether a particular Volume is present. Returns its
-  // position in the list.
-  int IsItemPresent(vtkVolume *a) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
-  
-  // Description:
   // Get the next Volume in the list. Return NULL when at the end of the 
   // list.
   vtkVolume *GetNextVolume() {

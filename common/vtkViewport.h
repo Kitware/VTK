@@ -85,7 +85,7 @@ public:
   // These methods are all synonyms to AddProp and RemoveProp.
   // They are here for convinience and backwards compatability.
   void AddActor2D(vtkProp* p) {this->AddProp(p);};
-  void RemoveActor2D(vtkProp* p) {this->Actors2D->RemoveItem(p);this->RemoveProp(p);};
+  void RemoveActor2D(vtkProp* p);
   vtkActor2DCollection *GetActors2D();
 
   // Description:

@@ -122,6 +122,11 @@ vtkViewport::~vtkViewport()
     }
 }
 
+void vtkViewport::RemoveActor2D(vtkProp* p)
+{
+  this->Actors2D->RemoveItem(p);
+  this->RemoveProp(p);
+}
 void vtkViewport::AddProp(vtkProp *p)
 {
   this->Props->AddItem(p);

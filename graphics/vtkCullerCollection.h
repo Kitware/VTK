@@ -65,17 +65,6 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
     this->vtkCollection::AddItem((vtkObject *)a);};
 
   // Description:
-  // Remove an Culler from the list.
-  void RemoveItem(vtkCuller *a) {
-    this->vtkCollection::RemoveItem((vtkObject *)a);};
-  
-  // Description:
-  // Determine whether a particular Culler is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkCuller *a) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
-  
-  // Description:
   // Get the next Culler in the list.
   vtkCuller *GetNextItem() { 
     return (vtkCuller *)(this->GetNextItemAsObject());};

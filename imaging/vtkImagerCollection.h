@@ -61,8 +61,6 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
   // Description:
   // Standard methods for manipulating the collection.
   void AddItem(vtkImager *a);
-  void RemoveItem(vtkImager *a);
-  int IsItemPresent(vtkImager *a);
   vtkImager *GetNextItem();
   vtkImager *GetLastItem();
   
@@ -76,16 +74,6 @@ protected:
 inline void vtkImagerCollection::AddItem(vtkImager *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-inline void vtkImagerCollection::RemoveItem(vtkImager *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-inline int vtkImagerCollection::IsItemPresent(vtkImager *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
 inline vtkImager *vtkImagerCollection::GetNextItem() 

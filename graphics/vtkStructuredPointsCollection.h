@@ -63,18 +63,6 @@ public:
     this->vtkCollection::AddItem((vtkObject *)ds);};
   
   // Description:
-  // Remove a pointer to a vtkStructuredPoints from the list.
-  void RemoveItem(vtkStructuredPoints *ds) {
-    this->vtkCollection::RemoveItem((vtkObject *)ds);};
-  
-  // Description:
-  // Determine whether a particular pointer to a vtk StructuredPoints is in
-  // the list.
-  // Returns its position in the list.
-  int IsItemPresent(vtkStructuredPoints *ds) {
-    return this->vtkCollection::IsItemPresent((vtkObject *)ds);};
-  
-  // Description:
   // Get the next item in the collection. NULL is returned if the collection
   // is exhausted.
   vtkStructuredPoints *GetNextItem() {

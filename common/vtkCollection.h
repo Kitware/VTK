@@ -90,7 +90,7 @@ public:
   // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
   // be shortened if a valid index is given!  If this->Current is equal to the
   // element being removed, have it point to then next element in the list.
-  virtual void RemoveItem(int i);  
+  void RemoveItem(int i);  
 
   // Description:
   // Remove an object from the list. Removes the first object found, not

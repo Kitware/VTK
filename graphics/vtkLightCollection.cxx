@@ -49,19 +49,6 @@ void vtkLightCollection::AddItem(vtkLight *a)
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
-// Remove a light from the list.
-void vtkLightCollection::RemoveItem(vtkLight *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Determine whether a particular light is present. Returns its position
-// in the list.
-int vtkLightCollection::IsItemPresent(vtkLight *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
 // Get the next light in the list. NULL is returned when the collection is 
 // exhausted.
 vtkLight *vtkLightCollection::GetNextItem() 

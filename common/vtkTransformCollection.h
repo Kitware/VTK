@@ -64,15 +64,6 @@ public:
   void AddItem(vtkTransform *);
 
   // Description:
-  // Remove a Transform from the list.
-  void RemoveItem(vtkTransform *);
-
-  // Description:
-  // Determine whether a particular Transform is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkTransform *);
-
-  // Description:
   // Get the next Transform in the list. Return NULL when the end of the
   // list is reached.
   vtkTransform *GetNextItem();
@@ -88,16 +79,6 @@ protected:
 inline void vtkTransformCollection::AddItem(vtkTransform *t) 
 {
   this->vtkCollection::AddItem((vtkObject *)t);
-}
-
-inline void vtkTransformCollection::RemoveItem(vtkTransform *t) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)t);
-}
-
-inline int vtkTransformCollection::IsItemPresent(vtkTransform *t) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)t);
 }
 
 inline vtkTransform *vtkTransformCollection::GetNextItem() 
