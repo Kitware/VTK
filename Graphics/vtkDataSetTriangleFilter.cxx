@@ -24,7 +24,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.14");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.15");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
@@ -209,7 +209,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
         {
         ptId = cell->PointIds->GetId(j);
         xPtr = cell->Points->GetPoint(j);
-        this->Triangulator->InsertPoint(ptId, xPtr, 0);
+        this->Triangulator->InsertPoint(ptId, xPtr, xPtr, 0);
         }//for all cell points
       this->Triangulator->Triangulate();
 
