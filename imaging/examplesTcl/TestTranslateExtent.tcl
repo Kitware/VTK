@@ -26,10 +26,7 @@ viewer SetInput [translate GetOutput]
 viewer SetZSlice 14
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-#viewer DebugOn
 viewer Render
-
-#viewer SetPosition 50 50
 
 #make interface
 source WindowLevelInterface.tcl
