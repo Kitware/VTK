@@ -1,9 +1,13 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkDICOMImageReader.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -25,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.22");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.23");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -203,7 +207,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     
     vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
     
-    this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles);
+    this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
 
     //this->AppHelper->OutputSeries();
@@ -243,6 +247,10 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
   data->GetPointData()->GetScalars()->SetName("DICOMImage");
 
   this->ComputeDataIncrements();
+
+  // Get the pointer to the output pixel data
+  void *outPtr;
+  outPtr = data->GetScalarPointer();
 
   if (this->FileName)
     {
@@ -424,7 +432,7 @@ double* vtkDICOMImageReader::GetPixelSpacing()
 {
   vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
     
-  this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles);
+  this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
   
   float* spacing = this->AppHelper->GetPixelSpacing();
   this->DataSpacing[0] = spacing[0];
