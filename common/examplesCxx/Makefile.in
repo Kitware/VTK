@@ -31,6 +31,7 @@ EXAMPLES = otherJacobi \
 	otherCellBoundaries \
 	otherCellPosition \
 	otherRectilinearGrid \
+	otherStructuredGrid \
 	otherArrays
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -72,6 +73,9 @@ otherMatrix4x4: otherMatrix4x4.o rtOtherTestBase.o ${VTKLIB}
 	rtOtherTestBase.o ${LDLIBS} -lm
 otherRectilinearGrid: otherRectilinearGrid.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherRectilinearGrid ${CXX_FLAGS} otherRectilinearGrid.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherStructuredGrid: otherStructuredGrid.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherStructuredGrid ${CXX_FLAGS} otherStructuredGrid.o \
 	rtOtherTestBase.o ${LDLIBS} -lm
 # ${XLDFLAGS}
 #------------------------------------------------------------------------------
