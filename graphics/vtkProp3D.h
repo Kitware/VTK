@@ -135,8 +135,8 @@ class VTK_EXPORT vtkProp3D : public vtkProp
   // Return a reference to the Prop3D's 4x4 composite matrix.
   // Get the matrix from the position, origin, scale and orientation This
   // matrix is cached, so multiple GetMatrix() calls will be efficient.
-  vtkMatrix4x4 *GetMatrixPointer();
-  void GetMatrix(vtkMatrix4x4 *m);
+  virtual vtkMatrix4x4 *GetMatrixPointer();
+  virtual void GetMatrix(vtkMatrix4x4 *m);
 
   // Description:
   // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -243,8 +243,8 @@ class VTK_EXPORT vtkProp3D : public vtkProp
 
   // Description:
   // For legacy compatibility. Do not use.
-  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
+  virtual vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
+  virtual void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
 
 protected:
