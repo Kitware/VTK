@@ -70,7 +70,8 @@ float *vtkVolumeMapper::GetBounds()
   else
     {
     this->ScalarInput->Update();
-    return this->ScalarInput->GetBounds();
+    this->ScalarInput->GetBounds(this->Bounds);
+    return this->Bounds;
     }
 }
 

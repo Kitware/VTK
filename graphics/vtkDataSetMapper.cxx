@@ -85,7 +85,8 @@ float *vtkDataSetMapper::GetBounds()
   else
     {
     this->Input->Update();
-    return this->Input->GetBounds();
+    this->Input->GetBounds(this->Bounds);
+    return this->Bounds;
     }
 }
 //
