@@ -495,6 +495,8 @@ void vtkRenderer::UpdateViewRays()
   float mag;
   float nx, ny, nz;
 
+  float *aspect;
+
   int   	x, y;
   vtkMatrix4x4	mat;
   float		result[4];
@@ -508,7 +510,9 @@ void vtkRenderer::UpdateViewRays()
   // Loop through each pixel and compute viewing ray
 
   // get the perspective transformation from the active camera
-  mat = this->ActiveCamera->GetPerspectiveTransform(1,0,1);
+  aspect = this->GetAspect();
+
+  mat = this->ActiveCamera->GetPerspectiveTransform(aspect[0]/aspect[1],0,1);
 
   mat.Invert();
   mat.Transpose();
@@ -592,7 +596,7 @@ float *vtkRenderer::GetViewRays()
   }
 
   // Check to see if camera mtime has changed
-  cam_mtime = this->ActiveCamera->GetMTime();
+  cam_mtime = this->ActiveCamera->GetViewingRaysMTime();
 
   if( cam_mtime != this->ViewRaysCamMtime )
     {
