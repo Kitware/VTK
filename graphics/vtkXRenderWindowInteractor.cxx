@@ -334,6 +334,7 @@ void vtkXRenderWindowInteractor::Disable()
   XtRemoveEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    ButtonReleaseMask | EnterWindowMask,
+                    PointerMotionMask,
                     False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   this->Enabled = 0;
