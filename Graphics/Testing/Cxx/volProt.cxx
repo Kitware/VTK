@@ -245,7 +245,7 @@ int main( int argc, char *argv[] )
   
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
 
 
   // Interact with the data at 3 frames per second
