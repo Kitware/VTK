@@ -1520,14 +1520,14 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
 {
   float n[3], x[3];
   vtkPoints *pts=this->ClipPlanes->GetPoints();
-  vtkNormals *normals=this->ClipPlanes->GetNormals();
+  vtkDataArray *normals=this->ClipPlanes->GetNormals();
   
   n[2] = x[2] = 0.0;
   
   //first
   n[0] = 0.0;
   n[1] = -1.0;
-  normals->SetNormal(0,n);
+  normals->SetTuple(0,n);
   x[0] = (float)0.5*(pos[0]+pos2[0]);
   x[1] = (float)pos[1];
   pts->SetPoint(0,x);
@@ -1535,7 +1535,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
   //second
   n[0] = 1.0;
   n[1] = 0.0;
-  normals->SetNormal(1,n);
+  normals->SetTuple(1,n);
   x[0] = (float)pos2[0];
   x[1] = (float)0.5*(pos[1]+pos2[1]);
   pts->SetPoint(1,x);
@@ -1543,7 +1543,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
   //third
   n[0] = 0.0;
   n[1] = 1.0;
-  normals->SetNormal(2,n);
+  normals->SetTuple(2,n);
   x[0] = (float)0.5*(pos[0]+pos2[0]);
   x[1] = (float)pos2[1];
   pts->SetPoint(2,x);
@@ -1551,7 +1551,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
   //fourth
   n[0] = -1.0;
   n[1] = 0.0;
-  normals->SetNormal(3,n);
+  normals->SetTuple(3,n);
   x[0] = (float)pos[0];
   x[1] = (float)0.5*(pos[1]+pos2[1]);
   pts->SetPoint(3,x);
@@ -1649,7 +1649,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
         for (j=0; j<4; j++)
           {
           px = this->ClipPlanes->GetPoints()->GetPoint(j);
-          n = this->ClipPlanes->GetNormals()->GetNormal(j);
+          n = this->ClipPlanes->GetNormals()->GetTuple(j);
           if ( vtkPlane::IntersectWithLine(x1,x2,n,px,t,xint) && t >= 0 && t <= 1.0 )
             {
             newPts[1] = newPoints->InsertNextPoint(xint);
