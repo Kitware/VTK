@@ -97,6 +97,8 @@ public:
     ConfigureEvent,
     TimerEvent,
     MouseMoveEvent,
+    ResetCameraEvent,
+    ResetCameraClippingRangeEvent,
     UserEvent = 1000
   };
 //ETX
