@@ -70,7 +70,7 @@ IF(BUILD_TESTING)
     SUBDIR_DEPENDS(Filtering/Testing Filtering)
     SUBDIR_DEPENDS(Graphics/Testing Graphics)
     SUBDIR_DEPENDS(Imaging/Testing Imaging)
-    SUBDIR_DEPENDS(IO/Testing I))
+    SUBDIR_DEPENDS(IO/Testing IO)
 
     IF (VTK_USE_RENDERING)
       SUBDIRS(Rendering/Testing)
