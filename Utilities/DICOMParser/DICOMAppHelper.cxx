@@ -1253,7 +1253,14 @@ void DICOMAppHelper::StudyIDCallback(DICOMParser *,
     delete this->StudyID;
     }
 
-  this->StudyID = new dicom_stl::string((char*) val);
+  if (val)
+    {
+    this->StudyID = new dicom_stl::string((char*) val);
+    }
+  else
+    {
+    this->StudyID = new dicom_stl::string();
+    }
 
 }
 
