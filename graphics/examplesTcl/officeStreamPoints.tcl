@@ -230,7 +230,7 @@ vtkStreamPoints streamer
     streamer SetMaximumPropagationTime 500
     streamer SetTimeIncrement 0.5
     streamer SetIntegrationDirectionToForward
-    streamer Update
+
 vtkConeSource cone
     cone SetResolution 8
 vtkGlyph3D cones

@@ -232,7 +232,7 @@ vtkStreamLine streamers
     streamers SetSource [seeds GetOutput]
     streamers SetMaximumPropagationTime 500
     streamers SetStepLength 0.1
-    streamers Update
+
 vtkPolyDataMapper mapStreamers
     mapStreamers SetInput [streamers GetOutput]
     eval mapStreamers SetScalarRange \

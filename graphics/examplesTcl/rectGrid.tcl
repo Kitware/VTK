@@ -63,7 +63,7 @@ vtkStreamLine streamer
     streamer SetStepLength 0.05
     streamer SetIntegrationStepLength 0.05
     streamer SetIntegrationDirectionToIntegrateBothDirections
-    streamer Update
+
 vtkTubeFilter streamTube
     streamTube SetInput [streamer GetOutput]
     streamTube SetRadius 0.025
