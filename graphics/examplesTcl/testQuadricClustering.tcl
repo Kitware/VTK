@@ -24,9 +24,10 @@ vtkSphereSource sphere
 
 vtkPoints pts
   pts InsertNextPoint 0 0 0
-  pts InsertNextPoint 0 -1 0
-  pts InsertNextPoint .75 -.75 0
-  pts InsertNextPoint 1 0 .1
+  pts InsertNextPoint 1 0 0
+  pts InsertNextPoint 0 1 0
+  pts InsertNextPoint 0 0 1
+
 
 vtkCellArray tris
   tris InsertNextCell 3
@@ -35,6 +36,14 @@ vtkCellArray tris
   tris InsertCellPoint 2
   tris InsertNextCell 3
   tris InsertCellPoint 0
+  tris InsertCellPoint 2
+  tris InsertCellPoint 3
+  tris InsertNextCell 3
+  tris InsertCellPoint 0
+  tris InsertCellPoint 3
+  tris InsertCellPoint 1
+  tris InsertNextCell 3
+  tris InsertCellPoint 1
   tris InsertCellPoint 2
   tris InsertCellPoint 3
 
@@ -53,6 +62,14 @@ vtkPolyDataMapper mapper
   mapper SetInput [mesh GetOutput]
 vtkActor actor
   actor SetMapper mapper
+
+# just for debugging
+vtkPolyDataMapper mapper2
+  mapper2 SetInput polys
+vtkActor actor2
+  actor2 SetMapper mapper2
+  [actor2 GetProperty] SetColor 1.0 0.5 0.5
+#ren1 AddActor actor2
 
 # Add the actors to the renderer, set the background and size
 #

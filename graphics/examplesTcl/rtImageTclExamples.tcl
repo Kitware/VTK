@@ -153,7 +153,7 @@ foreach afile $files {
 	if {[catch {set channel [open ${validImage}]}] != 0 } {
 	    puts $logFile "WARNING: There is no valid image for $afile"
             set returnStatus 2
-	    continue
+	    #continue
 	} else {
 	    close $channel
 	}
@@ -236,9 +236,11 @@ foreach afile $files {
     # a test has to be off by at least threshold pixels for us to care   
     if {[imgDiff GetThresholdedError] <= $threshold} {
 	set imageStatus "Passed"
+	tk_messageBox -message "Passed"
         set returnStatus 0
     } else {
 	set imageStatus "Failed"
+	tk_messageBox -message "Failed"
         set returnStatus 1
 	vtkTIFFWriter rttiffw
 	rttiffw SetInput [imgDiff GetOutput]

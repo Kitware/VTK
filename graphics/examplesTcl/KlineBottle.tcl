@@ -314,12 +314,12 @@ vtkRenderWindowInteractor iren
 #vtkButterflySubdivisionFilter subdivide
 vtkLoopSubdivisionFilter subdivide
   subdivide SetInput model
-  subdivide SetNumberOfSubdivisions 4
+  subdivide SetNumberOfSubdivisions 6
 
 vtkDataSetMapper mapper
    mapper SetInput [subdivide GetOutput]
 
-vtkActor rose
+vtkLODActor rose
     rose SetMapper mapper
 
 vtkFeatureEdges fe
