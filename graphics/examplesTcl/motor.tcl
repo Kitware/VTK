@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of motor visualization
 # get the interactor ui
 source vtkInt.tcl
@@ -29,7 +30,7 @@ planes SetNormals norms
 
 # texture
 vtkStructuredPointsReader texReader
-    texReader SetFileName "../../data/texThres.vtk"
+    texReader SetFileName "../../../data/texThres.vtk"
 vtkTexture texture
     texture SetInput [texReader GetOutput]
     texture InterpolateOff
@@ -38,7 +39,7 @@ vtkTexture texture
 # read motor parts...each part colored separately
 #
 vtkBYUReader byu
-    byu SetGeometryFileName "../../data/motor.g"
+    byu SetGeometryFileName "../../../data/motor.g"
     byu SetPartNumber 1
 vtkPolyNormals normals
     normals SetInput [byu GetOutput]
@@ -54,7 +55,7 @@ vtkActor byuActor
     eval [byuActor GetProperty] SetColor $cold_grey
 
 vtkBYUReader byu2
-    byu2 SetGeometryFileName "../../data/motor.g"
+    byu2 SetGeometryFileName "../../../data/motor.g"
     byu2 SetPartNumber 2
 vtkPolyNormals normals2
     normals2 SetInput [byu2 GetOutput]
@@ -70,7 +71,7 @@ vtkActor byuActor2
     eval [byuActor2 GetProperty] SetColor $peacock
 
 vtkBYUReader byu3
-    byu3 SetGeometryFileName "../../data/motor.g"
+    byu3 SetGeometryFileName "../../../data/motor.g"
     byu3 SetPartNumber 3
 vtkPolyNormals normals3
     normals3 SetInput [byu3 GetOutput]
@@ -86,7 +87,7 @@ vtkActor byuActor3
     eval [byuActor3 GetProperty] SetColor $raw_sienna
 
 vtkBYUReader byu4
-    byu4 SetGeometryFileName "../../data/motor.g"
+    byu4 SetGeometryFileName "../../../data/motor.g"
     byu4 SetPartNumber 4
 vtkPolyNormals normals4
     normals4 SetInput [byu4 GetOutput]
@@ -102,7 +103,7 @@ vtkActor byuActor4
     eval [byuActor4 GetProperty] SetColor $banana
 
 vtkBYUReader byu5
-    byu5 SetGeometryFileName "../../data/motor.g"
+    byu5 SetGeometryFileName "../../../data/motor.g"
     byu5 SetPartNumber 5
 vtkPolyNormals normals5
     normals5 SetInput [byu5 GetOutput]

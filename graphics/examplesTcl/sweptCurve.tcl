@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 ## Test the rotational extrusion filter and tube generator. Sweep a spiral
 ## curve to generate a tube.
 

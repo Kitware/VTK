@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of plate vibration
 # get the interactor ui
 source vtkInt.tcl
@@ -15,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # read a vtk file
 #
 vtkPolyReader plate
-    plate SetFileName "../../data/plate.vtk"
+    plate SetFileName "../../../data/plate.vtk"
     plate SetVectorsName "mode2"
 vtkPolyNormals normals
     normals SetInput [plate GetOutput]

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Demonstrate use of scalar connectivity
 
 source vtkInt.tcl

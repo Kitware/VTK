@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source colors.tcl
@@ -11,7 +12,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # read data
 #
 vtkStructuredGridReader reader
-    reader SetFileName "../../data/office.vtk"
+    reader SetFileName "../../../data/office.vtk"
     reader Update;#force a read to occur
 
 set length [[reader GetOutput] GetLength]

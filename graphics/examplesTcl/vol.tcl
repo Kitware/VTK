@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # a volume rendering example script
 #
 vtkRenderMaster rm
@@ -13,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 set ren1 [$renWin MakeRenderer]
 
 # Read data
-reader SetFileName "../../data/ironProt.vtk"
+reader SetFileName "../../../data/ironProt.vtk"
 reader Update
 set range [[reader GetOutput] GetScalarRange]
 

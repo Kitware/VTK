@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
@@ -12,7 +13,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 
 # create lines
 vtkPolyReader reader
-    reader SetFileName "../../data/hello.vtk"
+    reader SetFileName "../../../data/hello.vtk"
 vtkPolyMapper lineMapper
     lineMapper SetInput [reader GetOutput]
 vtkActor lineActor

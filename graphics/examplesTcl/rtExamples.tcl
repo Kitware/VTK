@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 #
 # This is a regression test script for VTK.
 #

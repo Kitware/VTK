@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
@@ -10,7 +11,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 
 # ingest data file
 vtkPolyReader reader
-  reader SetFileName "../../data/vtk.vtk"
+  reader SetFileName "../../../data/vtk.vtk"
 
 # create implicit model of vtk
 vtkImplicitModeller imp

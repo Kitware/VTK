@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version: tests polygonal planes
 # include get the vtk interactor ui
 source vtkInt.tcl

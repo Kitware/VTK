@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # First create the render master
 vtkRenderMaster rm
 
@@ -18,7 +19,7 @@ planeActor SetMapper planeMapper
 #
 vtkTexture atext
 vtkPNMReader pnmReader
-pnmReader SetFileName "../../data/masonry.ppm"
+pnmReader SetFileName "../../../data/masonry.ppm"
 atext SetInput [pnmReader GetOutput]
 atext InterpolateOn
 planeActor SetTexture atext

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 # First create the render master
@@ -12,7 +13,7 @@ set ren1   [$renWin MakeRenderer]
 set iren [$renWin MakeRenderWindowInteractor]
 
 vtkSTLReader sr
-    sr SetFileName ../../data/42400-IDGH.stl
+    sr SetFileName ../../../data/42400-IDGH.stl
 
 vtkPolyMapper   stlMapper
     stlMapper SetInput [sr GetOutput]

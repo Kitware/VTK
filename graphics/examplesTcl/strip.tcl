@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 #create triangle strip - won't see anything with backface culling on
 
 # get the interactor ui

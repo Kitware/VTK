@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # user interface command widget
 source vtkInt.tcl
 

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of old spike-face
 # get the interactor ui
 source vtkInt.tcl
@@ -15,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create a cyberware source
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../data/fran_cut"
+    cyber SetFileName "../../../data/fran_cut"
 vtkPolyNormals normals;#enable this for cool effect
     normals SetInput [cyber GetOutput]
     normals FlipNormalsOn

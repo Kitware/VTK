@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui and colors
 source vtkInt.tcl
 source "colors.tcl"
@@ -15,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create pipeline
 #
 vtkMCubesReader reader
-    reader SetFileName "../../data/pineRoot/pine_root.tri"
+    reader SetFileName "../../../data/pineRoot/pine_root.tri"
 vtkPolyConnectivityFilter connect
     connect SetInput [reader GetOutput]
     connect ExtractLargestRegion

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # extract data
 # get the interactor ui
 source vtkInt.tcl

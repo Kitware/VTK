@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version showing diffs between flat & gouraud
 # get the interactor ui
 source vtkInt.tcl

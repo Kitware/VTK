@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 #  Whites
 set antique_white "0.9804 0.9216 0.8431"
 set azure "0.9412 1.0000 1.0000"

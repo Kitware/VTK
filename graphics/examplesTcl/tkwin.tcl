@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 wm withdraw .
 toplevel .top -width 300 -height 300 -visual {truecolor 24} 
 wm title .top {VTK and TK}

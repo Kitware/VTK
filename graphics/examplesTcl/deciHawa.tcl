@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # decimate hawaii dataset
 #
 # get the interactor ui
@@ -16,7 +17,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create a cyberware source
 #
 vtkPolyReader reader
-    reader SetFileName "../../data/honolulu.vtk"
+    reader SetFileName "../../../data/honolulu.vtk"
 vtkDecimate deci; 
     deci SetInput [reader GetOutput]
     deci SetTargetReduction 0.9

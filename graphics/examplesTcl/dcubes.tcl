@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source colors.tcl
@@ -15,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../data/ironProt.vtk"
+    reader SetFileName "../../../data/ironProt.vtk"
 #vtkRecursiveDividingCubes iso
 vtkDividingCubes iso
     iso SetInput [reader GetOutput]

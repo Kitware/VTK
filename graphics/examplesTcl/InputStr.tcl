@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of plate vibration
 # get the interactor ui
 source vtkInt.tcl

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Create a fancy image of a 2D Delaunay triangulation. Points are randomly 
 # generated.
 

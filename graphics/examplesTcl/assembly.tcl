@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this demonstrates use of assemblies
 # include get the vtk interactor ui
 source vtkInt.tcl

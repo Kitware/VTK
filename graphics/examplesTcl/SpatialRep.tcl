@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
@@ -16,9 +17,9 @@ vtkLineSource line2
 #  asource AddInput [line2 GetOutput]
 
 vtkSTLReader asource
-  asource SetFileName ../../data/42400-IDGH.stl
+  asource SetFileName ../../../data/42400-IDGH.stl
 #vtkCyberReader asource
-#  asource SetFileName ../../data/fran_cut
+#  asource SetFileName ../../../data/fran_cut
 vtkPolyMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model

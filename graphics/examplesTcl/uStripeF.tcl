@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of old strip unstructured data
 # get the interactor ui
 source vtkInt.tcl
@@ -15,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create a cyberware source
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../data/fran_cut"
+    cyber SetFileName "../../../data/fran_cut"
 vtkDecimate deci
     deci SetInput [cyber GetOutput]
     deci SetTargetReduction 0.90

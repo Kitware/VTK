@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Generate texture coordinates on a "random" sphere.
 
 # get the interactor ui
@@ -32,7 +33,7 @@ vtkDataSetMapper mapper
 # load in the texture map and assign to actor
 #
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../data/masonry.ppm"
+  pnmReader SetFileName "../../../data/masonry.ppm"
 vtkTexture atext
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOn

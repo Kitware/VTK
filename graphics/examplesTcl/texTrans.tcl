@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Test the texture transformation object
 
 # Get the interactor
@@ -7,7 +8,7 @@ source vtkInt.tcl
 # load in the texture map
 #
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../data/masonry.ppm"
+  pnmReader SetFileName "../../../data/masonry.ppm"
 vtkTexture atext
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOn

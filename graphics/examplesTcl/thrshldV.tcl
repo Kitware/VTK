@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # create selected cones
 # get the interactor ui
 source vtkInt.tcl
@@ -13,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../data/carotid.vtk"
+    reader SetFileName "../../../data/carotid.vtk"
 vtkThresholdPoints threshold
     threshold SetInput [reader GetOutput]
     threshold ThresholdByUpper 200

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Create a rolling billboard - requires texture support
 
 # Get the interactor
@@ -7,7 +8,7 @@ source vtkInt.tcl
 # load in the texture map
 #
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../data/billBoard.pgm"
+  pnmReader SetFileName "../../../data/billBoard.pgm"
 vtkTexture atext
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOn

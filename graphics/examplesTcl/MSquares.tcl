@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 ## Test the marching squares contouring class
 
 source vtkInt.tcl

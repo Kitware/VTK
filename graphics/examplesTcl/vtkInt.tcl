@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # a generic interactor for tcl and vtk
 #
 set vtkInteractBold "-background #43ce80 -relief raised -borderwidth 1"

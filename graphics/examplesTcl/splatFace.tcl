@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # splat points to generate surface
 # get the interactor ui
 source vtkInt.tcl
@@ -16,7 +17,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # read cyberware file
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../data/fran_cut"
+    cyber SetFileName "../../../data/fran_cut"
 vtkPolyNormals normals
     normals SetInput [cyber GetOutput]
 vtkMaskPoints mask

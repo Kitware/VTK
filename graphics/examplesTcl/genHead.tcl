@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Generate marching cubes head model (full resolution)
 
 # get the interactor ui and colors
@@ -10,7 +11,7 @@ source colors.tcl
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetFileTypeLittleEndian
-    v16 SetFilePrefix "../../data/fullHead/headsq"
+    v16 SetFilePrefix "../../../data/fullHead/headsq"
     v16 SetDataAspectRatio 0.8 0.8 1.5
     v16 SetImageRange 1 94;#uncomment for the whole head
     v16 SetDataMask 0x7fff

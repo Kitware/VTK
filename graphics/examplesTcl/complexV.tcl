@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
@@ -14,7 +15,7 @@ set iren [$renWin MakeRenderWindowInteractor]
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../data/carotid.vtk"
+    reader SetFileName "../../../data/carotid.vtk"
 vtkHedgeHog hhog
     hhog SetInput [reader GetOutput]
     hhog SetScaleFactor 0.3

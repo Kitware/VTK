@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
@@ -30,7 +31,7 @@ vtkFloatScalars scalars
 # read in texture map
 #
 vtkStructuredPointsReader tmap
-  tmap SetFileName "../../data/texThres.vtk"
+  tmap SetFileName "../../../data/texThres.vtk"
 vtkTexture texture
   texture SetInput [tmap GetOutput]
   texture InterpolateOff

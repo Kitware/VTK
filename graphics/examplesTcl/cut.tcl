@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
@@ -13,8 +14,8 @@ set iren   [$renWin MakeRenderWindowInteractor]
 
 # cut data
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../data/combxyz.bin"
-    pl3d SetQFileName "../../data/combq.bin"
+    pl3d SetXYZFileName "../../../data/combxyz.bin"
+    pl3d SetQFileName "../../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update

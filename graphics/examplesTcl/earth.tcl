@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # this is a tcl version of the Mace example
 # get the interactor ui
 source vtkInt.tcl
@@ -24,7 +25,7 @@ earthActor SetMapper earthMapper
 #
 vtkTexture atext
 vtkPNMReader pnmReader
-pnmReader SetFileName "../../data/earth.ppm"
+pnmReader SetFileName "../../../data/earth.ppm"
 atext SetInput [pnmReader GetOutput]
 atext InterpolateOn
 earthActor SetTexture atext

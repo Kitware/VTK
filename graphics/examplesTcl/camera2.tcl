@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # create camera figure
 source vtkInt.tcl
 

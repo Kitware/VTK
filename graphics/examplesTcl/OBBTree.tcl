@@ -1,9 +1,10 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
 vtkSTLReader reader
-  reader SetFileName ../../data/42400-IDGH.stl
+  reader SetFileName ../../../data/42400-IDGH.stl
 vtkPolyMapper dataMapper
   dataMapper SetInput [reader GetOutput]
 vtkActor model
