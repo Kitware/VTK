@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // debugging, and printing. Most objects created within the vtk 
 // framework should be a subclass of vtkObject or one of its children.
 // The few exceptions tend to be very small helper classes that usually
-// never get instantiated or situtations where mutliple inheritance
+// never get instantiated or situations where multiple inheritance
 // gets in the way.  Then LWObject might be required.
 
 // .SECTION see also

@@ -117,7 +117,7 @@ void vtkObject::DebugOn()
 }
 
 // Description:
-// Turn debuggin output off.
+// Turn debugging output off.
 void vtkObject::DebugOff()
 {
   this->Debug = 0;
