@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.16");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.17");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -580,6 +580,13 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
   
   inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
   outPtr = outData->GetScalarPointer();
+   
+  if (!inPtr)
+    {
+    vtkErrorMacro(<< "Execute: No scalars for update extent.")
+    return;
+    }
+   
   
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)

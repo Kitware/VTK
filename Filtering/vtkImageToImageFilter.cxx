@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.58");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.59");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -88,6 +88,16 @@ void vtkImageToImageFilter::ExecuteInformation()
   // Make sure the Input has been set.
   if ( input == NULL || output == NULL)
     {
+    if (output)
+      {
+      // this means that input is NULL, but the output isn't
+      // in order to make this clear to filters down the line, we
+      // make sure outputData is completely empty
+      output->SetExtent(0, -1, 0, -1, 0, -1);
+      output->SetWholeExtent(0, -1, 0, -1, 0, -1);
+      output->SetUpdateExtent(0, -1, 0, -1, 0, -1);      
+      output->AllocateScalars();
+      }
     vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
     return;
     }

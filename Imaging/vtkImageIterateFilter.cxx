@@ -16,7 +16,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.35");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.36");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -118,7 +118,15 @@ void vtkImageIterateFilter::ExecuteData(vtkDataObject *out)
 
   // Too many filters have floating point exceptions to execute
   // with empty input/ no request.
-  if (this->UpdateExtentIsEmpty(out))
+  // Make sure the Input has been set.
+  if ( ! this->GetInput())
+    {
+    vtkErrorMacro(<< "ExecuteData: Input is not set.");
+    return;
+    }
+
+   // make sure UpdateExtent will generate data
+   if (this->UpdateExtentIsEmpty(out))
     {
     return;
     }
