@@ -160,6 +160,8 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     }
   
+  vtkTextMapper *tMapper = (vtkTextMapper *)this->TextActor->GetMapper();
+  
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime ||
        this->TextActor->GetMapper()->GetMTime() > this->BuildTime)
@@ -177,45 +179,56 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       textOrigin[1];
     this->LastOrigin[0] = textOrigin[0];
     this->LastOrigin[1] = textOrigin[1];
-    this->LastSize[0] = size[0];
-    this->LastSize[1] = size[1];
 
-    // limit by minimum size
-    if (this->MinimumSize[0] > size[0])
+    //  Lets try to minimize the number of times we change the font size.
+    //  If the width of the font box has not changed by more than a pixel
+    // (numerical issues)  do not recompute font size.
+    if (this->LastSize[0] < size[0]-1 || this->LastSize[1] < size[1]-1 ||
+	this->LastSize[0] > size[0]+1 || this->LastSize[1] > size[1]+1)
       {
-      size[0] = this->MinimumSize[0];
-      }
-    if (this->MinimumSize[1] > size[1])
-      {
-      size[1] = this->MinimumSize[1];
-      }    
-    // Update all the composing objects
-    // find the best size for the font
-    int tempi[2];
-    // use the last size as a first guess
-    vtkTextMapper *tMapper = (vtkTextMapper *)this->TextActor->GetMapper();
-    fontSize = tMapper->GetFontSize();
-    tMapper->GetSize(viewport,tempi);
-    int lineMax = (int)(size[1]*this->MaximumLineHeight
-			* tMapper->GetNumberOfLines());
-    
-    // while the size is too small increase it
-    while (tempi[1] < size[1] && 
-           tempi[0] < size[0] && 
-           tempi[1] < lineMax &&
-           fontSize < 100)
-      {
-      fontSize++;
-      tMapper->SetFontSize(fontSize);
+      cerr << "LastSize " << this->LastSize[0] << ", " << this->LastSize[1]
+	   << ",  size " << size[0] << ", " << size[1] << endl;
+      
+      this->LastSize[0] = size[0];
+      this->LastSize[1] = size[1];
+      
+      // limit by minimum size
+      if (this->MinimumSize[0] > size[0])
+	{
+	size[0] = this->MinimumSize[0];
+	}
+      if (this->MinimumSize[1] > size[1])
+	{
+	size[1] = this->MinimumSize[1];
+	}    
+      // Update all the composing objects
+      // find the best size for the font
+      int tempi[2];
+      // use the last size as a first guess
+      fontSize = tMapper->GetFontSize();
       tMapper->GetSize(viewport,tempi);
-      }
-    // while the size is too large decrease it
-    while ((tempi[1] > size[1] || tempi[0] > size[0] || tempi[1] > lineMax)
-           && fontSize > 0)
-      {
-      fontSize--;
-      tMapper->SetFontSize(fontSize);
-      tMapper->GetSize(viewport,tempi);
+      int lineMax = (int)(size[1]*this->MaximumLineHeight
+			  * tMapper->GetNumberOfLines());
+      
+      // while the size is too small increase it
+      while (tempi[1] < size[1] && 
+	     tempi[0] < size[0] && 
+	     tempi[1] < lineMax &&
+	     fontSize < 100)
+	{
+	fontSize++;
+	tMapper->SetFontSize(fontSize);
+	tMapper->GetSize(viewport,tempi);
+	}
+      // while the size is too large decrease it
+      while ((tempi[1] > size[1] || tempi[0] > size[0] || tempi[1] > lineMax)
+	     && fontSize > 0)
+	{
+	fontSize--;
+	tMapper->SetFontSize(fontSize);
+	tMapper->GetSize(viewport,tempi);
+	}
+      
       }
     
     // now set the position of the TextActor

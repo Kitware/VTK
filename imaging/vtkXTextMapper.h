@@ -81,12 +81,21 @@ public:
   void GetSize(vtkViewport* viewport, int size[2]);
 
 protected:
-  vtkXTextMapper() {};
+  vtkXTextMapper();
   ~vtkXTextMapper() {};
   vtkXTextMapper(const vtkXTextMapper&) {};
   void operator=(const vtkXTextMapper&) {};
 
+  // Description:
+  // Actually get the size of the rectangle.
+  void DetermineSize(vtkViewport *viewport, int size[2]);
+
   Font CurrentFont;
+
+  // Size of the Text.
+  vtkTimeStamp  SizeMTime;
+  int           Size[2];
+  int           ViewportSize[2];
 };
 
 
