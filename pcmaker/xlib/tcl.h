@@ -38,28 +38,28 @@ extern "C" {
  * When version numbers change here, must also go into the following files
  * and update the version numbers:
  *
- * library/init.tcl	(only if major.minor changes, not patchlevel)
- * unix/configure.in
- * win/configure.in	(only if major.minor changes, not patchlevel)
- * win/makefile.bc	(only if major.minor changes, not patchlevel)
- * win/makefile.vc	(only if major.minor changes, not patchlevel)
- * win/pkgIndex.tcl	(for tclregNN.dll, not patchlevel)
- * README
- * mac/README
- * win/README.binary
- * win/README		(only if major.minor changes, not patchlevel)
- * unix/README		(only if major.minor changes, not patchlevel)
- * tools/tcl.hpj.in	(for windows installer)
+ * library/init.tcl	(only if Major.minor changes, not patchlevel) 1 LOC
+ * unix/configure.in	(2 LOC Major, 2 LOC minor, 1 LOC patch)
+ * win/configure.in	(as above)
+ * win/makefile.vc	(not patchlevel) 2 LOC
+ * win/pkgIndex.tcl	(not patchlevel, for tclregNN.dll)
+ * README		(sections 0 and 2)
+ * mac/README		(2 LOC)
+ * win/README.binary	(sections 0-4)
+ * win/README		(not patchlevel) (sections 0 and 2)
+ * unix/README		(not patchlevel) (part (h))
+ * tests/basic.test	(not patchlevel) (version checks)
+ * tools/tcl.hpj.in	(not patchlevel, for windows installer)
  * tools/tcl.wse.in	(for windows installer)
  */
 
 #define TCL_MAJOR_VERSION   8
 #define TCL_MINOR_VERSION   2
 #define TCL_RELEASE_LEVEL   TCL_FINAL_RELEASE
-#define TCL_RELEASE_SERIAL  1
+#define TCL_RELEASE_SERIAL  3
 
 #define TCL_VERSION	    "8.2"
-#define TCL_PATCH_LEVEL	    "8.2.1"
+#define TCL_PATCH_LEVEL	    "8.2.3"
 
 /*
  * The following definitions set up the proper options for Windows
