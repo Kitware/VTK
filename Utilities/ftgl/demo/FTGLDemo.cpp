@@ -389,7 +389,7 @@ void GLUTCALLBACK display()
 #ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
 #endif
-#if defined(FTGL_DO_NOT_USE_VECTORISER) || defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
+#if !defined(FTGL_DO_NOT_USE_VECTORISER) || !defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
       tbMatrix();
       break;
 #endif
