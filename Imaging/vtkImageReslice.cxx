@@ -1302,21 +1302,21 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
     }
 
   F fX[4], fY[4], fZ[4];
-  int lz, hz, ly, hy, lx, hx;
+  int k1, k2, j1, j2, i1, i2;
 
   if (mode == VTK_RESLICE_WRAP || mode == VTK_RESLICE_MIRROR)
     {
-    lx = 0;
-    hx = 3;
-    vtkTricubicInterpCoeffs(fX, lx, hx, fx);
+    i1 = 0;
+    i2 = 3;
+    vtkTricubicInterpCoeffs(fX, i1, i2, fx);
 
-    ly = 1 - fyIsNotZero;
-    hy = 1 + (fyIsNotZero<<1);
-    vtkTricubicInterpCoeffs(fY, ly, hy, fy);
+    j1 = 1 - fyIsNotZero;
+    j2 = 1 + (fyIsNotZero<<1);
+    vtkTricubicInterpCoeffs(fY, j1, j2, fy);
 
-    lz = 1 - fzIsNotZero;
-    hz = 1 + (fzIsNotZero<<1);
-    vtkTricubicInterpCoeffs(fZ, lz, hz, fz);
+    k1 = 1 - fzIsNotZero;
+    k2 = 1 + (fzIsNotZero<<1);
+    vtkTricubicInterpCoeffs(fZ, k1, k2, fz);
 
     if (mode == VTK_RESLICE_WRAP)
       {
@@ -1343,17 +1343,17 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
     // input extent, choose the appropriate interpolation
     // method to use
 
-    lx = 1 - (inIdX0 > 0)*fxIsNotZero;
-    ly = 1 - (inIdY0 > 0)*fyIsNotZero;
-    lz = 1 - (inIdZ0 > 0)*fzIsNotZero;
+    i1 = 1 - (inIdX0 > 0)*fxIsNotZero;
+    j1 = 1 - (inIdY0 > 0)*fyIsNotZero;
+    k1 = 1 - (inIdZ0 > 0)*fzIsNotZero;
 
-    hx = 1 + (1 + (inIdX0 + 2 < inExtX))*fxIsNotZero;
-    hy = 1 + (1 + (inIdY0 + 2 < inExtY))*fyIsNotZero;
-    hz = 1 + (1 + (inIdZ0 + 2 < inExtZ))*fzIsNotZero;
+    i2 = 1 + (1 + (inIdX0 + 2 < inExtX))*fxIsNotZero;
+    j2 = 1 + (1 + (inIdY0 + 2 < inExtY))*fyIsNotZero;
+    k2 = 1 + (1 + (inIdZ0 + 2 < inExtZ))*fzIsNotZero;
 
-    vtkTricubicInterpCoeffs(fX, lx, hx, fx);
-    vtkTricubicInterpCoeffs(fY, ly, hy, fy);
-    vtkTricubicInterpCoeffs(fZ, lz, hz, fz);
+    vtkTricubicInterpCoeffs(fX, i1, i2, fx);
+    vtkTricubicInterpCoeffs(fY, j1, j2, fy);
+    vtkTricubicInterpCoeffs(fZ, k1, k2, fz);
 
     factX[1] = inIdX0*inIncX;
     factX[0] = factX[1] - inIncX;
@@ -1371,14 +1371,14 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
     factZ[3] = factZ[2] + inIncZ;
 
     // this little bit of wierdness allows us to unroll the x loop
-    if (lx > 0)
+    if (i1 > 0)
       {
       factX[0] = factX[1];
       }
-    if (hx < 3)
+    if (i2 < 3)
       {
       factX[3] = factX[1];
-      if (hx < 2)
+      if (i2 < 2)
         {
         factX[2] = factX[1];
         }
@@ -1388,12 +1388,12 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
   do // loop over components
     {
     F val = 0;
-    int k = lz;
+    int k = k1;
     do // loop over z
       {
       F fz = fZ[k];
       int factz = factZ[k];
-      int j = ly;
+      int j = j1;
       do // loop over y
         {
         F fy = fY[j];
@@ -1406,9 +1406,9 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
                     fX[2]*tmpPtr[factX[2]] +
                     fX[3]*tmpPtr[factX[3]]);
         }
-      while (++j <= hy);
+      while (++j <= j2);
       }
-    while (++k <= hz);
+    while (++k <= k2);
 
     vtkResliceClamp(val, *outPtr++);
     inPtr++;
@@ -2808,11 +2808,11 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
                                  const int useNearestNeighbor[3])
 {
   // speed things up a bit for bicubic interpolation
-  int lz = 0;
-  int hz = 3;
+  int k1 = 0;
+  int k2 = 3;
   if (useNearestNeighbor[2])
     {
-    lz = hz = 1;
+    k1 = k2 = 1;
     }
 
   for (int i = 0; i < n; i++)
@@ -2835,7 +2835,7 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
       { // loop over components
       F result = 0;
 
-      int k = lz;
+      int k = k1;
       do
         { // loop over z
         F fz = fZ[k];
@@ -2858,7 +2858,7 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
 	  while (++j <= 3);
           }
         }
-      while (++k <= hz);
+      while (++k <= k2);
 
       vtkResliceClamp(result, *outPtr++);
       inPtr0++;
