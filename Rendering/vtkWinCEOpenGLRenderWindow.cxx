@@ -31,7 +31,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.5");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.6");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -176,7 +176,7 @@ void vtkWinCEOpenGLRenderWindow::MakeCurrent()
 
 void vtkWinCEOpenGLRenderWindow::SetForceMakeCurrent()
 {
-  this.ForceMakeCurrent = 1;
+  this->ForceMakeCurrent = 1;
 }
 
 void vtkWinCEOpenGLRenderWindow::SetSize(int x, int y)

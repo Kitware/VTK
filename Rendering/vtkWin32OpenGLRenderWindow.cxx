@@ -39,7 +39,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.98");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.99");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -232,7 +232,7 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
 
 void vtkWin32OpenGLRenderWindow::SetForceMakeCurrent()
 {
-  this.ForceMakeCurrent = 1;
+  this->ForceMakeCurrent = 1;
 }
 
 void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
