@@ -239,6 +239,7 @@ int vtkHull::AddPlane( float A, float B, float C, float D )
     }
   else if ( i >= -this->NumberOfPlanes )
     {//pick the D that minimizes the convex set
+    i = -i - 1;
     this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
                              D : this->Planes[4*i + 3]);
     }
@@ -255,6 +256,7 @@ int vtkHull::AddPlane( float plane[3], float D )
     }
   else if ( i >= -this->NumberOfPlanes )
     {//pick the D that minimizes the convex set
+    i = -i - 1;
     this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
                              D : this->Planes[4*i + 3]);
     }
