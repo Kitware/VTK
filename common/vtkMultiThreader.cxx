@@ -76,9 +76,10 @@ void vtkMultiThreader::SetMultipleMethod( int index,
 					  void *data )
 { 
   // You can only set the method for 0 through ThreadCount-1
-  if ( index >= this->ThreadCount )
+  if ( index >= this->ThreadCount ) {
     vtkErrorMacro( << "Can't set method " << index << 
-      " with a thread count of " << this->ThreadCount );
+    " with a thread count of " << this->ThreadCount );
+    }
   else
     {
     this->MultipleMethod[index] = f;
