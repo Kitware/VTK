@@ -75,6 +75,7 @@ void vtkImageMask::SetMaskedOutputValue(int num, float *v)
     this->MaskedOutputValueLength = num;
     }
 
+  this->MaskedOutputValue = num;
   for (idx = 0; idx < num; ++ idx)
     {
     if (this->MaskedOutputValue[idx] != v[idx])
