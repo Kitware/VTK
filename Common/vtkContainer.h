@@ -34,6 +34,9 @@
 
 #include "vtkObject.h"
 
+#ifndef __vtkContainer_h
+#define __vtkContainer_h
+
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
 //
@@ -108,3 +111,5 @@ protected:
   vtkContainer();
   virtual ~vtkContainer();
 };
+
+#endif 

@@ -55,6 +55,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkContainer.h"
 
+#ifndef __vtkAbstractList_h
+#define __vtkAbstractList_h
+
 template<class DType>
 class vtkAbstractList : public vtkContainer
 {
@@ -121,3 +124,5 @@ public:
   // It returns VTK_OK if successfull.
   virtual int SetSize(unsigned long size) = 0;
 };
+
+#endif
