@@ -69,21 +69,6 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->AdjustDistance = 0.0125;
 }
 
-void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
-                                         float ymax, float zmin, float zmax)
-{
-  float bounds[6];
-
-  bounds[0] = xmin;
-  bounds[1] = xmax;
-  bounds[2] = ymin;
-  bounds[3] = ymax;
-  bounds[4] = zmin;
-  bounds[5] = zmax;
-
-  this->SetModelBounds(bounds);
-}
-
 // Description:
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a

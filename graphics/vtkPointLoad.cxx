@@ -94,21 +94,6 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkPointLoad::SetModelBounds(float xmin, float xmax, float ymin, 
-                                  float ymax, float zmin, float zmax)
-{
-  float bounds[6];
-
-  bounds[0] = xmin;
-  bounds[1] = xmax;
-  bounds[2] = ymin;
-  bounds[3] = ymax;
-  bounds[4] = zmin;
-  bounds[5] = zmax;
-
-  this->SetModelBounds(bounds);
-}
-
 //
 // Generate tensors and scalars for point load on semi-infinite domain.
 //

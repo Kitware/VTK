@@ -64,20 +64,6 @@ vtkShepardMethod::vtkShepardMethod()
   this->NullValue = 0.0;
 }
 
-void vtkShepardMethod::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
-{
-  float bounds[6];
-
-  bounds[0] = xmin;
-  bounds[1] = xmax;
-  bounds[2] = ymin;
-  bounds[3] = ymax;
-  bounds[4] = zmin;
-  bounds[5] = zmax;
-
-  this->SetModelBounds(bounds);
-}
-
 // Description:
 // Compute ModelBounds from input geometry.
 float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])

@@ -81,11 +81,8 @@ public:
 
   // Description:
   // Specify the region in space over which the sampling occurs.
-  vtkSetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,float);
   vtkGetVectorMacro(ModelBounds,float,6);
-
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
-                      float zmin, float zmax);
 
   // Description:
   // Turn on/off capping. If capping is on, then the outer boundaries of the

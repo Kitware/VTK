@@ -101,9 +101,8 @@ public:
   // Description:
   // Specify the region in space in which to perform the sampling. If
   // not specified, it will be computed automatically.
-  vtkSetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,float);
   vtkGetVectorMacro(ModelBounds,float,6);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
 
   // Description:
   // Control how the model bounds are computed. If the ivar AdjustBounds

@@ -50,21 +50,6 @@ vtkExtractVOI::vtkExtractVOI()
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
 }
 
-void vtkExtractVOI::SetVOI(int imin, int imax, int jmin, int jmax, 
-                                       int kmin, int kmax)
-{
-  int dim[6];
-
-  dim[0] = imin < imax ? imin : imax;
-  dim[1] = imax > imin ? imax : imin;
-  dim[2] = jmin < jmax ? jmin : jmax;
-  dim[3] = jmax > jmin ? jmax : jmin;
-  dim[4] = kmin < kmax ? kmin : kmax;
-  dim[5] = kmax > kmin ? kmax : kmin;
-
-  this->SetVOI(dim);
-}
-
 void vtkExtractVOI::Execute()
 {
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;

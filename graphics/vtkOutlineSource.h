@@ -58,7 +58,7 @@ public:
 
   // Description:
   // Specify the bounding box for this object.
-  vtkSetVectorMacro(Bounds,float,6);
+  vtkSetVector6Macro(Bounds,float);
   vtkGetVectorMacro(Bounds,float,6);
 
 protected:

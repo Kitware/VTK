@@ -74,10 +74,8 @@ public:
   // Description:
   // Specify the region in space over which the tensors are computed. The point
   // load is assumed to be applied at top center of the volume.
-  vtkSetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,float);
   vtkGetVectorMacro(ModelBounds,float,6);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
-                      float zmin, float zmax);
 
   // Description:
   // Set/Get Poisson's ratio.
