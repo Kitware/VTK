@@ -66,7 +66,6 @@ vtkImageSkeleton2D* vtkImageSkeleton2D::New()
 vtkImageSkeleton2D::vtkImageSkeleton2D()
 {
   this->Prune = 0;
-  this->SetNumberOfThreads(1); // temporary fix
 }
 
 //----------------------------------------------------------------------------
@@ -139,6 +138,7 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   int countFaces, countCorners;
   unsigned long count = 0;
   unsigned long target;
+  int erodeCase;
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -192,61 +192,104 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	    n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
 	      ? *(inPtr0+inInc1-inInc0) : 0;
 	    
-	    countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
-	    countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
+	    // Lets try a case table. (shifting bits would be faster)
+	    erodeCase = 0;
+	    if (n[7] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[6] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[5] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[4] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[3] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[2] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[1] > 0) {++erodeCase;} 
+	    erodeCase *= 2;
+	    if (n[0] > 0) {++erodeCase;}
 	    
-	    // special case
-	    if (prune > 1 && ((countFaces + countCorners) <= 1))
-	      {
+	    if (erodeCase == 54 || erodeCase == 216)
+	      { // erode
+	      // 54 top part of diagonal / double thick line
+	      // 216 bottom part of diagonal \ double thick line
 	      *inPtr0 = 1;
 	      }
-	    
-	    // one of four face neighbors has to be off
-	    if (n[0] == 0 || n[2] == 0 ||
-		n[4] == 0 || n[6] == 0)
+	    else if (erodeCase == 99 || erodeCase == 141)
+	      {	// No errosion
+	      // 99 bottom part of diagonal / double thick line
+	      // 141 top part of diagonal \ double thick line
+	      }
+	    else
 	      {
-	      // Special condition not to prune diamond corners
-	      if (prune > 1 || countFaces != 1 || countCorners != 2 ||
-		  ((n[1]==0 || n[2]==0 || n[3]==0) && 
-		   (n[3]==0 || n[4]==0 || n[5]==0) && 
-		   (n[5]==0 || n[6]==0 || n[7]==0) && 
-		   (n[7]==0 || n[0]==0 || n[1]==0)))
+	      // old heuristic method
+	      countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
+	      countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
+	      
+	      // special case to void split dependent results.
+	      // (should we just have a case table?)
+	      if (countFaces == 2 && countCorners == 0 &&
+		  n[2] > 0 && n[4] > 0)
 		{
-		// special condition (making another prune level)
-		// pruning 135 degree corners
-		if (prune || countFaces != 2 || countCorners != 2 ||
-		    ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
-		     (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
-		     (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
-		     (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
-		     (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
-		     (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
-		     (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
-		     (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
+		*inPtr0 = 1;
+		}
+	      
+	      // special case
+	      if (prune > 1 && ((countFaces + countCorners) <= 1))
+		{
+		*inPtr0 = 1;
+		}
+	      
+	      // one of four face neighbors has to be off
+	      if (n[0] == 0 || n[2] == 0 ||
+		  n[4] == 0 || n[6] == 0)
+		{
+		// Special condition not to prune diamond corners
+		if (prune > 1 || countFaces != 1 || countCorners != 2 ||
+		    ((n[1]==0 || n[2]==0 || n[3]==0) && 
+		     (n[3]==0 || n[4]==0 || n[5]==0) && 
+		     (n[5]==0 || n[6]==0 || n[7]==0) && 
+		     (n[7]==0 || n[0]==0 || n[1]==0)))
 		  {
-		  // remaining pixels need to be connected.
-		  // do not break corner connectivity
-		  if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
-		      (n[3] == 0 || n[2] > 1 || n[4] > 1) &&
-		      (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
-		      (n[7] == 0 || n[6] > 1 || n[0] > 1))
+		  // special condition (making another prune level)
+		  // pruning 135 degree corners
+		  if (prune || countFaces != 2 || countCorners != 2 ||
+		      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
+		       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
+		       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
+		       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
+		       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
+		       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
+		       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
+		       (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
 		    {
-		    // opposite faces (special condition so double thick lines
-		    // will not be completely eroded)
-		    if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
-			(n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
+		    // remaining pixels need to be connected.
+		    // do not break corner connectivity
+		    if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
+			(n[3] == 0 || n[2] > 1 || n[4] > 1) &&
+			(n[5] == 0 || n[4] > 1 || n[6] > 1) &&
+			(n[7] == 0 || n[6] > 1 || n[0] > 1))
 		      {
-		      // check to stop pruning (sort of a hack huristic)
-		      if (prune > 1 || (countFaces > 2) || 
-			  ((countFaces == 2) && (countCorners > 1)))
+		      // opposite faces 
+		      // (special condition so double thick lines
+		      // will not be completely eroded)
+		      if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
+			  (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
 			{
-			*inPtr0 = 1;
+			// check to stop pruning (sort of a hack huristic)
+			if (prune > 1 || (countFaces > 2) || 
+			    ((countFaces == 2) && (countCorners > 1)))
+			  {
+			  *inPtr0 = 1;
+			  }
 			}
 		      }
 		    }
 		  }
 		}
 	      }
+	    
 	    }
 	  inPtr0 += inInc0;
 	  }
@@ -311,7 +354,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *tempData;
   int inExt[6];
-
+  
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
