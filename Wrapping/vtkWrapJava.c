@@ -434,15 +434,6 @@ void outputFunction(FILE *fp, FileInfo *data)
   int args_ok = 1;
   CurrentData = data;
 
-  /* NewInstance can not be wrapped because it is a (non-virtual)   */
-  /* method which returns a pointer of the same type as the current */ 
-  /* pointer. Since all methods are virtual in Java, this looks     */
-  /* like polymorphic return type.                                  */
-  if (!strcmp("NewInstance",currentFunction->Name))
-    {
-    return ;
-    }
-
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
@@ -450,6 +441,15 @@ void outputFunction(FILE *fp, FileInfo *data)
       !currentFunction->Name) 
     {
     return;
+    }
+
+  /* NewInstance can not be wrapped because it is a (non-virtual)   */
+  /* method which returns a pointer of the same type as the current */ 
+  /* pointer. Since all methods are virtual in Java, this looks     */
+  /* like polymorphic return type.                                  */
+  if (!strcmp("NewInstance",currentFunction->Name))
+    {
+    return ;
     }
   
   /* check to see if we can handle the args */
