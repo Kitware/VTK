@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.43");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.44");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -250,7 +250,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
-  this->Deinitialize();
+  this->Finalize();
 
   delete this->Internal;
 
@@ -462,7 +462,7 @@ void vtkXOpenGLRenderWindow::Initialize (void)
   this->WindowInitialize();
 }
 
-void vtkXOpenGLRenderWindow::Deinitialize (void)
+void vtkXOpenGLRenderWindow::Finalize (void)
 {
   vtkRenderer *ren;
   GLuint id;
@@ -696,7 +696,7 @@ void vtkXOpenGLRenderWindow::PrefFullScreen()
 void vtkXOpenGLRenderWindow::WindowRemap()
 {
   // shut everything down
-  this->Deinitialize();
+  this->Finalize();
 
   // set the default windowid 
   this->WindowId = this->NextWindowId;

@@ -51,16 +51,16 @@ public:
 
   // Description:
   // Initialize the rendering window.  This will setup all system-specific
-  // resources.  This method nad Deinitialize() must be symmetric and it
+  // resources.  This method and Finalize() must be symmetric and it
   // should be possible to call them multiple times, even changing WindowId
   // in-between.  This is what WindowRemap does.
   virtual void Initialize(void);
 
   // Description:
-  // Deinitialize the rendering window.  This will shutdown all system-specific
+  // Finalize the rendering window.  This will shutdown all system-specific
   // resources.  After having called this, it should be possible to destroy
   // a window that was used for a SetWindowId() call without any ill effects.
-  virtual void Deinitialize(void);
+  virtual void Finalize(void);
 
   // Description:
   // Change the window to fill the entire screen.
