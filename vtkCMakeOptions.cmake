@@ -47,6 +47,17 @@ IF (VTK_USE_PARALLEL)
     ENDIF(BUILD_TESTING)
 ENDIF (VTK_USE_PARALLEL)
 
+OPTION (VTK_MANGLE_MESA "Use mangled Mesa with OpenGL" OFF)
+IF (VTK_MANGLE_MESA)
+  FIND_LIBRARY(MESA_LIBRARY MesaGL
+  /usr/local/lib 
+  )
+  FIND_LIBRARY(MESA_OS_LIBRARY MesaOS
+  /usr/local/lib 
+  )
+ENDIF (VTK_MANGLE_MESA)
+
+
 #
 # get information for Tcl wrapping 
 #
