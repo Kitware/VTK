@@ -446,16 +446,6 @@ unsigned long int vtkActor::GetRedrawMTime()
   return mTime;
 }
 
-// Update visualization pipeline and any other parts of actor that are
-// necessary.
-void vtkActor::Update()
-{
-  if ( this->Mapper )
-    {
-    this->Mapper->Update();
-    }
-}
-
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);

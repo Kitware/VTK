@@ -156,11 +156,6 @@ public:
   virtual void ApplyProperties() {return;};
 
   // Description:
-  // Update visualization pipeline and any other parts of actor that are
-  // necessary.
-  virtual void Update();
-
-  // Description:
   // Get the actors mtime plus consider its properties, texture and
   // usermatrix if set.
   unsigned long int GetMTime();
