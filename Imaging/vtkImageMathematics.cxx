@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.39");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.40");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
         switch (op)
           {
           case VTK_INVERT:
-            if (*outPtr)
+            if (*in1Ptr)
               {
               *outPtr = (T)(1.0 / *in1Ptr);
               }
@@ -279,7 +279,8 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
                 }
               else
                 {
-                *outPtr = (T)(*in1Ptr / 0.00001);
+                // *outPtr = (T)(*in1Ptr / 0.00001);
+                *outPtr = (T)outData->GetScalarTypeMax();
                 }
               }
             break;
