@@ -168,15 +168,3 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   fclose (fp);
 }
 
-void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyDataWriter::PrintSelf(os,indent);
- 
-  os << indent << "File Name: " << this->FileName << "\n";
-
-  if ( this->FileType == VTK_ASCII  )
-    os << indent << "FileType: ASCII\n";
-  else
-    os << indent << "FileType: BINARY\n";
-}
-

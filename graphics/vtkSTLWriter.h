@@ -61,17 +61,9 @@ public:
   vtkSTLWriter();
   static vtkSTLWriter *New() {return new vtkSTLWriter;};
   const char *GetClassName() {return "vtkSTLWriter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Specify type of file to write (ascii or binary).
-  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
-  vtkGetMacro(FileType,int);
 
 protected:
   void WriteData();
-
-  int FileType;
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
   void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);
