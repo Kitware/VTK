@@ -241,7 +241,14 @@ void vtkAssembly::InitPathTraversal()
 // returns a properly transformed and updated actor.
 vtkAssemblyPath *vtkAssembly::GetNextPath()
 {
-  return this->Paths->GetNextItem();
+  if ( this->Paths )
+    {
+    return this->Paths->GetNextItem();
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 int vtkAssembly::GetNumberOfPaths()
