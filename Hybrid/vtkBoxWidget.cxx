@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.44");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.45");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1243,7 +1243,9 @@ void vtkBoxWidget::SetTransform(vtkTransform* t)
 {
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
   double xIn[3];
-
+  // make sure the transform is up-to-date before using it
+  t->Update();
+  
   // Position the eight points of the box and then update the
   // position of the other handles.
   double *bounds=this->InitialBounds;
