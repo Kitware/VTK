@@ -122,9 +122,12 @@ FTPixmapGlyph::~FTPixmapGlyph()
   if( data)
     delete [] data;
 
-  // discard glyph image (bitmap or not)
-  // Is this the right place to do this?
-  FT_Done_Glyph( this->glyph );
+  // Release glyph (if it has been converted, then it has been released
+  // already)
+  if (!this->glyphHasBeenConverted)
+    {
+    FT_Done_Glyph( this->glyph );
+    }
 }
 
 

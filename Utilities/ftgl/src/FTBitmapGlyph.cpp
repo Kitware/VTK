@@ -84,9 +84,10 @@ FTBitmapGlyph::~FTBitmapGlyph()
   if( data)
     delete [] data;
 
-  // discard glyph image (bitmap or not)
-  // Is this the right place to do this?
-  FT_Done_Glyph( this->glyph );
+  if (!this->glyphHasBeenConverted)
+    {
+    FT_Done_Glyph( this->glyph );
+    }
 }
 
 
