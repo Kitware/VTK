@@ -37,7 +37,7 @@ LDLIBS =  \
 	${THREAD_LIBS}
 
 CXX_FLAGS = ${USER_CXXFLAGS} ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
-	-I${srcdir}/../common ${PYTHON_INCLUDES} ${TK_INCLUDE} \
+	-I${srcdir}/../common -I../common ${PYTHON_INCLUDES} ${TK_INCLUDE} \
 	-DVTK_USE_TKWIDGET ${GRAPHICS_API_FLAGS} ${TCL_INCLUDE} \
 	${USE_TOOLKIT_FLAGS}
 
