@@ -185,7 +185,7 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Convieniance method to get the range of the scalar data if there is any.
+  // Convenience method to get the range of the scalar data if there is any.
   // otherwise it will return 0 to 1.
   float *GetScalarRange();
   

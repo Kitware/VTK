@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkSphereSource creates a polygonal sphere of specified radius centered 
 // at the origin. The resolution (polygonal discretization) in both the
-// latitude (phi) and longitude (theta) diections can be specified. It is
+// latitude (phi) and longitude (theta) directions can be specified. It is
 // also possible to create partial spheres by specifying maximum phi
 // and theta angles.
 

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The swept surface algorithm can be summarized as follows. A geometry 
 // (i.e. the input) is swept along a path (list of transforms). At each point
 // on the path the input is re-sampled into a volume using a union operation.
-// (Union means that the minumum scalar value is retained - minimum distance
+// (Union means that the minimum scalar value is retained - minimum distance
 // value for example). At the end an implicit representation of the swept
 // surface is defined.
 
@@ -115,7 +115,7 @@ public:
   
   // Description:
   // Define the volume (in world coordinates) in which the sampling is to 
-  // occur. Make sure that the volume is large enough to accomodate the 
+  // occur. Make sure that the volume is large enough to accommodate the 
   // motion of the geometry along the path. If the model bounds are set to
   // all zero values, the model bounds will be computed automatically from
   // the input geometry and path.
