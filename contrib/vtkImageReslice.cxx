@@ -937,15 +937,18 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
     case 6:
       *l = 1; *m = 2; 
       F[1] = 1;
+      F[0] = F[2] = F[3] = 0.0;
       break;
     case 1:     // linear interpolation
       *l = 1; *m = 3;
+      F[0] = F[3] = 0.0;
       F[1] = 1-f;
       F[2] = f;
       break;
     case 3:     // quadratic interpolation
       *l = 1; *m = 4; 
       fm1 = f-1; fm2 = fm1-1;
+      F[0] = 0.0;
       F[1] = fm1*fm2/2;
       F[2] = -f*fm2;
       F[3] = f*fm1/2;
@@ -956,6 +959,7 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
       F[0] = f*fm1/2;
       F[1] = -fp1*fm1;
       F[2] = fp1*f/2;
+      F[3] = 0.0;
       break;
     }
 }
