@@ -1072,76 +1072,40 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
   float shift = this->DisplacementShift;
   float scale = this->DisplacementScale;
 
+  float point[3], inverse[3], lastInverse[3];
+  float deltaP[3], deltaI[3];
+
+  float functionValue = 1e30;
+  float functionDerivative = 0.0;
+  float lastFunctionValue;
+
+  float errorSquared = 0.0;
+  float toleranceSquared = this->InverseTolerance;
+  toleranceSquared *= toleranceSquared;
+
+  float f = 1.0f;
+  float a;
+
   // convert the inPoint to i,j,k indices plus fractions
-  float point[3];
   point[0] = (inPoint[0] - origin[0])*invSpacing[0];
   point[1] = (inPoint[1] - origin[1])*invSpacing[1];
   point[2] = (inPoint[2] - origin[2])*invSpacing[2];
 
   // first guess at inverse point, just subtract displacement
   // (the inverse point is given in i,j,k indices plus fractions)
-  float deltaI[3];
-  this->InterpolationFunction(point, deltaI, NULL,
-			      gridPtr, gridType, extent, increments);
-  float inverse[3], lastInverse[3];
-  inverse[0] = point[0] - (deltaI[0]*scale + shift)*invSpacing[0];
-  inverse[1] = point[1] - (deltaI[1]*scale + shift)*invSpacing[1];
-  inverse[2] = point[2] - (deltaI[2]*scale + shift)*invSpacing[2];
-
-  // put the inverse point back through the transform
-  float deltaP[3], gradient[3];
-  this->InterpolationFunction(inverse, deltaP, derivative,
+  this->InterpolationFunction(point, deltaP, NULL,
 			      gridPtr, gridType, extent, increments);
 
-  // convert displacement 
-  deltaP[0] = (inverse[0] - point[0])*spacing[0] + deltaP[0]*scale + shift;
-  deltaP[1] = (inverse[1] - point[1])*spacing[1] + deltaP[1]*scale + shift;
-  deltaP[2] = (inverse[2] - point[2])*spacing[2] + deltaP[2]*scale + shift;
-
-  float lastErrorSquared;
-  float errorSquared = deltaP[0]*deltaP[0] +
-                       deltaP[1]*deltaP[1] +
-                       deltaP[2]*deltaP[2];
-
-  float toleranceSquared = this->InverseTolerance*
-			   this->InverseTolerance;
+  inverse[0] = point[0] - (deltaP[0]*scale + shift)*invSpacing[0];
+  inverse[1] = point[1] - (deltaP[1]*scale + shift)*invSpacing[1];
+  inverse[2] = point[2] - (deltaP[2]*scale + shift)*invSpacing[2];
 
   // do a maximum 500 iterations, usually less than 10 are required
   int n = this->InverseIterations;
-  int i;
-  for (i = 0; i < n && errorSquared > toleranceSquared; i++)
+  int i, j;
+
+  for (i = 0; i < n; i++)
     {
-    // save previous error
-    lastErrorSquared = errorSquared;
-
-    // convert derivative
-    for (int j = 0; j < 3; j++)
-      {
-      derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
-      derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
-      derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
-      derivative[j][j] += 1.0f;
-      }
-
-    // here is the critical step in Newton's method
-    vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
-
-    // save the inverse
-    lastInverse[0] = inverse[0];
-    lastInverse[1] = inverse[1];
-    lastInverse[2] = inverse[2];
-
-    // calculate the gradient of errorSquared
-    gradient[0] = deltaP[0]*derivative[0][0]*2;
-    gradient[1] = deltaP[1]*derivative[1][1]*2;
-    gradient[2] = deltaP[2]*derivative[2][2]*2;
-
-    // calculate the new inverse
-    inverse[0] -= deltaI[0]*invSpacing[0];
-    inverse[1] -= deltaI[1]*invSpacing[1];
-    inverse[2] -= deltaI[2]*invSpacing[2];
-
-    // put the inverse point back through the transform
     this->InterpolationFunction(inverse, deltaP, derivative,
 				gridPtr, gridType, extent, increments);
 
@@ -1150,66 +1114,81 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
     deltaP[1] = (inverse[1] - point[1])*spacing[1] + deltaP[1]*scale + shift;
     deltaP[2] = (inverse[2] - point[2])*spacing[2] + deltaP[2]*scale + shift;
 
-    // add errors for each dimension
-    errorSquared = deltaP[0]*deltaP[0] +
-                   deltaP[1]*deltaP[1] +
-                   deltaP[2]*deltaP[2];
-
-    if (errorSquared > lastErrorSquared)
-      { // the error is increasing, backtrack 
-	// see Numerical Recipes 9.7 for rationale
-
-      // derivative of errorSquared for lastError
-      float lastErrorSquaredD = (gradient[0]*deltaI[0] +
-				 gradient[1]*deltaI[1] +
-				 gradient[2]*deltaI[2]);
-
-      // quadratic approximation to find best fractional distance
-      float f = lastErrorSquaredD/
-	  (2*(errorSquared-lastErrorSquared-lastErrorSquaredD));
-
-      if (f < 0.1)
-	{
-	f = 0.1;
-	}
-      if (f > 0.5)
-	{
-	f = 0.5;
-	}
-
-      // calculate inverse using fractional distance
-      inverse[0] = lastInverse[0] - f*deltaI[0]*invSpacing[0];
-      inverse[1] = lastInverse[1] - f*deltaI[1]*invSpacing[1];
-      inverse[2] = lastInverse[2] - f*deltaI[2]*invSpacing[2];
-
-      // put the inverse point back through the transform
-      this->InterpolationFunction(inverse, deltaP, derivative,
-				  gridPtr, gridType, extent, increments);
-      
-      // convert displacement 
-      deltaP[0] = (inverse[0] - point[0])*spacing[0] + deltaP[0]*scale + shift;
-      deltaP[1] = (inverse[1] - point[1])*spacing[1] + deltaP[1]*scale + shift;
-      deltaP[2] = (inverse[2] - point[2])*spacing[2] + deltaP[2]*scale + shift;
-
-      // add errors for each dimension
-      errorSquared = deltaP[0]*deltaP[0] +
-	             deltaP[1]*deltaP[1] +
-                     deltaP[2]*deltaP[2];
+    // convert derivative
+    for (j = 0; j < 3; j++)
+      {
+      derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
+      derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
+      derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
+      derivative[j][j] += 1.0f;
       }
-    }
 
-  // convert derivative
-  for (int j = 0; j < 3; j++)
-    {
-    derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
-    derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
-    derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
-    derivative[j][j] += 1.0f;
+    // get the current function value
+    lastFunctionValue = functionValue;
+    functionValue = (deltaP[0]*deltaP[0] +
+		     deltaP[1]*deltaP[1] +
+		     deltaP[2]*deltaP[2]);
+
+    // if the function value is decreasing, do next Newton step
+    if (functionValue < lastFunctionValue)
+      {
+      // here is the critical step in Newton's method
+      vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
+
+      // get the error value in the output coord space
+      errorSquared = (deltaI[0]*deltaI[0] +
+		      deltaI[1]*deltaI[1] +
+		      deltaI[2]*deltaI[2]);
+
+      // break if less than tolerance in both coordinate systems
+      if (errorSquared < toleranceSquared && 
+	  functionValue < toleranceSquared)
+	{
+	break;
+	}
+
+      // save the last inverse point
+      lastInverse[0] = inverse[0];
+      lastInverse[1] = inverse[1];
+      lastInverse[2] = inverse[2];
+
+      // derivative of functionValue at last inverse point
+      functionDerivative = (deltaP[0]*derivative[0][0]*deltaI[0] +
+			    deltaP[1]*derivative[1][1]*deltaI[1] +
+			    deltaP[2]*derivative[2][2]*deltaI[2])*2;
+
+      // calculate new inverse point
+      inverse[0] -= deltaI[0]*invSpacing[0];
+      inverse[1] -= deltaI[1]*invSpacing[1];
+      inverse[2] -= deltaI[2]*invSpacing[2];
+
+      // reset f to 1.0 
+      f = 1.0;
+
+      continue;
+      }      
+
+    // the error is increasing, so take a partial step 
+    // (see Numerical Recipes 9.7 for rationale, this code
+    //  is a simplification of the algorithm provided there)
+
+    // quadratic approximation to find best fractional distance
+    a = -functionDerivative/(2*(functionValue - 
+				lastFunctionValue -
+				functionDerivative));
+
+    // clamp to range [0.1,0.5]
+    f *= (a < 0.1 ? 0.1 : (a > 0.5 ? 0.5 : a));
+
+    // re-calculate inverse using fractional distance
+    inverse[0] = lastInverse[0] - f*deltaI[0]*invSpacing[0];
+    inverse[1] = lastInverse[1] - f*deltaI[1]*invSpacing[1];
+    inverse[2] = lastInverse[2] - f*deltaI[2]*invSpacing[2];
     }
 
   vtkDebugMacro("Inverse Iterations: " << (i+1));
 
-  if (i >= this->InverseIterations)
+  if (i >= n)
     {
     vtkWarningMacro("InverseTransformPoint: no convergence (" <<
 		    inPoint[0] << ", " << inPoint[1] << ", " << inPoint[2] << 

@@ -141,58 +141,31 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 {
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
-  T gradient[3];
 
-  double errorSquared, lastErrorSquared;
+  double functionValue = 1e30;
+  double functionDerivative = 0;
+  double lastFunctionValue = 0;
+
+  double errorSquared = 0;
   double toleranceSquared = self->GetInverseTolerance();
   toleranceSquared *= toleranceSquared;
- 
-  // first guess at inverse point
+
+  T f = 1.0;
+  T a;
+
+  // first guess at inverse point: invert the displacement
   self->TemplateTransformPoint(point,inverse);
   
   inverse[0] -= 2*(inverse[0]-point[0]);
   inverse[1] -= 2*(inverse[1]-point[1]);
   inverse[2] -= 2*(inverse[2]-point[2]);
 
-  // put the inverse point back through the transform
-  self->TemplateTransformPoint(inverse,deltaP,derivative);
-
-  // how far off are we?
-  deltaP[0] -= point[0];
-  deltaP[1] -= point[1];
-  deltaP[2] -= point[2];
-
-  // add errors for each dimension
-  errorSquared = deltaP[0]*deltaP[0] +
-                 deltaP[1]*deltaP[1] +
-                 deltaP[2]*deltaP[2];
-
   // do a maximum 500 iterations, usually less than 10 are required
   int n = self->GetInverseIterations();
   int i;
-  for (i = 0; i < n && errorSquared > toleranceSquared; i++)
+
+  for (i = 0; i < n; i++)
     {
-    // save previous error
-    lastErrorSquared = errorSquared;
-    
-    // here is the critical step in Newton's method
-    vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
-
-    // save the inverse
-    lastInverse[0] = inverse[0];
-    lastInverse[1] = inverse[1];
-    lastInverse[2] = inverse[2];
-
-    // calculate the gradient of errorSquared
-    gradient[0] = deltaP[0]*derivative[0][0]*2;
-    gradient[1] = deltaP[1]*derivative[1][1]*2;
-    gradient[2] = deltaP[2]*derivative[2][2]*2;
-
-    // calculate the new inverse
-    inverse[0] -= deltaI[0];
-    inverse[1] -= deltaI[1];
-    inverse[2] -= deltaI[2];
-
     // put the inverse point back through the transform
     self->TemplateTransformPoint(inverse,deltaP,derivative);
 
@@ -201,51 +174,67 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     deltaP[1] -= point[1];
     deltaP[2] -= point[2];
 
-    // add errors for each dimension
-    errorSquared = deltaP[0]*deltaP[0] +
-                   deltaP[1]*deltaP[1] +
-                   deltaP[2]*deltaP[2];
+    // get the current function value
+    lastFunctionValue = functionValue;
+    functionValue = (deltaP[0]*deltaP[0] +
+		     deltaP[1]*deltaP[1] +
+		     deltaP[2]*deltaP[2]);
 
-    if (errorSquared > lastErrorSquared)
-      { // the error is increasing, backtrack 
-	// see Numerical Recipes 9.7 for rationale
+    // if the function value is decreasing, do next Newton step
+    if (functionValue < lastFunctionValue)
+      {
+      // here is the critical step in Newton's method
+      vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
 
-      // derivative of errorSquared for lastError
-      T lastErrorSquaredD = (gradient[0]*deltaI[0] +
-			     gradient[1]*deltaI[1] +
-			     gradient[2]*deltaI[2]);
+      // get the error value in the output coord space
+      errorSquared = (deltaI[0]*deltaI[0] +
+		      deltaI[1]*deltaI[1] +
+		      deltaI[2]*deltaI[2]);
 
-      // quadratic approximation to find best fractional distance
-      T f = lastErrorSquaredD/
-	  (2*(errorSquared-lastErrorSquared-lastErrorSquaredD));
-
-      if (f < 0.1)
+      // break if less than tolerance in both coordinate systems
+      if (errorSquared < toleranceSquared && 
+	  functionValue < toleranceSquared)
 	{
-	f = 0.1;
-	}
-      if (f > 0.5)
-	{
-	f = 0.5;
+	break;
 	}
 
-      // calculate inverse using fractional distance
-      inverse[0] = lastInverse[0] - f*deltaI[0];
-      inverse[1] = lastInverse[1] - f*deltaI[1];
-      inverse[2] = lastInverse[2] - f*deltaI[2];
+      // save the last inverse point
+      lastInverse[0] = inverse[0];
+      lastInverse[1] = inverse[1];
+      lastInverse[2] = inverse[2];
 
-      // put the inverse point back through the transform
-      self->TemplateTransformPoint(inverse,deltaP,derivative);
-      
-      // how far off are we?
-      deltaP[0] -= point[0];
-      deltaP[1] -= point[1];
-      deltaP[2] -= point[2];
-      
-      // add errors for each dimension
-      errorSquared = deltaP[0]*deltaP[0] +
-	             deltaP[1]*deltaP[1] +
-                     deltaP[2]*deltaP[2];
+      // derivative of functionValue at last inverse point
+      functionDerivative = (deltaP[0]*derivative[0][0]*deltaI[0] +
+			    deltaP[1]*derivative[1][1]*deltaI[1] +
+			    deltaP[2]*derivative[2][2]*deltaI[2])*2;
+
+      // calculate new inverse point
+      inverse[0] -= deltaI[0];
+      inverse[1] -= deltaI[1];
+      inverse[2] -= deltaI[2];
+
+      // reset f to 1.0 
+      f = 1.0;
+
+      continue;
       }
+
+    // the error is increasing, so take a partial step 
+    // (see Numerical Recipes 9.7 for rationale, this code
+    //  is a simplification of the algorithm provided there)
+
+    // quadratic approximation to find best fractional distance
+    a = -functionDerivative/(2*(functionValue - 
+				lastFunctionValue -
+				functionDerivative));
+
+    // clamp to range [0.1,0.5]
+    f *= (a < 0.1 ? 0.1 : (a > 0.5 ? 0.5 : a));
+
+    // re-calculate inverse using fractional distance
+    inverse[0] = lastInverse[0] - f*deltaI[0];
+    inverse[1] = lastInverse[1] - f*deltaI[1];
+    inverse[2] = lastInverse[2] - f*deltaI[2];
     }
 
   if (self->GetDebug())
@@ -255,8 +244,9 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
                <<") Inverse Iterations: " << (i+1));
     }
 
-  if (i >= self->GetInverseIterations())
+  if (i >= n)
     {
+    // print warning: Newton's method didn't converge
     vtkGenericWarningMacro(<<
          "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << 
 	 self->GetClassName() << " (" << self << ") " << 
