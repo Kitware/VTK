@@ -19,8 +19,9 @@
 
 #include "vtkImagingFactory.h"
 #include "vtkTextProperty.h"
+#include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.46");
+vtkCxxRevisionMacro(vtkTextMapper, "1.47");
 
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
