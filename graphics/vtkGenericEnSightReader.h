@@ -50,7 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEnSightReader.h"
 
 #define VTK_ENSIGHT_6    0
-#define VTK_ENSIGHT_GOLD 1
+#define VTK_ENSIGHT_6_BINARY 1
+#define VTK_ENSIGHT_GOLD 2
 
 class VTK_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
@@ -125,6 +126,11 @@ protected:
   // Returns zero if there was an error.
   int ReadLine(char result[256]);
 
+  // Description:
+  // Internal function to read up to 80 characters from a binary file.
+  // Returns zero if there was an error.
+  int ReadBinaryLine(char result[80]);
+  
   // Internal function that skips blank lines and reads the 1st
   // non-blank line it finds (up to 256 characters).
   // Returns 0 is there was an error.
@@ -134,6 +140,11 @@ protected:
   // Set/Get the file path.
   vtkSetStringMacro(FilePath);
   vtkGetStringMacro(FilePath);
+  
+  // Description:
+  // Set/Get the geometry file name.
+  vtkSetStringMacro(GeometryFileName);
+  vtkGetStringMacro(GeometryFileName);
   
   // Description:
   // Add a variable description to the appropriate array.
@@ -146,9 +157,11 @@ protected:
   void AddComplexVariableType(int variableType);
 
   istream* IS;
+  FILE *IFile;
   vtkEnSightReader *Reader;
   
   char* CaseFileName;
+  char* GeometryFileName;
   char* FilePath;
 
   int* VariableTypes;

@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkGenericEnSightReader.h"
 #include "vtkEnSight6Reader.h"
+#include "vtkEnSight6BinaryReader.h"
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
@@ -62,8 +63,10 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
 {
   this->Reader = NULL;
   this->IS = NULL;
+  this->IFile = NULL;
   
   this->CaseFileName = NULL;
+  this->GeometryFileName = NULL;
   this->FilePath = NULL;
   
   this->VariableTypes = NULL;
@@ -109,6 +112,11 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     delete [] this->CaseFileName;
     this->CaseFileName = NULL;
     }
+  if (this->GeometryFileName)
+    {
+    delete [] this->GeometryFileName;
+    this->GeometryFileName = NULL;
+    }
   if (this->FilePath)
     {
     delete [] this->FilePath;
@@ -146,10 +154,17 @@ void vtkGenericEnSightReader::Execute()
   
   if (version == VTK_ENSIGHT_6)
     {
+    vtkDebugMacro("EnSight6");
     this->Reader = vtkEnSight6Reader::New();
+    }
+  else if (version == VTK_ENSIGHT_6_BINARY)
+    {
+    vtkDebugMacro("EnSight6 binary");
+    this->Reader = vtkEnSight6BinaryReader::New();
     }
   else if (version == VTK_ENSIGHT_GOLD)
     {
+    vtkDebugMacro("EnSightGold");
     this->Reader = vtkEnSightGoldReader::New();
     }
   else
@@ -201,7 +216,7 @@ void vtkGenericEnSightReader::Execute()
 //----------------------------------------------------------------------------
 int vtkGenericEnSightReader::DetermineEnSightVersion()
 {
-  char line[256], subLine[256];
+  char line[256], subLine[256], binaryLine[80];
   int stringRead;
   
   if (!this->CaseFileName)
@@ -249,11 +264,73 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
       }
     else
       {
-      delete this->IS;
-      this->IS = NULL;
-      return VTK_ENSIGHT_6;
-      }
-    }
+      this->ReadNextDataLine(line);
+      if (strncmp(line, "GEOMETRY", 8) == 0)
+        {
+        // found the GEOMETRY section
+        vtkDebugMacro("*** GEOMETRY section");
+        
+        this->ReadNextDataLine(line);
+        if (strncmp(line, "model:", 6) == 0)
+          {
+          if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
+            {
+            this->SetGeometryFileName(subLine);
+            }
+          else if (sscanf(line, " %*s %*d %s", subLine) == 1)
+            {
+            this->SetGeometryFileName(subLine);
+            }
+          else if (sscanf(line, " %*s %s", subLine) == 1)
+            {
+            this->SetGeometryFileName(subLine);
+            }
+          } // geometry file name set
+        delete this->IS;
+        this->IS = NULL;
+        if (!this->GeometryFileName)
+          {
+          vtkErrorMacro("A GeometryFileName must be specified in the case file.");
+          return 0;
+          }
+        if (strrchr(this->GeometryFileName, '*') != NULL)
+          {
+          vtkErrorMacro("VTK does not currently handle time.");
+          return 0;
+          }
+        if (this->FilePath)
+          {
+          strcpy(line, this->FilePath);
+          strcat(line, this->GeometryFileName);
+          vtkDebugMacro("full path to geometry file: " << line);
+          }
+        else
+          {
+          strcpy(line, this->GeometryFileName);
+          } // got full path to geometry file
+        
+        this->IFile = fopen(line, "rb");
+        if (this->IFile == NULL)
+          {
+          vtkErrorMacro("Unable to open file: " << line);
+          fclose(this->IFile);
+          this->IFile = NULL;
+          return 0;
+          } // end if IFile == NULL
+        
+        this->ReadBinaryLine(binaryLine);
+        sscanf(line, " %*s %s", subLine);
+        if (strcmp(subLine, "Binary") != 0)
+          {
+          fclose(this->IFile);
+          this->IFile = NULL;
+          return VTK_ENSIGHT_6_BINARY;
+          } //end if binary
+        
+        return VTK_ENSIGHT_6;
+        } // if we found the geometry section in the case file
+      } // not ensight gold
+    } // if we found the format section in the case file
   return -1;
 }
 
@@ -306,6 +383,20 @@ int vtkGenericEnSightReader::ReadLine(char result[256])
 {
   this->IS->getline(result,256);
   if (this->IS->eof()) 
+    {
+    return 0;
+    }
+  
+  return 1;
+}
+
+// Internal function to read in a line (from a binary file) up
+// to 80 characters.  Returns zero if there was an error.
+int vtkGenericEnSightReader::ReadBinaryLine(char result[80])
+{
+  fread(result, sizeof(char), 80, this->IFile);
+
+  if (feof(this->IFile) || ferror(this->IFile))
     {
     return 0;
     }

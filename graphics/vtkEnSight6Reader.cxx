@@ -1850,7 +1850,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
         {
         if (!iblanks[j])
           {
-          ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i);
+          ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i*numLines+j);
           }
         }
       }

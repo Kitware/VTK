@@ -244,7 +244,7 @@ protected:
   // Description:
   // Determine the element type from a line read a file.  Return -1 for
   // invalid element type.
-  int GetElementType(char line[256]);
+  int GetElementType(char* line);
 
   char* FilePath;
   

@@ -1187,7 +1187,7 @@ char* vtkEnSightReader::GetDescription(int n, int type)
   return NULL;
 }
 
-int vtkEnSightReader::GetElementType(char line[256])
+int vtkEnSightReader::GetElementType(char* line)
 {
   if (strcmp(line, "point") == 0)
     {
