@@ -105,21 +105,29 @@ AC_ARG_WITH(mesa,
          [  --with-mesa           create the mesa specific renderer],
 	 [use_mesa=yes])
 
+#
+# if mesa was included then don't use opengl unless explicitly specified
+#
+AC_ARG_WITH(opengl,
+         [  --with-opengl           create the opengl specific renderer],
+	 [force_opengl=yes])
+
 if test "$use_mesa" = "yes"; then
-	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${MESA_OBJ}"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_MESA"
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_LIB}"
+	if test "$force_opengl" = "yes"; then
+		GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${MESA_OBJ}"
+		GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_MESA"
+		GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_LIB}"
+	else
+		GRAPHICS_API_OBJ="\${MESA_OBJ}"
+		GRAPHICS_API_FLAGS="\${MESA_INCLUDE} -DVTK_USE_MESA"
+		GRAPHICS_API_LIBS="\${MESA_LIB}"
+	fi
 fi
 
 AC_SUBST(GRAPHICS_API_OBJ)
 AC_SUBST(GRAPHICS_API_FLAGS)
 AC_SUBST(GRAPHICS_API_LIBS)
 
-ac_save_path="$PATH"
-PATH=/usr/gfx
-AC_CHECK_PROG(HAVE_SETMON, setmon, -DHAVE_SETMON)
-PATH="$ac_save_path"
-AC_SUBST(HAVE_SETMON)
 
 #
 # use shared libs
