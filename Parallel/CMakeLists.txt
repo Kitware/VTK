@@ -116,7 +116,7 @@ IF (VTK_WRAP_TCL)
     ENDIF (TK_LIBRARY)
 
     # add in xwindows stuff
-    IF (CMAKE_HAS_X)
+    IF (VTK_USE_X)
       TARGET_LINK_LIBRARIES(pvtk -lXt)
       TARGET_LINK_LIBRARIES(pvtk ${CMAKE_X_LIBS})
       ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
