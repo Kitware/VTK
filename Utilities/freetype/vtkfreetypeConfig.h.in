@@ -18,9 +18,9 @@
 /* 
    Carbon framework
 */
-#cmakedefine VTKFREETYPE_TARGET_API_MAC_CARBON
-#if defined(VTKFREETYPE_TARGET_API_MAC_CARBON) && !defined(TARGET_API_MAC_CARBON)
-#define TARGET_API_MAC_CARBON
+#cmakedefine VTKFREETYPE_USE_CARBON
+#if defined(VTKFREETYPE_USE_CARBON) && !defined(FT_USE_CARBON_HEADER)
+#define FT_USE_CARBON_HEADER
 #endif
 
 #endif

@@ -65,7 +65,7 @@
 #include "truetype/ttobjs.h"
 #include "type1/t1objs.h"
 
-#if TARGET_API_MAC_CARBON
+#if defined(FT_USE_CARBON_HEADER)
 #include <Carbon/Carbon.h>
 #else
 #include <Resources.h>

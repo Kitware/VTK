@@ -89,7 +89,7 @@ ENDIF (UNIX)
 # Apple flags and specific drivers
 #
 IF (APPLE)
-  SET (VTKFREETYPE_TARGET_API_MAC_CARBON 1)
+  SET (VTKFREETYPE_USE_CARBON 1)
   SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
   SET (CMAKE_SHLIB_LINK_FLAGS 
    "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
