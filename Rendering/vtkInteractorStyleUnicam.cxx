@@ -70,6 +70,7 @@ vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
 vtkInteractorStyleUnicam::~vtkInteractorStyleUnicam() 
 {
   this->InteractionPicker->Delete();
+  this->FocusSphere->Delete();
 }
 
 void vtkInteractorStyleUnicam::PrintSelf(ostream& os, vtkIndent indent) 
