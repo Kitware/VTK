@@ -75,6 +75,7 @@ vtkMassProperties.cxx
 vtkMergeDataObjectFilter.cxx
 vtkMergeFields.cxx
 vtkMergeFilter.cxx
+vtkMeshQuality.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
