@@ -23,7 +23,6 @@ vtkImageSpatialFilter \
 #vtkImageDecomposedFilter \
 #vtkImageFourierFilter \
 #vtkImageInPlaceFilter \
-#vtkImageMedianFilter \
 #vtkImageMultipleInputFilter \
 #vtkImageTwoInputFilter \
 #vtkImageTwoOutputFilter
@@ -31,6 +30,7 @@ vtkImageSpatialFilter \
 CONCRETE = \
 vtkBMPWriter \
 vtkImageConstantPad \
+vtkImageMedian3D \
 vtkImageReader \
 vtkImageShiftScale \
 vtkImageThreshold \
@@ -91,7 +91,6 @@ vtkTIFFWriter
 #vtkImageMagnitude \
 #vtkImageMask \
 #vtkImageMathematics \
-#vtkImageMedian3D \
 #vtkImageMirrorPad \
 #vtkImageNoiseSource \
 #vtkImageNonMaximumSuppression \

@@ -524,7 +524,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   OT *outPtr0, *outPtr1, *outPtr2;
   long streamSkip0, streamSkip1;
   long streamRead;
-  int idx0, idx1, idx2, idx3, pixelRead;
+  int idx0, idx1, idx2, pixelRead;
   unsigned char *buf;
   int inExtent[6];
   int dataExtent[6];

@@ -102,7 +102,7 @@ void vtkImageSpatialFilter::ExecuteImageInformation()
 {
   int extent[6];
   float spacing[3];
-  int idx, axis;
+  int idx;
   
   this->Input->GetWholeExtent(extent);
   this->Input->GetSpacing(spacing);

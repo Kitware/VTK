@@ -51,23 +51,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMedian3D_h
 
 
-#include "vtkImageMedianFilter.h"
+#include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageMedian3D : public vtkImageMedianFilter
+class VTK_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageMedian3D();
   static vtkImageMedian3D *New() {return new vtkImageMedian3D;};
   const char *GetClassName() {return "vtkImageMedian3D";};
 
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-  
   // Set the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
+
+  // used in median calc
+  int NumberOfElements;
   
 protected:
 
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6]);
 
 };
 

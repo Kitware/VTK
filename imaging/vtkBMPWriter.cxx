@@ -47,7 +47,7 @@ vtkBMPWriter::vtkBMPWriter()
 
 void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3;
+  int min0, max0, min1, max1, min2, max2;
   int bpp;
   long temp;
   int width, height, dataWidth;

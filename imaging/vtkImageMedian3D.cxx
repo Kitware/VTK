@@ -49,20 +49,6 @@ vtkImageMedian3D::vtkImageMedian3D()
 {
   this->SetKernelSize(1,1,1);
   this->HandleBoundaries = 1;
-
-  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageMedian3D::SetFilteredAxes(int axis0, int axis1, int axis2)
-{
-  int axes[3];
-
-  axes[0] = axis0;
-  axes[1] = axis1;
-  axes[2] = axis2;
-  this->vtkImageSpatialFilter::SetFilteredAxes(3, axes);
 }
 
 //----------------------------------------------------------------------------
@@ -91,11 +77,107 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   this->KernelMiddle[2] = size2 / 2;
   volume *= size2;
 
-  this->KernelSize[3] = 1;
-  this->KernelMiddle[3] = 0;
-
-  this->SetNumberOfElements(volume);
+  this->NumberOfElements = volume;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Add a sample to the median computation
+double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
+					 int &UpMax, int &DownMax,
+					 int &NumNeighborhood,
+					 double *Median, double val)
+{
+  int idx, max;
+  double temp, *ptr;
+
+  // special case: no samples yet 
+  if (UpNum == 0)
+    {
+    *(Median) = val;
+    // length of up and down arrays inclusive of current 
+    UpNum = DownNum = 1; 
+    // median is gaurenteed to be in this range (length of array) 
+    DownMax = UpMax = (NumNeighborhood + 1) / 2;
+    return Median;
+    }
+
+  // Case: value is above median 
+  if (val >= *(Median))
+    {
+    // move the median if necessary
+    if (UpNum > DownNum)
+      {
+      // Move the median Up one 
+      ++Median;
+      --UpNum;
+      ++DownNum;
+      --UpMax;
+      ++DownMax;
+      }
+    // find the position for val in the sorted array
+    max = (UpNum < UpMax) ? UpNum : UpMax;
+    ptr = Median;
+    idx = 0;
+    while (val >= *ptr && idx < max)
+      {
+      ++ptr;
+      ++idx;
+      }
+    // place val and move all others up
+    while (idx <= max)
+      {
+      temp = *ptr;
+      *ptr = val;
+      val = temp;
+      ++ptr;
+      ++idx;
+      }
+    // Update counts
+    ++UpNum;
+    --DownMax;
+    return Median;
+    }
+
+
+  // Case: value is below median 
+  if (val <= *(Median))
+    {
+    // move the median if necessary
+    if (DownNum > UpNum)
+      {
+      // Move the median Down one 
+      --Median;
+      --DownNum;
+      ++UpNum;
+      --DownMax;
+      ++UpMax;
+      }
+    // find the position for val in the sorted array
+    max = (DownNum < DownMax) ? DownNum : DownMax;
+    ptr = Median;
+    idx = 0;
+    while (val <= *ptr && idx < max)
+      {
+      --ptr;
+      ++idx;
+      }
+    // place val and move all others up
+    while (idx <= max)
+      {
+      temp = *ptr;
+      *ptr = val;
+      val = temp;
+      --ptr;
+      ++idx;
+      }
+    // Update counts
+    ++DownNum;
+    --UpMax;
+    return Median;
+    }
+  return Median;
 }
 
 
@@ -105,17 +187,16 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
 // templated function for the mask types.
 template <class T>
 static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
-			   vtkImageRegion *inRegion, T *inPtr, 
-			   vtkImageRegion *outRegion, T *outPtr)
+				    vtkImageData *inData, T *inPtr, 
+				    vtkImageData *outData, T *outPtr,
+				    int outExt[6])
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
-  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  int outIdxC, outIncX, outIncY, outIncZ;
   T *inPtr0, *inPtr1, *inPtr2;
-  T *outPtr0, *outPtr1, *outPtr2;
   // For looping through hood pixels
   int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
   int hoodStartMin0, hoodStartMax0, hoodStartMin1, hoodStartMax1;
@@ -123,31 +204,36 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   T *tmpPtr0, *tmpPtr1, *tmpPtr2;
   // The portion of the out image that needs no boundary processing.
   int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
+  int numComp;
+  // variables for the median calc
+  int UpNum, DownNum, UpMax, DownMax;
+  double *Median;
+  double *Sort = new double[(self->NumberOfElements + 8)];
+  int *inExt;
   
   // Get information to march through data
-  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
-  outRegion->GetIncrements(outInc0, outInc1, outInc2); 
-  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inData->GetIncrements(inInc0, inInc1, inInc2); 
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   kernelMiddle = self->KernelMiddle;
   kernelSize = self->KernelSize;
   
-  hoodMin0 = outMin0 - kernelMiddle[0]; 
-  hoodMin1 = outMin1 - kernelMiddle[1]; 
-  hoodMin2 = outMin2 - kernelMiddle[2]; 
+  numComp = inData->GetNumberOfScalarComponents();
+
+  hoodMin0 = outExt[0] - kernelMiddle[0]; 
+  hoodMin1 = outExt[2] - kernelMiddle[1]; 
+  hoodMin2 = outExt[4] - kernelMiddle[2]; 
   hoodMax0 = kernelSize[0] + hoodMin0 - 1;
   hoodMax1 = kernelSize[1] + hoodMin1 - 1;
   hoodMax2 = kernelSize[2] + hoodMin2 - 1;
   
   // Clip by the input image extent
-  inRegion->GetWholeExtent(middleMin0, middleMax0, 
-			   middleMin1, middleMax1, 
-			   middleMin2, middleMax2);
-  hoodMin0 = (hoodMin0 > middleMin0) ? hoodMin0 : middleMin0;
-  hoodMin1 = (hoodMin1 > middleMin1) ? hoodMin1 : middleMin1;
-  hoodMin2 = (hoodMin2 > middleMin2) ? hoodMin2 : middleMin2;
-  hoodMax0 = (hoodMax0 < middleMax0) ? hoodMax0 : middleMax0;
-  hoodMax1 = (hoodMax1 < middleMax1) ? hoodMax1 : middleMax1;
-  hoodMax2 = (hoodMax2 < middleMax2) ? hoodMax2 : middleMax2;
+  inExt = inData->GetExtent();
+  hoodMin0 = (hoodMin0 > inExt[0]) ? hoodMin0 : inExt[0];
+  hoodMin1 = (hoodMin1 > inExt[2]) ? hoodMin1 : inExt[2];
+  hoodMin2 = (hoodMin2 > inExt[4]) ? hoodMin2 : inExt[4];
+  hoodMax0 = (hoodMax0 < inExt[1]) ? hoodMax0 : inExt[1];
+  hoodMax1 = (hoodMax1 < inExt[3]) ? hoodMax1 : inExt[3];
+  hoodMax2 = (hoodMax2 < inExt[5]) ? hoodMax2 : inExt[5];
 
   // Save the starting neighborhood dimensions (2 loops only once)
   hoodStartMin0 = hoodMin0;    hoodStartMax0 = hoodMax0;
@@ -162,49 +248,54 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   middleMax2 -= (kernelSize[2] - 1) - kernelMiddle[2];
   
   // loop through pixel of output
-  outPtr2 = outPtr;
   inPtr2 = inPtr;
-  for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+  for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
     {
-    outPtr1 = outPtr2;
     inPtr1 = inPtr2;
     hoodMin1 = hoodStartMin1;
     hoodMax1 = hoodStartMax1;
-    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+    for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
       {
-      outPtr0 = outPtr1;
       inPtr0 = inPtr1;
       hoodMin0 = hoodStartMin0;
       hoodMax0 = hoodStartMax0;
-      for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+      for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
 	{
-	
-	// Compute median of neighborhood
-	// Note: For boundary, NumNeighborhood could be changed for
-	// a faster sort.
-	self->ClearMedian();
-	// loop through neighborhood pixels
-	tmpPtr2 = inPtr0;
-	for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+	for (outIdxC = 0; outIdxC < numComp; outIdxC++)
 	  {
-	  tmpPtr1 = tmpPtr2;
-	  for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+	  // Compute median of neighborhood
+	  // Note: For boundary, NumNeighborhood could be changed for
+	  // a faster sort.
+	  DownNum = UpNum = 0;
+          Median = Sort + (self->NumberOfElements / 2) + 4;
+	  // loop through neighborhood pixels
+	  tmpPtr2 = inPtr0 + outIdxC;
+	  for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
 	    {
-	    tmpPtr0 = tmpPtr1;
-	    for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+	    tmpPtr1 = tmpPtr2;
+	    for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
 	      {
-	      // Add this pixel to the median
-	      self->AccumulateMedian(double(*tmpPtr0));
-	      
-	      tmpPtr0 += inInc0;
+	      tmpPtr0 = tmpPtr1;
+	      for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+		{
+		// Add this pixel to the median
+		Median = vtkImageMedian3DAccumulateMedian(UpNum, DownNum, 
+							  UpMax, DownMax,
+							  self->NumberOfElements,
+							  Median,
+							  double(*tmpPtr0));
+		
+		tmpPtr0 += inInc0;
+		}
+	      tmpPtr1 += inInc1;
 	      }
-	    tmpPtr1 += inInc1;
+	    tmpPtr2 += inInc2;
 	    }
-	  tmpPtr2 += inInc2;
-	  }
 	
-	// Replace this pixel with the hood median
-        *outPtr0 = (T)(self->GetMedian());
+	  // Replace this pixel with the hood median
+	  *outPtr = (T)(*Median);
+	  outPtr++;
+	  }
 	
 	// shift neighborhood considering boundaries
 	if (outIdx0 >= middleMin0)
@@ -216,8 +307,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 	  {
 	  ++hoodMax0;
 	  }
-	outPtr0 += outInc0;
-      }
+	}
       // shift neighborhood considering boundaries
       if (outIdx1 >= middleMin1)
 	{
@@ -228,7 +318,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 	{
 	++hoodMax1;
 	}
-      outPtr1 += outInc1;
+      outPtr += outIncY;
     }
     // shift neighborhood considering boundaries
     if (outIdx2 >= middleMin2)
@@ -240,63 +330,61 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
       {
       ++hoodMax2;
       }
-    outPtr2 += outInc2;
+    outPtr += outIncZ;
     }
+
+  delete [] Sort;
+  
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian3D::Execute(vtkImageRegion *inRegion, 
-			     vtkImageRegion *outRegion)
+void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
+				       vtkImageData *outData,
+				       int outExt[6])
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-             << ", must match out ScalarType " << outRegion->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMedian3DExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+      vtkImageMedian3DExecute(this, inData, (float *)(inPtr), 
+			      outData, (float *)(outPtr),outExt);
       break;
     case VTK_INT:
-      vtkImageMedian3DExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+      vtkImageMedian3DExecute(this, inData, (int *)(inPtr), 
+			      outData, (int *)(outPtr),outExt);
       break;
     case VTK_SHORT:
-      vtkImageMedian3DExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+      vtkImageMedian3DExecute(this, inData, (short *)(inPtr), 
+			      outData, (short *)(outPtr),outExt);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMedian3DExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageMedian3DExecute(this, inData, (unsigned short *)(inPtr), 
+			      outData, (unsigned short *)(outPtr),outExt);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMedian3DExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageMedian3DExecute(this, inData, (unsigned char *)(inPtr), 
+			      outData, (unsigned char *)(outPtr),outExt);
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }
-
 
 
