@@ -158,6 +158,12 @@ static void FinalPass(void *inf, void *mf)
   int numDepends, numArgs;
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
   const char *resultDirectory = "${VTK_JAVA_HOME}";
+
+  /* If the first pass terminated early, we have nothing to do.  */
+  if(!cdata)
+    {
+    return;
+    }  
   
   /* wrap all the .h files */
   depends[0] = wjava;

@@ -384,7 +384,7 @@ static void FinalPass(void *inf, void *mf)
   /* get our client data from initial pass */
   cmVTKWrapTclData *cdata = 
     (cmVTKWrapTclData *)info->CAPI->GetClientData(info);
-  
+
   /* first we add the rules for all the .h to Tcl.cxx files */
   const char *wtcl = "${VTK_WRAP_TCL_EXE}";
   const char *hints = info->CAPI->GetDefinition(mf,"VTK_WRAP_HINTS");
@@ -393,6 +393,12 @@ static void FinalPass(void *inf, void *mf)
   int i;
   int numDepends, numArgs;
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+  
+  /* If the first pass terminated early, we have nothing to do.  */
+  if(!cdata)
+    {
+    return;
+    }
   
   /* wrap all the .h files */
   depends[0] = wtcl;
