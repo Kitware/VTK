@@ -64,6 +64,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Get name of rendering window
+  vtkGetStringMacro(WindowName);
+
+  // Description:
   // Object factory for this class.
   static vtkImageViewer *New();
 
@@ -146,12 +150,23 @@ public:
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *) = 0;
   
+  // Description:
+  // Keep track of whether the rendering window has been mapped to screen.
+  vtkSetMacro(Mapped,int);
+  vtkGetMacro(Mapped,int);
+  vtkBooleanMacro(Mapped,int);
+
+  // Description:
+  // Set/Get the size of the window in screen coordinates.
+  virtual int *GetSize() {return (int *)NULL;};
+  virtual void SetSize(int,int) {};
+  virtual void SetSize(int a[2]);
+
 protected:
   // location of upper left corner in window.
   int                  XOffset;
   int                  YOffset;
-  
-  
+  int Mapped;
   vtkImageSource *Input;
   int WholeImage;
   // Contains the extent of the region to be displayed.
@@ -166,6 +181,8 @@ protected:
   int Red;
   int Green;
   int Blue;
+  char *WindowName;
+  int Size[2];
 };
 
 #endif

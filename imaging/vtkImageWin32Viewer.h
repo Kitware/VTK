@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageViewer.cxx
+  Module:    vtkImageWin32Viewer.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -39,76 +38,73 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageViewer.h"
-#ifndef _WIN32
-#include "vtkImageXViewer.h"
+// .NAME vtkImageWin32Viewer - Display a 2d image in an Win32Window.
+// .SECTION Description
+// vtkImageWin32Viewer displays a 2d image in an Win32 window.
+
+#ifndef __vtkImageWin32Viewer_h
+#define __vtkImageWin32Viewer_h
+
+
+#include 	"vtkImageViewer.h"
+
+class VTK_EXPORT vtkImageWin32Viewer : public vtkImageViewer 
+{
+public:
+  HINSTANCE ApplicationInstance;
+  HPALETTE  Palette;
+  HDC       DeviceContext;
+  HWND      WindowId;
+  HWND      ParentId;
+
+  vtkImageWin32Viewer();
+  ~vtkImageWin32Viewer();
+  char *GetClassName() {return "vtkImageWin32Viewer";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // output to the viewer.
+  vtkImageWin32Viewer *GetOutput(){return this;};
+
+  void Render(void);
+  
+  void SetWindow(int win);
+  int GetWindow();
+  
+  // Description:
+  // Gets the number of colors in the pseudo color map.
+  vtkGetMacro(NumberOfColors,int);
+  
+  // Description:
+  // Gets the windows depth. For the templated function.
+  vtkGetMacro(VisualDepth,int);
+  
+  // Description:
+  // Gets the windows visual class. For the templated function.
+  vtkGetMacro(VisualClass,int);
+  
+  // Description:
+  // Window/level information used by templated function.
+  float GetColorShift();
+  float GetColorScale();
+
+  //BTX
+  HWND      GetWindowId();
+  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+  void      SetWindowId(HWND);
+  void      SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+  void      SetParentId(HWND);
+  void      SetDeviceContext(HDC);
+  //ETX
+
+  void SetSize(int,int);
+  int *GetSize();
+
+protected:
+  int OwnWindow; // do we create this window ?
+  void MakeDefaultWindow();
+  
+};
+
 #endif
-
-//----------------------------------------------------------------------------
-vtkImageViewer::vtkImageViewer()
-{
-  this->Size[0] = 0;
-  this->Size[1] = 0;
-  this->Input = NULL;
-  this->WholeImage = 1;
-  this->Coordinate2 = 0;
-  this->Coordinate3 = 0;
-  this->Mapped = 0;
-  
-  this->ColorWindow = 255.0;
-  this->ColorLevel = 127.0;
-  this->ColorFlag = 0;
-  this->Red = 0;
-  this->Green = 1;
-  this->Blue = 2;
-
-  this->XOffset = 0;
-  this->YOffset = 0;
-}
-
-
-//----------------------------------------------------------------------------
-vtkImageViewer::~vtkImageViewer()
-{
-}
-
-void vtkImageViewer::SetSize(int a[2])
-{
-  this->SetSize(a[0],a[1]);
-}
-
-//----------------------------------------------------------------------------
-vtkImageViewer *vtkImageViewer::New()
-{
-#ifndef _WIN32
-  return new vtkImageXViewer;
-#endif  
-  cerr << "vtkImageViewer: New: No viewers defined.\n";
-  return NULL;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
-{
-  int *b;
-  
-  vtkObject::PrintSelf(os, indent);
-  b = this->Region.GetExtent();
-  os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
-     << ", " << b[3] << ")\n";
-  os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
-  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
-}
-
-
-
-
-
-
-
-
-
-
 
 
