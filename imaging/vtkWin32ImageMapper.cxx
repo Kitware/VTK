@@ -213,7 +213,7 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
 	  *outPtr++ = 0;
 	  *outPtr++ = 0;
 	  }
-	else if (*inPtr0 >= upper)
+	else if (*inPtr0 > upper)
 	  {
 	  *outPtr++ = 255;
 	  *outPtr++ = 255;
@@ -285,7 +285,7 @@ static void vtkWin32ImageMapperRenderFloatGray(vtkWin32ImageMapper *self,
 	*outPtr++ = 0;
 	*outPtr++ = 0;
 	}
-      else if (*inPtr0 >= upper)
+      else if (*inPtr0 > upper)
 	{
 	*outPtr++ = 255;
 	*outPtr++ = 255;

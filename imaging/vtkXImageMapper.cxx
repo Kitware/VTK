@@ -322,14 +322,14 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       while (inPtr0 != endPtr)
 	{
 	*ulOutPtr = 0;
-	if (*inPtr0 <= lower)	  
+	if (*inPtr0 < lower)	  
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
 	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
 	  }
-	else if (*inPtr0 >= upper)
+	else if (*inPtr0 > upper)
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
@@ -352,14 +352,14 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       while (inPtr0 != endPtr)
 	{
         *ulOutPtr = 0;
-	if (*inPtr0 <= lower) 
+	if (*inPtr0 < lower) 
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
 	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
 	  }
-	else if (*inPtr0 >= upper)
+	else if (*inPtr0 > upper)
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
@@ -381,11 +381,11 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       {
       while (inPtr0 != endPtr)
 	{
-	if (*inPtr0 <= lower) 
+	if (*inPtr0 < lower) 
 	  {
 	  *outPtr++ = lowerPixel;
 	  }
-	else if (*inPtr0 >= upper)
+	else if (*inPtr0 > upper)
 	  {
 	  *outPtr++ = upperPixel;
 	  }
@@ -495,16 +495,16 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
-      if (*redPtr0 <= lower) red = 0;
-      else if (*redPtr0 >= upper) red = 255;
+      if (*redPtr0 < lower) red = 0;
+      else if (*redPtr0 > upper) red = 255;
       else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
-      if (*greenPtr0 <= lower) green = 0;
-      else if (*greenPtr0 >= upper) green = 255;
+      if (*greenPtr0 < lower) green = 0;
+      else if (*greenPtr0 > upper) green = 255;
       else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
   
-      if (*bluePtr0 <= lower) blue = 0;
-      else if (*bluePtr0 >= upper) blue = 255;
+      if (*bluePtr0 < lower) blue = 0;
+      else if (*bluePtr0 > upper) blue = 255;
       else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
 
       *ulOutPtr = 0;
@@ -566,8 +566,8 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
     this->DataOut = new unsigned char[size];
     if (!this->DataOut)
       {
-	vtkErrorMacro(<< "Could not reallocate data out.");
-	return;
+      vtkErrorMacro(<< "Could not reallocate data out.");
+      return;
       }
     this->DataOutSize = size;
     vtkDebugMacro(<<"vtkXImageMapper::RenderData - Reallocated DataOut");
