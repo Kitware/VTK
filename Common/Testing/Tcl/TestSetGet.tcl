@@ -10,13 +10,6 @@ a GlobalWarningDisplayOff
 a Delete
 
 set exceptions {
-vtkImageExport-GetDataMemorySize
-vtkImageExport-GetDataDimensions
-vtkImageExport-GetDataNumberOfScalarComponents
-vtkImageExport-GetDataExtent
-vtkImageExport-GetDataSpacing
-vtkImageExport-GetDataOrigin
-vtkImageExport-GetDataScalarType
 vtkLODProp3D-GetPickLODID
 vtkObject-GetSuperClassName
 vtkPropAssembly-GetBounds
