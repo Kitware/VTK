@@ -15,9 +15,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTIFFWriter - write out structured points as a TIFF file
+// .NAME vtkTIFFWriter - write out image data as a TIFF file
 // .SECTION Description
-// vtkTIFFWriter writes structured points as a non-compressed TIFF data file.
+// vtkTIFFWriter writes image data as a TIFF data file. Data can be written
+// uncompressed or compressed. Several forms of compression are supported
+// including packed bits, JPEG, deflation, and LZW. (Note: LZW compression
+// is currently under patent in the US and is disabled until the patent
+// expires. However, the mechanism for supporting this compression is available
+// for those with a valid license or to whom the patent does not apply.)
 
 #ifndef __vtkTIFFWriter_h
 #define __vtkTIFFWriter_h
@@ -45,6 +50,7 @@ public:
   // Set compression type. Sinze LZW compression is patented outside US, the
   // additional work steps have to be taken in order to use that compression.
   vtkSetClampMacro(Compression, int, NoCompression, LZW);
+  vtkGetMacro(Compression, int);
   void SetCompressionToNoCompression() { this->SetCompression(NoCompression); }
   void SetCompressionToPackBits()      { this->SetCompression(PackBits); }
   void SetCompressionToJPEG()          { this->SetCompression(JPEG); }
@@ -53,15 +59,13 @@ public:
 
 protected:
   vtkTIFFWriter();
-  ~vtkTIFFWriter() {};
+  ~vtkTIFFWriter() {}
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, 
-                         int ext[6]);
+  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
   virtual void WriteFileTrailer(ofstream *, vtkImageData *);
 
   void* TIFFPtr;
-
   int Compression;
 
 private:

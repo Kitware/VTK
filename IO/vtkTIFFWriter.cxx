@@ -23,7 +23,7 @@
 #include "vtkErrorCode.h"
 #include <tiffio.h>
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.29");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.30");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -270,4 +270,26 @@ void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
 void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Compression: ";
+  if ( this->Compression == vtkTIFFWriter::PackBits )
+    {
+    os << "Pack Bits\n";
+    }
+  else if ( this->Compression == vtkTIFFWriter::JPEG )
+    {
+    os << "JPEG\n";
+    }
+  else if ( this->Compression == vtkTIFFWriter::Deflate )
+    {
+    os << "Deflate\n";
+    }
+  else if ( this->Compression == vtkTIFFWriter::LZW )
+    {
+    os << "LZW\n";
+    }
+  else //if ( this->Compression == vtkTIFFWriter::NoCompression )
+    {
+    os << "No Compression\n";
+    }
 }
