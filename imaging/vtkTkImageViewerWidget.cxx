@@ -362,6 +362,8 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
   struct vtkTkImageViewerWidget *self = 
     (struct vtkTkImageViewerWidget *)GetWindowLong(hWnd,GWL_USERDATA);
   
+  if (!self) return 0;
+
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
@@ -430,7 +432,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 
     if (message != WM_PAINT)
       {
-      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer);
+      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetImageWindow());
       SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
       self->OldProc(hWnd,message,wParam,lParam);
       }
