@@ -165,11 +165,10 @@ static void ComputeGradients(
 	// Compute the gradient magnitude
 	t = sqrt( (double)( n[0]*n[0] + 
 			    n[1]*n[1] + 
-			    n[2]*n[2] ) ) * normalize_factor;
+			    n[2]*n[2] ) );
 	
-	// Encode this into an 8 bit value - this method is changing
-	// in the near future
-	gvalue = t * estimator->GradientMagnitudeScale + 
+	// Encode this into an 8 bit value 
+	gvalue = t * normalize_factor * estimator->GradientMagnitudeScale + 
 	  estimator->GradientMagnitudeBias;
 	  
 	if ( gvalue < 0.0 )
