@@ -24,3 +24,6 @@
 #ifdef JAVA_AWT_INCLUDE_PATH
   #define VTK_USE_JAWT 
 #endif
+
+/* debug leaks */
+#cmakedefine VTK_DEBUG_LEAKS

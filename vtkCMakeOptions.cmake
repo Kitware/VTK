@@ -10,6 +10,8 @@ IF (VTK_USE_RENDERING)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Rendering) 
 ENDIF (VTK_USE_RENDERING)
 
+OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
+
 OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
 IF (VTK_USE_HYBRID)
   # hybrid requires rendering
