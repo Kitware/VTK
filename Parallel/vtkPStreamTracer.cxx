@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.12");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.13");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -371,6 +371,8 @@ void vtkPStreamTracer::Execute()
   this->IntegrationDirections = 0;
   this->SeedIds->Delete();
   this->SeedIds = 0;
+
+  output->Squeeze();
 }
 
 void vtkPStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
