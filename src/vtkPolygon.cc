@@ -48,7 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 static vtkPlane plane;
 static vtkMath math;
-static vtkLine line;
 
 // Description:
 // Deep copy of cell.
@@ -187,6 +186,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
   float ray[3];
+  static vtkLine line;
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
@@ -333,6 +333,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int maxComp, comps[2];
   int deltaVotes;
   int numPts=this->Points.GetNumberOfPoints();
+  static vtkLine line;
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
 //  normal of the face.  The length of the ray is a function of the
@@ -745,6 +746,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
 vtkCell *vtkPolygon::GetEdge(int edgeId)
 {
   int numPts=this->Points.GetNumberOfPoints();
+  static vtkLine line;
 
   // load point id's
   line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
