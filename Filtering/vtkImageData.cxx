@@ -42,7 +42,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.9");
+vtkCxxRevisionMacro(vtkImageData, "1.10");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -162,26 +162,15 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
       }
 
     // copy of input to output (if input exists) occurs in vtkDataObject, so
-    // only to to check if the scalar info exists in the field data info of the output.
-    // If it exists, then we assume the type and number of components are set
+    // only to to check need to check if the scalar info exists in the field
+    // data info of the output.  If it exists, then we assume the type and 
+    // number of components are set; if not, set type and number of components
+    // to default values
     vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(output, 
       FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (!scalarInfo)
       {
-      // see if we have the scalars to grab the name from
-      const char *scalarName = NULL;
-      vtkDataArray *scalars = this->GetPointData()->GetScalars();
-      if (scalars)
-        {
-        scalarName = scalars->GetName();
-        }
-
-      scalarInfo = vtkDataObject::SetActiveAttribute(output, 
-        vtkDataObject::FIELD_ASSOCIATION_POINTS, scalarName, 
-        vtkDataSetAttributes::SCALARS);
-
-      scalarInfo->Set(FIELD_ARRAY_TYPE(), this->GetScalarType());
-      scalarInfo->Set(FIELD_NUMBER_OF_COMPONENTS(), this->GetNumberOfScalarComponents());
+      vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
       }
     }
 }
