@@ -41,6 +41,7 @@ IF (VTK_USE_RENDERING)
       Delaunay2D
       Delaunay2DAlpha
       Delaunay2DTransform
+      Delaunay3D
       dicer
       Disk
       edgePoints
