@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHedgeHog.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkHedgeHog* vtkHedgeHog::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkHedgeHog* vtkHedgeHog::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkHedgeHog;
 }
-
-
-
 
 void vtkHedgeHog::Execute()
 {
@@ -74,10 +69,8 @@ void vtkHedgeHog::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
-  //
   // Initialize
   //
-
   numPts = input->GetNumberOfPoints();
   pd = input->GetPointData();
   inVectors = pd->GetVectors();
@@ -91,11 +84,20 @@ void vtkHedgeHog::Execute()
   newPts = vtkPoints::New(); newPts->SetNumberOfPoints(2*numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numPts,2));
-//
-// Loop over all points, creating oriented line
-//
+
+  // Loop over all points, creating oriented line
+  //
   for (ptId=0; ptId < numPts; ptId++)
     {
+    if ( ! (i % 10000) ) //abort/progress
+      {
+      this->UpdateProgress ((float)ptId/numPts);
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
+      }
+    
     x = input->GetPoint(ptId);
     v = inVectors->GetVector(ptId);
     for (i=0; i<3; i++)
@@ -114,9 +116,9 @@ void vtkHedgeHog::Execute()
     outputPD->CopyData(pd,ptId,pts[0]);
     outputPD->CopyData(pd,ptId,pts[1]);
     }
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
