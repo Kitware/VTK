@@ -85,6 +85,11 @@ ENDIF (VTK_WRAP_JAVA)
 
 OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 
+#
+# try to find the data files for VTKData
+#
+FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData)
+
 # where will executable tests be written ?
 IF (EXECUTABLE_OUTPUT_PATH)
     SET (CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
@@ -95,6 +100,7 @@ ENDIF (EXECUTABLE_OUTPUT_PATH)
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 
 IF (VTK_USE_RENDERING)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
   SUBDIRS(Rendering)
   SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
 ENDIF (VTK_USE_RENDERING)

@@ -1,10 +1,13 @@
 #
 # This file can be included by other projects that use or depend on VTK
-# it sets up many default parameters and include paths
+# it sets up many default parameters and include paths.
+# Please do not add any commands which creates/sets cache entries
+# in this file since it is usually used in combination with the
+# LOAD_CACHE() command. Otherwise, the same entry will be set
+# more than once and the results will be unpredictable.
 #
 
 IF (VTK_USE_RENDERING)
-  INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
   INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Rendering) 
 ENDIF (VTK_USE_RENDERING)
@@ -100,11 +103,6 @@ ENDIF (NOT LIBRARY_OUTPUT_PATH)
 IF (BUILD_TESTING)
   INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Common/Testing/Cxx)
 ENDIF (BUILD_TESTING)
-
-#
-# try to find the data files for VTKData
-#
-FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
   IF(WIN32)
