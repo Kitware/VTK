@@ -23,6 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 static vlPolygon poly;
 static vlMath math;
 static vlPlane plane;
+static vlLine line;
 
 // Description:
 // Deep copy of cell.
@@ -36,38 +37,14 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
-  int i;
-  float distanceToLine;
   vlLine *aLine;
-  int inOut;
-
-  // find the distance to the plane of the triangle
-  inOut = this->_EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
-
-  // now find distance to each line of the triangle
-  for (i = 0; i < 3; i++) {
-    // get the edge
-    aLine = (vlLine *) this->GetEdge (i);
-    // find distance to edge
-    aLine->EvaluatePosition (x, closestPoint, subId, pcoords, distanceToLine, weights);
-    // if its closer, replace old distance
-    if (distanceToLine < dist2) {
-      dist2 = distanceToLine;
-    }
-  }
-  return inOut;
-}
-
-int vlTriangle::_EvaluatePosition(float x[3], float closestPoint[3],
-                                 int& subId, float pcoords[3], 
-                                 float& dist2, float weights[MAX_CELL_SIZE])
-{
   int i, j;
   float *pt1, *pt2, *pt3, n[3];
   float rhs[2], c1[2], c2[2];
   float det;
   float maxComponent;
   int idx, indices[2];
+  int edge;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -129,19 +106,13 @@ int vlTriangle::_EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    for (i=0; i<2; i++)
-      {
-      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
-      if (pcoords[i] > 1.0) pcoords[i] = 1.0;
-      }
-    if ( (1.0 - pcoords[0] - pcoords[1]) < 0.0 )
-      {
-      float ratio = pcoords[0]/pcoords[1];
-      pcoords[1] = 1.0 / (1.0 + ratio);
-      pcoords[0] = ratio * pcoords[1];
-      }
-    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    if ( (1.0 - pcoords[0] - pcoords[1]) < 0.0 ) edge = 1;
+    else if ( pcoords[0] < 0.0)	edge = 2;
+    else if (pcoords[1] < 0.0)	edge = 0;
+
+    // find distance to edge
+    aLine = (vlLine *) this->GetEdge (edge);
+    aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
     return 0;
     }
 }
@@ -150,18 +121,18 @@ void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                   float weights[MAX_CELL_SIZE])
 {
   float u3;
-  float *pt1, *pt2, *pt3;
+  float *pt0, *pt1, *pt2;
   int i;
 
+  pt0 = this->Points.GetPoint(0);
   pt1 = this->Points.GetPoint(1);
   pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(0);
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)
     {
-    x[i] = pt1[i]*pcoords[0] + pt2[i]*pcoords[1] + pt3[i]*u3;
+    x[i] = pt0[i]*u3 + pt1[i]*pcoords[0] + pt2[i]*pcoords[1];
     }
 
   weights[0] = u3;
@@ -264,15 +235,17 @@ void vlTriangle::Contour(float value, vlFloatScalars *cellScalars,
 
 vlCell *vlTriangle::GetEdge(int edgeId)
 {
-  static vlLine line;
+  int edgeIdPlus1 = edgeId + 1;
+
+  if ((edgeIdPlus1 + 1) > 2) edgeIdPlus1 = 0;
 
   // load point id's
   line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % 3));
+  line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
 
   // load coordinates
   line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % 3));
+  line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
 
   return &line;
 }
