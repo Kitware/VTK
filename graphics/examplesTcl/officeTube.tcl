@@ -224,17 +224,27 @@ vtkActor outlineActor
     [outlineActor GetProperty] SetColor 0 0 0
 
 # Create source for streamtubes
+vtkPointSource seeds
+    seeds SetRadius 0.15
+    eval seeds SetCenter 0.1 2.1 0.5
+    seeds SetNumberOfPoints 3
+# Create the integrator
+vtkRungeKutta4 integ
+
 vtkStreamLine streamer
     streamer SetInput [reader GetOutput]
-    streamer SetStartPosition 0.1 2.1 0.5
+#    streamer SetStartPosition 0.1 2.1 0.5
+    streamer SetSource [seeds GetOutput]
     streamer SetMaximumPropagationTime 500
     streamer SetStepLength 0.5
+    streamer SetIntegrationStepLength 0.05
     streamer SetIntegrationDirectionToIntegrateBothDirections
-    streamer Update
+    streamer SetIntegrator integ
+
 vtkTubeFilter streamTube
     streamTube SetInput [streamer GetOutput]
-    streamTube SetRadius 0.05
-    streamTube SetNumberOfSides 6
+    streamTube SetRadius 0.02
+    streamTube SetNumberOfSides 12
     streamTube SetVaryRadiusToVaryRadiusByVector
 vtkPolyDataMapper mapStreamTube
     mapStreamTube SetInput [streamTube GetOutput]
