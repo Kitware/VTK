@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkObject.h
+  Module:    vtkWin32Header.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
+  Thanks:    to Horst Schreiber for developing this MFC code
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,79 +38,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkObject - abstract base class for most of the vtk objects
-// .SECTION Description
-// vtkObject is the base class for many objects in the visualization 
-// toolkit. vtkObject provides methods for tracking modification times, 
-// debugging, and printing. Most objects created within the vtk 
-// framework should be a subclass of vtkObject or one of its children.
-// The few exceptions tend to be very small helper classes that usually
-// never get instantiated or situations where multiple inheritance
-// gets in the way. 
 
-#ifndef __vtkObject_h
-#define __vtkObject_h
+#ifndef __vtkWIN32Header_h
+#define __vtkWIN32Header_h
 
-#include <iostream.h>
-#ifdef _WIN32
-#include "vtkWin32Header.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fstream.h>
+#include <math.h>
+
+#include <afxwin.h>  // MFC core and standard components
+#include <afxext.h>  // MFC extensions
+#ifdef stdio
+#undef stdout
+#undef stderr
+#define stdout afxDump
+#define stderr afxDump
 #endif
-#include "vtkTimeStamp.h"
-#include "vtkSetGet.h"
-#include "vtkIndent.h"
 
-class vtkObject 
-{
-public:
-  vtkObject(); //create a vtk object
-  virtual void Delete(); //delete a vtk object.
-  virtual ~vtkObject(); //use Delete() whenever possible
-  virtual char *GetClassName() {return "vtkObject";};
+#pragma warning ( disable : 4244 )
+#pragma warning ( disable : 4305 )
+#pragma warning ( disable : 4309 )
 
-  // debugging
-  virtual void DebugOn();
-  virtual void DebugOff();
-  int GetDebug();
-  void SetDebug(int debugFlag);
-
-  // modified time
-  virtual unsigned long int GetMTime();
-  virtual void Modified();
-
-  // printing
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
-  void Print(ostream& os);
-  virtual void PrintHeader(ostream& os, vtkIndent indent);
-  virtual void PrintTrailer(ostream& os, vtkIndent indent);
-
-protected:
-  int Debug;         // Enable debug messages
-  vtkTimeStamp MTime; // Keep track of modification time
-
-private:
-  //BTX
-#ifdef _WIN32
 #ifdef VTKDLL
-  friend __declspec(dllexport) 
-    ostream& operator<<(ostream& os, vtkObject& o);  
+#define class class  __declspec( dllexport ) 
 #else
-  friend __declspec(dllimport) 
-     ostream& operator<<(ostream& os, vtkObject& o);
-#endif
-#else  
-  friend ostream& operator<<(ostream& os, vtkObject& o);
-#endif 
-  //ETX
-};
-
-// Description:
-// Update the modification time for this object. Many filters rely on
-// the modification time to determine if they need to recompute their
-// data.
-inline void vtkObject::Modified()
-{
-  this->MTime.Modified();
-}
-
+#define class class __declspec( dllimport )
 #endif
 
+#endif

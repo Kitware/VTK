@@ -25,6 +25,8 @@ extern void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 extern void *vtkTclGetPointerFromObject(char *name,char *result_type);
 extern void vtkTclVoidFunc(void *);
 extern void vtkTclVoidFuncArgDelete(void *);
+extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);
+
 typedef  struct _vtkTclVoidFuncArg 
 {
   Tcl_Interp *interp;

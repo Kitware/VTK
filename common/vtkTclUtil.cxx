@@ -244,3 +244,33 @@ void vtkTclVoidFuncArgDelete(void *arg)
   delete [] arg2->command;
   delete arg2;
 }
+
+void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
+{
+  Tcl_HashSearch srch;
+  Tcl_HashEntry *entry;
+  
+  // iteratively search hash table for command function
+  entry = Tcl_FirstHashEntry(&vtkCommandLookup, &srch);
+  if (!entry) 
+    {
+    interp->result[0] = '\0';
+    return;
+    }
+  if (Tcl_GetHashValue(entry) == arg)
+    {
+    Tcl_AppendResult(interp,Tcl_GetHashKey(&vtkCommandLookup,entry),NULL);
+    }
+  entry = Tcl_NextHashEntry(&srch);
+  while (entry)
+    {
+    if (Tcl_GetHashValue(entry) == arg)
+      {
+      Tcl_AppendResult(interp, " ", Tcl_GetHashKey(&vtkCommandLookup,entry), 
+		       NULL);
+      }
+    entry = Tcl_NextHashEntry(&srch);
+    }
+}
+
+  

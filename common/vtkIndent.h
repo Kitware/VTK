@@ -56,7 +56,19 @@ public:
   vtkIndent GetNextIndent();
   int Indent;
 
-friend ostream& operator<<(ostream& os, vtkIndent& ind);
+  //BTX
+#ifdef _WIN32
+#ifdef VTKDLL
+  friend __declspec(dllexport) 
+    ostream& operator<<(ostream& os, vtkIndent& o);  
+#else
+  friend __declspec(dllimport) 
+     ostream& operator<<(ostream& os, vtkIndent& o);
+#endif
+#else  
+  friend ostream& operator<<(ostream& os, vtkIndent& o);
+#endif 
+  //ETX
 };
 
 #endif

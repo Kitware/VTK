@@ -63,7 +63,7 @@ public:
   // within the program. When this does occur, the typical consequence
   // should be that some filters will update themselves when really
   // they don't need to.
-  void Modified() {this->ModifiedTime = ++vtkTime;};
+  void Modified() {this->ModifiedTime = ++vtkTimeStamp::vtkTime;};
 
   // Description:
   // Return this object's Modified time.

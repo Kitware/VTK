@@ -50,6 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkMath_h
 
 #include <math.h>
+#ifdef _WIN32
+#include "vtkWin32Header.h"
+#endif
 
 class vtkMath
 {

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkByteSwap.h"
+#include <memory.h>
 
 // Description:
 // Swap four byte word.
