@@ -16,6 +16,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyData.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
