@@ -221,7 +221,7 @@ void Set##name (type _arg[4]) \
 // Examples: void SetColor(c,3)
 //
 #define vlSetVectorMacro(name,type,count) \
-void Set##name(type data[], int count) \
+void Set##name(type data[]) \
 { \
   for (int i=0; i<count; i++) if ( data[i] != name[i] ) break; \
   if ( i < count ) \
