@@ -142,30 +142,36 @@ void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
   char name[80];
   Tcl_HashEntry *entry;
 
+  /* if it is NULL then return empty string */
+  if (!temp)
+    {
+    interp->result[0] = '\0';
+    return;
+    }
+  
   /* return a pointer to a vtk Object */
   /* first we must look up the pointer to see if it already exists */
   sprintf(temps,"%p",temp);
   if ((entry = Tcl_FindHashEntry(&vtkPointerLookup,temps))) 
     {
     sprintf(interp->result,"%s",(char *)(Tcl_GetHashValue(entry)));
+    return;
     }
-  /* we must create a new name */
-  else
-    {
-    sprintf(name,"vtkTemp%i",num);
-    num++;
 
-    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,name,&is_new);
-    Tcl_SetHashValue(entry,(ClientData)(temp));
-    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);
-    Tcl_SetHashValue(entry,(ClientData)(strdup(name)));
-    Tcl_CreateCommand(interp,name,command,
-                      (ClientData)(temp),
-                      (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
-    entry = Tcl_CreateHashEntry(&vtkCommandLookup,name,&is_new);
-    Tcl_SetHashValue(entry,(ClientData)command);
-    sprintf(interp->result,"%s",name); 
-    }
+  /* we must create a new name if it isn't NULL */
+  sprintf(name,"vtkTemp%i",num);
+  num++;
+  
+  entry = Tcl_CreateHashEntry(&vtkInstanceLookup,name,&is_new);
+  Tcl_SetHashValue(entry,(ClientData)(temp));
+  entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);
+  Tcl_SetHashValue(entry,(ClientData)(strdup(name)));
+  Tcl_CreateCommand(interp,name,command,
+		    (ClientData)(temp),
+		    (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
+  entry = Tcl_CreateHashEntry(&vtkCommandLookup,name,&is_new);
+  Tcl_SetHashValue(entry,(ClientData)command);
+  sprintf(interp->result,"%s",name); 
 }
       
 void *vtkTclGetPointerFromObject(char *name,char *result_type)
