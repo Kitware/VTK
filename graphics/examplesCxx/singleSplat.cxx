@@ -1,4 +1,17 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkFloatPoints.h"
+#include "vtkCellArray.h"
+#include "vtkFloatNormals.h"
+#include "vtkFloatScalars.h"
+#include "vtkPolyData.h"
+#include "vtkGaussianSplatter.h"
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkOutlineFilter.h"
+#include "vtkConeSource.h"
 
 main ()
 {
