@@ -82,6 +82,19 @@ public:
   static void Swap4LERange(unsigned long *i,int num) 
   { vtkByteSwap::Swap4LERange((char *)i,num);};
 
+  // Description:
+  // Swap eight byte word to be LE.  Currently implemented for doubles, but
+  // will be necessary for 64bit integers? 16bit chars?
+  static void Swap8LE(char *c);
+  static void Swap8LE(double *d) { vtkByteSwap::Swap8LE((char *)d);};
+
+  // Description:
+  // Swap bunch of bytes to be LE. Num is the number of eight byte words to swap.
+  // Currently implemented for doubles...
+  static void Swap8LERange(char *c, int num);
+  static void Swap8LERange(double *d, int num) 
+  { vtkByteSwap::Swap8LERange((char *)d, num);};
+
 
   // Description:
   // For writing, swap four byte word to be BE.
@@ -91,6 +104,13 @@ public:
   static void Swap4BE(float *p) { vtkByteSwap::Swap4BE((char *)p);};
   static void Swap4BE(int *i)   { vtkByteSwap::Swap4BE((char *)i);};
   static void Swap4BE(unsigned long *i) { vtkByteSwap::Swap4BE((char *)i);};
+
+  // Description:
+  // For writing, swap eight byte word to be BE.
+  // For reading, swap eight byte word from BE to machine's internal
+  // representation.
+  static void Swap8BE(char *c);
+  static void Swap8BE(double *d) { vtkByteSwap::Swap8BE((char *)d);};
 
   
   // Description:
@@ -105,6 +125,11 @@ public:
   static void Swap4BERange(vtkIdType *i,int num) 
   { vtkByteSwap::Swap4BERange((char *)i,num); };
 
+  // Description:
+  // Swap bunch of bytes to be BE. Num is the number of eight byte words to swap.
+  static void Swap8BERange(char *c,int num);
+  static void Swap8BERange(double *d,int num) 
+  { vtkByteSwap::Swap8BERange((char *)d,num); };
 
   // Description:
   // Swap bunch of bytes to BE. Num is the number of four byte words to swap.
@@ -129,6 +154,18 @@ public:
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
   static void SwapWrite4BERange(vtkIdType *i,int num, ostream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+
+  // Description:
+  // Swap bunch of bytes to BE. Num is the number of eight byte words to swap.
+  // The results are written out to prevent having to keep the swapped
+  // copy in memory.  Implemented for doubles for now.
+  static void SwapWrite8BERange(char *c,int num,FILE *fp);
+  static void SwapWrite8BERange(double *d,int num, FILE *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)d,num,fp);};
+
+  static void SwapWrite8BERange(char *c,int num, ostream *fp);
+  static void SwapWrite8BERange(double *d,int num, ostream *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)d,num,fp);};
 
 
   // Description:

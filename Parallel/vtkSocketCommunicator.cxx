@@ -180,6 +180,18 @@ int vtkSocketCommunicator::Send(float *data, int length,
 }
 
 //----------------------------------------------------------------------------
+int vtkSocketCommunicator::Send(double *data, int length, 
+				int remoteProcessId, int tag)
+{
+  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
+    {
+    return 0;
+    }
+
+  return SendMessage(data, length, tag, this->Socket);
+}
+
+//----------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
                                            int tag )
 {
@@ -221,10 +233,18 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
       }
     }
 
-  // Unless we've dealing with chars, then check byte ordering
-  if ( this->SwapBytesInReceivedData && size == 4 )
+  // Unless we're dealing with chars, then check byte ordering
+  // This is really bad and should probably use some enum for types
+  if (this->SwapBytesInReceivedData)
     {
-    vtkSwap4Range( data, length );
+      if (size == 4)
+	{
+	  vtkSwap4Range(data, length);
+	}
+      else
+	{
+	  vtkSwap8Range(data, length);
+	}
     }
 
   return 1;
@@ -282,6 +302,17 @@ int vtkSocketCommunicator::Receive(float *data, int length,
     }
 
   return ReceiveMessage( (char *)data, sizeof(float), length, tag);
+}
+
+int vtkSocketCommunicator::Receive(double *data, int length, 
+				   int remoteProcessId, int tag)
+{
+  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
+    {
+    return 0;
+    }
+
+  return ReceiveMessage( (char *)data, sizeof(double), length, tag);
 }
 
 int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
