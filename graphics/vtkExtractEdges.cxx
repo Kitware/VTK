@@ -64,8 +64,8 @@ void vtkExtractEdges::Execute()
   vtkPolyData *output= this->GetOutput();
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  int numCells, cellNum, numEdges, edgeNum, numEdgePts, numCellEdges;
-  int numPts, numNewPts, i, pts[2], pt2, newId;
+  int numCells, cellNum, edgeNum, numEdgePts, numCellEdges;
+  int numPts, i, pts[2], pt2, newId;
   int pt1 = 0;
   float *x;
   vtkEdgeTable *edgeTable;
@@ -86,8 +86,6 @@ void vtkExtractEdges::Execute()
 
   // Set up processing
   //
-  numNewPts = 0;
-  numEdges = 0;
   edgeTable = vtkEdgeTable::New();
   edgeTable->InitEdgeInsertion(numPts);
   newPts = vtkPoints::New();

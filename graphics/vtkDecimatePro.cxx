@@ -1204,7 +1204,7 @@ int vtkDecimatePro::IsValidSplit(int index)
 {
   int i, j, sign, fedges[2];
   int nverts=this->V->MaxId+1;
-  float *x, val, absVal, sPt[3], v21[3], sN[3];
+  float *x, val, sPt[3], v21[3], sN[3];
   int l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   int n1, n2;
 
@@ -1236,7 +1236,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l1[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( (absVal = (float) fabs((double)val)) < this->Tolerance )
+        if ( ((float) fabs((double)val)) < this->Tolerance )
 	  {
 	  return 0;
 	  }
@@ -1259,7 +1259,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l2[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( (absVal = (float) fabs((double)val)) < this->Tolerance )
+        if ( ((float) fabs((double)val)) < this->Tolerance )
 	  {
 	  return 0;
 	  }

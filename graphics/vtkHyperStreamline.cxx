@@ -327,7 +327,7 @@ void vtkHyperStreamline::Execute()
   vtkTensors *inTensors;
   vtkTensor *tensor;
   vtkHyperPoint *sNext, *sPtr;
-  int i, j, k, ptId, offset, subId, iv, ix, iy;
+  int i, j, k, ptId, subId, iv, ix, iy;
   vtkCell *cell;
   float ev[3], xNext[3];
   float d, step, dir, tol2, p[3];
@@ -366,11 +366,10 @@ void vtkHyperStreamline::Execute()
   //
   // Create starting points
   //
-  this->NumberOfStreamers = offset = 1;
+  this->NumberOfStreamers = 1;
  
   if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
     {
-    offset = 2;
     this->NumberOfStreamers *= 2;
     }
 

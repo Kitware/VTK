@@ -85,7 +85,7 @@ static float Origin[3], Spacing[3];
 
 void vtkGaussianSplatter::Execute()
 {
-  int numSplatPts, numPts;
+  int numPts;
   int ptId, i, j, k;
   vtkPointData *pd;
   vtkNormals *inNormals=NULL;
@@ -102,7 +102,7 @@ void vtkGaussianSplatter::Execute()
   //
   //  Make sure points are available
   //
-  if ( (numSplatPts=input->GetNumberOfPoints()) < 1 )
+  if ( input->GetNumberOfPoints() < 1 )
     {
     vtkErrorMacro(<<"No points to splat!");
     return;

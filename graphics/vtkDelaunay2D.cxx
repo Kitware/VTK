@@ -135,7 +135,6 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
   int i, j, npts, *pts, inside, i2, i3, newNei;
   vtkIdList *neighbors;
   double p[3][3], n[2], vp[2], vx[2], dp, minProj;
-  int e1, e2;
 
   // get local triangle info
   this->Mesh->GetCellPoints(tri,npts,pts);
@@ -180,9 +179,7 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
         {
         inside = 0;
         nei[1] = ptIds[i];
-				e1 = ptIds[i];
         nei[2] = ptIds[i2];
-				e2 = ptIds[i2];
         minProj = dp;
         }
       }//outside this edge
