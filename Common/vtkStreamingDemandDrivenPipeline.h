@@ -57,7 +57,7 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
-  int VerifyUpdateExtent(int outputPort);
+  int VerifyOutputInformation(int outputPort);
   virtual int NeedToExecuteData(int outputPort);
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;

@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.15");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.16");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -153,18 +153,18 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     return 0;
     }
 
+  // Make sure the information on the output port is valid.
+  if(!this->VerifyOutputInformation(outputPort))
+    {
+    return 0;
+    }
+
   // If we need to update data, propagate the update extent.
   int result = 1;
   if(this->NeedToExecuteData(outputPort))
     {
     // Make sure input types are valid before algorithm does anything.
     if(!this->InputCountIsValid() || !this->InputTypeIsValid())
-      {
-      return 0;
-      }
-
-    // Make sure the update extent is inside the whole extent.
-    if(!this->VerifyUpdateExtent(outputPort))
       {
       return 0;
       }
@@ -204,77 +204,195 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
+int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
 {
   // If no port is specified, check all ports.
   if(outputPort < 0)
     {
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
       {
-      if(!this->VerifyUpdateExtent(i))
+      if(!this->VerifyOutputInformation(i))
         {
         return 0;
         }
       }
     }
 
-#if 0
-  // TODO: Use DATA_EXTENT_TYPE to check structured or unstructured extents.
-  vtkInformation* info = this->GetOutputInformation(outputPort);
-  if(info->Has(WHOLE_EXTENT()) && info->Has(UPDATE_EXTENT()) &&
-     info->Has(vtkInformation::DATA_EXTENT_TYPE()))
+  // Get the information object to check.
+  vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+
+  // Make sure there is a data object.  It is supposed to be created
+  // by the ExecuteInformation step.
+  vtkDataObject* dataObject = outInfo->Get(vtkInformation::DATA_OBJECT());
+  if(!dataObject)
     {
+    vtkErrorMacro("No data object has been set in the information for "
+                  "output port " << outputPort << ".");
+    return 0;
     }
-#endif
+  vtkInformation* dataInfo = dataObject->GetInformation();
+
+  // Check extents.
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
+    {
+    // For an unstructured extent, make sure the update request
+    // exists.  We do not need to check if it is valid because
+    // out-of-range requests produce empty data.
+    if(!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
+      {
+      vtkErrorMacro("No maximum number of pieces has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    if(!outInfo->Has(UPDATE_PIECE_NUMBER()))
+      {
+      vtkErrorMacro("No update piece number has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    if(!outInfo->Has(UPDATE_NUMBER_OF_PIECES()))
+      {
+      vtkErrorMacro("No update number of pieces has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    if(!outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
+      {
+      vtkErrorMacro("No update number of ghost levels has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    }
+  else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+    {
+    // For a structured extent, make sure the update request
+    // exists.
+    if(!outInfo->Has(WHOLE_EXTENT()))
+      {
+      vtkErrorMacro("No whole extent has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    if(!outInfo->Has(UPDATE_EXTENT()))
+      {
+      vtkErrorMacro("No update extent has been set in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ").");
+      return 0;
+      }
+    // Make sure the update request is inside the whole extent.
+    int wholeExtent[6];
+    int updateExtent[6];
+    outInfo->Get(WHOLE_EXTENT(), wholeExtent);
+    outInfo->Get(UPDATE_EXTENT(), updateExtent);
+    if((updateExtent[0] < wholeExtent[0] ||
+        updateExtent[1] > wholeExtent[1] ||
+        updateExtent[2] < wholeExtent[2] ||
+        updateExtent[3] > wholeExtent[3] ||
+        updateExtent[4] < wholeExtent[4] ||
+        updateExtent[5] > wholeExtent[5]) &&
+       (updateExtent[0] <= updateExtent[1] &&
+        updateExtent[2] <= updateExtent[3] &&
+        updateExtent[4] <= updateExtent[5]))
+      {
+      // Update extent is outside the whole extent and is not empty.
+      vtkErrorMacro("The update extent specified in the "
+                    "information for output port " << outputPort
+                    << " on algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ") is "
+                    << updateExtent[0] << " " << updateExtent[1] << " "
+                    << updateExtent[2] << " " << updateExtent[3] << " "
+                    << updateExtent[4] << " " << updateExtent[5]
+                    << ", which is outside the whole extent "
+                    << wholeExtent[0] << " " << wholeExtent[1] << " "
+                    << wholeExtent[2] << " " << wholeExtent[3] << " "
+                    << wholeExtent[4] << " " << wholeExtent[5] << ".");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 {
+  // If no port is specified, check all ports.  This behavior is
+  // implemented by the superclass.
+  if(outputPort < 0)
+    {
+    return this->Superclass::NeedToExecuteData(outputPort);
+    }
+
   // Does the superclass want to execute?
   if(this->Superclass::NeedToExecuteData(outputPort))
     {
     return 1;
     }
 
-  // If the update extent is outside of the extent, we need to execute.
-  if(outputPort >= 0)
-    {
-    vtkInformation* info = this->GetOutputInformation(outputPort);
-    vtkDataObject* dataObject = info->Get(vtkInformation::DATA_OBJECT());
-    if(dataObject && info->Has(UPDATE_EXTENT()))
-      {
-      vtkInformation* dInfo = dataObject->GetInformation();
-      if(dInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
-        {
-        int dataExtent[6];
-        int updateExtent[6];
-        dInfo->Get(vtkDataObject::DATA_EXTENT(), dataExtent);
-        info->Get(UPDATE_EXTENT(), updateExtent);
-        if(updateExtent[0] < dataExtent[0] ||
-           updateExtent[1] > dataExtent[1] ||
-           updateExtent[2] < dataExtent[2] ||
-           updateExtent[3] > dataExtent[3] ||
-           updateExtent[4] < dataExtent[4] ||
-           updateExtent[5] > dataExtent[5])
-          {
-          return 1;
-          }
-        }
-      if(dInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
-        {
-        // TODO: Handle unstructured update extent.
-        }
-      }
-    }
-
-  // is continue executing set? 
-  if (this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()))
+  // Has the algorithm asked to be executed again?
+  if(this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()))
     {
     return 1;
     }
-  
+
+  // We need to check the requested update extent.  Get the output
+  // port information and data information.  We do not need to check
+  // existence of values because it has already been verified by
+  // VerifyOutputInformation.
+  vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+  vtkDataObject* dataObject = outInfo->Get(vtkInformation::DATA_OBJECT());
+  vtkInformation* dataInfo = dataObject->GetInformation();
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
+    {
+    // Check the unstructured extent.  If we do not have the requested
+    // piece, we need to execute.
+    int dataPiece = dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    int dataNumberOfPieces = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+    int dataGhostLevel = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+    int updatePiece = outInfo->Get(UPDATE_PIECE_NUMBER());
+    int updateNumberOfPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
+    int updateGhostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+    if(dataPiece != updatePiece ||
+       dataNumberOfPieces != updateNumberOfPieces ||
+       dataGhostLevel != updateGhostLevel)
+      {
+      return 1;
+      }
+    }
+  else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+    {
+    // Check the structured extent.  If the update extent is outside
+    // of the extent and not empty, we need to execute.
+    int dataExtent[6];
+    int updateExtent[6];
+    outInfo->Get(UPDATE_EXTENT(), updateExtent);
+    dataInfo->Get(vtkDataObject::DATA_EXTENT(), dataExtent);
+    if((updateExtent[0] < dataExtent[0] ||
+        updateExtent[1] > dataExtent[1] ||
+        updateExtent[2] < dataExtent[2] ||
+        updateExtent[3] > dataExtent[3] ||
+        updateExtent[4] < dataExtent[4] ||
+        updateExtent[5] > dataExtent[5]) &&
+       (updateExtent[0] <= updateExtent[1] &&
+        updateExtent[2] <= updateExtent[3] &&
+        updateExtent[4] <= updateExtent[5]))
+      {
+      return 1;
+      }
+    }
+
   // We do not need to execute.
   return 0;
 }
