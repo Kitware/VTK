@@ -133,16 +133,16 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Get the gantry angle for the last image processed.
   float GetGantryAngle();
 
+  //
+  // Can I read the file?
+  //
+  virtual int CanReadFile(const char* fname);
+
 protected:
   //
   // Setup the volume size
   //
   void SetupOutputInformation(int num_slices);
-
-  //
-  // Can I read the file?
-  //
-  virtual int CanReadFile(const char* fname);
 
   //
   // What file extensions are supported?
