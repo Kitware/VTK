@@ -56,6 +56,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
+// this undef is required on the hp. vtkMutexLock ends up including
+// /usr/inclue/dce/cma_ux.h which has the gall to #define write as cma_write
+
+#ifdef write
+#undef write
+#endif
+
 // Created object with default header, ASCII format, and default names for 
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()
