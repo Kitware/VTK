@@ -744,7 +744,6 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   float  bestTime;
   float  targetTime;
   float  estimatedTime;
-  float  factor;
 
 
   if ( this->AutomaticLODSelection )
