@@ -1,19 +1,21 @@
 //
-// Macros for setting and getting instance variables.  Macros are available for 
-// built-in types; vector arrays of built-in types size 2,3,4; and for 
-// setting objects (i.e., Registering objects).  Macros enforce proper use of 
-// Debug, Modified time, and Registering objects.
+// Macros for setting and getting instance variables.  Macros are available 
+// for  built-in types; for character strings; vector arrays of built-in 
+// types size 2,3,4; and for setting objects (i.e., Registering objects).
+// Macros enforce proper use of Debug, Modified time, and Registering objects.
 //
 
 #ifndef __vlSetGet_hh
 #define __vlSetGet_hh
+
+#include <string.h>
 // 
 // For super speedy execution define __vlNoDebug
 //
 //#define __vlNoDebug
 
 //
-// Setting built-in type.  Creates member Set"name"() (e.g., SetVisibility());
+// Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
 #define vlSetMacro(name,type) \
 void Set##name (type _arg) \
@@ -27,7 +29,7 @@ void Set##name (type _arg) \
   } 
 
 //
-// Getting built-in type.  Creates member Get"name"() (e.g., GetVisibility());
+// Get built-in type.  Creates member Get"name"() (e.g., GetVisibility());
 //
 #define vlGetMacro(name,type) \
 type Get##name () { \
@@ -36,9 +38,42 @@ type Get##name () { \
   } 
 
 //
+// Set character string.  Creates member Set"name"() 
+// (e.g., SetFilename(char *));
+//
+#define vlSetStringMacro(name) \
+void Set##name (char* _arg) \
+  { \
+  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to " << _arg << "\n"; \
+  if ( name && _arg ) \
+    if ( !strcmp(name,_arg) ) return; \
+  if (name) delete [] name; \
+  if (_arg) \
+    { \
+    name = new char[strlen(_arg)+1]; \
+    strcpy(name,_arg); \
+    } \
+   else \
+    { \
+    name = 0; \
+    } \
+  Modified(); \
+  } 
+
+//
+// Get character string.  Creates member Get"name"() 
+// (e.g., char *GetFilename());
+//
+#define vlGetStringMacro(name) \
+char* Get##name () { \
+  if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " of " << name << "\n"; \
+  return name; \
+  } 
+
+//
 // Set built-in type where value is constrained between min/max limits.
-// Create member Set"name"() (e.q., SetRadius()). #defines are convienience for 
-// clampping open-ended values.
+// Create member Set"name"() (e.q., SetRadius()). #defines are 
+// convienience for clamping open-ended values.
 //
 #define LARGE_FLOAT 1.0e29
 #define LARGE_INTEGER 2147483646 /* 2**31 - 1 */
