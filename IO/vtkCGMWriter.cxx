@@ -19,7 +19,9 @@
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.7");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.8");
+
+vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
 
 vtkCGMWriter::vtkCGMWriter()
 {
