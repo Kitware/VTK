@@ -456,7 +456,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   vtkImageViewer *ImageViewer;
   TkWinDrawable *twdPtr;
   HWND parentWin;
-  vtkWin32ImageWindow *ImageWindow;
+  vtkImageWindow *ImageWindow;
 
   if (self->ImageViewer)
     {
@@ -526,15 +526,15 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   //ImageViewer->GetDesiredColormap());
   
   self->ImageViewer->Render();  
-  ImageWindow = (vtkWin32ImageWindow *)self->ImageViewer->GetImageWindow();
+  ImageWindow = self->ImageViewer->GetImageWindow();
 
 #if(TK_MAJOR_VERSION >=  8)
-  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, ImageWindow->GetWindowId());
+  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, (HWND)ImageWindow->GetGenericWindowId());
 #else
   twdPtr = (TkWinDrawable*) ckalloc(sizeof(TkWinDrawable));
   twdPtr->type = TWD_WINDOW;
   twdPtr->window.winPtr = winPtr;
-  twdPtr->window.handle = ImageWindow->GetWindowId();
+  twdPtr->window.handle = (HWND)ImageWindow->GetGenericWindowId();
 #endif
   
   self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);

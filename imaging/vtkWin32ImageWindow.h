@@ -120,9 +120,27 @@ public:
   // Creates a Win32 window or sets up an existing window.
   void MakeDefaultWindow();  
 
+  // Description:
+  // These methods can be used by MFC applications 
+  // to support print preview and printing, or more
+  // general rendering into memory. 
+  void SetupMemoryRendering(int x, int y, HDC prn);
+  void ResumeScreenRendering();
+  HDC GetMemoryDC();
+  unsigned char *GetMemoryData(){return this->MemoryData;};
+
 protected:
+  // the following is used to support rendering into memory
+  BITMAPINFO MemoryDataHeader;
+  HBITMAP MemoryBuffer;
+  unsigned char *MemoryData;	// the data in the DIBSection
+  HDC MemoryHdc;
+  int ScreenMapped;
+  int ScreenWindowSize[2];
+  HDC ScreenDeviceContext;
+
   int OwnWindow; // do we create this window ?
-  // ###
+
   unsigned char *DIBPtr;	// the data in the DIBSection
   int SwapFlag;
   HDC CompatHdc;

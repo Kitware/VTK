@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkWin32ImageWindow.h"
 
+
 unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1, 
 						 int x2, int y2, int)
 {
@@ -849,3 +850,62 @@ void vtkWin32ImageWindow::SetParentId(HWND arg)
 }
 
 
+void vtkWin32ImageWindow::SetupMemoryRendering(int xsize, int ysize,HDC aHdc)
+{
+  int dataWidth = ((xsize*3+3)/4)*4;
+  
+  this->MemoryDataHeader.bmiHeader.biSize = 40;
+  this->MemoryDataHeader.bmiHeader.biWidth = xsize;
+  this->MemoryDataHeader.bmiHeader.biHeight = ysize;
+  this->MemoryDataHeader.bmiHeader.biPlanes = 1;
+  this->MemoryDataHeader.bmiHeader.biBitCount = 24;
+  this->MemoryDataHeader.bmiHeader.biCompression = BI_RGB;
+  this->MemoryDataHeader.bmiHeader.biClrUsed = 0;
+  this->MemoryDataHeader.bmiHeader.biClrImportant = 0;
+  this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
+	
+  // try using a DIBsection
+  this->MemoryBuffer = CreateDIBSection(aHdc,
+				&this->MemoryDataHeader, DIB_RGB_COLORS, 
+				(void **)(&(this->MemoryData)),  NULL, 0);
+  
+  // Create a compatible device context
+  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
+  int cxPage = GetDeviceCaps(aHdc,LOGPIXELSX);
+  int mxPage = GetDeviceCaps(this->MemoryHdc,LOGPIXELSX);
+  
+  // Put the bitmap into the device context
+  SelectObject(this->MemoryHdc, this->MemoryBuffer);
+  
+  // save the current state
+  this->ScreenMapped = this->Mapped;
+  this->ScreenWindowSize[0] = this->Size[0];
+  this->ScreenWindowSize[1] = this->Size[1];
+  this->ScreenDeviceContext = this->DeviceContext;
+  
+  // adjust settings for renderwindow
+  this->Mapped =0;
+  this->Size[0] = xsize;
+  this->Size[1] = ysize;
+  
+  this->DeviceContext = this->MemoryHdc;
+  vtkWin32ImageWindowSetupRGBPixelFormat(this->DeviceContext);
+  vtkWin32ImageWindowSetupRGBPalette(this->DeviceContext,this);
+}
+
+HDC vtkWin32ImageWindow::GetMemoryDC()
+{
+  return this->MemoryHdc;
+}
+
+void vtkWin32ImageWindow::ResumeScreenRendering()
+{
+  GdiFlush();
+  DeleteDC(this->MemoryHdc); 
+  DeleteObject(this->MemoryBuffer);
+  
+  this->Mapped = this->ScreenMapped;
+  this->Size[0] = this->ScreenWindowSize[0];
+  this->Size[1] = this->ScreenWindowSize[1];
+  this->DeviceContext = this->ScreenDeviceContext;
+}

@@ -160,7 +160,7 @@ void vtkImageWindow::GetSize(int *x, int *y)
 vtkImageWindow* vtkImageWindow::New()
 {
 #ifdef _WIN32
-    return vtkWin32ImageWindow::New();
+  return vtkWin32ImageWindow::New();
 #else
     return vtkXImageWindow::New();
 #endif
@@ -207,11 +207,11 @@ void vtkImageWindow::Render()
     return;
     }
  
-  if (this->DoubleBuffer)
+/*  if (this->DoubleBuffer)
     {
     this->SwapBuffers();
     }
-
+*/
   if (this->Erase)
     {
     this->EraseWindow();
@@ -221,12 +221,25 @@ void vtkImageWindow::Render()
   for (this->Imagers->InitTraversal(); 
        (tempImager = this->Imagers->GetNextItem());)
     {
-    tempImager->Render(); 
+    tempImager->RenderOpaqueGeometry(); 
+    }
+  // tell each of the imagers to render
+  for (this->Imagers->InitTraversal(); 
+       (tempImager = this->Imagers->GetNextItem());)
+    {
+    tempImager->RenderTranslucentGeometry(); 
     }
  
   if (this->DoubleBuffer)
     {
     this->SwapBuffers();
+    }
+
+  // tell each of the imagers to render
+  for (this->Imagers->InitTraversal(); 
+       (tempImager = this->Imagers->GetNextItem());)
+    {
+    tempImager->RenderOverlay(); 
     }
 
   return;
