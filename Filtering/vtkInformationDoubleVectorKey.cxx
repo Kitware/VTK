@@ -15,10 +15,11 @@
 #include "vtkInformationDoubleVectorKey.h"
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
+#include "vtkDebugLeaks.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey
@@ -82,7 +83,9 @@ void vtkInformationDoubleVectorKey::Set(vtkInformation* info, double* value,
       }
     vtkInformationDoubleVectorValue* v =
       new vtkInformationDoubleVectorValue;
-    this->ConstructClass("vtkInformationDoubleVectorValue");
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::ConstructClass("vtkInformationDoubleVectorValue");
+#endif
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();

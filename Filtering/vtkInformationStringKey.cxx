@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkInformationStringKey.h"
 
+#include "vtkDebugLeaks.h"
+
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkInformationStringKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationStringKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location):
@@ -49,7 +51,9 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
   if(value)
     {
     vtkInformationStringValue* v = new vtkInformationStringValue;
-    this->ConstructClass("vtkInformationStringValue");
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::ConstructClass("vtkInformationStringValue");
+#endif
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();

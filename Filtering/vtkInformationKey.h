@@ -28,7 +28,7 @@
 
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeRevisionMacro
-#include "vtkInformationKeyManager.h" // Needed for proper singleton initialization
+#include "vtkSmartPointer.h" // Needed for vtkInformationKeyMacro
 
 class vtkInformation;
 
@@ -38,12 +38,14 @@ public:
   vtkTypeRevisionMacro(vtkInformationKey,vtkObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
+//   // Description:
+//   // Prevent normal vtkObject reference counting behavior.
+//   virtual void Register(vtkObjectBase*);
 
   // Description:
-  // Prevent normal vtkObject reference counting behavior.
+  // Do not participate in vtkDebugLeaks.  These objects are created
+  // within objects that are global instantiations.  They may be destroyed
+  // after vtkDebugLeaks::CriticalSection.
   virtual void UnRegister(vtkObjectBase*);
 
   // Description:
@@ -88,9 +90,6 @@ protected:
   void SetAsObjectBase(vtkInformation* info, vtkObjectBase* value);
   vtkObjectBase* GetAsObjectBase(vtkInformation* info);
 
-  // Helper for debug leaks support.
-  void ConstructClass(const char*);
-
   // Static key instance management methods.
   static void ClassInitialize();
   static void ClassFinalize();
@@ -107,13 +106,15 @@ private:
 // Macros to define an information key instance in a C++ source file.
 // The corresponding method declaration must appear in the class
 // definition in the header file.
-#define vtkInformationKeyMacro(CLASS, NAME, type)                      \
-  static vtkInformation##type##Key* CLASS##_##NAME =                   \
-         new vtkInformation##type##Key(#NAME, #CLASS);                 \
-  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
+#define vtkInformationKeyMacro(CLASS, NAME, type)                       \
+  static vtkSmartPointer<vtkInformation##type##Key> CLASS##_##NAME      \
+      (new vtkInformation##type##Key(#NAME, #CLASS),                    \
+       vtkSmartPointerBase::NoReference());                             \
+  vtkInformation##type##Key* CLASS::NAME() {return CLASS##_##NAME.GetPointer();}
 #define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)       \
-  static vtkInformation##type##Key* CLASS##_##NAME =                        \
-         new vtkInformation##type##Key(#NAME, #CLASS, required);            \
-  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
+  static vtkSmartPointer<vtkInformation##type##Key> CLASS##_##NAME          \
+      (new vtkInformation##type##Key(#NAME, #CLASS, required),              \
+       vtkSmartPointerBase::NoReference());                                 \
+  vtkInformation##type##Key* CLASS::NAME() {return CLASS##_##NAME.GetPointer();}
 
 #endif
