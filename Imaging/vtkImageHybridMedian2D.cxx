@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.20");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.21");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -96,6 +96,8 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
         for (idxC = 0; idxC < numComps; ++idxC)
           {
           // compute median of + neighborhood
+          // note that y axis direction is up in vtk images, not down
+          // as in screen coordinates
           array.clear();
           // Center
           ptr = inPtrC;
@@ -124,7 +126,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr += inInc0;
             array.push_back( *ptr );
             }
-          // up
+          // down
           ptr = inPtrC;
           if (idx1 > wholeMin1)
             {
@@ -136,7 +138,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr -= inInc1;
             array.push_back( *ptr );
             }
-          // down
+          // up
           ptr = inPtrC;
           if (idx1 < wholeMax1)
             {
@@ -153,11 +155,13 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
           median1 = array[static_cast<unsigned int>(0.5*array.size())];
 
           // compute median of x neighborhood
+          // note that y axis direction is up in vtk images, not down
+          // as in screen coordinates
           array.clear();
           // Center
           ptr = inPtrC;
           array.push_back( *ptr );
-          // upper left
+          // lower left
           if (idx0 > wholeMin0 && idx1 > wholeMin1)
             {
             ptr -= inInc0 + inInc1;
@@ -168,7 +172,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr -= inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // lower right
+          // upper right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 < wholeMax1)
             {
@@ -180,7 +184,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr += inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // lower left
+          // upper left
           ptr = inPtrC;
           if (idx0 > wholeMin0 && idx1 < wholeMax1)
             {
@@ -192,7 +196,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr += -inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // upper right
+          // lower right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 > wholeMin1)
             {
