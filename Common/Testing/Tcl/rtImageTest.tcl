@@ -83,9 +83,7 @@ if {$validImageFound != 0} {
 	   set threshold 5
        }
       if {[info commands viewer] == "viewer"} {
-         if {[catch {rt_w2if SetInput [viewer GetImageWindow]}]} {
-            rt_w2if SetInput [viewer GetRenderWindow]
-         }
+         rt_w2if SetInput [viewer GetRenderWindow]
          viewer Render
       } else {
          if {[info commands imgWin] == "imgWin"} {
@@ -93,9 +91,7 @@ if {$validImageFound != 0} {
             imgWin Render
          } else {
             if {[info exists viewer]} {
-               if {[catch {rt_w2if SetInput [$viewer GetImageWindow]}]} {
-                  rt_w2if SetInput [$viewer GetRenderWindow]
-               }
+               rt_w2if SetInput [$viewer GetRenderWindow]
             }
          }
       }
