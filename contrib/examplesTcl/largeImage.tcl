@@ -49,6 +49,7 @@ wm withdraw .
 vtkRenderLargeImage renderLarge
   renderLarge SetInput ren1
   renderLarge SetMagnification 5
+  renderLarge Update
 
 vtkImageViewer viewer
   viewer SetInput [renderLarge GetOutput]
