@@ -1330,7 +1330,7 @@ float *vtkStarbaseRenderWindow::GetRGBAPixelData(int x1, int y1,
 }
 
 void vtkStarbaseRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				      float *data, int front)
+				      float *data, int front, int blend)
 {
   vtkErrorMacro(<< "SetRGBAPixelData() not implemented yet for SB.\n");
 

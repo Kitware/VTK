@@ -647,18 +647,12 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 						   int x2, int y2, 
 						   int front)
 {
-  long     xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
-  unsigned char   *buffer;
   unsigned char   *data = NULL;
-  unsigned char   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
-
-  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
-  data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
 
   if (y1 < y2)
     {
@@ -690,22 +684,21 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     {
     glReadBuffer(GL_BACK);
     }
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    // read in a row of pixels 
-    glReadPixels(x_low,yloop,(x_hi-x_low+1),1, 
-		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
-      {
-      *p_data = buffer[xloop*4]; p_data++;
-      *p_data = buffer[xloop*4+1]; p_data++;
-      *p_data = buffer[xloop*4+2]; p_data++;
-      }
-    }
-  
-  delete [] buffer;
 
+  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+
+  // disable texture to get around Sun OpenGL 1.1 bug
+  glDisable( GL_TEXTURE_1D );
+  glDisable( GL_TEXTURE_2D );
+#ifdef GL_TEXTURE_3D_EXT  
+  glDisable( GL_TEXTURE_3D_EXT );
+#endif
+
+  // Calling pack alignment ensures that we can grab the any size window
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+  glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
+               GL_UNSIGNED_BYTE, data);
+  
   return data;
 }
 
@@ -714,9 +707,6 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
-  int     xloop,yloop;
-  unsigned char   *buffer;
-  unsigned char   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
@@ -729,8 +719,6 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     {
     glDrawBuffer(GL_BACK);
     }
-
-  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
 
   if (y1 < y2)
     {
@@ -753,37 +741,32 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_low = x2; 
     x_hi  = x1;
     }
-  
-  // now write the binary info one row at a time 
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
-      {
-      buffer[xloop*4] = *p_data; p_data++; 
-      buffer[xloop*4+1] = *p_data; p_data++;
-      buffer[xloop*4+2] = *p_data; p_data++;
-      buffer[xloop*4+3] = 0xff;
-      }
-    /* write out a row of pixels */
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
-		   -1.0 );
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
 
-    glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
+  // disable texture to get around Sun OpenGL 1.1 bug
+  glDisable( GL_TEXTURE_1D );
+  glDisable( GL_TEXTURE_2D );
+#ifdef GL_TEXTURE_3D_EXT  
+  glDisable( GL_TEXTURE_3D_EXT );
+#endif
   
-  delete [] buffer;
+  // now write the binary info
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+  glLoadIdentity();
+  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
+                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+                 -1.0 );
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+  glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
+               GL_RGB, GL_UNSIGNED_BYTE, data);
 }
 
 float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
@@ -838,7 +821,7 @@ float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
 }
 
 void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				       float *data, int front)
+				       float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -896,7 +879,16 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
 
-  glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+  if (!blend)
+    {
+    glDisable(GL_BLEND);
+    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    glEnable(GL_BLEND);
+    }
+  else
+    {
+    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    }
 }
 
 float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )

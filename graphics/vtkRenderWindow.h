@@ -189,9 +189,12 @@ public:
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
   // component. The image is transmitted as RGBARGBARGBA... each of which is a
-  // float value.
+  // float value. The "blend" parameter controls whether the SetRGBAPixelData
+  // method blends the data with the previous contents of the frame buffer
+  // or completely replaces the frame buffer data.
   virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {return (float *)NULL;};
-  virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int ) {};
+  virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int,
+                                int blend=0) {};
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.

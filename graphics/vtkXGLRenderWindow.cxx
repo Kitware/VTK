@@ -1105,7 +1105,7 @@ float *vtkXGLRenderWindow::GetRGBAPixelData(int x1, int y1,
 // Therefore, this operation will assign 1.0 to the alpha value of all
 // pixels written. Until XGL supports alpha read/writes, use SetPixelData()
 void vtkXGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				     float *data, int front)
+				     float *data, int front, int blend)
 {
   int     current;
   int     width, height;

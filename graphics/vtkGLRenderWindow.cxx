@@ -908,7 +908,7 @@ float *vtkGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 }
 
 void vtkGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				     float *data, int front)
+				     float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -962,6 +962,12 @@ void vtkGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   viewport(x_low,x_hi,y_low,y_hi);
 
   /* now write the binary info one row at a time */
+  if (!blend)
+    {
+    // turn blending on
+    blendfunction(BF_ONE, BF_ZERO);
+    }
+  
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
     {
@@ -978,6 +984,12 @@ void vtkGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   
   delete [] buffer;
 
+  if (!blend)
+    {
+    // turn blending back on
+    blendfunction(BF_SA, BF_MSA);
+    }
+  
   dither(DT_ON);
   if (this->DoubleBuffer)
     {

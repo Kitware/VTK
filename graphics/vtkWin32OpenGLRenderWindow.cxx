@@ -943,8 +943,9 @@ void vtkWin32OpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
   }
 
 void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, 
-						int x2, int y2,
-						float *data, int front)
+                                                  int x2, int y2,
+                                                  float *data, int front,
+                                                  int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1005,7 +1006,16 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
 
-  glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+  if (!blend)
+    {
+    glDisable(GL_BLEND);
+    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    glEnable(GL_BLEND);
+    }
+  else
+    {
+    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    }    
 
 }
 
