@@ -224,7 +224,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
       for (i=0; i<numPts; i++)
         {
         p = points->GetPoint(i);
-        fprintf (fp, "%f %f %f ", p[0], p[1], p[2]);
+        fprintf (fp, "%g %g %g ", p[0], p[1], p[2]);
         if ( (i%2) ) fprintf (fp,"\n");
         }
       }
@@ -386,7 +386,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           s = scalars->GetScalar(i);
-          fprintf (fp, "%f ", s);
+          fprintf (fp, "%g ", s);
           if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
@@ -422,7 +422,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           c = coscalars->GetColor(i);
-          fprintf (fp, "%f ", (float)c[0]/255.0);
+          fprintf (fp, "%g ", (float)c[0]/255.0);
           if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
           }
         }
@@ -433,7 +433,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           c = coscalars->GetColor(i);
-          fprintf (fp, "%f %f  ", (float)c[0]/255.0, (float)c[3]/255.0);
+          fprintf (fp, "%g %g  ", (float)c[0]/255.0, (float)c[3]/255.0);
           if ( i != 0 && !(i%3) ) fprintf (fp,"\n");
           }
         }
@@ -444,7 +444,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           c = coscalars->GetColor(i);
-          fprintf (fp, "%f %f %f  ", (float)c[0]/255.0, (float)c[1]/255.0, (float)c[2]/255.0);
+          fprintf (fp, "%g %g %g  ", (float)c[0]/255.0, (float)c[1]/255.0, (float)c[2]/255.0);
           if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
           }
         }
@@ -455,7 +455,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           c = coscalars->GetColor(i);
-          fprintf (fp, "%f %f %f %f\n", (float)c[0]/255.0, (float)c[1]/255.0, 
+          fprintf (fp, "%g %g %g %g\n", (float)c[0]/255.0, (float)c[1]/255.0, 
                   (float)c[2]/255.0, (float)c[3]/255.0);
           }
         }
@@ -479,7 +479,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       for (i=0; i<size; i++)
         {
         c = lut->GetTableValue(i);
-        fprintf (fp, "%f %f %f %f\n", c[0], c[1], c[2], c[3]);
+        fprintf (fp, "%g %g %g %g\n", c[0], c[1], c[2], c[3]);
         }
       }
     else
@@ -511,7 +511,7 @@ int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
       for (i=0; i<numPts; i++)
         {
         v = vectors->GetVector(i);
-        fprintf (fp, "%f %f %f ", v[0], v[1], v[2]);
+        fprintf (fp, "%g %g %g ", v[0], v[1], v[2]);
         if ( (i%2) ) fprintf (fp,"\n");
         }
       }
@@ -551,7 +551,7 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
       for (i=0; i<numPts; i++)
         {
         n = normals->GetNormal(i);
-        fprintf (fp, "%f %f %f ", n[0], n[1], n[2]);
+        fprintf (fp, "%g %g %g ", n[0], n[1], n[2]);
         if ( (i%2) ) fprintf (fp,"\n");
         }
       }
@@ -592,7 +592,7 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
       for (i=0; i<numPts; i++)
         {
         tc = tcoords->GetTCoord(i);
-        for (j=0; j<dim; j++) fprintf (fp, "%f ", tc[j]);
+        for (j=0; j<dim; j++) fprintf (fp, "%g ", tc[j]);
         if ( !((i+1)%3) ) fprintf (fp,"\n");
         }
       }
@@ -635,7 +635,7 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
         tensors->GetTensor(i,t);
         for (j=0; j<dim; j++)
           {
-          for (k=0; k<dim; k++) fprintf (fp, "%f ", t.GetComponent(j,k));
+          for (k=0; k<dim; k++) fprintf (fp, "%g ", t.GetComponent(j,k));
           fprintf (fp, "\n");
           }
         }

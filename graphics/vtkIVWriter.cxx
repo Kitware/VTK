@@ -104,7 +104,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   for (i=0; i<points->GetNumberOfPoints(); i++) {
   float xyz[3];
   points->GetPoint(i, xyz);
-  fprintf(fp, "%f %f %f, ", xyz[0], xyz[1], xyz[2]);
+  fprintf(fp, "%g %g %g, ", xyz[0], xyz[1], xyz[2]);
   if (!((i+1)%2)) fprintf(fp, "\n\t\t\t");
   }
   fprintf(fp, "\n\t\t]");
@@ -125,7 +125,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       {
       unsigned char rgba[4];
       colors->GetColor(i,rgba);
-      fprintf(fp, "%f %f %f, ", rgba[0]/255.0f, 
+      fprintf(fp, "%g %g %g, ", rgba[0]/255.0f, 
 	      rgba[1]/255.0f, rgba[2]/255.0f);
       if (!((i+1)%2)) fprintf(fp, "\n\t\t\t");
       }

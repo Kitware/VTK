@@ -100,8 +100,8 @@ void vtkVoxelWriter::WriteData()
     }
 
   fprintf(fp,"Voxel Data File\n");
-  fprintf(fp,"Origin: %f %f %f\n",origin[0],origin[1],origin[2]);
-  fprintf(fp,"Aspect: %f %f %f\n",aspect[0],aspect[1],aspect[2]);
+  fprintf(fp,"Origin: %g %g %g\n",origin[0],origin[1],origin[2]);
+  fprintf(fp,"Aspect: %g %g %g\n",aspect[0],aspect[1],aspect[2]);
   fprintf(fp,"Dimensions: %i %i %i\n",dim[0],dim[1],dim[2]);
 
   // write out the data
