@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //-----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
                    this->ColorTable[c]);
       // Convert gray into RGB.  Copy backward so that we can use the same
       // array.
-      for (int i = this->TransferFunctionTableSize-1; i >= 0; i++)
+      for (int i = this->TransferFunctionTableSize-1; i >= 0; i--)
         {
         this->ColorTable[c][3*i + 0]
           = this->ColorTable[c][3*i + 1]
