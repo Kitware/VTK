@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.81");
+vtkCxxRevisionMacro(vtkStreamer, "1.82");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -482,7 +482,7 @@ void vtkStreamer::Integrate()
   if (inScalars)
     {
     cellScalars = inScalars->NewInstance();
-    cellScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
+    cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     }
   
