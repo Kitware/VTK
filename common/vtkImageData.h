@@ -101,9 +101,9 @@ public:
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
-				      this->Dimensions);}
+				      this->GetDimensions());}
   void GetPointCells(int ptId, vtkIdList *cellIds)
-    {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
+    {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
@@ -113,11 +113,13 @@ public:
 
   // Description:
   // Set dimensions of structured points dataset.
-  void SetDimensions(int dim[3]);
+  void SetDimensions(int dims[3]);
 
   // Description:
   // Get dimensions of this structured points dataset.
-  vtkGetVectorMacro(Dimensions,int,3);
+  // Dimensions are computed from Extents during this call.
+  int *GetDimensions();
+  void GetDimensions(int dims[3]);
 
   // Description:
   // Convenience function computes the structured coordinates for a point x[3].
@@ -150,12 +152,12 @@ public:
   // Description:
   // Given a location in structured coordinates (i-j-k), return the point id.
   int ComputePointId(int ijk[3]) {
-    return vtkStructuredData::ComputePointId(this->Dimensions,ijk);};
+    return vtkStructuredData::ComputePointId(this->GetDimensions(),ijk);};
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the cell id.
   int ComputeCellId(int ijk[3]) {
-    return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);};
+    return vtkStructuredData::ComputeCellId(this->GetDimensions(),ijk);};
 
   // Description:
   // For legacy compatibility. Do not use.
@@ -335,6 +337,8 @@ protected:
   int GetExtentType() { return VTK_3D_EXTENT; };
 
   // The extent of what is currently in the structured grid.
+  // Dimensions is just an array to return a value.
+  // Its contants are out of data until GetDimensions is called.
   int Dimensions[3];
   int DataDescription;
   int Increments[3];
@@ -357,25 +361,12 @@ inline void vtkImageData::GetPoint(int id, float x[3])
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
 }
 
-inline int vtkImageData::GetNumberOfCells() 
-{
-  int nCells=1;
-  int i;
 
-  for (i=0; i<3; i++)
-    {
-    if (this->Dimensions[i] > 1)
-      {
-      nCells *= (this->Dimensions[i]-1);
-      }
-    }
-
-  return nCells;
-}
 
 inline int vtkImageData::GetNumberOfPoints()
 {
-  return this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
+  int *dims = this->GetDimensions();
+  return dims[0]*dims[1]*dims[2];
 }
 
 inline int vtkImageData::GetDataDimension()
