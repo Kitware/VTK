@@ -29,6 +29,7 @@ IF (VTK_USE_RENDERING)
       EnSightGoldElements
       extractUGrid
       extractVectors
+      geomFilter
       glyph2D
       KlineBottle
       MultidimensionalSolution
