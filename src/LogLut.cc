@@ -17,13 +17,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "LogLut.hh"
 
 // Description:
-// Construct with range=(0,1); and hsv ranges set up for rainbow color table.
+// Construct with effective range 1->10 (based on logarithmic values.
 vtkLogLookupTable::vtkLogLookupTable(int sze, int ext):
 vtkLookupTable(sze,ext)
 {
   this->LogMinRange = 0.0;
   this->LogMaxRange = 1.0;
-  this->ShiftValue = 0.0;
+  this->UseAbsoluteValue = 0;
 };
 
 // Description:
@@ -40,25 +40,33 @@ void  vtkLogLookupTable::SetTableRange(float min, float max)
     return;
     }
 
-  if ( min <= 0.0 )
-    {
-    this->ShiftValue = -min + 1.0e-6 * (max-min);
-    }
-  else
-    {
-    this->ShiftValue = 0.0;
-    }
-
   this->TableRange[0] = min;
   this->TableRange[1] = max;
 
-  this->LogMinRange = log10((double)min+this->ShiftValue);
-  this->LogMaxRange = log10((double)max+this->ShiftValue);
+  if ( max >= 0.0 && min <= 0.0 )
+    {
+    vtkErrorMacro(<<"Can't use logarithmic table on mixed negative/positive values");
+    }
+  else if ( max <= 0.0 ) // okay, all negative values
+    {
+    if ( max == 0.0 ) max = 1.0e-06 * (min - max);
+    this->UseAbsoluteValue = 1;
+    this->LogMinRange = log10((double)(-min));
+    this->LogMaxRange = log10((double)(-max));
+    }
+  else 
+    {
+    if ( min == 0.0 ) min = 1.0e-06 * (max - min);
+    this->UseAbsoluteValue = 0;
+    this->LogMinRange = log10((double)min);
+    this->LogMaxRange = log10((double)max);
+    }
 }
 
 // Description:
 // Given a scalar value v, return an rgba color value from lookup table. 
-// Mapping performed log base 10 (and shifting into positive values).
+// Mapping performed log base 10 (negative ranges are converted into positive
+// values).
 unsigned char *vtkLogLookupTable::MapValue(float v)
 {
   int indx;
@@ -66,8 +74,18 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
   if ( v < this->TableRange[0] ) v = this->TableRange[0];
   else if ( v > this->TableRange[1] ) v = this->TableRange[1];
 
-  indx = (int)((log10((double)v+this->ShiftValue) - this->LogMinRange)/
-               (this->LogMaxRange - this->LogMinRange) * this->NumberOfColors);
+  if ( this->UseAbsoluteValue )
+    {
+    indx = (int)( (log10((double)(-v)) - this->LogMinRange) /
+                  (this->LogMaxRange - this->LogMinRange) * 
+                  (this->NumberOfColors-1) );
+    }
+  else
+    {
+    indx = (int)( (log10((double)v) - this->LogMinRange) /
+                  (this->LogMaxRange - this->LogMinRange) * 
+                  (this->NumberOfColors-1) );
+    }
 
   return this->Table.GetColor(indx);
 }
@@ -78,5 +96,4 @@ void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Log Min Range: " <<this->LogMinRange << "\n";
   os << indent << "Log Max Range: " <<this->LogMaxRange << "\n";
-  os << indent << "Shift Value: " <<this->ShiftValue << "\n";
 }
