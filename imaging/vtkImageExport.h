@@ -70,6 +70,11 @@ public:
 
   // Description:
   // This method will specify the data type the memory wanted.
+  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
+  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
+  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
+  void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
+  void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
   vtkSetMacro(ScalarType, int);
   vtkGetMacro(ScalarType, int);
   

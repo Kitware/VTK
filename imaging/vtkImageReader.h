@@ -58,6 +58,13 @@ public:
   char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
+  void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
+  void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
+  void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
+  void SetDataScalarTypeToUnsignedShort()
+    {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
+  void SetDataScalarTypeToUnsignedChar()
+    {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
   void SetDataScalarType(int type);
   // Description:
   // Get the file format.  Pixels are this type in the file.

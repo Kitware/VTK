@@ -125,8 +125,12 @@ public:
   vtkImageGetMacro(Axes, int);
   int *GetAxes(){return this->Axes;}
   
-  
   void SetScalarType(int type);
+  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
+  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
+  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
+  void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
+  void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
   // Description:
   // Get the scalar type of the underlying data.
   vtkGetMacro(ScalarType,int);

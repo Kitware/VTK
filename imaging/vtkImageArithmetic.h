@@ -69,10 +69,10 @@ public:
   // Set/Get the operator to perform.
   vtkSetMacro(Operator,int);
   vtkGetMacro(Operator,int);
-  void SetOperatorAdd() {this->SetOperator(VTK_ADD);};
-  void SetOperatorSubtract() {this->SetOperator(VTK_SUBTRACT);};
-  void SetOperatorMultiply() {this->SetOperator(VTK_MULTIPLY);};
-  void SetOperatorDivide() {this->SetOperator(VTK_DIVIDE);};
+  void SetOperatorToAdd() {this->SetOperator(VTK_ADD);};
+  void SetOperatorToSubtract() {this->SetOperator(VTK_SUBTRACT);};
+  void SetOperatorToMultiply() {this->SetOperator(VTK_MULTIPLY);};
+  void SetOperatorToDivide() {this->SetOperator(VTK_DIVIDE);};
 
   
 protected:

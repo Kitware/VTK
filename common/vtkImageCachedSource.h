@@ -75,6 +75,13 @@ public:
   int  GetReleaseDataFlag();
   vtkBooleanMacro(ReleaseDataFlag, int);
   
+  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToUnsignedShort()
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToUnsignedChar()
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
   void SetOutputScalarType(int type);
   int  GetOutputScalarType();
   

@@ -40,13 +40,13 @@ canvas FillPixel 450 350
 vtkImageExport export
 #export DebugOn
 export SetInput [canvas GetOutput]
-export SetAxes 4 0 1
+export SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 export SetScalarType $VTK_UNSIGNED_CHAR
 export SetExtent 0 2 0 511 0 511
 
 vtkImageImport import
 #import DebugOn
-import SetAxes 4 0 1
+import SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 import SetScalarType $VTK_UNSIGNED_CHAR
 import SetExtent 0 2 0 511 0 511
 import TestExport export

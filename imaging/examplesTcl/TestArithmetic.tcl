@@ -38,6 +38,7 @@ smooth SetStandardDeviation 6.0 6.0
 smooth SetRadiusFactor 1.5
 
 vtkImageArithmetic subtract
+subtract SetOperatorToSubtract
 subtract SetInput1 [reader GetOutput]
 subtract SetInput2 [smooth GetOutput]
 subtract ReleaseDataFlagOff
