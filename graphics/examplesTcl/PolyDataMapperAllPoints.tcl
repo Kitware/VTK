@@ -17,7 +17,7 @@ vtkPNMReader pnmReader
 vtkTexture texture
   texture SetInput [pnmReader GetOutput]
 
-vtkFloatPoints triangleStripPoints
+vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
   triangleStripPoints InsertPoint 0 0 1 0
   triangleStripPoints InsertPoint 1 0 0 .5
@@ -25,7 +25,7 @@ vtkFloatPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 .6
   triangleStripPoints InsertPoint 4 2 1 .1
 
-vtkFloatTCoords triangleStripTCoords
+vtkTCoords triangleStripTCoords
   triangleStripTCoords SetNumberOfTCoords 5
   triangleStripTCoords InsertTCoord 0 0 1 0
   triangleStripTCoords InsertTCoord 1 0 0 0
@@ -33,7 +33,7 @@ vtkFloatTCoords triangleStripTCoords
   triangleStripTCoords InsertTCoord 3 .5 0 0
   triangleStripTCoords InsertTCoord 4 1 1 0
 
-vtkFloatScalars triangleStripPointScalars
+vtkScalars triangleStripPointScalars
   triangleStripPointScalars SetNumberOfScalars 5
   triangleStripPointScalars InsertScalar 0 1
   triangleStripPointScalars InsertScalar 1 0
@@ -41,7 +41,7 @@ vtkFloatScalars triangleStripPointScalars
   triangleStripPointScalars InsertScalar 3 0
   triangleStripPointScalars InsertScalar 4 0
 
-vtkFloatScalars triangleStripCellScalars
+vtkScalars triangleStripCellScalars
   triangleStripCellScalars SetNumberOfScalars 1
   triangleStripCellScalars InsertScalar 0 1
 

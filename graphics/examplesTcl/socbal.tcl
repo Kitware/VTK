@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 
 # create a soccer ball
 #
-vtkFloatPoints points
+vtkPoints points
 # first point repeated because polygons were 1-offset
 points InsertNextPoint     0.348012            0      0.93749
 points InsertNextPoint     0.348012            0      0.93749
@@ -291,7 +291,7 @@ faces InsertCellPoint   57
 faces InsertCellPoint   48
 faces InsertCellPoint       49
 
-vtkFloatScalars faceColors
+vtkScalars faceColors
   faceColors InsertNextScalar 1
   faceColors InsertNextScalar 1
   faceColors InsertNextScalar 1
@@ -325,7 +325,7 @@ vtkFloatScalars faceColors
   faceColors InsertNextScalar 2
   faceColors InsertNextScalar 2
 
-vtkFloatScalars vertexColors
+vtkScalars vertexColors
   vertexColors InsertNextScalar 2
   vertexColors InsertNextScalar 2
   vertexColors InsertNextScalar 2

@@ -31,7 +31,7 @@ vtkUnsignedCharArray chars
 vtkScalars scalars
   scalars SetData chars
 
-vtkFloatPoints polyVertexPoints
+vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
   polyVertexPoints InsertPoint 0 0 0 0
   polyVertexPoints InsertPoint 1 1 0 0

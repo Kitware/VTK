@@ -22,7 +22,7 @@ vtkPoints points
   points InsertNextPoint     0 -1  0
   points InsertNextPoint     1 -1  0
 
-vtkFloatScalars faceColors
+vtkScalars faceColors
   faceColors InsertNextScalar 0
   faceColors InsertNextScalar 1
   faceColors InsertNextScalar 1

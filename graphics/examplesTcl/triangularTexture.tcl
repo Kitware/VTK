@@ -21,7 +21,7 @@ vtkTriangularTexture aTriangularTexture
     aTriangularTexture SetYSize 32
   
 
-vtkFloatPoints points
+vtkPoints points
     points InsertPoint 0 0.0 0.0 0.0
     points InsertPoint 1 1.0 0.0 0.0
     points InsertPoint 2 .5 1.0 0.0
@@ -29,7 +29,7 @@ vtkFloatPoints points
     points InsertPoint 4 0.0 0.0 0.0
     points InsertPoint 5 .5 -1.0 .5
 
-vtkFloatTCoords tCoords
+vtkTCoords tCoords
     tCoords InsertTCoord 0 0.0 0.0 0.0
     tCoords InsertTCoord 1 1.0 0.0 0.0
     tCoords InsertTCoord 2 .5 .86602540378443864676 0.0

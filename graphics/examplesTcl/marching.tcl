@@ -18,7 +18,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 #define a Single Cube
-vtkFloatScalars Scalars
+vtkScalars Scalars
 	Scalars InsertNextScalar 1.0
 	Scalars InsertNextScalar 0.0
 	Scalars InsertNextScalar 0.0
@@ -28,7 +28,7 @@ vtkFloatScalars Scalars
 	Scalars InsertNextScalar 0.0
 	Scalars InsertNextScalar 0.0
 
-vtkFloatPoints Points
+vtkPoints Points
         Points InsertNextPoint 0 0 0
         Points InsertNextPoint 1 0 0
         Points InsertNextPoint 1 1 0

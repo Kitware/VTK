@@ -641,13 +641,13 @@ vtkActor aVertexActor
   [aVertexActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints polyVertexPoints
+vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
   polyVertexPoints InsertPoint 0 0 0 0
   polyVertexPoints InsertPoint 1 1 0 0
   polyVertexPoints InsertPoint 2 1 1 0
 
-vtkFloatScalars polyVertexScalars
+vtkScalars polyVertexScalars
   polyVertexScalars SetNumberOfScalars 3
   polyVertexScalars InsertScalar 0 1
   polyVertexScalars InsertScalar 1 0

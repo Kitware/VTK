@@ -13,12 +13,12 @@ vtkRenderWindowInteractor iren
 # create some points
 #
 vtkMath math
-vtkFloatPoints points
+vtkPoints points
 for {set i 0} {$i<50} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] [math Random 0 1]
 }
 
-vtkFloatScalars scalars
+vtkScalars scalars
 for {set i 0} {$i<50} {incr i 1} {
     eval scalars InsertScalar $i [math Random 0 1]
 }

@@ -1,7 +1,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"

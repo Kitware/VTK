@@ -1,9 +1,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkPolyData.h"
-#include "vtkFloatPoints.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkSphereSource.h"
 #include "vtkGlyph3D.h"
 #include "vtkPolyDataMapper.h"
@@ -22,9 +21,9 @@ void UserMethod(void *arg)
    for (int n=0; n<50; n++)
    {
       // get the current particle locations
-      vtkFloatPoints *oldPoints = (vtkFloatPoints *) (inputDataSet->GetPoints());
+      vtkPoints *oldPoints = (vtkPoints *) (inputDataSet->GetPoints());
       // Create new points by adding a random component to the old
-      vtkFloatPoints *newPoints = vtkFloatPoints::New();
+      vtkPoints *newPoints = vtkPoints::New();
       for (int i=0; i<oldPoints->GetNumberOfPoints(); i++)
       {
          oldPoints->GetPoint(i, p);
@@ -51,7 +50,7 @@ void main( int argc, char *argv[] )
       iren->SetUserMethod(UserMethod, 0);
 
    // Create points for the starting positions of the particles
-   vtkFloatPoints *startPoints = vtkFloatPoints::New();
+   vtkPoints *startPoints = vtkPoints::New();
    float sp[8][3] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, 
                      {1, 1, 0}, {1, 0, 1}, {0, 1, 1,}, {1, 1, 1}};
    for (int i=0; i<8; i++)

@@ -15,7 +15,7 @@ vtkProgrammableSource rampSource
 
 # Generate a single ramp value
 proc ramp {} {
-   vtkFloatScalars newScalars
+   vtkScalars newScalars
    newScalars SetNumberOfScalars 256
 
    # Compute points and scalars

@@ -2,7 +2,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStructuredPoints.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 #include "vtkContourFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -26,7 +26,7 @@ void main( int argc, char *argv[] )
       sp = 1.0/25.0;
       vol->SetSpacing(sp, sp, sp);
 
-  vtkFloatScalars *scalars = vtkFloatScalars::New();
+  vtkScalars *scalars = vtkScalars::New();
   for (k=0; k<26; k++)
     {
     z = -0.5 + k*sp;

@@ -208,7 +208,7 @@ vtkActor outlineActor
     eval [outlineActor GetProperty] SetColor 1 1 1
 
 
-vtkFloatPoints points
+vtkPoints points
 vtkCellArray   triangles
 
 vtkPolyData spherePolyData

@@ -74,8 +74,8 @@ vtkSphereSource atom5
 vtkStripper fastAtom5
   fastAtom5 SetInput [atom5 GetOutput]
 
-vtkFloatPoints points
-vtkFloatScalars scalars
+vtkPoints points
+vtkScalars scalars
 
 for {set i 0} {$i < $natom} {incr i} {
     points InsertPoint $i $at($i,x) $at($i,y) $at($i,z)

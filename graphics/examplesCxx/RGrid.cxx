@@ -1,7 +1,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
