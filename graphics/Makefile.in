@@ -201,6 +201,7 @@ vtkSLCReader \
 vtkSTLReader \
 vtkSTLWriter \
 vtkSampleFunction \
+vtkScalarTree \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
