@@ -10,12 +10,16 @@
   #include <GL/glut.h>
 #endif
 
+#ifndef FTGL_DO_NOT_USE_VECTORISER
 #include "FTGLOutlineFont.h"
 #include "FTGLPolygonFont.h"
-#include "FTGLBitmapFont.h"
-#ifndef FTGL_NO_TEXTURE_FONTS
+#endif
+
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
 #include "FTGLTextureFont.h"
 #endif
+
+#include "FTGLBitmapFont.h"
 #include "FTGLPixmapFont.h"
 
 static FTFont* fonts[5];
@@ -48,17 +52,30 @@ my_init( const char* font_filename )
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+#ifndef FTGL_DO_NOT_USE_VECTORISER
     fonts[0] = new FTGLOutlineFont;
     fonts[1] = new FTGLPolygonFont;
-#ifndef FTGL_NO_TEXTURE_FONTS
-    fonts[2] = new FTGLTextureFont;
+#else
+    fonts[0] = 
+    fonts[1] = 0;
 #endif
+
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
+    fonts[2] = new FTGLTextureFont;
+#else
+    fonts[2] = 0;
+#endif
+
     fonts[3] = new FTGLBitmapFont;
     fonts[4] = new FTGLPixmapFont;
+
     for (int i=0; i< 5; i++) {
-#ifdef FTGL_NO_TEXTURE_FONTS
-    if (i == 2) continue;
-#endif
+
+       if(!fonts[i])
+       {
+         continue;
+       }
+
         if (!fonts[i]->Open(font_filename)) {
 			printf("Reading font %d from %s\n", i, font_filename);
 			fprintf(stderr, "ERROR: Unable to open file %s\n", font_filename);
@@ -161,9 +178,6 @@ GLUTCALLBACK my_handle_key(unsigned char key, int, int)
    case 27:    
 	   {
        for (int i=0; i<5; i++) {
-#ifdef FTGL_NO_TEXTURE_FONTS
-       if (i == 2) continue;
-#endif
            if (fonts[i]) {
                delete fonts[i];
                fonts[i] = 0;
@@ -246,6 +260,12 @@ draw_scene()
    glColor3f(1.0, 1.0, 1.0);
 
    for (int font = 0; font < 5; font++) {
+
+       if(!fonts[font])
+       {
+         continue;
+       }
+
        GLfloat x = -250.0;
        GLfloat y;
        GLfloat yild = 20.0;
@@ -256,14 +276,13 @@ draw_scene()
                fonts[font]->render(string[j]);
            }
            else {
-#ifdef FTGL_NO_TEXTURE_FONTS
-           if (font == 2) continue;
-#endif
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
                if (font == 2) {
                    glEnable(GL_TEXTURE_2D);
                    glEnable(GL_BLEND);
                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                }
+#endif
                glPushMatrix(); {
                    glTranslatef(x, y, 0.0);
                    fonts[font]->render(string[j]);

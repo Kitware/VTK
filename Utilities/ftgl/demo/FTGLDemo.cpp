@@ -9,10 +9,16 @@
 
 #include "tb.h"
 
+#ifndef FTGL_DO_NOT_USE_VECTORISER
 #include "FTGLExtrdFont.h"
 #include "FTGLOutlineFont.h"
 #include "FTGLPolygonFont.h"
+#endif
+
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
 #include "FTGLTextureFont.h"
+#endif
+
 #include "FTGLPixmapFont.h"
 #include "FTGLBitmapFont.h"
 
@@ -46,7 +52,11 @@ const char* FONT_INFO = "arial.ttf";
 #define FTGL_EXTRUDE 4
 #define FTGL_TEXTURE 5
 
+#ifndef FTGL_DO_NOT_USE_VECTORISER
 int current_font = FTGL_EXTRUDE;
+#else
+int current_font = FTGL_PIXMAP;
+#endif
 
 GLint w_win = 640, h_win = 480;
 float posX, posY, posZ;
@@ -120,6 +130,7 @@ void do_display ()
 //      glEnable(GL_BLEND);
 //      glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_ONE
       break;
+#ifndef FTGL_DO_NOT_USE_VECTORISER
     case FTGL_OUTLINE:
 //      glDisable( GL_TEXTURE_2D);
 //      glEnable( GL_LINE_SMOOTH);
@@ -135,6 +146,8 @@ void do_display ()
       glDisable( GL_BLEND);
       my_lighting();
       break;
+#endif
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
       glEnable( GL_TEXTURE_2D);
       glDisable( GL_DEPTH_TEST);
@@ -142,7 +155,7 @@ void do_display ()
       glNormal3f( 0.0, 0.0, 1.0);
 //      glDisable( GL_BLEND);
       break;
-
+#endif
   }
 
   glColor3f( 1.0, 1.0, 1.0);
@@ -170,6 +183,7 @@ void do_display ()
     glVertex3f( x2, y2, z1);
     glVertex3f( x2, y1, z1);
   glEnd();
+#ifndef FTGL_DO_NOT_USE_VECTORISER
   // Draw the back face
   if( current_font == FTGL_EXTRUDE && z1 != z2)
   {
@@ -194,6 +208,7 @@ void do_display ()
       glVertex3f( x2, y1, z2);
     glEnd();
   }
+#endif
     
     // Draw the baseline, Ascender and Descender
   glBegin( GL_LINES);
@@ -241,6 +256,7 @@ void do_display ()
     case FTGL_PIXMAP:
       infoFont->render("Pixmap Font");
       break;
+#ifndef FTGL_DO_NOT_USE_VECTORISER
     case FTGL_OUTLINE:
       infoFont->render("Outline Font");
       break;
@@ -250,9 +266,12 @@ void do_display ()
     case FTGL_EXTRUDE:
       infoFont->render("Extruded Font");
       break;
+#endif
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
       infoFont->render("Texture Font");
       break;
+#endif
   }
   
   glRasterPos2i( 20 , 20 + infoFont->Ascender() - infoFont->Descender());
@@ -281,13 +300,30 @@ void myinit ()
 
   fonts[FTGL_BITMAP] = new FTGLBitmapFont;
   fonts[FTGL_PIXMAP] = new FTGLPixmapFont;
+
+#ifndef FTGL_DO_NOT_USE_VECTORISER
   fonts[FTGL_OUTLINE] = new FTGLOutlineFont;
   fonts[FTGL_POLYGON] = new FTGLPolygonFont;
   fonts[FTGL_EXTRUDE] = new FTGLExtrdFont;
+#else
+  fonts[FTGL_OUTLINE] = 
+  fonts[FTGL_POLYGON] = 
+  fonts[FTGL_EXTRUDE] = 0;
+#endif
+
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
   fonts[FTGL_TEXTURE] = new FTGLTextureFont;
+#else
+  fonts[FTGL_TEXTURE] = 0;
+#endif
 
   for( int x = 0; x < 6; ++x)
   {
+    if(!fonts[x])
+      {
+      continue;
+      }
+
     if( !fonts[x]->Open( fontfile, false))
     {
       fprintf( stderr, "Failed to open font %s", fontfile);
@@ -345,12 +381,18 @@ void GLUTCALLBACK display()
       glRasterPos2i( w_win / 2, h_win / 2);
       glTranslatef(  w_win / 2, h_win / 2, 0.0);
       break;
+#ifndef FTGL_DO_NOT_USE_VECTORISER
     case FTGL_OUTLINE:
     case FTGL_POLYGON:
     case FTGL_EXTRUDE:
+#endif
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
+#endif
+#if defined(FTGL_DO_NOT_USE_VECTORISER) || defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
       tbMatrix();
       break;
+#endif
   }
   
   do_display();
@@ -376,9 +418,12 @@ void GLUTCALLBACK parsekey(unsigned char key, int, int)
       }
       break;
     case ' ':
-      current_font++;
-      if(current_font > 5)
-        current_font = 0;
+      do
+        {
+        current_font++;
+        if(current_font > 5)
+          current_font = 0;
+        } while (!fonts[current_font]);
       break;
     default:
       if( mode == INTERACTIVE)
@@ -452,14 +497,23 @@ void SetCamera(void)
     case FTGL_PIXMAP:
       glMatrixMode( GL_PROJECTION);
       glLoadIdentity();
+#ifndef FTGL_DO_NOT_USE_VECTORISER
       gluOrtho2D(0, w_win, 0, h_win);
+#else
+      glOrtho(0, w_win, 0, h_win, -1.0, 1.0);
+#endif
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       break;
+#ifndef FTGL_DO_NOT_USE_VECTORISER
     case FTGL_OUTLINE:
     case FTGL_POLYGON:
     case FTGL_EXTRUDE:
+#endif
+#ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
+#endif
+#if defined(FTGL_DO_NOT_USE_VECTORISER) || defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
       glMatrixMode (GL_PROJECTION);
       glLoadIdentity ();
       gluPerspective( 90, (float)w_win / (float)h_win, 1, 1000);
@@ -467,6 +521,7 @@ void SetCamera(void)
       glLoadIdentity();
       gluLookAt( 0.0, 0.0, (float)h_win / 2.0f, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
       break;
+#endif
   }  
 }
 
