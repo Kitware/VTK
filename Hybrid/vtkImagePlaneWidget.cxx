@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.42");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.43");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1374,6 +1374,8 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
     {
     this->Reslice->SetInterpolationModeToCubic();
     }
+  this->Texture->SetInterpolate(this->TextureInterpolate);
+  this->Reslice->Update();
 }
 
 void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
