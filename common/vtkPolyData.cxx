@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkQuad.h"
 #include "vtkPolygon.h"
 #include "vtkEmptyCell.h"
-#include "vtkPolyDataWriter.h"
+//#include "vtkPolyDataWriter.h"
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
