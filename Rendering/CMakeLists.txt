@@ -59,7 +59,6 @@ vtkProp3D
 vtkProp3DCollection
 vtkPropPicker
 vtkProperty
-vtkRayBounder
 vtkRayCaster
 vtkRecursiveSphereDirectionEncoder
 vtkRenderWindow
@@ -128,7 +127,6 @@ vtkImporter
 vtkMapper
 vtkOpenGLRenderWindow
 vtkProp3D
-vtkRayBounder
 vtkVolumeMapper 
 vtkVolumeRayCastFunction 
 vtkVolumeReader 

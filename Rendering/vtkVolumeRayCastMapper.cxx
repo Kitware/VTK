@@ -86,7 +86,6 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->MinimumImageSampleDistance =  1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->AutoAdjustSampleDistances  =  1;
-  this->RayBounder                 = NULL;
   this->VolumeRayCastFunction      = NULL;
   
   this->GradientEstimator  = vtkFiniteDifferenceGradientEstimator::New();

@@ -53,7 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeMapper.h"
 #include "vtkMultiThreader.h"
 #include "vtkVolumeRayCastFunction.h"
-#include "vtkRayBounder.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkEncodedGradientEstimator.h"
 
@@ -103,25 +102,6 @@ public:
   // value. 
   vtkSetMacro( SampleDistance, float );
   vtkGetMacro( SampleDistance, float );
-
-  // Description:
-  // Get / Set the ray bounder. This is used to clip the rays during
-  // ray casting.
-  void SetRayBounder( vtkRayBounder *bounder )
-    {
-      VTK_LEGACY_METHOD(SetRayBounder,"4.0");
-      if (bounder!=this->RayBounder)
-        {
-        if ( this->RayBounder )
-          {
-          this->RayBounder->UnRegister(this);
-          }
-        this->RayBounder = bounder;
-        bounder->Register(this);
-        }
-    };
-  
-  vtkGetObjectMacro( RayBounder, vtkRayBounder );
 
   // Description:
   // Get / Set the volume ray cast function. This is used to process
@@ -226,8 +206,6 @@ protected:
 
   void                         UpdateShadingTables( vtkRenderer *ren, 
 						    vtkVolume *vol );
-
-  vtkRayBounder                *RayBounder;
 
   void ComputeMatrices( vtkImageData *data, vtkVolume *vol );
   virtual void RenderTexture( vtkVolume *vol, vtkRenderer *ren)=0;

@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/gl.h>
 #endif
 #endif
-
+#include "vtkRenderer.h"
 
 //---------------------------------------------------------------------------
 vtkOpenGLVolumeRayCastMapper* vtkOpenGLVolumeRayCastMapper::New()
