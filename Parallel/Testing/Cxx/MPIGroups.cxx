@@ -62,6 +62,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     localController->SetSingleMethod(proc2, 0);
     localController->SingleMethodExecute();
     }
+  localController->Delete();
+
 }
 
 // This will be called by all processes
@@ -105,7 +107,7 @@ void proc1( vtkMultiProcessController *controller, void *arg )
   ren->UnRegister(0);
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  // iren->SetRenderWindow(renWin);
+  iren->SetRenderWindow(renWin);
 
   // The only thing we have to do to get parallel execution.
   vtkTreeComposite*  treeComp = vtkTreeComposite::New();
@@ -124,6 +126,7 @@ void proc1( vtkMultiProcessController *controller, void *arg )
   else
     {
     renWin->Render();
+    renWin->Render();
     for (int i = 1; i < numProcs; i++)
       {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
@@ -135,6 +138,8 @@ void proc1( vtkMultiProcessController *controller, void *arg )
     *(args->retVal) = 
       vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     }
+
+  iren->Start();
 
   iren->Delete();
   renWin->Delete();
