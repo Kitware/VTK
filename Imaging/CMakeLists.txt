@@ -46,6 +46,7 @@ vtkImageHSVToRGB
 vtkImageHybridMedian2D
 vtkImageIdealHighPass
 vtkImageIdealLowPass
+vtkImageToImageStencil
 vtkImageImport
 vtkImageIslandRemoval2D
 vtkImageIterateFilter
