@@ -302,6 +302,13 @@ int vtkDataReader::ReadHeader()
     this->ReadLine(line);
     this->ReadString(line);
     }
+
+  if (this->Source)
+    {
+    float progress=this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+  
   return 1;
 }
 
@@ -312,8 +319,9 @@ int vtkDataReader::ReadHeader()
 int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
 {
   char line[256];
-  
+
   vtkDebugMacro(<< "Reading vtk point data");
+    
   //
   // Read keywords until end-of-file
   //
@@ -472,6 +480,12 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     }
 
   vtkDebugMacro(<<"Read " << ps->GetNumberOfPoints() << " points");
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -576,6 +590,12 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
   coords->Delete();
 
   vtkDebugMacro(<<"Read " << coords->GetNumberOfScalars() << " coordinates");
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -826,6 +846,12 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     return 0;
     }
 
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -895,6 +921,12 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
     return 0;
     }
 
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -961,6 +993,12 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
     vtkErrorMacro(<< "Unsupported normals type: " << line << " for file: " 
                   << this->FileName);
     return 0;
+    }
+
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
     }
 
   return 1;
@@ -1035,6 +1073,12 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
     vtkErrorMacro(<< "Unsupported tensors type: " << line << " for file: " 
                   << this->FileName);
     return 0;
+    }
+
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
     }
 
   return 1;
@@ -1223,6 +1267,12 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
     return 0;
     }
 
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -1305,6 +1355,12 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
     return 0;
   }
 
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -1366,6 +1422,12 @@ int vtkDataReader::ReadLutData(vtkDataSet *ds)
   if ( ! skipTable ) ds->GetPointData()->GetScalars()->SetLookupTable(lut);
   lut->Delete();
 
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
   return 1;
 }
 
@@ -1401,6 +1463,12 @@ int vtkDataReader::ReadCells(int size, int *data)
         return 0;
         }
       }
+    }
+
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
     }
 
   return 1;
