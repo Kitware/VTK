@@ -72,6 +72,7 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->MFChandledWindow = FALSE;	// hsr
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
   this->SetWindowName("Visualization Toolkit - Win32OpenGL");
+  this->TextureResourceIds = vtkIdList::New();
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -85,16 +86,36 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
     
     DestroyWindow(this->WindowId);
     }
+  this->TextureResourceIds->Delete();
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
 {
   vtkRenderer *ren;
-
+  GLuint id;
+  
   /* finish OpenGL rendering */
   if (this->ContextId) 
     {
     this->MakeCurrent();
+
+    /* now delete all textures */
+    glDisable(GL_TEXTURE_2D);
+    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+      {
+      id = (GLuint) this->TextureResourceIds->GetId(i);
+#ifdef GL_VERSION_1_1
+      if (glIsTexture(id))
+	{
+	glDeleteTextures(1, &id);
+	}
+#else
+      if (glIsList(id))
+        {
+        glDeleteLists(id,1);
+        }
+#endif
+      }
 
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
@@ -1345,4 +1366,9 @@ void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
+}
+
+void vtkWin32OpenGLRenderWindow::RegisterTextureResource (GLuint id)
+{
+  this->TextureResourceIds->InsertNextId ((int) id);
 }

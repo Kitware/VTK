@@ -51,6 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkMutexLock.h"
 
+#include <GL/gl.h>
+
+class vtkIdList;
+
 class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
 public:
@@ -213,6 +217,10 @@ public:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
 
+  // Description:
+  // Register a texture name with this render window
+  void RegisterTextureResource (GLuint id);
+
  protected:
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
@@ -226,6 +234,7 @@ public:
   int       OwnWindow;
   int       ScreenSize[2];
   int       MultiSamples;
+  vtkIdList *TextureResourceIds;
 
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
