@@ -19,7 +19,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.2");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.3");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void vtkCollectPolyData::Execute()
     {
     for (idx = 1; idx < numProcs; ++idx)
       {
-      cerr << "Receive size.\n";
+      //cerr << "Receive size.\n";
       this->Controller->Receive(&tmp, 1, idx, 839823);
       size += tmp;
       }
@@ -115,15 +115,15 @@ void vtkCollectPolyData::Execute()
     // Communicate descision to all processes.
     for (idx = 1; idx < numProcs; ++idx)
       {
-      cerr << "Sending collection descision" << this->Collected << endl;
+      //cerr << "Sending collection descision" << this->Collected << endl;
       this->Controller->Send(&this->Collected, 1, idx, 839824);
       }
     }
   else
     {
-    cerr << "Sending size" << size << endl;
+    //cerr << "Sending size" << size << endl;
     this->Controller->Send(&size, 1, 0, 839823);
-    cerr << "Receive collection decision.\n";
+    //cerr << "Receive collection decision.\n";
     this->Controller->Receive(&this->Collected, 1, 0, 839824);
     }
 
