@@ -1,3 +1,4 @@
 """Utility modules for the VTK-Python wrappers."""
 
-__all__ = ['vtkMethodParser', 'misc']
+__all__ = ['misc', 'vtkConstants', 'vtkImageExportToArray',
+           'vtkImageImportFromArray', 'vtkMethodParser']
