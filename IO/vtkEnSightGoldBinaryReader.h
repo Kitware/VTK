@@ -51,6 +51,9 @@ protected:
   vtkEnSightGoldBinaryReader();
   ~vtkEnSightGoldBinaryReader();
   
+  // Returns 1 if successful.  Sets file size as a side action.
+  int OpenFile(const char* filename);
+
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
   virtual int ReadGeometryFile(char* fileName, int timeStep);
@@ -157,7 +160,10 @@ protected:
   int NodeIdsListed;
   int ElementIdsListed;
   
-  FILE *IFile;
+  ifstream *IFile;
+  // The size of the file could be used to choose byte order.
+  int FileSize;
+
 private:
   vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&);  // Not implemented.
   void operator=(const vtkEnSightGoldBinaryReader&);  // Not implemented.
