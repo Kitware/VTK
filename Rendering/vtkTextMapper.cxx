@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.49");
+vtkCxxRevisionMacro(vtkTextMapper, "1.50");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -502,9 +502,6 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->GetTextProperty()->ShallowCopy(tprop);
     this->TextLines[lineNum]->GetTextProperty()->SetLineOffset
       (tprop->GetLineOffset() + (int)((float)this->LineSize * (lineNum + offset) * tprop->GetLineSpacing()));
-#ifndef VTK_USE_FREETYPE
-    this->TextLines[lineNum]->GetTextProperty()->SetVerticalJustificationToBottom();
-#endif
     this->TextLines[lineNum]->RenderOverlay(viewport,actor);
     }
 }

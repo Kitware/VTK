@@ -139,38 +139,38 @@ vtkVolumeTextureMapper
 ABSTRACT
 )
 
-IF (VTK_USE_FREETYPE)
-  INCLUDE_DIRECTORIES(
-    ${VTKFREETYPE_SOURCE_DIR}/include
-    ${VTKFREETYPE_BINARY_DIR}
-    ${VTKFTGL_SOURCE_DIR}/src
-    ${VTKFTGL_BINARY_DIR}
-  )
-  SET(Rendering_SRCS ${Rendering_SRCS}
-    vtkFreeTypeFontCache.cxx
-  )
-  SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-    vtkOpenGLFreeTypeTextMapper.cxx
-  )
-  SET_SOURCE_FILES_PROPERTIES(
-	vtkFreeTypeFontCache
-    WRAP_EXCLUDE
-  )
-  SET(Rendering_FT_SRCS 
-    fonts/face_arial.cxx
-    fonts/face_arial_bold.cxx
-    fonts/face_arial_bold_italic.cxx
-    fonts/face_arial_italic.cxx
-    fonts/face_courier.cxx
-    fonts/face_courier_bold.cxx
-    fonts/face_courier_bold_italic.cxx
-    fonts/face_courier_italic.cxx
-    fonts/face_times.cxx
-    fonts/face_times_bold.cxx
-    fonts/face_times_bold_italic.cxx
-    fonts/face_times_italic.cxx
-  )
-ENDIF (VTK_USE_FREETYPE)
+# Freetype stuff
+
+INCLUDE_DIRECTORIES(
+  ${VTKFREETYPE_SOURCE_DIR}/include
+  ${VTKFREETYPE_BINARY_DIR}
+  ${VTKFTGL_SOURCE_DIR}/src
+  ${VTKFTGL_BINARY_DIR}
+)
+SET(Rendering_SRCS ${Rendering_SRCS}
+  vtkFreeTypeFontCache.cxx
+)
+SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+  vtkOpenGLFreeTypeTextMapper.cxx
+)
+SET_SOURCE_FILES_PROPERTIES(
+  vtkFreeTypeFontCache
+  WRAP_EXCLUDE
+)
+SET(Rendering_FT_SRCS 
+  fonts/face_arial.cxx
+  fonts/face_arial_bold.cxx
+  fonts/face_arial_bold_italic.cxx
+  fonts/face_arial_italic.cxx
+  fonts/face_courier.cxx
+  fonts/face_courier_bold.cxx
+  fonts/face_courier_bold_italic.cxx
+  fonts/face_courier_italic.cxx
+  fonts/face_times.cxx
+  fonts/face_times_bold.cxx
+  fonts/face_times_bold_italic.cxx
+  fonts/face_times_italic.cxx
+)
 
 IF(VTK_OPENGL_HAS_OSMESA AND OSMESA_INCLUDE_PATH)
   INCLUDE_DIRECTORIES(${OSMESA_INCLUDE_PATH})
@@ -178,8 +178,7 @@ ENDIF(VTK_OPENGL_HAS_OSMESA AND OSMESA_INCLUDE_PATH)
 
 IF(VTK_USE_X)
   SET( Rendering_SRCS ${Rendering_SRCS}
-    vtkXRenderWindowInteractor.cxx
-    vtkXTextMapper.cxx)
+    vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
 
 # Build a list of libraries to link to vtkRendering.
@@ -188,15 +187,12 @@ SET(Rendering_LIBS vtkGraphics vtkImaging)
 IF (WIN32)
   SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                vtkWin32OpenGLRenderWindow.cxx
-               vtkWin32RenderWindowInteractor.cxx
-               vtkWin32OpenGLTextMapper.cxx
-               vtkWin32TextMapper.cxx)
+               vtkWin32RenderWindowInteractor.cxx)
   SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
 ELSE (WIN32)
   IF (APPLE)
     IF(VTK_USE_COCOA)
       SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-                   vtkCocoaTextMapper.cxx
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
                    vtkCocoaWindow.mm
@@ -206,7 +202,6 @@ ELSE (WIN32)
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
       SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-                   vtkCarbonTextMapper.cxx
                    vtkCarbonRenderWindowInteractor.cxx
                    vtkCarbonRenderWindow.cxx)
       SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
@@ -214,18 +209,14 @@ ELSE (WIN32)
     IF(VTK_USE_X)
       IF (OPENGL_LIBRARY)
         SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-                     vtkXOpenGLRenderWindow.cxx
-                     vtkXOpenGLTextMapper.cxx)
-        SET_SOURCE_FILES_PROPERTIES(vtkXTextMapper ABSTRACT)
+                     vtkXOpenGLRenderWindow.cxx)
         SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
       ENDIF (OPENGL_LIBRARY)
     ENDIF(VTK_USE_X)
   ELSE (APPLE)
     IF (OPENGL_LIBRARY)
       SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-                   vtkXOpenGLRenderWindow.cxx
-                   vtkXOpenGLTextMapper.cxx)
-      SET_SOURCE_FILES_PROPERTIES( vtkXTextMapper ABSTRACT )
+                   vtkXOpenGLRenderWindow.cxx)
       SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
     ENDIF (OPENGL_LIBRARY)
   ENDIF (APPLE)
@@ -248,13 +239,10 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaVolumeRayCastMapper.cxx
                  vtkMesaVolumeTextureMapper2D.cxx
                  vtkXMesaRenderWindow.cxx
-                 vtkXMesaTextMapper.cxx
                 )
-    IF (VTK_USE_FREETYPE)
-      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-        vtkMesaFreeTypeTextMapper.cxx
-      )
-    ENDIF (VTK_USE_FREETYPE)
+    SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+      vtkMesaFreeTypeTextMapper.cxx
+    )
     SET_SOURCE_FILES_PROPERTIES(vtkMesaRenderWindow ABSTRACT)
     SET (Rendering_LIBS ${Rendering_LIBS} ${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
@@ -301,12 +289,10 @@ TARGET_LINK_LIBRARIES(vtkRendering ${Rendering_LIBS})
 INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
-IF (VTK_USE_FREETYPE)
-  TARGET_LINK_LIBRARIES(vtkRendering
-    vtkftgl
-    vtkfreetype
-  )
-ENDIF (VTK_USE_FREETYPE)
+TARGET_LINK_LIBRARIES(vtkRendering
+  vtkftgl
+  vtkfreetype
+)
 
 IF (VTK_WRAP_TCL)
   SET(RenderingTCL_SRCS

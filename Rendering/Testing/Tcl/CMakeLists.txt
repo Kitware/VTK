@@ -42,28 +42,26 @@ IF (VTK_USE_RENDERING)
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
 
-    IF (VTK_USE_FREETYPE)
-      FOREACH ( tfile
-        TestFreetypeTextMapper
-        TestFreetypeTextMapperBigger
-      )
-        ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
-          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-          ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/${tfile}.tcl
-          -D ${VTK_DATA_ROOT}
-          -V Baseline/Rendering/${tfile}.png
-          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-      ENDFOREACH( tfile )
+    FOREACH ( tfile
+      TestFreetypeTextMapper
+      TestFreetypeTextMapperBigger
+    )
+      ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/${tfile}.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Rendering/${tfile}.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDFOREACH( tfile )
 
-      IF (VTK_MANGLE_MESA)
-        ADD_TEST(MesaText-image ${VTK_EXECUTABLE}
-          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-          ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/MesaText.tcl
-          -D ${VTK_DATA_ROOT}
-          -V Baseline/Rendering/MesaText.png
-          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-      ENDIF (VTK_MANGLE_MESA)
-    ENDIF (VTK_USE_FREETYPE)
+    IF (VTK_MANGLE_MESA)
+      ADD_TEST(MesaText-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/MesaText.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Rendering/MesaText.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF (VTK_MANGLE_MESA)
   #
   # If we do not have the data, still run the tests that we can
   #

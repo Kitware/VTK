@@ -45,6 +45,4 @@
 /* debug leaks */
 #cmakedefine VTK_DEBUG_LEAKS
 
-#cmakedefine VTK_USE_FREETYPE
-
 #endif
