@@ -212,6 +212,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 
     msquares.SetInput((vtkStructuredPoints *)this->Input);
     msquares.SetDebug(this->Debug);
+    msquares.SetNumberOfContours(this->NumberOfContours);
     for (i=0; i < this->NumberOfContours; i++)
       msquares.SetValue(i,this->Values[i]);
          
@@ -228,6 +229,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     mcubes.SetComputeGradients (this->ComputeGradients);
     mcubes.SetComputeScalars (this->ComputeScalars);
     mcubes.SetDebug(this->Debug);
+    mcubes.SetNumberOfContours(this->NumberOfContours);
     for (i=0; i < this->NumberOfContours; i++)
       mcubes.SetValue(i,this->Values[i]);
 
