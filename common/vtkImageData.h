@@ -314,7 +314,7 @@ public:
   virtual void PrepareForNewData();
 
   void SetMemoryLimit( int vtkNotUsed(x) ) 
-    { vtkErrorMacro( << "Memory limit no longer supported - use streamer" ); };
+    { vtkErrorMacro( << "vtkImageData::SetMemoryLimit no longer supported - use the class vtkImageDataStreamer instead" ); };
 
   int GetMemoryLimit() { return 0; };
 
