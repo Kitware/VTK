@@ -20,7 +20,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 
 static vlMath math;
-static vlTriangle tri;
 
 // Description:
 // Deep copy of cell.
@@ -262,6 +261,7 @@ vlCell *vlTetra::GetEdge(int edgeId)
 vlCell *vlTetra::GetFace(int faceId)
 {
   int *verts;
+  static vlTriangle tri;
 
   verts = faces[faceId];
 
@@ -289,6 +289,7 @@ int vlTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
+  static vlTriangle tri;
 
   t = LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)
