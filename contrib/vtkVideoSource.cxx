@@ -148,17 +148,23 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ClipRegion: (" << this->ClipRegion[0];
   for (idx = 1; idx < 6; ++idx)
+    {
     os << ", " << this->ClipRegion[idx];
+    }
   os << ")\n";
   
   os << indent << "DataSpacing: (" << this->DataSpacing[0];
   for (idx = 1; idx < 3; ++idx)
+    {
     os << ", " << this->DataSpacing[idx];
+    }
   os << ")\n";
   
   os << indent << "DataOrigin: (" << this->DataOrigin[0];
   for (idx = 1; idx < 3; ++idx)
+    {
     os << ", " << this->DataOrigin[idx];
+    }
   os << ")\n";
 
   os << indent << "OutputFormat: " <<
@@ -170,7 +176,9 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0];
   for (idx = 1; idx < 6; ++idx)
+    {
     os << ", " << this->OutputWholeExtent[idx];
+    }
   os << ")\n";
   
   os << indent << "FrameRate: " << this->FrameRate << "\n";
@@ -182,6 +190,8 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfOutputFrames: " << this->NumberOfOutputFrames << "\n";
 
   os << indent << "AutoAdvance: " << (this->AutoAdvance ? "On\n" : "Off\n");
+
+  os << indent << "GrabOnUpdate: " << (this->GrabOnUpdate ? "On\n" : "Off\n");
   
   os << indent << "VideoChannel: " << this->VideoChannel << "\n";
 
@@ -416,7 +426,7 @@ void vtkVideoSource::InternalGrab()
 {
   int i,index;
   static int randsave = 0;
-  int rand;
+  int randNum;
   unsigned char *ptr;
   int *lptr;
 
@@ -441,7 +451,7 @@ void vtkVideoSource::InternalGrab()
                    (this->FrameBufferExtent[3]-this->FrameBufferExtent[2]+1) *
                    (this->FrameBufferExtent[5]-this->FrameBufferExtent[4]+1);
 
-  rand = randsave;
+  randNum = randsave;
 
   // copy 'noise' into the frame buffer
   ptr = (unsigned char *)((vtkScalars *)this->\
@@ -452,15 +462,15 @@ void vtkVideoSource::InternalGrab()
 
   while (--i >= 0)
     {
-    rand = 1664525*rand + 1013904223;
-    *lptr++ = rand;
+    randNum = 1664525*randNum + 1013904223;
+    *lptr++ = randNum;
     }
   ptr += 4;
   i = (totalSize-4)/16;
   while (--i >= 0)
     {
-    rand = 1664525*rand + 1013904223;
-    *ptr = rand;
+    randNum = 1664525*randNum + 1013904223;
+    *ptr = randNum;
     ptr += 16;
     }
 
@@ -470,7 +480,7 @@ void vtkVideoSource::InternalGrab()
 
   this->Modified();
 
-  randsave = rand;
+  randsave = randNum;
 }
 
 //----------------------------------------------------------------------------
@@ -482,7 +492,7 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
  
   int activeFlag;
 
-  double time = vtkTimerLog::GetCurrentTime();
+  double currentTime = vtkTimerLog::GetCurrentTime();
   for (;;)
     {
     // do our psudo-capture
@@ -490,7 +500,7 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
     
     // sleep until the next frame rolls around
 
-    double oldtime = time;
+    double oldtime = currentTime;
     //fprintf(stderr,"time: %10.6f\n",time);
 
     for (;;)
@@ -505,13 +515,13 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 	return NULL;
 	}
 
-      time = vtkTimerLog::GetCurrentTime();
+      currentTime = vtkTimerLog::GetCurrentTime();
       // get the time remaining until the next frame
       float rate = self->GetFrameRate();
       double remaining = 0.1;
       if (rate > 0)
 	{
-	remaining = 1.0/rate - (time - oldtime);
+	remaining = 1.0/rate - (currentTime - oldtime);
 	}
 
       if (remaining < 0)
