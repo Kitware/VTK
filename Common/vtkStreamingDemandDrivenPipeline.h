@@ -35,6 +35,7 @@ public:
   // Description:
   // Bring the given algorithm's outputs up-to-date.  The algorithm
   // must already be managed by this executive.
+  virtual int Update();
   virtual int Update(vtkAlgorithm* algorithm);
 
   static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
@@ -47,6 +48,7 @@ protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
 
+  virtual int ExecuteInformation();
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;
 private:

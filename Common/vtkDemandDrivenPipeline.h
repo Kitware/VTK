@@ -39,6 +39,7 @@ public:
   // Description:
   // Bring the given algorithm's outputs up-to-date.  The algorithm
   // must already be managed by this executive.
+  virtual int Update();
   virtual int Update(vtkAlgorithm* algorithm);
 
   // Description:
@@ -61,6 +62,9 @@ public:
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
+
+  virtual int ExecuteInformation();
+  virtual int ExecuteData(int outputPort);
 
   vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
   vtkInformation* GetConnectedInputInformation(int port, int index);

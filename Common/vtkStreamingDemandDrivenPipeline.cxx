@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.2");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -78,22 +78,72 @@ vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
 {
-  if(algorithm != this->GetAlgorithm())
+  return this->Superclass::Update(algorithm);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::Update()
+{
+  if(!this->UpdateInformation())
     {
-    vtkErrorMacro("Request to update algorithm not managed by this "
-                  "executive: " << algorithm);
     return 0;
     }
+  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
+    {
+    return this->PropagateUpdateExtent(0) && this->UpdateData(0);
+    }
+  else
+    {
+    return 1;
+    }
+}
 
-  return (this->UpdateInformation() &&
-          this->PropagateUpdateExtent(0) &&
-          this->UpdateData(0));
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
+{
+  if(this->Superclass::ExecuteInformation())
+    {
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = this->GetOutputInformation(i);
+      if(info->Has(WHOLE_EXTENT()) &&
+         !info->Has(vtkInformation::UPDATE_EXTENT()))
+        {
+        int extent[6];
+        info->Get(WHOLE_EXTENT(), extent);
+        info->Set(vtkInformation::UPDATE_EXTENT(), extent, 6);
+        }
+      }
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 {
-  vtkDebugMacro("PropagateUpdateExtent for output " << outputPort);
+  // Avoid infinite recursion.
+  if(this->InProcessUpstreamRequest)
+    {
+    vtkErrorMacro("PropagateUpdateExtent invoked during an upstream request.  "
+                  "Returning failure from the method.");
+    return 0;
+    }
+
+  // Range check.
+  if(outputPort < 0 ||
+     outputPort >= this->Algorithm->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("PropagateUpdateExtent given output port index "
+                  << outputPort << " on an algorithm with "
+                  << this->Algorithm->GetNumberOfOutputPorts()
+                  << " output ports.");
+    return 0;
+    }
+
   // If we need to update data, propagate the update extent.
   int result = 1;
   if(this->PipelineMTime > this->DataTime.GetMTime())
@@ -114,17 +164,20 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     this->InProcessUpstreamRequest = 0;
 
     // Propagate the update extent to all inputs.
-    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+    if(result)
       {
-      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
         {
-        vtkDemandDrivenPipeline* ddp = this->GetConnectedInputExecutive(i, j);
-        if(vtkStreamingDemandDrivenPipeline* sddp =
-           vtkStreamingDemandDrivenPipeline::SafeDownCast(ddp))
+        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
           {
-          if(!sddp->PropagateUpdateExtent(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
+          vtkDemandDrivenPipeline* ddp = this->GetConnectedInputExecutive(i, j);
+          if(vtkStreamingDemandDrivenPipeline* sddp =
+             vtkStreamingDemandDrivenPipeline::SafeDownCast(ddp))
             {
-            return 0;
+            if(!sddp->PropagateUpdateExtent(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
+              {
+              return 0;
+              }
             }
           }
         }
