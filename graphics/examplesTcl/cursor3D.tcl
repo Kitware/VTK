@@ -10,6 +10,7 @@ vtkRenderWindowInteractor iren
 vtkPLOT3DReader reader
   reader SetXYZFileName "../../../vtkdata/combxyz.bin"
   reader SetQFileName "../../../vtkdata/combq.bin"
+  reader SetScalarFunctionNumber 210
   reader Update
 
   # create outline
@@ -25,8 +26,9 @@ vtkActor outline
 vtkCursor3D cursor
   eval cursor SetFocalPoint [[reader GetOutput] GetCenter]
   eval cursor SetModelBounds [[reader GetOutput] GetBounds]
+  cursor AllOff
   cursor AxesOn
-  cursor OutlineOff
+  cursor OutlineOn
   cursor XShadowsOn
   cursor YShadowsOn
   cursor ZShadowsOn
@@ -52,7 +54,7 @@ vtkGlyph3D glyph
   glyph SetSource [cone GetOutput]
   glyph SetVectorModeToUseVector
   glyph SetScaleModeToScaleByScalar
-  glyph SetScaleFactor 10
+  glyph SetScaleFactor .0002
 vtkPolyDataMapper glyphMapper
   glyphMapper SetInput [glyph GetOutput]
 vtkActor glyphActor
