@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#ifdef WIN32
 #include "pcmaker/stdafx.h"
 #endif
 #include <sys/types.h>
@@ -7,7 +7,7 @@
 #include <fstream.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef _WIN32
+#ifdef WIN32
 #include "pcmaker/pcmaker.h"
 #include "pcmaker/pcmakerDlg.h"
 #endif
@@ -123,7 +123,7 @@ void AddToDepends(const char *filename, const char *vtkHome,
 
   if ( NumInDepends >= MAX_DEPENDS )
     {
-#ifdef _WIN32
+#ifdef WIN32
     AfxMessageBox("ERROR:  To many depends files... recompile with larger MAX_DEPENDS!!!");
 #else
     fprintf(stderr,
@@ -196,7 +196,7 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome,
   // search for it in the vtk src code
   if (stat(dependsEntry->name,&statBuff))
     {
-#ifdef _WIN32
+#ifdef WIN32
     sprintf(line,"ERROR:  file %s not found... Continuing anyway!", dependsEntry->name);
     AfxMessageBox(line);
 #else
@@ -279,7 +279,7 @@ Similar Code to above but for plitting up the Graphics library.
 Messy but gets the job done!!!!
 *****************************************************************/
 
-#ifdef _WIN32
+#ifdef WIN32
 
 int GLibFlag[MAX_DEPENDS];
 
