@@ -87,7 +87,7 @@ void vtkWarpScalar::Execute()
 {
   vtkPoints *inPts;
   vtkNormals *inNormals;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkPoints *newPts;
   vtkPointData *pd;
   int i;
@@ -104,7 +104,7 @@ void vtkWarpScalar::Execute()
   inPts = input->GetPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();
-  inScalars = pd->GetScalars();
+  inScalars = pd->GetActiveScalars();
 
   if ( !inPts || !inScalars )
     {
@@ -154,7 +154,7 @@ void vtkWarpScalar::Execute()
       }
     else
       {
-      s = inScalars->GetScalar(ptId);
+      s = inScalars->GetComponent(ptId,0);
       }
     for (i=0; i<3; i++)
       {

@@ -64,7 +64,9 @@ public:
   // normals, they are "orientation" normals used by classes like vtkTubeFilter
   // that control the rotation around the line. The normals try to stay pointing
   // in the same direction as much as possible (i.e., minimal rotation).
-  int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkNormals *);
+  int GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *ca, vtkNormals *n)
+    { this->GenerateSlidingNormals(pts,ca, n->GetData()); }
+  int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

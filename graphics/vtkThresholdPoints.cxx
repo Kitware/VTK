@@ -101,7 +101,7 @@ void vtkThresholdPoints::ThresholdBetween(float lower, float upper)
   
 void vtkThresholdPoints::Execute()
 {
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
@@ -112,7 +112,7 @@ void vtkThresholdPoints::Execute()
 
   vtkDebugMacro(<< "Executing threshold points filter");
 
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
     return;
@@ -139,7 +139,7 @@ void vtkThresholdPoints::Execute()
       abort = this->GetAbortExecute();
       }
 
-    if ( (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId)) ) 
+    if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) ) 
       {
       x = input->GetPoint(ptId);
       pts[0] = newPoints->InsertNextPoint(x);

@@ -199,7 +199,7 @@ void vtkTextSource::Execute()
   int row, col;
   vtkPoints *newPoints; 
   vtkCellArray *newPolys;
-  vtkScalars *newScalars;
+  vtkUnsignedCharArray *newScalars;
   float x[3];
   int pos = 0;
   int pixelPos;
@@ -211,7 +211,6 @@ void vtkTextSource::Execute()
   unsigned char white[4];
   unsigned char black[4];
   vtkPolyData *output = this->GetOutput();
-  vtkUnsignedCharArray *data;
   
   if (this->Text == NULL)
     {
@@ -231,8 +230,8 @@ void vtkTextSource::Execute()
 
   newPoints = vtkPoints::New();
   newPolys = vtkCellArray::New();
-  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,4);
-  data = (vtkUnsignedCharArray *)newScalars->GetData();
+  newScalars = vtkUnsignedCharArray::New();
+  newScalars->SetNumberOfComponents(4);
 
   // Create Text
   while (this->Text[pos])
@@ -252,18 +251,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black[0]);
-	      data->InsertNextValue(black[1]);
-	      data->InsertNextValue(black[2]);
-	      data->InsertNextValue(black[3]);
+	      newScalars->InsertNextValue(black[0]);
+	      newScalars->InsertNextValue(black[1]);
+	      newScalars->InsertNextValue(black[2]);
+	      newScalars->InsertNextValue(black[3]);
 
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black[0]);
-	      data->InsertNextValue(black[1]);
-	      data->InsertNextValue(black[2]);
-	      data->InsertNextValue(black[3]);
+	      newScalars->InsertNextValue(black[0]);
+	      newScalars->InsertNextValue(black[1]);
+	      newScalars->InsertNextValue(black[2]);
+	      newScalars->InsertNextValue(black[3]);
 
 	      pts[0] = numPolys*4;
 	      pts[1] = numPolys*4 + 1;
@@ -278,18 +277,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white[0]);
-	      data->InsertNextValue(white[1]);
-	      data->InsertNextValue(white[2]);
-	      data->InsertNextValue(white[3]);
+	      newScalars->InsertNextValue(white[0]);
+	      newScalars->InsertNextValue(white[1]);
+	      newScalars->InsertNextValue(white[2]);
+	      newScalars->InsertNextValue(white[3]);
 
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white[0]);
-	      data->InsertNextValue(white[1]);
-	      data->InsertNextValue(white[2]);
-	      data->InsertNextValue(white[3]);
+	      newScalars->InsertNextValue(white[0]);
+	      newScalars->InsertNextValue(white[1]);
+	      newScalars->InsertNextValue(white[2]);
+	      newScalars->InsertNextValue(white[3]);
 	      drawingWhite = 1;
 	      }
 	    }
@@ -301,18 +300,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white[0]);
-	      data->InsertNextValue(white[1]);
-	      data->InsertNextValue(white[2]);
-	      data->InsertNextValue(white[3]);
+	      newScalars->InsertNextValue(white[0]);
+	      newScalars->InsertNextValue(white[1]);
+	      newScalars->InsertNextValue(white[2]);
+	      newScalars->InsertNextValue(white[3]);
 
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white[0]);
-	      data->InsertNextValue(white[1]);
-	      data->InsertNextValue(white[2]);
-	      data->InsertNextValue(white[3]);
+	      newScalars->InsertNextValue(white[0]);
+	      newScalars->InsertNextValue(white[1]);
+	      newScalars->InsertNextValue(white[2]);
+	      newScalars->InsertNextValue(white[3]);
 
 	      pts[0] = numPolys*4;
 	      pts[1] = numPolys*4 + 1;
@@ -327,18 +326,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black[0]);
-	      data->InsertNextValue(black[1]);
-	      data->InsertNextValue(black[2]);
-	      data->InsertNextValue(black[3]);
+	      newScalars->InsertNextValue(black[0]);
+	      newScalars->InsertNextValue(black[1]);
+	      newScalars->InsertNextValue(black[2]);
+	      newScalars->InsertNextValue(black[3]);
 
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black[0]);
-	      data->InsertNextValue(black[1]);
-	      data->InsertNextValue(black[2]);
-	      data->InsertNextValue(black[3]);
+	      newScalars->InsertNextValue(black[0]);
+	      newScalars->InsertNextValue(black[1]);
+	      newScalars->InsertNextValue(black[2]);
+	      newScalars->InsertNextValue(black[3]);
 	      drawingBlack = 1;
 	      }
 	    }
@@ -349,18 +348,18 @@ void vtkTextSource::Execute()
 	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(white[0]);
-	  data->InsertNextValue(white[1]);
-	  data->InsertNextValue(white[2]);
-	  data->InsertNextValue(white[3]);
+	  newScalars->InsertNextValue(white[0]);
+	  newScalars->InsertNextValue(white[1]);
+	  newScalars->InsertNextValue(white[2]);
+	  newScalars->InsertNextValue(white[3]);
 
 	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(white[0]);
-	  data->InsertNextValue(white[1]);
-	  data->InsertNextValue(white[2]);
-	  data->InsertNextValue(white[3]);
+	  newScalars->InsertNextValue(white[0]);
+	  newScalars->InsertNextValue(white[1]);
+	  newScalars->InsertNextValue(white[2]);
+	  newScalars->InsertNextValue(white[3]);
 	  
 	  pts[0] = numPolys*4;
 	  pts[1] = numPolys*4 + 1;
@@ -375,18 +374,18 @@ void vtkTextSource::Execute()
 	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(black[0]);
-	  data->InsertNextValue(black[1]);
-	  data->InsertNextValue(black[2]);
-	  data->InsertNextValue(black[3]);
+	  newScalars->InsertNextValue(black[0]);
+	  newScalars->InsertNextValue(black[1]);
+	  newScalars->InsertNextValue(black[2]);
+	  newScalars->InsertNextValue(black[3]);
 
 	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(black[0]);
-	  data->InsertNextValue(black[1]);
-	  data->InsertNextValue(black[2]);
-	  data->InsertNextValue(black[3]);
+	  newScalars->InsertNextValue(black[0]);
+	  newScalars->InsertNextValue(black[1]);
+	  newScalars->InsertNextValue(black[2]);
+	  newScalars->InsertNextValue(black[3]);
 	  
 	  pts[0] = numPolys*4;
 	  pts[1] = numPolys*4 + 1;
@@ -406,34 +405,34 @@ void vtkTextSource::Execute()
 	x[0] = pos*vtkfont_width; 
 	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black[0]);
-	data->InsertNextValue(black[1]);
-	data->InsertNextValue(black[2]);
-	data->InsertNextValue(black[3]);
+	newScalars->InsertNextValue(black[0]);
+	newScalars->InsertNextValue(black[1]);
+	newScalars->InsertNextValue(black[2]);
+	newScalars->InsertNextValue(black[3]);
       
 	x[0] = pos*vtkfont_width + vtkfont_width; 
 	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black[0]);
-	data->InsertNextValue(black[1]);
-	data->InsertNextValue(black[2]);
-	data->InsertNextValue(black[3]);
+	newScalars->InsertNextValue(black[0]);
+	newScalars->InsertNextValue(black[1]);
+	newScalars->InsertNextValue(black[2]);
+	newScalars->InsertNextValue(black[3]);
 
 	x[0] = pos*vtkfont_width + vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black[0]);
-	data->InsertNextValue(black[1]);
-	data->InsertNextValue(black[2]);
-	data->InsertNextValue(black[3]);
+	newScalars->InsertNextValue(black[0]);
+	newScalars->InsertNextValue(black[1]);
+	newScalars->InsertNextValue(black[2]);
+	newScalars->InsertNextValue(black[3]);
       
 	x[0] = pos*vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black[0]);
-	data->InsertNextValue(black[1]);
-	data->InsertNextValue(black[2]);
-	data->InsertNextValue(black[3]);
+	newScalars->InsertNextValue(black[0]);
+	newScalars->InsertNextValue(black[1]);
+	newScalars->InsertNextValue(black[2]);
+	newScalars->InsertNextValue(black[3]);
       
 	pts[0] = numPolys*4;
 	pts[1] = numPolys*4 + 1;

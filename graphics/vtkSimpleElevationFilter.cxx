@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSimpleElevationFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //------------------------------------------------------------------------------
 vtkSimpleElevationFilter* vtkSimpleElevationFilter::New()
@@ -72,7 +73,7 @@ vtkSimpleElevationFilter::vtkSimpleElevationFilter()
 void vtkSimpleElevationFilter::Execute()
 {
   vtkIdType i, numPts;
-  vtkScalars *newScalars;
+  vtkFloatArray *newScalars;
   float s, x[3];
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
@@ -92,8 +93,8 @@ void vtkSimpleElevationFilter::Execute()
 
   // Allocate
   //
-  newScalars = vtkScalars::New();
-  newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatArray::New();
+  newScalars->SetNumberOfTuples(numPts);
 
   // Set up 1D parametric system
   //
@@ -117,7 +118,7 @@ void vtkSimpleElevationFilter::Execute()
 
     input->GetPoint(i,x);
     s = vtkMath::Dot(this->Vector,x);
-    newScalars->SetScalar(i,s);
+    newScalars->SetComponent(i,0,s);
     }
 
   // Update self

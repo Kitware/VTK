@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVectorDot.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkVectorDot* vtkVectorDot::New()
@@ -69,7 +70,7 @@ vtkVectorDot::vtkVectorDot()
 void vtkVectorDot::Execute()
 {
   vtkIdType ptId, numPts;
-  vtkScalars *newScalars;
+  vtkFloatArray *newScalars;
   vtkDataSet *input = this->GetInput();
   vtkNormals *inNormals;
   vtkVectors *inVectors;
@@ -102,7 +103,7 @@ void vtkVectorDot::Execute()
 
   // Allocate
   //
-  newScalars = vtkScalars::New();
+  newScalars = vtkFloatArray::New();
   newScalars->Allocate(numPts);
 
   // Compute initial scalars
@@ -128,7 +129,7 @@ void vtkVectorDot::Execute()
       {
       max = s;
       }
-    newScalars->InsertScalar(ptId,s);
+    newScalars->InsertTuple(ptId,&s);
     }
 
   // Map scalars into scalar range
@@ -144,9 +145,9 @@ void vtkVectorDot::Execute()
 
   for ( ptId=0; ptId < numPts; ptId++ )
     {
-    s = newScalars->GetScalar(ptId);
+    s = newScalars->GetComponent(ptId,0);
     s = ((s - min)/dS) * dR + this->ScalarRange[0];
-    newScalars->InsertScalar(ptId,s);
+    newScalars->InsertTuple(ptId,&s);
     }
 
   // Update self and relase memory

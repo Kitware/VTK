@@ -83,7 +83,8 @@ vtkCell *vtkPolyLine::MakeObject()
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
 // in the same direction as much as possible (i.e., minimal rotation).
-int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtkNormals *normals)
+int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
+					vtkDataArray *normals)
 {
   vtkIdType npts;
   vtkIdType *linePts;
@@ -107,7 +108,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
       {
       normal[0] = normal[1] = 0.0;
       normal[2] = 1.0;
-      normals->InsertNormal(linePts[0],normal);
+      normals->InsertTuple(linePts[0],normal);
       }
 
     else //more than one point
@@ -173,12 +174,12 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 	      }
 	    }
           vtkMath::Normalize(normal);
-          normals->InsertNormal(linePts[0],normal);
+          normals->InsertTuple(linePts[0],normal);
           }
 
         else if ( j == (npts-1) ) //last point; just insert previous
           {
-          normals->InsertNormal(linePts[j],normal);
+          normals->InsertTuple(linePts[j],normal);
           }
 
         else //inbetween points
@@ -224,7 +225,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
           vtkMath::Cross (sNext, sPrev, q);
           if ( (theta=asin((double)vtkMath::Normalize(q))) == 0.0 ) 
             { //no rotation, use previous normal
-            normals->InsertNormal(linePts[j],normal);
+            normals->InsertTuple(linePts[j],normal);
             continue;
             }
           if ( largeRotation )
@@ -266,7 +267,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             normal[i] = f1*q[i] + f2*w[i];
             }
           
-          normals->InsertNormal(linePts[j],normal);
+          normals->InsertTuple(linePts[j],normal);
           }//for this point
         }//else
       }//else if

@@ -114,7 +114,7 @@ void vtkThresholdTextureCoords::Execute()
   vtkIdType numPts;
   vtkTCoords *newTCoords;
   vtkIdType ptId;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
 
@@ -123,7 +123,7 @@ void vtkThresholdTextureCoords::Execute()
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to texture threshold");
     return;
@@ -136,7 +136,7 @@ void vtkThresholdTextureCoords::Execute()
   // Check that the scalars of each point satisfy the threshold criterion
   for (ptId=0; ptId < numPts; ptId++)
     {
-    if ( ((this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId))) )
+    if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) )
       {
       newTCoords->InsertTCoord(ptId,this->InTextureCoord);
       }
