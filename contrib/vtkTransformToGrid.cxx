@@ -372,8 +372,9 @@ static void vtkTransformToGridExecute(vtkTransformToGrid *self,
 }       
 
 //----------------------------------------------------------------------------
-void vtkTransformToGrid::Execute(vtkImageData *grid)
+void vtkTransformToGrid::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *grid = this->AllocateOutputData(output);
   int *extent = grid->GetExtent();
 
   float *gridPtr = (float *)grid->GetScalarPointerForExtent(extent);

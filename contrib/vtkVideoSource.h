@@ -303,8 +303,7 @@ protected:
   // These methods can be overridden in subclasses
   virtual void UpdateFrameBuffer();
   virtual void AdvanceFrameBuffer(int n);
-  virtual void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  virtual void ExecuteData(vtkDataObject *data);
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
 				int start, int count);

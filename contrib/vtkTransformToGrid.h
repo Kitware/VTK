@@ -112,8 +112,7 @@ protected:
 
   void ExecuteInformation();
 
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteData(vtkDataObject *data);
 
   // Description:
   // Internal method to calculate the shift and scale values which

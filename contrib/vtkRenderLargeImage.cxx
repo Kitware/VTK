@@ -136,8 +136,9 @@ void vtkRenderLargeImage::ExecuteInformation()
 // Description:
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkRenderLargeImage::Execute(vtkImageData *data)
+void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
   int inExtent[6];
   int inIncr[3];
   int *size;

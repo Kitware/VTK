@@ -77,8 +77,7 @@ protected:
 
   int Magnification;
   vtkRenderer *Input;
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteData(vtkDataObject *data);
   void ExecuteInformation();  
 };
 

@@ -1049,8 +1049,9 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 // it unless you have to.  Override the UnpackRasterLine() method instead.
 // You should only have to override it if you are using something other 
 // than 8-bit vtkScalars for the frame buffer.
-void vtkVideoSource::Execute(vtkImageData *data)
+void vtkVideoSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
   int i,j;
 
   int outputExtent[6];     // will later be clipped in Z to a single frame
