@@ -32,39 +32,41 @@
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. The interactor will act
-// normally until the "w" key (for "widget") is pressed, at which point the
-// vtkBoxWidget will appear. By grabbing the six face handles (use the left
-// mouse button), faces can be moved. By grabbing the center handle (with the
-// left mouse button), the entire hexahedron can be translated. (Translation
-// can also be employed by using the "shift-left-mouse-button" combination
-// inside of the widget.) Scaling is achieved by using the right mouse button
-// "up" the render window (makes the widget bigger) or "down" the render
-// window (makes the widget smaller). To rotate the hexahedron, pick a face
-// (but not a face handle) and move the left mouse. (Note: the mouse button must
-// be held down during manipulation.)  Events that occur outside of the
-// widget (i.e., no part of the widget is picked) are propagated to any
-// other registered obsevers (such as the interaction style).  Turn off the
-// widget by pressing the "m" key again.
+// normally until the "W" key (for "widget") is pressed, at which point the
+// vtkBoxWidget will appear. (See superclass documentation for information
+// about changing this behavior.) By grabbing the six face handles (use the
+// left mouse button), faces can be moved. By grabbing the center handle
+// (with the left mouse button), the entire hexahedron can be
+// translated. (Translation can also be employed by using the
+// "shift-left-mouse-button" combination inside of the widget.) Scaling is
+// achieved by using the right mouse button "up" the render window (makes the
+// widget bigger) or "down" the render window (makes the widget smaller). To
+// rotate vtkBoxWidget, pick a face (but not a face handle) and move the left
+// mouse. (Note: the mouse button must be held down during manipulation.)
+// Events that occur outside of the widget (i.e., no part of the widget is
+// picked) are propagated to any other registered obsevers (such as the
+// interaction style).  Turn off the widget by pressing the "W" key again.
 //
 // The vtkBoxWidget is very flexible. It can be used to select, cut, clip, or
 // perform any other operation that depends on an implicit function (use the
 // GetPlanes() method); or it can be used to transform objects using a linear
 // transformation (use the GetTransform() method). Typical usage of the
-// widget is to make use of the StartInteractionEvent, InteractionEvent, 
-// and EndInteractionEvent events. The InteractionEvent is called on mouse motion;
-// the other two events are called on button down and button up.
+// widget is to make use of the StartInteractionEvent, InteractionEvent, and
+// EndInteractionEvent events. The InteractionEvent is called on mouse
+// motion; the other two events are called on button down and button up 
+// (either left or right button).
 //
-// Some additional features of this class include the ability to control
-// the properties of the widget by setting properties for the 
-// selected and unselected representations of the manipulator decorations.
-// For example, you can set the property for the handles, faces, and outline.
+// Some additional features of this class include the ability to control the
+// properties of the widget. You can set the properties of the selected and
+// unselected representations of the widget. For example, you can set the
+// property for the handles, faces, and outline.
 
 // .SECTION Caveats
 // Note that handles can be picked even when they are "behind" other actors.
 // This is an intended feature and not a bug.
 
 // .SECTION See Also
-// vtk3DWidget
+// vtk3DWidget vtkLineWidget
 
 
 #ifndef __vtkBoxWidget_h
@@ -91,15 +93,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Turn the manipulator on.
-  virtual void On();
-
-  // Description:
-  // Turn the manipulator off.
-  virtual void Off();
-
-  // Description:
   // Methods that satisfy the superclass' API.
+  virtual void On();
+  virtual void Off();
   virtual void PlaceWidget(float bounds[6]);
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
@@ -113,7 +109,6 @@ public:
   void GetPlanes(vtkPlanes *planes);
 
   // Description:
-
   // Set/Get the InsideOut flag. When off, the normals point out of the
   // hexadral box. When on, the normals point into the hexahedron.  InsideOut
   // is off by default.
@@ -122,41 +117,42 @@ public:
   vtkBooleanMacro(InsideOut,int);
 
   // Description:
-  // Retrieve a linear transform characterizing the transformation
-  // of the hexahedra. Note that the transformation is relative
-  // to where PlaceWidget was initially called. This method
-  // modifies the transform provided. The transform can be used
-  // to control the position of vtkProp3D's, as well as other 
-  // transformation operations (e.g., vtkTranformPolyData).
+  // Retrieve a linear transform characterizing the transformation of the
+  // hexahedra. Note that the transformation is relative to where PlaceWidget
+  // was initially called. This method modifies the transform provided. The
+  // transform can be used to control the position of vtkProp3D's, as well as
+  // other transformation operations (e.g., vtkTranformPolyData).
   void GetTransform(vtkTransform *t);
 
   // Description:
   // Grab the polydata (including points) that define the hexahedral
-  // manipulator. The polydata consists of 6 quadrilateral faces and 
-  // 15 points. The first eight points define the eight corner vertices;
-  // the next six define the -x,+x, -y,+y, -z,+z face points; and the final
-  // point (the 15th out of 15 points) defines the center of the
-  // hexahedron. These point values are guaranteed to be up-to-date when
-  // either the InteractionMethod() or Update() method is invoked. The
-  // user provides the vtkPolyData and the points and cells are added
-  // to it.
+  // manipulator. The polydata consists of 6 quadrilateral faces and 15
+  // points. The first eight points define the eight corner vertices; the
+  // next six define the -x,+x, -y,+y, -z,+z face points; and the final point
+  // (the 15th out of 15 points) defines the center of the hexahedron. These
+  // point values are guaranteed to be up-to-date when either the
+  // InteractionEvent or EndInteractionEvent events are invoked. The user
+  // provides the vtkPolyData and the points and cells are added to it.
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
-  // Get the handle properties to display the handle
-  // and indicate when it is selected.
+  // Get the handle properties (the little balls are the handles). The 
+  // properties of the handles when selected and normal can be 
+  // manipulated.
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
   
   // Description:
-  // Get the face property to display the face and indicate
-  // when it is selected.
+  // Get the face properties (the faces of the box). The 
+  // properties of the face when selected and normal can be 
+  // manipulated.
   vtkGetObjectMacro(FaceProperty,vtkProperty);
   vtkGetObjectMacro(SelectedFaceProperty,vtkProperty);
   
   // Description:
-  // Get the outline property to display the outline and
-  // indicate when it is selected.
+  // Get the outline properties (the outline of the box). The 
+  // properties of the outline when selected and normal can be 
+  // manipulated.
   vtkGetObjectMacro(OutlineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
   
