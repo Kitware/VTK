@@ -18,7 +18,7 @@
 #include "vtkExtractVectorComponents.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.40");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.41");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -191,7 +191,20 @@ void vtkExtractVectorComponents::Execute()
     return;
     }
 
-  const char* name = vectors->GetName();
+  const char* name;
+  if (vectors)
+    {
+    name = vectors->GetName();
+    }
+  else if (vectorsc)
+    {
+    name = vectorsc->GetName();
+    }
+  else 
+    {
+    name = 0;
+    }
+
   char* newName=0;
   if (name)
     {
@@ -254,18 +267,15 @@ void vtkExtractVectorComponents::Execute()
   if (vectorsc)
     {
     vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
-    vxc->SetNumberOfComponents(3);
     vxc->SetNumberOfTuples(numVectorsc);
     sprintf(newName, "%s-x", name);
     vxc->SetName(newName);
     vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
-    vyc->SetNumberOfComponents(3);
     vyc->SetNumberOfTuples(numVectorsc);
     sprintf(newName, "%s-y", name);
     vyc->SetName(newName);
     vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
-    vzc->SetNumberOfComponents(3);
-    vzc->SetNumberOfTuples(numVectors);
+    vzc->SetNumberOfTuples(numVectorsc);
     sprintf(newName, "%s-z", name);
     vzc->SetName(newName);
 
