@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 
 // Construct object with an initial data array of type dataType (by default
 // dataType is VTK_FLOAT.
@@ -155,6 +156,11 @@ void vtkAttributeData::SetDataType(int dataType)
     case VTK_DOUBLE:
       this->Data->Delete();
       this->Data = vtkDoubleArray::New();
+      break;
+
+    case VTK_ID_TYPE:
+      this->Data->Delete();
+      this->Data = vtkIdTypeArray::New();
       break;
 
     default:

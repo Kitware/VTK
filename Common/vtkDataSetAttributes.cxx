@@ -948,12 +948,27 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       }
       break;
 
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from=((vtkIdTypeArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*(float)from[ids[j]*numComp+i];
+          }
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
     default:
       vtkErrorMacro(<<"Unsupported data type during copy!");
     }
 }
 
-void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData, 
+void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
                                             vtkDataArray *toData,
                                             vtkIdType toId, vtkIdType id1,
                                             vtkIdType id2, float t)
@@ -1097,6 +1112,18 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       }
       break;
 
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from=((vtkIdTypeArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (float)from[idx1+i] + t * (float)(from[idx2+i] - from[idx1+i]);
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
     default:
       vtkErrorMacro(<<"Unsupported data type during copy!");
     }
@@ -1110,7 +1137,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
   int i, numComp=fromData1->GetNumberOfComponents();
   vtkIdType idx=id*numComp, ii;
   float c;
-  
+
   switch (fromData1->GetDataType())
     {
     case VTK_BIT:
@@ -1267,12 +1294,26 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
       }
       break;
 
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from1=((vtkIdTypeArray *)fromData1)->GetPointer(0);
+      vtkIdType *from2=((vtkIdTypeArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (float)from1[ii] + t * (float)(from2[ii] - from1[ii]);
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
     default:
       vtkErrorMacro(<<"Unsupported data type during interpolation!");
     }
 }
 
-int vtkDataSetAttributes::SetActiveAttribute(const char* name, 
+int vtkDataSetAttributes::SetActiveAttribute(const char* name,
                                              int attributeType)
 {
   int index; 
@@ -1689,6 +1730,9 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
           break;
         case VTK_DOUBLE:
           newDA = vtkDoubleArray::New();
+          break;
+        case VTK_ID_TYPE:
+          newDA = vtkIdTypeArray::New();
           break;
         }
 

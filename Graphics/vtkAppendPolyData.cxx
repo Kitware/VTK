@@ -180,12 +180,12 @@ void vtkAppendPolyData::Execute()
       {
       if ( ds->GetNumberOfPoints() > 0)
         {
-	++countPD;
-	}
+        ++countPD;
+        }
       if (ds->GetNumberOfCells() > 0 )  
-	{
-	++countCD;
-	} // for a data set that has cells
+        {
+        ++countCD;
+        } // for a data set that has cells
       } // for a non NULL input
     } // for each input
 
@@ -202,42 +202,42 @@ void vtkAppendPolyData::Execute()
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
       if ( ds->GetNumberOfPoints() > 0)
         {
-	numPts += ds->GetNumberOfPoints();
-	// Take intersection of available point data fields.
-	inPD = ds->GetPointData();
-	if ( countPD == 0 )
-	  {
-	  ptList.InitializeFieldList(inPD);
-	  }
-	else
-	  {
-	  ptList.IntersectFieldList(inPD);
-	  }
-	++countPD;
-	} // for a data set that has points
-	
+        numPts += ds->GetNumberOfPoints();
+        // Take intersection of available point data fields.
+        inPD = ds->GetPointData();
+        if ( countPD == 0 )
+          {
+          ptList.InitializeFieldList(inPD);
+          }
+        else
+          {
+          ptList.IntersectFieldList(inPD);
+          }
+        ++countPD;
+        } // for a data set that has points
+        
       // Although we cannot have cells without points ... let's not nest.
       if (ds->GetNumberOfCells() > 0 )  
-	{
-	// keep track of the size of the poly cell array
-	if (ds->GetPolys())
-	  {
-	  numPolys += ds->GetPolys()->GetNumberOfCells();
-	  sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
-	  }
-	numCells += ds->GetNumberOfCells();
-	
-	inCD = ds->GetCellData();
-	if ( countCD == 0 )
-	  {
-	  cellList.InitializeFieldList(inCD);
-	  }
-	else
-	  {
-	  cellList.IntersectFieldList(inCD);
-	  }
-	++countCD;
-	} // for a data set that has cells
+        {
+        // keep track of the size of the poly cell array
+        if (ds->GetPolys())
+          {
+          numPolys += ds->GetPolys()->GetNumberOfCells();
+          sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
+          }
+        numCells += ds->GetNumberOfCells();
+        
+        inCD = ds->GetCellData();
+        if ( countCD == 0 )
+          {
+          cellList.InitializeFieldList(inCD);
+          }
+        else
+          {
+          cellList.IntersectFieldList(inCD);
+          }
+        ++countCD;
+        } // for a data set that has cells
       } // for a non NULL input
     } // for each input
 
@@ -262,7 +262,7 @@ void vtkAppendPolyData::Execute()
       {
       if ( firstType )
         {
-	firstType = 0;
+        firstType = 0;
         pointtype = ds->GetPoints()->GetData()->GetDataType();
         }
       ttype = ds->GetPoints()->GetData()->GetDataType();
@@ -297,6 +297,7 @@ void vtkAppendPolyData::Execute()
     {
     outputPD->CopyScalarsOff();
     newPtScalars = inPD->GetActiveScalars()->MakeObject();
+    newPtScalars->SetName(inPD->GetActiveScalars()->GetName());
     newPtScalars->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::VECTORS) > -1 )
@@ -398,7 +399,7 @@ void vtkAppendPolyData::Execute()
           {
           outputPD->CopyData(ptList,inPD,countPD,ptId,ptId+ptOffset);
           }
-	++countPD;
+        ++countPD;
         }
 
       if (ds->GetNumberOfCells() > 0)
@@ -410,7 +411,7 @@ void vtkAppendPolyData::Execute()
           {
           outputCD->CopyData(cellList,inCD,countCD,cellId,cellId+cellOffset);
           }
-	++countCD;
+        ++countCD;
         
         // copy the cells
         pPolys = this->AppendCells(pPolys, inPolys, ptOffset);

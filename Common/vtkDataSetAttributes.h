@@ -134,7 +134,7 @@ public:
   // Make sure that the method InterpolateAllocate() has been invoked before 
   // using this method.
   void InterpolateTime(vtkDataSetAttributes *from1, 
-		       vtkDataSetAttributes *from2,
+                       vtkDataSetAttributes *from2,
                        vtkIdType id, float t);
 
   // Description:
@@ -227,10 +227,10 @@ public:
   void SetCopyAttribute (int index, int value) 
     { 
       if (this->CopyAttributeFlags[ index ] != value) 
-	{ 
-	this->CopyAttributeFlags[ index ] = value; 
-	this->Modified(); 
-	} 
+        { 
+        this->CopyAttributeFlags[ index ] = value; 
+        this->Modified(); 
+        } 
     } 
 
   // Description:
@@ -386,7 +386,7 @@ public:
   // that you have called the special form of CopyAllocate that accepts 
   // FieldLists.
   void CopyData(vtkDataSetAttributes::FieldList& list, 
-		vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
+                vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
                 vtkIdType toId);
 
   friend class vtkDataSetAttributes::FieldList;
