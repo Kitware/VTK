@@ -33,17 +33,21 @@ void vlMatrix4x4::operator= (float element)
   this->Modified ();
 }
 
-void vlMatrix4x4::VectorMultiply(float,float,float,float,float result[4])
+void vlMatrix4x4::VectorMultiply(float in[4],float result[4])
 {
   int i;
+  float v1 = in[0];
+  float v2 = in[1];
+  float v3 = in[2];
+  float v4 = in[3];
   
   for (i = 0; i < 4; i++)
     {
     result[i] = 
-      result[0] * this->Element[0][3] +
-      result[1] * this->Element[1][3] +
-      result[2] * this->Element[2][3] +
-      result[3] * this->Element[3][3];
+      v1 * this->Element[0][i] +
+      v2 * this->Element[1][i] +
+      v3 * this->Element[2][i] +
+      v4 * this->Element[3][i];
     }
   
 }
