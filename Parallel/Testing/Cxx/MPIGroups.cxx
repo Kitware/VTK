@@ -122,24 +122,29 @@ void proc1( vtkMultiProcessController *controller, void *arg )
     {
     treeComp->InitializeRMIs();
     controller->ProcessRMIs();
+    controller->Receive(args->retVal, 1, 0, 33);
     }
   else
     {
     renWin->Render();
     renWin->Render();
+    *(args->retVal) = 
+      vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
       {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
+      controller->Send(args->retVal, 1, i, 33);
       }
     }
 
   if (!myid)
     {
-    *(args->retVal) = 
-      vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     }
 
-  iren->Start();
+  if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
 
   iren->Delete();
   renWin->Delete();
