@@ -158,17 +158,25 @@ int vtkWin32OutputWindow::Initialize()
   
   WNDCLASS wndClass;   
   // has the class been registered ?
+#ifdef UNICODE
+  if (!GetClassInfo(GetModuleHandle(NULL),L"vtkOutputWindow",&wndClass))
+#else
   if (!GetClassInfo(GetModuleHandle(NULL),"vtkOutputWindow",&wndClass))
-    {
+#endif
+  {
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc = vtkWin32OutputWindow::WndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = GetModuleHandle(NULL);
-    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+//    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = NULL;
+#ifdef UNICODE
+    wndClass.lpszClassName = L"vtkOutputWindow";
+#else
     wndClass.lpszClassName = "vtkOutputWindow";
+#endif
     // vtk doesn't use these extra 4 bytes, but app writers
     // may want them, so we provide them.
     wndClass.cbWndExtra = 4;
@@ -176,12 +184,20 @@ int vtkWin32OutputWindow::Initialize()
     }
 
   // create parent container window
+#ifdef _WIN32_WCE
+  HWND win = CreateWindow(
+    L"vtkOutputWindow", L"vtkOutputWindow",
+    WS_OVERLAPPED | WS_CLIPCHILDREN,
+    0, 0, 512, 512,
+    NULL, NULL, GetModuleHandle(NULL), NULL);
+#else
   HWND win = CreateWindow(
     "vtkOutputWindow", "vtkOutputWindow",
     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
     0, 0, 512, 512,
     NULL, NULL, GetModuleHandle(NULL), NULL);
-  
+#endif
+
   // Now create child window with text display box
   CREATESTRUCT lpParam;
   lpParam.hInstance = GetModuleHandle(NULL);
@@ -191,14 +207,36 @@ int vtkWin32OutputWindow::Initialize()
   lpParam.cy = 512;
   lpParam.x = 0;
   lpParam.y = 0;
+#ifdef _WIN32_WCE
+  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
+    | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE
+    | WS_VSCROLL | WS_HSCROLL;
+  lpParam.lpszName = L"Output Control";
+  lpParam.lpszClass = L"EDIT"; // use the RICHEDIT control widget
+#else
   lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
     | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE | WS_MAXIMIZE
     | WS_VSCROLL | WS_HSCROLL;
-  
   lpParam.lpszName = "Output Control";
   lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
+#endif  
   lpParam.dwExStyle = 0;
   // Create the EDIT window as a child of win
+#ifdef _WIN32_WCE
+  vtkWin32OutputWindow::OutputWindow = CreateWindow(
+    lpParam.lpszClass,  // pointer to registered class name
+    L"", // pointer to window name
+    lpParam.style,        // window style
+    lpParam.x,                // horizontal position of window
+    lpParam.y,                // vertical position of window
+    lpParam.cx,           // window width
+    lpParam.cy,          // window height
+    lpParam.hwndParent,      // handle to parent or owner window
+    NULL,          // handle to menu or child-window identifier
+    lpParam.hInstance,     // handle to application instance
+    &lpParam        // pointer to window-creation data
+    );
+#else
   vtkWin32OutputWindow::OutputWindow = CreateWindow(
     lpParam.lpszClass,  // pointer to registered class name
     "", // pointer to window name
@@ -212,6 +250,8 @@ int vtkWin32OutputWindow::Initialize()
     lpParam.hInstance,     // handle to application instance
     &lpParam        // pointer to window-creation data
     );
+#endif
+
   const int maxsize = 5242880;
   
   SendMessage(vtkWin32OutputWindow::OutputWindow, 
@@ -226,13 +266,24 @@ int vtkWin32OutputWindow::Initialize()
 
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
-  ostrstream vtkmsg;
-  vtkmsg << someText << "\nPress Cancel to suppress any further messages." 
-         << ends;
-  if (MessageBox(NULL, vtkmsg.str(), "Error",
+  char *vtkmsg = new char [strlen(someText) + 100];
+  sprintf(vtkmsg,"%s\nPress Cancel to suppress any further messages.",
+          someText);
+#ifdef UNICODE
+        wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)];
+        mbstowcs(wmsg, vtkmsg, 32000);
+    if (MessageBox(NULL, wmsg, L"Error",
+                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
+        { 
+      vtkObject::GlobalWarningDisplayOff(); 
+        }
+        delete [] wmsg;
+#else
+  if (MessageBox(NULL, vtkmsg, "Error",
                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
     { 
     vtkObject::GlobalWarningDisplayOff(); 
     }
-  vtkmsg.rdbuf()->freeze(0);
+#endif
+  delete [] vtkmsg;
 }
