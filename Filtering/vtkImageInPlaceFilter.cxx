@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.41");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.42");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()
@@ -60,8 +60,11 @@ void vtkImageInPlaceFilter::RequestData(
     {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
+    /*
     inExt = inInfo->Get(vtkDataObject::DATA_EXTENT());
     output->SetExtent(inExt);
+    */
+    output->SetExtent(input->GetExtent());
     }
   else
     {
