@@ -16,12 +16,14 @@ vtkLandmarkTransform
 vtkLegendBoxActor 
 vtkLineWidget
 vtkPCAAnalysisFilter
+vtkPlaneWidget
 vtkPolyDataToImageStencil
 vtkProcrustesAlignmentFilter
 vtkRenderLargeImage 
 vtkRIBExporter 
 vtkRIBLight 
 vtkRIBProperty 
+vtkSphereWidget
 vtkThinPlateSplineTransform 
 vtkTransformToGrid 
 vtkVectorText
