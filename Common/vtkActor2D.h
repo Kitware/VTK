@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Set/Get the vtkMapper2D which defines the data to be drawn.
-  void SetMapper(vtkMapper2D *mapper);
+  virtual void SetMapper(vtkMapper2D *mapper);
   vtkGetObjectMacro(Mapper, vtkMapper2D);
 
   // Description:
