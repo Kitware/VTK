@@ -1,0 +1,66 @@
+# A simple test for a vtkTkRenderWidget. Run it like so:
+# python TestTkRenderWindowInteractor.py -B $VTK_DATA_ROOT/Baseline/
+
+import os
+import vtk
+from vtk.test import Testing
+
+import Tkinter
+from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
+
+
+class TestTkRenderWindowInteractor(Testing.vtkTest):
+    
+    # Stick your VTK pipeline here if you want to create the pipeline
+    # only once.  If you put it in the constructor or in the function
+    # the pipeline will be created afresh for each and every test.
+
+    dl = vtk.vtkDebugLeaks()
+    dl.PromptUserOff()
+
+    # create a dummy Tkinter root window.
+    root = Tkinter.Tk()
+    
+    # create a rendering window and renderer
+    ren = vtk.vtkRenderer()
+    tkrw = vtkTkRenderWindowInteractor(root, width=300, height=300)
+    tkrw.Initialize()
+    tkrw.pack()
+    rw = tkrw.GetRenderWindow()
+    rw.AddRenderer(ren)
+
+    # create an actor and give it cone geometry
+    cs = vtk.vtkConeSource()
+    cs.SetResolution(8)
+    map = vtk.vtkPolyDataMapper()
+    map.SetInput(cs.GetOutput())
+    act = vtk.vtkActor()
+    act.SetMapper(map)
+
+    # assign our actor to the renderer
+    ren.AddActor(act)    
+    
+    def testvtkTkRenderWindowInteractor(self):
+        "Test if vtkTkRenderWindowInteractor works."
+        self.tkrw.Start()
+        self.tkrw.Render()
+        img_file = os.path.join("Graphics", "Cone.png")
+        Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
+        Testing.interact()
+
+    # These are useful blackbox tests (not dummy ones!)
+    def testParse(self):
+        "Test if vtkTkRenderWindowInteractor is parseable"
+        self._testParse(self.tkrw)
+
+    def testGetSet(self):
+        "Testing Get/Set methods of vtkTkRenderWindowInteractor"
+        self._testGetSet(self.tkrw)
+
+    def testBoolean(self):
+        "Testing Boolean methods of vtkTkRenderWindowInteractor"
+        self._testBoolean(self.tkrw)
+
+
+if __name__ == "__main__":
+    Testing.main([(TestTkRenderWindowInteractor, 'test')])
