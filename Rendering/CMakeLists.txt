@@ -50,6 +50,7 @@ vtkInteractorStyleFlight.cxx
 vtkInteractorStyleImage.cxx
 vtkInteractorStyleJoystickActor.cxx
 vtkInteractorStyleJoystickCamera.cxx
+vtkInteractorStyleRubberBandZoom.cxx
 vtkInteractorStyleSwitch.cxx
 vtkInteractorStyleTerrain.cxx
 vtkInteractorStyleTrackball.cxx
