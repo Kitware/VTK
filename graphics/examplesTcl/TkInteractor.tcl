@@ -126,8 +126,8 @@ proc Rotate {widget x y} {
 
     if { ! $RendererFound } { return }
 
-    $CurrentCamera Azimuth [expr ($LastX - $x)*0.3]
-    $CurrentCamera Elevation [expr ($y - $LastY)*0.3]
+    $CurrentCamera Azimuth [expr ($LastX - $x)]
+    $CurrentCamera Elevation [expr ($y - $LastY)]
     $CurrentCamera OrthogonalizeViewUp
 
     set LastX $x
