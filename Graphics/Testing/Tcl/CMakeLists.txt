@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING)
       dataSetSurfaceFilter
       deciFranFace
       Delaunay2D
+      Delaunay2DAlpha
       Delaunay2DTransform
       dicer
       EnSight6Elements
