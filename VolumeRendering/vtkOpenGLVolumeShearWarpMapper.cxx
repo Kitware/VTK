@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeShearWarpMapper, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLVolumeShearWarpMapper, "1.1");
 vtkStandardNewMacro(vtkOpenGLVolumeShearWarpMapper);
 #endif
 
