@@ -26,9 +26,9 @@
 #include <cmath>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.2");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.3");
 
-vtkParametricFunctionSource::vtkParametricFunctionSource(void) :
+vtkParametricFunctionSource::vtkParametricFunctionSource() :
   NumberOfUPoints(0)
   , NumberOfVPoints(0)
   , MinimumU(0)
@@ -45,7 +45,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource(void) :
 {}
 
 
-vtkParametricFunctionSource::~vtkParametricFunctionSource(void)
+vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
 }
 

@@ -288,8 +288,8 @@ public:
                                 double Du[3], double Dv[3]) = 0;
 
 protected:
-  vtkParametricFunctionSource(void);
-  virtual ~vtkParametricFunctionSource(void);
+  vtkParametricFunctionSource();
+  virtual ~vtkParametricFunctionSource();
 
   // Usual data generation method
   void Execute();
