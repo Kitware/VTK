@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.52");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.53");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -158,6 +158,11 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
 
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
+  // see if the mapper has an input.
+  if (ds == NULL)
+    {
+    return;
+    }
   ds->Update();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
     
