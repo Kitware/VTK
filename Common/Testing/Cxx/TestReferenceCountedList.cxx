@@ -82,6 +82,7 @@ int TestList(DType* tlist, int count)
     tlist->RemoveItem(cc);
     } 
   //cout << "Remove: " << tlist->GetNumberOfItems() << " items" << endl;
+  ccm->Delete();
 
   return 0;
 }
