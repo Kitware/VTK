@@ -204,7 +204,8 @@ protected:
   vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-
+  float ScalarRange[2];
+  float Center[3];
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

@@ -116,10 +116,10 @@ void vtkDataSet::GetScalarRange(float range[2])
   vtkScalars *ptScalars, *cellScalars;
   ptScalars = this->PointData.GetScalars();
   cellScalars = this->CellData.GetScalars();
-  float r1[2], r2[2];
   
   if ( ptScalars && cellScalars)
     {
+    float r1[2], r2[2];
     ptScalars->GetRange(r1);
     cellScalars->GetRange(r2);
     range[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
@@ -142,9 +142,8 @@ void vtkDataSet::GetScalarRange(float range[2])
 
 float *vtkDataSet::GetScalarRange()
 {
-  static float range[2];
-  this->GetScalarRange(range);
-  return range;
+  this->GetScalarRange(this->ScalarRange);
+  return this->ScalarRange;
 }
 
 // Description:
@@ -169,14 +168,12 @@ void vtkDataSet::GetBounds(float bounds[6])
 // Get the center of the bounding box.
 float *vtkDataSet::GetCenter()
 {
-  static float center[3];
-
   this->ComputeBounds();
   for (int i=0; i<3; i++)
     {
-    center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
+    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
     }
-  return center;
+  return this->Center;
 }
 
 void vtkDataSet::GetCenter(float center[3])

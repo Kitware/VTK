@@ -212,13 +212,14 @@ protected:
   vtkImageToStructuredPoints *ImageToStructuredPoints;
   int ReleaseDataFlag;
   int DataReleased;
+  float ScalarRange[2];
 
   // ImageInformation
   float Spacing[3];
   float Origin[3];
   int WholeExtent[6];
   float Bounds[6];
-
+  
   // This is for vtkStructuredPoints compatability.  
   // These variables are redundant.
   unsigned long PipelineMTime;

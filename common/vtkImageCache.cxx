@@ -577,9 +577,8 @@ void vtkImageCache::UnRegister(vtkObject* o)
 //----------------------------------------------------------------------------
 float *vtkImageCache::GetScalarRange()
 {
-  static float range[2];
-  this->GetScalarRange(range);
-  return range;
+  this->GetScalarRange(this->ScalarRange);
+  return this->ScalarRange;
 }
 
 
