@@ -83,11 +83,6 @@ public:
   virtual void RenderRegion(vtkImageRegion *region) {region = region;};
   
   // Description:
-  // Set/Get the position of the origin in the viewer.
-  vtkSetMacro(OriginLocation, int);
-  vtkGetMacro(OriginLocation, int);
-  
-  // Description:
   // Set/Get the input to the viewer.
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
@@ -130,13 +125,6 @@ public:
   vtkGetMacro(BlueComponent, int);
   
   // Description:
-  // Set/Get the upper left location of the viewer in the window.
-  vtkSetMacro(XOffset, int);
-  vtkGetMacro(XOffset, int);
-  vtkSetMacro(YOffset, int);
-  vtkGetMacro(YOffset, int);
-
-  // Description:
   // These are here for using a tk window.
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *) {};
@@ -175,12 +163,6 @@ public:
   vtkGetVector4Macro(PermutationAxes, int);
 
 protected:
-  // Placement of origin that determines orientation of image in viewer.
-  int OriginLocation;
-  // location of upper left corner in window.
-  int XOffset;
-  int YOffset;
-  
   int Mapped;
   vtkImageCache *Input;
   // Contains the extent of the region to be displayed (X and Y axes).

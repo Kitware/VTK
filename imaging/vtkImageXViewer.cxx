@@ -394,8 +394,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 	this->Size[0] = 256;
 	this->Size[1] = 256;
 	}
-      this->SetWindow(this->MakeDefaultWindow(this->Size[0] + this->XOffset,
-					      this->Size[1] + this->YOffset));
+      this->SetWindow(this->MakeDefaultWindow(this->Size[0], this->Size[1]));
       }
     return;
     }
@@ -532,11 +531,11 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
       }   
     }
   
-  // Display the image.
+  // Display the image in lower left
   this->Image = XCreateImage(this->DisplayId, this->VisualId,this->VisualDepth,
 			     ZPixmap, 0, (char *)dataOut, width, height, 8,0);
   XPutImage(this->DisplayId, this->WindowId, this->Gc, this->Image, 0, 0,
-	    this->XOffset, this->YOffset, width, height);
+	    0, this->Size[1] - height, width, height);
 
   XFlush(this->DisplayId);
   XSync(this->DisplayId, False);
@@ -770,8 +769,7 @@ int vtkImageXViewer::GetWindow()
     this->Size[0] = 256;
     this->Size[1] = 256;
     }
-  this->SetWindow(this->MakeDefaultWindow(this->Size[0] + this->XOffset,
-					  this->Size[1] + this->YOffset));
+  this->SetWindow(this->MakeDefaultWindow(this->Size[0], this->Size[1]));
   this->Modified();
 
   return (int)(this->WindowId);
