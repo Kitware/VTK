@@ -294,7 +294,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
           }
 	  break;
 
-	case XK_w : //actors wireframe
+	case XK_w : //change all actors to wireframe
 	  {
 	  vlActorCollection *ac;
 	  vlActor *anActor;
@@ -311,7 +311,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  }
 	  break;
 
-	case XK_s : //actors "surface" or solid
+	case XK_s : //change all actors to "surface" or solid
 	  {
 	  vlActorCollection *ac;
 	  vlActor *anActor;
@@ -327,7 +327,8 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  me->RenderWindow->Render();
           }
 	  break;
-	case XK_3 : // 3d rendering
+
+	case XK_3 : //3d stereo
 	  {
 	  // prepare the new window
 	  if (me->RenderWindow->GetStereoRender())
@@ -344,6 +345,23 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	    }
 	  me->RenderWindow->Render();
           me->FinishSettingUpNewWindow();
+          }
+	  break;
+
+	case XK_p : //pick actors
+	  {
+          me->FindPokedRenderer(((XKeyEvent*)event)->x,
+			        me->Size[1] - ((XKeyEvent*)event)->y);
+          // Execute start method, if any
+
+          if ( me->StartPickMethod ) 
+            (*me->StartPickMethod)(me->StartPickMethodArg);
+          me->Picker->Pick(((XButtonEvent*)event)->x,
+                             me->Size[1] - ((XButtonEvent*)event)->y, 0.0,
+                             me->CurrentRenderer);
+          if ( me->EndPickMethod ) 
+            (*me->EndPickMethod)(me->EndPickMethodArg);
+          me->HighlightActor(me->Picker->GetActor());
           }
 	  break;
         }
