@@ -625,7 +625,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
           fprintf(fp, "%s%i ", indent, (int) npts);
           for (i = 0; i < npts; i++)
             {
-            fprintf(fp, "%ld ", indx[i]);
+            fprintf(fp, "%d ", indx[i]);
             }
           fprintf(fp, "\n");
           }
