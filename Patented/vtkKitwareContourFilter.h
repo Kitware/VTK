@@ -78,9 +78,9 @@ protected:
   vtkKitwareContourFilter();
   ~vtkKitwareContourFilter();
 
-  virtual int ComputeInputUpdateExtent(vtkInformation* request,
-                                       vtkInformationVector** inputVector,
-                                       vtkInformationVector* outputVector);
+  virtual int RequestUpdateExtent(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);

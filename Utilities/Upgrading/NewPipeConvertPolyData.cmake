@@ -37,6 +37,11 @@ STRING (REGEX REPLACE
   "int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
   H_CONTENTS "${H_CONTENTS}")
 
+STRING (REGEX REPLACE
+  "void[ \t]+ComputeInputUpdateExtents[ \t]*\\([ \t]*[^)]*\\)"
+  "int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *)"
+  H_CONTENTS "${H_CONTENTS}")
+
 FILE (WRITE ${H_FILE} "${H_CONTENTS}")
 
 #================================================================
@@ -51,6 +56,11 @@ STRING (REGEX REPLACE
 STRING (REGEX REPLACE
   "::ExecuteInformation[ \t]*\\([^{]*{"
   "::RequestInformation(\n  vtkInformation *vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n  vtkInformation *outInfo = outputVector->GetInformationObject(0);\n"
+  CXX_CONTENTS "${CXX_CONTENTS}")
+
+STRING (REGEX REPLACE
+  "::ComputeInputUpdateExtents[ \t]*\\([^{]*{"
+  "::RequestUpdateExtent(\n  vtkInformation *vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n  vtkInformation *outInfo = outputVector->GetInformationObject(0);\n"
   CXX_CONTENTS "${CXX_CONTENTS}")
 
 # add some useful include files if needed

@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.39");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.40");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -49,7 +49,7 @@ vtkKitwareContourFilter::~vtkKitwareContourFilter()
 {
 }
 
-int vtkKitwareContourFilter::ComputeInputUpdateExtent(
+int vtkKitwareContourFilter::RequestUpdateExtent(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -161,9 +161,9 @@ int vtkKitwareContourFilter::ComputeInputUpdateExtent(
       }
     }
    
-  return this->Superclass::ComputeInputUpdateExtent(request, 
-                                                    inputVector, 
-                                                    outputVector);
+  return this->Superclass::RequestUpdateExtent(request, 
+                                               inputVector, 
+                                               outputVector);
 }
 
 //

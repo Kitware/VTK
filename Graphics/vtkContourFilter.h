@@ -146,9 +146,9 @@ protected:
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
-  virtual int ComputeInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector**,
-                                       vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 

@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.111");
+vtkCxxRevisionMacro(vtkContourFilter, "1.112");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -92,9 +92,9 @@ unsigned long vtkContourFilter::GetMTime()
   return mTime;
 }
 
-int vtkContourFilter::ComputeInputUpdateExtent(vtkInformation*,
-                                               vtkInformationVector** inputVector,
-                                               vtkInformationVector*)
+int vtkContourFilter::RequestUpdateExtent(vtkInformation*,
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector*)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
