@@ -120,7 +120,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING_CHANGE ERROR_STRING_RESET DEBUG
+   global ERROR_LOG_FD DEBUG
 
    #puts "        Method: $methodName with $numberOfArgs args"
 
@@ -187,8 +187,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if {$DEBUG} { puts "        = $modifyTime3"}
    if { $modifyTime0 == $modifyTime1 && $modifyTime0 == $modifyTime2 && \
 	  $modifyTime0 == $modifyTime3} {
-      set ERROR_STRING_CHANGE [format "%s   %s %s," $ERROR_STRING_CHANGE \
-			  $methodClass $methodName]
+      puts "Modify missing Error in $methodClass $methodName"
       if {$DEBUG} { 
 	 puts "------------------------- error -------------------------------"
 	 puts "MTime did not changed : ------------------------"
@@ -209,8 +208,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if {$DEBUG} { puts "        = $modifyTime4"}
 
    if { $modifyTime3 != $modifyTime4} {
-      set ERROR_STRING_RESET [format "%s   %s %s," $ERROR_STRING_RESET \
-				$methodClass $methodName]
+      puts "MTime changed upon reset Error in $methodClass $methodName"
       if {$DEBUG} { 
 	 puts "------------------ reset error -------------------------------"
 	 puts "MTime changed : ------------------------"
@@ -728,11 +726,6 @@ wm withdraw .
 vtkImageViewer viewer
 viewer GlobalWarningDisplayOff
 
-set LABEL_STRING_CHANGE "Change Modify Time Bugs:"
-set LABEL_STRING_RESET "Reset Modify Time Bugs:"
-set ERROR_STRING_CHANGE ""
-set ERROR_STRING_RESET ""
-
 
 #TestObject graphics vtkExtractVectorComponents
 #TestObject graphics vtkGlyph3D
@@ -755,10 +748,6 @@ if { $argv != ""} {
    TestKit graphics
 }
 
-
-if {$ERROR_STRING_CHANGE != "" || $ERROR_STRING_RESET != ""} {
-   puts"$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE, $LABEL_STRING_RESET $ERROR_STRING_RESET"
-}
 
 
 viewer GlobalWarningDisplayOn

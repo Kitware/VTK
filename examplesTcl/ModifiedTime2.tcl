@@ -112,7 +112,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING DEBUG
+   global ERROR_LOG_FD DEBUG
 
    # do not duplicate calls
    set token "$methodClass-$methodName"
@@ -193,8 +193,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    #puts "             MTime: $modifyTime0, $modifyTime1"  
    if { $modifyTime0 == $modifyTime1} {
-      set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
-			  $call1, $methodClass]      
+      puts "Sub object Modify Time Error in $call1 $methodClass"     
       if {$DEBUG} {puts "----------------- error ---------------------------"}
       if {$DEBUG} {puts " $call1   (method class: $methodClass)"}
       if {$DEBUG} {debug}
@@ -741,9 +740,6 @@ proc CheckException {methodName} {
 wm withdraw .
 
 
-set LABEL_STRING "Subobject Modify Time Bugs:"
-set ERROR_STRING ""
-
 # don't show warnings
 vtkImageViewer viewer
 viewer GlobalWarningDisplayOff
@@ -764,10 +760,6 @@ if { $argv != ""} {
    TestKit common
    TestKit imaging
    TestKit graphics
-}
-
-if {$ERROR_STRING != ""} {
-   puts "$LABEL_STRING $ERROR_STRING"
 }
 
 viewer GlobalWarningDisplayOn

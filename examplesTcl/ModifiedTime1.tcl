@@ -17,7 +17,7 @@ source ../examplesTcl/vtkInt.tcl
 # When this is set to 1, the method calls will be echoed, and
 # the mtime results displayed.  When an error is encountered,
 # an interactor will popup.
-set DEBUG 1
+set DEBUG 0
 
 
 
@@ -112,7 +112,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING DEBUG
+   global ERROR_LOG_FD DEBUG
 
    #puts "        Method: $methodName with $numberOfArgs args"
 
@@ -167,8 +167,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if {$DEBUG} { puts "        = $modifyTime4"}
 
    if { $modifyTime3 != $modifyTime4} {
-      set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
-				$methodClass $methodName]
+      puts "Reset Modify Time Error in $methodClass $methodName"
       if {$DEBUG} { 
 	 puts "------------------ reset error -------------------------------"
 	 puts "MTime changed : ------------------------"
@@ -694,12 +693,6 @@ vtkImageViewer viewer
 viewer GlobalWarningDisplayOff
 
 
-set LABEL_STRING "Reset Modify Time Bugs:"
-set ERROR_STRING ""
-
-
-
-
 
 # Check to see if  classes was specified.
 if { $argv != ""} {
@@ -723,9 +716,6 @@ if { $argv != ""} {
    #TestKit graphics
 }
 
-if {$ERROR_STRING != ""} {
-   puts "$LABEL_STRING $ERROR_STRING"
-}
 viewer GlobalWarningDisplayOn
 
 
