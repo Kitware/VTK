@@ -36,7 +36,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.23");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.24");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -672,6 +672,7 @@ void vtkPlaneWidget::OnMiddleButtonUp()
   this->State = vtkPlaneWidget::Start;
   this->HighlightPlane(0);
   this->HighlightNormal(0);
+  this->HighlightHandle(NULL);
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
