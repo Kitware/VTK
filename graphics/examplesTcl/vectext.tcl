@@ -11,12 +11,6 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-# create a sphere source and actor
-#
-vtkSphereSource sphere
-
-# create the spikes using a cone source and the sphere source
-#
 vtkVectorText atext
 set count 3
 atext SetText "Welcome to VTK
