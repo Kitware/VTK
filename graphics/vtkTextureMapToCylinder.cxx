@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTextureMapToCylinder* vtkTextureMapToCylinder::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkTextureMapToCylinder* vtkTextureMapToCylinder::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTextureMapToCylinder;
 }
-
-
-
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
 // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
@@ -85,8 +80,9 @@ void vtkTextureMapToCylinder::Execute()
   vtkTCoords *newTCoords;
   vtkDataSet *input= this->GetInput();
   vtkDataSet *output= this->GetOutput();
-  int numPts=input->GetNumberOfPoints();
-  int ptId, i;
+  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType ptId;
+  int i;
   float *x, tc[2], thetaX, thetaY, closest[3], v[3];
   float axis[3], vP[3], vec[3];
 
@@ -196,7 +192,6 @@ void vtkTextureMapToCylinder::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
-
 }
 
 void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
@@ -214,4 +209,3 @@ void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
                               << this->Point2[1] << ", "
                               << this->Point2[2] << ")\n";
 }
-

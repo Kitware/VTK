@@ -71,15 +71,13 @@ void vtkStructuredGridGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
-  int idx = 0, startIdx, startCellIdx;
-  vtkIdType ptIds[4];
-  int cellId;
+  vtkIdType ptIds[4], idx = 0, startIdx, startCellIdx, cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
-  int totPoints, numPolys;
-  int offset[3], cellOffset[3], pos, cellPos;
+  vtkIdType totPoints, pos, cellPos;
+  int offset[3], cellOffset[3], numPolys;
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
@@ -394,8 +392,8 @@ void vtkStructuredGridGeometryFilter::Execute()
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
-void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
-                                   int kMin, int kMax)
+void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin,
+                                                int jMax, int kMin, int kMax)
 {
   int extent[6];
 
@@ -415,8 +413,8 @@ void vtkStructuredGridGeometryFilter::SetExtent(int extent[6])
   int i;
 
   if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
-  extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
-  extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
+       extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
+       extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
     {
     this->Modified();
     for (i=0; i<3; i++)
@@ -510,7 +508,6 @@ void vtkStructuredGridGeometryFilter::ComputeInputUpdateExtents( vtkDataObject *
   // Set the update extent of the input.
   input->SetUpdateExtent(ext);
 }
-
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -105,12 +105,13 @@ void vtkThreshold::ThresholdBetween(float lower, float upper)
   
 void vtkThreshold::Execute()
 {
-  int cellId, newCellId;
+  vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
   vtkCell *cell;
   vtkPoints *newPoints;
-  int i, ptId, newId, numPts, numCellPts;
+  int i, ptId, newId, numPts;
+  int numCellPts;
   float *x;
   vtkDataSet *input = this->GetInput();
   if (!input)

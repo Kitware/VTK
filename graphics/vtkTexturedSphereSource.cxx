@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTexturedSphereSource* vtkTexturedSphereSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkTexturedSphereSource* vtkTexturedSphereSource::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTexturedSphereSource;
 }
-
-
-
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions.

@@ -43,8 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
 
-
-
 //----------------------------------------------------------------------------
 vtkTransformFilter* vtkTransformFilter::New()
 {
@@ -57,10 +55,6 @@ vtkTransformFilter* vtkTransformFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTransformFilter;
 }
-
-
-
-
 
 vtkTransformFilter::vtkTransformFilter()
 {
@@ -80,7 +74,7 @@ void vtkTransformFilter::Execute()
   vtkVectors *newVectors=NULL, *newCellVectors=NULL;
   vtkNormals *inNormals, *inCellNormals;
   vtkNormals *newNormals=NULL, *newCellNormals=NULL;
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();

@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTextureMapToSphere* vtkTextureMapToSphere::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkTextureMapToSphere* vtkTextureMapToSphere::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTextureMapToSphere;
 }
-
-
-
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
 // sphere center is automatically computed.
@@ -76,8 +71,8 @@ void vtkTextureMapToSphere::Execute()
   vtkTCoords *newTCoords;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  int numPts=input->GetNumberOfPoints();
-  int ptId;
+  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType ptId;
   float *x, rho, r, tc[2], phi=0.0, thetaX, thetaY;
   double diff, PiOverTwo=vtkMath::Pi()/2.0;
 

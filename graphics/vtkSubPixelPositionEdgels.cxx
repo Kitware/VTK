@@ -43,8 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSubPixelPositionEdgels* vtkSubPixelPositionEdgels::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +55,6 @@ vtkSubPixelPositionEdgels* vtkSubPixelPositionEdgels::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSubPixelPositionEdgels;
 }
-
-
-
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
@@ -73,12 +69,12 @@ vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels()
 void vtkSubPixelPositionEdgels::Execute()
 {
   vtkPolyData *input = this->GetInput();
-  int numPts=input->GetNumberOfPoints();
+  vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *newPts;
   vtkNormals *newNormals;
   vtkPoints *inPts;
   vtkVectors *inVectors;
-  int ptId;
+  vtkIdType ptId;
   vtkPolyData *output = this->GetOutput();
   float *MapData;
   float pnt[3];
@@ -139,7 +135,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 				     float *result, int z, float *spacing,
 				     float *resultNormal)
 {
-  int ypos, zpos;
+  int ypos;
+  vtkIdType zpos;
   float vec[3];
   float valn, valp;
   float mag;
@@ -404,7 +401,6 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
     }
 }
 
-
 void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
 {
   this->vtkProcessObject::SetNthInput(1, gm);
@@ -418,7 +414,6 @@ vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
     }
   return (vtkStructuredPoints*)(this->Inputs[1]);
 }
-
 
 // Print the state of the class.
 void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
@@ -437,4 +432,3 @@ void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TargetFlag: " << this->TargetFlag << endl;
   os << indent << "TargetValue: " << this->TargetValue << endl;
 }
-

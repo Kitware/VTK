@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkStructuredGridOutlineFilter* vtkStructuredGridOutlineFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkStructuredGridOutlineFilter* vtkStructuredGridOutlineFilter::New()
   return new vtkStructuredGridOutlineFilter;
 }
 
-
-
-
 //----------------------------------------------------------------------------
 // ComputeDivisionExtents has done most of the work for us.
 // Now just connect the points.
@@ -71,10 +66,11 @@ void vtkStructuredGridOutlineFilter::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkPolyData *output=this->GetOutput();
-  int numPts, idx, offset;
-  vtkIdType ids[2];
+  int idx;
+  vtkIdType ids[2], numPts, offset;
   // for marching through the points along an edge.
-  int start = 0, num = 0, inc = 0, id;
+  vtkIdType start = 0, id;
+  int num = 0, inc = 0;
 
   for ( int i = 0; i < 12; i++ )
     {
@@ -212,8 +208,6 @@ void vtkStructuredGridOutlineFilter::Execute()
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 // Always stream into 12 pieces.
 int vtkStructuredGridOutlineFilter::GetNumberOfStreamDivisions()
@@ -231,8 +225,6 @@ int vtkStructuredGridOutlineFilter::GetNumberOfStreamDivisions()
   this->ConvertPiece(piece, numPieces, start, end);
   return (end - start + 1);
 }
-
-
 
 //----------------------------------------------------------------------------
 // Always stream into 12 pieces.
@@ -321,8 +313,6 @@ int vtkStructuredGridOutlineFilter::ComputeDivisionExtents(vtkDataObject *out,
   return 1;
 }
 
-
-
 //----------------------------------------------------------------------------
 // Here we need to setup the output polydata.
 void vtkStructuredGridOutlineFilter::StreamExecuteStart()
@@ -340,15 +330,6 @@ void vtkStructuredGridOutlineFilter::StreamExecuteStart()
   points->Delete();
 }
 
-
-
-
-
-
-
-
-
-
 //----------------------------------------------------------------------------
 // Since this filter produces 12 pieces (no more and no less) we need to 
 // convert the PieceOfNum into a range of 12.
@@ -364,18 +345,3 @@ void vtkStructuredGridOutlineFilter::ConvertPiece(int piece, int numPieces,
   start = piece * 12 / numPieces;
   end = ((piece+1) * 12 / numPieces) - 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

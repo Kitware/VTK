@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTextSource* vtkTextSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkTextSource* vtkTextSource::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTextSource;
 }
-
-
-
 
 #define vtkfont_width 9
 #define vtkfont_row_width 864
@@ -209,7 +204,7 @@ void vtkTextSource::Execute()
   int pos = 0;
   int pixelPos;
   vtkIdType pts[5];
-  int numPolys = 0;
+  vtkIdType numPolys = 0;
   int acol;
   int drawingWhite = 0;
   int drawingBlack = 0;

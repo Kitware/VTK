@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkStructuredPointsGeometryFilter* vtkStructuredPointsGeometryFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkStructuredPointsGeometryFilter* vtkStructuredPointsGeometryFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkStructuredPointsGeometryFilter;
 }
-
-
-
 
 // Construct with initial extent of all the data
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
@@ -75,15 +70,14 @@ void vtkStructuredPointsGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
-  int idx, startIdx, startCellIdx;
-  vtkIdType ptIds[4];
-  int cellId;
+  vtkIdType idx, startIdx, startCellIdx;
+  vtkIdType ptIds[4], cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
-  int totPoints, numPolys;
-  int offset[3], pos;
+  vtkIdType totPoints, pos;
+  int offset[3], numPolys;
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
@@ -395,8 +389,8 @@ void vtkStructuredPointsGeometryFilter::Execute()
 }
 
 void vtkStructuredPointsGeometryFilter::SetExtent(int iMin, int iMax, 
-                                                 int jMin, int jMax, 
-                                                 int kMin, int kMax)
+                                                  int jMin, int jMax, 
+                                                  int kMin, int kMax)
 {
   int extent[6];
 
@@ -416,8 +410,8 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int extent[6])
   int i;
 
   if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
-  extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
-  extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
+       extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
+       extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
     {
     this->Modified();
     for (i=0; i<3; i++)
@@ -436,7 +430,8 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int extent[6])
     }
 }
 
-void vtkStructuredPointsGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredPointsGeometryFilter::PrintSelf(ostream& os,
+                                                  vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

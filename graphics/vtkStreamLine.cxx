@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkStreamLine* vtkStreamLine::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +57,6 @@ vtkStreamLine* vtkStreamLine::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkStreamLine;
 }
-
-
-
 
 // Construct object with step size set to 1.0.
 vtkStreamLine::vtkStreamLine()
@@ -75,7 +72,8 @@ void vtkStreamLine::Execute()
   vtkVectors *newVectors;
   vtkScalars *newScalars=NULL;
   vtkCellArray *newLines;
-  int i, ptId, j, id;
+  vtkIdType ptId, i, id;
+  int j;
   vtkIdList *pts;
   float tOffset, x[3], v[3], s, r;
   float theta;

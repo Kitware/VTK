@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStreamPoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkStreamPoints* vtkStreamPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkStreamPoints* vtkStreamPoints::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkStreamPoints;
 }
-
-
-
 
 // Construct object with time increment set to 1.0.
 vtkStreamPoints::vtkStreamPoints()
@@ -74,7 +69,8 @@ void vtkStreamPoints::Execute()
   vtkVectors *newVectors;
   vtkScalars *newScalars=NULL;
   vtkCellArray *newVerts;
-  int i, ptId, j, id;
+  vtkIdType i, ptId, id;
+  int j;
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input = this->GetInput();
