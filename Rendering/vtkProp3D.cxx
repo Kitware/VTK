@@ -24,7 +24,7 @@
 
 typedef double (*SqMatPtr)[4];
 
-vtkCxxRevisionMacro(vtkProp3D, "1.34");
+vtkCxxRevisionMacro(vtkProp3D, "1.35");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 
@@ -140,6 +140,10 @@ void vtkProp3D::AddPosition (double deltaPosition[3])
 // finally RotateY.
 void vtkProp3D::SetOrientation (double x,double y,double z)
 {
+  // compute the orientation of the transformation matrix
+  // as is done in GetOrientation to make sure we are consistent
+  this->Transform->GetOrientation(this->Orientation);
+
   if (x == this->Orientation[0] && y == this->Orientation[1] 
       && z == this->Orientation[2])
     {
