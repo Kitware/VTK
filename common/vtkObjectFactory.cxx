@@ -67,6 +67,11 @@ void vtkObjectFactory::LoadDynamicFactories()
   char PathSeparator = ':';
 #endif
   char* LoadPath = getenv("VTK_AUTOLOAD_PATH");
+  if(LoadPath == 0)
+    {
+    return;
+    }
+  
   char* CurrentPath = new char[strlen(LoadPath)+1];
   char* SeparatorPosition = LoadPath; // initialize to env variable
   while(SeparatorPosition)
