@@ -104,7 +104,7 @@ void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6],
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class TT>
-void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
+static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
 			 vtkImageData *inData, int inExt[6], TT *inPtr,
 			 vtkImageData *outData, int outExt[6], float *outPtr,
 			 int id)
@@ -152,6 +152,7 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class T>
+static
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
 			 vtkImageData *inData, int inExt[6], T *inPtr,
 			 vtkImageData *outData, int outExt[6], float *outPtr,

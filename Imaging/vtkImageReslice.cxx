@@ -1191,6 +1191,7 @@ int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
 // coefficients
 
 template <class T>
+static
 void vtkTricubicInterpCoeffs(T F[4], int l, int h, T f)
 {
   const static T half = T(0.5);
