@@ -446,9 +446,75 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
 #endif  
 }
 
+// Note that the Windows and Unix implementations of
+// these methods are completely different. This is because,
+// in Windows, if the same thread locks the same mutex/critical
+// section twice, it will not block. Therefore, this method
+// can not be used to make the threads wait until all of them
+// reach the barrier
 
 
+// If there was a barrier before this one, we need to
+// wait until that is cleaned up or bad things happen.
+void vtkThreadedController::WaitForPreviousBarrierToEnd()
+{
+#ifdef _WIN32
+  WaitForSingleObject(vtkThreadedController::BarrierEndedEvent, INFINITE);
+#else
+  vtkThreadedController::BarrierInProgress.Lock();
+  vtkThreadedController::BarrierInProgress.Unlock();
+#endif
+}
 
+void vtkThreadedController::BarrierStarted()
+{
+  vtkThreadedController::IsBarrierInProgress = 1;
+#ifdef _WIN32
 
+#else
+  vtkThreadedController::BarrierInProgress.Lock();
+#endif
+}
 
+// A new barrier can now start
+void vtkThreadedController::BarrierEnded()
+{
+  vtkThreadedController::IsBarrierInProgress = 0;
+#ifdef _WIN32
+  SetEvent(vtkThreadedController::BarrierEndedEvent);
+#else
+  vtkThreadedController::BarrierInProgress.Unlock();
+#endif
+}
 
+// Tell the next guy that it is ok to continue with the barrier
+void vtkThreadedController::SignalNextThread()
+{
+#ifdef _WIN32
+  SetEvent(vtkThreadedController::NextThread);
+#else
+  vtkThreadedController::BarrierLock.Unlock();
+#endif
+}
+
+// Create the windows event necessary for waiting  
+void vtkThreadedController::InitializeBarrier()
+{
+#ifdef _WIN32
+  if (!BarrierEndedEvent)
+    {
+    vtkThreadedController::BarrierEndedEvent = CreateEvent(0,FALSE,FALSE,0);
+    vtkThreadedController::NextThread = CreateEvent(0,FALSE,FALSE,0);
+    }
+#endif
+}
+
+// Wait until the previous thread says it's ok to continue
+void vtkThreadedController::WaitForNextThread()
+{
+#ifdef _WIN32
+  WaitForSingleObject(vtkThreadedController::NextThread,INFINITE);
+#else
+  vtkThreadedController::BarrierLock.Lock();
+#endif
+}
