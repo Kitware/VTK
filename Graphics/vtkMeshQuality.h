@@ -268,8 +268,8 @@ public:
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
   // The radius ratio of a planar quadrilateral \f$q\f$ is: 
-  // \f$\frac{|q|_2h_\max}{\min_i{\cal A}_i}\f$,
-  // where \f$|q|_2\f$, \f$h_\max\f$ and \f$\min{\cal A}_i\f$ respectively denote 
+  // \f$\frac{|q|_2h_{\max}}{\min_i{\cal A}_i}\f$,
+  // where \f$|q|_2\f$, \f$h_{\max}\f$ and \f$\min{\cal A}_i\f$ respectively denote 
   // the sum of the squared edge lengths, the greatest amongst diagonal and edge 
   // lengths and the smallest area of the 4 triangles extractable from \f$q\f$.
   static double QuadRadiusRatio( vtkCell* cell );
