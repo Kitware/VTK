@@ -91,7 +91,7 @@ typedef struct{
   (cOut).Imag = (C1).Imag - (C2).Imag
 
 // Hack for temporary variable
-static vtkImageComplex _vtkImageComplexMultiplyTemp;
+static vtkImageComplex _vtkImageComplexMultiplyTemp = {0.0, 0.0};
 #define vtkImageComplexMultiply(C1, C2, cOut) \
   _vtkImageComplexMultiplyTemp.Real = (C1).Real*(C2).Real-(C1).Imag*(C2).Imag;\
   _vtkImageComplexMultiplyTemp.Imag = (C1).Real*(C2).Imag+(C1).Imag*(C2).Real;\
@@ -104,7 +104,6 @@ static vtkImageComplex _vtkImageComplexMultiplyTemp;
   cOut.Real = temp * cos(cIn.Imag); \
   cOut.Imag = temp * sin(cIn.Imag); \
 }
-
 
 /******************* End of COMPLEX number stuff ********************/
 
