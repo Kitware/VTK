@@ -276,8 +276,18 @@ void vtkGeometryFilter::Execute()
 
   // Traverse cells to extract geometry
   //
-  for(cellId=0; cellId < numCells; cellId++)
+  int abort=0;
+  int progressInterval = numCells/20 + 1;
+  for(cellId=0; cellId < numCells && !abort; cellId++)
     {
+    //Progress and abort method support
+    if ( !(cellId % progressInterval) )
+      {
+      vtkDebugMacro(<<"Process cell #" << cellId);
+      this->UpdateProgress ((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
     // Handle ghost cells here.  Another option was used cellVis array.
     if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
       { // Do not create surfaces in outer ghost cells.
@@ -511,8 +521,18 @@ void vtkGeometryFilter::PolyDataExecute()
   outputCD->CopyAllocate(cd,numCells,numCells/2);
   input->BuildCells(); //needed for GetCellPoints()
   
+  int abort=0;
+  int progressInterval = numCells/20 + 1;
   for(cellId=0; cellId < numCells; cellId++)
     {
+    //Progress and abort method support
+    if ( !(cellId % progressInterval) )
+      {
+      vtkDebugMacro(<<"Process cell #" << cellId);
+      this->UpdateProgress ((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
     // Handle ghost cells here.  Another option was used cellVis array.
     if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
       { // Do not create surfaces in outer ghost cells.
@@ -686,10 +706,20 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   
   // Loop over all cells now that visibility is known
   // (Have to compute visibility first for 3D cell boundarys)
+  int abort=0;
+  int progressInterval = numCells/20 + 1;
   for (cellId=0, Connectivity->InitTraversal(); 
        Connectivity->GetNextCell(npts,pts); 
        cellId++)
     {
+    //Progress and abort method support
+    if ( !(cellId % progressInterval) )
+      {
+      vtkDebugMacro(<<"Process cell #" << cellId);
+      this->UpdateProgress ((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
     // Handle ghost cells here.  Another option was used cellVis array.
     if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
       { // Do not create surfaces in outer ghost cells.
@@ -992,8 +1022,18 @@ void vtkGeometryFilter::StructuredGridExecute()
   
   // Traverse cells to extract geometry
   //
+  int abort=0;
+  int progressInterval = numCells/20 + 1;
   for(cellId=0; cellId < numCells; cellId++)
     {
+    //Progress and abort method support
+    if ( !(cellId % progressInterval) )
+      {
+      vtkDebugMacro(<<"Process cell #" << cellId);
+      this->UpdateProgress ((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
     // Handle ghost cells here.  Another option was used cellVis array.
     if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
       { // Do not create surfaces in outer ghost cells.
