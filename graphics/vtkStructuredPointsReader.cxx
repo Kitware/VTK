@@ -95,8 +95,11 @@ void vtkStructuredPointsReader::ExecuteInformation()
 {
   vtkStructuredPoints *output = this->GetOutput();
   vtkScalars *scalars;
-
-  output->UpdateData();
+  
+  // Now here is a problem.
+  // Update Extent needs to be set incase the RequestExactExtent flag is on.
+  // Bypass to superclasses update.
+  output->vtkDataObject::UpdateData();
   scalars = output->GetPointData()->GetScalars();
 
   if (scalars)
