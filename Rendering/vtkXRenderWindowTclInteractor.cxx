@@ -31,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.37");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.38");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -323,7 +323,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y;
       yp = me->Size[1] - xp - 1;
-      SetEventAndLastEventPositions(xp, yp);
+      me->SetEventAndLastEventPositions(xp, yp);
       // only render if we are currently accepting events
       if (me->GetEnabled())
         {
@@ -351,7 +351,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         me->UpdateSize(width, height);
         xp = (reinterpret_cast<XButtonEvent*>(event))->x;
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
-        SetEventAndLastEventPositions(xp, me->Size[1] - yp - 1);
+        me->SetEventAndLastEventPositions(xp, me->Size[1] - yp - 1);
         // only render if we are currently accepting events
         if (me->GetEnabled())
           {
