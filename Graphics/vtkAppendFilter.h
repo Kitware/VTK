@@ -27,28 +27,26 @@
 #ifndef __vtkAppendFilter_h
 #define __vtkAppendFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkDataSetToUnstructuredGridAlgorithm.h"
 
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridAlgorithm
 {
 public:
   static vtkAppendFilter *New();
 
-  vtkTypeRevisionMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Add a dataset to the list of data to append.
-  void AddInput(vtkDataSet *in);
-
-  // Description:
   // Get any input of this filter.
+//BTX
   vtkDataSet *GetInput(int idx);
   vtkDataSet *GetInput() 
     {return this->GetInput( 0 );}
-  
+//ETX
+
   // Description:
   // Remove a dataset from the list of data to append.
   void RemoveInput(vtkDataSet *in);
@@ -63,18 +61,14 @@ protected:
   ~vtkAppendFilter();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
   vtkDataSetCollection *InputList;
 
-private:
-  // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
-  void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input); };
 private:
   vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.
   void operator=(const vtkAppendFilter&);  // Not implemented.
