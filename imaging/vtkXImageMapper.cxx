@@ -34,6 +34,7 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w,
 				    unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
+  double adjustedLower, adjustedUpper;
   double range[2];
 
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
@@ -47,15 +48,18 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w,
     if (f_lower >= range[0])
       {
       lower = (T) f_lower;
+      adjustedLower = f_lower;
       }
     else
       {
       lower = (T) range[0];
+      adjustedLower = range[0];
       }
     }
   else
     {
     lower = (T) range[1];
+    adjustedLower = range[1];
     }
   
   
@@ -65,27 +69,30 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w,
     if (f_upper <= range[1])
       {
       upper = (T) f_upper;
+      adjustedUpper = f_upper;
       }
     else
       {
       upper = (T) range[1];
+      adjustedUpper = range[1];
       }
     }
   else
     {
     upper = (T) range [0];
+    adjustedUpper = range [0];
     }
   
   // now compute the lower and upper values
   if (w >= 0)
     {
-    f_lower_val = 255.0*(lower - f_lower)/w;
-    f_upper_val = 255.0*(upper - f_lower)/w;
+    f_lower_val = 255.0*(adjustedLower - f_lower)/w;
+    f_upper_val = 255.0*(adjustedUpper - f_lower)/w;
     }
   else
     {
-    f_lower_val = 255.0 + 255.0*(lower - f_lower)/w;
-    f_upper_val = 255.0 + 255.0*(upper - f_lower)/w;
+    f_lower_val = 255.0 + 255.0*(adjustedLower - f_lower)/w;
+    f_upper_val = 255.0 + 255.0*(adjustedUpper - f_lower)/w;
     }
   
   if (f_upper_val > 255) 
