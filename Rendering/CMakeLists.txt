@@ -477,7 +477,7 @@ ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(VTK_USE_X)
 
 INSTALL_TARGETS(/lib/vtk vtkRendering)
-INSTALL_FILES(/include/vtk .h ${Rendering_SRCS} ${RenderingOpenGL_SRCS} vtkRender)
+INSTALL_FILES(/include/vtk .h ${Rendering_SRCS} ${RenderingOpenGL_SRCS})
 
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/Rendering/tkInternals/.NoDartCoverage
