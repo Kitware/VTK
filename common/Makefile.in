@@ -105,7 +105,6 @@ vtkStack \
 vtkStructuredData \
 vtkStructuredGrid \
 vtkStructuredPoints \
-vtkStructuredPointsSource \
 vtkTCoords \
 vtkTensor \
 vtkTensors \

@@ -120,7 +120,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsSource.h"
 #include "vtkTCoords.h"
 #include "vtkTensors.h"
 #include "vtkTetra.h"
