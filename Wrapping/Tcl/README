@@ -36,7 +36,7 @@ That's it. As the subdirectories inside the lib directory are browsed too, the p
 
 o) OR Modify the TCLLIBPATH :
 
-This is the way to go :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in. If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl). For example :
+This is the way to go :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in (warning: use '/' instead of '\'). If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl). For example :
 
 TCLLIBPATH=S:/src/vtk/vtknew/Wrapping/Tcl
 
