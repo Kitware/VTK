@@ -40,6 +40,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnsignedShortScalars.h"
 
+vtkUnsignedShortScalars::vtkUnsignedShortScalars()
+{
+  this->S = new vtkUnsignedShortArray;
+}
+
+vtkUnsignedShortScalars::vtkUnsignedShortScalars(const vtkUnsignedShortScalars& cs)
+{
+  this->S = new vtkUnsignedShortArray;
+  *(this->S) = *(cs.S);
+}
+
+vtkUnsignedShortScalars::vtkUnsignedShortScalars(const int sz, 
+						 const int ext=1000)
+{
+  this->S = new vtkUnsignedShortArray(sz, ext);
+}
+
+vtkUnsignedShortScalars::~vtkUnsignedShortScalars()
+{
+  this->S->Delete();
+}
+
 vtkScalars *vtkUnsignedShortScalars::MakeObject(int sze, int ext)
 {
   return new vtkUnsignedShortScalars(sze,ext);
@@ -49,7 +71,7 @@ vtkScalars *vtkUnsignedShortScalars::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkUnsignedShortScalars& vtkUnsignedShortScalars::operator=(const vtkUnsignedShortScalars& cs)
 {
-  this->S = cs.S;
+  *(this->S) = *(cs.S);
   return *this;
 }
 
@@ -57,14 +79,14 @@ void vtkUnsignedShortScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
-    fs.InsertScalar(i,(float)this->S.GetValue(ptId.GetId(i)));
+    fs.InsertScalar(i,(float)this->S->GetValue(ptId.GetId(i)));
     }
 }
 
 void vtkUnsignedShortScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
   float *fp=fs.GetPtr(0);
-  unsigned short *cp=this->S.GetPtr(p1);
+  unsigned short *cp=this->S->GetPtr(p1);
   
   for (int id=p1; id <= p2; id++)
     {

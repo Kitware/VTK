@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIntArray_h
 #define __vtkIntArray_h
 
-#include "vtkObject.h"
+#include "vtkRefCount.h"
 
-class VTK_EXPORT vtkIntArray : public vtkObject 
+class VTK_EXPORT vtkIntArray : public vtkRefCount 
 {
 public:
   vtkIntArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkShortArray_h
 #define __vtkShortArray_h
 
-#include "vtkObject.h"
+#include "vtkRefCount.h"
 
-class VTK_EXPORT vtkShortArray : public vtkObject 
+class VTK_EXPORT vtkShortArray : public vtkRefCount 
 {
 public:
   vtkShortArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

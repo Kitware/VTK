@@ -56,23 +56,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAPixmap : public vtkColorScalars 
 {
 public:
-  vtkAPixmap() {};
-  vtkAPixmap(const vtkAPixmap& fs) {this->S = fs.S;};
-  vtkAPixmap(const int sz, const int ext=1000):S(4*sz,4*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(4*sz,4*ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkAPixmap();
+  vtkAPixmap(const vtkAPixmap& fs);
+  vtkAPixmap(const int sz, const int ext=1000);
+  ~vtkAPixmap();
+  
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(4*sz,4*ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkAPixmap";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/4;};
-  void Squeeze() {this->S.Squeeze();};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1)/4;};
+  void Squeeze() {this->S->Squeeze();};
   int GetNumberOfValuesPerScalar() {return 4;};
 
   // miscellaneous
   vtkAPixmap &operator=(const vtkAPixmap& fs);
-  void operator+=(const vtkAPixmap& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkAPixmap& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
 
@@ -85,21 +87,21 @@ public:
   int InsertNextColor(unsigned char rgba[4]);
 
 protected:
-  vtkUnsignedCharArray S;
+  vtkUnsignedCharArray *S;
 };
 
 // Description:
 // Return a rgba color at array location i.
 inline unsigned char *vtkAPixmap::GetColor(int i) 
 {
-  return this->S.GetPtr(4*i);
+  return this->S->GetPtr(4*i);
 }
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline unsigned char *vtkAPixmap::GetPtr(const int id)
 {
-  return this->S.GetPtr(4*id);
+  return this->S->GetPtr(4*id);
 }
 
 // Description:
@@ -109,7 +111,7 @@ inline unsigned char *vtkAPixmap::GetPtr(const int id)
 // write. 
 inline unsigned char *vtkAPixmap::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(4*id,4*number);
+  return this->S->WritePtr(4*id,4*number);
 }
 
 #endif

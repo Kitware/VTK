@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatNormals.h"
 
+vtkFloatNormals::vtkFloatNormals()
+{
+  this->N = new vtkFloatArray;
+}
+
+vtkFloatNormals::vtkFloatNormals(const vtkFloatNormals& fn)
+{
+  this->N = new vtkFloatArray;
+  *(this->N) = *(fn.N);
+}
+
+vtkFloatNormals::vtkFloatNormals(const int sz, const int ext=1000)
+{
+  this->N = new vtkFloatArray(3*sz,3*ext);
+}
+
+vtkFloatNormals::~vtkFloatNormals()
+{
+  this->N->Delete();
+}
+
 vtkNormals *vtkFloatNormals::MakeObject(int sze, int ext)
 {
   return new vtkFloatNormals(sze,ext);
@@ -49,7 +70,7 @@ vtkNormals *vtkFloatNormals::MakeObject(int sze, int ext)
 // Deep copy of normals.
 vtkFloatNormals& vtkFloatNormals::operator=(const vtkFloatNormals& fn)
 {
-  this->N = fn.N;
+  *(this->N) = *(fn.N);
   return *this;
 }
 

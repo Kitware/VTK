@@ -52,19 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatTCoords : public vtkTCoords
 {
 public:
-  vtkFloatTCoords() {};
-  vtkFloatTCoords(const vtkFloatTCoords& ftc) {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
-  vtkFloatTCoords(int sz, int d=2, int ext=1000):TC(d*sz,d*ext) {this->Dimension=d;};
-  int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC.Allocate(dim*sz,dim*ext);};
-  void Initialize() {this->TC.Initialize();};
+  vtkFloatTCoords();
+  vtkFloatTCoords(const vtkFloatTCoords& ftc);
+  vtkFloatTCoords(int sz, int d=2, int ext=1000);
+  ~vtkFloatTCoords();
+
+  int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC->Allocate(dim*sz,dim*ext);};
+  void Initialize() {this->TC->Initialize();};
   char *GetClassName() {return "vtkFloatTCoords";};
 
   // vtkTCoords interface
   vtkTCoords *MakeObject(int sze, int d=2, int ext=1000);
   char *GetDataType() {return "float";};
-  int GetNumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
-  void Squeeze() {this->TC.Squeeze();};
-  float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
+  int GetNumberOfTCoords() {return (this->TC->GetMaxId()+1)/this->Dimension;};
+  void Squeeze() {this->TC->Squeeze();};
+  float *GetTCoord(int i) {return this->TC->GetPtr(this->Dimension*i);};
   void GetTCoord(int i,float tc[3]) {this->vtkTCoords::GetTCoord(i,tc);};
   void SetNumberOfTCoords(int number);
   void SetTCoord(int i, float *tc);
@@ -75,11 +77,11 @@ public:
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
   vtkFloatTCoords &operator=(const vtkFloatTCoords& ftc);
-  void operator+=(const vtkFloatTCoords& ftc) {this->TC += ftc.TC;};
-  void Reset() {this->TC.Reset();};
+  void operator+=(const vtkFloatTCoords& ftc) {*(this->TC) += *(ftc.TC);};
+  void Reset() {this->TC->Reset();};
 
 protected:
-  vtkFloatArray TC;
+  vtkFloatArray *TC;
 };
 
 
@@ -87,7 +89,7 @@ protected:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatTCoords::GetPtr(const int id)
 {
-  return this->TC.GetPtr(id);
+  return this->TC->GetPtr(id);
 }
 
 // Description:
@@ -98,30 +100,30 @@ inline float *vtkFloatTCoords::GetPtr(const int id)
 // this call.
 inline float *vtkFloatTCoords::WritePtr(const int id, const int number)
 {
-  return this->TC.WritePtr(id,this->Dimension*number);
+  return this->TC->WritePtr(id,this->Dimension*number);
 }
 
 inline void vtkFloatTCoords::SetNumberOfTCoords(int number)
 {
-  this->TC.SetNumberOfValues(number*this->Dimension);
+  this->TC->SetNumberOfValues(number*this->Dimension);
 }
 
 inline void vtkFloatTCoords::SetTCoord(int i, float *tc) 
 {
   i*=this->Dimension; 
-  for(int j=0;j<this->Dimension;j++) this->TC.SetValue(i+j,tc[j]);
+  for(int j=0;j<this->Dimension;j++) this->TC->SetValue(i+j,tc[j]);
 }
 
 inline void vtkFloatTCoords::InsertTCoord(int i, float *tc) 
 {
   i*=this->Dimension; 
-  for(int j=0; j<this->Dimension; j++) this->TC.InsertValue(i+j, tc[j]);
+  for(int j=0; j<this->Dimension; j++) this->TC->InsertValue(i+j, tc[j]);
 }
 
 inline int vtkFloatTCoords::InsertNextTCoord(float *tc) 
 {
-  int id = this->TC.InsertNextValue(tc[0]);
-  for(int j=1; j<this->Dimension; j++) this->TC.InsertNextValue(tc[j]);
+  int id = this->TC->InsertNextValue(tc[0]);
+  for(int j=1; j<this->Dimension; j++) this->TC->InsertNextValue(tc[j]);
   return id/this->Dimension;
 }
 

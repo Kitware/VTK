@@ -87,7 +87,7 @@ public:
 protected:
   vtkPriorityItem *Resize(const int sz);
 
-  vtkIntArray ItemLocation;
+  vtkIntArray *ItemLocation;
   vtkPriorityItem *Array;
   int Size;
   int MaxId;
@@ -102,8 +102,8 @@ inline float vtkPriorityQueue::Delete(int id)
   float priority=VTK_LARGE_FLOAT;
   int loc;
 
-  if ( id <= this->ItemLocation.GetMaxId() &&  
-  (loc=this->ItemLocation.GetValue(id)) != -1 )
+  if ( id <= this->ItemLocation->GetMaxId() &&  
+  (loc=this->ItemLocation->GetValue(id)) != -1 )
     {
     this->Pop(priority,loc);
     }
@@ -117,8 +117,8 @@ inline float vtkPriorityQueue::GetPriority(int id)
 {
   int loc;
 
-  if ( id <= this->ItemLocation.GetMaxId() &&  
-  (loc=this->ItemLocation.GetValue(id)) != -1 )
+  if ( id <= this->ItemLocation->GetMaxId() &&  
+  (loc=this->ItemLocation->GetValue(id)) != -1 )
     {
     return this->Array[loc].priority;
     }

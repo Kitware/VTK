@@ -52,23 +52,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatScalars : public vtkScalars 
 {
 public:
-  vtkFloatScalars() {};
-  vtkFloatScalars(const vtkFloatScalars& fs) {this->S = fs.S;};
-  vtkFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkFloatScalars();
+  vtkFloatScalars(const vtkFloatScalars& fs);
+  vtkFloatScalars(const int sz, const int ext=1000);
+  ~vtkFloatScalars();
+
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkFloatScalars";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "float";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return this->S.GetValue(i);};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
+  float GetScalar(int i) {return this->S->GetValue(i);};
   void SetNumberOfScalars(int number);
-  void SetScalar(int i, float s) {this->S.SetValue(i,s);};
-  void InsertScalar(int i, float s) {S.InsertValue(i,s);};
-  int InsertNextScalar(float s) {return S.InsertNextValue(s);};
+  void SetScalar(int i, float s) {this->S->SetValue(i,s);};
+  void InsertScalar(int i, float s) {S->InsertValue(i,s);};
+  int InsertNextScalar(float s) {return S->InsertNextValue(s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
@@ -77,23 +79,27 @@ public:
   void *GetVoidPtr(const int id);
   float *WritePtr(const int id, const int number);
   vtkFloatScalars &operator=(const vtkFloatScalars& fs);
-  void operator+=(const vtkFloatScalars& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkFloatScalars& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
+
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkFloatArray);
+  vtkGetObjectMacro(S, vtkFloatArray);
 
 protected:
-  vtkFloatArray S;
+  vtkFloatArray *S;
 };
 
 inline void vtkFloatScalars::SetNumberOfScalars(int number)
 {
-  this->S.SetNumberOfValues(number);
+  this->S->SetNumberOfValues(number);
 }
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatScalars::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
@@ -101,7 +107,7 @@ inline float *vtkFloatScalars::GetPtr(const int id)
 // a void pointer.
 inline void *vtkFloatScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S.GetPtr(id));
+  return (void *)(this->S->GetPtr(id));
 }
 
 // Description:
@@ -111,7 +117,7 @@ inline void *vtkFloatScalars::GetVoidPtr(const int id)
 // write. 
 inline float *vtkFloatScalars::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

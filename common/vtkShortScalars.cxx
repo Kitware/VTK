@@ -40,6 +40,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkShortScalars.h"
 
+vtkShortScalars::vtkShortScalars()
+{
+  this->S = new vtkShortArray;
+}
+
+vtkShortScalars::vtkShortScalars(const vtkShortScalars& ss)
+{
+  this->S = new vtkShortArray;
+  *(this->S) = *(ss.S);
+}
+
+vtkShortScalars::vtkShortScalars(const int sz, const int ext=1000)
+{
+  this->S = new vtkShortArray(sz,ext);
+}
+
+vtkShortScalars::~vtkShortScalars()
+{
+  this->S->Delete();
+}
+
+
+
 vtkScalars *vtkShortScalars::MakeObject(int sze, int ext)
 {
   return new vtkShortScalars(sze,ext);
@@ -49,7 +72,7 @@ vtkScalars *vtkShortScalars::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkShortScalars& vtkShortScalars::operator=(const vtkShortScalars& ss)
 {
-  this->S = ss.S;
+  *(this->S) = *(ss.S);
   return *this;
 }
 
@@ -60,14 +83,14 @@ void vtkShortScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
   for (int i=0; i<NumberOfIds; i++)
     {
-    *value++ = this->S.GetValue(ptId.GetId(i));
+    *value++ = this->S->GetValue(ptId.GetId(i));
     }
 }
 
 void vtkShortScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
   float *fp=fs.GetPtr(0);
-  short *sp=this->S.GetPtr(p1);
+  short *sp=this->S->GetPtr(p1);
   
   for (int id=p1; id <= p2; id++)
     {

@@ -52,26 +52,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnsignedCharScalars : public vtkScalars 
 {
 public:
-  vtkUnsignedCharScalars() {};
-  vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs) {this->S = cs.S;};
-  vtkUnsignedCharScalars(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkUnsignedCharScalars();
+  vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs);
+  vtkUnsignedCharScalars(const int sz, const int ext=1000);
+  ~vtkUnsignedCharScalars();
   char *GetClassName() {return "vtkUnsignedCharScalars";};
 
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
+  
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "unsigned char";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
+  float GetScalar(int i) {return (float)this->S->GetValue(i);};
   void SetNumberOfScalars(int number);
-  void SetScalar(int i, unsigned char s) {this->S.SetValue(i,s);};
-  void SetScalar(int i, float s) {this->S.SetValue(i,(char)s);};
-  void InsertScalar(int i, float s) {S.InsertValue(i,(char)s);};
-  void InsertScalar(int i, unsigned char s) {S.InsertValue(i,s);};
-  int InsertNextScalar(unsigned char s) {return S.InsertNextValue(s);};
-  int InsertNextScalar(float s) {return S.InsertNextValue((char)s);};
+  void SetScalar(int i, unsigned char s) {this->S->SetValue(i,s);};
+  void SetScalar(int i, float s) {this->S->SetValue(i,(char)s);};
+  void InsertScalar(int i, float s) {S->InsertValue(i,(char)s);};
+  void InsertScalar(int i, unsigned char s) {S->InsertValue(i,s);};
+  int InsertNextScalar(unsigned char s) {return S->InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S->InsertNextValue((char)s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
@@ -80,30 +82,34 @@ public:
   void *GetVoidPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
   vtkUnsignedCharScalars &operator=(const vtkUnsignedCharScalars& cs);
-  void operator+=(const vtkUnsignedCharScalars& cs) {this->S += cs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkUnsignedCharScalars& cs) {*(this->S) += *(cs.S);};
+  void Reset() {this->S->Reset();};
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkGetObjectMacro(S, vtkUnsignedCharArray);
+  
 protected:
-  vtkUnsignedCharArray S;
+  vtkUnsignedCharArray *S;
 };
 
 inline void vtkUnsignedCharScalars::SetNumberOfScalars(int number)
 {
-  this->S.SetNumberOfValues(number);
+  this->S->SetNumberOfValues(number);
 }
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline unsigned char *vtkUnsignedCharScalars::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
 // Get a void pointer to array of data starting at data position "id".
 inline void *vtkUnsignedCharScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S.GetPtr(id));
+  return (void *)(this->S->GetPtr(id));
 }
 
 // Description:
@@ -113,7 +119,7 @@ inline void *vtkUnsignedCharScalars::GetVoidPtr(const int id)
 // write. 
 inline unsigned char *vtkUnsignedCharScalars::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

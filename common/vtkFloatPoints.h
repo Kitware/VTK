@@ -52,19 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatPoints : public vtkPoints
 {
 public:
-  vtkFloatPoints() {};
-  vtkFloatPoints(const vtkFloatPoints& fp) {this->P = fp.P;};
-  vtkFloatPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->P.Allocate(3*sz,3*ext);};
-  void Initialize() {this->P.Initialize();};
+  vtkFloatPoints();
+  vtkFloatPoints(const vtkFloatPoints& fp);
+  vtkFloatPoints(const int sz, const int ext=1000);
+  ~vtkFloatPoints();
+
+  int Allocate(const int sz, const int ext=1000) {return this->P->Allocate(3*sz,3*ext);};
+  void Initialize() {this->P->Initialize();};
   char *GetClassName() {return "vtkFloatPoints";};
 
   // vtkPoint interface
   vtkPoints *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "float";};
-  int GetNumberOfPoints() {return (P.GetMaxId()+1)/3;};
-  void Squeeze() {this->P.Squeeze();};
-  float *GetPoint(int id) {return this->P.GetPtr(3*id);};
+  int GetNumberOfPoints() {return (P->GetMaxId()+1)/3;};
+  void Squeeze() {this->P->Squeeze();};
+  float *GetPoint(int id) {return this->P->GetPtr(3*id);};
   void GetPoint(int id, float x[3]);
   void SetNumberOfPoints(int number);
   void SetPoint(int id, float x[3]);
@@ -76,18 +78,18 @@ public:
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
   vtkFloatPoints &operator=(const vtkFloatPoints& fp);
-  void operator+=(const vtkFloatPoints& fp) {this->P += fp.P;};
-  void Reset() {this->P.Reset();};
+  void operator+=(const vtkFloatPoints& fp) {*(this->P) += *(fp.P);};
+  void Reset() {this->P->Reset();};
 
 protected:
-  vtkFloatArray P;
+  vtkFloatArray *P;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatPoints::GetPtr(const int id)
 {
-  return this->P.GetPtr(id);
+  return this->P->GetPtr(id);
 }
 
 // Description:
@@ -97,31 +99,31 @@ inline float *vtkFloatPoints::GetPtr(const int id)
 // write. 
 inline float *vtkFloatPoints::WritePtr(const int id, const int number)
 {
-  return this->P.WritePtr(id,3*number);
+  return this->P->WritePtr(id,3*number);
 }
 
 inline void vtkFloatPoints::GetPoint(int id, float x[3])
 {
-  float *p=this->P.GetPtr(3*id); 
+  float *p=this->P->GetPtr(3*id); 
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
 }
 
 inline void vtkFloatPoints::SetNumberOfPoints(int number)
 {
-  this->P.SetNumberOfValues(3*number);
+  this->P->SetNumberOfValues(3*number);
 }
 
 inline void vtkFloatPoints::SetPoint(int id, float x[3]) 
 {
   id *= 3;
-  this->P.SetValue(id++, x[0]);
-  this->P.SetValue(id++, x[1]);
-  this->P.SetValue(id,   x[2]);
+  this->P->SetValue(id++, x[0]);
+  this->P->SetValue(id++, x[1]);
+  this->P->SetValue(id,   x[2]);
 }
 
 inline void vtkFloatPoints::InsertPoint(int id, float x[3])
 {
-  float *ptr = this->P.WritePtr(id*3,3);
+  float *ptr = this->P->WritePtr(id*3,3);
 
   *ptr++ = x[0];
   *ptr++ = x[1];
@@ -130,8 +132,8 @@ inline void vtkFloatPoints::InsertPoint(int id, float x[3])
 
 inline int vtkFloatPoints::InsertNextPoint(float x[3])
 {
-  int id = this->P.GetMaxId() + 1;
-  float *ptr = this->P.WritePtr(id,3);
+  int id = this->P->GetMaxId() + 1;
+  float *ptr = this->P->WritePtr(id,3);
 
   *ptr++ = x[0];
   *ptr++ = x[1];

@@ -53,49 +53,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBitScalars : public vtkScalars 
 {
 public:
-  vtkBitScalars() {};
-  vtkBitScalars(const vtkBitScalars& cs) {this->S = cs.S;};
-  vtkBitScalars(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkBitScalars();
+  vtkBitScalars(const vtkBitScalars& cs);
+  vtkBitScalars(const int sz, const int ext=1000);
+  ~vtkBitScalars();
+
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkBitScalars";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "bit";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
+  float GetScalar(int i) {return (float)this->S->GetValue(i);};
   void SetNumberOfScalars(int number);
-  void SetScalar(int i, int s) {this->S.SetValue(i,s);};
-  void SetScalar(int i, float s) {this->S.SetValue(i,(int)s);};
-  void InsertScalar(int i, float s) {S.InsertValue(i,(int)s);};
-  void InsertScalar(int i, int s) {S.InsertValue(i,s);};
-  int InsertNextScalar(int s) {return S.InsertNextValue(s);};
-  int InsertNextScalar(float s) {return S.InsertNextValue((int)s);};
+  void SetScalar(int i, int s) {this->S->SetValue(i,s);};
+  void SetScalar(int i, float s) {this->S->SetValue(i,(int)s);};
+  void InsertScalar(int i, float s) {S->InsertValue(i,(int)s);};
+  void InsertScalar(int i, int s) {S->InsertValue(i,s);};
+  int InsertNextScalar(int s) {return S->InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S->InsertNextValue((int)s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
 
   // miscellaneous
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
   vtkBitScalars &operator=(const vtkBitScalars& cs);
-  void operator+=(const vtkBitScalars& cs) {this->S += cs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkBitScalars& cs) {*(this->S) += *(cs.S);};
+  void Reset() {this->S->Reset();};
 
 protected:
-  vtkBitArray S;
+  vtkBitArray *S;
 };
 
 inline void vtkBitScalars::SetNumberOfScalars(int number)
 {
-  this->S.SetNumberOfValues(number);
+  this->S->SetNumberOfValues(number);
 }
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline unsigned char *vtkBitScalars::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
@@ -105,7 +107,7 @@ inline unsigned char *vtkBitScalars::GetPtr(const int id)
 // write. 
 inline unsigned char *vtkBitScalars::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

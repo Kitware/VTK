@@ -52,18 +52,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatTensors : public vtkTensors
 {
 public:
-  vtkFloatTensors() {};
+  vtkFloatTensors();
   vtkFloatTensors(const vtkFloatTensors& ft);
   vtkFloatTensors(int sz, int d=3, int ext=1000);
+  ~vtkFloatTensors();
+
   int Allocate(const int sz, const int dim=3, const int ext=1000);
-  void Initialize() {this->T.Initialize();};
+  void Initialize() {this->T->Initialize();};
   char *GetClassName() {return "vtkFloatTensors";};
 
   // vtkTensors interface
   vtkTensors *MakeObject(int sze, int d=3, int ext=1000);
   char *GetDataType() {return "float";};
   int GetNumberOfTensors();
-  void Squeeze() {this->T.Squeeze();};
+  void Squeeze() {this->T->Squeeze();};
   vtkTensor *GetTensor(int i);
   void GetTensor(int i,vtkTensor &t) {this->vtkTensors::GetTensor(i,t);};
   void SetNumberOfTensors(int number);
@@ -75,18 +77,18 @@ public:
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
   vtkFloatTensors &operator=(const vtkFloatTensors& ft);
-  void operator+=(const vtkFloatTensors& ft) {this->T += ft.T;};
-  void Reset() {this->T.Reset();};
+  void operator+=(const vtkFloatTensors& ft) {*(this->T) += *(ft.T);};
+  void Reset() {this->T->Reset();};
 
 protected:
-  vtkFloatArray T;
+  vtkFloatArray *T;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatTensors::GetPtr(const int id)
 {
-  return this->T.GetPtr(id);
+  return this->T->GetPtr(id);
 }
 
 // Description:
@@ -97,33 +99,22 @@ inline float *vtkFloatTensors::GetPtr(const int id)
 // Make sure the dimension of the tensor is set prior to issuing this call.
 inline float *vtkFloatTensors::WritePtr(const int id, const int number)
 {
-  return this->T.WritePtr(id,this->Dimension*this->Dimension*number);
-}
-
-inline vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft) 
-{
-  this->T = ft.T;this->Dimension = ft.Dimension;
-}
-
-inline vtkFloatTensors::vtkFloatTensors(int sz, int d, int ext):
-T(d*d*sz,d*d*ext) 
-{
-  this->Dimension = d;
+  return this->T->WritePtr(id,this->Dimension*this->Dimension*number);
 }
 
 inline int vtkFloatTensors::Allocate(const int sz, const int dim,const int ext) 
 {
-  return this->T.Allocate(dim*dim*sz,dim*dim*ext);
+  return this->T->Allocate(dim*dim*sz,dim*dim*ext);
 }
 
 inline int vtkFloatTensors::GetNumberOfTensors() 
 {
-  return (this->T.GetMaxId()+1)/(this->Dimension*this->Dimension);
+  return (this->T->GetMaxId()+1)/(this->Dimension*this->Dimension);
 }
 
 inline void vtkFloatTensors::SetNumberOfTensors(int number)
 {
-  this->T.SetNumberOfValues(this->Dimension*this->Dimension*number);
+  this->T->SetNumberOfValues(this->Dimension*this->Dimension*number);
 }
 
 

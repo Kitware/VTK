@@ -53,23 +53,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPixmap : public vtkColorScalars 
 {
 public:
-  vtkPixmap() {};
-  vtkPixmap(const vtkPixmap& fs) {this->S = fs.S;};
-  vtkPixmap(const int sz, const int ext=1000):S(3*sz,3*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(3*sz,3*ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkPixmap();
+  vtkPixmap(const vtkPixmap& fs);
+  vtkPixmap(const int sz, const int ext=1000);
+  ~vtkPixmap();
   char *GetClassName() {return "vtkPixmap";};
+
+  void Initialize() {this->S->Initialize();};
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(3*sz,3*ext);};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/3;};
-  void Squeeze() {this->S.Squeeze();};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1)/3;};
+  void Squeeze() {this->S->Squeeze();};
   int GetNumberOfValuesPerScalar() {return 3;};
 
   // miscellaneous
   vtkPixmap &operator=(const vtkPixmap& fs);
-  void operator+=(const vtkPixmap& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkPixmap& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
 
@@ -81,8 +83,12 @@ public:
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkGetObjectMacro(S, vtkUnsignedCharArray);
+  
 protected:
-  vtkUnsignedCharArray S;
+  vtkUnsignedCharArray *S;
 };
 
 // Description:
@@ -92,7 +98,7 @@ protected:
 inline void vtkPixmap::SetColor(int i, unsigned char rgba[4]) 
 {
   i *= 3; 
-  memcpy (this->S.GetPtr(i), rgba, 3);
+  memcpy (this->S->GetPtr(i), rgba, 3);
 }
 
 // Description:
@@ -101,9 +107,9 @@ inline void vtkPixmap::SetColor(int i, unsigned char rgba[4])
 inline void vtkPixmap::InsertColor(int i, unsigned char rgba[4]) 
 {
   i *= 3;
-  this->S.InsertValue(i+2, rgba[2]);
-  this->S.SetValue(i, rgba[0]);
-  this->S.SetValue(i+1, rgba[1]);
+  this->S->InsertValue(i+2, rgba[2]);
+  this->S->SetValue(i, rgba[0]);
+  this->S->SetValue(i+1, rgba[1]);
 }
 
 // Description:
@@ -111,10 +117,10 @@ inline void vtkPixmap::InsertColor(int i, unsigned char rgba[4])
 // memory if necessary.
 inline int vtkPixmap::InsertNextColor(unsigned char *rgba) 
 {
-  int id = this->S.GetMaxId() + 3;
-  this->S.InsertValue(id,rgba[2]);
-  this->S.SetValue(id-2, rgba[0]);
-  this->S.SetValue(id-1, rgba[1]);
+  int id = this->S->GetMaxId() + 3;
+  this->S->InsertValue(id,rgba[2]);
+  this->S->SetValue(id-2, rgba[0]);
+  this->S->SetValue(id-1, rgba[1]);
   return id/3;
 }
 
@@ -122,7 +128,7 @@ inline int vtkPixmap::InsertNextColor(unsigned char *rgba)
 // Get pointer to array of data starting at data position "id".
 inline unsigned char *vtkPixmap::GetPtr(const int id)
 {
-  return this->S.GetPtr(3*id);
+  return this->S->GetPtr(3*id);
 }
 
 // Description:
@@ -132,7 +138,7 @@ inline unsigned char *vtkPixmap::GetPtr(const int id)
 // write. 
 inline unsigned char *vtkPixmap::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(3*id,3*number);
+  return this->S->WritePtr(3*id,3*number);
 }
 
 #endif

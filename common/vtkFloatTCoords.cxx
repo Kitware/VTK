@@ -40,6 +40,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatTCoords.h"
 
+vtkFloatTCoords::vtkFloatTCoords()
+{
+  this->TC = new vtkFloatArray;
+}
+
+vtkFloatTCoords::vtkFloatTCoords(const vtkFloatTCoords& ftc)
+{
+  this->TC = new vtkFloatArray;
+  *(this->TC) = *(ftc.TC);
+  this->Dimension = ftc.Dimension;
+}
+
+vtkFloatTCoords::vtkFloatTCoords(int sz, int d=2, int ext=1000)
+{
+  this->TC = new vtkFloatArray(d*sz,d*ext);
+  this->Dimension = d;
+}
+
+vtkFloatTCoords::~vtkFloatTCoords()
+{
+  this->TC->Delete();
+}
+
+
+
 vtkTCoords *vtkFloatTCoords::MakeObject(int sze, int d, int ext)
 {
   return new vtkFloatTCoords(sze,d,ext);
@@ -49,7 +74,7 @@ vtkTCoords *vtkFloatTCoords::MakeObject(int sze, int d, int ext)
 // Deep copy of texture coordinates.
 vtkFloatTCoords& vtkFloatTCoords::operator=(const vtkFloatTCoords& ftc)
 {
-  this->TC = ftc.TC;
+  *(this->TC) = *(ftc.TC);
   this->Dimension = ftc.Dimension;
   
   return *this;

@@ -40,6 +40,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatScalars.h"
 
+vtkFloatScalars::vtkFloatScalars()
+{
+  this->S = new vtkFloatArray;
+}
+
+vtkFloatScalars::vtkFloatScalars(const vtkFloatScalars& fs)
+{
+  this->S = new vtkFloatArray;
+  *(this->S) = *(fs.S);
+}
+
+vtkFloatScalars::vtkFloatScalars(const int sz, const int ext=1000)
+{
+  this->S = new vtkFloatArray(sz, ext);
+}
+
+vtkFloatScalars::~vtkFloatScalars()
+{
+  this->S->Delete();
+}
+
+
+
+
 vtkScalars *vtkFloatScalars::MakeObject(int sze, int ext)
 {
   return new vtkFloatScalars(sze,ext);
@@ -49,7 +73,7 @@ vtkScalars *vtkFloatScalars::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkFloatScalars& vtkFloatScalars::operator=(const vtkFloatScalars& fs)
 {
-  this->S = fs.S;
+  *(this->S) = *(fs.S);
   return *this;
 }
 
@@ -60,12 +84,13 @@ void vtkFloatScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
   for (int i=0; i<NumberOfIds; i++, value++)
     {
-    *value = this->S.GetValue(ptId.GetId(i));
+    *value = this->S->GetValue(ptId.GetId(i));
     }
 }
 
 void vtkFloatScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
-  memcpy(fs.GetPtr(0), this->S.GetPtr(p1), sizeof(float)*(p2-p1+1));
+  memcpy(fs.GetPtr(0), this->S->GetPtr(p1), sizeof(float)*(p2-p1+1));
 }
+
 

@@ -40,6 +40,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAGraymap.h"
 
+vtkAGraymap::vtkAGraymap()
+{
+  this->S = new vtkUnsignedCharArray;
+}
+
+
+vtkAGraymap::vtkAGraymap(const vtkAGraymap& fs)
+{
+  this->S = new vtkUnsignedCharArray;
+  *(this->S) = *(fs.S);
+}
+
+
+vtkAGraymap::vtkAGraymap(const int sz, const int ext=1000)
+{
+  this->S = new vtkUnsignedCharArray(2*sz,2*ext);
+}
+
+
+vtkAGraymap::~vtkAGraymap()
+{
+  this->S->Delete();
+}
+
+
 vtkScalars *vtkAGraymap::MakeObject(int sze, int ext)
 {
   return new vtkAGraymap(sze,ext);
@@ -47,7 +72,7 @@ vtkScalars *vtkAGraymap::MakeObject(int sze, int ext)
 
 float vtkAGraymap::GetScalar(int i)
 {
-  return (float)(this->S.GetValue(2*i));
+  return (float)(this->S->GetValue(2*i));
 }
 
 // Description:
@@ -55,8 +80,8 @@ float vtkAGraymap::GetScalar(int i)
 unsigned char *vtkAGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];
-  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(2*id);
-  rgba[3] = this->S.GetValue(2*id+1);
+  rgba[0] = rgba[1] = rgba[2] = this->S->GetValue(2*id);
+  rgba[3] = this->S->GetValue(2*id+1);
   
   return rgba;
 }
@@ -66,15 +91,15 @@ unsigned char *vtkAGraymap::GetColor(int id)
 // point id.
 void vtkAGraymap::GetColor(int id, unsigned char rgba[4])
 {
-  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(2*id);
-  rgba[3] = this->S.GetValue(2*id+1);
+  rgba[0] = rgba[1] = rgba[2] = this->S->GetValue(2*id);
+  rgba[3] = this->S->GetValue(2*id+1);
 }
 
 // Description:
 // Deep copy of scalars.
 vtkAGraymap& vtkAGraymap::operator=(const vtkAGraymap& fs)
 {
-  this->S = fs.S;
+  *(this->S) = *(fs.S);
   return *this;
 }
 
@@ -83,8 +108,8 @@ vtkAGraymap& vtkAGraymap::operator=(const vtkAGraymap& fs)
 unsigned char *vtkAGraymap::GetAGrayValue(int id)
 {
   static unsigned char ga[2];
-  ga[0] = this->S.GetValue(2*id);
-  ga[1] = this->S.GetValue(2*id+1);
+  ga[0] = this->S->GetValue(2*id);
+  ga[1] = this->S->GetValue(2*id+1);
   
   return ga;
 }
@@ -95,13 +120,13 @@ unsigned char *vtkAGraymap::GetAGrayValue(int id)
 void vtkAGraymap::GetAGrayValue(int id, unsigned char ga[2])
 {
   id *= 2;
-  ga[0] = this->S.GetValue(id);
-  ga[1] = this->S.GetValue(id+1);
+  ga[0] = this->S->GetValue(id);
+  ga[1] = this->S->GetValue(id+1);
 }
 
 void vtkAGraymap::SetNumberOfColors(int number)
 {
-  this->S.SetNumberOfValues(number*2);
+  this->S->SetNumberOfValues(number*2);
 }
 
 // Description:
@@ -111,8 +136,8 @@ void vtkAGraymap::SetNumberOfColors(int number)
 void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2]) 
 {
   i *= 2; 
-  this->S.SetValue(i, ga[0]);
-  this->S.SetValue(i+1, ga[1]); 
+  this->S->SetValue(i, ga[0]);
+  this->S->SetValue(i+1, ga[1]); 
 }
 
 // Description:
@@ -121,8 +146,8 @@ void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2])
 void vtkAGraymap::InsertAGrayValue(int i, unsigned char ga[2]) 
 {
   i *= 2;
-  this->S.InsertValue(i+1, ga[1]);
-  this->S.SetValue(i, ga[0]);
+  this->S->InsertValue(i+1, ga[1]);
+  this->S->SetValue(i, ga[0]);
 }
 
 // Description:
@@ -132,8 +157,8 @@ int vtkAGraymap::InsertNextAGrayValue(unsigned char ga[2])
 {
   int id;
 
-  id = this->S.InsertNextValue(ga[0]);
-  this->S.InsertNextValue(ga[1]);
+  id = this->S->InsertNextValue(ga[0]);
+  this->S->InsertNextValue(ga[1]);
 
   return id/2;
 }

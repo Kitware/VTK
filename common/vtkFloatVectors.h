@@ -52,19 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatVectors : public vtkVectors
 {
 public:
-  vtkFloatVectors() {};
-  vtkFloatVectors(const vtkFloatVectors& fv) {this->V = fv.V;};
-  vtkFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->V.Allocate(3*sz,3*ext);};
-  void Initialize() {this->V.Initialize();};
+  vtkFloatVectors();
+  vtkFloatVectors(const vtkFloatVectors& fv);
+  vtkFloatVectors(const int sz, const int ext=1000);
+  ~vtkFloatVectors();
+
+  int Allocate(const int sz, const int ext=1000) {return this->V->Allocate(3*sz,3*ext);};
+  void Initialize() {this->V->Initialize();};
   char *GetClassName() {return "vtkFloatVectors";};
 
   // vtkVector interface
   vtkVectors *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "float";};
-  int GetNumberOfVectors() {return (V.GetMaxId()+1)/3;};
-  void Squeeze() {this->V.Squeeze();};
-  float *GetVector(int i) {return this->V.GetPtr(3*i);};
+  int GetNumberOfVectors() {return (V->GetMaxId()+1)/3;};
+  void Squeeze() {this->V->Squeeze();};
+  float *GetVector(int i) {return this->V->GetPtr(3*i);};
   void GetVector(int i,float v[3]) {this->vtkVectors::GetVector(i,v);};
   void SetNumberOfVectors(int number);
   void SetVector(int i, float v[3]);
@@ -75,18 +77,18 @@ public:
   float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
   vtkFloatVectors &operator=(const vtkFloatVectors& fv);
-  void operator+=(const vtkFloatVectors& fv){this->V += fv.V;};
-  void Reset() {this->V.Reset();};
+  void operator+=(const vtkFloatVectors& fv){*(this->V) += *(fv.V);};
+  void Reset() {this->V->Reset();};
 
 protected:
-  vtkFloatArray V;
+  vtkFloatArray *V;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatVectors::GetPtr(const int id)
 {
-  return this->V.GetPtr(id);
+  return this->V->GetPtr(id);
 }
 
 // Description:
@@ -96,25 +98,25 @@ inline float *vtkFloatVectors::GetPtr(const int id)
 // write. 
 inline float *vtkFloatVectors::WritePtr(const int id, const int number)
 {
-  return this->V.WritePtr(id,3*number);
+  return this->V->WritePtr(id,3*number);
 }
 
 inline void vtkFloatVectors::SetNumberOfVectors(int number)
 {
-  this->V.SetNumberOfValues(3*number);
+  this->V->SetNumberOfValues(3*number);
 }
 
 inline void vtkFloatVectors::SetVector(int id, float v[3]) 
 {
   id *= 3;
-  this->V.SetValue(id++, v[0]);
-  this->V.SetValue(id++, v[1]);
-  this->V.SetValue(id,   v[2]);
+  this->V->SetValue(id++, v[0]);
+  this->V->SetValue(id++, v[1]);
+  this->V->SetValue(id,   v[2]);
 }
 
 inline void vtkFloatVectors::InsertVector(int i, float v[3]) 
 {
-  float *ptr = this->V.WritePtr(i*3,3);
+  float *ptr = this->V->WritePtr(i*3,3);
 
   *ptr++ = v[0];
   *ptr++ = v[1];
@@ -123,8 +125,8 @@ inline void vtkFloatVectors::InsertVector(int i, float v[3])
 
 inline int vtkFloatVectors::InsertNextVector(float v[3]) 
 {
-  int id = this->V.GetMaxId() + 1;
-  float *ptr = this->V.WritePtr(id,3);
+  int id = this->V->GetMaxId() + 1;
+  float *ptr = this->V->WritePtr(id,3);
 
   *ptr++ = v[0];
   *ptr++ = v[1];

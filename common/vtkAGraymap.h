@@ -60,24 +60,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAGraymap : public vtkColorScalars 
 {
 public:
-  vtkAGraymap() {};
-  vtkAGraymap(const vtkAGraymap& fs) {this->S = fs.S;};
-  vtkAGraymap(const int sz, const int ext=1000):S(2*sz,2*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(2*sz,2*ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkAGraymap();
+  vtkAGraymap(const vtkAGraymap& fs);
+  vtkAGraymap(const int sz, const int ext=1000);
+  ~vtkAGraymap();
+  
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(2*sz,2*ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkAGraymap";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/2;};
-  void Squeeze() {this->S.Squeeze();};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1)/2;};
+  void Squeeze() {this->S->Squeeze();};
   int GetNumberOfValuesPerScalar() {return 2;};
   float GetScalar(int i);
 
   // miscellaneous
   vtkAGraymap &operator=(const vtkAGraymap& fs);
-  void operator+=(const vtkAGraymap& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkAGraymap& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
 
@@ -97,7 +99,7 @@ public:
   int InsertNextAGrayValue(unsigned char ga[2]);
 
 protected:
-  vtkUnsignedCharArray S;
+  vtkUnsignedCharArray *S;
 };
 
 // Description:
@@ -110,8 +112,8 @@ inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4])
   g = (g > 255.0 ? 255.0 : g);
 
   i *= 2; 
-  this->S.SetValue(i, (unsigned char)g);
-  this->S.SetValue(i+1, rgba[3]); 
+  this->S->SetValue(i, (unsigned char)g);
+  this->S->SetValue(i+1, rgba[3]); 
 }
 
 // Description:
@@ -122,8 +124,8 @@ inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4])
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   g = (g > 255.0 ? 255.0 : g);
 
-  this->S.InsertValue(2*i+1, rgba[3]);
-  this->S.SetValue(2*i, (unsigned char)g);
+  this->S->InsertValue(2*i+1, rgba[3]);
+  this->S->SetValue(2*i, (unsigned char)g);
 }
 
 // Description:
@@ -135,8 +137,8 @@ inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4])
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   g = (g > 255.0 ? 255.0 : g);
 
-  id = this->S.InsertNextValue((unsigned char)g);
-  this->S.InsertNextValue(rgba[3]);
+  id = this->S->InsertNextValue((unsigned char)g);
+  this->S->InsertNextValue(rgba[3]);
 
   return id/2;
 }
@@ -146,7 +148,7 @@ inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4])
 // data is a list of repeated intensity/alpha pairs.
 inline unsigned char *vtkAGraymap::GetPtr(const int id)
 {
-  return this->S.GetPtr(2*id);
+  return this->S->GetPtr(2*id);
 }
 
 // Description:
@@ -156,7 +158,7 @@ inline unsigned char *vtkAGraymap::GetPtr(const int id)
 // write. 
 inline unsigned char *vtkAGraymap::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(2*id,2*number);
+  return this->S->WritePtr(2*id,2*number);
 }
 
 #endif

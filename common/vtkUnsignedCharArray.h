@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnsignedCharArray_h
 #define __vtkUnsignedCharArray_h
 
-#include "vtkObject.h"
+#include "vtkRefCount.h"
 
-class VTK_EXPORT vtkUnsignedCharArray : public vtkObject 
+class VTK_EXPORT vtkUnsignedCharArray : public vtkRefCount
 {
 public:
   vtkUnsignedCharArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatArray_h
 #define __vtkFloatArray_h
 
-#include "vtkObject.h"
+#include "vtkRefCount.h"
 
-class VTK_EXPORT vtkFloatArray : public vtkObject 
+class VTK_EXPORT vtkFloatArray : public vtkRefCount 
 {
 public:
   vtkFloatArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

@@ -52,19 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
-  vtkFloatNormals() {};
-  vtkFloatNormals(const vtkFloatNormals& fn) {this->N = fn.N;};
-  vtkFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->N.Allocate(3*sz,3*ext);};
-  void Initialize() {this->N.Initialize();};
+  vtkFloatNormals();
+  vtkFloatNormals(const vtkFloatNormals& fn);
+  vtkFloatNormals(const int sz, const int ext=1000);
+  ~vtkFloatNormals();
+
+  int Allocate(const int sz, const int ext=1000) {return this->N->Allocate(3*sz,3*ext);};
+  void Initialize() {this->N->Initialize();};
   char *GetClassName() {return "vtkFloatNormals";};
 
   // vtkNormal interface
   vtkNormals *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "float";};
-  int GetNumberOfNormals() {return (N.GetMaxId()+1)/3;};
-  void Squeeze() {this->N.Squeeze();};
-  float *GetNormal(int i) {return this->N.GetPtr(3*i);};
+  int GetNumberOfNormals() {return (N->GetMaxId()+1)/3;};
+  void Squeeze() {this->N->Squeeze();};
+  float *GetNormal(int i) {return this->N->GetPtr(3*i);};
   void GetNormal(int i,float n[3]) {this->vtkNormals::GetNormal(i,n);};
   void SetNumberOfNormals(int number);
   void SetNormal(int id, float n[3]);
@@ -76,17 +78,17 @@ public:
   float *WritePtr(const int id, const int number);
   vtkFloatNormals &operator=(const vtkFloatNormals& fn);
   void operator+=(const vtkFloatNormals& fn);
-  void Reset() {this->N.Reset();};
+  void Reset() {this->N->Reset();};
 
 protected:
-  vtkFloatArray N;
+  vtkFloatArray *N;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatNormals::GetPtr(const int id)
 {
-  return this->N.GetPtr(id);
+  return this->N->GetPtr(id);
 }
 
 // Description:
@@ -96,25 +98,25 @@ inline float *vtkFloatNormals::GetPtr(const int id)
 // write. 
 inline float *vtkFloatNormals::WritePtr(const int id, const int number)
 {
-  return this->N.WritePtr(id,3*number);
+  return this->N->WritePtr(id,3*number);
 }
 
 inline void vtkFloatNormals::SetNumberOfNormals(int number)
 {
-  this->N.SetNumberOfValues(3*number);
+  this->N->SetNumberOfValues(3*number);
 }
 
 inline void vtkFloatNormals::SetNormal(int id, float n[3]) 
 {
   id *= 3;
-  this->N.SetValue(id++, n[0]);
-  this->N.SetValue(id++, n[1]);
-  this->N.SetValue(id,   n[2]);
+  this->N->SetValue(id++, n[0]);
+  this->N->SetValue(id++, n[1]);
+  this->N->SetValue(id,   n[2]);
 }
 
 inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 
 {
-  float *ptr = this->N.WritePtr(i*3,3);
+  float *ptr = this->N->WritePtr(i*3,3);
 
   *ptr++ = n[0];
   *ptr++ = n[1];
@@ -123,8 +125,8 @@ inline void vtkFloatNormals::InsertNormal(int i, float n[3])
 
 inline int vtkFloatNormals::InsertNextNormal(float n[3]) 
 {
-  int id = this->N.GetMaxId() + 1;
-  float *ptr = this->N.WritePtr(id,3);
+  int id = this->N->GetMaxId() + 1;
+  float *ptr = this->N->WritePtr(id,3);
 
   *ptr++ = n[0];
   *ptr++ = n[1];

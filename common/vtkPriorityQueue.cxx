@@ -44,21 +44,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Instantiate priority queue with default size and extension size of 1000.
 vtkPriorityQueue::vtkPriorityQueue()
 {
+  this->ItemLocation = new vtkIntArray;
   this->Size = this->Extend = 1000;
   this->Array = new vtkPriorityItem[this->Size];
   this->MaxId = -1;
 
-  this->ItemLocation.Allocate(this->Size,this->Extend);
-  for (int i=0; i < this->Size; i++) this->ItemLocation.SetValue(i,-1);
+  this->ItemLocation->Allocate(this->Size,this->Extend);
+  for (int i=0; i < this->Size; i++) this->ItemLocation->SetValue(i,-1);
 }
 
 // Description:
 // Instantiate priority queue with specified size and amount to extend
 // queue (if reallocation required).
-vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext) :
-ItemLocation(sz,ext)
+vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
 {
-  for (int i=0; i < sz; i++) this->ItemLocation.SetValue(i,-1);
+  this->ItemLocation = new vtkIntArray(sz,ext);
+  for (int i=0; i < sz; i++) this->ItemLocation->SetValue(i,-1);
 
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new vtkPriorityItem[sz];
@@ -68,6 +69,7 @@ ItemLocation(sz,ext)
 
 vtkPriorityQueue::~vtkPriorityQueue()
 {
+  this->ItemLocation->Delete();
   if ( this->Array != NULL ) delete [] this->Array;
 }
 
@@ -79,24 +81,24 @@ void vtkPriorityQueue::Insert(float priority, int id)
   static vtkPriorityItem temp;
 
   // check and make sure item hasn't been inserted before
-  if ( id <= this->ItemLocation.GetMaxId() && 
-  this->ItemLocation.GetValue(id) != -1 ) 
+  if ( id <= this->ItemLocation->GetMaxId() && 
+  this->ItemLocation->GetValue(id) != -1 ) 
     return;
 
   // start by placing new entry at bottom of tree
   if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
   this->Array[this->MaxId].priority = priority;
   this->Array[this->MaxId].id = id;
-  if ( id >= this->ItemLocation.GetSize() ) //might have to resize and initialize
+  if ( id >= this->ItemLocation->GetSize() ) //might have to resize and initialize
     {
-    int oldSize = this->ItemLocation.GetSize();
-    this->ItemLocation.InsertValue(id,this->MaxId); 
-    for (i=oldSize; i < this->ItemLocation.GetSize(); i++) 
-      this->ItemLocation.SetValue(i, -1);
-    this->ItemLocation.SetValue(id,this->MaxId);
+    int oldSize = this->ItemLocation->GetSize();
+    this->ItemLocation->InsertValue(id,this->MaxId); 
+    for (i=oldSize; i < this->ItemLocation->GetSize(); i++) 
+      this->ItemLocation->SetValue(i, -1);
+    this->ItemLocation->SetValue(id,this->MaxId);
     }
 
-  this->ItemLocation.InsertValue(id,this->MaxId);
+  this->ItemLocation->InsertValue(id,this->MaxId);
 
   // now begin percolating towards top of tree
   for ( i=this->MaxId; 
@@ -105,10 +107,10 @@ void vtkPriorityQueue::Insert(float priority, int id)
     {
     temp = this->Array[i];
 
-    this->ItemLocation.SetValue(temp.id,idx);
+    this->ItemLocation->SetValue(temp.id,idx);
     this->Array[i] = this->Array[idx];
 
-    this->ItemLocation.SetValue(this->Array[idx].id,i);
+    this->ItemLocation->SetValue(this->Array[idx].id,i);
     this->Array[idx] = temp;
     }
 }
@@ -128,10 +130,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
   // move the last item to the location specified and push into the tree
   this->Array[location].id = this->Array[this->MaxId].id;
   this->Array[location].priority = this->Array[this->MaxId].priority;
-  this->ItemLocation.SetValue(this->Array[location].id,location);
+  this->ItemLocation->SetValue(this->Array[location].id,location);
 
   if ( --this->MaxId <= 0 ) return id;
-  this->ItemLocation.SetValue(id,-1);
+  this->ItemLocation->SetValue(id,-1);
 
   // percolate into the tree
   for ( i=location; i <= (this->MaxId-1)/2; i=j )
@@ -148,10 +150,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
       {
       temp = this->Array[i];
 
-      this->ItemLocation.SetValue(temp.id,j);
+      this->ItemLocation->SetValue(temp.id,j);
       this->Array[i] = this->Array[j];
 
-      this->ItemLocation.SetValue(this->Array[j].id,i);
+      this->ItemLocation->SetValue(this->Array[j].id,i);
       this->Array[j] = temp;
       }
     else break;
@@ -188,9 +190,9 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const int sz)
 void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;
-  for (int i=0; i <= this->ItemLocation.GetMaxId(); i++)
-    this->ItemLocation.SetValue(i,-1);
-  this->ItemLocation.Reset();
+  for (int i=0; i <= this->ItemLocation->GetMaxId(); i++)
+    this->ItemLocation->SetValue(i,-1);
+  this->ItemLocation->Reset();
 }
 
 void vtkPriorityQueue::PrintSelf(ostream& os, vtkIndent indent)

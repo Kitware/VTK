@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkBitmap.h"
 
+vtkBitmap::vtkBitmap()
+{
+  this->S = new vtkBitArray;
+}
+
+vtkBitmap::vtkBitmap(const vtkBitmap& fs)
+{
+  this->S = new vtkBitArray;
+  *(this->S) = *(fs.S);
+}
+
+vtkBitmap::vtkBitmap(const int sz, const int ext=1000)
+{
+  this->S = new vtkBitArray(sz,ext);
+}
+
+vtkBitmap::~vtkBitmap()
+{
+  this->S->Delete();
+}
+
 vtkScalars *vtkBitmap::MakeObject(int sze, int ext)
 {
   return new vtkBitmap(sze,ext);
@@ -49,7 +70,7 @@ vtkScalars *vtkBitmap::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkBitmap& vtkBitmap::operator=(const vtkBitmap& fs)
 {
-  this->S = fs.S;
+  *(this->S) = *(fs.S);
   return *this;
 }
 
@@ -58,7 +79,7 @@ vtkBitmap& vtkBitmap::operator=(const vtkBitmap& fs)
 unsigned char *vtkBitmap::GetColor(int id)
 {
   static unsigned char rgba[4];
-  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
+  rgba[0] = rgba[1] = rgba[2] = this->S->GetValue(id);
   rgba[3] = 255;
   return rgba;
 }
@@ -67,7 +88,7 @@ unsigned char *vtkBitmap::GetColor(int id)
 // Get rgba color value for id indicated.
 void vtkBitmap::GetColor(int id, unsigned char rgba[4])
 {
-  rgba[0] = rgba[1] = rgba[2] = this->S.GetValue(id);
+  rgba[0] = rgba[1] = rgba[2] = this->S->GetValue(id);
   rgba[3] = 255;
 }
 
@@ -76,7 +97,7 @@ void vtkBitmap::GetColor(int id, unsigned char rgba[4])
 void vtkBitmap::SetColor(int id, unsigned char rgba[4])
 {
   unsigned char b=rgba[0]|rgba[1]|rgba[2];
-  this->S.SetValue(id,b);
+  this->S->SetValue(id,b);
 }
 
 // Description:
@@ -85,7 +106,7 @@ void vtkBitmap::SetColor(int id, unsigned char rgba[4])
 void vtkBitmap::InsertColor(int id, unsigned char rgba[4])
 {
   unsigned char b=rgba[0]|rgba[1]|rgba[2];
-  this->S.InsertValue(id,b);
+  this->S->InsertValue(id,b);
 }
 
 // Description:
@@ -93,7 +114,7 @@ void vtkBitmap::InsertColor(int id, unsigned char rgba[4])
 int vtkBitmap::InsertNextColor(unsigned char rgba[4])
 {
   unsigned char b=rgba[0]|rgba[1]|rgba[2];
-  int id = this->S.InsertNextValue(b);
+  int id = this->S->InsertNextValue(b);
   return id;
 }
 

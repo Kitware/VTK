@@ -40,12 +40,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatTensors.h"
 
+vtkFloatTensors::vtkFloatTensors()
+{
+  this->T = new vtkFloatArray;
+}
+
+vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft)
+{
+  this->T = new vtkFloatArray;
+  *(this->T) = *(ft.T);
+  this->Dimension = ft.Dimension;
+}
+
+vtkFloatTensors::vtkFloatTensors(int sz, int d=3, int ext=1000)
+{
+  this->T = new vtkFloatArray(d*d*sz,d*d*ext);
+  this->Dimension = d;
+}
+
+vtkFloatTensors::~vtkFloatTensors()
+{
+  this->T->Delete();
+}
+
+
+
+
+
 vtkTensor *vtkFloatTensors::GetTensor(int i) 
 {
   static vtkTensor t;
   t.SetDimension(this->Dimension);
 
-  t.T = this->T.GetPtr(this->Dimension*this->Dimension*i);
+  t.T = this->T->GetPtr(this->Dimension*this->Dimension*i);
   return &t;
 }
 
@@ -58,7 +85,7 @@ vtkTensors *vtkFloatTensors::MakeObject(int sze, int d, int ext)
 // Deep copy of tensors.
 vtkFloatTensors& vtkFloatTensors::operator=(const vtkFloatTensors& ft)
 {
-  this->T = ft.T;
+  *(this->T) = *(ft.T);
   this->Dimension = ft.Dimension;
   
   return *this;
@@ -70,7 +97,7 @@ void vtkFloatTensors::SetTensor(int id, vtkTensor *t)
   
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T.SetValue(id+i+t->GetDimension()*j, t->GetComponent(i,j));
+      this->T->SetValue(id+i+t->GetDimension()*j, t->GetComponent(i,j));
 }
 
 void vtkFloatTensors::InsertTensor(int id, vtkTensor *t) 
@@ -79,7 +106,7 @@ void vtkFloatTensors::InsertTensor(int id, vtkTensor *t)
   
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T.InsertValue(id+i+t->GetDimension()*j,t->GetComponent(i,j));
+      this->T->InsertValue(id+i+t->GetDimension()*j,t->GetComponent(i,j));
 }
 
 int vtkFloatTensors::InsertNextTensor(vtkTensor *t) 
@@ -87,7 +114,7 @@ int vtkFloatTensors::InsertNextTensor(vtkTensor *t)
   int id = this->GetNumberOfTensors() + 1;
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T.InsertNextValue(t->GetComponent(i,j));
+      this->T->InsertNextValue(t->GetComponent(i,j));
 
   return id;
 }

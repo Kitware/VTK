@@ -40,6 +40,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatPoints.h"
 
+
+vtkFloatPoints::vtkFloatPoints()
+{
+  this->P = new vtkFloatArray;
+}
+
+vtkFloatPoints::vtkFloatPoints(const vtkFloatPoints& fp)
+{
+  this->P = new vtkFloatArray;
+  *(this->P) = *(fp.P);
+}
+
+vtkFloatPoints::vtkFloatPoints(const int sz, const int ext=1000)
+{
+  this->P = new vtkFloatArray(3*sz,3*ext);
+}
+
+vtkFloatPoints::~vtkFloatPoints()
+{
+  this->P->Delete();
+}
+
+
 vtkPoints *vtkFloatPoints::MakeObject(int sze, int ext)
 {
   return new vtkFloatPoints(sze,ext);
@@ -49,7 +72,7 @@ vtkPoints *vtkFloatPoints::MakeObject(int sze, int ext)
 // Deep copy of points.
 vtkFloatPoints& vtkFloatPoints::operator=(const vtkFloatPoints& fp)
 {
-  this->P = fp.P;
+  *(this->P) = *(fp.P);
   return *this;
 }
 
@@ -57,6 +80,7 @@ void vtkFloatPoints::GetPoints(vtkIdList& ptId, vtkFloatPoints& fp)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
-    fp.InsertPoint(i,this->P.GetPtr(3*ptId.GetId(i)));
+    fp.InsertPoint(i,this->P->GetPtr(3*ptId.GetId(i)));
     }
 }
+

@@ -40,6 +40,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatVectors.h"
 
+
+vtkFloatVectors::vtkFloatVectors()
+{
+  this->V = new vtkFloatArray;
+}
+
+vtkFloatVectors::vtkFloatVectors(const vtkFloatVectors& fv)
+{
+  this->V = new vtkFloatArray;
+  *(this->V) = *(fv.V);
+}
+
+vtkFloatVectors::vtkFloatVectors(const int sz, const int ext=1000)
+{
+  this->V = new vtkFloatArray(sz, ext);
+}
+
+vtkFloatVectors::~vtkFloatVectors()
+{
+  this->V = new vtkFloatArray;
+}
+
+
 vtkVectors *vtkFloatVectors::MakeObject(int sze, int ext)
 {
   return new vtkFloatVectors(sze,ext);
@@ -49,7 +72,10 @@ vtkVectors *vtkFloatVectors::MakeObject(int sze, int ext)
 // Deep copy of vectors.
 vtkFloatVectors& vtkFloatVectors::operator=(const vtkFloatVectors& fv)
 {
-  this->V = fv.V;
+  *(this->V) = *(fv.V);
   return *this;
 }
+
+
+
 

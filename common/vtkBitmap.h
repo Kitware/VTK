@@ -57,22 +57,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBitmap : public vtkColorScalars 
 {
 public:
-  vtkBitmap() {};
-  vtkBitmap(const vtkBitmap& fs) {this->S = fs.S;};
-  vtkBitmap(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkBitmap();
+  vtkBitmap(const vtkBitmap& fs);
+  vtkBitmap(const int sz, const int ext=1000);
+  ~vtkBitmap();
+
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkBitmap";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
 
   // miscellaneous
   vtkBitmap &operator=(const vtkBitmap& fs);
-  void operator+=(const vtkBitmap& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkBitmap& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
 
@@ -85,12 +87,12 @@ public:
   int InsertNextColor(unsigned char rgba[4]);
 
 protected:
-  vtkBitArray S;
+  vtkBitArray *S;
 };
 
 inline void vtkBitmap::SetNumberOfColors(int number)
 {
-  this->S.SetNumberOfValues(number);
+  this->S->SetNumberOfValues(number);
 }
 
 // Description:
@@ -98,7 +100,7 @@ inline void vtkBitmap::SetNumberOfColors(int number)
 // byte to obtain appropriate bit value.
 inline unsigned char *vtkBitmap::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
@@ -107,7 +109,7 @@ inline unsigned char *vtkBitmap::GetPtr(const int id)
 // wish to write into; number is the number of rgba colors to write.
 inline unsigned char *vtkBitmap::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

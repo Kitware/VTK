@@ -53,22 +53,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGraymap : public vtkColorScalars 
 {
 public:
-  vtkGraymap() {};
-  vtkGraymap(const vtkGraymap& fs) {this->S = fs.S;};
-  vtkGraymap(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkGraymap();
+  vtkGraymap(const vtkGraymap& fs);
+  vtkGraymap(const int sz, const int ext=1000);
+  ~vtkGraymap();
   char *GetClassName() {return "vtkGraymap";};
+
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
 
   // miscellaneous
   vtkGraymap &operator=(const vtkGraymap& fs);
-  void operator+=(const vtkGraymap& fs) {this->S += fs.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkGraymap& fs) {*(this->S) += *(fs.S);};
+  void Reset() {this->S->Reset();};
   unsigned char *GetPtr(const int id);
   void *GetVoidPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
@@ -87,15 +89,19 @@ public:
   void InsertGrayValue(int id, unsigned char g);
   int InsertNextGrayValue(unsigned char g);
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkGetObjectMacro(S, vtkUnsignedCharArray);
+  
 protected:
-  vtkUnsignedCharArray S;
+  vtkUnsignedCharArray *S;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline unsigned char *vtkGraymap::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
@@ -103,7 +109,7 @@ inline unsigned char *vtkGraymap::GetPtr(const int id)
 // a void pointer.
 inline void *vtkGraymap::GetVoidPtr(const int id)
 {
-  return (void *)(this->S.GetPtr(id));
+  return (void *)(this->S->GetPtr(id));
 }
 
 // Description:
@@ -113,7 +119,7 @@ inline void *vtkGraymap::GetVoidPtr(const int id)
 // write. 
 inline unsigned char *vtkGraymap::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

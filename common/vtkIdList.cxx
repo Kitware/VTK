@@ -41,6 +41,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIdList.h"
 #include "vtkCell.h"
 
+
+vtkIdList::vtkIdList(const int sz=512, const int ext=1000)
+{
+  this->Ia = new vtkIntArray(sz,ext);
+}
+
+vtkIdList::~vtkIdList()
+{
+  this->Ia->Delete();
+}
+
+
 // Description:
 // Delete specified id from list. Will replace all occurences of id in list.
 void vtkIdList::DeleteId(int Id)
@@ -58,8 +70,8 @@ void vtkIdList::DeleteId(int Id)
     // if found; replace current id with last
     if ( i < numIds )
       {
-      this->SetId(i,this->Ia.GetValue(this->Ia.GetMaxId()));
-      this->Ia.SetNumberOfValues(--numIds);
+      this->SetId(i,this->Ia->GetValue(this->Ia->GetMaxId()));
+      this->Ia->SetNumberOfValues(--numIds);
       }
     }
 }

@@ -52,26 +52,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShortScalars : public vtkScalars 
 {
 public:
-  vtkShortScalars() {};
-  vtkShortScalars(const vtkShortScalars& ss) {this->S = ss.S;};
-  vtkShortScalars(const int sz, const int ext=1000):S(sz,ext){};
-  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {this->S.Initialize();};
+  vtkShortScalars();
+  vtkShortScalars(const vtkShortScalars& ss);
+  vtkShortScalars(const int sz, const int ext=1000);
+  ~vtkShortScalars();
+
+  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
+  void Initialize() {this->S->Initialize();};
   char *GetClassName() {return "vtkShortScalars";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "short";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return (float)this->S.GetValue(i);};
+  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
+  void Squeeze() {this->S->Squeeze();};
+  float GetScalar(int i) {return (float)this->S->GetValue(i);};
   void SetNumberOfScalars(int number);
-  void SetScalar(int i, short s) {this->S.SetValue(i,s);};
-  void SetScalar(int i, float s) {this->S.SetValue(i,(short)s);};
-  void InsertScalar(int i, float s) {S.InsertValue(i,(short)s);};
-  void InsertScalar(int i, short s) {S.InsertValue(i,s);};
-  int InsertNextScalar(short s) {return S.InsertNextValue(s);};
-  int InsertNextScalar(float s) {return S.InsertNextValue((short)s);};
+  void SetScalar(int i, short s) {this->S->SetValue(i,s);};
+  void SetScalar(int i, float s) {this->S->SetValue(i,(short)s);};
+  void InsertScalar(int i, float s) {S->InsertValue(i,(short)s);};
+  void InsertScalar(int i, short s) {S->InsertValue(i,s);};
+  int InsertNextScalar(short s) {return S->InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S->InsertNextValue((short)s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
@@ -80,30 +82,30 @@ public:
   void *GetVoidPtr(const int id);
   short *WritePtr(const int id, const int number);
   vtkShortScalars &operator=(const vtkShortScalars& ss);
-  void operator+=(const vtkShortScalars& ss) {this->S += ss.S;};
-  void Reset() {this->S.Reset();};
+  void operator+=(const vtkShortScalars& ss) {*(this->S) += *(ss.S);};
+  void Reset() {this->S->Reset();};
 
 protected:
-  vtkShortArray S;
+  vtkShortArray *S;
 };
 
 inline void vtkShortScalars::SetNumberOfScalars(int number)
 {
-  this->S.SetNumberOfValues(number);
+  this->S->SetNumberOfValues(number);
 }
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline short *vtkShortScalars::GetPtr(const int id)
 {
-  return this->S.GetPtr(id);
+  return this->S->GetPtr(id);
 }
 
 // Description:
 // Get a void pointer to array of data starting at data position "id".
 inline void *vtkShortScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S.GetPtr(id));
+  return (void *)(this->S->GetPtr(id));
 }
 
 // Description:
@@ -113,7 +115,7 @@ inline void *vtkShortScalars::GetVoidPtr(const int id)
 // write. 
 inline short *vtkShortScalars::WritePtr(const int id, const int number)
 {
-  return this->S.WritePtr(id,number);
+  return this->S->WritePtr(id,number);
 }
 
 #endif

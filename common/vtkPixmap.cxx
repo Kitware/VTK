@@ -40,6 +40,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPixmap.h"
 
+vtkPixmap::vtkPixmap()
+{
+  this->S = new vtkUnsignedCharArray;
+}
+
+vtkPixmap::vtkPixmap(const vtkPixmap& fs)
+{
+  this->S = new vtkUnsignedCharArray;
+  *(this->S) = *(fs.S);
+}
+
+vtkPixmap::vtkPixmap(const int sz, const int ext=1000)
+{
+  this->S = new vtkUnsignedCharArray(sz, ext);
+}
+
+vtkPixmap::~vtkPixmap()
+{
+  this->S->Delete();
+}
+
+
+
 vtkScalars *vtkPixmap::MakeObject(int sze, int ext)
 {
   return new vtkPixmap(sze,ext);
@@ -49,7 +72,7 @@ vtkScalars *vtkPixmap::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkPixmap& vtkPixmap::operator=(const vtkPixmap& fs)
 {
-  this->S = fs.S;
+  *(this->S) = *(fs.S);
   return *this;
 }
 
@@ -59,7 +82,7 @@ unsigned char *vtkPixmap::GetColor(int i)
 {
   static unsigned char rgba[4];
   unsigned char *_rgb;
-  _rgb = this->S.GetPtr(3*i);
+  _rgb = this->S->GetPtr(3*i);
   rgba[0] = _rgb[0];
   rgba[1] = _rgb[1];
   rgba[2] = _rgb[2];
@@ -70,7 +93,7 @@ unsigned char *vtkPixmap::GetColor(int i)
 
 void vtkPixmap::SetNumberOfColors(int number)
 {
-  this->S.SetNumberOfValues(number*3);
+  this->S->SetNumberOfValues(number*3);
 }
 
 // Description:
@@ -80,7 +103,7 @@ void vtkPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgb;
 
-  _rgb = this->S.GetPtr(3*id);
+  _rgb = this->S->GetPtr(3*id);
   rgba[0] = _rgb[0];
   rgba[1] = _rgb[1];
   rgba[2] = _rgb[2];

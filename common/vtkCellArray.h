@@ -63,12 +63,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellArray : public vtkRefCount
 {
 public:
-  vtkCellArray() : NumberOfCells(0), Location(0) {};
-  int Allocate(const int sz, const int ext=1000) 
-    {return this->Ia.Allocate(sz,ext);};
-  void Initialize() {this->Ia.Initialize();};
-  vtkCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
+  vtkCellArray();
+  vtkCellArray (const int sz, const int ext=1000);
   vtkCellArray(const vtkCellArray& ca);
+  ~vtkCellArray();
+
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->Ia->Allocate(sz,ext);};
+  void Initialize() {this->Ia->Initialize();};
   char *GetClassName() {return "vtkCellArray";};
 
   int GetNumberOfCells();
@@ -109,7 +111,7 @@ public:
 protected:
   int NumberOfCells;
   int Location;
-  vtkIntArray Ia;
+  vtkIntArray *Ia;
 };
 
 // Description:
@@ -120,8 +122,8 @@ inline int vtkCellArray::GetNumberOfCells() {return this->NumberOfCells;};
 // Create a cell by specifying the number of points and an array of point id's.
 inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 {
-  int i = this->Ia.GetMaxId() + 1;
-  int *ptr = this->Ia.WritePtr(i,npts+1);
+  int i = this->Ia->GetMaxId() + 1;
+  int *ptr = this->Ia->WritePtr(i,npts+1);
   
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = *pts++;
 
@@ -136,8 +138,8 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 {
   int npts = pts.GetNumberOfIds();
-  int i = this->Ia.GetMaxId() + 1;
-  int *ptr = this->Ia.WritePtr(i,npts+1);
+  int i = this->Ia->GetMaxId() + 1;
+  int *ptr = this->Ia->WritePtr(i,npts+1);
   
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = pts.GetId(i);
 
@@ -153,7 +155,7 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 // method UpdateCellCount() to complete the cell.
 inline int vtkCellArray::InsertNextCell(int npts)
 {
-  this->Location = this->Ia.InsertNextValue(npts) + 1;
+  this->Location = this->Ia->InsertNextValue(npts) + 1;
   this->NumberOfCells++;
 
   return this->NumberOfCells;
@@ -164,7 +166,7 @@ inline int vtkCellArray::InsertNextCell(int npts)
 // to the list of cells.
 inline void vtkCellArray::InsertCellPoint(int id) 
 {
-  this->Ia.InsertValue(this->Location++,id);
+  this->Ia->InsertValue(this->Location++,id);
 }
 
 // Description:
@@ -172,7 +174,7 @@ inline void vtkCellArray::InsertCellPoint(int id)
 // update the number of points defining the cell.
 inline void vtkCellArray::UpdateCellCount(int npts) 
 {
-  this->Ia.SetValue(this->Location-npts-1, npts);
+  this->Ia->SetValue(this->Location-npts-1, npts);
 }
 
 // Description:
@@ -180,8 +182,8 @@ inline void vtkCellArray::UpdateCellCount(int npts)
 inline int vtkCellArray::InsertNextCell(vtkCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
-  int i = this->Ia.GetMaxId() + 1;
-  int *ptr = this->Ia.WritePtr(i,npts+1);
+  int i = this->Ia->GetMaxId() + 1;
+  int *ptr = this->Ia->WritePtr(i,npts+1);
   
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = cell->PointIds.GetId(i);
 
@@ -209,12 +211,12 @@ inline void vtkCellArray::Reset()
 {
   this->NumberOfCells = 0;
   this->Location = 0;
-  this->Ia.Reset();
+  this->Ia->Reset();
 }
 
 // Description:
 // Reclaim any extra memory.
-inline void vtkCellArray::Squeeze() {this->Ia.Squeeze();}
+inline void vtkCellArray::Squeeze() {this->Ia->Squeeze();}
 
 // Description:
 // A cell traversal methods that is more efficient than vtkDataSet traversal
@@ -227,10 +229,10 @@ inline void vtkCellArray::InitTraversal() {this->Location=0;}
 // is encountered, 0 is returned.
 inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 {
-  if ( this->Ia.GetMaxId() >= 0 && this->Location <= this->Ia.GetMaxId() ) 
+  if ( this->Ia->GetMaxId() >= 0 && this->Location <= this->Ia->GetMaxId() ) 
     {
-    npts = this->Ia.GetValue(this->Location++);
-    pts = this->Ia.GetPtr(this->Location);
+    npts = this->Ia->GetValue(this->Location++);
+    pts = this->Ia->GetPtr(this->Location);
     this->Location += npts;
     return 1;
     }
@@ -242,7 +244,7 @@ inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 
 // Description:
 // Get the size of the allocated connectivity array.
-inline int vtkCellArray::GetSize() {return Ia.GetSize();};
+inline int vtkCellArray::GetSize() {return Ia->GetSize();};
 
 // Description:
 // Get the total number of entries (i.e., data values) in the connectivity 
@@ -250,7 +252,7 @@ inline int vtkCellArray::GetSize() {return Ia.GetSize();};
 // from GetSize().)
 inline int vtkCellArray::GetNumberOfConnectivityEntries() 
 {
-  return Ia.GetMaxId()+1;
+  return Ia->GetMaxId()+1;
 }
 
 // Description:
@@ -258,7 +260,7 @@ inline int vtkCellArray::GetNumberOfConnectivityEntries()
 // the internal array.
 inline void vtkCellArray::GetCell(int loc, int &npts, int* &pts)
 {
-  npts=this->Ia.GetValue(loc++); pts=this->Ia.GetPtr(loc);
+  npts=this->Ia->GetValue(loc++); pts=this->Ia->GetPtr(loc);
 }
 
 // Description:
@@ -274,8 +276,8 @@ inline int vtkCellArray::GetLocation(int npts) {
 inline void vtkCellArray::ReverseCell(int loc)
 {
   int i, tmp;
-  int npts=this->Ia.GetValue(loc);
-  int *pts=this->Ia.GetPtr(loc+1);
+  int npts=this->Ia->GetValue(loc);
+  int *pts=this->Ia->GetPtr(loc+1);
   for (i=0; i < (npts/2); i++) 
     {
     tmp = pts[i];
@@ -288,7 +290,7 @@ inline void vtkCellArray::ReverseCell(int loc)
 // Replace the point ids of the cell with a different list of point ids.
 inline void vtkCellArray::ReplaceCell(int loc, int npts, int *pts)
 {
-  int *oldPts=this->Ia.GetPtr(loc+1);
+  int *oldPts=this->Ia->GetPtr(loc+1);
   for (int i=0; i < npts; i++)  oldPts[i] = pts[i];
 }
 
@@ -296,7 +298,7 @@ inline void vtkCellArray::ReplaceCell(int loc, int npts, int *pts)
 // Get pointer to array of cell data.
 inline int *vtkCellArray::GetPtr()
 {
-  return this->Ia.GetPtr(0);
+  return this->Ia->GetPtr(0);
 }
 
 // Description:
@@ -307,7 +309,7 @@ inline int *vtkCellArray::WritePtr(const int ncells, const int size)
 {
   this->NumberOfCells = ncells;
   this->Location = 0;
-  return this->Ia.WritePtr(0,size);
+  return this->Ia->WritePtr(0,size);
 }
 
 #endif

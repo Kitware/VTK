@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAPixmap.h"
 
+vtkAPixmap::vtkAPixmap()
+{
+  this->S = new vtkUnsignedCharArray;
+}
+
+vtkAPixmap::vtkAPixmap(const vtkAPixmap& fs)
+{
+  this->S = new vtkUnsignedCharArray;
+  *(this->S) = *(fs.S);
+}
+
+vtkAPixmap::vtkAPixmap(const int sz, const int ext=1000)
+{
+  this->S = new vtkUnsignedCharArray(4*sz,4*ext);
+}
+
+vtkAPixmap::~vtkAPixmap()
+{
+  this->S->Delete();
+}
+
 vtkScalars *vtkAPixmap::MakeObject(int sze, int ext)
 {
   return new vtkAPixmap(sze,ext);
@@ -49,7 +70,7 @@ vtkScalars *vtkAPixmap::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkAPixmap& vtkAPixmap::operator=(const vtkAPixmap& fs)
 {
-  this->S = fs.S;
+  *(this->S) = *(fs.S);
   return *this;
 }
 
@@ -60,7 +81,7 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgba;
 
-  _rgba = this->S.GetPtr(4*id);
+  _rgba = this->S->GetPtr(4*id);
   rgba[0] = _rgba[0];
   rgba[1] = _rgba[1];
   rgba[2] = _rgba[2];
@@ -69,7 +90,7 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 
 void vtkAPixmap::SetNumberOfColors(int number)
 {
-  this->S.SetNumberOfValues(number*4);
+  this->S->SetNumberOfValues(number*4);
 }
 
 // Description:
@@ -77,7 +98,7 @@ void vtkAPixmap::SetNumberOfColors(int number)
 void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 {
   id *= 4;
-  memcpy (this->S.GetPtr(id), rgba, 4);
+  memcpy (this->S->GetPtr(id), rgba, 4);
 }
 
 // Description:
@@ -86,15 +107,15 @@ void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 void vtkAPixmap::InsertColor(int id, unsigned char rgba[4])
 {
   id *= 4;
-  for(int j=0; j<4; j++) this->S.InsertValue(id+j,rgba[j]);
+  for(int j=0; j<4; j++) this->S->InsertValue(id+j,rgba[j]);
 }
 
 // Description:
 // Insert color into next available slot. Returns point id of slot.
 int vtkAPixmap::InsertNextColor(unsigned char rgba[4])
 {
-  int id = this->S.InsertNextValue(rgba[0]);
-  for(int j=1; j<4; j++) this->S.InsertNextValue(rgba[j]);
+  int id = this->S->InsertNextValue(rgba[0]);
+  for(int j=1; j<4; j++) this->S->InsertNextValue(rgba[j]);
   return id/4;
 }
 

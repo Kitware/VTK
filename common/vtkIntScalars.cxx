@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkIntScalars.h"
 
+vtkIntScalars::vtkIntScalars()
+{
+  this->S = new vtkIntArray;
+}
+
+vtkIntScalars::vtkIntScalars(const vtkIntScalars& ss)
+{
+  this->S = new vtkIntArray;
+  *(this->S) = *(ss.S);
+}
+
+vtkIntScalars::vtkIntScalars(const int sz, const int ext=1000)
+{
+  this->S = new vtkIntArray(sz,ext);
+}
+
+vtkIntScalars::~vtkIntScalars()
+{
+  this->S->Delete();
+}
+
 vtkScalars *vtkIntScalars::MakeObject(int sze, int ext)
 {
   return new vtkIntScalars(sze,ext);
@@ -49,7 +70,7 @@ vtkScalars *vtkIntScalars::MakeObject(int sze, int ext)
 // Deep copy of scalars.
 vtkIntScalars& vtkIntScalars::operator=(const vtkIntScalars& is)
 {
-  this->S = is.S;
+  *(this->S) = *(is.S);
   return *this;
 }
 
@@ -57,14 +78,14 @@ void vtkIntScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
-    fs.InsertScalar(i,(float)this->S.GetValue(ptId.GetId(i)));
+    fs.InsertScalar(i,(float)this->S->GetValue(ptId.GetId(i)));
     }
 }
 
 void vtkIntScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
   float *fp=fs.GetPtr(0);
-  int *ip=this->S.GetPtr(p1);
+  int *ip=this->S->GetPtr(p1);
   
   for (int id=p1; id <= p2; id++)
     {
