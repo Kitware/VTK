@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // warp transformations.  These are also commonly known as morphological
 // transformations.
 // .SECTION see also
-// vtkThinPlateSplineTransform, vtkGridTransform
+// vtkThinPlateSplineTransform
 
 
 #ifndef __vtkWarpTransform_h
