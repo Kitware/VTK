@@ -131,13 +131,6 @@ public:
   // Return the scalar value below which all opacities are zero
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
-//BTX - this is for interal use by the ray cast function, not for 
-//      general use
-  // Description:
-  // Provided for the ray cast function to query the data increments
-  vtkGetVectorMacro( DataIncrement, int, 3 );
-//ETX
-
   // Description:
   // Set / Get the gradient estimator used to estimate normals
   void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
@@ -154,8 +147,6 @@ public:
 //ETX
 
 protected:
-
-  int                          DataIncrement[3];
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
 

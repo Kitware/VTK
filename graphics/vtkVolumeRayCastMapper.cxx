@@ -136,6 +136,10 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
     this->ScalarInput->Update();
     } 
 
+  if ( this->RGBTextureInput )
+    {
+    this->RGBTextureInput->Update();
+    }
 
   this->UpdateShadingTables( ren, vol );
 
@@ -516,9 +520,6 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     }
   // Get the size of the data for limit checks and compute increments
   this->ScalarInput->GetDimensions( scalarDataSize );
-  this->DataIncrement[2] = scalarDataSize[0] * scalarDataSize[1];
-  this->DataIncrement[1] = scalarDataSize[0];
-  this->DataIncrement[0] = 1;
 
   this->WorldSampleDistance = 
     this->SampleDistance * ray_caster->GetViewportStepSize();
@@ -635,7 +636,5 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "Gradient Shader: (none)" << endl;
     }
 
-  // These variables should not be printed to the user:
-  // this->DataIncrement[0] 
 }
 

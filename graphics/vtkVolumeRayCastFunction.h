@@ -97,6 +97,7 @@ struct VolumeRayCastVolumeInfoStruct
   float                        CenterDistance;
   int                          ScalarDataType;
   void                         *ScalarDataPointer;
+  unsigned char                *RGBDataPointer;
   int                          Shading;
   int                          ColorChannels;
   float                        Color[3];
@@ -109,6 +110,13 @@ struct VolumeRayCastVolumeInfoStruct
   float                        *BlueSpecularShadingTable;
   int                          DataIncrement[3];
   int                          DataSize[3];
+  float                        DataSpacing[3];
+  float                        DataOrigin[3];
+  int                          RGBDataIncrement[3];
+  int                          RGBDataSize[3];
+  float                        RGBDataSpacing[3];
+  float                        RGBDataOrigin[3];
+  float                        RGBTextureCoefficient;
   unsigned short               *EncodedNormals;
   unsigned char                *GradientMagnitudes;
 };

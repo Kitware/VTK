@@ -134,12 +134,22 @@ public:
     {this->SetScalarInput(cache->GetImageToStructuredPoints()->GetOutput());}
   virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
 
+
+  // Description:
+  // Set/Get the rgb texture input data
+  void SetRGBTextureInput( vtkStructuredPoints *rgbTexture );
+  void SetRGBTextureInput(vtkImageCache *cache)
+    {this->SetRGBTextureInput(cache->GetImageToStructuredPoints()->GetOutput());}
+  virtual vtkStructuredPoints *GetRGBTextureInput() {return this->RGBTextureInput;};
+
+
   virtual int GetMapperType()=0;
 
   virtual float *GetRGBAPixelData() {return NULL;};
 
 protected:
   vtkStructuredPoints  *ScalarInput;
+  vtkStructuredPoints  *RGBTextureInput;
   int                  Clipping;
   float                ClippingPlanes[6];
   vtkTimeStamp         BuildTime;

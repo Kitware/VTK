@@ -311,6 +311,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   int       num_steps;
   float     *ray_start, *ray_increment;
   float     r, g, b;
+  float     volumeRed, volumeGreen, volumeBlue;
+  float     texcoord[3];
+
 
   num_steps = rayInfo->VolumeRayNumberOfSamples;
   ray_start = rayInfo->VolumeRayStart;
@@ -420,6 +423,58 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
       if ( A >= isovalue )
 	{
 	  found_intersection = TRUE;
+
+	  // Store the color in volumeRed, volumeGreen, volumeBlue
+	  // This may come from the color value for this isosurface,
+	  // or from the texture (or a blend of these two)
+	  if ( volumeInfo->RGBDataPointer )
+	    {
+	    texcoord[0] = 
+	      ( voxel_x * volumeInfo->DataSpacing[0] + volumeInfo->DataOrigin[0] -
+		volumeInfo->RGBDataOrigin[0] ) / volumeInfo->RGBDataSpacing[0];
+	    texcoord[1] = 
+	      ( voxel_y * volumeInfo->DataSpacing[1] + volumeInfo->DataOrigin[1] -
+		volumeInfo->RGBDataOrigin[1] ) / volumeInfo->RGBDataSpacing[1];
+	    texcoord[2] = 
+	      ( voxel_z * volumeInfo->DataSpacing[2] + volumeInfo->DataOrigin[2] -
+		volumeInfo->RGBDataOrigin[2] ) / volumeInfo->RGBDataSpacing[2];
+	    if ( texcoord[0] >= 0 && texcoord[0] < volumeInfo->RGBDataSize[0] &&
+		 texcoord[1] >= 0 && texcoord[1] < volumeInfo->RGBDataSize[1] &&
+		 texcoord[2] >= 0 && texcoord[2] < volumeInfo->RGBDataSize[2] )
+	      {
+	      offset =
+		( (int)texcoord[0] * volumeInfo->RGBDataIncrement[0] + 
+		  (int)texcoord[1] * volumeInfo->RGBDataIncrement[1] +
+		  (int)texcoord[2] * volumeInfo->RGBDataIncrement[2] );
+	      volumeRed   = 
+		volumeInfo->RGBTextureCoefficient * 
+		(float)*(volumeInfo->RGBDataPointer + offset   ) / 255.0 + 
+		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[0];
+	      volumeGreen   = 
+		volumeInfo->RGBTextureCoefficient * 
+		(float)*(volumeInfo->RGBDataPointer + offset + 1) / 255.0 + 
+		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[1];
+	      volumeBlue   = 
+		volumeInfo->RGBTextureCoefficient * 
+		(float)*(volumeInfo->RGBDataPointer + offset + 2) / 255.0 + 
+		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[2];
+	      
+	      }
+	    else
+	      {
+	      volumeRed   = volumeInfo->Color[0];
+	      volumeGreen = volumeInfo->Color[1];
+	      volumeBlue  = volumeInfo->Color[2];
+	      }
+	    }
+	  else
+	    {
+	    volumeRed   = volumeInfo->Color[0];
+	    volumeGreen = volumeInfo->Color[1];
+	    volumeBlue  = volumeInfo->Color[2];
+	    }
+
+
 	  if ( volumeInfo->Shading )
 	    {
 	      // Get diffuse shading table pointers
@@ -435,18 +490,19 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      // Get a pointer to the encoded normals for this volume
 	      encoded_normals = volumeInfo->EncodedNormals;
 	      
-	      // Set up the data values for the first pass through the loop
+
+	      // Set up the offset into the normal array
 	      offset = voxel_z * zinc + voxel_y * yinc + voxel_x;
 	      
 	      // Set the return pixel value.  This should be corrected later;
 	      // 
 	      r = red_d_shade[*(encoded_normals + offset)] 
-		* volumeInfo->Color[0] + red_s_shade[*(encoded_normals + offset)];
+		* volumeRed + red_s_shade[*(encoded_normals + offset)];
 	      g = green_d_shade[*(encoded_normals + offset)] 
-		* volumeInfo->Color[1] + green_s_shade[*(encoded_normals + offset)];
+		* volumeGreen + green_s_shade[*(encoded_normals + offset)];
 	      b = blue_d_shade[*(encoded_normals + offset)] 
-		* volumeInfo->Color[2] + blue_s_shade[*(encoded_normals + offset)];
-	      
+		* volumeBlue + blue_s_shade[*(encoded_normals + offset)];
+
 	      rayInfo->RayColor[0] = ( r > 1.0 ) ? 1.0 : r;
 	      rayInfo->RayColor[1] = ( g > 1.0 ) ? 1.0 : g;
 	      rayInfo->RayColor[2] = ( b > 1.0 ) ? 1.0 : b;
@@ -455,9 +511,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  else 
 	    {
 	      // No shading
-	      rayInfo->RayColor[0] = volumeInfo->Color[0];
-	      rayInfo->RayColor[1] = volumeInfo->Color[1];
-	      rayInfo->RayColor[2] = volumeInfo->Color[2];
+	      rayInfo->RayColor[0] = volumeRed;
+	      rayInfo->RayColor[1] = volumeGreen;
+	      rayInfo->RayColor[2] = volumeBlue;
 	      rayInfo->RayColor[3] = 1.0;
 	    }
 	}
@@ -578,6 +634,10 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   float     red_shaded_value, green_shaded_value, blue_shaded_value;
   int       num_steps;
   float     *ray_start, *ray_increment;
+  float     volumeRed, volumeGreen, volumeBlue;
+  float     texcoord[3];
+  int       rgbBinc, rgbCinc, rgbDinc, rgbEinc, rgbFinc, rgbGinc, rgbHinc;
+  unsigned char *rgbptr;
 
   num_steps = rayInfo->VolumeRayNumberOfSamples;
   ray_start = rayInfo->VolumeRayStart;
@@ -740,6 +800,112 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  {
 	  found_intersection = TRUE;
 	  
+	  // Store the color in volumeRed, volumeGreen, volumeBlue
+	  // This may come from the color value for this isosurface,
+	  // or from the texture (or a blend of these two)
+	  if ( volumeInfo->RGBDataPointer )
+	    {
+	    texcoord[0] = 
+	      ( point_x * volumeInfo->DataSpacing[0] + volumeInfo->DataOrigin[0] -
+		volumeInfo->RGBDataOrigin[0] ) / volumeInfo->RGBDataSpacing[0];
+	    texcoord[1] = 
+	      ( point_y * volumeInfo->DataSpacing[1] + volumeInfo->DataOrigin[1] -
+		volumeInfo->RGBDataOrigin[1] ) / volumeInfo->RGBDataSpacing[1];
+	    texcoord[2] = 
+	      ( point_z * volumeInfo->DataSpacing[2] + volumeInfo->DataOrigin[2] -
+		volumeInfo->RGBDataOrigin[2] ) / volumeInfo->RGBDataSpacing[2];
+	    if ( texcoord[0] >= 0 && texcoord[0] < volumeInfo->RGBDataSize[0] &&
+		 texcoord[1] >= 0 && texcoord[1] < volumeInfo->RGBDataSize[1] &&
+		 texcoord[2] >= 0 && texcoord[2] < volumeInfo->RGBDataSize[2] )
+	      {
+	      offset = 
+		( (int)texcoord[0] * volumeInfo->RGBDataIncrement[0] + 
+		  (int)texcoord[1] * volumeInfo->RGBDataIncrement[1] +
+		  (int)texcoord[2] * volumeInfo->RGBDataIncrement[2] );
+
+	      // Compute our offset in the texel, and use that to trilinearly
+	      // interpolate a color value
+	      x = texcoord[0] - (float)((int)texcoord[0]);
+	      y = texcoord[1] - (float)((int)texcoord[1]);
+	      z = texcoord[2] - (float)((int)texcoord[2]);
+	      t1 = 1.0 - x;
+	      t2 = 1.0 - y;
+	      t3 = 1.0 - z;
+	      
+	      tA = t1*t2*t3;
+	      tB = x*t2*t3;
+	      tC = t1*y*t3;
+	      tD = x*y*t3;
+	      tE = t1*t2*z;
+	      tF = x*z*t2;
+	      tG = t1*y*z;
+	      tH = x*z*y;
+	      
+	      rgbBinc = volumeInfo->RGBDataIncrement[0];
+	      rgbCinc = volumeInfo->RGBDataIncrement[1];
+	      rgbDinc = volumeInfo->RGBDataIncrement[0] + volumeInfo->RGBDataIncrement[1];
+	      rgbEinc = volumeInfo->RGBDataIncrement[2];
+	      rgbFinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[0];
+	      rgbGinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[1];
+	      rgbHinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[1] +
+		        volumeInfo->RGBDataIncrement[0];
+
+	      rgbptr = volumeInfo->RGBDataPointer + offset;
+	      volumeRed   = 
+		tA * (float)*(rgbptr           ) / 255.0 +
+		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
+		tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
+		tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
+		tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
+		tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
+		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
+		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
+
+	      rgbptr = volumeInfo->RGBDataPointer + offset + 1;
+	      volumeGreen   = 
+		tA * (float)*(rgbptr           ) / 255.0 +
+		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
+		tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
+		tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
+		tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
+		tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
+		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
+		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
+
+	      rgbptr = volumeInfo->RGBDataPointer + offset + 2;
+	      volumeBlue   = 
+		tA * (float)*(rgbptr           ) / 255.0 +
+		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
+		tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
+		tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
+		tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
+		tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
+		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
+		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
+
+	      volumeRed = volumeRed * volumeInfo->RGBTextureCoefficient +
+		volumeInfo->Color[0] * (1.0 - volumeInfo->RGBTextureCoefficient);
+
+	      volumeGreen = volumeGreen * volumeInfo->RGBTextureCoefficient +
+		volumeInfo->Color[1] * (1.0 - volumeInfo->RGBTextureCoefficient);
+
+	      volumeBlue = volumeBlue * volumeInfo->RGBTextureCoefficient +
+		volumeInfo->Color[2] * (1.0 - volumeInfo->RGBTextureCoefficient);
+	      }
+	    else
+	      {
+	      volumeRed   = volumeInfo->Color[0];
+	      volumeGreen = volumeInfo->Color[1];
+	      volumeBlue  = volumeInfo->Color[2];
+	      }
+	    }
+	  else
+	    {
+	    volumeRed   = volumeInfo->Color[0];
+	    volumeGreen = volumeInfo->Color[1];
+	    volumeBlue  = volumeInfo->Color[2];
+	    }
+
 	  if ( volumeInfo->Shading )
 	    {
 	    // Get diffuse shading table pointers
@@ -786,78 +952,78 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	    // Do trilinear interpolation of shadings of pixel corners
 	    // Do it for red, green, and blue components
 	    red_shaded_value =
-	      tA * ( red_d_shade[ *(nptr) ] * volumeInfo->Color[0] 
+	      tA * ( red_d_shade[ *(nptr) ] * volumeRed
 		     + red_s_shade[ *(nptr) ] );
 	    red_shaded_value +=
-	      tB * ( red_d_shade[ *(nptr + Binc) ] * volumeInfo->Color[0] 
+	      tB * ( red_d_shade[ *(nptr + Binc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Binc) ] );
 	    red_shaded_value +=
-	      tC * ( red_d_shade[ *(nptr + Cinc) ] * volumeInfo->Color[0] 
+	      tC * ( red_d_shade[ *(nptr + Cinc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Cinc) ] );
 	    red_shaded_value +=
-	      tD * ( red_d_shade[ *(nptr + Dinc) ] * volumeInfo->Color[0] 
+	      tD * ( red_d_shade[ *(nptr + Dinc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Dinc) ] );
 	    red_shaded_value +=
-	      tE * ( red_d_shade[ *(nptr + Einc) ] * volumeInfo->Color[0] 
+	      tE * ( red_d_shade[ *(nptr + Einc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Einc) ] );
 	    red_shaded_value +=
-	      tF * ( red_d_shade[ *(nptr + Finc) ] * volumeInfo->Color[0] 
+	      tF * ( red_d_shade[ *(nptr + Finc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Finc) ] );
 	    red_shaded_value +=
-	      tG * ( red_d_shade[ *(nptr + Ginc) ] * volumeInfo->Color[0] 
+	      tG * ( red_d_shade[ *(nptr + Ginc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Ginc) ] );
 	    red_shaded_value +=
-	      tH * ( red_d_shade[ *(nptr + Hinc) ] * volumeInfo->Color[0] 
+	      tH * ( red_d_shade[ *(nptr + Hinc) ] * volumeRed 
 		     + red_s_shade[ *(nptr + Hinc) ] );
 	    
 	    green_shaded_value =  
-	      tA * ( green_d_shade[ *(nptr) ] * volumeInfo->Color[1] 
+	      tA * ( green_d_shade[ *(nptr) ] * volumeGreen 
 		     + green_s_shade[ *(nptr) ] );
 	    green_shaded_value +=  
-	      tB * ( green_d_shade[ *(nptr + Binc) ] * volumeInfo->Color[1] 
+	      tB * ( green_d_shade[ *(nptr + Binc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Binc) ] );
 	    green_shaded_value +=  
-	      tC * ( green_d_shade[ *(nptr + Cinc) ] * volumeInfo->Color[1] 
+	      tC * ( green_d_shade[ *(nptr + Cinc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Cinc) ] );
 	    green_shaded_value +=  
-	      tD * ( green_d_shade[ *(nptr + Dinc) ] * volumeInfo->Color[1] 
+	      tD * ( green_d_shade[ *(nptr + Dinc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Dinc) ] );
 	    green_shaded_value +=  
-	      tE * ( green_d_shade[ *(nptr + Einc) ] * volumeInfo->Color[1] 
+	      tE * ( green_d_shade[ *(nptr + Einc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Einc) ] );
 	    green_shaded_value +=  
-	      tF * ( green_d_shade[ *(nptr + Finc) ] * volumeInfo->Color[1] 
+	      tF * ( green_d_shade[ *(nptr + Finc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Finc) ] );
 	    green_shaded_value +=  
-	      tG * ( green_d_shade[ *(nptr + Ginc) ] * volumeInfo->Color[1] 
+	      tG * ( green_d_shade[ *(nptr + Ginc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Ginc) ] );
 	    green_shaded_value +=  
-	      tH * ( green_d_shade[ *(nptr + Hinc) ] * volumeInfo->Color[1] 
+	      tH * ( green_d_shade[ *(nptr + Hinc) ] * volumeGreen 
 		     + green_s_shade[ *(nptr + Hinc) ] );
 	    
 	    blue_shaded_value =  
-	      tA * ( blue_d_shade[ *(nptr) ] * volumeInfo->Color[2] 
+	      tA * ( blue_d_shade[ *(nptr) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr) ] );
 	    blue_shaded_value +=  
-	      tB * ( blue_d_shade[ *(nptr + Binc) ] * volumeInfo->Color[2] 
+	      tB * ( blue_d_shade[ *(nptr + Binc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Binc) ] );
 	    blue_shaded_value +=  
-	      tC * ( blue_d_shade[ *(nptr + Cinc) ] * volumeInfo->Color[2] 
+	      tC * ( blue_d_shade[ *(nptr + Cinc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Cinc) ] );
 	    blue_shaded_value +=  
-	      tD * ( blue_d_shade[ *(nptr + Dinc) ] * volumeInfo->Color[2] 
+	      tD * ( blue_d_shade[ *(nptr + Dinc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Dinc) ] );
 	    blue_shaded_value +=  
-	      tE * ( blue_d_shade[ *(nptr + Einc) ] * volumeInfo->Color[2] 
+	      tE * ( blue_d_shade[ *(nptr + Einc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Einc) ] );
 	    blue_shaded_value +=  
-	      tF * ( blue_d_shade[ *(nptr + Finc) ] * volumeInfo->Color[2] 
+	      tF * ( blue_d_shade[ *(nptr + Finc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Finc) ] );
 	    blue_shaded_value +=  
-	      tG * ( blue_d_shade[ *(nptr + Ginc) ] * volumeInfo->Color[2] 
+	      tG * ( blue_d_shade[ *(nptr + Ginc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Ginc) ] );
 	    blue_shaded_value +=  
-	      tH * ( blue_d_shade[ *(nptr + Hinc) ] * volumeInfo->Color[2] 
+	      tH * ( blue_d_shade[ *(nptr + Hinc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Hinc) ] );
 	    
 	    rayInfo->RayColor[0] = 
@@ -871,9 +1037,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  else
 	    {
 	      // No shading
-	      rayInfo->RayColor[0] = volumeInfo->Color[0];
-	      rayInfo->RayColor[1] = volumeInfo->Color[1];
-	      rayInfo->RayColor[2] = volumeInfo->Color[2];
+	      rayInfo->RayColor[0] = volumeRed;
+	      rayInfo->RayColor[1] = volumeGreen;
+	      rayInfo->RayColor[2] = volumeBlue;
 	      rayInfo->RayColor[3] = 1.0;
 	    }
 	  }

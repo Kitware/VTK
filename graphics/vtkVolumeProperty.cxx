@@ -53,11 +53,12 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->ScalarOpacity			= NULL;
   this->GradientOpacity			= NULL;
 
-  this->Shade				= 0;  // False
+  this->Shade				= 0;  
   this->Ambient				= 0.1;
   this->Diffuse				= 0.7;
   this->Specular			= 0.2;
   this->SpecularPower			= 10.0;
+  this->RGBTextureCoefficient           = 0.0;
 }
 
 // Destruct a vtkVolumeProperty

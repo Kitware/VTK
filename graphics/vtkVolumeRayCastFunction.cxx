@@ -65,13 +65,38 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // What is the interpolation type? Nearest or linear.
   volumeInfo->InterpolationType = vol->GetVolumeProperty()->GetInterpolationType();
 
+  // Get the size, spacing and origin of the scalar data
+  mapper->GetScalarInput()->GetDimensions( volumeInfo->DataSize );
+  mapper->GetScalarInput()->GetSpacing( volumeInfo->DataSpacing );
+  mapper->GetScalarInput()->GetOrigin( volumeInfo->DataOrigin );
+
   // What are the data increments? 
   // (One voxel, one row, and one slice offsets)
-  mapper->GetDataIncrement( volumeInfo->DataIncrement );
+  volumeInfo->DataIncrement[0] = 1;
+  volumeInfo->DataIncrement[1] = volumeInfo->DataSize[0];
+  volumeInfo->DataIncrement[2] = volumeInfo->DataSize[0] * volumeInfo->DataSize[1];
 
-  // The size of the scalar input data
-  mapper->GetScalarInput()->GetDimensions( volumeInfo->DataSize );
 
+  // If there is rgbTexture, then get the info about this
+  if ( mapper->GetRGBTextureInput() )
+    {
+    mapper->GetRGBTextureInput()->GetDimensions( volumeInfo->RGBDataSize );
+    mapper->GetRGBTextureInput()->GetSpacing( volumeInfo->RGBDataSpacing );
+    mapper->GetRGBTextureInput()->GetOrigin( volumeInfo->RGBDataOrigin );
+    volumeInfo->RGBDataIncrement[0] = 3;
+    volumeInfo->RGBDataIncrement[1] = 3*volumeInfo->RGBDataSize[0];
+    volumeInfo->RGBDataIncrement[2] = 3*( volumeInfo->RGBDataSize[0] * 
+					  volumeInfo->RGBDataSize[1] );
+
+    volumeInfo->RGBDataPointer = (unsigned char *)
+      mapper->GetRGBTextureInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
+
+    volumeInfo->RGBTextureCoefficient = vol->GetVolumeProperty()->GetRGBTextureCoefficient();
+    }
+  else
+    {
+    volumeInfo->RGBDataPointer = NULL;
+    }
   // Get the encoded normals from the normal encoder in the
   // volume ray cast mapper. We need to do this if shading is on
   // or if we are classifying scalar value into opacity based
