@@ -655,21 +655,19 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
 // Get the current size of the window.
 int *vtkWin32OpenGLRenderWindow::GetSize(void)
 {
-  RECT rect;
-
   // if we aren't mapped then just return the ivar 
-  if (!this->Mapped)
+  if (this->Mapped)
     {
-    return(this->Size);
+    RECT rect;
+
+    //  Find the current window size 
+    GetClientRect(this->WindowId, &rect);
+    
+    this->Size[0] = rect.right;
+    this->Size[1] = rect.bottom;
     }
 
-  //  Find the current window size 
-  GetClientRect(this->WindowId, &rect);
-
-  this->Size[0] = rect.right;
-  this->Size[1] = rect.bottom;
-  
-  return this->Size;
+  return(this->vtkOpenGLRenderWindow::GetSize());
 }
 
 // Get the current size of the window.
