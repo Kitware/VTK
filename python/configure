@@ -524,13 +524,16 @@ fi
 
 
 USE_TKWIDGET_FLAG=""
+TKWIDGET_TARGETS=""
   # Check whether --with-tkwidget or --without-tkwidget was given.
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
   if test "$withval" = yes; then
 	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
+	 TKWIDGET_TARGETS="vtkTkRenderWidget vtkTkImageViewerWidget vtkTkImageWindowWidget"
          fi
 fi
+
 
 
 
@@ -694,6 +697,7 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@USE_TKWIDGET_FLAG@%$USE_TKWIDGET_FLAG%g
+s%@TKWIDGET_TARGETS@%$TKWIDGET_TARGETS%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
 

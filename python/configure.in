@@ -4,12 +4,15 @@
 AC_INIT(vtkpython.c)
 
 USE_TKWIDGET_FLAG=""
+TKWIDGET_TARGETS=""
   AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
 	 if test "$withval" = yes; then
 	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
+	 TKWIDGET_TARGETS="vtkTkRenderWidget vtkTkImageViewerWidget vtkTkImageWindowWidget"
          fi)
 AC_SUBST(USE_TKWIDGET_FLAG)
+AC_SUBST(TKWIDGET_TARGETS)
 
 # option for handling BSD style makefile includes
 #
