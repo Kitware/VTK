@@ -41,12 +41,15 @@
 #include <windows.h>
 
 // Handle compiler warning messages, etc.
+#ifndef VTK_DISPLAY_WIN32_WARNINGS
 #pragma warning ( disable : 4251 )
 #pragma warning ( disable : 4786 )
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4305 )
 #pragma warning ( disable : 4309 )
 #pragma warning ( disable : 4706 )
+#endif //VTK_DISPLAY_WIN32_WARNINGS
+
 #endif
 
 #if defined(WIN32) && !defined(VTKSTATIC)

@@ -41,5 +41,7 @@
 
 #cmakedefine VTK_USE_ANSI_STDLIB
 
+#cmakedefine VTK_DISPLAY_WIN32_WARNINGS
+
 /* compiler used */
 #define VTK_CXX_COMPILER "${CMAKE_CXX_COMPILER}"
