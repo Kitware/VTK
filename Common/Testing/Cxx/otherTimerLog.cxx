@@ -23,7 +23,7 @@
 void Test(ostream& strm)
 {
   // actual test
-  float a = 1.0, b = 2.0;
+  float a = 1.0;
   int i, j;
   strm << "Test vtkTimerLog Start" << endl;
   vtkTimerLog *timer1 = vtkTimerLog::New();
@@ -35,7 +35,7 @@ void Test(ostream& strm)
     timer1->FormatAndMarkEvent("%s%d", "start", j);
     for (i = 0; i < 10000000; i++)
       {
-      a *= b;
+      a *= a;
       }
 #ifndef WIN32
     sleep (1);
