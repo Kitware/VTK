@@ -88,33 +88,33 @@ public:
 
   // Description:
   // Set scalar data.
-  vtkSetRefCountedObjectMacro (Scalars, vtkScalars);
-  vtkGetObjectMacro (Scalars, vtkScalars);
+  vtkSetRefCountedObjectMacro(Scalars,vtkScalars);
+  vtkGetObjectMacro(Scalars,vtkScalars);
 
   // Description:
   // Set vector data.
-  vtkSetRefCountedObjectMacro (Vectors, vtkVectors);
-  vtkGetObjectMacro (Vectors, vtkVectors);
+  vtkSetRefCountedObjectMacro(Vectors,vtkVectors);
+  vtkGetObjectMacro(Vectors,vtkVectors);
 
   // Description:
   // Set normal data.
-  vtkSetRefCountedObjectMacro (Normals, vtkNormals);
-  vtkGetObjectMacro (Normals, vtkNormals);
+  vtkSetRefCountedObjectMacro(Normals,vtkNormals);
+  vtkGetObjectMacro(Normals,vtkNormals);
 
   // Description:
   // Set texture coordinate data.
-  vtkSetRefCountedObjectMacro (TCoords, vtkTCoords);
-  vtkGetObjectMacro (TCoords, vtkTCoords);
+  vtkSetRefCountedObjectMacro(TCoords,vtkTCoords);
+  vtkGetObjectMacro(TCoords,vtkTCoords);
 
   // Description:
   // Set tensor data.
-  vtkSetRefCountedObjectMacro (Tensors, vtkTensors);
-  vtkGetObjectMacro (Tensors, vtkTensors);
+  vtkSetRefCountedObjectMacro(Tensors,vtkTensors);
+  vtkGetObjectMacro(Tensors,vtkTensors);
 
   // Description:
   // Set user defined data.
-  vtkSetRefCountedObjectMacro (UserDefined, vtkUserDefined);
-  vtkGetObjectMacro (UserDefined, vtkUserDefined);
+  vtkSetRefCountedObjectMacro(UserDefined,vtkUserDefined);
+  vtkGetObjectMacro(UserDefined,vtkUserDefined);
 
   // Description:
   // Turn on/off the copying of scalar data.
