@@ -5,6 +5,12 @@ IF (VTK_DATA_ROOT)
            -D ${VTK_DATA_ROOT}
            -V Baseline/Parallel/RectOutline.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(ExtractVOI-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtractVOI.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/TestExtractVOI.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(ExtrudePiece-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtrudePiece.tcl
