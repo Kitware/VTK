@@ -161,6 +161,11 @@ vtkDataSet *vtkPDataSetReader::GetOutput()
 
   // Creates an output if necessary.
   this->CheckOutput();
+  if (!this->Outputs)
+    {
+    return 0;
+    }
+
   output = (vtkDataSet *)(this->Outputs[0]);
 
   return output;
