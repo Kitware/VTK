@@ -115,7 +115,10 @@ vtkOpenGLImageWindow::vtkOpenGLImageWindow()
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
     strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
-  this->DoubleBuffer = 1;
+
+  // Default to double buffer off since some systems cannot get deep grayscale
+  // visuals. This is inconsistent with the WIn32 class, but necessary.
+  this->DoubleBuffer = 0;
   this->Erase = 1;
 }
 
