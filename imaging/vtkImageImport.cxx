@@ -113,7 +113,7 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 // This method returns the largest data that can be generated.
 void vtkImageImport::ExecuteInformation()
 {
-  vtkImageData *output;
+  vtkImageData *output = this->GetOutput();
   unsigned long mem;
   
   // set the extent
