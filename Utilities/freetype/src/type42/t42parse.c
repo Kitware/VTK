@@ -629,7 +629,8 @@
           goto Fail;
         }
 
-        v = (FT_Byte)( 16 * t42_hexval( *cur++ ) + t42_hexval( *cur++ ) );
+        v = (FT_Byte)( 16 * t42_hexval( *cur ) + t42_hexval( *(cur+1) ) );
+        cur += 2;
         string_size++;
       }
 
