@@ -439,6 +439,33 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glEnable(GL_BLEND);
   
+  if (this->PointSmoothing)
+    {
+    glEnable(GL_POINT_SMOOTH);
+    }
+  else
+    {
+    glDisable(GL_POINT_SMOOTH);
+    }
+
+  if (this->LineSmoothing)
+    {
+    glEnable(GL_LINE_SMOOTH);
+    }
+  else
+    {
+    glDisable(GL_LINE_SMOOTH);
+    }
+
+  if (this->PolygonSmoothing)
+    {
+    glEnable(GL_POLYGON_SMOOTH);
+    }
+  else
+    {
+    glDisable(GL_POLYGON_SMOOTH);
+    }
+
   glEnable( GL_NORMALIZE );
   glAlphaFunc(GL_GREATER,0);
   
