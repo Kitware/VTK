@@ -85,9 +85,15 @@ public:
   vtkImageGetMacro(Axes,int);
   int *GetAxes() {return this->Axes;};
 
+  // Description:
+  // Get the dimensionality of the source.
+  // The Update/Execute methods operate on this number of axes.
+  vtkGetMacro(Dimensionality, int);
+  
+  
 protected:
   vtkImageCache *Output;
-  int NumberOfAxes;               // execute method expects this number of axes
+  int Dimensionality;             // execute method expects this number of axes
   int Axes[VTK_IMAGE_DIMENSIONS]; // reorder the axes
   int ExecuteScalars;
   int ExecuteVectors;

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 // It would be nice to get rid of this hard coding of dimensionality.
-// Could each region/filter have its own dimensionality? (NumberOfAxes).
+// Could each region/filter have its own dimensionality? (Dimensionality).
 #define VTK_IMAGE_DIMENSIONS 5
 #define VTK_IMAGE_EXTENT_DIMENSIONS 10
 

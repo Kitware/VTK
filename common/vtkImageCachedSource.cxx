@@ -72,7 +72,7 @@ void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
   int idx;
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "NumberOfAxes: " << this->NumberOfAxes << "\n";
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -108,7 +108,7 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 // Description:
 // This method loops over an axis and calls UpdatePointData
 // with a lower dimensional region.  The recursion is terminated when 
-// axesIdx is equal to NumberOfAxes.  At this point the subclasses
+// axesIdx is equal to Dimensionality.  At this point the subclasses
 // UpdatePointData is called.
 void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
 {
@@ -117,7 +117,7 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
   int axis = this->Axes[dim - 1];
   
   // Terminate recursion?
-  if (dim == this->NumberOfAxes)
+  if (dim == this->Dimensionality)
     {
     this->UpdatePointData(region);
     return;
@@ -236,7 +236,7 @@ void vtkImageCachedSource::SetAxes(int dim, int *axes)
     {
     allAxes[idx1] = axes[idx1];
     }
-  this->NumberOfAxes = dim;
+  this->Dimensionality = dim;
   
   // choose the rest of the axes
   // look through original axes to find ones not taken
