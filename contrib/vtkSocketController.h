@@ -151,4 +151,4 @@ protected:
 };
 
 
-#endif
+#endif // __vtkSocketController_h
