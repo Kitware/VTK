@@ -86,6 +86,7 @@ IF (VTK_USE_RENDERING)
       socbal
       spatialRepAll
       spToPd
+      stripF
       subdividePointData
       subDivideTetra
       teapotHulls
