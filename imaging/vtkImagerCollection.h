@@ -70,15 +70,11 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
 inline void vtkImagerCollection::AddItem(vtkImager *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
-  // Needed for convenience functions
-  // a->Register(this);
 }
 
 inline void vtkImagerCollection::RemoveItem(vtkImager *a) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)a);
-  // Needed for convenience functions
-  // a->UnRegister(this);
 }
 
 inline int vtkImagerCollection::IsItemPresent(vtkImager *a) 

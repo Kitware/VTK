@@ -75,14 +75,12 @@ public:
 
   // Description:
   // Set the input to the mapper.  
-  vtkGetObjectMacro(Input, vtkPolyData);
   vtkSetObjectMacro(Input, vtkPolyData);
-
+  vtkGetObjectMacro(Input, vtkPolyData);
 
   // Description:
   // Specify a lookup table for the mapper to use.
   void SetLookupTable(vtkLookupTable *lut);
-  void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
   vtkLookupTable *GetLookupTable();
 
   // Description:
@@ -128,12 +126,14 @@ public:
   // method may return NULL if no color information is available.
   vtkScalars *GetColors();
 
-
   // Description:
   // Overload standard modified time function. If lookup table is modified,
   // then this object is modified as well.
   virtual unsigned long GetMTime();
 
+  // Description:
+  // Obsolete methods for legacy compatability. Do not use.
+  void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
 
 protected:
   vtkPolyData* Input;

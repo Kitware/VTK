@@ -136,32 +136,32 @@ public:
 
   // Description:
   // Set/Get the scalar data.
-  vtkSetReferenceCountedObjectMacro(Scalars,vtkScalars);
+  vtkSetObjectMacro(Scalars,vtkScalars);
   vtkGetObjectMacro(Scalars,vtkScalars);
 
   // Description:
   // Set/Get the vector data.
-  vtkSetReferenceCountedObjectMacro(Vectors,vtkVectors);
+  vtkSetObjectMacro(Vectors,vtkVectors);
   vtkGetObjectMacro(Vectors,vtkVectors);
 
   // Description:
   // Set/get the normal data.
-  vtkSetReferenceCountedObjectMacro(Normals,vtkNormals);
+  vtkSetObjectMacro(Normals,vtkNormals);
   vtkGetObjectMacro(Normals,vtkNormals);
 
   // Description:
   // Set/Get the texture coordinate data.
-  vtkSetReferenceCountedObjectMacro(TCoords,vtkTCoords);
+  vtkSetObjectMacro(TCoords,vtkTCoords);
   vtkGetObjectMacro(TCoords,vtkTCoords);
 
   // Description:
   // Set/Get the tensor data.
-  vtkSetReferenceCountedObjectMacro(Tensors,vtkTensors);
+  vtkSetObjectMacro(Tensors,vtkTensors);
   vtkGetObjectMacro(Tensors,vtkTensors);
 
   // Description:
   // Set/Get the field data.
-  vtkSetReferenceCountedObjectMacro(FieldData,vtkFieldData);
+  vtkSetObjectMacro(FieldData,vtkFieldData);
   vtkGetObjectMacro(FieldData,vtkFieldData);
 
   // Description:

@@ -82,7 +82,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
-  vtkSetReferenceCountedObjectMacro(Camera,vtkCamera);
+  vtkSetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:

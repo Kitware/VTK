@@ -66,6 +66,8 @@ vtkGlyph3D::vtkGlyph3D()
 
 vtkGlyph3D::~vtkGlyph3D()
 {
+  // unregister all the sources
+  this->SetNumberOfSources(0);
   if ( this->Source ) delete [] this->Source;
 }
 
@@ -461,16 +463,37 @@ void vtkGlyph3D::Update()
 // done prior to specifying more than one source.
 void vtkGlyph3D::SetNumberOfSources(int num)
 {
+  int idx;
+  
+  if ( num < 0 ) num = 0;
   if (this->NumberOfSources == num)
     {
     return;
     }
   
   this->Modified();
-  if ( num < 1 ) num = 1;
-  if ( this->Source ) delete [] this->Source;
+
+  // get rid of old sources
+  for (idx = 0; idx < this->NumberOfSources; ++idx)
+    {
+    if (this->Source != NULL && this->Source[idx] != NULL)
+      {
+      this->Source[idx]->UnRegister(this);
+      this->Source[idx] = NULL;
+      }
+    }
+  if ( this->Source != NULL) 
+    {
+    delete [] this->Source;
+    }
+
+  // make a new array for the sources
   this->Source = new vtkPolyData *[num];
   this->NumberOfSources = num;
+  for (idx = 0; idx < this->NumberOfSources; ++idx)
+    {
+    this->Source[idx] = NULL;
+    }
 }
 
 // Specify a source object at a specified table location.
@@ -488,7 +511,9 @@ void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
     }
   
   this->Modified();
+  if (this->Source[id] != NULL) {this->Source[id]->UnRegister(this);}
   this->Source[id] = pd;
+  if (this->Source[id] != NULL) {this->Source[id]->Register(this);}
 }
 
 // Get a pointer to a source object at a specified table location.

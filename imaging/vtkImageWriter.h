@@ -94,7 +94,7 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetReferenceCountedObjectMacro(Input,vtkImageCache);
+  vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

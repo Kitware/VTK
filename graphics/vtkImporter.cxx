@@ -53,6 +53,8 @@ vtkImporter::vtkImporter ()
 
 vtkImporter::~vtkImporter ()
 {
+  this->SetRenderWindow(NULL);
+  
   if (this->FileName)
     {
     delete [] this->FileName;

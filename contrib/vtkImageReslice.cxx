@@ -60,6 +60,12 @@ vtkImageReslice::vtkImageReslice()
 }
 
 //----------------------------------------------------------------------------
+vtkImageReslice::~vtkImageReslice()
+{
+  this->SetResliceTransform(NULL);
+}
+
+//----------------------------------------------------------------------------
 void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);

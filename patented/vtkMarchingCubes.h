@@ -121,7 +121,6 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   void SetLocator(vtkPointLocator *locator);
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
@@ -129,6 +128,10 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Obsolete method for legacy compatability. Do not use.
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);}
+  
 protected:
   void Execute();
 

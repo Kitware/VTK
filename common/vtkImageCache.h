@@ -157,7 +157,7 @@ public:
   
   // Description:
   // Set/Get the source associated with this cache
-  vtkSetReferenceCountedObjectMacro(Source,vtkImageSource);
+  vtkSetObjectMacro(Source,vtkImageSource);
   vtkGetObjectMacro(Source,vtkImageSource);
 
   // Description:

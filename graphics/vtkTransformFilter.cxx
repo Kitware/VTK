@@ -42,6 +42,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
+
+vtkTransformFilter::vtkTransformFilter()
+{
+  this->Transform = NULL;
+}
+
+vtkTransformFilter::~vtkTransformFilter()
+{
+  this->SetTransform(NULL);
+}
+
 void vtkTransformFilter::Execute()
 {
   vtkPoints *inPts;

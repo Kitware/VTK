@@ -54,6 +54,8 @@ vtkExporter::vtkExporter()
 
 vtkExporter::~vtkExporter()
 {
+  this->SetRenderWindow(NULL);
+  
   if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
     {
     (*this->StartWriteArgDelete)(this->StartWriteArg);

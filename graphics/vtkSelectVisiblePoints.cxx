@@ -53,6 +53,11 @@ vtkSelectVisiblePoints::vtkSelectVisiblePoints()
   this->SelectInvisible = 0;
 }
 
+vtkSelectVisiblePoints::~vtkSelectVisiblePoints()
+{
+  this->SetRenderer(NULL);
+}
+
 void vtkSelectVisiblePoints::Execute()
 {
   int ptId, id, visible;

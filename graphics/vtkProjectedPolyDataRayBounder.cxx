@@ -57,10 +57,22 @@ vtkProjectedPolyDataRayBounder::vtkProjectedPolyDataRayBounder()
   this->PolyData           = NULL;
 }
 
-// Destructor for the class. Nothing needs to be done.
+// Destructor for the class.
 vtkProjectedPolyDataRayBounder::~vtkProjectedPolyDataRayBounder()
 {
+  this->SetPolyData(NULL);
+  if (this->ActorMatrixSource != NULL)
+    {
+    this->ActorMatrixSource->UnRegister(this);
+    }
+  this->ActorMatrixSource = NULL;
+  if (this->VolumeMatrixSource != NULL)
+    {
+    this->VolumeMatrixSource->UnRegister(this);
+    }
+  this->VolumeMatrixSource = NULL;
 }
+
 // New method for the class which will return the correct type of 
 // ProjectPolyDataRayBounder
 vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
@@ -87,16 +99,52 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
 // by this actor's matrix before being projected
 void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkActor *actor )
 {
-  this->ActorMatrixSource  = actor;
-  this->VolumeMatrixSource = NULL;
+  if (this->ActorMatrixSource  != actor)
+    {
+    this->Modified();
+    
+    if (this->ActorMatrixSource != NULL)
+      {
+      this->ActorMatrixSource->UnRegister(this);
+      }
+    this->ActorMatrixSource  = actor;
+    if (this->ActorMatrixSource != NULL)
+      {
+      this->ActorMatrixSource->Register(this);
+      }
+    
+    if (this->VolumeMatrixSource != NULL)
+      {
+      this->VolumeMatrixSource->UnRegister(this);
+      }
+    this->VolumeMatrixSource = NULL;
+    }
 }
 
 // Set the matrix source to be a volume. The PolyData will be transformed
 // by this volume's matrix before being projected
 void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkVolume *volume )
 {
-  this->ActorMatrixSource  = NULL;
-  this->VolumeMatrixSource = volume;
+  if (this->VolumeMatrixSource  != volume)
+    {
+    this->Modified();
+    
+    if (this->VolumeMatrixSource != NULL)
+      {
+      this->VolumeMatrixSource->UnRegister(this);
+      }
+    this->VolumeMatrixSource  = volume;
+    if (this->VolumeMatrixSource != NULL)
+      {
+      this->VolumeMatrixSource->Register(this);
+      }
+    
+    if (this->ActorMatrixSource != NULL)
+      {
+      this->ActorMatrixSource->UnRegister(this);
+      }
+    this->ActorMatrixSource = NULL;
+    }
 }
 
 // Get the ray bounds by 1) making sure the PolyData is up-to-date,
@@ -133,9 +181,13 @@ float *vtkProjectedPolyDataRayBounder::GetRayBounds( vtkRenderer *ren )
 
   // Get the matrix source's matrix (if there is one)
   if ( this->ActorMatrixSource )
+    {
     this->ActorMatrixSource->GetMatrix( matrix );
+    }
   else if ( this->VolumeMatrixSource )
+    {
     this->VolumeMatrixSource->GetMatrix( matrix );
+    }
 
   // Call Draw() to obtain the bounds. 
   return_bounds = this->Draw( ren, matrix );

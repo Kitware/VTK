@@ -77,6 +77,11 @@ vtkSliceCubes::vtkSliceCubes()
   this->Value = 0.0;
 }
 
+vtkSliceCubes::~vtkSliceCubes()
+{
+  this->SetReader(NULL);
+}
+
 // Description:
 // Method causes object to read slices and generate isosurface.
 void vtkSliceCubes::Update()

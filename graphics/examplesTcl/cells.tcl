@@ -466,20 +466,35 @@ wm withdraw .
 #renWin SetFileName "cells.tcl.ppm"
 #renWin SaveImageAsPPM
 
+
+# the UnRegister calls are because make object is the same as New,
+# and causes memory leaks. (Tcl does not treat MakeObject the same as New).
 proc DeleteCopies {} {
   global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon
   global bTriangleStrip bLine bPolyLine bVertex bPolyVertex
+  $bVoxel UnRegister ""
   $bVoxel Delete
+  $bHexahedron UnRegister ""
   $bHexahedron Delete
+  $bTetra UnRegister ""
   $bTetra Delete
+  $bPixel UnRegister ""
   $bPixel Delete
+  $bQuad UnRegister ""
   $bQuad Delete
+  $bTriangle UnRegister ""
   $bTriangle Delete
+  $bPolygon UnRegister ""
   $bPolygon Delete
+  $bTriangleStrip UnRegister ""
   $bTriangleStrip Delete
+  $bLine UnRegister ""
   $bLine Delete
+  $bPolyLine UnRegister ""
   $bPolyLine Delete
+  $bVertex UnRegister ""
   $bVertex Delete
+  $bPolyVertex UnRegister ""
   $bPolyVertex Delete
 }
 

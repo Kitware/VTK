@@ -121,7 +121,7 @@ class VTK_EXPORT vtkActor : public vtkProp
   // visualization pipeline, i.e. the mapper. This should be a subclass
   // of vtkMapper. Typically vtkPolyDataMapper and vtkDataSetMapper will
   // be used.
-  vtkSetReferenceCountedObjectMacro(Mapper,vtkMapper);
+  vtkSetObjectMacro(Mapper,vtkMapper);
 
   // Description:
   // Returns the Mapper that this actor is getting its data from.

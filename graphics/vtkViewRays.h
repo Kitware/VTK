@@ -95,8 +95,9 @@ class VTK_EXPORT vtkViewRays :public vtkObject
   // Specify the vtkRenderer whose camera will be used to to calculate 
   // the view rays. The type of camera (parallel, perspective) will
   // determine which type of view ray information is calculated.
+  // Note: this does not increase the reference count of the renderer.
+  void SetRenderer(vtkRenderer *ren);
   vtkGetObjectMacro(Renderer,vtkRenderer);
-  vtkSetObjectMacro(Renderer,vtkRenderer);
 
   // Description:
   // Set the image size for the view rays.

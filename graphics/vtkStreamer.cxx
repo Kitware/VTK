@@ -98,6 +98,7 @@ vtkStreamer::vtkStreamer()
 vtkStreamer::~vtkStreamer()
 {
   if ( this->Streamers ) delete [] this->Streamers;
+  this->SetSource(NULL);
 }
 
 

@@ -94,7 +94,8 @@ public:
   // a portion of a plane.
   vtkSetVectorMacro(ImageRange,int,6);
   vtkGetVectorMacro(ImageRange,int,6);
-  void SetImageRange(int imin, int imax, int jmin, int jmax, int kmin, int kmax);
+  void SetImageRange(int imin, int imax, int jmin, int jmax, 
+		     int kmin, int kmax);
 
   // Methods to set contour values
   void SetValue(int i, float value);
@@ -110,14 +111,17 @@ public:
   unsigned long int GetMTime();
 
   void SetLocator(vtkPointLocator *locator);
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The locator is
-  // used to merge coincident points.
+  // Create default locator. Used to create one when none is specified. 
+  // The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Obsolete method for legacy compatability. Do not use.
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  
 protected:
   void Execute();
 

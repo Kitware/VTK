@@ -69,6 +69,8 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
     {
     this->Colors->Delete();
     }
+  
+  this->SetInput(NULL);
 }
 
 vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()

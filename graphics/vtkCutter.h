@@ -52,11 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyDataFilter.h"
 #include "vtkContourValues.h"
+#include "vtkImplicitFunction.h"
 
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
 
-class vtkImplicitFunction;
 
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {

@@ -45,6 +45,11 @@ vtkProbeFilter::vtkProbeFilter()
   this->Source = NULL;
 }
 
+vtkProbeFilter::~vtkProbeFilter()
+{
+  this->SetSource((vtkDataSet *)NULL);
+}
+
 void vtkProbeFilter::Execute()
 {
   int ptId;

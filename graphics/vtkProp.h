@@ -128,7 +128,7 @@ class VTK_EXPORT vtkProp : public vtkObject
   // as position and orientation are left with  their default values then 
   // they will result in the identity matrix. And the resulting matrix
   // will be the user defined matrix.
-  vtkSetReferenceCountedObjectMacro(UserMatrix,vtkMatrix4x4);
+  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
   // Description:

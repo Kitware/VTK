@@ -121,7 +121,7 @@ public:
 
   // Description:
   // Specify the data for the texture map.
-  vtkSetReferenceCountedObjectMacro(Input,vtkStructuredPoints);
+  vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}  

@@ -83,17 +83,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
+  vtkScalarBarActor();
+  ~vtkScalarBarActor();
+  const char *GetClassName() {return "vtkScalarBarActor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Instantiate object with 64 maximum colors; 5 labels; font size 12
   // of font Arial (bolding, italic, shadows on); %%-#6.3g label
   // format, no title, and vertical orientation. The initial scalar bar
   // size is (0.05 x 0.8) of the viewport size.
-  vtkScalarBarActor();
-
-  ~vtkScalarBarActor();
-  const char *GetClassName() {return "vtkScalarBarActor";};
   static vtkScalarBarActor *New() {return new vtkScalarBarActor;};
-  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Draw the scalar bar and annotation text to the screen.

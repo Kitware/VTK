@@ -63,6 +63,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
+  this->SetScalarInput(NULL);
   this->Threader->Delete();
   this->Threader = NULL;
   
@@ -82,9 +83,9 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
     }
 }
 
-void vtkEncodedGradientEstimator::SetDirectionEncoder( vtkDirectionEncoder *direnc )
+void 
+vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
 {
-
   // If we are setting it to its current value, don't do anything
   if ( this->DirectionEncoder == direnc )
     {

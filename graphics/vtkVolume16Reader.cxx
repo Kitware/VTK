@@ -53,6 +53,11 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->Transform = NULL;
 }
 
+vtkVolume16Reader::~vtkVolume16Reader()
+{
+  this->SetTransform(NULL);
+}
+
 void vtkVolume16Reader::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN

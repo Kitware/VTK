@@ -109,6 +109,8 @@ vtkScalarBarActor::~vtkScalarBarActor()
     delete [] this->Title;
     this->Title = NULL;
     }
+  
+  this->SetLookupTable(NULL);
 }
 
 void vtkScalarBarActor::Render(vtkViewport *viewport)

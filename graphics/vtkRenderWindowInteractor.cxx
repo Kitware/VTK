@@ -256,12 +256,23 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 
 void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
 {
-  this->RenderWindow = aren;
-  if (this->RenderWindow->GetInteractor() != this)
+  if (this->RenderWindow != aren)
     {
-    this->RenderWindow->SetInteractor(this);
+    // to avoid destructor recursion
+    vtkRenderWindow *temp = this->RenderWindow;
+    this->RenderWindow = aren;
+    if (temp != NULL) {temp->UnRegister(this);}
+    if (this->RenderWindow != NULL) 
+      {
+      this->RenderWindow->Register(this);
+      if (this->RenderWindow->GetInteractor() != this)
+	{
+	this->RenderWindow->SetInteractor(this);
+	}
+      }
     }
 }
+
 void vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
   vtkRendererCollection *rc;
@@ -646,6 +657,25 @@ void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
     this->Modified();
     }
 }
+
+// treat renderWindow and interactor as one object.
+// it might be easier if the GetReference count method were redefined.
+void vtkRenderWindowInteractor::UnRegister(vtkObject *o)
+{
+  if (this->RenderWindow && this->RenderWindow->GetInteractor() == this &&
+      this->RenderWindow != o)
+    {
+    if (this->GetReferenceCount()+this->RenderWindow->GetReferenceCount() == 3)
+      {
+      this->RenderWindow->SetInteractor(NULL);
+      this->SetRenderWindow(NULL);
+      }
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+      
+
 
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {

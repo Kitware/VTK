@@ -59,12 +59,12 @@ class VTK_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkDataSetFilter
 public:
   vtkDataSetToUnstructuredGridFilter();
   static vtkDataSetToUnstructuredGridFilter *New() {
-    return new vtkDataSetToUnstructuredGridFilter;};
-  const char *GetClassName() {return "vtkDataSetToUnstructuredGridFilter";};
+    return new vtkDataSetToUnstructuredGridFilter;}
+  const char *GetClassName() {return "vtkDataSetToUnstructuredGridFilter";}
 
   // Description:
   // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
+  vtkUnstructuredGrid *GetOutput(){return (vtkUnstructuredGrid *)this->Output;}
 
 };
 

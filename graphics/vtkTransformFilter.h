@@ -64,7 +64,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkTransformFilter() : Transform(NULL) {};
+  vtkTransformFilter();
+  ~vtkTransformFilter();
   static vtkTransformFilter *New() {return new vtkTransformFilter;};
   const char *GetClassName() {return "vtkTransformFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

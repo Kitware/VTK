@@ -56,10 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkProp.h"
 #include "vtkTransform.h"
-#include "vtkVolumeMapper.h"
 #include "vtkVolumeProperty.h"
 
 class vtkRenderer;
+class vtkVolumeMapper;
 
 class VTK_EXPORT vtkVolume : public vtkProp
 {
@@ -110,7 +110,7 @@ public:
 
   // Description:
   // Set/Get the volume mapper.
-  vtkSetObjectMacro(VolumeMapper,vtkVolumeMapper);
+  void SetVolumeMapper(vtkVolumeMapper *mapper);
   vtkGetObjectMacro(VolumeMapper,vtkVolumeMapper);
 
   // Description:

@@ -58,6 +58,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 vtkCutter::~vtkCutter()
 {
   this->ContourValues->Delete();
+  this->SetCutFunction(NULL);
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);

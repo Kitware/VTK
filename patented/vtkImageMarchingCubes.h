@@ -90,7 +90,7 @@ public:
   
   // Description:
   // Set/Get the source for the scalar data to contour.
-  vtkSetReferenceCountedObjectMacro(Input, vtkImageCache);
+  vtkSetObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input, vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

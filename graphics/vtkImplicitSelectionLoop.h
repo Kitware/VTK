@@ -97,7 +97,7 @@ public:
   // Description:
   // Set/Get the array of point coordinates defining the loop. There must
   // be at least three points used to define a loop.
-  vtkSetReferenceCountedObjectMacro(Loop,vtkPoints);
+  vtkSetObjectMacro(Loop,vtkPoints);
   vtkGetObjectMacro(Loop,vtkPoints);
 
   // Description:

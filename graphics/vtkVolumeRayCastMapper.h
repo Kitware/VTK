@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 
-class vtkVolumeRayCastFunction;
+#include "vtkVolumeRayCastFunction.h"
 class vtkRenderer;
 class vtkVolume;
 

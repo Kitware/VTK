@@ -97,7 +97,7 @@ public:
 
   // Description:
   // Set/Get the locator that will be used to generate the representation.
-  vtkSetReferenceCountedObjectMacro(SpatialRepresentation,vtkLocator);
+  vtkSetObjectMacro(SpatialRepresentation,vtkLocator);
   vtkGetObjectMacro(SpatialRepresentation,vtkLocator);
 
   // Description:

@@ -135,11 +135,15 @@ public:
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
+  //BTX
   // Description:
   // Set/Get the name of the source object that owns this helper instance.
-  vtkSetObjectMacro(Source,vtkSource);
+  // It is meant to be used by the source object, and does not reference
+  // count the source.
+  void SetSource(vtkSource *source);
   vtkGetObjectMacro(Source,vtkSource);
-
+  //ETX
+  
   // Description:
   // Open a vtk data file. Returns zero if error.
   int OpenVTKFile();

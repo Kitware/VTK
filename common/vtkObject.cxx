@@ -155,6 +155,7 @@ void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
 void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
+
   if ( this->DeleteMethod )
     {
     os << indent << "Delete Method defined\n";
@@ -164,8 +165,14 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
     os << indent <<"No Delete Method\n";
     }
   os << indent << "Modified Time: " << this->GetMTime() << "\n";
-  os << indent << "Reference Count: " << this->ReferenceCount << "\n";
-  os << indent << "Reference Counting: "<< ((this->ReferenceCount == -1) ? "Off\n" : "On\n");
+  if (this->ReferenceCount == -1)
+    {
+    os << indent << "Reference Counting: off\n";
+    }
+  else
+    {
+    os << indent << "Reference Count: " << this->ReferenceCount << "\n";
+    }
 }
 
 void vtkObject::PrintTrailer(ostream& os, vtkIndent indent)

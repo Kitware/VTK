@@ -106,7 +106,7 @@ public:
 
   // Description:
   // Set/Get transformation matrix to transform implicit function.
-  vtkSetReferenceCountedObjectMacro(Transform,vtkTransform);
+  vtkSetObjectMacro(Transform,vtkTransform);
   vtkGetObjectMacro(Transform,vtkTransform);
 
 protected:

@@ -65,12 +65,25 @@ vtkViewRays::vtkViewRays(void)
 
 // Destructor for vtkViewRays. Free up the memory used by the view rays
 vtkViewRays::~vtkViewRays(void)
-  {
+{
   if (ViewRays)
     {
     delete[] this->ViewRays;
     }
-  }
+  this->SetRenderer(NULL);
+}
+
+// no reference counting because it is to complicated to detect the loops
+// renderer<->RayCaster<->viewRays<->Render
+void vtkViewRays::SetRenderer(vtkRenderer *ren)
+{
+  if (this->Renderer != ren)
+    {
+    this->Renderer = ren;
+    this->Modified();
+    }
+}
+
 
 // Return the view rays. This is an array of this->Size[0] by
 // this->Size[1] by 3 floats per element. The elements are ray directions

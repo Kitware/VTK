@@ -301,6 +301,11 @@ public:
   void SetInteractor(vtkRenderWindowInteractor *);
 
   // Description:
+  // This Method detects loops of RenderWindow<->Interactor,
+  // so objects are freed properly.
+  void UnRegister(vtkObject *o);
+  
+  // Description:
   // Dummy stubs for vtkWindow API.
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *)  {};

@@ -82,7 +82,7 @@ public:
   // Description:
   // Set/Get the input for the image mapper.  The input can be either a
   // vtkImageCache or a vtkStructuredPoints data set.
-  vtkSetReferenceCountedObjectMacro(Input, vtkImageCache);
+  vtkSetObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

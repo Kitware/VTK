@@ -44,7 +44,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 {
   this->ImplicitFunction = f;
+  if (this->ImplicitFunction)
+    {
+    this->ImplicitFunction->Register(this);
+    }
+    
   this->ExtractInside = 1;
+}
+
+vtkExtractGeometry::~vtkExtractGeometry()
+{
+  this->SetImplicitFunction(NULL);
 }
 
 // Overload standard modified time function. If implicit function is modified,

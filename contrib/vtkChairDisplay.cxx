@@ -62,6 +62,7 @@ vtkChairDisplay::~vtkChairDisplay()
     this->Scalars->Delete();
     this->Scalars = NULL;
     }
+  this->SetInput(NULL);
 }
 
 void vtkChairDisplay::Update()

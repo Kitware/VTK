@@ -69,12 +69,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSelectVisiblePoints_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-class vtkRenderer;
+#include "vtkRenderer.h"
 
 class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkSelectVisiblePoints();
+  ~vtkSelectVisiblePoints();
   const char *GetClassName() {return "vtkSelectVisiblePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

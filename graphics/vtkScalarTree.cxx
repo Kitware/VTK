@@ -54,6 +54,7 @@ vtkScalarTree::vtkScalarTree()
 
 vtkScalarTree::~vtkScalarTree()
 {
+  this->SetDataSet(NULL);
   if ( this->Tree ) delete [] this->Tree;
 }
 

@@ -66,6 +66,7 @@ class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkSubPixelPositionEdgels();
+  ~vtkSubPixelPositionEdgels();
   static vtkSubPixelPositionEdgels *New() {
     return new vtkSubPixelPositionEdgels;};
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};

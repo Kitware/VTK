@@ -42,6 +42,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
+vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
+{
+  this->Transform = NULL;
+}
+
+vtkTransformPolyDataFilter::~vtkTransformPolyDataFilter()
+{
+  this->SetTransform(NULL);
+}
+
 void vtkTransformPolyDataFilter::Execute()
 {
   vtkPoints *inPts;

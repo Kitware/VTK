@@ -47,6 +47,11 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Clipping = 0;
 }
 
+vtkVolumeMapper::~vtkVolumeMapper()
+{
+  this->SetScalarInput((vtkStructuredPoints *)NULL);
+}
+
 void vtkVolumeMapper::Update()
 {
   if ( this->ScalarInput )

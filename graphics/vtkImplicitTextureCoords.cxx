@@ -51,6 +51,14 @@ vtkImplicitTextureCoords::vtkImplicitTextureCoords()
   this->FlipTexture = 0;
 }
 
+vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
+{
+  this->SetRFunction(NULL);
+  this->SetSFunction(NULL);
+  this->SetTFunction(NULL);
+}
+
+
 void vtkImplicitTextureCoords::Execute()
 {
   int ptId, numPts, tcoordDim;

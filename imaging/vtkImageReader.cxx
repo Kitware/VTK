@@ -111,6 +111,8 @@ vtkImageReader::~vtkImageReader()
     delete [] this->InternalFileName;
     this->InternalFileName = NULL;
     }
+  
+  this->SetTransform(NULL);
 }
 
 //----------------------------------------------------------------------------

@@ -74,6 +74,8 @@ vtkRenderer::vtkRenderer()
   
   this->Lights = vtkLightCollection::New();
   this->Actors = vtkActorCollection::New();
+  this->Actors->Register(this);
+  this->Actors->Delete();
   this->Volumes = vtkVolumeCollection::New();
   this->Cullers = vtkCullerCollection::New();  
 }
@@ -92,17 +94,20 @@ vtkRenderer::~vtkRenderer()
     this->CreatedLight = NULL;
     }
 
-  this->RayCaster->Delete();
+  // unregister actually should take care of rayCaster
+  if (this->RayCaster)
+    {
+    this->RayCaster->Delete();
+    }
   if (this->BackingImage) delete [] this->BackingImage;
   
   this->Lights->Delete();
   this->Lights = NULL;
-  this->Actors->Delete();
-  this->Actors = NULL;
   this->Volumes->Delete();
   this->Volumes = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
+  this->SetActors(NULL);
 }
 
 #ifdef VTK_USE_OGLR
@@ -649,6 +654,7 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
 // Specify the rendering window in which to draw. This is automatically set
 // when the renderer is created by MakeRenderer.  The user probably
 // shouldn't ever need to call this method.
+// no reference counting!
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
   this->VTKWindow = renwin;
@@ -867,6 +873,19 @@ int vtkRenderer::VisibleVolumeCount()
 }
 
 
+void vtkRenderer::UnRegister(vtkObject *o)
+{
+  if (this->RayCaster != NULL && this->RayCaster->GetRenderer() == this &&
+      this->GetReferenceCount() == 2 && 0 != this->RayCaster)
+    {
+    vtkRayCaster *temp = this->RayCaster;
+    this->RayCaster = NULL;    
+    temp->Delete();
+    }
+
+  this->vtkObject::UnRegister(o);
+}
+
 
 
 unsigned long int vtkRenderer::GetMTime()
@@ -879,12 +898,12 @@ unsigned long int vtkRenderer::GetMTime()
     time = this->RayCaster ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
-if ( this->ActiveCamera != NULL )
+  if ( this->ActiveCamera != NULL )
     {
     time = this->ActiveCamera ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
-if ( this->CreatedLight != NULL )
+  if ( this->CreatedLight != NULL )
     {
     time = this->CreatedLight ->GetMTime();
     mTime = ( time > mTime ? time : mTime );

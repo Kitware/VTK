@@ -76,6 +76,9 @@ vtkMergeFilter::vtkMergeFilter()
 
 vtkMergeFilter::~vtkMergeFilter()
 {
+  if (this->Geometry) {this->Geometry->UnRegister(this);}
+  this->Geometry = NULL;
+
   this->PolyData->Delete();
   this->StructuredPoints->Delete();
   this->StructuredGrid->Delete();
@@ -84,6 +87,13 @@ vtkMergeFilter::~vtkMergeFilter()
   // Output should only be one of the above. We set it to NULL
   // so that we don't free it twice
   this->Output = NULL;
+  
+  this->SetScalars((vtkDataSet *)NULL);
+  this->SetVectors(NULL);
+  this->SetNormals(NULL);
+  this->SetTCoords(NULL);
+  this->SetTensors(NULL);
+  this->SetFieldData(NULL);  
 }
 
 void vtkMergeFilter::SetGeometry(vtkDataSet *input)
@@ -91,7 +101,9 @@ void vtkMergeFilter::SetGeometry(vtkDataSet *input)
   if ( this->Geometry != input )
     {
     vtkDebugMacro(<<" setting Geometry to " << (void *)input);
+    if (this->Geometry) {this->Geometry->UnRegister(this);}
     this->Geometry = input;
+    if (this->Geometry) {this->Geometry->Register(this);}
     this->Modified();
     
     if ( input->GetDataSetType() == VTK_POLY_DATA )

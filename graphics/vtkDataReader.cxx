@@ -91,6 +91,17 @@ vtkDataReader::~vtkDataReader()
   if (this->InputString) delete [] this->InputString;
 }
 
+// no reference counting
+void vtkDataReader::SetSource(vtkSource *source)
+{
+  if (this->Source != source)
+    {
+    this->Source = source;
+    this->Modified();
+    }
+}
+
+  
 void vtkDataReader::SetInputString(char* _arg, int len)
 { 
   if (this->Debug)

@@ -88,7 +88,7 @@ public:
   // Set/Get the input to the viewer.
   void SetInput(vtkImageCache *in) {this->ImageMapper->SetInput(in);};
   vtkImageCache *GetInput() { return this->ImageMapper->GetInput();};
-  void SetInput(vtkStructuredPoints *spts) {this->ImageMapper->SetInput(spts);};
+  void SetInput(vtkStructuredPoints *spts){this->ImageMapper->SetInput(spts);};
   
   // Description:
   // What is the possible Min/ Max z slices available.

@@ -77,6 +77,8 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
       }
     delete [] this->TextMappers;
     }
+  
+  this->SetInput(NULL);
 }
 
 void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)

@@ -51,7 +51,7 @@ vtkImageStaticCache::~vtkImageStaticCache()
 {
   if (this->CachedData)
     {
-    this->CachedData->Delete();
+    this->CachedData->UnRegister(this);
     this->CachedData = NULL;
     }
 }

@@ -112,7 +112,8 @@ public:
   vtkLightCollection *GetLights();
   
   // Description:
-  // Return the collection of actors.
+  // Set / get the collection of actors.
+  vtkSetObjectMacro(Actors, vtkActorCollection);
   vtkActorCollection *GetActors();
   
   // Description:
@@ -272,6 +273,11 @@ public:
   // Get the time required, in seconds, for the last Render call.
   vtkGetMacro( LastRenderTimeInSeconds, float );
 
+  // Description:
+  // Detects reference loop renderer<->rayCaster
+  void UnRegister(vtkObject *o);
+  
+  
 protected:
 
   vtkRayCaster *RayCaster;

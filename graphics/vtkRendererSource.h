@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  vtkSetReferenceCountedObjectMacro(Input,vtkRenderer);
+  vtkSetObjectMacro(Input,vtkRenderer);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.

@@ -250,6 +250,7 @@ vtkNormalEncoder::~vtkNormalEncoder()
   
   this->Threader->Delete();
   this->Threader = NULL;
+  this->SetScalarInput(NULL);
 }
 
 

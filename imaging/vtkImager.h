@@ -63,6 +63,7 @@ class VTK_EXPORT vtkImager : public vtkViewport
 public:
   // Description:
   // Create an imager with viewport (0, 0, 1, 1)
+
   vtkImager();
 
   static vtkImager *New() {return new vtkImager;};
@@ -74,12 +75,17 @@ public:
   void Render();
 
   // Description:
-  // Set/Get the image window that an imager is attached to.
-  void SetImageWindow (vtkImageWindow* win) 
-  {this->VTKWindow = (vtkWindow*) win;};
-  vtkImageWindow* GetImageWindow () {return (vtkImageWindow*) this->VTKWindow;};
-  void SetVTKWindow (vtkWindow* win) {this->VTKWindow = (vtkWindow*) win;};
+  // Get the image window that an imager is attached to.
+  vtkImageWindow* GetImageWindow() {return (vtkImageWindow*) this->VTKWindow;};
   vtkWindow *GetVTKWindow() {return (vtkWindow*) this->VTKWindow;};
+
+  //BTX
+  // Description:
+  // These set methods are used by the image window, and should not be
+  // used by anyone else.  They do not reference count the window.
+  void SetImageWindow (vtkImageWindow* win);
+  void SetVTKWindow (vtkWindow* win);  
+  //ETX
   
   // Description:
   // Erase the contents of the imager in the window.

@@ -64,6 +64,7 @@ class VTK_EXPORT vtkVolumeMapper : public vtkObject
 {
 public:
   vtkVolumeMapper();
+  ~vtkVolumeMapper();
   const char *GetClassName() {return "vtkVolumeMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 

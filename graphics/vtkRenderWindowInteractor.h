@@ -277,6 +277,11 @@ public:
   virtual void EndUniformScale() {};
 
   // Description:
+  // This Method detects loops of RenderWindow<->Interactor,
+  // so objects are freed properly.
+  void UnRegister(vtkObject *o);
+  
+  // Description:
   // For legacy compatibiltiy. Do not use.
   void SetPicker(vtkPicker& picker) {this->SetPicker(&picker);};
 

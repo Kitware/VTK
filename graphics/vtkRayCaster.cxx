@@ -223,6 +223,8 @@ vtkRayCaster::~vtkRayCaster()
     this->ViewRays[i]->Delete();
     this->ViewRays[i] = NULL;
     }
+  
+  this->SetRenderer(NULL);
 }
 
 // Set the scale factor for a given level. This is used during multi-

@@ -85,6 +85,7 @@ vtkClipVolume::~vtkClipVolume()
     }
   this->MeshLocator->UnRegister(this);
   this->Triangulator->Delete();
+  this->SetClipFunction(NULL);
 }
 
 // Overload standard modified time function. If Clip functions is modified,

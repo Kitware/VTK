@@ -47,6 +47,11 @@ vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
   this->TargetValue = 0.0;
 }
 
+vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels()
+{
+  this->SetGradMaps(NULL);
+}
+
 void vtkSubPixelPositionEdgels::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;

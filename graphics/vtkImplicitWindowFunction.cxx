@@ -54,6 +54,7 @@ vtkImplicitWindowFunction::vtkImplicitWindowFunction()
 
 vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 {
+  this->SetImplicitFunction(NULL);
 }
 
 // Evaluate window function.

@@ -89,7 +89,7 @@ public:
 
   // Description:
   // Build the locator from the points/cells defining this dataset.
-  vtkSetReferenceCountedObjectMacro(DataSet,vtkDataSet);
+  vtkSetObjectMacro(DataSet,vtkDataSet);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:

@@ -64,6 +64,7 @@ class VTK_EXPORT vtkImageReslice : public vtkImageFilter
 {
 public:
   vtkImageReslice();
+  ~vtkImageReslice();
   static vtkImageReslice *New() {return new vtkImageReslice;};
   const char *GetClassName() {return "vtkImageReslice";};
 

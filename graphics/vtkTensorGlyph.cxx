@@ -58,6 +58,11 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->MaxScaleFactor = 100;
 }
 
+vtkTensorGlyph::~vtkTensorGlyph()
+{
+  this->SetSource(NULL);
+}
+
 void vtkTensorGlyph::Execute()
 {
   vtkTensors *inTensors;

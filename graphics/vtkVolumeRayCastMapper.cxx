@@ -77,6 +77,9 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 // Destruct a vtkVolumeRayCastMapper - clean up any memory used
 vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 {
+  this->SetRayBounder(NULL);
+  this->SetVolumeRayCastFunction(NULL);
+  
   this->ViewRaysTransform->Delete();
   this->ViewRaysTransform = NULL;
 

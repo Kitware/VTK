@@ -89,6 +89,7 @@ vtkActor::~vtkActor()
     this->Mapper->UnRegister(this);
     this->Mapper = NULL;
     }
+  this->SetTexture(NULL);
 }
 
 // Shallow copy of an actor.

@@ -142,17 +142,17 @@ public:
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  vtkSetReferenceCountedObjectMacro(XCoordinates,vtkScalars);
+  vtkSetObjectMacro(XCoordinates,vtkScalars);
   vtkGetObjectMacro(XCoordinates,vtkScalars);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  vtkSetReferenceCountedObjectMacro(YCoordinates,vtkScalars);
+  vtkSetObjectMacro(YCoordinates,vtkScalars);
   vtkGetObjectMacro(YCoordinates,vtkScalars);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
-  vtkSetReferenceCountedObjectMacro(ZCoordinates,vtkScalars);
+  vtkSetObjectMacro(ZCoordinates,vtkScalars);
   vtkGetObjectMacro(ZCoordinates,vtkScalars);
 
   // Description:

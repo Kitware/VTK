@@ -67,6 +67,7 @@ vtkClipPolyData::~vtkClipPolyData()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
+  this->SetClipFunction(NULL);
 }
 
 // Overload standard modified time function. If Clip functions is modified,

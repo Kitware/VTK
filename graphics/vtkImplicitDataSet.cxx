@@ -58,6 +58,7 @@ vtkImplicitDataSet::vtkImplicitDataSet()
 
 vtkImplicitDataSet::~vtkImplicitDataSet()
 {
+  this->SetDataSet(NULL);
   if ( this->Weights ) delete [] this->Weights;
 }
 

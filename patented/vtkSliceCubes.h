@@ -91,6 +91,7 @@ class VTK_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
   vtkSliceCubes();
+  ~vtkSliceCubes();
   static vtkSliceCubes *New() {return new vtkSliceCubes;};
   const char *GetClassName() {return "vtkSliceCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);

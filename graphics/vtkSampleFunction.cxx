@@ -68,12 +68,11 @@ vtkSampleFunction::vtkSampleFunction()
 }
 
 vtkSampleFunction::~vtkSampleFunction() 
-  {
-  if (this->Scalars != NULL) 
-    {
-    this->Scalars->Delete();
-    }
-  }
+{
+  this->SetScalars(NULL);
+  this->SetImplicitFunction(NULL);
+}
+
 
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
@@ -126,6 +125,8 @@ void vtkSampleFunction::Execute()
   if (this->Scalars == NULL) 
     {
     this->Scalars = vtkScalars::New(); //ref count is 1
+    this->Scalars->Register(this);
+    this->Scalars->Delete();
     }
   this->Scalars->SetNumberOfScalars(numPts);
 

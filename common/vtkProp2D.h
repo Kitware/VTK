@@ -95,7 +95,7 @@ public:
 
   // Description:
   // Set this vtkProp's vtkProperty2D.
-  vtkSetReferenceCountedObjectMacro(Property, vtkProperty2D);
+  vtkSetObjectMacro(Property, vtkProperty2D);
 
   // Description:
   // Get the PositionCoordinate instance of vtkCoordinate.

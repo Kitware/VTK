@@ -92,6 +92,7 @@ vtkSweptSurface::~vtkSweptSurface()
   this->IdList->Delete();
   this->VoxelScalars->Delete();
   this->T->Delete();
+  this->SetTransforms(NULL);
 }
 
 void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
