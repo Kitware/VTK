@@ -124,7 +124,9 @@ protected:
   int InputMemoryLimit;
 
   void Execute();
-  int SplitExecute(vtkImageRegion *outRegion);
+  vtkScalars *ScalarExecute(vtkImageRegion *region);
+  int ScalarSplitExecute(vtkImageRegion *outRegion);
+  vtkVectors *VectorExecute(vtkImageRegion *region);
 };
 
 #endif

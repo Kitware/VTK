@@ -130,8 +130,6 @@ void vtkImageToStructuredPoints::GetSplitOrder(int num, int *axes)
   
 }
 
-  
-
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetAxes(int num, int *axes)
 {
@@ -247,102 +245,154 @@ void vtkImageToStructuredPoints::Update()
 void vtkImageToStructuredPoints::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
-  int regionExtent[8];
-  int *dataExtent;
-  int *extent, dim[3];
+  vtkScalars *scalars = NULL;
+  vtkVectors *vectors = NULL;
+  int regionExtent[8], *extent, dim[3];
   float aspectRatio[3] = {1.0, 1.0, 1.0};
   float origin[3];
   vtkStructuredPoints *output = this->GetOutput();
   
+  
   // Set the coordinate system of the region
   region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   
-  // Fill in scalar information.
+  // Get the size of the whole image.
   if (this->ScalarInput)
     {
     this->ScalarInput->UpdateImageInformation(region);
-    
-    // Determine the extent of the region we are converting
-    if (this->WholeImage)
-      {
-      region->GetImageExtent(4, regionExtent);
-      if (this->Coordinate3<regionExtent[6]||this->Coordinate3>regionExtent[7])
-	{
-	vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
-	<< ", is not in extent [" << regionExtent[6] << ", "
-	<< regionExtent[7] << "]. Using value "<< regionExtent[6]);
-	this->Coordinate3 = regionExtent[6];
-	}
-      regionExtent[6] = regionExtent[7] = this->Coordinate3;
-      region->SetExtent(4, regionExtent);    
-      }
-    else
-      {
-      this->Extent[6] = this->Extent[7] = this->Coordinate3;
-      region->SetExtent(4, this->Extent);
-      region->GetExtent(4, regionExtent);
-      }
-
-    // Update the data for the region.
-    if ( region->GetMemorySize() < this->InputMemoryLimit)
-      {
-      this->ScalarInput->UpdateRegion(region);
-      }
-    if ( ! region->AreScalarsAllocated())
-      {
-      // We need to stream
-      region->SetScalarType(this->ScalarInput->GetScalarType());
-      region->AllocateScalars();
-      if ( ! region->AreScalarsAllocated())
-	{
-	vtkErrorMacro(<< "Execute: Could not allocate region.");
-	return;
-	}
-      if ( ! this->SplitExecute(region))
-	{
-	vtkErrorMacro(<< "Execute: Streaming Failed.");
-	return;
-	}
-      }
-    
-    // If data is not the same size as the region, we need to reformat.
-    // Assume that relativeCoordinates == absoluteCoordinates.
-    dataExtent = region->GetData()->GetExtent();
-    if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
-	dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
-	dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
-	dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
-      {
-      vtkImageRegion *temp = region;
-      region = new vtkImageRegion;
-      region->SetExtent(4, regionExtent);
-      region->CopyRegionData(temp);
-      temp->Delete();
-      }
-    
-    // setup the structured points with the scalars
-    extent = region->GetExtent();
-    region->GetAspectRatio(3, aspectRatio);
-    region->GetOrigin(3, origin);
-    origin[0] += (float)(extent[0]) * aspectRatio[0]; 
-    origin[1] += (float)(extent[2]) * aspectRatio[1]; 
-    origin[2] += (float)(extent[4]) * aspectRatio[2];
-    dim[0] = extent[1] - extent[0] + 1;
-    dim[1] = extent[3] - extent[2] + 1;
-    dim[2] = extent[5] - extent[4] + 1;
-    output->SetDimensions(dim);
-    output->SetAspectRatio(aspectRatio);
-    output->SetOrigin(origin);
-    output->GetPointData()->SetScalars(
-		       region->GetData()->GetPointData()->GetScalars());
-    
-    // delete the temporary structures
+    }
+  else if (this->VectorInput)
+    {
+    this->VectorInput->UpdateImageInformation(region);
+    }
+  else
+    {
+    vtkErrorMacro(<< "Execute: No Inputs!");
     region->Delete();
+    return;
+    }
+  
+  // Whole image or region of image?
+  if (this->WholeImage)
+    {
+    region->GetImageExtent(4, regionExtent);
+    if (this->Coordinate3<regionExtent[6]||this->Coordinate3>regionExtent[7])
+      {
+      vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
+      << ", is not in extent [" << regionExtent[6] << ", "
+      << regionExtent[7] << "]. Using value "<< regionExtent[6]);
+      this->Coordinate3 = regionExtent[6];
+      }
+    regionExtent[6] = regionExtent[7] = this->Coordinate3;
+    region->SetExtent(4, regionExtent);    
+    }
+  else
+    {
+    // Copy extent from local ivar.
+    this->Extent[6] = this->Extent[7] = this->Coordinate3;
+    region->SetExtent(4, this->Extent);
+    region->GetExtent(4, regionExtent);
+    }
+
+  // Get scalars and vectors
+  if (this->ScalarInput)
+    {
+    scalars = this->ScalarExecute(region);
+    }
+  if (this->VectorInput)
+    {
+    // we don't want to delete the region yet, so use another.
+    vectors = this->VectorExecute(region);
+    }
+  
+  // setup the structured points
+  extent = region->GetExtent();
+  region->GetAspectRatio(3, aspectRatio);
+  region->GetOrigin(3, origin);
+  origin[0] += (float)(extent[0]) * aspectRatio[0]; 
+  origin[1] += (float)(extent[2]) * aspectRatio[1]; 
+  origin[2] += (float)(extent[4]) * aspectRatio[2];
+  dim[0] = extent[1] - extent[0] + 1;
+  dim[1] = extent[3] - extent[2] + 1;
+  dim[2] = extent[5] - extent[4] + 1;
+  output->SetDimensions(dim);
+  output->SetAspectRatio(aspectRatio);
+  output->SetOrigin(origin);
+  output->GetPointData()->SetScalars(scalars);
+  output->GetPointData()->SetVectors(vectors);
+  
+  // delete the temporary structures
+  region->Delete();
+  if (scalars)
+    {
+    scalars->Delete();
+    }
+  if (vectors)
+    {
+    vectors->Delete();
     }
 }
 
 
 
+
+//============================================================================
+// Scalar stuff
+//============================================================================
+
+
+//----------------------------------------------------------------------------
+// Returns scalars which must be deleted.
+// Region has no data when method returns.
+vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
+{
+  int *regionExtent;
+  int *dataExtent;
+  vtkScalars *scalars;
+  
+  // Update the data for the region.
+  if ( region->GetMemorySize() < this->InputMemoryLimit)
+    {
+    this->ScalarInput->UpdateRegion(region);
+    }
+  if ( ! region->AreScalarsAllocated())
+    {
+    // We need to stream
+    region->SetScalarType(this->ScalarInput->GetScalarType());
+    region->AllocateScalars();
+    if ( ! region->AreScalarsAllocated())
+      {
+      vtkErrorMacro(<< "Execute: Could not allocate region.");
+      return NULL;
+      }
+    if ( ! this->ScalarSplitExecute(region))
+      {
+      vtkErrorMacro(<< "Execute: Streaming Failed.");
+      return NULL;
+      }
+    }
+  
+  // If data is not the same size as the region, we need to reformat.
+  // Assume that relativeCoordinates == absoluteCoordinates.
+  dataExtent = region->GetData()->GetExtent();
+  regionExtent = region->GetExtent();
+  if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
+      dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
+      dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
+      dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
+    {
+    vtkImageRegion *temp = region;
+    region = new vtkImageRegion;
+    region->SetExtent(4, regionExtent);
+    region->CopyRegionData(temp);
+    temp->Delete();
+    }
+
+  scalars = region->GetData()->GetPointData()->GetScalars();
+  scalars->Register(this);
+  region->ReleaseData();
+  return scalars;
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -350,7 +400,7 @@ void vtkImageToStructuredPoints::Execute()
 // An executes each one.  SplitOrder is used to determine which axis
 // to split first.  The default values are:
 // the TIME axis is tried first then ZYX and COMPONENT axes are tried.
-int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
+int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
@@ -377,7 +427,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
     ++splitAxisIdx;
     if (splitAxisIdx >= VTK_IMAGE_DIMENSIONS)
       {
-      vtkErrorMacro(<< "SplitExecute: Cannot split one pixel.");
+      vtkErrorMacro(<< "ScalarSplitExecute: Cannot split one pixel.");
       inRegion->Delete();
       outRegion->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
       outRegion->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
@@ -408,9 +458,9 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
     }
   else
     {
-    if ( ! this->SplitExecute(outRegion))
+    if ( ! this->ScalarSplitExecute(outRegion))
       {
-      vtkErrorMacro(<< "SplitExecute: Split failed.");
+      vtkErrorMacro(<< "ScalarSplitExecute: Split failed.");
       inRegion->Delete();
       outRegion->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
       outRegion->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
@@ -440,9 +490,9 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
     }
   else
     {
-    if ( ! this->SplitExecute(outRegion))
+    if ( ! this->ScalarSplitExecute(outRegion))
       {
-      vtkErrorMacro(<< "SplitExecute: Split failed.");
+      vtkErrorMacro(<< "ScalarSplitExecute: Split failed.");
       inRegion->Delete();
       outRegion->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
       outRegion->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
@@ -458,4 +508,138 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
 }
 
 
+//============================================================================
+// Vector stuff
+//============================================================================
+
+
+
+//----------------------------------------------------------------------------
+// Templated function for copying image into vectors.
+template <class T>
+void vtkImageToStructuredPointsCopyVectors(vtkImageToStructuredPoints *self, 
+					   vtkImageRegion *region, T *inPtr,
+					   vtkFloatVectors *vectors)
+
+{
+  int idx0, idx1, idx2, idx3;
+  float *outPtr;
+  T *inPtr0, *inPtr1, *inPtr2, *inPtr3;
+  int inInc0, inInc1, inInc2, inInc3;
+  int min0, max0, min1, max1, min2, max2, min3, max3;
+  int remainder;
   
+  
+  // Avoid compiler warnings
+  self = self;
+  
+  // Get information to march through region.
+  region->GetExtent(min0, max0, min1, max1, min2, max2);
+  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min3, max3);
+  region->GetIncrements(inInc0, inInc1, inInc2);
+  region->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc3);
+  // Previous checks made sure 3 or less elements in components.
+  // must fill all three vector elements.
+  remainder = 2 - (max3 - min3);
+  
+  // Loop and copy
+  outPtr = vectors->GetPtr(0);
+  inPtr2 = inPtr;
+  for (idx2 = min2; idx2 <= max2; ++idx2)
+    {
+    inPtr1 = inPtr2;
+    for (idx1 = min1; idx1 <= max1; ++idx1)
+      {
+      inPtr0 = inPtr1;
+      for (idx0 = min0; idx0 <= max0; ++idx0)
+	{
+
+	// Copy vector
+	inPtr3 = inPtr0;
+	for (idx3 = min3; idx3 <= max3; ++idx3)
+	  {
+	  *outPtr++ = *inPtr3;
+	  inPtr3 += inInc3;
+	  }
+	// pad the remaining elements with 0.
+	for (idx3 = 0; idx3 < remainder; ++idx3)
+	  {
+	  *outPtr++ = 0.0;
+	  }
+
+	inPtr0 += inInc0;
+	}
+      inPtr1 += inInc1;
+      }
+    inPtr2 += inInc2;
+    }
+}
+
+  
+//----------------------------------------------------------------------------
+// This assumes that the vectors are stored in the component axis of the image.
+// Returned vectors must be deleted.  On return region has no data.
+vtkVectors *vtkImageToStructuredPoints::VectorExecute(vtkImageRegion *region)
+{
+  void *ptr;
+  vtkFloatVectors *vectors;
+  int min, max, volume;
+
+  
+  // Volume with out components.
+  volume = region->GetVolume();
+  
+  // Determine the extent of the component axis.
+  this->VectorInput->UpdateImageInformation(region);
+  region->GetAxisImageExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  // Vectors can have at most 3 dimensions.
+  if (max - min > 2)
+    {
+    max = min + 2;
+    }
+  region->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  
+  // Streaming ????
+  
+  // Update the data for the region.
+  this->VectorInput->UpdateRegion(region);
+
+  // Copy the scalars into  vectors
+  vectors = new vtkFloatVectors(volume);
+  ptr = region->GetScalarPointer();
+  switch (region->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageToStructuredPointsCopyVectors(this, region, (float *)(ptr),
+					    vectors);
+      break;
+    case VTK_INT:
+      vtkImageToStructuredPointsCopyVectors(this, region, (int *)(ptr),
+					    vectors);
+      break;
+    case VTK_SHORT:
+      vtkImageToStructuredPointsCopyVectors(this, region, (short *)(ptr),
+					    vectors);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageToStructuredPointsCopyVectors(this, region,
+					    (unsigned short *)(ptr), vectors);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageToStructuredPointsCopyVectors(this, region,
+					    (unsigned char *)(ptr), vectors);
+      break;
+    default:
+      vtkErrorMacro(<< "ExecuteVectors::Cannot handle type");
+      vectors->Delete();
+      return NULL;
+    }
+  
+  region->ReleaseData();
+  
+  return vectors;
+}
+
+
+
+
