@@ -245,6 +245,8 @@ void vtkImageToImageFilter::UpdateInformation()
 {
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
+  int *iTmp;
+  float *fTmp;
   
   // Make sure the Input has been set.
   if ( ! input)
@@ -257,9 +259,20 @@ void vtkImageToImageFilter::UpdateInformation()
 
   // I do not like setting up the defaults here because it could modify
   // the output which would cause more Executes than necessary.
-  output->SetWholeExtent(input->GetWholeExtent());
+  // Try to detect an already initialized output.  This in no good either.
+  // The input could change.  The real solution is to put defaults into.
+  // ExecuteInformation.  Anyone who implements an ExecuteInformation
+  // method would have to fill in all fields.
+  iTmp = output->GetWholeExtent();
+  if (iTmp[0] == 0 && iTmp[0] == 0 && iTmp[0] == 0 && 
+      iTmp[0] == 0 && iTmp[0] == 0 && iTmp[0] == 0)
+    {
+    output->SetWholeExtent(input->GetWholeExtent());
+    }
+  
   output->SetSpacing(input->GetSpacing());
   output->SetOrigin(input->GetOrigin());
+  
   if (output->GetScalarType() == VTK_VOID)
     {
     output->SetScalarType(input->GetScalarType());
