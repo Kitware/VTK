@@ -35,7 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.138");
+vtkCxxRevisionMacro(vtkImageData, "1.139");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1714,7 +1714,7 @@ void vtkImageData::Crop()
   int           nExt[6];
   int           idxX, idxY, idxZ;
   int           maxX, maxY, maxZ;
-  vtkIdType     outId, inId, yId, incZ, incY;
+  vtkIdType     outId, inId, inIdY, inIdZ, incZ, incY;
   vtkImageData  *newImage;
   int numPts, numCells, tmp;
   
@@ -1784,20 +1784,25 @@ void vtkImageData::Crop()
   incY = this->Extent[1]-this->Extent[0]+1;
   incZ = (this->Extent[3]-this->Extent[2]+1)*incY;
   outId = 0;
+  inIdZ = incZ * (nExt[4]-this->Extent[4]) 
+          + incY * (nExt[2]-this->Extent[2])
+          + (nExt[0]-this->Extent[0]);
+
   for (idxZ = nExt[4]; idxZ <= nExt[5]; idxZ++)
     {
-    yId = incZ * (idxZ-this->Extent[4]);
+    inIdY = inIdZ;
     for (idxY = nExt[2]; idxY <= nExt[3]; idxY++)
       {
-      inId = yId;
+      inId = inIdY;
       for (idxX = nExt[0]; idxX <= nExt[1]; idxX++)
         {
         npd->CopyData( this->PointData, inId, outId);
         ++inId;
         ++outId;
         }
-      yId += incY;
+      inIdY += incY;
       }
+    inIdZ += incZ;
     }
          
   // Loop through outData cells
@@ -1820,20 +1825,24 @@ void vtkImageData::Crop()
   incY = this->Extent[1]-this->Extent[0];
   incZ = (this->Extent[3]-this->Extent[2])*incY;
   outId = 0;
+  inIdZ = incZ * (nExt[4]-this->Extent[4]) 
+          + incY * (nExt[2]-this->Extent[2])
+          + (nExt[0]-this->Extent[0]);
   for (idxZ = nExt[4]; idxZ < maxZ; idxZ++)
     {
-    yId = incZ * (idxZ-this->Extent[4]);
+    inIdY = inIdZ;
     for (idxY = nExt[2]; idxY < maxY; idxY++)
       {
-      inId = yId;
+      inId = inIdY;
       for (idxX = nExt[0]; idxX < maxX; idxX++)
         {
         ncd->CopyData(this->CellData, inId, outId);
         ++inId;
         ++outId;
         }
-      yId += incY;
+      inIdY += incY;
       }
+    inIdZ += incZ;
     }
 
   this->PointData->ShallowCopy(npd);
