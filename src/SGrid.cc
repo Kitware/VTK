@@ -75,10 +75,9 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
   static vlQuad quad;
   static vlHexahedron hexa;
   static vlCell *cell;
-  int idx, loc[3], npts;
-  int iMin, iMax, jMin, jMax, kMin, kMax;
-  int d01 = this->Dimensions[0]*this->Dimensions[1];
-  float *x;
+  int idx;
+  int i, j, k;
+  int d01, offset1, offset2;
  
   // Make sure data is defined
   if ( ! this->Points )
@@ -91,82 +90,98 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
   switch (this->DataDescription)
     {
     case SINGLE_POINT: // cellId can only be = 0
-      iMin = iMax = jMin = jMax = kMin = kMax = 0;
       cell = &vertex;
+      cell->PointIds.InsertId(0,0);
       break;
 
     case X_LINE:
-      jMin = jMax = kMin = kMax = 0;
-      iMin = cellId;
-      iMax = cellId + 1;
       cell = &line;
+      cell->PointIds.InsertId(0,cellId);
+      cell->PointIds.InsertId(1,cellId+1);
       break;
 
     case Y_LINE:
-      iMin = iMax = kMin = kMax = 0;
-      jMin = cellId;
-      jMax = cellId + 1;
       cell = &line;
+      cell->PointIds.InsertId(0,cellId);
+      cell->PointIds.InsertId(1,cellId+1);
       break;
 
     case Z_LINE:
-      iMin = iMax = jMin = jMax = 0;
-      kMin = cellId;
-      kMax = cellId + 1;
       cell = &line;
+      cell->PointIds.InsertId(0,cellId);
+      cell->PointIds.InsertId(1,cellId+1);
       break;
 
     case XY_PLANE:
-      kMin = kMax = 0;
-      iMin = cellId % (this->Dimensions[0]-1);
-      iMax = iMin + 1;
-      jMin = cellId / (this->Dimensions[0]-1);
-      jMax = jMin + 1;
       cell = &quad;
+      i = cellId % (this->Dimensions[0]-1);
+      j = cellId / (this->Dimensions[0]-1);
+      idx = i + j*this->Dimensions[0];
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds.InsertId(0,idx);
+      cell->PointIds.InsertId(1,idx+offset1);
+      cell->PointIds.InsertId(2,idx+offset1+offset2);
+      cell->PointIds.InsertId(3,idx+offset2);
       break;
 
     case YZ_PLANE:
-      iMin = iMax = 0;
-      jMin = cellId % (this->Dimensions[1]-1);
-      jMax = jMin + 1;
-      kMin = cellId / (this->Dimensions[1]-1);
-      kMax = kMin + 1;
       cell = &quad;
+      j = cellId % (this->Dimensions[1]-1);
+      k = cellId / (this->Dimensions[1]-1);
+      idx = j + k*this->Dimensions[1];
+      offset1 = 1;
+      offset2 = this->Dimensions[1];
+
+      cell->PointIds.InsertId(0,idx);
+      cell->PointIds.InsertId(1,idx+offset1);
+      cell->PointIds.InsertId(2,idx+offset1+offset2);
+      cell->PointIds.InsertId(3,idx+offset2);
       break;
 
     case XZ_PLANE:
-      jMin = jMax = 0;
-      iMin = cellId % (this->Dimensions[0]-1);
-      iMax = iMin + 1;
-      kMin = cellId / (this->Dimensions[0]-1);
-      kMax = kMin + 1;
       cell = &quad;
+      i = cellId % (this->Dimensions[0]-1);
+      k = cellId / (this->Dimensions[0]-1);
+      idx = i + k*this->Dimensions[0];
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds.InsertId(0,idx);
+      cell->PointIds.InsertId(1,idx+offset1);
+      cell->PointIds.InsertId(2,idx+offset1+offset2);
+      cell->PointIds.InsertId(3,idx+offset2);
       break;
 
     case XYZ_GRID:
-      iMin = cellId % (this->Dimensions[0] - 1);
-      iMax = iMin + 1;
-      jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
-      jMax = jMin + 1;
-      kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
-      kMax = kMin + 1;
       cell = &hexa;
+      d01 = this->Dimensions[0]*this->Dimensions[1];
+      i = cellId % (this->Dimensions[0] - 1);
+      j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      k = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      idx = i+ j*this->Dimensions[0] + k*d01;
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds.InsertId(0,idx);
+      cell->PointIds.InsertId(1,idx+offset1);
+      cell->PointIds.InsertId(2,idx+offset1+offset2);
+      cell->PointIds.InsertId(3,idx+offset2);
+      idx += d01;
+      cell->PointIds.InsertId(4,idx);
+      cell->PointIds.InsertId(5,idx+offset1);
+      cell->PointIds.InsertId(6,idx+offset1+offset2);
+      cell->PointIds.InsertId(7,idx+offset2);
       break;
     }
 
-  // Extract point coordinates and point ids
-  for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+  // Extract point coordinates and point ids. NOTE: the ordering of the VlQuad
+  // and vlHexahedron cells are tricky.
+  for (i=0; i<cell->PointIds.GetNumberOfIds(); i++)
     {
-    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
-      {
-      for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-        {
-        idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
-        x = this->Points->GetPoint(idx);
-        cell->PointIds.InsertId(npts,idx);
-        cell->Points.InsertPoint(npts++,x);
-        }
-      }
+    idx = cell->PointIds.GetId(i);
+    cell->Points.InsertPoint(i,this->Points->GetPoint(idx));
     }
 
   return cell;
