@@ -17,7 +17,14 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.3");
+#ifndef _MAX_FNAME
+# define _MAX_FNAME 4096
+#endif
+#ifndef _MAX_PATH
+# define _MAX_PATH 4096
+#endif
+
+vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.4");
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
