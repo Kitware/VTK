@@ -45,7 +45,7 @@ renWin Render
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 4.0
 
-planes SetFrustumPlanes $cam1
+planes SetFrustumPlanes 1.0 $cam1
 sphereMapper SetInput [extract GetOutput]
 renWin Render
 
