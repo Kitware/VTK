@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericClip - clip any dataset with user-specified implicit function or input scalar data
+// .NAME vtkGenericClip - clip any dataset with an implicit function or scalar data
 // .SECTION Description
 // vtkGenericClip is a filter that any type of dataset using either
 // any subclass of vtkImplicitFunction, or the input scalar
@@ -44,15 +44,16 @@
 // This filter can be configured to compute a second output. The
 // second output is the part of the cell that is clipped away. Set the
 // GenerateClippedData boolean on if you wish to access this output data.
-
-// .SECTION Caveats
-// vtkGenericClip will triangulate all types of 3D cells (i.e., create
-// tetrahedra). This is true even if the cell is not actually cut. This
-// is necessary to preserve compatibility across face neighbors. 2D cells
-// will only be triangulated if the cutting function passes through them.
+//
+// This filter has been implemented to operate on generic datasets, rather
+// than the typical vtkDataSet (and subclasses). vtkGenericDataSet is a more
+// complex cousin of vtkDataSet, typically consisting of nonlinear,
+// higher-order cells. To process this type of data, generic cells are
+// automatically tessellated into linear cells prior to isocontouring.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkCutter vtkClipVolume vtkClipPolyData
+// vtkClipDataSet vtkClipPolyData vtkClipVolume vtkImplicitFunction 
+// vtkGenericDataSet
 
 #ifndef __vtkGenericClip_h
 #define __vtkGenericClip_h

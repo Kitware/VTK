@@ -12,8 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericCutter - Cut a vtkGenericDataSet with user-specified
-// implicit function
+// .NAME vtkGenericCutter - cut a vtkGenericDataSet with an implicit function or scalar data
 // .SECTION Description
 // vtkGenericCutter is a filter to cut through data using any subclass of 
 // vtkImplicitFunction. That is, a polygonal surface is created
@@ -31,16 +30,16 @@
 // this by generating multiple cut surfaces (usually planes) which are ordered
 // (and rendered) from back-to-front. The surfaces are set translucent to give
 // a volumetric rendering effect.
-
-
-// Caveats we can not control to iterate over cell against contour values
-// as this is very expensive to iterate over cell, thus it should be done
-// only once
-// -> removed: Return the sorting procedure as a descriptive character string.
+//
+// This filter has been implemented to operate on generic datasets, rather
+// than the typical vtkDataSet (and subclasses). vtkGenericDataSet is a more
+// complex cousin of vtkDataSet, typically consisting of nonlinear,
+// higher-order cells. To process this type of data, generic cells are
+// automatically tessellated into linear cells prior to isocontouring.
 
 
 // .SECTION See Also
-// vtkImplicitFunction vtkClipPolyData
+// vtkCutter vtkImplicitFunction vtkClipPolyData vtkGenericDataSet
 
 #ifndef __vtkGenericCutter_h
 #define __vtkGenericCutter_h
@@ -137,14 +136,16 @@ protected:
   ~vtkGenericCutter();
 
   void Execute();
+
   // Description:
   // Actual implementation of the cutter operation.
   void UnstructuredGridCutter();
   
   vtkImplicitFunction *CutFunction;
-  vtkPointLocator *Locator;
-  vtkContourValues *ContourValues;
-  int GenerateCutScalars;
+  vtkPointLocator     *Locator;
+  vtkContourValues    *ContourValues;
+  int                 GenerateCutScalars;
+
 private:
   vtkGenericCutter(const vtkGenericCutter&);  // Not implemented.
   void operator=(const vtkGenericCutter&);  // Not implemented.
