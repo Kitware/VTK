@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.48");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.49");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -266,16 +266,14 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
 }
 
 //----------------------------------------------------------------------------
-// Copydata at the end of the execute
 vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
 { 
-  vtkImageData *output = this->GetOutput();
+  vtkImageData *output = vtkImageData::SafeDownCast(out);
   vtkImageData *input = this->GetInput();
   int inExt[6];
   int outExt[6];
   vtkDataArray *inArray;
   vtkDataArray *outArray;
-
 
   input->GetExtent(inExt);
   output->SetExtent(output->GetUpdateExtent());
