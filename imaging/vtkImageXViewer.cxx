@@ -98,7 +98,7 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
   float shift, scale;
   XColor *colors;
   int colorsMax;
-  int visualDepth;
+  int visualDepth, visualClass;
   
   
   colorsMax = self->GetNumberColors() - 1;
@@ -106,6 +106,7 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
   shift = self->GetColorShift();
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
+  visualClass = self->GetVisualClass();
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
@@ -127,17 +128,25 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
 	colorIdx = colorsMax;
 	}
 
-      if (visualDepth == 8)
-	{
-	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
-	}
-      else
+      if (visualClass == TrueColor)
 	{
 	*outPtr++ = (unsigned char)(255);
 	*outPtr++ = (unsigned char)(colorIdx);
 	*outPtr++ = (unsigned char)(colorIdx);
 	*outPtr++ = (unsigned char)(colorIdx);
 	}
+      else if (visualClass == DirectColor)
+	{
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	}
+      else if (visualClass == PseudoColor)
+	{
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	}
+      
 
       inPtr0 += inInc0;
       }
@@ -220,7 +229,7 @@ void vtkImageXViewer::Render(void)
   
   if ( ! this->Input)
     {
-    vtkErrorMacro(<< "View: Please Set the input.");
+    vtkErrorMacro(<< "Render: Please Set the input.");
     return;
     }
 
@@ -283,7 +292,7 @@ void vtkImageXViewer::Render(void)
     {
     // Handle color display
     // We only support color with 24 bit True Color Visuals
-    if (this->VisualDepth != 24)
+    if (this->VisualDepth != 24 || this->VisualClass != TrueColor)
       {
       vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
       return;
@@ -470,10 +479,11 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
   screen = DefaultScreen(this->DisplayId);  
   templ.screen = screen;
   //templ.depth = 24;
-  //templ.c_class = TrueColor;
+  //templ.c_class = DirectColor;
 
   // Get a list of all the possible visuals for this screen.
   visuals = XGetVisualInfo(this->DisplayId,
+			   // VisualScreenMask | VisualClassMask,
 			   VisualScreenMask,
 			   &templ, &nvisuals);
   
@@ -484,6 +494,17 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
   
   for (v = visuals, i = 0; i < nvisuals; v++, i++)
     {
+    // which are available
+    if (this->Debug)
+      {
+      if (v->c_class == TrueColor)
+	vtkDebugMacro(<< "Available: " << v->depth << " bit TrueColor");
+      if (v->c_class == DirectColor)
+	vtkDebugMacro(<< "Available: " << v->depth << " bit DirectColor");
+      if (v->c_class == PseudoColor)
+	vtkDebugMacro(<< "Available: " << v->depth << " bit PseudoColor");
+      }
+  
     // set the defualt as the first visual encountered
     if (best == NULL)
       {
@@ -508,11 +529,11 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
   if (this->Debug)
     {
     if (best->c_class == TrueColor)
-      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit TrueColor");
+      vtkDebugMacro(<< "Chose: " << best->depth << " bit TrueColor");
     if (best->c_class == DirectColor)
-      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit DirectColor");
+      vtkDebugMacro(<< "Chose: " << best->depth << " bit DirectColor");
     if (best->c_class == PseudoColor)
-      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit PseudoColor");
+      vtkDebugMacro(<< "Chose: " << best->depth << " bit PseudoColor");
     }
   
   // Copy visual
@@ -528,6 +549,9 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
 // An arbitrary window can be used for the window.
 void vtkImageXViewer::SetWindow(Window win) 
 {
+  XVisualInfo templ;
+  XVisualInfo *visuals;
+  int nvisuals;
   XWindowAttributes attributes;
   
   this->WindowId = win;
@@ -556,6 +580,32 @@ void vtkImageXViewer::SetWindow(Window win)
   this->VisualId = attributes.visual;
   this->VisualDepth = attributes.depth;
   this->ColorMap = attributes.colormap;
+  
+  // Get the visual class
+  templ.visualid = this->VisualId->visualid;
+  visuals = XGetVisualInfo(this->DisplayId,
+			   VisualIDMask,
+			   &templ, &nvisuals);  
+  if (nvisuals == 0)
+    {
+    vtkErrorMacro(<< "Could not get visual class");
+    }
+  this->VisualClass = visuals->c_class;
+  if (this->Debug)
+    {
+    if (this->VisualClass == TrueColor)
+      vtkDebugMacro(<< "Window: " << this->VisualDepth << " bit TrueColor");
+    if (this->VisualClass == DirectColor)
+      vtkDebugMacro(<< "Window: " << this->VisualDepth << " bit DirectColor");
+    if (this->VisualClass == PseudoColor)
+      vtkDebugMacro(<< "Window: " << this->VisualDepth << " bit PseudoColor");
+    }
+  
+  // Make sure the color map is set up properly.
+  if (this->VisualClass == DirectColor)
+    {
+    this->AllocateDirectColorMap();
+    }
 }
 
 
@@ -647,6 +697,74 @@ Colormap vtkImageXViewer::MakeColorMap(Visual *visual)
     return defaultMap;
     } 
 }
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageXViewer::AllocateDirectColorMap() 
+{
+  int idx;
+  int value;
+  unsigned long planeMask, pval[256];
+  Colormap newMap;
+  
+  this->Offset = 100;
+  vtkDebugMacro(<< "AllocateDirectColorMap: " << this->NumberColors 
+                << " colors");
+
+  // Get the colors in the current color map.
+  for ( idx = 0 ; idx < 256; idx++) 
+    {
+    this->Colors[idx].pixel = idx; 
+    }
+  XQueryColors(this->DisplayId, this->ColorMap, this->Colors, 256);
+    
+  
+  newMap = XCreateColormap(this->DisplayId, this->WindowId,
+			   this->VisualId, AllocNone);
+  if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
+			 (unsigned int)256))
+    {
+    vtkErrorMacro(<< "Sorry cann't allocate any more Colors");
+    return;
+    }
+  
+  // Set up the colors
+  for (idx = 0; idx < 100; ++idx)
+    {
+    this->Colors[idx].pixel = pval[idx];
+    this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
+    XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
+    }
+  for (idx = 0 ; idx < this->NumberColors; ++idx)
+    {
+    // Value should range between 0 and 65000
+    value = 1000 + (int)(60000.0 * (float)(idx) / (float)(this->NumberColors));
+    this->Colors[idx+100].pixel = pval[idx];
+    this->Colors[idx+100].red   = value ;
+    this->Colors[idx+100].green = value ; 
+    this->Colors[idx+100].blue  = value ;
+    this->Colors[idx+100].flags = DoRed | DoGreen | DoBlue ;
+    XStoreColor(this->DisplayId, newMap, &(this->Colors[idx+100]));
+    }
+  XInstallColormap(this->DisplayId, newMap);
+  this->ColorMap = newMap;
+  XSetWindowColormap(this->DisplayId, this->WindowId, this->ColorMap);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

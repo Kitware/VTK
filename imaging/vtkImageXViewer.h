@@ -129,6 +129,10 @@ public:
   vtkGetMacro(VisualDepth,int);
   
   // Description:
+  // Gets the windows visual class. For the templated function.
+  vtkGetMacro(VisualClass,int);
+  
+  // Description:
   // Turn color interpretation on/off.
   vtkSetMacro(ColorFlag, int);
   vtkGetMacro(ColorFlag, int);
@@ -149,6 +153,7 @@ protected:
   Display             *DisplayId;
   Visual              *VisualId;
   int                  VisualDepth;
+  int                  VisualClass;
   Colormap             ColorMap;
   GC                   Gc;
   Pixmap               IconPixmap;
@@ -178,6 +183,7 @@ protected:
   Window MakeDefaultWindow(int width, int height);
   void GetDefaultVisualInfo(XVisualInfo *info);
   Colormap MakeColorMap(Visual *visual);
+  void AllocateDirectColorMap();
   Display *GetDisplayId();
   Visual *GetVisualId();
 };
