@@ -1,12 +1,14 @@
 # RTestGUI.tcl - the regression test GUI and associated methods.
-# 	Written by Will Schroeder
+# 	         Written by Will Schroeder
 #
 catch {load vtktcl}
 
-# The following environment variables should be set coming into this script.
+# The following environment variables should be set upon entry into this script.
+# (They are typically set by the application RTest.tcl.)
 #
 #    TCL_EXECUTABLE -       Where the Tcl/Tk executable is, defaults to
-#                           c:/Program Files/Tcl/bin/wish82.exe
+#                           the value returned by the Tcl command 
+#                           [info nameofexecutable]
 #    BIN_DIR -              Where to find this script and supporting Tcl
 #                           stuff, dll's, etc. Default is "".
 #    VTK_ROOT -             vtk root directory, 
@@ -19,8 +21,8 @@ catch {load vtktcl}
 #                           defaults to "$VTK_ROOT/rtResults"
 #    VTK_REGRESSION_LOG -   where to send log messages, 
 #                           defaults to $VTK_RESULTS_PATH/rt.log
-#    VTK_PLATFORM -         the OS of the computer, defaults to "WinNT"
-
+#    VTK_PLATFORM -         the OS of the computer, defaults to "" (i.e., generic)
+#
 ####################################### Create top-level GUI
 #
 wm title . "VTK Regression Tester v1.0"
@@ -28,71 +30,79 @@ frame .mbar -relief raised -bd 2
 pack .mbar -side top -fill x
 
 menubutton .mbar.file -text File -menu .mbar.file.menu
-menubutton .mbar.tests -text Tests -menu .mbar.tests.menu
+menubutton .mbar.run -text Run -menu .mbar.run.menu
+menubutton .mbar.edit -text Edit -menu .mbar.edit.menu
 menubutton .mbar.options -text Options -menu .mbar.options.menu
 menubutton .mbar.help -text Help -menu .mbar.help.menu
-pack .mbar.file .mbar.tests .mbar.options -side left
+pack .mbar.file .mbar.run .mbar.edit .mbar.options -side left
 pack .mbar.help -side right
 
 menu .mbar.file.menu
-    .mbar.file.menu add command -label Open -command OpenFile
-    .mbar.file.menu add command -label Save -command SaveFile
+    .mbar.file.menu add cascade -label "New Suite" \
+	    -menu .mbar.file.menu.new
+    menu .mbar.file.menu.new
+	.mbar.file.menu.new add command -label "Add Single Test..." \
+	      -command AddSingleTest
+	.mbar.file.menu.new add command -label "Add List..." \
+	      -command OpenSuite
+	.mbar.file.menu.new add cascade -label "Add VTK Kits" \
+	      -menu .mbar.file.menu.new.vtkadd
+	.mbar.file.menu.new add command \
+		-label "Add VTK Tests With Classname..." \
+	      -command AddClassname
+	set ContribAdded 0
+	set GraphicsAdded 0
+	set ImagingAdded 0
+	set PatentedAdded 0
+	menu .mbar.file.menu.new.vtkadd
+	      .mbar.file.menu.new.vtkadd add checkbutton \
+		      -variable ContribAdded -label Contrib -command AddContrib
+	      .mbar.file.menu.new.vtkadd add checkbutton \
+		      -variable GraphicsAdded -label Graphics -command AddGraphics
+	      .mbar.file.menu.new.vtkadd add checkbutton \
+		      -variable ImagingAdded -label Imaging -command AddImaging
+	      .mbar.file.menu.new.vtkadd add checkbutton \
+		      -variable PatentedAdded -label Patented -command AddPatented
+	      .mbar.file.menu.new.vtkadd add command -command AddAll \
+		    -label "All VTK Kits"
+    .mbar.file.menu add command -label "Open Suite" \
+	    -command OpenSuite
+    .mbar.file.menu add command -label "Save Suite" \
+	    -command SaveSuite
+    .mbar.file.menu add command -label "Create Regression Image" \
+	    -command CreateRegressionImage
     .mbar.file.menu add command -label Exit -command exit
 
-menu .mbar.tests.menu
-    .mbar.tests.menu add command -label "Test Files" \
+menu .mbar.run.menu
+    .mbar.run.menu add command -label "Test Files" \
           -command {StartTesting 0}
-    .mbar.tests.menu add command -label "Resume Testing Files" \
+    .mbar.run.menu add command -label "Resume Testing Files" \
           -command {StartTesting 1}
-    .mbar.tests.menu add separator
-    .mbar.tests.menu add command -label "Add Single Test..." \
-          -command AddSingleTest
-    .mbar.tests.menu add command -label "Add List..." \
-          -command OpenFile
-    .mbar.tests.menu add cascade -label "Add VTK Kits" \
-          -menu .mbar.tests.menu.vtkadd
-    .mbar.tests.menu add command -label "Add VTK Tests With Classname..." \
-          -command AddClassname
-    .mbar.tests.menu add separator
-    .mbar.tests.menu add command -label "Remove Passed Tests" \
+
+menu .mbar.edit.menu
+    .mbar.edit.menu add command -label "Remove Passed Tests" \
           -command RemovePassedTests
-    .mbar.tests.menu add command -label "Remove Warning Tests" \
+    .mbar.edit.menu add command -label "Remove Warning Tests" \
           -command RemoveWarningTests
-    .mbar.tests.menu add command -label "Remove Failed Tests" \
+    .mbar.edit.menu add command -label "Remove Failed Tests" \
           -command RemoveErrorTests
-    .mbar.tests.menu add command -label "Remove Untested Tests" \
+    .mbar.edit.menu add command -label "Remove Untested Tests" \
           -command RemoveUntestedTests
-    .mbar.tests.menu add cascade -label "Remove VTK Kits" \
-          -menu .mbar.tests.menu.vtkrem
-    .mbar.tests.menu add command -label "Remove All Tests" \
+    .mbar.edit.menu add cascade -label "Remove VTK Kits" \
+          -menu .mbar.edit.menu.vtkrem
+    .mbar.edit.menu add command -label "Remove All Tests" \
           -command RemoveAllTests
 
-set ContribAdded 0
-set GraphicsAdded 0
-set ImagingAdded 0
-set PatentedAdded 0
-menu .mbar.tests.menu.vtkadd
-      .mbar.tests.menu.vtkadd add checkbutton -variable ContribAdded \
-            -label Contrib -command AddContrib
-      .mbar.tests.menu.vtkadd add checkbutton -variable GraphicsAdded \
-            -label Graphics -command AddGraphics
-      .mbar.tests.menu.vtkadd add checkbutton -variable ImagingAdded \
-            -label Imaging -command AddImaging
-      .mbar.tests.menu.vtkadd add checkbutton -variable PatentedAdded \
-            -label Patented -command AddPatented
-      .mbar.tests.menu.vtkadd add command -command AddAll \
-            -label "All VTK Kits"
-
-menu .mbar.tests.menu.vtkrem
-      .mbar.tests.menu.vtkrem add checkbutton -variable ContribAdded \
+menu .mbar.edit.menu.vtkrem
+      .mbar.edit.menu.vtkrem add checkbutton -variable ContribAdded \
             -label Contrib -command RemoveContrib
-      .mbar.tests.menu.vtkrem add checkbutton -variable GraphicsAdded \
+      .mbar.edit.menu.vtkrem add checkbutton -variable GraphicsAdded \
             -label Graphics -command RemoveGraphics
-      .mbar.tests.menu.vtkrem add checkbutton -variable ImagingAdded \
+      .mbar.edit.menu.vtkrem add checkbutton -variable ImagingAdded \
             -label Imaging -command RemoveImaging
-      .mbar.tests.menu.vtkrem add checkbutton -variable PatentedAdded \
+      .mbar.edit.menu.vtkrem add checkbutton -variable PatentedAdded \
             -label Patented -command RemovePatented
-      .mbar.tests.menu.vtkrem add command -command RemoveAll \
+      .mbar.edit.menu.vtkrem add command -command RemoveAll \
             -label "All VTK Kits"
 
 set ImmediateBrowse 0
@@ -103,7 +113,7 @@ menu .mbar.options.menu
 menu .mbar.help.menu
 .mbar.help.menu add command -label {About...} -command About
 
-# The selection list
+# The selection list (which keeps track of the regression test suite)
 frame .list
 text .list.text -width 60 -height 24 -wrap none \
       -xscrollcommand {.list.xsbar set} -yscrollcommand {.list.ysbar set}
@@ -183,11 +193,76 @@ bind .list.text <Any-Leave> {
    update
 }
 
-######################################################### Procedures
-###
-# Save a list of regression tests
+########################## Procedures Follow ####################################
+##
+
+#### Create a regression test image
 #
-proc SaveFile {} {
+proc CreateRegressionImage {} {
+    global env
+
+    set types {
+        {{VTK Tcl Test}                  {.tcl}        }
+    }
+    set filename [tk_getOpenFile -filetypes $types]
+
+    # If a file was provided, execute it and place the image
+    # in the appropriate directory.
+    if { $filename != "" } {
+	set file [file tail $filename]
+	set rtFile [open $filename.rt w]
+	puts $rtFile "catch {load vtktcl}"
+	if {[string match \*graphics\* $filename]} {
+	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/graphics/$file.tif
+	} elseif {[string match \*graphics\* $filename]} {
+	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/imaging/$file.tif
+	} elseif {[string match \*graphics\* $filename]} {
+	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/patented/$file.tif
+	} elseif {[string match \*graphics\* $filename]} {
+	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/contrib/$file.tif
+	} else {
+	    set regressionImage $file.tif
+	}
+	puts $rtFile "set regressionImage $regressionImage"
+
+	# source the example and set the input
+	puts $rtFile "source $filename"
+	puts $rtFile "vtkWindowToImageFilter w2if"
+	puts $rtFile {
+	    if {[info commands renWin] == "renWin"} {
+		w2if SetInput renWin
+	    } else {
+		if {[info commands viewer] == "viewer"} {
+		    w2if SetInput [viewer GetImageWindow]
+		    viewer Render
+		} else {
+		    if {[info commands imgWin] == "imgWin"} {
+			w2if SetInput imgWin
+			imgWin Render
+		    } else {
+		       if {[info exists viewer]} {
+			  w2if SetInput [\$viewer GetImageWindow]
+		       }
+		    }
+		}
+	    }
+
+	    # capture the image
+	    vtkTIFFWriter rttiffw
+	    rttiffw SetInput [w2if GetOutput]
+	    rttiffw SetFileName $regressionImage
+	    rttiffw Write
+	    exit
+	}
+	close $rtFile
+	catch {exec $env(TCL_EXECUTABLE) $filename.rt}
+	file delete $filename.rt
+    }
+}
+
+#### Save a regression test suite
+#
+proc SaveSuite {} {
     set types {
         {{VTK Regression Tester}                  {.rt}        }
     }
@@ -209,9 +284,9 @@ proc SaveFile {} {
     }
 }
 
-# Add a list of tests from a file
+# Open a regression test suite
 #
-proc OpenFile {} {
+proc OpenSuite {} {
     set types {
         {{VTK Regression Tester}                  {.rt}        }
     }
@@ -298,7 +373,7 @@ proc ApplyClassname {} {
    wm withdraw .addclass
 }
 
-# Procedures to remove tests
+### Procedures to remove tests from current suite
 #
 proc RemoveTests {tagName} {
    set index [.list.text index "end - 1 char"]
@@ -344,7 +419,7 @@ proc RemoveAllTests {} {
    .list.text delete 1.0 end
 }
 
-# Add a single file as a test
+### Add a single file to the current suite
 #
 proc AddSingleTest {} {
     set types {
@@ -358,7 +433,7 @@ proc AddSingleTest {} {
     }
 }
 
-# Procedures to add directories
+#### Procedures to add tests to the current suite from the given directory
 #
 proc AddDirectory {path} {
    set files [RetrieveFiles $path "*.tcl"]
@@ -417,7 +492,7 @@ proc InList {list item} {
    return 0
 }
 
-# Procedures to remove directories
+#### Procedures to remove tests from the current suite given a directory name
 #
 proc RemoveDirectory {path} {
    set files [RetrieveFiles $path "*.tcl"]
@@ -463,8 +538,8 @@ proc RemoveAll {} {
    RemovePatented
 }
 
-# The testing process. It depends on the script 
-# graphics/examplesTcl/rtImageTclExamples.tcl.
+#### The testing process. It depends on the script 
+#    graphics/examplesTcl/rtImageTclExamples.tcl.
 #
 vtkWindowToImageFilter w2if
 
@@ -580,6 +655,7 @@ proc CancelTesting {} {
 }
 
 ################################## Image Browser #########################
+### Used to view differences between images
 ###
 # vtk objects to read images
 # Create the viewing windows for regression testing
@@ -784,7 +860,8 @@ proc CloseBrowser {} {
    viewError Delete
 }
 
-######## Advertising ##########
+######## Advertising: the About popup and initial spash screen ##########
+###
 proc About {} {
    global env
 

@@ -1,14 +1,15 @@
-# RTest.tcl - a little application to run regression tests
-# 	Written by Will Schroeder
+# RTest.tcl - a little application to run VTK regression tests
+# 	      Written by Will Schroeder
 #
 
 # Start by setting environment variables - most of them are found 
-# automatically given a "normal" setup.
+# automatically given a "standard" VTK setup.
 # Read default values if present; otherwise we'll make a guess. This
 # environment variables interact with RTestGUI.tcl and
 # rtImageTclExamples.tcl.
 #
 #    TCL_EXECUTABLE -       Where the Tcl/Tk executable is, defaults to
+#                           the value returned by the Tcl command 
 #                           [info nameofexecutable]
 #    BIN_DIR -              Where to find this script and supporting Tcl
 #                           stuff, dll's, etc. Default is "".
@@ -19,10 +20,11 @@
 #    VTK_VALID_IMAGE_PATH - where the valid images are, 
 #                           defaults to $VTK_ROOT/vtkbaseline
 #    VTK_RESULTS_PATH -     where to put regression test images, 
-#                           defaults to "d:/rtResults"
+#                           defaults to $VTK_ROOT/rtResults
 #    VTK_REGRESSION_LOG -   where to send log messages, 
 #                           defaults to $VTK_RESULTS_PATH/rt.log
-#    VTK_PLATFORM -         the OS of the computer, defaults to "WinNT"
+#    VTK_PLATFORM -         the OS of the computer, defaults to "", i.e., generic
+#
 ######################### Check environment #################
 #######
 
