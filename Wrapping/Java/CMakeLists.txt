@@ -73,6 +73,7 @@ IF(JAVA_COMPILE)
       INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
       VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
       ADD_DEPENDENCIES(VTKJava${kit} VTKJavaExecutable)
+      ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
       ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
 
