@@ -69,7 +69,13 @@ public:
   // The magnification of the current render window
   vtkSetClampMacro(Magnification,int,1,2048);
   vtkGetMacro(Magnification,int);
-
+  // Description:
+  // Set/Get the flag that determines which buffer to read from.
+  // The default is to read from the front buffer.   
+  vtkBooleanMacro(ReadFrontBuffer, int);
+  vtkGetMacro(ReadFrontBuffer, int);
+  vtkSetMacro(ReadFrontBuffer, int);
+  
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();
@@ -77,6 +83,7 @@ protected:
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   int Magnification;
+  int ReadFrontBuffer;
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);
 private:

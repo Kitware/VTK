@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.10");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.11");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -30,6 +30,7 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
 {
   this->Input = NULL;
   this->Magnification = 1;
+  this->ReadFrontBuffer = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -218,8 +219,14 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
       
       // now render the tile and get the data
       this->Input->Render();
+      int buffer = this->ReadFrontBuffer;
+      if(!this->Input->GetDoubleBuffer())
+        {
+        buffer = 1;
+        }      
+
       pixels = this->Input->GetPixelData(0,0,size[0] - 1,
-                                         size[1] - 1, 1);
+                                         size[1] - 1, buffer);
       unsigned char *pixels1 = pixels;
       
       // now write the data to the output image
