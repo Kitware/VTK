@@ -146,7 +146,6 @@ protected:
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
   
-  vtkImageStencilData *Stencil;
   double *Opacity;
   int OpacityArrayLength;
   int BlendMode;
