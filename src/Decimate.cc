@@ -86,7 +86,7 @@ public:
   ~vlTriArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
   int InsertNextTriangle(vlTri& t) 
-    {this->MaxId++; this->Array[this->MaxId+1] = t;};
+    {this->MaxId++; this->Array[this->MaxId] = t;};
   struct vlTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
@@ -140,7 +140,7 @@ void vlDecimate::Execute()
   int numFEdges;
   VertexPtr fedges[2];
   int vtype;
-  int npts, *pts;
+  int npts, *pts, newCellPts[MAX_CELL_SIZE];
   VertexPtr verts[MAX_TRIS_PER_VERTEX];
   VertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
   int n1, n2, cellId;
@@ -300,7 +300,7 @@ void vlDecimate::Execute()
       totalEliminated += trisEliminated;
       reduction = (float) totalEliminated / numTris;
 
-      vlDebugMacro(<<"\tIteration = " << iteration+1 << "\n"
+      vlDebugMacro(<<"\n\tIteration = " << iteration+1 << "\n"
                    <<"\tSub-iteration = " << sub+1 << "\n"
                    <<"\tPolygons removed = " << trisEliminated << "\n"
                    <<"\tTotal removed = " << totalEliminated << "\n"
@@ -363,7 +363,6 @@ void vlDecimate::Execute()
       this->PointData.CopyData(pd,ptId,map[ptId]);
       }
     }
-  delete map;
 
   // Now renumber connectivity
   newPolys = new vlCellArray;
@@ -371,14 +370,16 @@ void vlDecimate::Execute()
 
   for (cellId=0; cellId < numTris; cellId++)
     {
-    if ( Mesh->GetCellType(cellId) == vlTRIANGLE )
+    if ( Mesh->GetCellType(cellId) == vlTRIANGLE ) // non-null element
       {
       Mesh->GetCellPoints(cellId, npts, pts);
-      newPolys->InsertNextCell(npts,pts);
+      for (i=0; i<npts; i++) newCellPts[i] = map[pts[i]];
+      newPolys->InsertNextCell(npts,newCellPts);
       }
     }
 
-  delete Mesh;
+  delete map;
+  delete Mesh; //side effect: releases memory consumned by data structures
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
 }
