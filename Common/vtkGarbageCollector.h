@@ -49,7 +49,11 @@
 // pointer or smart pointer instance that holds the reference.  When
 // collecting the garbage collector will actually set this pointer to
 // NULL.  The destructor of the class should be written to deal with
-// this.
+// this.  It is also expected that an invariant is maintained for any
+// reference that is reported.  The variable holding the reference
+// must always either be NULL or refer to a fully constructed valid
+// object.  Therefore code like "this->Object->UnRegister(this)" must
+// be avoided if "this->Object" is a reported reference.
 //
 // The implementations should be in the .cxx file in practice.
 //
