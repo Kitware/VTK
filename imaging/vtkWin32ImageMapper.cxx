@@ -498,17 +498,39 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
+      case VTK_DOUBLE:
+        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Double");
+        vtkWin32ImageMapperRenderColor(this, data,
+				       (double *)(ptr0), dim,
+				       this->DataOut, shift, scale);
+        break;
       case VTK_FLOAT:
         vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Float");
         vtkWin32ImageMapperRenderColor(this, data,
 				       (float *)(ptr0), dim,
 				       this->DataOut, shift, scale);
         break;
+      case VTK_LONG:
+        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Long");
+        vtkWin32ImageMapperRenderColor(this, data,
+				       (long *)(ptr0), dim,
+				       this->DataOut, shift, scale);
+        break;
+      case VTK_UNSIGNED_LONG:
+        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Long");
+        vtkWin32ImageMapperRenderColor(this, data, (unsigned long *)(ptr0),
+				       dim, this->DataOut, shift, scale);
+        break;
       case VTK_INT:
         vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Int");
         vtkWin32ImageMapperRenderColor(this, data,
 				       (int *)(ptr0), dim,
 				       this->DataOut, shift, scale);
+        break;
+      case VTK_UNSIGNED_INT:
+        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Int");
+        vtkWin32ImageMapperRenderColor(this, data, (unsigned int *)(ptr0),
+				       dim, this->DataOut, shift, scale);
         break;
       case VTK_SHORT:
         vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Short");
@@ -520,6 +542,12 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
         vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Short");
         vtkWin32ImageMapperRenderColor(this, data, (unsigned short *)(ptr0),
 				       dim, this->DataOut, shift, scale);
+        break;
+      case VTK_CHAR:
+        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Char");
+        vtkWin32ImageMapperRenderColor(this, data,
+				       (char *)(ptr0), dim,
+				       this->DataOut, shift, scale);
         break;
       case VTK_UNSIGNED_CHAR:
         vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Char");
@@ -534,15 +562,37 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
+      case VTK_DOUBLE:
+	vtkWin32ImageMapperRenderGray(this, data, (double *)(ptr0), 
+				      this->DataOut,
+				      shift, scale);
+	break;
       case VTK_FLOAT:
 	vtkWin32ImageMapperRenderGray(this, data, (float *)(ptr0), 
 				      this->DataOut,
 				      shift, scale);
 	break;
+      case VTK_LONG:
+	vtkWin32ImageMapperRenderGray(this, data, (long *)(ptr0), 
+				      this->DataOut,
+				      shift, scale);
+	break;
+      case VTK_UNSIGNED_LONG:
+	vtkWin32ImageMapperRenderGray(this, data, 
+                                      (unsigned long *)(ptr0),
+                                      this->DataOut, 
+                                      shift, scale);
+	break;
       case VTK_INT:
 	vtkWin32ImageMapperRenderGray(this, data, (int *)(ptr0), 
 				      this->DataOut,
 				      shift, scale);
+	break;
+      case VTK_UNSIGNED_INT:
+	vtkWin32ImageMapperRenderGray(this, data, 
+                                      (unsigned int *)(ptr0),
+                                      this->DataOut, 
+                                      shift, scale);
 	break;
       case VTK_SHORT:
 	vtkWin32ImageMapperRenderShortGray(this, data, (short *)(ptr0),
@@ -554,6 +604,11 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 					   (unsigned short *)(ptr0),
 					   this->DataOut, 
 					   shift, scale);
+	break;
+      case VTK_CHAR:
+	vtkWin32ImageMapperRenderShortGray(this, data, (int *)(ptr0), 
+                                           this->DataOut,
+                                           shift, scale);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkWin32ImageMapperRenderShortGray(this, data, 

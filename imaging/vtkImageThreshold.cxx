@@ -228,13 +228,29 @@ static void vtkImageThresholdExecute1(vtkImageThreshold *self,
   
   switch (outData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageThresholdExecute(self, inData, inPtr,
+			       outData, (double *)(outPtr),outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageThresholdExecute(self, inData, inPtr,
 			       outData, (float *)(outPtr),outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageThresholdExecute(self, inData, inPtr, 
+			       outData, (long *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageThresholdExecute(self, inData, inPtr, 
+			       outData, (unsigned long *)(outPtr),outExt, id);
+      break;
     case VTK_INT:
       vtkImageThresholdExecute(self, inData, inPtr, 
 			       outData, (int *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageThresholdExecute(self, inData, inPtr, 
+			       outData, (unsigned int *)(outPtr),outExt, id);
       break;
     case VTK_SHORT:
       vtkImageThresholdExecute(self, inData, inPtr, 
@@ -243,6 +259,10 @@ static void vtkImageThresholdExecute1(vtkImageThreshold *self,
     case VTK_UNSIGNED_SHORT:
       vtkImageThresholdExecute(self, inData, inPtr, 
 			       outData, (unsigned short *)(outPtr),outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageThresholdExecute(self, inData, inPtr, 
+			       outData, (char *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageThresholdExecute(self, inData, inPtr, 
@@ -269,12 +289,28 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageThresholdExecute1(this, inData, (double *)(inPtr), 
+			       outData, outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageThresholdExecute1(this, inData, (float *)(inPtr), 
 			       outData, outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageThresholdExecute1(this, inData, (long *)(inPtr), 
+			       outData, outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageThresholdExecute1(this, inData, (unsigned long *)(inPtr), 
+			       outData, outExt, id);
+      break;
     case VTK_INT:
       vtkImageThresholdExecute1(this, inData, (int *)(inPtr), 
+			       outData, outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageThresholdExecute1(this, inData, (unsigned int *)(inPtr), 
 			       outData, outExt, id);
       break;
     case VTK_SHORT:
@@ -283,6 +319,10 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageThresholdExecute1(this, inData, (unsigned short *)(inPtr), 
+			       outData, outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageThresholdExecute1(this, inData, (char *)(inPtr), 
 			       outData, outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:

@@ -447,17 +447,32 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   // take into consideration the scalar type
   switch (data->GetScalarType())
     {
+    case VTK_DOUBLE:
+      rowLength = sizeof(double);
+      break;
     case VTK_FLOAT:
       rowLength = sizeof(float);
       break;
+    case VTK_LONG:
+      rowLength = sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      rowLength = sizeof(unsigned long); 
+      break;
     case VTK_INT:
       rowLength = sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      rowLength = sizeof(unsigned int); 
       break;
     case VTK_SHORT:
       rowLength = sizeof(short);
       break;
     case VTK_UNSIGNED_SHORT:
       rowLength = sizeof(unsigned short); 
+      break;
+    case VTK_CHAR:
+      rowLength = sizeof(char);
       break;
     case VTK_UNSIGNED_CHAR:
       rowLength = sizeof(unsigned char); 

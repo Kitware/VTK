@@ -502,6 +502,12 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 
   switch (data->GetScalarType())
     {
+    case VTK_DOUBLE:  
+      vtkOpenGLImageMapperRender(this, data,
+				 (double *)(ptr0), 
+				 GL_DOUBLE,
+				 shift, scale, actorPos, vsize);
+      break;
     case VTK_FLOAT:  
       vtkOpenGLImageMapperRender(this, data,
 				 (float *)(ptr0), 
@@ -514,6 +520,13 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 				 GL_INT,
 				 shift, scale, actorPos, vsize);
       break;
+    case VTK_UNSIGNED_INT: 
+      vtkOpenGLImageMapperRender(this, data,
+                                 (unsigned int *)(ptr0),  
+                                 GL_UNSIGNED_INT,
+                                 shift, scale, actorPos, vsize);
+    
+      break; 
     case VTK_SHORT:  
       vtkOpenGLImageMapperRenderShort(this, data,
 				      (short *)(ptr0),

@@ -170,15 +170,37 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (double *)(inPtr), 
+			      outData, (double *)(outPtr), outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageRGBToHSVExecute(this, 
 			      inData, (float *)(inPtr), 
 			      outData, (float *)(outPtr), outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (long *)(inPtr), 
+			      outData, (long *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (unsigned long *)(inPtr), 
+			      outData, (unsigned long *)(outPtr), 
+			      outExt, id);
+      break;
     case VTK_INT:
       vtkImageRGBToHSVExecute(this, 
 			      inData, (int *)(inPtr), 
 			      outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (unsigned int *)(inPtr), 
+			      outData, (unsigned int *)(outPtr), 
+			      outExt, id);
       break;
     case VTK_SHORT:
       vtkImageRGBToHSVExecute(this, 
@@ -190,6 +212,11 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
 			      inData, (unsigned short *)(inPtr), 
 			      outData, (unsigned short *)(outPtr), 
 			      outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (char *)(inPtr), 
+			      outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageRGBToHSVExecute(this, 

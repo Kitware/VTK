@@ -240,13 +240,31 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageWrapPadExecute(this, inData, (double *)inPtr, outData, 
+			     (double *)(outPtr), outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageWrapPadExecute(this, inData, (float *)inPtr, outData, 
 			     (float *)(outPtr), outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageWrapPadExecute(this, inData, (long *)inPtr, outData, 
+			     (long *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageWrapPadExecute(this, inData, (unsigned long *)inPtr, 
+			     outData, 
+			     (unsigned long *)(outPtr), outExt, id);
+      break;
     case VTK_INT:
       vtkImageWrapPadExecute(this, inData, (int *)inPtr, outData, 
 			     (int *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageWrapPadExecute(this, inData, (unsigned int *)inPtr, 
+			     outData, 
+			     (unsigned int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageWrapPadExecute(this, inData, (short *)inPtr, outData, 
@@ -256,6 +274,10 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
       vtkImageWrapPadExecute(this, inData, (unsigned short *)inPtr, 
 			     outData, 
 			     (unsigned short *)(outPtr), outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageWrapPadExecute(this, inData, (char *)inPtr, outData, 
+			     (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageWrapPadExecute(this, inData, (unsigned char *)inPtr,

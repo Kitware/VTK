@@ -688,6 +688,11 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
+      case VTK_DOUBLE:
+        vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, double");
+        vtkXImageMapperRenderColor(this, viewport, data,
+                           (double *)(ptr0), dim, this->DataOut);
+        break;
       case VTK_FLOAT:
         vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, float");
         vtkXImageMapperRenderColor(this, viewport, data,
@@ -698,6 +703,11 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
         vtkXImageMapperRenderColor(this, viewport, data,
                            (int *)(ptr0), dim, this->DataOut);
         break;
+      case VTK_UNSIGNED_INT:
+        vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, unsigned int");
+        vtkXImageMapperRenderColor(this, viewport, data, (unsigned int *)(ptr0),
+                            dim, this->DataOut);
+        break;
       case VTK_SHORT:
         vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, short");
         vtkXImageMapperRenderColor(this, viewport, data,
@@ -707,6 +717,11 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
         vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, unsigned short");
         vtkXImageMapperRenderColor(this, viewport, data, (unsigned short *)(ptr0),
                             dim, this->DataOut);
+        break;
+      case VTK_CHAR:
+        vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, char");
+        vtkXImageMapperRenderColor(this, viewport, data,
+                           (char *)(ptr0),dim, this->DataOut);
         break;
       case VTK_UNSIGNED_CHAR:
         vtkDebugMacro(<<"vtkXImageMapper::RenderData - RenderColor, unsigned char ");
@@ -722,13 +737,29 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
+      case VTK_DOUBLE:
+        vtkXImageMapperRenderGray(this, viewport, data, 
+				  (double *)(ptr0), this->DataOut);
+        break;
       case VTK_FLOAT:
         vtkXImageMapperRenderGray(this, viewport, data, 
 				  (float *)(ptr0), this->DataOut);
         break;
+      case VTK_LONG:
+        vtkXImageMapperRenderGray(this, viewport, data, 
+				  (long *)(ptr0), this->DataOut);
+        break;
+      case VTK_UNSIGNED_LONG:
+        vtkXImageMapperRenderGray(this, viewport, data, 
+				  (unsigned long *)(ptr0), this->DataOut);
+        break;
       case VTK_INT:
         vtkXImageMapperRenderGray(this, viewport, data, 
 				  (int *)(ptr0), this->DataOut);
+        break;
+      case VTK_UNSIGNED_INT:
+        vtkXImageMapperRenderGray(this, viewport, data, 
+				  (unsigned int *)(ptr0), this->DataOut);
         break;
       case VTK_SHORT:
         vtkXImageMapperRenderGray(this, viewport, data, 
@@ -737,6 +768,10 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
       case VTK_UNSIGNED_SHORT:
         vtkXImageMapperRenderGray(this, viewport, data, 
 				  (unsigned short *)(ptr0), this->DataOut);
+        break;
+      case VTK_CHAR:
+        vtkXImageMapperRenderGray(this, viewport, data, 
+				  (char *)(ptr0), this->DataOut);
         break;
       case VTK_UNSIGNED_CHAR:
         vtkXImageMapperRenderGray(this, viewport, data, 

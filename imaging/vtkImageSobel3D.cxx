@@ -246,14 +246,34 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageSobel3DExecute(this, 
+			  inData, (double *)(inPtr), 
+			  outData, outExt, (float *)(outPtr),id);
+      break;
     case VTK_FLOAT:
       vtkImageSobel3DExecute(this, 
 			  inData, (float *)(inPtr), 
 			  outData, outExt, (float *)(outPtr),id);
       break;
+    case VTK_LONG:
+      vtkImageSobel3DExecute(this, 
+			  inData, (long *)(inPtr), 
+			  outData, outExt, (float *)(outPtr),id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageSobel3DExecute(this, 
+			  inData, (unsigned long *)(inPtr), 
+			  outData, outExt, (float *)(outPtr),id);
+      break;
     case VTK_INT:
       vtkImageSobel3DExecute(this, 
 			  inData, (int *)(inPtr), 
+			  outData, outExt, (float *)(outPtr),id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageSobel3DExecute(this, 
+			  inData, (unsigned int *)(inPtr), 
 			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_SHORT:
@@ -264,6 +284,11 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
     case VTK_UNSIGNED_SHORT:
       vtkImageSobel3DExecute(this, 
 			  inData, (unsigned short *)(inPtr), 
+			  outData, outExt, (float *)(outPtr),id);
+      break;
+    case VTK_CHAR:
+      vtkImageSobel3DExecute(this, 
+			  inData, (char *)(inPtr), 
 			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_UNSIGNED_CHAR:
