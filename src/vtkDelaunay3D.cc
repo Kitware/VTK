@@ -629,6 +629,7 @@ void vtkDelaunay3D::Execute()
             points->GetPoint(p2,x2);
             if ( (math.Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
               {
+              edges.InsertEdge(p1,p2);
               pts[0] = p1;
               pts[1] = p2;
               output->InsertNextCell(VTK_LINE,2,pts);
