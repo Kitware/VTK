@@ -227,7 +227,7 @@ void vtkAbstractTransform::DeepCopy(vtkAbstractTransform *transform)
 void vtkAbstractTransform::Update()
 {
   // locking is require to ensure that the class is thread-safe
-  this->UpdateMutex->Unlock();
+  this->UpdateMutex->Lock();
 
   // check to see if we are a special 'inverse' transform
   if (this->DependsOnInverse && 
