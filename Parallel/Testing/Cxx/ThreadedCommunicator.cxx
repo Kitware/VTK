@@ -51,13 +51,13 @@ void TestBarrier(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   contr->Barrier();
 }
 
-void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
+void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   int i;
 
   // Test receiving all supported types of arrays
   int datai[scMsgLength];
-  if (!contr->Receive(datai, scMsgLength, 1, 11))
+  if (!contr->Receive(datai, scMsgLength, 0, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -71,7 +71,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
 
   unsigned long dataul[scMsgLength];
-  if (!contr->Receive(dataul, scMsgLength, 1, 22))
+  if (!contr->Receive(dataul, scMsgLength, 0, 22))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -85,7 +85,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
 
   char datac[scMsgLength];
-  if (!contr->Receive(datac, scMsgLength, 1, 33))
+  if (!contr->Receive(datac, scMsgLength, 0, 33))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -99,7 +99,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
 
   unsigned char datauc[scMsgLength];
-  if (!contr->Receive(datauc, scMsgLength, 1, 44))
+  if (!contr->Receive(datauc, scMsgLength, 0, 44))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -113,7 +113,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
 
   float dataf[scMsgLength];
-  if (!contr->Receive(dataf, scMsgLength, 1, 7))
+  if (!contr->Receive(dataf, scMsgLength, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -128,7 +128,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 
 
   double datad[scMsgLength];
-  if (!contr->Receive(datad, scMsgLength, 1, 7))
+  if (!contr->Receive(datad, scMsgLength, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -142,7 +142,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
 
   vtkIdType datait[scMsgLength];
-  if (!contr->Receive(datait, scMsgLength, 1, 7))
+  if (!contr->Receive(datait, scMsgLength, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -157,7 +157,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 
   // Test receiving all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
-  if (!contr->Receive(ia, 1, 11))
+  if (!contr->Receive(ia, 0, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -185,7 +185,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   op->Delete();
 }
 
-void Process2(vtkMultiProcessController *contr, void *arg)
+void Process1(vtkMultiProcessController *contr, void *arg)
 {
   GenericCommunicatorArgs_tmp* args = 
     reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
@@ -198,7 +198,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datai[i] = i;
     }
-  if (!contr->Send(datai, scMsgLength, 0, 11))
+  if (!contr->Send(datai, scMsgLength, 1, 11))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -209,7 +209,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     dataul[i] = static_cast<unsigned long>(i);
     }
-  if (!contr->Send(dataul, scMsgLength, 0, 22))
+  if (!contr->Send(dataul, scMsgLength, 1, 22))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -220,7 +220,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datac[i] = static_cast<char>(i);
     }
-  if (!contr->Send(datac, scMsgLength, 0, 33))
+  if (!contr->Send(datac, scMsgLength, 1, 33))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -231,7 +231,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datauc[i] = static_cast<unsigned char>(i);
     }
-  if (!contr->Send(datauc, scMsgLength, 0, 44))
+  if (!contr->Send(datauc, scMsgLength, 1, 44))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -242,7 +242,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     dataf[i] = static_cast<float>(i);
     }
-  if (!contr->Send(dataf, scMsgLength, 0, 7))
+  if (!contr->Send(dataf, scMsgLength, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -254,7 +254,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datad[i] = static_cast<double>(i);
     }
-  if (!contr->Send(datad, scMsgLength, 0, 7))
+  if (!contr->Send(datad, scMsgLength, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -265,7 +265,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datait[i] = static_cast<vtkIdType>(i);
     }
-  if (!contr->Send(datait, scMsgLength, 0, 7))
+  if (!contr->Send(datait, scMsgLength, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -274,7 +274,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   // Test sending all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
   ia->SetArray(datai, 10, 1);
-  if (!contr->Send(ia, 0, 11))
+  if (!contr->Send(ia, 1, 11))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -285,7 +285,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   vtkInputPort* ip = vtkInputPort::New();
   ip->SetController(contr);
   ip->SetTag(45);
-  ip->SetRemoteProcessId(0);
+  ip->SetRemoteProcessId(1);
 
   // Get polydata
   ip->GetPolyDataOutput()->Update();
@@ -316,7 +316,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     iren->Start();
     }
 
-  contr->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
+  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   iren->Delete();
   ip->Delete();
@@ -359,8 +359,8 @@ int main(int argc, char** argv)
   args.argv = argv;
   // ----------------------------------------------
 
-  contr->SetMultipleMethod(0, Process1, 0);
-  contr->SetMultipleMethod(1, Process2, &args);
+  contr->SetMultipleMethod(0, Process1, &args);
+  contr->SetMultipleMethod(1, Process2, 0);
   contr->MultipleMethodExecute();
 
   contr->SetSingleMethod(TestBarrier, 0);

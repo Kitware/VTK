@@ -58,7 +58,7 @@ static void DeleteAnArg(void*)
   return;
 }
 
-void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
+void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   vtkCommunicator* comm = contr->GetCommunicator();
 
@@ -66,7 +66,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 
   // Test receiving all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
-  if (!comm->Receive(ia, 1, 11))
+  if (!comm->Receive(ia, 0, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -80,7 +80,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   ia->Delete();
 
   vtkUnsignedLongArray* ula = vtkUnsignedLongArray::New();
-  if (!comm->Receive(ula, 1, 22))
+  if (!comm->Receive(ula, 0, 22))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -94,7 +94,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   ula->Delete();
 
   vtkCharArray* ca = vtkCharArray::New();
-  if (!comm->Receive(ca, 1, 33))
+  if (!comm->Receive(ca, 0, 33))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -108,7 +108,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   ca->Delete();
 
   vtkUnsignedCharArray* uca = vtkUnsignedCharArray::New();
-  if (!comm->Receive(uca, 1, 44))
+  if (!comm->Receive(uca, 0, 44))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -122,7 +122,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   uca->Delete();
 
   vtkFloatArray* fa = vtkFloatArray::New();
-  if (!comm->Receive(fa, 1, 7))
+  if (!comm->Receive(fa, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -136,7 +136,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   fa->Delete();
 
   vtkDoubleArray* da = vtkDoubleArray::New();
-  if (!comm->Receive(da, 1, 7))
+  if (!comm->Receive(da, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -150,7 +150,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   da->Delete();
 
   vtkIdTypeArray* ita = vtkIdTypeArray::New();
-  if (!comm->Receive(ita, 1, 7))
+  if (!comm->Receive(ita, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -191,7 +191,7 @@ void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   op->Delete();
 }
 
-void Process2(vtkMultiProcessController *contr, void *arg)
+void Process1(vtkMultiProcessController *contr, void *arg)
 {
   GenericCommunicatorArgs_tmp* args = 
     reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
@@ -208,7 +208,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkIntArray* ia = vtkIntArray::New();
   ia->SetArray(datai, 10, 1);
-  if (!comm->Send(ia, 0, 11))
+  if (!comm->Send(ia, 1, 11))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -221,7 +221,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkUnsignedLongArray* ula = vtkUnsignedLongArray::New();
   ula->SetArray(dataul, 10, 1);
-  if (!comm->Send(ula, 0, 22))
+  if (!comm->Send(ula, 1, 22))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -234,7 +234,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkCharArray* ca = vtkCharArray::New();
   ca->SetArray(datac, 10, 1);
-  if (!comm->Send(ca, 0, 33))
+  if (!comm->Send(ca, 1, 33))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -247,7 +247,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkUnsignedCharArray* uca = vtkUnsignedCharArray::New();
   uca->SetArray(datauc, 10, 1);
-  if (!comm->Send(uca, 0, 44))
+  if (!comm->Send(uca, 1, 44))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -260,7 +260,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkFloatArray* fa = vtkFloatArray::New();
   fa->SetArray(dataf, 10, 1);
-  if (!comm->Send(fa, 0, 7))
+  if (!comm->Send(fa, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -274,7 +274,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkDoubleArray* da = vtkDoubleArray::New();
   da->SetArray(datad, 10, 1);
-  if (!comm->Send(da, 0, 7))
+  if (!comm->Send(da, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -287,7 +287,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   vtkIdTypeArray* ita = vtkIdTypeArray::New();
   ita->SetArray(datait, 10, 1);
-  if (!comm->Send(ita, 0, 7))
+  if (!comm->Send(ita, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     }
@@ -297,7 +297,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   vtkInputPort* ip = vtkInputPort::New();
   ip->SetController(contr);
   ip->SetTag(45);
-  ip->SetRemoteProcessId(0);
+  ip->SetRemoteProcessId(1);
 
   // Get polydata
   ip->GetImageDataOutput()->Update();
@@ -351,7 +351,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     }
   iren->Delete();
 
-  contr->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
+  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   ip->Delete();
   renWin->Delete();
@@ -392,8 +392,8 @@ int main(int argc, char** argv)
   args.argv = argv;
   // ----------------------------------------------
 
-  contr->SetMultipleMethod(0, Process1, 0);
-  contr->SetMultipleMethod(1, Process2, &args);
+  contr->SetMultipleMethod(0, Process1, &args);
+  contr->SetMultipleMethod(1, Process2, 0);
   contr->MultipleMethodExecute();
   
   contr->Finalize();
