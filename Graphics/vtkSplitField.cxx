@@ -103,6 +103,7 @@ void vtkSplitField::SetInputField(const char* name, int fieldLoc)
     return;
     }
 
+  this->Modified();
   this->FieldLocation = fieldLoc;
   this->FieldType = vtkSplitField::NAME;
 
@@ -120,6 +121,7 @@ void vtkSplitField::SetInputField(int attributeType, int fieldLoc)
     return;
     }
 
+  this->Modified();
   this->FieldLocation = fieldLoc;
   this->FieldType = vtkSplitField::ATTRIBUTE;
   this->AttributeType = attributeType;
@@ -182,6 +184,7 @@ void vtkSplitField::Split(int component, const char* arrayName)
     return;
     }
 
+  this->Modified();
   Component* comp = this->FindComponent(component);
   // If component is already there, just reset the information
   if ( comp )

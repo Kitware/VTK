@@ -104,6 +104,7 @@ void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
     return;
     }
 
+  this->Modified();
   delete[] this->FieldName;
   this->FieldName = new char[strlen(fieldName)+1];
   strcpy(this->FieldName, fieldName);
@@ -132,6 +133,7 @@ void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType,
     return;
     }
 
+  this->Modified();
   this->AttributeType = attributeType;
   this->InputAttributeType = inputAttributeType;
   this->AttributeLocation = attributeLoc;

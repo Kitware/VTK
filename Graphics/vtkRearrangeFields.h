@@ -150,7 +150,12 @@ public:
 
   // Description:
   // Remove all operations.
-  void RemoveAllOperations() { this->LastId = 0; this->DeleteAllOperations(); }
+  void RemoveAllOperations() 
+    { 
+    this->Modified();
+    this->LastId = 0; 
+    this->DeleteAllOperations(); 
+    }
   
 //BTX
   enum FieldType

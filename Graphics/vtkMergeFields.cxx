@@ -96,6 +96,7 @@ void vtkMergeFields::SetOutputField(const char* name, int fieldLoc)
     return;
     }
 
+  this->Modified();
   this->FieldLocation = fieldLoc;
 
   delete[] this->FieldName;
@@ -142,6 +143,7 @@ void vtkMergeFields::Merge(int component, const char* arrayName,
     return;
     }
 
+  this->Modified();
   Component* comp = this->FindComponent(component);
   if ( comp )
     {
