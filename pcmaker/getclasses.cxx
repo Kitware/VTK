@@ -347,6 +347,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
   if (vals->m_Imaging) fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
+  if (vals->m_Working) fprintf(fp,"extern \"C\" {int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}\n\n");
 
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
@@ -366,6 +367,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     /* initialize the tkRenderWidget */
     if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
     if (vals->m_Imaging) fprintf(fp,"  Vtktkimageviewerwidget_Init(interp);\n");
+	if (vals->m_Working) fprintf(fp,"  Vtktkimagewindowwidget_Init(interp);\n");
   }
   
   for (i = 0; i < anindex; i++)
@@ -485,9 +487,6 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
 void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
 void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
-
-// fn added by RB to handle incremental builds
-void doSplitLib(FILE *fp,CPcmakerDlg *vals, LibraryTypes whichLibrary, int debugFlag);
 
 // generate depend info for a .cxx file
 // outputs the result as DEPEND
@@ -861,91 +860,6 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int doAddedValue, int debugFlag
 
 
 
-// Not currently splitting the lib... but keep the function for now
-void doSplitLib(FILE *fp,CPcmakerDlg *vals, LibraryTypes whichLibrary, int debugFlag)
-  {
-  int i;
-
-  fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"LIBDIR=..\\lib\n\n");
-
-  switch (whichLibrary)
-    {
-    case LT_GRAPHICS:
-      fprintf(fp,"!MESSAGE making the vtkGraphics libraries.......\n\n");
-      fprintf(fp,"ALL : \"$(LIBDIR)/vtkGraphics1.exp\" \"$(LIBDIR)/vtkGraphics2.dll\" \"$(LIBDIR)/vtkGraphics1.dll\" \n\n");
-      break;
-    }
-
-
-  fprintf(fp,"\"$(LIBDIR)\" :\n");
-  fprintf(fp,"    if not exist \"$(LIBDIR)/$(NULL)\" mkdir \"$(LIBDIR)\"\n");
-  fprintf(fp,"\n");
-  fprintf(fp,"LINK32=link.exe\n");
-  fprintf(fp,"LIB=lib.exe\n\n");
-
-  fprintf(fp,"LIB_LIBRARIES=\"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" \n",
-    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
-  fprintf(fp,"LIB_FLAGS=/nologo /machine:I386 /out:\"$(LIBDIR)/vtkGraphics1.lib\" \n");
-  fprintf(fp,"EXTRA_LIBS1=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkGraphics1.exp\" \"$(LIBDIR)/vtkGraphics2.lib\" \n");
-  fprintf(fp,"EXTRA_LIBS2=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkGraphics1.lib\" \n");
-
-  if (debugFlag)
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" /nologo /version:1.3 /subsystem:windows\\\n",
-      vals->m_WhereCompiler);
-  else
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" /nologo /version:1.3 /subsystem:windows\\\n",
-      vals->m_WhereCompiler);
-
-  fprintf(fp," /dll /incremental:yes /machine:I386\n");
-
-  fprintf(fp,"OUT_NAMES1=/out:\"$(LIBDIR)/vtkGraphics1.dll\"\n");
-  fprintf(fp,"OUT_NAMES2=/out:\"$(LIBDIR)/vtkGraphics2.dll\" /implib:\"$(LIBDIR)/vtkGraphics2.lib\" \n");
-
-
-  fprintf(fp,"LINK32_OBJS1= \\\n");
-  for (i = abstractStart[whichLibrary]; i < abstractEnd[whichLibrary]; i++)
-    {
-    if ( _stricmp(abstract[i],LIB_SPLIT_STRING) < 0 )
-      fprintf(fp,"    %s.obj \\\n",abstract[i]);
-    }
-  for (i = concreteStart[whichLibrary]; i < concreteEnd[whichLibrary]; i++)
-    {
-    if ( _stricmp(concrete[i],LIB_SPLIT_STRING) < 0 )
-      fprintf(fp,"    %s.obj \\\n",concrete[i]);
-    }
-  fprintf(fp,"\n");
-
-
-  fprintf(fp,"LINK32_OBJS2= \\\n");
-  fprintf(fp,"    vtkPCForce.obj \\\n");
-  for (i = abstractStart[whichLibrary]; i < abstractEnd[whichLibrary]; i++)
-    {
-    if ( !(_stricmp(abstract[i],LIB_SPLIT_STRING) < 0) )
-      fprintf(fp,"    %s.obj \\\n",abstract[i]);
-    }
-  for (i = concreteStart[whichLibrary]; i < concreteEnd[whichLibrary]; i++)
-    {
-    if ( !(_stricmp(concrete[i],LIB_SPLIT_STRING) < 0) )
-      fprintf(fp,"    %s.obj \\\n",concrete[i]);
-    }
-  fprintf(fp,"\n");
-
-
-  fprintf(fp,"\"$(LIBDIR)/vtkGraphics1.exp\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS1) $(LIB_LIBRARIES)\n");
-  fprintf(fp,"   $(LIB) @<<\n");
-  fprintf(fp,"     $(LIB_FLAGS) $(LINK32_OBJS1) $(LIB_LIBRARIES)\n<<\n\n");
-  
-  fprintf(fp,"\"$(LIBDIR)/vtkGraphics2.dll\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS2) $(EXTRA_LIBS2)\n");
-  fprintf(fp,"   $(LINK32) @<<\n");
-  fprintf(fp,"     $(OUT_NAMES2) $(LINK32_FLAGS) $(LINK32_OBJS2) $(LIB_LIBRARIES) $(EXTRA_LIBS2)\n<<\n\n");
-
-  fprintf(fp,"\"$(LIBDIR)/vtkGraphics1.dll\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS1) $(EXTRA_LIBS1)\n");
-  fprintf(fp,"   $(LINK32) @<<\n");
-  fprintf(fp,"     $(OUT_NAMES1) $(LINK32_FLAGS) $(LINK32_OBJS1) $(LIB_LIBRARIES) $(EXTRA_LIBS1)\n<<\n\n");
-  }
-
-
 
 /******************************************************************************
   Here are the different makefile methods
@@ -1249,7 +1163,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   else if ( vals->m_Patented )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkPatented.dll\" : $(DEF_FILE) $(PATENTED_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkPatented.dll\" : $(DEF_FILE) $(PATENTED_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(PATENTED_FLAGS) $(PATENTED_OBJS) $(PATENTED_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1257,7 +1171,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_Imaging )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkImaging.dll\" : $(DEF_FILE) $(IMAGING_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkImaging.dll\" : $(DEF_FILE) $(IMAGING_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(IMAGING_FLAGS) $(IMAGING_OBJS) $(IMAGING_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1265,7 +1179,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_Working )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkWorking.dll\" : $(DEF_FILE) $(WORKING_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkWorking.dll\" : $(DEF_FILE) $(WORKING_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(WORKING_FLAGS) $(WORKING_OBJS) $(WORKING_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1273,7 +1187,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_Contrib )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkContrib.dll\" : $(DEF_FILE) $(CONTRIB_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkContrib.dll\" : $(DEF_FILE) $(CONTRIB_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(CONTRIB_FLAGS) $(CONTRIB_OBJS) $(CONTRIB_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1281,7 +1195,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_GEMSIP )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkGemsip.dll\" : $(DEF_FILE) $(GEMSIP_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkGemsip.dll\" : $(DEF_FILE) $(GEMSIP_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(GEMSIP_FLAGS) $(GEMSIP_OBJS) $(GEMSIP_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1289,7 +1203,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_GEMSVOLUME )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkGemsVolume.dll\" : $(DEF_FILE) $(GEMSVOLUME_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkGemsVolume.dll\" : $(DEF_FILE) $(GEMSVOLUME_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(GEMSVOLUME_FLAGS) $(GEMSVOLUME_OBJS) $(GEMSVOLUME_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1297,7 +1211,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_GEAE )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkGeae.dll\" : $(DEF_FILE) $(GEAE_OBJS) \n");
+    fprintf(fp,"\"$(LIBDIR)\\vtkGeae.dll\" : $(DEF_FILE) $(GEAE_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(GEAE_FLAGS) $(GEAE_OBJS) $(GEAE_LIBS)\n");
     fprintf(fp,"<<\n");
@@ -1724,6 +1638,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
   if (vals->m_Graphics) fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
   if (vals->m_Imaging)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
+  if (vals->m_Working)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" \\\n");
   for (i = 0; i < num_abstractTcl; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstractTcl[i]);
@@ -1815,6 +1730,17 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
+
+  if (vals->m_Working)
+    {
+    sprintf(file,"%s\\working\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
+    OutputDepends(file,fp);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\working\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\working\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+
+
   for (i = 0; i < num_abstractTcl; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
@@ -1828,8 +1754,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i],vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, abstractTcl_lib[i], abstractTcl[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
@@ -1852,8 +1778,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, concreteTcl_lib[i], concreteTcl[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
@@ -1871,8 +1797,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
@@ -1887,8 +1813,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
@@ -1903,8 +1829,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
@@ -1919,8 +1845,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
-		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
 		vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
@@ -2693,6 +2619,11 @@ void SetupDepends(CPcmakerDlg *vals, int debugFlag)
     AddToDepends(file);
     }
 
+  if (vals->m_Working)
+    {
+    sprintf(file,"%s\\working\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
+    AddToDepends(file);
+    }
   
   // now get split information for the graphics library(ies)
   if (vals->m_Graphics)
@@ -2783,114 +2714,115 @@ void SetupSplitGraphicsDepends(CPcmakerDlg *vals)
 	// see if file even exists	
   sprintf(file,"%s\\GraphicsSplitInfo.txt",vals->m_WhereBuild);
   if (!stat(file,&statBuff)) // does exist, so read the info
-		{
-		ifstream IS(file);
-		int numLibs, numInLib, any_changed, changed;
-		char filename[256];
+    {
+    ifstream IS(file);
+    int numLibs, numInLib, any_changed, changed;
+    char filename[256];
 
-		any_changed = 0;
-		IS >> numLibs;
-		for (i = 0; i < numLibs; i++)
-			{
-			changed = 0;
-			IS >> numInLib;
-			if (i < NumOfGraphicsLibs)
-				{
-				for (j = 0; j < numInLib; j++)
-					{
-					IS >> filename;
-					if ( j < NumInSplitLib[i] &&
-							strcmp(filename, GLibDependsArray[ SplitGraphicsIndices[i][j] ]->name) )
-						changed = 1;
-					}
-				if (numInLib != NumInSplitLib[i])
-					changed = 1;
-				}
-			else
-				changed = 1;
-			if (changed) // delete the library
-				{
-				any_changed = 1;
-				for (j = 0; j < 2; j++)
-					{
-					if (j)
-						sprintf(file,"%s\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
-					else
-						sprintf(file,"%s\\Debug\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
-					}
-				if (!stat(file,&statBuff)) // does exist, so delete it
-					{
-					if ( remove(file) )
-						{	
-						char msg[256];
-						sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
-						AfxMessageBox(msg);
-						exit(1);
-						}
-					}
-				}
-			}
-		if (any_changed || numLibs != NumOfGraphicsLibs) // delete vtktcl.dll 's
-			{
-			for (j = 0; j < 2; j++);
-				{
-				if (j)
-					sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
-				else
-					sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
-
-				if (!stat(file,&statBuff)) // does exist, so delete it
-					{
-					if ( remove(file) )
-						{	
-						char msg[256];
-						sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
-						AfxMessageBox(msg);
-						exit(1);
-						}
-					}
-				}
-
-			// do not rewrite the file if unchanged
-			writeGraphicsSplitInfo(vals);
-			}
-		}
-	else
-		{
-		// check for 40 Graphics libraries (that is a lot!)
-		for (j = 0; j < 2; j++)
-			{
-			for (i = 0; i < 41; i++)
-				{
-				if (i == 40) // handle the tcl dll
-					{
-					if (j)
-						sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
-					else
-						sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
-					}
-				else
-					{
-					if (j)
-						sprintf(file,"%s\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
-					else
-						sprintf(file,"%s\\Debug\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
-					}
-				if (!stat(file,&statBuff)) // does exist, so delete it
-					{
-					if ( remove(file) )
-						{	
-						char msg[256];
-						sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
-						AfxMessageBox(msg);
-						exit(1);
-						}
-					}
-				}
-			}
-		writeGraphicsSplitInfo(vals);
-		}
-}
+    any_changed = 0;
+    IS >> numLibs;
+    for (i = 0; i < numLibs; i++)
+      {
+      changed = 0;
+      IS >> numInLib;
+			
+      if (i < NumOfGraphicsLibs)
+        {
+        for (j = 0; j < numInLib; j++)
+          {
+          IS >> filename;
+          if ( j < NumInSplitLib[i] &&
+            strcmp(filename, GLibDependsArray[ SplitGraphicsIndices[i][j] ]->name) )
+            changed = 1;
+          }
+        if (numInLib != NumInSplitLib[i])
+          changed = 1;
+        }
+      else
+        changed = 1;
+      if (changed) // delete the library
+        {
+        any_changed = 1;
+        for (j = 0; j < 2; j++)
+          {
+          if (j)
+            sprintf(file,"%s\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
+          else
+            sprintf(file,"%s\\Debug\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
+          }
+        if (!stat(file,&statBuff)) // does exist, so delete it
+          {
+          if ( remove(file) )
+            {	
+            char msg[256];
+            sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
+            AfxMessageBox(msg);
+            exit(1);
+            }
+          }
+        }
+      }
+    if (any_changed || numLibs != NumOfGraphicsLibs) // delete vtktcl.dll 's
+      {
+      for (j = 0; j < 2; j++);
+        {
+        if (j)
+          sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
+        else
+          sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
+				
+        if (!stat(file,&statBuff)) // does exist, so delete it
+          {
+          if ( remove(file) )
+            {	
+            char msg[256];
+            sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
+            AfxMessageBox(msg);
+            exit(1);
+            }
+          }
+        }
+			
+      // do not rewrite the file if unchanged
+      writeGraphicsSplitInfo(vals);
+      }
+    }
+  else
+    {
+    // check for 40 Graphics libraries (that is a lot!)
+    for (j = 0; j < 2; j++)
+      {
+      for (i = 0; i < 41; i++)
+        {
+        if (i == 40) // handle the tcl dll
+          {
+          if (j)
+            sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
+          else
+            sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
+          }
+        else
+          {
+          if (j)
+            sprintf(file,"%s\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
+          else
+            sprintf(file,"%s\\Debug\\lib\\vtkGraphics%d.dll",vals->m_WhereBuild,i);
+          }
+        if (!stat(file,&statBuff)) // does exist, so delete it
+          {
+          if ( remove(file) )
+            {	
+            char msg[256];
+            sprintf(msg,"ERROR!!!!! Unable to remove %s\n",file);
+            AfxMessageBox(msg);
+            exit(1);
+            }
+          }
+        }
+      }
+    writeGraphicsSplitInfo(vals);
+    }
+  }
 
 
 
