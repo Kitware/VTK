@@ -227,14 +227,6 @@ void vtkSource::UpdateInformation()
         {
         t1 = t2;
         }
-
-      // Pipeline MTime of the input does not include the MTime of the 
-      // data object itself. Factor these mtimes into the next PipelineMTime
-      t2 = input->GetMTime();
-      if (t2 > t1)
-        {
-        t1 = t2;
-        }
       }
     }
   locality = maxLocality * 0.5;
