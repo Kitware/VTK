@@ -326,6 +326,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
       }
 
     if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
+				int err = GetLastError();
         MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                 MB_ICONERROR | MB_OK);
         exit(1);
@@ -407,8 +408,8 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
 	this->SetupPixelFormat(this->DeviceContext,
 			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
 			       PFD_STEREO |PFD_DOUBLEBUFFER, 
-			       this->GetDebug());
-	this->SetupPalette(this->DeviceContext);
+			       this->GetDebug(), 32, 32);
+        this->SetupPalette(this->DeviceContext);
 	this->ContextId = wglCreateContext(this->DeviceContext);
 	wglMakeCurrent(this->DeviceContext, this->ContextId);
 	this->OpenGLInit();
@@ -580,7 +581,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       this->DeviceContext = GetDC(this->WindowId);
       this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
 			     PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
-			     PFD_STEREO, this->GetDebug());
+			     PFD_STEREO, this->GetDebug(), 32, 32);
       this->SetupPalette(this->DeviceContext);
       this->ContextId = wglCreateContext(this->DeviceContext);
       wglMakeCurrent(this->DeviceContext, this->ContextId);
@@ -960,6 +961,13 @@ void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(int xsize, int ysize,
   this->ScreenDoubleBuffer = this->DoubleBuffer;
   this->ScreenContextId = this->ContextId;
   
+  // we need to release resources
+  vtkRenderer *ren;
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(NULL);
+    }
+
   // adjust settings for renderwindow
   this->Mapped =0;
   this->Size[0] = xsize;
@@ -968,11 +976,18 @@ void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(int xsize, int ysize,
   this->DeviceContext = this->MemoryHdc;
   this->DoubleBuffer = 0;
   this->SetupPixelFormat(this->DeviceContext, 
-		PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
+			 PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI | PFD_DRAW_TO_BITMAP,
 		this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
   wglMakeCurrent(this->DeviceContext, this->ContextId);
+  
+  // we need to release resources
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(this);
+    }
+  
   this->OpenGLInit();
 }
 
@@ -988,6 +1003,12 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering()
   DeleteDC(this->MemoryHdc); 
   DeleteObject(this->MemoryBuffer);
   
+  // we need to release resources
+  vtkRenderer *ren;
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(NULL);
+    }
   this->Mapped = this->ScreenMapped;
   this->Size[0] = this->ScreenWindowSize[0];
   this->Size[1] = this->ScreenWindowSize[1];
@@ -995,6 +1016,11 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering()
   this->DoubleBuffer = this->ScreenDoubleBuffer;
   this->ContextId = this->ScreenContextId;
   wglMakeCurrent(this->DeviceContext, this->ContextId);
+
+  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(this);
+    }
 }
 
 void vtkWin32OpenGLRenderWindow::SetContextId(HGLRC arg) // hsr
