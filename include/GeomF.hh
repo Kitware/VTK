@@ -26,6 +26,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // datasets. For example, this filter will extract the outer surface of a 
 // volume or structured grid dataset. (For structured data you may want to
 // use vlStructuredPointsGeometryFilter or vlStructuredGridGeometryFilter).
+// .SECTION Caveats
+// When vlGeometryFilter extracts cells (or boundaries of cells) it may create
+// duplicate points. Use vlCleanPolyData to merge duplicate points.
 // .SECTION See Also
 // vlStructuredPointsGeometryFilter, vlStructuredGridGeometryFilter
 
