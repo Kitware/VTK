@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.14");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.15");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -996,8 +996,8 @@ void vtkPDataSetReader::UnstructuredGridExecute()
     { // This duplicates functionality of the pipeline super classes ...
     return;
     }
-  startPiece = updatePiece * updateNumberOfPieces / this->NumberOfPieces;
-  endPiece = ((updatePiece+1) * updateNumberOfPieces / this->NumberOfPieces) - 1;
+  startPiece = updatePiece * this->NumberOfPieces / updateNumberOfPieces;
+  endPiece = ((updatePiece+1) * this->NumberOfPieces / updateNumberOfPieces) - 1;
 
   vtkDataSetReader *reader;
   vtkAppendFilter *append = vtkAppendFilter::New();
