@@ -74,10 +74,10 @@ public:
   static vtkCollection *New() {return new vtkCollection;};
   const char *GetClassName() {return "vtkCollection";};
 
-  virtual void AddItem(vtkObject *);
-  virtual void ReplaceItem(int i, vtkObject *);
+  void AddItem(vtkObject *);
+  void ReplaceItem(int i, vtkObject *);
   virtual void RemoveItem(int i);  
-  virtual void RemoveItem(vtkObject *);
+  void RemoveItem(vtkObject *);
   void RemoveAllItems();
   int  IsItemPresent(vtkObject *);
   int  GetNumberOfItems();

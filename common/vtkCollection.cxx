@@ -96,7 +96,7 @@ void vtkCollection::AddItem(vtkObject *a)
 void vtkCollection::RemoveItem(vtkObject *a)
 {
   int i;
-  vtkCollectionElement *elem,*prev;
+  vtkCollectionElement *elem;
   
   if (!this->Top)
     {
