@@ -54,42 +54,50 @@ class vtkByteSwap
 public:
   void Delete() {delete this;};
 
-  void Swap4LE(char *c);
-  void Swap4LE(float *p) {Swap4LE((char *)p);};
-  void Swap4LE(int *i) {Swap4LE((char *)i);};
-  void Swap4LE(unsigned long *i) {Swap4LE((char *)i);};
+  static void Swap4LE(char *c);
+  static void Swap4LE(float *p) { vtkByteSwap::Swap4LE((char *)p);};
+  static void Swap4LE(int *i)   { vtkByteSwap::Swap4LE((char *)i);};
+  static void Swap4LE(unsigned long *i) { Swap4LE((char *)i);};
 
-  void Swap4LERange(char *c,int num);
-  void Swap4LERange(float *p,int num) {Swap4LERange((char *)p,num);};
-  void Swap4LERange(int *i,int num) {Swap4LERange((char *)i,num);};
-  void Swap4LERange(unsigned long *i,int num) {Swap4LERange((char *)i,num);};
+  static void Swap4LERange(char *c,int num);
+  static void Swap4LERange(float *p,int num) 
+  { vtkByteSwap::Swap4LERange((char *)p,num);};
+  static void Swap4LERange(int *i,int num) 
+  { vtkByteSwap::Swap4LERange((char *)i,num);};
+  static void Swap4LERange(unsigned long *i,int num) 
+  { vtkByteSwap::Swap4LERange((char *)i,num);};
 
-  void Swap4BE(char *c);
-  void Swap4BE(float *p) {Swap4BE((char *)p);};
-  void Swap4BE(int *i) {Swap4BE((char *)i);};
-  void Swap4BE(unsigned long *i) {Swap4BE((char *)i);};
+  static void Swap4BE(char *c);
+  static void Swap4BE(float *p) { vtkByteSwap::Swap4BE((char *)p);};
+  static void Swap4BE(int *i)   { vtkByteSwap::Swap4BE((char *)i);};
+  static void Swap4BE(unsigned long *i) { vtkByteSwap::Swap4BE((char *)i);};
 
-  void Swap4BERange(char *c,int num);
-  void Swap4BERange(float *p,int num) {Swap4BERange((char *)p,num);};
-  void Swap4BERange(int *i,int num) {Swap4BERange((char *)i,num);};
-  void Swap4BERange(unsigned long *i,int num) {Swap4BERange((char *)i,num);};
+  static void Swap4BERange(char *c,int num);
+  static void Swap4BERange(float *p,int num) 
+  { vtkByteSwap::Swap4BERange((char *)p,num); };
+  static void Swap4BERange(int *i,int num) 
+  { vtkByteSwap::Swap4BERange((char *)i,num); };
+  static void Swap4BERange(unsigned long *i,int num) 
+  { vtkByteSwap::Swap4BERange((char *)i,num); };
 
-  void SwapWrite4BERange(char *c,int num,FILE *fp);
-  void SwapWrite4BERange(float *p,int num, FILE *fp) 
-  {SwapWrite4BERange((char *)p,num,fp);};
-  void SwapWrite4BERange(int *i,int num,FILE *fp) 
-  {SwapWrite4BERange((char *)i,num,fp);};
-  void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
-  {SwapWrite4BERange((char *)i,num,fp);};
+  static void SwapWrite4BERange(char *c,int num,FILE *fp);
+  static void SwapWrite4BERange(float *p,int num, FILE *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)p,num,fp);};
+  static void SwapWrite4BERange(int *i,int num,FILE *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+  static void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
-  void Swap2BERange(char *c,int num);
-  void Swap2LERange(char *c,int num);
-  void Swap2BERange(short *i,int num) {Swap2BERange((char *)i,num);};
-  void Swap2LERange(short *i,int num) {Swap2LERange((char *)i,num);};
+  static void Swap2BERange(char *c,int num);
+  static void Swap2LERange(char *c,int num);
+  static void Swap2BERange(short *i,int num) 
+  { vtkByteSwap::Swap2BERange((char *)i,num);};
+  static void Swap2LERange(short *i,int num) 
+  { vtkByteSwap::Swap2LERange((char *)i,num);};
 
-  void SwapWrite2BERange(char *c,int num,FILE *fp);
-  void SwapWrite2BERange(short *i,int num, FILE *fp) 
-  {SwapWrite2BERange((char *)i,num,fp);};
+  static void SwapWrite2BERange(char *c,int num,FILE *fp);
+  static void SwapWrite2BERange(short *i,int num, FILE *fp) 
+  {vtkByteSwap::SwapWrite2BERange((char *)i,num,fp);};
 };
 
 #endif
