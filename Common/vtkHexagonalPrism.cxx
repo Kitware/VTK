@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.6");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.7");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -223,7 +223,7 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 //
 // Compute iso-parametrix interpolation functions
 //
-void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[8])
+void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[12])
 {
   double r, s, t;
   r = pcoords[0];
@@ -231,60 +231,77 @@ void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[8])
   t = pcoords[2];
 
   //First hexagon
-  sf[0]  = -64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
-  sf[1]  =  64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
-  sf[2]  = 4.*r                         *(s - 0.0)*(s - 1.0)*(t - 1.0);
-  sf[3]  =  64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 1.0);
-  sf[4]  = -64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 1.0);
-  sf[5]  = -4.*(r - 1.)                 *(s - 0.0)*(s - 1.0)*(t - 1.0);
+  sf[0]  = -4.*(r - 1.0)*(r - 0.5)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[1]  =  8.*(r - 0.0)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[2]  =  8.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 1.0)*(t - 1.0);
+  sf[3]  = -4.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 0.5)*(t - 1.0);
+  sf[4]  =  8.*(r - 0.0)*(r - 1.0)*(s - 0.0)*(s - 0.5)*(t - 1.0);
+  sf[5]  =  8.*(r - 1.0)*(r - 0.5)*(s - 0.0)*(s - 1.0)*(t - 1.0);
 
   //Second hexagon
-  sf[6]  =  64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
-  sf[7]  = -64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
-  sf[8]  = -4*r                         *(s - 0.0)*(s - 1.0)*(t - 0.0);
-  sf[9]  = -64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 0.0);
-  sf[10] =  64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 0.0)*(t - 0.0);
-  sf[11] =  4*(r - 1.0)                 *(s - 0.0)*(s - 1.0)*(t - 0.0);
+  sf[6]  =  4.*(r - 1.0)*(r - 0.5)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[7]  = -8.*(r - 0.0)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[8]  = -8.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 1.0)*(t - 0.0);
+  sf[9]  =  4.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 0.5)*(t - 0.0);
+  sf[10] = -8.*(r - 0.0)*(r - 1.0)*(s - 0.0)*(s - 0.5)*(t - 0.0);
+  sf[11] = -8.*(r - 1.0)*(r - 0.5)*(s - 0.0)*(s - 1.0)*(t - 0.0);
 }
 
 //----------------------------------------------------------------------------
-void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[24])
+void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36])
 {
-  double rm, sm, tm;
-
-  rm = 1. - pcoords[0];
-  sm = 1. - pcoords[1];
-  tm = 1. - pcoords[2];
+  double r, s, t;
+  r = pcoords[0];
+  s = pcoords[1];
+  t = pcoords[2];
 
   // r-derivatives
-  derivs[0] = -sm*tm;
-  derivs[1] = sm*tm;
-  derivs[2] = pcoords[1]*tm;
-  derivs[3] = -pcoords[1]*tm;
-  derivs[4] = -sm*pcoords[2];
-  derivs[5] = sm*pcoords[2];
-  derivs[6] = pcoords[1]*pcoords[2];
-  derivs[7] = -pcoords[1]*pcoords[2];
+  //First hexagon
+  derivs[0]  = -8.*(r - 0.75)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  derivs[1]  = 16.*(r - 0.5 )*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  derivs[2]  = 16.*(r - 0.25)*(s - 0.0)*(s - 1.0)*(t - 1.0);
+  derivs[3]  = -8.*(r - 0.25)*(s - 0.0)*(s - 0.5)*(t - 1.0);
+  derivs[4]  = 16.*(r - 0.5 )*(s - 0.0)*(s - 0.5)*(t - 1.0);
+  derivs[5]  = 16.*(r - 0.75)*(s - 0.0)*(s - 1.0)*(t - 1.0);
+  //Second hexagon
+  derivs[6]  =   8.*(r - 0.75)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  derivs[7]  = -16.*(r - 0.5 )*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  derivs[8]  = -16.*(r - 0.25)*(s - 0.0)*(s - 1.0)*(t - 0.0);
+  derivs[9]  =   8.*(r - 0.25)*(s - 0.0)*(s - 0.5)*(t - 0.0);
+  derivs[10] = -16.*(r - 0.5 )*(s - 0.0)*(s - 0.5)*(t - 0.0);
+  derivs[11] = -16.*(r - 0.75)*(s - 0.0)*(s - 1.0)*(t - 0.0);
 
   // s-derivatives
-  derivs[8] = -rm*tm;
-  derivs[9] = -pcoords[0]*tm;
-  derivs[10] = pcoords[0]*tm;
-  derivs[11] = rm*tm;
-  derivs[12] = -rm*pcoords[2];
-  derivs[13] = -pcoords[0]*pcoords[2];
-  derivs[14] = pcoords[0]*pcoords[2];
-  derivs[15] = rm*pcoords[2];
+  //First hexagon
+  derivs[12] = -8.*(r - 1.0)*(r - 0.5)*(s - 0.75)*(t - 1.0);
+  derivs[13] = 16.*(r - 0.0)*(r - 1.0)*(s - 0.75)*(t - 1.0);
+  derivs[14] = 16.*(r - 0.0)*(r - 0.5)*(s - 0.5 )*(t - 1.0);
+  derivs[15] = -8.*(r - 0.0)*(r - 0.5)*(s - 0.25)*(t - 1.0);
+  derivs[16] = 16.*(r - 0.0)*(r - 1.0)*(s - 0.25)*(t - 1.0);
+  derivs[17] = 16.*(r - 1.0)*(r - 0.5)*(s - 0.5 )*(t - 1.0);
+  //Second hexagon
+  derivs[18] =   8.*(r - 1.0)*(r - 0.5)*(s - 0.75)*(t - 0.0);
+  derivs[19] = -16.*(r - 0.0)*(r - 1.0)*(s - 0.75)*(t - 0.0);
+  derivs[20] = -16.*(r - 0.0)*(r - 0.5)*(s - 0.5 )*(t - 0.0);
+  derivs[21] =   8.*(r - 0.0)*(r - 0.5)*(s - 0.25)*(t - 0.0);
+  derivs[22] = -16.*(r - 0.0)*(r - 1.0)*(s - 0.25)*(t - 0.0);
+  derivs[23] = -16.*(r - 1.0)*(r - 0.5)*(s - 0.5 )*(t - 0.0);
 
   // t-derivatives
-  derivs[16] = -rm*sm;
-  derivs[17] = -pcoords[0]*sm;
-  derivs[18] = -pcoords[0]*pcoords[1];
-  derivs[19] = -rm*pcoords[1];
-  derivs[20] = rm*sm;
-  derivs[21] = pcoords[0]*sm;
-  derivs[22] = pcoords[0]*pcoords[1];
-  derivs[23] = rm*pcoords[1];
+  //First hexagon
+  derivs[24] = -4.*(r - 1.0)*(r - 0.5)*(s - 0.5)*(s - 1.0);
+  derivs[25] =  8.*(r - 0.0)*(r - 1.0)*(s - 0.5)*(s - 1.0);
+  derivs[26] =  8.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 1.0);
+  derivs[27] = -4.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 0.5);
+  derivs[28] =  8.*(r - 0.0)*(r - 1.0)*(s - 0.0)*(s - 0.5);
+  derivs[29] =  8.*(r - 1.0)*(r - 0.5)*(s - 0.0)*(s - 1.0);
+  //Second hexagon
+  derivs[30] =  4.*(r - 1.0)*(r - 0.5)*(s - 0.5)*(s - 1.0);
+  derivs[31] = -8.*(r - 0.0)*(r - 1.0)*(s - 0.5)*(s - 1.0);
+  derivs[32] = -8.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 1.0);
+  derivs[33] =  4.*(r - 0.0)*(r - 0.5)*(s - 0.0)*(s - 0.5);
+  derivs[34] = -8.*(r - 0.0)*(r - 1.0)*(s - 0.0)*(s - 0.5);
+  derivs[35] = -8.*(r - 1.0)*(r - 0.5)*(s - 0.0)*(s - 1.0);
 }
 
 static int InternalWedges[3][8] = {{0,1,2,12,6,7,8,13},
@@ -790,12 +807,12 @@ void vtkHexagonalPrism::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
-static double vtkHexagonalPrismCellPCoords[36] = {0.25,0.0,0.0, 0.75,0.0,0.0,
-                                                  1.0 ,0.5,0.0, 0.75,1.0,0.0,
-                                                  0.25,1.0,0.0, 0.0 ,0.5,0.0,
-                                                  0.25,0.0,1.0, 0.75,0.0,1.0,
-                                                  1.0 ,0.5,1.0, 0.75,1.0,1.0,
-                                                  0.25,1.0,1.0, 0.0 ,0.5,1.0};
+static double vtkHexagonalPrismCellPCoords[36] = {0.0,0.0,0.0, 0.5,0.0,0.0,
+                                                  1.0,0.5,0.0, 1.0,1.0,0.0,
+                                                  0.5,1.0,0.0, 0.0,0.5,0.0,
+                                                  0.0,0.0,1.0, 0.5,0.0,1.0,
+                                                  1.0,0.5,1.0, 1.0,1.0,1.0,
+                                                  0.5,1.0,1.0, 0.0,0.5,1.0};
 
 //----------------------------------------------------------------------------
 double *vtkHexagonalPrism::GetParametricCoords()
