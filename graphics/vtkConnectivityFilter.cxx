@@ -185,7 +185,7 @@ void vtkConnectivityFilter::Execute()
 
   vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
   vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
-                << " times\n");
+                 << " times");
 
   RecursionSeeds->Delete();
 //
@@ -279,6 +279,7 @@ void vtkConnectivityFilter::Execute()
 
   delete [] Visited;
   delete [] PointMap;
+  output->Squeeze();
 
   vtkDebugMacro (<<"Extracted " << output->GetNumberOfCells() << " cells");
 

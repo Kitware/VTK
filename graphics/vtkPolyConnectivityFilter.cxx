@@ -198,7 +198,7 @@ void vtkPolyConnectivityFilter::Execute()
 
   vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
   vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
-                << " times\n");
+                 << " times");
 
   RecursionSeeds->Delete();
 //
@@ -319,6 +319,7 @@ void vtkPolyConnectivityFilter::Execute()
   delete [] Visited;
   delete [] PointMap;
   Mesh->Delete();
+  output->Squeeze();
 
   vtkDebugMacro (<<"Extracted " << output->GetNumberOfCells() << " cells");
 
@@ -391,11 +392,6 @@ void vtkPolyConnectivityFilter::TraverseAndMark (int cellId)
           }
         }
       }
-
-    for (k=0; k < ncells; k++)
-      if ( Visited[cells[k]] < 0 )
-         TraverseAndMark (cells[k]);
-
     } // for all cells of this element
 
   RecursionDepth--;
