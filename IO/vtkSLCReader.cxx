@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.38");
+vtkCxxRevisionMacro(vtkSLCReader, "1.39");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -331,8 +331,8 @@ int vtkSLCReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  return 1;
   fclose(fp);
+  return 1;
 }
 
 
