@@ -661,7 +661,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
   if (strcmp("vtkObject",data->ClassName) != 0)
     {
-    // Block inclusion of full streams.
+    /* Block inclusion of full streams.  */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
