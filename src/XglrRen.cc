@@ -152,6 +152,11 @@ void vlXglrRenderer::Render(void)
 {
   vlXglrRenderWindow *temp;
 
+  if (this->StartRenderMethod) 
+    {
+    (*this->StartRenderMethod)(this->StartRenderMethodArg);
+    }
+
   // update our Context first
   temp = (vlXglrRenderWindow *)this->GetRenderWindow();
   this->Context = *(temp->GetContext());
@@ -163,6 +168,11 @@ void vlXglrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vlRenderer *)this);
+    }
+
+  if (this->EndRenderMethod) 
+    {
+    (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
 
