@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.5");
+vtkCxxRevisionMacro(vtkKdNode, "1.6");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -916,13 +916,13 @@ void vtkKdNode::PrintVerboseNode(int depth)
   if (this->ID == -1)
     {
     printf("%s %d cells, id range %d - %d, cut next along %d, left %p, right %p, up %p\n",
-      vtkKdNode::LevelMarker[depth],                                                              this->NumberOfPoints, this->MinID, this->MaxID, this->Dim, this->Left, this->Right, this->Up);
+      vtkKdNode::LevelMarker[depth],                                                              this->NumberOfPoints, this->MinID, this->MaxID, this->Dim, (void*)this->Left, (void*)this->Right, (void*)this->Up);
     }
   else
     {
     printf("%s %d cells, id %d, cut next along %d, left %p, right %p, up %p\n",
       vtkKdNode::LevelMarker[depth],
-      this->NumberOfPoints, this->ID, this->Dim, this->Left, this->Right, this->Up);
+      this->NumberOfPoints, this->ID, this->Dim, (void*)this->Left, (void*)this->Right, (void*)this->Up);
     }
   printf("%s dim: %d\n\n",vtkKdNode::LevelMarker[depth],this->Dim);
 }
