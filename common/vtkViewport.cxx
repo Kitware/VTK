@@ -394,28 +394,22 @@ void vtkViewport::DisplayToLocalDisplay(float &vtkNotUsed(u), float &v)
 
 void vtkViewport::DisplayToNormalizedDisplay(float &u, float &v)
 {
-  int *size;
+  int *size, lowerLeft[2], upperRight[2];
   
   /* get physical window dimensions */
   size = this->VTKWindow->GetSize();
+
+  // determine the inclusive bounds of the viewport
+  // then find the corresponding pixel 
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
+  upperRight[0]--;
+  upperRight[1]--;
   
-  if (size[0] > 1)
-    {
-    u = u / (size[0] - 1);
-    }
-  else 
-    {
-    u = 0.0;
-    }
-  
-  if (size[1] > 1)
-    {
-    v = v / (size[1] - 1);
-    }
-  else
-    {
-    v = 0.0;
-    }
+  u = (u - lowerLeft[0])*(this->Viewport[2] - this->Viewport[0])/(upperRight[0] - lowerLeft[0]) + this->Viewport[0];
+  v = (v - lowerLeft[1])*(this->Viewport[3] - this->Viewport[1])/(upperRight[1] - lowerLeft[1]) + this->Viewport[1];
 }
 
 void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
