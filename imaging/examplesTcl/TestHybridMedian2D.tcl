@@ -6,7 +6,7 @@ source vtkImageInclude.tcl
 
 vtkImageCanvasSource2D canvas
 canvas SetScalarType $VTK_FLOAT
-canvas SetExtent 0 255 0 255
+canvas SetExtent 0 255 0 255 0 0
 # back ground zero
 canvas SetDrawColor 0
 canvas FillBox 0 255 0 255
@@ -38,7 +38,7 @@ canvas DrawSegment 80 130 130 80
 
 set shotNoiseAmplitude 255.0
 set shotNoiseFraction 0.1
-set shotNoiseExtent "0 255 0 255 0 0 0 0"
+set shotNoiseExtent "0 255 0 255 0 0"
 
 vtkImageNoiseSource shotNoiseSource
 eval shotNoiseSource SetWholeExtent $shotNoiseExtent
