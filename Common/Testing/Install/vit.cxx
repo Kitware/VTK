@@ -1,7 +1,9 @@
-#include "vtkObject.h"
+#include "vtkArrowSource.h"
+#include "vtkDoubleArray.h"
 
 int main()
 {
-  vtkObject::New()->Delete();
+  vtkArrowSource::New()->Delete();
+  vtkDoubleArray::New()->Delete();
   return 0;
 }
