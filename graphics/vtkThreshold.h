@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkThreshold - extracts cells where scalar value of every point in cell satisfies threshold criterion
+// .NAME vtkThreshold - extracts cells where scalar value in cell satisfies threshold criterion
 // .SECTION Description
 // vtkThreshold is a filter that extracts cells from any dataset type that
 // satisfy a threshold criterion. A cell satisfies the criterion if the
@@ -46,6 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // criterion can take three forms: 1) greater than a particular value; 2)
 // less than a particular value; or 3) between two values. The output of this
 // filter is an unstructured grid.
+//
+// Note that scalar values are available from the point and cell attribute data.
+// By default, point data is used to obtain scalars, but you can control this
+// behavior. See the AttributeMode ivar below.
 // .SECTION See Also
 // vtkThresholdPoints vtkThresholdTextureCoords
 
@@ -53,6 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkThreshold_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
+
+#define VTK_ATTRIBUTE_MODE_DEFAULT 0
+#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
+#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
 class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
@@ -70,8 +78,26 @@ public:
   vtkGetMacro(LowerThreshold,float);
 
   // Description:
-  // The test must be satisfied for all scalars of the cell
-  // or just one.
+  // Control how the filter works with scalar point data and cell attribute data.
+  // By default (AttributeModeToDefault), the filter will use point data, and 
+  // if no point data is available, then cell data is used. Alternatively you
+  // can explicitly set the filter to use point data (AttributeModeToUsePointData)
+  // or cell data (AttributeModeToUseCellData).
+  vtkSetMacro(AttributeMode,int);
+  vtkGetMacro(AttributeMode,int);
+  void SetAttributeModeToDefault() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+  void SetAttributeModeToUsePointData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
+  void SetAttributeModeToUseCellData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+  char *GetAttributeModeAsString();
+
+  // Description:
+  // If using scalars from point data, all scalars for all points in a cell 
+  // must satisfy the threshold criterion if AllScalars is set. Otherwise, 
+  // just a single scalar value satisfying the threshold criterion enables
+  // will extract the cell.
   vtkSetMacro(AllScalars,int);
   vtkGetMacro(AllScalars,int);
   vtkBooleanMacro(AllScalars,int);
@@ -83,6 +109,7 @@ protected:
   int   AllScalars;
   float LowerThreshold;
   float UpperThreshold;
+  int   AttributeMode;
 
   //BTX
   int (vtkThreshold::*ThresholdFunction)(float s);

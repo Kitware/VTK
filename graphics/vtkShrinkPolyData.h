@@ -45,6 +45,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The centroid of a cell is computed as the average position of the
 // cell points. Shrinking results in disconnecting the cells from
 // one another. The output dataset type of this filter is polygonal data.
+//
+// During execution the filter passes its input cell data to its
+// output. Point data attributes are copied to the points created during the
+// shrinking process.
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.

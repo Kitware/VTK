@@ -220,7 +220,7 @@ void vtkGeometryFilter::Execute()
               outputPD->CopyData(pd,ptId,pt);
               }
             else if (!this->Merging)
-	      {
+              {
               pt = newPts->InsertNextPoint(x);
               outputPD->CopyData(pd,ptId,pt);
               }
@@ -251,14 +251,14 @@ void vtkGeometryFilter::Execute()
                   outputPD->CopyData(pd,ptId,pt);
                   }
                 else if (!this->Merging)
-	          {
+                  {
                   pt = newPts->InsertNextPoint(x);
                   outputPD->CopyData(pd,ptId,pt);
                   }
                 pts->InsertId(i,pt);
                 }
               newCellId = output->InsertNextCell(face->GetCellType(), *pts);
-	      outputCD->CopyData(cd,cellId,newCellId);
+              outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           cellCopy->Delete();

@@ -89,39 +89,68 @@ void vtkThreshold::ThresholdBetween(float lower, float upper)
   
 void vtkThreshold::Execute()
 {
-  int cellId;
+  int cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
-  vtkScalars *inScalars;
   vtkCell *cell;
   vtkPoints *newPoints;
-  vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
   vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output= this->GetOutput();
-  int keepCell;
+  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+  vtkScalars *pointScalars=pd->GetScalars(), *cellScalars=cd->GetScalars();
+  int keepCell, usePointScalars;
   
   vtkDebugMacro(<< "Executing threshold filter");
 
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  outPD = output->GetPointData();
+  outPD->CopyAllocate(pd);
+  outCD = output->GetCellData();
+  outCD->CopyAllocate(pd);
+
+  if ( !(pointScalars || cellScalars) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
     return;
     }
      
   numPts = input->GetNumberOfPoints();
-
   output->Allocate(input->GetNumberOfCells());
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
-  outPD->CopyAllocate(pd);
 
   pointMap = vtkIdList::New(); //maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
+
+  // Determine which scalar data to use for thresholding
+  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
+    {
+    if ( pointScalars != NULL) usePointScalars = 1;
+    else usePointScalars = 0;
+    }
+  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+    {
+    usePointScalars = 1;
+    }
+  else
+    {
+    usePointScalars = 0;
+    }
+
+  // Check on scalar consistency
+  if ( usePointScalars && !pointScalars )
+    {
+    vtkErrorMacro(<<"Can't use point scalars because there are none");
+    return;
+    }
+  else if ( !usePointScalars && !cellScalars )
+    {
+    vtkErrorMacro(<<"Can't use cell scalars because there are none");
+    return;
+    }
 
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
@@ -130,25 +159,32 @@ void vtkThreshold::Execute()
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
     
-    if (this->AllScalars)
+    if ( usePointScalars )
       {
-      keepCell = 1;
-      for ( i=0; keepCell && (i < numCellPts); i++)
+      if (this->AllScalars)
 	{
-	ptId = cellPts->GetId(i);
-	keepCell = 
-	  (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId));
+	keepCell = 1;
+	for ( i=0; keepCell && (i < numCellPts); i++)
+	  {
+	  ptId = cellPts->GetId(i);
+	  keepCell = 
+	    (this->*(this->ThresholdFunction))(pointScalars->GetScalar(ptId));
+	  }
+	}
+      else
+	{
+	keepCell = 0;
+	for ( i=0; (!keepCell) && (i < numCellPts); i++)
+	  {
+	  ptId = cellPts->GetId(i);
+	  keepCell = 
+	    (this->*(this->ThresholdFunction))(pointScalars->GetScalar(ptId));
+	  }
 	}
       }
-    else
+    else //use cell scalars
       {
-      keepCell = 0;
-      for ( i=0; (!keepCell) && (i < numCellPts); i++)
-	{
-	ptId = cellPts->GetId(i);
-	keepCell = 
-	  (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId));
-	}
+      keepCell = (this->*(this->ThresholdFunction))(cellScalars->GetScalar(cellId));
       }
     
     if ( keepCell ) // satisfied thresholding
@@ -165,7 +201,8 @@ void vtkThreshold::Execute()
           }
         newCellPts->InsertId(i,newId);
         }
-      output->InsertNextCell(cell->GetCellType(),*newCellPts);
+      newCellId = output->InsertNextCell(cell->GetCellType(),*newCellPts);
+      outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
       } // satisfied thresholding
     } // for all cells
@@ -183,10 +220,29 @@ void vtkThreshold::Execute()
   output->Squeeze();
 }
 
+// Description:
+// Return the method for manipulating scalar data as a string.
+char *vtkThreshold::GetAttributeModeAsString(void)
+{
+  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
+    {
+    return "Default";
+    }
+  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+    {
+    return "UsePointData";
+    }
+  else 
+    {
+    return "UseCellData";
+    }
+}
+
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
+  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   os << indent << "All Scalars: " << this->AllScalars << "\n";;
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     os << indent << "Threshold By Upper\n";

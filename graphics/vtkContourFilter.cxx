@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ContourF.cc
+  Module:    vtkContourFilter.cxx
   Language:  C++
-  Date:      02/07/94
-  Version:   1.4
+  Date:      $Date$
+  Version:   $Revision$
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -113,7 +113,8 @@ void vtkContourFilter::Execute()
   vtkDataSet *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
   int numCells, estimatedSize;
-  vtkPointData *inPd, *outPd;
+  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
+  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
   vtkScalars cellScalars;
@@ -166,9 +167,8 @@ void vtkContourFilter::Execute()
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // interpolate data along edge
-  inPd = input->GetPointData();
-  outPd = output->GetPointData();
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
+  outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
   // If enabled, build a scalar tree to accelerate search
   //
@@ -183,7 +183,8 @@ void vtkContourFilter::Execute()
       for (i=0; i < numContours; i++)
         {
         cell->Contour(values[i], &cellScalars, this->Locator, 
-                      newVerts, newLines, newPolys, inPd, outPd);
+                      newVerts, newLines, newPolys, inPd, outPd,
+		      inCd, cellId, outCd);
 
         } // for all contour values
       } // for all cells
@@ -202,7 +203,8 @@ void vtkContourFilter::Execute()
       (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
         {
         cell->Contour(values[i], &cellScalars, this->Locator, 
-                      newVerts, newLines, newPolys, inPd, outPd);
+                      newVerts, newLines, newPolys, inPd, outPd,
+		      inCd, cellId, outCd);
 
         } //for all cells
       } //for all contour values

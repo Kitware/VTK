@@ -55,7 +55,7 @@ void vtkEdgePoints::Execute()
   vtkScalars *inScalars;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
-  int cellId, above, below, ptId, i, numEdges, edgeId;
+  int cellId, above, below, ptId, i, numEdges, edgeId, newCellId;
   vtkCell *cell, *edge;
   float range[2];
   float s0, s1, x0[3], x1[3], x[3], t;
@@ -67,7 +67,8 @@ void vtkEdgePoints::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkScalars cellScalars;
   cellScalars.Allocate(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
-  vtkPointData *inPd, *outPd;
+  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
+  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
 
   vtkDebugMacro(<< "Generating edge points");
   //
@@ -98,10 +99,9 @@ void vtkEdgePoints::Execute()
 
   this->Locator.InitPointInsertion (newPts, input->GetBounds());
 
-  // interpolate data along edge
-  inPd = input->GetPointData();
-  outPd = output->GetPointData();
+  // interpolate data along edge; copy cell data
   outPd->InterpolateAllocate(inPd,5000,10000);
+  outCd->CopyAllocate(inCd,5000,10000);
 //
 // Traverse all edges. Since edges are not explicitly represented, use a
 // trick: traverse all cells and obtain cell edges and then cell edge
@@ -127,7 +127,7 @@ void vtkEdgePoints::Execute()
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
         {
         cell->Contour(this->Value, &cellScalars, &this->Locator, newVerts, 
-                      NULL, NULL, inPd, outPd);
+                      NULL, NULL, inPd, outPd, inCd, cellId, outCd);
         }
 
       else //
@@ -143,7 +143,7 @@ void vtkEdgePoints::Execute()
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {
-	    deltaScalar = s1 - s0;
+	    deltaScalar = s1 - s0; //ordering intersection direction avoids numerical problems
 	    if (deltaScalar > 0)
 	      {
 	      e0 = 0; e1 = 1;
@@ -165,8 +165,8 @@ void vtkEdgePoints::Execute()
             if ( (pts[0] = this->Locator.IsInsertedPoint(x)) < 0 )
               {
               pts[0] = this->Locator.InsertNextPoint(x);
-              newVerts->InsertNextCell(1,pts);
-
+              newCellId = newVerts->InsertNextCell(1,pts);
+	      outCd->CopyData(inCd,cellId,newCellId);
               p1 = edge->PointIds.GetId(e0);
               p2 = edge->PointIds.GetId(e1);
               outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);

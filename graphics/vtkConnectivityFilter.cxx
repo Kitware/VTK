@@ -80,17 +80,17 @@ static vtkScalars *InScalars;
 
 void vtkConnectivityFilter::Execute()
 {
-  int cellId, i, j, pt;
+  int cellId, i, j, pt, newCellId;
   int numPts, numCells;
   vtkPoints *newPts;
   vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
-  vtkPointData *pd;
   int id;
   int maxCellsInRegion;
   int largestRegionId = 0;
   vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output = this->GetOutput();
-  vtkPointData *outputPD = output->GetPointData();
+  vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
   
   vtkDebugMacro(<<"Executing connectivity filter.");
   //
@@ -221,9 +221,9 @@ void vtkConnectivityFilter::Execute()
 // everything that has been visited.
 //
   //Pass through point data that has been visited
-  pd = input->GetPointData();
   if ( this->ColorRegions ) outputPD->CopyScalarsOff();
   outputPD->CopyAllocate(pd);
+  outputCD->CopyAllocate(cd);
 
   for (i=0; i < numPts; i++)
     {
@@ -257,7 +257,8 @@ void vtkConnectivityFilter::Execute()
           id = PointMap[ptIds.GetId(i)];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(input->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
     }
@@ -284,7 +285,8 @@ void vtkConnectivityFilter::Execute()
             id = PointMap[ptIds.GetId(i)];
             ptIds.InsertId(i,id);
             }
-          output->InsertNextCell(input->GetCellType(cellId),ptIds);
+          newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
       }
@@ -301,7 +303,8 @@ void vtkConnectivityFilter::Execute()
           id = PointMap[ptIds.GetId(i)];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(input->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
    }

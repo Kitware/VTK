@@ -80,19 +80,19 @@ static vtkPolyData *Mesh;
 
 void vtkPolyDataConnectivityFilter::Execute()
 {
-  int cellId, i, j, pt;
+  int cellId, i, j, pt, newCellId;
   int numPts, numCells;
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
-  vtkPointData *pd;
   int id, npts, *pts, *cells, n;
   unsigned short ncells;
   int maxCellsInRegion;
   int largestRegionId = 0;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  vtkPointData *outputPD = output->GetPointData();
+  vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
   
   vtkDebugMacro(<<"Executing polygon connectivity filter.");
   //
@@ -237,6 +237,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   pd = input->GetPointData();
   if ( this->ColorRegions ) outputPD->CopyScalarsOff();
   outputPD->CopyAllocate(pd);
+  outputCD->CopyAllocate(cd);
 
   for (i=0; i < numPts; i++)
     {
@@ -285,7 +286,6 @@ void vtkPolyDataConnectivityFilter::Execute()
     newStrips->Delete();
     }
   
-
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
   this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
   this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
@@ -301,7 +301,8 @@ void vtkPolyDataConnectivityFilter::Execute()
           id = PointMap[pts[i]];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
     }
@@ -329,7 +330,8 @@ void vtkPolyDataConnectivityFilter::Execute()
             id = PointMap[pts[i]];
             ptIds.InsertId(i,id);
             }
-          output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+          newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
       }
@@ -347,7 +349,8 @@ void vtkPolyDataConnectivityFilter::Execute()
           id = PointMap[pts[i]];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
    }

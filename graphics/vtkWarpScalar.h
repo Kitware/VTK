@@ -53,6 +53,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a scalar value (still scaled by scale factor), and the displacement is
 // along the z-axis. If scalars are also present, these are copied through
 // and can be used to color the surface.
+//
+// Note that the filter passes both its point data and cell data to its output, 
+// except for normals, since these are distorted by the warping.
+
 
 #ifndef __vtkWarpScalar_h
 #define __vtkWarpScalar_h

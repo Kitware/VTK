@@ -10,7 +10,7 @@ vtkQuadric quadric
   quadric SetCoefficients .5 1 .2 0 .1 0 0 .2 0 0
 
 vtkSampleFunction sample
-  sample SetSampleDimensions 20 20 20
+  sample SetSampleDimensions 5 5 5
   sample SetImplicitFunction quadric
   sample ComputeNormalsOff
     

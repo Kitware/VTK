@@ -109,7 +109,7 @@ void vtkClipVolume::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;
-  int cellId, i, j, k, flip, iflip, jflip, kflip;
+  int cellId, i, j, k, flip, iflip, jflip, kflip, newCellId;
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
   vtkScalars cellScalars; 
@@ -122,6 +122,8 @@ void vtkClipVolume::Execute()
   int numPts=input->GetNumberOfPoints();
   int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
+  vtkCellData *clippedCD=clippedOutput->GetCellData();
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
   int above, below;
   vtkIdList tetraIds(20);
@@ -200,6 +202,7 @@ void vtkClipVolume::Execute()
     outPD->CopyScalarsOn();
     }
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
 
   // If generating second output, setup clipped output
   if ( this->GenerateClippedOutput )
@@ -276,14 +279,16 @@ void vtkClipVolume::Execute()
                 outPD->CopyData(inPD,tetraIds.GetId(id+jj),pts[jj]);
                 }
               }
-            outputPtr->InsertNextCell(VTK_TETRA, 4, pts);
+            newCellId = outputPtr->InsertNextCell(VTK_TETRA, 4, pts);
+	    outCD->CopyData(inCD,cellId,newCellId);
             }
           }
         
         else if (above == below ) // clipped voxel, have to triangulate 
           {
           this->ClipVoxel(value, cellScalars, flip, origin, spacing, 
-                          *cellIds, *cellPts, inPD, outPD);
+                          *cellIds, *cellPts, inPD, outPD, inCD, cellId, 
+			  outCD, clippedCD);
           }
           
         }// for i
@@ -333,12 +338,14 @@ void vtkClipVolume::Execute()
 void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars, 
                               int flip, float origin[3], float spacing[3], 
                               vtkIdList& cellIds, vtkPoints& cellPts,
-                              vtkPointData *inPD, vtkPointData *outPD)
+                              vtkPointData *inPD, vtkPointData *outPD,
+                              vtkCellData *inCD, int cellId, 
+			      vtkCellData *outCD, vtkCellData *clippedCD)
 {
   float bounds[6], x[3], *xPtr, s1, s2, t, voxelOrigin[3];
   float length, center[3], p1[3], p2[3];
   int i, j, k, edgeNum, numPts, numTetras, npts, *pts, tPts[4];
-  int numOutTetras, numMergedPts, ptId;
+  int numOutTetras, numMergedPts, ptId, newCellId;
   vtkIdList holeTetras(10), cells(64), mergedPts(12);
   vtkPoints *points;
   vtkUnstructuredGrid *output=this->GetOutput();
@@ -494,8 +501,16 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
           tPts[k] = this->Locator->IsInsertedPoint(xPtr); 
           }
 
-        if ( j >= 4 ) output->InsertNextCell(VTK_TETRA, 4, tPts);
-        else clippedOutput->InsertNextCell(VTK_TETRA, 4, tPts);
+        if ( j >= 4 ) 
+	  {
+	  output->InsertNextCell(VTK_TETRA, 4, tPts);
+	  outCD->CopyData(inCD, cellId, newCellId);
+	  }
+        else 
+	  {
+	  clippedOutput->InsertNextCell(VTK_TETRA, 4, tPts);
+	  clippedCD->CopyData(inCD, cellId, newCellId);
+	  }
         }
 
       }//if tetra is used

@@ -113,6 +113,7 @@ void vtkClipPolyData::Execute()
   vtkPoints *inPts=input->GetPoints();  
   int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
+  vtkCellData *inCD=input->GetCellData(), *outCD = output->GetCellData();
   
   vtkDebugMacro(<< "Clipping polygonal data");
   
@@ -155,14 +156,14 @@ void vtkClipPolyData::Execute()
   if ( this->ClipFunction )
     {
     vtkScalars *tmpScalars = vtkScalars::New();
-    tmpScalars->Allocate(numPts);
+    tmpScalars->SetNumberOfScalars(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(inPts->GetPoint(i));
-      tmpScalars->InsertScalar(i,s);
+      tmpScalars->SetScalar(i,s);
       }
     clipScalars = (vtkScalars *)tmpScalars;
     }
@@ -185,6 +186,7 @@ void vtkClipPolyData::Execute()
     outPD->CopyScalarsOn();
     }
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
 
   // If generating second output, setup clipped output
   if ( this->GenerateClippedOutput )
@@ -235,12 +237,12 @@ void vtkClipPolyData::Execute()
       } //switch
 
     cell->Clip(this->Value, &cellScalars, this->Locator, connList,
-               inPD, outPD, this->InsideOut);
+               inPD, outPD, inCD, cellId, outCD, this->InsideOut);
 
     if ( this->GenerateClippedOutput )
       {
       cell->Clip(this->Value, &cellScalars, this->Locator, clippedList,
-                 inPD, outPD, !this->InsideOut);
+                 inPD, outPD, inCD, cellId, outCD, !this->InsideOut);
       }
 
     } //for each cell

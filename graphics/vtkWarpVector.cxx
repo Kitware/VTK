@@ -84,6 +84,7 @@ void vtkWarpVector::Execute()
 //
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   output->SetPoints(newPts);
   newPts->Delete();

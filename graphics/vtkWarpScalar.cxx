@@ -133,6 +133,8 @@ void vtkWarpScalar::Execute()
 //
   output->GetPointData()->CopyNormalsOff(); // distorted geometry 
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->CopyNormalsOff(); // distorted geometry 
+  output->GetCellData()->PassData(input->GetCellData());
 
   output->SetPoints(newPts);
   newPts->Delete();

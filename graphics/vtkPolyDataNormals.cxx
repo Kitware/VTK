@@ -160,9 +160,11 @@ void vtkPolyDataNormals::Execute()
 //  is a recursive neighbor search.  Note: have to truncate recursion
 //  and keep track of seeds to start up again.
 //
+  NumExceededMaxDepth = 0;
+  NumFlips = 0;
+  
   if ( this->Consistency ) 
     {    
-    NumFlips = 0;
     Seeds = vtkIdList::New();
     Seeds->Allocate(1000,1000);
 
@@ -339,14 +341,14 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
   vtkIdList cellIds(5,10);
   int numNeiPts, *neiPts, neighbor;
 
-  Visited[cellId] = Mark; //means that it's been ordered properly
-
   if ( RecursionDepth++ > this->MaxRecursionDepth ) 
     {
     Seeds->InsertNextId(cellId);
     NumExceededMaxDepth++;
     return;
     }
+
+  Visited[cellId] = Mark; //means that it's been ordered properly
 
   NewMesh->GetCellPoints(cellId, npts, pts);
 

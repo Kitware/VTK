@@ -2,8 +2,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPolyData.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkScalars.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -26,7 +27,7 @@ main ()
   vtkPolyData *cube = vtkPolyData::New();
   vtkPoints *points = vtkPoints::New();
   vtkCellArray *polys = vtkCellArray::New();
-  vtkScalars *scalars = vtkScalars::New();
+  vtkScalars *scalars = vtkScalars::New(VTK_INT);
 
   for (i=0; i<8; i++) points->InsertPoint(i,x[i]);
   for (i=0; i<6; i++) polys->InsertNextCell(4,pts[i]);
