@@ -44,8 +44,10 @@ main ()
   //
   vtkPolyData *input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
-  vtkFloatPoints *newPts = new vtkFloatPoints(numPts);
-  vtkFloatScalars *derivs = new vtkFloatScalars(numPts);
+  vtkFloatPoints *newPts = vtkFloatPoints::New();
+    newPts->SetNumberOfPoints(numPts);
+  vtkFloatScalars *derivs = vtkFloatScalars::New();
+    derivs->SetNumberOfScalars(numPts);
   vtkPolyData *bessel = vtkPolyData::New();
     bessel->CopyStructure(input);
     bessel->SetPoints(newPts);
