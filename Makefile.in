@@ -36,26 +36,26 @@ build_common: targets build_wrap
 	cd common;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd common;     ${MAKE} -${MAKEFLAGS} all
 
-build_graphics: targets build_wrap
+build_graphics: build_common
 	cd graphics;   ${MAKE} -${MAKEFLAGS} targets.make
 	cd graphics;   ${MAKE} -${MAKEFLAGS} all
 
-build_imaging: targets build_wrap
+build_imaging: build_common
 	cd imaging;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
 
-build_patented: targets build_wrap
+build_patented: build_graphics
 	cd patented;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd patented;    ${MAKE} -${MAKEFLAGS} all
 
 build_wrap: targets
 	cd wrap;        ${MAKE} -${MAKEFLAGS} all
 
-build_contrib: targets build_wrap
+build_contrib: build_graphics build_imaging
 	cd contrib;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd contrib;     ${MAKE} -${MAKEFLAGS} all
 
-build_local: targets build_wrap
+build_local: build_graphics build_imaging
 	cd local;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd local;     ${MAKE} -${MAKEFLAGS} all
 
