@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSTLWriter::vtkSTLWriter()
 {
   this->Filename = NULL;
-  this->WriteMode = STL_ASCII;
+  this->WriteMode = VTK_STL_ASCII;
 }
 
 vtkSTLWriter::~vtkSTLWriter()
