@@ -80,6 +80,7 @@ vtkImageLuminance \
 vtkImageMagnify \
 vtkImageMagnitude \
 vtkImageMapper \
+vtkImageMapToRGBA \
 vtkImageMask \
 vtkImageMaskBits \
 vtkImageMathematics \
