@@ -161,6 +161,7 @@ vtkPLOT3DReader \
 vtkPNMReader \
 vtkPNMWriter \
 vtkPicker \
+vtkPiecewiseFunction \
 vtkPlaneSource \
 vtkPlanes \
 vtkPointLoad \
