@@ -112,10 +112,12 @@ public:
   vtkSetMacro(MapColorScalarsThroughLookupTable,int);
   vtkBooleanMacro(MapColorScalarsThroughLookupTable,int);
 
+//BTX
   // Description:
   // This process object accepts image data as input.
   vtkImageData *GetInput();
-  
+//ETX
+
   // Description:
   // Specify the lookup table to convert scalars if necessary
   void SetLookupTable(vtkLookupTable *);

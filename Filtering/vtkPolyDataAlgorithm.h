@@ -61,7 +61,7 @@ public:
 
   // this method is not recommended for use, but lots of old style filters
   // use it
-  virtual vtkDataObject *GetInput(int port);
+  vtkDataObject *GetInput(int port);
   vtkPolyData *GetPolyDataInput(int port);
 
   // Description:

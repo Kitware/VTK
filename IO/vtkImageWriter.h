@@ -58,9 +58,11 @@ public:
   vtkSetMacro(FileDimensionality, int);
   vtkGetMacro(FileDimensionality, int);
   
+//BTX
   // Description:
   // Set/Get the input object from the image pipeline.
   vtkImageData *GetInput();
+//ETX
 
   // Description:
   // The main interface which triggers the writer to start.

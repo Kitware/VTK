@@ -64,7 +64,9 @@ public:
 
   // Description:
   // Get any input of this filter.
+//BTX
   vtkPolyData *GetInput(int idx);
+//ETX
   vtkPolyData *GetInput() { return this->GetInput( 0 ); };
 
   // Description:

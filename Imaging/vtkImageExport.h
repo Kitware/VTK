@@ -72,9 +72,11 @@ public:
   double *GetDataOrigin();
   void GetDataOrigin(double *ptr);
 
+//BTX
   // Description:
   // Get the input object from the image pipeline.
   vtkImageData *GetInput();
+//ETX
 
   // Description:
   // Set/Get whether the data goes to the exported memory starting 
