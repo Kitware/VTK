@@ -52,6 +52,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Windows specific stuff------------------------------------------
 #if defined(_WIN32) || defined(WIN32)
+
+#ifdef VTK_USE_ANSI_STDLIB
+#define NOMINMAX
+#endif
+
 #include <windows.h>
 
 // Handle compiler warning messages, etc.
