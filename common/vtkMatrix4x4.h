@@ -93,6 +93,14 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 //ETX  
 
   // Description:
+  // Set equal to Identity matrix
+  void Identity();
+//BTX
+  static void Identity(double Elements[16]);
+//ETX  
+
+
+  // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
   // Academic Press, 1990).
   void Invert(vtkMatrix4x4 *in,vtkMatrix4x4 *out);

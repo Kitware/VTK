@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkMatrix4x4* vtkMatrix4x4::New()
 {
@@ -69,33 +68,21 @@ typedef double (*SqMatPtr)[4];
 // Construct a 4x4 identity matrix.
 vtkMatrix4x4::vtkMatrix4x4 ()
 {
-  int i,j;
-
-  for (i = 0; i < 4; i++) 
-    {
-    for (j = 0; j < 4; j++)
-      {
-      this->Element[i][j] = 0.0;
-      }
-    }
-  this->Element[0][0] = 
-    this->Element[1][1] =
-    this->Element[2][2] =
-    this->Element[3][3] = 1.0;
+  vtkMatrix4x4::Identity(&this->Element[0][0]);
 }
 
 // Construct a 4x4 matrix with the values which are contained in the
 // argument m.
 vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
 {
-  int i,j;
-
-  for (i = 0; i < 4; i++) 
+  int i;
+  
+  for (i = 0; i < 4; i++)
     {
-    for (j = 0; j < 4; j++)
-      {
-      this->Element[i][j] = m.Element[i][j];
-      }
+    this->Element[i][0] = m.Element[i][0];
+    this->Element[i][1] = m.Element[i][1];
+    this->Element[i][2] = m.Element[i][2];
+    this->Element[i][3] = m.Element[i][3];
     }
 }
 
@@ -118,6 +105,23 @@ void vtkMatrix4x4::Zero(double Elements[16])
       }
     }
 }
+
+
+void vtkMatrix4x4::Identity()
+{
+  vtkMatrix4x4::Identity(&this->Element[0][0]);
+  this->Modified();
+}
+
+
+void vtkMatrix4x4::Identity(double Elements[16])
+{
+  Elements[0] = Elements[5] = Elements[10] = Elements[15] = 1.0;
+  Elements[1] = Elements[2] = Elements[3] = Elements[4] = 
+    Elements[6] = Elements[7] = Elements[8] = Elements[9] = 
+    Elements[11] = Elements[12] = Elements[13] = Elements[14] = 0.0;
+}
+
 
 // Set all the elements of the matrix to the given value.
 void vtkMatrix4x4::operator= (double element)
@@ -432,7 +436,7 @@ void vtkMatrix4x4::DeepCopy(vtkMatrix4x4 *source)
 void vtkMatrix4x4::DeepCopy(double Elements[16], vtkMatrix4x4 *source)
 {
   SqMatPtr elem = (SqMatPtr) Elements;
-  int i, j;
+  int i;
   
   for (i = 0; i < 4; ++i)
     {
