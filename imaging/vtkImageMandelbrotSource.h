@@ -131,9 +131,8 @@ protected:
   double SampleCX[4];
   unsigned short MaximumNumberOfIterations;
 
-  void Execute(vtkImageData *outData);
-  void Execute() {this->vtkImageSource::Execute();};
-  void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *outData);
+  virtual void ExecuteInformation();
   float EvaluateSet(double p[4]);
 };
 

@@ -269,8 +269,9 @@ vtkImageMandelbrotSource::CopyOriginAndSample(vtkImageMandelbrotSource *source)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::Execute(vtkImageData *data)
+void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->GetOutput();
   int *ext, a0, a1, a2;
   float *ptr;
   int min0, max0;
