@@ -90,6 +90,12 @@ void vtkSelectVisiblePoints::Execute()
   float x[4], dx[3], z, diff;
   int selection[4];
 
+  if ( this->Renderer == NULL )
+    {
+    vtkErrorMacro(<<"Renderer must be set");
+    return;
+    }
+
   if ( numPts < 1 )
     {
     return;
