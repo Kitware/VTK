@@ -53,17 +53,16 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->Consistency = 1;
   this->FlipNormals = 0;
   this->NonManifoldTraversal = 1;
-  this->MaxRecursionDepth = 10000;
+  this->MaxRecursionDepth = 1000;
+  // some internal data
+  this->NumFlips = 0;
+  this->Mark = 0;
 }
 
-static  int NumFlips=0, NumExceededMaxDepth=0;
-static  int *Visited;
-static  vtkPolyData *OldMesh, *NewMesh;
-static  int RecursionDepth;
-static  int Mark;    
-static  vtkNormals *PolyNormals;
-static	float	CosAngle;
-static  vtkIdList *Seeds, *Map;
+#define VTK_CELL_NOT_VISITED     0
+#define VTK_CELL_VISITED         1
+#define VTK_CELL_NEEDS_VISITING  2
+
 
 // Generate normals for polygon meshes
 
@@ -85,9 +84,15 @@ void vtkPolyDataNormals::Execute()
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
-  vtkIdList *cellIds;
+  vtkIdList *cellIds, *edgeNeighbors;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
+  int noCellsNeedVisiting;
+  int *Visited;
+  vtkPolyData *OldMesh, *NewMesh;
+  vtkNormals *PolyNormals;
+  float	CosAngle;
+  vtkIdList *Map;
 
   vtkDebugMacro(<<"Generating surface normals");
 
@@ -108,6 +113,8 @@ void vtkPolyDataNormals::Execute()
   inStrips = input->GetStrips();
   poly = vtkPolygon::New();
   
+  edgeNeighbors = vtkIdList::New();
+
   OldMesh = vtkPolyData::New();
   OldMesh->SetPoints(inPts);
   if ( numStrips > 0 ) //have to decompose strips into triangles
@@ -157,11 +164,8 @@ void vtkPolyDataNormals::Execute()
   if ( this->Consistency || this->Splitting ) 
     {
     Visited = new int[numPolys];
-    for ( i=0; i < numPolys; i++)
-      {
-      Visited[i] = 0;
-      }
-    Mark = 1;
+    memset(Visited, VTK_CELL_NOT_VISITED, numPolys*sizeof(int));
+    this->Mark = 1;
     }
   else
     {
@@ -172,41 +176,44 @@ void vtkPolyDataNormals::Execute()
   //  is a recursive neighbor search.  Note: have to truncate recursion
   //  and keep track of seeds to start up again.
   //
-  NumExceededMaxDepth = 0;
-  NumFlips = 0;
+  this->NumFlips = 0;
   
   if ( this->Consistency ) 
     {    
-    Seeds = vtkIdList::New();
-    Seeds->Allocate(1000,1000);
-
     for (cellId=0; cellId < numPolys; cellId++)
       {
-      if ( ! Visited[cellId] ) 
+      noCellsNeedVisiting = 1;
+      if ( Visited[cellId] == VTK_CELL_NOT_VISITED) 
         {
         if ( this->FlipNormals ) 
           {
-          NumFlips++;
+          this->NumFlips++;
           NewMesh->ReverseCell(cellId);
           }
-        RecursionDepth = 0;
-        this->TraverseAndOrder(cellId);
+        if (this->TraverseAndOrder(cellId, edgeNeighbors, Visited, OldMesh, NewMesh))
+	  {
+	  noCellsNeedVisiting = 0;
+	  }
         }
 
-      for (i=0; i < Seeds->GetNumberOfIds(); i++) 
-        {
-        RecursionDepth = 0;
-        this->TraverseAndOrder (Seeds->GetId(i));
+      while (!noCellsNeedVisiting)
+	{
+	noCellsNeedVisiting = 1;
+        for (i=0; i < numPolys; i++) 
+	  {
+	  if ( Visited[i] == VTK_CELL_NEEDS_VISITING )
+	    {
+	    if (this->TraverseAndOrder(i, edgeNeighbors, Visited, OldMesh, NewMesh))
+	      {
+	      noCellsNeedVisiting = 0;
+	      }
+	    }
+	  }
         }
-
-      Seeds->Reset();
       }
-    vtkDebugMacro(<<"Reversed ordering of " << NumFlips << " polygons");
-    vtkDebugMacro(<<"Exceeded recursion depth " << NumExceededMaxDepth
-                 <<" times");
-
-    Seeds->Delete();
+    vtkDebugMacro(<<"Reversed ordering of " << this->NumFlips << " polygons");
     }
+  this->Mark = VTK_CELL_NEEDS_VISITING + 1;
   this->UpdateProgress(0.333);
   //
   //  Compute polygon normals
@@ -244,21 +251,23 @@ void vtkPolyDataNormals::Execute()
 
     for (ptId=0; ptId < OldMesh->GetNumberOfPoints(); ptId++)
       {
-      Mark++;
+      this->Mark++;
       replacementPoint = ptId;
       OldMesh->GetPointCells(ptId,cellIds);
       for (j=0; j < cellIds->GetNumberOfIds(); j++)
         {
-        if ( Visited[cellIds->GetId(j)] != Mark )
+        if ( Visited[cellIds->GetId(j)] != this->Mark )
 	  {
-          this->MarkAndReplace (cellIds->GetId(j), ptId, replacementPoint);
+          this->MarkAndReplace (cellIds->GetId(j), ptId, replacementPoint,
+				PolyNormals, edgeNeighbors,
+				Visited, Map, OldMesh, NewMesh,
+				CosAngle);
 	  }
 
         replacementPoint = Map->GetNumberOfIds();
         }
       }
 
-    Map->Squeeze();
     numNewPts = Map->GetNumberOfIds();
 
     vtkDebugMacro(<<"Created " << numNewPts-numPts << " new points");
@@ -364,32 +373,25 @@ void vtkPolyDataNormals::Execute()
   OldMesh->Delete();
   NewMesh->Delete();
   poly->Delete();
+  edgeNeighbors->Delete();
 }
 
 //
 //  Mark current polygon as visited, make sure that all neighboring
 //  polygons are ordered consistent with this one.
 //
-void vtkPolyDataNormals::TraverseAndOrder (int cellId)
+int vtkPolyDataNormals::TraverseAndOrder (int cellId, vtkIdList *cellIds,
+					  int *Visited, vtkPolyData *OldMesh, vtkPolyData *NewMesh)
 {
   int p1, p2;
   int j, k, l, numNei;
   int npts, *pts;
-  vtkIdList *cellIds;
   int numNeiPts, *neiPts, neighbor;
+  int queuedCells = 0;
 
-  if ( RecursionDepth++ > this->MaxRecursionDepth ) 
-    {
-    Seeds->InsertNextId(cellId);
-    NumExceededMaxDepth++;
-    return;
-    }
-
-  Visited[cellId] = Mark; //means that it's been ordered properly
+  Visited[cellId] = VTK_CELL_VISITED; //means that it's been ordered properly
 
   NewMesh->GetCellPoints(cellId, npts, pts);
-
-  cellIds = vtkIdList::New(); cellIds->Allocate(5,10);
 
   for (j=0; j < npts; j++) 
     {
@@ -406,7 +408,7 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
       {
       for (k=0; k < cellIds->GetNumberOfIds(); k++) 
         {
-        if ( ! Visited[cellIds->GetId(k)] ) 
+        if ( Visited[cellIds->GetId(k)] == VTK_CELL_NOT_VISITED) 
           {
           neighbor = cellIds->GetId(k);
           NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
@@ -422,18 +424,17 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
 	  //
            if ( neiPts[(l+1)%numNeiPts] != p1 ) 
              {
-             NumFlips++;
+             this->NumFlips++;
              NewMesh->ReverseCell(neighbor);
              }
-           this->TraverseAndOrder (neighbor);
+	   Visited[neighbor] = VTK_CELL_NEEDS_VISITING;
+	   queuedCells = 1;
           }
         } // for each edge neighbor
       } //for manifold or non-manifold traversal allowed
     } // for all edges of this polygon
 
-  cellIds->Delete();
-  RecursionDepth--;
-  return;
+  return queuedCells;
 }
 
 //
@@ -441,16 +442,18 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
 //  replace (i.e., split mesh).
 //
 void vtkPolyDataNormals::MarkAndReplace (int cellId, int n, 
-					 int replacementPoint)
+					 int replacementPoint, vtkNormals *PolyNormals, vtkIdList *cellIds,
+					 int *Visited, vtkIdList *Map,
+					 vtkPolyData *OldMesh, vtkPolyData *NewMesh,
+					 float CosAngle)
 {
   int i, spot;
   int neiNode[2];
   float *thisNormal, *neiNormal;
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
-  vtkIdList *cellIds;
 
-  Visited[cellId] = Mark;
+  Visited[cellId] = this->Mark;
   OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
   //
   //  Replace the node if necessary
@@ -498,25 +501,26 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n,
     neiNode[1] = oldPts[spot-1];
     }
 
-  cellIds = vtkIdList::New();
-  cellIds->Allocate(5,10);
-
   for (i=0; i<2; i++) 
     {
     OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], cellIds);
-    if ( cellIds->GetNumberOfIds() == 1 && Visited[cellIds->GetId(0)] != Mark)
+    if ( cellIds->GetNumberOfIds() == 1 && Visited[cellIds->GetId(0)] != this->Mark)
       {
       thisNormal = PolyNormals->GetNormal(cellId);
       neiNormal =  PolyNormals->GetNormal(cellIds->GetId(0));
 
       if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
 	{
-        this->MarkAndReplace (cellIds->GetId(0), n, replacementPoint);
+	// NOTE: cellIds is reused recursively without harm because
+	// after the recusion call, it is no longer used
+        this->MarkAndReplace (cellIds->GetId(0), n, replacementPoint,
+			      PolyNormals, cellIds,
+			      Visited, Map, OldMesh, NewMesh,
+			      CosAngle);
 	}
       }
     }
 
-  cellIds->Delete();
   return;
 }
 

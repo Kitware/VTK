@@ -128,8 +128,24 @@ protected:
   int MaxRecursionDepth;
   int NonManifoldTraversal;
 
-  void TraverseAndOrder(int cellId);
-  void MarkAndReplace(int cellId, int n, int replacement);
+  int Mark;
+  int NumFlips;
+  // Returns 1 if neighbor cells need to be checked, 0 otherwise.
+  // edgeNeighbors is temp storage for this routine to use. We do not
+  // access its values outside this routine. This is to avoid
+  // New/Delete's within the routine.
+  int TraverseAndOrder(int cellId, vtkIdList *edgeNeighbors,
+		       int *Visited,
+		       vtkPolyData *OldMesh, vtkPolyData *NewMesh);
+
+  // edgeNeighbors is temp storage for this routine to use. We do not
+  // access its values outside this routine. This is to avoid
+  // New/Delete's within the routine.
+  void MarkAndReplace(int cellId, int n, int replacement,
+		      vtkNormals *PolyNormals, vtkIdList *edgeNeighbors,
+		      int *Visited, vtkIdList *Map,
+		      vtkPolyData *OldMesh, vtkPolyData *NewMesh,
+		      float CosAngle);
 };
 
 #endif
