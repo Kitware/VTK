@@ -144,7 +144,6 @@ void vtkImageToStructuredPoints::Execute()
   int idxX, idxY, idxZ, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ, rowLength;
   unsigned char *inPtr1, *inPtr, *outPtr;
-  
   vtkStructuredPoints *output = this->GetOutput();
   vtkImageData *data = this->GetInput();
   vtkImageData *vData = this->GetVectorInput();
@@ -281,7 +280,10 @@ void vtkImageToStructuredPoints::ExecuteInformation()
     spacing = vInput->GetSpacing();
     vInput->GetOrigin(origin);
     }
-  
+  else
+    {
+    return;
+    }
   // intersections for whole extent
   if (vInput)
     {
@@ -320,7 +322,7 @@ void vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
   int ext[6];
   vtkImageData *input;
-  
+
   output->GetUpdateExtent(ext);
   ext[0] += this->Translate[0];
   ext[1] += this->Translate[0];
