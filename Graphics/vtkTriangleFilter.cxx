@@ -16,29 +16,38 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkTriangleFilter, "1.52");
+vtkCxxRevisionMacro(vtkTriangleFilter, "1.53");
 vtkStandardNewMacro(vtkTriangleFilter);
 
-void vtkTriangleFilter::Execute()
+int vtkTriangleFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  if (!input)
-    {
-    return;
-    }
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numCells=input->GetNumberOfCells();
   vtkIdType cellNum=0;
   vtkIdType numPts, newId;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   int i, j;
-  vtkPolyData *output=this->GetOutput();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkIdType updateInterval;
@@ -223,6 +232,8 @@ void vtkTriangleFilter::Execute()
                 << output->GetNumberOfCells()
                 <<" output cells");
 
+
+  return 1;
 }
 
 void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)

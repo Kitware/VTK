@@ -21,13 +21,13 @@
 #ifndef __vtkTriangleFilter_h
 #define __vtkTriangleFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkTriangleFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangleFilter *New();
-  vtkTypeRevisionMacro(vtkTriangleFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTriangleFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -47,7 +47,7 @@ protected:
   ~vtkTriangleFilter() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int PassVerts;
   int PassLines;
