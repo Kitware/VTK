@@ -127,11 +127,11 @@ public:
   // to simulate a larger window by tiling. For 3D geometry these methods
   // have no impact. It is just in handling annotation that this information
   // must be available to the mappers and the coordinate calculations.
-  vtkSetMacro(TileScale,int);
-  vtkGetMacro(TileScale,int);
+  vtkSetVector2Macro(TileScale,int);
+  vtkGetVector2Macro(TileScale,int);
+  void SetTileScale(int s) {this->SetTileScale(s,s);}
   vtkSetVector4Macro(TileViewport,double);
   vtkGetVector4Macro(TileViewport,double);
-  
 
 protected:
   int OffScreenRendering;
@@ -148,7 +148,7 @@ protected:
 
   double TileViewport[4];
   int    TileSize[2];
-  int    TileScale;
+  int    TileScale[2];
   
 private:
   vtkWindow(const vtkWindow&);  // Not implemented.

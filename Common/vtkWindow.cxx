@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkWindow, "1.25");
+vtkCxxRevisionMacro(vtkWindow, "1.26");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -36,7 +36,8 @@ vtkWindow::vtkWindow()
   this->TileViewport[3] = 1.0;
   this->TileSize[0] = 0;
   this->TileSize[1] = 0;  
-  this->TileScale = 1;
+  this->TileScale[0] = 1;  
+  this->TileScale[1] = 1;
 }
 
 // Destructor for the vtkWindow object.
@@ -70,8 +71,8 @@ void vtkWindow::SetWindowName( const char * _arg )
 
 int *vtkWindow::GetSize()
 {
-  this->TileSize[0] = this->Size[0]*this->TileScale;
-  this->TileSize[1] = this->Size[1]*this->TileScale;
+  this->TileSize[0] = this->Size[0]*this->TileScale[0];
+  this->TileSize[1] = this->Size[1]*this->TileScale[1];
   
   return this->TileSize;
 }
@@ -134,7 +135,8 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OffScreenRendering: " << this->OffScreenRendering << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
   os << indent << "DPI: " << this->DPI << "\n";
-  os << indent << "TileScale: " << this->TileScale << "\n";
+  os << indent << "TileScale: (" << this->TileScale[0] << ", " 
+     << this->TileScale[1] << ")\n";
   os << indent << "TileViewport: (" << this->TileViewport[0] << ", " 
      << this->TileViewport[1] << ", " << this->TileViewport[2] << ", " 
      << this->TileViewport[3] << ")\n";
