@@ -737,7 +737,7 @@ void DICOMAppHelper::PixelDataCallback( DICOMParser *,
                                         unsigned char* data,
                                         quadbyte len)
 {
-  int numPixels = this->Dimensions[0] * this->Dimensions[1];
+  int numPixels = this->Dimensions[0] * this->Dimensions[1] * this->GetNumberOfComponents();
   if (len < numPixels)
     {
     numPixels = len;
