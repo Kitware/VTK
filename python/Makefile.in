@@ -47,28 +47,35 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 
 all: vtkpython @TKWIDGET_TARGETS@
 
-vtkpython: Makefile vtkpython
-	${CXX} -o vtkpython vtkpython.o \
-	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+vtkpython: vtkpython$(SHLIB_SUFFIX)
+	@echo ""
+
+vtkTkRenderWidget: vtkTkRenderWidget${SHLIB_SUFFIX}
+	@echo ""
+
+vtkTkImageWindowWidget: vtkTkImageWindowWidget${SHLIB_SUFFIX}
+	@echo ""
+
+vtkTkImageViewWidget: vtkTkImageViewWidget${SHLIB_SUFFIX}
+	@echo ""
 
 vtkpython.o: vtkpython.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtkpython.o $(srcdir)/vtkpython.c
 
-vtkTkRenderWidget: 
-	${CXX} -o vtkTkRenderWidget -DVTK_PYTHON_BUILD \
+vtkTkRenderWidget${SHLIB_SUFFIX}: 
+	${CXX} -o vtkTkRenderWidget${SHLIB_SUFFIX} -DVTK_PYTHON_BUILD \
 	${srcdir}/../graphics/vtkTkRenderWidget.cxx \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageViewerWidget: 
-	${CXX} -o vtkTkImageViewerWidget -DVTK_PYTHON_BUILD \
+vtkTkImageViewerWidget${SHLIB_SUFFIX}: 
+	${CXX} -o vtkTkImageViewerWidget${SHLIB_SUFFIX} -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageViewerWidget.cxx \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtkTkImageWindowWidget: 
-	${CXX} -o vtkTkImageWindowWidget -DVTK_PYTHON_BUILD \
+vtkTkImageWindowWidget${SHLIB_SUFFIX}: 
+	${CXX} -o vtkTkImageWindowWidget${SHLIB_SUFFIX} -DVTK_PYTHON_BUILD \
 	${srcdir}/../imaging/vtkTkImageWindowWidget.cxx \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
@@ -76,8 +83,8 @@ vtkTkImageWindowWidget:
 #------------------------------------------------------------------------------
 # build the vtkpython module 
 #
-vtkpython.so: Makefile vtkpython.o ${TOOLKIT_DEPENDS}
-	${CXX} -o vtkpython.so vtkpython.o \
+vtkpython${SHLIB_SUFFIX}: Makefile vtkpython.o ${TOOLKIT_DEPENDS}
+	${CXX} -o vtkpython${SHLIB_SUFFIX} vtkpython.o \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
