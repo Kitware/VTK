@@ -33,16 +33,16 @@
 #ifndef __vtkInteractorStyleUser_h
 #define __vtkInteractorStyleUser_h
 
-#include "vtkInteractorStyleSwitch.h"
+#include "vtkInteractorStyle.h"
 
 // new motion flag
 #define VTKIS_USERINTERACTION 8 
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleSwitch 
+class VTK_RENDERING_EXPORT vtkInteractorStyleUser : public vtkInteractorStyle 
 {
 public:
   static vtkInteractorStyleUser *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleUser,vtkInteractorStyleSwitch);
+  vtkTypeRevisionMacro(vtkInteractorStyleUser,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

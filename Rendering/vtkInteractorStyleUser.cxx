@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -306,7 +306,7 @@ void vtkInteractorStyleUser::OnTimer(void)
               (this->HasObserver(vtkCommand::MiddleButtonPressEvent) && this->Button == 2) ||
               (this->HasObserver(vtkCommand::RightButtonPressEvent) && this->Button == 3))))
     {
-    this->vtkInteractorStyleSwitch::OnTimer();
+    this->vtkInteractorStyle::OnTimer();
     }
   else if (this->HasObserver(vtkCommand::TimerEvent))
     {
@@ -350,7 +350,7 @@ void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
                                     int repeatcount) 
 {
   // do nothing if a KeyPressMethod has been set,
-  // otherwise pass the OnChar to the vtkInteractorStyleSwitch.
+  // otherwise pass the OnChar to the vtkInteractorStyle.
   if (this->HasObserver(vtkCommand::CharEvent)) 
     {
     this->ShiftKey = shift;
@@ -361,7 +361,7 @@ void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
     }
   else
     {
-    this->vtkInteractorStyleSwitch::OnChar(ctrl,shift,keycode,repeatcount);
+    this->vtkInteractorStyle::OnChar(ctrl,shift,keycode,repeatcount);
     }
 }
 
@@ -386,7 +386,7 @@ void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnRightButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnRightButtonDown(ctrl, shift, x, y);
     }
 }
 //----------------------------------------------------------------------------
@@ -408,7 +408,7 @@ void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y)
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnRightButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnRightButtonUp(ctrl, shift, x, y);
     }
 
   if (this->Button == 3)
@@ -438,7 +438,7 @@ void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y)
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnMiddleButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnMiddleButtonDown(ctrl, shift, x, y);
     }
 }
 //----------------------------------------------------------------------------
@@ -460,7 +460,7 @@ void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y)
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnMiddleButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnMiddleButtonUp(ctrl, shift, x, y);
     }
 
   if (this->Button == 2)
@@ -490,7 +490,7 @@ void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y)
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnLeftButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnLeftButtonDown(ctrl, shift, x, y);
     }
 }
 //----------------------------------------------------------------------------
@@ -512,7 +512,7 @@ void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y)
     }
   else 
     {
-    this->vtkInteractorStyleSwitch::OnLeftButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnLeftButtonUp(ctrl, shift, x, y);
     }
 
   if (this->Button == 1)
@@ -524,7 +524,7 @@ void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y) 
 {
-  this->vtkInteractorStyleSwitch::OnMouseMove(ctrl,shift,x,y);
+  this->vtkInteractorStyle::OnMouseMove(ctrl,shift,x,y);
 
   
   this->LastPos[0] = x;
