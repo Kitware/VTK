@@ -115,7 +115,7 @@ int vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents(
   if (input == NULL)
     {
     vtkErrorMacro(<<"Input is NULL");
-    return;
+    return 0;
     }
 
   input->CopyUpdateExtent(output);
