@@ -858,7 +858,7 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
           {
           if ( !this->Read(&b) )
             {
-            vtkErrorMacro(<<"Error reading binary bit array!");
+	      vtkErrorMacro(<<"Error reading ascii bit array! tuple: " << i << ", component: " << j);
             return NULL;
             }
           else
