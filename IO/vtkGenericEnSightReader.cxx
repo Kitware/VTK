@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.54");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.55");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -76,7 +76,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   
   this->ReadAllVariables = 1;
 
-  this->ByteOrder = FILE_BIG_ENDIAN;
+  this->ByteOrder = FILE_UNKNOWN_ENDIAN;
   
   this->EnSightVersion = -1;
   

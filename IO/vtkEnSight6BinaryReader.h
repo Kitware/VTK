@@ -125,13 +125,9 @@ protected:
 
   // Description:
   // Internal function to read in a single integer.
+  // Tries to determine the byte order of this file.
   // Returns zero if there was an error.
   int ReadIntNumber(int *result);
-
-  // Description:
-  // Calls ReadIntNumber and then tries to determine the byte order of this
-  // file.  This method is used for reading the number of points.
-  int ReadIntNumberAndDetermineEndianness(int *result);
 
   // Description:
   // Internal function to read in an integer array.
@@ -145,7 +141,7 @@ protected:
 
   // Description:
   // Read to the next time step in the geometry file.
-  void SkipTimeStep();
+  int SkipTimeStep();
   int SkipStructuredGrid(char line[256]);
   int SkipUnstructuredGrid(char line[256]);
   

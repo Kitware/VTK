@@ -169,7 +169,8 @@ public:
   enum 
   {
     FILE_BIG_ENDIAN=0,
-    FILE_LITTLE_ENDIAN=1
+    FILE_LITTLE_ENDIAN=1,
+    FILE_UNKNOWN_ENDIAN=2
   };
 //ETX
 

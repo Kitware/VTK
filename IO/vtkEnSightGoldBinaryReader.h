@@ -149,7 +149,7 @@ protected:
 
   // Description:
   // Read to the next time step in the geometry file.
-  void SkipTimeStep();
+  int SkipTimeStep();
   int SkipStructuredGrid(char line[256]);
   int SkipUnstructuredGrid(char line[256]);
   int SkipRectilinearGrid(char line[256]);
