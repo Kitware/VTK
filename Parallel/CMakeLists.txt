@@ -60,6 +60,12 @@ ADD_LIBRARY(vtkParallel Parallel_SRCS)
 INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkParallel Parallel_SRCS VTK_PARALLEL_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF(VTK_MAKE_INSTANTIATOR)
+
 IF (WIN32)
   LINK_LIBRARIES( wsock32 )
 ENDIF (WIN32)

@@ -64,6 +64,7 @@ vtkIdTypeArray
 vtkImageData 
 vtkImplicitFunctionCollection 
 vtkIndent 
+vtkInstantiator
 vtkIntArray 
 vtkLine 
 vtkLargeInteger
@@ -177,6 +178,12 @@ WRAP_EXCLUDE_FILES(
 #
 INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
+
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkCommon Common_SRCS VTK_COMMON_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files

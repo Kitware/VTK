@@ -244,6 +244,12 @@ ENDIF (HAVE_OPENGL_SRCS)
 INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkRendering Rendering_SRCS VTK_RENDERING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF(VTK_MAKE_INSTANTIATOR)
+
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
      vtkTkRenderWidget 

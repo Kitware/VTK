@@ -82,6 +82,12 @@ ADD_LIBRARY(vtkFiltering Filtering_SRCS)
 INCLUDE (${VTK_BINARY_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkFiltering Filtering_SRCS VTK_FILTERING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF(VTK_MAKE_INSTANTIATOR)
+
 # if we are wrapping into Tcl then add the library and extra 
 # source files
 #

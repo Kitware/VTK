@@ -17,6 +17,32 @@
 #include "vtkToolkits.h"
 
 /*
+ * Make sure all the kits register their classes with vtkInstantiator.
+ */
+#include "vtkCommonInstantiator.h"
+#include "vtkFilteringInstantiator.h"
+#include "vtkIOInstantiator.h"
+#include "vtkImagingInstantiator.h"
+#include "vtkGraphicsInstantiator.h"
+
+#ifdef VTK_USE_RENDERING
+#include "vtkRenderingInstantiator.h"
+#endif
+
+#ifdef VTK_USE_PATENTED
+#include "vtkPatentedInstantiator.h"
+#endif
+
+#ifdef VTK_USE_HYBRID
+#include "vtkHybridInstantiator.h"
+#endif
+
+#ifdef VTK_USE_PARALLEL
+#include "vtkParallelInstantiator.h"
+#endif
+
+
+/*
  *----------------------------------------------------------------------
  *
  * main --

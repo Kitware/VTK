@@ -47,6 +47,12 @@ ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
 INCLUDE (${VTK_BINARY_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkHybrid Hybrid_SRCS VTK_HYBRID_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF(VTK_MAKE_INSTANTIATOR)
+
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS Hybrid_SRCS)
   IF (APPLE)
