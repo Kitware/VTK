@@ -95,6 +95,7 @@ IF (VTK_USE_RENDERING)
       MultidimensionalSolution
       multipleIso
       nacaBinary
+      NoLightGeneration
       OBBCylinder
       officeStreamPoints
       OSCone
