@@ -39,12 +39,6 @@ public:
   vtkTypeRevisionMacro(vtkCardinalSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Virtual constructor creates a spline of the same type as this one.
-  // Note that the created spline does not copy the data from this instance.
-  virtual vtkSpline *MakeObject()
-    { return vtkCardinalSpline::New(); }
-
   // Description
   // Compute Cardinal Splines for each dependent variable
   void Compute ();

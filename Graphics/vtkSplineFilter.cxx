@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.9");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.10");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -114,11 +114,11 @@ void vtkSplineFilter::Execute()
   outCD->CopyAllocate(cd,numNewCells);
 
   // Set up the splines
-  this->XSpline = this->Spline->MakeObject();
+  this->XSpline = this->Spline->NewInstance();
   this->XSpline->DeepCopy(this->Spline);
-  this->YSpline = this->Spline->MakeObject();
+  this->YSpline = this->Spline->NewInstance();
   this->YSpline->DeepCopy(this->Spline);
-  this->ZSpline = this->Spline->MakeObject();
+  this->ZSpline = this->Spline->NewInstance();
   this->ZSpline->DeepCopy(this->Spline);
 
   //  Create points along each polyline.

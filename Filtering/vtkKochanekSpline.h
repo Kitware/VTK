@@ -60,12 +60,6 @@ public:
   static vtkKochanekSpline *New();
 
   // Description:
-  // Virtual constructor creates a spline of the same type as this one.
-  // Note that the created spline does not copy the data from this instance.
-  virtual vtkSpline *MakeObject() 
-    { return vtkKochanekSpline::New(); }
-
-  // Description:
   // Compute Kochanek Spline coefficients.
   void Compute ();
   
