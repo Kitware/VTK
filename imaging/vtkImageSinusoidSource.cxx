@@ -170,7 +170,7 @@ void vtkImageSinusoidSource::ExecuteInformation()
 
 void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
 {
-  vtkImageData *data = this->GetOutput();
+  vtkImageData *data = this->AllocateOutputData(output);
   float *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
