@@ -440,9 +440,21 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     }
   else
     {
-    self->ImageWindow = (vtkImageWindow *)
-      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp, new_flag);
-    ImageWindow = (vtkWin32ImageWindow *)(self->ImageWindow);
+    ImageWindow = (vtkWin32ImageWindow *)
+      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
+				 new_flag);
+    if (ImageWindow != self->ImageWindow)
+      {
+      if (self->ImageWindow != NULL)
+	{
+	self->ImageWindow->UnRegister(NULL);
+	}
+      self->ImageWindow = (vtkImageWindow *)(ImageWindow);
+      if (self->ImageWindow != NULL)
+	{
+	self->ImageWindow->Register(NULL);
+	}
+      }
     }
   
   // Set the size
@@ -590,8 +602,20 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
   else
     {
     ImageWindow = (vtkXImageWindow *)
-      vtkTclGetPointerFromObject(self->IW,"vtkImageWindow",self->Interp, new_flag);
-    self->ImageWindow = (vtkImageWindow *)(ImageWindow);
+      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
+				 new_flag);
+    if (ImageWindow != self->ImageWindow)
+      {
+      if (self->ImageWindow != NULL)
+	{
+	self->ImageWindow->UnRegister(NULL);
+	}
+      self->ImageWindow = (vtkImageWindow *)(ImageWindow);
+      if (self->ImageWindow != NULL)
+	{
+	self->ImageWindow->Register(NULL);
+	}
+      }
     }
   
   // Set the size
