@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile
+      assembly
       CamBlur
       cells 
       ImageActor
@@ -12,6 +13,7 @@ IF (VTK_USE_RENDERING)
       pickCells
       rendererSource
       rotations
+      TestFlyTo
       TestStyleJoystickActor
       TestStyleJoystickCamera
       TestStyleTrackballActor

@@ -25,6 +25,8 @@ IF (VTK_USE_RENDERING)
       clipVolume
       combColorIso
       combIso
+      combStreamers
+      combStreamers2
       coneResolution
       constrainedDelaunay
       contourCells
@@ -33,6 +35,7 @@ IF (VTK_USE_RENDERING)
       contour3DAll
       cowHair
       createBFont
+      cursor3D
       cutLoop
       cylMap
       dataSetSurfaceFilter
