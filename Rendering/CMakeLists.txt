@@ -143,6 +143,9 @@ ELSE (WIN32)
       vtkXRenderWindowInteractor
       vtkXRenderWindow
       vtkXTextMapper)
+    ABSTRACT_FILES(
+      vtkXImageWindow
+      vtkXTextMapper)
     LINK_LIBRARIES (${OPENGL_LIBRARY})
     ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
   ELSE (OPENGL_LIBRARY)
