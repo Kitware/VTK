@@ -151,7 +151,7 @@ public:
       return this->InvW;
     }
   
-  vtkVertexEntry(const vtkVertexEntry &other) {}
+  vtkVertexEntry(const vtkVertexEntry &vtkNotUsed(other)) {}
   
 protected:
   int ScreenX;
@@ -1922,7 +1922,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
@@ -2561,7 +2561,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::AllocateUseSet(vtkIdType size)
 {
   if(this->UseSet!=0)
     {
-    if(size>this->UseSet->Vector.size())
+    if(size>static_cast<vtkIdType>(this->UseSet->Vector.size()))
       {
       delete this->UseSet;
       this->UseSet=new vtkUseSet(size);
@@ -2766,6 +2766,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::ProjectAndSortVertices(
       {
       assert(0);
       // scalar=this->Scalars->GetComponent(cellIdx,0);
+      scalar=0;
       }
     else // point attribute
       {
@@ -3430,9 +3431,12 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeLine(vtkVertexEntry *v0,
   int dx;
   int dy;
   int xSign;
-  int dx2;
-  int dy2;
-  int e;
+  
+  // initialization is not useful, it is just to remove compiler warnings
+  int dx2=0;
+  int dy2=0;
+  int e=0;
+  
   double values[VTK_VALUES_SIZE];
   double pValues[VTK_VALUES_SIZE];
   
