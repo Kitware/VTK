@@ -61,7 +61,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.8")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.9")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -2024,7 +2024,7 @@ vtkUnstructuredGrid *
     vtkIdList ***cellIds, int *numLists, int deleteCellIds,
     vtkDataSet *myGrid, int deleteMyGrid, 
     int filterOutDuplicateCells,   // flag if different processes may send same cells
-    int vtkNotUsed(ghostCellFlag),  // flag if these are ghost cells
+    int ghostCellFlag,  // flag if these are ghost cells
     int tag)
 {
   vtkUnstructuredGrid *mergedGrid = NULL;
@@ -2225,6 +2225,7 @@ vtkUnstructuredGrid *
   (void)deleteMyGrid;
   (void)filterOutDuplicateCells;
   (void)tag;
+  (void)ghostCellFlag;
 
   vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeMergeSubGrids requires MPI");
 #endif
