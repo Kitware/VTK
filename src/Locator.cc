@@ -97,11 +97,7 @@ int vlLocator::FindClosestPoint(float x[3])
   float diff;
   vlMath math;
 
-  if ( ! this->HashTable )
-    {
-    if ( this->Points ) this->SubDivide();
-    else return -1;
-    }
+  this->SubDivide(); // will subdivide if modified; otherwise returns
 //
 //  Make sure candidate point is in bounds.  If not, it is outside.
 //
@@ -219,6 +215,8 @@ void vlLocator::SubDivide()
   float *x;
   typedef vlIdList *vlIdListPtr;
 
+  if ( this->HashTable &&  this->SubDivideTime > this->MTime ) return;
+
   vlDebugMacro( << "Hashing points..." );
 
   if ( !this->Points || (numPts = this->Points->GetNumberOfPoints()) < 1 )
@@ -282,7 +280,7 @@ void vlLocator::SubDivide()
     cell->InsertNextId(i);
     }
 
-  this->Modified();
+  this->SubDivideTime.Modified();
 }
 
 

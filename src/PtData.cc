@@ -317,3 +317,29 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
     this->TCoords->InsertTCoord(toId,tc);
     }
 }
+
+void vlPointData::NullPoint (int ptId)
+{
+  static float null[3] = {0.0, 0.0, 0.0};
+
+  if ( this->Scalars )
+    {
+    this->Scalars->InsertScalar(ptId, 0.0);
+    }
+
+  if ( this->Vectors )
+    {
+    this->Vectors->InsertVector(ptId,null);
+    }
+
+  if ( this->Normals )
+    {
+    this->Normals->InsertNormal(ptId,null);
+    }
+
+  if ( this->TCoords )
+    {
+    this->TCoords->InsertTCoord(ptId,null);
+    }
+
+}

@@ -62,6 +62,9 @@ public:
   int GetNumberOfPolys();
   int GetNumberOfStrips();
 
+  // create verts, lines, polys, tmeshes from cell object
+  void InsertNextCell(vlCell *cell);
+
   // following stuff supports cell structure
   vlBooleanMacro(LoadVerts,int);
   vlSetMacro(LoadVerts,int);
@@ -79,12 +82,12 @@ public:
   vlSetMacro(LoadStrips,int);
   vlGetMacro(LoadStrips,int);
 
-  LoadAll() {this->LoadVertsOn(); this->LoadLinesOn(); 
+  void LoadAll() {this->LoadVertsOn(); this->LoadLinesOn(); 
              this->LoadPolysOn(); this->LoadStripsOn();};
-  LoadNone() {this->LoadVertsOff(); this->LoadLinesOff(); 
+  void LoadNone() {this->LoadVertsOff(); this->LoadLinesOff(); 
              this->LoadPolysOff(); this->LoadStripsOff();};
 
-  SetReadOnly() {this->SetWritable(0);};
+  void SetReadOnly() {this->SetWritable(0);};
   vlBooleanMacro(Writable,int);
   vlSetMacro(Writable,int)
   vlGetMacro(Writable,int);

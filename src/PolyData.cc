@@ -550,3 +550,28 @@ void vlPolyData::GetPointCells(int ptId, vlIdList *cellIds)
     cellIds->InsertId(i,cells[i]);
     }
 }
+
+
+void vlPolyData::InsertNextCell(vlCell *cell)
+{
+
+  switch (cell->GetCellType())
+    {
+    case vlPOINT: case vlPOLY_POINTS:
+     this->Verts->InsertNextCell(cell);
+     break;
+
+    case vlLINE: case vlPOLY_LINE:
+     this->Lines->InsertNextCell(cell);
+      break;
+
+    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+     this->Polys->InsertNextCell(cell);
+      break;
+
+    case vlTRIANGLE_STRIP:
+     this->Strips->InsertNextCell(cell);
+      break;
+    }
+}
+

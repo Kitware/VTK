@@ -31,8 +31,45 @@ public:
   char *GetClassName() {return "vlGeometryFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  vlSetClampMacro(PointMinimum,int,0,LARGE_INTEGER);
+  vlGetMacro(PointMinimum,int);
+
+  vlSetClampMacro(PointMaximum,int,0,LARGE_INTEGER);
+  vlGetMacro(PointMaximum,int);
+
+  vlSetClampMacro(CellMinimum,int,0,LARGE_INTEGER);
+  vlGetMacro(CellMinimum,int);
+
+  vlSetClampMacro(CellMaximum,int,0,LARGE_INTEGER);
+  vlGetMacro(CellMaximum,int);
+
+  void SetExtent(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
+  void SetExtent(float *extent);
+  float *GetExtent() { return this->Extent;};
+
+  vlSetMacro(PointClipping,int);
+  vlGetMacro(PointClipping,int);
+  vlBooleanMacro(PointClipping,int);
+
+  vlSetMacro(CellClipping,int);
+  vlGetMacro(CellClipping,int);
+  vlBooleanMacro(CellClipping,int);
+
+  vlSetMacro(ExtentClipping,int);
+  vlGetMacro(ExtentClipping,int);
+  vlBooleanMacro(ExtentClipping,int);
+
 protected:
   void Execute();
+  int PointMinimum;
+  int PointMaximum;
+  int CellMinimum;
+  int CellMaximum;
+  float Extent[6];
+  int PointClipping;
+  int CellClipping;
+  int ExtentClipping;
+
 };
 
 #endif

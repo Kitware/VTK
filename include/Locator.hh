@@ -69,7 +69,7 @@ protected:
   vlIdList **HashTable; // lists of point ids in cells
   int NumberOfCells; // total size of hash table
   float H[3]; // width of each cell in x-y-z directions
-  
+  vlTimeStamp SubDivideTime;  
 };
 
 #endif

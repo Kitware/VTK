@@ -45,6 +45,9 @@ public:
   void InterpolateInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
   void InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights);
 
+  // Set point data to null values
+  void NullPoint(int ptId);
+
   vlSetObjectMacro (Scalars, vlScalars);
   vlGetObjectMacro (Scalars, vlScalars);
 
