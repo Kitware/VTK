@@ -58,6 +58,8 @@ public:
   // Description:
   // Request a particular frame size (set the third value to 1).
   void SetFrameSize(int x, int y, int z);
+  virtual void SetFrameSize(int dim[3]) { 
+    this->SetFrameSize(dim[0], dim[1], dim[2]); };
   
   // Description:
   // Request a particular frame rate (default 30 frames per second).
@@ -93,7 +95,7 @@ public:
 
   // Description:
   // For internal use only
-  void InternalGrab(void*);
+  void LocalInternalGrab(void*);
   void OnParentWndDestroy();
 
 protected:
