@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.26");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.27");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -35,12 +35,14 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->Outputs[1]->Delete();
   this->ClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
+  this->InputScalarsSelection = NULL;
   
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
 {
   this->ContourValues->Delete();
+  this->SetInputScalarsSelection(NULL);
 }
 
 int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
@@ -178,7 +180,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   vtkPointData *outPD = input->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   vtkPoints *inPts = input->GetPoints();
-  vtkDataArray *inScalars = pd->GetScalars();
+  vtkDataArray *inScalars = pd->GetScalars(this->InputScalarsSelection);
   int abort=0;
   vtkPoints *newPts;
   int i, j, idx=0;
@@ -249,7 +251,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   //
   // Estimate allocation size, stolen from vtkContourGrid...
   //
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
+  estimatedSize = (vtkIdType) pow ((double) numCells, .9);
   estimatedSize *= this->NumberOfClipValues;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
@@ -266,7 +268,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   newPts->Allocate(estimatedSize,estimatedSize);
 
   outPD->InterpolateAllocate(pd,3*numPts,numPts);
-  vtkDataArray *outScalars = outPD->GetScalars();
+  vtkDataArray *outScalars = outPD->GetScalars(this->InputScalarsSelection);
 
   for (i=0; i<numPts; i++)
     {
@@ -727,6 +729,8 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "VALUE\n";
     }
+  os << indent << "InputScalarsSelection: " 
+     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
 }
 
 

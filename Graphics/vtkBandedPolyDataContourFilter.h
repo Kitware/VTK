@@ -107,6 +107,13 @@ public:
     {return static_cast<vtkPolyData *>(this->Outputs[1]);}
 
   // Description:
+  // If you want to contour by an arbitrary array, then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
+
+  // Description:
   // Overload GetMTime because we delegate to vtkContourValues so its
   // modified time must be taken into account.
   unsigned long GetMTime();
@@ -138,6 +145,9 @@ protected:
   
   //the second output
   int GenerateContourEdges;
+
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
   
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
