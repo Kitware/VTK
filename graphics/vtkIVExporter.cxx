@@ -482,7 +482,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ",(int)indx[i]);
 	if (((i+1)%10) == 0)
 	  {
 	  fprintf(fp, "\n%s    ", indent);
@@ -509,7 +510,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	if (((i+1)%10) == 0)
 	  {
 	  fprintf(fp, "\n%s    ", indent);
@@ -536,7 +538,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       fprintf(fp,"%s", indent);
       for (i = 0; i < npts; i++)
 	{
-	fprintf(fp,"%i, ",indx[i]);
+        // treating vtkIdType as int
+	fprintf(fp,"%i, ", (int)indx[i]);
 	if (((i+1)%10) == 0)
 	  {
 	  fprintf(fp, "\n%s    ", indent);
@@ -606,7 +609,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     
     fprintf(fp, "%sPointSet {\n", indent);
     VTK_INDENT_MORE;
-    fprintf(fp, "%snumPoints %d\n", indent, npts);
+    // treating vtkIdType as int
+    fprintf(fp, "%snumPoints %d\n", indent, (int)npts);
     VTK_INDENT_MORE;
     fprintf(fp, "%s}\n", indent);
     VTK_INDENT_LESS;

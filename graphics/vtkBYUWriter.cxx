@@ -177,11 +177,12 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     // write this polygon
+    // treating vtkIdType as int
     for (i=0; i < (npts-1); i++)
       {
-      fprintf (geomFile, "%d ", pts[i]+1);
+      fprintf (geomFile, "%d ", (int)(pts[i]+1));
       }
-    fprintf (geomFile, "%d\n", -(pts[npts-1]+1));
+    fprintf (geomFile, "%d\n", (int)(-(pts[npts-1]+1)));
     }
 
   vtkDebugMacro(<<"Wrote " << numPts << " points, " << numPolys << " polygons");

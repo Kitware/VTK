@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Allocate initial memory size.
-  virtual int Allocate(const int sz, const int ext=1000);
+  virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
   
   // Description:
   // Return object to instantiated state.
