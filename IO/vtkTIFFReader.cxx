@@ -445,7 +445,8 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
       tempImage = new unsigned long int[ width * height ];
       }
     if ( !TIFFReadRGBAImage(this->GetInternalImage()->Image, 
-                            width, height, tempImage, 0 ) )
+                            width, height, 
+                            static_cast<uint32*>(tempImage), 0 ) )
       {
       vtkErrorMacro("Problem reading RGB image");
       if ( tempImage != outPtr )
