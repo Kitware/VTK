@@ -78,6 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkStreamer_h
 
 #include "vtkDataSetToPolyDataFilter.h"
+#include "vtkInitialValueProblemSolver.h"
 
 class vtkMultiThreader;
 
@@ -204,7 +205,7 @@ public:
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
   // the size of each cell).
-  vtkSetClampMacro(IntegrationStepLength,float,0.001,0.5);
+  vtkSetClampMacro(IntegrationStepLength,float,0,0.5);
   vtkGetMacro(IntegrationStepLength,float);
 
   // Description:
@@ -230,6 +231,18 @@ public:
 
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
+
+// berk
+  vtkSetMacro( SavePointInterval, float );
+  vtkGetMacro( SavePointInterval, float );
+
+  // Description:
+  // Set/get the integrator type to be used in the stream line
+  // calculation. The object passed is not actually used but
+  // is cloned with MakeObject by each thread/process in the
+  // process of integration. The default is 2nd order Runge Kutta.
+  vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
 //BTX
 
@@ -287,9 +300,16 @@ protected:
   // boolean controls whether data scalars or velocity magnitude are used
   int SpeedScalars;
 
+  // Prototype showing the integrator type to be set by the user.
+  vtkInitialValueProblemSolver* Integrator;
+
+  // berk
+  float SavePointInterval;
+
   void InitializeThreadedIntegrate();
   vtkMultiThreader           *Threader;
   int                        NumberOfThreads;
+
 };
 
 // Description:

@@ -79,6 +79,7 @@ void vtkStreamLine::Execute()
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=this->GetOutput();
 
+  this->SavePointInterval = this->StepLength;
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) {return;}
 
