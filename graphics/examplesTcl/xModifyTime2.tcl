@@ -50,6 +50,16 @@ proc TestObject {kit objectClass} {
    global DEBUG
    #puts "    Object: $objectClass"
 
+
+
+   # just return if this object is not in the kit
+   if {[catch {set pathList [glob "../../$kit/$objectClass*"]}] != 0} {
+      return
+   }
+
+
+
+
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
       # dont' bother to check non pipeline objects.
@@ -104,7 +114,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    global ERROR_LOG_FD ERROR_STRING DEBUG
 
    # do not duplicate calls
-   set token "$methodClass\::$methodName"
+   set token "$methodClass-$methodName"
    global $token
    if {[info exists $token]} {
       return
@@ -728,59 +738,38 @@ proc CheckException {methodName} {
 
 wm withdraw .
 
-# create a viewer to record results (regression tests need an image).
-vtkImageCanvasSource2D canvas
-  canvas SetNumberOfScalarComponents 1
-  canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 40 0 0
-  canvas SetDrawColor 0
-  canvas FillBox 0 1200 0 40 
-
-vtkImageViewer viewer
-  viewer SetInput [canvas GetOutput]
-# stuff for text
-vtkTextMapper mapper
-  mapper SetInput ""
-  mapper SetFontFamilyToTimes
-  mapper SetFontSize 18
-vtkActor2D actor
-  actor SetMapper mapper
-  actor SetLayerNumber 1
-  [actor GetPositionCoordinate] SetValue 4 10
-  [actor GetProperty] SetColor 1 1 1
-set imager [viewer GetImager]
-  $imager AddActor2D actor
 
 set LABEL_STRING "Subobject Modify Time Bugs:"
 set ERROR_STRING ""
 
-
+# don't show warnings
+vtkImageViewer viewer
 viewer GlobalWarningDisplayOff
 
 # Check to see if  classes was specified.
 if { $argv != ""} {
    foreach file $argv {
       # we do not know what kit it is in, so try them all
-      TestObject graphics $file
-      TestObject imaging $file
+      TestObject contrib $file
       TestObject patented $file
       TestObject common $file
+      TestObject imaging $file
+      TestObject graphics $file
    }
 } else {
-   TestKit common
-   TestKit graphics
-   TestKit imaging
+   TestKit contrib
    TestKit patented
+   TestKit common
+   TestKit imaging
+   TestKit graphics
 }
 
 if {$ERROR_STRING != ""} {
-   mapper SetInput "$LABEL_STRING $ERROR_STRING"
+   puts "$LABEL_STRING $ERROR_STRING"
 }
-viewer Render
-
 
 viewer GlobalWarningDisplayOn
 
 
-
+exit
 

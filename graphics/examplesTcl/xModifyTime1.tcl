@@ -59,6 +59,11 @@ proc TestObject {kit objectClass} {
 
    if {$DEBUG == 1} {puts "    ----------------Object: $objectClass"}
 
+   # just return if this object is not in the kit
+   if {[catch {set pathList [glob "../../$kit/$objectClass*"]}] != 0} {
+      return
+   }
+
    # This checks all the objects (not just sources)
    # (unlike CheckModifyTime3.tcl)
 
@@ -163,11 +168,13 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if { $modifyTime3 != $modifyTime4} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
 				$methodClass $methodName]
-      puts "--------------------- reset error -------------------------------"
-      puts "MTime changed : ------------------------"
-      puts "MTime: $modifyTime3, $modifyTime4"  
-      puts " method class: $methodClass"
-      if {$DEBUG} { debug}
+      if {$DEBUG} { 
+	 puts "------------------ reset error -------------------------------"
+	 puts "MTime changed : ------------------------"
+	 puts "MTime: $modifyTime3, $modifyTime4"  
+	 puts " method class: $methodClass"
+	 debug
+      }
    }
 
    DeleteArgValues $argValues3
@@ -679,62 +686,47 @@ proc CheckException {methodName} {
 
 wm withdraw .
 
-# create a viewer to record results (regression tests need an image).
-vtkImageCanvasSource2D canvas
-  canvas SetNumberOfScalarComponents 1
-  canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 40 0 0
-  canvas SetDrawColor 0
-  canvas FillBox 0 1200 0 40 
 
+# show no warnings
 vtkImageViewer viewer
-  viewer SetInput [canvas GetOutput]
-# stuff for text
-vtkTextMapper mapper
-  mapper SetInput ""
-  mapper SetFontFamilyToTimes
-  mapper SetFontSize 18
-vtkActor2D actor
-  actor SetMapper mapper
-  actor SetLayerNumber 1
-  [actor GetPositionCoordinate] SetValue 4 10
-  [actor GetProperty] SetColor 1 1 1
-set imager [viewer GetImager]
-  $imager AddActor2D actor
+viewer GlobalWarningDisplayOff
+
 
 set LABEL_STRING "Reset Modify Time Bugs:"
 set ERROR_STRING ""
 
 
 
-viewer GlobalWarningDisplayOff
 
 
 # Check to see if  classes was specified.
 if { $argv != ""} {
    foreach file $argv {
       # we do not know what kit it is in, so try them all
-      TestObject graphics $file
-      TestObject imaging $file
+      TestObject contrib $file
       TestObject patented $file
       TestObject common $file
+      TestObject imaging $file
+      TestObject graphics $file
    }
 } else {
    # Still Reference counting problems in graphics. (seg faults)
    # next: Exporter has pointer to deleted window (GetMTime)
    #TestObject graphics vtkIVExporter
-   #TestKit graphics
-   TestKit imaging
+   TestKit contrib
    TestKit patented
    TestKit common
+   TestKit imaging
+   # (seg faults becasue objects are not ref counted)
+   #TestKit graphics
 }
 
 if {$ERROR_STRING != ""} {
-   mapper SetInput "$LABEL_STRING $ERROR_STRING"
+   puts "$LABEL_STRING $ERROR_STRING"
 }
-viewer Render
-
-
 viewer GlobalWarningDisplayOn
 
+
+
+exit
 

@@ -59,6 +59,15 @@ proc TestObject {kit objectClass} {
 
    #puts "    Object: $objectClass"
 
+
+   # just return if this object is not in the kit
+   if {[catch {set pathList [glob "../../$kit/$objectClass*"]}] != 0} {
+      return
+   }
+
+
+
+
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
       # dont' bother to check non pipeline objects.
@@ -179,11 +188,13 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 	  $modifyTime0 == $modifyTime3} {
       set ERROR_STRING_CHANGE [format "%s   %s %s," $ERROR_STRING_CHANGE \
 			  $methodClass $methodName]
-      puts "--------------------------- error -------------------------------"
-      puts "MTime did not changed : ------------------------"
-      puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
-      puts " method class: $methodClass"
-      if {$DEBUG} { debug}
+      if {$DEBUG} { 
+	 puts "------------------------- error -------------------------------"
+	 puts "MTime did not changed : ------------------------"
+	 puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
+	 puts " method class: $methodClass"
+	 debug
+      }
    }
 
    # forth call (reset test)
@@ -199,11 +210,13 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if { $modifyTime3 != $modifyTime4} {
       set ERROR_STRING_RESET [format "%s   %s %s," $ERROR_STRING_RESET \
 				$methodClass $methodName]
-      puts "--------------------- reset error -------------------------------"
-      puts "MTime changed : ------------------------"
-      puts "MTime: $modifyTime3, $modifyTime4"  
-      puts " method class: $methodClass"
-      if {$DEBUG} { debug}
+      if {$DEBUG} { 
+	 puts "------------------ reset error -------------------------------"
+	 puts "MTime changed : ------------------------"
+	 puts "MTime: $modifyTime3, $modifyTime4"  
+	 puts " method class: $methodClass"
+	 debug
+      }
    }
 
 
@@ -709,50 +722,15 @@ proc CheckException {methodName} {
 
 wm withdraw .
 
-# create a viewer to record results (regression tests need an image).
-vtkImageCanvasSource2D canvas
-  canvas SetNumberOfScalarComponents 1
-  canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 80 0 0
-  canvas SetDrawColor 0
-  canvas FillBox 0 1200 0 80 
-
+# do not show warnings
 vtkImageViewer viewer
-  viewer SetInput [canvas GetOutput]
-
-# stuff for text
-vtkTextMapper mapper
-  mapper SetInput ""
-  mapper SetFontFamilyToTimes
-  mapper SetFontSize 18
-vtkActor2D actor
-  actor SetMapper mapper
-  actor SetLayerNumber 1
-  [actor GetPositionCoordinate] SetValue 4 10
-  [actor GetProperty] SetColor 1 1 1
-vtkTextMapper mapper2
-  mapper2 SetInput ""
-  mapper2 SetFontFamilyToTimes
-  mapper2 SetFontSize 18
-vtkActor2D actor2
-  actor2 SetMapper mapper2
-  actor2 SetLayerNumber 1
-  [actor2 GetPositionCoordinate] SetValue 4 50
-  [actor2 GetProperty] SetColor 1 1 1
-
-set imager [viewer GetImager]
-  $imager AddActor2D actor
-  $imager AddActor2D actor2
-
-
-
+viewer GlobalWarningDisplayOff
 
 set LABEL_STRING_CHANGE "Change Modify Time Bugs:"
 set LABEL_STRING_RESET "Reset Modify Time Bugs:"
 set ERROR_STRING_CHANGE ""
 set ERROR_STRING_RESET ""
 
-viewer GlobalWarningDisplayOff
 
 #TestObject graphics vtkExtractVectorComponents
 #TestObject graphics vtkGlyph3D
@@ -761,28 +739,27 @@ viewer GlobalWarningDisplayOff
 if { $argv != ""} {
    foreach file $argv {
       # we do not know what kit it is in, so try them all
-      TestObject graphics $file
-      TestObject imaging $file
+      TestObject contrib $file
       TestObject patented $file
       TestObject common $file
+      TestObject imaging $file
+      TestObject graphics $file
    }
 } else {
-   TestKit graphics
-   TestKit imaging
+   TestKit contrib
    TestKit patented
    TestKit common
+   TestKit imaging
+   TestKit graphics
 }
 
 
-if {$ERROR_STRING_CHANGE != ""} {
-   mapper SetInput "$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE"
+if {$ERROR_STRING_CHANGE != "" || $ERROR_STRING_RESET != ""} {
+   puts"$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE, $LABEL_STRING_RESET $ERROR_STRING_RESET"
 }
-if {$ERROR_STRING_RESET != ""} {
-   mapper2 SetInput "$LABEL_STRING_RESET $ERROR_STRING_RESET"
-}
-mapper SetInput $ERROR_STRING_CHANGE
-mapper2 SetInput $ERROR_STRING_RESET
-viewer Render
 
 
 viewer GlobalWarningDisplayOn
+
+
+exit
