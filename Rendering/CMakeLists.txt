@@ -99,6 +99,7 @@ vtkTextProperty.cxx
 vtkTexture.cxx
 vtkUnstructuredGridBunykRayCastFunction.cxx
 vtkUnstructuredGridLinearRayIntegrator.cxx
+vtkUnstructuredGridPartialPreIntegration.cxx
 vtkUnstructuredGridTestRayIntegrator.cxx
 vtkUnstructuredGridVolumeMapper.cxx
 vtkUnstructuredGridVolumeRayCastFunction.cxx

@@ -33,6 +33,9 @@
 // should, for the most part, only be used as a benchmark for other, faster
 // methods.
 //
+// .SECTION See Also
+// vtkUnstructuredGridPartialPreIntegration
+//
 
 #ifndef __vtkUnstructuredGridLinearRayIntegrator_h
 #define __vtkUnstructuredGridLinearRayIntegrator_h
@@ -70,7 +73,7 @@ public:
 
   // Description:
   // Computes Psi (as defined by Moreland and Angel, "A Fast High Accuracy
-  // Volume Renderer for Unstructured Data."
+  // Volume Renderer for Unstructured Data").
   static float Psi(float length,
                    float attenuation_front, float attenuation_back);
 

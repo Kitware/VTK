@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING)
       TestLODProp3D
       TestOnePoint
       TestParallelCoordinates
+      TestPartialPreIntegration
       TestStyleJoystickActor
       TestStyleJoystickCamera
       TestStyleRubberBandZoom
