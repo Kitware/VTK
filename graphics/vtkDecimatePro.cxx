@@ -71,6 +71,7 @@ static vtkTriArray *T; //cycle of triangles around point
 static int NumCollapses; // Number of times edge collapses occur
 static int NumMerges; // Number of times vertex merges occur
 static int Split, DeferSplit; // Controls whether and when vertex splitting occurs
+static int VertexDegree; // Maximum number of triangles that can use a vertex
 
 // Helper functions
 static float ComputeSimpleError(float x[3], float normal[3], float point[3]);
@@ -256,7 +257,7 @@ vtkDecimatePro::vtkDecimatePro()
   this->Splitting = 1;
   this->DeferSplitting = 1;
   this->NumberOfOperations = 0;
-
+  this->Degree = 25;
   this->InflectionPointRatio = 10.0;
 }
 
@@ -301,6 +302,7 @@ void vtkDecimatePro::Execute()
   CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
   Split = this->Splitting;
   DeferSplit = this->DeferSplitting;
+  VertexDegree = this->Degree;
 
   // Build cell data structure. Need to copy triangle connectivity data
   // so we can modify it.
@@ -547,7 +549,7 @@ static int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
 
 // Check cases with high vertex degree
 //
-  if ( numTris >= VTK_MAX_TRIS_PER_VERTEX ) 
+  if ( numTris >= VertexDegree ) 
     {
     return VTK_HIGH_DEGREE_VERTEX;
     }
@@ -950,15 +952,14 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 
      //changes in group size control how to split loop
     if ( numTris <= 1 ) return; //prevents infinite recursion
+    maxGroupSize = ( numTris < VertexDegree ? numTris : (VertexDegree - 1));
 
-    if ( type == VTK_SIMPLE_VERTEX || type == VTK_BOUNDARY_VERTEX ||
-    type == VTK_EDGE_END_VERTEX || type == VTK_CRACK_TIP_VERTEX ||
-    type == VTK_DEGENERATE_VERTEX )
-      maxGroupSize = numTris / 2;
+    if ( type == VTK_NON_MANIFOLD_VERTEX || type == VTK_HIGH_DEGREE_VERTEX )
+      ; //use maxGroupSize
     else
-      maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
+      maxGroupSize /= 2; //prevents infinite recursion
 
-    for ( i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
+    for ( i=0; i < numTris; i++ ) triangles.InsertId(i,tris[i]);
 
     // now group into manifold pieces
     for ( i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
@@ -1438,6 +1439,8 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
   os << indent << "Defer Splitting: "  << (this->DeferSplitting ? "On\n" : "Off\n");
+  os << indent << "Split Angle: " << this->SplitAngle << "\n";
+  os << indent << "Degree: " << this->Degree << "\n";
 
   os << indent << "Inflection Point Ratio: " << this->InflectionPointRatio << "\n";
   os << indent << "Number Of Inflection Points: " 

@@ -133,6 +133,14 @@ public:
   vtkBooleanMacro(DeferSplitting,int);
 
   // Description:
+  // If the number of triangles connected to a vertex exceeds "Degree", then 
+  // the vertex will be split. (NOTE: the complexity of the triangulation algorithm 
+  // is proportional to Degree^2. Setting degree small can improve the
+  // performance of the algorithm.)
+  vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
+  vtkGetMacro(Degree,int);
+  
+  // Description:
   // Get the number of "operations" used to reduce the data to the 
   // requested reduction value. An operation is something like an edge
   // collapse or vertex split that modifies the mesh. The number of
@@ -171,6 +179,7 @@ protected:
   float SplitAngle;
   int Splitting;
   int DeferSplitting;
+  int Degree;
   int NumberOfOperations;
   float InflectionPointRatio;
   vtkIntArray InflectionPoints;
