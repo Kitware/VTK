@@ -79,6 +79,8 @@ public:
   ~vtkImageData();
   char *GetClassName() {return "vtkImageData";};
 
+  int GetReferenceCount();
+
   // Description:
   // Get the vtkScalars that contain the actual data.
   vtkGetObjectMacro(Scalars,vtkScalars);

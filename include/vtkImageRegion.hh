@@ -269,8 +269,8 @@ public:
   ~vtkImageRegion();
   char *GetClassName() {return "vtkImageRegion";};
 
-  
-  
+  int GetReferenceCount();
+  void CopyRegionData(vtkImageRegion *region);
 
   // Stuff to use region as a source.
   void UpdateRegion(vtkImageRegion *region); 
@@ -309,6 +309,7 @@ public:
   
   // Description:
   // Returns a pointer relative to the current volume, image or line.
+  void *GetVoidPointer(int coords[5]){return this->GetVoidPointer5d(coords);};
   void *GetVoidPointer5d(int coordinates[5]);
   void *GetVoidPointer4d(int coordinates[4]);
   void *GetVoidPointer3d(int coordinates[3]);
@@ -323,6 +324,7 @@ public:
   void *GetVoidPointer1d(int c0);
   // Description:
   // Returns pointer at origin of current volume, image or line.
+  void *GetVoidPointer(){return this->GetVoidPointer5d();};
   void *GetVoidPointer5d();
   void *GetVoidPointer4d();
   void *GetVoidPointer3d();

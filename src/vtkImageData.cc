@@ -73,6 +73,25 @@ vtkImageData::~vtkImageData()
 
 //----------------------------------------------------------------------------
 // Description:
+// Returns the number of references that exist to this data.
+// If reference count is 1 then you can modify the data without worrying.
+int vtkImageData::GetReferenceCount()
+{
+  int dataCount;
+  int scalarCount;
+  
+  dataCount = this->GetRefCount();
+  scalarCount = this->Scalars->GetRefCount();
+  
+  return dataCount + scalarCount - 1;
+}
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
 // This method sets the bounds of the data, and 
 // should be called before the data object is allocated.
 void vtkImageData::SetBounds(int min0, int max0, int min1, int max1, 
