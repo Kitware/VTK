@@ -68,12 +68,23 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->QuadricArray = NULL;
   this->NumberOfBinsUsed = 0;
   this->Log = vtkTimerLog::New();
+  this->BinSizeSet = 0;
+  this->OutputTriangles = vtkCellArray::New();
+  this->InputList = NULL;
+  this->NumberOfExpectedInputs = 1;
+  this->AbortExecute = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::~vtkQuadricClustering()
 {
   this->Log->Delete();
+  this->OutputTriangles->Delete();
+  if (this->InputList)
+    {
+    this->InputList->Delete();
+    this->InputList = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -84,27 +95,43 @@ void vtkQuadricClustering::Execute()
     this->Log->StartTimer();
     }
 
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  vtkCellArray *outputTris = vtkCellArray::New();
-  vtkCellArray *inputTris = input->GetPolys();
-  int numTris = input->GetNumberOfPolys(); // assuming we only have triangles
-  int i, j, numPts, binIds[3];
-  int *cellPtIds;
-  vtkPoints *inputPoints = input->GetPoints();
-  vtkPoints *outputPoints = vtkPoints::New();
-  float triPts[3][3], quadric[9], quadric4x4[4][4];
-  vtkIdList *triPtIds = vtkIdList::New();
-  float newPt[3];
-  int vertexId;
-  int abortExecute = 0;
-  
-  if (numTris == 0)
+  if (this->GetInput() == NULL)
     {
-    vtkErrorMacro("No triangles to decimate");
+    // The user may be calling StartAppend, Append, and EndAppend explicitly.
+    return;
+    }
+  
+  int numInputs = this->GetNumberOfInputs();
+  int i;
+  
+  this->NumberOfExpectedInputs = this->GetNumberOfInputs();
+
+  this->StartAppend();
+  for (i = 0; i < numInputs; i++)
+    {
+    this->Append(this->GetInput(i));
+    }
+  this->EndAppend();
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::UpdateData(vtkDataObject *output)
+{
+  if (this->GetInput() == NULL)
+    {
+    // we do not want to release the data because user might
+    // have called Append ...
     return;
     }
 
+  this->vtkPolyDataToPolyDataFilter::UpdateData( output );
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::StartAppend()
+{
+  int i;
+  
   this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
                                             this->NumberOfYDivisions *
                                             this->NumberOfZDivisions];
@@ -113,30 +140,61 @@ void vtkQuadricClustering::Execute()
     {
     this->QuadricArray[i].VertexId = -1;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::Append(vtkPolyData *pd)
+{
+  vtkCellArray *inputTris = pd->GetPolys();
+  int numTris = pd->GetNumberOfPolys(); // assuming we only have triangles
+  vtkPoints *inputPoints = pd->GetPoints();
+  int *cellPtIds;
+  float triPts[3][3], quadric[9], quadric4x4[4][4];
+  int i, j, numPts, binIds[3];
+  vtkIdList *triPtIds = vtkIdList::New();
+  int vertexId;
   
-  this->SetBounds(input->GetBounds());
-  this->SetXBinSize((this->Bounds[1] - this->Bounds[0]) /
-		    this->NumberOfXDivisions);
-  this->SetYBinSize((this->Bounds[3] - this->Bounds[2]) /
-		    this->NumberOfYDivisions);
-  this->SetZBinSize((this->Bounds[5] - this->Bounds[4]) /
-		    this->NumberOfZDivisions);
+  if (numTris== 0)
+    {
+    vtkErrorMacro("No triangles to decimate");
+    return;
+    }
+  
+  if (this->Bounds[0] == 0 && this->Bounds[1] == 0 && this->Bounds[2] == 0 &&
+      this->Bounds[3] == 0 && this->Bounds[4] == 0 && this->Bounds[5] == 0)
+    {
+    // Set the bounds from the input if they haven't been set already.  This is
+    // to allow the user to set the bounds larger than the bounds of the input.
+    // If the user sets the bounds smaller than those of the input, then all
+    // the points outside the bounds will fall in the outermost bins.
+    this->SetBounds(pd->GetBounds());
+    }
+    
+  if (!this->BinSizeSet)
+    {
+    this->SetXBinSize((this->Bounds[1] - this->Bounds[0]) /
+                      this->NumberOfXDivisions);
+    this->SetYBinSize((this->Bounds[3] - this->Bounds[2]) /
+                      this->NumberOfYDivisions);
+    this->SetZBinSize((this->Bounds[5] - this->Bounds[4]) /
+                      this->NumberOfZDivisions);
+    this->BinSizeSet = 1;
+    }
   
   inputTris->InitTraversal();
-  for (i = 0; i < numTris && !abortExecute ; i++)
+  
+  for (i = 0; i < numTris && !this->AbortExecute ; i++)
     {
-
     if ( ! (i % 10000) ) 
       {
       vtkDebugMacro(<<"Visiting polygon #" << i);
-      this->UpdateProgress (0.5*i/numTris);
+      this->UpdateProgress(0.8/this->NumberOfExpectedInputs * i/numTris);
       if (this->GetAbortExecute())
         {
-        abortExecute = 1;
+        this->AbortExecute = 1;
         break;
         }
       }
-
     inputTris->GetNextCell(numPts, cellPtIds);
     for (j = 0; j < 3; j++)
       {
@@ -176,23 +234,37 @@ void vtkQuadricClustering::Execute()
         quadric[8] = quadric4x4[2][3];
         this->AddQuadric(binIds[j], quadric);
         }
-      outputTris->InsertNextCell(triPtIds);
+      this->OutputTriangles->InsertNextCell(triPtIds);
       }
     }
+  
+  triPtIds->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::EndAppend()
+{
+  int i;
+  vtkPoints *outputPoints = vtkPoints::New();
+  float newPt[3];
+  vtkPolyData *output = this->GetOutput();
+  
   for (i = 0; i < this->NumberOfXDivisions *
-         this->NumberOfYDivisions * this->NumberOfZDivisions; i++)
+         this->NumberOfYDivisions * this->NumberOfZDivisions &&
+         !this->AbortExecute; i++)
     {
     if ( ! (i % 1000) ) 
       {
       vtkDebugMacro(<<"Finding point in bin #" << i);
-      this->UpdateProgress (0.5*i/this->NumberOfBinsUsed);
+      this->UpdateProgress (0.2*i/this->NumberOfXDivisions *
+        this->NumberOfYDivisions * this->NumberOfZDivisions);
       if (this->GetAbortExecute())
         {
-        abortExecute = 1;
+        this->AbortExecute = 1;
         break;
         }
       }
-    
+
     if (this->QuadricArray[i].VertexId != -1)
       {
       this->ComputeRepresentativePoint(this->QuadricArray[i].Quadric, i,
@@ -201,11 +273,8 @@ void vtkQuadricClustering::Execute()
       }
     }
   
-  output->SetPolys(outputTris);
+  output->SetPolys(this->OutputTriangles);
   output->SetPoints(outputPoints);
-  
-  outputTris->Delete();
-  triPtIds->Delete();
   outputPoints->Delete();
   delete [] this->QuadricArray;
 
@@ -213,7 +282,53 @@ void vtkQuadricClustering::Execute()
     {
     this->Log->StopTimer();
     vtkDebugMacro(<<"Execution took: "<<this->Log->GetElapsedTime()<<" seconds.");
+    }  
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddInput(vtkPolyData *input)
+{
+  this->vtkProcessObject::AddInput(input);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData *vtkQuadricClustering::GetInput(int idx)
+{
+  if (idx >= this->NumberOfInputs || idx < 0)
+    {
+    return NULL;
     }
+  
+  return (vtkPolyData *)(this->Inputs[idx]);
+}
+
+//----------------------------------------------------------------------------
+// Remove a piece of a dataset from the list to decimate.
+void vtkQuadricClustering::RemoveInput(vtkPolyData *pd)
+{
+  this->vtkProcessObject::RemoveInput(pd);
+}
+
+//----------------------------------------------------------------------------
+vtkDataSetCollection *vtkQuadricClustering::GetInputList()
+{
+  int idx;
+  
+  if (this->InputList)
+    {
+    this->InputList->Delete();
+    }
+  this->InputList = vtkDataSetCollection::New();
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      this->InputList->AddItem((vtkDataSet*)(this->Inputs[idx]));
+      }
+    }  
+  
+  return this->InputList;
 }
 
 //----------------------------------------------------------------------------

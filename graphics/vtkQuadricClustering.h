@@ -84,6 +84,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkTimerLog.h"
+#include "vtkDataSetCollection.h"
 
 typedef struct {
   int VertexId;
@@ -112,6 +113,51 @@ public:
   int *GetNumberOfDivisions();
   void GetNumberOfDivisions(int div[3]);
 
+  // Description:
+  // Set the bounds for the input poly data.  This method is public to allow
+  // the user to specify bounds larger than those of the 1st input specified.
+  vtkSetVector6Macro(Bounds, float);
+  
+  // Description:
+  // Add another input to the list of those to be decimated.
+  void AddInput(vtkPolyData *input);
+
+  // Description:
+  // Get any input of this filter.
+  vtkPolyData *GetInput(int idx);
+  vtkPolyData *GetInput() { return (vtkPolyData*)this->GetInput( 0 ); };
+  
+  // Description:
+  // Remove a dataset from the list of data to append.
+  void RemoveInput(vtkPolyData *in);
+
+  // Description:
+  // Returns a copy of the input array.  Modifications to this list
+  // will not be reflected in the actual inputs.
+  vtkDataSetCollection *GetInputList();
+  
+  // Description:
+  // keeps superclass's UpdateData from being called if input is NULL
+  virtual void UpdateData(vtkDataObject *output);
+  
+  // Description:
+  // method to be called before Append.
+  void StartAppend();
+  
+  // Description:
+  // Process the triangles from this input poly data.
+  void Append(vtkPolyData *pd);
+  
+  // Description:
+  // Determine the representative point for each bin that has been visited.
+  // Needs to be called after Append.
+  void EndAppend();
+  
+  // Description:
+  // Set/Get the number of inputs.  (This is used for updating progress.)
+  vtkSetMacro(NumberOfExpectedInputs, int);
+  vtkGetMacro(NumberOfExpectedInputs, int);
+  
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -143,10 +189,6 @@ protected:
   // Add this quadric to the quadric already associated with this bin.
   void AddQuadric(int binId, float quadric[9]);
 
-  // Description:
-  // Set the bounds for the input poly data.
-  vtkSetVector6Macro(Bounds, float);
-
   int NumberOfXDivisions;
   int NumberOfYDivisions;
   int NumberOfZDivisions;
@@ -157,8 +199,13 @@ protected:
   float ZBinSize;
   VTK_POINT_QUADRIC* QuadricArray;
   int NumberOfBinsUsed;
-
+  int BinSizeSet;
+  vtkCellArray *OutputTriangles;
+  vtkDataSetCollection *InputList;
   vtkTimerLog* Log;
+  int NumberOfExpectedInputs;
+  int AbortExecute; // needs to be an ivar because if we abort execute during
+                    // Append, don't want EndAppend to execute either
 };
 
 #endif
