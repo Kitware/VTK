@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.5");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -80,11 +80,11 @@ static int LinearWedges[8][6] = { {0,6,8,12,15,17},
                                   {15,13,16,9,4,10},
                                   {17,16,14,11,10,5} };
 
-static int WedgeFaces[5][8] = { {0,1,4,3,6,13,9,12}, 
-                                {1,2,5,4,7,14,10,13},
-                                {0,3,5,2,12,11,14,8},
-                                {0,2,1,8,7,6,0,0},
-                                {3,4,5,9,10,11,0,0}};
+static int WedgeFaces[5][8] = { {0,3,4,1,12,9,13,6},
+                                {1,4,5,2,13,10,14,7},
+                                {2,5,3,0,14,11,12,8},
+                                {0,1,2,6,7,8,0,0},
+                                {3,5,4,11,10,9,0,0}};
 
 static int WedgeEdges[9][3] = { {0,1,6}, {1,2,7}, {0,2,8},
                                 {0,3,12},{1,4,13},{2,5,14},
