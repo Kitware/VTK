@@ -30,8 +30,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates an instance of vtkImageGaussianSmmoth with the following
-  // defaults: Dimensioonality 3, StandardDeviations( 2, 2, 2), 
+  // Creates an instance of vtkImageGaussianSmooth with the following
+  // defaults: Dimensionality 3, StandardDeviations( 2, 2, 2), 
   // Radius Factors ( 1.5, 1.5, 1.5)
   static vtkImageGaussianSmooth *New();
   
@@ -54,7 +54,7 @@ public:
         {this->SetStandardDeviations(a,b,c);}
 
   // Description:
-  // Sets/Gets the Radius Factors of the gaussian in pixel units.
+  // Sets/Gets the Radius Factors of the gaussian (no unit).
   // The radius factors determine how far out the gaussian kernel will 
   // go before being clamped to zero.
   vtkSetVector3Macro(RadiusFactors, double);
