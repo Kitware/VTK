@@ -1,7 +1,7 @@
 package require vtk
 package require vtkinteraction
 
-vtkMesaRenderWindow renWin
+vtkXMesaRenderWindow renWin
 
 vtkMesaRenderer ren
 renWin AddRenderer ren
