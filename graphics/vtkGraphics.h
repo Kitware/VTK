@@ -220,7 +220,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGridWriter.h"
 #include "vtkRecursiveDividingCubes.h"
 #include "vtkRecursiveSphereDirectionEncoder.h"
-#include "vtkRemoveGhostCells.h"
 #include "vtkRender.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowCollection.h"
