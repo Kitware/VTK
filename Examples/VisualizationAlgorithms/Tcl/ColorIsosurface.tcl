@@ -39,7 +39,7 @@ vtkPolyDataMapper isoMapper
     isoMapper ScalarVisibilityOn
     isoMapper SetScalarRange 0 1500
     isoMapper SetScalarModeToUsePointFieldData
-    isoMapper ColorByArrayComponent "Velocity Magnitude" 0
+    isoMapper ColorByArrayComponent "VelocityMagnitude" 0
 
 vtkLODActor isoActor
     isoActor SetMapper isoMapper
