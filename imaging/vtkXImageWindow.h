@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to Matt Turek who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -69,6 +69,10 @@ public:
   const char *GetClassName() {return "vtkXImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Implements SetWindowName for a X window
+  void SetWindowName(char* name);
+  
   // Description:
   // Gets the number of colors in the pseudo color map.
   vtkGetMacro(NumberOfColors,int);

@@ -93,8 +93,6 @@ public:
   virtual void *GetGenericContext();
   virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
   
-  void     SetWindowName(char *);
-
   // Description:
   // Get the X properties of an ideal rendering window.
   virtual Colormap GetDesiredColormap();

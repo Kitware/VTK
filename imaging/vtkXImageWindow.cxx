@@ -357,6 +357,25 @@ void vtkXImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+void vtkXImageWindow::SetWindowName(char* name)
+{
+  XTextProperty win_name_text_prop;
+
+  vtkImageWindow::SetWindowName(name);
+  
+  if (this->Mapped)
+    {
+    if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
+      {
+      vtkWarningMacro(<< "Can't rename window"); 
+      return;
+      }
+    
+    XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
+    XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
+    }
+}
+
 
 void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
 {

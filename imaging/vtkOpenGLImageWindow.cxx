@@ -684,24 +684,6 @@ void vtkOpenGLImageWindow::EraseWindow()
   glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
 }
 
-void vtkOpenGLImageWindow::SetWindowName(char * name)
-{
-  XTextProperty win_name_text_prop;
-
-  vtkImageWindow::SetWindowName( name );
-
-  if (this->Mapped)
-    {
-    if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
-      {
-      vtkWarningMacro(<< "Can't rename window"); 
-      return;
-      }
-    
-    XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
-    XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
-    }
-}
 
 // Set the X display id for this RenderWindow to use to a pre-existing 
 // X display id.
