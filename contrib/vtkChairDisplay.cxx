@@ -62,7 +62,11 @@ vtkChairDisplay::~vtkChairDisplay()
     this->Scalars->Delete();
     this->Scalars = NULL;
     }
-  this->SetInput(NULL);
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
 }
 
 void vtkChairDisplay::Update()
@@ -611,6 +615,15 @@ void vtkChairDisplay::GenerateTexture(vtkImageData *inData,
 void vtkChairDisplay::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
+
+  if ( this->Input )
+    {
+    os << indent << "Input: " << this->Input << "\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
   os << indent << "XNotchSize: " << this->XNotchSize << "\n";
   os << indent << "YNotchSize: " << this->YNotchSize << "\n";
