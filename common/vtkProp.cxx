@@ -43,7 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyPaths.h"
 
 
-//-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 vtkProp* vtkProp::New()
 {
   // First try to create the object from the vtkObjectFactory
