@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING)
       TestFlyTo
       TestStyleJoystickActor
       TestStyleJoystickCamera
+      TestStyleTrackball
       TestStyleTrackballActor
       TestStyleTrackballCamera
       volRCClipPlanes
