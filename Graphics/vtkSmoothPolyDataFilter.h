@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSmoothPolyDataFilter - adjust point positions using Laplacian smoothing
 // .SECTION Description
-// vtkSmoothPolyDataFilter.h is a filter that adjusts point coordinates using 
+// vtkSmoothPolyDataFilter is a filter that adjusts point coordinates using 
 // Laplacian smoothing. The effect is to "relax" the mesh, making the cells 
 // better shaped and the vertices more evenly distributed. Note that this
 // filter operates on the lines, polygons, and triangle strips composing an
