@@ -90,6 +90,7 @@ vtkCellLocator \
 vtkCellPicker \
 vtkCleanPolyData \
 vtkClipPolyData \
+vtkColorTransferFunction \
 vtkCone \
 vtkConeSource \
 vtkConnectivityFilter \
