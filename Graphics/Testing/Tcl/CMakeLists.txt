@@ -15,6 +15,7 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_USE_MANGLED_MESA)
 
     FOREACH ( tfile
+      AutomaticPlaneGeneration
       blankGrid
       Canny
       capCow
