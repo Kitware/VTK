@@ -225,7 +225,6 @@ private:
 
 };
 
-#endif
 
 inline void 
 vtkByteSwap::Swap2Bytes(char* &data)
@@ -251,3 +250,5 @@ vtkByteSwap::Swap8Bytes(char* &data)
   one_byte = data[2]; data[2] = data[5]; data[5] = one_byte;
   one_byte = data[3]; data[3] = data[4]; data[4] = one_byte; 
 }
+
+#endif
