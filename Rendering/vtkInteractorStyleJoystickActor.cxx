@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.16");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.17");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, 
-                                                         int shift, 
+                                                         int vtkNotUsed(shift), 
                                                          int x, 
                                                          int y) 
 {

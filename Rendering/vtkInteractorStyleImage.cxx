@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.15");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.16");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -78,8 +78,8 @@ void vtkInteractorStyleImage::EndPick()
   this->StopState();
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMouseMove(int ctrl, 
-                                          int shift, 
+void vtkInteractorStyleImage::OnMouseMove(int vtkNotUsed(ctrl), 
+                                          int vtkNotUsed(shift),
                                           int x, 
                                           int y) 
 {
