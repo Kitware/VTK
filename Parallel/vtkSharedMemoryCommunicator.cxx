@@ -19,6 +19,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkMultiProcessController.h"
+#include "vtkThreadMessager.h"
 #include "vtkObjectFactory.h"
 
 class vtkSharedMemoryCommunicatorMessage
@@ -34,7 +35,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.18");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.19");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -68,12 +69,7 @@ vtkSharedMemoryCommunicator::vtkSharedMemoryCommunicator()
 
   this->MessageListLock = new vtkSimpleCriticalSection;
   
-#ifdef _WIN32
-  this->MessageSignal = CreateEvent(0, FALSE, FALSE, 0);
-#else
-  this->Gate = new vtkSimpleCriticalSection;
-  this->Gate->Lock();
-#endif
+  this->Messager = vtkThreadMessager::New();
 
   this->MessageListStart = 0;
   this->MessageListEnd = 0;
@@ -87,11 +83,8 @@ vtkSharedMemoryCommunicator::~vtkSharedMemoryCommunicator()
   // Note the communicators are not deleted because ThreadedControllers
   // delete them when they are destroyed
   delete this->MessageListLock;
-#ifdef _WIN32
-  CloseHandle(this->MessageSignal);
-#else
-  delete this->Gate;
-#endif
+
+  this->Messager->Delete();
 }
 
 void vtkSharedMemoryCommunicator::Initialize(int nThreads, int forceDeepCopy)
@@ -146,6 +139,7 @@ int vtkSharedMemoryCommunicator::Send(vtkDataObject* object,
   message->Tag = tag;
   
   receiveCommunicator->AddMessage(message);
+  receiveCommunicator->MessageListLock->Unlock();
 
   // Check to see if the other process is blocked waiting for this message.
   if (receiveCommunicator->WaitingForId == this->LocalThreadId ||
@@ -156,11 +150,13 @@ int vtkSharedMemoryCommunicator::Send(vtkDataObject* object,
     // Do this here before the MessageList is unlocked (avoids a race condition).
     receiveCommunicator->WaitingForId = 
       vtkMultiProcessController::INVALID_SOURCE;
+
     // Tell the receiving thread that there is a new message.
+    receiveCommunicator->Messager->WaitForReceiver();
     this->SignalNewMessage(receiveCommunicator);
+    receiveCommunicator->Messager->DisableWaitForReceiver();
     }
 
-  receiveCommunicator->MessageListLock->Unlock();
   // <<<<<<<<< Unlock <<<<<<<<<<
 
   return 1;
@@ -182,6 +178,7 @@ int vtkSharedMemoryCommunicator::Send(vtkDataArray* object,
   message->Tag = tag;
   
   receiveCommunicator->AddMessage(message);
+  receiveCommunicator->MessageListLock->Unlock();
 
   // Check to see if the other process is blocked waiting for this message.
   if (receiveCommunicator->WaitingForId == this->LocalThreadId ||
@@ -193,10 +190,11 @@ int vtkSharedMemoryCommunicator::Send(vtkDataArray* object,
     receiveCommunicator->WaitingForId = 
       vtkMultiProcessController::INVALID_SOURCE;
     // Tell the receiving thread that there is a new message.
+    receiveCommunicator->Messager->WaitForReceiver();
     this->SignalNewMessage(receiveCommunicator);
+    receiveCommunicator->Messager->DisableWaitForReceiver();
     }
 
-  receiveCommunicator->MessageListLock->Unlock();
   // <<<<<<<<< Unlock <<<<<<<<<<
 
   return 1;
@@ -207,6 +205,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataObject* object,
                                          void *data, int dataLength,
                                          int remoteThreadId, int tag)
 {
+  this->Messager->DisableWaitForReceiver();
   vtkSharedMemoryCommunicatorMessage* message;
 
   // >>>>>>>>>> Lock >>>>>>>>>>
@@ -216,6 +215,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataObject* object,
   message = this->FindMessage(remoteThreadId, tag);
   while (message == NULL)
     {
+    this->Messager->EnableWaitForReceiver();
     
     this->WaitingForId = remoteThreadId;
     // Temporarily unlock the mutex until we receive the message.
@@ -261,6 +261,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object,
                                          int vtkNotUsed(dataLength),
                                          int remoteThreadId, int tag)
 {
+  this->Messager->DisableWaitForReceiver();
   vtkSharedMemoryCommunicatorMessage* message;
 
   // >>>>>>>>>> Lock >>>>>>>>>>
@@ -270,6 +271,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object,
   message = this->FindMessage(remoteThreadId, tag);
   while (message == NULL)
     {
+    this->Messager->EnableWaitForReceiver();
     
     this->WaitingForId = remoteThreadId;
     // Temporarily unlock the mutex until we receive the message.
@@ -281,7 +283,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object,
     message = this->FindMessage(remoteThreadId, tag);
     if (message == NULL)
       {
-      vtkErrorMacro("I passed through the gate, but there is no message.");
+      //vtkErrorMacro("I passed through the gate, but there is no message.");
       }
     }
 
@@ -615,20 +617,12 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* data,
 //----------------------------------------------------------------------------
 void vtkSharedMemoryCommunicator::WaitForNewMessage()
 {
-#ifdef _WIN32
-  WaitForSingleObject( this->MessageSignal, INFINITE );
-#else
-  this->Gate->Lock();
-#endif
+  this->Messager->WaitForMessage();
 }
 
 //----------------------------------------------------------------------------
 void vtkSharedMemoryCommunicator::SignalNewMessage(
   vtkSharedMemoryCommunicator* receiveCommunicator)
 {
-#ifdef _WIN32
-  SetEvent( receiveCommunicator->MessageSignal );
-#else
-  receiveCommunicator->Gate->Unlock();
-#endif
+  receiveCommunicator->Messager->SendMessage();
 }

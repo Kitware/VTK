@@ -35,6 +35,7 @@
 class vtkThreadedController;
 class vtkSharedMemoryCommunicatorMessage;
 class vtkSimpleCriticalSection;
+class vtkThreadMessager;
 
 class VTK_PARALLEL_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
 {
@@ -142,15 +143,7 @@ protected:
   void AddMessage(vtkSharedMemoryCommunicatorMessage *message);
   vtkSharedMemoryCommunicatorMessage* FindMessage(int sendId, int tag);
 
-#ifdef _WIN32
-  // Event signaling the arrival of a new message.
-  // Windows implementation only.
-  HANDLE MessageSignal;
-#else
-  // This mutex is normally locked.  It is used to block the execution 
-  // of the receiving process when the send has not been called yet.
-  vtkSimpleCriticalSection* Gate;
-#endif
+  vtkThreadMessager* Messager;
 
   void SignalNewMessage(vtkSharedMemoryCommunicator* receiveCommunicator);
 
