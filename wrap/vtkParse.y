@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   FILE *fhint;
   char temps[2048];
   int  in_public;
+  int  in_protected;
   int  HaveComment;
   char CommentText[50000];
   int CommentState;
@@ -113,6 +114,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         sprintf(currentFunction->Signature,"%s%s",tmp,arg);
         }
       free(tmp);
+      }
+    }
+  void delSig(void)
+    {
+    if (currentFunction->Signature)
+      {
+      free(currentFunction->Signature);
+      currentFunction->Signature = NULL;
       }
     }
 %}
@@ -186,7 +195,7 @@ class_def : CLASS VTK_ID
 
 class_def_body: class_def_item | class_def_item class_def_body;
 
-class_def_item: scope_type ':' | var 
+class_def_item: scope_type ':' | var
    | function | FRIEND function | macro ';' | macro;
 
 function: '~' func { preSig("~"); output_function(); } 
@@ -212,7 +221,8 @@ function: '~' func { preSig("~"); output_function(); }
          output_function();
 	 };
 
-func: func_beg  { postSig(");"); openSig = 0; } func_end
+func: func_beg { postSig(")"); } maybe_const { postSig(";"); openSig = 0; } 
+      func_end
     {
       openSig = 1;
       currentFunction->Name = $<str>1; 
@@ -232,16 +242,18 @@ func: func_beg  { postSig(");"); openSig = 0; } func_end
       data.IsAbstract = 1;
     };
 
+maybe_const: | CONST {postSig(" const");};
+
 func_beg: any_id '('  {postSig(" ("); } args_list ')';
 
+const_mod: CONST {postSig("const ");}
+
+static_mod: STATIC {postSig("static ");}
 
 any_id: VTK_ID {postSig($<str>1);} | ID {postSig($<str>1);};
 
 func_end: ';' 
-    | CONST ';'
-    | CONST '{' maybe_other '}' ';' 
     | '{' maybe_other '}' ';' 
-    | CONST '{' maybe_other '}'  
     | '{' maybe_other '}'  
     | ':' maybe_other_no_semi ';';
 
@@ -276,7 +288,7 @@ arg: type
 
 opt_var_assign: | '=' float_num;
 
-var: type var_id ';' | VAR_FUNCTION ';';
+var:  type var_id ';' {delSig();} | VAR_FUNCTION ';' {delSig();};
 
 var_id: any_id var_array { $<integer>$ = $<integer>2; };
 
@@ -288,10 +300,10 @@ var_array: { $<integer>$ = 0; }
            { postSig("[]"); $<integer>$ = 300; };
 
 
-type: CONST type_red1 {$<integer>$ = 1000 + $<integer>2;} 
+type: const_mod type_red1 {$<integer>$ = 1000 + $<integer>2;} 
           | type_red1 {$<integer>$ = $<integer>1;}; 
-          | STATIC type_red1 {$<integer>$ = 2000 + $<integer>2;}; 
-          | STATIC CONST type_red1 {$<integer>$ = 3000 + $<integer>3;}; 
+          | static_mod type_red1 {$<integer>$ = 2000 + $<integer>2;}; 
+          | static_mod const_mod type_red1 {$<integer>$ = 3000 + $<integer>3;}; 
 
 type_red1: type_red2 {$<integer>$ = $<integer>1;} 
          | type_red2 type_indirection 
@@ -357,8 +369,9 @@ scope_list: scope_type VTK_ID
       data.NumberOfSuperClasses++; 
     } ',' scope_list;
 
-scope_type: PUBLIC {in_public = 1;} | PRIVATE {in_public = 0;} 
-          | PROTECTED {in_public = 0;};
+scope_type: PUBLIC {in_public = 1; in_protected = 0;} 
+          | PRIVATE {in_public = 0; in_protected = 0;} 
+          | PROTECTED {in_public = 0; in_protected = 1;};
 
 float_num: '-' float_prim | float_prim;
 
@@ -477,7 +490,7 @@ macro:
       type_red2 ')'
    { 
    char *local = strdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s , %s);",$<str>3,
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s);",$<str>3,
      local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -524,7 +537,7 @@ macro:
       type_red2 ')'
    { 
    char *local = strdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s);",
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
      $<str>3, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -573,7 +586,7 @@ macro:
       type_red2 ')'
    { 
    char *local = strdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s);",
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
      $<str>3, local, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -624,7 +637,7 @@ macro:
       type_red2 ')'
    { 
    char *local = strdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s, %s, %s);",
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
      $<str>3, local, local, local, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -721,7 +734,7 @@ macro:
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float , float);",
+     sprintf(currentFunction->Signature,"void Set%s (float, float);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
@@ -769,7 +782,7 @@ macro:
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float , float, float);",
+     sprintf(currentFunction->Signature,"void Set%s (float, float, float);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
@@ -808,7 +821,7 @@ macro:
    { 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature, "const char *GetClassName();");
+   sprintf(currentFunction->Signature, "const char *GetClassName ();");
    sprintf(temps,"GetClassName"); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -838,8 +851,8 @@ maybe_other_no_semi : | other_stuff_no_semi maybe_other_no_semi;
 other_stuff : ';' | other_stuff_no_semi;
 
 other_stuff_no_semi : OTHER | braces | parens | '*' | '=' | ':' | ',' | '.'
-   | STRING | type_red2 | NUM | CLASS_REF | '&' | brackets | CONST | OPERATOR
-   | '-' | '~' | STATIC | ARRAY_NUM;
+   | STRING | type_red2 | NUM | CLASS_REF | '&' | brackets | CONST 
+   | OPERATOR | '-' | '~' | STATIC | ARRAY_NUM;
 
 braces: '{' maybe_other '}';
 parens: '(' maybe_other ')';
@@ -904,6 +917,7 @@ void output_function()
     }
 
   currentFunction->IsPublic = in_public;
+  currentFunction->IsProtected = in_protected;
   
   /* look for VAR FUNCTIONS */
   if (currentFunction->NumberOfArguments

@@ -49,6 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     int   ArrayFailure;
     int   IsPureVirtual;
     int   IsPublic;
+    int   IsProtected;
     int   IsOperator;
     int   HaveHint;
     int   HintSize;
