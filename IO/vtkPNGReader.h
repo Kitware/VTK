@@ -38,7 +38,9 @@ public:
 protected:
   vtkPNGReader() {};
   ~vtkPNGReader() {};
-  
+  //Description: create a clone of this object.
+  virtual vtkImageReader2* MakeObject() { return vtkPNGReader::New(); }
+
   // Description: is the given file name a png file?
   virtual int CanReadFile(const char* fname);
  // Description:

@@ -53,8 +53,10 @@ public:
   // Description:
   // Returns the depth of the BMP, either 8 or 24.
   vtkGetMacro(Depth,int);
+  //Description: create a clone of this object.
+  virtual vtkImageReader2* MakeObject() { return vtkBMPReader::New(); }
   
-// Description: is the given file name a BMP file?
+  // Description: is the given file name a BMP file?
   virtual int CanReadFile(const char* fname);
   // Description:
   // Get the file extensions for this format.

@@ -28,7 +28,7 @@
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.9");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.10");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -96,7 +96,6 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
       ret = vtkImageReader2::SafeDownCast(o);
       if(ret && ret->CanReadFile(path))
         {
-        ret->Register(0);
         return ret;
         }
       }
@@ -108,9 +107,8 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
     {
     if(ret->CanReadFile(path))
       {
-      ret->Register(ret); // up the reference count for return as this is
       // like a new call
-      return ret;
+      return ret->MakeObject();
       }
     }
   return 0;

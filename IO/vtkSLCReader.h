@@ -43,6 +43,8 @@ public:
   // Description:
   // Was there an error on the last read performed?
   vtkGetMacro(Error,int);
+  //Description: create a clone of this object.
+  virtual vtkImageReader2* MakeObject() { return vtkSLCReader::New(); }
   
   // Description:
   // Is the given file an SLC file?

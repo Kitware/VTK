@@ -170,7 +170,10 @@ public:
   // Set/Get the internal file name
   void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
-  
+  // Description: 
+  // virtual constructor.  This will make an object that is the
+  // same type as the object that the call is made from.
+  virtual vtkImageReader2* MakeObject() { return vtkImageReader2::New(); }
   // Description:
   // Return 1 if the reader can read the given file name.
   // Should be implemented by all sub-classes of vtkImageReader2.
