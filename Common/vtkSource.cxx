@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkSource.h"
-#include "vtkDataObject.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
-#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.93");
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
+#include "vtkErrorCode.h"
+#include "vtkFieldData.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkSource, "1.94");
 
 #ifndef NULL
 #define NULL 0

@@ -16,6 +16,7 @@
 
 =========================================================================*/
 #include "vtkLegendBoxActor.h"
+
 #include "vtkActor.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -24,8 +25,9 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
+#include "vtkTextMapper.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.19");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.20");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkLegendBoxActor::vtkLegendBoxActor()

@@ -36,8 +36,8 @@
 #define __vtkDataObject_h
 
 #include "vtkObject.h"
-#include "vtkFieldData.h"
 
+class vtkFieldData;
 class vtkProcessObject;
 class vtkSource;
 class vtkExtentTranslator;
@@ -104,7 +104,7 @@ public:
 
   // Description:
   // Assign or retrieve field data to this data object.
-  vtkSetObjectMacro(FieldData,vtkFieldData);
+  virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData,vtkFieldData);
   
   // Handle the source/data loop.

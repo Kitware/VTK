@@ -39,12 +39,13 @@
 #define VTK_GET_ARRAY_BY_ID 0
 #define VTK_GET_ARRAY_BY_NAME 1
 
-class vtkWindow;
+class vtkDataArray;
 class vtkDataSet;
-class vtkPlaneCollection;
 class vtkPlane;
+class vtkPlaneCollection;
 class vtkPlanes;
 class vtkTimerLog;
+class vtkWindow;
 
 class VTK_COMMON_EXPORT vtkAbstractMapper : public vtkProcessObject
 {

@@ -35,6 +35,7 @@
 #define VTK_BINARY 2
 
 class vtkCharArray;
+class vtkDataArray;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkPointSet;

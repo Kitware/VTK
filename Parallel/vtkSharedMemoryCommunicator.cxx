@@ -17,10 +17,12 @@
 =========================================================================*/
 
 #include "vtkSharedMemoryCommunicator.h"
-#include "vtkDataObject.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
+
 #include "vtkCriticalSection.h"
+#include "vtkDataArray.h"
+#include "vtkDataObject.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 class vtkSharedMemoryCommunicatorMessage
 {
@@ -35,7 +37,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.15");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.16");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)

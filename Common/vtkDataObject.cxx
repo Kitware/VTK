@@ -16,12 +16,16 @@
 
 =========================================================================*/
 #include "vtkDataObject.h"
-#include "vtkSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.83");
+#include "vtkExtentTranslator.h"
+#include "vtkFieldData.h"
+#include "vtkObjectFactory.h"
+#include "vtkSource.h"
+
+vtkCxxRevisionMacro(vtkDataObject, "1.84");
 vtkStandardNewMacro(vtkDataObject);
+
+vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
 
 // Initialize static member that controls global data release 
 // after use by filter

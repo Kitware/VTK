@@ -38,14 +38,15 @@
 #define __vtkLegendBoxActor_h
 
 #include "vtkActor2D.h"
-#include "vtkTextMapper.h"
 
 class vtkActor;
+class vtkFloatArray;
 class vtkPolyData;
-class vtkPolyDataMapper;
 class vtkPolyDataMapper2D;
-class vtkTransformPolyDataFilter;
+class vtkPolyDataMapper;
+class vtkTextMapper;
 class vtkTransform;
+class vtkTransformPolyDataFilter;
 
 class VTK_HYBRID_EXPORT vtkLegendBoxActor : public vtkActor2D
 {

@@ -30,10 +30,11 @@
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkTextMapper.h"
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.35");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.36");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 // Instantiate object
