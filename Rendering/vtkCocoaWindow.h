@@ -27,7 +27,7 @@
 
 @interface vtkCocoaWindow : NSWindow
 {
-    @private
+  @private
     IBOutlet vtkCocoaGLView *myvtkCocoaGLView;
     void *myVTKRenderWindow;
     void *myVTKRenderWindowInteractor;
