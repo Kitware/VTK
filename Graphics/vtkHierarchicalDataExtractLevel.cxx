@@ -22,8 +22,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.5");
 vtkStandardNewMacro(vtkHierarchicalDataExtractLevel);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -247,7 +248,18 @@ int vtkHierarchicalDataExtractLevel::RequestData(
       {
       hbds->SetRefinementRatio(level, ihbds->GetRefinementRatio(level));
       }
-    hbds->GenerateVisibilityArrays();
+    }
+
+  // Last level should not be blanked (uniform grid only)
+  unsigned int numDataSets = output->GetNumberOfDataSets(numLevels-1);
+  for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
+    {
+    vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(
+      output->GetDataSet(numLevels-1, dataSet));
+    if (ug)
+      {
+      ug->SetCellVisibilityArray(0);
+      }
     }
 
   return 1;
