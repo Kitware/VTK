@@ -316,6 +316,9 @@ void vlCamera::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
     
+    // update orientation
+    this->GetOrientation();
+
     os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
       << this->ClippingRange[2] << ")\n";
     os << indent << "Distance: " << this->Distance << "\n";
@@ -323,6 +326,8 @@ void vlCamera::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
       << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
     os << indent << "Left Eye: " << this->LeftEye << "\n";
+    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
     os << indent << "Position: (" << this->Position[0] << ", " 
       << this->Position[1] << ", " << this->Position[2] << ")\n";
     os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
@@ -612,7 +617,7 @@ void vlCamera::Azimuth (float angle)
 			    this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform.RotateWXYZ(-angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
   
   
@@ -654,7 +659,7 @@ void vlCamera::Elevation (float angle)
 			    this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
+  this->Transform.RotateWXYZ(-angle,axis[0],axis[1],axis[2]);
   
   
   // translate to focal point
@@ -768,5 +773,42 @@ void vlCamera::Roll (float angle)
   this->Transform.Pop();
 }
 
+// adjusts position to be consistent with VPN
+void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
+{
+  float norm;
+
+  // make sure the distance is up to date
+  this->CalcDistance();
+
+  // normalize ViewUp
+  norm = sqrt( X * X + Y * Y + Z * Z );
+  if (!norm)
+    {
+    vlErrorMacro(<< "SetViewPlaneNormal of (0,0,0)\n");
+    return;
+    }
+  
+  // recalculate position
+  this->Position[0] = 
+    - X * this->Distance/norm + this->FocalPoint[0];
+  this->Position[1] = 
+    - Y * this->Distance/norm + this->FocalPoint[1];
+  this->Position[2] = 
+    - Z * this->Distance/norm + this->FocalPoint[2];
+    
+  vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
+  << this->Position[1] << ", " << this->Position[2] << ")\n");
+  
+  // recalculate view plane normal
+  this->CalcViewPlaneNormal();
+  
+  this->Modified();
+}
+
+void vlCamera::SetViewPlaneNormal(float a[3])
+{
+  this->SetViewPlaneNormal(a[0],a[1],a[2]);
+}
 
 
