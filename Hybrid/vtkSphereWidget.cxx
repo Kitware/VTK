@@ -34,7 +34,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.26");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.27");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -379,6 +379,11 @@ void vtkSphereWidget::HighlightHandle(int highlight)
 
 void vtkSphereWidget::OnLeftButtonDown()
 {
+  if (!this->Interactor)
+    {
+    return;
+    }
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -426,6 +431,11 @@ void vtkSphereWidget::OnMouseMove()
     return;
     }
   
+  if (!this->Interactor)
+    {
+    return;
+    }
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -487,11 +497,19 @@ void vtkSphereWidget::OnLeftButtonUp()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkSphereWidget::OnRightButtonDown()
 {
+  if (!this->Interactor)
+    {
+    return;
+    }
+
   this->State = vtkSphereWidget::Scaling;
 
   int X = this->Interactor->GetEventPosition()[0];
@@ -542,7 +560,10 @@ void vtkSphereWidget::OnRightButtonUp()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 // Loop through all points and translate them
