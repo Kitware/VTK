@@ -61,6 +61,9 @@ public:
   void SetFileRoot(char *fileRoot);
   void Write();
   void Write(int *offset, int *size);
+  void Write(int offset0, int offset1, int offset2, 
+	     int size0, int size1, int size2);
+  
   // Description:
   // Set/Get the number of the first image
   vtkSetMacro(First,int);
