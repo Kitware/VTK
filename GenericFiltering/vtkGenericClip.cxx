@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.3");
+vtkCxxRevisionMacro(vtkGenericClip, "1.4");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 
@@ -141,7 +141,7 @@ void vtkGenericClip::Execute()
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD[2];
-  vtkIdType npts;
+  vtkIdType npts=0;
   vtkIdType *pts;
   int cellType = 0;
   int j;
