@@ -15,6 +15,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#undef _POSIX_THREADS
 #include "Python.h"
 #include "vtkCommand.h"
 
