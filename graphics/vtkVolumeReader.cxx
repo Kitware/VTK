@@ -62,8 +62,8 @@ void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data Aspect Ratio: (" << this->DataAspectRatio[0] << ", "
                                          << this->DataAspectRatio[1] << ", "
                                          << this->DataAspectRatio[2] << ")\n";
-  os << indent << "FilePrefix: " << this->FilePrefix << "\n";
-  os << indent << "FilePattern: " << this->FilePattern << "\n";
+  os << indent << "FilePrefix: " << (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
+  os << indent << "FilePattern: " << (this->FilePattern ? this->FilePattern : "(none)") << "\n";
   os << indent << "Image Range: (" << this->ImageRange[0] << ", " 
      << this->ImageRange[1] << ")\n";
 }
