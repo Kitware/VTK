@@ -77,12 +77,11 @@ void process(vtkMultiProcessController *controller, void *arg )
 
   color = vtkPieceScalars::New();
   color->SetInput(sphere->GetOutput());
-  color->SetInput(cone->GetOutput());
+  //color->SetInput(cone->GetOutput());
 
   mapper = vtkPolyDataMapper::New();
-  mapper->SetPiece(myid);
-  mapper->SetNumberOfPieces(numProcs);
   mapper->SetInput(color->GetOutput());
+  mapper->SetScalarRange(0, 3);
   
   actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -94,9 +93,6 @@ void process(vtkMultiProcessController *controller, void *arg )
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWindow);
 
-  vtkTreeComposite*  treeComp = vtkTreeComposite::New();
-  treeComp->SetRenderWindow(renWindow); 
-
   ren->SetBackground(0.9, 0.9, 0.9);
   renWindow->SetSize( 400, 400);
   
@@ -104,21 +100,15 @@ void process(vtkMultiProcessController *controller, void *arg )
   // assign our actor to the renderer
   ren->AddActor(actor);
   
-  cam = vtkCamera::New();
-  cam->SetFocalPoint(0, 0, 0);
-  cam->SetPosition(0, 0, 10);
-  cam->SetViewUp(0, 1, 0);
-  cam->SetViewAngle(30);
-  // this was causing an update.
-  //ren->ResetCameraClippingRange();
-  //{
-  //double *range = ren->GetActiveCamera()->GetClippingRange();
-  //cerr << range[0] << ", " << range[1] << endl;
-  //}
-  cam->SetClippingRange(5.0, 15.0);
-  ren->SetActiveCamera(cam);
-  ren->CreateLight();  
-
+  // The only thing we have to do to get parallel execution.
+  vtkTreeComposite*  treeComp = vtkTreeComposite::New();
+  treeComp->SetRenderWindow(renWindow);
+  // Tell the mappers to only update a piece (based on process) of their inputs.
+  treeComp->InitializePieces();
+  
+  treeComp->InitializeOffScreen();
+  
+  
   //  Begin mouse interaction (for proc 0, others start rmi loop).
   iren->Start();
 }
@@ -142,12 +132,7 @@ void main( int argc, char *argv[] )
     } 
   controller->SingleMethodExecute();
 
-  controller->Delete();
-
-
+  controller->Delete();  
 }
-
-
-
 
 
