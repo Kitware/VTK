@@ -79,6 +79,10 @@ public:
   void SetOutputFormat(int format);
 
   // Description:
+  // turn on/off the preview window
+  void SetPreview(int p);
+
+  // Description:
   // bring up a modal dialog box for video format selection
   void VideoFormatDialog();
 
@@ -89,6 +93,8 @@ public:
   // Description:
   // For internal use only
   void InternalGrab(LPVIDEOHDR VideoHdrPtr);
+  void SetBeginTimeStamp(double t) { this->BeginTimeStamp = t; };
+  double GetBeginTimeStamp() { return this->BeginTimeStamp; };
 
 protected:
   vtkWin32VideoSource();
@@ -106,6 +112,8 @@ protected:
   int BitMapSize;
 
   int FatalVFWError;
+
+  double BeginTimeStamp;
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr, 
