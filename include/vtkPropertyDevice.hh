@@ -37,12 +37,16 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
-=========================================================================*/
-// .NAME vtkDeviceObject - an object that requires hardware independence.
+=========================================================================*//
+// .NAME vtkPropertyDevice - abstract definition of a hardware dependent property
 // .SECTION Description
-// vtkDeviceObject is the superclass that any device dependent object should
-// use.  It allows a device independent object to create a device dependent
-// object to execute hardware specific calls.
+// vtkPropertyDevice is the superclass of the hardware dependent Propertys
+// such as vtkOglrProperty and vtkSbrProperty. This object is typically created
+// automatically by a vtkProperty object when it renders. The user should
+// never see this class.
+
+// .SECTION see also
+// vtkProperty
 
 #ifndef __vtkPropertyDevice_hh
 #define __vtkPropertyDevice_hh
@@ -55,6 +59,9 @@ class vtkPropertyDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkPropertyDevice";};
+
+  // Description:
+  // This is the only method that the subclasses must supply.
   virtual void Render(vtkProperty *prp, vtkRenderer *ren) = 0;
 };
 

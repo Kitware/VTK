@@ -74,13 +74,15 @@ public:
   virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Set the 
-  void SetFlat (void);
-  void SetGouraud (void);
-  void SetPhong (void);
-  void SetPoints (void);
-  void SetWireframe (void);
-  void SetSurface (void);
+  // Set the interpolation of this actor. These three are mutually exclusive.
+  void SetFlat(void);
+  void SetGouraud(void);
+  void SetPhong(void);
+
+  // Set the representation of this actor. These three are mutually exclusive.
+  void SetPoints(void);
+  void SetWireframe(void);
+  void SetSurface(void);
 
   // Description:
   // Get the method of representation for the object.
