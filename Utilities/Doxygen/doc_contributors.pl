@@ -1015,7 +1015,7 @@ set mytics 5
 
 set size 1.2,1.4
 
-set terminal png color small
+set terminal png small
 
 set timestamp top
 
