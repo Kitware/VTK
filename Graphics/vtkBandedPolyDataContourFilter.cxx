@@ -28,7 +28,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.30");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.31");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -307,7 +307,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     vtkCellArray *newVerts = vtkCellArray::New();
     newVerts->Allocate(verts->GetSize());
     for ( verts->InitTraversal(); verts->GetNextCell(npts,pts) && !abort; 
-          this->GetAbortExecute() )
+          abort=this->GetAbortExecute() )
       {
       for (i=0; i<npts; i++)
         {
@@ -319,6 +319,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     output->SetVerts(newVerts);
     newVerts->Delete();
     }
+  this->UpdateProgress(0.05);
   
   // Lines are chopped into line segments.
   //
@@ -336,7 +337,7 @@ void vtkBandedPolyDataContourFilter::Execute()
 
     //start by generating intersection points
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort; 
-          this->GetAbortExecute() )
+          abort=this->GetAbortExecute() )
       {
       for (i=0; i<(npts-1); i++)
         {
@@ -367,7 +368,7 @@ void vtkBandedPolyDataContourFilter::Execute()
 
     //now create line segments
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort; 
-          this->GetAbortExecute() )
+          abort=this->GetAbortExecute() )
       {
       for (i=0; i<(npts-1); i++)
         {
@@ -405,6 +406,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     output->SetLines(newLines);
     newLines->Delete();
     }
+  this->UpdateProgress(0.1);
   
   // Polygons are assumed convex and chopped into filled, convex polygons.
   // Triangle strips are treated similarly.
@@ -465,11 +467,20 @@ void vtkBandedPolyDataContourFilter::Execute()
         }
       polys = tmpPolys;
       }
-
+    
     // Process polygons to produce edge intersections.------------------------
     //
-    for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort; )
+    numPolys = polys->GetNumberOfCells();
+    vtkIdType updateCount = numPolys/20 + 1;
+    vtkIdType count=0;
+    for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort; 
+      abort=this->GetAbortExecute() )
       {
+      if  ( ! (++count % updateCount) )
+        {
+        this->UpdateProgress(0.1 + 0.45*((float)count/numPolys));
+        }
+
       for (i=0; i<npts; i++)
         {
         v = pts[i];
@@ -502,7 +513,7 @@ void vtkBandedPolyDataContourFilter::Execute()
         }
       }//for all polygons
     
-    // Process polygons to produce output triangles.------------------------
+    // Process polygons to produce output triangles------------------------
     //
     vtkCellArray *newPolys = vtkCellArray::New();
     newPolys->Allocate(polys->GetSize());
@@ -510,10 +521,15 @@ void vtkBandedPolyDataContourFilter::Execute()
     int mL, mR, m2L, m2R;
     int numPointsToAdd, numLeftPointsToAdd, numRightPointsToAdd;
     int numPolyPoints, numFullPts;
-      
+    count = 0;
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort; 
-          this->GetAbortExecute() )
+          abort=this->GetAbortExecute() )
       {
+      if  ( ! (++count % updateCount) )
+        {
+        this->UpdateProgress(0.55 + 0.45*((float)count/numPolys));
+        }
+
       //Create a new polygon that includes all the points including the
       //intersection vertices. This hugely simplifies the logic of the
       //code.
