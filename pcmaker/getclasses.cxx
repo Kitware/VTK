@@ -17,6 +17,9 @@
 enum LibraryTypes {LT_GRAPHICS, LT_IMAGING, LT_PATENTED, LT_CONTRIB, LT_COMMON};
 
 
+extern void CheckAndAddToDepends(char *file, const char *vtkHome, 
+                                 char *extraPtr[], int extra_num);
+extern char **ReturnDepends(int &num);
 extern void OutputPCDepends(char *file, FILE *fp, const char *vtkHome, 
 			    char *extraPtr[], int extra_num);
 extern void AddToGLibDepends(char *file);
@@ -228,6 +231,171 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     }
 }
 
+// order of the files is important for doing the incremental build
+void removeExtraFiles(CPcmakerDlg *vals)
+{
+  int i, j, k;
+  int numReq, oldReq, required;
+  ifstream *IS;
+  char aFile[300];
+  char **reqList;
+  
+  // does a reqlist exist ?
+  FILE *fp = fopen("C:/reqlist.txt","r");
+  fclose(fp);
+  if (!fp)
+    {
+    return;
+    }
+  
+  // first load the list of required files
+  IS = new ifstream("C:/reqlist.txt");
+  numReq = 0;
+  while (!IS->eof() && !IS->fail())
+    {
+    *IS >> aFile;
+    CheckAndAddToDepends(aFile, vals->m_WhereVTK, extraPtr, extra_num);
+    }
+
+  // find this entry in DependsStructArray
+  oldReq = 0;
+  reqList = ReturnDepends(numReq);
+
+  // iterate to collect extras
+  while (oldReq != numReq) 
+    {
+    oldReq = numReq;
+    for (i = 0; i < numReq; i++)
+      {
+      sprintf(aFile,"%s.cxx",reqList[i]);
+      CheckAndAddToDepends(aFile, vals->m_WhereVTK, extraPtr, extra_num);
+      }
+    // find this entry in DependsStructArray
+    reqList = ReturnDepends(numReq);
+    }
+
+  // for each file
+  for (i = 0; i < num_concrete; i++)
+    {
+    // is it a required file ?
+    required = 0;
+    for (k = 0; k < numReq; k++)
+      {
+      if (!strcmp(concrete[i],reqList[k]))
+        {
+        required = 1;
+        }
+      }
+    if (!required)
+      {
+      if (i < num_concrete - 1)
+        {
+        memmove((void *)(concrete + i), (void *)(concrete + i + 1), sizeof(char*)*(num_concrete - i - 1) );
+        memmove((void *)(concrete_lib + i), (void *)(concrete_lib + i + 1), sizeof(char*)*(num_concrete - i - 1) );
+        }
+      
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (concreteStart[j] > i )
+          concreteStart[j]--;
+        if (concreteEnd[j] > i )
+          concreteEnd[j]--;
+        }
+      num_concrete--;
+      i--;
+      }
+    }
+  for (i = 0; i < num_abstract; i++)
+    {
+    // is it a required file ?
+    required = 0;
+    for (k = 0; k < numReq; k++)
+      {
+      if (!strcmp(abstract[i],reqList[k]))
+        {
+        required = 1;
+        }
+      }
+    if (!required)
+      {
+      if (i < num_abstract - 1)
+        {
+        memmove((void *)(abstract + i), (void *)(abstract + i + 1), sizeof(char*)*(num_abstract - i - 1) );
+        memmove((void *)(abstract_lib + i), (void *)(abstract_lib + i + 1), sizeof(char*)*(num_abstract - i - 1) );
+        }
+
+
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (abstractStart[j] > i )
+          abstractStart[j]--;
+        if (abstractEnd[j] > i )
+          abstractEnd[j]--;
+        }
+      num_abstract--;
+      i--;
+      }
+    }
+  for (i = 0; i < num_concrete_h; i++)
+    {
+    // is it a required file ?
+    required = 0;
+    for (k = 0; k < numReq; k++)
+      {
+      if (!strcmp(concrete_h[i],reqList[k]))
+        {
+        required = 1;
+        }
+      }
+    if (!required)
+      {
+      if (i < num_concrete_h - 1)
+        {
+        memmove((void *)(concrete_h + i), (void *)(concrete_h + i + 1), sizeof(char*)*(num_concrete_h - i - 1) );
+        memmove((void *)(concrete_h_lib + i), (void *)(concrete_h_lib + i + 1), sizeof(char*)*(num_concrete_h - i - 1) );
+        }
+      
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (concreteHStart[j] > i )
+          concreteHStart[j]--;
+        if (concreteHEnd[j] > i )
+          concreteHEnd[j]--;
+        }
+      num_concrete_h--;
+      i--;
+      }
+    }
+  for (i = 0; i < num_abstract_h; i++)
+    {
+    // is it a required file ?
+    required = 0;
+    for (k = 0; k < numReq; k++)
+      {
+      if (!strcmp(abstract_h[i],reqList[k]))
+        {
+        required = 1;
+        }
+      }
+    if (!required)
+      {
+      if (i < num_abstract_h - 1)
+        {
+        memmove((void *)(abstract_h + i), (void *)(abstract_h + i + 1), sizeof(char*)*(num_abstract_h - i - 1) );
+        memmove((void *)(abstract_h_lib + i), (void *)(abstract_h_lib + i + 1), sizeof(char*)*(num_abstract_h - i - 1) );
+        }
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (abstractHStart[j] > i )
+          abstractHStart[j]--;
+        if (abstractHEnd[j] > i )
+          abstractHEnd[j]--;
+        }
+      num_abstract_h--;
+      i--;
+      }
+    }
+}
 
 /* warning this code is also in getclasses.cxx under pcmaker */
 void stuffitPython(FILE *fp, CPcmakerDlg *vals)
@@ -754,6 +922,7 @@ void makeMakefiles(CPcmakerDlg *vals)
 
   ReadMakefiles(vals);
   removeUNIXOnlyFiles(vals);
+  removeExtraFiles(vals);
   CreateRequiredFiles(vals);
 
 
