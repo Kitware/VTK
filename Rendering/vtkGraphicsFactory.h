@@ -64,6 +64,9 @@ public:
   static const char *GetRenderLibrary();
   
 protected:
+  vtkGraphicsFactory() {};
+  vtkGraphicsFactory(const vtkGraphicsFactory&);
+  void operator=(const vtkGraphicsFactory&);
 };
 
 #endif

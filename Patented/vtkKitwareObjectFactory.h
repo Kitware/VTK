@@ -61,6 +61,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);  
   virtual const char* GetVTKSourceVersion();
 protected:
+  vtkKitwareObjectFactory() {};
+  vtkKitwareObjectFactory(const vtkKitwareObjectFactory&);
+  void operator=(const vtkKitwareObjectFactory&);
   virtual vtkObject* CreateObject(const char* vtkclassname );
 };
 

@@ -60,6 +60,9 @@ public:
   static vtkObject* CreateInstance(const char* vtkclassname);
 
 protected:
+  vtkImagingFactory() {};
+  vtkImagingFactory(const vtkImagingFactory&);
+  void operator=(const vtkImagingFactory&);
 };
 
 #endif

@@ -70,6 +70,9 @@ public:
                                      vtkPolyDataMapper *mapper);
   
 protected:
+  vtkPipelineSize() {};
+  vtkPipelineSize(const vtkPipelineSize&);
+  void operator=(const vtkPipelineSize&);
   void GenericComputeSourcePipelineSize(vtkSource *src, 
                                         vtkDataObject *output,
                                         unsigned long size[3]);
