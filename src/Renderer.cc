@@ -82,9 +82,14 @@ void vlRenderer::DoLights()
 
 void vlRenderer::DoCameras()
 {
+  vlCamera *cam1;
+
   if (!this->UpdateCameras())
     {
-    cerr << "No cameras are on, creating one.\n";
+    cerr << this->GetClassName() << " : No cameras are on, creating one.\n";
+    cam1 = this->RenderWindow->MakeCamera();
+    this->SetActiveCamera(cam1);
+    this->UpdateCameras();
     }
 }
 
@@ -124,7 +129,7 @@ void vlRenderer::DisplayToView()
 
 void vlRenderer::ViewToDisplay()
 {
-  float dx,dy;
+  int dx,dy;
   int sizex,sizey;
   int *size;
   
@@ -133,12 +138,12 @@ void vlRenderer::ViewToDisplay()
   sizex = size[0];
   sizey = size[1];
 
-  dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+  dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
     (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 + 0.5 +
-      sizex*this->Viewport[0];
-  dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+      sizex*this->Viewport[0]);
+  dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
     (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 + 0.5 +
-      sizey*this->Viewport[1];
+      sizey*this->Viewport[1]);
 
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
 }
@@ -150,7 +155,7 @@ void vlRenderer::ViewToWorld()
   float result[4];
 
   // get the perspective transformation from the active camera 
-//  mat = this->ActiveCamera->GetPerspectiveTransform();
+  mat = this->ActiveCamera->GetPerspectiveTransform();
   
   // use the inverse matrix 
   mat.Invert();
