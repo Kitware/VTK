@@ -121,6 +121,9 @@ protected:
 #ifdef VTK_USE_PTHREADS
   pthread_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];
 #endif
+#ifdef VTK_USE_SPROC
+  pid_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];  
+#endif
 
   // Locks and pointers for communication.
   vtkThreadedControllerProcessInfo *Processes[VTK_MP_CONTROLLER_MAX_PROCESSES];

@@ -214,6 +214,9 @@ void vtkThreadedController::Start(int threadIdx)
 #ifdef VTK_USE_PTHREADS  
   this->ThreadIds[threadIdx] = pthread_self();
 #endif
+#ifdef VTK_USE_SPROC
+  this->ThreadIds[threadIdx] = PRDA.sys_prda.prda_sys.t_pid;
+#endif
   if (this->MultipleMethodFlag)
     {
     if (this->MultipleMethod[threadIdx])
@@ -284,11 +287,23 @@ int vtkThreadedController::GetLocalProcessId()
   
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
-#else
-  vtkErrorMacro("ThreadedController only works with pthreads for now");
+#endif VTK_USE_SPROC
+#ifdef VTK_USE_SPROC
+  pid_t pid = PRDA.sys_prda.prda_sys.t_pid;
+  for (idx = 0; idx < this->NumberOfProcesses; ++idx)
+    {
+    if (pid == this->ThreadIds[idx]))
+      {
+      return idx;
+      }
+    }
+  
+  vtkErrorMacro("Could Not Find my process id.");
   return -1;
 #endif
-  
+
+  vtkErrorMacro("ThreadedController only works with pthreads or sproc");
+  return -1;  
 }
 
   
