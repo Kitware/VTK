@@ -254,7 +254,7 @@ TEXTERN uint32 TEXPORT TIFFDefaultStripSize(TIFF*, uint32);
 extern  void TIFFDefaultTileSize(TIFF*, uint32*, uint32*);
 extern  int TIFFFileno(TIFF*);
 extern  int TIFFGetMode(TIFF*);
-TEXPORT int TEXPORT TIFFIsTiled(TIFF*);
+extern  int TIFFIsTiled(TIFF*);
 extern  int TIFFIsByteSwapped(TIFF*);
 extern  int TIFFIsUpSampled(TIFF*);
 extern  int TIFFIsMSB2LSB(TIFF*);
