@@ -51,31 +51,6 @@ public:
   virtual void Initialize();
 
   // Description:
-  // For streaming.  User/next filter specifies which piece the want updated.
-  // The source of this data has to return exactly this piece.
-  void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
-  void SetUpdateExtent(int piece, int numPieces)
-    {this->SetUpdateExtent(piece, numPieces, 0);}
-  void GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel);
-
-  // Description:
-  // We need this here to avoid hiding superclass method
-  virtual int* GetUpdateExtent();
-  virtual void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                               int& z0, int& z1);
-  virtual void GetUpdateExtent(int extent[6]);
-
-  // Description:
-  // Call superclass method to avoid hiding
-  // Since this data type does not use 3D extents, this set method
-  // is useless but necessary since vtkDataSetToDataSetFilter does not
-  // know what type of data it is working on.
-  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
-    { this->Superclass::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
-  void SetUpdateExtent( int ext[6] )
-    { this->Superclass::SetUpdateExtent( ext ); };
-
-  // Description:
   // Adds dobj to the composite dataset. Where the dataset goes is determined
   // by appropriate keys in the index information object. Which keys are used
   // depends on the actual subclass.
@@ -85,6 +60,8 @@ public:
   // Returns a dataset pointed by appropriate keys in the index information
   // object.  Which keys are used depends on the actual subclass.
   virtual vtkDataObject* GetDataSet(vtkInformation* index) = 0;
+
+  virtual void SetPipelineInformation(vtkInformation*);
 
   static vtkInformationIntegerKey* INDEX();
 

@@ -15,11 +15,12 @@
 #include "vtkCompositeDataSet.h"
 
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.4");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.5");
 
 vtkInformationKeyMacro(vtkCompositeDataSet,INDEX,Integer);
 
@@ -40,38 +41,41 @@ void vtkCompositeDataSet::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataSet::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
+void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
 {
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
-}
+  vtkInformation* oldInfo = this->PipelineInformation;
+  if(newInfo != oldInfo)
+    {
+    if(newInfo)
+      {
+      // Reference the new information.
+      newInfo->Register(this);
 
-//----------------------------------------------------------------------------
-void vtkCompositeDataSet::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
-{
-  piece = this->GetUpdatePiece();
-  numPieces = this->GetUpdateNumberOfPieces();
-  ghostLevel = this->GetUpdateGhostLevel();
-}
+      // Detach the output that used to be held by the new information.
+      if(vtkDataObject* oldData = 
+         newInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_SET()))
+        {
+        oldData->Register(this);
+        oldData->SetPipelineInformation(0);
+        oldData->UnRegister(this);
+        }
 
-//----------------------------------------------------------------------------
-int* vtkCompositeDataSet::GetUpdateExtent()
-{
-  return this->Superclass::GetUpdateExtent();
-}
+      // Tell the new information about this object.
+      newInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_SET(), this);
+      }
 
-//----------------------------------------------------------------------------
-void vtkCompositeDataSet::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                                          int& z0, int& z1)
-{
-  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
-}
+    // Save the pointer to the new information.
+    this->PipelineInformation = newInfo;
 
-//----------------------------------------------------------------------------
-void vtkCompositeDataSet::GetUpdateExtent(int extent[6])
-{
-  this->Superclass::GetUpdateExtent(extent);
+    if(oldInfo)
+      {
+      // Remove the old information's reference to us.
+      oldInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_SET(), 0);
+
+      // Remove our reference to the old information.
+      oldInfo->UnRegister(this);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
