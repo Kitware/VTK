@@ -107,6 +107,7 @@ public:
   void GetCell(int cellId, vtkGenericCell *cell);
   int GetCellType(int cellId);
   void GetCellBounds(int cellId, float bounds[6]);
+  void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
   
   // Description:
   // Copy a cells point ids into list provided. (Less efficient.)

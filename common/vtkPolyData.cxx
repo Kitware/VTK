@@ -1460,6 +1460,60 @@ unsigned long vtkPolyData::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
+void vtkPolyData::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+                                   vtkIdList *cellIds)
+{
+  int i, j, numPts, cellNum;
+  int allFound, oneFound;
+  
+  if ( ! this->Links )
+    {
+    this->BuildLinks();
+    }  
+  
+  cellIds->Reset();
+  
+  // load list with candidate cells, remove current cell
+  int ptId = ptIds->GetId(0);
+  int numPrime = this->Links->GetNcells(ptId);
+  int *primeCells = this->Links->GetCells(ptId);
+  numPts=ptIds->GetNumberOfIds();
+                        
+  // for each potential cell
+  for (cellNum = 0; cellNum < numPrime; cellNum++)
+    {
+    // ignore the original cell
+    if (primeCells[cellNum] != cellId)
+      {
+      // are all the remaining face points in the cell ?
+      for (allFound=1, i=1; i < numPts && allFound; i++)
+        {
+        ptId = ptIds->GetId(i);
+        int numCurrent = this->Links->GetNcells(ptId);
+        int *currentCells = this->Links->GetCells(ptId);
+        oneFound = 0;
+        for (j = 0; j < numCurrent; j++)
+          {
+          if (primeCells[cellNum] == currentCells[j])
+            {
+            oneFound = 1;
+            break;
+            }
+          }
+        if (!oneFound)
+          {
+          allFound = 0;
+          }
+        }
+      if (allFound)
+        {
+        cellIds->InsertNextId(primeCells[cellNum]);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
