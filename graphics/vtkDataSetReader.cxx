@@ -272,6 +272,7 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader->GetTCoordsName());
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetOutput(0, preader->GetOutput());
       preader->Delete();
