@@ -157,8 +157,7 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkSource::InRegisterLoop(vtkObject *o)
 {
-  if (this->ReferenceCount == 2 &&
-    this->Output == o)
+  if (this->ReferenceCount == 1 && this->Output == o)
     {
     return 1;
     }
@@ -172,7 +171,7 @@ void vtkSource::UnRegister(vtkObject *o)
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 2 && this->Output != NULL &&
       this->Output->GetSource() == this && o != this->Output &&
-      this->Output->GetReferenceCount() == 1)
+      this->Output->GetNetReferenceCount() == 1)
     {
     this->Output->SetSource(NULL);
     }

@@ -1315,10 +1315,10 @@ void vtkDataObjectToDataSetFilter::UnRegister(vtkObject *o)
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 6 &&
       this->PolyData->GetReferenceCount() == 1 &&
-      this->StructuredGrid->GetReferenceCount() == 1 &&
-      this->UnstructuredGrid->GetReferenceCount() == 1 &&
-      this->StructuredPoints->GetReferenceCount() == 1 &&
-      this->RectilinearGrid->GetReferenceCount() == 1)
+      this->StructuredGrid->GetNetReferenceCount() == 1 &&
+      this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
+      this->StructuredPoints->GetNetReferenceCount() == 1 &&
+      this->RectilinearGrid->GetNetReferenceCount() == 1)
     {
     this->PolyData->SetSource(NULL);
     this->StructuredGrid->SetSource(NULL);
