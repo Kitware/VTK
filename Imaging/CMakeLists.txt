@@ -129,7 +129,11 @@ INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
-  ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
+  IF (APPLE)
+    ADD_LIBRARY(vtkImagingTCL SHARED ImagingTCL_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkImagingTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL 

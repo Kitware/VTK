@@ -22,7 +22,11 @@ INCLUDE (${VTK_SOURCE_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS Patented_SRCS)
-  ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
+  IF (APPLE)
+    ADD_LIBRARY(vtkPatentedTCL SHARED PatentedTCL_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL 
                          vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL 
                          vtkCommonTCL

@@ -164,7 +164,11 @@ INCLUDE (${VTK_SOURCE_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS Graphics_SRCS)
-  ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
+  IF (APPLE)
+   ADD_LIBRARY(vtkGraphicsTCL SHARED GraphicsTCL_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL 
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkGraphicsTCL)

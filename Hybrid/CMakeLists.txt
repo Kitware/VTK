@@ -49,7 +49,11 @@ INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS Hybrid_SRCS)
-  ADD_LIBRARY(vtkHybridTCL HybridTCL_SRCS)
+  IF (APPLE)
+    ADD_LIBRARY(vtkHybridTCL SHARED HybridTCL_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkHybridTCL HybridTCL_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkHybridTCL 
                          vtkRenderingTCL 
                          vtkIOTCL 

@@ -278,7 +278,10 @@ IF (VTK_WRAP_TCL)
       INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
     ENDIF (TK_XLIB_PATH) 
   ELSE (WIN32)
-    SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
+    IF (APPLE)
+    ELSE (APPLE)
+      SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
+    ENDIF (APPLE)
   ENDIF (WIN32)  
 
   IF (HAVE_OPENGL_SRCS)
@@ -301,13 +304,18 @@ IF (VTK_WRAP_TCL)
                vtkTkImageViewerWidget
                vtkTkImageWindowWidget)
   ENDIF (HAVE_OPENGL_SRCS)
-  ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
+  IF (APPLE)
+    ADD_LIBRARY(vtkRenderingTCL SHARED RenderingTCL_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL 
                          vtkGraphicsTCL 
                          vtkImagingTCL 
                          vtkFilteringTCL 
                          vtkCommonTCL
                          ${TCL_LIBRARY})
+
   IF (TK_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkRenderingTCL ${TK_LIBRARY})
   ENDIF (TK_LIBRARY)
