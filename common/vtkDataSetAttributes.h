@@ -90,7 +90,7 @@ public:
   void PassNoReplaceData(vtkDataSetAttributes* pd);
 
   // Description:
-  // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
+  // Allocates point data for point-by-point (or cell-by-cell) copy operation.
   // If sze=0, then use the input DataSetAttributes to create (i.e., find 
   // initial size of) new objects; otherwise use the sze variable.
   void CopyAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
@@ -105,9 +105,10 @@ public:
   void InterpolateAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
   
   // Description:
-  // Interpolate a points attributes from other points.
+  // Interpolate data set attributes from other data set attributes
+  // given cell or point ids and asociated interpolation weights.
   void InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
-			vtkIdList *ptIds, float *weights);
+                        vtkIdList *ids, float *weights);
   
   // Description:
   // Interpolate data from the two points p1,p2 (forming an edge) and an 
@@ -116,6 +117,17 @@ public:
   // has been invoked before using this method.
   void InterpolateEdge(vtkDataSetAttributes *fromPd, int toId, int p1, int p2,
                         float t);
+
+  // Description:
+  // Interpolate data from the same id (point or cell) at different points
+  // in time (parameter t). Two input data set attributes objects are input.
+  // The parameter t lies between (0<=t<=1). IMPORTANT: it is assumed that
+  // the number of attributes and number of components is the same for both
+  // from1 and from2, and the type of data for from1 and from2 are the same.
+  // Make sure that the method InterpolateAllocate() has been invoked before 
+  // using this method.
+  void InterpolateTime(vtkDataSetAttributes *from1, vtkDataSetAttributes *from2,
+                       int id, float t);
 
   // Description:
   // Deep copy of data (i.e., create new data arrays and
@@ -221,7 +233,7 @@ public:
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
   void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, 
-		 int toId);
+                 int toId);
 
   // Description:
   // For legacy compatibility. Do not use.
@@ -231,9 +243,11 @@ public:
 protected:
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
-			vtkIdList *ptIds, float *weights);
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId, 
-			int id1, int id2, float t);
+                        vtkIdList *ptIds, float *weights);
+  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
+                        int id1, int id2, float t);
+  void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
+                        vtkDataArray *toData, int id, float t);
   
   // support manipulation and access of atribute data
   vtkScalars *Scalars;
