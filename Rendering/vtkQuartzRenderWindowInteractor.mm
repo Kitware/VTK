@@ -66,24 +66,8 @@ void vtkQuartzRenderWindowInteractor::SetButtonDown(int button)
     this->whichButtonDown = button;
 }
 
-
-//------------------------------------------------------------------------------
-//vtkQuartzRenderWindowInteractor* vtkQuartzRenderWindowInteractor::New()
-//{
-  // First try to create the object from the vtkObjectFactory
-//  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuartzRenderWindowInteractor");
- // if(ret)
- //   {
- //   return (vtkQuartzRenderWindowInteractor*)ret;
- //   }
-  // If the factory was unable to create the object, then create it here.
-//  return new vtkQuartzRenderWindowInteractor;
-//}
-
-vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.4");
+vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.5");
 vtkStandardNewMacro(vtkQuartzRenderWindowInteractor);
-
-
 
 void (*vtkQuartzRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkQuartzRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
