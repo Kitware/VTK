@@ -57,23 +57,6 @@ vtkMatrixToLinearTransform* vtkMatrixToLinearTransform::New()
 }
 
 //----------------------------------------------------------------------------
-vtkMatrixToLinearTransform::vtkMatrixToLinearTransform()
-{
-  // delete the original matrix that was created by vtkPerspectiveTransform
-  if (this->Matrix) 
-    {
-    this->Matrix->Delete();
-    }
-  this->Matrix = NULL;
-}
-
-//----------------------------------------------------------------------------
-vtkMatrixToLinearTransform::~vtkMatrixToLinearTransform()
-{
-  // this->Matrix will be deleted by vtkPerspectiveTransform superclass
-}
-
-//----------------------------------------------------------------------------
 void vtkMatrixToLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os, indent);
@@ -105,10 +88,6 @@ void vtkMatrixToLinearTransform::DeepCopy(vtkGeneralTransform *transform)
     return;
     }
 
-  if (this->Matrix == NULL)
-    {
-    this->Matrix = vtkMatrix4x4::New();
-    }
   this->Matrix->DeepCopy(t->Matrix);
   this->Modified();
 }
@@ -117,12 +96,15 @@ void vtkMatrixToLinearTransform::DeepCopy(vtkGeneralTransform *transform)
 // Set the current matrix directly.
 void vtkMatrixToLinearTransform::SetMatrix(vtkMatrix4x4 *m)
 {
-  if (this->Matrix != NULL)
+  if (this->Matrix == m)
     {
-    vtkErrorMacro(<< "SetMatrix: once the matrix is set, you cannot change it.");
     return;
     }
 
+  if (this->Matrix)
+    {
+    this->Matrix->Delete();
+    }
   m->Register(this);
   this->Matrix = m;
   this->Modified();
@@ -149,8 +131,7 @@ void vtkMatrixToLinearTransform::Inverse()
 unsigned long vtkMatrixToLinearTransform::GetMTime()
 {
   unsigned long mtime = this->vtkLinearTransform::GetMTime();
-  unsigned long matrixMTime = 
-    ((this->Matrix == NULL) ? 0 : this->Matrix->GetMTime());
+  unsigned long matrixMTime = this->Matrix->GetMTime();
 
   if (matrixMTime > mtime)
     {
