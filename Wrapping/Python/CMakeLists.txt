@@ -18,24 +18,29 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
         ${VTK_BINARY_DIR}/Wrapping/Python/vtkpython.cxx)
       ADD_EXECUTABLE(vtkpython ${VTK_BINARY_DIR}/Wrapping/Python/vtkpython.cxx)
     
-      TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
-                             vtkIOPython vtkGraphicsPython vtkImagingPython)
+      IF (APPLE)
+        TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
+			       "-framework Python")
+      ELSE (APPLE)
+        TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
+                               vtkIOPython vtkGraphicsPython vtkImagingPython)
 
-      IF (VTK_USE_RENDERING)
-        TARGET_LINK_LIBRARIES(vtkpython vtkRenderingPython vtkRendering)
-      ENDIF (VTK_USE_RENDERING)
+        IF (VTK_USE_RENDERING)
+          TARGET_LINK_LIBRARIES(vtkpython vtkRenderingPython vtkRendering)
+        ENDIF (VTK_USE_RENDERING)
 
-      IF (VTK_USE_PATENTED)
-        TARGET_LINK_LIBRARIES(vtkpython vtkPatentedPython vtkPatented)
-      ENDIF (VTK_USE_PATENTED)
+        IF (VTK_USE_PATENTED)
+          TARGET_LINK_LIBRARIES(vtkpython vtkPatentedPython vtkPatented)
+        ENDIF (VTK_USE_PATENTED)
 
-      IF (VTK_USE_HYBRID)
-        TARGET_LINK_LIBRARIES(vtkpython vtkHybridPython vtkHybrid)
-      ENDIF (VTK_USE_HYBRID)
+        IF (VTK_USE_HYBRID)
+          TARGET_LINK_LIBRARIES(vtkpython vtkHybridPython vtkHybrid)
+        ENDIF (VTK_USE_HYBRID)
 
-      IF (VTK_USE_PARALLEL)
-        TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython vtkParallel)
-      ENDIF (VTK_USE_PARALLEL)
+        IF (VTK_USE_PARALLEL)
+          TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython vtkParallel)
+        ENDIF (VTK_USE_PARALLEL)
+      ENDIF (APPLE)
 
       IF (VTK_WRAP_TCL)
         TARGET_LINK_LIBRARIES (vtkpython vtkIOTCL vtkGraphicsTCL vtkImagingTCL)
