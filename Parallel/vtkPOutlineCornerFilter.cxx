@@ -14,16 +14,19 @@
 =========================================================================*/
 #include "vtkPOutlineCornerFilter.h"
 
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationDataObjectKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.7");
+vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.8");
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
 
@@ -68,57 +71,80 @@ int vtkPOutlineCornerFilter::RequestData(
     return 0;
     }
 
+  int doCommunicate = 1;
+  
+  // If there is a composite dataset in the input, the request is
+  // coming from a vtkCompositeDataPipeline and interprocess communication
+  // is not necessary (simple datasets are not broken into pieces)
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
+    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+  if (cds)
+    {
+    doCommunicate = 0;
+    }
+
   input->GetBounds(bds);
   //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", " 
-  //                   << bds[2] << ", " << bds[3] << ", "
-  //                   << bds[4] << ", " << bds[5] << endl;
+  //<< bds[2] << ", " << bds[3] << ", "
+  //<< bds[4] << ", " << bds[5] << endl;
 
   int procid = this->Controller->GetLocalProcessId();
-  if ( procid )
+  
+  if (doCommunicate)
     {
-    // Satellite node
-    this->Controller->Send(bds, 6, 0, 792390);
-    }
-  else
-    {
-    int numProcs = this->Controller->GetNumberOfProcesses();
-    int idx;
-    double tmp[6];
-
-    for (idx = 1; idx < numProcs; ++idx)
+    if ( procid )
       {
-      this->Controller->Receive(tmp, 6, idx, 792390);
-
-      if (tmp[0] < bds[0])
+      // Satellite node
+      this->Controller->Send(bds, 6, 0, 792390);
+      }
+    else
+      {
+      int numProcs = this->Controller->GetNumberOfProcesses();
+      int idx;
+      double tmp[6];
+      
+      for (idx = 1; idx < numProcs; ++idx)
         {
-        bds[0] = tmp[0];
-        }
-      if (tmp[1] > bds[1])
-        {
-        bds[1] = tmp[1];
-        }
-      if (tmp[2] < bds[2])
-        {
-        bds[2] = tmp[2];
-        }
-      if (tmp[3] > bds[3])
-        {
-        bds[3] = tmp[3];
-        }
-      if (tmp[4] < bds[4])
-        {
-        bds[4] = tmp[4];
-        }
-      if (tmp[5] > bds[5])
-        {
-        bds[5] = tmp[5];
+        this->Controller->Receive(tmp, 6, idx, 792390);
+        
+        if (tmp[0] < bds[0])
+          {
+          bds[0] = tmp[0];
+          }
+        if (tmp[1] > bds[1])
+          {
+          bds[1] = tmp[1];
+          }
+        if (tmp[2] < bds[2])
+          {
+          bds[2] = tmp[2];
+          }
+        if (tmp[3] > bds[3])
+          {
+          bds[3] = tmp[3];
+          }
+        if (tmp[4] < bds[4])
+          {
+          bds[4] = tmp[4];
+          }
+        if (tmp[5] > bds[5])
+          {
+          bds[5] = tmp[5];
+          }
         }
       }
-    // only output in process 0.
-    this->OutlineCornerSource->SetBounds(bds);          
-    this->OutlineCornerSource->SetCornerFactor(this->GetCornerFactor());
-    this->OutlineCornerSource->Update();
-    output->CopyStructure(this->OutlineCornerSource->GetOutput());
+    }
+
+  if (!doCommunicate || procid == 0)
+    {
+    if (vtkMath::AreBoundsInitialized(bds))
+      {
+      // only output in process 0.
+      this->OutlineCornerSource->SetBounds(bds);          
+      this->OutlineCornerSource->SetCornerFactor(this->GetCornerFactor());
+      this->OutlineCornerSource->Update();
+      output->CopyStructure(this->OutlineCornerSource->GetOutput());
+      }
     }
 
   return 1;

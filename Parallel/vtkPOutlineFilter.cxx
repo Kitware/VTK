@@ -14,16 +14,18 @@
 =========================================================================*/
 #include "vtkPOutlineFilter.h"
 
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.8");
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.9");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -69,50 +71,72 @@ int vtkPOutlineFilter::RequestData(
     numProcs = this->Controller->GetNumberOfProcesses();
     }
 
+  int doCommunicate = 1;
+  
+  // If there is a composite dataset in the input, the request is
+  // coming from a vtkCompositeDataPipeline and interprocess communication
+  // is not necessary (simple datasets are not broken into pieces)
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
+    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+  if (cds)
+    {
+    doCommunicate = 0;
+    }
+
   input->GetBounds(bds);
 
-  if ( procid )
+  if (doCommunicate)
     {
-    // Satellite node
-    this->Controller->Send(bds, 6, 0, 792390);
-    }
-  else
-    {
-    int idx;
-    double tmp[6];
-
-    for (idx = 1; idx < numProcs; ++idx)
+    if ( procid )
       {
-      this->Controller->Receive(tmp, 6, idx, 792390);
-      if (tmp[0] < bds[0])
+      // Satellite node
+      this->Controller->Send(bds, 6, 0, 792390);
+      }
+    else
+      {
+      int idx;
+      double tmp[6];
+
+      for (idx = 1; idx < numProcs; ++idx)
         {
-        bds[0] = tmp[0];
-        }
-      if (tmp[1] > bds[1])
-        {
-        bds[1] = tmp[1];
-        }
-      if (tmp[2] < bds[2])
-        {
-        bds[2] = tmp[2];
-        }
-      if (tmp[3] > bds[3])
-        {
-        bds[3] = tmp[3];
-        }
-      if (tmp[4] < bds[4])
-        {
-        bds[4] = tmp[4];
-        }
-      if (tmp[5] > bds[5])
-        {
-        bds[5] = tmp[5];
+        this->Controller->Receive(tmp, 6, idx, 792390);
+        if (tmp[0] < bds[0])
+          {
+          bds[0] = tmp[0];
+          }
+        if (tmp[1] > bds[1])
+          {
+          bds[1] = tmp[1];
+          }
+        if (tmp[2] < bds[2])
+          {
+          bds[2] = tmp[2];
+          }
+        if (tmp[3] > bds[3])
+          {
+          bds[3] = tmp[3];
+          }
+        if (tmp[4] < bds[4])
+          {
+          bds[4] = tmp[4];
+          }
+        if (tmp[5] > bds[5])
+          {
+          bds[5] = tmp[5];
+          }
         }
       }
-    // only output in process 0.
-    this->OutlineSource->SetBounds(bds);          
-    this->OutlineSource->Update();
-    output->CopyStructure(this->OutlineSource->GetOutput());
+    }
+
+  if (!doCommunicate || procid == 0)
+    {
+    if (vtkMath::AreBoundsInitialized(bds))
+      {
+      // only output in process 0.
+      this->OutlineSource->SetBounds(bds);          
+      this->OutlineSource->Update();
+      output->CopyStructure(this->OutlineSource->GetOutput());
+      }
     }
 
   return 1;
