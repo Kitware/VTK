@@ -82,6 +82,7 @@ vtkDecimatePro::vtkDecimatePro()
   this->V = new vtkProVertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
   this->T = new vtkProTriArray(VTK_MAX_TRIS_PER_VERTEX+1);
   this->EdgeLengths = vtkPriorityQueue::New();
+  this->EdgeLengths->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   
   this->InflectionPoints = vtkFloatArray::New();
   this->TargetReduction = 0.90;
