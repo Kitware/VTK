@@ -1,18 +1,18 @@
 //
-// This example creates a polygonal model of a cone, and then rendered it to
-// the screen. It willrotate the cone 360 degrees and then exit. The basic
+// This example creates a polygonal model of a cone, and then renders it to
+// the screen. It will rotate the cone 360 degrees and then exit. The basic
 // setup of source -> mapper -> actor -> renderer -> renderwindow is 
 // typical of most VTK programs.
 //
 
-// we import the vtk wrapped classes first
+// We import the vtk wrapped classes first.
 import vtk.*;
 
-// then we define our class
+// Then we define our class.
 public class Cone {
 
-  // in the static contructor we load in the native code
-  // The libraries must be in your path to work
+  // In the static contructor we load in the native code.
+  // The libraries must be in your path to work.
   static { 
     System.loadLibrary("vtkCommonJava"); 
     System.loadLibrary("vtkFilteringJava"); 
@@ -24,27 +24,33 @@ public class Cone {
 
   // now the main program
   public static void main (String []args) {
-    //
-    // Next we create an instance of vtkConeSource and set some of its 
-    // properties
+    // 
+    // Next we create an instance of vtkConeSource and set some of its
+    // properties. The instance of vtkConeSource "cone" is part of a
+    // visualization pipeline (it is a source process object); it produces data
+    // (output type is vtkPolyData) which other filters may process.
     //
     vtkConeSource cone = new vtkConeSource();
     cone.SetHeight( 3.0 );
     cone.SetRadius( 1.0 );
     cone.SetResolution( 10 );
   
-    //
-    // We create an instance of vtkPolyDataMapper to map the polygonal data 
-    // into graphics primitives. We connect the output of the cone souece 
-    // to the input of this mapper 
+    // 
+    // In this example we terminate the pipeline with a mapper process object.
+    // (Intermediate filters such as vtkShrinkPolyData could be inserted in
+    // between the source and the mapper.)  We create an instance of
+    // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
+    // connect the output of the cone souece to the input of this mapper.
     //
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
     coneMapper.SetInput( cone.GetOutput() );
 
-    //
-    // create an actor to represent the cone. The actor coordinates rendering
-    // of the graphics primitives for a mapper. We set this actor's mapper to
-    // be coneMapper which we created above.
+    // 
+    // Create an actor to represent the cone. The actor orchestrates rendering
+    // of the mapper's graphics primitives. An actor also refers to properties
+    // via a vtkProperty instance, and includes an internal transformation
+    // matrix. We set this actor's mapper to be coneMapper which we created
+    // above.
     //
     vtkActor coneActor = new vtkActor();
     coneActor.SetMapper( coneMapper );
