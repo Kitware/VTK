@@ -18,7 +18,7 @@
 #include "vtkCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCharArray, "1.36");
+vtkCxxRevisionMacro(vtkCharArray, "1.37");
 vtkStandardNewMacro(vtkCharArray);
 
 // Instantiate object.
@@ -111,6 +111,12 @@ void vtkCharArray::DeepCopy(vtkDataArray *ia)
     {
     return;
     }
+
+  if ( ia->GetDataType() != VTK_CHAR )
+    {
+    vtkDataArray::DeepCopy(ia);
+    return;
+    }  
 
   if ( this != ia )
     {
