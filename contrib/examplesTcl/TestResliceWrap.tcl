@@ -26,7 +26,7 @@ vtkImageReslice reslice
 
 vtkImageViewer viewer
   viewer SetInput [reslice GetOutput]
-  viewer SetZSlice 1
+  viewer SetZSlice 0
   viewer SetColorWindow 256
   viewer SetColorLevel 127.5
   viewer Render
