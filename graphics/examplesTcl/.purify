@@ -46,7 +46,8 @@ suppress umc XauReadAuth
 suppress umr _write; _X11TransSocketWrite
 suppress umr _write; _xflsbuf; fflush; fclose; vtkImageWindow::ClosePPMImageFile
 suppress umr _write; xflsbuf; fwrite; vtkImageWindow::WritePPMImageFile
-suppress abr __glSoftResetContext; MakeCurrentRead
+suppress abr __glSoftResetContext; MakeCurrentRea
+suppress abr *; MakeCurrentRead
 suppress abr _open; __glLockedMemoryInit
 suppress abr _open; map_rtc
 suppress abr strncmp; GetBoardInfo
