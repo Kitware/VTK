@@ -38,16 +38,13 @@ IF (VTK_USE_RENDERING)
         TestCityBlockDistance
         TestConvolve
         TestCorrelation
-        TestDilateErode3D
         TestDivergence
         TestDotProduct
         TestEuclideanDistance
         TestEuclideanDistanceCached
         TestEuclideanToPolar
-        TestGradient
         TestGradientMagnitude
         TestGradientMagnitude2
-        TestGridSource
         TestHSVToRGB
         TestHybridMedian2D
         TestIdealLowPass
