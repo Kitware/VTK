@@ -32,7 +32,8 @@ vtkTCoords \
 vtkTensors \
 vtkVectors \
 vtkViewport \
-vtkWindow
+vtkWindow \
+vtkMapper2D
 
 # put all concrete classes here
 CONCRETE = \
@@ -113,7 +114,10 @@ vtkUserDefined \
 vtkVertex \
 vtkVoidArray \
 vtkVoxel \
-vtkWindowLevelLookupTable 
+vtkWindowLevelLookupTable \
+vtkActor2D \
+vtkActor2DCollection \
+vtkProperty2D 
 
 #------------------------------------------------------------------------------
 # Include the generated targets
