@@ -15,9 +15,12 @@
 #include "vtkImageMagnify.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.44");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.45");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -31,19 +34,26 @@ vtkImageMagnify::vtkImageMagnify()
   this->MagnificationFactors[2] = 1;
 }
 
-
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageMagnify::ExecuteInformation(vtkImageData *inData, 
-                                         vtkImageData *outData)
+void vtkImageMagnify::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   double *spacing;
   int idx;
-  int *inExt;
   double outSpacing[3];
-  int outExt[6];
+  int inExt[6], outExt[6];
   
-  inExt = inData->GetWholeExtent();
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
+  
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   spacing = inData->GetSpacing();
   for (idx = 0; idx < 3; idx++)
     {
@@ -56,19 +66,26 @@ void vtkImageMagnify::ExecuteInformation(vtkImageData *inData,
     outSpacing[idx] = spacing[idx] / (double)(this->MagnificationFactors[idx]);
     }
   
-  outData->SetWholeExtent(outExt);
-  outData->SetSpacing(outSpacing);
-
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt,6);
+  outInfo->Set(vtkDataObject::SPACING(),outSpacing,3);
 }
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
-                                               int outExt[6])
+void vtkImageMagnify::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   int idx;
-  
+  int outExt[6], inExt[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
+
   for (idx = 0; idx < 3; idx++)
     {
     // For Min. Round Down
@@ -77,10 +94,8 @@ void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
     inExt[idx*2+1] = (int)(floor((double)(outExt[idx*2+1]) / 
                                  (double)(this->MagnificationFactors[idx])));
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
@@ -264,30 +279,37 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
     }
 }
 
-void vtkImageMagnify::ThreadedExecute(vtkImageData *inData, 
-                                      vtkImageData *outData,
-                                      int outExt[6], int id)
+void vtkImageMagnify::ThreadedRequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector,
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
+  this->RequestUpdateExtent(request, inputVector, outputVector);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro("Execute: input ScalarType, "
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageMagnifyExecute, this, inData, (VTK_TT *)(inPtr),
-                      inExt, outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro8(vtkImageMagnifyExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), inExt, outData[0], (VTK_TT *)(outPtr),
+                      outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -304,6 +326,4 @@ void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
      << this->MagnificationFactors[2] << " )\n";
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
-
 }
-

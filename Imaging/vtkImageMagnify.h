@@ -22,13 +22,13 @@
 #ifndef __vtkImageMagnify_h
 #define __vtkImageMagnify_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMagnify : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMagnify : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMagnify *New();
-  vtkTypeRevisionMacro(vtkImageMagnify,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageMagnify,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,11 +49,15 @@ protected:
 
   int MagnificationFactors[3];
   int Interpolate;
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
+
 private:
   vtkImageMagnify(const vtkImageMagnify&);  // Not implemented.
   void operator=(const vtkImageMagnify&);  // Not implemented.
