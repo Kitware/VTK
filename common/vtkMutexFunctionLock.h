@@ -77,7 +77,7 @@ public:
   void EndLock(void);
 
 protected:
-  vtkMutexLock *mutex_var;
+  vtkMutexLock *MutexVar;
 
 };
 
