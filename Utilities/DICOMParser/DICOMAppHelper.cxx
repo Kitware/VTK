@@ -245,7 +245,7 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
     doublebyte element = tagStruct.element;
 
     dicom_stl::pair<doublebyte, doublebyte> gePair(group, element);
-    dicom_stl::pair<dicom_stl::pair<doublebyte, doublebyte>, DICOMTagInfo> mapPair(gePair, tagStruct);
+    dicom_stl::pair<const dicom_stl::pair<doublebyte, doublebyte>, DICOMTagInfo> mapPair(gePair, tagStruct);
     this->Implementation->TagMap.insert(mapPair);
 
 #ifdef DEBUG_DICOM_APP_HELPER
@@ -279,7 +279,7 @@ void DICOMAppHelper::SeriesUIDCallback(DICOMParser *parser,
     dicom_stl::vector<dicom_stl::string> newVector;
 
     newVector.push_back(parser->GetFileName());
-    this->Implementation->SeriesUIDMap.insert(dicom_stl::pair<dicom_stl::string, dicom_stl::vector<dicom_stl::string> > (newStdString, newVector));
+    this->Implementation->SeriesUIDMap.insert(dicom_stl::pair<const dicom_stl::string, dicom_stl::vector<dicom_stl::string> > (newStdString, newVector));
     }
   else
     {
@@ -447,7 +447,7 @@ void DICOMAppHelper::SliceNumberCallback(DICOMParser *parser,
     ord.SliceNumber = atoi( (char *) val);
 
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
     }
   else
     {
@@ -477,7 +477,7 @@ void DICOMAppHelper::SliceLocationCallback(DICOMParser *parser,
     ord.SliceLocation = (float)atof( (char *) val);
 
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
     }
   else
     {
@@ -506,7 +506,7 @@ void DICOMAppHelper::ImagePositionPatientCallback(DICOMParser *parser,
             &ord.ImagePositionPatient[2] );
     
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
 
     // cache the value
     memcpy( this->ImagePositionPatient, ord.ImagePositionPatient,
@@ -550,7 +550,7 @@ void DICOMAppHelper::ImageOrientationPatientCallback(DICOMParser *parser,
             &ord.ImageOrientationPatient[5] );
     
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
     }
   else
     {
