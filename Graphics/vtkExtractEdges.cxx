@@ -19,12 +19,14 @@
 #include "vtkDataSet.h"
 #include "vtkEdgeTable.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.50");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.51");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -43,10 +45,21 @@ vtkExtractEdges::~vtkExtractEdges()
 }
 
 // Generate feature edges for mesh
-void vtkExtractEdges::Execute()
+int vtkExtractEdges::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input= this->GetInput();
-  vtkPolyData *output= this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkIdType numCells, cellNum, numPts, newId;
@@ -68,7 +81,7 @@ void vtkExtractEdges::Execute()
   numPts=input->GetNumberOfPoints();
   if ( (numCells=input->GetNumberOfCells()) < 1 || numPts < 1 )
     {
-    return;
+    return 0;
     }
 
   // Set up processing
@@ -188,6 +201,8 @@ void vtkExtractEdges::Execute()
   newLines->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 // Specify a spatial locator for merging points. By
@@ -235,10 +250,9 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
 unsigned long int vtkExtractEdges::GetMTime()
 {
-  unsigned long mTime=this-> vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this-> Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
@@ -248,4 +262,3 @@ unsigned long int vtkExtractEdges::GetMTime()
     }
   return mTime;
 }
-

@@ -23,15 +23,15 @@
 #ifndef __vtkExtractEdges_h
 #define __vtkExtractEdges_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   static vtkExtractEdges *New();
-  vtkTypeRevisionMacro(vtkExtractEdges,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractEdges,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -53,7 +53,7 @@ protected:
   ~vtkExtractEdges();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkPointLocator *Locator;
 private:
