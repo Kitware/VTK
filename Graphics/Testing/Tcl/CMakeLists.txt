@@ -87,6 +87,7 @@ IF (VTK_USE_RENDERING)
       TransformConcatenation
       TransformPolyData
       triangularTCoords
+      triangularTexture
       ugFacet
       volTestClipRegions
       warpComb
