@@ -49,13 +49,11 @@ Q190351 and Q150956.
 #pragma warning (disable: 4706)
 #endif
 
-/* The number of pipes for the child's output.  The standard stdout
-   and stderr pipes are the first two.  One more pipe is used on Win9x
-   for the forwarding executable to use in reporting problems.  */
-#define CMPE_PIPE_COUNT 3
+/* The whole child pipeline will have one standard output and one
+   standard error.  */
+#define CMPE_PIPE_COUNT 2
 #define CMPE_PIPE_STDOUT 0
 #define CMPE_PIPE_STDERR 1
-#define CMPE_PIPE_ERROR 2
 
 /* The maximum amount to read from a pipe at a time.  */
 #define CMPE_PIPE_BUFFER_SIZE 1024
@@ -68,6 +66,9 @@ typedef LARGE_INTEGER kwsysProcessTime;
 typedef struct kwsysProcessPipeData_s kwsysProcessPipeData;
 static DWORD WINAPI kwsysProcessPipeThread(LPVOID ptd);
 static void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td);
+static int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
+                              PHANDLE readEnd);
+static void kwsysProcessDestroy(kwsysProcess* cp, int event);
 static void kwsysProcessCleanupHandle(PHANDLE h);
 static void kwsysProcessCleanup(kwsysProcess* cp, int error);
 static void kwsysProcessCleanErrorMessage(kwsysProcess* cp);
@@ -132,11 +133,15 @@ struct kwsysProcess_s
 {
   /* ------------- Data managed per instance of kwsysProcess ------------- */
   
-  /* The status of the process.  */
+  /* The status of the process structure.  */
   int State;
   
-  /* The command line to execute.  */
-  char* Command;
+  /* The command lines to execute.  */
+  char** Commands;
+  int NumberOfCommands;
+
+  /* The exit code of each command.  */
+  DWORD* CommandExitCodes;
   
   /* The working directory for the child process.  */
   char* WorkingDirectory;
@@ -147,6 +152,9 @@ struct kwsysProcess_s
   /* On Win9x platforms, the path to the forwarding executable.  */
   char* Win9x;
   
+  /* On Win9x platforms, the resume event for the forwarding executable.  */
+  HANDLE Win9xResumeEvent;
+  
   /* On Win9x platforms, the kill event for the forwarding executable.  */
   HANDLE Win9xKillEvent;
   
@@ -155,10 +163,6 @@ struct kwsysProcess_s
   
   /* Semaphore used by threads to signal data ready.  */
   HANDLE Full;
-  
-  /* The number of pipes needed to implement the child's execution.
-     This is 3 on Win9x and 2 otherwise.  */
-  int PipeCount;
   
   /* Whether we are currently deleting this kwsysProcess instance.  */
   int Deleting;
@@ -208,12 +212,13 @@ struct kwsysProcess_s
   /* Buffer for error messages (possibly from Win9x child).  */
   char ErrorMessage[CMPE_PIPE_BUFFER_SIZE+1];
   int ErrorMessageLength;
-  
-  /* The actual command line that will be used to create the process.  */
-  char* RealCommand;
 
   /* Windows process information data.  */
-  PROCESS_INFORMATION ProcessInformation;
+  PROCESS_INFORMATION* ProcessInformation;
+
+  /* Data and process termination events for which to wait.  */
+  PHANDLE ProcessEvents;
+  int ProcessEventsLength;
 };
 
 /*--------------------------------------------------------------------------*/
@@ -299,9 +304,8 @@ kwsysProcess* kwsysProcess_New()
       }
     }
   
-  /* We need the extra error pipe on Win9x.  */
+  /* Save the path to the forwarding executable.  */
   cp->Win9x = win9x;
-  cp->PipeCount = cp->Win9x? 3:2;
   
   /* Initially no thread owns the mutex.  Initialize semaphore to 1.  */
   if(!(cp->SharedIndexMutex = CreateSemaphore(0, 1, 1, 0)))
@@ -319,12 +323,21 @@ kwsysProcess* kwsysProcess_New()
 
   if(cp->Win9x)
     {
-    /* Create an event to tell the forwarding executable to kill the
-       child.  */
     SECURITY_ATTRIBUTES sa;
     ZeroMemory(&sa, sizeof(sa));
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
+
+    /* Create an event to tell the forwarding executable to resume the
+       child.  */
+    if(!(cp->Win9xResumeEvent = CreateEvent(&sa, TRUE, 0, 0)))
+      {
+      kwsysProcess_Delete(cp);
+      return 0;
+      }
+
+    /* Create an event to tell the forwarding executable to kill the
+       child.  */
     if(!(cp->Win9xKillEvent = CreateEvent(&sa, TRUE, 0, 0)))
       {
       kwsysProcess_Delete(cp);
@@ -333,7 +346,7 @@ kwsysProcess* kwsysProcess_New()
     }
     
   /* Create the thread to read each pipe.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     DWORD dummy=0;
     
@@ -393,7 +406,7 @@ void kwsysProcess_Delete(kwsysProcess* cp)
   cp->Deleting = 1;
   
   /* Terminate each of the threads.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     if(cp->Pipe[i].Thread)
       {
@@ -417,15 +430,20 @@ void kwsysProcess_Delete(kwsysProcess* cp)
   kwsysProcessCleanupHandle(&cp->SharedIndexMutex);
   kwsysProcessCleanupHandle(&cp->Full);
   
-  /* Close the Win9x kill event handle.  */
+  /* Close the Win9x resume and kill event handles.  */
   if(cp->Win9x)
     {
+    kwsysProcessCleanupHandle(&cp->Win9xResumeEvent);
     kwsysProcessCleanupHandle(&cp->Win9xKillEvent);
     }
   
   /* Free memory.  */
   kwsysProcess_SetCommand(cp, 0);
   kwsysProcess_SetWorkingDirectory(cp, 0);
+  if(cp->CommandExitCodes)
+    {
+    free(cp->CommandExitCodes);
+    }
   if(cp->Win9x)
     {
     _unlink(cp->Win9x);
@@ -435,13 +453,55 @@ void kwsysProcess_Delete(kwsysProcess* cp)
 }
 
 /*--------------------------------------------------------------------------*/
-void kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
+int kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
 {
-  if(cp->Command)
+  int i;
+  for(i=0; i < cp->NumberOfCommands; ++i)
     {
-    free(cp->Command);
-    cp->Command = 0;
+    free(cp->Commands[i]);
     }
+  cp->NumberOfCommands = 0;
+  if(cp->Commands)
+    {
+    free(cp->Commands);
+    cp->Commands = 0;
+    }
+  if(command)
+    {
+    return kwsysProcess_AddCommand(cp, command);
+    }
+  return 1;
+}
+
+/*--------------------------------------------------------------------------*/
+int kwsysProcess_AddCommand(kwsysProcess* cp, char const* const* command)
+{
+  int newNumberOfCommands;
+  char** newCommands;
+
+  /* Make sure we have a command to add.  */
+  if(!command)
+    {
+    return 0;
+    }
+
+  /* Allocate a new array for command pointers.  */
+  newNumberOfCommands = cp->NumberOfCommands + 1;
+  if(!(newCommands = (char**)malloc(sizeof(char*) * newNumberOfCommands)))
+    {
+    /* Out of memory.  */
+    return 0;
+    }
+
+  /* Copy any existing commands into the new array.  */
+  {
+  int i;
+  for(i=0; i < cp->NumberOfCommands; ++i)
+    {
+    newCommands[i] = cp->Commands[i];
+    }
+  }
+
   if(command)
     {
     /* We need to construct a single string representing the command
@@ -515,10 +575,16 @@ void kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
     /* Allocate enough space for the command.  We do not need an extra
        byte for the terminating null because we allocated a space for
        the first argument that we will not use.  */
-    cp->Command = (char*)malloc(length);
+    newCommands[cp->NumberOfCommands] = (char*)malloc(length);
+    if(!newCommands[cp->NumberOfCommands])
+      {
+      /* Out of memory.  */
+      free(newCommands);
+      return 0;
+      }
     
     /* Construct the command line in the allocated buffer.  */
-    cmd = cp->Command;
+    cmd = newCommands[cp->NumberOfCommands];
     for(arg = command; *arg; ++arg)
       {
       /* Keep track of how many backslashes have been encountered in a
@@ -607,6 +673,12 @@ void kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
     /* Add the terminating null character to the command line.  */
     *cmd = 0;
     }
+
+  /* Save the new array of commands.  */
+  free(cp->Commands);
+  cp->Commands = newCommands;
+  cp->NumberOfCommands = newNumberOfCommands;
+  return 1;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -700,17 +772,12 @@ void kwsysProcess_Execute(kwsysProcess* cp)
 
   /* Windows child startup control data.  */
   STARTUPINFO si;
-  DWORD dwCreationFlags=0;
   
   /* Do not execute a second time.  */
   if(cp->State == kwsysProcess_State_Executing)
     {
     return;
     }
-  
-  /* Initialize startup info data.  */
-  ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si);
   
   /* Reset internal status flags.  */
   cp->TimeoutExpired = 0;
@@ -724,96 +791,148 @@ void kwsysProcess_Execute(kwsysProcess* cp)
   cp->ErrorMessage[0] = 0;
   cp->ErrorMessageLength = 0;
   
-  /* Reset the Win9x kill event.  */
+  /* Allocate process information for each process.  */
+  cp->ProcessInformation =
+    (PROCESS_INFORMATION*)malloc(sizeof(PROCESS_INFORMATION) *
+                                 cp->NumberOfCommands);
+  if(!cp->ProcessInformation)
+    {
+    kwsysProcessCleanup(cp, 1);
+    return;
+    }
+  ZeroMemory(cp->ProcessInformation,
+             sizeof(PROCESS_INFORMATION) * cp->NumberOfCommands);
+  if(cp->CommandExitCodes)
+    {
+    free(cp->CommandExitCodes);
+    }
+  cp->CommandExitCodes = (DWORD*)malloc(sizeof(DWORD)*cp->NumberOfCommands);
+  if(!cp->CommandExitCodes)
+    {
+    kwsysProcessCleanup(cp, 1);
+    return;
+    }
+  ZeroMemory(cp->CommandExitCodes, sizeof(DWORD)*cp->NumberOfCommands);
+
+  /* Allocate event wait array.  The first event is cp->Full, the rest
+     are the process termination events.  */
+  cp->ProcessEvents = (PHANDLE)malloc(sizeof(HANDLE)*(cp->NumberOfCommands+1));
+  ZeroMemory(cp->ProcessEvents, sizeof(HANDLE) * (cp->NumberOfCommands+1));
+  cp->ProcessEvents[0] = cp->Full;
+  cp->ProcessEventsLength = cp->NumberOfCommands+1;
+
+  /* Reset the Win9x resume and kill events.  */
   if(cp->Win9x)
     {
+    if(!ResetEvent(cp->Win9xResumeEvent))
+      {
+      kwsysProcessCleanup(cp, 1);
+      return;
+      }
     if(!ResetEvent(cp->Win9xKillEvent))
       {
       kwsysProcessCleanup(cp, 1);
       return;
       }
     }
-  
-  /* Create a pipe for each child output.  */
-  for(i=0; i < cp->PipeCount; ++i)
-    {
-    HANDLE writeEnd;
-    
-    /* The pipe is not closed.  */
-    cp->Pipe[i].Closed = 0;
-    
-    /* Create the pipe.  Neither end is directly inherited.  */
-    if(!CreatePipe(&cp->Pipe[i].Read, &writeEnd, 0, 0))
-      {
-      kwsysProcessCleanup(cp, 1);
-      return;
-      }
-    
-    /* Create an inherited duplicate of the write end.  This also closes
-       the non-inherited version. */
-    if(!DuplicateHandle(GetCurrentProcess(), writeEnd,
-                        GetCurrentProcess(), &cp->Pipe[i].Write,
-                        0, TRUE, (DUPLICATE_CLOSE_SOURCE |
-                                  DUPLICATE_SAME_ACCESS)))
-      {
-      kwsysProcessCleanup(cp, 1);
-      return;
-      }
-    }
-  
-  /* Construct the real command line.  */
-  if(cp->Win9x)
-    {
-    /* Windows 9x */
-    
-    /* The forwarding executable is given a handle to the error pipe
-       and a handle to the kill event.  */
-    cp->RealCommand = malloc(strlen(cp->Win9x)+strlen(cp->Command)+100);
-    sprintf(cp->RealCommand, "%s %p %p %d %s", cp->Win9x,
-            cp->Pipe[CMPE_PIPE_ERROR].Write, cp->Win9xKillEvent,
-            cp->HideWindow, cp->Command);
-    }
-  else
-    {
-    /* Not Windows 9x */    
-    cp->RealCommand = strdup(cp->Command);
-    }
-  
-  /* Connect the child's output pipes to the threads.  */
-  si.dwFlags = STARTF_USESTDHANDLES;
-  si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-  si.hStdOutput = cp->Pipe[CMPE_PIPE_STDOUT].Write;
-  si.hStdError = cp->Pipe[CMPE_PIPE_STDERR].Write;
+
+  /* Initialize startup info data.  */
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
   
   /* Decide whether a child window should be shown.  */
   si.dwFlags |= STARTF_USESHOWWINDOW;
   si.wShowWindow = (unsigned short)(cp->HideWindow?SW_HIDE:SW_SHOWDEFAULT);
   
-  /* The timeout period starts now.  */
-  cp->StartTime = kwsysProcessTimeGetCurrent();
-  cp->TimeoutTime = kwsysProcessTimeFromDouble(-1);
+  /* Connect the child's output pipes to the threads.  */
+  si.dwFlags = STARTF_USESTDHANDLES;
   
-  /* CREATE THE CHILD PROCESS */
-  if(!CreateProcess(0, cp->RealCommand, 0, 0, TRUE, dwCreationFlags, 0,
-                    cp->WorkingDirectory, &si, &cp->ProcessInformation))
+  /* Create the stderr pipe to be shared by all processes.  Neither
+     end is directly inherited.  */
+  if(!CreatePipe(&cp->Pipe[CMPE_PIPE_STDERR].Read,
+                 &cp->Pipe[CMPE_PIPE_STDERR].Write, 0, 0))
     {
     kwsysProcessCleanup(cp, 1);
     return;
     }
+    
+  /* Create an inherited duplicate of the write end.  This also closes
+     the non-inherited version. */
+  if(!DuplicateHandle(GetCurrentProcess(), cp->Pipe[CMPE_PIPE_STDERR].Write,
+                      GetCurrentProcess(), &cp->Pipe[CMPE_PIPE_STDERR].Write,
+                      0, TRUE, (DUPLICATE_CLOSE_SOURCE |
+                                DUPLICATE_SAME_ACCESS)))
+    {
+    /* Write end is already closed.  */
+    cp->Pipe[CMPE_PIPE_STDERR].Write = 0;
+    kwsysProcessCleanup(cp, 1);
+    return;
+    }
+  si.hStdError = cp->Pipe[CMPE_PIPE_STDERR].Write;
+
+  /* Create the pipeline of processes.  */
+  {
+  HANDLE readEnd = 0;
+  for(i=0; i < cp->NumberOfCommands; ++i)
+    {
+    if(kwsysProcessCreate(cp, i, &si, &readEnd))
+      {
+      cp->ProcessEvents[i+1] = cp->ProcessInformation[i].hProcess;
+      }
+    else
+      {
+      kwsysProcessCleanup(cp, 1);
+
+      /* Release resources that may have been allocated for this
+         process before an error occurred.  */
+      kwsysProcessCleanupHandle(&readEnd);
+      if(i > 0)
+        {
+        kwsysProcessCleanupHandle(&si.hStdInput);
+        }
+      kwsysProcessCleanupHandle(&si.hStdOutput);
+      return;
+      }
+    }
+  /* Save handles to the output pipe for the last process.  */
+  cp->Pipe[CMPE_PIPE_STDOUT].Write = si.hStdOutput;
+  cp->Pipe[CMPE_PIPE_STDOUT].Read = readEnd;
+  }
+
+  /* The timeout period starts now.  */
+  cp->StartTime = kwsysProcessTimeGetCurrent();
+  cp->TimeoutTime = kwsysProcessTimeFromDouble(-1);
   
-  /* ---- It is no longer safe to call kwsysProcessCleanup. ----- */
+  /* All processes in the pipeline have been started in suspended
+     mode.  Resume them all now.  */
+  if(cp->Win9x)
+    {
+    SetEvent(cp->Win9xResumeEvent);
+    }
+  else
+    {
+    for(i=0; i < cp->NumberOfCommands; ++i)
+      {
+      ResumeThread(cp->ProcessInformation[i].hThread);
+      }
+    }
+
+  /* ---- It is no longer safe to call kwsysProcessCleanup. ----- */  
   /* Tell the pipe threads that a process has started.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     ReleaseSemaphore(cp->Pipe[i].Ready, 1, 0);
     }
-  
-  /* We don't care about the child's main thread.  */
-  kwsysProcessCleanupHandle(&cp->ProcessInformation.hThread);
+
+  /* We don't care about the children's main threads.  */
+  for(i=0; i < cp->NumberOfCommands; ++i)
+    {
+    kwsysProcessCleanupHandle(&cp->ProcessInformation[i].hThread);
+    }
   
   /* No pipe has reported data.  */
   cp->CurrentIndex = CMPE_PIPE_COUNT;
-  cp->PipesLeft = cp->PipeCount;
+  cp->PipesLeft = CMPE_PIPE_COUNT;
   
   /* The process has now started.  */
   cp->State = kwsysProcess_State_Executing;
@@ -833,7 +952,6 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
   int expired = 0;
   int pipeId = 0;
   DWORD w;
-  HANDLE events[2];
 
   /* Make sure we are executing a process.  */
   if(cp->State != kwsysProcess_State_Executing || cp->Killed ||
@@ -841,11 +959,6 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
     {
     return 0;
     }
-  
-  /* We will wait for data until the process termiantes or data are
-     available. */
-  events[0] = cp->Full;
-  events[1] = cp->ProcessInformation.hProcess;
   
   /* Record the time at which user timeout period starts.  */
   userStartTime = kwsysProcessTimeGetCurrent();
@@ -881,9 +994,9 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
       timeout = kwsysProcessTimeToDWORD(timeoutLength);
       }
     
-    /* Wait for a pipe's thread to signal or the application to
-       terminate.  */
-    w = WaitForMultipleObjects(cp->Terminated?1:2, events, 0, timeout);
+    /* Wait for a pipe's thread to signal or a process to terminate.  */
+    w = WaitForMultipleObjects(cp->ProcessEventsLength, cp->ProcessEvents,
+                               0, timeout);
     if(w == WAIT_TIMEOUT)
       {
       /* Timeout has expired.  */
@@ -903,26 +1016,6 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
         /* The pipe closed.  */
         --cp->PipesLeft;
         }
-      else if(cp->CurrentIndex == CMPE_PIPE_ERROR)
-        {
-        /* This is data on the special error reporting pipe for Win9x.
-           Append it to the error buffer.  */
-        int length = cp->Pipe[cp->CurrentIndex].DataLength;
-        if(length > CMPE_PIPE_BUFFER_SIZE - cp->ErrorMessageLength)
-          {
-          length = CMPE_PIPE_BUFFER_SIZE - cp->ErrorMessageLength;
-          }
-        if(length > 0)
-          {
-          memcpy(cp->ErrorMessage+cp->ErrorMessageLength,
-                 cp->Pipe[cp->CurrentIndex].DataBuffer, length);
-          cp->ErrorMessageLength += length;
-          }
-        else
-          {
-          cp->ErrorMessage[cp->ErrorMessageLength] = 0;
-          }
-        }
       else if(pipes & (1 << cp->CurrentIndex))
         {
         /* Caller wants this data.  Report it.  */
@@ -938,17 +1031,8 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
       }
     else
       {
-      int i;
-
-      /* Process has terminated.  */
-      cp->Terminated = 1;
-      
-      /* Close our copies of the pipe write handles so the pipe
-         threads can detect end-of-data.  */
-      for(i=0; i < cp->PipeCount; ++i)
-        {
-        kwsysProcessCleanupHandle(&cp->Pipe[i].Write);
-        }
+      /* A process has terminated.  */
+      kwsysProcessDestroy(cp, w-WAIT_OBJECT_0);
       }
     }
   
@@ -991,7 +1075,7 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
     }
   else
     {
-    /* The process has terminated and no more data are available.  */
+    /* The children have terminated and no more data are available.  */
     return 0;
     }
 }
@@ -1027,7 +1111,7 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
     }
 
   /* Wait for all pipe threads to reset.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     WaitForSingleObject(cp->Pipe[i].Reset, INFINITE);
     }
@@ -1036,35 +1120,21 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
   /* Close all the pipes.  */
   kwsysProcessCleanup(cp, 0);
   
-  /* We are done reading all data.  Wait for the child to terminate.
-     This will only block if we killed the child and are waiting for
-     it to cleanup.  */
-  WaitForSingleObject(cp->ProcessInformation.hProcess, INFINITE);
-  
   /* Determine the outcome.  */
   if(cp->Killed)
     {
     /* We killed the child.  */
     cp->State = kwsysProcess_State_Killed;
     }
-  else if(cp->ErrorMessageLength)
-    {
-    /* The Win9x forwarding executing repored data on the special
-       error pipe.  Failed to run the process.  */
-    cp->State = kwsysProcess_State_Error;
-    
-    /* Remove trailing period and newline from message, if any.  */
-    kwsysProcessCleanErrorMessage(cp);
-    }
   else if(cp->TimeoutExpired)
     {
     /* The timeout expired.  */
     cp->State = kwsysProcess_State_Expired;
     }
-  else if(GetExitCodeProcess(cp->ProcessInformation.hProcess,
-                             &cp->ExitCode))
+  else
     {
-    /* The child exited.  */
+    /* The children exited.  Report the outcome of the last process.  */
+    cp->ExitCode = cp->CommandExitCodes[cp->NumberOfCommands-1];
     if(cp->ExitCode & 0xC0000000)
       {
       /* Child terminated due to exceptional behavior.  */
@@ -1111,16 +1181,7 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
       cp->ExitValue = cp->ExitCode & 0x000000FF;
       }
     }
-  else
-    {
-    /* Error getting the child return code.  */
-    strcpy(cp->ErrorMessage, "Error getting child return code");
-    cp->State = kwsysProcess_State_Error;
-    }
-  
-  /* The child process is terminated.  */
-  CloseHandle(cp->ProcessInformation.hProcess);  
-  
+
   return 1;
 }
 
@@ -1145,7 +1206,7 @@ void kwsysProcess_Kill(kwsysProcess* cp)
     }
   
   /* Wake up all the pipe threads with dummy data.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     DWORD dummy;
     WriteFile(cp->Pipe[i].Write, "", 1, &dummy, 0);
@@ -1162,7 +1223,7 @@ void kwsysProcess_Kill(kwsysProcess* cp)
     --cp->PipesLeft;
     }
   
-  /* Kill the child.  */
+  /* Kill the children.  */
   cp->Killed = 1;
   if(cp->Win9x)
     {
@@ -1171,8 +1232,17 @@ void kwsysProcess_Kill(kwsysProcess* cp)
     }
   else
     {
-    /* Not Windows 9x.  Just terminate the child.  */
-    TerminateProcess(cp->ProcessInformation.hProcess, 255);
+    /* Not Windows 9x.  Just terminate the children.  */
+    for(i=0; i < cp->NumberOfCommands; ++i)
+      {
+      TerminateProcess(cp->ProcessInformation[i].hProcess, 255);
+      }
+    }
+
+  /* Wait for windows to finish cleaning up the children.  */
+  for(i=0; i < cp->NumberOfCommands; ++i)
+    {
+    WaitForSingleObject(cp->ProcessInformation[i].hProcess, INFINITE);
     }
 }
 
@@ -1237,6 +1307,204 @@ void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td)
 }
 
 /*--------------------------------------------------------------------------*/
+int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
+                       PHANDLE readEnd)
+{
+  HANDLE errorWriteEnd = 0;
+  HANDLE errorReadEnd = 0;
+
+  /* Setup the process's stdin.  */
+  if(*readEnd)
+    {
+    /* Create an inherited duplicate of the read end from the output
+       pipe of the previous process.  This also closes the
+       non-inherited version. */
+    if(!DuplicateHandle(GetCurrentProcess(), *readEnd,
+                        GetCurrentProcess(), readEnd,
+                        0, TRUE, (DUPLICATE_CLOSE_SOURCE |
+                                  DUPLICATE_SAME_ACCESS)))
+      {
+      return 0;
+      }
+    si->hStdInput = *readEnd;
+
+    /* This function is done with this handle.  */
+    *readEnd = 0;
+    }
+  else
+    {
+    si->hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    }
+
+  /* Setup the process's stdout.  */
+  {
+  HANDLE writeEnd;
+
+  /* Create the output pipe for this process.  Neither end is directly
+     inherited.  */
+  if(!CreatePipe(readEnd, &writeEnd, 0, 0))
+    {
+    return 0;
+    }
+
+  /* Create an inherited duplicate of the write end.  This also closes
+     the non-inherited version. */
+  if(!DuplicateHandle(GetCurrentProcess(), writeEnd,
+                      GetCurrentProcess(), &writeEnd,
+                      0, TRUE, (DUPLICATE_CLOSE_SOURCE |
+                                DUPLICATE_SAME_ACCESS)))
+    {
+    return 0;
+    }
+  si->hStdOutput = writeEnd;
+  }
+
+  /* Create the child process.  */
+  {
+  BOOL r;
+  char* realCommand;
+  if(cp->Win9x)
+    {
+    /* Create an error reporting pipe for the forwarding executable.
+       Neither end is directly inherited.  */
+    if(!CreatePipe(&errorReadEnd, &errorWriteEnd, 0, 0))
+      {
+      return 0;
+      }
+    
+    /* Create an inherited duplicate of the write end.  This also closes
+       the non-inherited version. */
+    if(!DuplicateHandle(GetCurrentProcess(), errorWriteEnd,
+                        GetCurrentProcess(), &errorWriteEnd,
+                        0, TRUE, (DUPLICATE_CLOSE_SOURCE |
+                                  DUPLICATE_SAME_ACCESS)))
+      {
+      CloseHandle(errorReadEnd);
+      return 0;
+      }
+
+    /* The forwarding executable is given a handle to the error pipe
+       and a handle to the resume and kill events.  */
+    realCommand = malloc(strlen(cp->Win9x)+strlen(cp->Commands[index])+100);
+    if(!realCommand)
+      {
+      CloseHandle(errorWriteEnd);
+      CloseHandle(errorReadEnd);
+      return 0;
+      }
+    sprintf(realCommand, "%s %p %p %p %d %s", cp->Win9x,
+            errorWriteEnd, cp->Win9xResumeEvent, cp->Win9xKillEvent,
+            cp->HideWindow, cp->Commands[index]);
+    }
+  else
+    {
+    realCommand = cp->Commands[index];
+    }
+
+  /* Create the child in a suspended state so we can wait until all
+     children have been created before running any one.  */
+  r = CreateProcess(0, realCommand, 0, 0, TRUE,
+                    cp->Win9x? 0 : CREATE_SUSPENDED, 0,
+                    cp->WorkingDirectory, si, &cp->ProcessInformation[index]);
+
+  if(cp->Win9x)
+    {
+    /* Free memory.  */
+    free(realCommand);
+
+    /* Close the error pipe write end so we can detect when the
+       forwarding executable closes it.  */
+    CloseHandle(errorWriteEnd);
+    if(r)
+      {
+      /* Wait for the forwarding executable to report an error or
+         close the error pipe to report success.  */
+      DWORD nRead = 0;
+      if(ReadFile(errorReadEnd, cp->ErrorMessage,
+                  CMPE_PIPE_BUFFER_SIZE, &nRead, 0) ||
+         GetLastError() != ERROR_BROKEN_PIPE)
+        {
+        /* The forwarding executable could not run the process, or
+           there was an error reading from its error pipe.  Preserve
+           the last error while cleaning up the forwarding executable
+           so the cleanup our caller does reports the proper error.  */
+        DWORD error = GetLastError();
+        cp->ErrorMessageLength = nRead;
+        kwsysProcessCleanupHandle(&cp->ProcessInformation[index].hThread);
+        kwsysProcessCleanupHandle(&cp->ProcessInformation[index].hProcess);
+        CloseHandle(errorReadEnd);
+        SetLastError(error);
+        return 0;
+        }
+      }
+    CloseHandle(errorReadEnd);
+    }
+
+  if(!r)
+    {
+    return 0;
+    }
+  }
+
+  /* Successfully created this child process.  */
+  if(index > 0)
+    {
+    /* Close our handle to the input pipe for the current process.  */
+    kwsysProcessCleanupHandle(&si->hStdInput);
+    }
+  if(index < cp->NumberOfCommands-1)
+    {
+    /* Close our handle to the output pipe for the current process.  */
+    kwsysProcessCleanupHandle(&si->hStdOutput);
+    }
+
+  return 1;
+}
+
+/*--------------------------------------------------------------------------*/
+void kwsysProcessDestroy(kwsysProcess* cp, int event)
+{
+  int i;
+  int index;
+
+  /* Find the process index for the termination event.  */
+  for(index=0; index < cp->NumberOfCommands; ++index)
+    {
+    if(cp->ProcessInformation[index].hProcess == cp->ProcessEvents[event])
+      {
+      break;
+      }
+    }
+
+  /* Check the exit code of the process.  */
+  GetExitCodeProcess(cp->ProcessInformation[index].hProcess,
+                     &cp->CommandExitCodes[index]);
+
+  /* Close the process handle for the terminated process.  */
+  kwsysProcessCleanupHandle(&cp->ProcessInformation[index].hProcess);
+
+  /* Remove the process from the available events.  */
+  cp->ProcessEventsLength -= 1;
+  for(i=event; i < cp->ProcessEventsLength; ++i)
+    {
+    cp->ProcessEvents[i] = cp->ProcessEvents[i+1];
+    }
+
+  /* Check if all processes have terminated.  */
+  if(cp->ProcessEventsLength == 1)
+    {
+    cp->Terminated = 1;
+
+    /* Close our copies of the pipe write handles so the pipe threads
+       can detect end-of-data.  */
+    for(i=0; i < CMPE_PIPE_COUNT; ++i)
+      {
+      kwsysProcessCleanupHandle(&cp->Pipe[i].Write);
+      }
+    }
+}
+
+/*--------------------------------------------------------------------------*/
 
 /* Close the given handle if it is open.  Reset its value to 0.  */
 void kwsysProcessCleanupHandle(PHANDLE h)
@@ -1258,37 +1526,71 @@ void kwsysProcessCleanup(kwsysProcess* cp, int error)
   /* If this is an error case, report the error.  */
   if(error)
     {
-    /* Format the error message.  */
-    DWORD original = GetLastError();
-    DWORD length = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-                                 FORMAT_MESSAGE_IGNORE_INSERTS, 0, original,
-                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                 cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE, 0);
-    if(length < 1)
+    /* Construct an error message if one has not been provided already.  */
+    if(!cp->ErrorMessageLength)
       {
-      /* FormatMessage failed.  Use a default message.  */
-      _snprintf(cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE,
-                "Process execution failed with error 0x%X.  "
-                "FormatMessage failed with error 0x%X",
-                original, GetLastError());
+      /* Format the error message.  */
+      DWORD original = GetLastError();
+      DWORD length = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
+                                   FORMAT_MESSAGE_IGNORE_INSERTS, 0, original,
+                                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                   cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE, 0);
+      if(length < 1)
+        {
+        /* FormatMessage failed.  Use a default message.  */
+        _snprintf(cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE,
+                  "Process execution failed with error 0x%X.  "
+                  "FormatMessage failed with error 0x%X",
+                  original, GetLastError());
+        }
       }
+
+    /* Remove trailing period and newline, if any.  */
+    kwsysProcessCleanErrorMessage(cp);    
 
     /* Set the error state.  */
     cp->State = kwsysProcess_State_Error;
 
-    /* Remove trailing period and newline, if any.  */
-    kwsysProcessCleanErrorMessage(cp);    
+    /* Cleanup any processes already started in a suspended state.  */
+    if(cp->ProcessInformation)
+      {
+      if(cp->Win9x)
+        {
+        SetEvent(cp->Win9xKillEvent);
+        }
+      else
+        {
+        for(i=0; i < cp->NumberOfCommands; ++i)
+          {
+          if(cp->ProcessInformation[i].hProcess)
+            {
+            TerminateProcess(cp->ProcessInformation[i].hProcess, 255);
+            WaitForSingleObject(cp->ProcessInformation[i].hProcess, INFINITE);
+            }
+          }
+        }      
+      for(i=0; i < cp->NumberOfCommands; ++i)
+        {
+        kwsysProcessCleanupHandle(&cp->ProcessInformation[i].hThread);
+        kwsysProcessCleanupHandle(&cp->ProcessInformation[i].hProcess);
+        }
+      }
     }
-  
+
   /* Free memory.  */
-  if(cp->RealCommand)
+  if(cp->ProcessInformation)
     {
-    free(cp->RealCommand);
-    cp->RealCommand = 0;
+    free(cp->ProcessInformation);
+    cp->ProcessInformation = 0;
+    }
+  if(cp->ProcessEvents)
+    {
+    free(cp->ProcessEvents);
+    cp->ProcessEvents = 0;
     }
 
   /* Close each pipe.  */
-  for(i=0; i < cp->PipeCount; ++i)
+  for(i=0; i < CMPE_PIPE_COUNT; ++i)
     {
     kwsysProcessCleanupHandle(&cp->Pipe[i].Write);
     kwsysProcessCleanupHandle(&cp->Pipe[i].Read);
