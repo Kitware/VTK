@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // point. A value of -1 undershoots the point while a value of 1
 // overshoots the point.
 // 
-// These three parameters give the user braod control over the shape of
+// These three parameters give the user broad control over the shape of
 // the interpolating spline. The original Kochanek paper describes the
 // effects nicely and is recommened reading.
 // .SECTION See Also
