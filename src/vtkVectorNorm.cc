@@ -56,10 +56,10 @@ void vtkVectorNorm::Execute()
   float *v, s, maxScalar;
   vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
-  vtkDataSet *output;
-//
-// Initialize
-//
+  vtkDataSet *output = this->GetOutput();
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Normalizing vectors!");
 
   pd = this->Input->GetPointData();
