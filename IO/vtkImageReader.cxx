@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.112");
+vtkCxxRevisionMacro(vtkImageReader, "1.113");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -46,12 +46,15 @@ vtkImageReader::vtkImageReader()
   // Left over from short reader
   this->DataMask = 0xffff;
   this->Transform = NULL;
+  
+  this->ScalarArrayName = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkImageReader::~vtkImageReader()
 { 
   this->SetTransform(NULL);
+  this->SetScalarArrayName(NULL);
 }
 
 
@@ -419,7 +422,11 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
 
   ext = data->GetExtent();
 
-  data->GetPointData()->GetScalars()->SetName("ImageFile");
+  if (!this->ScalarArrayName)
+    {
+    this->SetScalarArrayName("ImageFile");
+    }
+  data->GetPointData()->GetScalars()->SetName(this->ScalarArrayName);
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
         << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);

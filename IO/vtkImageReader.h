@@ -66,6 +66,12 @@ public:
                                            int outIncr[3]);
 
   int OpenAndSeekFile(int extent[6], int slice);
+  
+  // Description:
+  // Set/get the scalar array name for this data set.
+  vtkSetStringMacro(ScalarArrayName);
+  vtkGetStringMacro(ScalarArrayName);
+  
 protected:
   vtkImageReader();
   ~vtkImageReader();
@@ -82,6 +88,8 @@ protected:
                                     int outIncr[3]);
 
   int DataVOI[6];
+  
+  char *ScalarArrayName;
   
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);
