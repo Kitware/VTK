@@ -96,7 +96,10 @@ protected:
   virtual int ExecuteData(int outputPort);
 
   // Put default information in output information objects.
-  virtual void FillDefaultOutputInformation(vtkInformation*);
+  virtual void FillDefaultOutputInformation(int port, vtkInformation*);
+
+  // Reset the pipeline update values in the given output information object.
+  virtual void ResetPipelineInformation(int port, vtkInformation*);
 
   vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
   vtkInformation* GetConnectedInputInformation(int port, int index);

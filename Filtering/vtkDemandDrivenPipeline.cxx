@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.10");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.11");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -158,12 +158,26 @@ vtkInformation* vtkDemandDrivenPipeline::GetInputInformation(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::FillDefaultOutputInformation(vtkInformation* info)
+void vtkDemandDrivenPipeline::FillDefaultOutputInformation(int port,
+                                                           vtkInformation* info)
 {
+  // Add some keys to copy downstream by default.
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_TYPE());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+
+  // Set the executive pointer and port number on the information
+  // object to tell it what produces it.
+  info->Set(vtkExecutive::EXECUTIVE(), this);
+  info->Set(vtkExecutive::PORT_NUMBER(), port);
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::ResetPipelineInformation(int,
+                                                       vtkInformation* info)
+{
+  info->Remove(RELEASE_DATA());
 }
 
 //----------------------------------------------------------------------------
@@ -184,18 +198,8 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
   for (int i = numberOfInfoObjs; 
        i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
-    this->FillDefaultOutputInformation(
+    this->FillDefaultOutputInformation(i,
       this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
-    }
-
-  // Set the executive pointer and port number on the information objects.
-  for(int j=numberOfInfoObjs; j < this->Algorithm->GetNumberOfOutputPorts();
-      ++j)
-    {
-    vtkInformation* info =
-      this->DemandDrivenInternal->OutputInformation->GetInformationObject(j);
-    info->Set(vtkExecutive::EXECUTIVE(), this);
-    info->Set(vtkExecutive::PORT_NUMBER(), j);
     }
 
   return this->DemandDrivenInternal->OutputInformation.GetPointer();
@@ -303,8 +307,21 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
     // Request data type from the algorithm.
     result = this->ExecuteDataObject();
 
-    // Data type is now up to date.
-    this->DataObjectTime.Modified();
+    // Make sure the data object exists for all output ports.
+    for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = this->GetOutputInformation(i);
+      if(!info->Get(vtkDataObject::DATA_OBJECT()))
+        {
+        result = 0;
+        }
+      }
+
+    if(result)
+      {
+      // Data object is now up to date.
+      this->DataObjectTime.Modified();
+      }
     }
 
   return result;
@@ -601,6 +618,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port)
                   << ") did not create output for port " << port
                   << " when asked by REQUEST_DATA_OBJECT and does not"
                   << " specify any DATA_TYPE_NAME.");
+    abort();
     return 0;
     }
 }
@@ -645,13 +663,19 @@ void vtkDemandDrivenPipeline::SetOutputData(int newPort,
 {
   if(vtkInformation* info = this->GetOutputInformation(newPort))
     {
-    if(newOutput)
+    if(!newOutput || newOutput->GetPipelineInformation() != info)
       {
-      newOutput->SetPipelineInformation(info);
-      }
-    else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
-      {
-      oldOutput->SetPipelineInformation(0);
+      if(newOutput)
+        {
+        newOutput->SetPipelineInformation(info);
+        }
+      else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
+        {
+        oldOutput->SetPipelineInformation(0);
+        }
+
+      // Output has changed.  Reset the pipeline information.
+      this->ResetPipelineInformation(newPort, info);
       }
     }
   else

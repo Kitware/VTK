@@ -86,7 +86,10 @@ protected:
   virtual int NeedToExecuteData(int outputPort);
 
   // Put default information in output information objects.
-  virtual void FillDefaultOutputInformation(vtkInformation*);
+  virtual void FillDefaultOutputInformation(int port, vtkInformation*);
+
+  // Reset the pipeline update values in the given output information object.
+  virtual void ResetPipelineInformation(int port, vtkInformation*);
 
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;

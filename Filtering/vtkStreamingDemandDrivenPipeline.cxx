@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.10");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.11");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -179,15 +179,31 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
 //----------------------------------------------------------------------------
 void
 vtkStreamingDemandDrivenPipeline
-::FillDefaultOutputInformation(vtkInformation* info)
+::FillDefaultOutputInformation(int port, vtkInformation* info)
 {
-  this->Superclass::FillDefaultOutputInformation(info);
+  this->Superclass::FillDefaultOutputInformation(port, info);
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                WHOLE_EXTENT());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                MAXIMUM_NUMBER_OF_PIECES());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                EXTENT_TRANSLATOR());
+}
+
+//----------------------------------------------------------------------------
+void
+vtkStreamingDemandDrivenPipeline
+::ResetPipelineInformation(int port, vtkInformation* info)
+{
+  this->Superclass::ResetPipelineInformation(port, info);
+  info->Remove(WHOLE_EXTENT());
+  info->Remove(MAXIMUM_NUMBER_OF_PIECES());
+  info->Remove(EXTENT_TRANSLATOR());
+  info->Remove(UPDATE_EXTENT_INITIALIZED());
+  info->Remove(UPDATE_EXTENT());
+  info->Remove(UPDATE_PIECE_NUMBER());
+  info->Remove(UPDATE_NUMBER_OF_PIECES());
+  info->Remove(UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------
