@@ -128,6 +128,10 @@ void vtkStripper::Execute()
     if ((cellId % 1000) == 0) 
       {
       this->UpdateProgress ((float) cellId / (float) numCells);
+      if (this->GetAbortExecute())
+        {
+        break;
+        }
       }
     if ( ! visited[cellId] )
       {
