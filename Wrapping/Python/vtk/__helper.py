@@ -29,7 +29,7 @@ def refine_import_err(mod_name, exc):
 # GCC 3.x depends on proper merging of symbols for RTTI:
 #   http://gcc.gnu.org/faq.html#dso
 #
-import os
-if os.name == 'posix':
+try:
   import dl
   sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+except Exception: pass
