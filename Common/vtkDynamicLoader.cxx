@@ -24,7 +24,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.16");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.17");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -127,12 +127,12 @@ void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle, const char* sym)
 
 const char* vtkDynamicLoader::LibPrefix()
 {
-  return "";
+  return "lib";
 }
 
 const char* vtkDynamicLoader::LibExtension()
 {
-  return ".dylib";
+  return ".so";
 }
 
 const char* vtkDynamicLoader::LastError()
