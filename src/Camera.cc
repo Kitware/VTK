@@ -62,6 +62,14 @@ vtkCamera::vtkCamera()
   this->Device = NULL;
 }
 
+vtkCamera::~vtkCamera()
+{
+  if (this->Device)
+    {
+    delete this->Device;
+    }
+}
+
 void vtkCamera::Render(vtkRenderer *ren)
 {
   if (!this->Device)

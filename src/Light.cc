@@ -49,6 +49,14 @@ vtkLight::vtkLight()
   this->Device = NULL;
 }
 
+vtkLight::~vtkLight()
+{
+  if (this->Device)
+    {
+    delete this->Device;
+    }
+}
+
 void vtkLight::Render(vtkRenderer *ren,int light_index)
 {
   if (!this->Device)

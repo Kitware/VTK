@@ -30,6 +30,14 @@ vtkTexture::vtkTexture()
   this->Device = NULL;
 }
 
+vtkTexture::~vtkTexture()
+{
+  if (this->Device)
+    {
+    delete this->Device;
+    }
+}
+
 void vtkTexture::Load(vtkRenderer *ren)
 {
   if (!this->Device)

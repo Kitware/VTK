@@ -31,6 +31,7 @@ class vtkLight : public vtkObject
 {
 public:
   vtkLight();
+  ~vtkLight();
   char *GetClassName() {return "vtkLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

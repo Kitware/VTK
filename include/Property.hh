@@ -38,6 +38,7 @@ class vtkProperty : public vtkObject
 {
 public:
   vtkProperty();
+  ~vtkProperty();
   char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

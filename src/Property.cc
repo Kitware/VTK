@@ -58,6 +58,14 @@ vtkProperty::vtkProperty()
   this->Device = NULL;
 }
 
+vtkProperty::~vtkProperty()
+{
+  if (this->Device)
+    {
+    delete this->Device;
+    }
+}
+
 void vtkProperty::Render(vtkRenderer *ren)
 {
   if (!this->Device)

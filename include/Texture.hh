@@ -38,6 +38,7 @@ class vtkTexture : public vtkObject
 {
 public:
   vtkTexture();
+  ~vtkTexture();
   char *GetClassName() {return "vtkTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

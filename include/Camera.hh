@@ -35,6 +35,7 @@ class vtkCamera : public vtkObject
 {
  public:
   vtkCamera();
+  ~vtkCamera();
   void PrintSelf(ostream& os, vtkIndent indent);
   char *GetClassName() {return "vtkCamera";};
 
