@@ -1,8 +1,11 @@
 PROJECT (Step1)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindVTK.cmake)
-INCLUDE (${CMAKE_ROOT}/Modules/UseVTKIncludes.cmake)
-INCLUDE (${CMAKE_ROOT}/Modules/UseVTKLibraries.cmake)
+IF (USE_INSTALLED_VTK)
+  INCLUDE (${VTK_INSTALL_DIR}/UseVTK.cmake)
+ELSE (USE_INSTALLED_VTK)
+  INCLUDE (${VTK_SOURCE_DIR}/UseVTK.cmake)
+ENDIF (USE_INSTALLED_VTK)
 
 LINK_LIBRARIES( 
   vtkRendering
