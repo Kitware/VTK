@@ -93,8 +93,7 @@ void vtkClipPolyData::Execute()
   vtkPolyData *output = this->GetOutput();
   int cellId, i;
   vtkFloatPoints *cellPts;
-  vtkFloatScalars *clipScalars = NULL;;
-  vtkScalars *inputScalars;
+  vtkScalars *clipScalars;
   vtkFloatScalars cellScalars(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
@@ -107,22 +106,22 @@ void vtkClipPolyData::Execute()
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();  
   int numberOfPoints;
-  vtkPointData *inPD, *outPD;
+  vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   
   vtkDebugMacro(<< "Clipping polygonal data");
   
   //
   // Initialize self; create output objects
   //
-  if ( !this->ClipFunction && this->GenerateClipScalars)
-    {
-    vtkErrorMacro(<<"No clip function specified and GenerateClipScalarsOn");
-    return;
-    }
-
   if ( numPts < 1 || inPts == NULL )
     {
     vtkErrorMacro(<<"No data to clip");
+    return;
+    }
+
+  if ( !this->ClipFunction && GenerateClipScalars )
+    {
+    vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
     return;
     }
   //
@@ -145,32 +144,39 @@ void vtkClipPolyData::Execute()
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
-  // Interpolate data along edge. If generating clip scalars, do the necessary setup.
-  if ( this->GenerateClipScalars )
+  // Determine whether we're clipping with input scalars or a clip function
+  // and to necessary setup.
+  if ( this->ClipFunction )
     {
-    clipScalars = vtkFloatScalars::New();
-    clipScalars->Allocate(numPts);
-    inPD = new vtkPointData(*(input->GetPointData()));
-    inPD->SetScalars(clipScalars);
+    vtkFloatScalars *tmpScalars = vtkFloatScalars::New();
+    tmpScalars->Allocate(numPts);
+    inPD = new vtkPointData(*(input->GetPointData()));//copies original
+    if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(inPts->GetPoint(i));
-      clipScalars->InsertScalar(i,s);
+      tmpScalars->InsertScalar(i,s);
+      }
+    clipScalars = (vtkScalars *)tmpScalars;
+    }
+  else //using input scalars
+    {
+    clipScalars = inPD->GetScalars();
+    if ( !clipScalars )
+      {
+      vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
+      return;
       }
     }
-  else 
-    {
-    inPD = input->GetPointData();
-    if (inPD->GetScalars () == NULL)
-      {
-      vtkErrorMacro(<<"No input scalars and GenerateClipScalarsOff");
-      return;
-      }      
-    }
     
-  inputScalars = inPD->GetScalars ();
-
-  outPD = output->GetPointData();
+  if ( !this->GenerateClipScalars && !input->GetPointData()->GetScalars())
+    {
+    outPD->CopyScalarsOff();
+    }
+  else
+    {
+    outPD->CopyScalarsOn();
+    }
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 
   // If generating second output, setup clipped output
@@ -197,7 +203,7 @@ void vtkClipPolyData::Execute()
     // evaluate implicit cutting function
     for ( i=0; i < numberOfPoints; i++ )
       {
-      s = inputScalars->GetScalar(cellIds->GetId(i));
+      s = clipScalars->GetScalar(cellIds->GetId(i));
       cellScalars.InsertScalar(i, s);
       }
 
@@ -250,8 +256,11 @@ void vtkClipPolyData::Execute()
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory. 
   //
-  if (clipScalars) clipScalars->Delete();
-  if ( this->GenerateClipScalars ) inPD->Delete();
+  if ( this->ClipFunction ) 
+    {
+    clipScalars->Delete();
+    inPD->Delete();
+    }
 
   if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
   newVerts->Delete();
