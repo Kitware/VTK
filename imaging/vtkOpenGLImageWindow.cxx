@@ -164,11 +164,11 @@ vtkOpenGLImageWindow::~vtkOpenGLImageWindow()
 // Begin the Imaging process.
 void vtkOpenGLImageWindow::Render()
 {
-  if (this->WindowCreated)
+  if (this->WindowId)
     {
     this->MakeCurrent();
     }
-  if (this->DoubleBuffer)
+  if (this->WindowId && this->DoubleBuffer)
     {
     glDrawBuffer(GL_BACK);
     }
