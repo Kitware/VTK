@@ -478,6 +478,15 @@ jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
   char *utf;
   int inLength, utfLength, i;
   
+  if (!in)
+    {
+    utf = new char [2];
+    utf[0] = 0xC0;
+    utf[1] = 0x80;
+    result = env->NewStringUTF(utf);
+    return result;
+    }
+  
   inLength = strlen(in);
   utfLength = inLength + 2;
   utf = new char [utfLength];
