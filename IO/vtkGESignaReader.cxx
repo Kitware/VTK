@@ -109,6 +109,7 @@ void vtkGESignaReader::ExecuteInformation()
   vtkByteSwap::Swap4BE(&imgHdrOffset);
 
   // now seek to the image header and read some values
+  float tmpX, tmpY, tmpZ;
   float spacingX, spacingY, spacingZ;
   fseek(fp, imgHdrOffset + 50, SEEK_SET);
   fread(&spacingX, 4, 1, fp);
@@ -118,9 +119,12 @@ void vtkGESignaReader::ExecuteInformation()
   fseek(fp, imgHdrOffset + 116, SEEK_SET);  
   fread(&spacingZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingZ);
-
+  fseek(fp, imgHdrOffset + 26, SEEK_SET);  
+  fread(&tmpZ, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpZ);
+  spacingZ = spacingZ + tmpZ;
+  
   float origX, origY, origZ;
-  float tmpX, tmpY, tmpZ;
   fseek(fp, imgHdrOffset + 160, SEEK_SET);
   // read TLHC
   fread(&origX, 4, 1, fp);

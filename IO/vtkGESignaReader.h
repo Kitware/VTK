@@ -41,13 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkGESignaReader - read GE Signa ximg files
 // .SECTION Description
-// vtkGESignaReader is a source object that reads some GE Signa ximg
-// files It does support reading in pixel spacing, and slice
-// thickness, which is interprested as slice spacing. It always
-// produces greyscale unsigned short data and it supports reading in
-// rectangular, packed, compressed, and packed&compressed. It does not
-// read in slice orientation, or position right now. To use it you
-// just need to specify a filename or a file prefix and pattern.
+// vtkGESignaReader is a source object that reads some GE Signa ximg files It
+// does support reading in pixel spacing, slice spacing and it computes an
+// origin for the image in millimeters. It always produces greyscale unsigned
+// short data and it supports reading in rectangular, packed, compressed, and
+// packed&compressed. It does not read in slice orientation, or position
+// right now. To use it you just need to specify a filename or a file prefix
+// and pattern.
 
 //
 // .SECTION See Also
