@@ -64,6 +64,7 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
   int IsItemPresent(vtkRenderer *a);
   vtkRenderer *GetNextItem();
   void Render();
+  void Render2D();
 };
 
 // Description:
