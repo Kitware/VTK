@@ -303,8 +303,8 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp,
   Tcl_SetResult(interp, (char *)name, TCL_VOLATILE);
 }
       
-VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
-					       char *result_type,
+VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
+					       const char *result_type,
 					       Tcl_Interp *interp, 
 					       int &error)
 {
@@ -320,17 +320,13 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
     return NULL;
     }
   
-  /* set up the args */
-  args[0] = "DoTypecasting";
-  args[1] = result_type;
-  args[2] = NULL;
-  
   // object names cannot start with a number
   if ((name[0] >= '0')&&(name[0] <= '9'))
     {
     error = 1;
     return NULL;
     }
+
   if ((entry = Tcl_FindHashEntry(&vtkInstanceLookup,name)))
     {
     temp = (ClientData)Tcl_GetHashValue(entry);
@@ -342,7 +338,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
     error = 1;
     return NULL;
     }
-  
+
   /* now handle the typecasting, get the command proc */
   if ((entry = Tcl_FindHashEntry(&vtkCommandLookup,name)))
     {
@@ -356,8 +352,14 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
     return NULL;
     }
 
+  /* set up the args */
+  args[0] = "DoTypecasting";
+  args[1] = strdup(result_type);
+  args[2] = NULL;
+  
   if (command(temp,(Tcl_Interp *)NULL,3,args) == TCL_OK)
     {
+    free (args[1]);
     return (void *)(args[2]);
     }
   else
@@ -366,6 +368,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
     i = Tcl_CreateInterp();
     // provide more diagnostic info
     args[0] = "Dummy";
+    free (args[1]);
     args[1] = "GetClassName";
     args[2] = NULL;
     command(temp,i,2,args);

@@ -66,7 +66,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp,
 					  Tcl_Interp *,int, char *[]));
 
 extern VTKTCL_EXPORT void *
-vtkTclGetPointerFromObject(char *name, char *result_type,
+vtkTclGetPointerFromObject(const char *name, const char *result_type,
 			   Tcl_Interp *interp, int &error);
 
 extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
