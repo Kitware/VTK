@@ -101,7 +101,7 @@ libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
 
 
 #------------------------------------------------------------------------------
-clean: ${CLEAN_TCL} $(CLEAN_JAVA)
+clean: ${CLEAN_TCL} $(CLEAN_JAVA) $(CLEAN_PYTHON)
 	-rm -f *.o *.a *.so *.sl *~ Makefile
 
 clean_tcl:
@@ -109,6 +109,9 @@ clean_tcl:
 
 clean_java:
 	-cd java; rm -f *
+
+clean_python:
+	-cd python; rm -f *
 
 #------------------------------------------------------------------------------
 install_tcl_java: install_tcl
@@ -130,5 +133,3 @@ install: ${VTK_LIB_FILE}
 	@echo "Installing ${VTK_LIB_FILE}"
 	@${srcdir}/../${INSTALL} $(VTK_LIB_FILE) $(LIB_INSTALL_DIR)/$(VTK_LIB_FILE)
 	@chmod 555 $(LIB_INSTALL_DIR)/$(VTK_LIB_FILE)
-
-
