@@ -96,4 +96,26 @@ protected:
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
 
+#define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \
+  template <class T> \
+  inline vtkstd_bool operator op (T* l, const vtkSmartPointer<T>& r) \
+    { \
+    return (l op r.GetPointer()); \
+    } \
+  template <class T> \
+  inline vtkstd_bool operator op (const vtkSmartPointer<T>& l, T* r) \
+    { \
+    return (l.GetPointer() op r); \
+    }
+// Description:
+// Compare smart pointer values.
+VTK_SMART_POINTER_DEFINE_OPERATOR(==)
+VTK_SMART_POINTER_DEFINE_OPERATOR(!=)
+VTK_SMART_POINTER_DEFINE_OPERATOR(<)
+VTK_SMART_POINTER_DEFINE_OPERATOR(<=)
+VTK_SMART_POINTER_DEFINE_OPERATOR(>)
+VTK_SMART_POINTER_DEFINE_OPERATOR(>=)
+
+#undef VTK_SMART_POINTER_DEFINE_OPERATOR
+
 #endif
