@@ -1,14 +1,9 @@
 /************************************************************************
- *
- * File: otherArrays.cxx
- *
- * Created:       Mon Feb  1 17:10:45 1999 by Tony Chi-shao Pan
- * Last Modified: Wed Dec 22 14:15:49 1999 by Tony Chi-shao Pan
- *
- * < General description goes here > 
- *
+  Module:    otherArrays.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
  ************************************************************************/
-
 
 // All tests need:
 //   the following include
@@ -117,6 +112,21 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   if (passed) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
+  strm << "\tvtkDataArray::GetTuple(i, double *tuple)...";
+  ptr->vtkDataArray::GetTuple (4, tuple3);
+  passed = 1;
+  for (i = 0; i < 10; i++)
+    {
+    strm << tuple3[i] << " ";
+    if (tuple3[i] != (40 + i))
+      {
+      passed = 0;
+      break;
+      }
+    }
+  if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
   strm << "\tSetTuple(i, float *tuple)...";
   ptr->SetTuple (99, tuple1);
   for (i=0; i < 10; i++) tuple1[i] = 0;
@@ -136,6 +146,23 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tSetTuple(i, double *tuple)...";
   ptr->SetTuple (99, tuple3);
+  for (i=0; i < 10; i++) tuple3[i] = 0;
+  ptr->GetTuple (99, tuple3);
+  passed = 1;
+  for (i = 0; i < 10; i++)
+    {
+    strm << tuple3[i] << " ";
+    if (tuple3[i] != (40 + i))
+      {
+      passed = 0;
+      break;
+      }
+    }
+  if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tvtkDataArray::SetTuple(i, double *tuple)...";
+  ptr->vtkDataArray::SetTuple (99, tuple3);
   for (i=0; i < 10; i++) tuple3[i] = 0;
   ptr->GetTuple (99, tuple3);
   passed = 1;
@@ -185,6 +212,23 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   if (passed) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
+  strm << "\tvtkDataArray::InsertTuple(i, double *tuple)...";
+  ptr->vtkDataArray::InsertTuple (100, tuple3);
+  for (i=0; i < 10; i++) tuple3[i] = 0;
+  ptr->GetTuple (100, tuple3);
+  passed = 1;
+  for (i = 0; i < 10; i++)
+    {
+    strm << tuple3[i] << " ";
+    if (tuple3[i] != (40 + i))
+      {
+      passed = 0;
+      break;
+      }
+    }
+  if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
   strm << "\tInsertNextTuple(float *tuple)...";
   ptr->InsertNextTuple (tuple1);
   for (i=0; i < 10; i++) tuple1[i] = 0;
@@ -219,7 +263,42 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   if (passed) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
-  strm << "\tPrintSelf...";
+  strm << "\tvtkDataArray::InsertNextTuple(double *tuple)...";
+  ptr->vtkDataArray::InsertNextTuple (tuple3);
+  for (i=0; i < 10; i++) tuple3[i] = 0;
+  ptr->GetTuple (102, tuple3);
+  passed = 1;
+  for (i = 0; i < 10; i++)
+    {
+    strm << tuple3[i] << " ";
+    if (tuple3[i] != (40 + i))
+      {
+      passed = 0;
+      break;
+      }
+    }
+  if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tvtkDataArray::GetData...";
+  vtkFloatArray *farray = vtkFloatArray::New();
+  farray->SetNumberOfComponents(1);
+  ptr->vtkDataArray::GetData (0, 59, 1, 1, *farray);
+  passed = 1;
+  for (i = 0; i < 10; i++)
+    {
+    strm << farray->GetTuple(i)[0] << " ";
+    if (farray->GetTuple(i)[0] != (1 + i*10))
+      {
+      passed = 0;
+      break;
+      }
+    }
+  if (passed) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+  farray->Delete();
+  
+  strm << "PrintSelf..." << endl;
   strm << *ptr;
 
   return 0;
