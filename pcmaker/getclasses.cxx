@@ -148,7 +148,9 @@ void stuffit(FILE *fp)
 
   /* create an extern ref to the generic delete function */
   fprintf(fp,"\n\nextern void vtkTclGenericDeleteObject(ClientData cd);\n\n");
-
+  
+  // prototype helper function
+  if (anindex > 200) fprintf(fp,"int vtk%sNewInstanceHelper(ClientData cd, Tcl_Interp *interp,\n                      	   int argc, char *argv[]);\n\n",kitName);
   /* define the vtkNewInstanceCommand */
   fprintf(fp,"int vtk%sNewInstanceCommand(ClientData cd, Tcl_Interp *interp,\n                         int argc, char *argv[])\n{\n",kitName);
   fprintf(fp,"  Tcl_HashEntry *entry;\n  int is_new;\n  char temps[80];\n");
@@ -158,26 +160,76 @@ void stuffit(FILE *fp)
   fprintf(fp,"  if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))\n    {\n    interp->result = \"vtk object names must start with a letter.\";\n    return TCL_ERROR;\n    }\n\n");
   fprintf(fp,"  if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))\n    {\n    interp->result = \"a vtk object with that name already exists.\";\n    return TCL_ERROR;\n    }\n\n");
 
-  for (i = 0; i < anindex; i++)
+  // we have to break this function into two because it is too large for some compilers
+  if (anindex > 200)
     {
-    fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
-    fprintf(fp,"    ClientData temp;\n");
-    fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
-    fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
-    fprintf(fp,"      return TCL_OK;\n      }\n");
+    for (i = 0; i < 200; i++)
+      {
+      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
+      fprintf(fp,"    ClientData temp;\n");
+      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
+      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
+      fprintf(fp,"      return TCL_OK;\n      }\n");
 
-    fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
-    fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
-    fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
-    fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
-    fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
+      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
+      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
+      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
+      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
 	    names[i]);
-    fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
-    fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
-    fprintf(fp,"    }\n\n");
-    }
+      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+      fprintf(fp,"    }\n\n");
+      }
+    // call the helper function
+	fprintf(fp,"  if (vtk%sNewInstanceHelper(cd,interp,argc,argv) == TCL_OK) return TCL_OK;\n",kitName);
+    fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}\n");
+    fprintf(fp,"int vtk%sNewInstanceHelper(ClientData cd, Tcl_Interp *interp,\n                         int argc, char *argv[])\n{\n",kitName);
+    fprintf(fp,"  Tcl_HashEntry *entry;\n  int is_new;\n  char temps[80];\n");
+    fprintf(fp,"  cd = 0; /* just prevents compiler warnings */\n");
 
-  fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}");
+    for ( ; i < anindex; i++)
+      {
+      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
+      fprintf(fp,"    ClientData temp;\n");
+      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
+      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
+      fprintf(fp,"      return TCL_OK;\n      }\n");
+
+      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
+      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
+      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
+      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
+	    names[i]);
+      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+      fprintf(fp,"    }\n\n");
+      }
+	fprintf(fp,"  return TCL_ERROR;\n}\n");
+    } 
+  else
+    {
+    for (i = 0; i < anindex; i++)
+      {
+      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
+      fprintf(fp,"    ClientData temp;\n");
+      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
+      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
+      fprintf(fp,"      return TCL_OK;\n      }\n");
+
+      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
+      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
+      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
+      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
+	    names[i]);
+      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
+      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+      fprintf(fp,"    }\n\n");
+      }
+    fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}\n");
+    }
 
   /* the main declaration */
   fprintf(fp,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
@@ -372,8 +424,6 @@ void doHeader(FILE *fp, const char *vtkHome,
   int i;
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"RSC=rc.exe\n");
-  fprintf(fp,"MTL=mktyplib.exe\n");
   fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"OUTDIR=obj\n\n");
   fprintf(fp,"ALL : \"$(OUTDIR)\\vtkdll.dll\"\n\n");
@@ -381,10 +431,10 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
-  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+  fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
     vtkCompiler, vtkCompiler, vtkHome, vtkHome);
-  fprintf(fp," \"_WINDOWS\" /D \"_DLL\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
-  fprintf(fp," /YX /Fo\"$(OUTDIR)/\" /c \n");
+  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib %s\\lib\\opengl32.lib %s\\lib\\glaux.lib /nologo /version:1.3 /subsystem:windows\\\n",
     vtkCompiler, vtkCompiler, vtkCompiler, vtkCompiler);
@@ -429,9 +479,9 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
-  fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
+  fprintf(fp,"	$(CPP) /nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
     vtkCompiler, vtkCompiler, vtkHome,vtkHome);
-  fprintf(fp," /D \"_WINDLL\" /D \"_DLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
+  fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
 	  vtkHome);
   fprintf(fp,"	\n");
@@ -469,8 +519,6 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   int i;
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"RSC=rc.exe\n");
-  fprintf(fp,"MTL=mktyplib.exe\n");
   fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"OUTDIR=obj\n\n");
   fprintf(fp,"ALL : \"$(OUTDIR)\\vtktcl.dll\"\n\n");
@@ -479,12 +527,12 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+  fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
     vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
-  fprintf(fp," \"_WINDOWS\" /D \"_DLL\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
+  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
   fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
+  fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
 	  vtkCompiler, vtkCompiler, vtkHome, vtkHome);
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
