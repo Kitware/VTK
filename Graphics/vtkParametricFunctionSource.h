@@ -81,6 +81,20 @@ public:
   vtkSetMacro(WResolution,int);
   vtkGetMacro(WResolution,int);
 
+  // Description:
+  // Set/Get the generation of texture coordinates. This is off by
+  // default.
+  // Note that this is only applicable to parametric surfaces 
+  // whose parametric dimension is 2.
+  // Warning: if the parametric mapping is discontinuous, as in the
+  // case of vtkParametricEllipsoid() or vtkParametricToroid(),
+  // then the generation of texture coordinates will fail. However it
+  // will work in these cases if JoinU and JoinV are switched off and a
+  // (u,v) patch is selected where the mapping is continuous.
+  vtkBooleanMacro(GenerateTextureCoordinates,int);
+  vtkSetMacro(GenerateTextureCoordinates,int);
+  vtkGetMacro(GenerateTextureCoordinates,int);
+
   //BTX
   // Description:
   // Enumerate the supported scalar generation modes.
@@ -163,6 +177,7 @@ protected:
   int UResolution;
   int VResolution;
   int WResolution;
+  int GenerateTextureCoordinates;
   int ScalarMode;
 
 private:

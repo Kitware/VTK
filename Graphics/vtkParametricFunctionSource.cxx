@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.9");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.10");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -38,6 +38,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
   , UResolution(50)
   , VResolution(50)
   , WResolution(50)
+  , GenerateTextureCoordinates(0)
   , ScalarMode(vtkParametricFunctionSource::SCALAR_NONE)
 {
   this->SetNumberOfInputPorts(0);
@@ -294,6 +295,13 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   nval->SetNumberOfComponents(3);
   nval->SetNumberOfTuples(totPts); 
 
+  // Texture coordinates
+  double tc[2];
+  vtkFloatArray *newTCoords;
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*totPts);
+
   vtkPoints * points = vtkPoints::New();
   points->SetNumberOfPoints( totPts );
 
@@ -332,10 +340,21 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     uv[0] += uStep;
     uv[1] = this->ParametricFunction->GetMinimumV() - vStep;
 
+    if ( GenerateTextureCoordinates != 0 )
+      {
+      tc[0] = i*uStep/MaxU;
+      }
+      
     for ( int j = 0; j < PtsV; ++j )
       {
       uv[1] += vStep;
 
+      if ( GenerateTextureCoordinates != 0 )
+        {
+        tc[1] = 1.0 - j*vStep/MaxV;
+        newTCoords->InsertNextTuple(tc);
+        }
+  
       // The point
       double Pt[3];
       // Partial derivative at Pt with respect to u,v,w.
@@ -494,10 +513,14 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   vtkPolyData *outData = static_cast<vtkPolyData*>(outInfo->Get( vtkDataObject::DATA_OBJECT() ));
   outData->DeepCopy(tri->GetOutput());
 
+  if ( GenerateTextureCoordinates != 0 )
+    outData->GetPointData()->SetTCoords( newTCoords );
+
   // Were done, clean up.
   points->Delete();
   sval->Delete();
   nval->Delete();
+  newTCoords->Delete();
   strips->Delete();
   pd->Delete();
   tri->Delete();
