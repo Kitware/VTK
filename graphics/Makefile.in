@@ -85,6 +85,7 @@ vtkLODActor.o \
 vtkLight.o \
 vtkLineSource.o \
 vtkLinearExtrusionFilter.o \
+vtkLinkEdgels.o \
 vtkMCubesReader.o \
 vtkMCubesWriter.o \
 vtkMapper.o \
@@ -160,6 +161,7 @@ vtkStructuredPointsSource.o \
 vtkStructuredPointsToPolyDataFilter.o \
 vtkStructuredPointsToStructuredPointsFilter.o \
 vtkStructuredPointsWriter.o \
+vtkSubPixelPositionEdgels.o \
 vtkSweptSurface.o \
 vtkTensorGlyph.o \
 vtkTextSource.o \
@@ -280,6 +282,7 @@ tcl/vtkLightCollectionTcl.o \
 tcl/vtkLightDeviceTcl.o \
 tcl/vtkLineSourceTcl.o \
 tcl/vtkLinearExtrusionFilterTcl.o \
+tcl/vtkLinkEdgelsTcl.o \
 tcl/vtkMCubesReaderTcl.o \
 tcl/vtkMCubesWriterTcl.o \
 tcl/vtkMapperTcl.o \
@@ -359,6 +362,7 @@ tcl/vtkStructuredPointsSourceTcl.o \
 tcl/vtkStructuredPointsToPolyDataFilterTcl.o \
 tcl/vtkStructuredPointsToStructuredPointsFilterTcl.o \
 tcl/vtkStructuredPointsWriterTcl.o \
+tcl/vtkSubPixelPositionEdgelsTcl.o \
 tcl/vtkSweptSurfaceTcl.o \
 tcl/vtkTensorGlyphTcl.o \
 tcl/vtkTextSourceTcl.o \
@@ -477,6 +481,7 @@ vtkLight.h \
 vtkLightCollection.h \
 vtkLineSource.h \
 vtkLinearExtrusionFilter.h \
+vtkLinkEdgels.h \
 vtkMCubesReader.h \
 vtkMCubesWriter.h \
 vtkMarchingCubes.h \
@@ -551,6 +556,7 @@ vtkStructuredPointsSource.h \
 vtkStructuredPointsToPolyDataFilter.h \
 vtkStructuredPointsToStructuredPointsFilter.h \
 vtkStructuredPointsWriter.h \
+vtkSubPixelPositionEdgels.h \
 vtkSweptSurface.h \
 vtkTensorGlyph.h \
 vtkTextSource.h \
@@ -924,6 +930,9 @@ tcl/vtkLineSourceTcl.cxx: vtkLineSource.h ../tcl/cpp_parse
 tcl/vtkLinearExtrusionFilterTcl.cxx: vtkLinearExtrusionFilter.h ../tcl/cpp_parse 
 	rm -f tcl/vtkLinearExtrusionFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinearExtrusionFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinearExtrusionFilterTcl.cxx
 
+tcl/vtkLinkEdgelsTcl.cxx: vtkLinkEdgels.h ../tcl/cpp_parse 
+	rm -f tcl/vtkLinkEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkEdgelsTcl.cxx
+
 tcl/vtkMCubesReaderTcl.cxx: vtkMCubesReader.h ../tcl/cpp_parse 
 	rm -f tcl/vtkMCubesReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMCubesReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkMCubesReaderTcl.cxx
 
@@ -1211,6 +1220,9 @@ tcl/vtkStructuredPointsToStructuredPointsFilterTcl.cxx: vtkStructuredPointsToStr
 
 tcl/vtkStructuredPointsWriterTcl.cxx: vtkStructuredPointsWriter.h ../tcl/cpp_parse 
 	rm -f tcl/vtkStructuredPointsWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsWriterTcl.cxx
+
+tcl/vtkSubPixelPositionEdgelsTcl.cxx: vtkSubPixelPositionEdgels.h ../tcl/cpp_parse 
+	rm -f tcl/vtkSubPixelPositionEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSubPixelPositionEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkSubPixelPositionEdgelsTcl.cxx
 
 tcl/vtkSweptSurfaceTcl.cxx: vtkSweptSurface.h ../tcl/cpp_parse 
 	rm -f tcl/vtkSweptSurfaceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSweptSurface.h $(srcdir)/../tcl/hints 1 > tcl/vtkSweptSurfaceTcl.cxx
