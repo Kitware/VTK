@@ -163,6 +163,11 @@ void vtkDecimatePro::Execute()
   int *cells, pt1, pt2, cellId, fedges[2];
   vtkIdList *CollapseTris;
   float max, *bounds;
+  if (!input)
+    {
+    vtkErrorMacro(<<"No input!");
+    return;
+    }
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
   int *map, numNewPts, totalPts, newCellPts[3];
