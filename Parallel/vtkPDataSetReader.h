@@ -102,7 +102,7 @@ protected:
   void SetNumberOfPieces(int num);
 
 //BTX
-  ifstream *vtkPDataSetReader::OpenFile();
+  ifstream *OpenFile();
 //ETX
   int ReadXML(ifstream *file, char **block, char **param, char **value);
 

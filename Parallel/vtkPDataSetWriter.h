@@ -108,7 +108,7 @@ protected:
   void operator=(const vtkPDataSetWriter&);
 
 //BTX
-  ostream *vtkPDataSetWriter::OpenFile();
+  ostream *OpenFile();
   void WriteUnstructuredMetaData(vtkDataSet *input, 
                           char *root, char *str, ostream *fptr);
   void WriteImageMetaData(vtkImageData *input, 
