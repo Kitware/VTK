@@ -46,17 +46,18 @@ void vtkTransformFilter::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkPointData *pd, *outPD;
-  vtkVectors *inVectors;
-  vtkVectors *newVectors=NULL;
-  vtkNormals *inNormals;
-  vtkNormals *newNormals=NULL;
-  int numPts;
+  vtkVectors *inVectors, *inCellVectors;;
+  vtkVectors *newVectors=NULL, *newCellVectors=NULL;
+  vtkNormals *inNormals, *inCellNormals;
+  vtkNormals *newNormals=NULL, *newCellNormals=NULL;
+  int numPts, numCells;
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output= this->GetOutput();
+  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 
-  vtkDebugMacro(<<"Executing transformation");
-  //
+  vtkDebugMacro(<<"Executing transform filter");
+
   // Check input
   //
   if ( this->Transform == NULL )
@@ -66,10 +67,10 @@ void vtkTransformFilter::Execute()
     }
 
   inPts = input->GetPoints();
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
+  inCellVectors = cd->GetVectors();
+  inCellNormals = cd->GetNormals();
 
   if ( !inPts )
     {
@@ -78,6 +79,8 @@ void vtkTransformFilter::Execute()
     }
 
   numPts = inPts->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
+
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   if ( inVectors ) 
@@ -90,29 +93,47 @@ void vtkTransformFilter::Execute()
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts);
     }
-  //
+  if ( inCellVectors ) 
+    {
+    newCellVectors = vtkVectors::New();
+    newCellVectors->Allocate(numCells);
+    }
+  if ( inCellNormals ) 
+    {
+    newCellNormals = vtkNormals::New();
+    newCellNormals->Allocate(numCells);
+    }
+
   // Loop over all points, updating position
   //
   this->Transform->MultiplyPoints(inPts,newPts);
-//
-// Ditto for vectors and normals
-//
+  this->UpdateProgress (.25);
+
+  // Ditto for vectors and normals
+  //
   if ( inVectors )
     {
     this->Transform->MultiplyVectors(inVectors,newVectors);
     }
+  if ( inCellVectors )
+    {
+    this->Transform->MultiplyVectors(inCellVectors,newCellVectors);
+    }
+
+  this->UpdateProgress (.5);
 
   if ( inNormals )
     {
     this->Transform->MultiplyNormals(inNormals,newNormals);
     }
-//
-// Update ourselves
-//
-  outPD->CopyVectorsOff();
-  outPD->CopyNormalsOff();
-  outPD->PassData(input->GetPointData());
+  if ( inCellNormals )
+    {
+    this->Transform->MultiplyNormals(inCellNormals,newCellNormals);
+    }
+  this->UpdateProgress (.75);
 
+  // Update ourselves
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
@@ -127,6 +148,21 @@ void vtkTransformFilter::Execute()
     outPD->SetVectors(newVectors);
     newVectors->Delete();
     }
+
+  if (newCellNormals)
+    {
+    outCD->SetNormals(newCellNormals);
+    newCellNormals->Delete();
+    }
+
+  if (newCellVectors)
+    {
+    outCD->SetVectors(newCellVectors);
+    newCellVectors->Delete();
+    }
+
+  outPD->PassNoReplaceData(pd);
+  outCD->PassNoReplaceData(cd);
 }
 
 unsigned long vtkTransformFilter::GetMTime()

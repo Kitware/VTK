@@ -46,18 +46,18 @@ void vtkTransformPolyDataFilter::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkPointData *pd, *outPD;
-  vtkVectors *inVectors;
-  vtkVectors *newVectors=NULL;
-  vtkNormals *inNormals;
-  vtkNormals *newNormals=NULL;
-  int numPts;
+  vtkVectors *inVectors, *inCellVectors;
+  vtkVectors *newVectors=NULL, *newCellVectors=NULL;
+  vtkNormals *inNormals, *inCellNormals;
+  vtkNormals *newNormals=NULL, *newCellNormals=NULL;
+  int numPts, numCells;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 
   vtkDebugMacro(<<"Executing polygonal transformation");
 
-  //
   // Check input
   //
   if ( this->Transform == NULL )
@@ -67,10 +67,10 @@ void vtkTransformPolyDataFilter::Execute()
     }
 
   inPts = input->GetPoints();
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
+  inCellVectors = cd->GetVectors();
+  inCellNormals = cd->GetNormals();
 
   if ( !inPts )
     {
@@ -79,6 +79,8 @@ void vtkTransformPolyDataFilter::Execute()
     }
 
   numPts = inPts->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
+
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   if ( inVectors ) 
@@ -91,34 +93,54 @@ void vtkTransformPolyDataFilter::Execute()
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts);
     }
-//
-// Loop over all points, updating position
-//
+  if ( inCellVectors ) 
+    {
+    newCellVectors = vtkVectors::New();
+    newCellVectors->Allocate(numCells);
+    }
+  if ( inCellNormals ) 
+    {
+    newCellNormals = vtkNormals::New();
+    newCellNormals->Allocate(numCells);
+    }
+
+  // Loop over all points, updating position
+  //
   this->Transform->MultiplyPoints(inPts,newPts);
   this->UpdateProgress (.25);
-//
-// Ditto for vectors and normals
-//
+
+  // Ditto for vectors and normals
+  //
   if ( inVectors )
     {
     this->Transform->MultiplyVectors(inVectors,newVectors);
     }
+  if ( inCellVectors )
+    {
+    this->Transform->MultiplyVectors(inCellVectors,newCellVectors);
+    }
 
   this->UpdateProgress (.5);
+
   if ( inNormals )
     {
     this->Transform->MultiplyNormals(inNormals,newNormals);
     }
+  if ( inCellNormals )
+    {
+    this->Transform->MultiplyNormals(inCellNormals,newCellNormals);
+    }
   this->UpdateProgress (.75);
-//
-// Update ourselves and release memory
-//
-  outPD->CopyVectorsOff();
-  outPD->CopyNormalsOff();
-  outPD->PassData(input->GetPointData());
 
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
+
+  output->SetVerts(input->GetVerts());
+  output->SetLines(input->GetLines());
+  output->SetPolys(input->GetPolys());
+  output->SetStrips(input->GetStrips());
 
   if (newNormals)
     {
@@ -132,11 +154,20 @@ void vtkTransformPolyDataFilter::Execute()
     newVectors->Delete();
     }
 
-  output->SetVerts(input->GetVerts());
-  output->SetLines(input->GetLines());
-  output->SetPolys(input->GetPolys());
-  output->SetStrips(input->GetStrips());
-  this->UpdateProgress (1.0);
+  if (newCellNormals)
+    {
+    outCD->SetNormals(newCellNormals);
+    newCellNormals->Delete();
+    }
+
+  if (newCellVectors)
+    {
+    outCD->SetVectors(newCellVectors);
+    newCellVectors->Delete();
+    }
+
+  outPD->PassNoReplaceData(pd);
+  outCD->PassNoReplaceData(cd);
 }
 
 unsigned long vtkTransformPolyDataFilter::GetMTime()
