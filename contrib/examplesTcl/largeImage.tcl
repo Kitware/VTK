@@ -54,7 +54,7 @@ vtkRenderLargeImage renderLarge
 vtkImageViewer viewer
   viewer SetInput [renderLarge GetOutput]
   viewer SetColorWindow 255
-  viewer SetColorLevel 127
+  viewer SetColorLevel 127.5
   viewer Render
 
 vtkPNMWriter writer
