@@ -111,9 +111,16 @@ public:
   vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
   vtkGetMacro(TextureLength,float);
 
+  // Description:
+  // If you want to use an arbitrary normals array, then set its name here.
+  // By default this in NULL and the filter will use the active normal array.
+  vtkGetStringMacro(InputVectorsSelection);
+  void SelectInputVectors(const char *fieldName) 
+    {this->SetInputVectorsSelection(fieldName);}
+
 protected:
   vtkRibbonFilter();
-  ~vtkRibbonFilter() {}
+  ~vtkRibbonFilter();
 
   void Execute();
   float Width;
@@ -141,6 +148,11 @@ protected:
   
   // Helper data members
   float Theta;
+
+  // We preferred input vectors over normals because we do
+  // not want to shade the input line with these values.
+  char *InputVectorsSelection;
+  vtkSetStringMacro(InputVectorsSelection);
   
 private:
   vtkRibbonFilter(const vtkRibbonFilter&);  // Not implemented.
