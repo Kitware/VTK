@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.14");
+vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.15");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
@@ -59,6 +59,16 @@ int vtkSimpleImageToImageFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkImageData *input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  int inExt[6];
+  input->GetExtent(inExt);
+  // if the input extent is empty then exit
+  if (inExt[1] < inExt[0] ||
+      inExt[3] < inExt[2] ||
+      inExt[5] < inExt[4])
+    {
+    return 1;
+    }
   
   // Set the extent of the output and allocate memory.
   output->SetExtent(
