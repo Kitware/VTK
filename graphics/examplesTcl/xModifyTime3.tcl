@@ -774,9 +774,3 @@ viewer Render
 
 
 viewer GlobalWarningDisplayOn
-
-exit
-
-
-
-
