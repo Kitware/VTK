@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.104");
+vtkCxxRevisionMacro(vtkTransform, "1.105");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -337,14 +337,14 @@ unsigned long vtkTransform::GetMTime()
 //----------------------------------------------------------------------------
 // Get the x, y, z orientation angles from the transformation matrix as an
 // array of three floating point values.
-void vtkTransform::GetOrientation(double orientation[3])
+void vtkTransform::GetOrientation(double orientation[3], 
+                                  vtkMatrix4x4 *amatrix)
 {
 #define VTK_AXIS_EPSILON 0.001
   int i;
 
-  this->Update();
   // convenient access to matrix
-  double (*matrix)[4] = this->Matrix->Element;
+  double (*matrix)[4] = amatrix->Element;
   double ortho[3][3];
 
   for (i = 0; i < 3; i++)
@@ -430,6 +430,15 @@ void vtkTransform::GetOrientation(double orientation[3])
 
   double alpha = atan2(sinAlpha, cosAlpha);
   orientation[2] = alpha/vtkMath::DoubleDegreesToRadians();
+}
+
+//----------------------------------------------------------------------------
+// Get the x, y, z orientation angles from the transformation matrix as an
+// array of three floating point values.
+void vtkTransform::GetOrientation(double orientation[3])
+{
+  this->Update();
+  this->GetOrientation(orientation, this->Matrix);
 }
 
 //----------------------------------------------------------------------------

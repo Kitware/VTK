@@ -185,6 +185,11 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
     this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
+  // Convenience function to get the x, y, z orientation angles from 
+  // a transformation matrix as an array of three floating point values.  
+  static void GetOrientation(double orient[3], vtkMatrix4x4 *matrix);
+
+  // Description:
   // Return the wxyz angle+axis representing the current orientation.
   void GetOrientationWXYZ(double wxyz[4]);
   void GetOrientationWXYZ(float wxyz[3]) {
