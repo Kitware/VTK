@@ -193,6 +193,11 @@ public:
   vtkSetStringMacro(ProgressText);
   vtkGetStringMacro(ProgressText);
 
+  // Description:
+  // The error code contains a possible error that occured while
+  // reading or writing the file.
+  vtkGetMacro( ErrorCode, unsigned long );
+
   // left public for performance since it is used in inner loops
   int AbortExecute;
 
@@ -263,6 +268,12 @@ protected:
 
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
+
+  // Description:
+  // The error code contains a possible error that occured while
+  // reading or writing the file.
+  vtkSetMacro( ErrorCode, unsigned long );
+  unsigned long ErrorCode;
 
   // Progress/Update handling
   double Progress;

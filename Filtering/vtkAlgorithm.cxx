@@ -17,6 +17,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkErrorCode.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
@@ -30,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.10");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.11");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -200,6 +201,7 @@ void vtkAlgorithm::ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port)
 vtkAlgorithm::vtkAlgorithm()
 {
   this->AbortExecute = 0;
+  this->ErrorCode = 0;
   this->Progress = 0.0;
   this->ProgressText = NULL;
   this->AlgorithmInternal = new vtkAlgorithmInternals;
@@ -240,7 +242,10 @@ void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Executive: (none)\n";
     }
-
+  
+  os << indent << "ErrorCode: " << 
+    vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
+  
   if ( this->Information )
     {
     os << indent << "Information: " << this->Information << "\n";

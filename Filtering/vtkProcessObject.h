@@ -69,11 +69,6 @@ public:
   void RemoveAllInputs();
 
   // Description:
-  // The error code contains a possible error that occured while
-  // reading or writing the file.
-  vtkGetMacro( ErrorCode, unsigned long );
-
-  // Description:
   // Reimplemented from vtkAlgorithm to maintain backward
   // compatibility for vtkProcessObject.
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
@@ -105,12 +100,6 @@ protected:
   void AddInputInternal(vtkDataObject* input);
   void RemoveInputInternal(vtkDataObject* input);
   void SetupInputs();
-
-  // Description:
-  // The error code contains a possible error that occured while
-  // reading or writing the file.
-  vtkSetMacro( ErrorCode, unsigned long );
-  unsigned long ErrorCode;
 
 private:
   vtkProcessObject(const vtkProcessObject&);  // Not implemented.

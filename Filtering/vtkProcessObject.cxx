@@ -17,7 +17,6 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
-#include "vtkErrorCode.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +25,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.4");
+vtkCxxRevisionMacro(vtkProcessObject, "1.5");
 
 //----------------------------------------------------------------------------
 
@@ -57,7 +56,6 @@ vtkProcessObject::vtkProcessObject()
   this->NumberOfInputs = 0;
   this->NumberOfRequiredInputs = 0;
   this->Inputs = NULL;
-  this->ErrorCode = 0;
 
   this->SetNumberOfInputPorts(1);
 }
@@ -332,5 +330,4 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
     os << indent <<"No Inputs\n";
     }
   
-  os << indent << "ErrorCode: " << vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
 }
