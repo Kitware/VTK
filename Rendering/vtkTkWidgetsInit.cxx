@@ -26,10 +26,13 @@
 // Called upon system startup to create the widget commands.
 extern "C" {VTK_TK_EXPORT int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp);}
 
-int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                          int argc, char **argv);
-int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                               int argc, char **argv);
+extern "C" 
+{
+  int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
+                            int argc, char **argv);
+  int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
+                                 int argc, char **argv);
+}
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
 {
