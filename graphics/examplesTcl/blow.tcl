@@ -4,12 +4,16 @@ catch {load vtktcl}
 source ../../examplesTcl/vtkInt.tcl
 
 # create reader and warp data with vectors
-vtkUnstructuredGridReader reader
+vtkDataSetReader reader
     reader SetFileName "../../../vtkdata/blow.vtk"
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
+
+vtkCastToConcrete castToUnstructured
+    castToUnstructured SetInput [reader GetOutput]
+
 vtkWarpVector warp
-    warp SetInput [reader GetOutput]
+    warp SetInput [castToUnstructured GetUnstructuredGridOutput]
 
 # extract mold from mesh using connectivity
 vtkConnectivityFilter connect
