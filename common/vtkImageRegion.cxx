@@ -297,7 +297,7 @@ void vtkImageRegion::MakeDataWritable()
 // Don't ask for for a larger region than this one!  This implementation
 // also ignores the relative coordinates of the regions.  If this becomes a 
 // problem, an execute method that copies the data cound be created.
-void vtkImageRegion::Update()
+void vtkImageRegion::InternalUpdate()
 {
   this->UpdateImageInformation();
   this->Output->SetScalarData(this->Data);

@@ -110,7 +110,7 @@ public:
   vtkGetMacro(ScalarType,int);
   
   // Stuff to use region as an vtkImageSource.
-  void Update(); 
+  void InternalUpdate(); 
   void UpdateImageInformation();
   unsigned long GetPipelineMTime();
 

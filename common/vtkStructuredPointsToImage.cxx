@@ -90,7 +90,7 @@ void vtkStructuredPointsToImage::UpdateInput()
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::Update()
+void vtkStructuredPointsToImage::InternalUpdate()
 {
   // Make sure we have an output
   this->CheckCache();
