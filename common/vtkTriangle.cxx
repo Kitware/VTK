@@ -64,6 +64,8 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   float det;
   float maxComponent;
   int idx=0, indices[2];
+  float dist2Point, dist2Line1, dist2Line2;
+  float *closest, closestPoint1[3], closestPoint2[3];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -108,7 +110,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 
   pcoords[0] = vtkMath::Determinant2x2 (rhs,c2) / det;
   pcoords[1] = vtkMath::Determinant2x2 (c1,rhs) / det;
-  pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
+  pcoords[2] = 1.0 - (pcoords[0] + pcoords[1]);
 //
 // Okay, now find closest point to element
 //
@@ -129,18 +131,69 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
-      for (i=0; i<3; i++) closestPoint[i] = pt3[i];
+      dist2Point = vtkMath::Distance2BetweenPoints(x,pt3);
+      dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
+      dist2Line2 = vtkLine::DistanceToLine(x,pt3,pt2,t,closestPoint2);
+      if (dist2Point < dist2Line1)
+        {
+	dist2 = dist2Point;
+        closest = pt3;
+        }
+      else
+        {
+	dist2 = dist2Line1;
+	closest = closestPoint1;
+ 	}
+      if (dist2Line2 < dist2)
+        {
+   	dist2 = dist2Line2;
+	closest = closestPoint2;
+	}
+      for (i=0; i<3; i++) closestPoint[i] = closest[i];
       }
     else if ( pcoords[1] < 0.0 && pcoords[2] < 0.0 )
       {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
-      for (i=0; i<3; i++) closestPoint[i] = pt1[i];
+      dist2Point = vtkMath::Distance2BetweenPoints(x,pt1);
+      dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
+      dist2Line2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint2);
+      if (dist2Point < dist2Line1)
+        {
+	dist2 = dist2Point;
+        closest = pt1;
+        }
+      else
+        {
+	dist2 = dist2Line1;
+	closest = closestPoint1;
+ 	}
+      if (dist2Line2 < dist2)
+        {
+   	dist2 = dist2Line2;
+	closest = closestPoint2;
+	}
+      for (i=0; i<3; i++) closestPoint[i] = closest[i];
       }
     else if ( pcoords[0] < 0.0 && pcoords[2] < 0.0 )
       {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
-      for (i=0; i<3; i++) closestPoint[i] = pt2[i];
+      dist2Point = vtkMath::Distance2BetweenPoints(x,pt2);
+      dist2Line1 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint1);
+      dist2Line2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint2);
+      if (dist2Point < dist2Line1)
+        {
+	dist2 = dist2Point;
+        closest = pt2;
+        }
+      else
+        {
+	dist2 = dist2Line1;
+	closest = closestPoint1;
+ 	}
+      if (dist2Line2 < dist2)
+        {
+   	dist2 = dist2Line2;
+	closest = closestPoint2;
+	}
+      for (i=0; i<3; i++) closestPoint[i] = closest[i];
       }
     else if ( pcoords[0] < 0.0 )
       {
