@@ -41,6 +41,11 @@ public:
   vtkGetStringMacro(GeometryFileName);
 
   // Description:
+  // Specify name of geometry FileName (alias).
+  virtual void SetFileName(const char* f) { this->SetGeometryFileName(f); }
+  virtual char* GetFileName() { return this->GetGeometryFileName(); }
+
+  // Description:
   // Specify name of displacement FileName.
   vtkSetStringMacro(DisplacementFileName);
   vtkGetStringMacro(DisplacementFileName);
