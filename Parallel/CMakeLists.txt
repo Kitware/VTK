@@ -41,8 +41,12 @@ ADD_LIBRARY(vtkParallel Parallel_SRCS)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS Parallel_SRCS)
   ADD_LIBRARY(vtkParallelTCL ParallelTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelTCL vtkIOTCL vtkRenderingTCL
-                         vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL 
+  TARGET_LINK_LIBRARIES (vtkParallelTCL 
+                         vtkIOTCL 
+                         vtkRenderingTCL
+                         vtkGraphicsTCL 
+                         vtkImagingTCL 
+                         vtkFilteringTCL 
                          vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -54,6 +58,7 @@ IF (VTK_WRAP_PYTHON)
   ADD_LIBRARY(vtkParallelPython ParallelPython_SRCS)
   VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
+                         vtkIOPython
                          vtkRenderingPython
                          vtkGraphicsPython
                          vtkImagingPython
@@ -67,8 +72,12 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS Parallel_SRCS)
   ADD_LIBRARY(vtkParallelJava ParallelJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelJava vtkCommonJava vtkFilteringJava
-                         vtkImagingJava vtkGraphicsJava vtkRenderingJava
+  TARGET_LINK_LIBRARIES (vtkParallelJava 
+                         vtkCommonJava v
+                         tkFilteringJava
+                         vtkImagingJava 
+                         vtkGraphicsJava 
+                         vtkRenderingJava
                          vtkIOJava)
 ENDIF (VTK_WRAP_JAVA)
 
