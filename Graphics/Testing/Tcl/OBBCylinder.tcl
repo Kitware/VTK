@@ -32,8 +32,10 @@ vtkOBBTree obb
 vtkSpatialRepresentationFilter boxes
   boxes SetInput [transPD GetOutput]
   boxes SetSpatialRepresentation obb
+vtkExtractEdges boxEdges
+  boxEdges SetInput [ boxes GetOutput ]
 vtkPolyDataMapper boxMapper
-  boxMapper SetInput [boxes GetOutput]
+  boxMapper SetInput [boxEdges GetOutput]
   boxMapper SetResolveCoincidentTopology 1
 vtkActor boxActor
   boxActor SetMapper boxMapper
