@@ -622,7 +622,7 @@ static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self) 
 {
   Display *dpy;
-  int new_flag;
+	int new_flag;
   vtkImageViewer *ImageViewer;
   vtkXImageWindow *ImageWindow;
   
@@ -630,7 +630,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     {
     return TCL_OK;
     }
-  
+
+	new_flag = 0;  
   dpy = Tk_Display(self->TkWin);
   
   if (Tk_WindowId(self->TkWin) != None) 
@@ -653,6 +654,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   else
     {
 #ifndef VTK_PYTHON_BUILD
+		int new_flag;
     ImageViewer = (vtkImageViewer *)
       vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
 				 new_flag);

@@ -585,7 +585,6 @@ static int
 vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self) 
 {
   Display *dpy;
-  int new_flag;
   vtkXImageWindow *ImageWindow;
   
   if (self->ImageWindow)
@@ -625,6 +624,7 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     else
       {
 #ifndef VTK_PYTHON_BUILD
+			int new_flag;
       ImageWindow = (vtkXImageWindow *)
 	vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
 				   new_flag);
