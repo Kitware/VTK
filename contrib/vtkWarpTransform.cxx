@@ -106,12 +106,7 @@ inline static void vtkWarpTransformDerivative(vtkWarpTransform *self,
 {
   if (inverse)
     {
-    T tmp[3];
-    tmp[0] = input[0];
-    tmp[1] = input[1];
-    tmp[2] = input[2];
-    self->TemplateTransformPoint(tmp,output,derivative);
-    self->TemplateTransformInverse(tmp,output);
+    self->TemplateTransformInverse(input,output,derivative);
     vtkMath::Invert3x3(derivative,derivative);
     }
   else
@@ -141,11 +136,11 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 template<class T>
 static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 						const T point[3], 
-						T output[3])
+						T output[3],
+						T derivative[3][3])
 {
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
-  T derivative[3][3];
   T gradient[3];
 
   double errorSquared, lastErrorSquared;
@@ -280,13 +275,30 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 void vtkWarpTransform::InverseTransformPoint(const float point[3], 
 					     float output[3])
 {
-  vtkWarpInverseTransformPoint(this, point, output);
+  float derivative[3][3];
+  vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
 void vtkWarpTransform::InverseTransformPoint(const double point[3], 
 					     double output[3])
 {
-  vtkWarpInverseTransformPoint(this, point, output);
+  double derivative[3][3];
+  vtkWarpInverseTransformPoint(this, point, output, derivative);
+}
+
+//----------------------------------------------------------------------------
+void vtkWarpTransform::InverseTransformDerivative(const float point[3], 
+						  float output[3],
+						  float derivative[3][3])
+{
+  vtkWarpInverseTransformPoint(this, point, output, derivative);
+}
+
+void vtkWarpTransform::InverseTransformDerivative(const double point[3], 
+						  double output[3],
+						  double derivative[3][3])
+{
+  vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
 //----------------------------------------------------------------------------

@@ -1041,8 +1041,9 @@ void vtkGridTransform::ForwardTransformDerivative(const double point[3],
 // singular.
 // Note that this is similar to vtkWarpTransform::InverseTransformPoint()
 // but has been optimized specifically for grid transforms.
-void vtkGridTransform::InverseTransformPoint(const float inPoint[3], 
-					     float outPoint[3])
+void vtkGridTransform::InverseTransformDerivative(const float inPoint[3], 
+						  float outPoint[3],
+						  float derivative[3][3])
 {
   if (this->DisplacementGrid == NULL)
     {
@@ -1086,7 +1087,7 @@ void vtkGridTransform::InverseTransformPoint(const float inPoint[3],
   inverse[2] = point[2] - (deltaI[2]*scale + shift)*invSpacing[2];
 
   // put the inverse point back through the transform
-  float deltaP[3], derivative[3][3], gradient[3];
+  float deltaP[3], gradient[3];
   this->InterpolationFunction(inverse, deltaP, derivative,
 			      gridPtr, gridType, extent, increments);
 
@@ -1195,6 +1196,16 @@ void vtkGridTransform::InverseTransformPoint(const float inPoint[3],
       }
     }
 
+  // convert derivative
+  for (int j = 0; j < 3; j++)
+    {
+    derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
+    derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
+    derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
+    derivative[j][j] += 1.0f;
+    }
+
+  // convert point
   outPoint[0] = inverse[0]*spacing[0] + origin[0];
   outPoint[1] = inverse[1]*spacing[1] + origin[1];
   outPoint[2] = inverse[2]*spacing[2] + origin[2];
@@ -1213,15 +1224,48 @@ void vtkGridTransform::InverseTransformPoint(const float inPoint[3],
 
 //----------------------------------------------------------------------------
 // convert double to float and back again
-void vtkGridTransform::InverseTransformPoint(const double point[3], 
-					     double output[3])
+void vtkGridTransform::InverseTransformDerivative(const double point[3], 
+						  double output[3],
+						  double derivative[3][3])
 {
   float fpoint[3];
+  float fderivative[3][3];
   fpoint[0] = point[0]; 
   fpoint[1] = point[1]; 
   fpoint[2] = point[2];
 
-  this->InverseTransformPoint(fpoint,fpoint);
+  this->InverseTransformDerivative(fpoint,fpoint,fderivative);
+ 
+  for (int i = 0; i < 3; i++)
+    {
+    output[i] = fpoint[i]; 
+    derivative[i][0] = fderivative[i][0];
+    derivative[i][1] = fderivative[i][1];
+    derivative[i][2] = fderivative[i][2];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGridTransform::InverseTransformPoint(const float point[3], 
+					     float output[3])
+{
+  // the derivative won't be used, but it is required for Newton's method
+  float derivative[3][3];
+  this->InverseTransformDerivative(point,output,derivative);
+}
+
+//----------------------------------------------------------------------------
+// convert double to float and back again
+void vtkGridTransform::InverseTransformPoint(const double point[3], 
+					     double output[3])
+{
+  float fpoint[3];
+  float fderivative[3][3];
+  fpoint[0] = point[0]; 
+  fpoint[1] = point[1]; 
+  fpoint[2] = point[2];
+
+  this->InverseTransformDerivative(fpoint,fpoint,fderivative);
  
   output[0] = fpoint[0]; 
   output[1] = fpoint[1]; 

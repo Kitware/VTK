@@ -122,6 +122,8 @@ protected:
   // Copy this transform from another of the same type.
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
+  // Description:
+  // Internal functions for calculating the transformation.
   void ForwardTransformPoint(const float in[3], float out[3]);
   void ForwardTransformPoint(const double in[3], double out[3]);
 
@@ -132,6 +134,11 @@ protected:
 
   void InverseTransformPoint(const float in[3], float out[3]);
   void InverseTransformPoint(const double in[3], double out[3]);
+
+  void InverseTransformDerivative(const float in[3], float out[3],
+				  float derivative[3][3]);
+  void InverseTransformDerivative(const double in[3], double out[3],
+				  double derivative[3][3]);
 
 //BTX
   void (*InterpolationFunction)(float point[3], float displacement[3],
