@@ -58,7 +58,8 @@ void main( int argc, char *argv[] )
   ren1->AddVolume(volume);
   ren1->GetActiveCamera()->Azimuth(20.0);
   ren1->GetActiveCamera()->Dolly(1.60);
-
+  ren1->ResetCameraClippingRange();
+  
   renWin->SetSize(300,300);
 
   renWin->Render();

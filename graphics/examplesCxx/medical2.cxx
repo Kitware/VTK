@@ -81,7 +81,9 @@ void main( int argc, char *argv[] )
   aRenderer->ResetCamera ();
   aCamera->Dolly(1.5);
   aRenderer->SetBackground(1,1,1);
-
+  aRenderer->ResetCameraClippingRange();
+  
+  
   // interact with data
   renWin->SetSize(300, 300);
   renWin->Render();

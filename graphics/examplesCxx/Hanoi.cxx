@@ -271,6 +271,7 @@ int main(int argc, char *argv[])
 //
   aren->ResetCamera();
   camera->Dolly(2.5);
+  aren->ResetCameraClippingRange();
   light->SetFocalPoint(camera->GetFocalPoint());
   light->SetPosition(camera->GetPosition());
 
