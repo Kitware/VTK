@@ -66,10 +66,9 @@ vtkRungeKutta2* vtkRungeKutta2::New()
 
 
 // Calculate next time step
-float vtkRungeKutta2::ComputeNextStep(float* xprev, float* xnext, 
-				      float t, float delT)
+float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, 
+				      float* xnext, float t, float delT)
 {
-  float nextDerivs[10];
   int i, numDerivs, numVals;
 
   if (!this->FunctionSet)
@@ -93,7 +92,14 @@ float vtkRungeKutta2::ComputeNextStep(float* xprev, float* xnext,
   this->Vals[numVals-1] = t;
 
   // Obtain the derivatives dx_i at x_i
-  if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
+  if (dxprev)
+    {
+    for(i=0; i<numDerivs; i++)
+      {
+      this->Derivs[i] = dxprev[i];
+      }
+    }
+  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
     return -1;
     }

@@ -93,8 +93,8 @@ void vtkRungeKutta4::Initialize()
 // Press et al. (Cambridge University Press) or
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
-float vtkRungeKutta4::ComputeNextStep(float* xprev, float* xnext, 
-				      float t, float delT)
+float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
+				      float* xnext, float t, float delT)
 {
 
   int i, numDerivs, numVals;
@@ -121,7 +121,14 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* xnext,
 
   //  4th order
   //  1
-  if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
+  if (dxprev)
+    {
+    for(i=0; i<numDerivs; i++)
+      {
+      this->Derivs[i] = dxprev[i];
+      }
+    }
+  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
     return -1;
     }
