@@ -84,6 +84,7 @@ puts "</DartMeasurement>"
 if {$validImageFound != 0} {
 
    vtkWindowToImageFilter rt_w2if
+   rt_w2if ReadFrontBufferOff
    # look for a renderWindow ImageWindow or ImageViewer
    # first check for some common names
    if {[info commands renWin] == "renWin"} {
