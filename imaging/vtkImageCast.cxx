@@ -40,8 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageCast.h"
 
-
-
 //----------------------------------------------------------------------------
 // Description:
 // Constructor sets default values
@@ -51,8 +49,6 @@ vtkImageCast::vtkImageCast()
   this->Dimensionality = 1;
   this->ExecuteDimensionality = 2;
 }
-
-
 
 //----------------------------------------------------------------------------
 // Description:
