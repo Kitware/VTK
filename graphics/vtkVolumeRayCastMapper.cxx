@@ -309,7 +309,6 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStr
   rayEnd = rayInfo->VolumeRayEnd;
   rayDirection = rayInfo->VolumeRayDirection;
 
-
   if ( rayStart[0] >= this->VolumeBounds[1] ||
        rayStart[1] >= this->VolumeBounds[3] ||
        rayStart[2] >= this->VolumeBounds[5] ||
@@ -345,8 +344,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStr
 	  {
 	  rayStart[0] += rayDirection[0] * t;
 	  rayStart[1] += rayDirection[1] * t;
-	  rayStart[2] += rayDirection[2] * t;
-	  	  
+	  rayStart[2] += rayDirection[2] * t;	  	  
 	  }
 	}
       }
@@ -403,6 +401,15 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStr
 	  rayEnd[0] += rayDirection[0] * t;
 	  rayEnd[1] += rayDirection[1] * t;
 	  rayEnd[2] += rayDirection[2] * t;
+
+	  // Because the end clipping range might be far out, and
+	  // the 0.001 might be too small compared to this number (and
+	  // therefore is lost in the precision of a float) add a bit more
+	  // (one thousandth of a step) so that we are sure we are inside the
+	  // volume.
+	  rayEnd[0] -= rayDirection[0] * 0.001;
+	  rayEnd[1] -= rayDirection[1] * 0.001;
+	  rayEnd[2] -= rayDirection[2] * 0.001;
 	  }
 	}
       }
