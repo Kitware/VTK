@@ -57,6 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageRegion;
 class vtkImageCache;
 class vtkColorScalars;
+class vtkFloatVectors;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
 {
@@ -72,6 +73,11 @@ public:
   // Set/Get the input object from the image pipeline.
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
+
+  // Description:
+  // Set/Get the input object from the image pipeline.
+  vtkSetObjectMacro(VectorInput,vtkImageCache);
+  vtkGetObjectMacro(VectorInput,vtkImageCache);
 
   // Set/Get the extent to translate explicitely.
   void SetExtent(int dim, int *extent);
@@ -101,6 +107,7 @@ public:
   
 protected:
   vtkImageCache *Input;
+  vtkImageCache *VectorInput;
   int TimeSlice;
   int Extent[6];
   int NumberOfSplitAxes;
@@ -108,6 +115,7 @@ protected:
   int InputMemoryLimit;
 
   void Execute();
+  vtkFloatVectors *GetVectorsFromRegion(vtkImageRegion *region);
   vtkScalars *GetScalarsFromRegion(vtkImageRegion *region);
   void InputSplitUpdate(int splitAxisIdx);
   vtkScalars *ReformatRegionData(vtkImageRegion *region, int flag);

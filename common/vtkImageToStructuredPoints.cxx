@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 #include "vtkImageRegion.h"
 #include "vtkImageToStructuredPoints.h"
-
+#include "vtkFloatVectors.h"
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
@@ -63,6 +63,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
   this->TimeSlice = -VTK_LARGE_INTEGER;
       
   this->Input = NULL;
+  this->VectorInput = NULL;
   this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
   this->SplitOrder[0] = VTK_IMAGE_TIME_AXIS;
   this->SplitOrder[1] = VTK_IMAGE_Z_AXIS;
@@ -83,7 +84,22 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Input: (" << this->Input << ")\n";
+  if (this->Input)
+    {
+    os << indent << "Input: (" << this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
+  if (this->VectorInput)
+    {
+    os << indent << "VectorInput: (" << this->VectorInput << ")\n";
+    }
+  else
+    {
+    os << indent << "VectorInput: (none)\n";
+    }
   os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
      << ", " << this->Extent[2] << ", " << this->Extent[3] 
      << ", " << this->Extent[4] << ", " << this->Extent[5] << ")\n";
@@ -188,7 +204,8 @@ void vtkImageToStructuredPoints::GetExtent(int num, int *extent)
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Update()
 {
-  unsigned long inputMTime = 0;
+  unsigned long sInputMTime = 0;
+  unsigned long vInputMTime = 0;
   
   if ( ! this->Input)
     {
@@ -196,13 +213,20 @@ void vtkImageToStructuredPoints::Update()
     return;
     }
   
-  inputMTime = this->Input->GetPipelineMTime();
-  if ((inputMTime > this->ExecuteTime) || this->GetMTime() > this->ExecuteTime)
+  sInputMTime = this->Input->GetPipelineMTime();
+  if (this->VectorInput)
+    {
+    vInputMTime = this->Input->GetPipelineMTime();
+    }
+  if ((sInputMTime > this->ExecuteTime) || 
+      (vInputMTime > this->ExecuteTime) || 
+      this->GetMTime() > this->ExecuteTime)
     {
     vtkDebugMacro(<< "Update: Condition satisfied, executeTime = " 
     << this->ExecuteTime
     << ", modifiedTime = " << this->GetMTime() 
-    << ", input MTime = " << inputMTime
+    << ", scalar input MTime = " << sInputMTime
+    << ", vector input MTime = " << vInputMTime
     << ", released = " << this->Output->GetDataReleased());
     
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
@@ -217,6 +241,11 @@ void vtkImageToStructuredPoints::Update()
     {
     this->Input->ReleaseData();
     }
+
+  if (this->VectorInput && this->VectorInput->ShouldIReleaseData())
+    {
+    this->VectorInput->ReleaseData();
+    }
 }
 
 
@@ -226,6 +255,7 @@ void vtkImageToStructuredPoints::Execute()
   int extent[8];
   vtkImageRegion *region = NULL;
   vtkScalars *scalars = NULL;
+  vtkFloatVectors *vectors = NULL;
   float spacing[3];
   float origin[3];
   int dim[3];
@@ -237,6 +267,10 @@ void vtkImageToStructuredPoints::Execute()
 
   // Fix the size of the cache (for streaming)
   this->Input->SetWholeUpdateExtent(extent);
+  if (this->VectorInput) 
+    {
+    this->VectorInput->SetWholeUpdateExtent(extent);
+    }
   
   this->InputSplitUpdate(0);
   region = this->Input->GetScalarRegion();
@@ -244,7 +278,7 @@ void vtkImageToStructuredPoints::Execute()
   // region should actually have data!
   // Get the scalars
   scalars = this->GetScalarsFromRegion(region);
-    
+
   // setup the structured points
   region->GetExtent(3, extent);
   region->GetSpacing(3, spacing);
@@ -259,12 +293,25 @@ void vtkImageToStructuredPoints::Execute()
   output->SetSpacing(spacing);
   output->SetOrigin(origin);
   output->GetPointData()->SetScalars(scalars);
+    
+  if (this->VectorInput)
+    {
+    this->VectorInput->Update();
+    region->Delete();
+    region = this->VectorInput->GetScalarRegion();
+    vectors = this->GetVectorsFromRegion(region);
+    output->GetPointData()->SetVectors(vectors);
+    }
   
   // delete the temporary structures
   region->Delete();
-  if ( scalars)
+  if (scalars)
     {
     scalars->Delete();
+    }
+  if (vectors)
+    {
+    vectors->Delete();
     }
 }
 
@@ -492,3 +539,34 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region,
 
 
 
+//----------------------------------------------------------------------------
+// Returns scalars which must be deleted.
+// Region has no data when method returns.
+vtkFloatVectors *
+vtkImageToStructuredPoints::GetVectorsFromRegion(vtkImageRegion *region)
+{
+  vtkFloatVectors *vectors;
+  int dim, min, max;
+  int inInc0, inInc1, inInc2;
+  vtkImageRegion *temp;
+  float *fptr;
+  
+  // reformat the region to be float data
+  temp = vtkImageRegion::New();
+  temp->SetScalarType(VTK_FLOAT);
+  temp->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+		VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+  region->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+		  VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+  temp->SetExtent(4, region->GetExtent());
+  temp->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 0, 2);
+  temp->Fill(0);
+  temp->CopyRegionData(region);
+  
+  vectors = vtkFloatVectors::New();
+  vectors->SetV(((vtkFloatScalars *)temp->GetData()->GetScalars())->GetS());
+  vectors->SetNumberOfVectors(vectors->GetV()->GetSize()/3);
+  temp->Delete();
+
+  return vectors;
+}
