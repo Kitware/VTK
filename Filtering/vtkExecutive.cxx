@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.10");
+vtkCxxRevisionMacro(vtkExecutive, "1.11");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -59,7 +59,7 @@ public:
 vtkExecutive::vtkExecutive()
 {
   this->ExecutiveInternal = new vtkExecutiveInternals;
-  this->GarbageCollecting = 0;
+  this->GarbageCollectionCheck = 1;
   this->Algorithm = 0;
   this->InAlgorithm = 0;
 }
@@ -86,20 +86,21 @@ void vtkExecutive::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkExecutive::Register(vtkObjectBase* o)
+{
+  this->RegisterInternal(o, this->GarbageCollectionCheck);
+}
+
+//----------------------------------------------------------------------------
 void vtkExecutive::UnRegister(vtkObjectBase* o)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 }
 
 //----------------------------------------------------------------------------
 void vtkExecutive::GarbageCollectionStarting()
 {
-  this->GarbageCollecting = 1;
+  this->GarbageCollectionCheck = 0;
   this->Superclass::GarbageCollectionStarting();
 }
 

@@ -134,6 +134,12 @@ protected:
   
   int ReferenceCount;      // Number of uses of this object by other objects
 
+  // Internal Register/UnRegister implementation that accounts for
+  // possible garbage collection participation.  The second argument
+  // indicates whether to participate in garbage collection.
+  virtual void RegisterInternal(vtkObjectBase*, int check);
+  virtual void UnRegisterInternal(vtkObjectBase*, int check);
+
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();

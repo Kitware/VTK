@@ -31,7 +31,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.5");
+vtkCxxRevisionMacro(vtkInformation, "1.6");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public:
 vtkInformation::vtkInformation()
 {
   this->Internal = new vtkInformationInternals;
-  this->GarbageCollecting = 0;
+  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -357,14 +357,15 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::UnRegister(vtkObjectBase *o)
+void vtkInformation::Register(vtkObjectBase* o)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  this->RegisterInternal(o, this->GarbageCollectionCheck);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 }
 
 //----------------------------------------------------------------------------
@@ -381,7 +382,7 @@ void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkInformation::GarbageCollectionStarting()
 {
-  this->GarbageCollecting = 1;
+  this->GarbageCollectionCheck = 0;
   this->Superclass::GarbageCollectionStarting();
 }
 

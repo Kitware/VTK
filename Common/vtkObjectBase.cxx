@@ -15,6 +15,7 @@
 
 #include "vtkObjectBase.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGarbageCollector.h"
 
 #define vtkBaseDebugMacro(x)
 
@@ -117,50 +118,23 @@ void vtkObjectBase::SetReferenceCount(int ref)
   vtkBaseDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
 }
 
-// Description:
-// Increase the reference count (mark as used by another object).
-void vtkObjectBase::Register(vtkObjectBase*)
+//----------------------------------------------------------------------------
+void vtkObjectBase::Register(vtkObjectBase* o)
 {
-  this->ReferenceCount++;
-  if (this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
+  // Do not participate in garbage collection by default.
+  this->RegisterInternal(o, 0);
 }
 
-// Description:
-// Decrease the reference count (release by another object).
+//----------------------------------------------------------------------------
 void vtkObjectBase::UnRegister(vtkObjectBase* o)
 {
-  if (o)
-    {
-    vtkBaseDebugMacro(
-      << "UnRegistered by "
-      << o->GetClassName() << " (" << o << "), ReferenceCount = "
-      << (this->ReferenceCount-1));
-    }
-  else
-    {
-    vtkBaseDebugMacro(
-      << "UnRegistered " << this->GetClassName() 
-      << " by NULL, ReferenceCount = "
-      << (this->ReferenceCount-1));
-    }
-
-  if (--this->ReferenceCount <= 0)
-    {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::DestructClass(this->GetClassName());
-#endif
-    // invoke the delete method
-    // Here we should call delete method
-    delete this;
-    }
+  // Do not participate in garbage collection by default.
+  this->UnRegisterInternal(o, 0);
 }
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.8\n";
+  os << "vtkObjectBase 1.9\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -207,6 +181,32 @@ void vtkObjectBase::PrintRevisions(ostream& os)
       }
     }
   revisions.rdbuf()->freeze(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::RegisterInternal(vtkObjectBase*, int)
+{
+  // Increment the reference count.
+  ++this->ReferenceCount;
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
+{
+  // Decrement the reference count.
+  if(--this->ReferenceCount <= 0)
+    {
+    // Count has gone to zero.  Delete the object.
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::DestructClass(this->GetClassName());
+#endif
+    delete this;
+    }
+  else if(check)
+    {
+    // A garbage collection check has been requested.
+    vtkGarbageCollector::Check(this);
+    }
 }
 
 //----------------------------------------------------------------------------

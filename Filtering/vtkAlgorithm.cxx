@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.8");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -203,7 +203,7 @@ vtkAlgorithm::vtkAlgorithm()
   this->Progress = 0.0;
   this->ProgressText = NULL;
   this->AlgorithmInternal = new vtkAlgorithmInternals;
-  this->GarbageCollecting = 0;
+  this->GarbageCollectionCheck = 1;
   this->Information = vtkInformation::New();
   this->Information->Register(this);
   this->Information->Delete();
@@ -703,14 +703,15 @@ vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::Register(vtkObjectBase* o)
+{
+  this->RegisterInternal(o, this->GarbageCollectionCheck);
+}
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::UnRegister(vtkObjectBase* o)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 }
 
 //----------------------------------------------------------------------------
@@ -747,7 +748,7 @@ void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::GarbageCollectionStarting()
 {
-  this->GarbageCollecting = 1;
+  this->GarbageCollectionCheck = 0;
   this->Superclass::GarbageCollectionStarting();
 }
 

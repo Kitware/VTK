@@ -161,8 +161,8 @@ public:
   virtual void UpdateWholeExtent();
 
   // Description:
-  // Decrement the count of references to this object and participate
-  // in garbage collection.
+  // Participate in garbage collection.
+  virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
@@ -268,7 +268,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
-  int GarbageCollecting;
+  int GarbageCollectionCheck;
 private:
   vtkAlgorithmInternals* AlgorithmInternal;
   static void ConnectionAdd(vtkAlgorithm* producer, int producerPort,

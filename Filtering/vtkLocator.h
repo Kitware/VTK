@@ -130,6 +130,7 @@ public:
 
   // Description:
   // Handle the PointSet <-> Locator loop.
+  virtual void Register(vtkObjectBase *o);
   virtual void UnRegister(vtkObjectBase *o);
 protected:
   vtkLocator();
@@ -147,7 +148,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void GarbageCollectionStarting();
   virtual void RemoveReferences();
-  int GarbageCollecting;
+  int GarbageCollectionCheck;
 private:
   vtkLocator(const vtkLocator&);  // Not implemented.
   void operator=(const vtkLocator&);  // Not implemented.

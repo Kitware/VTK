@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.6");
+vtkCxxRevisionMacro(vtkDataObject, "1.7");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -77,7 +77,7 @@ vtkDataObject::vtkDataObject()
   this->SetFieldData(fd);
   fd->Delete();
 
-  this->GarbageCollecting = 0;
+  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -366,14 +366,15 @@ void vtkDataObject::SetSource(vtkSource* newSource)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::UnRegister(vtkObjectBase *o)
+void vtkDataObject::Register(vtkObjectBase* o)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  this->RegisterInternal(o, this->GarbageCollectionCheck);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 }
 
 //----------------------------------------------------------------------------
@@ -584,7 +585,7 @@ void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkDataObject::GarbageCollectionStarting()
 {
-  this->GarbageCollecting = 1;
+  this->GarbageCollectionCheck = 0;
   this->Superclass::GarbageCollectionStarting();
 }
 

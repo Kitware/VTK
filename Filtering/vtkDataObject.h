@@ -126,7 +126,8 @@ public:
   vtkGetObjectMacro(FieldData,vtkFieldData);
   
   // Handle the source/data loop.
-  virtual void UnRegister(vtkObjectBase *o);
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
   // Provides opportunity for the data object to insure internal 
@@ -409,7 +410,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
-  int GarbageCollecting;
+  int GarbageCollectionCheck;
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;

@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkObject.h"
 
-#include "vtkDebugLeaks.h"
 #include "vtkCommand.h"
+#include "vtkDebugLeaks.h"
+#include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.91");
+vtkCxxRevisionMacro(vtkObject, "1.92");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -201,50 +202,6 @@ void vtkObject::SetDebug(unsigned char debugFlag)
 // the debugger to break on error.
 void vtkObject::BreakOnError()
 {
-}
-
-// Description:
-// Increase the reference count (mark as used by another object).
-void vtkObject::Register(vtkObjectBase* o)
-{
-  if ( o )
-    {
-    vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
-                  << "), ReferenceCount = " << this->ReferenceCount+1);
-    }
-  else
-    {
-    vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
-                  << this->ReferenceCount+1);
-    }               
-  this->Superclass::Register(o);
-}
-
-// Description:
-// Decrease the reference count (release by another object).
-void vtkObject::UnRegister(vtkObjectBase* o)
-{
-  if (o)
-    {
-    vtkDebugMacro(<< "UnRegistered by "
-                  << o->GetClassName() << " (" << o << "), ReferenceCount = "
-                  << (this->ReferenceCount-1));
-    }
-  else
-    {
-    vtkDebugMacro(<< "UnRegistered by NULL, ReferenceCount = "
-                  << (this->ReferenceCount-1));
-    }
-
-  if (--this->ReferenceCount <= 0)
-    {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::DestructClass(this->GetClassName());
-#endif
-    // invoke the delete method
-    this->InvokeEvent(vtkCommand::DeleteEvent,NULL);
-    delete this;
-    }
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -668,3 +625,48 @@ void vtkObject::Modified()
   this->InvokeEvent(vtkCommand::ModifiedEvent,NULL);
 }
 
+//----------------------------------------------------------------------------
+void vtkObject::RegisterInternal(vtkObjectBase* o, int check)
+{
+  // Print debugging messages.
+  if(o)
+    {
+    vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o
+                  << "), ReferenceCount = " << this->ReferenceCount+1);
+    }
+  else
+    {
+    vtkDebugMacro(<< "Registered by NULL, ReferenceCount = "
+                  << this->ReferenceCount+1);
+    }
+
+  // Increment the reference count.
+  this->Superclass::RegisterInternal(o, check);
+}
+
+//----------------------------------------------------------------------------
+void vtkObject::UnRegisterInternal(vtkObjectBase* o, int check)
+{
+  // Print debugging messages.
+  if(o)
+    {
+    vtkDebugMacro(<< "UnRegistered by "
+                  << o->GetClassName() << " (" << o << "), ReferenceCount = "
+                  << (this->ReferenceCount-1));
+    }
+  else
+    {
+    vtkDebugMacro(<< "UnRegistered by NULL, ReferenceCount = "
+                  << (this->ReferenceCount-1));
+    }
+
+  // If the reference count is one the object is about to be deleted.
+  // Invoke the delete event.
+  if(this->ReferenceCount == 1)
+    {
+    this->InvokeEvent(vtkCommand::DeleteEvent, 0);
+    }
+
+  // Decrement the reference count.
+  this->Superclass::UnRegisterInternal(o, check);
+}

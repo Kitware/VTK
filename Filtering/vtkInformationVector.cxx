@@ -21,7 +21,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.2");
+vtkCxxRevisionMacro(vtkInformationVector, "1.3");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -35,7 +35,7 @@ public:
 vtkInformationVector::vtkInformationVector()
 {
   this->Internal = new vtkInformationVectorInternals;
-  this->GarbageCollecting = 0;
+  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -147,14 +147,15 @@ void vtkInformationVector::DeepCopy(vtkInformationVector* from)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationVector::UnRegister(vtkObjectBase *o)
+void vtkInformationVector::Register(vtkObjectBase* o)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  this->RegisterInternal(o, this->GarbageCollectionCheck);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 }
 
 //----------------------------------------------------------------------------
@@ -171,7 +172,7 @@ void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkInformationVector::GarbageCollectionStarting()
 {
-  this->GarbageCollecting = 1;
+  this->GarbageCollectionCheck = 0;
   this->Superclass::GarbageCollectionStarting();
 }
 

@@ -84,8 +84,8 @@ public:
   virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
 
   // Description:
-  // Decrement the count of references to this object and participate
-  // in garbage collection.
+  // Participate in garbage collection.
+  virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
@@ -149,7 +149,7 @@ protected:
 
   // Garbage collection support.
   virtual void GarbageCollectionStarting();
-  int GarbageCollecting;
+  int GarbageCollectionCheck;
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
 

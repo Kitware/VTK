@@ -65,6 +65,7 @@ public:
 
   // Description:
   // Initiate garbage collection when a reference is removed.
+  virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
 protected:
@@ -78,7 +79,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
-  int GarbageCollecting;
+  int GarbageCollectionCheck;
 private:
   vtkInformationVector(const vtkInformationVector&);  // Not implemented.
   void operator=(const vtkInformationVector&);  // Not implemented.

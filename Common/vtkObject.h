@@ -108,16 +108,6 @@ public:
   static void GlobalWarningDisplayOff() 
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
-  
-  // Description:
-  // Increase the reference count (mark as used by another object).
-  virtual void Register(vtkObjectBase* o);
-
-  // Description:
-  // Decrease the reference count (release by another object). This has
-  // the same effect as invoking Delete() (i.e., it reduces the reference
-  // count by 1).
-  virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any VTK
@@ -173,6 +163,10 @@ public:
 protected:
   vtkObject(); 
   virtual ~vtkObject(); 
+
+  // See vtkObjectBase.h.
+  virtual void RegisterInternal(vtkObjectBase*, int check);
+  virtual void UnRegisterInternal(vtkObjectBase*, int check);
 
   unsigned char Debug;     // Enable debug messages
   vtkTimeStamp MTime;      // Keep track of modification time

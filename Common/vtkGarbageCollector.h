@@ -29,19 +29,18 @@
 // To enable garbage collection for a class, add these members:
 //
 //  public:
+//   virtual void Register(vtkObjectBase* o)
+//     {
+//     this->RegisterInternal(o, this->GarbageCollectionCheck);
+//     }
 //   virtual void UnRegister(vtkObjectBase* o)
 //     {
-//     int check = (this->GetReferenceCount() > 1);
-//     this->Superclass::UnRegister(o);
-//     if(check && !this->GarbageCollecting)
-//       {
-//       vtkGarbageCollector::CheckReferenceLoops(this);
-//       }
+//     this->UnRegisterInternal(o, this->GarbageCollectionCheck);
 //     }
 //
 //  protected:
-//   // Initialize to zero in the constructor.
-//   int GarbageCollecting;
+//   // Initialize to 1 in the constructor.
+//   int GarbageCollectionCheck;
 //
 //   virtual void ReportReferences(vtkGarbageCollector* collector)
 //     {
@@ -63,7 +62,7 @@
 //
 //   virtual void GarbageCollectionStarting()
 //     {
-//     this->GarbageCollecting = 1;
+//     this->GarbageCollectionCheck = 0;
 //     this->Superclass::GarbageCollectionStarting();
 //     }
 //
