@@ -90,8 +90,8 @@ public:
   
   // Description:
   // Quadratic hexahedron specific methods. 
-  static void InterpolationFunctions(double pcoords[3], double weights[3]);
-  static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  static void InterpolationFunctions(double pcoords[3], double weights[20]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[60]);
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

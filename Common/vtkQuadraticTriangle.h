@@ -97,8 +97,8 @@ public:
 
   // Description:
   // Quadratic triangle specific methods. 
-  static void InterpolationFunctions(double pcoords[3], double weights[3]);
-  static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  static void InterpolationFunctions(double pcoords[3], double weights[6]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[12]);
 
 protected:
   vtkQuadraticTriangle();

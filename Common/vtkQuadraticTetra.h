@@ -97,8 +97,8 @@ public:
 
   // Description:
   // Quadratic tetra specific methods. 
-  static void InterpolationFunctions(double pcoords[3], double weights[3]);
-  static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  static void InterpolationFunctions(double pcoords[3], double weights[10]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[30]);
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation
