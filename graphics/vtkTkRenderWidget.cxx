@@ -392,7 +392,12 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
   LRESULT rval;
   struct vtkTkRenderWidget *self = 
     (struct vtkTkRenderWidget *)GetWindowLong(hWnd,4);
-
+  
+  if (!self)
+    {
+    return 1;
+    }
+  
   // watch for WM_USER + 12  this is a special message
   // from the vtkRenderWIndowInteractor letting us 
   // know it wants to get events also
