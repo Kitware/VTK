@@ -102,6 +102,11 @@ IF (BUILD_EXAMPLES)
       LINK_LIBRARIES(${CMAKE_X_LIBS})
     ENDIF (VTK_USE_X)
 
+    # Avoid the glutCreateMenu_ATEXIT_HACK pb
+	IF (WIN32)
+      ADD_DEFINITIONS(-DGLUT_DISABLE_ATEXIT_HACK)
+	ENDIF (WIN32)
+
     # The following is sort-of a hack to avoid the bug in glut.h
     # Ambiguity between 'std::exit(int)' and 'std::exit(int)' in function...
     IF (BORLAND)
