@@ -19,6 +19,8 @@ vtkPDataSetWriter.cxx
 vtkPImageWriter.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
+vtkPOutlineFilter.cxx
+vtkPOutlineCornerFilter.cxx
 vtkPPolyDataNormals.cxx
 vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
