@@ -60,6 +60,8 @@ eval elevation$lod SetScalarRange $lo $hi
     normals$lod SetInput [toPoly$lod GetPolyDataOutput]
     normals$lod SetMaxRecursionDepth 1000
     normals$lod SetFeatureAngle 60
+    normals$lod ConsistencyOff
+    normals$lod SplittingOff
     normals$lod ReleaseDataFlagOn
 
   vtkPolyDataMapper demMapper$lod
