@@ -20,7 +20,7 @@
 #include "vtkXMLDataParser.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -71,6 +71,13 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     }
   
   return this->Superclass::ReadPrimaryElement(ePrimary);  
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLStructuredDataReader::SetupEmptyOutput()
+{
+  // Special extent to indicate no input.
+  this->GetOutputAsDataSet()->SetUpdateExtent(1, 0, 1, 0, 1, 0);
 }
 
 //----------------------------------------------------------------------------

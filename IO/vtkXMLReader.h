@@ -99,6 +99,9 @@ protected:
   // Test if the reader can read a file with the given version number.
   virtual int CanReadFileVersion(int major, int minor);
   
+  // Setup the output with no data available.  Used in error cases.
+  virtual void SetupEmptyOutput()=0;
+  
   // Setup the output's information and data without allocation.
   virtual void SetupOutputInformation();
   

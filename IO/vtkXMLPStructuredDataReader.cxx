@@ -21,7 +21,7 @@
 #include "vtkDataSet.h"
 #include "vtkTableExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -131,6 +131,13 @@ vtkXMLPStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   output->SetWholeExtent(extent);  
   
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPStructuredDataReader::SetupEmptyOutput()
+{
+  // Special extent to indicate no input.
+  this->GetOutputAsDataSet()->SetUpdateExtent(1, 0, 1, 0, 1, 0);
 }
 
 //----------------------------------------------------------------------------

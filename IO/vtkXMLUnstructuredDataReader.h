@@ -66,6 +66,7 @@ protected:
   // Pipeline execute data driver.  Called by vtkXMLReader.
   void ReadXMLData();
   
+  virtual void SetupEmptyOutput();
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;
   virtual void SetupOutputTotals();

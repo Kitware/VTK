@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -94,6 +94,13 @@ vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfPoints()
 vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfCells()
 {
   return this->TotalNumberOfCells;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPUnstructuredDataReader::SetupEmptyOutput()
+{
+  // No pieces means no input.
+  this->GetOutputAsDataSet()->SetUpdateExtent(0, 0);
 }
 
 //----------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -90,6 +90,13 @@ vtkXMLUnstructuredDataReader
     return this->CreateDataArray(eArray);
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataReader::SetupEmptyOutput()
+{
+  // No pieces means no input.
+  this->GetOutputAsDataSet()->SetUpdateExtent(0, 0);
 }
 
 //----------------------------------------------------------------------------

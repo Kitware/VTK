@@ -87,6 +87,7 @@ protected:
   int SubCellDimensions[3];
   
   // Override methods from superclass.
+  void SetupEmptyOutput();
   void SetupPieces(int numPieces);
   void DestroyPieces();
   int ReadArrayForPoints(vtkXMLDataElement* da, vtkDataArray* outArray);

@@ -50,6 +50,7 @@ protected:
   vtkIdType GetNumberOfCells();
   void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray);
   
+  void SetupEmptyOutput();
   void SetupOutputInformation();
   void SetupOutputData();
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
