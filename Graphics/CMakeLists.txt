@@ -91,6 +91,7 @@ vtkMaskPoints.cxx
 vtkMaskPolyData.cxx
 vtkMassProperties.cxx
 vtkMergeDataObjectFilter.cxx
+vtkMergeCells.cxx
 vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx

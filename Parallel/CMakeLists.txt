@@ -62,7 +62,6 @@ vtkPlanesIntersection.cxx
 vtkPointsProjectedHull.cxx
 vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
-vtkMergeCells.cxx
 vtkMultiProcessController.cxx
 vtkOutputPort.cxx
 vtkParallelRenderManager.cxx

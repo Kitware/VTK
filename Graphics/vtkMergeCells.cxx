@@ -36,11 +36,12 @@
 #include "vtkDataArray.h"
 #include "vtkMergePoints.h"
 #include "vtkKdTree.h"
+#include "vtkModelMetadata.h"
 #include <stdlib.h>
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.6");
+vtkCxxRevisionMacro(vtkMergeCells, "1.1");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -142,6 +143,26 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
     return -1;
     }
 
+  vtkModelMetadata *mergedMetadata = NULL;
+
+  if (vtkModelMetadata::HasMetadata(set))
+    {
+    mergedMetadata = vtkModelMetadata::New();
+    mergedMetadata->Unpack(set, 0);
+
+    if (vtkModelMetadata::HasMetadata(ugrid))
+      {
+      vtkModelMetadata *gridMetadata = vtkModelMetadata::New();
+      gridMetadata->Unpack(ugrid, 1); // delete md from ugrid after unpacking it
+
+      // warning - MergeModelMetadata checks for duplicate points, but
+      // doesn't check for duplicate cells
+
+      mergedMetadata->MergeModelMetadata(gridMetadata);
+      gridMetadata->Delete();
+      }
+    }
+
   vtkPointData *pointArrays = set->GetPointData();
   vtkCellData *cellArrays   = set->GetCellData();
 
@@ -174,7 +195,15 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
   vtkIdType numPoints = set->GetNumberOfPoints();
   vtkIdType numCells  = set->GetNumberOfCells();
 
-  if (numCells == 0) return 0;
+  if (numCells == 0)
+    {
+    if (mergedMetadata)
+      {
+      mergedMetadata->Pack(ugrid);
+      mergedMetadata->Delete();
+      }
+    return 0;
+    }
 
   if (this->MergeDuplicatePoints)
     {
@@ -235,6 +264,12 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
   this->NumberOfCells = newCellId;
 
   this->nextGrid++;
+
+  if (mergedMetadata)
+    {
+    mergedMetadata->Pack(ugrid);
+    mergedMetadata->Delete();
+    }
 
   return 0;
 }
