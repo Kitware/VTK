@@ -144,6 +144,12 @@ public:
   void MakeCurrent();
 
   // Description:
+  // If called, allow MakeCurrent() to skip cache-check when called.
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
+  void SetForceMakeCurrent() { this->ForceMakeCurrent = 1;};
+
+  // Description:
   // Check to see if a mouse button has been pressed.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
@@ -224,6 +230,8 @@ protected:
                                   WPARAM wParam, LPARAM lParam);
   //ETX
   int CursorHidden;
+  int ForceMakeCurrent;
+
 
   void ResizeWhileOffscreen(int xsize, int ysize);
   void CreateAWindow(int x, int y, int width, int height);

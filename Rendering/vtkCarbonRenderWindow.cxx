@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.11");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.12");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -352,6 +352,7 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->SetWindowName("Visualization Toolkit - Carbon");
   this->TextureResourceIds = vtkIdList::New();
   this->CursorHidden = 0;
+  this->ForceMakeCurrent = 0;
 }
 
 // --------------------------------------------------------------------------
@@ -461,9 +462,10 @@ void vtkCarbonRenderWindow::Start(void)
 // --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::MakeCurrent()
 {
-  if (this->ContextId)
+  if (this->ContextId || this->ForceMakeCurrent)
     {
     aglSetCurrentContext(this->ContextId);
+    this->ForceMakeCurrent = 0;
     }
 }
 

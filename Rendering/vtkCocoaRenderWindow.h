@@ -158,6 +158,12 @@ public:
   void MakeCurrent();
 
   // Description:
+  // If called, allow MakeCurrent() to skip cache-check when called.
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
+  void SetForceMakeCurrent() {this->ForceMakeCurrent = 1;};
+
+  // Description:
   // Check to see if an event is pending for this window.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
@@ -230,6 +236,7 @@ protected:
   void *ScreenContextId;
 
   int CursorHidden;
+  int ForceMakeCurrent;
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.

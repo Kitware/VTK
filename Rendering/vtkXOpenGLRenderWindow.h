@@ -94,7 +94,7 @@ public:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
-  void SetForceMakeCurrent();
+  void SetForceMakeCurrent() {this->ForceMakeCurrent = 1;};
   
   // Description:
   // Xwindow get set functions

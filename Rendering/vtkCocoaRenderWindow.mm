@@ -1,4 +1,4 @@
-/*=========================================================================
+=====================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkCocoaRenderWindow.mm
@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.3");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.4");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -76,6 +76,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->TextureResourceIds = vtkIdList::New();
   this->CursorHidden = 0;
+  this->ForceMakeCurrent = 0;
 }
 
 vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
