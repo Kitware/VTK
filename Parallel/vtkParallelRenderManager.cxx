@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.17");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.18");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -672,6 +672,13 @@ void vtkParallelRenderManager::EndRender()
     return;
     }
 
+  // EndRender only happens on root.
+  if (this->CheckForAbortComposite())
+    {
+    this->Lock = 0;
+    return;
+    }  
+
   this->PostRenderProcessing();
 
   // Restore renderer viewports, if necessary.
@@ -693,6 +700,11 @@ void vtkParallelRenderManager::EndRender()
 
 void vtkParallelRenderManager::SatelliteEndRender()
 {
+  if (this->CheckForAbortComposite())
+    {
+    return;
+    }
+
   if (!this->ParallelRendering)
     {
     return;
