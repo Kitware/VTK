@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.21");
+vtkCxxRevisionMacro(vtkPNMReader, "1.22");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -221,7 +221,7 @@ void vtkPNMReader::ExecuteInformation()
 }
 
 
-static inline bool iseol(int c)
+static inline int iseol(int c)
 {
   return c == 10 || c == 13;
 }
