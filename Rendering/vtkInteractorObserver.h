@@ -116,13 +116,22 @@ protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
 
-  //handles the char widget activation event. Also handles the delete event.
+  // Description:
+  // Utility routines used to start and end interaction.
+  // For example, it switches the display update rate. It does not invoke
+  // the corresponding events.
+  virtual void StartInteraction();
+  virtual void EndInteraction();
+
+  // Description:
+  // Handles the char widget activation event. Also handles the delete event.
   static void ProcessEvents(vtkObject* object, 
                             unsigned long event,
                             void* clientdata, 
                             void* calldata);
 
-  // helper method for subclasses
+  // Description:
+  // Helper method for subclasses
   void ComputeDisplayToWorld(double x, double y, double z, 
                              double worldPt[4]);
   void ComputeDisplayToWorld(double x, double y, double z, 
