@@ -61,6 +61,9 @@ vtkImageFFT1D::vtkImageFFT1D()
   // Not used.  Here I am ignoring component axis because it
   // is hard coded. (complex numbers can not be put along any axis)
   this->Dimensionality = 1;
+  
+  // avoid a warning
+  _vtkImageComplexMultiplyTemp.Real = 0.0;
 }
 
 

@@ -74,7 +74,7 @@ void vtkImageNonMaximumSuppression::SetAxes(int num, int *axes)
   this->Dimensionality = num;
 
   // First set the axes to fill in all axes.
-  this->vtkImageDyadicFilter::SetAxes(num, axes);
+  this->vtkImageTwoInputFilter::SetAxes(num, axes);
   
   // Copy the first four (non component) axes.
   count = 0;
@@ -96,7 +96,7 @@ void vtkImageNonMaximumSuppression::SetAxes(int num, int *axes)
   // Last axis is component
   newAxes[4] = VTK_IMAGE_COMPONENT_AXIS;
 
-  this->vtkImageDyadicFilter::SetAxes(5, newAxes);
+  this->vtkImageTwoInputFilter::SetAxes(5, newAxes);
 }
 
 

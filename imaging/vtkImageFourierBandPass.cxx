@@ -60,7 +60,6 @@ vtkImageFourierBandPass::vtkImageFourierBandPass()
   // It operates on 1 complex number at a time, but it uses the
   // location of this number, so that makes this what dimensionality?
   this->Dimensionality = 1;
-  
 }
 
 

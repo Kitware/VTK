@@ -13,12 +13,13 @@ CONCRETE_H =
 
 ABSTRACT = \
 vtkImageDecomposedFilter \
-vtkImageDyadicFilter \
 vtkImageFilter \
 vtkImageFourierFilter \
 vtkImageMultipleInputFilter \
+vtkImagePadFilter \
 vtkImageInPlaceFilter \
 vtkImageSpatialFilter \
+vtkImageTwoInputFilter \
 vtkRobot2D \
 vtkStateSpace 
 
@@ -28,6 +29,7 @@ vtkImage2DRobotSpace \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
+vtkImageConstantPad \
 vtkImageConvolution1D \
 vtkImageDilate1D \
 vtkImageDilateErode \
@@ -58,6 +60,7 @@ vtkImageMean \
 vtkImageMean1D \
 vtkImageMedian \
 vtkImageMIPFilter \
+vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
 vtkImageRFFT \
@@ -72,6 +75,7 @@ vtkImageSobel3D \
 vtkImageStateSpace \
 vtkImageThreshold \
 vtkImageXViewer \
+vtkImageWrapPad \
 vtkRobotGroup2D \
 vtkRobotJoint2D \
 vtkRobotSegment2D \

@@ -51,9 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-#include "vtkImageDyadicFilter.h"
+#include "vtkImageTwoInputFilter.h"
 
-class vtkImageDotProduct : public vtkImageDyadicFilter
+class vtkImageDotProduct : public vtkImageTwoInputFilter
 {
 public:
   vtkImageDotProduct();

@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImage2DRobotSpace_h
 #define __vtkImage2DRobotSpace_h
 
+#include <stdio.h>
 #include "vtkStateSpace.h"
 #include "vtkImageRegion.h"
 #include "vtkImageDraw.h"

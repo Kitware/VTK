@@ -547,7 +547,6 @@ void vtkImageDrawDrawSegment3D(vtkImageDraw *self, T *ptr,
 // No clipping or bounds checking.
 void vtkImageDraw::DrawSegment3D(float *a, float *b)
 {
-  int *extent;
   void *ptr;
   int a0, a1, a2;
   

@@ -709,7 +709,7 @@ Sphere *vtkClaw::SphereListNetworkBest(SphereList *list, int network)
   Sphere *b;
   SphereList *l;
 
-
+  biggest = 0.0;
   SPHERE_MAX_RESOLUTION = 0.0;
 
   l = list;
@@ -1447,6 +1447,9 @@ int vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
   int bestDirection, bestAxis;
   float sortSave;
 
+  best = 0.0;
+  bestDirection = 0;
+  bestAxis = 0;
   sortSave = this->SphereSort(b);
   /* find the free directions */
   this->SphereCandidatesGet(b);

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDyadicFilter.h
+  Module:    vtkImageTwoInputFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,25 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDyadicFilter - Generic filter that has two inputs.
+// .NAME vtkImageTwoInputFilter - Generic filter that has two inputs.
 // .SECTION Description
-// vtkImageDyadicFilter is a super class for filters that have two inputs.
+// vtkImageTwoInputFilter is a super class for filters that have two inputs.
 
 
 
 
-#ifndef __vtkImageDyadicFilter_h
-#define __vtkImageDyadicFilter_h
+#ifndef __vtkImageTwoInputFilter_h
+#define __vtkImageTwoInputFilter_h
 
 
 #include "vtkImageCachedSource.h"
 #include "vtkImageRegion.h"
 
-class vtkImageDyadicFilter : public vtkImageCachedSource
+class vtkImageTwoInputFilter : public vtkImageCachedSource
 {
 public:
-  vtkImageDyadicFilter();
-  char *GetClassName() {return "vtkImageDyadicFilter";};
+  vtkImageTwoInputFilter();
+  char *GetClassName() {return "vtkImageTwoInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput1(vtkImageSource *input);

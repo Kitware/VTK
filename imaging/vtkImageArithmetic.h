@@ -56,9 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_DIVIDE       3
 
 
-#include "vtkImageDyadicFilter.h"
+#include "vtkImageTwoInputFilter.h"
 
-class vtkImageArithmetic : public vtkImageDyadicFilter
+class vtkImageArithmetic : public vtkImageTwoInputFilter
 {
 public:
   vtkImageArithmetic();

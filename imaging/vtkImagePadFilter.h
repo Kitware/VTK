@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageNonMaximumSuppression.h
+  Module:    vtkImagePadFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,57 +38,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageNonMaximumSuppression - Thins Gradient images.
+// .NAME vtkImagePadFilter - Super class for filters that fill in extra pixels.
 // .SECTION Description
-// vtkImageNonMaximumSuppression Sets to zero any gradient
-// that is not a peak.  If a pixel has a neighbor along the gradient
-// that has larger magnitude, the smaller pixel is set to zero.
-// The filter takes two inputs: a gradient magnitude and a gradient vector.
-// Output is magnitude information and is always in floats.
+// vtkImagePadFilter Changes the image extent of an image.  If the image
+// extent is larger than the input image extent, the extra pixels are
+// filled by an alogorithm detemined by the subclass.
+// The image extent of the output has to be specified.
 
 
-#ifndef __vtkImageNonMaximumSuppression_h
-#define __vtkImageNonMaximumSuppression_h
+#ifndef __vtkImagePadFilter_h
+#define __vtkImagePadFilter_h
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkImageFilter.h"
 
-class vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
+class vtkImagePadFilter : public vtkImageFilter
 {
 public:
-  vtkImageNonMaximumSuppression();
-  char *GetClassName() {return "vtkImageNonMaximumSuppression";};
-  
-  // Description:
-  // These method add VTK_IMAGE_COMPONENT_AXIS as the last axis.
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes, int);
+  vtkImagePadFilter();
+  char *GetClassName() {return "vtkImagePadFilter";};
 
   // Description:
-  // Rename the inputs.
-  void SetMagnitudeInput(vtkImageSource *input) {this->SetInput1(input);};
-  void SetVectorInput(vtkImageSource *input) {this->SetInput2(input);};
-  
-  // Description:
-  // If "HandleBoundariesOn" then boundary pixels are duplicated
-  // So central differences can get values.
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
-
+  // The image extent of the output has to be set explicitely.
+  void SetOutputImageExtent(int num, int *extent);
+  vtkImageSetExtentMacro(OutputImageExtent);
+  void GetOutputImageExtent(int num, int *extent);
+  vtkImageGetExtentMacro(OutputImageExtent);
   
 protected:
-  int HandleBoundaries;
+  int OutputImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
-				     vtkImageRegion *inRegion2,
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion1,
-					vtkImageRegion *inRegion2);
-  void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-	       vtkImageRegion *outRegion);
-
+					vtkImageRegion *inRegion);
 };
 
 #endif

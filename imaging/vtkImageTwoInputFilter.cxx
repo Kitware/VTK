@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDyadicFilter.cxx
+  Module:    vtkImageTwoInputFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,12 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDyadicFilter.h"
+#include "vtkImageTwoInputFilter.h"
 #include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------
-vtkImageDyadicFilter::vtkImageDyadicFilter()
+vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 {
   this->Input1 = NULL;
   this->Input2 = NULL;
@@ -56,7 +56,7 @@ vtkImageDyadicFilter::vtkImageDyadicFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDyadicFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageTwoInputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Input1: (" << this->Input1 << ")\n";
@@ -72,7 +72,7 @@ void vtkImageDyadicFilter::PrintSelf(ostream& os, vtkIndent indent)
 // An Executor would probably be the best solution if this is a problem.
 // (The pipeline could vote before it starts processing, but one object
 // has to initiate the voting.)
-unsigned long int vtkImageDyadicFilter::GetPipelineMTime()
+unsigned long int vtkImageTwoInputFilter::GetPipelineMTime()
 {
   unsigned long int time1, time2;
 
@@ -112,7 +112,7 @@ unsigned long int vtkImageDyadicFilter::GetPipelineMTime()
 // Description:
 // Set the Input1 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
-void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
+void vtkImageTwoInputFilter::SetInput1(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput1: input = " << input->GetClassName()
 		<< " (" << input << ")");
@@ -144,7 +144,7 @@ void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
 // Description:
 // Set the Input2 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
-void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
+void vtkImageTwoInputFilter::SetInput2(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput2: input = " << input->GetClassName()
 		<< " (" << input << ")");
@@ -180,7 +180,7 @@ void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 // UseExecuteMethod is on.  ImageInformation has already been
 // updated by this point, and outRegion is in local coordinates.
 void 
-vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
+vtkImageTwoInputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion1, *inRegion2;
   
@@ -265,7 +265,7 @@ vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 // Description:
 // This method gets the boundary of the inputs then computes and returns 
 // the boundary of the largest region that can be generated. 
-void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
+void vtkImageTwoInputFilter::UpdateImageInformation(vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion2;
   
@@ -295,7 +295,7 @@ void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
 void 
-vtkImageDyadicFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion1,
+vtkImageTwoInputFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 						    vtkImageRegion *inRegion2,
 						    vtkImageRegion *outRegion)
 
@@ -317,7 +317,7 @@ vtkImageDyadicFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
+void vtkImageTwoInputFilter::ComputeRequiredInputRegionExtent(
 					       vtkImageRegion *outRegion,
 					       vtkImageRegion *inRegion1,
 					       vtkImageRegion *inRegion2)
@@ -332,7 +332,7 @@ void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
 // Description:
 // This execute method recursively loops over extra dimensions and
 // calls the subclasses Execute method with lower dimensional regions.
-void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
+void vtkImageTwoInputFilter::Execute(int dim, vtkImageRegion *inRegion1,
 				   vtkImageRegion *inRegion2,
 				   vtkImageRegion *outRegion)
 {
@@ -379,7 +379,7 @@ void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
 //----------------------------------------------------------------------------
 // Description:
 // The execute method created by the subclass.
-void vtkImageDyadicFilter::Execute(vtkImageRegion *inRegion1, 
+void vtkImageTwoInputFilter::Execute(vtkImageRegion *inRegion1, 
 				   vtkImageRegion *inRegion2, 
 				   vtkImageRegion *outRegion)
 {
@@ -396,7 +396,7 @@ void vtkImageDyadicFilter::Execute(vtkImageRegion *inRegion1,
 //============================================================================
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int dim, int *extent)
+vtkImageRegion *vtkImageTwoInputFilter::GetInput1Region(int dim, int *extent)
 {
   int idx;
   int *imageExtent;
@@ -436,7 +436,7 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int dim, int *extent)
 
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int dim, int *extent)
+vtkImageRegion *vtkImageTwoInputFilter::GetInput2Region(int dim, int *extent)
 {
   int idx;
   int *imageExtent;
