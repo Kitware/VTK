@@ -156,6 +156,7 @@ public:
     VolumeMapperComputeGradientsEndEvent,
     VolumeMapperComputeGradientsProgressEvent,
     VolumeMapperComputeGradientsStartEvent,
+    WidgetModifiedEvent,
     UserEvent = 1000
   };
 //ETX
