@@ -135,8 +135,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 }
 
 float *vtkXGLPolyDataMapper::AddVertex(int npts, int pointSize, int *pts,
-				   vtkPoints *p, vtkUnsignedCharArray *c,
-				   vtkTCoords *t)
+				   vtkPoints *p, vtkScalars *c, vtkTCoords *t)
 {
   float *fTemp;
   int j;
@@ -185,8 +184,7 @@ float *vtkXGLPolyDataMapper::AddVertex(int npts, int pointSize, int *pts,
 
 float *vtkXGLPolyDataMapper::AddVertexComputeNormal(int npts, int pointSize, 
 						 int *pts, vtkPoints *p, 
-						 vtkUnsignedCharArray *c,
-						 vtkTCoords *t, 
+						 vtkScalars *c, vtkTCoords *t, 
 						 float *polyNorm)
 {
   float *fTemp;
@@ -259,9 +257,8 @@ float *vtkXGLPolyDataMapper::AddVertexComputeNormal(int npts, int pointSize,
 
 float *vtkXGLPolyDataMapper::AddVertexWithNormal(int npts, int pointSize, 
 					      int *pts, vtkPoints *p, 
-					      vtkUnsignedCharArray *c,
-					      vtkTCoords *t, vtkNormals *n,
-					      float *polyNorm)
+					      vtkScalars *c, vtkTCoords *t, 
+					      vtkNormals *n, float *polyNorm)
 {
   float *fTemp;
   int j;
@@ -377,13 +374,12 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   t = data->GetPointData()->GetTCoords();
   if ( c )
     {
-    c->InitColorTraversal(act->GetProperty()->GetOpacity(), 
-			  this->LookupTable, this->ColorMode);
+    c->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
     }
 
   if ( t ) 
     {
-    tDim = t->GetDimension();
+    tDim = t->GetNumberOfComponents();
     if (tDim != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
@@ -536,7 +532,7 @@ void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   this->Context = *(ren->GetContext());
 
   // get the transparency; return if invisible
-  if ( act->GetProperty()->GetOpacity()) <= 0.0 ) return;
+  if ( act->GetProperty()->GetOpacity() <= 0.0 ) return;
   
   polygonsToRender = this->NumPolys;
   while (polygonsToRender > 0)

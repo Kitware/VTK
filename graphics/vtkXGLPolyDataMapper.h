@@ -67,13 +67,13 @@ public:
 
 protected:
   float *AddVertexComputeNormal(int npts, int pointSize, int *pts, 
-				vtkPoints *pt, vtkUnsignedCharArray *c, 
+				vtkPoints *pt, vtkScalars *c, 
 				vtkTCoords *t, float *polyNorm);
   float *AddVertexWithNormal(int npts, int pointSize, int *pts, 
-			     vtkPoints *p, vtkUnsignedCharArray *c, 
+			     vtkPoints *p, vtkScalars *c, 
 			     vtkTCoords *t, vtkNormals *n, float *polyNorm);
   float *AddVertex(int npts, int pointSize, int *pts, vtkPoints *p, 
-		   vtkUnsignedCharArray *c, vtkTCoords *t);
+		   vtkScalars *c, vtkTCoords *t);
   Xgl_3d_ctx Context;
   Xgl_pt_list *PL;
   Xgl_pt_list *PL2; // no normals

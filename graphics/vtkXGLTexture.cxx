@@ -106,12 +106,11 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
       return;
       }
 
-    bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
+    bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-         scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+       scalars->GetDataType() != VTK_UNSIGNED_CHAR )
       {
       dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
