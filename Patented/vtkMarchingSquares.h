@@ -111,6 +111,8 @@ protected:
   vtkContourValues *ContourValues;
   int ImageRange[6];
   vtkPointLocator *Locator;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkMarchingSquares(const vtkMarchingSquares&);  // Not implemented.
   void operator=(const vtkMarchingSquares&);  // Not implemented.

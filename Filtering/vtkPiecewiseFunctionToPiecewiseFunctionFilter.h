@@ -40,6 +40,8 @@ protected:
    vtkPiecewiseFunctionToPiecewiseFunctionFilter();
   ~vtkPiecewiseFunctionToPiecewiseFunctionFilter() {};
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkPiecewiseFunctionToPiecewiseFunctionFilter(const vtkPiecewiseFunctionToPiecewiseFunctionFilter&);  // Not implemented.
   void operator=(const vtkPiecewiseFunctionToPiecewiseFunctionFilter&);  // Not implemented.

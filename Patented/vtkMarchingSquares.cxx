@@ -34,6 +34,7 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMarchingSquaresCases.h"
@@ -50,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.58");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.59");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -58,6 +59,9 @@ vtkStandardNewMacro(vtkMarchingSquares);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkMarchingSquares::vtkMarchingSquares()
 {
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
+
   this->ContourValues = vtkContourValues::New();
 
   this->ImageRange[0] = 0; this->ImageRange[1] = VTK_LARGE_INTEGER;
@@ -575,6 +579,18 @@ void vtkMarchingSquares::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkMarchingSquares::FillInputPortInformation(int port,
+                                                 vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
