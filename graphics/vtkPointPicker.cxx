@@ -67,8 +67,9 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
                                         vtkAssemblyPath *path, vtkProp3D *p, 
                                         vtkAbstractMapper3D *m)
 {
-  int numPts;
-  int ptId, i, minPtId;
+  vtkIdType numPts;
+  vtkIdType ptId, minPtId;
+  int i;
   float ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
   vtkDataSet *input;
   vtkMapper *mapper;

@@ -174,7 +174,7 @@ private:
   // Check the point id give to see whether it lies on a feature
   // edge. If so, split the point (i.e., duplicate it) to topologically
   // separate the mesh.
-  void MarkAndSplit(int ptId);
+  void MarkAndSplit(vtkIdType ptId);
 
 };
 

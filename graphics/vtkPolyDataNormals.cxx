@@ -86,8 +86,8 @@ void vtkPolyDataNormals::Execute()
   vtkIdType numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
-  int numPolys, numStrips;
-  int cellId;
+  vtkIdType numPolys, numStrips;
+  vtkIdType cellId;
   vtkIdType numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
@@ -234,7 +234,7 @@ void vtkPolyDataNormals::Execute()
   this->PolyNormals->SetNumberOfNormals(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
-  cellId++ )
+       cellId++ )
     {
     if ((cellId % 1000) == 0)
       {
@@ -395,11 +395,11 @@ void vtkPolyDataNormals::Execute()
 //
 void vtkPolyDataNormals::TraverseAndOrder (void)
 {
-  int p1, p2;
-  int i, j, k, l;
-  int numIds, cellId;
+  vtkIdType p1, p2, i, k;
+  int j, l;
+  vtkIdType numIds, cellId;
   vtkIdType *pts, *neiPts, npts, numNeiPts;
-  int neighbor;
+  vtkIdType neighbor;
   vtkIdList *tmpWave;
 
   // propagate wave until nothing left in wave
@@ -467,7 +467,7 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
 //  Mark polygons around vertex.  Create new vertex (if necessary) and
 //  replace (i.e., split mesh).
 //
-void vtkPolyDataNormals::MarkAndSplit (int ptId)
+void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
 {
   int i,j;
 
@@ -498,7 +498,7 @@ void vtkPolyDataNormals::MarkAndSplit (int ptId)
   vtkIdType numPts;
   vtkIdType *pts;
   int numRegions = 0;
-  int neiPt[2], nei, spot, cellId, neiCellId;
+  vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
   float *thisNormal, *neiNormal;
   for (j=0; j<ncells; j++) //for all cells connected to point
     {

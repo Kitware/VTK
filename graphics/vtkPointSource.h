@@ -89,7 +89,7 @@ public:
   vtkGetMacro(Distribution,int);
 
 protected:
-  vtkPointSource(int numPts=10);
+  vtkPointSource(vtkIdType numPts=10);
   ~vtkPointSource() {};
   vtkPointSource(const vtkPointSource&) {};
   void operator=(const vtkPointSource&) {};

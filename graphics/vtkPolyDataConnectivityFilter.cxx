@@ -59,7 +59,7 @@ vtkPolyDataConnectivityFilter* vtkPolyDataConnectivityFilter::New()
 // Construct with default extraction mode to extract largest regions.
 vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
 {
-  this->RegionSizes = vtkIntArray::New();
+  this->RegionSizes = vtkIdTypeArray::New();
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
 
@@ -90,14 +90,14 @@ vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
 
 void vtkPolyDataConnectivityFilter::Execute()
 {
-  int cellId, i, j, pt, newCellId;
-  int numPts, numCells;
+  vtkIdType cellId, newCellId, i, pt;
+  int j;
+  vtkIdType numPts, numCells;
   vtkPoints *inPts;
   vtkPoints *newPts;
-  int id, n;
-  vtkIdType *cells, *pts, npts;
+  vtkIdType *cells, *pts, npts, id, n;
   unsigned short ncells;
-  int maxCellsInRegion;
+  vtkIdType maxCellsInRegion;
   int largestRegionId = 0;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -155,7 +155,7 @@ void vtkPolyDataConnectivityFilter::Execute()
     {
     this->Visited[i] = -1;
     }
-  this->PointMap = new int[numPts];  
+  this->PointMap = new vtkIdType[numPts];  
   for ( i=0; i < numPts; i++ )
     {
     this->PointMap[i] = -1;
@@ -419,7 +419,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   this->PointIds->Delete();
 
   int num = this->GetNumberOfExtractedRegions();
-  int count = 0;
+  vtkIdType count = 0;
 
   for (int ii = 0; ii < num; ii++)
     {
@@ -436,7 +436,8 @@ void vtkPolyDataConnectivityFilter::Execute()
 //
 void vtkPolyDataConnectivityFilter::TraverseAndMark ()
 {
-  int i, j, k, cellId, numIds, ptId;
+  vtkIdType cellId, ptId, numIds, i;
+  int j, k;
   vtkIdType *pts, *cells, npts;
   vtkIdList *tmpWave;
   unsigned short ncells;

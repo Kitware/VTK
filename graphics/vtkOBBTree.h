@@ -124,7 +124,7 @@ public:
   // of the OBB. Also return a sorted list of relative "sizes" of axes for
   // comparison purposes.
   void ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
-                            float mid[3], float min[3], float size[3]);
+                  float mid[3], float min[3], float size[3]);
 
   int IntersectWithLine(float a0[3], float a1[3], float tol,
                         float& t, float x[3], float pcoords[3],
@@ -153,8 +153,8 @@ public:
   // Description:
   // Returns true if triangle (optionally transformed) intersects node.
   int TriangleIntersectsNode( vtkOBBNode *pA,
-                                     float p0[3], float p1[3],
-                                     float p2[3], vtkMatrix4x4 *XformBtoA );
+                              float p0[3], float p1[3],
+                              float p2[3], vtkMatrix4x4 *XformBtoA );
 
   // Description:
   // For each intersecting leaf node pair, call function.

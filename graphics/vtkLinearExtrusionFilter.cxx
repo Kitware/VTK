@@ -66,7 +66,8 @@ vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkDataArray *n)
+float *vtkLinearExtrusionFilter::ViaNormal(float x[3], vtkIdType id,
+                                           vtkDataArray *n)
 {
   static float xNew[3], *normal;
   int i;
@@ -80,7 +81,8 @@ float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkDataArray *n)
   return xNew;
 }
 
-float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id), 
+float *vtkLinearExtrusionFilter::ViaVector(float x[3],
+                                           vtkIdType vtkNotUsed(id), 
 					   vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
@@ -94,7 +96,7 @@ float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id),
   return xNew;
 }
 
-float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int vtkNotUsed(id), 
+float *vtkLinearExtrusionFilter::ViaPoint(float x[3], vtkIdType vtkNotUsed(id),
 					  vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
@@ -110,16 +112,17 @@ float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int vtkNotUsed(id),
 
 void vtkLinearExtrusionFilter::Execute()
 {
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *inNormals=NULL;
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  int numEdges, cellId, dim;
-  vtkIdType *pts, npts;
-  int ptId, ncells, i, j, p1, p2;
+  vtkIdType cellId;
+  int numEdges, dim;
+  vtkIdType *pts, npts, ptId, ncells, p1, p2;
+  int i, j;
   float *x;
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
@@ -199,7 +202,7 @@ void vtkLinearExtrusionFilter::Execute()
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(ncells,4));
 
-  int progressInterval=numPts/10+1;
+  vtkIdType progressInterval=numPts/10+1;
   int abort=0;
 
   // copy points

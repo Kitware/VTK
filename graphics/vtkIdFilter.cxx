@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkIdFilter.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -75,9 +75,9 @@ vtkIdFilter::vtkIdFilter()
 //
 void vtkIdFilter::Execute()
 {
-  int id, numPts, numCells;
-  vtkIntArray *ptIds;
-  vtkIntArray *cellIds;
+  vtkIdType numPts, numCells, id;
+  vtkIdTypeArray *ptIds;
+  vtkIdTypeArray *cellIds;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
@@ -97,7 +97,7 @@ void vtkIdFilter::Execute()
   //
   if ( this->PointIds && numPts > 0 )
     {
-    ptIds = vtkIntArray::New();
+    ptIds = vtkIdTypeArray::New();
     ptIds->SetNumberOfValues(numPts);
 
     for (id=0; id < numPts; id++)
@@ -123,7 +123,7 @@ void vtkIdFilter::Execute()
   //
   if ( this->CellIds && numCells > 0 )
     {
-    cellIds = vtkIntArray::New();
+    cellIds = vtkIdTypeArray::New();
     cellIds->SetNumberOfValues(numCells);
 
     for (id=0; id < numCells; id++)

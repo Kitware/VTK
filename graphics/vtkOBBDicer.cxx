@@ -63,8 +63,8 @@ vtkOBBDicer* vtkOBBDicer::New()
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 {
-  int i, numPts=ptIds->GetNumberOfIds();
-  int ptId;
+  vtkIdType i, numPts=ptIds->GetNumberOfIds();
+  vtkIdType ptId;
   vtkOBBTree *OBB = vtkOBBTree::New();
   vtkDataSet *input= this->GetInput();
 
@@ -150,7 +150,7 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 // Current implementation uses an OBBTree to split up the dataset.
 void vtkOBBDicer::Execute()
 {
-  int ptId, numPts;
+  vtkIdType ptId, numPts;
   vtkIdList *ptIds;
   vtkShortArray *groupIds;
   vtkOBBNode *root;
@@ -224,7 +224,7 @@ void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)
   if ( OBBptr->Kids == NULL ) //leaf OBB
     {
     vtkIdList *ptIds;
-    int i, ptId, numIds;
+    vtkIdType i, ptId, numIds;
 
     ptIds = OBBptr->Cells;
     if ( (numIds=ptIds->GetNumberOfIds()) > 0 )
