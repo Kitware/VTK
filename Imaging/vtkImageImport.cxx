@@ -77,10 +77,25 @@ vtkImageImport::vtkImageImport()
   for (idx = 0; idx < 3; ++idx)
     {
     this->DataExtent[idx*2] = this->DataExtent[idx*2 + 1] = 0;
+    this->WholeExtent[idx*2] = this->WholeExtent[idx*2 + 1] = 0;
     this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
     }
   this->SaveUserArray = 0;
+  
+  this->CallbackUserData = 0;
+
+  this->UpdateInformationCallback = 0;
+  this->PipelineModifiedCallback = 0;
+  this->WholeExtentCallback = 0;
+  this->SpacingCallback = 0;
+  this->OriginCallback = 0;
+  this->ScalarTypeCallback = 0;
+  this->NumberOfComponentsCallback = 0;
+  this->PropagateUpdateExtentCallback = 0;
+  this->UpdateDataCallback = 0;
+  this->DataExtentCallback = 0;
+  this->BufferPointerCallback = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -107,6 +122,13 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfScalarComponents: " 
      << this->NumberOfScalarComponents << "\n";
  
+  os << indent << "WholeExtent: (" << this->WholeExtent[0];
+  for (idx = 1; idx < 6; ++idx)
+    {
+    os << ", " << this->WholeExtent[idx];
+    }
+  os << ")\n";
+  
   os << indent << "DataExtent: (" << this->DataExtent[0];
   for (idx = 1; idx < 6; ++idx)
     {
@@ -127,18 +149,78 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->DataOrigin[idx];
     }
   os << ")\n";
+
+  os << indent << "CallbackUserData: "
+     << (this->CallbackUserData? "Set" : "Not Set") << "\n";
+  
+  os << indent << "UpdateInformationCallback: "
+     << (this->UpdateInformationCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "PipelineModifiedCallback: "
+     << (this->PipelineModifiedCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "WholeExtentCallback: "
+     << (this->WholeExtentCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "SpacingCallback: "
+     << (this->SpacingCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "OriginCallback: "
+     << (this->OriginCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "ScalarTypeCallback: "
+     << (this->ScalarTypeCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "NumberOfComponentsCallback: "
+     << (this->NumberOfComponentsCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "PropagateUpdateExtentCallback: "
+     << (this->PropagateUpdateExtentCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "UpdateDataCallback: "
+     << (this->UpdateDataCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "DataExtentCallback: "
+     << (this->DataExtentCallback? "Set" : "Not Set") << "\n";
+  
+  os << indent << "BufferPointerCallback: "
+     << (this->BufferPointerCallback? "Set" : "Not Set") << "\n";
 }
 
+//----------------------------------------------------------------------------
+void vtkImageImport::PropagateUpdateExtent(vtkDataObject *output)
+{
+  vtkImageSource::PropagateUpdateExtent(output);
+  if (this->PropagateUpdateExtentCallback)
+    {
+    (this->PropagateUpdateExtentCallback)(this->CallbackUserData,
+                                          output->GetUpdateExtent());
+    }
+}
 
 //----------------------------------------------------------------------------
-// This method returns the largest data that can be generated.
+void vtkImageImport::UpdateInformation()
+{
+  // If set, use the callbacks to propagate pipeline update information.
+  this->InvokeUpdateInformationCallbacks();
+  
+  vtkImageSource::UpdateInformation();
+}
+
+//----------------------------------------------------------------------------
 void vtkImageImport::ExecuteInformation()
 {
+  // If set, use the callbacks to fill in our data members.
+  this->InvokeExecuteInformationCallbacks();
+  
+  // Legacy support for code that sets only DataExtent.
+  this->LegacyCheckWholeExtent();
+  
   vtkImageData *output = this->GetOutput();
   
-  // set the extent
-  output->SetWholeExtent(this->DataExtent);
-    
+  // set the whole extent
+  output->SetWholeExtent(this->WholeExtent);
+  
   // set the spacing
   output->SetSpacing(this->DataSpacing);
 
@@ -151,10 +233,11 @@ void vtkImageImport::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-// This function reads a data from a file.  The datas extent/axes
-// are assumed to be the same as the file extent/order.
 void vtkImageImport::ExecuteData(vtkDataObject *output)
 {
+  // If set, use the callbacks to prepare our input data.
+  this->InvokeExecuteDataCallbacks();
+  
   vtkImageData *data = this->AllocateOutputData(output);
   void *ptr = this->GetImportVoidPointer();
   int size = 
@@ -167,7 +250,7 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
   data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
 }
 
-
+//----------------------------------------------------------------------------
 void vtkImageImport::CopyImportVoidPointer(void *ptr, int size)
 {
   unsigned char *mem = new unsigned char [size];
@@ -175,11 +258,13 @@ void vtkImageImport::CopyImportVoidPointer(void *ptr, int size)
   this->SetImportVoidPointer(mem,0);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageImport::SetImportVoidPointer(void *ptr)
 {
   this->SetImportVoidPointer(ptr,1);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 {
   if (ptr != this->ImportVoidPointer)
@@ -199,5 +284,142 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
   this->ImportVoidPointer = ptr;
 }
 
+//----------------------------------------------------------------------------
+void vtkImageImport::InvokeUpdateInformationCallbacks()
+{
+  if (this->UpdateInformationCallback)
+    {
+    (this->UpdateInformationCallback)(this->CallbackUserData);
+    }
+  if (this->PipelineModifiedCallback)
+    {
+    if ((this->PipelineModifiedCallback)(this->CallbackUserData))
+      {
+      this->Modified();
+      }
+    }  
+}
+
+//----------------------------------------------------------------------------
+void vtkImageImport::InvokeExecuteInformationCallbacks()
+{
+  if (this->WholeExtentCallback)
+    {
+    this->SetWholeExtent((this->WholeExtentCallback)(this->CallbackUserData));
+    }
+  if (this->SpacingCallback)
+    {
+    this->SetDataSpacing((this->SpacingCallback)(this->CallbackUserData));
+    }
+  if (this->OriginCallback)
+    {
+    this->SetDataOrigin((this->OriginCallback)(this->CallbackUserData));
+    }
+  if (this->NumberOfComponentsCallback)
+    {
+    this->SetNumberOfScalarComponents(
+      (this->NumberOfComponentsCallback)(this->CallbackUserData));
+    }
+  if (this->ScalarTypeCallback)
+    {
+    const char* scalarType =
+      (this->ScalarTypeCallback)(this->CallbackUserData);
+    if (strcmp(scalarType, "double")==0)
+      {
+      this->SetDataScalarType(VTK_DOUBLE);
+      }
+    else if (strcmp(scalarType, "float")==0)
+      {
+      this->SetDataScalarType(VTK_FLOAT);
+      }
+    else if (strcmp(scalarType, "long")==0)
+      {
+      this->SetDataScalarType(VTK_LONG);
+      }
+    else if (strcmp(scalarType, "unsigned long")==0)
+      {
+      this->SetDataScalarType(VTK_UNSIGNED_LONG);
+      }
+    else if (strcmp(scalarType, "int")==0)
+      {
+      this->SetDataScalarType(VTK_INT);
+      }
+    else if (strcmp(scalarType, "unsigned int")==0)
+      {
+      this->SetDataScalarType(VTK_UNSIGNED_INT);
+      }
+    else if (strcmp(scalarType, "short")==0)
+      {
+      this->SetDataScalarType(VTK_SHORT);
+      }
+    else if (strcmp(scalarType, "unsigned short")==0)
+      {
+      this->SetDataScalarType(VTK_UNSIGNED_SHORT);
+      }
+    else if (strcmp(scalarType, "char")==0)
+      {
+      this->SetDataScalarType(VTK_CHAR);
+      }
+    else if (strcmp(scalarType, "unsigned char")==0)
+      {
+      this->SetDataScalarType(VTK_UNSIGNED_CHAR);
+      }    
+    }
+}
 
 
+//----------------------------------------------------------------------------
+void vtkImageImport::InvokeExecuteDataCallbacks()
+{
+  if (this->UpdateDataCallback)
+    {
+    (this->UpdateDataCallback)(this->CallbackUserData);
+    }
+  if (this->DataExtentCallback)
+    {
+    this->SetDataExtent((this->DataExtentCallback)(this->CallbackUserData));
+    }
+  if (this->BufferPointerCallback)
+    {
+    this->SetImportVoidPointer(
+      (this->BufferPointerCallback)(this->CallbackUserData));
+    }
+}  
+
+//----------------------------------------------------------------------------
+// In the past, this class made no distinction between whole extent and
+// buffered extent, so only SetDataExtent also set the whole extent of
+// the output.  Now, there is a separate SetWholeExtent which should be
+// called as well.
+void vtkImageImport::LegacyCheckWholeExtent()
+{
+  // If the WholeExtentCallback is set, this must not be legacy code.
+  if (this->WholeExtentCallback)
+    {
+    return;
+    }
+  
+  // Check whether the whole extent has been set.
+  for(int i=0; i < 6; ++i)
+    {
+    if (this->WholeExtent[i] != 0)
+      {
+      return;
+      }
+    }
+  
+  // The whole extent has not been set.  Copy it from the data extent
+  // and issue a warning.
+  for(int i=0; i < 6; ++i)
+    {
+    this->WholeExtent[i] = this->DataExtent[i];
+    }
+  
+  vtkWarningMacro("\n"
+    "There is a distinction between the whole extent and the buffered\n"
+    "extent of an imported image.  Use SetWholeExtent to set the extent\n"
+    "of the entire image.  Use SetDataExtent to set the extent of the\n"
+    "portion of the image that is in the buffer set with\n"
+    "SetImportVoidPointer.  Both should be called even if the extents are\n"
+    "the same.");
+}

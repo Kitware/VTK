@@ -59,7 +59,8 @@ int main( int argc, char *argv[] )
 
  // create an importer to read the data back in
  vtkImageImport *importer = vtkImageImport::New();
- importer->SetDataExtent(1,dimensions[0],1,dimensions[1],1,dimensions[2]);
+ importer->SetWholeExtent(1,dimensions[0],1,dimensions[1],1,dimensions[2]);
+ importer->SetDataExtentToWholeExtent();
  importer->SetDataScalarTypeToShort();
  importer->SetImportVoidPointer(data);
 
