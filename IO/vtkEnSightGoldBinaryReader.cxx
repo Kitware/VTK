@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.46");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.47");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1012,7 +1012,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     }
   
   while (this->ReadLine(line) &&
-         strcmp(line, "part") == 0)
+         strncmp(line, "part", 4) == 0)
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
@@ -1171,7 +1171,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
     }
   
   while (this->ReadLine(line) &&
-         strcmp(line, "part") == 0)
+         strncmp(line, "part", 4) == 0)
     {
     vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
