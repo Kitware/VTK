@@ -11,36 +11,12 @@ vtkActor2DCollection::vtkActor2DCollection()
 
 vtkActor2DCollection::~vtkActor2DCollection()
 {
-// Traverse the list 
-// Unregister the actors (items)
-// Delete the list elements
+  // List elements are deleted in vtkCollection's destructor
+}
 
-  vtkCollectionElement* indexElem;
-  vtkCollectionElement* delElem;
-  vtkActor2D* tempActor;
-
-#if 0
-  delElem = this->Top;
-
-  for (indexElem = this->Top->Next;
-         indexElem != NULL;
-           indexElem = indexElem->Next)
-    {
-     tempActor = (vtkActor2D*) delElem->Item;
-     tempActor->UnRegister(this);
-	 if (delElem) delete delElem;
-	 else vtkErrorMacro (<< "delElem is already NULL!");
-     delElem = indexElem;	
-    }  
-
-  // The last item on the list will fall through,
-  // so delete it here
-  tempActor = (vtkActor2D*) delElem->Item;
-  tempActor->UnRegister(this);
-  if (delElem) delete delElem;
-  else vtkErrorMacro (<< "delElem is already NULL!");
-#endif
-
+void vtkActor2DCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkCollection::PrintSelf(os, indent);
 }
 
 // Description:

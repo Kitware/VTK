@@ -60,6 +60,7 @@ class VTK_EXPORT vtkActor2DCollection : public vtkCollection
  public:
   vtkActor2DCollection();
   ~vtkActor2DCollection();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkActor2DCollection *New() {return new vtkActor2DCollection;};
   const char *GetClassName() {return "vtkActor2DCollection";};
