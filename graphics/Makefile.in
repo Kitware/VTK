@@ -112,6 +112,7 @@ vtkCellDataToPointData \
 vtkCellLocator \
 vtkCellPicker \
 vtkCleanPolyData \
+vtkClipDataSet \
 vtkClipPolyData \
 vtkClipVolume \
 vtkColorTransferFunction \
