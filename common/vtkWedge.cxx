@@ -744,12 +744,12 @@ int vtkWedge::JacobianInverse(float pcoords[3], double **inverse, float derivs[1
   return 1;
 }
 
-void vtkWedge::GetEdge(int edgeId, int* &pts)
+void vtkWedge::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
-void vtkWedge::GetFace(int faceId, int* &pts)
+void vtkWedge::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }

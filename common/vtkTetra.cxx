@@ -697,12 +697,12 @@ int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
   return 1;
 }
 
-void vtkTetra::GetEdge(int edgeId, int* &pts)
+void vtkTetra::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
-void vtkTetra::GetFace(int faceId, int* &pts)
+void vtkTetra::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }

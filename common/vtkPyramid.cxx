@@ -692,12 +692,12 @@ int vtkPyramid::JacobianInverse(float pcoords[3], double **inverse, float derivs
   return 1;
 }
 
-void vtkPyramid::GetEdge(int edgeId, int* &pts)
+void vtkPyramid::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
-void vtkPyramid::GetFace(int faceId, int* &pts)
+void vtkPyramid::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }
