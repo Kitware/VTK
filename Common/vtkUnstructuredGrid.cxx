@@ -33,7 +33,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.102");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.103");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -954,6 +954,7 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
   if (temp == NULL)
     {
     vtkDebugMacro("Could not find cell ghost level array.");
+    newGrid->Delete();
     return;
     }
   if ( (temp->GetDataType() != VTK_UNSIGNED_CHAR)
@@ -961,6 +962,7 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
        || (temp->GetNumberOfTuples() < this->GetNumberOfCells()))
     {
     vtkErrorMacro("Poorly formed ghost level array.");
+    newGrid->Delete();
     return;
     }
   cellGhostLevels =((vtkUnsignedCharArray*)temp)->GetPointer(0);
