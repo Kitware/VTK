@@ -1664,7 +1664,6 @@ vtkVectorText::vtkVectorText()
 
 void vtkVectorText::Execute()
 {
-  int idx;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkFloatPoints *newPoints;
   vtkCellArray *newPolys;
@@ -1725,14 +1724,6 @@ void vtkVectorText::Execute()
 	    }
 	  ptOffset += ptCount;
 	  xpos += width;
-	  // handle special characters
-	  switch (idx) 
-	    {
-	    case 42: case 51: case 52: case 60:
-	      // trans.Translate(0,8,0); break;
-	    case 26: //trans.Translate(0,10,0); break;
-	      break;
-	    }
 	  delete IS;
 	  }
 	break;
