@@ -755,8 +755,8 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
     }
   
   // Give ourselves a little breathing room
-  range[0] *= .99;
-  range[1] *= 1.01;
+  range[0] = 0.99*range[0] - (range[1] - range[0])*0.5;
+  range[1] = 1.01*range[1] + (range[1] - range[0])*0.5;
 
   // Make sure near is not bigger than far
   range[0] = (range[0] >= range[1])?(0.01*range[1]):(range[0]);
