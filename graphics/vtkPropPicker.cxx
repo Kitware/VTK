@@ -103,7 +103,7 @@ int vtkPropPicker::Pick(float selectionX, float selectionY, vtkRenderer *rendere
   this->Initialize();
 
   // Have the renderer do the hardware pick
-  this->PickedProp = renderer->vtkViewport::PickProp(selectionX, selectionY, this->PickFromProps);
+  this->PickedProp = renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps);
   // If there was a pick then find the world x,y,z for the pick
   if(this->PickedProp)
     {
@@ -137,7 +137,7 @@ int vtkPropPicker::Pick(float selectionX, float selectionY, vtkRenderer *rendere
 
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkPicker::PrintSelf(os,indent);
+  this->vtkWorldPointPicker::PrintSelf(os, indent);
   os << indent << "PickedProp:    " << this->PickedProp << endl;
   os << indent << "PickFrom List: " << this->PickFromProps << endl;
 }

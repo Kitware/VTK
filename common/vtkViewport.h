@@ -227,7 +227,7 @@ public:
   // Same as PickProp with two arguments, but selects from the given
   // collection of Props instead of the Renderers props.  Make sure
   // the Props in the collection are in this renderer.
-  vtkProp* PickProp(float selectionX, float selectionY, vtkPropCollection*);
+  vtkProp* PickPropFrom(float selectionX, float selectionY, vtkPropCollection*);
   vtkGetMacro(PickX, float);
   vtkGetMacro(PickY, float);
   vtkGetMacro(IsPicking, int);

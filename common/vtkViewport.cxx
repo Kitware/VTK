@@ -377,7 +377,9 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No End Render method.\n";
     }
-
+  os << indent << "Pick Position X Y: " << this->PickX 
+     << " " << this->PickY << endl;
+  os << indent << "IsPicking boolean: " << this->IsPicking << endl;
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());
 
@@ -571,7 +573,7 @@ void vtkViewport::ComputeAspect()
 }
 
 
-vtkProp* vtkViewport::PickProp(float selectionX, float selectionY, vtkPropCollection* pickfrom)
+vtkProp* vtkViewport::PickPropFrom(float selectionX, float selectionY, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   return this->PickProp(selectionX, selectionY);
