@@ -35,6 +35,7 @@ vtkImageCache \
 vtkImageSource \
 vtkLocator \
 vtkPointSet \
+vtkScalarsToColors \
 vtkViewport \
 vtkWindow
 
