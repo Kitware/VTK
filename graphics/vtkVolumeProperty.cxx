@@ -52,16 +52,21 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->GrayTransferFunction		= NULL;
   this->RGBTransferFunction		= NULL;
   this->OpacityTransferFunction		= NULL;
+  this->GradientMagnitudeTransferFunction = NULL;
 
   this->SelfCreatedGTFun		= 0;
   this->SelfCreatedRGBTFun		= 0;
   this->SelfCreatedOTFun		= 0;
+  this->SelfCreatedGMTFun		= 0;
 
   this->Shade				= 0;  // False
   this->Ambient				= 0.1;
   this->Diffuse				= 0.7;
   this->Specular			= 0.2;
   this->SpecularPower			= 10.0;
+
+  this->GradientMagnitudeScale		= 1.0;
+  this->GradientMagnitudeBias		= 0.0;
 }
 
 // Description:
@@ -76,6 +81,9 @@ vtkVolumeProperty::~vtkVolumeProperty()
 
   if( this->SelfCreatedOTFun && this->OpacityTransferFunction )
     this->OpacityTransferFunction->Delete();
+
+  if( this->SelfCreatedGMTFun && this->GradientMagnitudeTransferFunction )
+    this->GradientMagnitudeTransferFunction->Delete();
 }
 
 // Description:
@@ -189,6 +197,39 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetOpacityTransferFunction()
 }
 
 // Description:
+// Set the gradient magnitude transfer function for a volume
+void vtkVolumeProperty::SetGradientMagnitude( vtkPiecewiseFunction *function )
+{
+  if( this->GradientMagnitudeTransferFunction != function )
+    {
+    if( this->SelfCreatedGMTFun )
+      this->GradientMagnitudeTransferFunction->Delete();
+
+    this->SelfCreatedGMTFun			= 0;
+    this->GradientMagnitudeTransferFunction	= function;
+
+    this->GradientMagnitudeTransferFunctionMTime.Modified();
+    this->Modified();
+    }
+}
+
+// Description:
+// Get the currently set gradient magnitude transfer function. Create one 
+// if none set.
+vtkPiecewiseFunction *vtkVolumeProperty::GetGradientMagnitudeTransferFunction()
+{
+  if( this->GradientMagnitudeTransferFunction == NULL )
+    {
+    this->GradientMagnitudeTransferFunction = vtkPiecewiseFunction::New();
+    this->GradientMagnitudeTransferFunction->AddPoint(   0, 1.0 );
+    this->GradientMagnitudeTransferFunction->AddPoint( 255, 1.0 );
+    this->SelfCreatedGMTFun = 1;
+    }
+
+  return this->GradientMagnitudeTransferFunction;
+}
+
+// Description:
 // Print the state of the volume property.
 void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -212,6 +253,15 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Opacity Transfer Function: " \
      << this->OpacityTransferFunction << "\n";
+
+  os << indent << "Gradient Magnitude Transfer Function: " \
+     << this->GradientMagnitudeTransferFunction << "\n";
+
+  os << indent << "Gradient Magnitude Scale: " << 
+     this->GradientMagnitudeScale << "\n";
+
+  os << indent << "Gradient Magnitude Bias: " << 
+     this->GradientMagnitudeBias << "\n";
 
   os << indent << "Shade: " << this->Shade << "\n";
 
