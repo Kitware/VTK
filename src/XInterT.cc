@@ -28,17 +28,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define TK_IS_DISPLAY   32
 
 // returns 1 if done
-static int vlTclEventProc(XtPointer clientData,XEvent *event)
+static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 {
   Boolean ctd;
-  vlXRenderWindow *rw;
+  vtkXRenderWindow *rw;
       
-  rw = (vlXRenderWindow *)
-    (((vlXRenderWindowInteractor *)clientData)->GetRenderWindow());
+  rw = (vtkXRenderWindow *)
+    (((vtkXRenderWindowInteractor *)clientData)->GetRenderWindow());
   
   if (rw->GetWindowId() == ((XAnyEvent *)event)->window)
     {
-    vlXRenderWindowInteractorCallback((Widget)NULL,clientData, event, &ctd);
+    vtkXRenderWindowInteractorCallback((Widget)NULL,clientData, event, &ctd);
     ctd = 0;
     }
   else
@@ -49,10 +49,10 @@ static int vlTclEventProc(XtPointer clientData,XEvent *event)
   return !ctd;
 }
 
-static void vlXTclTimerProc(ClientData clientData)
+static void vtkXTclTimerProc(ClientData clientData)
 {
   XtIntervalId id;
-  vlXRenderWindowInteractorTimer((XtPointer)clientData,&id);
+  vtkXRenderWindowInteractorTimer((XtPointer)clientData,&id);
 }
 
 typedef struct
@@ -78,32 +78,32 @@ XrmOptionDescRec Desc[] =
 
 
 // states
-#define VLXI_START  0
-#define VLXI_ROTATE 1
-#define VLXI_ZOOM   2
-#define VLXI_PAN    3
+#define VTKXI_START  0
+#define VTKXI_ROTATE 1
+#define VTKXI_ZOOM   2
+#define VTKXI_PAN    3
 
 
 // Description:
 // Construct object so that light follows camera motion.
-vlXRenderWindowInteractor::vlXRenderWindowInteractor()
+vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
-  this->State = VLXI_START;
+  this->State = VTKXI_START;
   this->App = 0;
 }
 
-vlXRenderWindowInteractor::~vlXRenderWindowInteractor()
+vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
 }
 
-void  vlXRenderWindowInteractor::Start()
+void  vtkXRenderWindowInteractor::Start()
 {
   Tk_MainLoop();
 }
 
 // Description:
 // Initializes the event handlers
-void vlXRenderWindowInteractor::Initialize(XtAppContext app)
+void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 {
   this->App = app;
 
@@ -112,12 +112,12 @@ void vlXRenderWindowInteractor::Initialize(XtAppContext app)
 
 // Description:
 // Begin processing keyboard strokes.
-void vlXRenderWindowInteractor::Initialize()
+void vtkXRenderWindowInteractor::Initialize()
 {
   Display *display;
   static int any_initialized = 0;
   static XtAppContext app;
-  vlXRenderWindow *ren;
+  vtkXRenderWindow *ren;
   int depth;
   Colormap cmap;
   Visual  *vis;
@@ -128,7 +128,7 @@ void vlXRenderWindowInteractor::Initialize()
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
     {
-    vlErrorMacro(<<"No renderer defined!");
+    vtkErrorMacro(<<"No renderer defined!");
     return;
     }
 
@@ -148,10 +148,10 @@ void vlXRenderWindowInteractor::Initialize()
     }
   this->App = app;
 
-  display = XtOpenDisplay(this->App,NULL,"VL","vl",NULL,0,&argc,NULL);
+  display = XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
 
   // get the info we need from the RenderingWindow
-  ren = (vlXRenderWindow *)(this->RenderWindow);
+  ren = (vtkXRenderWindow *)(this->RenderWindow);
   ren->SetDisplayId(display);
   depth   = ren->GetDesiredDepth();
   cmap    = ren->GetDesiredColormap();
@@ -159,7 +159,7 @@ void vlXRenderWindowInteractor::Initialize()
   size    = ren->GetSize();
   position= ren->GetPosition();
 
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vl",
+  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
 				 applicationShellWidgetClass,
 				 display,
 				 XtNdepth, depth,
@@ -181,7 +181,7 @@ void vlXRenderWindowInteractor::Initialize()
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vlXRenderWindowInteractorCallback,(XtPointer)this);
+		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
@@ -190,16 +190,16 @@ void vlXRenderWindowInteractor::Initialize()
 		       TK_READABLE|TK_IS_DISPLAY, 
 		       (void (*)(void *,int)) NULL,
 		       (ClientData) display);
-  Tk_CreateGenericHandler((Tk_GenericProc *)vlTclEventProc,(ClientData)this);
+  Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc,(ClientData)this);
 }
 
-void vlXRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
+void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlRenderWindowInteractor::PrintSelf(os,indent);
+  vtkRenderWindowInteractor::PrintSelf(os,indent);
 }
 
 
-void  vlXRenderWindowInteractor::UpdateSize(int x,int y)
+void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
@@ -211,38 +211,38 @@ void  vlXRenderWindowInteractor::UpdateSize(int x,int y)
 
 }
  
-void  vlXRenderWindowInteractor::StartRotate()
+void  vtkXRenderWindowInteractor::StartRotate()
 {
-  if (this->State != VLXI_START) return;
-  this->State = VLXI_ROTATE;
-  Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)this);
+  if (this->State != VTKXI_START) return;
+  this->State = VTKXI_ROTATE;
+  Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
 }
-void  vlXRenderWindowInteractor::EndRotate()
+void  vtkXRenderWindowInteractor::EndRotate()
 {
-  if (this->State != VLXI_ROTATE) return;
-  this->State = VLXI_START;
-}
-
-void  vlXRenderWindowInteractor::StartZoom()
-{
-  if (this->State != VLXI_START) return;
-  this->State = VLXI_ZOOM;
-  Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)this);
-}
-void  vlXRenderWindowInteractor::EndZoom()
-{
-  if (this->State != VLXI_ZOOM) return;
-  this->State = VLXI_START;
+  if (this->State != VTKXI_ROTATE) return;
+  this->State = VTKXI_START;
 }
 
-void  vlXRenderWindowInteractor::StartPan()
+void  vtkXRenderWindowInteractor::StartZoom()
+{
+  if (this->State != VTKXI_START) return;
+  this->State = VTKXI_ZOOM;
+  Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
+}
+void  vtkXRenderWindowInteractor::EndZoom()
+{
+  if (this->State != VTKXI_ZOOM) return;
+  this->State = VTKXI_START;
+}
+
+void  vtkXRenderWindowInteractor::StartPan()
 {
   float *FocalPoint;
   float *Result;
 
-  if (this->State != VLXI_START) return;
+  if (this->State != VTKXI_START) return;
 
-  this->State = VLXI_PAN;
+  this->State = VTKXI_PAN;
 
   // calculate the focal depth since we'll be using it a lot
   FocalPoint = this->CurrentCamera->GetFocalPoint();
@@ -253,21 +253,21 @@ void  vlXRenderWindowInteractor::StartPan()
   Result = this->CurrentRenderer->GetDisplayPoint();
   this->FocalDepth = Result[2];
 
-  Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)this);
+  Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
 }
-void  vlXRenderWindowInteractor::EndPan()
+void  vtkXRenderWindowInteractor::EndPan()
 {
-  if (this->State != VLXI_PAN) return;
-  this->State = VLXI_START;
+  if (this->State != VTKXI_PAN) return;
+  this->State = VTKXI_START;
 }
 
-void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
+void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
   int *size;
-  vlXRenderWindowInteractor *me;
+  vtkXRenderWindowInteractor *me;
 
-  me = (vlXRenderWindowInteractor *)client_data;
+  me = (vtkXRenderWindowInteractor *)client_data;
 
   switch (event->type) 
     {
@@ -336,8 +336,8 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_w : //change all actors to wireframe
 	  {
-	  vlActorCollection *ac;
-	  vlActor *anActor;
+	  vtkActorCollection *ac;
+	  vtkActor *anActor;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 				me->Size[1] - ((XKeyEvent*)event)->y);
@@ -353,8 +353,8 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_s : //change all actors to "surface" or solid
 	  {
-	  vlActorCollection *ac;
-	  vlActor *anActor;
+	  vtkActorCollection *ac;
+	  vtkActor *anActor;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 			        me->Size[1] - ((XKeyEvent*)event)->y);
@@ -419,20 +419,20 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
     }
 }
 
-void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
+void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 {
-  vlXRenderWindowInteractor *me;
+  vtkXRenderWindowInteractor *me;
   Window root,child;
   int root_x,root_y;
   int x,y;
   float xf,yf;
   unsigned int keys;
 
-  me = (vlXRenderWindowInteractor *)client_data;
+  me = (vtkXRenderWindowInteractor *)client_data;
 
   switch (me->State)
     {
-    case VLXI_ROTATE :
+    case VTKXI_ROTATE :
       // get the pointer position
       XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
@@ -448,9 +448,9 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 	me->CurrentLight->SetFocalPoint(me->CurrentCamera->GetFocalPoint());
 	}
       me->RenderWindow->Render();
-      Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)client_data);
+      Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)client_data);
       break;
-    case VLXI_PAN :
+    case VTKXI_PAN :
       {
       float  FPoint[3];
       float *PPoint;
@@ -492,10 +492,10 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 	(FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
       
       me->RenderWindow->Render();
-      Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)client_data);
+      Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)client_data);
       }
       break;
-    case VLXI_ZOOM :
+    case VTKXI_ZOOM :
       {
       float zoomFactor;
       float *clippingRange;
@@ -510,7 +510,7 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 					  clippingRange[1]/zoomFactor);
       me->CurrentCamera->Zoom(zoomFactor);
       me->RenderWindow->Render();
-      Tk_CreateTimerHandler(10,vlXTclTimerProc,(ClientData)client_data);
+      Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)client_data);
       }
       break;
     }
@@ -520,10 +520,10 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 
 // Description:
 // Setup a new window before a WindowRemap
-void vlXRenderWindowInteractor::SetupNewWindow(int Stereo)
+void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
 {
   Display *display;
-  vlXRenderWindow *ren;
+  vtkXRenderWindow *ren;
   int depth;
   Colormap cmap;
   Visual  *vis;
@@ -532,7 +532,7 @@ void vlXRenderWindowInteractor::SetupNewWindow(int Stereo)
   int zero_pos[2];
 
   // get the info we need from the RenderingWindow
-  ren = (vlXRenderWindow *)(this->RenderWindow);
+  ren = (vtkXRenderWindow *)(this->RenderWindow);
   display = ren->GetDisplayId();
   depth   = ren->GetDesiredDepth();
   cmap    = ren->GetDesiredColormap();
@@ -557,7 +557,7 @@ void vlXRenderWindowInteractor::SetupNewWindow(int Stereo)
   // free the previous widget
   XtDestroyWidget(this->top);
 
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vl",
+  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
 				 applicationShellWidgetClass,
 				 display,
 				 XtNdepth, depth,
@@ -579,14 +579,14 @@ void vlXRenderWindowInteractor::SetupNewWindow(int Stereo)
 
 // Description:
 // Finish setting up a new window after the WindowRemap.
-void vlXRenderWindowInteractor::FinishSettingUpNewWindow()
+void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {
   int *size;
 
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vlXRenderWindowInteractorCallback,(XtPointer)this);
+		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   size = this->RenderWindow->GetSize();
   this->Size[0] = size[0];
