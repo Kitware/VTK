@@ -212,6 +212,13 @@ IF(PYTHON_EXECUTABLE)
 # Done listing of files.
 
 # Now copy these files if necessary.
+  SET(VTK_PYTHON_SOURCE_FILES)
+  SET(VTK_PYTHON_OUTPUT_FILES)
+  FOREACH(file ${VTK_PYTHON_FILES})
+    SET(src "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
+    SET(VTK_PYTHON_SOURCE_FILES ${VTK_PYTHON_SOURCE_FILES} ${src})
+  ENDFOREACH(file)
+
   IF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
     #MESSAGE("In source build -- no need to copy Python files.")
   ELSE ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
@@ -225,15 +232,24 @@ IF(PYTHON_EXECUTABLE)
   ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
 # Byte compile the Python files.
-  SET(py_compile_quiet 1)
-  IF (VERBOSE_BUILD)
-    SET(py_compile_quiet 0)
-  ENDIF (VERBOSE_BUILD)
+  WRITE_FILE(${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk.py
+        "import compileall\n"
+        "compileall.compile_dir('${VTK_BINARY_DIR}/Wrapping/Python')\n"
+	"file = open('${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete', 'w')\n"
+	"file.write('Done')\n")
+
+  ADD_CUSTOM_COMMAND(
+    SOURCE ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk.py
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk.py
+    DEPENDS ${VTK_PYTHON_SOURCE_FILES}
+    OUTPUTS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
+    TARGET vtkpython_pyc
+    )
 
   ADD_CUSTOM_COMMAND(
     SOURCE vtkpython_pyc
-    COMMAND ${PYTHON_EXECUTABLE}
-    ARGS -c "\"import" "compileall;compileall.compile_dir('${VTK_BINARY_DIR}/Wrapping/Python',quiet=${py_compile_quiet})\""
+    DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
     TARGET vtkpython_pyc
     )
 
