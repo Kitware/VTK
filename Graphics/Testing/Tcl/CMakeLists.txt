@@ -63,6 +63,7 @@ IF (VTK_USE_RENDERING)
       MatrixToTransform
       mergeFilter
       MultidimensionalSolution
+      multipleIso
       nacaBinary
       OBBTree
       OBBCylinder
