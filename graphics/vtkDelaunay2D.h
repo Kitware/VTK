@@ -40,30 +40,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDelaunay2D - create 2D Delaunay triangulation of input points
 // .SECTION Description
-// vtkDelaunay2D is a filter that constructs a 2D Delaunay triangulation
-// from a list of input points. These points may be represented by any 
-// dataset of type vtkPointSet and subclasses. The output of the filter is
-// a polygonal dataset. Usually the output is a triangle mesh, but if a
-// non-zero alpha distance value is specified (called the "alpha" value),
-// then only triangles, edges, and vertices lying within the alpha radius
-// are output. In other words, non-zero alpha values may result in arbitrary
-// combinations of triangles, lines, and vertices. (The notion of alpha 
-// value is derived from Edelsbrunner's work on "alpha shapes".)
+
+// vtkDelaunay2D is a filter that constructs a 2D Delaunay triangulation from
+// a list of input points. These points may be represented by any dataset of
+// type vtkPointSet and subclasses. The output of the filter is a polygonal
+// dataset. Usually the output is a triangle mesh, but if a non-zero alpha
+// distance value is specified (called the "alpha" value), then only
+// triangles, edges, and vertices lying within the alpha radius are
+// output. In other words, non-zero alpha values may result in arbitrary
+// combinations of triangles, lines, and vertices. (The notion of alpha value
+// is derived from Edelsbrunner's work on "alpha shapes".) Also, it is
+// possible to generate "constrained triangulations" using this filter.
+// A constrained triangulation is one where edges and loops (i.e., polygons)
+// can be defined and the triangulation will preserve them (read on for 
+// more information).
 //
 // The 2D Delaunay triangulation is defined as the triangulation that 
 // satisfies the Delaunay criterion for n-dimensional simplexes (in this case
 // n=2 and the simplexes are triangles). This criterion states that a 
 // circumsphere of each simplex in a triangulation contains only the n+1 
-// defining points of the simplex. (See text for more information.) In two
-// dimensions, this translates into an optimal triangulation. That is, the
-// maximum interior angle of any triangle is less than or equal to that of
-// any possible triangulation.
+// defining points of the simplex. (See "The Visualization Toolkit" text 
+// for more information.) In two dimensions, this translates into an optimal 
+// triangulation. That is, the maximum interior angle of any triangle is less 
+// than or equal to that of any possible triangulation.
 // 
 // Delaunay triangulations are used to build topological structures
 // from unorganized (or unstructured) points. The input to this filter
 // is a list of points specified in 3D, even though the triangulation
 // is 2D. Thus the triangulation is constructed in the x-y plane, and
-// the z coordinate is ignored (although carried through on
+// the z coordinate is ignored (although carried through to the
 // output). (If you desire to triangulate in a different plane, you'll
 // have to use the vtkTransformFilter to transform the points into and
 // out of the x-y plane.)
@@ -76,6 +81,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // add extra points to create a better point distribution.) If numerical
 // problems are present, you will see a warning message to this effect at
 // the end of the triangulation process.
+//
+// To create constrained meshes, you must define an additional input. This
+// input is an instance of vtkPolyData which contains lines, polylines,
+// and/or polygons that define constrained edges and loops. Lines and
+// polylines found in the input will be mesh edges in the output. Polygons
+// define a loop with inside and outside regions. The inside of the polygon
+// is determined by using the right-hand-rule, i.e., looking down the z-axis
+// a polygon should be ordered counter-clockwise. Holes in a polygon should
+// be ordered clockwise.If you choose to create a constrained triangulation,
+// the final mesh may not satisfy the Delaunay criterion. (Noted: the
+// lines/polygon edges must not intersect when projected onto the 2D plane.
+// It may not be possible to recover all edges due to not enough points in
+// the triangulation, or poorly defined edges (coincident or execssively
+// long).  The form of the lines or polygons is a list of point ids that
+// correspond to the input point ids used to generate the triangulation.)
 
 // .SECTION Caveats
 // Points arranged on a regular lattice (termed degenerate cases) can be 
@@ -95,7 +115,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // behavior can be controlled by the Offset instance variable. Offset is a
 // multiplier used to control the size of the initial triangulation. The 
 // larger the offset value, the more likely you will generate a convex hull;
-// and the more likely you are to see numerical problems.
+// but the more likely you are to see numerical problems.
  
 // .SECTION See Also
 // vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
@@ -110,6 +130,7 @@ class VTK_EXPORT vtkDelaunay2D : public vtkPointSetFilter
 {
 public:
   vtkDelaunay2D();
+  ~vtkDelaunay2D();
   const char *GetClassName() {return "vtkDelaunay2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,6 +139,18 @@ public:
   // BoundingTriangulation turned off.
   static vtkDelaunay2D *New() {return new vtkDelaunay2D;};
 
+  // Description:
+  // Override update method because execution can branch two ways (via Input 
+  // and Source).
+  void Update();
+
+  // Description:
+  // Specify the source object used to specify constrained edges and loops.
+  // (This is optional.) If set, and lines/polygons are defined, a constrained
+  // triangulation is created.
+  vtkSetObjectMacro(Source,vtkPolyData);
+  vtkGetObjectMacro(Source,vtkPolyData);
+  
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
   // For a non-zero alpha value, only edges or triangles contained within
@@ -155,10 +188,25 @@ public:
 protected:
   void Execute();
 
+  vtkPolyData *Source;
   float Alpha;
   float Tolerance;
   int BoundingTriangulation;
   float Offset;
+
+private:
+  int NumberOfDuplicatePoints;
+  int NumberOfDegeneracies;
+
+  char *RecoverBoundary(vtkPolyData *Mesh);
+  int RecoverEdge(vtkPolyData *Mesh, int p1, int p2);
+  void FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, char *triUse);
+
+  int InCircle (float x[3], float x1[3], float x2[3], float x3[3]);
+  int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
+                   vtkPoints *points, float tol, int nei[3]);
+  void CheckEdge(int ptId, float x[3], int p1, int p2, int tri, 
+                 vtkPolyData *Mesh, vtkPoints *points);
 
 };
 
