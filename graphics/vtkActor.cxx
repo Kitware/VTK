@@ -201,12 +201,13 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
     return 0;
     }
 
-  // render the property
+  // make sure we have a property
   if (!this->Property)
     {
     // force creation of a property
     this->GetProperty();
     }
+
   // is this actor opaque ?
   if (this->GetIsOpaque())
     {
@@ -239,6 +240,13 @@ int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
   if ( ! this->Mapper )
     {
     return 0;
+    }
+
+  // make sure we have a property
+  if (!this->Property)
+    {
+    // force creation of a property
+    this->GetProperty();
     }
 
   // is this actor opaque ?
