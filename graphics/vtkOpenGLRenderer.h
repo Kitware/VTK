@@ -88,9 +88,9 @@ protected:
   virtual void DonePick();
   virtual unsigned int GetPickedID();
   virtual float GetPickedZ();
-  //ETX
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
+  //ETX
   float PickedZ;
 };
 
