@@ -2,9 +2,6 @@ catch {load vtktcl}
 if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
-# This example demonstrates how to set up flexible joints using 
-# vtkLinearTransformConcatenation and vtkTransformPolyDataFilter.
-
 
 # create a rendering window
 vtkRenderWindow renWin
@@ -158,7 +155,7 @@ matrix SetElement 3 0 0.1
 matrix SetElement 3 1 0.2
 matrix SetElement 3 2 0.5
 
-vtkProjectionTransform t3
+vtkPerspectiveTransform t3
 t3 SetMatrix matrix
 
 vtkTransformPolyDataFilter f31
@@ -201,7 +198,7 @@ renWin AddRenderer ren32
 
 #--------------------------
 # perspective transform concatenation
-vtkPerspectiveTransformConcatenation t4
+vtkPerspectiveTransform t4
 t4 Concatenate t1
 t4 Concatenate t2
 t4 Concatenate t3

@@ -43,8 +43,8 @@ vtkThinPlateSplineTransform trans
     trans SetTargetLandmarks tpoints
     trans SetBasisToR
 # yeah, this is silly -- improves code coverage though
-vtkGeneralTransformConcatenation transconcat
-    transconcat Concatenate trans
+vtkGeneralTransform transconcat
+    transconcat SetInput trans
     transconcat Concatenate [trans GetInverse]
     transconcat Concatenate trans
 

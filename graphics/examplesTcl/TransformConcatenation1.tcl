@@ -3,7 +3,7 @@ if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl"
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
 # This example demonstrates how to set up flexible joints using 
-# vtkLinearTransformConcatenation and vtkTransformPolyDataFilter.
+# the transformation pipeline and vtkTransformPolyDataFilter.
 
 
 # create a rendering window and renderer
@@ -39,17 +39,14 @@ c2 SetHeight 1.6
 c2 SetRadius 0.15
 c2 SetCenter 0 0.8 0
 
-# relative translation for first joint
-vtkTransform t2t
-t2t Translate 0 1.6 0  
 # relative rotation for first joint
-vtkTransform t2r
+vtkTransform joint1
 
-# concatenate with initial transform
-vtkLinearTransformConcatenation t2
-t2 Concatenate t1
-t2 Concatenate t2t
-t2 Concatenate t2r 
+# set input to initial transform
+vtkTransform t2
+t2 SetInput t1
+t2 Translate 0 1.6 0
+t2 Concatenate joint1 
 
 vtkTransformPolyDataFilter f2
 f2 SetInput [c2 GetOutput]
@@ -69,17 +66,14 @@ c3 SetHeight 0.5
 c3 SetRadius 0.1
 c3 SetCenter 0 0.25 0
 
-# relative translation
-vtkTransform t3t
-t3t Translate 0 1.6 0
 # relative rotation
-vtkTransform t3r
+vtkTransform joint2
 
-# concatenate with previous segment
-vtkLinearTransformConcatenation t3
-t3 Concatenate t2
-t3 Concatenate t3t
-t3 Concatenate t3r
+# set input to previous transform
+vtkTransform t3
+t3 SetInput t2
+t3 Translate 0 1.6 0
+t3 Concatenate joint2
 
 vtkTransformPolyDataFilter f3
 f3 SetInput [c3 GetOutput]
@@ -122,18 +116,18 @@ frame .w
 frame .w.c2
 label .w.c2.l2 -text "Joint #1"
 scale .w.c2.phi2 -from -180 -to 180 -orient horizontal \
-	-command SetAngles2 -variable phi2
+	-command SetAngles1 -variable phi2
 scale .w.c2.theta2 -from -90 -to 90 -orient horizontal \
-	-command SetAngles2 -variable theta2
+	-command SetAngles1 -variable theta2
 pack .w.c2.l2 .w.c2.phi2 .w.c2.theta2 -side top
 pack .w.c2 -side left
 
 frame .w.c3
 label .w.c3.l3 -text "Joint #2"
 scale .w.c3.phi3 -from -180 -to 180 -orient horizontal \
-	-command SetAngles3 -variable phi3
+	-command SetAngles2 -variable phi3
 scale .w.c3.theta3 -from -90 -to 90 -orient horizontal \
-	-command SetAngles3 -variable theta3
+	-command SetAngles2 -variable theta3
 pack .w.c3.l3 .w.c3.phi3 .w.c3.theta3 -side top
 pack .w.c3 -side left
 
@@ -146,27 +140,27 @@ pack .ex -side top
 
 # create control procedures
 
-proc SetAngles2 { dummy } {
+proc SetAngles1 { dummy } {
     global phi2 theta2
 
-    t2r Identity
-    t2r RotateY $phi2
-    t2r RotateX $theta2
+    joint1 Identity
+    joint1 RotateY $phi2
+    joint1 RotateX $theta2
 
     renWin Render
 }    
 
-proc SetAngles3 { dummy } {
+proc SetAngles2 { dummy } {
     global phi3 theta3
 
-    t3r Identity
-    t3r RotateY $phi3
-    t3r RotateX $theta3
+    joint2 Identity
+    joint2 RotateY $phi3
+    joint2 RotateX $theta3
 
     renWin Render
 }    
+SetAngles1 x
 SetAngles2 x
-SetAngles3 x
 
 
 
