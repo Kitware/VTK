@@ -562,9 +562,8 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
       }
     }
 
-  // free the previous widget
-  XtDestroyWidget(this->top);
-
+  this->oldTop = this->top;
+  
   this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
 				 applicationShellWidgetClass,
 				 this->DisplayId,
@@ -591,6 +590,10 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
 void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {
   int *size;
+
+  // free the previous widget
+  XtDestroyWidget(this->oldTop);
+  XSync(this->DisplayId,False);
 
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
