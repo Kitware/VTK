@@ -45,10 +45,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
+#ifdef _WIN32
+#include "vtkWin32OpenGLRenderWindow.h"
+#else
+#include "vtkMesaRenderWindow.h"
+#endif
+
+
 
 #define VTK_COMPOSITE_RENDER_RMI_TAG 12721
-#define VTK_COMPOSITE_WIN_INFO_TAG   134
-#define VTK_COMPOSITE_REN_INFO_TAG   135
+#define VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG 56563
+#define VTK_COMPOSITE_WIN_INFO_TAG   22134
+#define VTK_COMPOSITE_REN_INFO_TAG   22135
+#define VTK_COMPOSITE_BOUNDS_TAG   94135
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -90,6 +99,10 @@ vtkTreeComposite::vtkTreeComposite()
   this->StartTag = this->EndTag = 0;
   this->StartInteractorTag = 0;
   this->EndInteractorTag = 0;
+
+  this->PData = this->ZData = NULL;
+  
+  this->Lock = 0;
 }
 
   
@@ -97,6 +110,13 @@ vtkTreeComposite::vtkTreeComposite()
 vtkTreeComposite::~vtkTreeComposite()
 {
   this->SetRenderWindow(NULL);
+  
+  this->SetWindowSize(0,0);
+  
+  if (this->Lock)
+    {
+    vtkErrorMacro("Destructing while locked!");
+    }
 }
 
 
@@ -189,10 +209,21 @@ void vtkTreeCompositeRenderRMI(void *arg, void *, int, int)
   self->RenderRMI();
 }
 
+//----------------------------------------------------------------------------
+void vtkTreeCompositeComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
+{
+  vtkTreeComposite* self = (vtkTreeComposite*) arg;
+  
+  self->ComputeVisiblePropBoundsRMI();
+}
+
 //-------------------------------------------------------------------------
 // Only process 0 needs start and end render callbacks.
 void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
 {
+  vtkRendererCollection *rens;
+  vtkRenderer *ren;
+  
   if (this->RenderWindow == renWin)
     {
     return;
@@ -208,6 +239,16 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
       {
       this->RenderWindow->RemoveObserver(this->StartTag);
       this->RenderWindow->RemoveObserver(this->EndTag);
+      
+      // Will make do with first renderer. (Assumes renderer does not change.)
+      rens = this->RenderWindow->GetRenderers();
+      rens->InitTraversal();
+      ren = rens->GetNextItem();
+      if (ren)
+	{
+	ren->RemoveObserver(this->ResetCameraTag);
+	ren->RemoveObserver(this->ResetCameraClippingRangeTag);
+	}
       }
     }
   if (renWin)
@@ -229,6 +270,27 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
       cbc->SetClientData((void*)this);
       // renWin will delete the cbc when the observer is removed.
       this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
+      
+      // Will make do with first renderer. (Assumes renderer does not change.)
+      rens = this->RenderWindow->GetRenderers();
+      rens->InitTraversal();
+      ren = rens->GetNextItem();
+      if (ren)
+	{
+	cbc = new vtkCallbackCommand;
+	cbc->SetCallback(vtkTreeCompositeResetCameraClippingRange);
+	cbc->SetClientData((void*)this);
+	// ren will delete the cbc when the observer is removed.
+	this->ResetCameraClippingRangeTag = 
+	  ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
+
+	cbc = new vtkCallbackCommand;
+	cbc->SetCallback(vtkTreeCompositeResetCamera);
+	cbc->SetClientData((void*)this);
+	// ren will delete the cbc when the observer is removed.
+	this->ResetCameraTag = 
+	  ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
+	}
       }
     }
 }
@@ -292,7 +354,6 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
 void vtkTreeComposite::RenderRMI()
 {
   float *pdata, *zdata;
-  int numPixels;
   int myId, numProcs, i;
   vtkCompositeRenderWindowInfo winInfo;
   vtkCompositeRendererInfo renInfo;
@@ -345,15 +406,11 @@ void vtkTreeComposite::RenderRMI()
         }
       }
     }
-  
   renWin->Render();  
-  numPixels = (winInfo.Size[0] * winInfo.Size[1]);
   
-  pdata = new float[numPixels];
-  zdata = new float[numPixels];
-  this->Composite(0, zdata, pdata);
-  delete [] zdata;
-  delete [] pdata;
+  
+  this->SetWindowSize(winInfo.Size[0], winInfo.Size[1]);
+  this->Composite(1);
 }
 
 //-------------------------------------------------------------------------
@@ -368,6 +425,10 @@ void vtkTreeComposite::StartInteractor()
 
   this->Controller->AddRMI(vtkTreeCompositeRenderRMI, (void*)this, 
                            VTK_COMPOSITE_RENDER_RMI_TAG); 
+
+  this->Controller->AddRMI(vtkTreeCompositeComputeVisiblePropBoundsRMI,
+   	             (void*)this, VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG); 
+  
   this->Controller->ProcessRMIs();
 }
 
@@ -408,11 +469,14 @@ void vtkTreeComposite::StartRender()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
-  if (controller == NULL)
+  if (controller == NULL || this->Lock)
     {
     return;
     }
-
+  
+  // Lock here, unlock at end render.
+  this->Lock = 1;
+  
   // Trigger the satelite processes to start their render routine.
   rens = this->RenderWindow->GetRenderers();
   numProcs = controller->GetNumberOfProcesses();
@@ -443,12 +507,14 @@ void vtkTreeComposite::StartRender()
     cam->GetFocalPoint(renInfo.CameraFocalPoint);
     cam->GetViewUp(renInfo.CameraViewUp);
     cam->GetClippingRange(renInfo.CameraClippingRange);
-    light->GetPosition(renInfo.LightPosition);
-    light->GetFocalPoint(renInfo.LightFocalPoint);
-
+    if (light)
+      {
+      light->GetPosition(renInfo.LightPosition);
+      light->GetFocalPoint(renInfo.LightFocalPoint);
+      }
+    
     for (id = 1; id < numProcs; ++id)
       {
-      controller->TriggerRMI(id, NULL, 0, VTK_COMPOSITE_RENDER_RMI_TAG);
       controller->Send((char*)(&renInfo),
                        sizeof(struct vtkCompositeRendererInfo), id, 
                        VTK_COMPOSITE_REN_INFO_TAG);
@@ -466,7 +532,6 @@ void vtkTreeComposite::EndRender()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
   int *windowSize;
-  int numPixels;
   int numProcs;
   float *pdata, *zdata;    
   
@@ -477,22 +542,20 @@ void vtkTreeComposite::EndRender()
 
   windowSize = renWin->GetSize();
   numProcs = controller->GetNumberOfProcesses();
-  numPixels = (windowSize[0] * windowSize[1]);
 
   if (numProcs > 1)
     {
     // It would be more efficient to save these arrays as ivars.
-    pdata = new float[numPixels];
-    zdata = new float[numPixels];
-    this->Composite(0, zdata, pdata);
-    
-    delete [] zdata;
-    delete [] pdata;    
+    this->SetWindowSize(windowSize[0], windowSize[1]);
+    this->Composite(1);
     }
   
   // Force swap buffers here.
   renWin->SwapBuffersOn();  
   renWin->Frame();
+  
+  // Release lock.
+  this->Lock = 0;
 }
 
 
@@ -501,13 +564,17 @@ void vtkTreeComposite::ResetCamera(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL)
+  if (this->Controller == NULL || this->Lock)
     {
     return;
     }
 
+  this->Lock = 1;
+  
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCamera(bounds);
+  
+  this->Lock = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -515,40 +582,60 @@ void vtkTreeComposite::ResetCameraClippingRange(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL)
+  if (this->Controller == NULL || this->Lock)
     {
     return;
     }
 
+  this->Lock = 1;
+  
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCameraClippingRange(bounds);
+
+  this->Lock = 0;
 }
 
 //----------------------------------------------------------------------------
 void vtkTreeComposite::ComputeVisiblePropBounds(vtkRenderer *ren, 
                                                 float bounds[6])
 {
-  //float tmp[6];
+  float tmp[6];
   int id, num;
   
   num = this->Controller->GetNumberOfProcesses();  
   for (id = 1; id < num; ++id)
     {
-    //pvApp->RemoteScript(id, "%s TransmitBounds", this->GetTclName());
+    controller->TriggerRMI(id,  VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
     }
 
   ren->ComputeVisiblePropBounds(bounds);
 
   for (id = 1; id < num; ++id)
     {
-    //controller->Receive(tmp, 6, id, 112);
-    //if (tmp[0] < bounds[0]) {bounds[0] = tmp[0];}
-    //if (tmp[1] > bounds[1]) {bounds[1] = tmp[1];}
-    //if (tmp[2] < bounds[2]) {bounds[2] = tmp[2];}
-    //if (tmp[3] > bounds[3]) {bounds[3] = tmp[3];}
-    //if (tmp[4] < bounds[4]) {bounds[4] = tmp[4];}
-    //if (tmp[5] > bounds[5]) {bounds[5] = tmp[5];}
+    controller->Receive(tmp, 6, id, VTK_COMPOSITE_BOUNDS_TAG);
+    if (tmp[0] < bounds[0]) {bounds[0] = tmp[0];}
+    if (tmp[1] > bounds[1]) {bounds[1] = tmp[1];}
+    if (tmp[2] < bounds[2]) {bounds[2] = tmp[2];}
+    if (tmp[3] > bounds[3]) {bounds[3] = tmp[3];}
+    if (tmp[4] < bounds[4]) {bounds[4] = tmp[4];}
+    if (tmp[5] > bounds[5]) {bounds[5] = tmp[5];}
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkTreeComposite::ComputeVisiblePropBoundsRMI()
+{
+  vtkRendererCollection *rens;
+  vtkRenderer* ren;
+  float bounds[6];
+  
+  rens = this->RenderWindow->GetRenderers();
+  rens->InitTraversal();
+  ren = rens->GetNextItem();
+
+  ren->ComputeVisiblePropBounds(bounds);
+
+  this->Controller->Send(bounds, 6, 0, VTK_COMPOSITE_BOUNDS_TAG);
 }
 
 //-------------------------------------------------------------------------
@@ -587,6 +674,74 @@ void vtkTreeComposite::InitializePieces()
       }
     }
 }
+
+//-------------------------------------------------------------------------
+void vtkTreeComposite::InitializeOffScreen()
+{
+  if (this->RenderWindow == NULL || this->Controller == NULL)
+    {
+    return;
+    }
+  
+  // Do not make process 0 off screen.
+  if (this->Controller->GetLocalProcessId() == 0)
+    {
+    return;
+    }
+  
+#ifdef _WIN32
+  vtkWin32RenderWindow *renWin;
+  
+  renWin = vtkWin32RenderWindow::SafeDownCast(this->RenderWindow);
+  if (renWin)
+    {
+    // I do not want to replace the original.
+    renWin = renWin;
+    }
+#else
+  vtkMesaRenderWindow *renWin;
+  
+  renWin = vtkMesaRenderWindow::SafeDownCast(this->RenderWindow);
+  if (renWin)
+    {
+    renWin->SetOffScreenRendering(1);
+    }
+#endif    
+  
+}
+
+void vtkTreeComposite::SetWindowSize(int x, int y)
+{
+  if (this->WindowSize[0] == x && this->WindowSize[1] == y)
+    {
+    return;
+    }
+  
+  if (this->PData)
+    {
+    delete this->PData;
+    this->PData = NULL;
+    }
+  
+  if (this->ZData)
+    {
+    delete this->ZData;
+    this->ZData = NULL;
+    }
+  
+  int numPixels = x * y;
+  if (numPixels > 0)
+    {
+    this->PData = new float[4*numPixels];
+    this->ZData = new float[numPixels];
+    }
+  this->WindowSize[0] = x;
+  this->WindowSize[1] = y;
+}
+
+  
+  
+      
 
 //-------------------------------------------------------------------------
 // Jim's composite stuff
@@ -639,10 +794,10 @@ void vtkCompositeImagePair(float *localZdata, float *localPdata,
 
 #define vtkTCPow2(j) (1 << (j))
 //----------------------------------------------------------------------------
-void vtkTreeComposite::Composite(int flag, float *remoteZdata, 
-				 float *remotePdata) 
+void vtkTreeComposite::Composite(int flag)
 {
-  float *localZdata, *localPdata;
+  float *localZdata = NULL;
+  float *localPdata = NULL;
   int *windowSize;
   int total_pixels;
   int pdata_size, zdata_size;
@@ -697,11 +852,11 @@ void vtkTreeComposite::Composite(int flag, float *remoteZdata,
 	// (handles non-power of 2 cases)
 	if (id < numProcs) 
           {
-	  this->Controller->Receive(remoteZdata, zdata_size, id, 99);
-	  this->Controller->Receive(remotePdata, pdata_size, id, 99);
+	  this->Controller->Receive(this->ZData, zdata_size, id, 99);
+	  this->Controller->Receive(this->PData, pdata_size, id, 99);
 	  
 	  // notice the result is stored as the local data
-	  vtkCompositeImagePair(localZdata, localPdata, remoteZdata, remotePdata, 
+	  vtkCompositeImagePair(localZdata, localPdata, this->ZData, this->PData, 
 				total_pixels, flag);
 	  }
 	}
@@ -730,6 +885,16 @@ void vtkTreeComposite::Composite(int flag, float *remoteZdata,
 			     windowSize[1]-1,(unsigned char*)localPdata,0);
       }
     }
+  
+  if (localPdata)
+    {
+    delete localPdata;
+    }  
+  if (localZdata)
+    {
+    delete localZdata;
+    }
+  
 }
 
 

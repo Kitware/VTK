@@ -81,6 +81,10 @@ public:
   void InitializePieces();
   
   // Description:
+  // turn off screen rendering on for the
+  void InitializeOffScreen();
+  
+  // Description:
   // Callbacks that initialize and finish the compositing.
   void StartInteractor();
   void ExitInteractor();
@@ -89,6 +93,7 @@ public:
   void RenderRMI();
   void ResetCamera(vtkRenderer *ren);
   void ResetCameraClippingRange(vtkRenderer *ren);
+  void ComputeVisiblePropBoundsRMI();
   
 protected:
   vtkTreeComposite();
@@ -104,8 +109,10 @@ protected:
   unsigned long EndInteractorTag;
   unsigned long StartTag;
   unsigned long EndTag;
+  unsigned long ResetCameraTag;
+  unsigned long ResetCameraClippingRangeTag;
   
-  void Composite(int flag, float *remoteZdata, float *remotePdata);
+  void Composite(int flag);
 
   // Convenience method used internally. It set up the start observer
   // and allows the render window's interactor to be set before or after
@@ -114,6 +121,17 @@ protected:
 
   void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
 
+  // Arrays for compositing.
+  float *PData;
+  float *ZData;
+  int WindowSize[2];
+  
+  // This flag stops nested RMIs from occuring.  Some rmis send and receive information.
+  // Nesting them can lock up the processes.
+  int Lock;
+  
+  
+  void SetWindowSize(int x, int y);
 };
 
 
