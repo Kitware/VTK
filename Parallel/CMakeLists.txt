@@ -57,6 +57,8 @@ vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
 vtkKdNode.cxx
 vtkKdTree.cxx
+vtkBSPCuts.cxx
+vtkBSPIntersections.cxx
 vtkPKdTree.cxx
 vtkPlanesIntersection.cxx
 vtkPointsProjectedHull.cxx
