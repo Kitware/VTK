@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.29");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.30");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -104,7 +104,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   return retVal;
 }
 
-const float vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-10;
+const float vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
