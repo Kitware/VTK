@@ -287,5 +287,7 @@ renWin AddRenderer ren42
 
 renWin Render
 
+# free what we did a MakeObject on
+$tNew UnRegister {}
 
 
