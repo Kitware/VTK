@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.18");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.19");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -364,19 +364,23 @@ void vtkMILVideoSource::Initialize()
     this->MILAppInternallyAllocated = 1;    
     }
 
+  long version = MappInquire(M_VERSION,M_NULL);
+
   if (this->MILSysID == 0)
     {
     void *systemType;
     if (this->MILSystemType != VTK_MIL_DEFAULT)
       { // asked for a particular system by name
-      // try MIL 7 style of allocation first
-      char tmptext[256];
-      sprintf(tmptext,"\\\\.\\%s",this->MILSystemType);
-      this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
-                                 M_DEFAULT,M_NULL);
-      // try MIL 5, MIL 6 which requires loading the appropriate DLL
-      if (this->MILSysID == 0)
-        {
+      if (version >= 7)
+        {  // try MIL 7 style of allocation
+        char tmptext[256];
+        strncpy(tmptext,"\\\\.\\",4);
+        strncpy(&tmptext[4],this->MILSystemType,252);
+        this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
+                                   M_DEFAULT,M_NULL);
+        }
+      else
+        { // try MIL 5, MIL 6 which requires loading the appropriate DLL
         systemType = this->MILInterpreterForSystem(this->MILSystemType);
         if (systemType)
           {
@@ -398,14 +402,16 @@ void vtkMILVideoSource::Initialize()
       int i;
       for (i = 0; this->MILSysID == 0 && system_types[i] != 0; i++)
         {
-        // try MIL 7 style of allocation first
-        char tmptext[256];
-        sprintf(tmptext,"\\\\.\\%s",system_types[i]);
-        this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
-                                   M_DEFAULT,M_NULL);
-        // try MIL 5, MIL 6 which requires loading the appropriate DLL
-        if (this->MILSysID == 0)
+        if (version >= 7)
           {
+          // try MIL 7 style of allocation
+          char tmptext[256];
+          sprintf(tmptext,"\\\\.\\%s",system_types[i]);
+          this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
+                                     M_DEFAULT,M_NULL);
+          }
+        else
+          { // try MIL 5, MIL 6 which requires loading the appropriate DLL
           systemType = this->MILInterpreterForSystem(system_types[i]);
           if (systemType)
             {
@@ -626,12 +632,6 @@ double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
     }
  
   this->NextFramePeriod = this->EstimatedFramePeriod + diffperiod;
-
-  /*
-  fprintf(stderr, "V %4i %.4f %.4f %.3f %.3f %f %f\n",
-          framecount, this->EstimatedFramePeriod, this->NextFramePeriod,
-          this->LastTimeStamp, timestamp, deltaperiod, diffperiod);
-  */
 
   return this->LastTimeStamp;
 }
