@@ -117,6 +117,7 @@ foreach i $dataList {
     if { $i == "chair" } { volume_chair RotateY 180 }
     [ren_choice_$i GetActiveCamera] Azimuth -30
     [ren_choice_$i GetActiveCamera] Elevation 20
+    ren_choice_$i ResetCameraClippingRange
 
     incr y 100
 }
@@ -237,5 +238,6 @@ pack .geo.right.exit -side left -expand 1 -fill none -padx 15 -pady 2 -anchor se
 
  foreach i $dataList {
      ren_main_$i SetActiveCamera [ren_choice_$i GetActiveCamera]
+     ren_main_$i ResetCameraClippingRange
  }
 

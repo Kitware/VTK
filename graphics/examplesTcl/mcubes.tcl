@@ -54,7 +54,8 @@ ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 450 450
 [ren1 GetActiveCamera] Elevation 90
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
-iren Initialize
+ren1 ResetCameraClippingRange
+renWin Render
 
 # render the image
 #

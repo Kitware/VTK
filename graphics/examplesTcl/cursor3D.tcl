@@ -69,6 +69,7 @@ ren1 AddActor glyphActor
 ren1 SetBackground 1.0 1.0 1.0
 renWin SetSize 300 300
 [ren1 GetActiveCamera] Elevation 60
+ren1 ResetCameraClippingRange
 renWin Render
 
 #renWin SetFileName cursor3D.tcl.ppm

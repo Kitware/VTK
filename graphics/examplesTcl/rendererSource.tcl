@@ -92,6 +92,8 @@ ren2 SetViewport .5 0 1 1
 [ren2 GetActiveCamera] Azimuth 30
 [ren2 GetActiveCamera] Elevation 30
 ren2 SetBackground .8 .4 .3
+ren1 ResetCameraClippingRange
+ren2 ResetCameraClippingRange
 renWin Render
 
 vtkRendererSource ren1Image

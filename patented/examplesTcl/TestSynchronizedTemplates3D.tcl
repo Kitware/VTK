@@ -51,12 +51,13 @@ eval ren1 SetBackground $slate_grey
 [ren1 GetActiveCamera] Zoom 1.5
 [ren1 GetActiveCamera] Elevation 90
 [ren1 GetActiveCamera] OrthogonalizeViewUp
+ren1 ResetCameraClippingRange
 
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
-iren Initialize
+renWin Render
 
 #renWin SetFileName "genHead.tcl.ppm"
 #renWin SaveImageAsPPM

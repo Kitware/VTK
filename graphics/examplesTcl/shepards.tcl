@@ -57,6 +57,7 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Azimuth 160
 $cam1 Elevation 30
 $cam1 Zoom 1.5
+ren1 ResetCameraClippingRange
 
 renWin Render
 

@@ -34,8 +34,9 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 210
 $cam1 Azimuth 30
+ren1 ResetCameraClippingRange
 
-iren Initialize
+renWin Render
 #renWin SetFileName "ugFacet.tcl.ppm"
 #renWin SaveImageAsPPM
 

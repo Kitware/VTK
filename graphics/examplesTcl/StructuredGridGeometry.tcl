@@ -91,7 +91,9 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Azimuth -30
 $cam1 Elevation 30
 $cam1 Zoom 2.5
-iren Initialize
+ren1 ResetCameraClippingRange
+
+renWin Render
 renWin SetFileName "StructuredGridGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
 

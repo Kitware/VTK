@@ -49,7 +49,6 @@ renWin SetSize 640 480
 [ren1 GetActiveCamera] Dolly 1.4
 ren1 ResetCameraClippingRange
 
-iren Initialize
 coneAxes VisibilityOn
 renWin Render
 
@@ -64,11 +63,13 @@ wm withdraw .
 #
 proc RotateX {} {
   coneActor SetOrientation 0 0 0
+  ren1 ResetCameraClippingRange
   renWin Render
   renWin Render
   renWin EraseOff
    for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateX 60
+        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -76,11 +77,13 @@ proc RotateX {} {
 }
 proc RotateY {} {
   coneActor SetOrientation 0 0 0
+  ren1 ResetCameraClippingRange
   renWin Render
   renWin Render
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
-	coneActor RotateY 60
+	coneActor RotateY 60 
+        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -88,11 +91,13 @@ proc RotateY {} {
 }
 proc RotateZ {} {
   coneActor SetOrientation 0 0 0
+  ren1 ResetCameraClippingRange
   renWin Render
   renWin Render
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateZ 60
+        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }
@@ -101,11 +106,13 @@ proc RotateZ {} {
 proc RotateXY {} {
   coneActor SetOrientation 0 0 0
   coneActor RotateX 60
+  ren1 ResetCameraClippingRange
   renWin Render
   renWin Render
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
 	coneActor RotateY 60
+        ren1 ResetCameraClippingRange
         renWin Render
         renWin Render
     }

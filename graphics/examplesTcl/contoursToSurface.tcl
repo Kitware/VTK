@@ -118,7 +118,7 @@ ren1 AddProp contourActor
 
 [ren1 GetActiveCamera] Azimuth   10
 [ren1 GetActiveCamera] Elevation 30
-
+ren1 ResetCameraClippingRange
 
 renWin SetSize 500 500
 renWin Render

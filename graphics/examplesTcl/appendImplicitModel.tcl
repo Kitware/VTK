@@ -75,12 +75,13 @@ vtkRenderWindowInteractor iren
 
 ren1 SetBackground 0.1 0.2 0.4
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
+
 
 renWin Render
 
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 30
+ren1 ResetCameraClippingRange
 renWin Render
 
 #renWin SetFileName appendImplicitModel.tcl.ppm

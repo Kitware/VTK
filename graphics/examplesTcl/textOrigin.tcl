@@ -32,11 +32,16 @@ vtkRenderWindowInteractor iren
 ren1 AddActor axesActor
 ren1 AddActor textActor
 [ren1 GetActiveCamera] Zoom 1.6
-renWin Render
+
+ren1 ResetCameraClippingRange
 textActor SetCamera [ren1 GetActiveCamera]
+renWin Render
+
+ren1 ResetCameraClippingRange
+renWin Render
+
 
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
 
 renWin SetFileName "textOrigin.tcl.ppm"
 #renWin SaveImageAsPPM

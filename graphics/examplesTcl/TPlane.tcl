@@ -43,14 +43,13 @@ ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 500 500
 
 # render the image
-iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
-
 renWin Render
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation -30
 $cam1 Roll -20
+ren1 ResetCameraClippingRange
 renWin Render
 
 #renWin SetFileName "TPlane.tcl.ppm"

@@ -77,12 +77,14 @@ $cam1 Zoom 1.3
 eval lgt SetPosition [$cam1 GetPosition]
 eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 
+ren1 ResetCameraClippingRange
+
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
-iren Initialize
+
 #renWin SetFileName "headBone.tcl.ppm"
 #renWin SaveImageAsPPM
 

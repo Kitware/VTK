@@ -36,11 +36,11 @@ renWin SetSize 400 400
 
 [ren1 GetActiveCamera] Azimuth 45
 [ren1 GetActiveCamera] Elevation 30 
+ren1 ResetCameraClippingRange
 
 renWin Render
 
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
 
 wm withdraw .
 

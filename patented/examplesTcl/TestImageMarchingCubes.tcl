@@ -56,7 +56,9 @@ renWin SetSize 450 450
 [ren1 GetActiveCamera] Elevation 90
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] Azimuth 180
-iren Initialize
+ren1 ResetCameraClippingRange
+
+renWin Render
 
 # render the image
 #

@@ -52,9 +52,11 @@ ren1 AddActor letter
 
 ren1 SetBackground 1 1 1
 [ren1 GetActiveCamera] Dolly 1.2
+ren1 ResetCameraClippingRange
+
 renWin SetSize 320 320
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
+
 
 # render the image
 #

@@ -65,12 +65,13 @@ renWin SetSize 500 500
 [ren1 GetActiveCamera] SetFocalPoint 6 5 4
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
+ren1 ResetCameraClippingRange
 
 renWin Render
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -53,9 +53,10 @@ isoActor SetBackfaceProperty back
 ren1 SetBackground 1 1 1
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 60
+ren1 ResetCameraClippingRange
 
 renWin SetSize 500 500
-iren Initialize
+renWin Render
 
 # render the image
 #

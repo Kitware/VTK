@@ -51,7 +51,8 @@ renWin SetSize 640 480
 iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
-iren Initialize
+ren1 ResetCameraClippingRange
+renWin Render
 #renWin SetFileName "spToPd.tcl.ppm"
 #renWin SaveImageAsPPM
 

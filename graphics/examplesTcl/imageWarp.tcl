@@ -51,6 +51,8 @@ ren1 AddActor actor
 [ren1 GetActiveCamera] Azimuth 20
 [ren1 GetActiveCamera] Elevation 30
 ren1 SetBackground 0.1 0.2 0.4
+ren1 ResetCameraClippingRange
+
 renWin SetSize 450 450
 
 # render the image
@@ -58,7 +60,7 @@ renWin SetSize 450 450
 iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
-iren Initialize
+renWin Render
 
 #renWin SetFileName "valid/imageWarp.tcl.ppm"
 #renWin SaveImageAsPPM
