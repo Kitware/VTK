@@ -112,6 +112,7 @@ static vtkImageComplex _vtkImageComplexMultiplyTemp = {0.0, 0.0};
 class VTK_EXPORT vtkImageFourierFilter : public vtkImageFilter
 {
 public:
+  static vtkImageFourierFilter *New() {return new vtkImageFourierFilter;};
   char *GetClassName() {return "vtkImageFourierFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
